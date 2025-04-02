@@ -1,0 +1,146 @@
+{
+    "sceneeditor": [
+        {
+            "id": 4977992799841100694,
+            "name": "Quit",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 41
+                }
+            ]
+        },
+        {
+            "id": 15881731277636844266,
+            "name": "Delete",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 76
+                }
+            ]
+        },
+        {
+            "id": 10586263560548080645,
+            "name": "GizmoTranslate",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 26
+                }
+            ]
+        },
+        {
+            "id": 10466107496428554938,
+            "name": "GizmoRotate",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 8
+                }
+            ]
+        },
+        {
+            "id": 4306970872116870305,
+            "name": "GizmoScale",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 21
+                }
+            ]
+        },
+        {
+            "id": 13309761371481720703,
+            "name": "CameraMovement",
+            "type": "Axis3D",
+            "bindings": [
+                {
+                    "id": 1921897362,
+                    "type": "Keyboard",
+                    "Up": 20,
+                    "Down": 8,
+                    "Left": 4,
+                    "Right": 7,
+                    "Forward": 26,
+                    "Backward": 22
+                },
+                {
+                    "id": 1921897362,
+                    "type": "Gamepad",
+                    "Up": 10,
+                    "Down": 11,
+                    "Left": 14,
+                    "Right": 15,
+                    "Forward": 12,
+                    "Backward": 13
+                }
+            ]
+        },
+        {
+            "id": 18295250002360583444,
+            "name": "CameraRotation",
+            "type": "Axis2D",
+            "bindings": [
+                {
+                    "id": 545227006,
+                    "type": "Mouse",
+                    "X": 3,
+                    "Y": 4
+                },
+                {
+                    "id": 545227006,
+                    "type": "Gamepad",
+                    "X": 3,
+                    "Y": 4
+                }
+            ]
+        },
+        {
+            "id": 3388991156402584529,
+            "name": "CameraSpeed",
+            "type": "Axis1D",
+            "bindings": [
+                {
+                    "id": 2189183405,
+                    "type": "Mouse",
+                    "input": 5
+                }
+            ]
+        },
+        {
+            "id": 18398893587616019843,
+            "name": "CameraSlowDown",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 224
+                }
+            ]
+        },
+        {
+            "id": 3186457597301897460,
+            "name": "CameraSpeedUp",
+            "type": "Bool",
+            "bindings": [
+                {
+                    "id": 420701433,
+                    "type": "Keyboard",
+                    "input": 225
+                }
+            ]
+        }
+    ]
+}

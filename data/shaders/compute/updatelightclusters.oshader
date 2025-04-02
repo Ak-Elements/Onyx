@@ -1,0 +1,191 @@
+#version 460 core 
+
+#include "includes/lightdata.h"
+
+compute
+{
+
+layout(local_size_x = 16, local_size_y = 9, local_size_z = 4) in;
+
+layout(push_constant) uniform Constants
+{
+    mat4 ViewMatrix;
+} u_Constants;
+
+// SSBO
+struct VolumeTileAABB
+{
+    vec4 Min;
+    vec4 Max;
+};
+
+layout (std430, set = 1, binding = 0) buffer ClusterAABBs
+{
+    VolumeTileAABB Clusters[];
+};
+
+layout (std430, set = 1, binding = 1) buffer GlobalIndexCountSSBO
+{
+    uint GlobalPointIndexCount;
+    uint GlobalSpotIndexCount;
+};
+
+//Shared variables 
+shared uint visiblePointLightCount;
+shared uint visibleSpotLightCount;
+
+shared PointLight sharedPointLights[100];
+shared SpotLight sharedSpotLights[100];
+
+float SquaredDistanceToAABB(vec3 position, uint tileIndex)
+{
+    float squaredDistance = 0.0;
+    VolumeTileAABB currentCell = Clusters[tileIndex];
+    Clusters[tileIndex].Max[3] = tileIndex;
+    for(uint i = 0; i < 3; ++i)
+    {
+        float v = position[i];
+        if(v < currentCell.Min[i])
+        {
+            squaredDistance += (currentCell.Min[i] - v) * (currentCell.Min[i] - v);
+        }
+        if(v > currentCell.Max[i])
+        {
+            squaredDistance += (v - currentCell.Max[i]) * (v - currentCell.Max[i]);
+        }
+    }
+
+    return squaredDistance;
+}
+
+bool IsPointLightOverappingAABB(uint lightIndex, uint clusterIndex)
+{
+    float radius = sharedPointLights[lightIndex].Radius;
+    vec4 center = u_Constants.ViewMatrix * vec4(sharedPointLights[lightIndex].Position, 1.0);
+    float squaredDistance = SquaredDistanceToAABB(center.xyz, clusterIndex);
+
+    return squaredDistance <= (radius * radius);
+}
+
+bool IsSpotLightOverlappingAABB(uint lightIndex, uint clusterIndex)
+{
+    SpotLight light = sharedSpotLights[lightIndex];
+
+    float radius = sharedPointLights[lightIndex].Radius;
+    vec4 center = u_Constants.ViewMatrix * vec4(sharedPointLights[lightIndex].Position, 1.0);
+    float squaredDistance = SquaredDistanceToAABB(center.xyz, clusterIndex);
+
+    return squaredDistance <= light.Range * light.Range;
+    
+    // FIX cone sphere check - something not working correctly and we cull lights too early
+    
+    // inspired by https://bartwronski.com/2017/04/13/cull-that-cone/
+    // we construct a bounding sphere for the cluster AABB and check that against the cone
+    //VolumeTileAABB currentCell = Clusters[clusterIndex];
+
+    //vec3 boundingSphereCenter = (currentCell.Max.xyz + currentCell.Min.xyz) * 0.5;
+    //vec3 boundingBoxExtents = (currentCell.Max.xyz - currentCell.Min.xyz) * 0.5;
+    //float boundingSphereRadius = length(boundingBoxExtents);
+
+    //const vec3 V = boundingSphereCenter - light.Position;
+    //const float VlenSq = dot(V, V);
+    //const float V1len  = dot(V, light.Direction);
+    //const float distanceClosestPoint = cos(radians(light.Angle)) * sqrt(VlenSq - V1len*V1len) - V1len * sin(radians(light.Angle));
+ 
+    //const bool angleCull = distanceClosestPoint > boundingSphereRadius;
+    //const bool frontCull = V1len >  boundingSphereRadius + light.Range;
+    //const bool backCull  = V1len < -boundingSphereRadius;
+    //return !(angleCull || frontCull || backCull);
+}
+
+void main()
+{
+    GlobalPointIndexCount = 0;
+    GlobalSpotIndexCount = 0;
+    uint threadCount = gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z;
+
+    uint clusterIndex = gl_LocalInvocationIndex + gl_WorkGroupSize.x * gl_WorkGroupSize.y * gl_WorkGroupSize.z * gl_WorkGroupID.z;
+
+    uint visiblePointLightCount = 0;
+    uint visibleSpotLightCount = 0;
+    uint visiblePointLightIndices[MAX_LIGHTS];
+    uint visibleSpotLightIndices[MAX_LIGHTS];
+
+    uint lightCount = SceneLights.PointLightCount;
+    uint numBatches = (lightCount + (threadCount - 1)) / threadCount;
+    for (uint batchIndex = 0; batchIndex < numBatches; ++batchIndex)
+    {
+        uint pointLightIndex = batchIndex * threadCount + gl_LocalInvocationIndex;
+
+        // prevent overflow
+        pointLightIndex = min(pointLightIndex, lightCount);
+
+        // Populate shared light array
+        sharedPointLights[gl_LocalInvocationIndex] = SceneLights.PointLights[pointLightIndex];
+
+        barrier();
+
+        // Iterating within current batchIndex of lights
+        for (uint light = 0; light < threadCount; ++light)
+        {
+            //if (sharedLigsharedPointLightshts[light].enabled == 1)
+            {
+                if (IsPointLightOverappingAABB(light, clusterIndex))
+                {
+                    visiblePointLightIndices[visiblePointLightCount] = batchIndex * threadCount + light;
+                    ++visiblePointLightCount;
+                }
+            }
+        }
+    }
+
+    // spot light
+    lightCount = SceneLights.SpotLightCount;
+    numBatches = (lightCount + (threadCount - 1)) / threadCount;
+    for (uint batchIndex = 0; batchIndex < numBatches; ++batchIndex)
+    {
+        uint spotLightIndex = batchIndex * threadCount + gl_LocalInvocationIndex;
+
+        // prevent overflow
+        spotLightIndex = min(spotLightIndex, lightCount);
+
+        // Populate shared light array
+        sharedSpotLights[gl_LocalInvocationIndex] = SceneLights.SpotLights[spotLightIndex];
+
+        barrier();
+
+        // Iterating within current batchIndex of lights
+        for (uint light = 0; light < threadCount; ++light)
+        {
+            if (IsSpotLightOverlappingAABB(light, clusterIndex))
+            {
+                visibleSpotLightIndices[visibleSpotLightCount] = batchIndex * threadCount + light;
+                ++visibleSpotLightCount;
+            }
+            
+        }
+    }
+
+    // All thread groups have completed bounds checks
+    barrier();
+    
+    uint pointLightOffset = atomicAdd(GlobalPointIndexCount, visiblePointLightCount);
+    uint spotLightOffset = atomicAdd(GlobalSpotIndexCount, visibleSpotLightCount);
+
+    for (uint i = 0; i < visiblePointLightCount; ++i)
+    {
+        sbo_GlobalLightIndices.Indices[pointLightOffset + i].PointLightIndex = visiblePointLightIndices[i];
+    }
+
+    for (uint i = 0; i < visibleSpotLightCount; ++i)
+    {
+        sbo_GlobalLightIndices.Indices[spotLightOffset + i].SpotLightIndex = visibleSpotLightIndices[i];
+    }
+
+    sbo_LightGrid.Cells[clusterIndex].PointLightOffset = pointLightOffset;
+    sbo_LightGrid.Cells[clusterIndex].PointLightCount = visiblePointLightCount;
+    sbo_LightGrid.Cells[clusterIndex].SpotLightOffset = spotLightOffset;
+    sbo_LightGrid.Cells[clusterIndex].SpotLightCount = visibleSpotLightCount;
+}
+
+}

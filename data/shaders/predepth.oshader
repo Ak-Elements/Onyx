@@ -1,0 +1,23 @@
+#version 460 core
+
+#include "includes/common.h"
+#include "includes/viewconstants.h"
+
+vertex
+{
+    layout (location = 0) in vec3 inPosition;
+    layout (location = 1) in vec3 inNormal;
+    layout (location = 2) in vec2 inUV;
+
+    void main()
+    {
+        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(inPosition, 1.0);
+    }
+}
+
+fragment
+{
+    void main()
+    {
+    }
+}

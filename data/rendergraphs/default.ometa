@@ -1,0 +1,253 @@
+{
+    "nodes": [
+        {
+            "id": "0xba4fcc11a401001",
+            "name": "Create Light Clusters",
+            "position": [
+                -176.0,
+                356.0
+            ]
+        },
+        {
+            "id": "0xba68ae7a0001001",
+            "name": "Create Transmittance",
+            "position": [
+                -1076.0,
+                4.0
+            ]
+        },
+        {
+            "id": "0xba2926a5c001001",
+            "name": "Get View Constants",
+            "position": [
+                -199.0,
+                -28.0
+            ]
+        },
+        {
+            "id": "0xba4fcc713c01000",
+            "name": "Update Light Pass",
+            "position": [
+                56.0,
+                356.0
+            ]
+        },
+        {
+            "id": "0xba68af0af801000",
+            "name": "Compute MultipleScattering",
+            "position": [
+                -826.0,
+                148.0
+            ]
+        },
+        {
+            "id": "0xb8e0fd536001001",
+            "name": "Editor Scene Grid",
+            "position": [
+                510.0,
+                84.0
+            ]
+        },
+        {
+            "id": "0xba6717196401001",
+            "name": "Depth Pre Pass",
+            "position": [
+                152.0,
+                260.0
+            ]
+        },
+        {
+            "id": "0xba8c92356401001",
+            "name": "3D MSDF Font Pass",
+            "position": [
+                467.0,
+                436.0
+            ]
+        },
+        {
+            "id": "0xba68b013b801000",
+            "name": "Compute SkyViewLut",
+            "position": [
+                -431.0,
+                116.0
+            ]
+        },
+        {
+            "id": "0xba68b0d91801000",
+            "name": "Atmospheric Sky",
+            "position": [
+                148.0,
+                -28.0
+            ]
+        },
+        {
+            "id": "0xba5010b28801001",
+            "name": "Static Mesh Pass",
+            "position": [
+                504.0,
+                180.0
+            ]
+        },
+        {
+            "id": "0xb8e0fd752001000",
+            "name": "Composite",
+            "position": [
+                888.0,
+                148.0
+            ]
+        },
+        {
+            "id": "0xbaa254787001000",
+            "name": "Tonemap",
+            "position": [
+                1176.0,
+                148.0
+            ]
+        },
+        {
+            "id": "0xbaa254c1e401000",
+            "name": "ImGui Pass",
+            "position": [
+                1528.0,
+                148.0
+            ]
+        }
+    ],
+    "hiddenlinks": [
+        {
+            "frominputpin": "0xba8c92356401002",
+            "tooutputpin": "0xba2926a5c001002"
+        },
+        {
+            "frominputpin": "0xba68b013b801001",
+            "tooutputpin": "0xba68ae7a0001002"
+        },
+        {
+            "frominputpin": "0xba68b0d91801001",
+            "tooutputpin": "0xba2926a5c001002"
+        },
+        {
+            "frominputpin": "0xba68b0d91801002",
+            "tooutputpin": "0xba68ae7a0001002"
+        },
+        {
+            "frominputpin": "0xba5010b28801002",
+            "tooutputpin": "0xba2926a5c001002"
+        },
+        {
+            "frominputpin": "0xba6717196401102",
+            "tooutputpin": "0xba2926a5c001002"
+        },
+        {
+            "frominputpin": "0xb8e0fd536001002",
+            "tooutputpin": "0xba2926a5c001002"
+        }
+    ],
+    "reroutenodes": [
+        {
+            "id": "0xbb20c9977801000",
+            "inputpin": "0xbb20c9977801001",
+            "outputpin": "0xbb20c9977801002",
+            "pintype": 1082623486,
+            "color": 4290019910,
+            "position": [
+                -518.0,
+                48.0
+            ]
+        },
+        {
+            "id": "0xbb20cf21fc01000",
+            "inputpin": "0xbb20cf21fc01001",
+            "outputpin": "0xbb20cf21fc01002",
+            "pintype": 1743743821,
+            "color": 4284243149,
+            "position": [
+                26.0,
+                224.0
+            ]
+        },
+        {
+            "id": "0xbb20d245ec01000",
+            "inputpin": "0xbb20d245ec01001",
+            "outputpin": "0xbb20d245ec01002",
+            "pintype": 1743743821,
+            "color": 4284243149,
+            "position": [
+                346.0,
+                224.0
+            ]
+        }
+    ],
+    "reroutelinks": [
+        {
+            "id": "0xbb20c9977801004",
+            "frominputpin": "0xbb20c9977801001",
+            "tooutputpin": "0xba68ae7a0001002",
+            "pintype": 1082623486,
+            "color": 4290019910
+        },
+        {
+            "id": "0xbb20c9977801005",
+            "frominputpin": "0xba68b0d91801002",
+            "tooutputpin": "0xbb20c9977801002",
+            "pintype": 1082623486,
+            "color": 4290019910
+        },
+        {
+            "id": "0xbb20ca173001001",
+            "frominputpin": "0xba68b013b801001",
+            "tooutputpin": "0xbb20c9977801002",
+            "pintype": 1082623486,
+            "color": 4290019910
+        },
+        {
+            "id": "0xbb20ce177c01001",
+            "frominputpin": "0xba68b0d91801001",
+            "tooutputpin": "0xba2926a5c001002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        },
+        {
+            "id": "0xbb20cf21fc01004",
+            "frominputpin": "0xbb20cf21fc01001",
+            "tooutputpin": "0xba2926a5c001002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        },
+        {
+            "id": "0xbb20d245ec01004",
+            "frominputpin": "0xbb20d245ec01001",
+            "tooutputpin": "0xbb20cf21fc01002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        },
+        {
+            "id": "0xbb20d245ec01005",
+            "frominputpin": "0xba5010b28801002",
+            "tooutputpin": "0xbb20d245ec01002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        },
+        {
+            "id": "0xbb20d2995c01001",
+            "frominputpin": "0xba8c92356401002",
+            "tooutputpin": "0xbb20d245ec01002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        },
+        {
+            "id": "0xbb20fce35801000",
+            "frominputpin": "0xba6717196401102",
+            "tooutputpin": "0xbb20cf21fc01002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        },
+        {
+            "id": "0xbb20fed74c01000",
+            "frominputpin": "0xb8e0fd536001002",
+            "tooutputpin": "0xbb20d245ec01002",
+            "pintype": 1743743821,
+            "color": 4284243149
+        }
+    ]
+}

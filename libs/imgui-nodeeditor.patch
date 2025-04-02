@@ -1,0 +1,75 @@
+diff --git a/imgui_node_editor.cpp b/imgui_node_editor.cpp
+index 1d2bb06..f133f03 100644
+--- a/imgui_node_editor.cpp
++++ b/imgui_node_editor.cpp
+@@ -704,12 +704,11 @@ void ed::Node::Draw(ImDrawList* drawList, DrawFlags flags)
+     }
+     else if (!IsGroup(this) && (flags & Hovered))
+     {
+-        const auto  borderColor = Editor->GetColor(StyleColor_HovNodeBorder);
+         const auto& editorStyle = Editor->GetStyle();
+ 
+         drawList->ChannelsSetCurrent(m_Channel + c_NodeBaseChannel);
+ 
+-        DrawBorder(drawList, borderColor, editorStyle.HoveredNodeBorderWidth, editorStyle.HoverNodeBorderOffset);
++        DrawBorder(drawList, m_BorderColorHovered, editorStyle.HoveredNodeBorderWidth, editorStyle.HoverNodeBorderOffset);
+     }
+ }
+ 
+@@ -4391,15 +4390,15 @@ ed::EditorAction::AcceptResult ed::ShortcutAction::Accept(const Control& control
+     Action candidateAction = None;
+ 
+     auto& io = ImGui::GetIO();
+-    if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X)))
++    if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey_X))
+         candidateAction = Cut;
+-    if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
++    if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey_C))
+         candidateAction = Copy;
+-    if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V)))
++    if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey_V))
+         candidateAction = Paste;
+     if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(GetKeyIndexForD()))
+         candidateAction = Duplicate;
+-    if (!io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Space)))
++    if (!io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGuiKey_Space))
+         candidateAction = CreateNode;
+ 
+     if (candidateAction != None)
+@@ -4953,7 +4952,7 @@ ed::EditorAction::AcceptResult ed::DeleteItemsAction::Accept(const Control& cont
+         return False;
+ 
+     auto& io = ImGui::GetIO();
+-    if (Editor->CanAcceptUserInput() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)) && Editor->AreShortcutsEnabled())
++    if (Editor->CanAcceptUserInput() && ImGui::IsKeyPressed(ImGuiKey_Delete) && Editor->AreShortcutsEnabled())
+     {
+         auto& selection = Editor->GetSelectedObjects();
+         if (!selection.empty())
+@@ -5250,6 +5249,7 @@ void ed::NodeBuilder::Begin(NodeId nodeId)
+     m_CurrentNode->m_LastPin          = nullptr;
+     m_CurrentNode->m_Color            = Editor->GetColor(StyleColor_NodeBg, alpha);
+     m_CurrentNode->m_BorderColor      = Editor->GetColor(StyleColor_NodeBorder, alpha);
++    m_CurrentNode->m_BorderColorHovered = Editor->GetColor(StyleColor_HovNodeBorder, alpha);
+     m_CurrentNode->m_BorderWidth      = editorStyle.NodeBorderWidth;
+     m_CurrentNode->m_Rounding         = editorStyle.NodeRounding;
+     m_CurrentNode->m_GroupColor       = Editor->GetColor(StyleColor_GroupBg, alpha);
+diff --git a/imgui_node_editor_internal.h b/imgui_node_editor_internal.h
+index 0d018cf..3dab652 100644
+--- a/imgui_node_editor_internal.h
++++ b/imgui_node_editor_internal.h
+@@ -391,6 +391,7 @@ struct Node final: Object
+ 
+     ImU32    m_Color;
+     ImU32    m_BorderColor;
++    ImU32    m_BorderColorHovered;
+     float    m_BorderWidth;
+     float    m_Rounding;
+ 
+@@ -416,6 +417,7 @@ struct Node final: Object
+         , m_DragStart()
+         , m_Color(IM_COL32_WHITE)
+         , m_BorderColor(IM_COL32_BLACK)
++        , m_BorderColorHovered(IM_COL32_BLACK)
+         , m_BorderWidth(0)
+         , m_Rounding(0)
+         , m_GroupBounds()

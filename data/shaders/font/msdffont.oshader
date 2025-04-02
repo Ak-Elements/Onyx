@@ -1,0 +1,71 @@
+#version 460 core
+
+#include "includes/common.h"
+#include "includes/viewconstants.h"
+
+vertex
+{
+    layout (location = 0) in vec3 inPosition;
+    layout (location = 1) in vec2 inTexCoord;
+    layout (location = 2) in vec4<RGBA_UNORM8> inColor;
+
+    layout(push_constant) uniform Transform
+    {
+        mat4 Transform;
+    } Constants;
+
+    layout (location = 0) out vec4 OutColor;
+    layout (location = 1) out vec2 OutTexCoord;
+    layout (location = 2) flat out uint OutTextureIndex;
+
+    void main()
+    {
+        OutColor = inColor;
+        OutTexCoord = inTexCoord;
+        OutTextureIndex = gl_InstanceIndex;
+        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * Constants.Transform * vec4(inPosition, 1.0);
+    }
+}
+
+fragment
+{
+#if !BINDLESS
+    layout (set=GLOBAL_SET, binding = 5) uniform sampler2D FontAtlasSampler;
+#endif
+
+    layout (location = 0) in vec4 inColor;
+    layout (location = 1) in vec2 inTexCoord;
+    layout (location = 2) flat in uint inTextureIndex;
+
+    layout (location = 0) out vec4 outColor;
+    
+    // Returns mid value of the 3 color channels
+    float Median(vec3 color)
+    {
+        return max(min(color.r, color.g), min(max(color.r, color.g), color.b));
+    }
+
+    float ScreenPixelRange()
+    {
+        vec2 unitRange = vec2(16.0) / vec2(2980, 2980);
+        vec2 screenTextureSize = vec2(1.0) / fwidth(inTexCoord);
+        return max(0.5 * dot(unitRange, screenTextureSize), 1.0);
+    }
+
+    void main()
+    {
+        vec4 backGroundColor = vec4(inColor.xyz, 0);
+
+#if BINDLESS
+		vec3 msdSample = texture(BindlessTextures[nonuniformEXT(inTextureIndex)], inTexCoord).xyz;
+#else
+		vec3 msdSample = texture(FontAtlasSampler, inTexCoord).xyz;
+#endif
+
+        float sd = Median(msdSample);
+        float screenPixelDistance = ScreenPixelRange() * (sd - 0.5);
+        float opacity = clamp(screenPixelDistance + 0.5, 0.0, 1.0);
+
+        outColor = mix(backGroundColor, inColor, opacity);
+    }
+}

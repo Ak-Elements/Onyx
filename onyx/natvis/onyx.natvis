@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	
+	<Type Name="Onyx::InplaceArray&lt;*&gt;">
+		<DisplayString Condition="m_NextIndex == 0"> empty </DisplayString>
+		<DisplayString Condition="m_NextIndex != 0">{{ Size={m_NextIndex} Capacity={$T2} }}</DisplayString>
+		<Expand>
+			<Item Name="Size">m_NextIndex</Item>
+			<Item Name="Capacity">$T2</Item>
+			<ArrayItems Condition="m_NextIndex != 0">
+			  <Size>m_NextIndex</Size>
+			  <ValuePointer>m_Data</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="Onyx::MortonCode2D&lt;*&gt;">
+		<DisplayString> {m_MortonCode} </DisplayString>
+		<Expand>
+			<Item Name="Morton">m_MortonCode</Item>
+			<CustomListItems MaxItemsPerView="2">
+				
+				<Variable Name="coord" InitialValue="0" />
+				<Variable Name="i" InitialValue="0" />
+				
+				<Variable Name="MASK_0" InitialValue="0x5555555555555555" />
+				<Variable Name="MASK_1" InitialValue="0x3333333333333333" />
+				<Variable Name="MASK_2" InitialValue="0x0F0F0F0F0F0F0F0F" />
+				<Variable Name="MASK_3" InitialValue="0x00FF00FF00FF00FF" />
+				<Variable Name="MASK_4" InitialValue="0x0000FFFF0000FFFF" />
+				<Variable Name="MASK_5" InitialValue="0x00000000FFFFFFFF" />
+				
+				<Loop>
+					<Exec>coord = (m_MortonCode&gt;&gt;i)&amp;MASK_0</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;1))&amp;MASK_1</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;2))&amp;MASK_2</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;4))&amp;MASK_3</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;8))&amp;MASK_4</Exec>
+					<Exec>coord = (coord^((uint_fast64_t)coord&gt;&gt;16))&amp;MASK_5</Exec>
+					
+					<Item Name="X" Condition="i == 0">coord</Item>
+					<Item Name="Y" Condition="i == 1">coord</Item>
+					
+					<Exec>i = i + 1</Exec>
+					<Break Condition="i == 2" />
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="Onyx::MortonCode3D&lt;*&gt;">
+		<DisplayString> {m_MortonCode} </DisplayString>
+		<Expand>
+			<Item Name="Morton">m_MortonCode</Item>
+			<CustomListItems MaxItemsPerView="3">
+				
+				<Variable Name="coord" InitialValue="0" />
+				<Variable Name="i" InitialValue="0" />
+				
+				<Variable Name="MASK_0" InitialValue="0x1249249249249249" />
+				<Variable Name="MASK_1" InitialValue="0x10C30C30C30C30C3" />
+				<Variable Name="MASK_2" InitialValue="0x100F00F00F00F00F" />
+				<Variable Name="MASK_3" InitialValue="0x1F0000FF0000FF" />
+				<Variable Name="MASK_4" InitialValue="0x1F00000000FFFF" />
+				<Variable Name="MASK_5" InitialValue="0x1FFFFF" />
+				
+				<Loop>
+					<Exec>coord = (m_MortonCode&gt;&gt;i)&amp;MASK_0</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;2))&amp;MASK_1</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;4))&amp;MASK_2</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;8))&amp;MASK_3</Exec>
+					<Exec>coord = (coord^(coord&gt;&gt;16))&amp;MASK_4</Exec>
+					<Exec>coord = (coord^((uint_fast64_t)coord&gt;&gt;32))&amp;MASK_5</Exec>
+					
+					<Item Name="X" Condition="i == 0">coord</Item>
+					<Item Name="Y" Condition="i == 1">coord</Item>
+					<Item Name="Z" Condition="i == 2">coord</Item>
+					
+					<Exec>i = i + 1</Exec>
+					<Break Condition="i == 3" />
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="Onyx::Vector2&lt;*&gt;">
+		<DisplayString>{{ X={m_Components[0]} Y={m_Components[1]} }}</DisplayString>
+		<Expand>
+			<Item Name="X">m_Components[0]</Item>
+			<Item Name="Y">m_Components[1]</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="Onyx::Vector3&lt;*&gt;">
+		<DisplayString>{{ X={m_Components[0]} Y={m_Components[1]} Z={m_Components[2]} }}</DisplayString>
+		<Expand>
+			<Item Name="X">m_Components[0]</Item>
+			<Item Name="Y">m_Components[1]</Item>
+			<Item Name="Z">m_Components[2]</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="Onyx::Vector4&lt;*&gt;">
+		<DisplayString>{{ X={m_Components[0]} Y={m_Components[1]} Z={m_Components[2]} W={m_Components[3]}}}</DisplayString>
+		<Expand>
+			<Item Name="X">m_Components[0]</Item>
+			<Item Name="Y">m_Components[1]</Item>
+			<Item Name="Z">m_Components[2]</Item>
+			<Item Name="W">m_Components[3]</Item>
+		</Expand>
+	</Type>
+
+</AutoVisualizer>

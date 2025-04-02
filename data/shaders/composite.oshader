@@ -1,0 +1,58 @@
+#version 460 core
+
+#include "includes/common.h"
+
+vertex
+{
+    layout (location = 0) out vec2 vTexCoord;
+
+    void main()
+    {
+        vTexCoord.xy = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(vTexCoord * 2.0f + -1.0f, 0.0f, 1.0f);
+	    gl_Position.y = -gl_Position.y;
+    }
+}
+
+fragment
+{
+    #define TextureIndex uint
+
+#if BINDLESS
+    layout(push_constant) uniform constants
+    {
+        TextureIndex Textures[8];
+        uint Count;
+    } PushConstants;
+#else
+    layout (set = 1, binding = 0) uniform sampler2D colorTexture;
+    layout (set = 1, binding = 1) uniform sampler2D gridTexture;
+    layout (set = 1, binding = 2) uniform sampler2D fontUiTexture;
+#endif
+
+    layout (location = 0) in vec2 vTexCoord;
+    layout (location = 0) out vec4 out_color;
+
+    vec4 alphaBlendColor(vec4 src, vec4 dst)
+    {
+        float srcFactor = (1.0 - src.a);
+        float alpha = src.a + dst.a * srcFactor;
+        return vec4((src.rgb * src.a + dst.rgb * dst.a * srcFactor) / alpha, alpha);
+    }
+
+    void main()
+    {
+#if BINDLESS
+        vec4 color = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[0])], vTexCoord.xy);
+        vec4 grid = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[1])], vTexCoord.xy);
+        vec4 fontTex = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[2])], vTexCoord.xy);
+#else
+        vec4 color = texture(colorTexture, vTexCoord.xy);
+        vec4 grid = texture(gridTexture, vTexCoord.xy);
+        vec4 fontTex = texture(fontUiTexture, vTexCoord.xy);
+#endif
+        vec4 finalColor =  alphaBlendColor(color, grid);
+        finalColor = alphaBlendColor(fontTex, finalColor);
+        out_color = finalColor;
+    }
+}

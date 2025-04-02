@@ -1,0 +1,10 @@
+set(TARGET_PUBLIC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/public)
+set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private)
+
+set(TARGET_PUBLIC_SOURCES
+	${TARGET_PUBLIC_PATH}/onyx/profiler/profiler.h
+)
+
+set(TARGET_PRIVATE_SOURCES
+	${TARGET_PRIVATE_PATH}/onyx/profiler/profiler.cpp
+)

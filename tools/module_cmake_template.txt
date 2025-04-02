@@ -1,0 +1,71 @@
+if(NOT IS_DIRECTORY ${PROJECT_SOURCE_DIR})
+    message(FATAL_ERROR "Please build using the outermost CMakeLists.txt file.")
+endif()
+
+#### Target ####
+set(CURRENT_TARGET %MODULE NAME%)
+include(${CMAKE_CURRENT_SOURCE_DIR}/dependencies.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
+
+add_library(${CURRENT_TARGET} STATIC)
+set_target_properties (${CURRENT_TARGET} PROPERTIES FOLDER modules/)
+
+target_sources(${CURRENT_TARGET} PUBLIC ${TARGET_PUBLIC_SOURCES})
+target_sources(${CURRENT_TARGET} PRIVATE ${TARGET_PRIVATE_SOURCES})
+
+source_group(TREE ${TARGET_PUBLIC_PATH} FILES ${TARGET_PUBLIC_SOURCES})
+source_group(TREE ${TARGET_PRIVATE_PATH} FILES ${TARGET_PRIVATE_SOURCES})
+
+#### Target Properties ####
+set_target_properties(${CURRENT_TARGET} PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED YES
+	CXX_EXTENSIONS NO
+	CXX_VISIBILITY_PRESET hidden
+	VISIBILITY_INLINES_HIDDEN YES
+	SOVERSION ${MAJOR_VERSION}
+	VERSION ${LIB_VERSION}
+)
+
+#### Compiler Defines ####
+target_compile_definitions(${CURRENT_TARGET} PRIVATE
+	$<$<CXX_COMPILER_ID:Clang>:>
+	$<$<CXX_COMPILER_ID:AppleClang>:>
+	$<$<CXX_COMPILER_ID:GNU>:>
+	$<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>
+)
+
+#### Compiler Options ####
+target_compile_options(${CURRENT_TARGET} PRIVATE ${ONYX_COMPILE_OPTIONS})
+
+#### Includes ####
+target_include_directories(${CURRENT_TARGET} PUBLIC
+        $<BUILD_INTERFACE: ${CMAKE_CURRENT_SOURCE_DIR}/public>
+        $<INSTALL_INTERFACE:include>
+)
+target_include_directories(${CURRENT_TARGET} PRIVATE
+        $<BUILD_INTERFACE: ${CMAKE_CURRENT_SOURCE_DIR}/private>
+        $<INSTALL_INTERFACE:source>
+)
+
+#### Dependencies ####
+if(DEFINED TARGET_PUBLIC_DEPENDENCIES)
+        target_link_libraries(${CURRENT_TARGET} PUBLIC ${TARGET_PUBLIC_DEPENDENCIES})
+endif()
+
+if(DEFINED TARGET_PRIVATE_DEPENDENCIES)
+        target_link_libraries(${CURRENT_TARGET} PRIVATE ${TARGET_PRIVATE_DEPENDENCIES})
+endif()
+
+#### Install ####
+include(GNUInstallDirs)
+install(TARGETS ${CURRENT_TARGET}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	COMPONENT ${CURRENT_TARGET}_RunTime
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	COMPONENT ${CURRENT_TARGET}_RunTime
+	NAMELINK_COMPONENT ${CURRENT_TARGET}_Development
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	COMPONENT ${CURRENT_TARGET}_Development
+ COMPONENT ${CURRENT_TARGET}_Development
+)

@@ -1,0 +1,547 @@
+[
+    {
+        "id": "0xba4fcc11a401001",
+        "typeId": 1940903987,
+        "type": "CreateLightClusters",
+        "outputs": [
+            {
+                "id": "0xba4fcc11a401002",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/compute/createlightclusters.oshader"
+    },
+    {
+        "id": "0xba68ae7a0001001",
+        "typeId": 3969146269,
+        "type": "CreateTransmittanceRenderGraphNode",
+        "outputs": [
+            {
+                "id": "0xba68ae7a0001002",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/scattering/computetransmittance.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "RGBA_FLOAT32",
+                "loadOp": "Clear",
+                "hassize": true,
+                "size": [
+                    256,
+                    64,
+                    1
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xba2926a5c001001",
+        "typeId": 2108322918,
+        "type": "GetViewConstantsNode",
+        "outputs": [
+            {
+                "id": "0xba2926a5c001002",
+                "localId": 2475545686
+            }
+        ]
+    },
+    {
+        "id": "0xba4fcc713c01000",
+        "typeId": 431591944,
+        "type": "UpdateLightClustersRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xba4fcc713c01001",
+                "localId": 1187160501,
+                "linkedPin": "0xba4fcc11a401002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba4fcc713c01002",
+                "localId": 2923781266
+            },
+            {
+                "id": "0xba4fcc713c01003",
+                "localId": 2940558885
+            },
+            {
+                "id": "0xb8e0fdab7c01102",
+                "localId": 2890226028
+            }
+        ],
+        "shader": "engine:/shaders/compute/updatelightclusters.oshader"
+    },
+    {
+        "id": "0xba68af0af801000",
+        "typeId": 2583986257,
+        "type": "ComputeMultipleScatteringRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xba68af0af801001",
+                "localId": 1187160501,
+                "linkedPin": "0xba68ae7a0001002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba68af0af801002",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/scattering/computemultiscattering.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "RGBA_FLOAT32",
+                "loadOp": "Clear",
+                "hassize": true,
+                "size": [
+                    32,
+                    32,
+                    1
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xba8c92356401001",
+        "typeId": 327075126,
+        "type": "MSDFFontRenderPass",
+        "inputs": [
+            {
+                "id": "0xba8c92356401002",
+                "localId": 1187160501,
+                "linkedPin": "0xba2926a5c001002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba8c92356401003",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/font/msdffont.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "BGRA_UNORM8",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xba6717196401001",
+        "typeId": 519748157,
+        "type": "DepthPrePassRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xba6717196401102",
+                "localId": 1187160501,
+                "linkedPin": "0xba2926a5c001002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba6717196401002",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/predepth.oshader",
+        "cull":"Back",
+        "depthstencil": {
+            "enabled": true,
+            "write": true,
+            "stencil": false,
+            "compare": "LessOrEqual"
+        },
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": true,
+                "format": "BGRA_UNORM8",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xb8e0fd536001001",
+        "typeId": 4266093735,
+        "type": "GridRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xb8e0fd536001002",
+                "localId": 1187160501,
+                "linkedPin": "0xba2926a5c001002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xb8e0fd536001003",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/grid.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "BGRA_UNORM8",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xba68b013b801000",
+        "typeId": 416122375,
+        "type": "SkyViewLutRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xba68b013b801001",
+                "localId": 3915662431,
+                "linkedPin": "0xba68ae7a0001002"
+            },
+            {
+                "id": "0xba68b013b801002",
+                "localId": 3898884812,
+                "linkedPin": "0xba68af0af801002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba68b013b801003",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/scattering/computeskyviewlut.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "RGBA_FLOAT32",
+                "loadOp": "Clear",
+                "hassize": true,
+                "size": [
+                    200,
+                    200,
+                    1
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xba68b0d91801000",
+        "typeId": 3967105998,
+        "type": "AtmosphericSkyRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xba68b0d91801001",
+                "localId": 3915662431,
+                "linkedPin": "0xba2926a5c001002"
+            },
+            {
+                "id": "0xba68b0d91801002",
+                "localId": 3898884812,
+                "linkedPin": "0xba68ae7a0001002"
+            },
+            {
+                "id": "0xba68b0d91801003",
+                "localId": 3949217669,
+                "linkedPin": "0xba68b013b801003"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba68b0d91801004",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/sky.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "RGBA_FLOAT32",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xba5010b28801001",
+        "typeId": 1149684037,
+        "type": "StaticMeshRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xba5010b28801002",
+                "localId": 1638757965,
+                "linkedPin": "0xba2926a5c001002"
+            },
+            {
+                "id": "0xba5010b28803002",
+                "localId": 3407581993,
+                "linkedPin": "0xba68b0d91801004"
+            },
+            {
+                "id": "0xba5010b28801042",
+                "localId": 1783304577,
+                "linkedPin": "0xba6717196401002"
+            },
+            {
+                "id": "0xba5010b28801003",
+                "localId": 3552048569,
+                "linkedPin": "0xba4fcc713c01002"
+            },
+            {
+                "id": "0xba5010b28801004",
+                "localId": 897704330,
+                "linkedPin": "0xba4fcc713c01003"
+            },
+            {
+                "id": "0xba5010b28801005",
+                "localId": 1176342516,
+                "linkedPin": "0xb8e0fdab7c01102"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xba5010b28801006",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/staticmesh.oshader",
+        "depthstencil": {
+            "enabled": true,
+            "write": false,
+            "stencil": false,
+            "compare": "Equal"
+        },
+        "cull": "Back",
+        "blend": [
+            {
+                "enabled": true,
+                "colormask": "RGBA",
+                "srccolor": "SrcAlpha",
+                "dstcolor": "OneMinusSrcAlpha",
+                "colorop": "Add",
+                "srcalpha": "SrcAlpha",
+                "dstalpha": "OneMinusSrcAlpha",
+                "alphaop": "Add"
+            }
+        ],
+        "output_attachments": [
+            {
+                "reference": true
+            }
+        ]
+    },
+    {
+        "id": "0xb8e0fd752001000",
+        "typeId": 3891282752,
+        "type": "CompositeRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xb8e0fd9f7001000",
+                "localId": 165626149,
+                "linkedPin": "0xb8e0fd536001003"
+            },
+            {
+                "id": "0xb8e0fdab7c01002",
+                "localId": 148848530,
+                "linkedPin": "0xba5010b28801006"
+            },
+            {
+                "id": "0xb8e0fdab7c01062",
+                "localId": 132070911,
+                "linkedPin": "0xba8c92356401003"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xb8e0fdab7c01000",
+                "localId": 3663792444
+            }
+        ],
+        "shader": "engine:/shaders/composite.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "RGBA_FLOAT32",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xbaa254787001000",
+        "typeId": 3475045391,
+        "type": "ToneMapPass",
+        "inputs": [
+            {
+                "id": "0xbaa254787001001",
+                "localId": 1187160501,
+                "linkedPin": "0xb8e0fdab7c01000"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xbaa254787001002",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/post/tonemap.oshader",
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": false,
+                "format": "RGBA_FLOAT32",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    {
+        "id": "0xbaa254c1e401000",
+        "typeId": 947486601,
+        "type": "UIRenderGraphNode",
+        "inputs": [
+            {
+                "id": "0xbaa254c1e401001",
+                "localId": 1187160501,
+                "linkedPin": "0xbaa254787001002"
+            }
+        ],
+        "outputs": [
+            {
+                "id": "0xbaa254c1e401002",
+                "localId": 2475545686
+            }
+        ],
+        "shader": "engine:/shaders/imgui.oshader",
+        "blend": [
+            {
+                "enabled": true,
+                "colormask": "RGBA",
+                "srccolor": "SrcAlpha",
+                "dstcolor": "OneMinusSrcAlpha",
+                "colorop": "Add",
+                "srcalpha": "Invalid",
+                "dstalpha": "Invalid",
+                "alphaop": "Add"
+            }
+        ],
+        "output_attachments": [
+            {
+                "reference": false,
+                "external": true,
+                "format": "BGRA_UNORM8",
+                "loadOp": "Clear",
+                "hassize": false,
+                "size": [
+                    0,
+                    0,
+                    0
+                ],
+                "clearcolor": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        ]
+    }
+]
