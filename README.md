@@ -67,5 +67,6 @@ Follow the steps to configure, and build the Onyx engine depending on your platf
 ## License
 
 Required Notice: Copyright AkElements
+
 This repository is licensed under the PolyForm Noncommercial License 1.0.0
 https://polyformproject.org/licenses/noncommercial/1.0.0/
