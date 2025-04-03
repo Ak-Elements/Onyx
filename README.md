@@ -5,6 +5,13 @@ The goal is to make it a lightweight, user-friendly, and fast game engine with l
 
 > This engine is still actively being developed, and as such, the code provided is not guaranteed to be fully functional or free of bugs. Expect ongoing changes and improvements as the project evolves.
 
+### Core pillars for the design of Onyx.
+- Bindless Vulkan renderer.
+- Fully data-driven design using node-graph editor.
+- Enforced asynchronous asset loading.
+- Volumetric Chunk streaming for massive worlds.
+- Engine architecture for easy extensibility.
+
 # Onyx Engine Installation Guide
 
 ## Requirements & Dependencies
