@@ -2,7 +2,8 @@
 
 Onyx is a Vulkan-based C++ engine designed for high-performance and volumetric terrain (voxel). Work on it started in 2022, with most progress happening in 2024 during my Twitch streams.
 The goal is to make it a lightweight, user-friendly, and fast game engine with lots of features.
-This engine is still actively being developed, and as such, the code provided is not guaranteed to be fully functional or free of bugs. Expect ongoing changes and improvements as the project evolves.
+
+> This engine is still actively being developed, and as such, the code provided is not guaranteed to be fully functional or free of bugs. Expect ongoing changes and improvements as the project evolves.
 
 # Onyx Engine Installation Guide
 
