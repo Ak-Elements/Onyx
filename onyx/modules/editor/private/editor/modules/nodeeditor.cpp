@@ -7,7 +7,6 @@
 #include <editor/nodegraph/nodegrapheditorcontext.h>
 #include <editor/panels/nodeeditor/styles/widgets.h>
 
-#include <editor/editormodule.h>
 #include <editor/windows/editormainwindow.h>
 
 #include <onyx/assets/asset.h>

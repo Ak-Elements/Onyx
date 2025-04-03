@@ -12,11 +12,12 @@ namespace Onyx::Editor::SceneEditor
     class ComponentsPanel
     {
     public:
+        ComponentsPanel();
         void Render(GameCore::Scene& scene);
 
     private:
-        void DrawSelectedEntityComponents();
-        void DrawCreateComponentContextMenu();
+        void DrawSelectedEntityComponents(GameCore::Scene& scene);
+        void DrawCreateComponentContextMenu(GameCore::Scene& scene);
 
     private:
         HashMap<onyxU32, String> m_Components;

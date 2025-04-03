@@ -22,7 +22,7 @@ namespace Onyx::Editor::SceneEditor
         if ((selectedEntity != entt::null) &&
             ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
         {
-            DeleteEntity(selectedEntity);
+            DeleteEntity(scene, selectedEntity);
         }
 
         Ui::ScopedImGuiColor styleColor
@@ -106,7 +106,7 @@ namespace Onyx::Editor::SceneEditor
                 {
                     if (ImGui::MenuItem("Delete"))
                     {
-                        DeleteEntity(entity);
+                        DeleteEntity(scene, entity);
                         ImGui::CloseCurrentPopup();
                     }
 
@@ -124,7 +124,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (isRowClicked)
                 {
-                    SetSelectedEntity(entity);
+                    SetSelectedEntity(scene, entity);
                 }
 
                 onyxU32 cellBackgroundColor = isRowHovered ? ImGui::GetColorU32(ImGuiCol_HeaderHovered) : (isSelected ? ImGui::GetColorU32(ImGuiCol_HeaderActive) : ImGui::GetColorU32(ImGuiTableBgTarget_CellBg));
@@ -142,7 +142,7 @@ namespace Onyx::Editor::SceneEditor
                     registry.AddComponent<GameCore::IdComponent>(createdEntity);
                     registry.AddComponent<GameCore::NameComponent>(createdEntity, GetNewEntityName());
                     registry.AddComponent<GameCore::TransformComponent>(createdEntity);
-                    SetSelectedEntity(createdEntity);
+                    SetSelectedEntity(scene, createdEntity);
 
                     ImGui::CloseCurrentPopup();
                 }
@@ -171,30 +171,27 @@ namespace Onyx::Editor::SceneEditor
         return entityName;
     }
 
-    void EntitiesPanel::DeleteEntity(Entity::EntityId /*entity*/)
+    void EntitiesPanel::DeleteEntity(GameCore::Scene& scene, Entity::EntityId entity)
     {
-        /*if (entity == selectedEntity)
+        if (entity == selectedEntity)
         {
-            SetSelectedEntity(entt::null);
-            m_OnSelectedEntityChanged(entity);
+            SetSelectedEntity(scene, entt::null);
         }
 
-        scene->GetRegistry().DeleteEntity(entity);*/
+        scene.GetRegistry().DeleteEntity(entity);
     }
 
-    void EntitiesPanel::SetSelectedEntity(Entity::EntityId /*entity*/)
+    void EntitiesPanel::SetSelectedEntity(GameCore::Scene& scene, Entity::EntityId entity)
     {
-        /*if (selectedEntity != entity)
+        if (selectedEntity != entity)
         {
-            Entity::EntityRegistry& registry = scene->GetRegistry();
+            Entity::EntityRegistry& registry = scene.GetRegistry();
             if (selectedEntity != entt::null)
                 registry.RemoveComponent<SelectedComponent>(selectedEntity);
 
             selectedEntity = entity;
 
             registry.AddComponent<SelectedComponent>(selectedEntity);
-
-            m_OnSelectedEntityChanged(selectedEntity);
-        }*/
+        }
     }
 }

@@ -24,8 +24,8 @@ namespace Onyx::Editor::SceneEditor
     private:
         String GetNewEntityName() const;
 
-        void DeleteEntity(Entity::EntityId entity);
-        void SetSelectedEntity(Entity::EntityId entity);
+        void DeleteEntity(GameCore::Scene& scene, Entity::EntityId entity);
+        void SetSelectedEntity(GameCore::Scene& scene, Entity::EntityId entity);
     private:
         Entity::EntityId selectedEntity;
     };
