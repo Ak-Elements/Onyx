@@ -3,8 +3,6 @@
 ## Introduction
 Onyx is a Vulkan-based C++ engine designed for high-performance graphics rendering. This guide outlines the requirements and step-by-step instructions for building Onyx on Windows.
 
-![scene](https://github.com/user-attachments/assets/eff68f3a-2ab6-47c6-a49e-afcd286f9508)|![rendergraph](https://github.com/user-attachments/assets/d4f12645-cf80-4422-b216-6e10a9d520dd)|![shadergraph](https://github.com/user-attachments/assets/8f2d5ac4-d89c-4a21-8325-f0adf1aa6f15)|
-
 ---
 
 ## Requirements & Dependencies
