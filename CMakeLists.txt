@@ -12,12 +12,16 @@ option(ONYX_BUILD_ALL "Build all" OFF)
 option(ONYX_BUILD_TESTS "Build tests" OFF)
 option(ONYX_STATIC_ANALYSIS "Turn static analysis on/off" OFF)
 option(ONYX_GENERATE_DATA_SYMLINK "Turn static analysis on/off" OFF)
+option(ONYX_TARGETS_FOLDER "Folder for all onyx targets" "modules")
 cmake_dependent_option(ONYX_GENERATE_APP_CONFIG "Generate default application config" ON "PROJECT_IS_TOP_LEVEL" OFF)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_SUPPRESS_REGENERATION true)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_COLOR_MAKEFILE ON)
 
 set( ONYX_COMPILE_OPTIONS
 	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -Wnocomment -fno-rtti>
@@ -46,10 +50,6 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;")
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   message(SEND_ERROR "In-source builds are not allowed.")
 endif ()
-
-set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_COLOR_MAKEFILE ON)
 
 # Remove 'lib' prefix for shared libraries on Windows
 # Add multi processor compile on Windows
@@ -87,8 +87,6 @@ set(MINOR_VERSION 1)
 set(PATCH_VERSION 0)
 set(ONYX_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 set(ONYX_VERSION_SUFFIX "${MAJOR_VERSION}.${MINOR_VERSION}")
-
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project (
     onyx
