@@ -1,6 +1,6 @@
-# Onyx Engine Installation Guide
-
 ![Onyx Engine](https://github.com/user-attachments/assets/3580f4a8-11dc-4d0f-a9ea-1cfb58032908)
+
+# Onyx Engine Installation Guide
 
 ## Introduction
 Onyx is a Vulkan-based C++ engine designed for high-performance graphics rendering. This guide outlines the requirements and step-by-step instructions for building Onyx on Windows.
