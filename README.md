@@ -1,9 +1,10 @@
 ![Onyx Engine](https://github.com/user-attachments/assets/3580f4a8-11dc-4d0f-a9ea-1cfb58032908)
 
-# Onyx Engine Installation Guide
+Onyx is a Vulkan-based C++ engine designed for high-performance and volumetric terrain (voxel). Work on it started in 2022, with most progress happening in 2024 during my Twitch streams.
+The goal is to make it a lightweight, user-friendly, and fast game engine with lots of features.
+This engine is still actively being developed, and as such, the code provided is not guaranteed to be fully functional or free of bugs. Expect ongoing changes and improvements as the project evolves.
 
-## Introduction
-Onyx is a Vulkan-based C++ engine designed for high-performance graphics rendering. This guide outlines the requirements and step-by-step instructions for building Onyx on Windows.
+# Onyx Engine Installation Guide
 
 ## Requirements & Dependencies
 To successfully build and run Onyx, ensure the following software and tools are installed:
