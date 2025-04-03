@@ -35,7 +35,7 @@ To successfully build and run Onyx, ensure the following software and tools are 
 
 ## Obtain the Source Code
 
-### Option 1: Download the ZIP File![scene](https://github.com/user-attachments/assets/fd0f6f3d-5fd4-4722-9912-a41f14d01621)
+### Option 1: Download the ZIP File
 
 You can download the source code directly from the GitHub repository as a ZIP file:
 
