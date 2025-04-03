@@ -1,9 +1,18 @@
+![Onyx Engine](https://github.com/user-attachments/assets/3580f4a8-11dc-4d0f-a9ea-1cfb58032908)
+
+Onyx is a Vulkan-based C++ engine designed for high-performance and volumetric terrain (voxel). Work on it started in 2022, with most progress happening in 2024 during my Twitch streams.
+The goal is to make it a lightweight, user-friendly, and fast game engine with lots of features.
+
+> This engine is still actively being developed, and as such, the code provided is not guaranteed to be fully functional or free of bugs. Expect ongoing changes and improvements as the project evolves.
+
+### Core pillars for the design of Onyx.
+- Bindless Vulkan renderer.
+- Fully data-driven design using node-graph editor.
+- Enforced asynchronous asset loading.
+- Volumetric Chunk streaming for massive worlds.
+- Engine architecture for easy extensibility.
+
 # Onyx Engine Installation Guide
-
-## Introduction
-Onyx is a Vulkan-based C++ engine designed for high-performance graphics rendering. This guide outlines the requirements and step-by-step instructions for building Onyx on Windows.
-
----
 
 ## Requirements & Dependencies
 To successfully build and run Onyx, ensure the following software and tools are installed:
@@ -31,11 +40,10 @@ To successfully build and run Onyx, ensure the following software and tools are 
          - Install GCC 11+ from the [GCC Installation Guide](https://gcc.gnu.org/install/).
          - Windows users can install GCC via [WSL](https://code.visualstudio.com/docs/cpp/config-wsl) for a Linux-like environment.
 
----
-
 ## Obtain the Source Code
 
 ### Option 1: Download the ZIP File
+
 You can download the source code directly from the GitHub repository as a ZIP file:
 
 1. Go to the repository's GitHub page.
@@ -46,7 +54,7 @@ You can download the source code directly from the GitHub repository as a ZIP fi
 If you prefer to use Git, clone the repository to your local system with the following command:
 
 ```bash
-git clone <repository-url> Onyx
+git clone https://github.com/Ak-Elements/Onyx.git Onyx
 cd Onyx
 ```
 > **_TIP:_** If you are unfamiliar with the command line, you can use one of the Git clients for your platform.
@@ -70,3 +78,5 @@ Required Notice: Copyright AkElements
 
 This repository is licensed under the PolyForm Noncommercial License 1.0.0
 https://polyformproject.org/licenses/noncommercial/1.0.0/
+
+For questions regarding the license or if you would like to have a more permissive license feel free to contact me. (akelements.dev@gmail.com)
