@@ -31,8 +31,6 @@ To successfully build and run Onyx, ensure the following software and tools are 
          - Install GCC 11+ from the [GCC Installation Guide](https://gcc.gnu.org/install/).
          - Windows users can install GCC via [WSL](https://code.visualstudio.com/docs/cpp/config-wsl) for a Linux-like environment.
 
----
-
 ## Obtain the Source Code
 
 ### Option 1: Download the ZIP File
