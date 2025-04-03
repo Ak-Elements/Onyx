@@ -71,3 +71,5 @@ Required Notice: Copyright AkElements
 
 This repository is licensed under the PolyForm Noncommercial License 1.0.0
 https://polyformproject.org/licenses/noncommercial/1.0.0/
+
+For questions regarding the license or if you would like to have a more permissive license feel free to contact me. (akelements.dev@gmail.com)
