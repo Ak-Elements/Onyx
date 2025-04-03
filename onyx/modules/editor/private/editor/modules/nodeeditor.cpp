@@ -8,6 +8,7 @@
 #include <editor/panels/nodeeditor/styles/widgets.h>
 
 #include <editor/editormodule.h>
+#include <editor/windows/editormainwindow.h>
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetsystem.h>
@@ -17,10 +18,11 @@
 #include <onyx/nodegraph/nodefactory.h>
 #include <onyx/filesystem/filedialog.h>
 
+#include <onyx/ui/imguisystem.h>
+
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
 #include <imgui_node_editor_internal.h>
-
 
 namespace Onyx::Editor
 {
@@ -104,7 +106,7 @@ namespace Onyx::Editor
         m_InputActionSystem.Disconnect(this);
     }
 
-    void NodeGraphEditorWindow::OnRender(Ui::ImGuiSystem& /*system*/)
+    void NodeGraphEditorWindow::OnRender(Ui::ImGuiSystem& system)
     {
         if ((m_Context == nullptr) || (m_EditorContext == nullptr))
         {
@@ -121,6 +123,14 @@ namespace Onyx::Editor
         {
             SetWindowFlags(ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
         }
+
+        Optional<EditorMainWindow*> mainWindowOptional = system.GetWindow<EditorMainWindow>();
+        if (mainWindowOptional.has_value())
+        {
+            EditorMainWindow& mainWindow = *mainWindowOptional.value();
+            ImGui::SetNextWindowDockID(mainWindow.GetCenterDockId(), ImGuiCond_FirstUseEver);
+        }
+
 
         // combine window name with graph name as the visual name
         Begin();

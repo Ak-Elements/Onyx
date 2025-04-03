@@ -10,6 +10,8 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/filesystem/filedialog.h>
+#include <onyx/gamecore/serialize/sceneserializer.h>
 
 #include <editor/panels/sceneeditor/componentspanel.h>
 #include <editor/panels/sceneeditor/entitiespanel.h>
@@ -17,17 +19,10 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
-#include <onyx/filesystem/filedialog.h>
-#include <onyx/gamecore/serialize/sceneserializer.h>
-
+#include <editor/windows/editormainwindow.h>
 
 namespace Onyx::Editor
 {
-    namespace 
-    {
-        ImGuiID dockspace;
-
-    }
     SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
         : gameCore(gameCore)
         , api(graphicsApi)
@@ -78,7 +73,7 @@ namespace Onyx::Editor
         inputActionSystem.Disconnect(this);
     }
 
-    void SceneEditorWindow::OnRender(Ui::ImGuiSystem& /*system*/)
+    void SceneEditorWindow::OnRender(Ui::ImGuiSystem& system)
     {
         if (IsLoading())
             return;
@@ -92,6 +87,13 @@ namespace Onyx::Editor
             SetWindowFlags(ImGuiWindowFlags_MenuBar);
         }
 
+        Optional<EditorMainWindow*> mainWindowOptional = system.GetWindow<EditorMainWindow>();
+        if (mainWindowOptional.has_value())
+        {
+            EditorMainWindow& mainWindow = *mainWindowOptional.value();
+            ImGui::SetNextWindowDockID(mainWindow.GetCenterDockId(), ImGuiCond_FirstUseEver);
+        }
+        
         Begin();
 
         ImGuiID dockspaceID = ImGui::GetID("SceneEditorDockspace");
