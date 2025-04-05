@@ -132,8 +132,6 @@ namespace Onyx::Editor
         Assets::AssetSystem& m_AssetSystem;
         Input::InputActionSystem& m_InputActionSystem;
 
-        Assets::AssetId m_AssetId;
-
         ax::NodeEditor::EditorContext* m_Context = nullptr;
         UniquePtr<GraphEditorContext> m_EditorContext;
 

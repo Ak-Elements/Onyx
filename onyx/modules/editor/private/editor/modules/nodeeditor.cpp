@@ -84,8 +84,6 @@ namespace Onyx::Editor
 
         m_Context = ax::NodeEditor::CreateEditor(&config);
 
-        m_AssetId = Assets::AssetId::Invalid;
-
         m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>(Hash::FNV1aHash64("Copy"), this);
         m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>(Hash::FNV1aHash64("Paste"), this);
         m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnDeleteAction>(Hash::FNV1aHash64("Delete"), this);
@@ -99,8 +97,6 @@ namespace Onyx::Editor
 
         m_RerouteNodes.clear();
         m_RerouteLinks.clear();
-
-        m_AssetId = Assets::AssetId::Invalid;
 
         m_InputActionSystem.Disconnect(this);
     }
@@ -253,10 +249,14 @@ namespace Onyx::Editor
 
                 s_HasFocus |= ImGui::GetCurrentWindow()->Appearing;
 
+                bool hasChanged = false;
                 if (ImGui::GetCurrentWindow()->Appearing)
+                {
                     s_SearchString.clear();
+                    hasChanged = true;
+                }
 
-                bool hasChanged = Ui::DrawSearchBar(s_SearchString, "Search nodes...", s_HasFocus);
+                hasChanged |= Ui::DrawSearchBar(s_SearchString, "Search nodes...", s_HasFocus);
                 if (hasChanged)
                 {
                     if (s_SearchString.empty() && (m_CreateNodeData.PinId.IsValid() == false))

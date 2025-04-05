@@ -24,6 +24,8 @@ namespace Onyx::FileSystem
             filters.emplace_back(extensionName.data(), extension.data());
         }
 
+        const String workingDirectory = Path::GetWorkingDirectory().string();
+        args.defaultPath = workingDirectory.c_str();
         args.filterList = filters.data();
         args.filterCount = static_cast<nfdfiltersize_t>(filters.size());
         nfdresult_t result = NFD_OpenDialogU8_With(&path, &args);
@@ -49,6 +51,8 @@ namespace Onyx::FileSystem
             filters.emplace_back(extensionName.data(), extension.data());
         }
 
+        const String workingDirectory = Path::GetWorkingDirectory().string();
+        args.defaultPath = workingDirectory.c_str();
         args.filterList = filters.data();
         args.filterCount = static_cast<nfdfiltersize_t>(filters.size());
 

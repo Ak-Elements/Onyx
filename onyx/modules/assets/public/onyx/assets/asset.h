@@ -64,6 +64,7 @@ namespace Onyx::Assets
     struct AssetMetaData
     {
         String Name;
+        String Extension;
         FileSystem::Filepath Path;
         AssetId Id = AssetId::Invalid;
         AssetType Type = AssetType::Invalid;
@@ -133,12 +134,6 @@ namespace Onyx::Assets
 #endif
 
     public:
-        static constexpr AssetType GetType() { return static_cast<AssetType>(TypeHash<AssetT>()); }
-        static constexpr StringView GetExtension() requires requires () { AssetT::Extension; }
-        {
-            return AssetT::Extension;
-        }
-
         Sink<LoadedSignalT> GetOnLoadedEvent() { return Sink<LoadedSignalT>(m_LoadedSignal); }
 #if ONYX_IS_EDITOR
         Sink<SavedSignalT> GetOnSavedEvent() { return Sink<SavedSignalT>(m_SavedSignal); }
