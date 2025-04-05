@@ -32,18 +32,23 @@ namespace Onyx::Editor
     {
     }
 
-    void InputActionSettingsWindow::OnRender()
+    void InputActionSettingsWindow::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
     {
         if (IsOpen() == false)
             return;
 
         const StringView assetName = m_EditableCopy.IsValid() ? m_EditableCopy->GetName() : "None";
 
+        SetWindowFlags(ImGuiWindowFlags_MenuBar);
+
         ImGui::SetNextWindowSizeConstraints(ImVec2(640, 480), ImVec2(FLT_MAX, FLT_MAX));
+
         const char* windowName = Format::Format("{}{} - [Input Actions]###InputActionsEditor", m_IsDirty ? "*" : "", assetName.data());
-        if (ImGui::Begin(windowName, &m_IsOpen, ImGuiWindowFlags_MenuBar))
+        SetName(windowName);
+
+        if (Begin())
         {
-            if (ImGui::BeginMenuBar())
+            if (BeginMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
                 {
@@ -70,9 +75,8 @@ namespace Onyx::Editor
                     ImGui::EndMenu();
                 }
 
-                ImGui::EndMenuBar();
+                EndMenuBar();
             }
-            
 
             if (m_EditableCopy.IsValid() && m_EditableCopy->IsLoaded())
             {
@@ -233,11 +237,11 @@ namespace Onyx::Editor
             {
                 ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
 
-                ImGuiTreeNodeFlags flags = baseFlags;
+                ImGuiTreeNodeFlags treeNodeFlags = baseFlags;
                 bool isSelected = i == m_SelectedActionIndex;
                 bool wasSelected = isSelected;
                 if (isSelected)
-                    flags |= ImGuiTreeNodeFlags_Selected;
+                    treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
                 StringView itemIdString = Format::Format("##{}", action.GetName());
                 ImGuiID itemId = ImGui::GetID(itemIdString.data());
@@ -275,7 +279,7 @@ namespace Onyx::Editor
                 Ui::ScopedImGuiColor color(ImGuiCol_FrameBg, 0x0);
 
                 bool wasOpen = ImGui::TreeNodeGetOpen(itemId);
-                if (Ui::ContextMenuHeader(itemIdString, customHeader, flags))
+                if (Ui::ContextMenuHeader(itemIdString, customHeader, treeNodeFlags))
                 {
                     ImGui::Indent();
 
@@ -328,15 +332,15 @@ namespace Onyx::Editor
             bool showBindings = true;
             if (hasCollapsibleHeader)
             {
-                ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth;
+                ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
                 if (isSelected)
-                    flags |= ImGuiTreeNodeFlags_Selected;
+                    treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
                 StringView label = Format::Format("{} [{}]", binding->GetName(), bindingInputTypeLabel);
                 ImGuiID headerId = ImGui::GetID(label.data());
 
                 bool wasOpen = ImGui::TreeNodeGetOpen(headerId);
-                if (Ui::ContextMenuHeader(label, flags))
+                if (Ui::ContextMenuHeader(label, treeNodeFlags))
                 {
                     if (wasOpen == false)
                     {

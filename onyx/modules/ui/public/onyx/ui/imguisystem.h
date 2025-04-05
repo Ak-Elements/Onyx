@@ -82,7 +82,7 @@ namespace Onyx
                 // find first non open window matching the id and reuse
                 auto it = std::ranges::find_if(windows, [&](const UniquePtr<ImGuiWindow>& window)
                     {
-                        return (window->IsOpen() == false) && window->GetWindowId() == T::WindowId;
+                        return (window->IsOpen() == false) && (window->GetWindowId() == T::WindowId);
                     });
 
                 if (it != windows.end())
@@ -92,6 +92,50 @@ namespace Onyx
                     return static_cast<T&>(*window);
                 }
 
+                constexpr onyxU32 windowTypeId = TypeHash<T>();
+                auto factoryIt = windowFactory.find(windowTypeId);
+                UniquePtr<ImGuiWindow> newWindow;
+                if (factoryIt == windowFactory.end())
+                {
+                    if constexpr (std::is_constructible<T, Args...>())
+                    {
+                        RegisterWindow<T>(std::forward<Args>(args)...);
+                        newWindow = MakeUnique<T>(std::forward<Args>(args)...);
+                    }
+                    else
+                    {
+                        ONYX_ASSERT(false, "Window is not registered and not constructible with the given arguments");
+                    }
+                }
+                else
+                {
+                    newWindow = std::move(factoryIt->second());
+                }
+
+                newWindow->SetName(String(newWindow->GetWindowId()));
+                newWindow->Open();
+                T& newWindowRef = static_cast<T&>(*newWindow);
+                windows.push_back(std::move(newWindow));
+                return newWindowRef;
+            }
+
+            template <IsImGuiWindow T, typename... Args>
+            T& OpenUniqueWindow(Args&&... args)
+            {
+                // check if the window is already opened if it is, bring it to the front
+                auto it = std::ranges::find_if(windows, [&](const UniquePtr<ImGuiWindow>& window)
+                    {
+                        return (window->GetWindowId() == T::WindowId);
+                    });
+
+                if (it != windows.end())
+                {
+                    UniquePtr<ImGuiWindow>& window = *it;
+                    window->Open();
+                    return static_cast<T&>(*window);
+                }
+
+                // create window as its not opened yet
                 constexpr onyxU32 windowTypeId = TypeHash<T>();
                 auto factoryIt = windowFactory.find(windowTypeId);
                 UniquePtr<ImGuiWindow> newWindow;

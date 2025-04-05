@@ -101,5 +101,11 @@ namespace Onyx::Editor
 
         bool hasSelectedEntity = false;
         GizmoType currentGizmo = GizmoType::Translate;
+
+        String sceneViewPanelId;
+        String entitiesPanelId;
+        String componentsPanelId;
+
+        onyxU32 windowId;
     };
 }

@@ -59,24 +59,35 @@ namespace Onyx::Editor
         }
 
         bool local_IsCreatingNode = false;
+        onyxU32 local_WindowId = 0;
     }
+
+    
 
     NodeGraphEditorWindow::NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, Input::InputActionSystem& inputActionSystem)
         : m_AssetSystem(assetSystem)
         , m_InputActionSystem(inputActionSystem)
+        , windowId(local_WindowId++)
     {
-
-        dockspace = Ui::Dockspace::Create({
-            {
-                Ui::DockSplitDirection::Right, 0.2f, "###PropertiesPanel", "###CanvasPanel"
-            }
-        });
     }
 
     NodeGraphEditorWindow::~NodeGraphEditorWindow() = default;
 
     void NodeGraphEditorWindow::OnOpen()
     {
+        SetName(Format::Format("Node Editor###NodeEditor{}", windowId));
+        canvasPanelId = Format::Format("###CanvasPanel{}", windowId);
+        propertiesPanelId = Format::Format("###PropertiesPanel{}", windowId);
+
+        ImGuiID dockspaceID = ImGui::GetID(Format::Format("NodeEditor{}", windowId));
+        dockspace = Ui::Dockspace::Create({
+            {
+                Ui::DockSplitDirection::Right, 0.2f, propertiesPanelId, canvasPanelId
+            }
+            });
+        dockspace.SetId(dockspaceID);
+        dockspace.SetWindowClass(GetWindowClass());
+
         ax::NodeEditor::Config config;
         // disable automatic save - We have to override SaveSettings to avoid a leak if the settings file is nullptr
         config.SettingsFile = nullptr;
@@ -126,46 +137,52 @@ namespace Onyx::Editor
             ImGui::SetNextWindowDockID(mainWindow.GetCenterDockId(), ImGuiCond_FirstUseEver);
         }
 
-
         // combine window name with graph name as the visual name
-        Begin();
-
-        if (ImGui::IsWindowAppearing())
+        if (Begin())
         {
-            ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+            if (ImGui::IsWindowAppearing())
+            {
+                ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+            }
+
+            RenderMenuBar();
+
+            dockspace.Render();
+
+            ImGui::Begin(Format::Format("Unnamed Graph{}", canvasPanelId));
+
+            NodeEditor::SetCurrentEditor(m_Context);
+            NodeEditor::PushStyleColor(NodeEditor::StyleColor_Bg, ImGui::ColorConvertU32ToFloat4(m_EditorContext->GetCanvasBackgroundColor()));
+            NodeEditor::Begin("My Editor");
+
+            if (m_EditorContext->IsLoading() == false)
+            {
+                DrawCanvas();
+            }
+
+            NodeEditor::End();
+
+            ImGui::End();
+
+            if (m_EditorContext->IsLoading() == false)
+            {
+                DrawPropertiesPanel();
+            }
+
+            if (m_ShouldFocus)
+            {
+                m_ShouldFocus = false;
+                NodeEditor::NavigateToContent(false);
+            }
+
+            NodeEditor::SetCurrentEditor(nullptr);
+
         }
-        RenderMenuBar();
-
-        ImGuiID dockspaceID = ImGui::GetID("NodeEditor");
-        dockspace.Render(dockspaceID);
-
-        ImGui::Begin("Unnamed Graph###CanvasPanel");
-
-        NodeEditor::SetCurrentEditor(m_Context);
-        NodeEditor::Begin("My Editor");
-
-        if (m_EditorContext->IsLoading() == false)
+        else
         {
-            DrawCanvas();
+            dockspace.Render();
         }
-
-        NodeEditor::End();
-
-        ImGui::End();
-
-        if (m_EditorContext->IsLoading() == false)
-        {
-            DrawPropertiesPanel();
-        }
-
-        if (m_ShouldFocus)
-        {
-            m_ShouldFocus = false;
-            NodeEditor::NavigateToContent(false);
-        }
-
-        NodeEditor::SetCurrentEditor(nullptr);
-
+       
         End();
     }
 
@@ -616,7 +633,7 @@ namespace Onyx::Editor
                 { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
             };
 
-            ImGui::Begin("Properties###PropertiesPanel", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::Begin(Format::Format("Properties{}", propertiesPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar);
         }
 
         DynamicArray<NodeEditor::NodeId> selectedNodes;

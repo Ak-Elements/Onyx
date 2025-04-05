@@ -5,6 +5,7 @@
 #include <onyx/input/inputactionsasset.h>
 #include <onyx/input/inputevent.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/ui/imguiwindow.h>
 
 namespace Onyx::Assets
 {
@@ -21,16 +22,20 @@ namespace Onyx::Input
 
 namespace Onyx::Editor
 {
-    class InputActionSettingsWindow : public EditorWindow
+    class InputActionSettingsWindow : public Ui::ImGuiWindow
     {
     public:
+        static constexpr StringView WindowId = "InputActionSettings";
+
         InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem);
         ~InputActionSettingsWindow() override;
+
+        StringView GetWindowId() override { return WindowId; }
 
         // TODO: Replace with an asset handle
         //void SetInputActionsFile(Reference<Application::InputActionsAsset>& actionMapAsset);
     private:
-        void OnRender() override;
+        void OnRender(Ui::ImGuiSystem& system) override;
 
         void OnInputEvent(const Input::InputEvent* inputEvent);
 

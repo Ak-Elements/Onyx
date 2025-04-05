@@ -16,6 +16,7 @@ namespace Onyx
 
     namespace Input
     {
+        class InputSystem;
         class InputActionSystem;
     }
 
@@ -30,8 +31,6 @@ namespace Onyx
     }
 }
 
-namespace Onyx {}
-
 namespace Onyx::Editor
 {
     class EditorSystem : public IEngineSystem
@@ -39,6 +38,11 @@ namespace Onyx::Editor
     public:
         ~EditorSystem() override;
 
-        void Init(GameCore::GameCoreSystem& gameCore, Ui::ImGuiSystem& imguiSystem, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem);
+        void Init(GameCore::GameCoreSystem& gameCore,
+            Ui::ImGuiSystem& imguiSystem,
+            Assets::AssetSystem& assetSystem,
+            Graphics::GraphicsApi& graphicsApi,
+            Input::InputSystem& inputSystem,
+            Input::InputActionSystem& inputActionSystem);
     };
 }

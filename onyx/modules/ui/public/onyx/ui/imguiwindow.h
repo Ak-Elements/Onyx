@@ -27,7 +27,11 @@ namespace Onyx::Ui
         void SetName(const String& newName) { name = newName; }
 
         bool IsOpen() const { return isOpen; }
+        bool IsCollapsed() const { return isCollapsed; }
+        void SetIsCollapsed(bool _isCollapsed);
         bool IsDocked() const { return isDocked; }
+
+        void BringToFront();
 
     protected:
         bool Begin();
@@ -56,6 +60,7 @@ namespace Onyx::Ui
 
         bool isDocked = false;
         bool isOpen = false;
+        bool isCollapsed = false;
     };
 }
 
