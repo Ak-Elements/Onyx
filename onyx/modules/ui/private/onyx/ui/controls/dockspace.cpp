@@ -12,16 +12,16 @@ namespace Onyx::Ui
         return dockspace;
     }
 
-    bool Dockspace::Render(ImGuiID dockspaceId)
+    bool Dockspace::Render()
     {
         if (shouldReset)
         {
             shouldReset = false;
             
             // Setup dockspace
-            ImGui::DockBuilderRemoveNode(dockspaceId);
+            ImGui::DockBuilderRemoveNode(id);
 
-            ImGuiID currentNode = ImGui::DockBuilderAddNode(dockspaceId);
+            ImGuiID currentNode = ImGui::DockBuilderAddNode(id);
             ImGui::DockBuilderSetNodePos(currentNode, ImVec2(0, 0));
             ImGui::DockBuilderSetNodeSize(currentNode, ImGui::GetWindowSize());
 
@@ -52,10 +52,10 @@ namespace Onyx::Ui
                 currentNode = nodeInDirection;
             }
 
-            ImGui::DockBuilderFinish(dockspaceId);
+            ImGui::DockBuilderFinish(id);
         }
 
-        ImGui::DockSpace(dockspaceId, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode, windowClass);
+        ImGui::DockSpace(id, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode, windowClass);
         return true;
     }
 

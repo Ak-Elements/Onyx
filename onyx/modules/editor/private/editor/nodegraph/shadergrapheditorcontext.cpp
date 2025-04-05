@@ -10,8 +10,6 @@ namespace Onyx::Editor
     ShaderGraphEditorContext::ShaderGraphEditorContext(Assets::AssetSystem& assetSystem)
         : m_AssetSystem(&assetSystem)
     {
-        //CreateNewNode(TypeHash<Application::FragmentShaderOutNode>());
-        //CreateNewNode(TypeHash<Application::PBRMaterialShaderOutNode>());
     }
 
     bool ShaderGraphEditorContext::Compile()

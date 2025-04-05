@@ -1,5 +1,6 @@
 #pragma once
 
+#include <imgui.h>
 #include <onyx/assets/asset.h>
 #include <onyx/nodegraph/nodefactory.h>
 #include <onyx/nodegraph/pin.h>
@@ -93,6 +94,7 @@ namespace Onyx::Editor
         void Clear();
 
         virtual DynamicArray<StringView> GetExtensions() const = 0;
+        virtual onyxU32 GetCanvasBackgroundColor() const = 0;
 
         Node& CreateNewNode(onyxU32 nodeTypeId);
         void DeleteNode(Guid64 nodeId);

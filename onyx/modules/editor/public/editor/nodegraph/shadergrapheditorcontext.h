@@ -15,6 +15,8 @@ namespace Onyx::Editor
 
         bool Compile() override;
 
+        onyxU32 GetCanvasBackgroundColor() const override { return 0xFF503C46; }
+
     private:
         void OnNodeChanged(const Node& newNode) override;
 

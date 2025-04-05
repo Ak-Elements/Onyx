@@ -4,13 +4,10 @@
 
 namespace Onyx::Editor
 {
-
-    RenderGraphEditorContext::RenderGraphEditorContext()
-    {
-    }
-
+    
     bool RenderGraphEditorContext::Compile()
     {
+        Graph->GetNodeGraph().Compile();
         return true;
     }
 }

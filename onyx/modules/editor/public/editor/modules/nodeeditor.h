@@ -146,5 +146,10 @@ namespace Onyx::Editor
         bool m_ShowLinkDirections = false;
 
         GraphEditorContext::PinDirection m_ForcedReroutePinDirection;
+
+        String canvasPanelId;
+        String propertiesPanelId;
+
+        onyxU32 windowId;
     };
 }

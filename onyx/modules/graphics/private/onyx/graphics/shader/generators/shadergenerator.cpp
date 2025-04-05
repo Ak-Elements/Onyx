@@ -56,7 +56,7 @@ namespace Onyx::Graphics
         StringView body = "Output.WorldPosition = InPosition;\n"
             "Output.UV = InUV;\n"
             "Output.WorldNormal = InNormal;\n"
-            "gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(InPosition, 1.0);\n";
+            "gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(InPosition, 1.0);";
 
         vertexShaderCode += Format::Format("void main() \n{{ \n {} \n}}\n", body);
 
@@ -110,8 +110,8 @@ namespace Onyx::Graphics
         // TODO: Probably need to add padding
 
         const DynamicArray<ShaderVariable>& stagePushConstants = pushConstants[Enums::ToIntegral(currentStage)];
-        if (((currentStage == ShaderStage::Vertex) && pushConstants.empty()) ||
-            ((currentStage == ShaderStage::Fragment) && pushConstants.empty() && textures.empty()))
+        if (((currentStage == ShaderStage::Vertex) && stagePushConstants.empty()) ||
+            ((currentStage == ShaderStage::Fragment) && stagePushConstants.empty() && textures.empty()))
         {
             return;
         }

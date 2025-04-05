@@ -15,8 +15,7 @@ namespace Onyx::Editor
     class RenderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::RenderGraph, Graphics::RenderGraphNodeFactory>
     {
     public:
-        RenderGraphEditorContext();
-
         bool Compile() override;
+        onyxU32 GetCanvasBackgroundColor() const override { return 0xFF50463C; }
     };
 }

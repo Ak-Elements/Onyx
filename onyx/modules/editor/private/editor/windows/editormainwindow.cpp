@@ -9,6 +9,7 @@
 #include <editor/nodegraph/rendergrapheditorcontext.h>
 #include <editor/nodegraph/shadergrapheditorcontext.h>
 #include <editor/windows/startupwindow.h>
+#include <editor/windows/settings/inputactionsettingswindow.h>
 #include <onyx/ui/imguisystem.h>
 
 namespace Onyx::Editor
@@ -104,6 +105,7 @@ namespace Onyx::Editor
         {
             if (ImGui::MenuItem("Input actions"))
             {
+                system.OpenUniqueWindow<InputActionSettingsWindow>();
                 //UniquePtr<EditorWindow>& window = m_ActiveWindows.emplace_back(MakeUnique<InputActionSettingsWindow>(m_Application.GetAssetSystem(), m_Application.GetModule<Application::InputSystem>()));
                 //window->Open();
             }

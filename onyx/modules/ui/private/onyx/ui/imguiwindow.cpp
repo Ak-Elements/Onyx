@@ -10,6 +10,8 @@ namespace Onyx::Ui
     {
         if (isOpen)
         {
+            BringToFront();
+            SetIsCollapsed(false);
             return;
         }
         
@@ -54,9 +56,27 @@ namespace Onyx::Ui
         OnRenderMainMenuBar();
     }
 
+    void ImGuiWindow::BringToFront()
+    {
+        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(name.c_str());
+        ImGui::BringWindowToDisplayFront(imguiWindow);
+    }
+
+    void ImGuiWindow::SetIsCollapsed(bool _isCollapsed)
+    {
+        if (isCollapsed != _isCollapsed)
+        {
+            isCollapsed = _isCollapsed;
+            ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(name.c_str());
+            ImGui::SetWindowCollapsed(imguiWindow, isCollapsed, ImGuiCond_Always);
+        }
+    }
+
     bool ImGuiWindow::Begin()
     {
-        return ImGui::Begin(name.c_str(), &isOpen, flags);
+        bool hasBegun = ImGui::Begin(name.c_str(), &isOpen, flags);
+        isCollapsed = ImGui::IsWindowCollapsed();
+        return hasBegun;
     }
 
     void ImGuiWindow::End()

@@ -23,33 +23,46 @@
 
 namespace Onyx::Editor
 {
+    namespace 
+    {
+        onyxU32 local_WindowId = 0;
+    }
+
     SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
         : gameCore(gameCore)
         , api(graphicsApi)
         , inputActionSystem(inputActionSystem)
         , assetSystem(&assetSystem)
-        
+        , windowId(local_WindowId++)
     {
         windowClass = new ImGuiWindowClass();
         windowClass->DockingAllowUnclassed = false;
-
-        dockspace = Ui::Dockspace::Create({
-            {
-                Ui::DockSplitDirection::Right, 0.8f, "","###EntitiesPanel"
-            },
-            {
-                Ui::DockSplitDirection::Right, 0.2f, "###ComponentsPanel", "###SceneViewPanel"
-            }
-        });
     }
 
     SceneEditorWindow::~SceneEditorWindow() = default;
 
     void SceneEditorWindow::OnOpen()
     {
+        SetName(Format::Format("Scene Editor###SceneEditor{}", windowId));
         windowClass->ClassId = ImGui::GetID("scene");
+
+        sceneViewPanelId = Format::Format("###SceneViewPanel{}", windowId);
+        entitiesPanelId = Format::Format("###EntitiesPanel{}", windowId);
+        componentsPanelId = Format::Format("###ComponentsPanel{}", windowId);
+
+        ImGuiID dockspaceID = ImGui::GetID(Format::Format("SceneEditorDockspace{}", windowId));
+        dockspace = Ui::Dockspace::Create({
+          {
+              Ui::DockSplitDirection::Right, 0.8f, "", entitiesPanelId
+          },
+          {
+              Ui::DockSplitDirection::Right, 0.2f, componentsPanelId, sceneViewPanelId
+          }
+            });
+        dockspace.SetId(dockspaceID);
         dockspace.SetWindowClass(*windowClass);
 
+        
         inputActionSystem.SetCurrentInputActionMap(Hash::FNV1aHash32("sceneeditor"));
 
         if (scene.IsValid() == false)
@@ -94,51 +107,28 @@ namespace Onyx::Editor
             ImGui::SetNextWindowDockID(mainWindow.GetCenterDockId(), ImGuiCond_FirstUseEver);
         }
         
-        Begin();
-
-        ImGuiID dockspaceID = ImGui::GetID("SceneEditorDockspace");
-        
-        dockspace.Render(dockspaceID);
-
-        //static bool init = true;
-        //if (init)
-        //{
-        //    init = false;
-
-        //    //ImGui::DockBuilderDockWindow(GetWindowId().data(), newDockspace);
-
-        //    // Setup dockspace
-        //    ImGui::DockBuilderRemoveNode(dockspace);
-
-        //    ImGuiID rootNode = ImGui::DockBuilderAddNode(dockspace);
-        //    ImGui::DockBuilderSetNodePos(rootNode, ImVec2(0,0));
-        //    ImGui::DockBuilderSetNodeSize(rootNode, ImGui::GetWindowSize());
-
-        //    ImGuiID dockCenter, dockLeft, dockRight;
-        //    ImGui::DockBuilderSplitNode(rootNode, ImGuiDir_Right, 0.75f, &dockRight, &dockLeft);
-        //    ImGui::DockBuilderSplitNode(dockRight, ImGuiDir_Right, 0.75f, &dockRight, &dockCenter);
-
-        //    ImGui::DockBuilderDockWindow("###SceneViewPanel", dockCenter);
-        //    ImGui::DockBuilderDockWindow("###EntitiesPanel", dockLeft);
-        //    ImGui::DockBuilderDockWindow("###ComponentsPanel", dockRight);
-        //    ImGui::DockBuilderFinish(dockspace);
-        //}
-
-        //ImGui::DockSpace(dockspace, ImGui::GetWindowSize(), ImGuiDockNodeFlags_PassthruCentralNode, windowClass);
-
-        RenderMenuBar();
-        
-        if (ImGui::IsWindowAppearing())
+        if (Begin())
         {
-            ImGui::BringWindowToFocusFront(ImGui::GetCurrentWindow());
+            dockspace.Render();
+
+            RenderMenuBar();
+
+            if (ImGui::IsWindowAppearing())
+            {
+                ImGui::BringWindowToFocusFront(ImGui::GetCurrentWindow());
+            }
+
+            if (IsLoading())
+                return;
+
+            RenderSceneViewport();
+            RenderEntitiesPanel();
+            RenderComponentsPanel();
         }
-
-        if (IsLoading())
-            return;
-
-        RenderSceneViewport();
-        RenderEntitiesPanel();
-        RenderComponentsPanel();
+        else
+        {
+            dockspace.Render();
+        }
 
         End();
 
@@ -191,8 +181,6 @@ namespace Onyx::Editor
                 {
                     LoadScene(Assets::AssetId(path));
                 }
-
-               
             }
 
             ImGui::EndMenu();
@@ -211,7 +199,7 @@ namespace Onyx::Editor
 
         ImGui::SetNextWindowClass(windowClass);
         //ImGui::SetNextWindowDockID(dockspace);
-        if (ImGui::Begin("Scene###SceneViewPanel"))
+        if (ImGui::Begin(Format::Format("Scene{}", sceneViewPanelId)))
         {
             ImGui::Image(finalSceneTexture.Texture->GetIndex(), sceneTextureExtents);
 
@@ -224,7 +212,7 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderEntitiesPanel()
     {
         ImGui::SetNextWindowClass(windowClass);
-        if (ImGui::Begin("Entities###EntitiesPanel"))
+        if (ImGui::Begin(Format::Format("Entities{}", entitiesPanelId)))
         {
             entitiesPanel.Render(*scene);
         }
@@ -235,7 +223,7 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderComponentsPanel()
     {
         ImGui::SetNextWindowClass(windowClass);
-        if (ImGui::Begin("Components###ComponentsPanel"))
+        if (ImGui::Begin(Format::Format("Components{}", componentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
         {
             componentsPanel.Render(*scene);
         }

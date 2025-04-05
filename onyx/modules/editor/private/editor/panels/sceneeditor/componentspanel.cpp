@@ -84,6 +84,7 @@ namespace Onyx::Editor::SceneEditor
                     StringView::difference_type index = typeName.find_last_of(':') + 1;
                     String name(typeName.substr(index));
 
+                    ImVec2 availableRegion = ImGui::GetWindowSize();
                     if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
                     {
                         ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
@@ -95,7 +96,12 @@ namespace Onyx::Editor::SceneEditor
                         entt::meta_any componentHandle = metaClass.from_void(componentStorage.value(selectedEntity));
                         componentHandle.invoke("DrawImGuiEditor"_hs);
 
+                        //TODO: Needed for now to not auto extend if component is empty
+                        ImGui::Dummy(ImVec2(1, 1));
+                        
                         Ui::PropertyGrid::EndPropertyGrid();
+
+                        
 
                         ImGui::EndChild();
                     }
