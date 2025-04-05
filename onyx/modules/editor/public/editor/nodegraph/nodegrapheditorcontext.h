@@ -60,6 +60,8 @@ namespace Onyx::Editor
             Graph = Reference<GraphAssetT>::Create();
         }
 
+        DynamicArray<StringView> GetExtensions() const override { return Assets::AssetSystem::GetExtensions<GraphAssetT>(); }
+
     protected:
         NodeGraph::NodeGraph& GetNodeGraph() override { return Graph->GetNodeGraph(); }
         const NodeGraph::NodeGraph& GetNodeGraph() const override { return Graph->GetNodeGraph(); }
@@ -88,12 +90,6 @@ namespace Onyx::Editor
         void OnSave(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& metaData) override
         {
             assetSystem.SaveAssetAs(metaData.Path, Graph);
-        }
-
-        DynamicArray<StringView> GetExtensions() const override
-        {
-            DynamicArray<StringView> extensions;
-            return extensions;
         }
 
         void OnAssetLoaded(Reference<typename GraphAssetT::AssetT>& loadedGraph)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/assets/asset.h>
 #include <onyx/nodegraph/nodefactory.h>
 #include <onyx/nodegraph/pin.h>
 #include <onyx/filesystem/path.h>
@@ -91,6 +92,8 @@ namespace Onyx::Editor
 
         void Clear();
 
+        virtual DynamicArray<StringView> GetExtensions() const = 0;
+
         Node& CreateNewNode(onyxU32 nodeTypeId);
         void DeleteNode(Guid64 nodeId);
 
@@ -115,7 +118,6 @@ namespace Onyx::Editor
         void DrawNode(const Node& node);
 
         virtual void DrawNodeInPropertyPanel(Guid64 nodeId) = 0;
-        //virtual void DrawPinInPropertyPanel(const Pin& pin) = 0;
 
         virtual void FilterNodeListContextMenu(InplaceFunction<bool(const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor) = 0;
         virtual void ClearNodeListFilter() = 0;
@@ -126,8 +128,6 @@ namespace Onyx::Editor
         void Load(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path);
         void Save(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& assetMeta);
         bool IsLoading() const { return m_IsLoading; };
-
-        virtual DynamicArray<StringView> GetExtensions() const = 0;
 
         Callback<void()> OnLoaded;
         Callback<void()> OnSaved;

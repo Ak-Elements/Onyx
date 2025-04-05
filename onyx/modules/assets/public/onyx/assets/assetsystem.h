@@ -36,6 +36,26 @@ namespace Onyx::Assets
             return newAsset;
         }
 
+        template <typename T> requires std::is_base_of_v<AssetInterface, T>
+        static DynamicArray<StringView> GetExtensions()
+        {
+            constexpr AssetType type = static_cast<AssetType>(TypeHash<T>());
+            return GetExtensions(type);
+        }
+
+        static DynamicArray<StringView> GetExtensions(AssetType type)
+        {
+            DynamicArray<StringView> extensions;
+            for (auto&& [extension, assetType] : extensionToAssetType)
+            {
+                if (assetType == type)
+                {
+                    extensions.emplace_back(extension);
+                }
+            }
+            return extensions;
+        }
+
         const AssetMetaData& GetAssetMeta(AssetId id) const
         {
             //ONYX_ASSERT(m_AssetsMetaData.contains(id), "Asset with this ID(0x{:x}) is unknown", id.Get());
@@ -44,12 +64,16 @@ namespace Onyx::Assets
 
         DynamicArray<AssetMetaData> GetAvailableAssets(AssetType type) const
         {
-            ONYX_UNUSED(type);
             DynamicArray<AssetMetaData> availableAssets;
             availableAssets.reserve(m_AssetsMetaData.size());
 
             for (const AssetMetaData& assetMeta : (m_AssetsMetaData | std::views::values))
             {
+                if ((type != AssetType::Invalid) && (extensionToAssetType[assetMeta.Extension] != type))
+                {
+                    continue;
+                }
+
                 availableAssets.push_back(assetMeta);
             }
 
@@ -117,7 +141,7 @@ namespace Onyx::Assets
 
             std::apply([](auto&&... extension)
                 { (
-                    ( extensionToAssetType[Hash::FNV1aHash32(extension)] = static_cast<AssetType>(assetTypeHash)),
+                    ( extensionToAssetType[extension] = static_cast<AssetType>(assetTypeHash)),
                     ...);
                 },
                 SerializerT::Extensions);
@@ -137,7 +161,7 @@ namespace Onyx::Assets
         using CreateAssetFunction = InplaceFunction<Reference<AssetInterface>()>;
         static HashMap<onyxU32, CreateAssetFunction> registeredAssets;
         static HashMap<onyxU32, UniquePtr<AssetSerializer>> registeredSerializer;
-        static HashMap<onyxU32, AssetType> extensionToAssetType;
+        static HashMap<String, AssetType> extensionToAssetType;
     };
 
     template <typename T>
@@ -272,7 +296,7 @@ namespace Onyx::Assets
     bool AssetSystem::SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset)
     {
         constexpr onyxU32 assetTypeHash = TypeHash<T>();
-        AssetMetaData metaData{ newPath.stem().string(), newPath, asset->GetId(), static_cast<AssetType>(assetTypeHash), INVALID_INDEX_64, 0 };
+        AssetMetaData metaData{ newPath.stem().string(), newPath.extension().string().substr(1), newPath, asset->GetId(), static_cast<AssetType>(assetTypeHash), INVALID_INDEX_64, 0};
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
 
         m_IOHandler.RequestSave(metaData, asset, serializer);

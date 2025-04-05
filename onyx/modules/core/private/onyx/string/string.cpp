@@ -77,8 +77,13 @@ namespace Onyx
         if (str.empty())
             return str;
 
-        StringView::difference_type start = str.find_first_not_of("\n\r\t ");
-        StringView::difference_type end = str.find_last_not_of("\n\r\t ");
+        StringView::size_type start = str.find_first_not_of("\n\r\t ");
+        StringView::size_type end = str.find_last_not_of("\n\r\t ");
+
+        if ((start == StringView::npos) || (end == StringView::npos))
+        {
+            return str.substr(0);
+        }
 
         return str.substr(start, (end - start) + 1);
     }

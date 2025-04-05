@@ -40,11 +40,6 @@ namespace Onyx::Ui::AssetSelectionControl
 
             for (const Assets::AssetMetaData& assetMeta : availableAssets)
             {
-                if (assetMeta.Type != assetType)
-                {
-                    continue;
-                }
-
                 if ((searchString.empty() == false) && assetMeta.Name.find(searchString) == String::npos)
                 {
                     continue;

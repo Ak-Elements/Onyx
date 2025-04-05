@@ -8,11 +8,11 @@ namespace Onyx::Assets
 {
     HashMap <onyxU32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::registeredAssets = {};
     HashMap <onyxU32, UniquePtr<AssetSerializer>> AssetSystem::registeredSerializer = {};
-    HashMap<onyxU32, AssetType> AssetSystem::extensionToAssetType = {};
+    HashMap<String, AssetType> AssetSystem::extensionToAssetType = {};
 
     namespace
     {
-        bool GetAllAssetMetaData(const HashMap<onyxU32, AssetType>& assetExtensionsToAssetType, HashMap<AssetId, AssetMetaData>& outAssetsMetaData)
+        bool GetAllAssetMetaData(HashMap<AssetId, AssetMetaData>& outAssetsMetaData)
         {
 
             // async creation of asset meta data
@@ -27,6 +27,13 @@ namespace Onyx::Assets
                 {
                     if (entry.is_regular_file())
                     {
+                        // skip meta files - in the future this should only parse meta files and disregard other files
+                        // but only graphs currently have meta files
+                        if (entry.path().extension().compare(".ometa") == 0)
+                        {
+                            continue;
+                        }
+
                         const onyxU32 version = 0;
 
                         AssetMetaData metaData;
@@ -38,18 +45,19 @@ namespace Onyx::Assets
                         metaData.Id = AssetId(FileSystem::Filepath(assetPath));
                         metaData.Path = entry.path();
                         metaData.Name = metaData.Path.stem().string();
+                        //TODO: remove extension once we have meta data stored on disk
+                        metaData.Extension = metaData.Path.extension().string();
+                        if (metaData.Extension.empty() == false)
+                        {
+                            metaData.Extension = metaData.Extension.substr(1); // ignore .
+                        }
+
                         metaData.Version = version;
 
-                        const String& extension = metaData.Path.extension().string().substr(1); // ignore .
-                        onyxU32 extensionHash = Hash::FNV1aHash32(extension);
-
-                        if (assetExtensionsToAssetType.contains(extensionHash))
+                        String extension = metaData.Path.extension().string();
+                        if (extension.empty() == false)
                         {
-                            metaData.Type = assetExtensionsToAssetType.at(extensionHash);
-                        }
-                        else
-                        {
-                            metaData.Type = AssetType::Invalid;
+                            extension = extension.substr(1); // ignore .
                         }
 
                         outAssetsMetaData.try_emplace(metaData.Id, metaData);
@@ -66,7 +74,7 @@ namespace Onyx::Assets
 
     void AssetSystem::Init()
     {
-        if (GetAllAssetMetaData(extensionToAssetType, m_AssetsMetaData))
+        if (GetAllAssetMetaData(m_AssetsMetaData))
         {
             ONYX_LOG_FATAL("Failed loading asset meta data");
             return;
