@@ -296,9 +296,13 @@ namespace Onyx::Assets
     bool AssetSystem::SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset)
     {
         constexpr onyxU32 assetTypeHash = TypeHash<T>();
-        AssetMetaData metaData{ newPath.stem().string(), newPath.extension().string().substr(1), newPath, asset->GetId(), static_cast<AssetType>(assetTypeHash), INVALID_INDEX_64, 0};
+        AssetId newAssetId(newPath);
+        AssetMetaData metaData{ newPath.stem().string(), newPath.extension().string().substr(1), newPath, newAssetId, static_cast<AssetType>(assetTypeHash), INVALID_INDEX_64, 0};
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
 
+        //TODO: should only add it IF we finish saving
+        m_AssetsMetaData.try_emplace(newAssetId, metaData);
+        
         m_IOHandler.RequestSave(metaData, asset, serializer);
         return true;
     }
