@@ -154,12 +154,7 @@ vec3 CalculatePBRLighting(vec3 worldPosition, vec3 worldNormal, vec3 cameraWorld
 	Lo += CalculatePointLights(clusterIndex, V, N, worldPosition, material.Albedo, material.Metalness, material.Roughness);
 	Lo += CalculateSpotLights(clusterIndex, V, N, worldPosition, material.Albedo, material.Metalness, material.Roughness);
 
-	// Combine with ambient
-	vec3 color = material.Albedo * 0.02;
-	color += Lo;
-
-	// Gamma correct
-	color = pow(color, vec3(0.4545));
+	vec3 color = material.Albedo + Lo;
 	return color;
 }
 

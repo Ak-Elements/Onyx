@@ -91,6 +91,8 @@ namespace Onyx::Graphics
 			requestedFilePath = requestedPath;
 		}
 
+		requestedFilePath = requestedFilePath.lexically_normal();
+
         shaderc_include_result* const data = new shaderc_include_result;
         std::array<String, 2>* const container = new std::array<String, 2>;
 		data->user_data = container;
@@ -126,7 +128,11 @@ namespace Onyx::Graphics
 		}
 
 		bool isGuarded = false;
-		m_Includes.emplace(requestedFilePath.string(), isGuarded, 0, shaderSource);
+		auto [_, hasAdded] = m_Includes.emplace(requestedFilePath.string(), isGuarded, 0, shaderSource);
+		if (hasAdded == false)
+		{
+			shaderSource.clear();
+		}
 
 		(*container)[1] = shaderSource;
 
