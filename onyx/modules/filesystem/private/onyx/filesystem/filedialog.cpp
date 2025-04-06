@@ -63,7 +63,7 @@ namespace Onyx::FileSystem
             return false;
         }
 
-        outPath = path;
+        outPath = Path::ConvertToMountPath(path);
         NFD_FreePathU8(path);
         return true;
     }
