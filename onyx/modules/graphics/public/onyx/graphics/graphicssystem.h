@@ -1,4 +1,5 @@
 #pragma once
+#include <onyx/assets/asset.h>
 #include <onyx/engine/enginesystem.h>
 
 namespace Onyx::Assets
@@ -8,6 +9,8 @@ namespace Onyx::Assets
 
 namespace Onyx::Graphics
 {
+    enum class ApiType : onyxU8;
+
     struct WindowSettings;
     class GraphicsApi;
     class Window;

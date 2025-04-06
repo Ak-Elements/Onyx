@@ -16,7 +16,7 @@ namespace Onyx::Graphics
         void OnNodeChanged(Assets::AssetSystem& assetSystem) { OnChanged(assetSystem); }
 
     private:
-        virtual void DoGenerateShader(const NodeGraph::ExecutionContext& /*context*/, ShaderGenerator& /*generator*/) const {};
-        virtual void OnChanged(Assets::AssetSystem& /*assetSystem*/) {};
+        virtual void DoGenerateShader(const NodeGraph::ExecutionContext& /*context*/, ShaderGenerator& /*generator*/) const {}
+        virtual void OnChanged(Assets::AssetSystem& /*assetSystem*/) {}
     };
 }

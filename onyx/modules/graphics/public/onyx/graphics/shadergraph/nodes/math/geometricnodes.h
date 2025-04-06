@@ -21,7 +21,7 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-    public:
+    private:
         void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
         {
             generator.AppendCode("// Scale vector node \n");

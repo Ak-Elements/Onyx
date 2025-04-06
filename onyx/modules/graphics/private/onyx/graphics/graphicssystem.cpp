@@ -1,8 +1,7 @@
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/graphicssystem.h>
+
+#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/window.h>
-
-
 #include <onyx/graphics/textureasset.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
@@ -25,9 +24,9 @@
 #include <onyx/graphics/shadergraph/nodes/getworldnormal.h>
 #include <onyx/graphics/shadergraph/nodes/getworldposition.h>
 #include <onyx/graphics/shadergraph/nodes/math/arithmeticnodes.h>
+#include <onyx/graphics/shadergraph/nodes/math/geometricnodes.h>
 #include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
 #include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
-#include <onyx/nodegraph/nodes/math/geometricnodes.h>
 
 namespace Onyx::NodeGraph
 {
