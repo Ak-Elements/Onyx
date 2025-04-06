@@ -136,7 +136,7 @@ namespace Onyx::Editor::SceneEditor
             bool hasMenuItem = false;
             for (auto&& [componentId, name] : m_Components)
             {
-                if (name.find(s_SearchString) == std::string::npos)
+                if (IgnoreCaseFind(name, s_SearchString) == std::string::npos)
                     continue;
 
                 hasMenuItem = true;

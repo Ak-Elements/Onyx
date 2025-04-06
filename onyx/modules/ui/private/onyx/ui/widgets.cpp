@@ -365,9 +365,11 @@ namespace Onyx::Ui
                 hasRenamed = true;
             }
 
-            if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) || (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemHovered()))
+            bool hasLeftClickedOutside = ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemHovered();
+            if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) || hasLeftClickedOutside)
             {
                 isRenaming = false;
+                hasRenamed = hasLeftClickedOutside;
             }
             else
             {
