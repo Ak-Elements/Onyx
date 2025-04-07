@@ -62,6 +62,7 @@ namespace Onyx::Graphics
 
         void SetWindowMessageHandler(const WindowMessageHandler& handler) { m_WindowMessageHandler = handler; }
         void ClearWindowMessageHandler() { m_WindowMessageHandler = nullptr; }
+        void SetCursor(HCURSOR cursor);
 
         ONYX_EVENT(OnFocus, bool);
         ONYX_EVENT(OnResize, onyxU32, onyxU32);

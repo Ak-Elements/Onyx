@@ -44,10 +44,10 @@ namespace
     ::HICON CreateIconFromBitmap(const Onyx::Span<Onyx::onyxU8>& imageData, Onyx::Vector2s32 imageSize)
     {
         int i;
-        HDC dc;
-        HBITMAP color, mask;
-        BITMAPV5HEADER bi;
-        ICONINFO ii;
+        ::HDC dc;
+        ::HBITMAP color, mask;
+        ::BITMAPV5HEADER bi;
+        ::ICONINFO ii;
         unsigned char* target = nullptr;
         unsigned char* source = imageData.data();
 
@@ -63,8 +63,8 @@ namespace
         bi.bV5BlueMask = 0x000000ff;
         bi.bV5AlphaMask = 0xff000000;
 
-        dc = GetDC(nullptr);
-        color = CreateDIBSection(dc,
+        dc = ::GetDC(nullptr);
+        color = ::CreateDIBSection(dc,
             (BITMAPINFO*)&bi,
             DIB_RGB_COLORS,
             (void**)&target,
@@ -77,11 +77,9 @@ namespace
             return nullptr;
         }
 
-        mask = CreateBitmap(imageSize[0], imageSize[1], 1, 1, NULL);
+        mask = ::CreateBitmap(imageSize[0], imageSize[1], 1, 1, NULL);
         if (!mask)
         {
-            //_glfwInputErrorWin32(GLFW_PLATFORM_ERROR,
-            //    "Win32: Failed to create mask bitmap");
             DeleteObject(color);
             return nullptr;
         }
@@ -103,10 +101,10 @@ namespace
         ii.hbmMask = mask;
         ii.hbmColor = color;
 
-        HICON handle = CreateIconIndirect(&ii);
+        ::HICON handle = ::CreateIconIndirect(&ii);
 
-        DeleteObject(color);
-        DeleteObject(mask);
+        ::DeleteObject(color);
+        ::DeleteObject(mask);
 
         if (!handle)
         {
@@ -129,7 +127,7 @@ namespace Onyx::Graphics
     {
         m_Settings = settings;
         m_IsInitialized = false;
-        myWakeFromSleepEvent = CreateEvent(NULL, FALSE, FALSE, "Local\\WindowThread_WakeFromSleepEvent");
+        myWakeFromSleepEvent = CreateEvent(nullptr, FALSE, FALSE, "Local\\WindowThread_WakeFromSleepEvent");
         Start();
 
         m_IsInitialized.wait(false);
@@ -208,16 +206,16 @@ namespace Onyx::Graphics
         if (message == WM_NCCREATE)
         {
             // Recover the "this" pointer which was passed as a parameter to CreateWindow(Ex).
-            LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+            LPCREATESTRUCT lpcs = std::bit_cast<LPCREATESTRUCT>(lParam);
             pThis = static_cast<Window*>(lpcs->lpCreateParams);
             // Put the value in a safe place for future use
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, std::bit_cast<LONG_PTR>(pThis));
         }
         else
         {
             // Recover the "this" pointer from where our WM_NCCREATE handler
             // stashed it.
-            pThis = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            pThis = std::bit_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
         }
 
         if (pThis && pThis->HandleWindowMessages(message, wParam, lParam))
@@ -666,27 +664,7 @@ namespace Onyx::Graphics
                     (source.bottom - source.top);
                 return true;
             }
-            //case WM_DPICHANGED:
-            //{
-            //    const float xscale = HIWORD(wParam) / (float)USER_DEFAULT_SCREEN_DPI;
-            //    const float yscale = LOWORD(wParam) / (float)USER_DEFAULT_SCREEN_DPI;
-
-            //    // Resize windowed mode windows that either permit rescaling or that
-            //    // need it to compensate for non-client area scaling
-            //    if (m_Settings.m_Mode != WindowMode::Fullscreen)
-            //    {
-            //        RECT* suggested = (RECT*)lParam;
-            //        SetWindowPos(m_WindowHandle, HWND_TOP,
-            //            suggested->left,
-            //            suggested->top,
-            //            suggested->right - suggested->left,
-            //            suggested->bottom - suggested->top,
-            //            SWP_NOACTIVATE | SWP_NOZORDER);
-            //    }
-
-            //    _glfwInputWindowContentScale(window, xscale, yscale);
-            //    break;
-            //}
+            
             case WM_SETCURSOR:
             {
                 if (LOWORD(lParam) == HTCLIENT)
@@ -699,43 +677,14 @@ namespace Onyx::Graphics
             }
             case WM_DROPFILES:
             {
-                /*HDROP drop = (HDROP)wParam;
-                POINT pt;
-                int i;
-
-                const int count = DragQueryFileW(drop, 0xffffffff, NULL, 0);
-                char** paths = _glfw_calloc(count, sizeof(char*));
-
-                // Move the mouse to the position of the drop
-                DragQueryPoint(drop, &pt);
-                _glfwInputCursorPos(window, pt.x, pt.y);
-
-                for (i = 0; i < count; i++)
-                {
-                    const UINT length = DragQueryFileW(drop, i, NULL, 0);
-                    WCHAR* buffer = _glfw_calloc((size_t)length + 1, sizeof(WCHAR));
-
-                    DragQueryFileW(drop, i, buffer, length + 1);
-                    paths[i] = _glfwCreateUTF8FromWideStringWin32(buffer);
-
-                    _glfw_free(buffer);
-                }
-
-                _glfwInputDrop(window, count, (const char**)paths);
-
-                for (i = 0; i < count; i++)
-                    _glfw_free(paths[i]);
-                _glfw_free(paths);
-
-                DragFinish(drop);*/
-                return 0;
+                return false;
             }
             case WM_UNICHAR:
             {
                 if (wParam == UNICODE_NOCHAR)
                     return true;
 
-                return 0;
+                return false;
             }
             case WM_SIZE:
             {
@@ -747,7 +696,7 @@ namespace Onyx::Graphics
                     if (isMinimized)
                     {
                         SetState(WindowState::Minimized);
-                        return 0;
+                        return false;
                     }
 
                     if (isMaximized)
@@ -775,7 +724,7 @@ namespace Onyx::Graphics
             }
             case WM_GETMINMAXINFO:
             {
-                LPMINMAXINFO minMaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
+                LPMINMAXINFO minMaxInfo = std::bit_cast<LPMINMAXINFO>(lParam);
                 minMaxInfo->ptMinTrackSize.x = 64;
                 minMaxInfo->ptMinTrackSize.y = 64;
                 break;
@@ -1052,6 +1001,12 @@ namespace Onyx::Graphics
         outExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
         outExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
         return true;
+    }
+
+    void Window::SetCursor(HCURSOR cursor)
+    {
+        m_Cursor = cursor;
+        ::SetCursor(cursor);
     }
 }
 #endif
