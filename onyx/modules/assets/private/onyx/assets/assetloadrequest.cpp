@@ -59,15 +59,15 @@ namespace Onyx::Assets
     {
         ONYX_PROFILE(AssetSystem);
         
-        Threading::AsyncTask<void()> loadingTask([this]() { Save(); });
-        m_Future = loadingTask.GetFuture();
+        Threading::AsyncTask<void()> saveTask([this]() { Save(); });
+        m_Future = saveTask.GetFuture();
         m_Future.Then([this]()
             {
                 if (OnSaveFinished)
                     OnSaveFinished(Handle);
             });
 
-        loaderPool.Post(loadingTask);
+        loaderPool.Post(saveTask);
     }
 
     void AssetSaveRequest::Cancel()
