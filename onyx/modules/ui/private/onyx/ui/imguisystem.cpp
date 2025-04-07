@@ -18,6 +18,8 @@
 #include <implot.h>
 #include <implot3d.h>
 
+#include <windows.h>
+
 namespace Onyx::Ui
 {
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderClosedAsset = {};
@@ -262,8 +264,10 @@ namespace Onyx::Ui
 	ImGuiSystem::ImGuiSystem() = default;
 	ImGuiSystem::~ImGuiSystem() = default;
 
-    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& window)
+    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& _window)
     {
+		window = &_window;
+
         ImGui::CreateContext();
 		ImPlot::CreateContext();
 		ImPlot3D::CreateContext();
@@ -293,9 +297,9 @@ namespace Onyx::Ui
 
 		io.FontDefault = it->second;
 
-        window.AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		OnWindowResize(window.GetWidth(), window.GetHeight());
-
+        _window.AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		OnWindowResize(_window.GetWidth(), _window.GetHeight());
+		
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
 		PropertyGrid::SetAssetSystem(assetSystem);
@@ -318,12 +322,12 @@ namespace Onyx::Ui
 #endif
     }
 
-    void ImGuiSystem::Shutdown(Input::InputSystem& inputSystem, Graphics::Window& window)
+    void ImGuiSystem::Shutdown(Input::InputSystem& inputSystem, Graphics::Window& _window)
     {
 		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
 		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
 
-		window.RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		_window.RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
 		inputSystem.RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
 		ImPlot::DestroyContext();
@@ -347,12 +351,14 @@ namespace Onyx::Ui
 		io.DeltaTime = std::max(numeric_cast<onyxF32>(deltaTime * 0.001f), 0.001f);
 #endif
 
+
+
 		// this is an index based loop on purpose as windows might be added during rendering by other windows
 		const onyxU32 windowsCount = numeric_cast<onyxU32>(windows.size());
 		for (onyxU32 i = 0; i < windowsCount; ++i)
 		{
-			const UniquePtr<ImGuiWindow>& window = windows[i];
-			window->Render(*this);
+			const UniquePtr<ImGuiWindow>& imguiWindow = windows[i];
+			imguiWindow->Render(*this);
 		}
     }
 
@@ -391,6 +397,25 @@ namespace Onyx::Ui
 
     void ImGuiSystem::OnEndFrame()
     {
+		if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
+		{
+			LPTSTR win32Cursor = IDC_ARROW;
+
+			switch (ImGui::GetMouseCursor())
+			{
+			case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
+			case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
+			case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
+			case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
+			case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
+			case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
+			case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
+			case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
+			}
+
+			window->SetCursor(::LoadCursor(NULL, win32Cursor));
+		}
+
 		ImGuiIO& io = ImGui::GetIO();
 		// Update and Render additional Platform Windows
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

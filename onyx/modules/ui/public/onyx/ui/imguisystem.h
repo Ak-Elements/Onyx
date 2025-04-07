@@ -87,9 +87,9 @@ namespace Onyx
 
                 if (it != windows.end())
                 {
-                    UniquePtr<ImGuiWindow>& window = *it;
-                    window->Open();
-                    return static_cast<T&>(*window);
+                    UniquePtr<ImGuiWindow>& imguiWindow = *it;
+                    imguiWindow->Open();
+                    return static_cast<T&>(*imguiWindow);
                 }
 
                 constexpr onyxU32 windowTypeId = TypeHash<T>();
@@ -130,9 +130,9 @@ namespace Onyx
 
                 if (it != windows.end())
                 {
-                    UniquePtr<ImGuiWindow>& window = *it;
-                    window->Open();
-                    return static_cast<T&>(*window);
+                    UniquePtr<ImGuiWindow>& imguiWindow = *it;
+                    imguiWindow->Open();
+                    return static_cast<T&>(*imguiWindow);
                 }
 
                 // create window as its not opened yet
@@ -172,8 +172,8 @@ namespace Onyx
             template <IsImGuiWindow T>
             Optional<T*> GetWindow()
             {
-                Optional<T*> window = static_cast<T*>(GetWindow(T::WindowId).value_or(nullptr));
-                return window;
+                Optional<T*> imguiWindow = static_cast<T*>(GetWindow(T::WindowId).value_or(nullptr));
+                return imguiWindow;
             }
 
             //void ShowWindow(StringView windowName);
@@ -185,6 +185,7 @@ namespace Onyx
             void OnInputEvent(const Input::InputEvent* event);
 
         private:
+            Graphics::Window* window;
             HashMap<onyxU64, ImFont*> fonts;
             std::mutex mutex;
             LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;
