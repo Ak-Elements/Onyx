@@ -33,7 +33,7 @@ namespace Onyx::GameCore
         // Serialize each sector
         const SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
         const DynamicArray<SceneSector>& sectors = sectorStreamer.m_Sectors;
-        bool hasSucceeded = SerializeSectorsToJson(scene.m_Registry, sectors, sceneFilePath.parent_path());
+        bool hasSucceeded = SerializeSectorsToJson(scene.m_Registry, sectors, Path::GetFullPath(sceneFilePath).parent_path());
 
         return hasSucceeded;
     }

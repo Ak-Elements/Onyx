@@ -156,9 +156,9 @@ namespace Onyx::Editor
     {
         BeginMenuBar();
     
-        if (ImGui::BeginMenu("Scene"))
+        if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Save"))
+            if (ImGui::MenuItem("Save Scene"))
             {
                 FileSystem::Filepath path;
                 if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
@@ -167,7 +167,7 @@ namespace Onyx::Editor
                 }
             }
 
-            if (ImGui::MenuItem("Load"))
+            if (ImGui::MenuItem("Open Scene"))
             {
                 isLoading = true;
                 if (scene.IsValid())

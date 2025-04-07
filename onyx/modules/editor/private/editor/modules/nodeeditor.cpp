@@ -192,14 +192,14 @@ namespace Onyx::Editor
 
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Save"))
+            if (ImGui::MenuItem("Save Graph"))
             {
                 ax::NodeEditor::SetCurrentEditor(m_Context);
                 Save();
                 ax::NodeEditor::SetCurrentEditor(nullptr);
             }
 
-            if (ImGui::MenuItem("Open"))
+            if (ImGui::MenuItem("Open Graph"))
             {
                 Load();
             }
