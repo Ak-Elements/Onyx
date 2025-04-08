@@ -4,6 +4,7 @@ Onyx is a Vulkan-based C++ engine designed for high-performance and volumetric t
 The goal is to make it a lightweight, user-friendly, and fast game engine with lots of features.
 
 > This engine is still actively being developed, and as such, the code provided is not guaranteed to be fully functional or free of bugs. Expect ongoing changes and improvements as the project evolves.
+
 > It currently only runs on Windows as there are now native window implementations for other platforms.
 
 ### Core pillars for the design of Onyx.
