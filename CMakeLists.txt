@@ -7,13 +7,20 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CMakeDependentOption)
 
+# Bool Options
 option(ONYX_ENABLE_INSTALL "Install onyx components" ON)
 option(ONYX_BUILD_ALL "Build all" OFF)
 option(ONYX_BUILD_TESTS "Build tests" OFF)
 option(ONYX_STATIC_ANALYSIS "Turn static analysis on/off" OFF)
 option(ONYX_GENERATE_DATA_SYMLINK "Turn static analysis on/off" OFF)
-option(ONYX_TARGETS_FOLDER "Folder for all onyx targets" "modules")
+
 cmake_dependent_option(ONYX_GENERATE_APP_CONFIG "Generate default application config" ON "PROJECT_IS_TOP_LEVEL" OFF)
+
+# String Options
+set(ONYX_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/onyx-${ONYX_VERSION_SUFFIX} CACHE STRING "Path to onyx cmake files")
+set(ONYX_PROJECT_DATA_DIR "${CMAKE_SOURCE_DIR}/data" CACHE STRING "Path to the projects data directory")
+set(ONYX_PROJECT_TMP_DIR "${CMAKE_SOURCE_DIR}/tmp" CACHE STRING "Path to the projects tmp directory")
+set(ONYX_TARGETS_FOLDER "modules" CACHE STRING "Folder for all onyx targets")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_SUPPRESS_REGENERATION true)
@@ -98,9 +105,6 @@ include(FetchContent)
 include(cmakepackagemanager)
 
 include(GNUInstallDirs)
-set(ONYX_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/onyx-${ONYX_VERSION_SUFFIX} CACHE STRING "Path to onyx cmake files")
-set(ONYX_PROJECT_DATA_DIR "${CMAKE_SOURCE_DIR}/data" CACHE STRING "Path to the projects data directory")
-set(ONYX_PROJECT_TMP_DIR "${CMAKE_SOURCE_DIR}/tmp" CACHE STRING "Path to the projects tmp directory")
 
 set_property(GLOBAL PROPERTY onyx_modules "")
 add_subdirectory(libs)
