@@ -1,3 +1,20 @@
+From ee5d1d0a182820b7382b537349d69aa197cab094 Mon Sep 17 00:00:00 2001
+From: akElements <akelements.dev@gmail.com>
+Date: Fri, 11 Apr 2025 11:20:02 +0200
+Subject: [PATCH] Lcoal stacklayout patch
+
+---
+ imgui.cpp                    |   44 +-
+ imgui.h                      |    2 +
+ imgui_internal.h             |    8 +
+ imgui_stacklayout.cpp        | 1210 ++++++++++++++++++++++++++++++++++
+ imgui_stacklayout.h          |   38 ++
+ imgui_stacklayout_internal.h |   30 +
+ 6 files changed, 1328 insertions(+), 4 deletions(-)
+ create mode 100644 imgui_stacklayout.cpp
+ create mode 100644 imgui_stacklayout.h
+ create mode 100644 imgui_stacklayout_internal.h
+
 diff --git a/imgui.cpp b/imgui.cpp
 index c7b84cc6..35021373 100644
 --- a/imgui.cpp
@@ -132,7 +149,6 @@ index 86aed947..cc3d50ab 100644
  //-----------------------------------------------------------------------------
  // [SECTION] Macros
  //-----------------------------------------------------------------------------
-
 diff --git a/imgui_stacklayout.cpp b/imgui_stacklayout.cpp
 new file mode 100644
 index 00000000..fe7cb991
@@ -1429,3 +1445,4 @@ index 00000000..4a5e9bd4
 +
 +
 +#endif // #ifndef IMGUI_DISABLE
+-- 

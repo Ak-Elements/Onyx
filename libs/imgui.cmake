@@ -10,8 +10,7 @@ CPMAddPackage(
     GIT_TAG v1.91.6-docking
     DOWNLOAD_ONLY TRUE
 	UPDATE_DISCONNECTED 1
-	PATCHES
-		"${CMAKE_CURRENT_LIST_DIR}/imgui-stacklayout.patch"
+	PATCH_COMMAND git apply "${CMAKE_CURRENT_LIST_DIR}/imgui-stacklayout.patch"
 )
 
 CPMAddPackage(
@@ -27,8 +26,7 @@ CPMAddPackage(
 	GIT_TAG ${IMGUI_NODE_EDITOR_VERSION}
 	DOWNLOAD_ONLY TRUE
 	UPDATE_DISCONNECTED 1
-	PATCHES
-		"${CMAKE_CURRENT_LIST_DIR}/imgui-nodeeditor.patch"
+	PATCH_COMMAND git apply "${CMAKE_CURRENT_LIST_DIR}/imgui-nodeeditor.patch"
 )
 
 CPMAddPackage(
