@@ -5,51 +5,22 @@ message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 if (NOT Vulkan_shaderc_combined_FOUND)
-    message(WARNING "Vulkan shaderc not found. Consider installing it for shader compilation support.")
-    message(WARNING "Getting shaderc from git instead.")
+    message(INFO " Vulkan shaderc not found. Consider installing it for shader compilation support.")
+    message(INFO " Getting shaderc from git instead.")
 
     CPMAddPackage(
-        NAME SPIRV-Headers
-        GITHUB_REPOSITORY KhronosGroup/SPIRV-Headers
-        GIT_TAG 54a521dd130ae1b2f38fef79b09515702d135bdd
+        NAME shaderc_debug
+        URL https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_debug_2019/73/20250109-143808/install.zip
         EXCLUDE_FROM_ALL YES
     )
-
-    CPMAddPackage(
-        NAME SPIRV-Tools
-        GITHUB_REPOSITORY KhronosGroup/SPIRV-Tools
-        GIT_TAG f289d047f49fb60488301ec62bafab85573668cc
-        OPTIONS
-            SPIRV_SKIP_EXECUTABLES ON
-            SPIRV_SKIP_TESTS ON
-        EXCLUDE_FROM_ALL YES
+    
+    add_library(shaderc_combinedd STATIC IMPORTED)
+    set_target_properties(shaderc_combinedd PROPERTIES
+        IMPORTED_LOCATION "${shaderc_debug_SOURCE_DIR}/lib/shaderc_combined.lib"
+        INTERFACE_INCLUDE_DIRECTORIES "${shaderc_debug_SOURCE_DIR}/include"
     )
 
-    CPMAddPackage(
-        NAME glslang
-        GITHUB_REPOSITORY KhronosGroup/glslang
-        GIT_TAG 8b822ee8ac2c3e52926820f46ad858532a895951
-        EXCLUDE_FROM_ALL YES
-    )
-
-    CPMAddPackage(
-        NAME shaderc
-        GITHUB_REPOSITORY google/shaderc
-        GIT_TAG 0968768c61d4eb7dd861114412e904bb3d59b7b6
-        OPTIONS 
-            SHADERC_SKIP_TESTS ON
-        EXCLUDE_FROM_ALL YES
-    )
-
-    target_include_directories(shaderc_combined
-    PUBLIC
-        $<BUILD_INTERFACE:"${shaderc_SOURCE_DIR}/libshaderc/include">
-        $<INSTALL_INTERFACE:include/shaderc>
-    )
-
-    add_library(Vulkan::shaderc_combined ALIAS shaderc_combined)
-
-    install(TARGETS shaderc_combined EXPORT onyx-graphics-targets)
+    set(Vulkan_shaderc_combined_DEBUG_LIBRARY shaderc_combinedd)
     
 endif()
 
@@ -93,7 +64,7 @@ set(TARGET_PRIVATE_DEPENDENCIES
 	Vulkan::Vulkan
 	spirv-cross-core
 	spirv-cross-glsl
-	Vulkan::shaderc_combined
+    debug ${Vulkan_shaderc_combined_DEBUG_LIBRARY} optimized ${Vulkan_shaderc_combined_LIBRARY}
 	onyx-profiler
 )
 
