@@ -54,7 +54,7 @@ namespace Onyx::Assets
 #endif
 
 #if ONYX_PROFILER_ENABLED
-        Threading::ThreadPool m_LoaderThreadPool { "Asset Loader" };
+        Threading::ThreadPool m_LoaderThreadPool { Threading::ThreadPoolOptions(), "Asset Loader" };
 #else
         Threading::ThreadPool m_LoaderThreadPool {};
 #endif
