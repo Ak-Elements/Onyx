@@ -302,6 +302,7 @@ namespace Onyx::Ui
 		
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
+#if ONYX_IS_EDITOR
 		PropertyGrid::SetAssetSystem(assetSystem);
 
 		Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
@@ -315,6 +316,9 @@ namespace Onyx::Ui
 
 		Assets::AssetId openSelectedId("textures/editor/icons/contentbrowser/folder_open_selected.png");
 		assetSystem.GetAsset(openSelectedId, ImGuiSystem::FolderSelectedOpenAsset);
+#else
+		ONYX_UNUSED(assetSystem);
+#endif
 
 #if ONYX_IS_WINDOWS
 #else
