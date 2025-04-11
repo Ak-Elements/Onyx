@@ -1,1 +1,0 @@
-cmake --build "./vsSolutions/" --target INSTALL

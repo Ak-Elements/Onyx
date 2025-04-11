@@ -8,6 +8,7 @@ if (NOT Vulkan_shaderc_combined_FOUND)
     message(INFO " Vulkan shaderc not found. Consider installing it for shader compilation support.")
     message(INFO " Getting shaderc from git instead.")
 
+    # prebuilt download urls retrieved https://github.com/google/shaderc/blob/main/downloads.md
     CPMAddPackage(
         NAME shaderc_debug
         URL https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_debug_2019/73/20250109-143808/install.zip
@@ -21,7 +22,7 @@ if (NOT Vulkan_shaderc_combined_FOUND)
     )
 
     set(Vulkan_shaderc_combined_DEBUG_LIBRARY shaderc_combinedd)
-    
+
 endif()
 
 CPMAddPackage(
