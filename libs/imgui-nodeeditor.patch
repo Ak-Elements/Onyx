@@ -1,3 +1,13 @@
+From f344904426e582c7097a1d641cce07639ee4bf9f Mon Sep 17 00:00:00 2001
+From: akElements <akelements.dev@gmail.com>
+Date: Fri, 11 Apr 2025 20:02:42 +0200
+Subject: [PATCH] ImGuiNodeEditor local patch
+
+---
+ imgui_node_editor.cpp        | 14 +++++++-------
+ imgui_node_editor_internal.h |  2 ++
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
 diff --git a/imgui_node_editor.cpp b/imgui_node_editor.cpp
 index 1d2bb06..f133f03 100644
 --- a/imgui_node_editor.cpp
@@ -73,3 +83,4 @@ index 0d018cf..3dab652 100644
          , m_BorderWidth(0)
          , m_Rounding(0)
          , m_GroupBounds()
+-- 
