@@ -5,7 +5,7 @@ message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 if (WIN32 AND NOT Vulkan_shaderc_combined_DEBUG_LIBRARY)
-    message(INFO " Vulkan shaderc debug library not found. Debug build will not be working. Consider installing it for shader compilation support.")
+    message(WARNING " Vulkan shaderc debug library not found. Debug build will not be working. Consider installing it for shader compilation support.")
 endif()
 
 CPMAddPackage(
