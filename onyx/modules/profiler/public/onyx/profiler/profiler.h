@@ -3,12 +3,19 @@
 #include <tracy/Tracy.hpp>
 
 
+#define ONYX_PROFILE_CONCAT_IMPL(a, b) a##b
+#define ONYX_PROFILE_CONCAT(a, b) ONYX_PROFILE_CONCAT_IMPL(a, b)
+
 #define ONYX_PROFILE_CREATE_TAG(name, color) \
-const char* const g_ProfilerTag##name## = #name;     \
-const Onyx::onyxU32 g_ProfilerColor##name## = color;
+    constexpr const char* const ONYX_PROFILE_CONCAT(g_ProfilerTag, name) = #name; \
+    constexpr const Onyx::onyxU32 ONYX_PROFILE_CONCAT(g_ProfilerColor, name) = color;
 
+#define ONYX_PROFILE(name) \
+    ZoneNamedNC(ONYX_PROFILE_CONCAT(tracy_scope_, name), \
+                ONYX_PROFILE_CONCAT(g_ProfilerTag, name), \
+                ONYX_PROFILE_CONCAT(g_ProfilerColor, name), \
+                true)
 
-#define ONYX_PROFILE(name) ZoneNamedNC(tracy_scope_##name##, g_ProfilerTag##name##, g_ProfilerColor##name##, true)
 #define ONYX_PROFILE_FUNCTION ZoneScoped
 
 #define ONYX_PROFILE_SECTION(name) ZoneScopedN(#name);

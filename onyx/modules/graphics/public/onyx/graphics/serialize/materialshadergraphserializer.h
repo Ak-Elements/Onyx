@@ -15,7 +15,7 @@ namespace Onyx::Graphics
 
     struct MaterialShaderGraphSerializer : Assets::AssetSerializer
     {
-        static constexpr Tuple Extensions = { "omaterial" };
+        static constexpr auto Extensions = std::make_tuple("omaterial");
 
         MaterialShaderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi);
 

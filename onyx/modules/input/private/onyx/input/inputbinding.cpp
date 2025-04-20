@@ -365,6 +365,11 @@ namespace Onyx::Input
                     case MouseAxis::DeltaY:
                         newValue[0] = inputSystem.GetMouseDelta()[1];
                         break;
+                    case MouseAxis::Wheel:
+                    case MouseAxis::Invalid:
+                    case MouseAxis::Count:
+                        ONYX_ASSERT(false, "Invalid mouse axis");
+                        break;
                 }
 
                 switch (axisY)
@@ -380,6 +385,11 @@ namespace Onyx::Input
                         break;
                     case MouseAxis::DeltaY:
                         newValue[1] = inputSystem.GetMouseDelta()[1];
+                        break;
+                    case MouseAxis::Wheel:
+                    case MouseAxis::Invalid:
+                    case MouseAxis::Count:
+                        ONYX_ASSERT(false, "Invalid mouse axis");
                         break;
                 }
 

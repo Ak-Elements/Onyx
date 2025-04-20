@@ -52,13 +52,13 @@ namespace Onyx
 
         CharT& operator[](onyxU32 index)
         {
-            ONYX_ASSERT(index < Size, "Index out of range");
+            //ONYX_ASSERT(index < Size, "Index out of range");
             return m_Data[index];
         }
 
         const CharT& operator[](onyxU32 index) const
         {
-            ONYX_ASSERT(index < Size, "Index out of range");
+            //ONYX_ASSERT(index < Size, "Index out of range");
             return m_Data[index];
         }
 

@@ -8,6 +8,7 @@
 
 namespace Onyx::Assets
 {
+    class AssetSystem;
     struct AssetMetaData;
 }
 

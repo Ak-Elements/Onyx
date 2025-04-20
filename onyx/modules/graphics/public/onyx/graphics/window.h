@@ -63,6 +63,8 @@ namespace Onyx::Graphics
 #include <onyx/graphics/window/sdlwindow.h>
 #elif ONYX_IS_WINDOWS
 #include <onyx/graphics/window/windows/nativewindow.h>
+#elif ONYX_IS_LINUX
+#include <onyx/graphics/window/linux/nativewindow.h>
 #else
-static_assert(false, "Unsupported window library.");
+//static_assert(false, "Unsupported window library.");
 #endif

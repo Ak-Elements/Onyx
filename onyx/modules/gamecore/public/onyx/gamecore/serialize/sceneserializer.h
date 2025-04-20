@@ -16,7 +16,7 @@ namespace Onyx::GameCore
 
     struct SceneSerializer : public Assets::AssetSerializer
     {
-        static constexpr Tuple Extensions = { "oscene" };
+        static constexpr auto Extensions = std::make_tuple( "oscene" );
 
         // remove
         SceneSerializer(Assets::AssetSystem& assetSystem)

@@ -14,7 +14,7 @@ namespace Onyx
         NonCopyable& operator= (NonCopyable&&) = default;
 
     protected:
-        ~NonCopyable() = default;
+        virtual ~NonCopyable() = default;
     };
 
 }

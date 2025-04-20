@@ -37,7 +37,7 @@ namespace Onyx::Editor
         if (IsOpen() == false)
             return;
 
-        const StringView assetName = m_EditableCopy.IsValid() ? m_EditableCopy->GetName() : "None";
+        const String& assetName = m_EditableCopy.IsValid() ? m_EditableCopy->GetName() : "None";
 
         SetWindowFlags(ImGuiWindowFlags_MenuBar);
 

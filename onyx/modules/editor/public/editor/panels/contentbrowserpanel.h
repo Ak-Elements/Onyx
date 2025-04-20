@@ -29,8 +29,7 @@ namespace Onyx::Editor
 
         DirectoryInfo m_ContentDirectoryTree;
         const DirectoryInfo* m_SelectedDirectory = nullptr;
-
-        Assets::AssetSystem* m_AssetSystem = nullptr;
+        
         FileSystem::FileWatcher m_ContentDirectoryWatcher;
 
         Reference<Graphics::TextureAsset> m_FolderClosedAsset;

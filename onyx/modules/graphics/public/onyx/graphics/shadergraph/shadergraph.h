@@ -55,7 +55,7 @@ namespace Onyx::Graphics
 
         void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
 
-#if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
+#if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         const String& GetShaderCode() const { return ShaderCode; }
         bool GenerateShader(ShaderGenerator& generator);
 
@@ -69,7 +69,7 @@ namespace Onyx::Graphics
         virtual bool OnDeserialize(const FileSystem::JsonValue& /*outJson*/) { return true; }
 
     private:
-#if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
+#if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         String ShaderCode;
 #endif
 

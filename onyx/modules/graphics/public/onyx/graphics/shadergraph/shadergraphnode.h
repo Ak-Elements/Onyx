@@ -1,13 +1,15 @@
 #pragma once
 #include <onyx/nodegraph/node.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Assets
 {
-    class ShaderGenerator;
+    class AssetSystem;
 }
 
 namespace Onyx::Graphics
 {
+    class ShaderGenerator;
+
     class ShaderGraphNode : public NodeGraph::Node
     {
     public:

@@ -84,7 +84,6 @@ namespace Onyx::Editor::SceneEditor
                     StringView::difference_type index = typeName.find_last_of(':') + 1;
                     String name(typeName.substr(index));
 
-                    ImVec2 availableRegion = ImGui::GetWindowSize();
                     if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
                     {
                         ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
@@ -100,9 +99,6 @@ namespace Onyx::Editor::SceneEditor
                         ImGui::Dummy(ImVec2(1, 1));
                         
                         Ui::PropertyGrid::EndPropertyGrid();
-
-                        
-
                         ImGui::EndChild();
                     }
                     else
@@ -112,7 +108,6 @@ namespace Onyx::Editor::SceneEditor
                     }
                 }
             }
-
         }
     }
 

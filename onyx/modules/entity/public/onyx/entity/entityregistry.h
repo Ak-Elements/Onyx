@@ -81,7 +81,7 @@ namespace Onyx
                 using namespace entt::literals;
                 constexpr auto typeHash = entt::type_hash<T>::value();
                 auto metaClass = entt::meta<T>();
-                metaClass.ctor<&EntityRegistryT::emplace_or_replace<T>, entt::as_ref_t>();
+                metaClass.template ctor<&EntityRegistryT::emplace_or_replace<T>, entt::as_ref_t>();
 
                 if constexpr (Details::HasHideInEditor<T>)
                     metaClass.type(typeHash).prop(SHOW_IN_EDITOR_PROPERTY_HASH, false);
@@ -96,25 +96,25 @@ namespace Onyx
                 {
                     static_assert(HasSerialize<T> && HasDeserialize<T>, "Non transient component needs Serialize & Deserialize functions.");
                     metaClass.type(typeHash).prop(TRANSIENT_PROPERTY_HASH, false);
-                    metaClass.ctor<&Details::CreateComponent<T>, entt::as_ref_t>();
+                    metaClass.template ctor<&Details::CreateComponent<T>, entt::as_ref_t>();
                 }
 
                 if constexpr (Details::HasDrawImGuiEditor<T>)
-                    metaClass.func<&T::DrawImGuiEditor>(DRAW_IMGUI_FUNCTION_HASH);
+                    metaClass.template func<&T::DrawImGuiEditor>(DRAW_IMGUI_FUNCTION_HASH);
                 
                 if constexpr (HasSerialize<T>)
-                    metaClass.func<&T::Serialize>(SERIALIZE_FUNCTION_HASH);
+                    metaClass.template func<&T::Serialize>(SERIALIZE_FUNCTION_HASH);
 
                 if constexpr (HasDeserialize<T>)
-                    metaClass.func<&T::Deserialize>(DESERIALIZE_FUNCTION_HASH);
+                    metaClass.template func<&T::Deserialize>(DESERIALIZE_FUNCTION_HASH);
 
                 if constexpr (Details::IsJsonSerializable<T>)
                 {
                     ONYX_LOG_INFO("Registering json serialize function");
-                    metaClass.func<&T::SerializeJson>(SERIALIZE_JSON_FUNCTION_HASH);
+                    metaClass.template func<&T::SerializeJson>(SERIALIZE_JSON_FUNCTION_HASH);
                 }
                 if constexpr (Details::IsJsonDeserializable<T>)
-                    metaClass.func<&T::DeserializeJson>(DESERIALIZE_JSON_FUNCTION_HASH);
+                    metaClass.template func<&T::DeserializeJson>(DESERIALIZE_JSON_FUNCTION_HASH);
             }
 
             EntityId CreateEntity()

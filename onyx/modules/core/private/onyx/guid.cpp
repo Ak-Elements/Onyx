@@ -9,7 +9,7 @@ namespace Onyx
 
     Guid64 Guid64Generator::GetGuid()
     {
-        static __declspec(thread) Guid64Generator gs_GuidGeneratorTLS(1);
+        static thread_local Guid64Generator gs_GuidGeneratorTLS(1);
         return gs_GuidGeneratorTLS.Next();
     }
 

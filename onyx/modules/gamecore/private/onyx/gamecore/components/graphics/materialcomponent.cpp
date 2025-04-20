@@ -29,4 +29,12 @@ namespace Onyx::GameCore
             MaterialId = materialId;
         }
     }
+
+    void MaterialComponent::LoadMaterial(Assets::AssetSystem& assetSystem)
+    {
+        if (MaterialId.IsValid() == false)
+            return;
+
+        assetSystem.GetAsset(MaterialId, Material);
+    }
 }

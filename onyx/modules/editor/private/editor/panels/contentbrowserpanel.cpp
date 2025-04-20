@@ -9,8 +9,7 @@
 namespace Onyx::Editor
 {
     ContentBrowserPanel::ContentBrowserPanel(Assets::AssetSystem& assetSystem)
-        : m_AssetSystem(&assetSystem)
-        , m_ContentDirectoryWatcher("", true)
+        : m_ContentDirectoryWatcher("", true)
     {
         BuildContentDirectoryTree("", m_ContentDirectoryTree);
 

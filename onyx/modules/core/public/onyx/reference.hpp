@@ -17,7 +17,7 @@ namespace Onyx
 
     inline bool RefCounted::RemoveReference()
     {
-        return (m_RefCount.fetch_sub(1, std::memory_order::memory_order_acq_rel) == 1);
+        return (m_RefCount.fetch_sub(1, std::memory_order_acq_rel) == 1);
     }
 
     // Reference

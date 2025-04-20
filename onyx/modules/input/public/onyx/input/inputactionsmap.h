@@ -30,6 +30,8 @@ namespace Onyx::Input
         DynamicArray<InputAction>& GetActions() { return m_Actions; }
         const DynamicArray<InputAction>& GetActions() const { return m_Actions; }
 
+        onyxU32 GetId() const { return m_Id; }
+
     private:
         bool HasInputAction(onyxU64 actionId) const;
 

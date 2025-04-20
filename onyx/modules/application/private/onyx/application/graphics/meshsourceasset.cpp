@@ -52,9 +52,6 @@ namespace Onyx::Application
             {
                 line.remove_prefix(2);
                 onyxU32 indices[9];
-                Vector3u32 faceVertexIndices;
-                Vector3u32 faceTexCoordIndices;
-                Vector3u32 faceNormalIndices;
 
                 DynamicArray<String> split = Split(line, " /");
                 onyxS32 i = -1;

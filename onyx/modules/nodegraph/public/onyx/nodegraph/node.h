@@ -1,27 +1,9 @@
 #pragma once
 
 #include <onyx/nodegraph/pin.h>
-
-#include <any>
-
 #include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx
-{
-    namespace Assets
-    {
-        class AssetSystem;
-    }
-
-    namespace Graphics
-    {
-        struct TextureHandle;
-        class ShaderEffect;
-        class CommandBuffer;
-        struct RenderGraphContext;
-        class GraphicsApi;
-    }
-}
+#include <any>
 
 namespace Onyx::NodeGraph
 {
@@ -303,13 +285,11 @@ namespace Onyx::NodeGraph
                     PinBase* inputPin = Node::GetInputPinByLocalId(localPinId);
                     if (inputPin == nullptr)
                     {
-                        inputPin = m_InputPins.emplace_back(new DynamicPin<Graphics::TextureHandle>(globalPinId, Format::Format("InputPin_{}", m_InputPins.size()))).get();
+                        ONYX_LOG_ERROR("Node has no input pin with this id.");
+                        return false;
                     }
-                    else
-                    {
-                        inputPin->SetGlobalId(globalPinId);
-                    }
-
+                    
+                    inputPin->SetGlobalId(globalPinId);
                     if (inputPinJson.Get("linkedPin", linkedPinId))
                     {
                         inputPin->ConnectPin(linkedPinId);
@@ -343,13 +323,12 @@ namespace Onyx::NodeGraph
                     PinBase* outputPin = Node::GetOutputPinByLocalId(localPinId);
                     if (outputPin == nullptr)
                     {
-                        outputPin = m_OutputPins.emplace_back(new DynamicPin<Graphics::TextureHandle>(globalPinId, Format::Format("OutputPin_{}", m_OutputPins.size()))).get();
-                    }
-                    else
-                    {
-                        outputPin->SetGlobalId(globalPinId);
+                        ONYX_LOG_ERROR("Node has no output pin with this id.");
+                        return false;
                     }
 
+                    outputPin->SetGlobalId(globalPinId);
+                    
                     if (outputPinJson.Get("linkedPin", linkedPinId))
                     {
                         outputPin->ConnectPin(linkedPinId);

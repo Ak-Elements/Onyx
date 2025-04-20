@@ -93,7 +93,9 @@ namespace Onyx::Application
         Logger::s_DefaultLogger = m_Logger.get();
 
         m_Logger->AddLoggingBackend<StdoutLogger>();
+#if ONYX_IS_VISUAL_STUDIO
         m_Logger->AddLoggingBackend<VisualStudioLogger>();
+#endif
 
 #if ONYX_UI_MODULE && ONYX_USE_IMGUI
         m_Logger->AddLoggingBackend<GuiNotificationLoggerSink>();

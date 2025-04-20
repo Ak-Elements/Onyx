@@ -14,11 +14,11 @@ namespace Onyx::Graphics::Vulkan
 		CommandPool(const Device& device, onyxS32 queueFamilyIndex, VkCommandPoolCreateFlags createFlags);
 		~CommandPool();
 
-		CommandPool(CommandPool&&) = default;
-		CommandPool& operator=(CommandPool&&) = default;
+		CommandPool(CommandPool&& other);
+		CommandPool& operator=(CommandPool&& other);
 
 	private:
-		const Device& m_Device;
+		const Device* m_Device;
 
 		VULKAN_HANDLE(VkCommandPool, CommandPool, nullptr);
 	};

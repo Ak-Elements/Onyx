@@ -13,7 +13,7 @@ namespace Onyx
 		template <onyxU64...Idxs>
 		constexpr auto substring_as_array(StringView str, std::index_sequence<Idxs...>)
 		{
-			return Array{ str[Idxs]..., '\0' };
+			return Array<char, sizeof...(Idxs) + 1>{ str[Idxs]..., '\0' };
 		}
 
 		template <bool KeepNamespace, typename T>

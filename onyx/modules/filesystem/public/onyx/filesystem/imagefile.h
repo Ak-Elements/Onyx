@@ -25,10 +25,7 @@ namespace Onyx::FileSystem
         Span<onyxU8>& GetData() { return m_ImageData; }
         const Span<onyxU8>& GetData() const { return m_ImageData; }
     private:
-        onyxU64 m_FileId; // file id get created from the path and has to be unique
         Filepath m_FilePath;
-
-        Type m_Type;
 
         Vector2s32 m_Size;
         Span<onyxU8> m_ImageData;

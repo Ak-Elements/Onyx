@@ -37,12 +37,10 @@ namespace Onyx::GameCore
         void SerializeJson(FileSystem::JsonValue& outStream) const;
         void DeserializeJson(const FileSystem::JsonValue& inStream);
 
+        void LoadMaterial(Assets::AssetSystem& assetSystem);
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
         void DrawImGuiEditor();
-        void LoadMaterial(Assets::AssetSystem& assetSystem);
-
-    private:
 #endif
     };
 }

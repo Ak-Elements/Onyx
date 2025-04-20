@@ -117,8 +117,6 @@ namespace Onyx::Graphics
             {
                 if (isTexture)
                 {
-                    Vector3f size;
-
                     if (i >= m_OutputAttachmentInfos.size())
                         m_OutputAttachmentInfos.emplace_back();
 

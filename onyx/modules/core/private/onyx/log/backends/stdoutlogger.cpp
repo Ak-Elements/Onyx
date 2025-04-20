@@ -20,8 +20,8 @@ namespace Onyx
             formattedMessage = Format::Format("{}:{}:{}: {} \n", message.m_FileName, message.m_LineNumber, GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
         }
 
-        printf(GetLogLevelConsoleColor(message.m_LogLevel).data());
-        printf(formattedMessage);
-        printf(LogPrivate::reset.data());
+        puts(GetLogLevelConsoleColor(message.m_LogLevel).data());
+        puts(formattedMessage);
+        puts(LogPrivate::reset.data());
     }
 }

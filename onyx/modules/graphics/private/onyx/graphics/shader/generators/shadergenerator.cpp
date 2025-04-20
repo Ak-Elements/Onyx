@@ -5,9 +5,11 @@ namespace Onyx::Graphics
 {
     namespace
     {
+        #if ONYX_ASSERTS_ENABLED
         constexpr onyxU8 MAX_TEXTURES = 8;
+        #endif
     }
-
+    
     ShaderGenerator::ShaderGenerator()
     {
         AddInclude(ShaderStage::All, "includes/common.h");

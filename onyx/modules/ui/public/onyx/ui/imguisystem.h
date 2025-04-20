@@ -1,7 +1,8 @@
 #pragma once
-#include "imguiwindow.h"
 
 #if ONYX_USE_IMGUI
+
+#include <onyx/ui/imguiwindow.h>
 
 #include <onyx/engine/enginesystem.h>
 
@@ -109,7 +110,7 @@ namespace Onyx
                 }
                 else
                 {
-                    newWindow = std::move(factoryIt->second());
+                    newWindow = factoryIt->second();
                 }
 
                 newWindow->SetName(String(newWindow->GetWindowId()));
@@ -153,7 +154,7 @@ namespace Onyx
                 }
                 else
                 {
-                    newWindow = std::move(factoryIt->second());
+                    newWindow = factoryIt->second();
                 }
 
                 newWindow->SetName(String(newWindow->GetWindowId()));

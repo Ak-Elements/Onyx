@@ -145,7 +145,6 @@ namespace Onyx::FileSystem::Path
 
     void SetMountPoints(const HashMap<onyxU32, MountPoint>& dataRoots)
     {
-#if ONYX_IS_DEBUG
         // ensure data directories exist
         for (auto&& [identifier, mountPoint] : dataRoots)
         {
@@ -168,7 +167,6 @@ namespace Onyx::FileSystem::Path
 
             MountPoints[identifier] = mountPoint;
         }
-#endif
     }
 
     bool CreateDirectory(const Filepath& directoryPath)

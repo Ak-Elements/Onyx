@@ -12,6 +12,7 @@ namespace Onyx::GameCore
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Intensity", Light.Intensity);
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Shadow Amount", Light.ShadowAmount);
         hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", Light.IsShadowCasting);
+        ONYX_UNUSED(hasModified);
     }
 
     void PointLightComponent::DrawImGuiEditor()
@@ -21,6 +22,7 @@ namespace Onyx::GameCore
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Intensity", Light.Intensity);
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Radius", Light.Radius);
         hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", Light.IsShadowCasting);
+        ONYX_UNUSED(hasModified);
     }
 
     void SpotLightComponent::DrawImGuiEditor()
@@ -33,6 +35,7 @@ namespace Onyx::GameCore
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Angle", Light.Angle);
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Angle Attenuation", Light.AngleAttenuation);
         hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", Light.IsShadowCasting);
+        ONYX_UNUSED(hasModified);
     }
 #endif
 }

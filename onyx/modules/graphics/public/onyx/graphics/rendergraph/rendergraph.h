@@ -8,51 +8,6 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/nodegraph/graph.h>
 
-namespace Onyx::NodeGraph
-{
-    template <>
-    struct PinMetaObject<Graphics::BufferHandle>
-    {
-        static bool DrawPinInPropertyGrid(StringView name, Graphics::BufferHandle& value);
-        static constexpr onyxU32 GetPinTypeColor() { return 0xFF5C5CCD; /* Indian Red */ }
-
-        static bool Serialize(FileSystem::JsonValue& json, const Graphics::BufferHandle& handle)
-        {
-            ONYX_UNUSED(json);
-            ONYX_UNUSED(handle);
-            return true;
-        }
-
-        static bool Deserialize(const FileSystem::JsonValue& json, Graphics::BufferHandle& handle)
-        {
-            ONYX_UNUSED(json);
-            ONYX_UNUSED(handle);
-            return true;
-        }
-    };
-
-    template <>
-    struct PinMetaObject<Graphics::TextureHandle>
-    {
-        static bool DrawPinInPropertyGrid(StringView name, Graphics::TextureHandle& value);
-        static constexpr onyxU32 GetPinTypeColor() { return 0xFFB48246; /*Steel Blue*/ }
-
-        static bool Serialize(FileSystem::JsonValue& json, const Graphics::TextureHandle& handle)
-        {
-            ONYX_UNUSED(json);
-            ONYX_UNUSED(handle);
-            return true;
-        }
-
-        static bool Deserialize(const FileSystem::JsonValue& json, Graphics::TextureHandle& handle)
-        {
-            ONYX_UNUSED(json);
-            ONYX_UNUSED(handle);
-            return true;
-        }
-    };
-}
-
 namespace Onyx::Graphics
 {
     struct FrameContext;

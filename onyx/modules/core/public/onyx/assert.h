@@ -47,12 +47,12 @@ namespace Onyx
 
 #if ONYX_IS_VISUAL_STUDIO
 #define DEBUG_BREAK __debugbreak()
-#elif IS_CLANG
+#elif ONYX_IS_CLANG
 #if ANDROID
 #include <signal.h>
-#define DEBUG_BREAK() raise(SIGTRAP)
+#define DEBUG_BREAK raise(SIGTRAP)
 #else
-#define DEBUG_BREAK() __builtin_debugtrap()
+#define DEBUG_BREAK __builtin_debugtrap()
 #endif
 #elif IS_GCC// gcc
 #define DEBUG_BREAK __builtin_trap()

@@ -524,7 +524,10 @@ namespace Onyx::NodeGraph
     concept PinType = requires()
     {
         { T::LocalId };
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         { T::LocalIdString };
+#endif
+
         typename T::DataType;
     };
 
@@ -579,14 +582,18 @@ namespace Onyx::NodeGraph
         DynamicPin(const String& id)
             : PinBase(Guid64Generator::GetGuid())
             , LocalId(Hash::FNV1aHash32(id))
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
             , LocalIdString(id)
+#endif
         {
         }
 
         DynamicPin(const Guid64 globalPinId, const String& id)
             : PinBase(globalPinId)
             , LocalId(Hash::FNV1aHash32(id))
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
             , LocalIdString(id)
+#endif
         {
         }
 
@@ -637,7 +644,9 @@ namespace Onyx::NodeGraph
         }
 
         onyxU32 GetLocalId() const override { return LocalId; }
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         StringView GetLocalIdString() const override { return LocalIdString; }
+#endif
 
         PinTypeId GetType() override { return DataTypeId; }
         PinTypeId GetType() const override { return DataTypeId; }
@@ -704,7 +713,9 @@ namespace Onyx::NodeGraph
         }
 
         onyxU32 GetLocalId() const override { return LocalId; }
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         StringView GetLocalIdString() const override { return LocalIdString; }
+#endif
 
         PinTypeId GetType() override { return DataTypeId; }
         PinTypeId GetType() const override { return DataTypeId; }

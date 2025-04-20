@@ -548,17 +548,20 @@ namespace Onyx::Graphics
 
             switch (inputResource.Info.Type)
             {
-            case RenderGraphResourceType::Texture:
-            case RenderGraphResourceType::Attachment: //TODO REMOVE
-                //m_ShaderEffect->Bind(std::get<TextureHandle>(input.Handle), bindingIndex++);
-                break;
-            case RenderGraphResourceType::Buffer:
-#if ONYX_IS_DEBUG
-                shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
-#else
-                shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), "", frameContext.FrameIndex);
-#endif
-                break;
+                case RenderGraphResourceType::Texture:
+                case RenderGraphResourceType::Attachment: //TODO REMOVE
+                    //m_ShaderEffect->Bind(std::get<TextureHandle>(input.Handle), bindingIndex++);
+                    break;
+                case RenderGraphResourceType::Buffer:
+    #if ONYX_IS_DEBUG
+                    shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
+    #else
+                    shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), "", frameContext.FrameIndex);
+    #endif
+                    break;
+                case RenderGraphResourceType::Invalid:
+                case RenderGraphResourceType::Reference:
+                    break;
             }
         }
 
@@ -575,17 +578,20 @@ namespace Onyx::Graphics
 
             switch (outputResource.Info.Type)
             {
-            case RenderGraphResourceType::Texture:
-            case RenderGraphResourceType::Attachment: //TODO REMOVE
-                //m_ShaderEffect->Bind(std::get<TextureHandle>(input.Handle), bindingIndex++);
-                break;
-            case RenderGraphResourceType::Buffer:
-#if ONYX_IS_DEBUG
-                shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
-#else
-                shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), "", frameContext.FrameIndex);
-#endif
-                break;
+                case RenderGraphResourceType::Texture:
+                case RenderGraphResourceType::Attachment: //TODO REMOVE
+                    //m_ShaderEffect->Bind(std::get<TextureHandle>(input.Handle), bindingIndex++);
+                    break;
+                case RenderGraphResourceType::Buffer:
+    #if ONYX_IS_DEBUG
+                    shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
+    #else
+                    shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), "", frameContext.FrameIndex);
+    #endif
+                    break;
+                case RenderGraphResourceType::Invalid:
+                case RenderGraphResourceType::Reference:
+                    break;
             }
         }
     }
@@ -607,7 +613,9 @@ namespace Onyx::Graphics
 
         m_PipelineProperties.RenderPass = m_RenderPass;
         m_PipelineProperties.Shader = m_Shader;
+#if ONYX_IS_DEBUG
         m_PipelineProperties.m_DebugName = GetName();
+#endif
         m_ShaderEffect = api.CreateShaderEffect(m_PipelineProperties);
     }
 

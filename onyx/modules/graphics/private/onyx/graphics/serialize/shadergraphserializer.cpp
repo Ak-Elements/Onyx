@@ -14,7 +14,7 @@ namespace Onyx::Graphics::ShaderGraphSerializer
     {
         using namespace FileSystem;
 
-#if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
+#if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
 
         JsonValue graphJson;
         bool success = graph.Serialize(graphJson);
@@ -33,7 +33,7 @@ namespace Onyx::Graphics::ShaderGraphSerializer
 
         return success;
 #else
-        ONYX_UNUSED(asset);
+        ONYX_UNUSED(graph);
         ONYX_UNUSED(filePath);
         return true;
 #endif
@@ -50,7 +50,7 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         // TODO: we need to handle the case that the shader graph is updated but the shader code is outdated
         // so we need to compare the compiled graph to the shader on disk
 
-#if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
+#if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         NodeGraph::ShaderNodeFactory factory;
         OnyxFile graphJsonFile(filePath);
         JsonValue graphJson = graphJsonFile.LoadJson();
@@ -65,14 +65,6 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         if (graph.GenerateShader(shaderGenerator) == false)
             return false;
 
-        // call on changed on nodes to queue dependency loading (e.g. textures)
-        NodeGraph::NodeGraph& nodeGraph = graph.GetNodeGraph();
-        for (auto& node : (nodeGraph.GetNodes() | std::views::values))
-        {
-            ShaderGraphNode& shaderGraphNode = static_cast<ShaderGraphNode&>(*node.m_Data);
-            shaderGraphNode.OnNodeChanged(assetSystem);
-        }
-
         const onyxU64 shaderCodeHash = Hash::FNV1aHash64(graph.GetShaderCode(), Hash::FNV1aHash64(shaderPath));
         if ((shader == nullptr) || (shaderCodeHash != shader->GetShaderHash()))
         {
@@ -82,11 +74,18 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         }
 #endif
 
-
         if (shader == nullptr)
         {
             ONYX_LOG_ERROR("Failed to compile shader for shader graph.");
             return false;
+        }
+
+        // call on changed on nodes to queue dependency loading (e.g. textures)
+        NodeGraph::NodeGraph& nodeGraph = graph.GetNodeGraph();
+        for (auto& node : (nodeGraph.GetNodes() | std::views::values))
+        {
+            ShaderGraphNode& shaderGraphNode = static_cast<ShaderGraphNode&>(*node.m_Data);
+            shaderGraphNode.OnNodeChanged(assetSystem);
         }
 
         RenderPassSettings renderPassSettings;

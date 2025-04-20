@@ -9,7 +9,6 @@ namespace Onyx::FileSystem
     OnyxFile::OnyxFile(const std::filesystem::path& filePath)
         : m_FileId(Hash::FNV1aHash64(filePath.string()))
         , m_FilePath(filePath)
-        , m_Type(Type::Raw)
     {
     }
 

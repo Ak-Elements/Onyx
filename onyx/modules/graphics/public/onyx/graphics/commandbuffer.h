@@ -64,6 +64,5 @@ namespace Onyx::Graphics
     protected:
         virtual void BindDescriptorSets() = 0;
         virtual void BindPipeline(const PipelineHandle& pipelineHandle) = 0;
-        
     };
 }

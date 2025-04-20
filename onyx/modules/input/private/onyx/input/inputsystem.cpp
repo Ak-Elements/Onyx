@@ -6,18 +6,20 @@
 #elif ONYX_IS_WINDOWS
 #include <onyx/input/platform/windows/windows_keycodes.h>
 #else
-static_assert(false, "Unsupported window library.");
+//static_assert(false, "Unsupported window library.");
 #endif
 
 #include <onyx/input/inputevent.h>
-#include <onyx/graphics/window/windows/nativewindow.h>
+#include <onyx/graphics/window.h>
 #include <onyx/log/logger.h>
 
 namespace Onyx::Input
 {
     void InputSystem::Init(Graphics::Window& window)
     {
+#if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
         window.SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
+#endif
 
 #if ONYX_USE_GAMEINPUT
         m_Input.SetControllerConnectedHandler({ this, &InputSystem::HandleGamepadConnected });
@@ -114,19 +116,20 @@ namespace Onyx::Input
             event.m_Key = ConvertWindowsKey(wParam, lParam);
             m_KeyState[static_cast<onyxS16>(event.m_Key)] = hasReleased == false;
 
+            Modifier modifiers = Modifier::None;
             if (IsModifierKey(event.m_Key))
             {
                 if (m_KeyState[Enums::ToIntegral(Key::Left_Ctrl)] || m_KeyState[Enums::ToIntegral(Key::Right_Ctrl)])
-                    m_Modifiers |= Modifier::Ctrl;
+                    modifiers |= Modifier::Ctrl;
 
                 if (m_KeyState[Enums::ToIntegral(Key::Left_Shift)] || m_KeyState[Enums::ToIntegral(Key::Right_Shift)])
-                    m_Modifiers |= Modifier::Shift;
+                    modifiers |= Modifier::Shift;
 
                 if (m_KeyState[Enums::ToIntegral(Key::Left_Alt)] || m_KeyState[Enums::ToIntegral(Key::Right_Alt)])
-                    m_Modifiers |= Modifier::Alt;
+                    modifiers |= Modifier::Alt;
             }
 
-            event.m_TriggerModifiers = m_Modifiers;
+            event.m_TriggerModifiers = modifiers;
 
             m_OnInput(&event);
             return true;

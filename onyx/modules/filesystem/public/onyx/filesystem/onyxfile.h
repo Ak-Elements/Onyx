@@ -151,7 +151,5 @@ namespace Onyx::FileSystem
     private:
         onyxU64 m_FileId; // file id get created from the path and has to be unique
         Filepath m_FilePath;
-
-        Type m_Type;
     };
 }

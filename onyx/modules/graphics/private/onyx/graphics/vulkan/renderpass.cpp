@@ -128,12 +128,7 @@ namespace Onyx::Graphics::Vulkan
         for (onyxU8 subPassIndex = 0; subPassIndex < subPassCount; ++subPassIndex)
         {
             bool hasDepthAttachment = false;
-            bool hasResolveAttachment = false;
-            //bool hasShadingRateAttachment = false;
-            //onyxU32 inputAttachmentCount = 0;
-            onyxU8 renderTargetCount = 0;
-            //onyxU32 preserveAttachmentCount = 0;
-
+            
             DynamicArray<VkAttachmentReference2> colorAttachments;
             DynamicArray<VkAttachmentReference2> resolveAttachments;
             DynamicArray<VkAttachmentReference2> inputAttachments;
@@ -156,8 +151,6 @@ namespace Onyx::Graphics::Vulkan
                     ref2.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     ref2.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                     ref2.pNext = nullptr;
-
-                    ++renderTargetCount;
                 }
                 else if (subpass.m_AttachmentAccesses[attachmentIndex] == RenderPassSettings::AttachmentAccess::ResolveTarget)
                 {
@@ -167,8 +160,6 @@ namespace Onyx::Graphics::Vulkan
                     ref2.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                     ref2.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                     ref2.pNext = nullptr;
-
-                    hasResolveAttachment = true;
                 }
                 else if (subpass.m_AttachmentAccesses[attachmentIndex] == RenderPassSettings::AttachmentAccess::Preserve)
                 {

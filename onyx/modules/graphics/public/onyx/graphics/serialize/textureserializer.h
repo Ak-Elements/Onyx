@@ -7,7 +7,7 @@ namespace Onyx::Graphics
 
     struct TextureSerializer : public Assets::AssetSerializer
     {
-        static constexpr Tuple Extensions = { "png", "jpg" };
+        static constexpr auto Extensions = std::make_tuple("png", "jpg");
 
         TextureSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi);
 

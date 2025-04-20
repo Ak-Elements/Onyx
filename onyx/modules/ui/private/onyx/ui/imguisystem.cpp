@@ -18,7 +18,9 @@
 #include <implot.h>
 #include <implot3d.h>
 
+#if ONYX_IS_WINDOWS
 #include <windows.h>
+#endif
 
 namespace Onyx::Ui
 {
@@ -59,7 +61,9 @@ namespace Onyx::Ui
 			case Input::Key::Semicolon: return ImGuiKey_Semicolon;
 			case Input::Key::Equals: return ImGuiKey_Equal;
 			case Input::Key::LeftBracket: return ImGuiKey_LeftBracket;
-			case Input::Key::BackSlash: return ImGuiKey_Backslash;
+			case Input::Key::BackSlash: // intentional fallthrough
+			case Input::Key::NonUsBackSlash:
+			    return ImGuiKey_Backslash;
 			case Input::Key::RightBracket: return ImGuiKey_RightBracket;
 			case Input::Key::Grave: return ImGuiKey_GraveAccent;
 			case Input::Key::CapsLock: return ImGuiKey_CapsLock;
@@ -141,7 +145,12 @@ namespace Onyx::Ui
 			case Input::Key::F10: return ImGuiKey_F10;
 			case Input::Key::F11: return ImGuiKey_F11;
 			case Input::Key::F12: return ImGuiKey_F12;
+            case Input::Key::Invalid:
+			case Input::Key::NonUsHash:
+            default:
+				break;
 			}
+
 			return ImGuiKey_None;
 	    }
 
@@ -319,11 +328,6 @@ namespace Onyx::Ui
 #else
 		ONYX_UNUSED(assetSystem);
 #endif
-
-#if ONYX_IS_WINDOWS
-#else
-		static_assert(false);
-#endif
     }
 
     void ImGuiSystem::Shutdown(Input::InputSystem& inputSystem, Graphics::Window& _window)
@@ -390,17 +394,15 @@ namespace Onyx::Ui
 #if ONYX_USE_SDL2
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL2_NewFrame(m_Window.GetWindowHandle());
-#elif ONYX_IS_WINDOWS
-		// TODO:
-#else
-		static_assert(false);
 #endif
+
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
     }
 
     void ImGuiSystem::OnEndFrame()
     {
+#if ONYX_IS_WINDOWS
 		if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
 		{
 			LPTSTR win32Cursor = IDC_ARROW;
@@ -419,6 +421,7 @@ namespace Onyx::Ui
 
 			window->SetCursor(::LoadCursor(NULL, win32Cursor));
 		}
+#endif
 
 		ImGuiIO& io = ImGui::GetIO();
 		// Update and Render additional Platform Windows
@@ -447,7 +450,7 @@ namespace Onyx::Ui
 	void ImGuiSystem::OnWindowResize(onyxU32 width, onyxU32 height)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
+		io.DisplaySize = ImVec2(static_cast<onyxF32>(width), static_cast<onyxF32>(height));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 	}
 
@@ -508,6 +511,9 @@ namespace Onyx::Ui
 								io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
 								break;
 							}
+                            default:
+                                ONYX_ASSERT(false, "Invalid modifier key");
+                                break;
 						}
 					}
 					

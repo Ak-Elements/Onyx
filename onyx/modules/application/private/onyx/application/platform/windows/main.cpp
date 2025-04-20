@@ -14,7 +14,7 @@ void* operator new(size_t size)
     return p;
 }
 
-void operator delete(void* p)
+void operator delete(void* p) noexcept
 {
     //cout << "Delete operator overloading " << endl;
     free(p);

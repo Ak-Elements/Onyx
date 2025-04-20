@@ -92,6 +92,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/vulkan/vulkan.h
     ${TARGET_PUBLIC_PATH}/window/sdlwindow.h
     ${TARGET_PUBLIC_PATH}/window/windows/nativewindow.h
+    ${TARGET_PUBLIC_PATH}/window/linux/nativewindow.h
 )
 
 set(TARGET_PRIVATE_SOURCES
@@ -107,7 +108,6 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/renderpasscache.cpp
     ${TARGET_PRIVATE_PATH}/presentthread.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraph.cpp
-    ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphnodefactory.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphtask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/atmosphericskytask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/multiplescatteringtask.cpp

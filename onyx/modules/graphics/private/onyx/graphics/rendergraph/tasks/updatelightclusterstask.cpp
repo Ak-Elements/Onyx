@@ -8,13 +8,6 @@
 
 namespace Onyx::Graphics
 {
-    namespace
-    {
-        constexpr RenderGraphResourceId LIGHT_CLUSTER_AABBS_SBO_ID = Hash::FNV1aHash32("clusteraabbs");
-        constexpr RenderGraphResourceId LIGHT_GRID_SBO_ID = Hash::FNV1aHash32("sbo_lightgrid");
-        constexpr RenderGraphResourceId LIGHT_GLOBAL_INDICES_SBO_ID = Hash::FNV1aHash32("sbo_globallightindices");
-    }
-
     void CreateLightClusters::OnInit(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
     {
         constexpr onyxU32 clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;

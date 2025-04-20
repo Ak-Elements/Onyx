@@ -83,7 +83,7 @@ namespace Onyx::Editor
             }
             else
             {
-                graphAsset->GetOnLoadedEvent().Connect<&TypedNodeGraphEditorContext::OnAssetLoaded>(this);
+                graphAsset->GetOnLoadedEvent().template Connect<&TypedNodeGraphEditorContext::OnAssetLoaded>(this);
             }
         }
 

@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <cstring>
 #include <cstdint>
+#include <cmath>
 #include <functional>
 #include <limits>
 #include <memory>

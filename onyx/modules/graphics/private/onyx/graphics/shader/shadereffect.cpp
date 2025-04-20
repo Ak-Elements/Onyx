@@ -26,7 +26,7 @@ namespace Onyx::Graphics
                 {
                     const DescriptorSetHandle& descriptorSet = descriptorSets[i];
                     HashSet<String> bindingIds = descriptorSet->GetBindingIds();
-                    for (const String bindingId : bindingIds)
+                    for (const String& bindingId : bindingIds)
                     {
                         m_BindingIdToDescriptorSet[bindingId] = i;
                     }

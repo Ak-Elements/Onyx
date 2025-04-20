@@ -5,7 +5,7 @@
 
 namespace Onyx::FileSystem
 {
-    enum class OpenMode
+    enum class OpenMode : onyxU8
     {
         Read = 1 << 0,
         Write = 1 << 1,
@@ -41,9 +41,6 @@ private:
     void DoRead(char* destination, onyxU64 size) const override;
     void DoWrite(const char* data, onyxU64 size) override;
 
-private:
-    OpenMode m_Mode;
-    
 private:
     UniquePtr<std::iostream> m_Stream;
     onyxS64 m_Size = 0;

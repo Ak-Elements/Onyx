@@ -215,7 +215,6 @@ namespace Onyx::Application
         }
 
     private:
-        onyxU64 m_LastFrameTime = 0;
         bool m_IsRunning = true;
 
         ApplicationSettings m_Settings;

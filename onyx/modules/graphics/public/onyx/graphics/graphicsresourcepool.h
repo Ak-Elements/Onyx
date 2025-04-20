@@ -9,8 +9,12 @@ namespace Onyx::Graphics
     public:
         MemoryPool(onyxU32 dataSize, onyxU32 capacity)
             : m_ObjectSize(dataSize)
+#if ONYX_ASSERTS_ENABLED
             , m_Capacity(capacity)
+#endif
         {
+            ONYX_UNUSED(capacity);
+            
             m_Data = new onyxU8[dataSize * capacity];
             m_FreeIndices = new onyxU32[capacity];
 
@@ -52,7 +56,9 @@ namespace Onyx::Graphics
         onyxU32* m_FreeIndices = nullptr;
 
         onyxU32 m_ObjectSize = 0;
+#if ONYX_ASSERTS_ENABLED
         onyxU32 m_Capacity = 0;
+#endif
     };
 
     template <typename T, onyxU32 Capacity>
@@ -85,7 +91,5 @@ namespace Onyx::Graphics
         {
             return static_cast<T*>(MemoryPool::Get(index));
         }
-
-        //    ObjectType* m_Objects;
     };
 }

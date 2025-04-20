@@ -20,5 +20,10 @@ namespace Onyx::Graphics
             TypedNodeFactory::RegisterNode<T>(nodeName);
         }
     };
+}
 
+namespace Onyx::NodeGraph
+{
+    template<>
+    NodeRegistry<Graphics::RenderGraphNodeEditorMetaData> TypedNodeFactory<Graphics::IRenderGraphNode, Graphics::RenderGraphNodeEditorMetaData>::ms_NodeRegistry;
 }

@@ -57,14 +57,15 @@ namespace Onyx::Graphics::Vulkan
     }
 
 	VulkanTextureStorage::VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image)
-		: m_Image(image)
-		, m_Device(&api.GetDevice())
+		: m_Device(&api.GetDevice())
+        , m_Image(image)
+		
 	{
 	}
 
 	VulkanTextureStorage::VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image, const StringView& name)
-		: m_Image(image)
-		, m_Device(&api.GetDevice())
+		: m_Device(&api.GetDevice())
+        , m_Image(image)
 	{
 		SetResourceName(m_Device->GetHandle(), VK_OBJECT_TYPE_IMAGE, (onyxU64)m_Image, name);
 	}
@@ -110,6 +111,7 @@ namespace Onyx::Graphics::Vulkan
             case TextureType::Texture2D: // intentional fallthrough
             case TextureType::TextureCube: return VK_IMAGE_TYPE_2D;
             case TextureType::Texture3D: return VK_IMAGE_TYPE_3D;
+            case TextureType::None: break;
         }
 
 	    ONYX_ASSERT(false, "Non supported texture type: {}", static_cast<onyxU32>(type));
@@ -138,6 +140,7 @@ namespace Onyx::Graphics::Vulkan
             case TextureFormat::RGB_UFLOAT32_PACKED_11_11_10: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
             case TextureFormat::SRGB_UNORM8: return VK_FORMAT_R8G8B8A8_SRGB;
             case TextureFormat::DEPTH_STENCIL_FLOAT32_8UINT: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+            case TextureFormat::DEPTH_UNORM16: return VK_FORMAT_D16_UNORM;
             case TextureFormat::DEPTH_FLOAT32: return VK_FORMAT_D32_SFLOAT;
             case TextureFormat::DEPTH_STENCIL_UNORM24_8UINT: return VK_FORMAT_D24_UNORM_S8_UINT;
             case TextureFormat::DEPTH_STENCIL_UNORM16_8UINT: return VK_FORMAT_D16_UNORM_S8_UINT;
@@ -173,6 +176,7 @@ namespace Onyx::Graphics::Vulkan
 	        case VK_FORMAT_D24_UNORM_S8_UINT: return TextureFormat::DEPTH_STENCIL_UNORM24_8UINT;
 	        case VK_FORMAT_D16_UNORM_S8_UINT: return TextureFormat::DEPTH_STENCIL_UNORM16_8UINT;
 	        case VK_FORMAT_S8_UINT: return TextureFormat::STENCIL_UINT8;
+            default: break;
 	    }
 
 	    ONYX_ASSERT(false, "Non supported texture format: {}", static_cast<onyxU32>(format));

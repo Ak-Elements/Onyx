@@ -666,7 +666,7 @@ namespace ImGui
                     }
                     
                     ImGui::PushTextWrapPos(GetCursorPos().x + GetContentRegionAvail().x - style.FramePadding.x);
-                    ImGui::Text(content.data());
+                    ImGui::Text("%s", content.data());
                     ImGui::PopTextWrapPos();
                 }
 

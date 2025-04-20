@@ -52,12 +52,11 @@ namespace Onyx::Graphics::Vulkan
 
 		void InitPool();
 	private:
-		onyxU8 m_Alignment = 0;
 		onyxU8 m_MemoryType = 0; // default
 
 		onyxU32 m_PoolSize = 0;
 
-        VmaAllocator m_Allocator = nullptr;
+        VmaAllocator m_Allocator = nullptr; 
 		VmaPool m_VmaPool = nullptr;
 		VkDeviceMemory m_VmaAllocationDeviceMemory = nullptr;
 

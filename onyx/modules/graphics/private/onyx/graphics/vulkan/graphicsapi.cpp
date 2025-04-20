@@ -682,6 +682,11 @@ namespace Onyx::Graphics::Vulkan
                 queue = m_Device->GetComputeQueue();
                 fence = m_ComputeSingleSubmitFence->GetHandle();
                 break;
+            case Context::CopyTransfer:
+                break;
+            case Context::Count:
+                ONYX_ASSERT(false, "Invalid queue type");
+                break;
         }
 
         if (queue == nullptr)

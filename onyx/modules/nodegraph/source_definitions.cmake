@@ -23,6 +23,5 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/graph.cpp
 	${TARGET_PRIVATE_PATH}/graphrunner.cpp
 	${TARGET_PRIVATE_PATH}/node.cpp
-	${TARGET_PRIVATE_PATH}/nodefactory.cpp
 	${TARGET_PRIVATE_PATH}/nodegraphserializer.cpp
 )

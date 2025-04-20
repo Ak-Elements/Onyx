@@ -67,7 +67,5 @@ namespace Onyx::Editor
 
         bool m_IsListeningOnInput = false;
         bool m_IsDirty = false;
-        bool m_IsActionRename = false;
-
     };
 }

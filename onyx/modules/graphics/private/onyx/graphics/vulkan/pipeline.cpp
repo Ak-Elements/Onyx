@@ -93,6 +93,8 @@ namespace Onyx::Graphics::Vulkan
                     return VK_BLEND_FACTOR_SRC1_ALPHA;
                 case Blend::OneMinusSrc1Alpha:
                     return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+                case Blend::Invalid:
+                    break;
             }
 
             ONYX_ASSERT(false, "Unhandled blend factor %s", Enums::ToString(factor).data());
@@ -319,7 +321,7 @@ namespace Onyx::Graphics::Vulkan
                     stride += size;
                 }
 
-                vertexBindingDescriptions.emplace_back(0, stride, VkVertexInputRate::VK_VERTEX_INPUT_RATE_VERTEX);
+                vertexBindingDescriptions.emplace_back(0, stride, ToVulkanInputRate(VertexStreamInputRate::Vertex));
             }
             
             vertexInputInfo.pVertexBindingDescriptions = static_cast<onyxU32>(vertexBindingDescriptions.size()) == 0 ? nullptr : vertexBindingDescriptions.data();

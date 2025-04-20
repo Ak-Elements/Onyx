@@ -4,7 +4,7 @@
 #include <onyx/log/logger.h>
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/shader/shadercache.h>
-#include <onyx/graphics/window/windows/nativewindow.h>
+#include <onyx/graphics/window.h>
 #include <onyx/graphics/shader/shadereffect.h>
 #include <onyx/graphics/texture.h>
 #include <onyx/graphics/texturestorage.h>
@@ -31,13 +31,12 @@ namespace Onyx::Graphics
 {
     GraphicsApi::GraphicsApi(Window& window)
         : m_Window(window)
+        , m_PresentThread(*this)
         , m_ShaderCache(*this)
         , m_RenderGraph(nullptr)
         , m_RenderPassCache(*this)
         , m_FramebufferCache(*this)
-        , m_PresentThread(*this)
     {
-        //m_Window.AddOnResizeHandler(this, &GraphicsApi::OnWindowResize);
     }
 
     GraphicsApi::~GraphicsApi()

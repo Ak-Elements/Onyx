@@ -19,7 +19,7 @@ namespace Onyx
 
         static StringMemoryBufferContext* GetStringBufferThreadContext()
         {
-            static __declspec(thread) std::unique_ptr<StringMemoryBufferContext> gs_StringBufferTLS(new StringMemoryBuffer<DEFAULT_BUFFER_SIZE, sizeof(onyxU32)>);
+            thread_local static UniquePtr<StringMemoryBufferContext> gs_StringBufferTLS(new StringMemoryBuffer<DEFAULT_BUFFER_SIZE, sizeof(onyxU32)>);
             return gs_StringBufferTLS.get();
         }
 

@@ -12,8 +12,8 @@ namespace Onyx::Graphics
 
 		onyxU32 GetLocatorCount() const;
 
-		bool operator==(const TextureStorageProperties& anOther) const { return memcmp(this, &anOther, sizeof anOther) == 0; }
-		bool operator!=(const TextureStorageProperties& anOther) const { return memcmp(this, &anOther, sizeof anOther) != 0; }
+		bool operator==(const TextureStorageProperties& anOther) const { return std::memcmp(this, &anOther, sizeof anOther) == 0; }
+		bool operator!=(const TextureStorageProperties& anOther) const { return std::memcmp(this, &anOther, sizeof anOther) != 0; }
 
 		Vector3s32 m_Size = {1, 1, 1};
 		onyxU16 m_ArraySize = 0;

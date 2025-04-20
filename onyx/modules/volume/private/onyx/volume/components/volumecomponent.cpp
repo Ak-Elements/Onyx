@@ -149,7 +149,6 @@ namespace Onyx::Volume
             drawCall.Indices = volumeComponent.Indices;
             drawCall.Material = materialComponent.Material;
         }
-
     }
 
     VolumeComponent::VolumeComponent()

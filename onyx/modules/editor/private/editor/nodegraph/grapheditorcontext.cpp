@@ -1,5 +1,6 @@
 #include <editor/nodegraph/grapheditorcontext.h>
 #include <onyx/assets/asset.h>
+#include <onyx/assets/assetsystem.h>
 
 namespace Onyx::Editor
 {

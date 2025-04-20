@@ -52,7 +52,6 @@ namespace Onyx::Application
         };
 
         ImGui::InsertNotification(type, message.m_Message, OnPressFunctor, 5000);
-
     }
 }
 #endif

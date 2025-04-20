@@ -28,12 +28,6 @@
 #include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
 #include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
 
-namespace Onyx::NodeGraph
-{
-    NodeRegistry<ShaderNodeMetaData> TypedNodeFactory<Graphics::ShaderGraphNode, ShaderNodeMetaData>::ms_NodeRegistry;
-}
-
-
 namespace Onyx::Graphics
 {
     GraphicsSystem::GraphicsSystem() = default;

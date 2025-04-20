@@ -7,7 +7,7 @@ namespace Onyx::GameCore
 {
     struct SDFFontSerializer : public Assets::AssetSerializer
     {
-        static constexpr Tuple Extensions = { "ofont" };
+        static constexpr auto Extensions = std::make_tuple( "ofont" );
 
         SDFFontSerializer(Assets::AssetSystem& assetSystem);
 

@@ -165,13 +165,14 @@ namespace Onyx::Graphics
         shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
         switch (stage)
         {
-        case ShaderStage::Vertex: shaderKind = shaderc_vertex_shader; break;
-        case ShaderStage::Fragment: shaderKind = shaderc_fragment_shader; break;
+            case ShaderStage::Vertex: shaderKind = shaderc_vertex_shader; break;
+            case ShaderStage::Fragment: shaderKind = shaderc_fragment_shader; break;
             case ShaderStage::Compute: shaderKind = shaderc_compute_shader; break;
             case ShaderStage::Invalid:
             case ShaderStage::Count:
-                ONYX_ASSERT(false, "Not implemented");
-                return false;
+            case ShaderStage::All:
+                    ONYX_ASSERT(false, "Not implemented");
+                    return false;
         }
 
 		ShaderIncluder* includer = new ShaderIncluder();

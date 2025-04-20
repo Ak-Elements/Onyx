@@ -6,7 +6,7 @@
 namespace Onyx::Graphics::Vulkan
 {
 	CommandPool::CommandPool(const Device& device, onyxS32 queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
-        : m_Device(device)
+        : m_Device(&device)
     {
 	    VkCommandPoolCreateInfo poolInfo = {};
 	    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -20,8 +20,23 @@ namespace Onyx::Graphics::Vulkan
     {
 	    if (m_CommandPool != nullptr)
 	    {
-		    vkDestroyCommandPool(m_Device.GetHandle(), m_CommandPool, nullptr);
+		    vkDestroyCommandPool(m_Device->GetHandle(), m_CommandPool, nullptr);
 		    m_CommandPool = nullptr;
 	    }
+    }
+
+    CommandPool::CommandPool(CommandPool&& other)
+        : m_Device(other.m_Device)
+        , m_CommandPool(other.m_CommandPool)
+    {
+        other.m_Device = nullptr;
+        other.m_CommandPool = nullptr;
+    }
+
+    CommandPool& CommandPool::operator=(CommandPool&& other)
+    {
+        std::swap(m_Device, other.m_Device);
+        std::swap(m_CommandPool, other.m_CommandPool);
+        return *this;
     }
 }

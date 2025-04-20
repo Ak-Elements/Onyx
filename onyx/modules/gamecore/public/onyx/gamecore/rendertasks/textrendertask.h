@@ -32,8 +32,5 @@ namespace Onyx::GameCore
     private:
         Graphics::BufferHandle m_VertexBuffer;
         Graphics::BufferHandle m_IndexBuffer;
-
-        onyxU32 m_IndexCount = 0;
-        onyxU32 m_VertexCount = 0;
     };
 }

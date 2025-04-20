@@ -7,7 +7,6 @@ namespace Onyx::FileSystem
 {
     FileStream::FileStream(std::iostream* stream, OpenMode mode)
         : m_Stream(stream)
-        , m_Mode(mode)
     {
         if (Enums::HasAnyFlags(mode, OpenMode::Read))
         {
@@ -18,7 +17,6 @@ namespace Onyx::FileSystem
     }
 
     FileStream::FileStream(const Filepath& path, OpenMode openMode)
-        : m_Mode(openMode)
     {
         onyxU32 openFlag = Enums::HasAnyFlags(openMode, OpenMode::Read) ? std::ios::in : std::ios::out;
         if (Enums::HasAnyFlags(openMode, OpenMode::Append))
@@ -30,7 +28,7 @@ namespace Onyx::FileSystem
             openFlag |= std::ios::binary;
         }
 
-        m_Stream = MakeUnique<std::fstream>(path, openFlag);
+        m_Stream = MakeUnique<std::fstream>(path.generic_string().c_str(), static_cast<std::ios_base::openmode>(openFlag));
         bool isGood = m_Stream->good();
         if (isGood && Enums::HasAnyFlags(openMode, OpenMode::Read))
         {

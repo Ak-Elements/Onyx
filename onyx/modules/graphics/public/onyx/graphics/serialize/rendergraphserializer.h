@@ -6,7 +6,7 @@ namespace Onyx::Graphics
 {
     struct RenderGraphSerializer : public Assets::AssetSerializer
     {
-        static constexpr Tuple Extensions = { "orendergraph" };
+        static constexpr auto Extensions = std::make_tuple("orendergraph");
 
         RenderGraphSerializer(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
 

@@ -87,10 +87,13 @@ namespace Onyx::NodeGraph
             {
                 NodeT* newNode = new NodeT();
                 newNode->SetTypeId(typeHash);
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
                 newNode->SetTypeName(TypeName<NodeT>());
 
                 StringView::size_type index = fullyQualifiedName.find_last_of('/');
                 newNode->SetName((index == StringView::npos) ? String(fullyQualifiedName) : String(fullyQualifiedName.substr(index + 1)));
+#endif
+
                 return newNode;
             };
         }
@@ -171,5 +174,10 @@ namespace Onyx::NodeGraph
         static NodeRegistry<MetaDataType> ms_NodeRegistry;
     };
 
-    using NodeFactory = TypedNodeFactory<Node, NodeEditorMetaData>;
+    class NodeFactory : public TypedNodeFactory<Node, NodeEditorMetaData>
+    {
+    };
+
+    template <>
+    NodeRegistry<NodeEditorMetaData> TypedNodeFactory<Node, NodeEditorMetaData>::ms_NodeRegistry;
 }

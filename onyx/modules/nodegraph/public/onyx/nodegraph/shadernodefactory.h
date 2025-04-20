@@ -21,4 +21,6 @@ namespace Onyx::NodeGraph
         }
     };
 
+    template<>
+    NodeRegistry<ShaderNodeMetaData> TypedNodeFactory<Graphics::ShaderGraphNode, ShaderNodeMetaData>::ms_NodeRegistry;
 }

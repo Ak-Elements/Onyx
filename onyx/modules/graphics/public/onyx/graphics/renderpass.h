@@ -38,7 +38,7 @@ namespace Onyx::Graphics
             onyxU16 m_StoreOp : 2;
             onyxU8 m_ClearColor[4];
 
-            bool operator==(const Attachment& other) const { return std::memcmp(this, &other, sizeof(Attachment) == 0); }
+            bool operator==(const Attachment& other) const { return std::memcmp(this, &other, sizeof(Attachment)) == 0; }
         };
 
         struct Subpass

@@ -84,8 +84,6 @@ namespace Onyx::Input
         bool m_MouseButtonStates[Enums::ToIntegral(MouseButton::Count)] = { false };
         bool m_KeyState[static_cast<onyxS16>(Key::Count)] = { false };
 
-        Modifier m_Modifiers = Modifier::None;
-
         Vector2s16 m_MousePosition = { 0, 0 };
         Vector2s16 m_MouseDelta = { 0, 0 };
         Vector2s16 m_LastMousePosition = { 0, 0 };

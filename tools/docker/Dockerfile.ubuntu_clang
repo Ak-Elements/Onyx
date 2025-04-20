@@ -1,0 +1,18 @@
+FROM ubuntu
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	git \
+    ca-certificates \
+	cmake \
+	make \
+	wget \
+	clang \
+	pkg-config \
+    libgtk-3-dev
+
+RUN wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
+RUN wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+RUN apt-get update && apt-get install -y --no-install-recommends vulkan-sdk
+
+LABEL maintainer="ubuntu"
+LABEL version="1.0"

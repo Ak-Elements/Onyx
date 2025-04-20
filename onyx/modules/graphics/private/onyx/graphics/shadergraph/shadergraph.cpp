@@ -79,7 +79,7 @@ namespace Onyx::Graphics
         return true;
     }
 
-#if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
+#if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
 
     bool ShaderGraph::GenerateShader(ShaderGenerator& generator)
     {

@@ -19,15 +19,15 @@ namespace Onyx::NodeGraph
 
             if constexpr (is_specialization_of_v<Vector2, OutVectorT>)
             {
-                outValue = OutVectorT(OutIndexMapping[0], OutIndexMapping[1]);
+                outValue = OutVectorT(inValue[OutIndexMapping[0]], inValue[OutIndexMapping[1]]);
             }
             else if constexpr (is_specialization_of_v<Vector3, OutVectorT>)
             {
-                outValue = OutVectorT(OutIndexMapping[0], OutIndexMapping[1], OutIndexMapping[2]);
+                outValue = OutVectorT(inValue[OutIndexMapping[0]], inValue[OutIndexMapping[1]], inValue[OutIndexMapping[2]]);
             }
             else if constexpr (is_specialization_of_v<Vector4, OutVectorT>)
             {
-                outValue = OutVectorT(OutIndexMapping[0], OutIndexMapping[1], OutIndexMapping[2], OutIndexMapping[3]);
+                outValue = OutVectorT(inValue[OutIndexMapping[0]], inValue[OutIndexMapping[1]], inValue[OutIndexMapping[2]], inValue[OutIndexMapping[3]]);
             }
         }
 

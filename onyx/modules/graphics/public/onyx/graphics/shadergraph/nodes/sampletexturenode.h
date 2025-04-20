@@ -6,6 +6,7 @@
 
 namespace Onyx::Graphics
 {
+    struct TextureHandle;
     class TextureAsset;
 
     class SampleTextureNode : public NodeGraph::FlexiblePinsNode<ShaderGraphNode>

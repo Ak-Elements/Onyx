@@ -50,14 +50,7 @@ namespace Onyx::Input
 
         void SetActionsMapAsset(const Reference<InputActionsAsset>& inputAsset);
         void SetCurrentInputActionMap(onyxU32 id);
-
-        template<auto Candidate, typename... Type>
-        void OnInput(StringView actionIdStr, Type&&...value_or_instance)
-        {
-            constexpr onyxU64 actionId = Hash::FNV1aHash64(actionIdStr);
-            OnInput<Candidate, Type...>(actionId, std::forward<Type>(value_or_instance)...);
-        }
-
+        
         template<auto Candidate, typename... Type>
         void OnInput(onyxU64 actionId, Type&&...value_or_instance)
         {
@@ -71,7 +64,7 @@ namespace Onyx::Input
                 it = m_CurrentActionStates.emplace(m_CurrentActionStates.end(), actionId);
             }
 
-            it->GetOnInputEvent().Connect<Candidate>(std::forward<Type>(value_or_instance)...);
+            it->GetOnInputEvent().template Connect<Candidate>(std::forward<Type...>(value_or_instance...));
         }
 
         template <typename... Type>
@@ -79,7 +72,7 @@ namespace Onyx::Input
         {
             for (InputActionState& actionState : m_CurrentActionStates)
             {
-                actionState.GetOnInputEvent().Disconnect(std::forward<Type>(value_or_instance)...);
+                actionState.GetOnInputEvent().Disconnect(std::forward<Type...>(value_or_instance...));
             }
         }
 

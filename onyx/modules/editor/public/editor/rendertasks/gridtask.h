@@ -31,10 +31,6 @@ namespace Onyx
         String m_Name;
 #endif
 
-        Graphics::Context m_ContextType = Graphics::Context::Count;
-        //RenderGraphTaskParameters m_Parameters;
-
-        //UniquePtr<Graphics::RenderGraphTask> m_Task;
         DynamicArray<Graphics::RenderGraphResourceId> m_Resources;
 
         //TODO: Remove for non shader tasks e.g.: ViewConstants / Environment Constants / Scene data updates 

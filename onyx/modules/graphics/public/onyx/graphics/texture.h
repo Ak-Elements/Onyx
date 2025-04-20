@@ -96,17 +96,34 @@ namespace Onyx::Graphics
 		{
 			switch (format)
 			{
-			    case TextureFormat::R_UNORM8:  return 1;
-			    case TextureFormat::R_UINT8:  return 1;
+			    case TextureFormat::R_UNORM8: return 1;
+			    case TextureFormat::R_UINT8: return 1;
 			    case TextureFormat::R_UINT16: return 2;
 			    case TextureFormat::R_UINT32: return 4;
-			    case TextureFormat::R_FLOAT32:  return 4;
+			    case TextureFormat::R_FLOAT32: return 4;
 			    case TextureFormat::RGB_UNORM8:
-			    case TextureFormat::SRGB_UNORM8:    return 3;
-			    case TextureFormat::RGBA_UNORM8:    return 4;
+			    case TextureFormat::SRGB_UNORM8: return 3;
+                case TextureFormat::BGRA_UNORM8: return 4;
+			    case TextureFormat::RGBA_UNORM8: return 4;
+                case TextureFormat::RG_FLOAT16: return 2 * 2;
 			    case TextureFormat::RGBA_FLOAT16: return 2 * 4;
+                case TextureFormat::RG_FLOAT32: return 2 * 4;
+                case TextureFormat::RGB_FLOAT32: return 3 * 4;
 			    case TextureFormat::RGBA_FLOAT32: return 4 * 4;
 			    case TextureFormat::RGB_UFLOAT32_PACKED_11_11_10: return 4;
+                
+                case TextureFormat::Invalid:
+                case TextureFormat::RG_UNORM8:
+                case TextureFormat::DEPTH_UNORM16:
+                case TextureFormat::DEPTH_FLOAT32:
+                case TextureFormat::STENCIL_UINT8:
+                case TextureFormat::DEPTH_STENCIL_UNORM16_8UINT:
+                case TextureFormat::DEPTH_STENCIL_UNORM24_8UINT:
+                case TextureFormat::DEPTH_STENCIL_FLOAT32_8UINT:
+                {
+                    ONYX_ASSERT(false, "Texture format not supported.");
+                    return 0;
+                }
 			}
 			ONYX_ASSERT(false, "Texture format not implemented.");
 			return 0;
@@ -122,21 +139,30 @@ namespace Onyx::Graphics
 			    case TextureFormat::DEPTH_STENCIL_FLOAT32_8UINT:
 			    case TextureFormat::STENCIL_UINT8:
 				    return true;
-			    case TextureFormat::DEPTH_FLOAT32:
 			    case TextureFormat::R_UNORM8:
 			    case TextureFormat::RGB_UFLOAT32_PACKED_11_11_10:
 			    case TextureFormat::RG_FLOAT16:
 			    case TextureFormat::RG_FLOAT32:
 			    case TextureFormat::R_FLOAT32:
 			    case TextureFormat::RG_UNORM8:
+                case TextureFormat::RGB_FLOAT32:
 			    case TextureFormat::RGBA_FLOAT32:
 			    case TextureFormat::RGBA_FLOAT16:
 			    case TextureFormat::RGB_UNORM8:
 			    case TextureFormat::RGBA_UNORM8:
+                case TextureFormat::BGRA_UNORM8:
 			    case TextureFormat::SRGB_UNORM8:
+                case TextureFormat::DEPTH_UNORM16:
+			    case TextureFormat::DEPTH_FLOAT32:
 			    case TextureFormat::DEPTH_STENCIL_UNORM24_8UINT:
 			    case TextureFormat::DEPTH_STENCIL_UNORM16_8UINT:
 				    return false;
+
+                case TextureFormat::Invalid:
+                {
+                    ONYX_ASSERT(false, "Texture format not supported.");
+                    return false;
+                }
 			}
 
 			ONYX_ASSERT(false, "Texture format not implemented.");
