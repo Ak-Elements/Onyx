@@ -16,13 +16,5 @@ namespace Onyx::GameCore
         }
     }
 
-    void MaterialComponent::LoadMaterial(Assets::AssetSystem& assetSystem)
-    {
-        if (MaterialId.IsValid() == false)
-            return;
-
-        assetSystem.GetAsset(MaterialId, Material);
-    }
-
 #endif
 }

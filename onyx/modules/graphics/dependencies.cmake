@@ -12,7 +12,6 @@ CPMAddPackage(
 	NAME VulkanMemoryAllocator
     GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
     VERSION 3.2.0
-    OPTIONS "VMA_ENABLE_INSTALL ${ONYX_ENABLE_INSTALL}"
 )
 
 set(CMAKE_FOLDER extern/SPIRV-Cross)
@@ -23,6 +22,20 @@ CPMAddPackage(SPIRV-Cross
         "SPIRV_CROSS_ENABLE_TESTS OFF"
 )
 
+add_library(onyx-vma STATIC
+    ${VulkanMemoryAllocator_SOURCE_DIR}/src/VmaUsage.cpp
+    ${VulkanMemoryAllocator_SOURCE_DIR}/src/VmaUsage.h
+    ${VulkanMemoryAllocator_SOURCE_DIR}/include/vk_mem_alloc.h)
+set_target_properties(onyx-vma PROPERTIES FOLDER extern/VulkanMemoryAllocator)
+target_link_libraries(onyx-vma PRIVATE Vulkan::Vulkan)
+target_include_directories(onyx-vma
+    PUBLIC
+        $<BUILD_INTERFACE:${VulkanMemoryAllocator_SOURCE_DIR}/include/>
+        $<INSTALL_INTERFACE:include/onyx-vma>
+)
+
+install(TARGETS onyx-vma EXPORT onyx-graphics-targets)
+
 set(TARGET_PUBLIC_DEPENDENCIES
 	onyx-assets
 	onyx-nodegraph
@@ -32,9 +45,9 @@ set(TARGET_PRIVATE_DEPENDENCIES
 	onyx-core
 	onyx-filesystem
     onyx-profiler
+    onyx-vma
 	Vulkan::Vulkan
     Vulkan::shaderc_combined
-    GPUOpen::VulkanMemoryAllocator
 	spirv-cross-core
 	spirv-cross-glsl
 )
