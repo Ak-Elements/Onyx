@@ -5,29 +5,7 @@ message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 if (WIN32 AND NOT Vulkan_shaderc_combined_DEBUG_LIBRARY)
-    message(INFO " Vulkan shaderc debug library not found. Consider installing it for shader compilation support.")
-    message(INFO " Getting shaderc from git instead.")
-
-    set(shaderc_prebuilt_debug_url "https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_debug_2019/73/20250109-143808/install.zip")
-
-    CPMAddPackage(
-        NAME shaderc_debug
-        URL ${shaderc_prebuilt_debug_url}
-        EXCLUDE_FROM_ALL YES
-    )
-
-    unset(shaderc_prebuilt_debug_url)
-
-    if (shaderc_debug_FOUND)
-        set_property(TARGET Vulkan::shaderc_combined APPEND
-            PROPERTY
-                IMPORTED_CONFIGURATIONS Debug)
-        set_property(TARGET Vulkan::shaderc_combined
-            PROPERTY
-            IMPORTED_LOCATION_DEBUG "${shaderc_debug_SOURCE_DIR}/lib/shaderc_combined.lib")
-    else()
-        message(INFO " Failed getting shaderc debug library from prebuilt git.")
-    endif()
+    message(INFO " Vulkan shaderc debug library not found. Debug build will not be working. Consider installing it for shader compilation support.")
 endif()
 
 CPMAddPackage(
