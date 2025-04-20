@@ -6,14 +6,16 @@ if (REMOVE_DUPLICATES)
 endif()
 
 configure_file(
-  "${CMAKE_CURRENT_LIST_DIR}/onyx-config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${ONYX_INSTALL_CMAKEDIR}/onyx-config.cmake"
-  @ONLY)
+    "${CMAKE_CURRENT_LIST_DIR}/onyx-config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${ONYX_INSTALL_CMAKEDIR}/onyx-config.cmake"
+    @ONLY
+)
 
-  configure_file(
-  "${CMAKE_CURRENT_LIST_DIR}/onyx-config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/onyx-config.cmake"
-  @ONLY)
+configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/onyx-config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/onyx-config.cmake"
+    @ONLY
+)
 
 
 write_basic_package_version_file(

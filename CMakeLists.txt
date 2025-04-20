@@ -30,8 +30,21 @@ set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_COLOR_MAKEFILE ON)
 
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+  message(SEND_ERROR "In-source builds are not allowed.")
+endif ()
+
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;")
+
 set( ONYX_COMPILE_OPTIONS
-	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -Wnocomment -fno-rtti>
+	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti>
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>: -Wno-comment >
+    $<$<CXX_COMPILER_ID:GNU>: -Wnocomment >
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX /Zc:__cplusplus /Zi /GR- >)
 set( ONYX_LINK_OPTIONS
 	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >
@@ -43,7 +56,36 @@ set( ONYX_PUBLIC_DEFINES
     $<IF:$<CXX_COMPILER_ID:MSVC>,ONYX_IS_VISUAL_STUDIO=1,ONYX_IS_VISUAL_STUDIO=0>
     $<IF:$<CXX_COMPILER_ID:Clang>,ONYX_IS_CLANG=1,ONYX_IS_CLANG=0>
     $<IF:$<CXX_COMPILER_ID:GNU>,ONYX_IS_GCC=1,ONYX_IS_GCC=0>
+    $<IF:$<PLATFORM_ID:Linux>,ONYX_IS_LINUX=1,ONYX_IS_LINUX=0>
 )
+
+if(UNIX)
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_UNIX=1")
+else()
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_UNIX=0")
+endif()
+
+if(WIN32)
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_WINDOWS=1")
+else()
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_WINDOWS=0")
+endif()
+
+if(APPLE)
+    if(IOS)
+        list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_IOS=1" "ONYX_IS_MACOS=0")
+    else()
+        list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_IOS=0" "ONYX_IS_MACOS=1")
+    endif()
+else()
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_IOS=0" "ONYX_IS_MACOS=0")
+endif()
+
+if(ANDROID)
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_ANDROID=1")
+else()
+    list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_ANDROID=0")
+endif()
 
 set( ONYX_PRIVATE_DEFINES
     $<$<CXX_COMPILER_ID:Clang>:>
@@ -51,12 +93,6 @@ set( ONYX_PRIVATE_DEFINES
 	$<$<CXX_COMPILER_ID:GNU>:>
 	$<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>
 )
-
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;")
-
-if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-  message(SEND_ERROR "In-source builds are not allowed.")
-endif ()
 
 # Remove 'lib' prefix for shared libraries on Windows
 # Add multi processor compile on Windows

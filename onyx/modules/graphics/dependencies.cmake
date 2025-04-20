@@ -4,31 +4,37 @@ message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
-if (NOT Vulkan_shaderc_combined_FOUND)
-    message(INFO " Vulkan shaderc not found. Consider installing it for shader compilation support.")
+if (WIN32 AND NOT Vulkan_shaderc_combined_DEBUG_LIBRARY)
+    message(INFO " Vulkan shaderc debug library not found. Consider installing it for shader compilation support.")
     message(INFO " Getting shaderc from git instead.")
 
-    # prebuilt download urls retrieved https://github.com/google/shaderc/blob/main/downloads.md
+    set(shaderc_prebuilt_debug_url "https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_debug_2019/73/20250109-143808/install.zip")
+
     CPMAddPackage(
         NAME shaderc_debug
-        URL https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_debug_2019/73/20250109-143808/install.zip
+        URL ${shaderc_prebuilt_debug_url}
         EXCLUDE_FROM_ALL YES
     )
-    
-    add_library(shaderc_combinedd STATIC IMPORTED)
-    set_target_properties(shaderc_combinedd PROPERTIES
-        IMPORTED_LOCATION "${shaderc_debug_SOURCE_DIR}/lib/shaderc_combined.lib"
-        INTERFACE_INCLUDE_DIRECTORIES "${shaderc_debug_SOURCE_DIR}/include"
-    )
 
-    set(Vulkan_shaderc_combined_DEBUG_LIBRARY shaderc_combinedd)
+    unset(shaderc_prebuilt_debug_url)
 
+    if (shaderc_debug_FOUND)
+        set_property(TARGET Vulkan::shaderc_combined APPEND
+            PROPERTY
+                IMPORTED_CONFIGURATIONS Debug)
+        set_property(TARGET Vulkan::shaderc_combined
+            PROPERTY
+            IMPORTED_LOCATION_DEBUG "${shaderc_debug_SOURCE_DIR}/lib/shaderc_combined.lib")
+    else()
+        message(INFO " Failed getting shaderc debug library from prebuilt git.")
+    endif()
 endif()
 
 CPMAddPackage(
 	NAME VulkanMemoryAllocator
     GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
     VERSION 3.2.0
+    OPTIONS "VMA_ENABLE_INSTALL ${ONYX_ENABLE_INSTALL}"
 )
 
 set(CMAKE_FOLDER extern/SPIRV-Cross)
@@ -39,20 +45,6 @@ CPMAddPackage(SPIRV-Cross
         "SPIRV_CROSS_ENABLE_TESTS OFF"
 )
 
-add_library(onyx-vma STATIC
-    ${VulkanMemoryAllocator_SOURCE_DIR}/src/VmaUsage.cpp
-    ${VulkanMemoryAllocator_SOURCE_DIR}/src/VmaUsage.h
-    ${VulkanMemoryAllocator_SOURCE_DIR}/include/vk_mem_alloc.h)
-set_target_properties(onyx-vma PROPERTIES FOLDER extern/VulkanMemoryAllocator)
-target_link_libraries(onyx-vma PRIVATE Vulkan::Vulkan)
-target_include_directories(onyx-vma
-    PUBLIC
-        $<BUILD_INTERFACE:${VulkanMemoryAllocator_SOURCE_DIR}/include/>
-        $<INSTALL_INTERFACE:include/onyx-vma>
-)
-
-install(TARGETS onyx-vma EXPORT onyx-graphics-targets)
-
 set(TARGET_PUBLIC_DEPENDENCIES
 	onyx-assets
 	onyx-nodegraph
@@ -61,12 +53,12 @@ set(TARGET_PUBLIC_DEPENDENCIES
 set(TARGET_PRIVATE_DEPENDENCIES
 	onyx-core
 	onyx-filesystem
-	onyx-vma
+    onyx-profiler
 	Vulkan::Vulkan
+    Vulkan::shaderc_combined
+    GPUOpen::VulkanMemoryAllocator
 	spirv-cross-core
 	spirv-cross-glsl
-    debug ${Vulkan_shaderc_combined_DEBUG_LIBRARY} optimized ${Vulkan_shaderc_combined_LIBRARY}
-	onyx-profiler
 )
 
 set(CMAKE_FOLDER ${CMAKE_FOLDER_PREV})
