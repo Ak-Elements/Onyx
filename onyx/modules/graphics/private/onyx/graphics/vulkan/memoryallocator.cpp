@@ -1,7 +1,12 @@
+#include <onyx/graphics/vulkan/memoryallocator.h>
 #include <onyx/graphics/vulkan/device.h>
 #include <onyx/graphics/vulkan/instance.h>
-#include <onyx/graphics/vulkan/memoryallocator.h>
 #include <onyx/graphics/vulkan/physicaldevice.h>
+#include <onyx/graphics/vulkan/graphicsapi.h>
+
+#define VMA_ASSERT ONYX_ASSERT
+#include <vk_mem_alloc.h>
+
 
 namespace Onyx::Graphics::Vulkan
 {

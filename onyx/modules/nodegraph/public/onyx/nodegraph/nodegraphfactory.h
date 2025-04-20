@@ -177,7 +177,4 @@ namespace Onyx::NodeGraph
     class NodeFactory : public TypedNodeFactory<Node, NodeEditorMetaData>
     {
     };
-
-    template <>
-    NodeRegistry<NodeEditorMetaData> TypedNodeFactory<Node, NodeEditorMetaData>::ms_NodeRegistry;
 }

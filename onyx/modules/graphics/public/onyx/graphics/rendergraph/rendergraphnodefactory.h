@@ -1,6 +1,6 @@
 #pragma once
 
-#include <onyx/nodegraph/nodefactory.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
@@ -20,10 +20,4 @@ namespace Onyx::Graphics
             TypedNodeFactory::RegisterNode<T>(nodeName);
         }
     };
-}
-
-namespace Onyx::NodeGraph
-{
-    template<>
-    NodeRegistry<Graphics::RenderGraphNodeEditorMetaData> TypedNodeFactory<Graphics::IRenderGraphNode, Graphics::RenderGraphNodeEditorMetaData>::ms_NodeRegistry;
 }

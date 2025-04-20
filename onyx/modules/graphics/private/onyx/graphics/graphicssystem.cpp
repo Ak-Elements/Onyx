@@ -16,7 +16,7 @@
 #include <onyx/graphics/serialize/textureserializer.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 
-#include <onyx/nodegraph/shadernodefactory.h>
+#include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h> // need this for texturehandle pin meta data - FIX
 
@@ -54,17 +54,17 @@ namespace Onyx::Graphics
         Assets::AssetSystem::Register<MaterialShaderGraph, MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<RenderGraph, RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
 
-        NodeGraph::RegisterArithmeticNodes<NodeGraph::ShaderNodeFactory>();
-        NodeGraph::RegisterGeometricNodes<NodeGraph::ShaderNodeFactory>();
-        NodeGraph::RegisterVectorNodes<NodeGraph::ShaderNodeFactory>();
+        NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory>();
+        NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory>();
+        NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory>();
 
-        NodeGraph::ShaderNodeFactory::RegisterNode<FragmentShaderOutNode>("Shader/Fragment/Shader Out");
-        NodeGraph::ShaderNodeFactory::RegisterNode<PBRMaterialShaderOutNode>("Shader/Fragment/PBR Material");
-
-        NodeGraph::ShaderNodeFactory::RegisterNode<SampleTextureNode>("Shader/Texture/Sample Texture");
-
-        NodeGraph::ShaderNodeFactory::RegisterNode<GetWorldPositionNode>("Shader/Fragment/Get World Position");
-        NodeGraph::ShaderNodeFactory::RegisterNode<GetWorldNormalNode>("Shader/Fragment/Get World Normal");
+        ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>("Shader/Fragment/Shader Out");
+        ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>("Shader/Fragment/PBR Material");
+        
+        ShaderGraphNodeFactory::RegisterNode<SampleTextureNode>("Shader/Texture/Sample Texture");
+        
+        ShaderGraphNodeFactory::RegisterNode<GetWorldPositionNode>("Shader/Fragment/Get World Position");
+        ShaderGraphNodeFactory::RegisterNode<GetWorldNormalNode>("Shader/Fragment/Get World Normal");
     }
 
     void GraphicsSystem::Shutdown()

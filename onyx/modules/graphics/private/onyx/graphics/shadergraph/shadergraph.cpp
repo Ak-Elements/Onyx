@@ -5,9 +5,9 @@
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/shader/shadermodule.h>
 #include <onyx/nodegraph/graphrunner.h>
-#include <onyx/nodegraph/shadernodefactory.h>
-#include <onyx/nodegraph/nodegraphserializer.h>
+#include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
+#include <onyx/nodegraph/nodegraphserializer.h>
 
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
@@ -65,7 +65,7 @@ namespace Onyx::Graphics
 
     bool ShaderGraph::Deserialize(const FileSystem::JsonValue& inJson)
     {
-        NodeGraph::ShaderNodeFactory factory;
+        ShaderGraphNodeFactory factory;
         if (NodeGraph::Serializer::DeserializeJson(Graph, factory, inJson) == false)
         {
             return false;
@@ -96,7 +96,7 @@ namespace Onyx::Graphics
         // run one fake update to calculate all values
         runner.Update(0);
 
-        NodeGraph::ShaderNodeFactory factory;
+        ShaderGraphNodeFactory factory;
         const DynamicArray<onyxS8>& executionOrder = Graph.GetTopologicalOrder();
         NodeGraph::ExecutionContext& executionContext = runner.GetContext();
         for (onyxS8 localNodeId : executionOrder)

@@ -1,6 +1,6 @@
 #include <onyx/nodegraph/nodegraphserializer.h>
 
-#include <onyx/nodegraph/nodefactory.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/filesystem/onyxfile.h>
 
 namespace Onyx::NodeGraph::Serializer

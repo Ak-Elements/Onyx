@@ -3,10 +3,10 @@
 #include <onyx/noncopyable.h>
 #include <onyx/graphics/vulkan/vulkan.h>
 #include <onyx/graphics/vulkan/buffer.h>
-#include <onyx/graphics/vulkan/graphicsapi.h>
 
-#define VMA_ASSERT ONYX_ASSERT
-#include <vk_mem_alloc.h>
+struct VmaAllocationInfo;
+struct VmaAllocator_T;
+struct VmaPool_T;
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -48,7 +48,7 @@ namespace Onyx::Graphics::Vulkan
 		onyxU32 GetAllocatedBytes() const;
 
     private:
-		static void OnVmaAllocateMemory(VmaAllocator allocator, onyxU32 memoryType, VkDeviceMemory memory, VkDeviceSize size, void* userData);
+		static void OnVmaAllocateMemory(VmaAllocator_T* allocator, onyxU32 memoryType, VkDeviceMemory memory, VkDeviceSize size, void* userData);
 
 		void InitPool();
 	private:
@@ -56,8 +56,8 @@ namespace Onyx::Graphics::Vulkan
 
 		onyxU32 m_PoolSize = 0;
 
-        VmaAllocator m_Allocator = nullptr; 
-		VmaPool m_VmaPool = nullptr;
+		VmaAllocator_T* m_Allocator = nullptr;
+		VmaPool_T* m_VmaPool = nullptr;
 		VkDeviceMemory m_VmaAllocationDeviceMemory = nullptr;
 
 		std::string m_Tag;

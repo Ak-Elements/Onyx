@@ -3,8 +3,7 @@
 #include <onyx/filesystem/filestream.h>
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/shader/shadermodule.h>
-#include <onyx/nodegraph/shadernodefactory.h>
-#include <onyx/nodegraph/nodegraphserializer.h>
+#include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
@@ -51,7 +50,7 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         // so we need to compare the compiled graph to the shader on disk
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
-        NodeGraph::ShaderNodeFactory factory;
+        ShaderGraphNodeFactory factory;
         OnyxFile graphJsonFile(filePath);
         JsonValue graphJson = graphJsonFile.LoadJson();
         if (graph.Deserialize(graphJson) == false)

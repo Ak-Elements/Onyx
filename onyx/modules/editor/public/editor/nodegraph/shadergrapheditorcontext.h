@@ -2,12 +2,11 @@
 
 #include <editor/nodegraph/nodegrapheditorcontext.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
-
-#include <onyx/nodegraph/shadernodefactory.h>
+#include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
 namespace Onyx::Editor
 {
-    class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::MaterialShaderGraph, NodeGraph::ShaderNodeFactory>
+    class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::MaterialShaderGraph, Graphics::ShaderGraphNodeFactory>
     {
     public:
         ShaderGraphEditorContext() = default;

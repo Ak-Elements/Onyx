@@ -1,10 +1,9 @@
 #pragma once
 
-#include <imgui.h>
 #include <onyx/assets/asset.h>
-#include <onyx/nodegraph/nodefactory.h>
 #include <onyx/nodegraph/pin.h>
 #include <onyx/filesystem/path.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 
 namespace Onyx::Assets
 {

@@ -1,7 +1,7 @@
 #include <onyx/graphics/serialize/rendergraphserializer.h>
 
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
-#include <onyx/nodegraph/nodefactory.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/ui/imguistyle.h>
 #include <onyx/ui/propertygrid.h>
 #include <imgui_stacklayout.h>

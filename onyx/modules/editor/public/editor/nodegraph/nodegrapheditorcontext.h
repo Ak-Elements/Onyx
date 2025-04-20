@@ -3,7 +3,6 @@
 #include <editor/nodegraph/grapheditorcontext.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/nodegraph/graph.h>
-#include <onyx/nodegraph/nodefactory.h>
 
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 

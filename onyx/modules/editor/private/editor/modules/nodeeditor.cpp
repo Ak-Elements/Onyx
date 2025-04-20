@@ -14,7 +14,7 @@
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/nodegraph/executioncontext.h>
-#include <onyx/nodegraph/nodefactory.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/filesystem/filedialog.h>
 
 #include <onyx/ui/imguisystem.h>

@@ -2,7 +2,7 @@
 
 #include <editor/modules/nodeeditor.h>
 
-#include <onyx/nodegraph/nodefactory.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
 #include <onyx/thread/threadpool/threadpool.h>
 

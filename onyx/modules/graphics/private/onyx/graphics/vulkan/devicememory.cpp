@@ -4,6 +4,8 @@
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/vulkan/memoryallocator.h>
 
+#include <vk_mem_alloc.h>
+
 namespace Onyx::Graphics::Vulkan
 {
     DeviceMemory::DeviceMemory(MemoryAllocator& allocator)

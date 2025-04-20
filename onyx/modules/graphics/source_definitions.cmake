@@ -56,6 +56,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/shadergraph/materialshadergraph.h
     ${TARGET_PUBLIC_PATH}/shadergraph/postprocessshadergraph.h
     ${TARGET_PUBLIC_PATH}/shadergraph/shadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/shadergraphnodefactory.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/fragmentshaderoutnode.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/getworldnormal.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/getworldposition.h
@@ -109,6 +110,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/presentthread.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraph.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphtask.cpp
+    ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphnodefactory.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/atmosphericskytask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/multiplescatteringtask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/updatelightclusterstask.cpp
@@ -128,6 +130,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/shader/shaderpreprocessor.cpp
     ${TARGET_PRIVATE_PATH}/shader/generators/shadergenerator.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/shadergraph.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/shadergraphnodefactory.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/fragmentshaderoutnode.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/getworldnormal.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/getworldposition.cpp

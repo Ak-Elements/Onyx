@@ -1,6 +1,6 @@
 #pragma once
 #include <onyx/nodegraph/graph.h>
-#include <onyx/nodegraph/nodefactory.h>
+
 #include <onyx/filesystem/path.h>
 
 namespace Onyx::FileSystem
@@ -10,6 +10,8 @@ namespace Onyx::FileSystem
 
 namespace Onyx::NodeGraph
 {
+    class INodeFactory;
+
     namespace Serializer
     {
         //bool Serialize(const NodeGraph& graph, FileSystem::FileStream& outStream) const;
