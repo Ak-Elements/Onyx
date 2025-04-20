@@ -142,7 +142,7 @@ namespace Onyx::NodeGraph
         virtual const HashSet<onyxU32>& GetRegisteredNodeIds() const = 0;
         virtual const NodeEditorMetaData& GetNodeMetaData(onyxU32 typeHash) const = 0;
     };
-      
+
     template <typename NodeType, typename MetaDataType>
     class TypedNodeFactory : public INodeFactory
     {
@@ -174,7 +174,47 @@ namespace Onyx::NodeGraph
         static NodeRegistry<MetaDataType> ms_NodeRegistry;
     };
 
-    class NodeFactory : public TypedNodeFactory<Node, NodeEditorMetaData>
+    template<typename NodeType, typename MetaDataType>
+    NodeRegistry<MetaDataType> TypedNodeFactory<NodeType, MetaDataType>::ms_NodeRegistry;
+
+    class NodeGraphFactory : public TypedNodeFactory<Node, NodeEditorMetaData>
     {
+    public:
+        //TODO: Node concept to enforce node
+        template <typename T> /*requires std::derived_from<Graphics::RenderGraphTask, T>*/
+        static void RegisterNode(const StringView& nodeName)
+        {
+            TypedNodeFactory::RegisterNode<T>(nodeName);
+        }
     };
+
+    //class NodeFactory : public INodeFactory
+    //{
+    //public:
+    //    using NodeTypeT = Node;
+
+    //    template <typename T> requires std::is_base_of_v<Node, T>
+    //    static void RegisterNode(const StringView& nodeName)
+    //    {
+    //        ms_NodeRegistry.RegisterNode<T>(nodeName);
+    //    }
+
+    //    UniquePtr<Node> CreateNode(onyxU32 typeHash) const override
+    //    {
+    //        return ms_NodeRegistry.CreateNode(typeHash);
+    //    }
+
+    //    const NodeEditorMetaData& GetNodeMetaData(onyxU32 typeHash) const override
+    //    {
+    //        return ms_NodeRegistry.GetNodeMetaData(typeHash);
+    //    }
+
+    //    const HashSet<onyxU32>& GetRegisteredNodeIds() const override
+    //    {
+    //        return ms_NodeRegistry.GetRegisteredNodeIds();
+    //    }
+
+    //private:
+    //    static NodeRegistry<NodeEditorMetaData> ms_NodeRegistry;
+    //};
 }

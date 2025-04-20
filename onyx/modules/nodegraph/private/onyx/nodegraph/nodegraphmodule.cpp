@@ -10,8 +10,8 @@ namespace Onyx::NodeGraph
 {
     void Init()
     {
-        RegisterArithmeticNodes<NodeFactory>();
-        RegisterGeometricNodes<NodeFactory>();
-        RegisterVectorNodes<NodeFactory>();
+        RegisterArithmeticNodes<NodeGraphFactory>();
+        RegisterGeometricNodes<NodeGraphFactory>();
+        RegisterVectorNodes<NodeGraphFactory>();
     }
 }

@@ -15,5 +15,7 @@ if (ONYX_USE_IMGUI)
 	include(imgui.cmake)
 endif()
 
+add_subdirectory(vulkanmemoryallocator)
+
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 set(CMAKE_FOLDER ${CMAKE_FOLDER_PREV})

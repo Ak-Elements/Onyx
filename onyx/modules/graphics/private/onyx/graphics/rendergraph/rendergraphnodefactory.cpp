@@ -2,5 +2,4 @@
 
 namespace Onyx::NodeGraph
 {
-    NodeRegistry<Graphics::RenderGraphNodeEditorMetaData> TypedNodeFactory<Graphics::IRenderGraphNode, Graphics::RenderGraphNodeEditorMetaData>::ms_NodeRegistry;
 }
