@@ -14,3 +14,5 @@ target_include_directories(onyx-vma
         $<BUILD_INTERFACE:${VulkanMemoryAllocator_SOURCE_DIR}/include/>
         $<INSTALL_INTERFACE:include/onyx-vma>
 )
+
+install(TARGETS onyx-vma EXPORT onyx-graphics-targets)
