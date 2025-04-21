@@ -113,7 +113,10 @@ namespace Onyx::Graphics::Vulkan
                     depthAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE;
                     depthAttachmentInfo.loadOp = static_cast<VkAttachmentLoadOp>(attachment.m_LoadOp);
                     depthAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                    depthAttachmentInfo.clearValue.color = { 0.0f, 0.0f, 0.0f, 1.0f } ;
+                    depthAttachmentInfo.clearValue.color.float32[0] = 0.0f;
+                    depthAttachmentInfo.clearValue.color.float32[1] = 0.0f;
+                    depthAttachmentInfo.clearValue.color.float32[2] = 0.0f;
+                    depthAttachmentInfo.clearValue.color.float32[3] = 1.0f;
                     depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
                     depthAttachmentInfo.clearValue.depthStencil.stencil = 0;
                 }
@@ -135,7 +138,8 @@ namespace Onyx::Graphics::Vulkan
 
             VkRenderingInfoKHR renderingInfo{ VK_STRUCTURE_TYPE_RENDERING_INFO_KHR };
             renderingInfo.flags = /*use_secondary ? VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT_KHR : */0;
-            renderingInfo.renderArea = { 0, 0, frameBufferSettings.m_Width, frameBufferSettings.m_Height };
+            renderingInfo.renderArea.offset = VkOffset2D{ 0, 0 };
+            renderingInfo.renderArea.extent = VkExtent2D{ frameBufferSettings.m_Width, frameBufferSettings.m_Height };
             renderingInfo.layerCount = 1;
             renderingInfo.viewMask = 0;
             renderingInfo.colorAttachmentCount = colorTargetIndex;
