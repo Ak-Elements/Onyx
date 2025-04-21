@@ -13,6 +13,9 @@ namespace Onyx::FileSystem
 
 namespace Onyx::NodeGraph
 {
+    class Node;
+    struct ExecutionContext;
+
     namespace Details
     {
         template <typename T>
@@ -40,6 +43,43 @@ namespace Onyx::NodeGraph
         DynamicArray<PinTypeId> OutputPins;
     };
 
+    class NodeGraphTypeRegistry
+    {
+    public:
+        template <typename T>
+        static void RegisterType()
+        {
+            constexpr PinTypeId typeHash = static_cast<PinTypeId>(TypeHash<T>());
+            ONYX_ASSERT(m_RegisteredTypes.contains(typeHash) == false, "Type is already registered in this context");
+
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+            m_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId); };
+#else
+            m_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localId) { return new DynamicPin<T>(globalId, localId); };
+#endif
+
+        }
+
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        static UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId, const String& localIdString)
+        {
+            return UniquePtr<PinBase>(m_RegisteredTypes.at(typeId)(globalId, localId, localIdString));
+        }
+#else
+        static UniquePtr<PinBase> CreatePinForType(PinTypeId typeId, Guid64 globalId, onyxU32 localId)
+        {
+            return UniquePtr<PinBase>(m_RegisteredTypes.at(typeId)(globalId, localId));
+        }
+#endif
+        
+    private:
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        static HashMap<PinTypeId, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> m_RegisteredTypes;
+#else
+        static HashMap<PinTypeId, InplaceFunction<PinBase* (Guid64, onyxU32)>> m_RegisteredTypes;
+#endif
+    };
+
     template <typename MetaDataContainerT = NodeEditorMetaData>
     requires std::is_base_of_v<NodeEditorMetaData, MetaDataContainerT>
     class NodeRegistry
@@ -50,12 +90,6 @@ namespace Onyx::NodeGraph
         {
             ONYX_ASSERT(m_RegisteredNodes.contains(typeHash), "Node is not registered in this context");
             return UniquePtr<Node>(m_RegisteredNodes.at(typeHash)()); // call functor to create new node
-        }
-
-        static bool SerializeType(PinTypeId typeId, const std::any& instance, FileSystem::JsonValue& outJsonValue)
-        {
-            const GraphTypeInfo& typeInfo = m_RegisteredTypes.at(static_cast<onyxU32>(typeId));
-            return typeInfo.SerializeToJsonFunctor(instance, outJsonValue);
         }
 
         template <Details::IsNodeGraphNode NodeT>
@@ -98,18 +132,6 @@ namespace Onyx::NodeGraph
             };
         }
 
-        static bool DeserializeType(PinTypeId typeId, std::any& instance, const FileSystem::JsonValue& inJsonValue)
-        {
-            const GraphTypeInfo& typeInfo = m_RegisteredTypes.at(static_cast<onyxU32>(typeId));
-            return typeInfo.DeserializeFromJsonFunctor(instance, inJsonValue);
-        }
-
-        static std::any CreateDefaultForType(PinTypeId typeId)
-        {
-            const GraphTypeInfo& typeInfo = m_RegisteredTypes.at(static_cast<onyxU32>(typeId));
-            return typeInfo.CreateDefaultFunctor();
-        }
-
         MetaDataContainerT& GetNodeMetaData(onyxU32 typeId)
         {
             ONYX_ASSERT(m_RegisteredNodesMetaData.contains(typeId), "Node with that ID is not registered.");
@@ -120,18 +142,9 @@ namespace Onyx::NodeGraph
         const HashSet<onyxU32>& GetRegisteredNodeIds() const { return m_RegisteredNodeTypeIds; }
 
     protected:
-        struct GraphTypeInfo
-        {
-            InplaceFunction<std::any()> CreateDefaultFunctor;
-            InplaceFunction<bool(const std::any&, FileSystem::JsonValue&)> SerializeToJsonFunctor;
-            InplaceFunction<bool(std::any&, const FileSystem::JsonValue&)> DeserializeFromJsonFunctor;
-        };
-
         HashSet<onyxU32> m_RegisteredNodeTypeIds;
         HashMap<onyxU32, InplaceFunction<Node*()>> m_RegisteredNodes;
         HashMap<onyxU32, MetaDataContainerT> m_RegisteredNodesMetaData;
-
-        static HashMap<onyxU32, GraphTypeInfo> m_RegisteredTypes;
     };
 
     class INodeFactory
