@@ -4,8 +4,6 @@
 #include <onyx/log/loglevel.h>
 #include <onyx/log/logmessage.h>
 
-#include <cstdio>
-
 namespace Onyx
 {
     void StdoutLogger::Log(const LogMessage& message)
@@ -13,15 +11,15 @@ namespace Onyx
         const char* formattedMessage;
         if (message.m_FileName == nullptr)
         {
-            formattedMessage = Format::Format("{}: {} \n", GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
+            formattedMessage = Format::Format("{}: {}", GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
         }
         else
         {
-            formattedMessage = Format::Format("{}:{}:{}: {} \n", message.m_FileName, message.m_LineNumber, GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
+            formattedMessage = Format::Format("{}:{}:{}: {}", message.m_FileName, message.m_LineNumber, GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
         }
 
-        puts(GetLogLevelConsoleColor(message.m_LogLevel).data());
-        puts(formattedMessage);
-        puts(LogPrivate::reset.data());
+        std::printf("%s", GetLogLevelConsoleColor(message.m_LogLevel).data());
+        std::printf("%s\n", formattedMessage);
+        std::printf("%s", LogPrivate::reset.data());
     }
 }
