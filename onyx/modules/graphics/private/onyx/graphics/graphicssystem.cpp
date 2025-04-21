@@ -44,6 +44,9 @@ namespace Onyx::Graphics
         RenderGraphNodeFactory::RegisterNode<AtmosphericSkyRenderGraphNode>("Scattering/Atmospheric Sky");
         RenderGraphNodeFactory::RegisterNode<ToneMapPass>("PostFx/Tonemap");
 
+        NodeGraph::NodeGraphTypeRegistry::RegisterType<TextureHandle>();
+        NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle>();
+
         m_Window = MakeUnique<Window>();
         m_Window->Create(windowSettings);
 

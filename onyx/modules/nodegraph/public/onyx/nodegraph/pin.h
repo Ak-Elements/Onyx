@@ -588,14 +588,22 @@ namespace Onyx::NodeGraph
         {
         }
 
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         DynamicPin(Guid64 globalPinId, const String& id)
             : PinBase(globalPinId)
             , LocalId(Hash::FNV1aHash32(id))
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
             , LocalIdString(id)
-#endif
+
         {
         }
+
+        DynamicPin(Guid64 globalPinId, onyxU32 localId, const String& id)
+            : PinBase(globalPinId)
+            , LocalId(localId)
+            , LocalIdString(id)
+        {
+        }
+#endif
 
         onyxU32 LocalId = 0;
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR

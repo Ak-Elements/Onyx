@@ -412,24 +412,32 @@
         "inputs": [
             {
                 "id": "0xb8e0fd9f7001000",
+                "type":1082623486,
                 "localId": 165626149,
+                "localIdString":"Grid",
                 "linkedPin": "0xb8e0fd536001003"
             },
             {
                 "id": "0xb8e0fdab7c01002",
+                "type":1082623486,
                 "localId": 148848530,
+                "localIdString":"Gbuffer",
                 "linkedPin": "0xba5010b28801006"
             },
             {
                 "id": "0xb8e0fdab7c01062",
+                "type":1082623486,
                 "localId": 132070911,
+                "localIdString":"Font3D",
                 "linkedPin": "0xba8c92356401003"
             }
         ],
         "outputs": [
             {
                 "id": "0xb8e0fdab7c01000",
-                "localId": 3663792444
+                "type":1082623486,
+                "localId": 3663792444,
+                "localIdString": "Composite"
             }
         ],
         "shader": "engine:/shaders/composite.oshader",

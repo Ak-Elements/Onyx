@@ -50,12 +50,12 @@ namespace Onyx::NodeGraph
         static void RegisterType()
         {
             constexpr PinTypeId typeHash = static_cast<PinTypeId>(TypeHash<T>());
-            ONYX_ASSERT(m_RegisteredTypes.contains(typeHash) == false, "Type is already registered in this context");
+            ONYX_ASSERT(s_RegisteredTypes.contains(typeHash) == false, "Type is already registered in this context");
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            m_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId); };
+            s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
 #else
-            m_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localId) { return new DynamicPin<T>(globalId, localId); };
+            s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localId) { return new DynamicPin<T>(globalId, localId); };
 #endif
 
         }
@@ -63,20 +63,20 @@ namespace Onyx::NodeGraph
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         static UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId, const String& localIdString)
         {
-            return UniquePtr<PinBase>(m_RegisteredTypes.at(typeId)(globalId, localId, localIdString));
+            return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId, localIdString));
         }
 #else
         static UniquePtr<PinBase> CreatePinForType(PinTypeId typeId, Guid64 globalId, onyxU32 localId)
         {
-            return UniquePtr<PinBase>(m_RegisteredTypes.at(typeId)(globalId, localId));
+            return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId));
         }
 #endif
         
     private:
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        static HashMap<PinTypeId, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> m_RegisteredTypes;
+        static HashMap<PinTypeId, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> s_RegisteredTypes;
 #else
-        static HashMap<PinTypeId, InplaceFunction<PinBase* (Guid64, onyxU32)>> m_RegisteredTypes;
+        static HashMap<PinTypeId, InplaceFunction<PinBase* (Guid64, onyxU32)>> s_RegisteredTypes;
 #endif
     };
 

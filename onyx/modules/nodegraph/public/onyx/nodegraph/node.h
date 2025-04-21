@@ -297,25 +297,29 @@ namespace Onyx::NodeGraph
                     return false;
                 }
 
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                String localPinIdString;
-                if (pinJson.Get("localIdString", localPinIdString) == false)
-                {
-                    ONYX_LOG_ERROR("Pin is missing localIdString in json.");
-                    return false;
-                }
-#endif
-
                 if (pinJson.Get("id", globalPinId) == false)
                 {
                     ONYX_LOG_ERROR("Pin is missing global id in json.");
                     return false;
                 }
 
+                auto pinIt = std::ranges::find_if(outPins, [&](const UniquePtr<PinBase>& pin)
+                    {
+                        return pin->GetLocalId() == localPinId;
+                    });
 
-                PinBase* pin = Node::GetOutputPinByLocalId(localPinId);
+                PinBase* pin = pinIt != outPins.end() ? pinIt->get() : nullptr;
                 if (pin == nullptr)
                 {
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+                    String localPinIdString;
+                    if (pinJson.Get("localIdString", localPinIdString) == false)
+                    {
+                        ONYX_LOG_ERROR("Pin is missing localIdString in json.");
+                        return false;
+                    }
+#endif
+
                     onyxU32 typeId;
                     if (pinJson.Get("type", typeId) == false)
                     {
@@ -326,9 +330,9 @@ namespace Onyx::NodeGraph
                     PinTypeId pinTypeId = static_cast<PinTypeId>(typeId);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                    outPins.emplace_back(CreatePin(pinTypeId, globalPinId, localPinId, localPinIdString));
+                    pin = outPins.emplace_back(CreatePin(pinTypeId, globalPinId, localPinId, localPinIdString)).get();
 #else
-                    outPins.emplace_back(NodeGraphTypeRegistry::CreatePinForType(pinTypeId, globalPinId, localPinId));
+                    pin = outPins.emplace_back(NodeGraphTypeRegistry::CreatePinForType(pinTypeId, globalPinId, localPinId)).get();
 #endif
                 }
                 else
