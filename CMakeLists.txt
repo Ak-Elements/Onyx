@@ -51,8 +51,8 @@ set( ONYX_LINK_OPTIONS
 	$<$<CXX_COMPILER_ID:MSVC>:/ignore:4099>)
 
 elseif (MSVC)
-    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- >)
-    set( ONYX_LINK_OPTIONS /ignore:4099>)
+    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- )
+    set( ONYX_LINK_OPTIONS /ignore:4099 )
 endif()
 
 set( ONYX_PUBLIC_DEFINES 
