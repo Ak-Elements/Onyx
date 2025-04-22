@@ -19,7 +19,7 @@ namespace Onyx::Graphics::Vulkan
 #elif ONYX_IS_WINDOWS
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
         surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-        surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
+        surfaceCreateInfo.hinstance = ::GetModuleHandle(nullptr);
         surfaceCreateInfo.hwnd = window.GetWindowHandle();
         VK_CHECK_RESULT(vkCreateWin32SurfaceKHR(instance.GetHandle(), &surfaceCreateInfo, nullptr, &m_Surface));
 #else

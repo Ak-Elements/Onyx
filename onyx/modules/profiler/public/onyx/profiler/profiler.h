@@ -2,7 +2,6 @@
 
 #include <tracy/Tracy.hpp>
 
-
 #define ONYX_PROFILE_CONCAT_IMPL(a, b) a##b
 #define ONYX_PROFILE_CONCAT(a, b) ONYX_PROFILE_CONCAT_IMPL(a, b)
 

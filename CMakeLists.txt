@@ -41,14 +41,19 @@ endif()
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;")
 
-set( ONYX_COMPILE_OPTIONS
+if (CMAKE_COMPILER_IS_GNUCXX OR ((${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") AND NOT MSVC))
+    set( ONYX_COMPILE_OPTIONS
 	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>: -Wno-comment >
-    $<$<CXX_COMPILER_ID:GNU>: -Wnocomment >
-	$<$<CXX_COMPILER_ID:MSVC>:/W4 /WX /Zc:__cplusplus /Zi /GR- >)
+    $<$<CXX_COMPILER_ID:GNU>: -Wnocomment >)
 set( ONYX_LINK_OPTIONS
 	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >
 	$<$<CXX_COMPILER_ID:MSVC>:/ignore:4099>)
+
+elseif (MSVC)
+    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- >)
+    set( ONYX_LINK_OPTIONS /ignore:4099>)
+endif()
 
 set( ONYX_PUBLIC_DEFINES 
     $<IF:$<CONFIG:Debug>,ONYX_IS_DEBUG=1,ONYX_IS_DEBUG=0>
@@ -59,6 +64,13 @@ set( ONYX_PUBLIC_DEFINES
     $<IF:$<PLATFORM_ID:Linux>,ONYX_IS_LINUX=1,ONYX_IS_LINUX=0>
 )
 
+set( ONYX_PRIVATE_DEFINES
+    $<$<CXX_COMPILER_ID:Clang>:>
+	$<$<CXX_COMPILER_ID:AppleClang>:>
+	$<$<CXX_COMPILER_ID:GNU>:>
+	$<$<CXX_COMPILER_ID:MSVC>:>
+)
+
 if(UNIX)
     list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_UNIX=1")
 else()
@@ -67,6 +79,7 @@ endif()
 
 if(WIN32)
     list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_WINDOWS=1")
+    list(APPEND ONYX_PRIVATE_DEFINES WIN32_LEAN_AND_MEAN NOMINMAX)
 else()
     list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_WINDOWS=0")
 endif()
@@ -86,13 +99,6 @@ if(ANDROID)
 else()
     list(APPEND ONYX_PUBLIC_DEFINES "ONYX_IS_ANDROID=0")
 endif()
-
-set( ONYX_PRIVATE_DEFINES
-    $<$<CXX_COMPILER_ID:Clang>:>
-	$<$<CXX_COMPILER_ID:AppleClang>:>
-	$<$<CXX_COMPILER_ID:GNU>:>
-	$<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN NOMINMAX>
-)
 
 # Remove 'lib' prefix for shared libraries on Windows
 # Add multi processor compile on Windows
@@ -136,6 +142,11 @@ project (
     VERSION ${ONYX_VERSION}
     LANGUAGES CXX
 )
+
+#CLANG-CL We have to clear the system include flags on clang-cl because system includes are buggy
+if (WIN32 AND (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
+    set(CMAKE_NO_SYSTEM_FROM_IMPORTED YES)
+endif()
 
 include(FetchContent)
 include(cmakepackagemanager)

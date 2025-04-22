@@ -13,8 +13,11 @@ set (onyx-graphics_PRIVATE_DEFINES
     $<$<CXX_COMPILER_ID:Clang>:>
 	$<$<CXX_COMPILER_ID:AppleClang>:>
 	$<$<CXX_COMPILER_ID:GNU>:>
-	$<$<CXX_COMPILER_ID:MSVC>:VK_USE_PLATFORM_WIN32_KHR>
 )
+
+if (WIN32)
+    list(APPEND onyx-graphics_PRIVATE_DEFINES VK_USE_PLATFORM_WIN32_KHR)
+endif()
 
 add_onyx_module(${CURRENT_TARGET}
     PUBLIC_SOURCES ${TARGET_PUBLIC_SOURCES}

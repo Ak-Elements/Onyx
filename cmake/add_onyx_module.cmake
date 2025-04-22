@@ -19,7 +19,6 @@ function(add_onyx_module ONYX_TARGET_NAME)
     
     set_property(GLOBAL APPEND PROPERTY onyx_modules "${ONYX_TARGET_EXPORT_NAME}")
 
-
     if(TARGET_PUBLIC_SOURCES)
         target_sources(${ONYX_TARGET_NAME} PUBLIC
             FILE_SET HEADERS

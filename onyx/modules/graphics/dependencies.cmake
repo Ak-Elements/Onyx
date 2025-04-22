@@ -8,8 +8,6 @@ if (WIN32 AND NOT Vulkan_shaderc_combined_DEBUG_LIBRARY)
     message(WARNING " Vulkan shaderc debug library not found. Debug build will not be working. Consider installing it for shader compilation support.")
 endif()
 
-
-
 set(CMAKE_FOLDER extern/SPIRV-Cross)
 CPMAddPackage(SPIRV-Cross
     GITHUB_REPOSITORY KhronosGroup/SPIRV-Cross
