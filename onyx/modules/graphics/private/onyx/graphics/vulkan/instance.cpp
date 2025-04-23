@@ -31,7 +31,7 @@ namespace Onyx::Graphics::Vulkan
 			return;
 		}
 
-		VkInstanceCreateInfo instanceCreateInfo;
+		VkInstanceCreateInfo instanceCreateInfo{};
 		instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceCreateInfo.pNext = nullptr;
 		instanceCreateInfo.pApplicationInfo = &appInfo;

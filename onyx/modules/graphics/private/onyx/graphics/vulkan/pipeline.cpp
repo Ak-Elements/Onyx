@@ -253,7 +253,7 @@ namespace Onyx::Graphics::Vulkan
 
         if (shader.IsComputeShader())
         {
-            VkComputePipelineCreateInfo pipelineCreateInfo;
+            VkComputePipelineCreateInfo pipelineCreateInfo{};
             pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
             pipelineCreateInfo.stage = pipelineStageCreateInfos[0];
             pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
@@ -267,7 +267,7 @@ namespace Onyx::Graphics::Vulkan
         {
             const RenderPassSettings& renderPassSettings = properties.RenderPass->GetSettings();
 
-            DynamicArray<VkFormat> colorTargetFormats;
+            DynamicArray<VkFormat> colorTargetFormats{};
             VkFormat depthStencilFormat = VK_FORMAT_UNDEFINED;
 
             for (const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments)
@@ -286,7 +286,7 @@ namespace Onyx::Graphics::Vulkan
 
             const onyxU32 colorTargetsCount = static_cast<onyxU32>(colorTargetFormats.size());
 
-            VkGraphicsPipelineCreateInfo pipelineCreateInfo;
+            VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
             pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
             pipelineCreateInfo.pNext = nullptr;
 
@@ -337,7 +337,7 @@ namespace Onyx::Graphics::Vulkan
             pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
 
             //// Input Assembly
-            VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+            VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
             inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
             inputAssembly.topology = ToVulkanTopology(properties.Topology);
             inputAssembly.primitiveRestartEnable = VK_FALSE;
@@ -388,7 +388,7 @@ namespace Onyx::Graphics::Vulkan
                 }
             }
 
-            VkPipelineColorBlendStateCreateInfo colorBlending;
+            VkPipelineColorBlendStateCreateInfo colorBlending{};
             colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
             colorBlending.logicOpEnable = VK_FALSE;
             colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
@@ -403,7 +403,7 @@ namespace Onyx::Graphics::Vulkan
             pipelineCreateInfo.pColorBlendState = &colorBlending;
 
             //// Depth Stencil
-            VkPipelineDepthStencilStateCreateInfo depthStencil;
+            VkPipelineDepthStencilStateCreateInfo depthStencil{};
             depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             depthStencil.depthTestEnable = properties.DepthStencil.IsDepthEnabled ? VK_TRUE : VK_FALSE;
             depthStencil.depthCompareOp = ToVulkanCompareOp(properties.DepthStencil.Compare);
@@ -430,7 +430,7 @@ namespace Onyx::Graphics::Vulkan
             pipelineCreateInfo.pDepthStencilState = &depthStencil;
 
             //// Multisample
-            VkPipelineMultisampleStateCreateInfo multisampling;
+            VkPipelineMultisampleStateCreateInfo multisampling{};
             multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
             multisampling.sampleShadingEnable = VK_FALSE;
             multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
@@ -443,7 +443,7 @@ namespace Onyx::Graphics::Vulkan
             pipelineCreateInfo.pMultisampleState = &multisampling;
 
             //// Rasterizer
-            VkPipelineRasterizationStateCreateInfo rasterizer;
+            VkPipelineRasterizationStateCreateInfo rasterizer{};
             rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
             rasterizer.depthClampEnable = VK_FALSE;
             rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -463,7 +463,7 @@ namespace Onyx::Graphics::Vulkan
             //pipelineCreateInfo.pTessellationState;
 
             //// Viewport state
-            VkPipelineViewportStateCreateInfo viewport_state;
+            VkPipelineViewportStateCreateInfo viewport_state{};
             viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
             viewport_state.viewportCount = 1;
             viewport_state.scissorCount = 1;
@@ -472,7 +472,7 @@ namespace Onyx::Graphics::Vulkan
             pipelineCreateInfo.pViewportState = &viewport_state;
 
             //// Render Pass
-            VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo;
+            VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo{};
             pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
             if (api.IsDynamicRenderingEnabled())
             {
@@ -504,7 +504,7 @@ namespace Onyx::Graphics::Vulkan
             //// Dynamic states
             InplaceArray<VkDynamicState, 3> dynamicStates({ VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR });
 
-            VkPipelineDynamicStateCreateInfo dynamicStatesInfo;
+            VkPipelineDynamicStateCreateInfo dynamicStatesInfo{};
             dynamicStatesInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
             dynamicStatesInfo.dynamicStateCount = dynamicStates.size();
             dynamicStatesInfo.pDynamicStates = dynamicStates.data();
@@ -512,7 +512,7 @@ namespace Onyx::Graphics::Vulkan
 
             pipelineCreateInfo.pDynamicState = &dynamicStatesInfo;
 
-            VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+            VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
             pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
             VK_CHECK_RESULT(vkCreatePipelineCache(m_Device.GetHandle(), &pipelineCacheCreateInfo, nullptr, &pipelineCache));
 

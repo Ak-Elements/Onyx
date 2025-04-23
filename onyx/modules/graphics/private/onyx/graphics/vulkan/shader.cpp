@@ -11,7 +11,7 @@ namespace Onyx::Graphics::Vulkan
         :m_Api(api)
         , m_ByteCode(byteCode)
     {
-        VkShaderModuleCreateInfo moduleCreateInfo;
+        VkShaderModuleCreateInfo moduleCreateInfo{};
         moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         moduleCreateInfo.codeSize = m_ByteCode.size() * sizeof(onyxU32);
         moduleCreateInfo.pCode = m_ByteCode.data();

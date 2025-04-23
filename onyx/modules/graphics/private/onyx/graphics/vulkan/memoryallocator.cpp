@@ -80,13 +80,18 @@ namespace Onyx::Graphics::Vulkan
 
     VmaAllocation MemoryAllocator::AllocateDedicatedMemory(VkImage image, onyxU32 memoryTypeBits, VkMemoryPropertyFlags requiredFlags, VkMemoryPropertyFlags preferredFlags)
     {
-        VmaAllocationCreateInfo allocCreateInfo;
+        VmaAllocationCreateInfo allocCreateInfo {};
         allocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
         allocCreateInfo.memoryTypeBits = memoryTypeBits;
         allocCreateInfo.requiredFlags = requiredFlags;
         allocCreateInfo.preferredFlags = preferredFlags;
+        //allocCreateInfo.pUserData = nullptr;
+        //allocCreateInfo.pool = nullptr;
+        //allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        //allocCreateInfo.priority = 0.0f;
+
         VmaAllocation allocation;
-        VmaAllocationInfo allocInfo;
+        VmaAllocationInfo allocInfo{};
         VK_CHECK_RESULT(vmaAllocateMemoryForImage(m_Allocator, image, &allocCreateInfo, &allocation, &allocInfo))
 
         // TODO: Tracking

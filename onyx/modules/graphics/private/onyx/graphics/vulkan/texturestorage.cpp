@@ -268,7 +268,7 @@ namespace Onyx::Graphics::Vulkan
 
         const onyxU32 arraySizeScale = aliasProperties.m_Type == TextureType::TextureCube ? 6 : 1;
 
-        VkImageCreateInfo createInfo;
+        VkImageCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		createInfo.pNext = nullptr;
         createInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
@@ -295,7 +295,7 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanTextureStorage::TransitionLayout(VulkanCommandBuffer& commandBuffer, Context newContext, VkImageLayout newLayout, VkAccessFlags2 newAccess, onyxU32 mipLevel, onyxU32 mipCount)
     {
-		VkImageMemoryBarrier2KHR barrier;
+		VkImageMemoryBarrier2KHR barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
 		barrier.srcAccessMask = static_cast<VkAccessFlags2>(m_Access);
 		barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, newContext);
@@ -313,7 +313,7 @@ namespace Onyx::Graphics::Vulkan
 		barrier.subresourceRange.levelCount = mipCount;
 		barrier.pNext = nullptr;
 
-		VkDependencyInfoKHR dependency_info;
+		VkDependencyInfoKHR dependency_info{};
         dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
 		dependency_info.imageMemoryBarrierCount = 1;
 		dependency_info.pImageMemoryBarriers = &barrier;

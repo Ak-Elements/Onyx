@@ -319,7 +319,7 @@ namespace Onyx::Graphics::Vulkan
 
             VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(), m_PresentSemaphore->GetHandle(), m_ComputeSemaphore->GetHandle() };
             
-            VkSemaphoreWaitInfo semaphore_wait_info;
+            VkSemaphoreWaitInfo semaphore_wait_info{};
             semaphore_wait_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
             semaphore_wait_info.semaphoreCount = hasAsyncWork ? 3 : 2;
             semaphore_wait_info.pSemaphores = semaphores;
@@ -365,7 +365,8 @@ namespace Onyx::Graphics::Vulkan
         onyxU32 currentIndex = 0;
         if (m_BindlessTexturesToUpdate.empty() == false)
         {
-            VkWriteDescriptorSet bindlessDescriptorWrites[MAX_BINDLESS_RESOURCES];
+            DynamicArray<VkWriteDescriptorSet> bindlessDescriptorWrites;
+            bindlessDescriptorWrites.reserve(MAX_BINDLESS_RESOURCES);
 
             onyxS32 count = static_cast<onyxS32>(m_BindlessTexturesToUpdate.size());
             for (onyxS32 i = 0; i < count; ++i)
@@ -374,7 +375,7 @@ namespace Onyx::Graphics::Vulkan
                 //if (textureUpdate.Texture->GetIndex() == false)
                 //    continue;
 
-                VkWriteDescriptorSet& descriptor_write = bindlessDescriptorWrites[currentIndex];
+                VkWriteDescriptorSet& descriptor_write = bindlessDescriptorWrites.emplace_back();
                 descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 descriptor_write.descriptorCount = 1;
                 descriptor_write.dstArrayElement = textureUpdate.Index;
@@ -387,7 +388,7 @@ namespace Onyx::Graphics::Vulkan
             }
 
             if (currentIndex != 0)
-                vkUpdateDescriptorSets(m_Device->GetHandle(), currentIndex, bindlessDescriptorWrites, 0, nullptr);
+                vkUpdateDescriptorSets(m_Device->GetHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr);
 
             m_BindlessTexturesToUpdate.clear();
         }
@@ -427,7 +428,7 @@ namespace Onyx::Graphics::Vulkan
                     { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, m_GraphicsSemaphore->GetHandle(), context.AbsoluteFrame + 1, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR , 0 }
                 };
 
-                VkSubmitInfo2 submitInfo;
+                VkSubmitInfo2 submitInfo{};
                 submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
                 submitInfo.waitSemaphoreInfoCount = waitSemaphores.size();
                 submitInfo.pWaitSemaphoreInfos = waitSemaphores.data();
@@ -474,7 +475,7 @@ namespace Onyx::Graphics::Vulkan
                 InplaceArray<VkSemaphore, 2> signalSemaphores { renderCompleteSemaphore->GetHandle(), m_GraphicsSemaphore->GetHandle() };
                 InplaceArray<onyxU64, 2> signalValues { 0, context.AbsoluteFrame + 1};
 
-                VkTimelineSemaphoreSubmitInfo semaphoreInfo;
+                VkTimelineSemaphoreSubmitInfo semaphoreInfo{};
                 semaphoreInfo.sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
                 semaphoreInfo.signalSemaphoreValueCount = 2;
                 semaphoreInfo.pSignalSemaphoreValues = signalValues.data();
@@ -482,7 +483,7 @@ namespace Onyx::Graphics::Vulkan
                 semaphoreInfo.pWaitSemaphoreValues = waitValues.data();
                 semaphoreInfo.pNext = nullptr;
 
-                VkSubmitInfo submitInfo;
+                VkSubmitInfo submitInfo{};
                 submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
                 submitInfo.waitSemaphoreCount = waitSemaphores.size();
                 submitInfo.pWaitSemaphores = waitSemaphores.data();
@@ -736,12 +737,12 @@ namespace Onyx::Graphics::Vulkan
         // Submit command buffer
         if (IsSynchronization2Enabled())
         {
-            VkCommandBufferSubmitInfoKHR commandBufferInfo;
+            VkCommandBufferSubmitInfoKHR commandBufferInfo{};
             commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
             commandBufferInfo.commandBuffer = vulkanCmdBuffer.GetHandle();
             commandBufferInfo.pNext = nullptr;
 
-            VkSubmitInfo2KHR submitInfo;
+            VkSubmitInfo2KHR submitInfo{};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
             submitInfo.commandBufferInfoCount = 1;
             submitInfo.pCommandBufferInfos = &commandBufferInfo;
@@ -752,7 +753,7 @@ namespace Onyx::Graphics::Vulkan
         }
         else
         {
-            VkSubmitInfo submitInfo;
+            VkSubmitInfo submitInfo{};
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = vulkanCmdBuffer.GetHandlePtr();

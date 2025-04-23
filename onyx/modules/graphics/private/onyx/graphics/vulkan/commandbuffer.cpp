@@ -101,7 +101,7 @@ namespace Onyx::Graphics::Vulkan
             colorAttachmentsInfo.reserve(frameBufferSettings.m_ColorTargets.size());
 
             bool hasDepthAttachment = false;
-            VkRenderingAttachmentInfoKHR depthAttachmentInfo;
+            VkRenderingAttachmentInfoKHR depthAttachmentInfo{};
             depthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
             depthAttachmentInfo.pNext = nullptr;
 
@@ -142,7 +142,7 @@ namespace Onyx::Graphics::Vulkan
                 }
             }
 
-            VkRenderingInfoKHR renderingInfo;
+            VkRenderingInfoKHR renderingInfo{};
             renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
             renderingInfo.flags = /*use_secondary ? VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT_KHR : */0;
             renderingInfo.renderArea.offset = VkOffset2D{ 0, 0 };
@@ -162,7 +162,7 @@ namespace Onyx::Graphics::Vulkan
         }
         else
         {
-            VkRenderPassBeginInfo renderPassBegin;
+            VkRenderPassBeginInfo renderPassBegin{};
             renderPassBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassBegin.framebuffer = frameBuffer.GetHandle();
             renderPassBegin.renderPass = renderPass.GetHandle();
@@ -508,7 +508,7 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanCommandBuffer::GlobalBarrier(VkAccessFlagBits2 srcAccess, VkAccessFlagBits2 dstAccess)
     {
-        VkMemoryBarrier2 barrier;
+        VkMemoryBarrier2 barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
         barrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
         barrier.srcAccessMask = srcAccess;
@@ -516,7 +516,7 @@ namespace Onyx::Graphics::Vulkan
         barrier.dstAccessMask = dstAccess;
         barrier.pNext = nullptr;
 
-        VkDependencyInfoKHR dependency_info;
+        VkDependencyInfoKHR dependency_info{};
         dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
         dependency_info.memoryBarrierCount = 1;
         dependency_info.pMemoryBarriers = &barrier;
@@ -535,7 +535,7 @@ namespace Onyx::Graphics::Vulkan
     {
         if (vkCmdBeginDebugUtilsLabelEXT != nullptr)
         {
-            VkDebugUtilsLabelEXT vkDebugLabel;
+            VkDebugUtilsLabelEXT vkDebugLabel{};
             vkDebugLabel.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
             vkDebugLabel.pLabelName = label.data();
             vkDebugLabel.color[0] = color[0];

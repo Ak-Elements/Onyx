@@ -57,7 +57,7 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanBuffer::Init(const void* data)
     {
-        VkBufferCreateInfo createInfo;
+        VkBufferCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         createInfo.size = m_Properties.m_Size;
         createInfo.usage = GetUsageFlags();

@@ -60,7 +60,7 @@ namespace Onyx::Graphics::Vulkan
     Sampler::Sampler(const Device& device, const SamplerProperties& properties)
         : m_Device(device)
     {
-        VkSamplerCreateInfo createInfo;
+        VkSamplerCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
         createInfo.addressModeU = ToVulkanAddressMode(properties.AddressModeU);
         createInfo.addressModeV = ToVulkanAddressMode(properties.AddressModeV);
