@@ -46,18 +46,22 @@ namespace Onyx::Graphics::Vulkan
         m_PhysicalDevice = MakeUnique<PhysicalDevice>(*m_Instance, *m_Surface);
 
         // Device Extensions
-        // TODO: can this be moved somehow into Logiccal Device
-        VkPhysicalDeviceFeatures2 physicalFeatures{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+        // TODO: can this be moved somehow into Logiccal Device=
         DynamicArray<const char*> deviceExtensions;
 
-        VkPhysicalDeviceVulkan11Features vulkan_11_features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES };
+        VkPhysicalDeviceVulkan11Features vulkan_11_features;
+        vulkan_11_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+        vulkan_11_features.pNext = nullptr;
+
         void* current_pnext = &vulkan_11_features;
 
-        VkPhysicalDeviceVulkan12Features vulkan_12_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
+        VkPhysicalDeviceVulkan12Features vulkan_12_features;
+        vulkan_12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
         vulkan_12_features.pNext = current_pnext;
         current_pnext = &vulkan_12_features;
 
-        VkPhysicalDeviceVulkan13Features vulkan_13_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
+        VkPhysicalDeviceVulkan13Features vulkan_13_features;
+        vulkan_13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
         vulkan_13_features.maintenance4 = true;
         vulkan_13_features.pNext = current_pnext;
         current_pnext = &vulkan_13_features;
@@ -88,19 +92,27 @@ namespace Onyx::Graphics::Vulkan
             }
         }
 
-        VkPhysicalDeviceDescriptorIndexingFeatures bindlessExtenstion{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES, nullptr };
+        VkPhysicalDeviceDescriptorIndexingFeatures bindlessExtenstion;
         if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME))
         {
-            VkPhysicalDeviceFeatures2 deviceFeatures{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &bindlessExtenstion };
+            bindlessExtenstion.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+            bindlessExtenstion.pNext = nullptr;
+
+            VkPhysicalDeviceFeatures2 deviceFeatures{};
+            deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+            deviceFeatures.pNext = &bindlessExtenstion;
             vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &deviceFeatures);
 
             m_IsBindlessEnabled = bindlessExtenstion.descriptorBindingPartiallyBound && bindlessExtenstion.runtimeDescriptorArray;
         }
 
-        VkPhysicalDeviceMeshShaderFeaturesNV meshShaderExtension = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV };
+        VkPhysicalDeviceMeshShaderFeaturesNV meshShaderExtension;
+        
         if (m_PhysicalDevice->IsExtensionSupported(VK_NV_MESH_SHADER_EXTENSION_NAME))
         {
             deviceExtensions.push_back(VK_NV_MESH_SHADER_EXTENSION_NAME);
+
+            meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV;
             meshShaderExtension.taskShader = true;
             meshShaderExtension.meshShader = true;
 
@@ -108,6 +120,8 @@ namespace Onyx::Graphics::Vulkan
             current_pnext = &meshShaderExtension;
         }
 
+        VkPhysicalDeviceFeatures2 physicalFeatures;
+        physicalFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
         physicalFeatures.pNext = current_pnext;
         // End device extensions
 
@@ -164,11 +178,12 @@ namespace Onyx::Graphics::Vulkan
             storageImageBinding.binding = Graphics::Vulkan::BINDLESS_TEXTURE_BINDING + 1;
             storageImageBinding.stageFlags = VK_SHADER_STAGE_ALL;
 
-            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+            VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
+            descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
             descriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(poolCount);
             descriptorSetLayoutCreateInfo.pBindings = descriptorSetBindings.data();
             descriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
-
+            
             // TODO: Re-enable VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT
             // Binding flags
             VkDescriptorBindingFlags bindlessFlags = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT | /*VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT |*/ VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT;
@@ -177,24 +192,30 @@ namespace Onyx::Graphics::Vulkan
             descriptorBindingFlags[0] = bindlessFlags;
             descriptorBindingFlags[1] = bindlessFlags;
 
-            VkDescriptorSetLayoutBindingFlagsCreateInfoEXT extended_info{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT, nullptr };
+            VkDescriptorSetLayoutBindingFlagsCreateInfoEXT extended_info;
+            extended_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
             extended_info.bindingCount = poolCount;
             extended_info.pBindingFlags = descriptorBindingFlags.data();
+            extended_info.pNext = nullptr;
 
             descriptorSetLayoutCreateInfo.pNext = &extended_info;
 
             m_BindlessDescriptorSetLayout = MakeUnique<DescriptorSetLayout>(*m_Device, 0, descriptorSetLayoutCreateInfo);
 
-            VkDescriptorSetAllocateInfo descriptorSetAllocInfo{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+            VkDescriptorSetAllocateInfo descriptorSetAllocInfo;
+            descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             descriptorSetAllocInfo.descriptorPool = m_BindlessDescriptorPool->GetHandle();
             descriptorSetAllocInfo.descriptorSetCount = 1;
             descriptorSetAllocInfo.pSetLayouts = m_BindlessDescriptorSetLayout->GetHandlePtr();
 
-            VkDescriptorSetVariableDescriptorCountAllocateInfoEXT count_info{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT };
+            VkDescriptorSetVariableDescriptorCountAllocateInfoEXT count_info;
+            count_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
             onyxU32 max_binding = Graphics::MAX_BINDLESS_RESOURCES - 1;
             count_info.descriptorSetCount = 1;
             // This number is the max allocatable count
             count_info.pDescriptorCounts = &max_binding;
+            count_info.pNext = nullptr;
+
             descriptorSetAllocInfo.pNext = &count_info;
             m_BindlessDescriptorSets = MakeUnique<DescriptorSet>(*m_Device, BINDLESS_SET, descriptorSetAllocInfo);
         }
@@ -298,10 +319,12 @@ namespace Onyx::Graphics::Vulkan
 
             VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(), m_PresentSemaphore->GetHandle(), m_ComputeSemaphore->GetHandle() };
             
-            VkSemaphoreWaitInfo semaphore_wait_info{ VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
+            VkSemaphoreWaitInfo semaphore_wait_info;
+            semaphore_wait_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
             semaphore_wait_info.semaphoreCount = hasAsyncWork ? 3 : 2;
             semaphore_wait_info.pSemaphores = semaphores;
             semaphore_wait_info.pValues = wait_values;
+            semaphore_wait_info.pNext = nullptr;
 
             vkWaitSemaphores(m_Device->GetHandle(), &semaphore_wait_info, ~0ull);
         }
@@ -352,7 +375,7 @@ namespace Onyx::Graphics::Vulkan
                 //    continue;
 
                 VkWriteDescriptorSet& descriptor_write = bindlessDescriptorWrites[currentIndex];
-                descriptor_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+                descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 descriptor_write.descriptorCount = 1;
                 descriptor_write.dstArrayElement = textureUpdate.Index;
                 descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -404,13 +427,15 @@ namespace Onyx::Graphics::Vulkan
                     { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, m_GraphicsSemaphore->GetHandle(), context.AbsoluteFrame + 1, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR , 0 }
                 };
 
-                VkSubmitInfo2 submitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2 };
+                VkSubmitInfo2 submitInfo;
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
                 submitInfo.waitSemaphoreInfoCount = waitSemaphores.size();
                 submitInfo.pWaitSemaphoreInfos = waitSemaphores.data();
                 submitInfo.commandBufferInfoCount = commandBufferCount;
                 submitInfo.pCommandBufferInfos = commandBufferInfo;
                 submitInfo.signalSemaphoreInfoCount = 2;
                 submitInfo.pSignalSemaphoreInfos = signalSemaphores;
+                submitInfo.pNext = nullptr;
 
                 std::lock_guard lock(m_GraphicsMutex);
                 VK_CHECK_RESULT(vkQueueSubmit2(m_Device->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE));
@@ -449,13 +474,16 @@ namespace Onyx::Graphics::Vulkan
                 InplaceArray<VkSemaphore, 2> signalSemaphores { renderCompleteSemaphore->GetHandle(), m_GraphicsSemaphore->GetHandle() };
                 InplaceArray<onyxU64, 2> signalValues { 0, context.AbsoluteFrame + 1};
 
-                VkTimelineSemaphoreSubmitInfo semaphoreInfo{ VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+                VkTimelineSemaphoreSubmitInfo semaphoreInfo;
+                semaphoreInfo.sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
                 semaphoreInfo.signalSemaphoreValueCount = 2;
                 semaphoreInfo.pSignalSemaphoreValues = signalValues.data();
                 semaphoreInfo.waitSemaphoreValueCount = waitValues.size();
                 semaphoreInfo.pWaitSemaphoreValues = waitValues.data();
+                semaphoreInfo.pNext = nullptr;
 
-                VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+                VkSubmitInfo submitInfo;
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
                 submitInfo.waitSemaphoreCount = waitSemaphores.size();
                 submitInfo.pWaitSemaphores = waitSemaphores.data();
                 submitInfo.pWaitDstStageMask = waitStages.data();
@@ -463,7 +491,6 @@ namespace Onyx::Graphics::Vulkan
                 submitInfo.pCommandBuffers = enqueuedCommandBuffers.data();
                 submitInfo.signalSemaphoreCount = 2;
                 submitInfo.pSignalSemaphores = signalSemaphores.data();
-
                 submitInfo.pNext = &semaphoreInfo;
 
                 std::lock_guard lock(m_GraphicsMutex);
@@ -495,13 +522,15 @@ namespace Onyx::Graphics::Vulkan
                     { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, renderCompleteSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, 0 }
                 };
 
-                VkSubmitInfo2 submitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2 };
+                VkSubmitInfo2 submitInfo;
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
                 submitInfo.waitSemaphoreInfoCount = wait_semaphores.size();
                 submitInfo.pWaitSemaphoreInfos = wait_semaphores.data();
                 submitInfo.commandBufferInfoCount = commandBufferCount;
                 submitInfo.pCommandBufferInfos = commandBufferInfo.data();
                 submitInfo.signalSemaphoreInfoCount = 1;
                 submitInfo.pSignalSemaphoreInfos = signalSemaphores.data();
+                submitInfo.pNext = nullptr;
 
                 std::lock_guard lock(m_GraphicsMutex);
                 VK_CHECK_RESULT(vkQueueSubmit2(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));
@@ -523,7 +552,8 @@ namespace Onyx::Graphics::Vulkan
                     wait_stages.push(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
                 }*/
 
-                VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+                VkSubmitInfo submitInfo;
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
                 submitInfo.waitSemaphoreCount = waitSemaphores.size();
                 submitInfo.pWaitSemaphores = waitSemaphores.data();
                 submitInfo.pWaitDstStageMask = waitStages.data();
@@ -531,6 +561,7 @@ namespace Onyx::Graphics::Vulkan
                 submitInfo.pCommandBuffers = enqueuedCommandBuffers.data();
                 submitInfo.signalSemaphoreCount = 1;
                 submitInfo.pSignalSemaphores = renderCompleteSemaphore->GetHandlePtr();
+                submitInfo.pNext = nullptr;
 
                 std::lock_guard lock(m_GraphicsMutex);
                 VK_CHECK_RESULT(vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));
@@ -560,13 +591,15 @@ namespace Onyx::Graphics::Vulkan
                 commandBufferInfo[i].commandBuffer = enqueuedComputeCommandBuffers[i];
             }
 
-            VkSubmitInfo2 submit_info{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2 };
+            VkSubmitInfo2 submit_info;
+            submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
             submit_info.waitSemaphoreInfoCount = hasWaitSemaphore ? 1 : 0;
             submit_info.pWaitSemaphoreInfos = wait_semaphores;
             submit_info.commandBufferInfoCount = commandBufferInfo.size();
             submit_info.pCommandBufferInfos = commandBufferInfo.data();
             submit_info.signalSemaphoreInfoCount = 1;
             submit_info.pSignalSemaphoreInfos = signal_semaphores;
+            submit_info.pNext = nullptr;
 
             vkQueueSubmit2(m_Device->GetComputeQueue(), 1, &submit_info, VK_NULL_HANDLE);
         }
@@ -593,10 +626,11 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanGraphicsApi::SignalPresent(onyxU32 presentIndex)
     {
-        VkSemaphoreSignalInfo signalInfo = {};
+        VkSemaphoreSignalInfo signalInfo;
         signalInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO;
         signalInfo.semaphore = m_PresentSemaphore->GetHandle();
         signalInfo.value = presentIndex;
+        signalInfo.pNext = nullptr;
 
         //// Signal that the presented image is now free
         vkSignalSemaphore(m_Device->GetHandle(), &signalInfo);
@@ -702,21 +736,27 @@ namespace Onyx::Graphics::Vulkan
         // Submit command buffer
         if (IsSynchronization2Enabled())
         {
-            VkCommandBufferSubmitInfoKHR commandBufferInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR };
+            VkCommandBufferSubmitInfoKHR commandBufferInfo;
+            commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
             commandBufferInfo.commandBuffer = vulkanCmdBuffer.GetHandle();
+            commandBufferInfo.pNext = nullptr;
 
-            VkSubmitInfo2KHR submitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR };
+            VkSubmitInfo2KHR submitInfo;
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR;
             submitInfo.commandBufferInfoCount = 1;
             submitInfo.pCommandBufferInfos = &commandBufferInfo;
+            submitInfo.pNext = nullptr;
 
             std::lock_guard lock(m_GraphicsMutex);
             VK_CHECK_RESULT(vkQueueSubmit2(queue, 1, &submitInfo, fence))
         }
         else
         {
-            VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+            VkSubmitInfo submitInfo;
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = vulkanCmdBuffer.GetHandlePtr();
+            submitInfo.pNext = nullptr;
 
             VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, fence))
         }

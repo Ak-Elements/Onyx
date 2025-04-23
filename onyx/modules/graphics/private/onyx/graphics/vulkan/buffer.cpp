@@ -35,7 +35,8 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanBuffer::Transition(VulkanCommandBuffer& commandBuffer, VkAccessFlags2 srcFlags, VkAccessFlags2 dstFlags)
     {
-        VkBufferMemoryBarrier2 barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2 };
+        VkBufferMemoryBarrier2 barrier;
+        barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
         barrier.srcAccessMask = srcFlags;
         barrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
         barrier.dstAccessMask = dstFlags;
@@ -43,21 +44,26 @@ namespace Onyx::Graphics::Vulkan
         barrier.buffer = m_Buffer;
         barrier.offset = 0;
         barrier.size = m_Properties.m_Size;
+        barrier.pNext = nullptr;
 
-        VkDependencyInfo dependency_info{ VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+        VkDependencyInfo dependency_info;
+        dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
         dependency_info.bufferMemoryBarrierCount = 1;
         dependency_info.pBufferMemoryBarriers = &barrier;
+        dependency_info.pNext = nullptr;
 
         vkCmdPipelineBarrier2(commandBuffer.GetHandle(), &dependency_info);
     }
 
     void VulkanBuffer::Init(const void* data)
     {
-        VkBufferCreateInfo createInfo { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+        VkBufferCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         createInfo.size = m_Properties.m_Size;
         createInfo.usage = GetUsageFlags();
         // TODO: do we need to use concurrent?
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.pNext = nullptr;
 
         VK_CHECK_RESULT(vkCreateBuffer(m_Device->GetHandle(), &createInfo, nullptr, &m_Buffer))
         SetResourceName(m_Device->GetHandle(), VK_OBJECT_TYPE_BUFFER, (onyxU64)m_Buffer, m_Properties.m_DebugName.empty() ? "Unnamed Buffer" : m_Properties.m_DebugName);

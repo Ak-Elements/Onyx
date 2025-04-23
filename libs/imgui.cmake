@@ -78,7 +78,7 @@ target_sources(ImGuiNodeEditor PRIVATE
 	${ImGuiNodeEditor_SOURCE_DIR}/imgui_node_editor_api.cpp
 )
 
-target_include_directories(ImGuiNodeEditor PUBLIC
+target_include_directories(ImGuiNodeEditor SYSTEM PUBLIC
     $<BUILD_INTERFACE:${ImGuiNodeEditor_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include/imgui>)
 target_link_libraries(ImGuiNodeEditor PRIVATE ImGui)

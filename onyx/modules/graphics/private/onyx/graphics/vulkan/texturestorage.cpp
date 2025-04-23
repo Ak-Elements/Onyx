@@ -20,10 +20,12 @@ namespace Onyx::Graphics::Vulkan
 	    , DeviceMemory(api.GetAllocator())
 	    , m_Device(&api.GetDevice())
     {
-	    VkImageCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-	    const onyxU32 arraySizeScale = properties.m_Type == TextureType::TextureCube ? 6 : 1;
+        const onyxU32 arraySizeScale = properties.m_Type == TextureType::TextureCube ? 6 : 1;
 
-	    createInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+        VkImageCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		createInfo.pNext = nullptr;
+        createInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
 	    createInfo.imageType = GetType(properties.m_Type);
 	    createInfo.format = GetFormat(properties.m_Format);
 	    createInfo.mipLevels = properties.m_MaxMipLevel;
@@ -264,10 +266,12 @@ namespace Onyx::Graphics::Vulkan
     {
 	    ONYX_ASSERT(m_Image != nullptr, "Image is already allocated.");
 
-	    VkImageCreateInfo createInfo{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
-	    const onyxU32 arraySizeScale = aliasProperties.m_Type == TextureType::TextureCube ? 6 : 1;
+        const onyxU32 arraySizeScale = aliasProperties.m_Type == TextureType::TextureCube ? 6 : 1;
 
-	    createInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+        VkImageCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		createInfo.pNext = nullptr;
+        createInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
 	    createInfo.imageType = GetType(aliasProperties.m_Type);
 	    createInfo.format = GetFormat(aliasProperties.m_Format);
 	    createInfo.mipLevels = aliasProperties.m_MaxMipLevel;
@@ -291,7 +295,8 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanTextureStorage::TransitionLayout(VulkanCommandBuffer& commandBuffer, Context newContext, VkImageLayout newLayout, VkAccessFlags2 newAccess, onyxU32 mipLevel, onyxU32 mipCount)
     {
-		VkImageMemoryBarrier2KHR barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR };
+		VkImageMemoryBarrier2KHR barrier;
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
 		barrier.srcAccessMask = static_cast<VkAccessFlags2>(m_Access);
 		barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, newContext);
 		barrier.dstAccessMask = newAccess;
@@ -306,10 +311,13 @@ namespace Onyx::Graphics::Vulkan
 		barrier.subresourceRange.layerCount = 1;
 		barrier.subresourceRange.baseMipLevel = mipLevel;
 		barrier.subresourceRange.levelCount = mipCount;
+		barrier.pNext = nullptr;
 
-		VkDependencyInfoKHR dependency_info{ VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR };
+		VkDependencyInfoKHR dependency_info;
+        dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
 		dependency_info.imageMemoryBarrierCount = 1;
 		dependency_info.pImageMemoryBarriers = &barrier;
+		dependency_info.pNext = nullptr;
 
 		vkCmdPipelineBarrier2(commandBuffer.GetHandle(), &dependency_info);
 

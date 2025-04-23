@@ -12,14 +12,18 @@ namespace Onyx::Graphics::Vulkan
     Semaphore::Semaphore(const Device& device, bool isTimelineSemaphore)
         : m_Device(device)
     {
-        VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+        VkSemaphoreCreateInfo semaphoreInfo;
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphoreInfo.pNext = nullptr;
 
-        VkSemaphoreTypeCreateInfoKHR type_info = { VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO_KHR };
-        type_info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE_KHR;
-        type_info.initialValue = 0;
+        VkSemaphoreTypeCreateInfoKHR typeInfo;
+        typeInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO_KHR;
+        typeInfo.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE_KHR;
+        typeInfo.initialValue = 0;
+        typeInfo.pNext = nullptr;
 
         if (isTimelineSemaphore)
-            semaphoreInfo.pNext = &type_info;
+            semaphoreInfo.pNext = &typeInfo;
 
         VK_CHECK_RESULT(vkCreateSemaphore(m_Device.GetHandle(), &semaphoreInfo, nullptr, &m_Semaphore));
     }

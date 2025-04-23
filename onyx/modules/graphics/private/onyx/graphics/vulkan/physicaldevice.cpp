@@ -103,7 +103,7 @@ namespace Onyx::Graphics::Vulkan
 		onyxS32 PresentFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
 
 		VkBool32 supportsPresenting = false;
-		for (onyxS32 i = 0; i < m_QueueFamilyProperties.size(); ++i)
+		for (onyxS32 i = 0; i < static_cast<onyxS32>(m_QueueFamilyProperties.size()); ++i)
 		{
 			const VkQueueFamilyProperties& queueFamily = m_QueueFamilyProperties[i];
 			if (queueFamily.queueCount == 0)

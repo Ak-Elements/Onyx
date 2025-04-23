@@ -133,7 +133,8 @@ namespace Onyx::Graphics::Vulkan
             DynamicArray<VkAttachmentReference2> resolveAttachments;
             DynamicArray<VkAttachmentReference2> inputAttachments;
 
-            VkAttachmentReference2 depthStencilAttachment { VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2 };
+            VkAttachmentReference2 depthStencilAttachment;
+            depthStencilAttachment.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
             depthStencilAttachment.pNext = nullptr;
             depthStencilAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 
@@ -247,13 +248,15 @@ namespace Onyx::Graphics::Vulkan
             dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
         }
 
-        VkRenderPassCreateInfo2 createInfo{ VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2 };
+        VkRenderPassCreateInfo2 createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
         createInfo.attachmentCount = static_cast<onyxU32>(attachmentDescriptions.size());
         createInfo.pAttachments = attachmentDescriptions.data();
         createInfo.dependencyCount = static_cast<onyxU32>(subPassDependencies.size());
         createInfo.pDependencies = subPassDependencies.data();
         createInfo.subpassCount = subPassDescriptionsCount;
         createInfo.pSubpasses = subPassDescriptions.data();
+        createInfo.pNext = nullptr;
 
         VK_CHECK_RESULT(vkCreateRenderPass2(m_Device->GetHandle(), &createInfo, nullptr, &m_RenderPass));
     }

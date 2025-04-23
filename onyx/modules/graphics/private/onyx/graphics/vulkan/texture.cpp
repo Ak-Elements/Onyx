@@ -32,8 +32,10 @@ void VulkanTexture::Init(const VulkanGraphicsApi& api, onyxS8 aliasIndex)
 	const onyxU32 arraySize = m_Properties.m_ArraySize ? m_Properties.m_ArraySize : storageArraySize - m_Properties.m_ArrayIndex;
 	ONYX_ASSERT(arraySize <= storageArraySize);
 
-	VkImageViewCreateInfo imageViewCreateInfo { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+	VkImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	imageViewCreateInfo.image = (aliasIndex == INVALID_INDEX_8) ? textureStorage->GetHandle() : textureStorage->GetAliasHandle(aliasIndex);
+	imageViewCreateInfo.pNext = nullptr;
 
 	const onyxU32 mip = m_Properties.m_MipLevel;
 	const onyxU32 miplevels = m_Properties.m_MaxMipLevel ? m_Properties.m_MaxMipLevel : storageProperties.m_MaxMipLevel - mip;

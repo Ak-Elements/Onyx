@@ -90,7 +90,6 @@ namespace Onyx::Graphics
     private:
         WindowState m_State = WindowState::None;
         Atomic<bool> m_IsInitialized = false;
-        onyxU32 m_AcquiredMonitorCount = 0;
         WindowSettings m_Settings;
 
         HCURSOR m_Cursor = nullptr;

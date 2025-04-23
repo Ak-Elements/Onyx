@@ -20,7 +20,6 @@ namespace Onyx::Graphics::Vulkan
 	private:
         const Device* m_Device;
 
-        bool m_IsSwapChainTarget = false;
         VULKAN_HANDLE(VkFramebuffer, Framebuffer, nullptr)
 	};
 }

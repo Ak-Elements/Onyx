@@ -18,11 +18,13 @@ namespace Onyx::Graphics::Vulkan
         if (api.IsDynamicRenderingEnabled())
             return;
 
-        VkFramebufferCreateInfo createInfo{ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
+        VkFramebufferCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         createInfo.renderPass = settings.m_RenderPass.As<VulkanRenderPass>().GetHandle();
         createInfo.width = settings.m_Width;
         createInfo.height = settings.m_Height;
         createInfo.layers = settings.m_LayerCount;
+        createInfo.pNext = nullptr;
 
         InplaceArray<VkImageView, MAX_RENDERPASS_ATTACHMENTS> attachments;
 

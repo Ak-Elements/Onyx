@@ -14,9 +14,9 @@ CPMAddPackage(
   )
 
 if (stb_ADDED)
-	# stb has no CMake support, so we create our own target
+    # stb has no CMake support, so we create our own target
 
-	add_library(stb_image INTERFACE)
+    add_library(stb_image INTERFACE)
     target_include_directories(stb_image INTERFACE
         $<BUILD_INTERFACE:${STB_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:include>
@@ -24,26 +24,31 @@ if (stb_ADDED)
 endif()
 
 CPMAddPackage(
-	NAME nlohmann_json
-	VERSION 3.11.3
-	GITHUB_REPOSITORY nlohmann/json
-	OPTIONS
-    	"JSON_BuildTests OFF"
-	EXCLUDE_FROM_ALL TRUE
+    NAME nlohmann_json
+    VERSION 3.11.3
+    GITHUB_REPOSITORY nlohmann/json
+    EXCLUDE_FROM_ALL TRUE
+    SYSTEM ON
+    OPTIONS
+        "JSON_BuildTests OFF"
 )
 
 CPMAddPackage(
-	NAME efsw
-	GITHUB_REPOSITORY SpartanJ/efsw
-	GIT_TAG 1.4.0
-	EXCLUDE_FROM_ALL TRUE
+    NAME efsw
+    GITHUB_REPOSITORY SpartanJ/efsw
+    GIT_TAG 1.4.0
+    EXCLUDE_FROM_ALL TRUE
+    SYSTEM ON
+    OPTIONS
+        "EFSW_INSTALL ${ONYX_ENABLE_INSTALL}"
 )
 
 CPMAddPackage(
-	NAME nfde
-	GITHUB_REPOSITORY btzy/nativefiledialog-extended
-	GIT_TAG 29e3bcb578345b9fa345d1d7683f00c150565ca3
-	EXCLUDE_FROM_ALL TRUE
+    NAME nfde
+    GITHUB_REPOSITORY btzy/nativefiledialog-extended
+    GIT_TAG 29e3bcb578345b9fa345d1d7683f00c150565ca3
+    EXCLUDE_FROM_ALL TRUE
+    SYSTEM ON
     OPTIONS
         "NFD_INSTALL ${ONYX_ENABLE_INSTALL}"
 )
@@ -52,8 +57,6 @@ if (ONYX_ENABLE_INSTALL)
     install(TARGETS 
         nlohmann_json
         stb_image
-        efsw-static
-        nfd
         EXPORT onyx-filesystem-targets
     )
 endif()

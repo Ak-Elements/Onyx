@@ -60,7 +60,8 @@ namespace Onyx::Graphics::Vulkan
     Sampler::Sampler(const Device& device, const SamplerProperties& properties)
         : m_Device(device)
     {
-        VkSamplerCreateInfo createInfo { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+        VkSamplerCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
         createInfo.addressModeU = ToVulkanAddressMode(properties.AddressModeU);
         createInfo.addressModeV = ToVulkanAddressMode(properties.AddressModeV);
         createInfo.addressModeW = ToVulkanAddressMode(properties.AddressModeW);
@@ -74,6 +75,7 @@ namespace Onyx::Graphics::Vulkan
         createInfo.borderColor = VkBorderColor::VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
         createInfo.minLod = 0;
         createInfo.maxLod = 16;
+        createInfo.pNext = nullptr;
 
         VK_CHECK_RESULT(vkCreateSampler(device.GetHandle(), &createInfo, nullptr, &m_Sampler))
     }

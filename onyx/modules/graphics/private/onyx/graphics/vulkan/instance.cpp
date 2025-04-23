@@ -10,7 +10,7 @@ namespace Onyx::Graphics::Vulkan
         : m_Window(&window)
     {
 		// Application
-		VkApplicationInfo appInfo { VK_STRUCTURE_TYPE_APPLICATION_INFO };
+		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Onyx Samples";
 		appInfo.pEngineName = "Onyx";
@@ -31,7 +31,7 @@ namespace Onyx::Graphics::Vulkan
 			return;
 		}
 
-		VkInstanceCreateInfo instanceCreateInfo { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
+		VkInstanceCreateInfo instanceCreateInfo;
 		instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceCreateInfo.pNext = nullptr;
 		instanceCreateInfo.pApplicationInfo = &appInfo;

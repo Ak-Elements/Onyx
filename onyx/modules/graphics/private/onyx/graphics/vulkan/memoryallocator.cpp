@@ -5,8 +5,7 @@
 #include <onyx/graphics/vulkan/graphicsapi.h>
 
 #define VMA_ASSERT ONYX_ASSERT
-#include <vk_mem_alloc.h>
-
+#include <vulkanmemoryallocator.h>
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -63,7 +62,8 @@ namespace Onyx::Graphics::Vulkan
 
     VmaAllocation MemoryAllocator::AllocateDedicatedMemory(VkBuffer buffer, onyxU32 memoryTypeBits, VkMemoryPropertyFlags requiredFlags, VkMemoryPropertyFlags preferredFlags)
     {
-        VmaAllocationCreateInfo allocCreateInfo { VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT };
+        VmaAllocationCreateInfo allocCreateInfo{};
+        allocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
         allocCreateInfo.memoryTypeBits = memoryTypeBits;
         allocCreateInfo.requiredFlags = requiredFlags;
         allocCreateInfo.preferredFlags = preferredFlags;
@@ -80,12 +80,13 @@ namespace Onyx::Graphics::Vulkan
 
     VmaAllocation MemoryAllocator::AllocateDedicatedMemory(VkImage image, onyxU32 memoryTypeBits, VkMemoryPropertyFlags requiredFlags, VkMemoryPropertyFlags preferredFlags)
     {
-        VmaAllocationCreateInfo allocCreateInfo { VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT };
+        VmaAllocationCreateInfo allocCreateInfo;
+        allocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
         allocCreateInfo.memoryTypeBits = memoryTypeBits;
         allocCreateInfo.requiredFlags = requiredFlags;
         allocCreateInfo.preferredFlags = preferredFlags;
         VmaAllocation allocation;
-        VmaAllocationInfo allocInfo{};
+        VmaAllocationInfo allocInfo;
         VK_CHECK_RESULT(vmaAllocateMemoryForImage(m_Allocator, image, &allocCreateInfo, &allocation, &allocInfo))
 
         // TODO: Tracking
@@ -96,7 +97,7 @@ namespace Onyx::Graphics::Vulkan
 
     VmaAllocationInfo MemoryAllocator::GetAllocationInfo(const VmaAllocation& allocation)
     {
-        VmaAllocationInfo allocInfo{};
+        VmaAllocationInfo allocInfo;
         vmaGetAllocationInfo(m_Allocator, allocation, &allocInfo);
         return allocInfo;
     }
@@ -124,8 +125,6 @@ namespace Onyx::Graphics::Vulkan
     {
         VK_CHECK_RESULT(vmaBindImageMemory(m_Allocator, allocation, image));
     }
-
-
 
     void* MemoryAllocator::Map(VmaAllocation allocation, bool shouldInvalidateMemory)
     {

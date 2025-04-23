@@ -68,7 +68,7 @@ namespace Onyx::Graphics
         RenderGraph& Graph;
 
         template <typename T>
-        T GetPinData(onyxU32 localPinId)
+        T GetPinData(onyxU32 /*localPinId*/)
         {
             return T();
             //return Graph.GetResource(localPinId);

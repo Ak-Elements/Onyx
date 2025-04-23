@@ -56,7 +56,8 @@ namespace Onyx::Graphics::Vulkan
 		if (vkSetDebugUtilsObjectNameEXT == nullptr)
 			return;
 		
-		VkDebugUtilsObjectNameInfoEXT name_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
+		VkDebugUtilsObjectNameInfoEXT name_info{};
+		name_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
 		name_info.objectType = type;
 		name_info.objectHandle = objHandle;
 		name_info.pObjectName = name.data();
@@ -280,6 +281,6 @@ public:																	\
     VulkanHandleType* GetHandlePtr() { return &m_##name; }				\
     const VulkanHandleType* GetHandlePtr() const { return &m_##name; }	\
     VulkanHandleType GetHandle() { return m_##name; }					\
-	const VulkanHandleType GetHandle() const { return m_##name; }		\
+	VulkanHandleType GetHandle() const { return m_##name; }		\
 private:																\
 	VulkanHandleType m_##name = defaultValue;

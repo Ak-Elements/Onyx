@@ -18,7 +18,7 @@ namespace Onyx::Volume
     }
 
     template <typename NodeDataContainer, typename KeyType>
-    auto Octree<NodeDataContainer, KeyType>::FindLeafInternal(const OctreeKeyT& key, const OctreeNodeT& startNode, KeyType startNodeLevel, KeyType& outLevel) const -> const OctreeNodeT&
+    auto Octree<NodeDataContainer, KeyType>::FindLeafInternal(const OctreeKeyT& key, const OctreeNodeT& startNode, KeyType startNodeLevel, KeyType& /*outLevel*/) const -> const OctreeNodeT&
     {
         const OctreeNodeT* currentNode = &startNode;
 		onyxU8 childBranchIndex = 0;
@@ -34,7 +34,7 @@ namespace Onyx::Volume
     }
 
     template <typename NodeDataContainer, typename KeyType>
-    auto Octree<NodeDataContainer, KeyType>::FindLeafInternal(const OctreeKeyT& key, OctreeNodeT& startNode, KeyType startNodeLevel, KeyType& outLevel) -> OctreeNodeT&
+    auto Octree<NodeDataContainer, KeyType>::FindLeafInternal(const OctreeKeyT& key, OctreeNodeT& startNode, KeyType startNodeLevel, KeyType& /*outLevel*/) -> OctreeNodeT&
     {
         OctreeNodeT* currentNode = &startNode;
         onyxU8 childBranchIndex = 0;

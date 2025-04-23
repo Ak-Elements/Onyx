@@ -161,7 +161,9 @@ namespace Onyx::Graphics::Vulkan
 			writeDescriptorSet.dstBinding = layoutBinding.binding;
 		}
 
-		VkDescriptorSetLayoutCreateInfo descriptorLayoutCreateInfo { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+		VkDescriptorSetLayoutCreateInfo descriptorLayoutCreateInfo{};
+		descriptorLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		descriptorLayoutCreateInfo.pNext = nullptr;
 		descriptorLayoutCreateInfo.bindingCount = static_cast<onyxU32>(layoutBindings.size());
 		descriptorLayoutCreateInfo.pBindings = layoutBindings.data();
 

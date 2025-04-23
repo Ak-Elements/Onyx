@@ -346,7 +346,7 @@ namespace Onyx::Graphics
     {
         RECT rect;
         DWORD style;
-        MONITORINFO mi = { sizeof(mi) };
+        MONITORINFO mi;
 
         ::GetMonitorInfoW(MonitorFromWindow(m_WindowHandle, MONITOR_DEFAULTTONEAREST), &mi);
 
@@ -600,11 +600,11 @@ namespace Onyx::Graphics
                 else if (m_CursorMode == CursorMode::Captured)
                     ReleaseCursor();
 
-                WindowState state = m_State;
+                /*WindowState state = m_State;
                 if (m_Settings.Mode == WindowMode::Fullscreen)
                 {
                     state = m_Settings.Mode == WindowMode::Fullscreen ? WindowState::Minimized : WindowState::Background;
-                }
+                }*/
 
                 m_OnFocus(false);
                 break;
@@ -651,8 +651,8 @@ namespace Onyx::Graphics
                 //    break;
 
                 // Adjust the window size to keep the content area size constant
-                ::RECT source = { 0 };
-                ::RECT target = { 0 };
+                ::RECT source;
+                ::RECT target;
                 ::SIZE* size = (::SIZE*)lParam;
 
                 ::AdjustWindowRectExForDpi(&source, GetStyle(),false, GetExtendedStyle(), GetDpiForWindow(m_WindowHandle));

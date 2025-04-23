@@ -1,10 +1,10 @@
 message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 
-FetchContent_Declare(entt
-	GIT_REPOSITORY https://github.com/skypjack/entt.git
-	GIT_TAG v3.13.2    
+CPMAddPackage(entt
+    GITHUB_REPOSITORY skypjack/entt
+    VERSION 3.13.2
+    SYSTEM ON
 )
-FetchContent_MakeAvailable(entt)
 
 set(TARGET_PUBLIC_DEPENDENCIES
 	onyx-core
@@ -15,8 +15,7 @@ set(TARGET_PUBLIC_DEPENDENCIES
 )
 
 # entt should be a private dependency
-
 set(TARGET_PRIVATE_DEPENDENCIES
-
 )
+
 message(STATUS "[${CURRENT_TARGET}] Finished getting dependencies.")

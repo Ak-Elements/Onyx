@@ -72,7 +72,9 @@ namespace Onyx::Editor
                 const String& currentToken = split[i];
                 if (i == split.size() - 1)
                 {
-                    currentParent->m_Children[currentToken] = { currentToken, typeId };
+                    NodeListContextMenuItem& menuItem = currentParent->m_Children[currentToken];
+                    menuItem.Label = currentToken;
+                    menuItem.TypeId = typeId;
                     break;
                 }
 

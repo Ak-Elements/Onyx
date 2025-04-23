@@ -21,7 +21,6 @@
 
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
-#include <imgui_node_editor_internal.h>
 
 namespace Onyx::Editor
 {

@@ -53,9 +53,11 @@ namespace Onyx::Graphics::Vulkan
     {
         ONYX_ASSERT(m_IsRecording == false, "CommandBuffer is already recording");
 
-        VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        VkCommandBufferBeginInfo beginInfo;
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
         beginInfo.pInheritanceInfo = nullptr; // Optional
+        beginInfo.pNext = nullptr;
 
         VK_CHECK_RESULT(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo))
         m_IsRecording = true;
@@ -65,9 +67,11 @@ namespace Onyx::Graphics::Vulkan
     {
         ONYX_ASSERT(m_IsRecording == false, "CommandBuffer is already recording");
 
-        VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        VkCommandBufferBeginInfo beginInfo;
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         beginInfo.pInheritanceInfo = nullptr; // Optional
+        beginInfo.pNext = nullptr;
 
         VK_CHECK_RESULT(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo))
         m_IsRecording = true;
@@ -97,7 +101,9 @@ namespace Onyx::Graphics::Vulkan
             colorAttachmentsInfo.reserve(frameBufferSettings.m_ColorTargets.size());
 
             bool hasDepthAttachment = false;
-            VkRenderingAttachmentInfoKHR depthAttachmentInfo{ VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR };
+            VkRenderingAttachmentInfoKHR depthAttachmentInfo;
+            depthAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
+            depthAttachmentInfo.pNext = nullptr;
 
             onyxU8 colorTargetIndex = 0;
             for (const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments)
@@ -136,7 +142,8 @@ namespace Onyx::Graphics::Vulkan
                 }
             }
 
-            VkRenderingInfoKHR renderingInfo{ VK_STRUCTURE_TYPE_RENDERING_INFO_KHR };
+            VkRenderingInfoKHR renderingInfo;
+            renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR;
             renderingInfo.flags = /*use_secondary ? VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT_KHR : */0;
             renderingInfo.renderArea.offset = VkOffset2D{ 0, 0 };
             renderingInfo.renderArea.extent = VkExtent2D{ frameBufferSettings.m_Width, frameBufferSettings.m_Height };
@@ -146,6 +153,7 @@ namespace Onyx::Graphics::Vulkan
             renderingInfo.pColorAttachments = colorTargetIndex > 0 ? colorAttachmentsInfo.data() : nullptr;
             renderingInfo.pDepthAttachment = hasDepthAttachment ? &depthAttachmentInfo : nullptr;
             renderingInfo.pStencilAttachment = nullptr;
+            renderingInfo.pNext = nullptr;
 
             // TODO: name render pass & framebuffer
             //SetResourceName(m_Api.GetDevice().GetHandle(), VK_OBJECT_TYPE_RENDER_PASS, &renderingInfo, "Test");
@@ -154,12 +162,13 @@ namespace Onyx::Graphics::Vulkan
         }
         else
         {
-            VkRenderPassBeginInfo renderPassBegin{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
+            VkRenderPassBeginInfo renderPassBegin;
+            renderPassBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassBegin.framebuffer = frameBuffer.GetHandle();
             renderPassBegin.renderPass = renderPass.GetHandle();
-
             renderPassBegin.renderArea.offset = { 0, 0 };
             renderPassBegin.renderArea.extent = { frameBufferSettings.m_Width, frameBufferSettings.m_Height };
+            renderPassBegin.pNext = nullptr;
 
             // TODO: Add to renderpass attachment?
             onyxU32 clearValuesCount = renderPass.GetSettings().m_Attachments.size();
@@ -499,16 +508,19 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanCommandBuffer::GlobalBarrier(VkAccessFlagBits2 srcAccess, VkAccessFlagBits2 dstAccess)
     {
-        VkMemoryBarrier2 barrier{ VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
-
+        VkMemoryBarrier2 barrier;
+        barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
         barrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
         barrier.srcAccessMask = srcAccess;
         barrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
         barrier.dstAccessMask = dstAccess;
+        barrier.pNext = nullptr;
 
-        VkDependencyInfoKHR dependency_info{ VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR };
+        VkDependencyInfoKHR dependency_info;
+        dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
         dependency_info.memoryBarrierCount = 1;
         dependency_info.pMemoryBarriers = &barrier;
+        dependency_info.pNext = nullptr;
 
         vkCmdPipelineBarrier2(m_CommandBuffer, &dependency_info);
     }

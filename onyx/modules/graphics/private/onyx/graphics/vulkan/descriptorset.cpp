@@ -22,11 +22,12 @@ namespace Onyx::Graphics::Vulkan
     {
         m_WriteDescriptorSets.insert(descriptorSetLayout.GetWriteDescriptors().begin(), descriptorSetLayout.GetWriteDescriptors().end());
 
-	    VkDescriptorSetAllocateInfo allocInfo{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+        VkDescriptorSetAllocateInfo allocInfo{};
 	    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	    allocInfo.descriptorPool = pool.GetHandle();
 	    allocInfo.pSetLayouts = descriptorSetLayout.GetHandlePtr();
 	    allocInfo.descriptorSetCount = 1;
+        allocInfo.pNext = nullptr;
 
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.GetHandle(), &allocInfo, &m_DescriptorSet))
     }
