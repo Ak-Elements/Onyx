@@ -5,7 +5,6 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/entity.h
 	${TARGET_PUBLIC_PATH}/entity.hpp
 	${TARGET_PUBLIC_PATH}/entityregistry.h
-	${TARGET_PUBLIC_PATH}/typeinfo.h
 	${TARGET_PUBLIC_PATH}/prefab.h
 	${TARGET_PUBLIC_PATH}/prefabregistry.h
 	${TARGET_PUBLIC_PATH}/system.h

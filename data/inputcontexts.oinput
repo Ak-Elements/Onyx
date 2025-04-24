@@ -6,7 +6,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 41
                 }
@@ -18,7 +18,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 76
                 }
@@ -30,7 +30,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 26
                 }
@@ -42,7 +42,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 8
                 }
@@ -54,7 +54,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 21
                 }
@@ -66,7 +66,7 @@
             "type": "Axis3D",
             "bindings": [
                 {
-                    "id": 1921897362,
+                    "id": 3917752485,
                     "type": "Keyboard",
                     "Up": 20,
                     "Down": 8,
@@ -76,7 +76,7 @@
                     "Backward": 22
                 },
                 {
-                    "id": 1921897362,
+                    "id": 3917752485,
                     "type": "Gamepad",
                     "Up": 10,
                     "Down": 11,
@@ -93,13 +93,13 @@
             "type": "Axis2D",
             "bindings": [
                 {
-                    "id": 545227006,
+                    "id": 1656231759,
                     "type": "Mouse",
                     "X": 3,
                     "Y": 4
                 },
                 {
-                    "id": 545227006,
+                    "id": 1656231759,
                     "type": "Gamepad",
                     "X": 3,
                     "Y": 4
@@ -112,7 +112,7 @@
             "type": "Axis1D",
             "bindings": [
                 {
-                    "id": 2189183405,
+                    "id": 1890573972,
                     "type": "Mouse",
                     "input": 5
                 }
@@ -124,7 +124,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 224
                 }
@@ -136,7 +136,7 @@
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 420701433,
+                    "id": 3497041768,
                     "type": "Keyboard",
                     "input": 225
                 }

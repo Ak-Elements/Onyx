@@ -2,7 +2,6 @@
 #include <onyx/noncopyable.h>
 #include <onyx/engine/enginesystem.h>
 
-#include <onyx/entity/typeinfo.h>
 #include <onyx/typetraits.h>
 #include <onyx/assets/asset.h>
 

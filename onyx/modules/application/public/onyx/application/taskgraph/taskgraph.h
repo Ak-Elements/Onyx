@@ -3,8 +3,6 @@
 #include <onyx/application/taskgraph/taskgraphtask.h>
 #include <onyx/container/directedacyclicgraph.h>
 
-#include <onyx/entity/typeinfo.h>
-
 namespace Onyx::Application
 {
     using DirectedAcyclicTaskGraph = DirectedAcyclicGraph<TaskGraphNode, onyxS16>;

@@ -71,7 +71,7 @@ namespace Onyx::NodeGraph
             return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId));
         }
 #endif
-        
+
     private:
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         static HashMap<PinTypeId, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> s_RegisteredTypes;
@@ -95,6 +95,8 @@ namespace Onyx::NodeGraph
         template <Details::IsNodeGraphNode NodeT>
         void RegisterNode(const StringView& fullyQualifiedName) 
         {
+            constexpr StringView typeName = TypeName<NodeT>();
+            ONYX_UNUSED(typeName);
             constexpr onyxU32 typeHash = TypeHash<NodeT>();
             ONYX_ASSERT(m_RegisteredNodeTypeIds.contains(typeHash) == false, "Node is already registered in this context");
 

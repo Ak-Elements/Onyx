@@ -16,87 +16,61 @@ namespace Onyx
 			return Array<char, sizeof...(Idxs) + 1>{ str[Idxs]..., '\0' };
 		}
 
-		template <bool KeepNamespace, typename T>
-		constexpr auto type_name_array()
+		template <typename T>
+		constexpr auto type_name()
 		{
 #if ONYX_IS_CLANG
-			constexpr auto prefix = std::string_view{ "T = " };
+			constexpr auto prefix = std::string_view{ "=" };
 			constexpr auto suffix = std::string_view{ "]" };
 			constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
 #elif ONYX_IS_GCC
-			constexpr auto prefix = std::string_view{ "; T = " };
+			constexpr auto prefix = std::string_view{ "=" };
 			constexpr auto suffix = std::string_view{ "]" };
 			constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
 #elif ONYX_IS_VISUAL_STUDIO
-			constexpr auto prefix = std::string_view{ "e," }; // tru'e', or fals'e',
-			constexpr auto suffix = std::string_view{ ">(void)" };
+			constexpr auto prefix = std::string_view{ "<" };
+			constexpr auto suffix = std::string_view{ ">" };
 			constexpr auto function = std::string_view{ __FUNCSIG__ };
 #else
 # error Unsupported compiler
 #endif
 
-			constexpr auto start = function.find(prefix) + prefix.size();
-			constexpr auto end = function.rfind(suffix);
+			constexpr auto classPrefix = std::string_view{ "class " };
 
-			static_assert(start < end);
-
-			constexpr auto name = function.substr(start, (end - start));
-
-			if constexpr (KeepNamespace)
-			{
-				return substring_as_array(name, std::make_index_sequence<name.size()>{});
-			}
-			else
-			{
-				constexpr auto new_start = name.find_last_of("::");
-				if constexpr (new_start != std::string_view::npos)
-				{
-					static_assert((new_start + 1) < end);
-
-					constexpr auto stripped_name = name.substr(new_start + 1, name.size() - (new_start + 1));
-
-					return substring_as_array(stripped_name, std::make_index_sequence<stripped_name.size()>{});
-				}
-				else
-				{
-					return substring_as_array(name, std::make_index_sequence<name.size()>{});
-				}
-			}
+			std::string_view pretty_function{ function };
+			auto first = pretty_function.find_first_not_of(' ', pretty_function.find_first_of(prefix) + 1);
+			first = pretty_function.find_first_not_of(' ', pretty_function.find_first_not_of(classPrefix, first + 1));
+			auto value = pretty_function.substr(first, pretty_function.find_last_of(suffix) - first);
+			return value;
+			
 		}
 
-		template <typename T, bool keep_namespace>
+		template <typename T>
 		struct type_name_holder
 		{
-			static inline constexpr auto value = type_name_array<keep_namespace, T>();
+			static inline constexpr auto value = type_name<T>();
 		};
 	} // namespace Impl
 
 	template <typename T>
 	constexpr StringView TypeName()
 	{
-		constexpr auto& value = Internal::type_name_holder<T, false>::value;
-		return { value.data(), value.size() - 1 };
-	}
-
-	template <typename T>
-	constexpr StringView FullyQualifiedTypeName()
-	{
-		constexpr auto& value = Internal::type_name_holder<T, true>::value;
-		return { value.data(), value.size() - 1 };
+		constexpr auto& value = Internal::type_name_holder<T>::value;
+		return { value.data(), value.size() };
 	}
 
 	template <typename T>
 	constexpr onyxU32 TypeHash()
 	{
-		constexpr auto& value = Internal::type_name_holder<T, true>::value;
-		return Hash::FNV1aHash32(value.data(), value.size() - 1);
+		constexpr auto& value = Internal::type_name_holder<T>::value;
+		return Hash::FNV1aHash32(value.data(), value.size());
 	}
 
 	template <typename T>
 	constexpr onyxU64 TypeHash64()
 	{
-		constexpr auto& value = Internal::type_name_holder<T, true>::value;
-		return Hash::FNV1aHash64(value.data(), value.size() - 1, 0);
+		constexpr auto& value = Internal::type_name_holder<T>::value;
+		return Hash::FNV1aHash64(value.data(), value.size(), 0);
 	}
 
 	template<typename Type>

@@ -1,8 +1,8 @@
 [
     {
         "id": "0xba4fcc11a401001",
-        "typeId": 1940903987,
-        "type": "CreateLightClusters",
+        "typeId": 2376002331,
+        "type": "Onyx::Graphics::CreateLightClusters",
         "outputs": [
             {
                 "id": "0xba4fcc11a401002",
@@ -13,8 +13,8 @@
     },
     {
         "id": "0xba68ae7a0001001",
-        "typeId": 3969146269,
-        "type": "CreateTransmittanceRenderGraphNode",
+        "typeId": 4242758773,
+        "type": "Onyx::Graphics::CreateTransmittanceRenderGraphNode",
         "outputs": [
             {
                 "id": "0xba68ae7a0001002",
@@ -45,8 +45,8 @@
     },
     {
         "id": "0xba2926a5c001001",
-        "typeId": 2108322918,
-        "type": "GetViewConstantsNode",
+        "typeId": 499668478,
+        "type": "Onyx::Graphics::GetViewConstantsNode",
         "outputs": [
             {
                 "id": "0xba2926a5c001002",
@@ -56,8 +56,8 @@
     },
     {
         "id": "0xba4fcc713c01000",
-        "typeId": 431591944,
-        "type": "UpdateLightClustersRenderGraphNode",
+        "typeId": 3744833792,
+        "type": "Onyx::Graphics::UpdateLightClustersRenderGraphNode",
         "inputs": [
             {
                 "id": "0xba4fcc713c01001",
@@ -83,8 +83,8 @@
     },
     {
         "id": "0xba68af0af801000",
-        "typeId": 2583986257,
-        "type": "ComputeMultipleScatteringRenderGraphNode",
+        "typeId": 2548958857,
+        "type": "Onyx::Graphics::ComputeMultipleScatteringRenderGraphNode",
         "inputs": [
             {
                 "id": "0xba68af0af801001",
@@ -122,8 +122,8 @@
     },
     {
         "id": "0xba8c92356401001",
-        "typeId": 327075126,
-        "type": "MSDFFontRenderPass",
+        "typeId": 71305614,
+        "type": "Onyx::GameCore::MSDFFontRenderPass",
         "inputs": [
             {
                 "id": "0xba8c92356401002",
@@ -161,8 +161,8 @@
     },
     {
         "id": "0xba6717196401001",
-        "typeId": 519748157,
-        "type": "DepthPrePassRenderGraphNode",
+        "typeId": 2756550069,
+        "type": "Onyx::GameCore::DepthPrePassRenderGraphNode",
         "inputs": [
             {
                 "id": "0xba6717196401102",
@@ -207,8 +207,8 @@
     },
     {
         "id": "0xb8e0fd536001001",
-        "typeId": 4266093735,
-        "type": "GridRenderGraphNode",
+        "typeId": 2954923647,
+        "type": "Onyx::GridRenderGraphNode",
         "inputs": [
             {
                 "id": "0xb8e0fd536001002",
@@ -246,8 +246,8 @@
     },
     {
         "id": "0xba68b013b801000",
-        "typeId": 416122375,
-        "type": "SkyViewLutRenderGraphNode",
+        "typeId": 670970479,
+        "type": "Onyx::Graphics::SkyViewLutRenderGraphNode",
         "inputs": [
             {
                 "id": "0xba68b013b801001",
@@ -290,8 +290,8 @@
     },
     {
         "id": "0xba68b0d91801000",
-        "typeId": 3967105998,
-        "type": "AtmosphericSkyRenderGraphNode",
+        "typeId": 868655990,
+        "type": "Onyx::Graphics::AtmosphericSkyRenderGraphNode",
         "inputs": [
             {
                 "id": "0xba68b0d91801001",
@@ -339,8 +339,8 @@
     },
     {
         "id": "0xba5010b28801001",
-        "typeId": 1149684037,
-        "type": "StaticMeshRenderGraphNode",
+        "typeId": 164678653,
+        "type": "Onyx::GameCore::StaticMeshRenderGraphNode",
         "inputs": [
             {
                 "id": "0xba5010b28801002",
@@ -407,26 +407,26 @@
     },
     {
         "id": "0xb8e0fd752001000",
-        "typeId": 3891282752,
-        "type": "CompositeRenderGraphNode",
+        "typeId": 327835704,
+        "type": "Onyx::CompositeRenderGraphNode",
         "inputs": [
             {
                 "id": "0xb8e0fd9f7001000",
-                "type":1082623486,
+                "type":540393595,
                 "localId": 165626149,
                 "localIdString":"Grid",
                 "linkedPin": "0xb8e0fd536001003"
             },
             {
                 "id": "0xb8e0fdab7c01002",
-                "type":1082623486,
+                "type":540393595,
                 "localId": 148848530,
                 "localIdString":"Gbuffer",
                 "linkedPin": "0xba5010b28801006"
             },
             {
                 "id": "0xb8e0fdab7c01062",
-                "type":1082623486,
+                "type":540393595,
                 "localId": 132070911,
                 "localIdString":"Font3D",
                 "linkedPin": "0xba8c92356401003"
@@ -435,7 +435,7 @@
         "outputs": [
             {
                 "id": "0xb8e0fdab7c01000",
-                "type":1082623486,
+                "type":540393595,
                 "localId": 3663792444,
                 "localIdString": "Composite"
             }
@@ -464,8 +464,8 @@
     },
     {
         "id": "0xbaa254787001000",
-        "typeId": 3475045391,
-        "type": "ToneMapPass",
+        "typeId": 2052907239,
+        "type": "Onyx::Graphics::ToneMapPass",
         "inputs": [
             {
                 "id": "0xbaa254787001001",
@@ -503,8 +503,8 @@
     },
     {
         "id": "0xbaa254c1e401000",
-        "typeId": 947486601,
-        "type": "UIRenderGraphNode",
+        "typeId": 3241141825,
+        "type": "Onyx::UIRenderGraphNode",
         "inputs": [
             {
                 "id": "0xbaa254c1e401001",
