@@ -28,6 +28,9 @@ namespace Onyx
 			constexpr auto suffix = std::string_view{ "]" };
 			constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
 #elif ONYX_IS_VISUAL_STUDIO
+			constexpr auto classPrefix = std::string_view{ "class " };
+			constexpr auto structPrefix = std::string_view{ "struct " };
+
 			constexpr auto prefix = std::string_view{ "<" };
 			constexpr auto suffix = std::string_view{ ">" };
 			constexpr auto function = std::string_view{ __FUNCSIG__ };
@@ -35,11 +38,13 @@ namespace Onyx
 # error Unsupported compiler
 #endif
 
-			constexpr auto classPrefix = std::string_view{ "class " };
-
+			
 			std::string_view pretty_function{ function };
 			auto first = pretty_function.find_first_not_of(' ', pretty_function.find_first_of(prefix) + 1);
-			first = pretty_function.find_first_not_of(' ', pretty_function.find_first_not_of(classPrefix, first + 1));
+#if ONYX_IS_VISUAL_STUDIO
+			first = pretty_function.find_first_not_of(' ', pretty_function.find_first_not_of(classPrefix, first));
+			first = pretty_function.find_first_not_of(' ', pretty_function.find_first_not_of(structPrefix, first));
+#endif
 			auto value = pretty_function.substr(first, pretty_function.find_last_of(suffix) - first);
 			return value;
 			

@@ -95,8 +95,6 @@ namespace Onyx::NodeGraph
         template <Details::IsNodeGraphNode NodeT>
         void RegisterNode(const StringView& fullyQualifiedName) 
         {
-            constexpr StringView typeName = TypeName<NodeT>();
-            ONYX_UNUSED(typeName);
             constexpr onyxU32 typeHash = TypeHash<NodeT>();
             ONYX_ASSERT(m_RegisteredNodeTypeIds.contains(typeHash) == false, "Node is already registered in this context");
 
