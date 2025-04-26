@@ -4,11 +4,13 @@
 
 #include <onyx/container/directedacyclicgraph.h>
 
-#include <onyx/nodegraph/node.h>
 #include <any>
 
 namespace Onyx::NodeGraph
 {
+    class Node;
+    class PinBase;
+    
     class NodeGraph
     {
     public:
@@ -27,19 +29,7 @@ namespace Onyx::NodeGraph
         {
             UniquePtr<Node> newNode = MakeUnique<T>(std::forward<Args>(args)...);
 
-            Guid64 newId = Guid64Generator::GetGuid();
-            newNode->SetId(newId);
-            const onyxU32 inputPinCount = newNode->GetInputPinCount();
-            for (onyxU32 i = 0; i < inputPinCount; ++i)
-            {
-                newNode->GetInputPin(i)->SetGlobalId(Guid64Generator::GetGuid());
-            }
-
-            const onyxU32 outputPinCount = newNode->GetOutputPinCount();
-            for (onyxU32 i = 0; i < outputPinCount; ++i)
-            {
-                newNode->GetOutputPin(i)->SetGlobalId(Guid64Generator::GetGuid());
-            }
+            SetupNode(*newNode);
 
             LocalNodeId nodeId = Graph.AddNode(std::move(newNode));
             return nodeId;
@@ -77,6 +67,7 @@ namespace Onyx::NodeGraph
 
     private:
         LocalNodeId GetLocalNodeIdForPin(Guid64 globalPinId);
+        void SetupNode(Node& node);
 
     private:
         DirectedAcyclicGraphT Graph;

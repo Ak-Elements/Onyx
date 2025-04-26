@@ -1,10 +1,11 @@
 #pragma once
 #include <onyx/nodegraph/graph.h>
 
-#include <onyx/filesystem/path.h>
+#include <onyx/filesystem/onyxfile.h>
 
 namespace Onyx::FileSystem
 {
+    
     class FileStream;
 }
 

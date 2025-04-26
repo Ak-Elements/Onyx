@@ -1,5 +1,6 @@
 #include <onyx/container/directedacyclicgraph.h>
 #include <onyx/nodegraph/graph.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/nodegraph/node.h>
 
 namespace Onyx::NodeGraph
@@ -145,5 +146,22 @@ namespace Onyx::NodeGraph
         Graph.Clear();
         ConstantPinData.clear();
         TopologicalOrder.clear();
+    }
+
+    void NodeGraph::SetupNode(Node& newNode)
+    {
+        Guid64 newId = Guid64Generator::GetGuid();
+        newNode.SetId(newId);
+        const onyxU32 inputPinCount = newNode.GetInputPinCount();
+        for (onyxU32 i = 0; i < inputPinCount; ++i)
+        {
+            newNode.GetInputPin(i)->SetGlobalId(Guid64Generator::GetGuid());
+        }
+
+        const onyxU32 outputPinCount = newNode.GetOutputPinCount();
+        for (onyxU32 i = 0; i < outputPinCount; ++i)
+        {
+            newNode.GetOutputPin(i)->SetGlobalId(Guid64Generator::GetGuid());
+        }
     }
 }

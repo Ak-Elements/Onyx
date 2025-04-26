@@ -55,7 +55,7 @@ namespace Onyx::NodeGraph
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
             s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
 #else
-            s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localId) { return new DynamicPin<T>(globalId, localId); };
+            s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId) { return new DynamicPin<T>(globalId, localId); };
 #endif
 
         }
@@ -66,7 +66,7 @@ namespace Onyx::NodeGraph
             return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId, localIdString));
         }
 #else
-        static UniquePtr<PinBase> CreatePinForType(PinTypeId typeId, Guid64 globalId, onyxU32 localId)
+        static UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId)
         {
             return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId));
         }

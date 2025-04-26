@@ -332,7 +332,7 @@ namespace Onyx::NodeGraph
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
                     pin = outPins.emplace_back(CreatePin(pinTypeId, globalPinId, localPinId, localPinIdString)).get();
 #else
-                    pin = outPins.emplace_back(NodeGraphTypeRegistry::CreatePinForType(pinTypeId, globalPinId, localPinId)).get();
+                    pin = outPins.emplace_back(CreatePin(pinTypeId, globalPinId, localPinId)).get();
 #endif
                 }
                 else

@@ -588,6 +588,19 @@ namespace Onyx::NodeGraph
         {
         }
 
+        DynamicPin(Guid64 globalPinId, const onyxU32 localId)
+            : PinBase(globalPinId)
+            , LocalId(localId)
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+            , LocalIdString(std::to_string(localId))
+#endif
+        {
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        // output warning
+#endif
+        }
+
+
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         DynamicPin(Guid64 globalPinId, const String& id)
             : PinBase(globalPinId)
@@ -751,5 +764,9 @@ namespace Onyx::NodeGraph
     }
 #endif
 
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId, const String& localIdString);
+#else
+    UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId);
+#endif
 }
