@@ -39,7 +39,6 @@ jobs:
               && sudo rm -rf /var/lib/apt/lists/*
           wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-          sudo 
           sudo apt update && sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf /var/lib/apt/lists/*
       - name: Generate CMake
         env:
