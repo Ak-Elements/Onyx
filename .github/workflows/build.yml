@@ -20,8 +20,7 @@ jobs:
         name: check latest commit is less than a day
         if: '${{ github.event_name == ''schedule'' }}'
         run: |
-          test -z $(git rev-list  --after="24 hours"  ${{ github.sha }})
-          &amp;&amp; echo "::set-output name=should_run::false"
+          test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
   linux:
     needs: check_last_commit
     if: '${{ needs.check_last_commit.outputs.should_run != ''false'' }}'
@@ -35,18 +34,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install compiler & dependencies
         run: |
-          sudo apt update
-          sudo apt install -y --no-install-recommends ${{ matrix.compiler.pkg
-          }}-${{ matrix.compiler.version }}  \
+          sudo apt update && sudo apt install -y --no-install-recommends ${{ matrix.compiler.pkg }}-${{ matrix.compiler.version }}  \
                   libgtk-3-dev \
               && sudo rm -rf /var/lib/apt/lists/*
-          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc |
-          sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list
-          http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-          sudo apt update
-          sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf
-          /var/lib/apt/lists/*
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+          sudo 
+          sudo apt update && sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf /var/lib/apt/lists/*
       - name: Generate CMake
         env:
           CXX: '${{ matrix.compiler.exe }}-${{ matrix.compiler.version }}'
