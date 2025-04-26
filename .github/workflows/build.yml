@@ -19,7 +19,7 @@ jobs:
         continue-on-error: true
         name: check latest commit is less than a day
         if: '${{ github.event_name == ''schedule'' }}'
-        run: >-
+        run: |
           test -z $(git rev-list  --after="24 hours"  ${{ github.sha }})
           &amp;&amp; echo "::set-output name=should_run::false"
   linux:
@@ -34,26 +34,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install compiler & dependencies
-        run: >
+        run: |
           sudo apt update
-
           sudo apt install -y --no-install-recommends ${{ matrix.compiler.pkg
           }}-${{ matrix.compiler.version }}  \
                   libgtk-3-dev \
               && sudo rm -rf /var/lib/apt/lists/*
           wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc |
           sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-
           sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list
           http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-
           sudo apt update
-
           sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf
           /var/lib/apt/lists/*
-      - name: Compile
+      - name: Generate CMake
         env:
           CXX: '${{ matrix.compiler.exe }}-${{ matrix.compiler.version }}'
         run: |
-          cmake -B build -DONYX_BUILD_EDITOR=ON 
-          make -C build/ -j4
+          cmake -B build -G "Ninja Multi-Config" -DONYX_BUILD_EDITOR=ON 
+      - name: Compile Debug
+        run: |
+          cmake --build build --config Debug
+      - name: Compile Release
+        run: |
+          cmake --build build --config Release
