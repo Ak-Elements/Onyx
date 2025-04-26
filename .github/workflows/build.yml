@@ -1,5 +1,6 @@
 name: build
 'on':
+  on: [push, pull_request]
   workflow_dispatch: null
   schedule:
     - cron: 0 0 * * *
