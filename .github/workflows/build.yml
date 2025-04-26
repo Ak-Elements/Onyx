@@ -47,7 +47,7 @@ jobs:
           cmake -B build -G "Ninja Multi-Config" -DONYX_BUILD_EDITOR=ON 
       - name: Compile Debug
         run: |
-          cmake --build build --config Debug
+          cmake --build build --config Debug --parallel 4
       - name: Compile Release
         run: |
-          cmake --build build --config Release
+          cmake --build build --config Release --parallel 4
