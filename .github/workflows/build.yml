@@ -55,5 +55,5 @@ jobs:
         env:
           CXX: '${{ matrix.compiler.exe }}-${{ matrix.compiler.version }}'
         run: |
-          cmake -B build -DONYX_BUILD_EDITOR=ON ..
+          cmake -B build -DONYX_BUILD_EDITOR=ON 
           make -C build/ -j4
