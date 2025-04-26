@@ -52,9 +52,8 @@ jobs:
           sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf
           /var/lib/apt/lists/*
       - name: Compile
-        working-directory: build
         env:
           CXX: '${{ matrix.compiler.exe }}-${{ matrix.compiler.version }}'
         run: |
-          cmake -DONYX_BUILD_EDITOR=ON ..
-          make -j4
+          cmake -B build -DONYX_BUILD_EDITOR=ON ..
+          make -C build/ -j4
