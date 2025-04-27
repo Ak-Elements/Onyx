@@ -1,60 +1,93 @@
 name: build
-'on':
+on:
+  push: null
   workflow_dispatch: null
-  schedule:
-    - cron: 0 0 * * *
 jobs:
-  check_last_commit:
+  generate_cmake:
     runs-on: ubuntu-latest
-    name: Check latest commit
-    outputs:
-      should_run: '${{ steps.should_run.outputs.should_run }}'
-    steps:
-      - uses: actions/checkout@v2
-      - name: print latest_commit
-        run: 'echo ${{ github.sha }}'
-      - id: should_run
-        continue-on-error: true
-        name: check latest commit is less than a day
-        if: '${{ github.event_name == ''schedule'' }}'
-        run: >-
-          test -z $(git rev-list  --after="24 hours"  ${{ github.sha }})
-          &amp;&amp; echo "::set-output name=should_run::false"
-  linux:
-    needs: check_last_commit
-    if: '${{ needs.check_last_commit.outputs.should_run != ''false'' }}'
+    name: Generate CMake files
     strategy:
       matrix:
         compiler:
-          - pkg: clang
-            exe: clang++
-            version: 18
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
+          - { pkg: clang, exe: 'clang++', version: 18 }
     steps:
       - uses: actions/checkout@v4
+
       - name: Install compiler & dependencies
-        run: >
-          sudo apt update
+        run: |
+          sudo apt update && sudo apt install -y --no-install-recommends ${{ matrix.compiler.pkg }}-${{ matrix.compiler.version }} \
+              libgtk-3-dev \
+            && sudo rm -rf /var/lib/apt/lists/*
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+          sudo apt update && sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf /var/lib/apt/lists/*
 
-          sudo apt install -y --no-install-recommends ${{ matrix.compiler.pkg
-          }}-${{ matrix.compiler.version }}  \
-                  libgtk-3-dev \
-              && rm -rf /var/lib/apt/lists/*
-          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc |
-          sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list
-          http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
-
-          sudo apt update
-
-          sudo apt install -y --no-install-recommends vulkan-sdk && rm -rf
-          /var/lib/apt/lists/*
-      - name: Compile
-        working-directory: build
+      - name: Generate CMake files
         env:
           CXX: '${{ matrix.compiler.exe }}-${{ matrix.compiler.version }}'
         run: |
-          cmake -DONYX_BUILD_EDITOR=ON ..
-          make -j4
+          cmake -B build -G "Ninja Multi-Config" -DONYX_BUILD_EDITOR=ON
+
+      - name: Cache CMake Build
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ runner.os }}-cmake-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-build-
+
+  build_debug:
+    name: Build Debug
+    needs: generate_cmake
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore CMake Build Cache
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ runner.os }}-cmake-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-build-
+
+      - name: Install compiler & dependencies
+        run: |
+          sudo apt update && sudo apt install -y --no-install-recommends clang-18 \
+              libgtk-3-dev \
+            && sudo rm -rf /var/lib/apt/lists/*
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+          sudo apt update && sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Build Debug
+        run: |
+          cmake --build build --config Debug --parallel 4
+
+  build_release:
+    name: Build Release
+    needs: generate_cmake
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore CMake Build Cache
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ runner.os }}-cmake-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-build-
+
+      - name: Install compiler & dependencies
+        run: |
+          sudo apt update && sudo apt install -y --no-install-recommends clang-18 \
+              libgtk-3-dev \
+            && sudo rm -rf /var/lib/apt/lists/*
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list http://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+          sudo apt update && sudo apt install -y --no-install-recommends vulkan-sdk && sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Build Release
+        run: |
+          cmake --build build --config Release --parallel 4
