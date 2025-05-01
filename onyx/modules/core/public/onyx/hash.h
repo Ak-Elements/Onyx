@@ -242,12 +242,6 @@ namespace Onyx
 	};
 
     template <>
-    constexpr onyxU64 Hash::FNV1aHash64<std::string>(const String& string, onyxU64 seed)
-    {
-        return FNV1aHash64(string.data(), string.length(), seed);
-    }
-
-    template <>
     constexpr onyxU64 Hash::FNV1aHash64<std::filesystem::path>(const std::filesystem::path& path, onyxU64 seed)
     {
         return FNV1aHash64(path.string(), seed);
