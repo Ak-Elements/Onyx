@@ -4,6 +4,7 @@
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/filesystem/onyxfile.h>
+#include <onyx/gamecore/components/transientcomponent.h>
 
 namespace Onyx::GameCore
 {
@@ -193,6 +194,11 @@ namespace Onyx::GameCore
 
     bool SceneSerializer::SerializeEntity(const Entity::EntityRegistry& registry, Entity::EntityId entityId, FileSystem::JsonValue& outEntityJsonObj) const
     {
+        if (registry.HasComponents<TransientComponent>(entityId))
+        {
+            return true;
+        }
+
         // iterate all component storages and save out the components for the entity
         for (auto componentStorageIt : registry.GetStorage())
         {

@@ -11,7 +11,8 @@ namespace Onyx::Graphics
 
     class SampleTextureNode : public NodeGraph::FlexiblePinsNode<ShaderGraphNode>
     {
-        using Super = FlexiblePinsNode<ShaderGraphNode>;
+    private:
+        using Super = NodeGraph::FlexiblePinsNode<ShaderGraphNode>;
 
         using TextureInPin = NodeGraph::Pin<TextureHandle, "Texture">;
         using UVInPin = NodeGraph::Pin<Vector2f, "UV">;
@@ -23,6 +24,9 @@ namespace Onyx::Graphics
         using AlphaOutPin = NodeGraph::Pin<onyxF32, "A">;
 
     public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::SampleTexture";
+       StringId32 GetTypeId() const override { return TypeId; }
+
         SampleTextureNode();
         ~SampleTextureNode() override;
 

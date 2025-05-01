@@ -6,9 +6,10 @@ namespace Onyx::Graphics
 {
     class ToneMapPass : public NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>
     {
-        using Super = FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>;
-
     public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::ToneMapPass";
+       StringId32 GetTypeId() const override { return TypeId; }
+
         ToneMapPass();
 
     private:

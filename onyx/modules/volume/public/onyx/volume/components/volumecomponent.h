@@ -40,6 +40,9 @@ namespace Onyx::Volume
 
     struct VolumeComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::Volume::Components::VolumeComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         VolumeComponent();
 
         void Serialize(Stream& outStream) const;
@@ -63,6 +66,10 @@ namespace Onyx::Volume
 
     struct VolumeSourceComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::Volume::Components::VolumeSourceComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
+
         bool IsModified = false;
         //TODO This should probably not allocate heap memory
         onyxU32 VolumeType = 0;

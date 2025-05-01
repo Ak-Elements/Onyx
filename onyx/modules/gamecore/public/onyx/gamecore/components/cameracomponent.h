@@ -34,6 +34,9 @@ namespace Onyx::GameCore
 
     struct CameraComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::CameraComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         bool IsPrimary;
         Graphics::Camera Camera;
 

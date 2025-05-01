@@ -15,6 +15,9 @@ namespace Onyx::GameCore
 {
     struct DirectionalLightComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::DirectionalLightComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         Graphics::DirectionalLight Light;
 
         void Serialize(Stream& outStream) const;
@@ -31,6 +34,9 @@ namespace Onyx::GameCore
 
     struct PointLightComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::PointLightComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         Graphics::PointLight Light;
 
         void Serialize(Stream& outStream) const;
@@ -47,6 +53,9 @@ namespace Onyx::GameCore
 
     struct SpotLightComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::SpotLightComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         Graphics::SpotLight Light;
 
         void Serialize(Stream& outStream) const;

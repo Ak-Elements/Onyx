@@ -7,10 +7,10 @@ namespace Onyx::Platform
     struct AdapterInfo
     {
         String m_Name;
-        DynamicArray<StringId> m_Monitors;
+        DynamicArray<StringId32> m_Monitors;
     };
 
-    void GetAdapterAndMonitorInfos(HashMap<StringId, AdapterInfo>& outAdapterInfo);
+    void GetAdapterAndMonitorInfos(HashMap<StringId32, AdapterInfo>& outAdapterInfo);
     onyxS32 GetMonitorIndexByName(const String& name);
 
     Guid CreateGuid();

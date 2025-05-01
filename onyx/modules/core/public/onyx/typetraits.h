@@ -38,16 +38,9 @@ namespace Onyx
 # error Unsupported compiler
 #endif
 
-			
-			std::string_view pretty_function{ function };
-			auto first = pretty_function.find_first_not_of(' ', pretty_function.find_first_of(prefix) + 1);
-#if ONYX_IS_VISUAL_STUDIO
-			first = pretty_function.find_first_not_of(' ', pretty_function.find_first_not_of(classPrefix, first));
-			first = pretty_function.find_first_not_of(' ', pretty_function.find_first_not_of(structPrefix, first));
-#endif
-			auto value = pretty_function.substr(first, pretty_function.find_last_of(suffix) - first);
+			constexpr auto first = function.find_first_not_of(' ', function.find_first_of(prefix) + 1);
+			constexpr auto value = function.substr(first, function.find_last_of(suffix) - first);
 			return value;
-			
 		}
 
 		template <typename T>
@@ -91,6 +84,13 @@ namespace Onyx
 	// Overload for member functions
 	template <typename Ret, typename ClassType, typename... Args>
 	constexpr Tuple<Args...> GetFunctionArgumentTypes(Ret(ClassType::*)(Args...)) { return {}; }
+
+	template <typename T>
+	concept HasTypeId = requires(const T obj)
+	{
+		T::TypeId;
+		{ obj.GetTypeId() };
+	};
 
 
 }

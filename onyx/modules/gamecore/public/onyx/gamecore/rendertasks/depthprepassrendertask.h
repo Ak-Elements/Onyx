@@ -7,6 +7,10 @@ namespace Onyx::GameCore
     class DepthPrePassRenderGraphNode : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::GameCore::RenderGraph::DepthPrePass";
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         void OnInit(Graphics::GraphicsApi& api, Graphics::RenderGraphResourceCache& resourceCache) override;
 
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;

@@ -14,6 +14,9 @@ namespace Onyx::GameCore
 {
     struct IdComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::IdComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         static constexpr bool HideInEditor = true;
 
         //TODO: change to UUID

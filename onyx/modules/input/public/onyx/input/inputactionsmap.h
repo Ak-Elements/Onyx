@@ -33,7 +33,7 @@ namespace Onyx::Input
         onyxU32 GetId() const { return m_Id; }
 
     private:
-        bool HasInputAction(onyxU64 actionId) const;
+        bool HasInputAction(StringId64 actionId) const;
 
     private:
         onyxU32 m_Id;

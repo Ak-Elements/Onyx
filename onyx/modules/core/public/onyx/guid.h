@@ -35,6 +35,7 @@ namespace Onyx
 
         bool operator==(const Guid64& other) const { return m_Id == other.m_Id; }
         bool operator!=(const Guid64& other) const { return m_Id != other.m_Id; }
+
     private:
         onyxU64 m_Id = 0;
     };

@@ -29,6 +29,7 @@
 #include <onyx/onyx_types.h>
 #include <onyx/bitwiseenum.h>
 #include <onyx/guid.h>
+#include <onyx/hash.h>
 #include <onyx/math.h>
 #include <onyx/reference.h>
 #include <onyx/time.h>
@@ -41,5 +42,5 @@
 #include <onyx/geometry/common.h>
 #include <onyx/string/inplacestring.h>
 #include <onyx/string/string.h>
-#include <onyx/hash.h>
+#include <onyx/stringid.h>
 #include <onyx/typetraits.h>

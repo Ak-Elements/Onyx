@@ -1,5 +1,7 @@
 #pragma once
+
 #include <onyx/string/compiletimestring.h>
+#include <onyx/container/inplacearray.h>
 #include <filesystem>
 
 namespace Onyx
@@ -7,6 +9,41 @@ namespace Onyx
 	class Hash
 	{
 	public:
+        template <typename T, onyxU64 N> requires std::is_integral_v<T>
+        static consteval T FNV1aHash(const CompileTimeString<N>& string)
+        {
+            if constexpr (std::is_same_v<T, onyxU64>)
+            {
+                FNV1aHash64(string, 0);
+            }
+
+            return FNV1aHash32(string, 0);
+        }
+
+        template <typename T> requires std::is_integral_v<T>
+        static constexpr T FNV1aHash(const String& string)
+        {
+            if constexpr (std::is_same_v<T, onyxU64>)
+            {
+                FNV1aHash64(string, 0);
+            }
+
+            return FNV1aHash32(string, 0);
+        }
+
+        template <typename T> requires std::is_integral_v<T>
+        static constexpr T FNV1aHash(const StringView& string)
+        {
+            if constexpr (std::is_same_v<T, onyxU64>)
+            {
+                return FNV1aHash64(string, 0);
+            }
+            else
+            {
+                return FNV1aHash32(string, 0);
+            }
+        }
+
         static constexpr onyxU32 FNV1aHash32(const onyxU8* data, onyxU64 length, onyxU32 seed = 0)
         {
             constexpr onyxU32 FNV_PRIME = 16777619u;
@@ -41,9 +78,15 @@ namespace Onyx
         }
 
         template <onyxU64 N>
-        constexpr onyxU32 FNV1aHash32(const CompileTimeString<N>& string, onyxU32 seed)
+        static consteval onyxU32 FNV1aHash32(const CompileTimeString<N>& string, onyxU32 seed)
         {
-            return FNV1aHash32(string.data(), N, seed);
+            return FNV1aHash32(string.data(), string.size(), seed);
+        }
+
+        template <CompileTimeString CompileTimeString>
+        static consteval onyxU32 FNV1aHash32(onyxU32 seed)
+        {
+            return FNV1aHash32(CompileTimeString.data(), CompileTimeString.size(), seed);
         }
 
         template <typename T>
@@ -53,7 +96,7 @@ namespace Onyx
         }
 
         template <onyxU64 N>
-        constexpr onyxU64 FNV1aHash64(const CompileTimeString<N>& string, onyxU64 seed)
+        static consteval onyxU64 FNV1aHash64(const CompileTimeString<N>& string, onyxU64 seed)
         {
             return FNV1aHash64(string.data(), N, seed);
         }

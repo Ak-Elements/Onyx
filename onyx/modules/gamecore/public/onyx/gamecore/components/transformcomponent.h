@@ -18,6 +18,9 @@ namespace Onyx::GameCore
     struct TransformComponent
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::TransformComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         TransformComponent()
         {
             m_Rotation.FromEulerAngles(0, 0, 0);

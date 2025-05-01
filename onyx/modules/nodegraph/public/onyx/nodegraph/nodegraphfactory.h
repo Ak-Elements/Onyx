@@ -25,7 +25,7 @@ namespace Onyx::NodeGraph
             //{ node.Update(context) };
             //{ node.Finish() };
             { node.HasPin(globalPinId) };
-        };
+        } && HasTypeId<T>;
     }
 
     enum class GraphContext : onyxU32
@@ -46,27 +46,39 @@ namespace Onyx::NodeGraph
     class NodeGraphTypeRegistry
     {
     public:
-        template <typename T>
+        template <typename T> requires HasTypeId<T>
         static void RegisterType()
         {
-            constexpr PinTypeId typeHash = static_cast<PinTypeId>(TypeHash<T>());
-            ONYX_ASSERT(s_RegisteredTypes.contains(typeHash) == false, "Type is already registered in this context");
+            constexpr StringId32 serializedTypeId = T::TypeId;
+            ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
+            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
 #else
-            s_RegisteredTypes[typeHash] = [](Guid64 globalId, onyxU32 localId) { return new DynamicPin<T>(globalId, localId); };
+            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId) { return new DynamicPin<T>(globalId, localId); };
 #endif
+        }
 
+        template <typename T, CompileTimeString SerializedTypeId>
+        static void RegisterType()
+        {
+            constexpr StringId32 serializedTypeId(SerializedTypeId);
+            ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
+
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
+#else
+            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId) { return new DynamicPin<T>(globalId, localId); };
+#endif
         }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        static UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId, const String& localIdString)
+        static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId, const String& localIdString)
         {
             return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId, localIdString));
         }
 #else
-        static UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId)
+        static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId)
         {
             return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId));
         }
@@ -74,9 +86,9 @@ namespace Onyx::NodeGraph
 
     private:
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        static HashMap<PinTypeId, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> s_RegisteredTypes;
+        static HashMap<StringId32, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> s_RegisteredTypes;
 #else
-        static HashMap<PinTypeId, InplaceFunction<PinBase* (Guid64, onyxU32)>> s_RegisteredTypes;
+        static HashMap<StringId32, InplaceFunction<PinBase* (Guid64, onyxU32)>> s_RegisteredTypes;
 #endif
     };
 
@@ -86,21 +98,23 @@ namespace Onyx::NodeGraph
     {
         // serialize / deserialize functors
     public:
-        UniquePtr<Node> CreateNode(onyxU32 typeHash)
+        UniquePtr<Node> CreateNode(StringId32 typeId)
         {
-            ONYX_ASSERT(m_RegisteredNodes.contains(typeHash), "Node is not registered in this context");
-            return UniquePtr<Node>(m_RegisteredNodes.at(typeHash)()); // call functor to create new node
+            ONYX_ASSERT(m_RegisteredNodes.contains(typeId), "Node is not registered in this context");
+            return UniquePtr<Node>(m_RegisteredNodes.at(typeId)()); // call functor to create new node
         }
 
         template <Details::IsNodeGraphNode NodeT>
         void RegisterNode(const StringView& fullyQualifiedName) 
         {
-            constexpr onyxU32 typeHash = TypeHash<NodeT>();
-            ONYX_ASSERT(m_RegisteredNodeTypeIds.contains(typeHash) == false, "Node is already registered in this context");
+            static HashMap<onyxU32, String> s_RegisteredNodesToName;
 
-            m_RegisteredNodeTypeIds.emplace(typeHash);
+            constexpr StringId32 typeId = NodeT::TypeId;
+            ONYX_ASSERT(m_RegisteredNodeTypeIds.contains(typeId) == false, "Node is already registered in this context");
 
-            MetaDataContainerT& metaContainer = m_RegisteredNodesMetaData[typeHash];
+            m_RegisteredNodeTypeIds.emplace(typeId);
+            m_RegisteredNodesToName[typeId] = NodeT::TypeId.IdString;
+            MetaDataContainerT& metaContainer = m_RegisteredNodesMetaData[typeId];
             metaContainer.FullyQualifiedName = fullyQualifiedName;
 
             // can we make this constexpr?
@@ -117,10 +131,9 @@ namespace Onyx::NodeGraph
                 metaContainer.OutputPins.push_back(node.GetOutputPin(i)->GetType());
             }
 
-            m_RegisteredNodes[typeHash] = [=]()
+            m_RegisteredNodes[typeId] = [=]()
             {
                 NodeT* newNode = new NodeT();
-                newNode->SetTypeId(typeHash);
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
                 newNode->SetTypeName(TypeName<NodeT>());
 
@@ -132,28 +145,29 @@ namespace Onyx::NodeGraph
             };
         }
 
-        MetaDataContainerT& GetNodeMetaData(onyxU32 typeId)
+        MetaDataContainerT& GetNodeMetaData(StringId32 typeId)
         {
             ONYX_ASSERT(m_RegisteredNodesMetaData.contains(typeId), "Node with that ID is not registered.");
             return m_RegisteredNodesMetaData.at(typeId);
         }
 
-        const HashMap<onyxU32, MetaDataContainerT>& GetRegisteredNodesMetaData() { return m_RegisteredNodesMetaData; }
-        const HashSet<onyxU32>& GetRegisteredNodeIds() const { return m_RegisteredNodeTypeIds; }
+        const HashMap<StringId32, MetaDataContainerT>& GetRegisteredNodesMetaData() { return m_RegisteredNodesMetaData; }
+        const HashSet<StringId32>& GetRegisteredNodeIds() const { return m_RegisteredNodeTypeIds; }
 
     protected:
-        HashSet<onyxU32> m_RegisteredNodeTypeIds;
-        HashMap<onyxU32, InplaceFunction<Node*()>> m_RegisteredNodes;
-        HashMap<onyxU32, MetaDataContainerT> m_RegisteredNodesMetaData;
+        HashSet<StringId32> m_RegisteredNodeTypeIds;
+        HashMap<StringId32, InplaceFunction<Node*()>> m_RegisteredNodes;
+        HashMap<StringId32, MetaDataContainerT> m_RegisteredNodesMetaData;
+        HashMap<StringId32, String> m_RegisteredNodesToName;
     };
 
     class INodeFactory
     { 
     public:
         virtual ~INodeFactory() = default;
-        virtual UniquePtr<Node> CreateNode(onyxU32 typeHash) const = 0;
-        virtual const HashSet<onyxU32>& GetRegisteredNodeIds() const = 0;
-        virtual const NodeEditorMetaData& GetNodeMetaData(onyxU32 typeHash) const = 0;
+        virtual UniquePtr<Node> CreateNode(StringId32 typeId) const = 0;
+        virtual const HashSet<StringId32>& GetRegisteredNodeIds() const = 0;
+        virtual const NodeEditorMetaData& GetNodeMetaData(StringId32 typeId) const = 0;
     };
 
     template <typename NodeType, typename MetaDataType>
@@ -168,17 +182,17 @@ namespace Onyx::NodeGraph
             ms_NodeRegistry.template RegisterNode<T>(nodeName);
         }
 
-        UniquePtr<Node> CreateNode(onyxU32 typeHash) const override
+        UniquePtr<Node> CreateNode(StringId32 typeHash) const override
         {
             return ms_NodeRegistry.CreateNode(typeHash);
         }
 
-        const NodeEditorMetaData& GetNodeMetaData(onyxU32 typeHash) const override
+        const NodeEditorMetaData& GetNodeMetaData(StringId32 typeHash) const override
         {
             return ms_NodeRegistry.GetNodeMetaData(typeHash);
         }
 
-        const HashSet<onyxU32>& GetRegisteredNodeIds() const override
+        const HashSet<StringId32>& GetRegisteredNodeIds() const override
         {
             return ms_NodeRegistry.GetRegisteredNodeIds();
         }
@@ -194,40 +208,10 @@ namespace Onyx::NodeGraph
     {
     public:
         //TODO: Node concept to enforce node
-        template <typename T> /*requires std::derived_from<Graphics::RenderGraphTask, T>*/
+        template <typename T>
         static void RegisterNode(const StringView& nodeName)
         {
             TypedNodeFactory::RegisterNode<T>(nodeName);
         }
     };
-
-    //class NodeFactory : public INodeFactory
-    //{
-    //public:
-    //    using NodeTypeT = Node;
-
-    //    template <typename T> requires std::is_base_of_v<Node, T>
-    //    static void RegisterNode(const StringView& nodeName)
-    //    {
-    //        ms_NodeRegistry.RegisterNode<T>(nodeName);
-    //    }
-
-    //    UniquePtr<Node> CreateNode(onyxU32 typeHash) const override
-    //    {
-    //        return ms_NodeRegistry.CreateNode(typeHash);
-    //    }
-
-    //    const NodeEditorMetaData& GetNodeMetaData(onyxU32 typeHash) const override
-    //    {
-    //        return ms_NodeRegistry.GetNodeMetaData(typeHash);
-    //    }
-
-    //    const HashSet<onyxU32>& GetRegisteredNodeIds() const override
-    //    {
-    //        return ms_NodeRegistry.GetRegisteredNodeIds();
-    //    }
-
-    //private:
-    //    static NodeRegistry<NodeEditorMetaData> ms_NodeRegistry;
-    //};
 }

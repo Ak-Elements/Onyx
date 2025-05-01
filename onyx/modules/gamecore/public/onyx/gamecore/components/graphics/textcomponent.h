@@ -21,7 +21,9 @@ namespace Onyx::GameCore
 {
     struct TextComponent
     {
-    public:
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::TextComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         String Text;
         Reference<SDFFont> Font;
         onyxF32 Size = 50.0;

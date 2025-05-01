@@ -21,6 +21,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/onyx_types.h
 	${TARGET_PUBLIC_PATH}/onyx.h
 	${TARGET_PUBLIC_PATH}/reference.h
+    ${TARGET_PUBLIC_PATH}/stringid.h
 	${TARGET_PUBLIC_PATH}/time.h
 	${TARGET_PUBLIC_PATH}/typetraits.h
 	${TARGET_PUBLIC_PATH}/container/arrayview.h

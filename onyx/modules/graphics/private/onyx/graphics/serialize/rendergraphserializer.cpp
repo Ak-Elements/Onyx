@@ -98,7 +98,7 @@ namespace Onyx::Graphics
         {
             FileSystem::JsonValue nodeJsonObj{ nodeJson };
 
-            onyxU32 typeId = 0;
+            StringId32 typeId;
             nodeJsonObj.Get("typeId", typeId);
 
             UniquePtr<NodeGraph::Node> node = factory.CreateNode(typeId);
@@ -116,7 +116,7 @@ namespace Onyx::Graphics
 
                 FileSystem::JsonValue dataJson;
                 Guid64 globalId = pin->GetGlobalId();
-                const StringView& globalIdString = Format::Format("0x{:x}", globalId.Get());
+                const StringView& globalIdString = Format::Format("{:x}", globalId.Get());
                 if (constantPinDataJson.Get(globalIdString, dataJson))
                 {
                     std::any value = pin->CreateDefault();

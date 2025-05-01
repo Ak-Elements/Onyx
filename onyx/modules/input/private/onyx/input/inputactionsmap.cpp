@@ -32,7 +32,7 @@ namespace Onyx::Input
         }
     }
 
-    bool InputActionsMap::HasInputAction(onyxU64 actionId) const
+    bool InputActionsMap::HasInputAction(StringId64 actionId) const
     {
         for (const InputAction& action : m_Actions)
         {

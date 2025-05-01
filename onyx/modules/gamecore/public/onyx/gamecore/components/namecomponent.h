@@ -7,6 +7,9 @@ namespace Onyx::GameCore
 {
     struct NameComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::NameComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         static constexpr bool HideInEditor = true;
 
         String Name;

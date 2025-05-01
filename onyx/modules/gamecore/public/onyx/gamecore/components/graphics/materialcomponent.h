@@ -28,6 +28,9 @@ namespace Onyx::GameCore
 {
     struct MaterialComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::MaterialComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         Assets::AssetId MaterialId;
         Reference<Graphics::MaterialShaderGraph> Material;
 

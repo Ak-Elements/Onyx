@@ -65,8 +65,6 @@ namespace Onyx
     using String_U32 = std::u32string;
     using StringView_U32 = std::u32string_view;
 
-    using StringId = onyxU32;
-
     template <typename T>
     using Atomic = std::atomic<T>;
 

@@ -765,8 +765,8 @@ namespace Onyx::NodeGraph
 #endif
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId, const String& localIdString);
+    UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId, const String& localIdString);
 #else
-    UniquePtr<PinBase> CreatePin(PinTypeId typeId, Guid64 globalId, onyxU32 localId);
+    UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId);
 #endif
 }

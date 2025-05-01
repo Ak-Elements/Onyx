@@ -1,73 +1,79 @@
 {
     "sceneeditor": [
         {
-            "id": 4977992799841100694,
+            "id": "45156213b0fb2396",
             "name": "Quit",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 41
                 }
             ]
         },
         {
-            "id": 15881731277636844266,
+            "id": "dc673e73b5c13aea",
             "name": "Delete",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 76
                 }
             ]
         },
         {
-            "id": 10586263560548080645,
+            "id": "92e9f69eb1215c05",
             "name": "GizmoTranslate",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 26
                 }
             ]
         },
         {
-            "id": 10466107496428554938,
+            "id": "913f1550f1ad4aba",
             "name": "GizmoRotate",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 8
                 }
             ]
         },
         {
-            "id": 4306970872116870305,
+            "id": "3bc56f305a7afca1",
             "name": "GizmoScale",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 21
                 }
             ]
         },
         {
-            "id": 13309761371481720703,
+            "id": "b8b5c5730062477f",
             "name": "CameraMovement",
             "type": "Axis3D",
             "bindings": [
                 {
-                    "id": 3326722051,
-                    "type": "Keyboard",
+                    "typeId": "e2001451",
+                    "typeIdString": "Onyx::InputBinding::Axis3DComposite",
+                    "inputType": "Keyboard",
                     "Up": 20,
                     "Down": 8,
                     "Left": 4,
@@ -76,8 +82,9 @@
                     "Backward": 22
                 },
                 {
-                    "id": 3326722051,
-                    "type": "Gamepad",
+                    "typeId": "e2001451",
+                    "typeIdString": "Onyx::InputBinding::Axis3DComposite",
+                    "inputType": "Gamepad",
                     "Up": 10,
                     "Down": 11,
                     "Left": 14,
@@ -88,56 +95,61 @@
             ]
         },
         {
-            "id": 18295250002360583444,
+            "id": "fde5c8f1dbaac514",
             "name": "CameraRotation",
             "type": "Axis2D",
             "bindings": [
                 {
-                    "id": 1407304601,
-                    "type": "Mouse",
+                    "typeId": "5565468b",
+                    "typeIdString": "Onyx::InputBinding::Axis2D",
+                    "inputType": "Mouse",
                     "X": 3,
                     "Y": 4
                 },
                 {
-                    "id": 1407304601,
-                    "type": "Gamepad",
+                    "typeId": "5565468b",
+                    "typeIdString": "Onyx::InputBinding::Axis2D",
+                    "inputType": "Gamepad",
                     "X": 3,
                     "Y": 4
                 }
             ]
         },
         {
-            "id": 3388991156402584529,
+            "id": "2f081d804850fbd1",
             "name": "CameraSpeed",
             "type": "Axis1D",
             "bindings": [
                 {
-                    "id": 2179222170,
-                    "type": "Mouse",
+                    "typeId": "635ea0d0",
+                    "typeIdString": "Onyx::InputBinding::Axis1D",
+                    "inputType": "Mouse",
                     "input": 5
                 }
             ]
         },
         {
-            "id": 18398893587616019843,
+            "id": "ff56003c8610b583",
             "name": "CameraSlowDown",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 224
                 }
             ]
         },
         {
-            "id": 3186457597301897460,
+            "id": "2c38924d5b0638f4",
             "name": "CameraSpeedUp",
             "type": "Bool",
             "bindings": [
                 {
-                    "id": 3379516678,
-                    "type": "Keyboard",
+                    "typeId": "e2271d64",
+                    "typeIdString": "Onyx::InputBinding::Bool",
+                    "inputType": "Keyboard",
                     "input": 225
                 }
             ]

@@ -18,20 +18,21 @@ namespace Onyx::Volume
 
     void VolumeSourceComponent::DrawImGuiEditor()
     {
-        constexpr onyxU32 SPHERE_TYPE = TypeHash<CSGSphere>();
-        constexpr onyxU32 PLANE_TYPE = TypeHash<CSGPlane>();
-        constexpr onyxU32 CUBE_TYPE = TypeHash<CSGCube>();
-        constexpr onyxU32 NOISE_TYPE = TypeHash<SimplexNoiseSource>();
+        constexpr onyxU32 SPHERE_TYPE = Hash::FNV1aHash32<"CSGSphere">(0);
+        constexpr onyxU32 CUBE_TYPE = Hash::FNV1aHash32<"CSGCube">(0);
+        constexpr onyxU32 PLANE_TYPE = Hash::FNV1aHash32<"CSGPlane">(0);
+        constexpr onyxU32 NOISE_TYPE = Hash::FNV1aHash32<"SimplexNoiseSource">(0);
+
 
         StringView selectedName;
         if (VolumeType == SPHERE_TYPE)
-            selectedName = TypeName<CSGSphere>();
+            selectedName = "Sphere";
         else if (VolumeType == NOISE_TYPE)
-            selectedName = TypeName<SimplexNoiseSource>();
+            selectedName = "Simplex Noise";
         else if (VolumeType == CUBE_TYPE)
-            selectedName = TypeName<CSGCube>();
+            selectedName = "Cube";
         else
-            selectedName = TypeName<CSGPlane>();
+            selectedName = "Plane";
 
 
         Ui::PropertyGrid::DrawPropertyName("Type");
@@ -39,7 +40,7 @@ namespace Onyx::Volume
         {
             if (ImGui::BeginCombo("##Type", selectedName.data()))
             {
-                if (ImGui::Selectable(TypeName<CSGSphere>().data(), VolumeType == SPHERE_TYPE))
+                if (ImGui::Selectable("Sphere", VolumeType == SPHERE_TYPE))
                 {
                     if (VolumeType != SPHERE_TYPE)
                     {
@@ -50,7 +51,7 @@ namespace Onyx::Volume
                     }
                 }
 
-                if (ImGui::Selectable(TypeName<CSGCube>().data(), VolumeType == CUBE_TYPE))
+                if (ImGui::Selectable("Cube", VolumeType == CUBE_TYPE))
                 {
                     if (VolumeType != CUBE_TYPE)
                     {
@@ -61,7 +62,7 @@ namespace Onyx::Volume
                     }
                 }
 
-                if (ImGui::Selectable(TypeName<CSGPlane>().data(), VolumeType == PLANE_TYPE))
+                if (ImGui::Selectable("Plane", VolumeType == PLANE_TYPE))
                 {
                     if (VolumeType != PLANE_TYPE)
                     {
@@ -72,7 +73,7 @@ namespace Onyx::Volume
                     }
                 }
 
-                if (ImGui::Selectable(TypeName<SimplexNoiseSource>().data(), VolumeType == NOISE_TYPE))
+                if (ImGui::Selectable("Simplex Noise", VolumeType == NOISE_TYPE))
                 {
                     if (VolumeType != NOISE_TYPE)
                     {

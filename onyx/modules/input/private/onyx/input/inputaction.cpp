@@ -6,31 +6,16 @@ namespace Onyx::Input
 {
     InputAction::InputAction() = default;
 
-#if ONYX_IS_DEBUG
-    InputAction::InputAction(onyxU64 actionId, const StringView& actionName)
-        : m_Id(actionId)
-        , m_Name(actionName)
-    {
-    }
-#endif
-
-    InputAction::InputAction(const StringView& actionName)
-        : m_Id(Hash::FNV1aHash64(actionName))
-#if ONYX_IS_DEBUG | ONYX_IS_EDITOR
-        , m_Name(actionName)
-#endif
-    {
-    }
-
-    InputAction::InputAction(onyxU64 actionId)
+    InputAction::InputAction(StringId64 actionId)
         : m_Id(actionId)
     {
     }
+
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     void InputAction::SetName(StringView name)
     {
-        m_Id = Hash::FNV1aHash64(name);
+        m_Id = StringId64(name);
         m_Name = name;
     }
 #endif
@@ -38,14 +23,14 @@ namespace Onyx::Input
 
     bool InputAction::FromJson(const FileSystem::JsonValue& json, InputAction& outAction)
     {
-        onyxU64 actionId;
+        StringId64 actionId;
         json.Get("id", actionId);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
 
         StringView actionName;
         json.Get("name", actionName);
-        const onyxU64 actionIdFromName = Hash::FNV1aHash64(actionName);
+        const StringId64 actionIdFromName = StringId64(actionName);
 
         if (actionId != actionIdFromName)
         {
@@ -74,17 +59,19 @@ namespace Onyx::Input
         }
 
         onyxU32 boundInput;
-        onyxU32 bindingClassId;
+        StringId32 bindingTypeId;
         for (const auto& bindingJson : bindings.Json)
         {
             FileSystem::JsonValue bindingJsonObj{ bindingJson };
-            bindingJsonObj.Get("id", bindingClassId);
-
-            UniquePtr<InputBinding> binding = InputBindingsRegistry::CreateBinding(bindingClassId);
+            bindingJsonObj.Get("typeId", bindingTypeId);
+#if !ONYX_IS_RETAIL
+            bindingJsonObj.Get("typeIdString", bindingTypeId.IdString);
+#endif
+            UniquePtr<InputBinding> binding = InputBindingsRegistry::CreateBinding(bindingTypeId);
 
             InputType type;
-            bindingJsonObj.Get("type", type);
-            binding->SetType(type);
+            bindingJsonObj.Get("inputType", type);
+            binding->SetInputType(type);
 
             onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
             for (onyxU32 i = 0; i < bindingSlotsCount; ++i)

@@ -6,9 +6,13 @@ namespace Onyx
 {
     class GridRenderGraphNode : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>
     {
-        using Super = NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>;
+    public:
+        static constexpr StringId32 TypeId = "Onyx::Editor::RenderGraph::EditorSceneGridPass";
+        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
+        using Super = NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>;
+
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR

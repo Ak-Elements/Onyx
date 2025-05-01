@@ -10,9 +10,14 @@ namespace Onyx::Graphics
 
 namespace Onyx::NodeGraph
 {
-    template <typename ScalarT>
-    class AddNode<Graphics::ShaderGraphNode, ScalarT> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
+    template <typename ScalarT, CompileTimeString TypeIdString>
+    class AddNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
+    public:
+        static constexpr StringId32 TypeId = TypeIdString;
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         using Super = FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
@@ -58,9 +63,14 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename ScalarT>
-    class SubtractNode<Graphics::ShaderGraphNode, ScalarT> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
+    template <typename ScalarT, CompileTimeString TypeIdString>
+    class SubtractNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
+    public:
+        static constexpr StringId32 TypeId = TypeIdString;
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         using Super = FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
@@ -105,9 +115,14 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename ScalarT>
-    class MultiplyNode<Graphics::ShaderGraphNode, ScalarT> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
+    template <typename ScalarT, CompileTimeString TypeIdString>
+    class MultiplyNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
+    public:
+        static constexpr StringId32 TypeId = TypeIdString;
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         using Super = FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
@@ -149,9 +164,14 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename ScalarT>
-    class DivisionNode<Graphics::ShaderGraphNode, ScalarT> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
+    template <typename ScalarT, CompileTimeString TypeIdString>
+    class DivisionNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
+    public:
+        static constexpr StringId32 TypeId = TypeIdString;
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         using Super = FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
@@ -194,9 +214,14 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename DataT>
-    class AbsoluteNode<Graphics::ShaderGraphNode, DataT> : public FixedPinNode_1_In_1_Out<Graphics::ShaderGraphNode, DataT, DataT>
+    template <typename DataT, CompileTimeString TypeIdString>
+    class AbsoluteNode<Graphics::ShaderGraphNode, DataT, TypeIdString> : public FixedPinNode_1_In_1_Out<Graphics::ShaderGraphNode, DataT, DataT>
     {
+    public:
+        static constexpr StringId32 TypeId = TypeIdString;
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         using Super = FixedPinNode_1_In_1_Out<Graphics::ShaderGraphNode, DataT, DataT>;
 
         void OnUpdate(ExecutionContext& context) const override

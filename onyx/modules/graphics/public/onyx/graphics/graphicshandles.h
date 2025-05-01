@@ -36,6 +36,9 @@ namespace Onyx::Graphics
 
     struct TextureHandle
     {
+        static constexpr StringId32 TypeId = "Onyx::Graphics::TextureHandle";
+        StringId32 GetTypeId() const { return TypeId; }
+
         TextureStorageHandle Storage;
         TextureViewHandle Texture;
         onyxS8 Alias = INVALID_INDEX_8;

@@ -45,7 +45,7 @@ namespace Onyx::Graphics
         RenderGraphNodeFactory::RegisterNode<ToneMapPass>("PostFx/Tonemap");
 
         NodeGraph::NodeGraphTypeRegistry::RegisterType<TextureHandle>();
-        NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle>();
+        NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle, "Onyx::Graphics::BufferHandle">();
 
         m_Window = MakeUnique<Window>();
         m_Window->Create(windowSettings);
@@ -57,9 +57,9 @@ namespace Onyx::Graphics
         Assets::AssetSystem::Register<MaterialShaderGraph, MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<RenderGraph, RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
 
-        NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory>();
-        NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory>();
-        NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory>();
+        NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
+        NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
+        NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
 
         ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>("Shader/Fragment/Shader Out");
         ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>("Shader/Fragment/PBR Material");

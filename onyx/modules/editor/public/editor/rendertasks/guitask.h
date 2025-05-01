@@ -30,12 +30,16 @@ namespace Onyx
 
     class UIRenderGraphNode : public NodeGraph::FlexiblePinsNode<Graphics::RenderGraphFixedShaderNode>
     {
+    public:
+        static constexpr StringId32 TypeId = "Onyx::Ui::RenderGraph::UIPass";
+        StringId32 GetTypeId() const override { return TypeId; }
+
+        UIRenderGraphNode();
+
+    private:
         using Super = NodeGraph::FlexiblePinsNode<Graphics::RenderGraphFixedShaderNode>;
         using InPin = NodeGraph::Pin<Graphics::TextureHandle, "InPin">;
         using OutPin = NodeGraph::Pin<Graphics::TextureHandle, "OutPin">;
-
-    public:
-        UIRenderGraphNode();
 
         void OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
         void OnShutdown(Graphics::GraphicsApi& api) override { m_Task.Shutdown(api); }

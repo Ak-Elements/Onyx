@@ -33,7 +33,7 @@ namespace Onyx::NodeGraph::Serializer
                 {
                     FileSystem::JsonValue pinDataJson;
                     pin->Serialize(pinDataJson, constantPinData.at(pin->GetGlobalId()));
-                    constantPinDataJson.Set(Format::Format("0x{:x}", pin->GetGlobalId().Get()), pinDataJson);
+                    constantPinDataJson.Set(Format::Format("{:x}", pin->GetGlobalId().Get()), pinDataJson);
                 }
             }
 
@@ -65,7 +65,7 @@ namespace Onyx::NodeGraph::Serializer
         {
             FileSystem::JsonValue nodeJsonObj{ nodeJson };
 
-            onyxU32 typeId = 0;
+            StringId32 typeId = 0;
             nodeJsonObj.Get("typeId", typeId);
 
             UniquePtr<Node> node = nodeFactory.CreateNode(typeId);
@@ -83,7 +83,7 @@ namespace Onyx::NodeGraph::Serializer
 
                 FileSystem::JsonValue dataJson; 
                 Guid64 globalId = pin->GetGlobalId();
-                const StringView& globalIdString = Format::Format("0x{:x}", globalId.Get());
+                const StringView& globalIdString = Format::Format("{:x}", globalId.Get());
                 if (constantPinDataJson.Get(globalIdString, dataJson))
                 {
                     pin->Deserialize(dataJson, constantPinData[globalId]);

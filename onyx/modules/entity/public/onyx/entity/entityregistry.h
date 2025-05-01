@@ -75,27 +75,31 @@ namespace Onyx
         {
         public:
             using EntityRegistryT = entt::basic_registry<EntityId>;
-            template <typename T>
+            template <typename T> requires HasTypeId<T>
             static void RegisterComponent()
             {
                 using namespace entt::literals;
-                constexpr auto typeHash = entt::type_hash<T>::value();
+                constexpr StringId32 typeId = T::TypeId;
                 auto metaClass = entt::meta<T>();
+                auto metaType = metaClass.type(typeId.Id);
+
+                registeredComps[typeId] = T::TypeId.IdString;
+
                 metaClass.template ctor<&EntityRegistryT::emplace_or_replace<T>, entt::as_ref_t>();
 
                 if constexpr (Details::HasHideInEditor<T>)
-                    metaClass.type(typeHash).prop(SHOW_IN_EDITOR_PROPERTY_HASH, false);
+                    metaType.prop(SHOW_IN_EDITOR_PROPERTY_HASH, false);
                 else
-                    metaClass.type(typeHash).prop(SHOW_IN_EDITOR_PROPERTY_HASH, true);
+                    metaType.prop(SHOW_IN_EDITOR_PROPERTY_HASH, true);
 
                 if constexpr (Details::IsTransient<T>)
                 {
-                    metaClass.type(typeHash).prop(TRANSIENT_PROPERTY_HASH, true);
+                    metaType.prop(TRANSIENT_PROPERTY_HASH, true);
                 }
                 else
                 {
                     static_assert(HasSerialize<T> && HasDeserialize<T>, "Non transient component needs Serialize & Deserialize functions.");
-                    metaClass.type(typeHash).prop(TRANSIENT_PROPERTY_HASH, false);
+                    metaType.prop(TRANSIENT_PROPERTY_HASH, false);
                     metaClass.template ctor<&Details::CreateComponent<T>, entt::as_ref_t>();
                 }
 
@@ -212,6 +216,8 @@ namespace Onyx
 
         private:
             EntityRegistryT m_Registry;
+        public:
+            static HashMap<StringId32, String> registeredComps;
         };
     }
 }

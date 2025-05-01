@@ -9,6 +9,10 @@ namespace Onyx::GameCore
 {
     class StaticMeshRenderGraphNode : public NodeGraph::FlexiblePinsNode<Graphics::RenderGraphShaderNode>
     {
+    public:
+        static constexpr StringId32 TypeId = "Onyx::GameCore::RenderGraph::StaticMeshPass";
+        StringId32 GetTypeId() const override { return TypeId; }
+
     private:
         using Super = FlexiblePinsNode<Graphics::RenderGraphShaderNode>;
         

@@ -277,7 +277,9 @@ namespace Onyx
 
     template <typename Scalar>
     constexpr Vector3<Scalar>::Vector3(const Vector4<Scalar>& vec4)
-        : m_Components{ vec4[0], vec4[1], vec4[2] }
+        : X(vec4[0])
+        , Y(vec4[1])
+        , Z(vec4[2])
     {
     }
 }

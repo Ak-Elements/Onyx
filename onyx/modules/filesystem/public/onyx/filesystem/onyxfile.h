@@ -21,18 +21,27 @@ namespace Onyx::FileSystem
                 }
                 else if constexpr (std::is_same_v<ValueT, Guid64>)
                 {
-                    outValue = Guid64(std::stoull(it->get<String>(), nullptr, 16));
+                    onyxU64 guid64;
+                    StringView value = it->get<StringView>();
+                    bool success = std::from_chars(value.data(), value.data() + value.size(), guid64, 16).ec == std::errc{};
+                    outValue = Guid64(guid64);
+                    return success;
+                }
+                else if constexpr (is_specialization_of_v<StringId, ValueT>)
+                {
+                    StringView value = it->get<StringView>();
+                    return std::from_chars(value.data(), value.data() + value.size(), outValue.Id, 16).ec == std::errc{};
                 }
                 else if constexpr (is_specialization_of_v<Vector2, ValueT>)
                 {
-                    std::array<typename ValueT::ScalarT, 2> data;
+                    Array<typename ValueT::ScalarT, 2> data;
                     it->get_to(data);
                     outValue[0] = data[0];
                     outValue[1] = data[1];
                 }
                 else if constexpr (is_specialization_of_v<Vector3, ValueT>)
                 {
-                    std::array<typename ValueT::ScalarT, 3> data;
+                    Array<typename ValueT::ScalarT, 3> data;
                     it->get_to(data);
                     outValue[0] = data[0];
                     outValue[1] = data[1];
@@ -40,7 +49,7 @@ namespace Onyx::FileSystem
                 }
                 else if constexpr (is_specialization_of_v<Vector4, ValueT>)
                 {
-                    std::array<typename ValueT::ScalarT, 4> data;
+                    Array<typename ValueT::ScalarT, 4> data;
                     it->get_to(data);
                     outValue[0] = data[0];
                     outValue[1] = data[1];
@@ -49,6 +58,7 @@ namespace Onyx::FileSystem
                 }
                 else
                     outValue = it->get<ValueT>();
+
                 return true;
             }
 
@@ -89,7 +99,11 @@ namespace Onyx::FileSystem
             }
             else if constexpr (std::is_same_v<ValueT, Guid64>)
             {
-                Json[key] = Format::Format("0x{:x}", value.Get());
+                Json[key] = Format::Format("{:x}", value.Get());
+            }
+            else if constexpr (is_specialization_of_v<StringId, ValueT>)
+            {
+                Json[key] = Format::Format("{:x}", value.Id);
             }
             else if constexpr (is_specialization_of_v<Vector2, ValueT>)
             {

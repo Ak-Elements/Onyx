@@ -38,8 +38,12 @@ namespace Onyx::Input
                 for (const UniquePtr<InputBinding>& binding : bindings)
                 {
                     FileSystem::JsonValue bindingJson;
-                    bindingJson.Set("id", binding->GetId());
-                    bindingJson.Set("type", binding->GetType());
+                    bindingJson.Set("typeId", binding->GetTypeId());
+#if !ONYX_IS_RETAIL
+                    bindingJson.Set("typeIdString", binding->GetTypeId().IdString);
+#endif
+
+                    bindingJson.Set("inputType", binding->GetInputType());
 
                     onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
                     for (onyxU32 i = 0; i < bindingSlotsCount; ++i)

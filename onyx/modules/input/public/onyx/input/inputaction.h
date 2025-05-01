@@ -12,17 +12,12 @@ namespace Onyx::Input
     {
     public:
         InputAction();
-
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        InputAction(onyxU64 actionId, const StringView& actionName);
-#endif
-        InputAction(const StringView& actionName);
-        InputAction(onyxU64 actionId);
+        InputAction(StringId64 actionId);
 
         constexpr bool operator==(onyxU64 actionId) const { return m_Id == actionId; }
         constexpr bool operator==(const StringView& action) const { return m_Id == Hash::FNV1aHash64(action); }
 
-        constexpr onyxU64 GetId() const { return m_Id; }
+        constexpr StringId64 GetId() const { return m_Id; }
         ActionType GetType() const { return m_Type; }
         
         DynamicArray<UniquePtr<InputBinding>>& GetBindings() { return m_Bindings; }
@@ -37,7 +32,7 @@ namespace Onyx::Input
         static bool FromJson(const FileSystem::JsonValue& json, InputAction& outAction);
 
     private:
-        onyxU64 m_Id = 0;
+        StringId64 m_Id = 0;
         ActionType m_Type = ActionType::Invalid;
 
         DynamicArray<UniquePtr<InputBinding>> m_Bindings;

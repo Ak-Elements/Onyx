@@ -82,7 +82,7 @@ namespace Onyx::Editor
         struct NodeListContextMenuItem
         {
             String Label;
-            onyxU32 TypeId = 0;
+            StringId32 TypeId = 0;
             HashMap<String, NodeListContextMenuItem> m_Children;
         };
 
@@ -96,7 +96,7 @@ namespace Onyx::Editor
         virtual DynamicArray<StringView> GetExtensions() const = 0;
         virtual onyxU32 GetCanvasBackgroundColor() const = 0;
 
-        Node& CreateNewNode(onyxU32 nodeTypeId);
+        Node& CreateNewNode(StringId32 nodeTypeId);
         void DeleteNode(Guid64 nodeId);
 
         Node& GetNode(Guid64 nodeId);
@@ -153,7 +153,7 @@ namespace Onyx::Editor
         virtual void OnDrawNode(const Node& node) = 0;
         virtual void OnNodeChanged(const Node& newNode);
 
-        virtual bool OnNodeCreate(Node& newNode, onyxU32 typeId) = 0;
+        virtual bool OnNodeCreate(Node& newNode, StringId32 typeId) = 0;
         virtual void OnNodeDelete(Node& nodeToDelete) = 0;
         virtual void OnLinkCreate(const Link& newLink) = 0;
         virtual void OnLinkDelete(const Link& linkToDelete) = 0;

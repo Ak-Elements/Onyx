@@ -67,7 +67,7 @@ namespace Onyx::Editor
 
         if (scene.IsValid() == false)
         {
-            StringView startupLevel;// = "project:/scenes/TestScene/scene.oscene";
+            StringView startupLevel = "project:/scenes/TestScene/scene.oscene";
 
             if (startupLevel.empty())
             {
@@ -245,6 +245,7 @@ namespace Onyx::Editor
             {
                 GameCore::TransformComponent& transformComponent = registry.GetComponent<GameCore::TransformComponent>(selectedEntity);
 
+                ImGuizmo::SetAlternativeWindow(ImGui::GetCurrentWindow());
                 ImGuizmo::SetOrthographic(false);
                 ImGuizmo::SetDrawlist();
 
@@ -267,7 +268,7 @@ namespace Onyx::Editor
                 
                 if (ImGuizmo::Manipulate(&(viewMatrix[0][0]), &(projectionMatrix[0][0]), operation, ImGuizmo::LOCAL, &(transformMatrix[0][0])))
                 {
-                    Vector3f translation, scale;
+                    Vector3f translation, rotation, scale;
                     Rotor3<onyxF32> rotationRotor;
                     transformMatrix.Decompose(translation, rotationRotor, scale);
 

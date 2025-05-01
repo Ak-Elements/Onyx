@@ -7,6 +7,10 @@ namespace Onyx::NodeGraph
         json.Set("id", m_Id);
         json.Set("typeId", GetTypeId());
 
+#if !ONYX_IS_RETAIL
+        json.Set("typeIdString", GetTypeId().IdString);
+#endif
+
 #if ONYX_IS_EDITOR
         json.Set("type", GetTypeName());
 #endif

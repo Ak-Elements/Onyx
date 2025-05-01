@@ -1,23 +1,23 @@
 [
     {
-        "id": "0xba4fcc11a401001",
-        "typeId": 2376002331,
-        "type": "Onyx::Graphics::CreateLightClusters",
+        "id": "ba4fcc11a401001",
+        "typeId": "03e6650b",
+        "typeIdString": "Onyx::Graphics::RenderGraph::CreateLightClusters",
         "outputs": [
             {
-                "id": "0xba4fcc11a401002",
+                "id": "ba4fcc11a401002",
                 "localId": 2475545686
             }
         ],
         "shader": "engine:/shaders/compute/createlightclusters.oshader"
     },
     {
-        "id": "0xba68ae7a0001001",
-        "typeId": 4242758773,
-        "type": "Onyx::Graphics::CreateTransmittanceRenderGraphNode",
+        "id": "ba68ae7a0001001",
+        "typeId": "38c6fe1b",
+        "typeIdString": "Onyx::Graphics::RenderGraph::CreateTransmittance",
         "outputs": [
             {
-                "id": "0xba68ae7a0001002",
+                "id": "ba68ae7a0001002",
                 "localId": 2475545686
             }
         ],
@@ -44,57 +44,57 @@
         ]
     },
     {
-        "id": "0xba2926a5c001001",
-        "typeId": 499668478,
-        "type": "Onyx::Graphics::GetViewConstantsNode",
+        "id": "ba2926a5c001001",
+        "typeId": "d47b8af2",
+        "typeIdString": "Onyx::Graphics::RenderGraph::GetViewConstants",
         "outputs": [
             {
-                "id": "0xba2926a5c001002",
+                "id": "ba2926a5c001002",
                 "localId": 2475545686
             }
         ]
     },
     {
-        "id": "0xba4fcc713c01000",
-        "typeId": 3744833792,
-        "type": "Onyx::Graphics::UpdateLightClustersRenderGraphNode",
+        "id": "ba4fcc713c01000",
+        "typeId": "d492e080",
+        "typeIdString": "Onyx::Graphics::RenderGraph::UpdateLightClusters",
         "inputs": [
             {
-                "id": "0xba4fcc713c01001",
+                "id": "ba4fcc713c01001",
                 "localId": 1187160501,
-                "linkedPin": "0xba4fcc11a401002"
+                "linkedPin": "ba4fcc11a401002"
             }
         ],
         "outputs": [
             {
-                "id": "0xba4fcc713c01002",
+                "id": "ba4fcc713c01002",
                 "localId": 2923781266
             },
             {
-                "id": "0xba4fcc713c01003",
+                "id": "ba4fcc713c01003",
                 "localId": 2940558885
             },
             {
-                "id": "0xb8e0fdab7c01102",
+                "id": "b8e0fdab7c01102",
                 "localId": 2890226028
             }
         ],
         "shader": "engine:/shaders/compute/updatelightclusters.oshader"
     },
     {
-        "id": "0xba68af0af801000",
-        "typeId": 2548958857,
-        "type": "Onyx::Graphics::ComputeMultipleScatteringRenderGraphNode",
+        "id": "ba68af0af801000",
+        "typeId": "0592cecf",
+        "typeIdString": "Onyx::Graphics::RenderGraph::ComputeMultipleScattering",
         "inputs": [
             {
-                "id": "0xba68af0af801001",
+                "id": "ba68af0af801001",
                 "localId": 1187160501,
-                "linkedPin": "0xba68ae7a0001002"
+                "linkedPin": "ba68ae7a0001002"
             }
         ],
         "outputs": [
             {
-                "id": "0xba68af0af801002",
+                "id": "ba68af0af801002",
                 "localId": 2475545686
             }
         ],
@@ -121,19 +121,19 @@
         ]
     },
     {
-        "id": "0xba8c92356401001",
-        "typeId": 71305614,
-        "type": "Onyx::GameCore::MSDFFontRenderPass",
+        "id": "ba8c92356401001",
+        "typeId": "6fadc1fa",
+        "typeIdString": "Onyx::GameCore::RenderGraph::MSDFFontPass",
         "inputs": [
             {
-                "id": "0xba8c92356401002",
+                "id": "ba8c92356401002",
                 "localId": 1187160501,
-                "linkedPin": "0xba2926a5c001002"
+                "linkedPin": "ba2926a5c001002"
             }
         ],
         "outputs": [
             {
-                "id": "0xba8c92356401003",
+                "id": "ba8c92356401003",
                 "localId": 2475545686
             }
         ],
@@ -160,19 +160,19 @@
         ]
     },
     {
-        "id": "0xba6717196401001",
-        "typeId": 2756550069,
-        "type": "Onyx::GameCore::DepthPrePassRenderGraphNode",
+        "id": "ba6717196401001",
+        "typeId": "d457a11b",
+        "typeIdString": "Onyx::GameCore::RenderGraph::DepthPrePass",
         "inputs": [
             {
-                "id": "0xba6717196401102",
+                "id": "ba6717196401102",
                 "localId": 1187160501,
-                "linkedPin": "0xba2926a5c001002"
+                "linkedPin": "ba2926a5c001002"
             }
         ],
         "outputs": [
             {
-                "id": "0xba6717196401002",
+                "id": "ba6717196401002",
                 "localId": 2475545686
             }
         ],
@@ -206,19 +206,19 @@
         ]
     },
     {
-        "id": "0xb8e0fd536001001",
-        "typeId": 2954923647,
-        "type": "Onyx::GridRenderGraphNode",
+        "id": "b8e0fd536001001",
+        "typeId": "5ef77bb6",
+        "typeIdString": "Onyx::Editor::RenderGraph::EditorSceneGridPass",
         "inputs": [
             {
-                "id": "0xb8e0fd536001002",
+                "id": "b8e0fd536001002",
                 "localId": 1187160501,
-                "linkedPin": "0xba2926a5c001002"
+                "linkedPin": "ba2926a5c001002"
             }
         ],
         "outputs": [
             {
-                "id": "0xb8e0fd536001003",
+                "id": "b8e0fd536001003",
                 "localId": 2475545686
             }
         ],
@@ -245,24 +245,24 @@
         ]
     },
     {
-        "id": "0xba68b013b801000",
-        "typeId": 670970479,
-        "type": "Onyx::Graphics::SkyViewLutRenderGraphNode",
+        "id": "ba68b013b801000",
+        "typeId": "1093842c",
+        "typeIdString": "Onyx::Graphics::RenderGraph::ComputeSkyViewLut",
         "inputs": [
             {
-                "id": "0xba68b013b801001",
+                "id": "ba68b013b801001",
                 "localId": 3915662431,
-                "linkedPin": "0xba68ae7a0001002"
+                "linkedPin": "ba68ae7a0001002"
             },
             {
-                "id": "0xba68b013b801002",
+                "id": "ba68b013b801002",
                 "localId": 3898884812,
-                "linkedPin": "0xba68af0af801002"
+                "linkedPin": "ba68af0af801002"
             }
         ],
         "outputs": [
             {
-                "id": "0xba68b013b801003",
+                "id": "ba68b013b801003",
                 "localId": 2475545686
             }
         ],
@@ -289,29 +289,29 @@
         ]
     },
     {
-        "id": "0xba68b0d91801000",
-        "typeId": 868655990,
-        "type": "Onyx::Graphics::AtmosphericSkyRenderGraphNode",
+        "id": "ba68b0d91801000",
+        "typeId": "108706ef",
+        "typeIdString": "Onyx::Graphics::RenderGraph::AtmosphericSkyPass",
         "inputs": [
             {
-                "id": "0xba68b0d91801001",
+                "id": "ba68b0d91801001",
                 "localId": 3915662431,
-                "linkedPin": "0xba2926a5c001002"
+                "linkedPin": "ba2926a5c001002"
             },
             {
-                "id": "0xba68b0d91801002",
+                "id": "ba68b0d91801002",
                 "localId": 3898884812,
-                "linkedPin": "0xba68ae7a0001002"
+                "linkedPin": "ba68ae7a0001002"
             },
             {
-                "id": "0xba68b0d91801003",
+                "id": "ba68b0d91801003",
                 "localId": 3949217669,
-                "linkedPin": "0xba68b013b801003"
+                "linkedPin": "ba68b013b801003"
             }
         ],
         "outputs": [
             {
-                "id": "0xba68b0d91801004",
+                "id": "ba68b0d91801004",
                 "localId": 2475545686
             }
         ],
@@ -338,44 +338,44 @@
         ]
     },
     {
-        "id": "0xba5010b28801001",
-        "typeId": 164678653,
-        "type": "Onyx::GameCore::StaticMeshRenderGraphNode",
+        "id": "ba5010b28801001",
+        "typeId": "bfb6a6f6",
+        "typeIdString": "Onyx::GameCore::RenderGraph::StaticMeshPass",
         "inputs": [
             {
-                "id": "0xba5010b28801002",
+                "id": "ba5010b28801002",
                 "localId": 1638757965,
-                "linkedPin": "0xba2926a5c001002"
+                "linkedPin": "ba2926a5c001002"
             },
             {
-                "id": "0xba5010b28803002",
+                "id": "ba5010b28803002",
                 "localId": 3407581993,
-                "linkedPin": "0xba68b0d91801004"
+                "linkedPin": "ba68b0d91801004"
             },
             {
-                "id": "0xba5010b28801042",
+                "id": "ba5010b28801042",
                 "localId": 1783304577,
-                "linkedPin": "0xba6717196401002"
+                "linkedPin": "ba6717196401002"
             },
             {
-                "id": "0xba5010b28801003",
+                "id": "ba5010b28801003",
                 "localId": 3552048569,
-                "linkedPin": "0xba4fcc713c01002"
+                "linkedPin": "ba4fcc713c01002"
             },
             {
-                "id": "0xba5010b28801004",
+                "id": "ba5010b28801004",
                 "localId": 897704330,
-                "linkedPin": "0xba4fcc713c01003"
+                "linkedPin": "ba4fcc713c01003"
             },
             {
-                "id": "0xba5010b28801005",
+                "id": "ba5010b28801005",
                 "localId": 1176342516,
-                "linkedPin": "0xb8e0fdab7c01102"
+                "linkedPin": "b8e0fdab7c01102"
             }
         ],
         "outputs": [
             {
-                "id": "0xba5010b28801006",
+                "id": "ba5010b28801006",
                 "localId": 2475545686
             }
         ],
@@ -406,36 +406,40 @@
         ]
     },
     {
-        "id": "0xb8e0fd752001000",
-        "typeId": 327835704,
-        "type": "Onyx::CompositeRenderGraphNode",
+        "id": "b8e0fd752001000",
+        "typeId": "3cee5b8d",
+        "typeIdString": "CompositePass",
         "inputs": [
             {
-                "id": "0xb8e0fd9f7001000",
-                "type":2580452589,
+                "id": "b8e0fd9f7001000",
+                "typeId":"99ce94ed",
+                "typeIdString": "Onyx::Graphics::TextureHandle",
                 "localId": 165626149,
                 "localIdString":"Grid",
-                "linkedPin": "0xb8e0fd536001003"
+                "linkedPin": "b8e0fd536001003"
             },
             {
-                "id": "0xb8e0fdab7c01002",
-                "type":2580452589,
+                "id": "b8e0fdab7c01002",
+                "typeId":"99ce94ed",
+                "typeIdString": "Onyx::Graphics::TextureHandle",
                 "localId": 148848530,
                 "localIdString":"Gbuffer",
-                "linkedPin": "0xba5010b28801006"
+                "linkedPin": "ba5010b28801006"
             },
             {
-                "id": "0xb8e0fdab7c01062",
-                "type":2580452589,
+                "id": "b8e0fdab7c01062",
+                "typeId":"99ce94ed",
+                "typeIdString": "Onyx::Graphics::TextureHandle",
                 "localId": 132070911,
                 "localIdString":"Font3D",
-                "linkedPin": "0xba8c92356401003"
+                "linkedPin": "ba8c92356401003"
             }
         ],
         "outputs": [
             {
-                "id": "0xb8e0fdab7c01000",
-                "type":2580452589,
+                "id": "b8e0fdab7c01000",
+                "typeId":"99ce94ed",
+                "typeIdString": "Onyx::Graphics::TextureHandle",
                 "localId": 3663792444,
                 "localIdString": "Composite"
             }
@@ -463,19 +467,19 @@
         ]
     },
     {
-        "id": "0xbaa254787001000",
-        "typeId": 2052907239,
-        "type": "Onyx::Graphics::ToneMapPass",
+        "id": "baa254787001000",
+        "typeId": "bd96e437",
+        "typeIdString": "Onyx::Graphics::RenderGraph::ToneMapPass",
         "inputs": [
             {
-                "id": "0xbaa254787001001",
+                "id": "baa254787001001",
                 "localId": 1187160501,
-                "linkedPin": "0xb8e0fdab7c01000"
+                "linkedPin": "b8e0fdab7c01000"
             }
         ],
         "outputs": [
             {
-                "id": "0xbaa254787001002",
+                "id": "baa254787001002",
                 "localId": 2475545686
             }
         ],
@@ -502,19 +506,19 @@
         ]
     },
     {
-        "id": "0xbaa254c1e401000",
-        "typeId": 3241141825,
-        "type": "Onyx::UIRenderGraphNode",
+        "id": "baa254c1e401000",
+        "typeId": "c9a6c13a",
+        "typeIdString": "Onyx::Ui::RenderGraph::UIPass",
         "inputs": [
             {
-                "id": "0xbaa254c1e401001",
+                "id": "baa254c1e401001",
                 "localId": 1187160501,
-                "linkedPin": "0xbaa254787001002"
+                "linkedPin": "baa254787001002"
             }
         ],
         "outputs": [
             {
-                "id": "0xbaa254c1e401002",
+                "id": "baa254c1e401002",
                 "localId": 2475545686
             }
         ],

@@ -7,6 +7,10 @@ namespace Onyx::Graphics
     class ComputeMultipleScatteringRenderGraphNode : public NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::ComputeMultipleScattering";
+       StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         void OnBeginFrame(const RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 

@@ -6,9 +6,11 @@ namespace Onyx::Graphics
 {
     class GetWorldNormalNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f>
     {
-        using Super = FixedPinNode_1_Out<ShaderGraphNode, Vector4f>;
-
     public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::GetWorldNormal";
+       StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         void DoGenerateShader(const NodeGraph::ExecutionContext&, ShaderGenerator&) const override;
 
 #if ONYX_IS_EDITOR

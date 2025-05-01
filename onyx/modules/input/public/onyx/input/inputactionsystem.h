@@ -21,7 +21,7 @@ namespace Onyx::Input
 
     struct InputActionEvent
     {
-        InputActionEvent(onyxU64 id, void* data)
+        InputActionEvent(StringId64 id, void* data)
         : m_ActionId(id)
         , m_Data(data)
         {}
@@ -29,10 +29,10 @@ namespace Onyx::Input
         template <typename T>
         const T& GetData() const { return *static_cast<T*>(m_Data); }
 
-        onyxU64 GetId() const { return m_ActionId; }
+        StringId64 GetId() const { return m_ActionId; }
 
     private:
-        onyxU64 m_ActionId;
+        StringId64 m_ActionId;
         void* m_Data = nullptr;
     };
 
@@ -52,7 +52,7 @@ namespace Onyx::Input
         void SetCurrentInputActionMap(onyxU32 id);
         
         template<auto Candidate, typename... Type>
-        void OnInput(onyxU64 actionId, Type&&...value_or_instance)
+        void OnInput(StringId64 actionId, Type&&...value_or_instance)
         {
             auto it = std::find_if(m_CurrentActionStates.begin(), m_CurrentActionStates.end(), [&](const InputActionState& state)
             {
@@ -83,13 +83,13 @@ namespace Onyx::Input
     private:
         struct InputActionState
         {
-            InputActionState(onyxU64 actionId) : ActionId(actionId) {}
+            InputActionState(StringId64 actionId) : ActionId(actionId) {}
 
             Sink<InputActionSignalT> GetOnInputEvent() { return Sink<InputActionSignalT>(InputActionSignal); }
             InputActionSignalT InputActionSignal;
 
             DynamicArray<UniquePtr<InputBindingContext>> BindingContexts;
-            onyxU64 ActionId;
+            StringId64 ActionId;
         };
 
         InputSystem* m_InputSystem;

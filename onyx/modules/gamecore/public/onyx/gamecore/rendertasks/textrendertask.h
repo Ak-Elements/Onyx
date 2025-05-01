@@ -6,8 +6,13 @@ namespace Onyx::GameCore
 {
     class MSDFFontRenderPass : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>
     {
-        using Super = NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>;
     public:
+        static constexpr StringId32 TypeId = "Onyx::GameCore::RenderGraph::MSDFFontPass";
+        StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
+        using Super = NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>;
+
         void OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
         void OnShutdown(Graphics::GraphicsApi& api) override;
 

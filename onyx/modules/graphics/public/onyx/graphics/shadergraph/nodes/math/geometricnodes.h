@@ -6,9 +6,14 @@
 
 namespace Onyx::NodeGraph
 {
-    template <template <typename ScalarT> class VectorT, typename ScalarT>
-    class ScaleVectorNode<Graphics::ShaderGraphNode, VectorT, ScalarT> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, VectorT<ScalarT>, ScalarT, VectorT<ScalarT>>
+    template <template <typename ScalarT> class VectorT, typename ScalarT, CompileTimeString TypeIdString>
+    class ScaleVectorNode<Graphics::ShaderGraphNode, VectorT, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, VectorT<ScalarT>, ScalarT, VectorT<ScalarT>>
     {
+    public:
+        static constexpr StringId32 TypeId = TypeIdString;
+       StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         using Super = FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, VectorT<ScalarT>, ScalarT, VectorT<ScalarT>>;
 
         void OnUpdate(ExecutionContext& context) const override

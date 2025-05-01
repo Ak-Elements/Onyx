@@ -11,6 +11,11 @@ namespace Onyx::Graphics
 
     class CreateLightClusters : public NodeGraph::FixedPinNode_1_Out<RenderGraphFixedShaderNode, BufferHandle>
     {
+    public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::CreateLightClusters";
+       StringId32 GetTypeId() const override { return TypeId; }
+
+    private:
         void OnInit(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
 
         void OnBeginFrame(const RenderGraphContext& context) override;
@@ -34,6 +39,10 @@ namespace Onyx::Graphics
 
     class UpdateLightClustersRenderGraphNode : public NodeGraph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, BufferHandle, BufferHandle, BufferHandle, BufferHandle>
     {
+    public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::UpdateLightClusters";
+       StringId32 GetTypeId() const override { return TypeId; }
+
     private:
         using Super = NodeGraph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, BufferHandle, BufferHandle, BufferHandle, BufferHandle>;
 

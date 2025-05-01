@@ -54,7 +54,7 @@ namespace Onyx::Editor
         const NodeGraph::INodeFactory& factory = GetNodeFactory();
         const auto& nodeTypeIds = factory.GetRegisteredNodeIds();
 
-        for (const uint32_t typeId : nodeTypeIds)
+        for (const StringId32 typeId : nodeTypeIds)
         {
             const NodeGraph::NodeEditorMetaData& nodeMetaData = factory.GetNodeMetaData(typeId);
 
@@ -227,7 +227,7 @@ namespace Onyx::Editor
     }
 
     
-    bool NodeGraphEditorContext::OnNodeCreate(Node& newEditorNode, onyxU32 typeId)
+    bool NodeGraphEditorContext::OnNodeCreate(Node& newEditorNode, StringId32 typeId)
     {
         UniquePtr<NodeGraph::Node> newNode = GetNodeFactory().CreateNode(typeId);
         newNode->SetId(newEditorNode.Id);

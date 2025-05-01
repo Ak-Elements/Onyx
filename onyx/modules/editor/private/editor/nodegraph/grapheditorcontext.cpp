@@ -10,7 +10,7 @@ namespace Onyx::Editor
         m_Links.clear();
     }
 
-    GraphEditorContext::Node& GraphEditorContext::CreateNewNode(onyxU32 nodeTypeId)
+    GraphEditorContext::Node& GraphEditorContext::CreateNewNode(StringId32 nodeTypeId)
     {
         Guid64 newNodeId = Guid64Generator::GetGuid();
         Node tmpNode(newNodeId);

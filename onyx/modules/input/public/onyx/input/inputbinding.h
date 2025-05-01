@@ -63,10 +63,10 @@ namespace Onyx::Input
         virtual bool UpdateBinding(const InputSystem& /*inputSystem*/, UniquePtr<InputBindingContext>& /*context*/) { return false; }
         virtual UniquePtr<InputBindingContext> CreateContext() const = 0;
 
-        virtual onyxU32 GetId() const { return 0; }
+        virtual StringId32 GetTypeId() const { return StringId32::Invalid; }
 
-        InputType GetType() const { return m_Type; }
-        void SetType(InputType type) { m_Type = type; }
+        InputType GetInputType() const { return m_Type; }
+        void SetInputType(InputType type) { m_Type = type; }
 
         virtual onyxS32 GetInputBindingSlotsCount() const { return 0; }
         virtual onyxU32 GetBoundInputForSlot(onyxU32 /*index*/) const { return onyxMax_U32; }
@@ -81,11 +81,11 @@ namespace Onyx::Input
 
     struct InputBindingBool : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingBool>();
+        static constexpr StringId32 TypeId { "Onyx::InputBinding::Bool" };
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override { m_Input = 0; }
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingBoolContext>(); }
@@ -103,11 +103,11 @@ namespace Onyx::Input
 
     struct InputBindingAxis1DComposite : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingAxis1DComposite>();
+        static constexpr StringId32 TypeId { "Onyx::InputBinding::Axis1DComposite" };
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override;
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis1DContext>(); }
@@ -126,11 +126,11 @@ namespace Onyx::Input
 
     struct InputBindingAxis2DComposite : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingAxis2DComposite>();
+        static constexpr StringId32 TypeId{ "Onyx::InputBinding::Axis2DComposite" };
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override;
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis2DContext>(); }
@@ -151,11 +151,11 @@ namespace Onyx::Input
 
     struct InputBindingAxis3DComposite : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingAxis3DComposite>();
+        static constexpr StringId32 TypeId { "Onyx::InputBinding::Axis3DComposite" };
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override;
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis3DContext>(); }
@@ -178,11 +178,11 @@ namespace Onyx::Input
 
     struct InputBindingAxis1D : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingAxis1D>();
+        static constexpr StringId32 TypeId {"Onyx::InputBinding::Axis1D"};
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override { m_Axis = 0; }
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis1DContext>(); }
@@ -201,11 +201,11 @@ namespace Onyx::Input
 
     struct InputBindingAxis2D : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingAxis2D>();
+        static constexpr StringId32 TypeId { "Onyx::InputBinding::Axis2D" };
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override;
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis2DContext>(); }
@@ -225,11 +225,11 @@ namespace Onyx::Input
 
     struct InputBindingAxis3D : public InputBinding
     {
-        static constexpr onyxU32 ID = TypeHash<InputBindingAxis3D>();
+        static constexpr StringId32 TypeId { "Onyx::InputBinding::Axis3D" };
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Reset() override;
 
-        onyxU32 GetId() const override { return ID; }
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
         UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis3DContext>(); }

@@ -8,7 +8,9 @@ namespace Onyx::Graphics
 {
     class FragmentShaderOutNode : public NodeGraph::FixedPinNode_1_In<ShaderGraphNode, Vector4f>
     {
-        using Super = FixedPinNode_1_In;
+    public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::FragmentShaderOut";
+       StringId32 GetTypeId() const override { return TypeId; }
 
     private:
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
@@ -21,12 +23,16 @@ namespace Onyx::Graphics
 
     class PBRMaterialShaderOutNode : public NodeGraph::FixedPinNode<ShaderGraphNode, 4, 0>
     {
+    private:
         using AlbedoInPin = NodeGraph::Pin<Vector3f, "Albedo">;
         using NormalInPin = NodeGraph::Pin<Vector3f, "Normal">;
         using MetalnessInPin = NodeGraph::Pin<onyxF32, "Metalness">;
         using RoughnessInPin = NodeGraph::Pin<onyxF32, "Roughness">;
 
     public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut";
+       StringId32 GetTypeId() const override { return TypeId; }
+
         PBRMaterialShaderOutNode();
     private:
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;

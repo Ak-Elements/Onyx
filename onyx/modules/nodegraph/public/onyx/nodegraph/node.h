@@ -56,12 +56,10 @@ namespace Onyx::NodeGraph
 
     public:
         // REMOVE
-
         const Guid64& GetId() const { return m_Id; }
         void SetId(Guid64 id) { m_Id = id; }
 
-        onyxU32 GetTypeId() const { return m_TypeId; }
-        void SetTypeId(onyxU32 typeId) { m_TypeId = typeId; }
+        virtual StringId32 GetTypeId() const = 0;
 
         PinBase* GetPinById(Guid64 globalPinId);
         const PinBase* GetPinById(Guid64 globalPinId) const;
@@ -190,7 +188,6 @@ namespace Onyx::NodeGraph
 
     protected:
         Guid64 m_Id;
-        onyxU32 m_TypeId = 0; // should be static
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         struct EditorMetaInfo
@@ -320,19 +317,17 @@ namespace Onyx::NodeGraph
                     }
 #endif
 
-                    onyxU32 typeId;
-                    if (pinJson.Get("type", typeId) == false)
+                    StringId32 typeId;
+                    if (pinJson.Get("typeId", typeId) == false)
                     {
                         ONYX_LOG_ERROR("Pin is missing type id in json.");
                         return false;
                     }
 
-                    PinTypeId pinTypeId = static_cast<PinTypeId>(typeId);
-
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                    pin = outPins.emplace_back(CreatePin(pinTypeId, globalPinId, localPinId, localPinIdString)).get();
+                    pin = outPins.emplace_back(CreatePin(typeId, globalPinId, localPinId, localPinIdString)).get();
 #else
-                    pin = outPins.emplace_back(CreatePin(pinTypeId, globalPinId, localPinId)).get();
+                    pin = outPins.emplace_back(CreatePin(typeId, globalPinId, localPinId)).get();
 #endif
                 }
                 else

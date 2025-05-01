@@ -10,7 +10,7 @@
 
 namespace Onyx::Platform
 {
-    void GetAdapterAndMonitorInfos(HashMap<StringId, AdapterInfo>& outAdapterInfo)
+    void GetAdapterAndMonitorInfos(HashMap<StringId32, AdapterInfo>& outAdapterInfo)
     {
         constexpr onyxU64 DISPLAY_DEVICE_SIZE = sizeof(DISPLAY_DEVICE);
 
@@ -24,16 +24,16 @@ namespace Onyx::Platform
             if ((displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE) != DISPLAY_DEVICE_ACTIVE)
                 continue;
 
-            StringId adapterHash = Hash::FNV1aHash32(displayDevice.DeviceString, 128, 0);
+            StringId32 adapterHash(displayDevice.DeviceString);
             AdapterInfo& adapterInfo = outAdapterInfo[adapterHash];
             adapterInfo.m_Name = displayDevice.DeviceString;
-            adapterInfo.m_Monitors.emplace_back(Hash::FNV1aHash32(displayDevice.DeviceName, 32, 0));
+            adapterInfo.m_Monitors.emplace_back(StringId32(displayDevice.DeviceName));
         }
     }
 
     onyxS32 GetMonitorIndexByName(const String& name)
     {
-        onyxU32 monitorNameHash = Hash::FNV1aHash32(name);
+        StringId32 monitorNameHash(name);
 
         constexpr onyxU64 DISPLAY_DEVICE_SIZE = sizeof(DISPLAY_DEVICE);
 
@@ -47,7 +47,7 @@ namespace Onyx::Platform
             if ((displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE) != DISPLAY_DEVICE_ACTIVE)
                 continue;
 
-            if (monitorNameHash == Hash::FNV1aHash32(displayDevice.DeviceName, 32, 0))
+            if (monitorNameHash == StringId32(displayDevice.DeviceName))
             {
                 return adapterIndex;
             }

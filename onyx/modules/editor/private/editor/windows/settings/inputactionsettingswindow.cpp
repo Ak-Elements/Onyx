@@ -138,11 +138,9 @@ namespace Onyx::Editor
             DynamicArray<UniquePtr<Input::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
             UniquePtr<Input::InputBinding>& selectedInputBinding = selectedActionBindings[m_SelectedBindingIndex];
 
-            const bool isAxisNonComposite = ((selectedInputBinding->GetId() == Input::InputBindingAxis1D::ID) ||
-                (selectedInputBinding->GetId() == Input::InputBindingAxis2D::ID) ||
-                (selectedInputBinding->GetId() == Input::InputBindingAxis3D::ID));
-
-            
+            const bool isAxisNonComposite = ((selectedInputBinding->GetTypeId() == Input::InputBindingAxis1D::TypeId) ||
+                (selectedInputBinding->GetTypeId() == Input::InputBindingAxis2D::TypeId) ||
+                (selectedInputBinding->GetTypeId() == Input::InputBindingAxis3D::TypeId));
 
             if (isAxisNonComposite == false)
             {
@@ -150,9 +148,9 @@ namespace Onyx::Editor
                 {
                     const Input::MouseEvent* mouseEvent = static_cast<const Input::MouseEvent*>(inputEvent);
 
-                    if (selectedInputBinding->GetType() != Input::InputType::Mouse)
+                    if (selectedInputBinding->GetInputType() != Input::InputType::Mouse)
                     {
-                        selectedInputBinding->SetType(Input::InputType::Mouse);
+                        selectedInputBinding->SetInputType(Input::InputType::Mouse);
                         selectedInputBinding->Reset();
                     }
 
@@ -163,9 +161,9 @@ namespace Onyx::Editor
                 {
                     const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(inputEvent);
 
-                    if (selectedInputBinding->GetType() != Input::InputType::Keyboard)
+                    if (selectedInputBinding->GetInputType() != Input::InputType::Keyboard)
                     {
-                        selectedInputBinding->SetType(Input::InputType::Keyboard);
+                        selectedInputBinding->SetInputType(Input::InputType::Keyboard);
                         selectedInputBinding->Reset();
                     }
 
@@ -176,9 +174,9 @@ namespace Onyx::Editor
                     const Input::GameControllerButtonEvent* gamepadButtonEvent = static_cast<const Input::GameControllerButtonEvent*>(inputEvent);
 
 
-                    if (selectedInputBinding->GetType() != Input::InputType::Gamepad)
+                    if (selectedInputBinding->GetInputType() != Input::InputType::Gamepad)
                     {
-                        selectedInputBinding->SetType(Input::InputType::Gamepad);
+                        selectedInputBinding->SetInputType(Input::InputType::Gamepad);
                         selectedInputBinding->Reset();
                     }
 
@@ -256,8 +254,8 @@ namespace Onyx::Editor
 
                     if (ImGui::BeginPopupEx(ImGui::GetItemID(), ImGuiWindowFlags_None))
                     {
-                        const HashSet<onyxU32>& registeredBindings = Input::InputBindingsRegistry::GetRegisteredBindings(action.GetType());
-                        for (onyxU32 bindingTypeId : registeredBindings)
+                        const HashSet<StringId32>& registeredBindings = Input::InputBindingsRegistry::GetRegisteredBindings(action.GetType());
+                        for (StringId32 bindingTypeId : registeredBindings)
                         {
 
                             StringView buttonLabel = Format::Format("Add {}", Input::InputBindingsRegistry::GetBindingName(bindingTypeId));
@@ -326,7 +324,7 @@ namespace Onyx::Editor
             bool isBindingSelected = isSelected && (m_SelectedBindingIndex == bindingIndex);
             //bool wasSelected = isSelected;
 
-            StringView bindingInputTypeLabel = Enums::ToString(binding->GetType());
+            StringView bindingInputTypeLabel = Enums::ToString(binding->GetInputType());
             onyxS32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
             const bool hasCollapsibleHeader = bindingSlotsCount > 1;
             bool showBindings = true;
@@ -373,7 +371,7 @@ namespace Onyx::Editor
                     }
                     else
                     {
-                        switch (binding->GetType())
+                        switch (binding->GetInputType())
                         {
                             case Input::InputType::Mouse:
                             {

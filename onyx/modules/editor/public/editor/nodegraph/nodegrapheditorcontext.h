@@ -41,7 +41,7 @@ namespace Onyx::Editor
     private:
         void OnDrawNode(const Node& node) override;
 
-        bool OnNodeCreate(Node& newEditorNode, onyxU32 typeId) override;
+        bool OnNodeCreate(Node& newEditorNode, StringId32 typeId) override;
         void OnNodeDelete(Node& nodeToDelete) override;
         void OnLinkCreate(const Link& newLink) override;
         void OnLinkDelete(const Link& linkToDelete) override;

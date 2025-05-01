@@ -34,6 +34,9 @@ namespace Onyx::GameCore
 
     struct FreeCameraControllerComponent
     {
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::FreeCameraControllerComponent";
+        StringId32 GetTypeId() const { return TypeId; }
+
         onyxF32 BaseVelocity = 0.002f;
         onyxF32 MinVelocity = 0.001f;
         onyxF32 MaxVelocity = 0.3f;
@@ -58,6 +61,9 @@ namespace Onyx::GameCore
     {
         static constexpr bool HideInEditor = true;
         static constexpr bool IsTransient = true;
+
+        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::FreeCameraRuntimeComponent";
+        StringId32 GetTypeId() const { return TypeId; }
 
         Vector3f InputDirection;
         Vector3f InputRotation;
