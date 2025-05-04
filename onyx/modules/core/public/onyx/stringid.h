@@ -60,26 +60,31 @@ namespace Onyx
         static constexpr T Invalid = 0;
 
         constexpr StringId()
+#if ONYX_IS_RETAIL
             : Id(T(Invalid))
-#if !ONYX_IS_RETAIL
-            , IdString("Invalid")
+#else
+            : IdString("Invalid")
+            , Id(T(Invalid))
 #endif
         {
 
         }
 
         constexpr StringId(T id)
+#if ONYX_IS_RETAIL
             : Id(id)
-#if !ONYX_IS_RETAIL
-            , IdString("IdString not provided")
+else
+            : IdString("IdString not provided")
+            , Id(id)
 #endif
         {
         }
 
         constexpr StringId(StringView string)
+#if ONYX_IS_RETAIL
             : Id(Hash::FNV1aHash<T>(string))
-#if !ONYX_IS_RETAIL
-            , IdString([&]() -> StringView
+#else
+            : IdString([&]() -> StringView
                 {
                     if (std::is_constant_evaluated())
                     {
@@ -90,6 +95,7 @@ namespace Onyx
                         return GetIdCache().Store(string);
                     }
                 }())
+            , Id(Hash::FNV1aHash<T>(string))
 #endif
         {
         }
@@ -108,14 +114,15 @@ namespace Onyx
 
 #if !ONYX_IS_RETAIL
         StringId(T id, const String& string)
-            : Id(id)
-            , IdString(GetIdCache().Store(string))
+            : IdString(GetIdCache().Store(string))
+            , Id(id)
         {
         }
 
         StringId(T id, StringView string)
-            : Id(id)
-            , IdString(GetIdCache().Store(string))
+            : IdString(GetIdCache().Store(string))
+            , Id(id)
+            
         {
         }
 
@@ -132,10 +139,10 @@ namespace Onyx
         constexpr StringView GetString() const { return IdString; }
 
     private:
-        T Id;
 #if !ONYX_IS_RETAIL
         StringView IdString;
 #endif
+        T Id;
     };
 
     using StringId32 = StringId<onyxU32>;
