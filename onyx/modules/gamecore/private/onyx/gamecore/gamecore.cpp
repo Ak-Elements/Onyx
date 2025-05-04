@@ -11,7 +11,6 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/serialize/sdffontserializer.h>
-#include <onyx/gamecore/systems/lightingsystem.h>
 #include <onyx/gamecore/components/freecameracomponent.h>
 #include <onyx/gamecore/components/idcomponent.h>
 #include <onyx/gamecore/components/namecomponent.h>
@@ -61,7 +60,6 @@ namespace Onyx::GameCore
         {
             gameLoop.emplace_back(FreeCamera::system);
             gameLoop.emplace_back(Camera::system);
-            gameLoop.emplace_back(Lighting::system);
         }
     }
   
