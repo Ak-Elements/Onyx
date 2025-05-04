@@ -23,21 +23,19 @@ namespace Onyx::Volume
         constexpr StringId32 PLANE_TYPE("CSGPlane");
         constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
 
-
-        StringView selectedName;
-        if (VolumeType == SPHERE_TYPE)
-            selectedName = "Sphere";
-        else if (VolumeType == NOISE_TYPE)
-            selectedName = "Simplex Noise";
-        else if (VolumeType == CUBE_TYPE)
-            selectedName = "Cube";
-        else
-            selectedName = "Plane";
-
-
         Ui::PropertyGrid::DrawPropertyName("Type");
         Ui::PropertyGrid::DrawPropertyValue([&]()
         {
+            StringView selectedName;
+            if (VolumeType == SPHERE_TYPE)
+                selectedName = "Sphere";
+            else if (VolumeType == NOISE_TYPE)
+                selectedName = "Simplex Noise";
+            else if (VolumeType == CUBE_TYPE)
+                selectedName = "Cube";
+            else
+                selectedName = "Plane";
+
             if (ImGui::BeginCombo("##Type", selectedName.data()))
             {
                 if (ImGui::Selectable("Sphere", VolumeType == SPHERE_TYPE))
