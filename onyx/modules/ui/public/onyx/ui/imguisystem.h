@@ -187,7 +187,7 @@ namespace Onyx
 
         private:
             Graphics::Window* window;
-            HashMap<onyxU64, ImFont*> fonts;
+            HashMap<StringId64, ImFont*> fonts;
             std::mutex mutex;
             LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;
 

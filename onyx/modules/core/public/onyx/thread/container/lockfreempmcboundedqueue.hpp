@@ -73,7 +73,7 @@ inline bool LockFreeMPMCBoundedQueue<T>::Push(T&& data)
         }
     }
 
-    node->data = std::forward<T>(data);
+    node->data = std::move(data);
     node->sequence.store(pos + 1, std::memory_order_release);
     return true;
 }

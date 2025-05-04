@@ -296,8 +296,18 @@ public:
     Promise(const Promise& other) = default;
     Promise& operator=(const Promise& other) = default;
 
-    Promise(Promise&& other) noexcept = default;
-    Promise& operator=(Promise&& other) noexcept = default;
+    Promise(Promise&& other) noexcept
+        : m_FutureState(std::move(other.m_FutureState))
+    {
+    }
+
+    Promise& operator=(Promise&& other) noexcept
+    {
+        if (*this == other)
+            return *this;
+
+        std::swap(m_FutureState, other.m_FutureState);
+    }
 
     Future<T> GetFuture() const { return Future<T>{ m_FutureState }; }
 

@@ -13,16 +13,16 @@ namespace Onyx::Editor
     {
         BuildContentDirectoryTree("", m_ContentDirectoryTree);
 
-        Assets::AssetId closedId = static_cast<Assets::AssetId>(Hash::FNV1aHash64(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed.png")));
+        Assets::AssetId closedId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed.png"));
         assetSystem.GetAsset(closedId, m_FolderClosedAsset);
 
-        Assets::AssetId openId = static_cast<Assets::AssetId>(Hash::FNV1aHash64(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open.png")));
+        Assets::AssetId openId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open.png"));
         assetSystem.GetAsset(openId, m_FolderOpenAsset);
 
-        Assets::AssetId closedSelectedId = static_cast<Assets::AssetId>(Hash::FNV1aHash64(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed_selected.png")));
+        Assets::AssetId closedSelectedId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed_selected.png"));
         assetSystem.GetAsset(closedSelectedId, m_FolderSelectedClosedAsset);
 
-        Assets::AssetId openSelectedId = static_cast<Assets::AssetId>(Hash::FNV1aHash64(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open_selected.png")));
+        Assets::AssetId openSelectedId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open_selected.png"));
         assetSystem.GetAsset(openSelectedId, m_FolderSelectedOpenAsset);
     }
 
@@ -87,7 +87,7 @@ namespace Onyx::Editor
         for (const std::filesystem::directory_entry& entry : directory_iterator(path))
         {
             DirectoryInfo& childItem = parentDirectoryInfo.Items.emplace_back();
-            childItem.Id = Hash::FNV1aHash64(entry.path().string());
+            childItem.Id = Hash::FNV1aHash<onyxU64>(entry.path().string());
             childItem.Path = entry.path();
 
             if (entry.is_directory())

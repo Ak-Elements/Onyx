@@ -79,9 +79,9 @@ namespace Onyx::Graphics
     using RenderGraphResourceId = onyxU64;
 
     constexpr RenderGraphResourceId INVALID_RESOURCE_ID = 0;
-    constexpr RenderGraphResourceId SWAPCHAIN_RESOURCE_ID = Hash::FNV1aHash32("swapchain");
-    constexpr RenderGraphResourceId DEPTH_RESOURCE_ID = Hash::FNV1aHash32("depth");
-    constexpr RenderGraphResourceId VIEW_CONSTANTS_RESOURCE_ID = Hash::FNV1aHash32("u_viewconstants");
+    constexpr RenderGraphResourceId SWAPCHAIN_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("swapchain");
+    constexpr RenderGraphResourceId DEPTH_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("depth");
+    constexpr RenderGraphResourceId VIEW_CONSTANTS_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("u_viewconstants");
 
     enum class RenderGraphResourceType
     {

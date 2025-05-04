@@ -63,7 +63,7 @@ namespace Onyx::Editor
         dockspace.SetWindowClass(*windowClass);
 
         
-        inputActionSystem.SetCurrentInputActionMap(Hash::FNV1aHash32("sceneeditor"));
+        inputActionSystem.SetCurrentInputActionMap(StringId32("sceneeditor"));
 
         if (scene.IsValid() == false)
         {
@@ -317,8 +317,8 @@ namespace Onyx::Editor
         if (hasSelectedEntity == false)
             return;
         
-        constexpr onyxU64 GIZMO_TRANSLATE_ACTION_ID = Hash::FNV1aHash64("GizmoTranslate");
-        constexpr onyxU64 GIZMO_ROTATE_ACTION_ID = Hash::FNV1aHash64("GizmoRotate");
+        constexpr StringId64 GIZMO_TRANSLATE_ACTION_ID("GizmoTranslate");
+        constexpr StringId64 GIZMO_ROTATE_ACTION_ID("GizmoRotate");
 
         if (inputActionContext.GetId() == GIZMO_TRANSLATE_ACTION_ID)
         {
@@ -416,14 +416,14 @@ namespace Onyx::Editor
 
         api.SetCamera(camera.Camera);
 
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>(Hash::FNV1aHash64("CameraMovement"), this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>(Hash::FNV1aHash64("CameraRotation"), this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedInput>(Hash::FNV1aHash64("CameraSpeed"), this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSlowDown>(Hash::FNV1aHash64("CameraSlowDown"), this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedUp>(Hash::FNV1aHash64("CameraSpeedUp"), this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedInput>("CameraSpeed"_id64, this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSlowDown>("CameraSlowDown"_id64, this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedUp>("CameraSpeedUp"_id64, this);
 
-        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>(Hash::FNV1aHash64("GizmoTranslate"), this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>(Hash::FNV1aHash64("GizmoRotate"), this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>(Hash::FNV1aHash64("GizmoScale"), this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoTranslate"_id64, this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoRotate"_id64, this);
+        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);
     }
 }

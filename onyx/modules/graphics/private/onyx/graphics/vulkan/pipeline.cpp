@@ -302,6 +302,7 @@ namespace Onyx::Graphics::Vulkan
 
             VkPipelineVertexInputStateCreateInfo vertexInputInfo;
             vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertexInputInfo.flags = 0;
             vertexInputInfo.pNext = nullptr;
 
             const onyxU32 vertexAttributesCount = static_cast<onyxU32>(vertexInputs.size());

@@ -41,8 +41,24 @@ public:
     AsyncTask(const AsyncTask& other) = default;
     AsyncTask& operator=(const AsyncTask& other) = default;
 
-    AsyncTask(AsyncTask&& other) noexcept = default;
-    AsyncTask& operator=(AsyncTask&& other) noexcept = default;
+    AsyncTask(AsyncTask&& other) noexcept
+        : m_TaskFunctor(std::move(other.m_TaskFunctor))
+        , m_StopToken(std::move(other.m_StopToken))
+        , m_Promise(std::move(other.m_Promise))
+    {
+    }
+
+    AsyncTask& operator=(AsyncTask&& other)
+    {
+        if (*this == other)
+        {
+            return *this;
+        }
+
+        std::swap(m_TaskFunctor, other.m_TaskFunctor);
+        std::swap(m_StopToken, other.m_StopToken);
+        std::swap(m_Promise, other.m_Promise);
+    }
 
     ~AsyncTask() = default;
 

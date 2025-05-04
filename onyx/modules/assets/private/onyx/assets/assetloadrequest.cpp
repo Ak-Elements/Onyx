@@ -19,8 +19,9 @@ namespace Onyx::Assets
                 OnLoadFinished(Handle);
         });
 
-        loaderPool.Post(loadingTask);
+        loaderPool.Post(std::move(loadingTask));
     }
+
 
     void AssetLoadRequest::Cancel()
     {
@@ -39,7 +40,7 @@ namespace Onyx::Assets
 
         FileSystem::Filepath relativePath = Path.lexically_relative(FileSystem::Path::GetWorkingDirectory());
         String assetName = relativePath.string();
-        ZoneText(assetName.c_str(), assetName.length());
+        //ZoneText(assetName.c_str(), assetName.length());
 
         // those load functions should probably be static
         if (Serializer->DeserializeJson(Handle, Path) == false)

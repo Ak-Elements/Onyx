@@ -43,8 +43,8 @@ namespace Onyx::Graphics
     protected:
         bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData) override;
         void OnUIDrawNode() override;
-        StringView GetPinName(onyxU32 pinId) const override;
-        NodeGraph::PinVisibility DoGetPinVisibility(onyxU32 localPinId) const override;
+        StringView GetPinName(StringId32 pinId) const override;
+        NodeGraph::PinVisibility DoGetPinVisibility(StringId32 localPinId) const override;
 #endif
     private:
         // Texture asset id to use if input pin for texture handle is not connected

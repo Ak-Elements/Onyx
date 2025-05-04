@@ -45,12 +45,14 @@ namespace Onyx::Graphics
 
     void GraphicsApi::Init()
     {
-        BlendState& defaultBlendState = m_BlendStates[Hash::FNV1aHash32("default")];
+        constexpr StringId32 defaultBlendStateId("default");
+        constexpr StringId32 noBlendStateId("noblend");
+        BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
         defaultBlendState.IsBlendEnabled = true;
         defaultBlendState.SourceColor = Blend::SrcAlpha;
         defaultBlendState.DestinationColor = Blend::OneMinusSrcAlpha;
 
-        BlendState& noBlendState = m_BlendStates[Hash::FNV1aHash32("noblend")];
+        BlendState& noBlendState = m_BlendStates[noBlendStateId];
         noBlendState.IsBlendEnabled = false;
 
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -385,7 +387,7 @@ namespace Onyx::Graphics
 
     const BlendState& GraphicsApi::GetDefaultBlendState() const
     {
-        constexpr onyxU32 defaultBlendStateKey = Hash::FNV1aHash32("default");
+        constexpr StringId32 defaultBlendStateKey("default");
         return m_BlendStates.at(defaultBlendStateKey);
     }
 

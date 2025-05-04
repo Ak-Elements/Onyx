@@ -80,7 +80,7 @@ namespace Onyx::Editor
 
             if (m_EditableCopy.IsValid() && m_EditableCopy->IsLoaded())
             {
-                HashMap<onyxU32, Input::InputActionsMap>& actionMaps = m_EditableCopy->GetMaps();
+                HashMap<StringId32, Input::InputActionsMap>& actionMaps = m_EditableCopy->GetMaps();
 
                 Ui::ScopedImGuiStyle style(ImGuiStyleVar_CellPadding, ImVec2(4, 4));
                 if (ImGui::BeginTable("InputActions", 3, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable))
@@ -103,7 +103,7 @@ namespace Onyx::Editor
                     ImGui::TableSetColumnIndex(2);
                     ImGui::BeginVertical("##InputActionMap::InputAction::Data", ImGui::GetContentRegionAvail());
 
-                    if ((m_SelectedActionMapId != 0) && (m_SelectedActionIndex != INVALID_INDEX_32))
+                    if (m_SelectedActionMapId.IsValid() && (m_SelectedActionIndex != INVALID_INDEX_32))
                         RenderActionProperties();
 
                     if (m_SelectedBindingIndex != INVALID_INDEX_32)
@@ -188,7 +188,7 @@ namespace Onyx::Editor
         }
     }
 
-    void InputActionSettingsWindow::RenderActionMaps(HashMap<onyxU32, Input::InputActionsMap>& actionMaps)
+    void InputActionSettingsWindow::RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps)
     {
         // all action maps of the project
         ImGui::BeginListBox("##InputActionMaps", ImGui::GetContentRegionAvail());
@@ -215,7 +215,7 @@ namespace Onyx::Editor
     {
         // actions in the selected map
         Ui::ScopedImGuiId id("##InputActionMap::InputActions");
-        if (m_SelectedActionMapId != 0)
+        if (m_SelectedActionMapId.IsValid())
         {
             onyxS32 i = 0;
             Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
@@ -241,12 +241,12 @@ namespace Onyx::Editor
                 if (isSelected)
                     treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-                StringView itemIdString = Format::Format("##{}", action.GetName());
+                StringView itemIdString = Format::Format("##{}", action.GetId().GetString());
                 ImGuiID itemId = ImGui::GetID(itemIdString.data());
 
                 auto customHeader = [&]()
                 {
-                    String name = action.GetName();
+                    String name(action.GetId().GetString());
                     if (Ui::DrawRenameInput(itemIdString, name, ImVec2(-1,0), isSelected))
                     {
                         action.SetName(name);
@@ -421,7 +421,7 @@ namespace Onyx::Editor
 
         Input::ActionType actionType = selectedAction.GetType();
 
-        ImGui::TextEx((selectedAction.GetName().c_str()));
+        ImGui::TextEx((selectedAction.GetId().GetString().data()));
 
         if (ImGui::BeginCombo("Action type", Enums::ToString(actionType).data()))
         {

@@ -229,9 +229,10 @@ namespace Onyx::Graphics
 				
                 onyxU32 location = compiler.get_decoration(resource.id, spv::DecorationLocation);
 
+				StringId32 id(name);
 				onyxU32 componentSize = inputType.width;
 				TextureFormat format = TextureFormat::Invalid;
-                auto keyValueIt = preprocessedShader.m_Formats.find(Hash::FNV1aHash64(name));
+                auto keyValueIt = preprocessedShader.m_Formats.find(id);
 				if (keyValueIt != preprocessedShader.m_Formats.end())
 				{
 					format = keyValueIt->second;
@@ -259,9 +260,10 @@ namespace Onyx::Graphics
 
 				//onyxU32 location = compiler.get_decoration(resource.id, spv::DecorationLocation);
 
+				StringId32 id(name);
 				onyxU32 componentSize = inputType.width;
 				TextureFormat format = TextureFormat::Invalid;
-				auto keyValueIt = preprocessedShader.m_Formats.find(Hash::FNV1aHash64(name));
+				auto keyValueIt = preprocessedShader.m_Formats.find(id);
 				if (keyValueIt != preprocessedShader.m_Formats.end())
 				{
 					format = keyValueIt->second;
@@ -303,10 +305,9 @@ namespace Onyx::Graphics
 				
 				ShaderDescriptorSet& shaderDescriptorSet = GetOrCreateShaderDescriptorSet(static_cast<onyxS32>(descriptorSet), outReflectionInfo);
 				UniformBuffer uniformBuffer;
-				uniformBuffer.Id = Hash::FNV1aHash32(alias);
+				uniformBuffer.Id = StringId32(alias);
 				uniformBuffer.BindingPoint = binding;
 				uniformBuffer.Size = size;
-				uniformBuffer.Name = alias;
 				uniformBuffer.Stage = ShaderStage::All;
 				
 				shaderDescriptorSet.UniformBuffers[binding] = uniformBuffer;
@@ -338,11 +339,10 @@ namespace Onyx::Graphics
 
 				ShaderDescriptorSet& shaderDescriptorSet = GetOrCreateShaderDescriptorSet(static_cast<onyxS32>(descriptorSet), outReflectionInfo);
 				StorageBuffer storageBuffer;
-                storageBuffer.Id = alias.empty() ? Hash::FNV1aHash32(name) : Hash::FNV1aHash32(alias);
+                storageBuffer.Id = alias.empty() ? StringId32(name) : StringId32(alias);
                 storageBuffer.BindingPoint = binding;
                 storageBuffer.Size = size;
                 storageBuffer.Stage = ShaderStage::All;
-                storageBuffer.Name = alias.empty() ? name : alias;
                 shaderDescriptorSet.StorageBuffers[binding] = storageBuffer;
 			}
 		}

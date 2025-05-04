@@ -54,7 +54,7 @@ namespace Onyx::Application
         Graphics::GraphicSettings GraphicSettings;
         Graphics::WindowSettings WindowSettings;
 
-        HashMap<onyxU32, FileSystem::MountPoint> MountPoints;
+        HashMap<StringId32, FileSystem::MountPoint> MountPoints;
 
         Assets::AssetId InputConfig = "engine:/inputcontexts.oinput";
     };

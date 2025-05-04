@@ -84,10 +84,9 @@ namespace Onyx
 
     void StringStream::DoRead(char* destination, onyxU64 size) const
     {
-        ONYX_UNUSED(destination);
         ONYX_ASSERT((m_CurrentDataPosition + size) < GetLength());
         char* startPos = const_cast<char*>(m_Data.data());
-        destination = startPos + m_CurrentDataPosition;
+        std::memcpy(destination, startPos, size);
         m_CurrentDataPosition += size;
     }
 

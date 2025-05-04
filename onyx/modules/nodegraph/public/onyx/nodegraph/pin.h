@@ -524,9 +524,6 @@ namespace Onyx::NodeGraph
     concept PinType = requires()
     {
         { T::LocalId };
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        { T::LocalIdString };
-#endif
 
         typename T::DataType;
     };
@@ -541,7 +538,7 @@ namespace Onyx::NodeGraph
 
         virtual ~PinBase() = default;
 
-        virtual onyxU32 GetLocalId() const = 0;
+        virtual StringId32 GetLocalId() const = 0;
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         virtual StringView GetLocalIdString() const = 0;
 #endif
@@ -579,49 +576,22 @@ namespace Onyx::NodeGraph
     public:
         using DataType = DataT;
 
-        DynamicPin(const String& id)
+        DynamicPin(StringId32 localId)
             : PinBase(Guid64Generator::GetGuid())
-            , LocalId(Hash::FNV1aHash32(id))
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            , LocalIdString(id)
-#endif
+            , LocalId(localId)
         {
         }
 
-        DynamicPin(Guid64 globalPinId, const onyxU32 localId)
+        DynamicPin(Guid64 globalPinId, const StringId32 localId)
             : PinBase(globalPinId)
             , LocalId(localId)
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            , LocalIdString(std::to_string(localId))
-#endif
         {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // output warning
 #endif
         }
 
-
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        DynamicPin(Guid64 globalPinId, const String& id)
-            : PinBase(globalPinId)
-            , LocalId(Hash::FNV1aHash32(id))
-            , LocalIdString(id)
-
-        {
-        }
-
-        DynamicPin(Guid64 globalPinId, onyxU32 localId, const String& id)
-            : PinBase(globalPinId)
-            , LocalId(localId)
-            , LocalIdString(id)
-        {
-        }
-#endif
-
-        onyxU32 LocalId = 0;
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        String LocalIdString;
-#endif
+        StringId32 LocalId = 0;
         static constexpr PinTypeId DataTypeId = static_cast<PinTypeId>(TypeHash<DataT>());
 
         std::any CreateDefault() const override { return DataT(); }
@@ -664,9 +634,9 @@ namespace Onyx::NodeGraph
             }
         }
 
-        onyxU32 GetLocalId() const override { return LocalId; }
+        StringId32 GetLocalId() const override { return LocalId; }
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        StringView GetLocalIdString() const override { return LocalIdString; }
+        StringView GetLocalIdString() const override { return LocalId.GetString(); }
 #endif
 
         PinTypeId GetType() override { return DataTypeId; }
@@ -678,10 +648,7 @@ namespace Onyx::NodeGraph
     {
     public:
         using DataType = DataT;
-        static constexpr onyxU32 LocalId = Hash::FNV1aHash32(PinId.data(), PinId.size());
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        static constexpr StringView LocalIdString{ PinId.data(), PinId.size() };
-#endif
+        static constexpr StringId32 LocalId { PinId };
         static constexpr PinTypeId DataTypeId = static_cast<PinTypeId>(TypeHash<DataT>());
 
         Pin()
@@ -733,9 +700,9 @@ namespace Onyx::NodeGraph
             }
         }
 
-        onyxU32 GetLocalId() const override { return LocalId; }
+        StringId32 GetLocalId() const override { return LocalId; }
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        StringView GetLocalIdString() const override { return LocalIdString; }
+        StringView GetLocalIdString() const override { return LocalId.GetString(); }
 #endif
 
         PinTypeId GetType() override { return DataTypeId; }
@@ -764,9 +731,5 @@ namespace Onyx::NodeGraph
     }
 #endif
 
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId, const String& localIdString);
-#else
-    UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId);
-#endif
+    UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, StringId32 localId);
 }

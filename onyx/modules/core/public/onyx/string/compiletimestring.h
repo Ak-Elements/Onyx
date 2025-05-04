@@ -16,6 +16,7 @@ namespace Onyx
 
         consteval onyxU64 size() const { return N; }
         consteval const char* data() const { return &Data[0]; }
+        consteval StringView string_view() const { return { &Data[0], N }; }
 
         template <onyxU64 OtherN>
         consteval CompileTimeString<N + OtherN> operator+(const CompileTimeString<OtherN>& other) const
@@ -43,7 +44,7 @@ namespace Onyx
             return *this + otherCompileTimeStr;
         }
 
-        char Data[N + 1];
+        char Data[N + 1];// Array<char, N + 1> Data;
     };
 
     template <onyxU64 N>

@@ -15,7 +15,7 @@ namespace Onyx::Graphics
 
     RenderPassHandle RenderPassCache::GetOrCreateRenderPass(const RenderPassSettings& settings)
     {
-        onyxU64 renderPassHash = Hash::FNV1aHash64(reinterpret_cast<const onyxU8*>(&settings), sizeof(RenderPassSettings));
+        onyxU64 renderPassHash = Hash::FNV1aHash<onyxU64>(settings);
 
         auto it = m_Cache.find(renderPassHash);
         if (it != m_Cache.end())

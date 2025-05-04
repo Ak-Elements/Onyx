@@ -49,8 +49,8 @@ namespace Onyx::Input
         void Update(onyxU64 deltaTime);
 
         void SetActionsMapAsset(const Reference<InputActionsAsset>& inputAsset);
-        void SetCurrentInputActionMap(onyxU32 id);
-        
+        void SetCurrentInputActionMap(StringId32 id);
+
         template<auto Candidate, typename... Type>
         void OnInput(StringId64 actionId, Type&&...value_or_instance)
         {
@@ -97,6 +97,6 @@ namespace Onyx::Input
         Reference<InputActionsAsset> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
 
-        onyxU32 m_ContextId = 0;
+        StringId32 m_ContextId = 0;
     };
 }

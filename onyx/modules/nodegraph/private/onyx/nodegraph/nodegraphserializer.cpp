@@ -65,7 +65,7 @@ namespace Onyx::NodeGraph::Serializer
         {
             FileSystem::JsonValue nodeJsonObj{ nodeJson };
 
-            StringId32 typeId = 0;
+            StringId32 typeId;
             nodeJsonObj.Get("typeId", typeId);
 
             UniquePtr<Node> node = nodeFactory.CreateNode(typeId);

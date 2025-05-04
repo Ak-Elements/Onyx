@@ -63,7 +63,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView AtmosphericSkyRenderGraphNode::GetPinName(onyxU32 pinId) const
+    StringView AtmosphericSkyRenderGraphNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {

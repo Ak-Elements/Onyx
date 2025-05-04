@@ -218,8 +218,10 @@ namespace Onyx::GameCore
                 componentHandle.invoke(Entity::SERIALIZE_JSON_FUNCTION_HASH, entt::forward_as_meta(componentJsonDataObj));
 
                 FileSystem::JsonValue componentJsonObj;
-                componentJsonObj.Set("id", componentStorageIt.first);
-                componentJsonObj.Set("type", metaClass.info().name());
+
+                StringId32 typeId(metaClass.info().hash());
+
+                componentJsonObj.Set("typeId", typeId);
                 componentJsonObj.Set("data", componentJsonDataObj);
                 outEntityJsonObj.Add(componentJsonObj);
             }
@@ -234,22 +236,13 @@ namespace Onyx::GameCore
         {
             FileSystem::JsonValue componentsMetaJsonObj{ componentsJson };
 
-            entt::id_type componentId;
-            componentsMetaJsonObj.Get("id", componentId);
-
-            entt::meta_type metaClass = entt::resolve(componentId);
-            if (!metaClass)
-            {
-                StringView componentType;
-                componentsMetaJsonObj.Get("type", componentType);
-                ONYX_LOG_WARNING("Entity has an unkown component with id:{}, type:{}, skipping component.", componentId, componentType);
-                continue;
-            }
+            StringId32 typeId;
+            componentsMetaJsonObj.Get("typeId", typeId);
 
             FileSystem::JsonValue componentJsonData;
             componentsMetaJsonObj.Get("data", componentJsonData);
 
-            registry.AddComponent(entityId, componentId, componentJsonData);
+            registry.AddComponent(entityId, typeId, componentJsonData);
         }
 
         return true;

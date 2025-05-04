@@ -16,7 +16,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView GetWorldPositionNode::GetPinName(onyxU32 /*pinId*/) const
+    StringView GetWorldPositionNode::GetPinName(StringId32 /*pinId*/) const
     {
         return "World Position";
     }

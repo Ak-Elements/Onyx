@@ -24,10 +24,10 @@ namespace Onyx::Platform
             if ((displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE) != DISPLAY_DEVICE_ACTIVE)
                 continue;
 
-            StringId32 adapterHash(displayDevice.DeviceString);
+            StringId32 adapterHash(StringView(displayDevice.DeviceString));
             AdapterInfo& adapterInfo = outAdapterInfo[adapterHash];
             adapterInfo.m_Name = displayDevice.DeviceString;
-            adapterInfo.m_Monitors.emplace_back(StringId32(displayDevice.DeviceName));
+            adapterInfo.m_Monitors.emplace_back(StringId32(StringView(displayDevice.DeviceName)));
         }
     }
 
@@ -47,7 +47,7 @@ namespace Onyx::Platform
             if ((displayDevice.StateFlags & DISPLAY_DEVICE_ACTIVE) != DISPLAY_DEVICE_ACTIVE)
                 continue;
 
-            if (monitorNameHash == StringId32(displayDevice.DeviceName))
+            if (monitorNameHash == StringId32(StringView(displayDevice.DeviceName)))
             {
                 return adapterIndex;
             }

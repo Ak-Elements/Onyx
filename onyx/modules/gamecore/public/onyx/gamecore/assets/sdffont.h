@@ -32,6 +32,10 @@ namespace Onyx::GameCore
     class SDFFont : public Assets::Asset<SDFFont>
     {
     public:
+        static constexpr StringId32 TypeId{ "Onyx::GameCore::Assets::SDFFont" };
+        StringId32 GetTypeId() const { return TypeId; }
+
+
         void SetTexture(const Reference<Graphics::TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
         const Reference<Graphics::TextureAsset>& GetTexture() const { return m_FontTexture; }
 

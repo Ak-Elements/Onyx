@@ -20,7 +20,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView FragmentShaderOutNode::GetPinName(onyxU32 pinId) const
+    StringView FragmentShaderOutNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {

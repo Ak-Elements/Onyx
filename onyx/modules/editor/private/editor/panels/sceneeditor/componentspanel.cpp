@@ -41,12 +41,6 @@ namespace Onyx::Editor::SceneEditor
         DrawCreateComponentContextMenu(scene);
     }
 
-    /*void ComponentsPanel::OnSelectedEntityChanged(Entity::EntityId entityId)
-    {
-        m_SelectedEntity = entityId;
-    }*/
-
-
     void ComponentsPanel::DrawSelectedEntityComponents(GameCore::Scene& scene)
     {
         Entity::EntityRegistry& registry = scene.GetRegistry();
@@ -60,6 +54,7 @@ namespace Onyx::Editor::SceneEditor
                 if (entt::basic_sparse_set<Entity::EntityId>& componentStorage = componentStorageIt.second; componentStorage.contains(selectedEntity))
                 {
                     using namespace entt::literals;
+                   
                     entt::meta_type metaClass = entt::resolve(componentStorageIt.first);
 
                     if (!metaClass)

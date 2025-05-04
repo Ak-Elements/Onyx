@@ -7,10 +7,6 @@ namespace Onyx::NodeGraph
         json.Set("id", m_Id);
         json.Set("typeId", GetTypeId());
 
-#if !ONYX_IS_RETAIL
-        json.Set("typeIdString", GetTypeId().IdString);
-#endif
-
 #if ONYX_IS_EDITOR
         json.Set("type", GetTypeName());
 #endif
@@ -86,7 +82,7 @@ namespace Onyx::NodeGraph
             {
                 FileSystem::JsonValue inputPinJson{ inputPinsJsonArray.Json[i] };
 
-                onyxU32 localPinId;
+                StringId32 localPinId;
                 if (inputPinJson.Get("localId", localPinId) == false)
                 {
                     ONYX_LOG_ERROR("Pin is missing localId in json.");
@@ -96,7 +92,7 @@ namespace Onyx::NodeGraph
                 PinBase* inputPin = GetInputPinByLocalId(localPinId);
                 if (inputPin == nullptr)
                 {
-                    ONYX_LOG_WARNING("Missing pin with LocalId {:x}", localPinId);
+                    ONYX_LOG_WARNING("Missing pin with LocalId {}", localPinId);
                     continue;
                 }
 
@@ -125,7 +121,7 @@ namespace Onyx::NodeGraph
             {
                 FileSystem::JsonValue outputPinJson{ outputPinsJsonArray.Json[i] };
 
-                onyxU32 localPinId;
+                StringId32 localPinId;
                 if (outputPinJson.Get("localId", localPinId) == false)
                 {
                     ONYX_LOG_ERROR("Pin is missing localId in json.");
@@ -135,7 +131,7 @@ namespace Onyx::NodeGraph
                 PinBase* outputPin = GetOutputPinByLocalId(localPinId);
                 if (outputPin == nullptr)
                 {
-                    ONYX_LOG_WARNING("Missing pin with LocalId {:x}", localPinId);
+                    ONYX_LOG_WARNING("Missing pin with LocalId {}", localPinId);
                     continue;
                 }
 
@@ -219,7 +215,7 @@ namespace Onyx::NodeGraph
         return false;
     }
 
-    PinBase* Node::GetInputPinByLocalId(onyxU32 pinId)
+    PinBase* Node::GetInputPinByLocalId(StringId32 pinId)
     {
         const onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
@@ -232,7 +228,7 @@ namespace Onyx::NodeGraph
         return nullptr;
     }
 
-    const PinBase* Node::GetInputPinByLocalId(onyxU32 pinId) const
+    const PinBase* Node::GetInputPinByLocalId(StringId32 pinId) const
     {
         const onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
@@ -245,7 +241,7 @@ namespace Onyx::NodeGraph
         return nullptr;
     }
 
-    PinBase* Node::GetOutputPinByLocalId(onyxU32 pinId)
+    PinBase* Node::GetOutputPinByLocalId(StringId32 pinId)
     {
         const onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
@@ -258,7 +254,7 @@ namespace Onyx::NodeGraph
         return nullptr;
     }
 
-    const PinBase* Node::GetOutputPinByLocalId(onyxU32 pinId) const
+    const PinBase* Node::GetOutputPinByLocalId(StringId32 pinId) const
     {
         const onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
@@ -272,7 +268,7 @@ namespace Onyx::NodeGraph
     }
 
 #if ONYX_IS_EDITOR
-    StringView Node::GetPinName(onyxU32 localPinId) const
+    StringView Node::GetPinName(StringId32 localPinId) const
     {
         const onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)

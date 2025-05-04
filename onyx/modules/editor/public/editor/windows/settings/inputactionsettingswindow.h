@@ -39,7 +39,7 @@ namespace Onyx::Editor
 
         void OnInputEvent(const Input::InputEvent* inputEvent);
 
-        void RenderActionMaps(HashMap<onyxU32, Input::InputActionsMap>& actionMaps);
+        void RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps);
         void RenderInputActions();
         void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<Input::InputBinding>>& bindings);
 
@@ -59,7 +59,7 @@ namespace Onyx::Editor
         DynamicArray<bool> m_MapsSelectedStates;
         DynamicArray<bool> m_ActionsSelectedStates;
 
-        onyxU32 m_SelectedActionMapId = 0;
+        StringId32 m_SelectedActionMapId = 0;
         onyxS32 m_SelectedActionIndex = INVALID_INDEX_32;
 
         onyxS32 m_SelectedBindingIndex = INVALID_INDEX_32;

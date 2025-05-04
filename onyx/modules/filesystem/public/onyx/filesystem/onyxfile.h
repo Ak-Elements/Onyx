@@ -29,8 +29,19 @@ namespace Onyx::FileSystem
                 }
                 else if constexpr (is_specialization_of_v<StringId, ValueT>)
                 {
-                    StringView value = it->get<StringView>();
-                    return std::from_chars(value.data(), value.data() + value.size(), outValue.Id, 16).ec == std::errc{};
+                    const auto& stringIdObj = (*it);
+
+                    StringView value = stringIdObj["id"].get<StringView>();
+                    typename ValueT::IdType id;
+                    bool success = std::from_chars(value.data(), value.data() + value.size(), id, 16).ec == std::errc{};
+                    
+#if ONYX_IS_RETAIL
+                    outValue = { id };
+#else
+                    StringView idString = stringIdObj["string"].get<StringView>();
+                    outValue = { id, idString };
+#endif
+                    return success;
                 }
                 else if constexpr (is_specialization_of_v<Vector2, ValueT>)
                 {
@@ -103,7 +114,11 @@ namespace Onyx::FileSystem
             }
             else if constexpr (is_specialization_of_v<StringId, ValueT>)
             {
-                Json[key] = Format::Format("{:x}", value.Id);
+                auto& stringIdObj = Json[key];
+                stringIdObj["id"] = Format::Format("{:x}", value.GetId());
+#if !ONYX_IS_RETAIL
+                stringIdObj["string"] = value.GetString();
+#endif
             }
             else if constexpr (is_specialization_of_v<Vector2, ValueT>)
             {

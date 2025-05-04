@@ -19,7 +19,7 @@ namespace Onyx::Graphics
 
     bool ShaderCache::GetOrLoadShader(const FileSystem::Filepath& shaderPath, ShaderCacheEntry& outEntry)
     {
-        onyxU64 fileHash = Hash::FNV1aHash64(shaderPath.string());
+        onyxU64 fileHash = Hash::FNV1aHash<onyxU64>(shaderPath.string());
         ShaderCacheEntry& entry = m_Cache[fileHash];
 
         // we have that shader already cached
@@ -32,7 +32,7 @@ namespace Onyx::Graphics
             return false;
         }
 
-        onyxU64 shaderHash = Hash::FNV1aHash64(shaderCode, fileHash);
+        onyxU64 shaderHash = Hash::FNV1aHash<onyxU64>(shaderCode, fileHash);
 
         // cached version is still valid we can return it
         if (entry.m_ShaderHash == shaderHash)
@@ -77,7 +77,7 @@ namespace Onyx::Graphics
             const PreprocessedShader& preprocessedShader = shaderStagesSource[i];
             if (preprocessedShader.m_IsValid)
             {
-                const onyxU64 stageHash = Hash::FNV1aHash64(preprocessedShader.m_Code, shaderHash);
+                const onyxU64 stageHash = Hash::FNV1aHash<onyxU64>(preprocessedShader.m_Code, shaderHash);
                 if (stageHash != entry.m_StageHashes[i])
                 {
 					Shader::ByteCode& stageByteCode = perStageByteCodes[i];

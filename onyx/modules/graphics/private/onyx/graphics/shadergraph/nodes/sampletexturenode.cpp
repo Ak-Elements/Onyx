@@ -161,7 +161,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView SampleTextureNode::GetPinName(onyxU32 pinId) const
+    StringView SampleTextureNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {
@@ -179,7 +179,7 @@ namespace Onyx::Graphics
         return "";
     }
 
-    NodeGraph::PinVisibility SampleTextureNode::DoGetPinVisibility(onyxU32 localPinId) const
+    NodeGraph::PinVisibility SampleTextureNode::DoGetPinVisibility(StringId32 localPinId) const
     {
         switch (localPinId)
         {

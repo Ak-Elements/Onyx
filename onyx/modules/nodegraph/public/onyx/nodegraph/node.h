@@ -126,11 +126,11 @@ namespace Onyx::NodeGraph
             return {};
         }
 
-        PinBase* GetInputPinByLocalId(onyxU32 localPinId);
-        const PinBase* GetInputPinByLocalId(onyxU32 localPinId) const;
+        PinBase* GetInputPinByLocalId(StringId32 localPinId);
+        const PinBase* GetInputPinByLocalId(StringId32 localPinId) const;
 
-        PinBase* GetOutputPinByLocalId(onyxU32 localPinId);
-        const PinBase* GetOutputPinByLocalId(onyxU32 localPinId) const;
+        PinBase* GetOutputPinByLocalId(StringId32 localPinId);
+        const PinBase* GetOutputPinByLocalId(StringId32 localPinId) const;
 
     public:
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -147,14 +147,14 @@ namespace Onyx::NodeGraph
             return OnDrawInPropertyGrid(constantPinData);
         }
 
-        PinVisibility GetPinVisibility(onyxU32 localPinId) const { return DoGetPinVisibility(localPinId); }
+        PinVisibility GetPinVisibility(StringId32 localPinId) const { return DoGetPinVisibility(localPinId); }
 
         void UIDrawNode() { OnUIDrawNode(); }
 
-        virtual StringView GetPinName(onyxU32 /*localPinId*/) const;
-        virtual PinVisibility DoGetPinVisibility(onyxU32 /*localPinId*/) const { return PinVisibility::Default; }
+        virtual StringView GetPinName(StringId32 /*localPinId*/) const;
+        virtual PinVisibility DoGetPinVisibility(StringId32 /*localPinId*/) const { return PinVisibility::Default; }
 
-        virtual std::any CreateDefaultForPin(onyxU32 pinId) const = 0;
+        virtual std::any CreateDefaultForPin(StringId32 pinId) const = 0;
 
     protected:
         virtual bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData)
@@ -175,7 +175,7 @@ namespace Onyx::NodeGraph
 
                 const Guid64 globalId = inputPin->GetGlobalId();
                 if (constantPinData.contains(globalId) == false)
-                    constantPinData[globalId] = CreateDefaultForPin(inputPin->GetLocalId());;
+                    constantPinData[globalId] = CreateDefaultForPin(inputPin->GetLocalId());
 
                 inputPin->DrawPropertyPanel(GetPinName(inputPin->GetLocalId()), constantPinData[globalId]);
             }
@@ -249,10 +249,6 @@ namespace Onyx::NodeGraph
 
             json.Get("id", Node::m_Id);
 
-#if ONYX_IS_EDITOR
-            json.Get("type", Node::m_EditorMeta.Name);
-#endif
-
             FileSystem::JsonValue inputPinsJsonArray;
             json.Get("inputs", inputPinsJsonArray);
             if (DeserializePins(inputPinsJsonArray, m_InputPins) == false)
@@ -287,7 +283,7 @@ namespace Onyx::NodeGraph
             {
                 FileSystem::JsonValue pinJson{ pinsJsonArray.Json[i] };
 
-                onyxU32 localPinId;
+                StringId32 localPinId;
                 if (pinJson.Get("localId", localPinId) == false)
                 {
                     ONYX_LOG_ERROR("Pin is missing localId in json.");
@@ -308,15 +304,6 @@ namespace Onyx::NodeGraph
                 PinBase* pin = pinIt != outPins.end() ? pinIt->get() : nullptr;
                 if (pin == nullptr)
                 {
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                    String localPinIdString;
-                    if (pinJson.Get("localIdString", localPinIdString) == false)
-                    {
-                        ONYX_LOG_ERROR("Pin is missing localIdString in json.");
-                        return false;
-                    }
-#endif
-
                     StringId32 typeId;
                     if (pinJson.Get("typeId", typeId) == false)
                     {
@@ -324,11 +311,8 @@ namespace Onyx::NodeGraph
                         return false;
                     }
 
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                    pin = outPins.emplace_back(CreatePin(typeId, globalPinId, localPinId, localPinIdString)).get();
-#else
                     pin = outPins.emplace_back(CreatePin(typeId, globalPinId, localPinId)).get();
-#endif
+
                 }
                 else
                 {
@@ -345,7 +329,7 @@ namespace Onyx::NodeGraph
         }
         
 #if ONYX_IS_EDITOR
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             auto inputIt = std::find_if(m_InputPins.begin(), m_InputPins.end(), [&](const auto& pin)
             {
@@ -367,7 +351,7 @@ namespace Onyx::NodeGraph
             return nullptr;
         }
 
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             const onyxU32 inputPinCount = GetInputPinCount();
             for (onyxU32 i = 0; i < inputPinCount; ++i)
@@ -509,7 +493,7 @@ namespace Onyx::NodeGraph
         const PinBase* GetOutputPin(onyxU32 index) const override { return OutputPins[static_cast<onyxU8>(index)].get(); }
 
 #if ONYX_IS_EDITOR
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             const PinBase* inputPin = this->GetInputPinByLocalId(pinId);
             if (inputPin != nullptr)
@@ -527,7 +511,7 @@ namespace Onyx::NodeGraph
             return nullptr;
         }
 
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             const PinBase* inputPin = this->GetInputPinByLocalId(pinId);
             if (inputPin != nullptr)
@@ -564,7 +548,7 @@ namespace Onyx::NodeGraph
         const PinBase* GetInputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Input); }
 
 #if ONYX_IS_EDITOR
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             ONYX_ASSERT(m_Input.GetLocalId() == pinId);
             ONYX_UNUSED(pinId);
@@ -589,7 +573,7 @@ namespace Onyx::NodeGraph
         const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Output); }
 
 #if ONYX_IS_EDITOR
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             ONYX_UNUSED(pinId);
             ONYX_ASSERT(m_Output.GetLocalId() == pinId);
@@ -621,7 +605,7 @@ namespace Onyx::NodeGraph
         const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Output); }
 
 #if ONYX_IS_EDITOR
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             if (m_Input.GetLocalId() == pinId)
                 return m_Input.CreateDefault();
@@ -659,20 +643,20 @@ namespace Onyx::NodeGraph
         PinBase* GetOutputPin(onyxU32 /*index*/) override { return static_cast<PinBase*>(&m_Output); }
         const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Output); }
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
-                case InPin0::LocalId: return InPin0::LocalIdString;
-                case InPin1::LocalId: return InPin1::LocalIdString;
-                case OutPin::LocalId: return OutPin::LocalIdString;
+                case InPin0::LocalId: return InPin0::LocalId.GetString();
+                case InPin1::LocalId: return InPin1::LocalId.GetString();
+                case OutPin::LocalId: return OutPin::LocalId.GetString();
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
             return "";
         }
 
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -744,21 +728,21 @@ namespace Onyx::NodeGraph
         PinBase* GetOutputPin(onyxU32 /*index*/) override { return static_cast<PinBase*>(&m_Output); }
         const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Output); }
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
-                case InPin0::LocalId: return InPin0::LocalIdString;
-                case InPin1::LocalId: return InPin1::LocalIdString;
-                case InPin2::LocalId: return InPin2::LocalIdString;
-                case OutPin::LocalId: return OutPin::LocalIdString;
+                case InPin0::LocalId: return InPin0::LocalId.GetString();
+                case InPin1::LocalId: return InPin1::LocalId.GetString();
+                case InPin2::LocalId: return InPin2::LocalId.GetString();
+                case OutPin::LocalId: return OutPin::LocalId.GetString();
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
             return "";
         }
 
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -801,20 +785,20 @@ namespace Onyx::NodeGraph
         const PinBase* GetOutputPin(onyxU32 index) const override { return index == 0 ? static_cast<const PinBase*>(&m_Output0) : static_cast<const PinBase*>(&m_Output1); }
 
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
-            case InPin::LocalId: return InPin::LocalIdString;
-            case OutPin0::LocalId: return OutPin0::LocalIdString;
-            case OutPin1::LocalId: return OutPin1::LocalIdString;
+            case InPin::LocalId: return InPin::LocalId.GetString();
+            case OutPin0::LocalId: return OutPin0::LocalId.GetString();
+            case OutPin1::LocalId: return OutPin1::LocalId.GetString();
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
             return "";
         }
 
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -887,21 +871,21 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
-            case InPin::LocalId: return InPin::LocalIdString;
-            case OutPin0::LocalId: return OutPin0::LocalIdString;
-            case OutPin1::LocalId: return OutPin1::LocalIdString;
-            case OutPin2::LocalId: return OutPin2::LocalIdString;
+            case InPin::LocalId: return InPin::LocalId.GetString();
+            case OutPin0::LocalId: return OutPin0::LocalId.GetString();
+            case OutPin1::LocalId: return OutPin1::LocalId.GetString();
+            case OutPin2::LocalId: return OutPin2::LocalId.GetString();
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
             return "";
         }
 
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -982,22 +966,22 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
-            case InPin::LocalId: return InPin::LocalIdString;
-            case OutPin0::LocalId: return OutPin0::LocalIdString;
-            case OutPin1::LocalId: return OutPin1::LocalIdString;
-            case OutPin2::LocalId: return OutPin2::LocalIdString;
-            case OutPin3::LocalId: return OutPin3::LocalIdString;
+            case InPin::LocalId: return InPin::LocalId.GetString();
+            case OutPin0::LocalId: return OutPin0::LocalId.GetString();
+            case OutPin1::LocalId: return OutPin1::LocalId.GetString();
+            case OutPin2::LocalId: return OutPin2::LocalId.GetString();
+            case OutPin3::LocalId: return OutPin3::LocalId.GetString();
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
             return "";
         }
 
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -1082,22 +1066,22 @@ namespace Onyx::NodeGraph
         const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Output); }
 
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
-            case InPin0::LocalId: return InPin0::LocalIdString;
-            case InPin1::LocalId: return InPin1::LocalIdString;
-            case InPin2::LocalId: return InPin2::LocalIdString;
-            case InPin3::LocalId: return InPin3::LocalIdString;
-            case OutPin::LocalId: return OutPin::LocalIdString;
+            case InPin0::LocalId: return InPin0::LocalId.GetString();
+            case InPin1::LocalId: return InPin1::LocalId.GetString();
+            case InPin2::LocalId: return InPin2::LocalId.GetString();
+            case InPin3::LocalId: return InPin3::LocalId.GetString();
+            case OutPin::LocalId: return OutPin::LocalId.GetString();
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
             return "";
         }
 
-        std::any CreateDefaultForPin(onyxU32 pinId) const override
+        std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {

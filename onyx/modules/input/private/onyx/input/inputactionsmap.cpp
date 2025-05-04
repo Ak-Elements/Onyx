@@ -5,7 +5,7 @@
 
 namespace Onyx::Input
 {
-    InputActionsMap::InputActionsMap(onyxU32 id, const StringView& name, const FileSystem::JsonValue& json)
+    InputActionsMap::InputActionsMap(StringId32 id, const StringView& name, const FileSystem::JsonValue& json)
         : m_Id(id)
         , m_Name(name)
     {
@@ -21,10 +21,7 @@ namespace Onyx::Input
 
             if (HasInputAction(action.GetId()))
             {
-                StringView actionName;
-                inputActionJson.Get("id", actionName);
-
-                ONYX_LOG_ERROR("Input action with the same ID is already registered. Skipping input action {}", actionName);
+                ONYX_LOG_ERROR("Input action with the same ID is already registered. Skipping input action {}", action.GetId());
                 continue;
             }
 

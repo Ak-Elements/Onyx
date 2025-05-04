@@ -31,7 +31,7 @@ namespace Onyx::Input
 
     void InputActionSystem::Update(onyxU64 /*deltaTime*/)
     {
-        if (m_ContextId == 0)
+        if (m_ContextId.IsValid() == false)
             return;
 
         UpdateContext(m_InputActionsAsset->GetContext(m_ContextId));
@@ -41,13 +41,13 @@ namespace Onyx::Input
     {
         if (m_InputActionsAsset != inputAsset)
         {
-            onyxU32 newContextId = m_ContextId;
+            StringId32 newContextId = m_ContextId;
             m_InputActionsAsset = inputAsset;
             m_ContextId = 0;
 
             if (m_InputActionsAsset && (m_InputActionsAsset->GetMaps().empty() == false))
             {
-                if ((newContextId == 0) || (m_InputActionsAsset->HasContext(newContextId) == false))
+                if ((newContextId.IsValid() == false) || (m_InputActionsAsset->HasContext(newContextId) == false))
                 {
                     newContextId = m_InputActionsAsset->GetMaps().begin()->first;
                 }
@@ -62,7 +62,7 @@ namespace Onyx::Input
         }
     }
 
-    void InputActionSystem::SetCurrentInputActionMap(onyxU32 id)
+    void InputActionSystem::SetCurrentInputActionMap(StringId32 id)
     {
         if (id != m_ContextId)
         {
@@ -71,7 +71,7 @@ namespace Onyx::Input
 
             m_ContextId = id;
 
-            if ((id != 0) && m_InputActionsAsset.IsValid() && m_InputActionsAsset->IsLoaded())
+            if (id.IsValid() && m_InputActionsAsset.IsValid() && m_InputActionsAsset->IsLoaded())
             {
                 InitContext();
             }
@@ -114,7 +114,7 @@ namespace Onyx::Input
         {
             const InputAction& action = actions[actionIndex];
 
-            auto it = std::find_if(m_CurrentActionStates.begin(), m_CurrentActionStates.end(), [&](const InputActionState& state)
+            auto it = std::ranges::find_if(m_CurrentActionStates, [&](const InputActionState& state)
                 {
                     return state.ActionId == action.GetId();
                 });

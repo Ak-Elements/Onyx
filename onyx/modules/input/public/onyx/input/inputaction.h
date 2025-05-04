@@ -14,9 +14,8 @@ namespace Onyx::Input
         InputAction();
         InputAction(StringId64 actionId);
 
-        constexpr bool operator==(onyxU64 actionId) const { return m_Id == actionId; }
-        constexpr bool operator==(const StringView& action) const { return m_Id == Hash::FNV1aHash64(action); }
-
+        constexpr bool operator==(StringId64 actionId) const { return m_Id == actionId; }
+        
         constexpr StringId64 GetId() const { return m_Id; }
         ActionType GetType() const { return m_Type; }
         
@@ -25,7 +24,6 @@ namespace Onyx::Input
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         void SetName(StringView name);
-        const String& GetName() const { return m_Name; }
         void SetType(ActionType type) { m_Type = type; }
 #endif
 
@@ -36,9 +34,5 @@ namespace Onyx::Input
         ActionType m_Type = ActionType::Invalid;
 
         DynamicArray<UniquePtr<InputBinding>> m_Bindings;
-
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        String m_Name;
-#endif
     };
 }

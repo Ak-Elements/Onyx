@@ -8,14 +8,11 @@ namespace Onyx::Graphics
 {
 	struct UniformBuffer
 	{
-        onyxU32 Id = 0; // Hashed Name
+        StringId32 Id = 0;
         onyxU32 BindingPoint = 0;
         onyxU32 Size = 0;
-        TextureFormat Format;
+        TextureFormat Format = TextureFormat::Invalid;
         ShaderStage Stage = ShaderStage::Invalid;
-
-		//TODO: Should be left out in release builds
-        String Name;
 
         void Serialize(Stream& outStream) const
 		{
@@ -24,8 +21,6 @@ namespace Onyx::Graphics
             outStream.Write(Size);
             outStream.Write(Format);
             outStream.Write(Stage);
-
-            outStream.Write(Name);
         }
 
         void Deserialize(const Stream& inStream)
@@ -35,20 +30,15 @@ namespace Onyx::Graphics
             inStream.Read(Size);
             inStream.Read(Format);
             inStream.Read(Stage);
-
-            inStream.Read(Name);
         }
 	};
 
 	struct StorageBuffer
 	{
-        onyxU32 Id = 0; // Hashed Name
+		StringId32 Id = 0;
         onyxU32 BindingPoint = 0;
         onyxU32 Size = 0;
         ShaderStage Stage = ShaderStage::Invalid;
-
-		//TODO: Should be left out in release builds
-        String Name;
 
         void Serialize(Stream& outStream) const
 		{
@@ -56,8 +46,6 @@ namespace Onyx::Graphics
             outStream.Write(BindingPoint);
             outStream.Write(Size);
             outStream.Write(Stage);
-
-            outStream.Write(Name);
         }
 
 		void Deserialize(const Stream& inStream)
@@ -66,8 +54,6 @@ namespace Onyx::Graphics
             inStream.Read(BindingPoint);
             inStream.Read(Size);
             inStream.Read(Stage);
-
-            inStream.Read(Name);
         }
 	};
 

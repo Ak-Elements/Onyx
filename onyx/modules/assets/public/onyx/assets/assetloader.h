@@ -18,12 +18,14 @@ namespace Onyx::Assets
             if (m_LoadRequests.contains(metaData.Id))
                 return;
 
-            AssetLoadRequest& loadRequest = m_LoadRequests[metaData.Id];
-            loadRequest.Path = metaData.Path;
-            loadRequest.Handle = assetHandle;
-            loadRequest.Serializer = serializer.get();
-            loadRequest.OnLoadFinished.Connect<&AssetIOHandler::OnAssetLoadFinished>(this);
-            loadRequest.Start(m_LoaderThreadPool);
+            UniquePtr<AssetLoadRequest> loadRequest = MakeUnique<AssetLoadRequest>();
+            loadRequest->Path = metaData.Path;
+            loadRequest->Handle = assetHandle;
+            loadRequest->Serializer = serializer.get();
+            loadRequest->OnLoadFinished.Connect<&AssetIOHandler::OnAssetLoadFinished>(this);
+            loadRequest->Start(m_LoaderThreadPool);
+
+            m_LoadRequests[metaData.Id] = std::move(loadRequest);
         }
 
 #if ONYX_IS_EDITOR
@@ -32,12 +34,14 @@ namespace Onyx::Assets
             if (m_SaveRequests.contains(metaData.Id))
                 return;
 
-            AssetSaveRequest& saveRequest = m_SaveRequests[metaData.Id];
-            saveRequest.Path = metaData.Path;
-            saveRequest.Handle = assetHandle;
-            saveRequest.Serializer = serializer.get();
-            saveRequest.OnSaveFinished.Connect<&AssetIOHandler::OnAssetSaveFinished>(this);
-            saveRequest.Start(m_LoaderThreadPool);
+            UniquePtr<AssetSaveRequest> saveRequest = MakeUnique<AssetSaveRequest>();
+            saveRequest->Path = metaData.Path;
+            saveRequest->Handle = assetHandle;
+            saveRequest->Serializer = serializer.get();
+            saveRequest->OnSaveFinished.Connect<&AssetIOHandler::OnAssetSaveFinished>(this);
+            saveRequest->Start(m_LoaderThreadPool);
+
+            m_SaveRequests[metaData.Id] = std::move(saveRequest);
         }
 #endif
 
@@ -48,15 +52,15 @@ namespace Onyx::Assets
 #endif
     private:
         // default initalize to the amount of logical cores available
-        HashMap<AssetId, AssetLoadRequest> m_LoadRequests;
+        HashMap<AssetId, UniquePtr<AssetLoadRequest>> m_LoadRequests;
 #if ONYX_IS_EDITOR
-        HashMap<AssetId, AssetSaveRequest> m_SaveRequests;
+        HashMap<AssetId, UniquePtr<AssetSaveRequest>> m_SaveRequests;
 #endif
 
 #if ONYX_PROFILER_ENABLED
         Threading::ThreadPool m_LoaderThreadPool { Threading::ThreadPoolOptions(), "Asset Loader" };
 #else
-        Threading::ThreadPool m_LoaderThreadPool {};
+        Threading::ThreadPool m_LoaderThreadPool { Threading::ThreadPoolOptions(1) };
 #endif
     };
 }

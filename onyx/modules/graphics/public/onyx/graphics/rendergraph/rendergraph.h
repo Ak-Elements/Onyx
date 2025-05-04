@@ -20,6 +20,9 @@ namespace Onyx::Graphics
         using LocalNodeId = DirectedGraph::NodeId;
 
     public:
+        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::RenderGraph" };
+        StringId32 GetTypeId() const { return TypeId; }
+
         RenderGraph() = default;
         ~RenderGraph() override = default;
 

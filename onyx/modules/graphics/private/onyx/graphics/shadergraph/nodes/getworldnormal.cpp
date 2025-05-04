@@ -16,7 +16,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView GetWorldNormalNode::GetPinName(onyxU32 /*pinId*/) const
+    StringView GetWorldNormalNode::GetPinName(StringId32 /*pinId*/) const
     {
         return "World Normal";
     }

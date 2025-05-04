@@ -298,7 +298,7 @@ namespace Onyx::Ui
 
 		ImFontConfig fontConfig;
 		fontConfig.FontDataOwnedByAtlas = false;
-		onyxU64 fontHash = Hash::FNV1aHash64("fonts/Roboto-Regular.ttf");
+		constexpr StringId64 fontHash("fonts/Roboto-Regular.ttf");
 
         FileSystem::Filepath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
 		auto [it,_] = fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
@@ -361,7 +361,7 @@ namespace Onyx::Ui
 
 
 
-		// this is an index based loop on purpose as windows might be added during rendering by other windows
+		//// this is an index based loop on purpose as windows might be added during rendering by other windows
 		const onyxU32 windowsCount = numeric_cast<onyxU32>(windows.size());
 		for (onyxU32 i = 0; i < windowsCount; ++i)
 		{

@@ -49,8 +49,8 @@ namespace Onyx::NodeGraph
 
         struct NodeContext
         {
-            HashMap<onyxU32, std::any> PinData;
-            HashMap<onyxU32, PinMetaData> PinMetaData;
+            HashMap<StringId32, std::any> PinData;
+            HashMap<StringId32, PinMetaData> PinMetaData;
         };
 
         template <PinType Pin>

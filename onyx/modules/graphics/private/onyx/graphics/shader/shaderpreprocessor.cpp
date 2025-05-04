@@ -161,8 +161,9 @@ namespace Onyx::Graphics
 
                     StringView attachmentName = currentLine.substr(attachmentNameStart, (attachmentNameEnd - attachmentNameStart));
 
-                    ONYX_ASSERT(preprocessShader.m_Formats.contains(Hash::FNV1aHash64(attachmentName)) == false, "Format for this attachment is already defined.");
-                    preprocessShader.m_Formats[Hash::FNV1aHash64(attachmentName)] = attachmentFormat;
+                    StringId32 attachmentId(attachmentName);
+                    ONYX_ASSERT(preprocessShader.m_Formats.contains(attachmentId) == false, "Format for this attachment is already defined.");
+                    preprocessShader.m_Formats[attachmentId] = attachmentFormat;
 
                     preprocessShader.m_Code += currentLine.substr(0, customFormatStart);
 

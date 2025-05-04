@@ -286,7 +286,7 @@ namespace Onyx
             RenderPassCache m_RenderPassCache;
             FramebufferCache m_FramebufferCache;
 
-            HashMap<onyxU32, BlendState> m_BlendStates;
+            HashMap<StringId32, BlendState> m_BlendStates;
 
             bool m_HasComputeWork = false;
             bool m_HasWindowResized = false;

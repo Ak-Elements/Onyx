@@ -8,6 +8,9 @@ namespace Onyx::Graphics
     class TextureAsset : public Assets::Asset<TextureAsset>
     {
     public:
+        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::TextureAsset" };
+        StringId32 GetTypeId() const { return TypeId; }
+
         const TextureHandle& GetTextureHandle() const { return m_Texture; }
 
     private:

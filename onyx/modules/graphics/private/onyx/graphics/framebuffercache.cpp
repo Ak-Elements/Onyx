@@ -20,7 +20,7 @@ namespace Onyx::Graphics
     FramebufferHandle FramebufferCache::GetOrCreateFramebuffer(const FramebufferSettings& framebufferSettings)
     {
         // add custom hash function faster than std::hash
-        onyxU64 framebufferHash = Hash::FNV1aHash64(std::bit_cast<const onyxU8*>(&framebufferSettings), sizeof(FramebufferSettings));
+        onyxU64 framebufferHash = Hash::FNV1aHash<onyxU64>(framebufferSettings);
 
         auto it = m_Cache.find(framebufferHash);
         if (it != m_Cache.end())

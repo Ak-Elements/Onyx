@@ -52,7 +52,7 @@ namespace Onyx::Application
                         dataRootName += ":/";
                     }
 
-                    settings.MountPoints[Hash::FNV1aHash32(dataRootName)] = { .Prefix = dataRootName, .Path = dataRootPath.make_preferred() };
+                    settings.MountPoints[StringId32(dataRootName)] = { .Prefix = dataRootName, .Path = dataRootPath.make_preferred() };
                 }
             }
 
@@ -117,7 +117,7 @@ namespace Onyx::Application
         ONYX_PROFILE_SET_THREAD(Main)
 
 #if ONYX_USE_IMGUI
-        Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
+        bool hasImGuiSystem = HasSystem<Ui::ImGuiSystem>();
 #endif
 
         Graphics::GraphicsSystem& graphicsSystem = GetSystem<Graphics::GraphicsSystem>();
@@ -131,7 +131,6 @@ namespace Onyx::Application
         {
             const onyxU64 currentFrameTime = Time::GetCurrentMilliseconds();
             const onyxU64 deltaFrameTime = currentFrameTime - lastFrameTime;
-           
             const bool hasBegunFrame = graphicsApi.BeginFrame();
 
             if (hasBegunFrame == false)
@@ -140,7 +139,12 @@ namespace Onyx::Application
             Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
             ONYX_UNUSED(frameContext);
 #if ONYX_USE_IMGUI
-            imGuiSystem.OnBeginFrame(frameContext);
+            if (hasImGuiSystem)
+            {
+                Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
+                imGuiSystem.OnBeginFrame(frameContext);
+            }
+            
 #endif
 
             {
@@ -156,7 +160,11 @@ namespace Onyx::Application
                 graphicsApi.Render();
 
 #if ONYX_USE_IMGUI
-                imGuiSystem.OnEndFrame();
+                if (hasImGuiSystem)
+                {
+                    Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
+                    imGuiSystem.OnEndFrame();
+                }
 #endif
                 graphicsApi.EndFrame();
             }
@@ -166,7 +174,7 @@ namespace Onyx::Application
 
             FrameMarkNamed(sl_CPU_Frame);
             FrameMark;
-            std::this_thread::yield();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 

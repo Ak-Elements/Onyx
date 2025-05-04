@@ -18,10 +18,10 @@ namespace Onyx::Volume
 
     void VolumeSourceComponent::DrawImGuiEditor()
     {
-        constexpr onyxU32 SPHERE_TYPE = Hash::FNV1aHash32<"CSGSphere">(0);
-        constexpr onyxU32 CUBE_TYPE = Hash::FNV1aHash32<"CSGCube">(0);
-        constexpr onyxU32 PLANE_TYPE = Hash::FNV1aHash32<"CSGPlane">(0);
-        constexpr onyxU32 NOISE_TYPE = Hash::FNV1aHash32<"SimplexNoiseSource">(0);
+        constexpr StringId32 SPHERE_TYPE("CSGSphere");
+        constexpr StringId32 CUBE_TYPE ("CSGCube");
+        constexpr StringId32 PLANE_TYPE("CSGPlane");
+        constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
 
 
         StringView selectedName;
@@ -88,7 +88,7 @@ namespace Onyx::Volume
             }
         });
 
-        if ((VolumeType == 0) || (Volume == nullptr))
+        if ((VolumeType.IsValid() == false) || (Volume == nullptr))
             return;
 
         if (VolumeType == SPHERE_TYPE)

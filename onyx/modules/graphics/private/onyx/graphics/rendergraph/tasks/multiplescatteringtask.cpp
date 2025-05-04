@@ -24,7 +24,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView ComputeMultipleScatteringRenderGraphNode::GetPinName(onyxU32 pinId) const
+    StringView ComputeMultipleScatteringRenderGraphNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {

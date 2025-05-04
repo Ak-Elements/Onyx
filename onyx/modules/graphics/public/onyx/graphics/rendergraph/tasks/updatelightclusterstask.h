@@ -52,7 +52,7 @@ namespace Onyx::Graphics
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {

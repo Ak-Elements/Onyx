@@ -53,22 +53,22 @@ namespace Onyx
 	template <typename T>
 	constexpr StringView TypeName()
 	{
-		constexpr auto& value = Internal::type_name_holder<T>::value;
+		constexpr auto value = Internal::type_name_holder<T>::value;
 		return { value.data(), value.size() };
 	}
 
 	template <typename T>
 	constexpr onyxU32 TypeHash()
 	{
-		constexpr auto& value = Internal::type_name_holder<T>::value;
-		return Hash::FNV1aHash32(value.data(), value.size());
+		constexpr auto value = Internal::type_name_holder<T>::value;
+		return Hash::FNV1aHash<onyxU32>(value);
 	}
 
 	template <typename T>
 	constexpr onyxU64 TypeHash64()
 	{
-		constexpr auto& value = Internal::type_name_holder<T>::value;
-		return Hash::FNV1aHash64(value.data(), value.size(), 0);
+		constexpr auto value = Internal::type_name_holder<T>::value;
+		return Hash::FNV1aHash<onyxU64>(value);
 	}
 
 	template<typename Type>

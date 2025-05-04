@@ -64,7 +64,7 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         if (graph.GenerateShader(shaderGenerator) == false)
             return false;
 
-        const onyxU64 shaderCodeHash = Hash::FNV1aHash64(graph.GetShaderCode(), Hash::FNV1aHash64(shaderPath));
+        const onyxU64 shaderCodeHash = Hash::FNV1aHash<onyxU64>(graph.GetShaderCode(), Hash::FNV1aHash<onyxU64>(shaderPath));
         if ((shader == nullptr) || (shaderCodeHash != shader->GetShaderHash()))
         {
             // Save out shader again and trigger reload

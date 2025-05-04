@@ -94,9 +94,9 @@ namespace Onyx::Editor
 
         m_Context = ax::NodeEditor::CreateEditor(&config);
 
-        m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>(Hash::FNV1aHash64("Copy"), this);
-        m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>(Hash::FNV1aHash64("Paste"), this);
-        m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnDeleteAction>(Hash::FNV1aHash64("Delete"), this);
+        m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>("Copy"_id64, this);
+        m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>("Paste"_id64, this);
+        m_InputActionSystem.OnInput<&NodeGraphEditorWindow::OnDeleteAction>("Delete"_id64, this);
     }
 
     void NodeGraphEditorWindow::OnClose()
@@ -315,7 +315,7 @@ namespace Onyx::Editor
     {
         using namespace ax;
 
-        if (node.TypeId != 0)
+        if (node.TypeId.IsValid())
         {
             ONYX_ASSERT(node.m_Children.empty());
 

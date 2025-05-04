@@ -9,9 +9,8 @@ namespace Onyx::FileSystem::Path
     namespace
     {
         constexpr StringView DEFAULT_FILE_EXTENSION = "ofile";
-        constexpr onyxU32 TMP_MOUNT_POINT_IDENTIFIER = Hash::FNV1aHash32("tmp:/");
 
-        HashMap<onyxU32, MountPoint> MountPoints;
+        HashMap<StringId32, MountPoint> MountPoints;
 
         Optional<MountPoint> GetMountPointFromPrefixPath(const StringView& path)
         {
@@ -46,7 +45,7 @@ namespace Onyx::FileSystem::Path
 
     Filepath GetTempDirectory()
     {
-        return MountPoints.at(TMP_MOUNT_POINT_IDENTIFIER).Path;
+        return MountPoints.at(TMP_MOUNT_POINT_ID).Path;
     }
 
     String GetFileName(const Filepath& path)
@@ -55,7 +54,7 @@ namespace Onyx::FileSystem::Path
         return path.stem().string();
     }
 
-    const HashMap<onyxU32, MountPoint>& GetMountPoints()
+    const HashMap<StringId32, MountPoint>& GetMountPoints()
     {
         return MountPoints;
     }
@@ -143,12 +142,12 @@ namespace Onyx::FileSystem::Path
         return exists(GetTempDirectory().append(path.string()));
     }
 
-    void SetMountPoints(const HashMap<onyxU32, MountPoint>& dataRoots)
+    void SetMountPoints(const HashMap<StringId32, MountPoint>& dataRoots)
     {
         // ensure data directories exist
         for (auto&& [identifier, mountPoint] : dataRoots)
         {
-            if (identifier == TMP_MOUNT_POINT_IDENTIFIER)
+            if (identifier == TMP_MOUNT_POINT_ID)
             {
                 if (Exists(mountPoint.Path) == false)
                 {

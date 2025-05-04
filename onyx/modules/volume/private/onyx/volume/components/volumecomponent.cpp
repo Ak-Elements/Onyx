@@ -1,3 +1,7 @@
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <implot3d.h>
+#include <onyx/morton.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/volume/components/volumecomponent.h>
 #include <onyx/filesystem/onyxfile.h>
@@ -8,18 +12,21 @@
 
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/vertex.h>
+#include <onyx/volume/isosurface/marchingsquaressurface_cms.h>
+#include <onyx/volume/source/csg/csgcube.h>
 
 #include <onyx/volume/source/csg/csgplane.h>
 #include <onyx/volume/source/csg/csgsphere.h>
+#include <onyx/volume/source/csg/operations/csgunion.h>
 #include <onyx/volume/source/noise/simplexnoisesource.h>
 
 namespace Onyx::Volume
 {
     namespace VolumeSource
     {
-        constexpr onyxF32 loc_GeometricError = 0.90f;
+        constexpr onyxF32 loc_GeometricError = 0.8f;
 
-        void OnVolumeLoaded(Graphics::GraphicsApi& api, VolumeComponent& volumeComponent, const GameCore::TransformComponent& transformComponent, const MeshBuilder& meshBuilder)
+        void OnVolumeLoaded(Graphics::GraphicsApi& api, VolumeComponent& volumeComponent, const GameCore::TransformComponent& /*transformComponent*/, const MeshBuilder& meshBuilder)
         {
             if (meshBuilder.GetVertices().empty())
                 return;
@@ -39,7 +46,7 @@ namespace Onyx::Volume
             for (const Vertex& vertex : meshBuilder.GetVertices())
             {
                 Vector2f uv(0.0f, 0.0f);
-                vertices.emplace_back(Vector3f(vertex.Position[0], vertex.Position[1], vertex.Position[2]) + transformComponent.GetTranslation(), Vector3f(vertex.Normal[0], vertex.Normal[1], vertex.Normal[2]), uv);
+                vertices.emplace_back(Vector3f(vertex.Position[0], vertex.Position[1], vertex.Position[2]) /*+ transformComponent.GetTranslation()*/, vertex.Normal, uv);
             }
 
             volumeComponent.Vertices->SetData(0, vertices.data(), verticesBytes);
@@ -79,9 +86,9 @@ namespace Onyx::Volume
             if (volumeSource == nullptr)
                 return;
 
-            const onyxF32 chunkSize = 2048.0f;
-            const onyxF32 sampleResolution = 0.1f;
-            const onyxF32 maxDistanceSkirts = -1.0f;
+            onyxF32 chunkSize = 128.0f;
+            onyxF32 sampleResolution = 1.0f;
+            onyxF32 maxDistanceSkirts = 1.0f;
 
             auto volumeEntities = registry.GetView<GameCore::TransformComponent, VolumeComponent>();
             for (Entity::EntityId volumeEntity : volumeEntities)
@@ -97,16 +104,15 @@ namespace Onyx::Volume
                     volumeComponent.Chunk->SetSize(chunkSize);
                     volumeComponent.Chunk->RemoveAllMeshChangedHandlers();
                     volumeComponent.Chunk->AddMeshChangedHandler([&, entity = volumeEntity](const MeshBuilder& meshBuilder)
-                        {
-                            VolumeComponent& volume = registry.GetComponent<VolumeComponent>(entity);
-                            const GameCore::TransformComponent& transform = registry.GetComponent<GameCore::TransformComponent>(entity);
-                            OnVolumeLoaded(api, volume, transform, meshBuilder);
-                        });
+                    {
+                        VolumeComponent& volume = registry.GetComponent<VolumeComponent>(entity);
+                        const GameCore::TransformComponent& transform = registry.GetComponent<GameCore::TransformComponent>(entity);
+                        OnVolumeLoaded(api, volume, transform, meshBuilder);
+                    });
 
-                    volumeComponent.Chunk->Load(IsoSurfaceMethod::DMC, 32, chunkSize, loc_GeometricError, sampleResolution, loc_GeometricError, maxDistanceSkirts, *volumeSource);
+                    volumeComponent.Chunk->Load(IsoSurfaceMethod::CMS, 4, chunkSize, loc_GeometricError, sampleResolution, loc_GeometricError, maxDistanceSkirts, *volumeSource);
                 }
             }
-
         }
 
     }
@@ -149,6 +155,7 @@ namespace Onyx::Volume
             drawCall.Indices = volumeComponent.Indices;
             drawCall.Material = materialComponent.Material;
         }
+
     }
 
     VolumeComponent::VolumeComponent()
@@ -193,9 +200,9 @@ namespace Onyx::Volume
 
         outStream.Set("volumeType", VolumeType);
 
-        constexpr onyxU32 SPHERE_TYPE = TypeHash<CSGSphere>();
-        constexpr onyxU32 PLANE_TYPE = TypeHash<CSGPlane>();
-        constexpr onyxU32 NOISE_TYPE = TypeHash<SimplexNoiseSource>();
+        constexpr StringId32 SPHERE_TYPE("CSGSphere");
+        constexpr StringId32 PLANE_TYPE("CSGPlane");
+        constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
 
         // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
         if (VolumeType == SPHERE_TYPE)
@@ -235,9 +242,9 @@ namespace Onyx::Volume
         inStream.Get("material", materialId);
         Material = materialId;
 
-        constexpr onyxU32 SPHERE_TYPE = TypeHash<CSGSphere>();
-        constexpr onyxU32 PLANE_TYPE = TypeHash<CSGPlane>();
-        constexpr onyxU32 NOISE_TYPE = TypeHash<SimplexNoiseSource>();
+        constexpr StringId32 SPHERE_TYPE("CSGSphere");
+        constexpr StringId32 PLANE_TYPE("CSGPlane");
+        constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
 
         // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
         if (VolumeType == SPHERE_TYPE)

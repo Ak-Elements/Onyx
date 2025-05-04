@@ -102,7 +102,7 @@ namespace Onyx::Assets
         template <typename T, onyxU64 N>
         constexpr bool GetAsset(const CompileTimeString<N>& path, Reference<T>& outAsset)
         {
-            constexpr AssetId id = static_cast<AssetId>(Hash::FNV1aHash64(path));
+            constexpr AssetId id = static_cast<AssetId>(Hash::FNV1aHash(path));
             return GetAsset(id, outAsset, false);
         }
 
@@ -134,14 +134,14 @@ namespace Onyx::Assets
         static constexpr bool Register(Args&&... args)
         {
             //static_assert(is_specialization_of_v<Asset, T>, "Class T has to inherit from Asset");
-            constexpr onyxU32 assetTypeHash = TypeHash<AssetT>();
-            ONYX_ASSERT(registeredAssets.contains(assetTypeHash) == false, "Asset with that type is already registered.");
-            registeredAssets[assetTypeHash] = []() { return Reference<AssetT>::Create(); };
-            registeredSerializer[assetTypeHash] = MakeUnique<SerializerT>(std::forward<Args>(args)...);
+            constexpr StringId32 typeId(AssetT::TypeId);
+            ONYX_ASSERT(registeredAssets.contains(typeId) == false, "Asset with that type is already registered.");
+            registeredAssets[typeId] = []() { return Reference<AssetT>::Create(); };
+            registeredSerializer[typeId] = MakeUnique<SerializerT>(std::forward<Args>(args)...);
 
-            std::apply([](auto&&... extension)
+            std::apply([=](auto&&... extension)
                 { (
-                    ( extensionToAssetType[extension] = static_cast<AssetType>(assetTypeHash)),
+                    ( extensionToAssetType[extension] = static_cast<AssetType>(typeId.GetId())),
                     ...);
                 },
                 SerializerT::Extensions);
@@ -159,8 +159,8 @@ namespace Onyx::Assets
         DynamicArray<Reference<AssetInterface>> m_LoadedAssets;
 
         using CreateAssetFunction = InplaceFunction<Reference<AssetInterface>()>;
-        static HashMap<onyxU32, CreateAssetFunction> registeredAssets;
-        static HashMap<onyxU32, UniquePtr<AssetSerializer>> registeredSerializer;
+        static HashMap<StringId32, CreateAssetFunction> registeredAssets;
+        static HashMap<StringId32, UniquePtr<AssetSerializer>> registeredSerializer;
         static HashMap<String, AssetType> extensionToAssetType;
     };
 
@@ -183,8 +183,8 @@ namespace Onyx::Assets
             return true;
         }
 
-        constexpr onyxU32 assetTypeHash = TypeHash<T>();
-        metaData.Type = static_cast<AssetType>(assetTypeHash);
+        constexpr StringId32 assetTypeHash = T::TypeId;
+        metaData.Type = static_cast<AssetType>(assetTypeHash.GetId());
 
         if ((metaData.Handle != INVALID_INDEX_64) && forceLoad)
         {
@@ -255,7 +255,7 @@ namespace Onyx::Assets
 
         const AssetMetaData& metaData = assetIt->second;
 
-        constexpr onyxU32 assetTypeHash = TypeHash<T>();
+        constexpr StringId32 assetTypeHash = T::TypeId;
         const CreateAssetFunction& createFunctor = registeredAssets.at(assetTypeHash);
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
 
@@ -295,9 +295,9 @@ namespace Onyx::Assets
     template <typename T>
     bool AssetSystem::SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset)
     {
-        constexpr onyxU32 assetTypeHash = TypeHash<T>();
+        constexpr StringId32 assetTypeHash = T::TypeId;
         AssetId newAssetId(newPath);
-        AssetMetaData metaData{ newPath.stem().string(), newPath.extension().string().substr(1), newPath, newAssetId, static_cast<AssetType>(assetTypeHash), INVALID_INDEX_64, 0};
+        AssetMetaData metaData{ newPath.stem().string(), newPath.extension().string().substr(1), newPath, newAssetId, static_cast<AssetType>(assetTypeHash.GetId()), INVALID_INDEX_64, 0};
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
 
         //TODO: should only add it IF we finish saving
@@ -306,6 +306,5 @@ namespace Onyx::Assets
         m_IOHandler.RequestSave(metaData, asset, serializer);
         return true;
     }
-
 #endif
 }

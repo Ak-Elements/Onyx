@@ -149,10 +149,9 @@ void SwapChain::Init()
 		createInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	}
 
+	onyxU32 queueFamilyIndices[] = { static_cast<onyxU32>(physicalDevice.GetGraphicsQueueIndex()), static_cast<onyxU32>(physicalDevice.GetPresentQueueIndex()) };
 	if (physicalDevice.GetGraphicsQueueIndex() != physicalDevice.GetPresentQueueIndex())
 	{
-		onyxU32 queueFamilyIndices[] = { static_cast<onyxU32>(physicalDevice.GetGraphicsQueueIndex()), static_cast<onyxU32>(physicalDevice.GetPresentQueueIndex()) };
-
 		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 		createInfo.queueFamilyIndexCount = 2;
 		createInfo.pQueueFamilyIndices = queueFamilyIndices;

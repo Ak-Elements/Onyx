@@ -29,7 +29,7 @@ namespace Onyx::Assets
         }
 
         explicit constexpr AssetId(const FileSystem::Filepath& path)
-            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash64(path.string()))
+            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
         {
         }
 

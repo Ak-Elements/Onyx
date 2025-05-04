@@ -9,7 +9,11 @@ namespace Onyx::GameCore
     {
         friend struct SceneSerializer;
     public:
+        static constexpr StringId32 TypeId{ "Onyx::GameCore::Assets::Scene" };
+        
         Scene();
+
+        StringId32 GetTypeId() const { return TypeId; }
 
         Entity::EntityRegistry& GetRegistry() { return m_Registry; }
         const Entity::EntityRegistry& GetRegistry() const { return m_Registry; }

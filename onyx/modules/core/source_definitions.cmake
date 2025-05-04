@@ -77,6 +77,7 @@ set(TARGET_PUBLIC_SOURCES
 set(TARGET_PRIVATE_SOURCES		
 	${TARGET_PRIVATE_PATH}/assert.cpp
 	${TARGET_PRIVATE_PATH}/guid.cpp
+	${TARGET_PRIVATE_PATH}/hash.cpp
 	${TARGET_PRIVATE_PATH}/log/logger.cpp
 	${TARGET_PRIVATE_PATH}/log/backends/stdoutlogger.cpp
 	${TARGET_PRIVATE_PATH}/log/backends/visualstudiolog.cpp

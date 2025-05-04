@@ -69,7 +69,7 @@ namespace Onyx::NodeGraph
             return hasModified;
         }
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -115,7 +115,7 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -156,7 +156,7 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -201,7 +201,7 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -239,7 +239,7 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -277,7 +277,7 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -316,7 +316,7 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {

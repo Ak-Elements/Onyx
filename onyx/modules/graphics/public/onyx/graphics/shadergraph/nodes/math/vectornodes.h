@@ -78,7 +78,7 @@ namespace Onyx::NodeGraph
         }
 
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -168,7 +168,7 @@ namespace Onyx::NodeGraph
         }
 
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -269,7 +269,7 @@ namespace Onyx::NodeGraph
         }
 
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -390,7 +390,7 @@ namespace Onyx::NodeGraph
         }
 
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -441,7 +441,7 @@ namespace Onyx::NodeGraph
         }
 
     private:
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -493,7 +493,7 @@ namespace Onyx::NodeGraph
                 inputPin2.IsConnected() ? Format::Format("pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin2>())));
         }
 
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -549,7 +549,7 @@ namespace Onyx::NodeGraph
         }
 
 
-        StringView GetPinName(onyxU32 pinId) const override
+        StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {

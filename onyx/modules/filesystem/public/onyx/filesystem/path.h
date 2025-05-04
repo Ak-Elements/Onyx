@@ -21,11 +21,13 @@ namespace Onyx::FileSystem
 
     namespace Path
     {
+        static constexpr StringId32 TMP_MOUNT_POINT_ID { "tmp:/" };
+
         Filepath GetWorkingDirectory();
         Filepath GetTempDirectory();
         String GetFileName(const Filepath& path);
 
-        const HashMap<onyxU32, MountPoint>& GetMountPoints();
+        const HashMap<StringId32, MountPoint>& GetMountPoints();
 
         // Get an absolute path to a file in the current working directory
         // If the path is already absolute this function is a no-op
@@ -45,7 +47,7 @@ namespace Onyx::FileSystem
         bool Exists(const Filepath& path);
         bool TempFileExists(const Filepath& path);
 
-        void SetMountPoints(const HashMap<onyxU32, MountPoint>& mountPoints);
+        void SetMountPoints(const HashMap<StringId32, MountPoint>& mountPoints);
         
         bool CreateDirectory(const Filepath& directoryPath);
     };

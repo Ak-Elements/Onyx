@@ -17,7 +17,7 @@ namespace Onyx::Input
     {
 #if ONYX_IS_EDITOR
         const InputActionsAsset& inputActionsAsset = asset.As<InputActionsAsset>();
-        const HashMap<onyxU32, InputActionsMap>& contexts = inputActionsAsset.GetMaps();
+        const HashMap<StringId32, InputActionsMap>& contexts = inputActionsAsset.GetMaps();
         FileSystem::JsonValue jsonRoot;
 
         for (const InputActionsMap& actionMap : contexts | std::views::values)
@@ -29,7 +29,6 @@ namespace Onyx::Input
             {
                 FileSystem::JsonValue actionJson;
                 actionJson.Set("id", action.GetId());
-                actionJson.Set("name", action.GetName());
                 actionJson.Set("type", action.GetType());
 
                 FileSystem::JsonValue bindingsJsonArray;
@@ -39,10 +38,6 @@ namespace Onyx::Input
                 {
                     FileSystem::JsonValue bindingJson;
                     bindingJson.Set("typeId", binding->GetTypeId());
-#if !ONYX_IS_RETAIL
-                    bindingJson.Set("typeIdString", binding->GetTypeId().IdString);
-#endif
-
                     bindingJson.Set("inputType", binding->GetInputType());
 
                     onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
@@ -93,7 +88,7 @@ namespace Onyx::Input
     {
         InputActionsAsset& inputAsset = asset.As<InputActionsAsset>();
 
-        HashMap<onyxU32, InputActionsMap>& contexts = inputAsset.GetMaps();
+        HashMap<StringId32, InputActionsMap>& contexts = inputAsset.GetMaps();
 
         if (filePath.empty())
             return false;
@@ -109,7 +104,7 @@ namespace Onyx::Input
         // TODO: Fix the wrapping of the nlohmann::ordered_json into JsonValue object
         for (auto&& [key, value] : inputConfigData.Json.items())
         {
-            onyxU32 contextId = Hash::FNV1aHash32(key);
+            StringId32 contextId(key);
 
             if (contexts.contains(contextId))
             {

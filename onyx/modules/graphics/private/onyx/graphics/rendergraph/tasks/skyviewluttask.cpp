@@ -62,7 +62,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView SkyViewLutRenderGraphNode::GetPinName(onyxU32 pinId) const
+    StringView SkyViewLutRenderGraphNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {

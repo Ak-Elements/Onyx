@@ -23,20 +23,20 @@ namespace Onyx::Input
     struct InputActionsMap
     {
     public:
-        InputActionsMap(onyxU32 id, const StringView& name, const FileSystem::JsonValue& json);
+        InputActionsMap(StringId32 id, const StringView& name, const FileSystem::JsonValue& json);
 
         const String& GetName() const { return m_Name; }
 
         DynamicArray<InputAction>& GetActions() { return m_Actions; }
         const DynamicArray<InputAction>& GetActions() const { return m_Actions; }
 
-        onyxU32 GetId() const { return m_Id; }
+        StringId32 GetId() const { return m_Id; }
 
     private:
         bool HasInputAction(StringId64 actionId) const;
 
     private:
-        onyxU32 m_Id;
+        StringId32 m_Id;
         String m_Name;
         DynamicArray<InputAction> m_Actions;
     };

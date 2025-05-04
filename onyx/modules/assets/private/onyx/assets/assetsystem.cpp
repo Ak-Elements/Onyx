@@ -6,21 +6,20 @@
 
 namespace Onyx::Assets
 {
-    HashMap <onyxU32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::registeredAssets = {};
-    HashMap <onyxU32, UniquePtr<AssetSerializer>> AssetSystem::registeredSerializer = {};
+    HashMap <StringId32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::registeredAssets = {};
+    HashMap <StringId32, UniquePtr<AssetSerializer>> AssetSystem::registeredSerializer = {};
     HashMap<String, AssetType> AssetSystem::extensionToAssetType = {};
 
     namespace
     {
         bool GetAllAssetMetaData(HashMap<AssetId, AssetMetaData>& outAssetsMetaData)
         {
-
             // async creation of asset meta data
             using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
             for (auto& [mountIdentifier, mountPoint] : FileSystem::Path::GetMountPoints())
             {
-                if (mountIdentifier == Hash::FNV1aHash32("tmp:/"))
+                if (mountIdentifier == FileSystem::Path::TMP_MOUNT_POINT_ID)
                     continue;
 
                 for (const std::filesystem::directory_entry& entry : recursive_directory_iterator(mountPoint.Path))
@@ -104,7 +103,7 @@ namespace Onyx::Assets
             reloadAsset->SetState(AssetState::Loading);
             {
                 std::lock_guard lock(m_Mutex);
-                const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(static_cast<onyxU32>(metaData.Type));
+                const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(StringId32(static_cast<onyxU32>(metaData.Type)));
                 m_IOHandler.RequestLoad(metaData, reloadAsset, serializer);
             }
         }

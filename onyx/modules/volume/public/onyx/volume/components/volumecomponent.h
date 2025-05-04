@@ -72,7 +72,7 @@ namespace Onyx::Volume
 
         bool IsModified = false;
         //TODO This should probably not allocate heap memory
-        onyxU32 VolumeType = 0;
+        StringId32 VolumeType = 0;
         VolumeBase* Volume = nullptr;
 
         Assets::AssetId Material;

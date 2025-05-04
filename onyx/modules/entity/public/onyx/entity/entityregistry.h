@@ -79,11 +79,12 @@ namespace Onyx
             static void RegisterComponent()
             {
                 using namespace entt::literals;
+                constexpr auto typeHash = entt::type_hash<T>::value();
                 constexpr StringId32 typeId = T::TypeId;
                 auto metaClass = entt::meta<T>();
-                auto metaType = metaClass.type(typeId.Id);
+                auto metaType = metaClass.type(typeHash);
 
-                registeredComps[typeId] = T::TypeId.IdString;
+                s_SerializedIdToMetaClassId[typeId] = typeHash;
 
                 metaClass.template ctor<&EntityRegistryT::emplace_or_replace<T>, entt::as_ref_t>();
 
@@ -153,9 +154,9 @@ namespace Onyx
                 return m_Registry.emplace_or_replace<T>(entity, std::forward<Args>(args)...);
             }
 
-            void AddComponent(EntityId entity, onyxU32 componentId, const FileSystem::JsonValue& json)
+            void AddComponent(EntityId entity, StringId32 componentId, const FileSystem::JsonValue& json)
             {
-                std::ignore = entt::resolve(componentId).construct(entt::forward_as_meta(m_Registry), entity, entt::forward_as_meta(json));
+                std::ignore = entt::resolve(s_SerializedIdToMetaClassId[componentId]).construct(entt::forward_as_meta(m_Registry), entity, entt::forward_as_meta(json));
             }
 
             template <typename T>
@@ -215,9 +216,9 @@ namespace Onyx
             void Clear() { m_Registry.clear(); }
 
         private:
+            static HashMap<StringId32, entt::id_type> s_SerializedIdToMetaClassId;
+
             EntityRegistryT m_Registry;
-        public:
-            static HashMap<StringId32, String> registeredComps;
         };
     }
 }

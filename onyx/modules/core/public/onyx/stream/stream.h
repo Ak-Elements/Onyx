@@ -65,7 +65,22 @@ namespace Onyx
 
         void Read(String& outStr) const;
         void Read(String& outStr, onyxU64 length) const;
-        //void Read(StringView& outStr, onyxU64 length) const;
+
+        template <typename T>
+        void Read(StringId<T>& outId) const
+        {
+            T id;
+            Read(id);
+
+#if ONYX_IS_RETAIL
+            outId = { id };
+#else
+            String idString;
+            Read(idString);
+
+            outId = { id, idString };
+#endif
+        }
 
         template <typename T>
         void Read(DynamicArray<T>& array, onyxU64 length = 0) const
@@ -203,6 +218,15 @@ namespace Onyx
 
         void Write(const String& val);
         void Write(const StringView& val);
+
+        template <typename T>
+        void Write(StringId<T> id)
+        {
+            Write(id.GetId());
+#if !ONYX_IS_RETAIL
+            Write(id.GetString());
+#endif
+        }
 
         template <template<typename> typename Container, typename T>
         void Write(const Container<T>& array, bool writeSize = true)

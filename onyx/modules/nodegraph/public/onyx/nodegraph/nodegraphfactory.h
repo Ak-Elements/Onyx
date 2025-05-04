@@ -51,12 +51,7 @@ namespace Onyx::NodeGraph
         {
             constexpr StringId32 serializedTypeId = T::TypeId;
             ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
-
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
-#else
-            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId) { return new DynamicPin<T>(globalId, localId); };
-#endif
+            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, StringId32 localId) { return new DynamicPin<T>(globalId, localId); };
         }
 
         template <typename T, CompileTimeString SerializedTypeId>
@@ -64,32 +59,16 @@ namespace Onyx::NodeGraph
         {
             constexpr StringId32 serializedTypeId(SerializedTypeId);
             ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
-
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId, const String& localIdString) { return new DynamicPin<T>(globalId, localId, localIdString); };
-#else
-            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, onyxU32 localId) { return new DynamicPin<T>(globalId, localId); };
-#endif
+            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, StringId32 localId) { return new DynamicPin<T>(globalId, localId); };
         }
 
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId, const String& localIdString)
-        {
-            return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId, localIdString));
-        }
-#else
-        static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, onyxU32 localId)
+        static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, StringId32 localId)
         {
             return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId));
         }
-#endif
 
     private:
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        static HashMap<StringId32, InplaceFunction<PinBase*(Guid64, onyxU32, const String&)>> s_RegisteredTypes;
-#else
-        static HashMap<StringId32, InplaceFunction<PinBase* (Guid64, onyxU32)>> s_RegisteredTypes;
-#endif
+        static HashMap<StringId32, InplaceFunction<PinBase*(Guid64, StringId32)>> s_RegisteredTypes;
     };
 
     template <typename MetaDataContainerT = NodeEditorMetaData>
@@ -113,7 +92,6 @@ namespace Onyx::NodeGraph
             ONYX_ASSERT(m_RegisteredNodeTypeIds.contains(typeId) == false, "Node is already registered in this context");
 
             m_RegisteredNodeTypeIds.emplace(typeId);
-            m_RegisteredNodesToName[typeId] = NodeT::TypeId.IdString;
             MetaDataContainerT& metaContainer = m_RegisteredNodesMetaData[typeId];
             metaContainer.FullyQualifiedName = fullyQualifiedName;
 
@@ -158,7 +136,6 @@ namespace Onyx::NodeGraph
         HashSet<StringId32> m_RegisteredNodeTypeIds;
         HashMap<StringId32, InplaceFunction<Node*()>> m_RegisteredNodes;
         HashMap<StringId32, MetaDataContainerT> m_RegisteredNodesMetaData;
-        HashMap<StringId32, String> m_RegisteredNodesToName;
     };
 
     class INodeFactory

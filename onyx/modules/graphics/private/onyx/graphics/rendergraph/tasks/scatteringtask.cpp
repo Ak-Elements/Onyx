@@ -11,7 +11,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView CreateTransmittanceRenderGraphNode::GetPinName(onyxU32 /*pinId*/) const
+    StringView CreateTransmittanceRenderGraphNode::GetPinName(StringId32 /*pinId*/) const
     {
         return "Transmittance";
     }

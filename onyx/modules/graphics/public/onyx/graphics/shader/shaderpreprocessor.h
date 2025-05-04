@@ -18,7 +18,7 @@ namespace Onyx::Graphics
         DynamicArray<String> m_Includes;
         String m_Code;
 
-        HashMap<onyxU64, TextureFormat> m_Formats;
+        HashMap<StringId32, TextureFormat> m_Formats;
     };
 
     class ShaderPreprocessor

@@ -29,7 +29,7 @@ namespace Onyx::Graphics::Vulkan
 			layoutBinding.pImmutableSamplers = nullptr;
 			layoutBinding.binding = binding;
 
-			String name = uniformBuffer.Name;
+			String name(uniformBuffer.Id.GetString());
 			ToLower(name);
 
 			VkWriteDescriptorSet& writeDescriptorSet = m_WriteDescriptorSets[name];
@@ -50,7 +50,7 @@ namespace Onyx::Graphics::Vulkan
 			layoutBinding.binding = binding;
 			ONYX_ASSERT(descriptorSet.UniformBuffers.find(binding) == descriptorSet.UniformBuffers.end(), "Binding is already present!");
 
-			String name = storageBuffer.Name;
+		    String name(storageBuffer.Id.GetString());
 			ToLower(name);
 
 			VkWriteDescriptorSet& writeDescriptorSet = m_WriteDescriptorSets[name];

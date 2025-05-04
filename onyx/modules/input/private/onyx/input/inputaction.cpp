@@ -16,7 +16,6 @@ namespace Onyx::Input
     void InputAction::SetName(StringView name)
     {
         m_Id = StringId64(name);
-        m_Name = name;
     }
 #endif
 
@@ -26,20 +25,6 @@ namespace Onyx::Input
         StringId64 actionId;
         json.Get("id", actionId);
 
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-
-        StringView actionName;
-        json.Get("name", actionName);
-        const StringId64 actionIdFromName = StringId64(actionName);
-
-        if (actionId != actionIdFromName)
-        {
-            ONYX_LOG_ERROR("Input action id does not match the action name. Did the hash function fail or change?");
-            return false;
-        }
-
-        outAction.m_Name = actionName;
-#endif
 
         outAction.m_Id = actionId;
 
@@ -59,14 +44,12 @@ namespace Onyx::Input
         }
 
         onyxU32 boundInput;
-        StringId32 bindingTypeId;
         for (const auto& bindingJson : bindings.Json)
         {
             FileSystem::JsonValue bindingJsonObj{ bindingJson };
+            StringId32 bindingTypeId;
             bindingJsonObj.Get("typeId", bindingTypeId);
-#if !ONYX_IS_RETAIL
-            bindingJsonObj.Get("typeIdString", bindingTypeId.IdString);
-#endif
+
             UniquePtr<InputBinding> binding = InputBindingsRegistry::CreateBinding(bindingTypeId);
 
             InputType type;

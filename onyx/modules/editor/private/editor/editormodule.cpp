@@ -33,10 +33,6 @@ namespace Onyx::Editor
         imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, inputActionSystem);
         imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, inputSystem);
 
-        Reference<Input::InputActionsAsset> asset;
-        assetSystem.GetAsset<Input::InputActionsAsset>(Assets::AssetId("engine:/inputcontexts.oinput"), asset);
-        inputActionSystem.SetActionsMapAsset(asset);
-
         Graphics::RenderGraphNodeFactory::RegisterNode<UIRenderGraphNode>("UI/ImGui Pass");
         Graphics::RenderGraphNodeFactory::RegisterNode<CompositeRenderGraphNode>("Graphics/Composite");
         Graphics::RenderGraphNodeFactory::RegisterNode<GridRenderGraphNode>("Editor/Editor Scene Grid");

@@ -19,7 +19,8 @@ namespace Onyx::Editor
         
         FileSystem::Filepath importedTexturePath = FileSystem::Path::ReplaceExtension(path, "otex");
 
-        outAssetMeta.Id = static_cast<Assets::AssetId>(Hash::FNV1aHash64(importedTexturePath.string()));
+        StringId32 texturePathHashed(importedTexturePath.string());
+        outAssetMeta.Id = static_cast<Assets::AssetId>(texturePathHashed.GetId());
         outAssetMeta.Path = importedTexturePath;
         ++outAssetMeta.Version;
 
