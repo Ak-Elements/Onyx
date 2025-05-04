@@ -22,7 +22,7 @@ namespace Onyx::Ui
         static void EndPropertyGrid();
 
         static void DrawPropertyName(const StringView& propertyName);
-        static void DrawPropertyValue(const InplaceFunction<void()>& functor);
+        static void DrawPropertyValue(const InplaceFunction<void(), 64>& functor);
 
         static bool BeginPropertyGroup(const StringView& propertyName);
         static bool BeginCollapsiblePropertyGroup(const StringView& propertyName, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);

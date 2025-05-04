@@ -116,7 +116,7 @@ namespace Onyx::Ui
         ImGui::Dummy(ImVec2(splitterPosX - indendation + style.DockingSeparatorSize + 2 * style.ItemInnerSpacing.x, ImGui::GetFrameHeightWithSpacing()));
     }
 
-    void PropertyGrid::DrawPropertyValue(const InplaceFunction<void()>& functor)
+    void PropertyGrid::DrawPropertyValue(const InplaceFunction<void(), 64>& functor)
     {
         functor();
         ImGui::EndHorizontal();
