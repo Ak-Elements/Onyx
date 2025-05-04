@@ -61,11 +61,9 @@ namespace Onyx
         constexpr ScalarT& operator[] (onyxU32 index) { ONYX_ASSERT(index < 2, "Axis index out of bounds."); return m_Components[index]; }
         constexpr ScalarT operator[] (onyxU32 index) const { ONYX_ASSERT(index < 2, "Axis index out of bounds."); return m_Components[index]; }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr Vector2 operator-() const { return Vector2(-m_Components[0], -m_Components[1]); }
+        constexpr Vector2 operator-() const requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>) { return Vector2(-m_Components[0], -m_Components[1]); }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr void Inverse()
+        constexpr void Inverse() requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             m_Components[0] = -m_Components[0];
             m_Components[1] = -m_Components[1];
@@ -88,8 +86,7 @@ namespace Onyx
             m_Components[1] = y;
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr void Normalize()
+        constexpr void Normalize() requires std::is_floating_point_v<ScalarT>
         {
             const FloatingPointScalarT length = Length();
 
@@ -273,8 +270,7 @@ namespace Onyx
             return Vector2(m_Components[0] / rhs[0], m_Components[1] / rhs[1]);
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr void Rotate(ScalarT radians)
+        constexpr void Rotate(ScalarT radians) requires std::is_floating_point_v<ScalarT>
         {
             Scalar cosAlpha = std::cos(radians);
             Scalar sinAlpha = std::sin(radians);
@@ -285,8 +281,7 @@ namespace Onyx
             m_Components[1] = rotatedY;
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr auto Rotated(onyxF64 radians) const
+        constexpr auto Rotated(onyxF64 radians) const requires(std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             FloatingPointScalarT rad = numeric_cast<FloatingPointScalarT>(radians);
             FloatingPointScalarT cosAlpha = std::cos(rad);
@@ -352,8 +347,7 @@ namespace Onyx
                 (Onyx::IsEqual(m_Components[1], rhs[1]));
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<Scalar>>>
-        constexpr bool IsEqual(const Vector2& rhs, Scalar epsilon) const
+        constexpr bool IsEqual(const Vector2& rhs, Scalar epsilon) const requires std::is_floating_point_v<Scalar>
         {
             return (Onyx::IsEqual(m_Components[0], rhs[0], epsilon)) &&
                 (Onyx::IsEqual(m_Components[1], rhs[1], epsilon));
@@ -364,8 +358,7 @@ namespace Onyx
             return Onyx::IsZero(m_Components[0]) && Onyx::IsZero(m_Components[1]);
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr bool IsZero(ScalarT epsilon) const
+        constexpr bool IsZero(ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
             return Onyx::IsZero(m_Components[0], epsilon) && Onyx::IsZero(m_Components[1], epsilon);
         }

@@ -128,11 +128,9 @@ namespace Onyx
             return *(&X + index);
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr Vector3 operator-() const { return Vector3(-X, -Y, -Z); }
+        constexpr Vector3 operator-() const requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>) { return Vector3(-X, -Y, -Z); }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr void Inverse()
+        constexpr void Inverse() requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             X = -X;
             Y = -Y;
@@ -150,8 +148,7 @@ namespace Onyx
             return Dot(*this);
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr void Normalize()
+        constexpr void Normalize() requires std::is_floating_point_v<Scalar>
         {
             const onyxF64 length = Length();
             ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
@@ -196,8 +193,7 @@ namespace Onyx
             };
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr void Rotate(onyxF64 radians, const Bivector3<ScalarT>& bivector)
+        constexpr void Rotate(onyxF64 radians, const Bivector3<ScalarT>& bivector) requires std::is_floating_point_v<Scalar>
         {
             // TODO: Replace with Rotor3 (game project)
             ScalarT sina = numeric_cast<ScalarT>(std::sin(radians / 2.0));
@@ -223,26 +219,22 @@ namespace Onyx
             // trivector part of the result is always zero!
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr auto RotatedAroundX(onyxF64 radians) const
+        constexpr auto RotatedAroundX(onyxF64 radians) const requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             return Rotated(radians, Bivector3<FloatingPointScalarT>::YZ_Unit());
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr auto RotatedAroundY(onyxF64 radians) const
+        constexpr auto RotatedAroundY(onyxF64 radians) const requires(std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             return Rotated(radians, Bivector3<FloatingPointScalarT>::ZX_Unit());
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr auto RotatedAroundZ(onyxF64 radians) const
+        constexpr auto RotatedAroundZ(onyxF64 radians) const requires(std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             return Rotated(radians, Bivector3<FloatingPointScalarT>::XY_Unit());
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>>>
-        constexpr Vector3<FloatingPointScalarT> Rotated(onyxF64 radians, const Bivector3<FloatingPointScalarT>& bivector) const
+        constexpr Vector3<FloatingPointScalarT> Rotated(onyxF64 radians, const Bivector3<FloatingPointScalarT>& bivector) const requires(std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
             const FloatingPointScalarT halfRadians = numeric_cast<FloatingPointScalarT>(radians / 2.0);
             FloatingPointScalarT sina = std::sin(halfRadians);
@@ -446,8 +438,7 @@ namespace Onyx
                 Onyx::IsEqual(Z, rhs.Z);
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr bool IsEqual(const Vector3& rhs, ScalarT epsilon) const
+        constexpr bool IsEqual(const Vector3& rhs, ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
             return Onyx::IsEqual(X, rhs.X, epsilon) &&
                 Onyx::IsEqual(Y, rhs.Y, epsilon) &&
@@ -461,8 +452,7 @@ namespace Onyx
                 Onyx::IsZero(Z);
         }
 
-        template <typename = std::enable_if_t<std::is_floating_point_v<ScalarT>>>
-        constexpr bool IsZero(ScalarT epsilon) const
+        constexpr bool IsZero(ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
             return Onyx::IsZero(X, epsilon) &&
                 Onyx::IsZero(Y, epsilon) &&
