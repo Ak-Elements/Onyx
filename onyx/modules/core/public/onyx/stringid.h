@@ -73,7 +73,7 @@ namespace Onyx
         constexpr StringId(T id)
 #if ONYX_IS_RETAIL
             : Id(id)
-else
+#else
             : IdString("IdString not provided")
             , Id(id)
 #endif
