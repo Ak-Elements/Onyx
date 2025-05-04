@@ -70,10 +70,22 @@ namespace Onyx::Graphics::Vulkan
 
 		ONYX_ASSERT(m_WriteDescriptorSets.contains(bindingName), "Unknown binding name.");
 
-	    VkWriteDescriptorSet writeDescriptorSet = m_WriteDescriptorSets[bindingName];
-	    writeDescriptorSet.dstSet = m_DescriptorSet;
-	    writeDescriptorSet.pBufferInfo = &buffer.GetDescriptorInfo();
-	    m_PendingDescriptorUpdates.push_back(writeDescriptorSet);
+        VkWriteDescriptorSet writeDescriptorSet = m_WriteDescriptorSets[bindingName];
+        auto it = std::ranges::find_if(m_PendingDescriptorUpdates, [&](VkWriteDescriptorSet& pendingDescriptorSet)
+            {
+                return pendingDescriptorSet.dstSet == m_DescriptorSet && pendingDescriptorSet.dstBinding == writeDescriptorSet.dstBinding;
+            });
+
+        if (it == m_PendingDescriptorUpdates.end())
+        {
+            writeDescriptorSet.dstSet = m_DescriptorSet;
+            writeDescriptorSet.pBufferInfo = &buffer.GetDescriptorInfo();
+            m_PendingDescriptorUpdates.push_back(writeDescriptorSet);
+        }
+        else
+        {
+            writeDescriptorSet.pBufferInfo = &buffer.GetDescriptorInfo();
+        }   
     }
 
     void DescriptorSet::UpdateDescriptors()
