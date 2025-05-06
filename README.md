@@ -1,6 +1,7 @@
 ![Onyx Engine](https://github.com/user-attachments/assets/3580f4a8-11dc-4d0f-a9ea-1cfb58032908)
 
 [![Build Status](https://github.com/Ak-Elements/onyx/workflows/build/badge.svg)](https://github.com/Ak-Elements/Onyx/actions)
+[![Discord channel](https://img.shields.io/discord/1330597613724106934?logo=discord)](https://discord.gg/JNsuFAeP6z)
 
 Onyx is a Vulkan-based C++ engine designed for high-performance and volumetric terrain (voxel). Work on it started in 2022, with most progress happening in 2024 during my Twitch streams.
 The goal is to make it a lightweight, user-friendly, and fast game engine.
