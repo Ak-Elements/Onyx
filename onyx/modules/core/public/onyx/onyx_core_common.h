@@ -37,6 +37,7 @@
 #include <onyx/log/logger.h>
 #include <onyx/container/inplacearray.h>
 #include <onyx/container/typelist.h>
+#include <onyx/engine/gametime.h>
 #include <onyx/function/callback.h>
 #include <onyx/function/signal.h>
 #include <onyx/geometry/common.h>

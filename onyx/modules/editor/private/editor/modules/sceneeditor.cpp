@@ -100,6 +100,9 @@ namespace Onyx::Editor
             SetWindowFlags(ImGuiWindowFlags_MenuBar);
         }
 
+
+        gameCore.SetScene(scene);
+
         Optional<EditorMainWindow*> mainWindowOptional = system.GetWindow<EditorMainWindow>();
         if (mainWindowOptional.has_value())
         {
@@ -319,7 +322,7 @@ namespace Onyx::Editor
         
         constexpr StringId64 GIZMO_TRANSLATE_ACTION_ID("GizmoTranslate");
         constexpr StringId64 GIZMO_ROTATE_ACTION_ID("GizmoRotate");
-
+        
         if (inputActionContext.GetId() == GIZMO_TRANSLATE_ACTION_ID)
         {
             currentGizmo = GizmoType::Translate;
@@ -399,14 +402,13 @@ namespace Onyx::Editor
     void SceneEditorWindow::OnSceneLoaded(const Reference<GameCore::Scene>& sceneAsset)
     {
         scene = sceneAsset;
-        gameCore.SetScene(scene);
-
+        
         Entity::EntityRegistry& registry = scene->GetRegistry();
         editorCameraEntity = registry.CreateEntity();
 
         registry.AddComponent<GameCore::TransientComponent>(editorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(editorCameraEntity);
-        transform.SetTranslation(Vector3f{ 0.0f, 5.0f, 20.0f });
+        transform.SetTranslation(Vector3f{ 0.0f, 100.0f, 200.0f });
         transform.SetRotation(Vector3f(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(editorCameraEntity);
 

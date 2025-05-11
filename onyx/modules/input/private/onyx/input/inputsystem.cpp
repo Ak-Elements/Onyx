@@ -50,7 +50,7 @@ namespace Onyx::Input
         window.ClearWindowMessageHandler();
     }
 
-    void InputSystem::Update(onyxU64 /*deltaTime*/)
+    void InputSystem::Update(GameTime /*deltaTime*/)
     {
         m_MouseDelta = m_MousePosition - m_LastMousePosition;
         m_LastMousePosition = m_MousePosition;

@@ -223,7 +223,7 @@ namespace Onyx::Application
         HashMap<EngineSystemId, UniquePtr<IEngineSystem>> m_Modules;
         HashMap<EngineSystemId, InplaceFunction<void(), 64>> m_ShutdownFunctors;
 
-        DynamicArray<InplaceFunction<void(onyxU64)>> m_UpdatableModules;
+        DynamicArray<InplaceFunction<void(GameTime)>> m_UpdatableModules;
     };
 
     void OnApplicationCreate(ApplicationSettings& settings);

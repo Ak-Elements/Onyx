@@ -20,6 +20,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/scene/scenesectorstreamer.h
 	${TARGET_PUBLIC_PATH}/serialize/sceneserializer.h
 	${TARGET_PUBLIC_PATH}/serialize/sdffontserializer.h
+    ${TARGET_PUBLIC_PATH}/systems/lightingsystem.h
 )
 
 set(TARGET_PRIVATE_SOURCES
@@ -39,4 +40,5 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/scene/scenesectorstreamer.cpp
 	${TARGET_PRIVATE_PATH}/serialize/sceneserializer.cpp
 	${TARGET_PRIVATE_PATH}/serialize/sdffontserializer.cpp
+    ${TARGET_PRIVATE_PATH}/systems/lightingsystem.cpp
 )

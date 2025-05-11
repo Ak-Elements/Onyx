@@ -91,7 +91,9 @@ namespace Onyx::GameCore
 
     void Scene::OnFreeCameraControllerAdded(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity)
     {
-        registry.emplace_or_replace<FreeCameraRuntimeComponent>(entity);
+        const FreeCameraControllerComponent& freeCameraController = registry.get<const FreeCameraControllerComponent>(entity);
+        FreeCameraRuntimeComponent& freeCam = registry.emplace_or_replace<FreeCameraRuntimeComponent>(entity);
+        freeCam.Velocity = freeCameraController.BaseVelocity;
     }
 
     void Scene::OnFreeCameraControllerRemoved(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity)

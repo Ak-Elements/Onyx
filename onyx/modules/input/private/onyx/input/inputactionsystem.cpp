@@ -29,7 +29,7 @@ namespace Onyx::Input
 
     InputActionSystem::~InputActionSystem() = default;
 
-    void InputActionSystem::Update(onyxU64 /*deltaTime*/)
+    void InputActionSystem::Update(GameTime /*deltaTime*/)
     {
         if (m_ContextId.IsValid() == false)
             return;
@@ -75,8 +75,6 @@ namespace Onyx::Input
             {
                 InitContext();
             }
-
-          
         }
     }
 

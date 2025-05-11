@@ -1,4 +1,4 @@
-#include <onyx/entity/system.h>
+#include <onyx/entity/entityregistry.h>
 
 namespace Onyx::Entity
 {

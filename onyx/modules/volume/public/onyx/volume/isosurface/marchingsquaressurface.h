@@ -129,4 +129,3 @@ namespace Onyx::Volume
         const T m_MaxDistance{};
     };
 }
-

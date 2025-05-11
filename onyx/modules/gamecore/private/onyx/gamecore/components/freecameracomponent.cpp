@@ -4,6 +4,7 @@
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/assets/assetsystem.h>
+#include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 
 #if ONYX_USE_IMGUI
@@ -13,14 +14,16 @@ namespace Onyx::GameCore
 {
     namespace FreeCamera
     {
-        void system(onyxU64 deltaTime, Scene& scene, Graphics::GraphicsApi&, Assets::AssetSystem&)
+        using EntityQuery = Entity::EntityQuery<TransformComponent, FreeCameraControllerComponent, FreeCameraRuntimeComponent>;
+
+        void system(EntityQuery query, GameTime deltaTime)
         {
-            auto freeCameraEntitesView = scene.GetRegistry().GetView<TransformComponent, FreeCameraControllerComponent, FreeCameraRuntimeComponent>();
-            for (Entity::EntityId entity : freeCameraEntitesView)
+            auto view = query.GetView();
+            for (Entity::EntityId entity : view)
             {
-                TransformComponent& transformComponent = freeCameraEntitesView.get<TransformComponent>(entity);
-                const FreeCameraControllerComponent& freeCameraController = freeCameraEntitesView.get<FreeCameraControllerComponent>(entity);
-                FreeCameraRuntimeComponent& freeCameraRuntime = freeCameraEntitesView.get<FreeCameraRuntimeComponent>(entity);
+                TransformComponent& transformComponent = view.get<TransformComponent>(entity);
+                const FreeCameraControllerComponent& freeCameraController = view.get<FreeCameraControllerComponent>(entity);
+                FreeCameraRuntimeComponent& freeCameraRuntime = view.get<FreeCameraRuntimeComponent>(entity);
 
                 freeCameraRuntime.Velocity = std::clamp(freeCameraRuntime.Velocity, freeCameraController.MinVelocity, freeCameraController.MaxVelocity);
 
@@ -38,7 +41,7 @@ namespace Onyx::GameCore
 
                     constexpr onyxF32 MAX_ROTATION_SPEED = 0.12f;
 
-                    onyxF32 dt = static_cast<onyxF32>(deltaTime);
+                    onyxF32 dt = static_cast<onyxF32>(deltaTime.GetMilliseconds());
 
                     const onyxF32 yawSign = upDirection[1] < 0 ? -1.0f : 1.0f;
                     const Vector3f globalUp(0.0f, yawSign, 0.0f);

@@ -10,7 +10,6 @@ namespace Onyx::Volume
     {
         Vector3f Position;
         Vector3f Normal;
-        Vector3f AnalyticalNormal;
     };
 
     inline bool operator==(const Vertex& a, const Vertex& b)
@@ -34,17 +33,17 @@ namespace Onyx::Volume
     public:
         MeshBuilder() = default;
 
-        void AddVertexAndNormal(const Vector3f& position, const Vector3f& normal, const Vector3f& analyticalNormal)
+        void AddVertexAndNormal(const Vector3f& position, const Vector3f& normal)
         {
-            onyxU32 index = GetOrAddVertexInternal(position, normal, analyticalNormal);
+            onyxU32 index = GetOrAddVertexInternal(position, normal);
             m_Indices.push_back(index);
         }
 
-        void AddTriangle(const Vector3f& v0, const Vector3f& n0, const Vector3f& analyticalN0, const Vector3f& v1, const Vector3f& n1, const Vector3f& analyticalN1, const Vector3f& v2, const Vector3f& n2, const Vector3f& analyticalN2)
+        void AddTriangle(const Vector3f& v0, const Vector3f& n0, const Vector3f& v1, const Vector3f& n1, const Vector3f& v2, const Vector3f& n2)
         {
-            AddVertexAndNormal(v0, n0, analyticalN0);
-            AddVertexAndNormal(v1, n1, analyticalN1);
-            AddVertexAndNormal(v2, n2, analyticalN2);
+            AddVertexAndNormal(v0, n0);
+            AddVertexAndNormal(v1, n1);
+            AddVertexAndNormal(v2, n2);
         }
         
         const DynamicArray<Vertex>& GetVertices() const { return m_Vertices; }
@@ -57,12 +56,11 @@ namespace Onyx::Volume
             return m_VerticesMap.find(vertex);
         }
 
-		onyxU32 GetOrAddVertexInternal(const Vector3f& vertexPos, const Vector3f& normal, const Vector3f& analyticalNormal)
+		onyxU32 GetOrAddVertexInternal(const Vector3f& vertexPos, const Vector3f& normal)
         {
             Vertex vertex;
             vertex.Position = vertexPos;
             vertex.Normal = normal;
-            vertex.AnalyticalNormal = analyticalNormal;
 
 			onyxU32 index = 0;
             VertexIterator vertexIt = FindVertex(vertex);

@@ -5,7 +5,7 @@
 
 namespace Onyx::Hash
 {
-    constexpr onyxU32 FNV1aHash32(const onyxU8* data, onyxU64 length, onyxU32 seed)
+    constexpr ONYX_NO_DISCARD onyxU32 FNV1aHash32(const onyxU8* data, onyxU64 length, onyxU32 seed)
     {
         constexpr onyxU32 FNV_PRIME = 16777619u;
         constexpr onyxU32 OFFSET_BASIS = 2166136261u;
@@ -19,7 +19,7 @@ namespace Onyx::Hash
         return seed;
     }
 
-    constexpr onyxU32 FNV1aHash32(const char* data, onyxU64 length, onyxU32 seed)
+    constexpr ONYX_NO_DISCARD onyxU32 FNV1aHash32(const char* data, onyxU64 length, onyxU32 seed)
     {
         constexpr onyxU32 FNV_PRIME = 16777619u;
         constexpr onyxU32 OFFSET_BASIS = 2166136261u;
@@ -36,7 +36,7 @@ namespace Onyx::Hash
         return seed;
     }
 
-    constexpr onyxU64 FNV1aHash64(const char* data, onyxU64 length, onyxU64 seed)
+    constexpr ONYX_NO_DISCARD onyxU64 FNV1aHash64(const char* data, onyxU64 length, onyxU64 seed)
     {
         constexpr onyxU64 FNV_PRIME = 1099511628211ull;
         constexpr onyxU64 OFFSET_BASIS = 14695981039346656037ull;
@@ -53,7 +53,7 @@ namespace Onyx::Hash
         return seed;
     }
 
-    constexpr onyxU64 FNV1aHash64(const onyxU8* data, onyxU64 length, onyxU64 seed)
+    constexpr ONYX_NO_DISCARD onyxU64 FNV1aHash64(const onyxU8* data, onyxU64 length, onyxU64 seed)
     {
         constexpr onyxU64 FNV_PRIME = 1099511628211ull;
         constexpr onyxU64 OFFSET_BASIS = 14695981039346656037ull;
@@ -68,7 +68,7 @@ namespace Onyx::Hash
     }
 
     template <typename T> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const String& string, T seed)
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const String& string, T seed)
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {
@@ -81,14 +81,14 @@ namespace Onyx::Hash
     }
 
     template <typename T> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const String& string)
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const String& string)
     {
         return FNV1aHash<T>(string, T{ 0 });
     }
 
 
     template <typename T> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const StringView& string, T seed)
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const StringView& string, T seed)
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {
@@ -101,13 +101,13 @@ namespace Onyx::Hash
     }
 
     template <typename T> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const StringView& string)
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const StringView& string)
     {
         return FNV1aHash<T>(string, T{ 0 });
     }
 
     template <typename T, onyxU64 N> requires std::is_integral_v<T>
-    consteval T FNV1aHash(const CompileTimeString<N>& string, T seed)
+    consteval ONYX_NO_DISCARD T FNV1aHash(const CompileTimeString<N>& string, T seed)
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {
@@ -120,13 +120,13 @@ namespace Onyx::Hash
     }
 
     template <typename T, onyxU64 N> requires std::is_integral_v<T>
-    consteval T FNV1aHash(const CompileTimeString<N>& string)
+    consteval ONYX_NO_DISCARD T FNV1aHash(const CompileTimeString<N>& string)
     {
         return FNV1aHash<T>(string, T{ 0 });
     }
 
     template <typename T, onyxU64 N> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const char(&str)[N])
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const char(&str)[N])
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {
@@ -139,13 +139,13 @@ namespace Onyx::Hash
     }
 
     template <typename T> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const std::filesystem::path& path)
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const std::filesystem::path& path)
     {
         return FNV1aHash<T>(path.string());
     }
 
     template <typename T, typename U> requires std::is_integral_v<T>
-    constexpr T FNV1aHash(const U& obj, T seed)
+    constexpr ONYX_NO_DISCARD T FNV1aHash(const U& obj, T seed)
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {

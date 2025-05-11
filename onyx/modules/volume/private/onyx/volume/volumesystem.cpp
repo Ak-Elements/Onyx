@@ -11,16 +11,16 @@ namespace Onyx::Volume
 {
     namespace
     {
-        void RegisterSystems(DynamicArray<InplaceFunction<void(onyxU64, GameCore::Scene&, Graphics::GraphicsApi&, Assets::AssetSystem&)>>& gameLoop)
+        void RegisterSystems(Entity::EntityComponentSystemsGraph& graph)
         {
-            gameLoop.emplace_back(VolumeSource::system);
-            gameLoop.emplace_back(VolumeRendering::system);
+            graph.Register(VolumeSource::system);
+            graph.Register(VolumeRendering::system);
         }
     }
 
     void VolumeSystem::Init(GameCore::GameCoreSystem& gameCore)
     {
-        RegisterSystems(gameCore.GetGameLoop());
+        RegisterSystems(gameCore.GetECSGraph());
 
         Entity::EntityRegistry::RegisterComponent<VolumeComponent>();
         Entity::EntityRegistry::RegisterComponent<VolumeSourceComponent>();

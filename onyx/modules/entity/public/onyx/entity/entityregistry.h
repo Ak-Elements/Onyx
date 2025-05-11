@@ -79,6 +79,7 @@ namespace Onyx
             static void RegisterComponent()
             {
                 using namespace entt::literals;
+
                 constexpr auto typeHash = entt::type_hash<T>::value();
                 constexpr StringId32 typeId = T::TypeId;
                 auto metaClass = entt::meta<T>();
@@ -217,7 +218,6 @@ namespace Onyx
 
         private:
             static HashMap<StringId32, entt::id_type> s_SerializedIdToMetaClassId;
-
             EntityRegistryT m_Registry;
         };
     }

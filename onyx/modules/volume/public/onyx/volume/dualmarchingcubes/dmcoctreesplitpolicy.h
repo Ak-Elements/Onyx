@@ -55,7 +55,7 @@ public:
 
         const VolumeBase& volumeBase = *(super::m_VolumeSource);
 
-        if (nodeLevel > super::m_MaxOctreeLevel)
+        if ((31 - nodeLevel) > super::m_MaxOctreeLevel)
         {
             return false;
         }

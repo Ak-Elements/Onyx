@@ -46,7 +46,7 @@ namespace Onyx::Input
         void Init(InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
         void Shutdown(InputSystem& inputSystem);
 
-        void Update(onyxU64 deltaTime);
+        void Update(GameTime deltaTime);
 
         void SetActionsMapAsset(const Reference<InputActionsAsset>& inputAsset);
         void SetCurrentInputActionMap(StringId32 id);

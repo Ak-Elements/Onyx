@@ -3,6 +3,8 @@
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/camera.h>
 
+#include <onyx/entity/entitycomponentsystem.h>
+
 //#include <onyx/graphics/camera.h>
 
 namespace Onyx
@@ -27,9 +29,12 @@ namespace Onyx
 
 namespace Onyx::GameCore
 {
+    struct CameraComponent;
+    struct TransformComponent;
+
     namespace Camera
     {
-        void system(onyxU64 deltaTime, Scene& scene, Graphics::GraphicsApi&, Assets::AssetSystem&);
+        void system(Entity::EntityQuery<const TransformComponent, CameraComponent> query);
     }
 
     struct CameraComponent

@@ -3,6 +3,8 @@
 #include <onyx/graphics/graphicshandles.h>
 #include <onyx/volume/chunk/volumechunk.h>
 
+#include <onyx/entity/entitycomponentsystem.h>
+
 namespace Onyx
 {
     namespace Assets
@@ -12,6 +14,8 @@ namespace Onyx
 
     namespace GameCore
     {
+        struct TransformComponent;
+        struct MaterialComponent;
         class Scene;
     }
 
@@ -26,16 +30,18 @@ namespace Onyx
 
 namespace Onyx::Volume
 {
+    struct VolumeSourceComponent;
+    struct VolumeComponent;
     class VolumeBase;
 
     namespace VolumeSource
     {
-        void system(onyxU64, GameCore::Scene&, Graphics::GraphicsApi& api, Assets::AssetSystem& assetSytem);
+        void system(Entity::EntityQuery<VolumeSourceComponent> volumeSourceQuery, Entity::EntityQuery<GameCore::TransformComponent, VolumeComponent> volumeEntitiesQuery, Graphics::GraphicsApi& graphicsApi);
     }
 
     namespace VolumeRendering
     {
-        void system(onyxU64, GameCore::Scene&, Graphics::GraphicsApi& api, Assets::AssetSystem& assetSytem);
+        void system(Entity::EntityQuery<GameCore::MaterialComponent, VolumeComponent> query, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem);
     }
 
     struct VolumeComponent
@@ -69,13 +75,12 @@ namespace Onyx::Volume
         static constexpr StringId32 TypeId = "Onyx::Volume::Components::VolumeSourceComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
-
-        bool IsModified = false;
         //TODO This should probably not allocate heap memory
         StringId32 VolumeType = 0;
         VolumeBase* Volume = nullptr;
 
         Assets::AssetId Material;
+        bool IsModified = false;
 
         void Serialize(Stream& outStream) const;
         void Deserialize(const Stream& inStream);

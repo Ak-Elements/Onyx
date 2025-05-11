@@ -1,6 +1,6 @@
 #pragma once
 #include <onyx/graphics/camera.h>
-
+#include <onyx/entity/entitycomponentsystem.h>
 //#include <onyx/graphics/camera.h>
 
 namespace Onyx
@@ -26,10 +26,13 @@ namespace Onyx
 namespace Onyx::GameCore
 {
     class Scene;
+    struct TransformComponent;
+    struct FreeCameraControllerComponent;
+    struct FreeCameraRuntimeComponent;
 
     namespace FreeCamera
     {
-        void system(onyxU64 deltaTime, Scene& scene, Graphics::GraphicsApi&, Assets::AssetSystem&);
+        void system(Entity::EntityQuery<TransformComponent, FreeCameraControllerComponent, FreeCameraRuntimeComponent> query, GameTime deltaTime);
     }
 
     struct FreeCameraControllerComponent
@@ -37,9 +40,9 @@ namespace Onyx::GameCore
         static constexpr StringId32 TypeId = "Onyx::GameCore::Components::FreeCameraControllerComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
-        onyxF32 BaseVelocity = 0.002f;
+        onyxF32 BaseVelocity = 0.15f;
         onyxF32 MinVelocity = 0.001f;
-        onyxF32 MaxVelocity = 0.3f;
+        onyxF32 MaxVelocity = 0.5f;
 
         onyxF32 RotationVelocity = 0.3f;
 

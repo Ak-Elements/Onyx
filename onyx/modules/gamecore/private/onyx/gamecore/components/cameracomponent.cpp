@@ -1,12 +1,15 @@
+#include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/cameracomponent.h>
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 
 namespace Onyx::GameCore
 {
-    void Camera::system(onyxU64 /*deltaTime*/, Scene& scene, Graphics::GraphicsApi&, Assets::AssetSystem&)
+    using EntityQuery = Entity::EntityQuery<const TransformComponent, CameraComponent>;
+
+    void Camera::system(EntityQuery query)
     {
-        auto cameraEntitiesView = scene.GetRegistry().GetView<const TransformComponent, CameraComponent>();
+        auto cameraEntitiesView = query.GetView<>();
         for (Entity::EntityId entity : cameraEntitiesView)
         {
             auto&&[transform, cameraComponent] = cameraEntitiesView.get<TransformComponent, CameraComponent>(entity);

@@ -32,7 +32,7 @@ namespace Onyx
             template <typename F>
             static constexpr auto Collect(F&& f)
             {
-                return std::tie<Args&...>(f.template operator()<Args>() ...);
+                return std::tuple<Args...>(f.template operator()<Args>() ...);
             }
 
             // Allow empty sequence
@@ -103,7 +103,7 @@ namespace Onyx
     /**
      * @brief Provides compile-time indexed access to the types of a type list.
      * @tparam First First type provided by the type list.
-     * @tparam Other Other types provided by the type list.
+     * @tparam Other Other types provided by the type list.  
      */
     template<typename First, typename... Other>
     struct typelist_element<0u, TypeList<First, Other...>> {

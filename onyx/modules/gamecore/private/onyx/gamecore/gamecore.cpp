@@ -11,6 +11,7 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/serialize/sdffontserializer.h>
+#include <onyx/gamecore/systems/lightingsystem.h>
 #include <onyx/gamecore/components/freecameracomponent.h>
 #include <onyx/gamecore/components/idcomponent.h>
 #include <onyx/gamecore/components/namecomponent.h>
@@ -20,14 +21,15 @@
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
+namespace
+{
+    Onyx::Assets::AssetSystem* loc_AssetSystem = nullptr;
+    Onyx::Graphics::GraphicsApi* loc_GraphicsApi = nullptr;
+}
+
+
 namespace Onyx::GameCore
 {
-    namespace 
-    {
-        Assets::AssetSystem* loc_AssetSystem = nullptr;
-        Graphics::GraphicsApi* loc_GraphicsApi = nullptr;
-    }
-
     namespace GameCoreInit
     {
         void RegisterAssets(Assets::AssetSystem& assetSystem)
@@ -56,10 +58,12 @@ namespace Onyx::GameCore
             Entity::EntityRegistry::RegisterComponent<FreeCameraRuntimeComponent>();
         }
 
-        void RegisterEntitySystems(DynamicArray<InplaceFunction<void(onyxU64, Scene&, Graphics::GraphicsApi&, Assets::AssetSystem&)>>& gameLoop)
+        void RegisterEntitySystems(Entity::EntityComponentSystemsGraph& ecsGraph)
         {
-            gameLoop.emplace_back(FreeCamera::system);
-            gameLoop.emplace_back(Camera::system);
+            ecsGraph.Register(FreeCamera::system);
+            ecsGraph.Register(Camera::system);
+
+            Lighting::registerSystems(ecsGraph);
         }
     }
   
@@ -73,22 +77,35 @@ namespace Onyx::GameCore
 
         GameCoreInit::RegisterComponents();
 
-        GameCoreInit::RegisterEntitySystems(GameLoop);
+        GameCoreInit::RegisterEntitySystems(m_ECSGraph);
 
         loc_AssetSystem = &assetSystem;
         loc_GraphicsApi = &graphicsApi;
     }
 
-    void GameCoreSystem::Update(uint64_t deltaTime)
+    void GameCoreSystem::Update(GameTime deltaTime)
     {
-        if (Scene.IsValid() == false)
+        if ((Scene.IsValid() == false) || Scene->IsLoading())
         {
             return;
         }
 
-        for (auto& gameLoopFunctor : GameLoop)
-        {
-            gameLoopFunctor(deltaTime, *Scene, *loc_GraphicsApi, *loc_AssetSystem);
-        }
+        Entity::ECSExecutionContext context { deltaTime, Scene->GetRegistry() };
+        m_ECSGraph.Update(context);
     }
+}
+
+Onyx::Graphics::GraphicsApi& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsApi&>::Get(const ECSExecutionContext& /*context*/)
+{
+    return *loc_GraphicsApi;
+}
+
+Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& /*context*/)
+{
+    return *loc_AssetSystem;
+}
+
+Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext&>::Get(const ECSExecutionContext& /*context*/)
+{
+    return loc_GraphicsApi->GetFrameContext();
 }

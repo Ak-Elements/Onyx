@@ -10,7 +10,7 @@ namespace Onyx::Graphics
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::FragmentShaderOut";
-       StringId32 GetTypeId() const override { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
@@ -31,7 +31,7 @@ namespace Onyx::Graphics
 
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut";
-       StringId32 GetTypeId() const override { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         PBRMaterialShaderOutNode();
     private:

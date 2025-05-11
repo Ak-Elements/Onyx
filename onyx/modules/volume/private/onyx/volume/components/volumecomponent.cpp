@@ -1,23 +1,21 @@
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <implot3d.h>
-#include <onyx/morton.h>
-#include <onyx/entity/entityregistry.h>
+#include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/volume/components/volumecomponent.h>
+
+#include <onyx/entity/entityregistry.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
+#include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/vertex.h>
+
 #include <onyx/volume/isosurface/marchingsquaressurface_cms.h>
 #include <onyx/volume/source/csg/csgcube.h>
-
 #include <onyx/volume/source/csg/csgplane.h>
 #include <onyx/volume/source/csg/csgsphere.h>
-#include <onyx/volume/source/csg/operations/csgunion.h>
 #include <onyx/volume/source/noise/simplexnoisesource.h>
 
 namespace Onyx::Volume
@@ -26,7 +24,7 @@ namespace Onyx::Volume
     {
         constexpr onyxF32 loc_GeometricError = 0.8f;
 
-        void OnVolumeLoaded(Graphics::GraphicsApi& api, VolumeComponent& volumeComponent, const GameCore::TransformComponent& /*transformComponent*/, const MeshBuilder& meshBuilder)
+        void OnVolumeLoaded(Graphics::GraphicsApi& api, VolumeComponent& volumeComponent, const MeshBuilder& meshBuilder)
         {
             if (meshBuilder.GetVertices().empty())
                 return;
@@ -46,7 +44,7 @@ namespace Onyx::Volume
             for (const Vertex& vertex : meshBuilder.GetVertices())
             {
                 Vector2f uv(0.0f, 0.0f);
-                vertices.emplace_back(Vector3f(vertex.Position[0], vertex.Position[1], vertex.Position[2]) /*+ transformComponent.GetTranslation()*/, vertex.Normal, uv);
+                vertices.emplace_back(Vector3f(vertex.Position[0], vertex.Position[1], vertex.Position[2]) + volumeComponent.Chunk->GetPosition(), vertex.Normal, uv);
             }
 
             volumeComponent.Vertices->SetData(0, vertices.data(), verticesBytes);
@@ -64,15 +62,16 @@ namespace Onyx::Volume
             volumeComponent.IsLoading = false;
         }
 
-        void system(onyxU64 /*deltaTime*/, GameCore::Scene& scene, Graphics::GraphicsApi& api, Assets::AssetSystem&)
+        using VolumeSourceEntitiesQuery = Entity::EntityQuery<VolumeSourceComponent>;
+        using VolumeComponentQuery = Entity::EntityQuery<GameCore::TransformComponent, VolumeComponent>;
+        void system(VolumeSourceEntitiesQuery volumeSourceQuery, VolumeComponentQuery volumeEntitiesQuery, Graphics::GraphicsApi& graphicsApi)
         {
-            Entity::EntityRegistry& registry = scene.GetRegistry();
             VolumeBase* volumeSource = nullptr;
-            auto csgEntities = registry.GetView<VolumeSourceComponent>();
+            auto csgEntities = volumeSourceQuery.GetView();
             bool isModified = false;
             for (Entity::EntityId volumeEntity : csgEntities)
             {
-                VolumeSourceComponent& volumeComponent = registry.GetComponent<VolumeSourceComponent>(volumeEntity);
+                VolumeSourceComponent& volumeComponent = csgEntities.get<VolumeSourceComponent>(volumeEntity);
 
                 volumeSource = volumeComponent.Volume;
                 if (volumeComponent.IsModified)
@@ -90,7 +89,7 @@ namespace Onyx::Volume
             onyxF32 sampleResolution = 1.0f;
             onyxF32 maxDistanceSkirts = 1.0f;
 
-            auto volumeEntities = registry.GetView<GameCore::TransformComponent, VolumeComponent>();
+            auto volumeEntities = volumeEntitiesQuery.GetView();
             for (Entity::EntityId volumeEntity : volumeEntities)
             {
                 GameCore::TransformComponent& transformComponent = volumeEntities.get<GameCore::TransformComponent>(volumeEntity);
@@ -103,26 +102,23 @@ namespace Onyx::Volume
                     volumeComponent.Chunk->SetPosition(transformComponent.GetTranslation());
                     volumeComponent.Chunk->SetSize(chunkSize);
                     volumeComponent.Chunk->RemoveAllMeshChangedHandlers();
-                    volumeComponent.Chunk->AddMeshChangedHandler([&, entity = volumeEntity](const MeshBuilder& meshBuilder)
+                    volumeComponent.Chunk->AddMeshChangedHandler([&](const MeshBuilder& meshBuilder)
                     {
-                        VolumeComponent& volume = registry.GetComponent<VolumeComponent>(entity);
-                        const GameCore::TransformComponent& transform = registry.GetComponent<GameCore::TransformComponent>(entity);
-                        OnVolumeLoaded(api, volume, transform, meshBuilder);
+                        OnVolumeLoaded(graphicsApi, volumeComponent, meshBuilder);
                     });
 
-                    volumeComponent.Chunk->Load(IsoSurfaceMethod::CMS, 4, chunkSize, loc_GeometricError, sampleResolution, loc_GeometricError, maxDistanceSkirts, *volumeSource);
+                    volumeComponent.Chunk->Load(IsoSurfaceMethod::DMC_WITH_CMS_ERROR_METRIC, 4, chunkSize, loc_GeometricError, sampleResolution, loc_GeometricError, maxDistanceSkirts, *volumeSource);
                 }
             }
         }
 
     }
-    
 
-    void VolumeRendering::system(onyxU64 /*deltaTime*/, GameCore::Scene& scene, Graphics::GraphicsApi& api, Assets::AssetSystem& assetSytem)
+    
+    using VolumeEntitiesQuery = Entity::EntityQuery<GameCore::MaterialComponent, VolumeComponent>;
+    void VolumeRendering::system(VolumeEntitiesQuery query, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
     {
         // MOVE THIS TO GAMECORE
-        Graphics::FrameContext& frameContext = api.GetFrameContext();
-
         if (frameContext.FrameData == nullptr)
             frameContext.FrameData = MakeUnique<GameCore::SceneFrameData>();
 
@@ -130,7 +126,7 @@ namespace Onyx::Volume
         sceneFrameData.m_StaticMeshDrawCalls.clear();
         // MOVE THIS TO GAMECORE END
 
-        auto csgEntities = scene.GetRegistry().GetView<GameCore::MaterialComponent, VolumeComponent>();
+        auto csgEntities = query.GetView();
         for (Entity::EntityId volumeEntity : csgEntities)
         {
             GameCore::MaterialComponent& materialComponent = csgEntities.get<GameCore::MaterialComponent>(volumeEntity);
@@ -155,7 +151,6 @@ namespace Onyx::Volume
             drawCall.Indices = volumeComponent.Indices;
             drawCall.Material = materialComponent.Material;
         }
-
     }
 
     VolumeComponent::VolumeComponent()

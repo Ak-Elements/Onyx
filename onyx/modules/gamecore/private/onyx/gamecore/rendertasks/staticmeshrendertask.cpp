@@ -12,6 +12,8 @@
 
 namespace Onyx::GameCore
 {
+    bool hasBegun = false;
+
     StaticMeshRenderGraphNode::StaticMeshRenderGraphNode()
     {
         AddInPin<ViewConstantsInPin>();
@@ -33,6 +35,7 @@ namespace Onyx::GameCore
 
     void StaticMeshRenderGraphNode::OnBeginFrame(const Graphics::RenderGraphContext& context)
     {
+        hasBegun = false;
         ONYX_PROFILE_FUNCTION;
 
         onyxU64 outputGlobalId = GetOutputPin(0)->GetGlobalId();
@@ -56,6 +59,7 @@ namespace Onyx::GameCore
             Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
 
             BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+            hasBegun = true;
         }
     }
 
@@ -67,6 +71,9 @@ namespace Onyx::GameCore
         //const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
 
         if (frameContext.FrameData == nullptr)
+            return;
+
+        if (hasBegun == false)
             return;
 
         const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
@@ -122,7 +129,7 @@ namespace Onyx::GameCore
                 onyxF32 Padding;
                 onyxF32 Padding2;
 
-                onyxU32 Textures[8];
+                onyxU32 Textures[8] = {0};
             } constants;
 
             const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
