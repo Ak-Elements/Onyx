@@ -556,7 +556,7 @@ namespace Onyx::Graphics
     #if ONYX_IS_DEBUG
                     shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
     #else
-                    shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), "", frameContext.FrameIndex);
+                    shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
     #endif
                     break;
                 case RenderGraphResourceType::Invalid:
@@ -586,7 +586,7 @@ namespace Onyx::Graphics
     #if ONYX_IS_DEBUG
                     shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
     #else
-                    shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), "", frameContext.FrameIndex);
+                    shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
     #endif
                     break;
                 case RenderGraphResourceType::Invalid:
