@@ -10,7 +10,7 @@ namespace Onyx::GameCore
 
     void MaterialComponent::DrawImGuiEditor()
     {
-        if (Ui::PropertyGrid::DrawAssetSelector("Material", MaterialId, static_cast<Assets::AssetType>(TypeHash<Graphics::MaterialShaderGraph>())))
+        if (Ui::PropertyGrid::DrawAssetSelector("Material", MaterialId, static_cast<Assets::AssetType>(Graphics::MaterialShaderGraph::TypeId.GetId())))
         {
             Material.Reset();
         }
