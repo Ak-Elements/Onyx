@@ -27,8 +27,7 @@ namespace Onyx::Assets
         template <typename T>
         Reference<T> Create()
         {
-            constexpr onyxU32 assetTypeHash = TypeHash<T>();
-            const CreateAssetFunction& createFunctor = registeredAssets.at(assetTypeHash);
+            const CreateAssetFunction& createFunctor = registeredAssets.at(T::TypeId);
 
             Reference<T> newAsset = createFunctor();
             newAsset->SetState(AssetState::Loaded);
