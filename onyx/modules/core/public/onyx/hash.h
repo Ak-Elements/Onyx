@@ -107,7 +107,7 @@ namespace Onyx::Hash
     }
 
     template <typename T, onyxU64 N> requires std::is_integral_v<T>
-    consteval ONYX_NO_DISCARD T FNV1aHash(const CompileTimeString<N>& string, T seed)
+    ONYX_NO_DISCARD consteval T FNV1aHash(const CompileTimeString<N>& string, T seed)
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {
