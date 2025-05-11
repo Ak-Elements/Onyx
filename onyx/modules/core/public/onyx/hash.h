@@ -120,7 +120,7 @@ namespace Onyx::Hash
     }
 
     template <typename T, onyxU64 N> requires std::is_integral_v<T>
-    consteval ONYX_NO_DISCARD T FNV1aHash(const CompileTimeString<N>& string)
+    ONYX_NO_DISCARD consteval T FNV1aHash(const CompileTimeString<N>& string)
     {
         return FNV1aHash<T>(string, T{ 0 });
     }
@@ -163,6 +163,6 @@ namespace Onyx::Hash
         return FNV1aHash<T, U>(obj, T{ 0 });
     }
 
-    constexpr onyxU32 CRC32(const char* data, onyxU64 len, onyxU32 crc = 0);
-    constexpr onyxU32 CRC32(const StringView& str, onyxU32 crc = 0);
+    ONYX_NO_DISCARD constexpr onyxU32 CRC32(const char* data, onyxU64 len, onyxU32 crc = 0);
+    ONYX_NO_DISCARD constexpr onyxU32 CRC32(const StringView& str, onyxU32 crc = 0);
 }
