@@ -41,13 +41,13 @@ namespace Onyx::Graphics
         onyxU32 Hash()
         {
             onyxU32 hash = 0;
-            Hash::FNV1aHash(MinFilter, hash);
-            Hash::FNV1aHash(MagFilter, hash);
-            Hash::FNV1aHash(MipFilter, hash);
-            Hash::FNV1aHash(AddressModeU, hash);
-            Hash::FNV1aHash(AddressModeV, hash);
-            Hash::FNV1aHash(AddressModeW, hash);
-            Hash::FNV1aHash(Reduction, hash);
+            hash = Hash::FNV1aHash(MinFilter, hash);
+            hash = Hash::FNV1aHash(MagFilter, hash);
+            hash = Hash::FNV1aHash(MipFilter, hash);
+            hash = Hash::FNV1aHash(AddressModeU, hash);
+            hash = Hash::FNV1aHash(AddressModeV, hash);
+            hash = Hash::FNV1aHash(AddressModeW, hash);
+            hash = Hash::FNV1aHash(Reduction, hash);
             return hash;
         }
         SamplerFilter MinFilter = SamplerFilter::Linear;
