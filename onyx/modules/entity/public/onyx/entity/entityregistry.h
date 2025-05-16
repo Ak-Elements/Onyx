@@ -11,11 +11,6 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/log/logger.h>
 
-namespace Onyx::GameCore
-{
-    struct TransformComponent;
-}
-
 namespace Onyx::FileSystem
 {
     struct JsonValue;
@@ -155,9 +150,9 @@ namespace Onyx
                 return m_Registry.emplace_or_replace<T>(entity, std::forward<Args>(args)...);
             }
 
-            void AddComponent(EntityId entity, entt::id_type componentId, const FileSystem::JsonValue& json)
+            void AddComponent(EntityId entity, StringId32 componentId, const FileSystem::JsonValue& json)
             {
-                std::ignore = entt::resolve(componentId).construct(entt::forward_as_meta(m_Registry), entity, entt::forward_as_meta(json));
+                std::ignore = entt::resolve(s_SerializedIdToMetaClassId[componentId]).construct(entt::forward_as_meta(m_Registry), entity, entt::forward_as_meta(json));
             }
 
             template <typename T>
