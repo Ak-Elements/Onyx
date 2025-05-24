@@ -65,6 +65,12 @@ namespace Onyx::Graphics
                 if (outputPin->GetType() == static_cast<NodeGraph::PinTypeId>(TypeHash<BufferHandle>()))
                     continue;
 
+                // TODO: Improve handling of final texture Id as this is very error prone
+                if (isLastNode)
+                {
+                    FinalTextureId = outputPin->GetGlobalId();
+                }
+
                 if (output.IsExternal)
                 {
                     // external resources get patched in during the rendering
@@ -76,11 +82,6 @@ namespace Onyx::Graphics
                     // TODO: Add info for node / which output resource etc.
                     ONYX_LOG_WARNING("Failed creating output attachment for graph resource.");
                     continue;
-                }
-
-                if (isLastNode)
-                {
-                    FinalTextureId = outputPin->GetGlobalId();
                 }
             }
 
