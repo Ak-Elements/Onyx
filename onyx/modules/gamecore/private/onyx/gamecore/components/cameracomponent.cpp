@@ -9,7 +9,7 @@ namespace Onyx::GameCore
 
     void Camera::system(EntityQuery query)
     {
-        auto cameraEntitiesView = query.GetView<>();
+        auto cameraEntitiesView = query.GetView();
         for (Entity::EntityId entity : cameraEntitiesView)
         {
             auto&&[transform, cameraComponent] = cameraEntitiesView.get<TransformComponent, CameraComponent>(entity);

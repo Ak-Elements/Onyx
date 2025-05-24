@@ -19,7 +19,7 @@ namespace Onyx::Volume
         Vector3f gradient = position - m_Center;
 
         onyxF32 length = 0.0f;
-        if (gradient.IsZero() == false)
+        if (gradient.IsZero() == false) 
         {
             length = numeric_cast<onyxF32>(gradient.Length());
             if (length > 0.0f)

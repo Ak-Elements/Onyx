@@ -39,6 +39,8 @@ namespace Onyx::GameCore
 
     struct CameraComponent
     {
+        static constexpr bool HideInEditor = true;
+
         static constexpr StringId32 TypeId = "Onyx::GameCore::Components::CameraComponent";
         StringId32 GetTypeId() const { return TypeId; }
 

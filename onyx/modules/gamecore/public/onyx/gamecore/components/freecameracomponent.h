@@ -32,7 +32,7 @@ namespace Onyx::GameCore
 
     namespace FreeCamera
     {
-        void system(Entity::EntityQuery<TransformComponent, FreeCameraControllerComponent, FreeCameraRuntimeComponent> query, GameTime deltaTime);
+        void registerSystems(Entity::EntityComponentSystemsGraph& graph);
     }
 
     struct FreeCameraControllerComponent

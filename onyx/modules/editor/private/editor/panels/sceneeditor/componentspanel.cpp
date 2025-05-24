@@ -16,22 +16,6 @@
 
 namespace Onyx::Editor::SceneEditor
 {
-    ComponentsPanel::ComponentsPanel()
-    {
-        for (auto&& [id, type] : entt::resolve())
-        {
-            using namespace entt::literals;
-            const entt::meta_prop& showInEditorProperty = type.prop("ShowInEditor"_hs);
-
-            if (showInEditorProperty.value().cast<bool>())
-            {
-                const StringView& typeName = type.info().name();
-                StringView::difference_type index = typeName.find_last_of(':') + 1;
-                m_Components[id] = typeName.substr(index);
-            }
-
-        }
-    }
 
     void ComponentsPanel::Render(GameCore::Scene& scene)
     {
@@ -53,54 +37,50 @@ namespace Onyx::Editor::SceneEditor
                 // if the component storage contains the entity we know that the entity has this component
                 if (entt::basic_sparse_set<Entity::EntityId>& componentStorage = componentStorageIt.second; componentStorage.contains(selectedEntity))
                 {
-                    using namespace entt::literals;
-                   
-                    entt::meta_type metaClass = entt::resolve(componentStorageIt.first);
-
-                    if (!metaClass)
-                        continue;
-
-                    if (m_ShowAll == false)
+                    if (const Entity::IComponentMeta* componentMeta = registry.GetComponentMeta(componentStorageIt.first).value_or(nullptr))
                     {
-                        const entt::meta_prop& showInEditorProperty = metaClass.prop("ShowInEditor"_hs);
-                        if (showInEditorProperty.value().cast<bool>() == false)
+                        if ((m_ShowAll == false) && (componentMeta->ShowInEditor() == false))
+                        {
                             continue;
+                        }
+
+                        const StringId32 typeId = componentMeta->GetTypeId();
+                        Ui::ScopedImGuiId id(typeId.GetId());
+                        Ui::ScopedImGuiStyle style
+                        {
+                            { ImGuiStyleVar_FrameBorderSize, 0.0f },
+                            { ImGuiStyleVar_ItemSpacing, ImVec2(0.0, 0.0f) },
+                            { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
+                        };
+
+                        const StringView& typeName = typeId.GetString();
+                        StringView::difference_type index = typeName.find_last_of(':') + 1;
+                        String name(typeName.substr(index));
+
+                       if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
+                       {
+                           ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
+
+                           // manually clear style
+                           style.Reset();
+
+                           Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
+                           componentMeta->DrawPropertyGridEditor(componentStorage.value(selectedEntity));
+
+                           //TODO: Needed for now to not auto extend if component is empty
+                           ImGui::Dummy(ImVec2(1, 1));
+                           
+                           Ui::PropertyGrid::EndPropertyGrid();
+                           ImGui::EndChild();
+                       }
+                       else
+                       {
+                           style.Reset();
+                           ImGui::Spacing();
+                       }
                     }
 
-                    Ui::ScopedImGuiId id(metaClass.id());
-                    Ui::ScopedImGuiStyle style
-                    {
-                        { ImGuiStyleVar_FrameBorderSize, 0.0f },
-                        { ImGuiStyleVar_ItemSpacing, ImVec2(0.0, 0.0f) },
-                        { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
-                    };
-
-                    const StringView& typeName = metaClass.info().name();
-                    StringView::difference_type index = typeName.find_last_of(':') + 1;
-                    String name(typeName.substr(index));
-
-                    if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
-                    {
-                        ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
-
-                        // manually clear style
-                        style.Reset();
-
-                        Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
-                        entt::meta_any componentHandle = metaClass.from_void(componentStorage.value(selectedEntity));
-                        componentHandle.invoke("DrawImGuiEditor"_hs);
-
-                        //TODO: Needed for now to not auto extend if component is empty
-                        ImGui::Dummy(ImVec2(1, 1));
-                        
-                        Ui::PropertyGrid::EndPropertyGrid();
-                        ImGui::EndChild();
-                    }
-                    else
-                    {
-                        style.Reset();
-                        ImGui::Spacing();
-                    }
+                   
                 }
             }
         }
@@ -124,17 +104,25 @@ namespace Onyx::Editor::SceneEditor
 
             Entity::EntityRegistry& registry = scene.GetRegistry();
             bool hasMenuItem = false;
-            for (auto&& [componentId, name] : m_Components)
+            const Entity::ComponentRegistry& componentRegistry = registry.GetComponentRegistry();
+            for (auto&& [componentId, meta] : componentRegistry.GetComponentMeta())
             {
+                const StringView& typeName = componentId.GetString();
+                StringView::difference_type index = typeName.find_last_of(':') + 1;
+                StringView name(typeName.substr(index));
+
                 if (IgnoreCaseFind(name, s_SearchString) == std::string::npos)
                     continue;
 
                 hasMenuItem = true;
+
                 if (ImGui::MenuItem(name.data()))
                 {
                     for (Entity::EntityId selectedEntity : selectedEntities)
                     {
-                        registry.AddComponent(selectedEntity, componentId, {});
+                        ONYX_UNUSED(selectedEntity);
+                        std::any newComponent = meta->Create();
+                        registry.AddComponent(selectedEntity, componentId, newComponent);
                     }
 
                     ImGui::CloseCurrentPopup();

@@ -2,5 +2,8 @@
 
 namespace Onyx::Entity
 {
-    HashMap<StringId32, entt::id_type> EntityRegistry::s_SerializedIdToMetaClassId;
+    HashMap<entt::id_type, StringId32> EntityRegistry::s_RuntimeTypeIdToStaticTypeId;
+    HashMap<StringId32, InplaceFunction<void(EntityRegistry&, EntityId, std::any&)>> EntityRegistry::m_Factories;
+    
+    ComponentRegistry EntityRegistry::s_Factory;
 }

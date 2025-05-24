@@ -14,65 +14,75 @@ namespace Onyx::GameCore
 {
     namespace FreeCamera
     {
-        using EntityQuery = Entity::EntityQuery<TransformComponent, FreeCameraControllerComponent, FreeCameraRuntimeComponent>;
+        using CameraEntityAccess = Entity::Entity<const FreeCameraControllerComponent, TransformComponent, FreeCameraRuntimeComponent>;
 
-        void system(EntityQuery query, GameTime deltaTime)
+        void system(CameraEntityAccess cameraEntity, DeltaGameTime deltaTime)
         {
-            auto view = query.GetView();
-            for (Entity::EntityId entity : view)
-            {
-                TransformComponent& transformComponent = view.get<TransformComponent>(entity);
-                const FreeCameraControllerComponent& freeCameraController = view.get<FreeCameraControllerComponent>(entity);
-                FreeCameraRuntimeComponent& freeCameraRuntime = view.get<FreeCameraRuntimeComponent>(entity);
-
-                freeCameraRuntime.Velocity = std::clamp(freeCameraRuntime.Velocity, freeCameraController.MinVelocity, freeCameraController.MaxVelocity);
+            auto&& [ freeCameraController, transformComponent, freeCameraRuntime ] = cameraEntity.Get();
+            freeCameraRuntime.Velocity = std::clamp(freeCameraRuntime.Velocity, freeCameraController.MinVelocity, freeCameraController.MaxVelocity);
 
 #if ONYX_USE_IMGUI
-                // this should be part of the freeCamRuntime
-                if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+            // this should be part of the freeCamRuntime
+            if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 #endif
-                {
-                    Vector3f worldPosition = transformComponent.GetTranslation();
-                    Rotor3f worldRotation = transformComponent.GetRotation();
+            {
+                Vector3f worldPosition = transformComponent.GetTranslation();
+                Rotor3f worldRotation = transformComponent.GetRotation();
 
-                    Vector3f forwardDirection = worldRotation.rotate(-Vector3f::Z_Unit());
-                    Vector3f rightDirection = worldRotation.rotate(Vector3f::X_Unit());
-                    Vector3f upDirection = worldRotation.rotate(Vector3f::Y_Unit());
+                Vector3f forwardDirection = worldRotation.rotate(-Vector3f::Z_Unit());
+                Vector3f rightDirection = worldRotation.rotate(Vector3f::X_Unit());
+                Vector3f upDirection = worldRotation.rotate(Vector3f::Y_Unit());
 
-                    constexpr onyxF32 MAX_ROTATION_SPEED = 0.12f;
+                constexpr onyxF32 MAX_ROTATION_SPEED = 0.12f;
 
-                    onyxF32 dt = static_cast<onyxF32>(deltaTime.GetMilliseconds());
+                onyxF32 dt = static_cast<onyxF32>(deltaTime.DeltaMilliseconds);
 
-                    const onyxF32 yawSign = upDirection[1] < 0 ? -1.0f : 1.0f;
-                    const Vector3f globalUp(0.0f, yawSign, 0.0f);
+                const onyxF32 yawSign = upDirection[1] < 0 ? -1.0f : 1.0f;
+                const Vector3f globalUp(0.0f, yawSign, 0.0f);
 
-                    // y direction is up / down (forward / back)
-                    worldPosition += rightDirection * freeCameraRuntime.InputDirection[0] * dt * freeCameraRuntime.Velocity;
-                    worldPosition += globalUp * freeCameraRuntime.InputDirection[1] * dt * freeCameraRuntime.Velocity;
-                    worldPosition += forwardDirection * freeCameraRuntime.InputDirection[2] * dt * freeCameraRuntime.Velocity;
+                // y direction is up / down (forward / back)
+                worldPosition += rightDirection * freeCameraRuntime.InputDirection[0] * dt * freeCameraRuntime.Velocity;
+                worldPosition += globalUp * freeCameraRuntime.InputDirection[1] * dt * freeCameraRuntime.Velocity;
+                worldPosition += forwardDirection * freeCameraRuntime.InputDirection[2] * dt * freeCameraRuntime.Velocity;
 
-                    transformComponent.SetTranslation(worldPosition);
+                transformComponent.SetTranslation(worldPosition);
 
-                    freeCameraRuntime.YawDelta += std::clamp(yawSign * freeCameraRuntime.InputRotation[0] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
-                    freeCameraRuntime.PitchDelta += std::clamp(freeCameraRuntime.InputRotation[1] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
-                }
-
-                freeCameraRuntime.Yaw += freeCameraRuntime.YawDelta;
-                freeCameraRuntime.Pitch += freeCameraRuntime.PitchDelta;
-
-                freeCameraRuntime.YawDelta *= 0.6f;
-                freeCameraRuntime.PitchDelta *= 0.6f;
-
-                if ((IsZero(freeCameraRuntime.YawDelta) == false) ||
-                    (IsZero(freeCameraRuntime.PitchDelta) == false))
-                {
-                    Rotor3f pitchRotor(-freeCameraRuntime.Pitch, Bivector3f32::YZ_Unit());
-                    Rotor3f yawRotor(-freeCameraRuntime.Yaw, Bivector3f32::ZX_Unit());
-
-                    Rotor3f newRotation = (yawRotor * pitchRotor).Normalized();
-                    transformComponent.SetRotation(newRotation);
-                }
+                freeCameraRuntime.YawDelta += std::clamp(yawSign * freeCameraRuntime.InputRotation[0] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
+                freeCameraRuntime.PitchDelta += std::clamp(freeCameraRuntime.InputRotation[1] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
             }
+
+            freeCameraRuntime.Yaw += freeCameraRuntime.YawDelta;
+            freeCameraRuntime.Pitch += freeCameraRuntime.PitchDelta;
+
+            freeCameraRuntime.YawDelta *= 0.6f;
+            freeCameraRuntime.PitchDelta *= 0.6f;
+
+            if ((IsZero(freeCameraRuntime.YawDelta) == false) ||
+                (IsZero(freeCameraRuntime.PitchDelta) == false))
+            {
+                Rotor3f pitchRotor(-freeCameraRuntime.Pitch, Bivector3f32::YZ_Unit());
+                Rotor3f yawRotor(-freeCameraRuntime.Yaw, Bivector3f32::ZX_Unit());
+
+                Rotor3f newRotation = (yawRotor * pitchRotor).Normalized();
+                transformComponent.SetRotation(newRotation);
+            }
+            
+        }
+
+        void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, FreeCameraControllerComponent&& controller)
+        {
+            registry.GetRegistry().emplace_or_replace<FreeCameraControllerComponent>(entity, std::move(controller));
+
+            FreeCameraRuntimeComponent freeCameraRuntime;
+            freeCameraRuntime.Velocity = controller.BaseVelocity;
+            registry.AddComponent<FreeCameraRuntimeComponent>(entity, freeCameraRuntime);
+        }
+
+        void registerSystems(Entity::EntityComponentSystemsGraph& graph)
+        {
+            graph.Register(FreeCamera::system);
+
+            Entity::EntityRegistry::Factory<FreeCameraControllerComponent>(FreeCamera::factory);
         }
     }
     

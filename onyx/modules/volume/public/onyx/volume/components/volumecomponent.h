@@ -3,8 +3,6 @@
 #include <onyx/graphics/graphicshandles.h>
 #include <onyx/volume/chunk/volumechunk.h>
 
-#include <onyx/entity/entitycomponentsystem.h>
-
 namespace Onyx
 {
     namespace Assets
@@ -17,6 +15,11 @@ namespace Onyx
         struct TransformComponent;
         struct MaterialComponent;
         class Scene;
+    }
+
+    namespace Entity
+    {
+        class EntityComponentSystemsGraph;
     }
 
     namespace FileSystem
@@ -34,14 +37,9 @@ namespace Onyx::Volume
     struct VolumeComponent;
     class VolumeBase;
 
-    namespace VolumeSource
+    namespace Systems
     {
-        void system(Entity::EntityQuery<VolumeSourceComponent> volumeSourceQuery, Entity::EntityQuery<GameCore::TransformComponent, VolumeComponent> volumeEntitiesQuery, Graphics::GraphicsApi& graphicsApi);
-    }
-
-    namespace VolumeRendering
-    {
-        void system(Entity::EntityQuery<GameCore::MaterialComponent, VolumeComponent> query, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem);
+        void registerSystem(Entity::EntityComponentSystemsGraph& ecsGraph);
     }
 
     struct VolumeComponent

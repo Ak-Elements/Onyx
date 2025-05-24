@@ -13,7 +13,8 @@ namespace Onyx::GameCore::Lighting
 {
     namespace DirectionalLights
     {
-        using EntityQuery = Entity::EntityQuery<DirectionalLightComponent, TransformComponent>;
+        using EntityQuery = Entity::EntityQuery<const DirectionalLightComponent, const TransformComponent>;
+
         void system(EntityQuery entities, Graphics::FrameContext& frameContext)
         {
             // Directional lights
@@ -21,9 +22,8 @@ namespace Onyx::GameCore::Lighting
             auto lightEntities = entities.GetView();
             for (Entity::EntityId lightEntity : lightEntities)
             {
-                const TransformComponent& transformComponent = lightEntities.get<TransformComponent>(lightEntity);
-                const DirectionalLightComponent& lightComponent = lightEntities.get<DirectionalLightComponent>(lightEntity);
-
+                auto tuple = lightEntities.get<const DirectionalLightComponent, const TransformComponent>(lightEntity);
+                auto&& [lightComponent, transformComponent] = tuple;
                 Graphics::DirectionalLight& light = frameContext.Lighting.DirectionalLights[directionalLightIndex++];
                 light = lightComponent.Light;
                 light.Direction = transformComponent.GetRotationMatrix() * -Vector3f::Z_Unit();
@@ -35,7 +35,7 @@ namespace Onyx::GameCore::Lighting
 
     namespace PointLights
     {
-        using EntityQuery = Entity::EntityQuery<PointLightComponent, TransformComponent>;
+        using EntityQuery = Entity::EntityQuery<const PointLightComponent, const TransformComponent>;
         void system(EntityQuery entities, Graphics::FrameContext& frameContext)
         {
             onyxU32 pointLightIndex = 0;
@@ -48,6 +48,12 @@ namespace Onyx::GameCore::Lighting
                 Graphics::PointLight& light = frameContext.Lighting.PointLights[pointLightIndex++];
                 light = lightComponent.Light;
                 light.Position = transformComponent.GetTranslation();
+
+                auto viewSpacePos = frameContext.ViewConstants.ViewMatrix * Vector4f(light.Position, 1.0f);
+                auto distance = (Vector3f(viewSpacePos) - frameContext.ViewConstants.CameraPosition).Length();
+
+                ONYX_UNUSED(viewSpacePos);
+                ONYX_UNUSED(distance);
             }
 
             frameContext.Lighting.PointLightsCount = pointLightIndex;
@@ -56,12 +62,12 @@ namespace Onyx::GameCore::Lighting
 
     namespace SpotLights
     {
-        using EntityQuery = Entity::EntityQuery<SpotLightComponent, TransformComponent>;
+        using EntityQuery = Entity::EntityQuery<const SpotLightComponent, const TransformComponent>;
         void system(EntityQuery entities, Graphics::FrameContext& frameContext)
         {
             {
                 onyxU32 spotLightIndex = 0;
-                auto spotLightEntities = entities.GetView(/*entt::get<TransformComponent>*/);
+                auto spotLightEntities = entities.GetView();
                 for (Entity::EntityId lightEntity : spotLightEntities)
                 {
                     const TransformComponent& transformComponent = spotLightEntities.get<TransformComponent>(lightEntity);

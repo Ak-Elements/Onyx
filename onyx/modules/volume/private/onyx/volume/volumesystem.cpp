@@ -13,8 +13,7 @@ namespace Onyx::Volume
     {
         void RegisterSystems(Entity::EntityComponentSystemsGraph& graph)
         {
-            graph.Register(VolumeSource::system);
-            graph.Register(VolumeRendering::system);
+            Systems::registerSystem(graph);
         }
     }
 

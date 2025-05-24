@@ -19,6 +19,8 @@
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 #include <onyx/gamecore/rendertasks/staticmeshrendertask.h>
 #include <onyx/gamecore/rendertasks/textrendertask.h>
+#include <onyx/gamecore/scene/sceneframedata.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
 namespace
@@ -55,12 +57,13 @@ namespace Onyx::GameCore
 
             Entity::EntityRegistry::RegisterComponent<CameraComponent>();
             Entity::EntityRegistry::RegisterComponent<FreeCameraControllerComponent>();
+            Entity::EntityRegistry::Factory<FreeCameraRuntimeComponent>();
             Entity::EntityRegistry::RegisterComponent<FreeCameraRuntimeComponent>();
         }
 
         void RegisterEntitySystems(Entity::EntityComponentSystemsGraph& ecsGraph)
         {
-            ecsGraph.Register(FreeCamera::system);
+            FreeCamera::registerSystems(ecsGraph);
             ecsGraph.Register(Camera::system);
 
             Lighting::registerSystems(ecsGraph);
@@ -83,14 +86,22 @@ namespace Onyx::GameCore
         loc_GraphicsApi = &graphicsApi;
     }
 
-    void GameCoreSystem::Update(GameTime deltaTime)
+    void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine)
     {
         if ((Scene.IsValid() == false) || Scene->IsLoading())
         {
             return;
         }
 
-        Entity::ECSExecutionContext context { deltaTime, Scene->GetRegistry() };
+        // TODO: Can we find a cleaner / better solution for this?
+        Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
+        if (frameContext.FrameData == nullptr)
+            frameContext.FrameData = MakeUnique<SceneFrameData>();
+
+        SceneFrameData& sceneFrameData = static_cast<SceneFrameData&>(*frameContext.FrameData);
+        sceneFrameData.m_StaticMeshDrawCalls.clear();
+
+        Entity::ECSExecutionContext context { deltaTime, Scene->GetRegistry(), engine };
         m_ECSGraph.Update(context);
     }
 }

@@ -4,6 +4,11 @@
 
 #include <onyx/entity/entity.h>
 
+namespace Onyx::Entity
+{
+    class EntityRegistry;
+}
+
 namespace Onyx::FileSystem
 {
     struct JsonValue;

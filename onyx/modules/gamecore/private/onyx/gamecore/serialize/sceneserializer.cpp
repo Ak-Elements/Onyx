@@ -65,27 +65,29 @@ namespace Onyx::GameCore
 
         for (const SectorEntity& sectorEntity : sector.Entities)
         {
-            FileSystem::JsonValue sectorEntityJson;
-
-            std::array<onyxF32, 3> position{ sectorEntity.Position[0], sectorEntity.Position[1], sectorEntity.Position[2] };
-            sectorEntityJson.Set("position", position);
-            sectorEntityJson.Set("radius", sectorEntity.BoundsRadius);
-
-            if (sectorEntity.Entity != entt::null)
+            if ((sectorEntity.Entity != entt::null) &&
+                (registry.HasComponents<TransientComponent>(sectorEntity.Entity) == false))
             {
+                FileSystem::JsonValue sectorEntityJson;
+
+                std::array<onyxF32, 3> position{ sectorEntity.Position[0], sectorEntity.Position[1], sectorEntity.Position[2] };
+                sectorEntityJson.Set("position", position);
+                sectorEntityJson.Set("radius", sectorEntity.BoundsRadius);
+
                 FileSystem::JsonValue entityDataJson;
                 entityDataJson.Json = nlohmann::ordered_json::array();
 
                 SerializeEntity(registry, sectorEntity.Entity, entityDataJson);
                 sectorEntityJson.Set("data", entityDataJson);
-            }
-            // TODO: How do we handle unloaded entities in the editor?
-            //else
-            //{
-            //    sectorEntityJson.Set("data", sector.m_EntitiesData[sectorEntity.EntityDataPosition]);
-            //}
 
-            jsonRoot.Add(sectorEntityJson);
+                // TODO: How do we handle unloaded entities in the editor?
+                //else
+                //{
+                //    sectorEntityJson.Set("data", sector.m_EntitiesData[sectorEntity.EntityDataPosition]);
+                //}
+
+                jsonRoot.Add(sectorEntityJson);
+            }
         }
 
         FileSystem::Filepath sectorFilePath = sectorDirectoryPath;
@@ -194,36 +196,29 @@ namespace Onyx::GameCore
 
     bool SceneSerializer::SerializeEntity(const Entity::EntityRegistry& registry, Entity::EntityId entityId, FileSystem::JsonValue& outEntityJsonObj) const
     {
-        if (registry.HasComponents<TransientComponent>(entityId))
-        {
-            return true;
-        }
-
         // iterate all component storages and save out the components for the entity
         for (auto componentStorageIt : registry.GetStorage())
         {
             // if the component storage contains the entity we know that the entity has this component
             if (const entt::basic_sparse_set<Entity::EntityId>& componentStorage = componentStorageIt.second; componentStorage.contains(entityId))
             {
-                entt::meta_type metaClass = entt::resolve(componentStorageIt.first);
-                if (!metaClass)
-                    continue;
+                entt::id_type runtimeTypeId = componentStorageIt.first;
+                
+                if (const Entity::IComponentMeta* meta = Entity::EntityRegistry::GetComponentMeta(runtimeTypeId).value_or(nullptr))
+                {
+                    if (meta->IsTransient())
+                        continue;
 
-                const entt::meta_prop& transientProperty = metaClass.prop(Entity::TRANSIENT_PROPERTY_HASH);
-                if (transientProperty.value().cast<bool>())
-                    continue;
+                    const StringId32 typeId = meta->GetTypeId();
 
-                FileSystem::JsonValue componentJsonDataObj;
-                entt::meta_any componentHandle = metaClass.from_void(componentStorage.value(entityId));
-                componentHandle.invoke(Entity::SERIALIZE_JSON_FUNCTION_HASH, entt::forward_as_meta(componentJsonDataObj));
+                    FileSystem::JsonValue componentJsonDataObj;
+                    meta->Serialize(componentStorage.value(entityId), componentJsonDataObj);
 
-                FileSystem::JsonValue componentJsonObj;
-
-                StringId32 typeId(metaClass.info().hash());
-
-                componentJsonObj.Set("typeId", typeId);
-                componentJsonObj.Set("data", componentJsonDataObj);
-                outEntityJsonObj.Add(componentJsonObj);
+                    FileSystem::JsonValue componentJsonObj;
+                    componentJsonObj.Set("typeId", typeId);
+                    componentJsonObj.Set("data", componentJsonDataObj);
+                    outEntityJsonObj.Add(componentJsonObj);
+                }
             }
         }
 
@@ -242,7 +237,15 @@ namespace Onyx::GameCore
             FileSystem::JsonValue componentJsonData;
             componentsMetaJsonObj.Get("data", componentJsonData);
 
-            registry.AddComponent(entityId, typeId, componentJsonData);
+            if (const Entity::IComponentMeta* meta = Entity::EntityRegistry::GetComponentMeta(typeId).value_or(nullptr))
+            {
+                std::any anyComponent = meta->Create(componentJsonData);
+                registry.AddComponent(entityId, typeId, anyComponent);
+            }
+            else
+            {
+                ONYX_LOG_WARNING("Failed deserializing component. Unkown component {}", typeId);
+            }
         }
 
         return true;

@@ -39,7 +39,7 @@ namespace Onyx::Input
 
         void Init(Graphics::Window& window);
         void Shutdown(Graphics::Window& window);
-        void Update(GameTime deltaTime);
+        void Update();
 
         bool IsButtonDown(MouseButton button) const { return m_MouseButtonStates[Enums::ToIntegral(button)]; }
         bool IsButtonDown(Key button) const { return m_KeyState[Enums::ToIntegral(button)]; }

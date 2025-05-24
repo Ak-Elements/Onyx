@@ -1,9 +1,9 @@
 #pragma once
-#include <onyx/noncopyable.h>
 #include <onyx/engine/enginesystem.h>
 
 #include <onyx/typetraits.h>
 #include <onyx/assets/asset.h>
+#include <onyx/entity/entitycomponentsystem.h>
 
 #include <onyx/filesystem/path.h>
 #include <onyx/graphics/graphicsapi.h>
@@ -91,11 +91,11 @@ namespace Onyx::Application
     template <typename T>
     concept UpdatableSystem = HasUpdate<T>::value;
 
-    class Application : public NonCopyable
+    class Application : public IEngine
     {
     public:
         Application(const ApplicationSettings& settings);
-        ~Application();
+        ~Application() override;
 
         Application(const Application& other) = delete;
         Application& operator=(const Application& other) = delete;
@@ -109,29 +109,6 @@ namespace Onyx::Application
         void Shutdown();
 
         Logger* GetLogger() const { return m_Logger.get(); }
-
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
-        bool HasSystem() const
-        {
-            constexpr EngineSystemId systemId = static_cast<EngineSystemId>(TypeHash<T>());
-            return m_Modules.contains(systemId);
-        }
-
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
-        T& GetSystem()
-        {
-            ONYX_ASSERT(HasSystem<T>(), "System is not registered.");
-            constexpr EngineSystemId systemId = static_cast<EngineSystemId>(TypeHash<T>());
-            return static_cast<T&>(*m_Modules[systemId]);
-        }
-
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
-        const T& GetSystem() const
-        {
-            ONYX_ASSERT(HasSystem<T>(), "System is not registered.");
-            constexpr EngineSystemId systemId = static_cast<EngineSystemId>(TypeHash<T>());
-            return static_cast<const T&>(*m_Modules.at(systemId));
-        }
 
         template <typename T> requires std::is_base_of_v<IEngineSystem, T>
         T& AddSystem()
@@ -151,18 +128,30 @@ namespace Onyx::Application
             if constexpr (TerminableSystem<T>)
             {
                 using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Shutdown));
-                auto dependencyArgs = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U { return GetSystemDependency<std::remove_reference_t<U>>(); });
-                m_ShutdownFunctors.emplace(systemId, [system = newSystem.get(), dependencyArgs]()
+                auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U { return GetSystemDependency<std::remove_reference_t<U>>(); });
+                m_ShutdownFunctors.emplace(systemId, [system = newSystem.get(), dependencies]()
                 {
-                    std::apply(std::bind_front(&T::Shutdown, system), dependencyArgs);
+                    std::apply(std::bind_front(&T::Shutdown, system), dependencies);
                 });
             }
 
             if constexpr (UpdatableSystem<T>)
             {
-                m_UpdatableModules.emplace_back([system = newSystem.get()](onyxU64 deltaTime)
+                m_UpdatableModules.emplace_back([&, system = newSystem.get()](DeltaGameTime deltaTime)
                 {
-                    system->Update(deltaTime);
+                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Update));
+                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
+                    {
+                        if constexpr (std::is_same_v<U, DeltaGameTime>)
+                        {
+                            return deltaTime;
+                        }
+                        else
+                        {
+                            return GetSystemDependency<std::remove_reference_t<U>>();
+                        }
+                    });
+                    std::apply(std::bind_front(&T::Update, system), dependencies);
                 });
             }
             
@@ -188,6 +177,46 @@ namespace Onyx::Application
             m_Modules.erase(systemId);
         }
 
+        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        ONYX_NO_DISCARD bool HasSystem() const
+        {
+            constexpr EngineSystemId systemId = static_cast<EngineSystemId>(TypeHash<T>());
+            return HasSystem(systemId);
+        }
+
+        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        ONYX_NO_DISCARD T& GetSystem()
+        {
+            constexpr EngineSystemId systemId = static_cast<EngineSystemId>(TypeHash<T>());
+            ONYX_ASSERT(HasSystem(systemId), "System is not registered.");
+            return static_cast<T&>(GetSystem(systemId));
+        }
+
+        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        ONYX_NO_DISCARD const T& GetSystem() const
+        {
+            constexpr EngineSystemId systemId = static_cast<EngineSystemId>(TypeHash<T>());
+            ONYX_ASSERT(HasSystem(systemId), "System is not registered.");
+            return static_cast<const T&>(GetSystem(systemId));
+        }
+
+        bool HasSystem(EngineSystemId systemId) const override
+        {
+            return m_Modules.contains(systemId);
+        }
+
+        IEngineSystem& GetSystem(EngineSystemId systemId) override
+        {
+            ONYX_ASSERT(HasSystem(systemId), "System is not registered.");
+            return *m_Modules[systemId];
+        }
+
+        const IEngineSystem& GetSystem(EngineSystemId systemId) const override
+        {
+            ONYX_ASSERT(HasSystem(systemId), "System is not registered.");
+            return *m_Modules.at(systemId);
+        }
+
     private:
         void OnWindowClose();
 
@@ -204,11 +233,11 @@ namespace Onyx::Application
                 return GetSystem<Graphics::GraphicsSystem>().GetWindow();
             else if constexpr (std::is_base_of_v<Graphics::GraphicsApi, T>)
                 return GetSystem<Graphics::GraphicsSystem>().GetGraphicsApi();
-            else if constexpr (std::is_same_v<Application, T>)
+            else if constexpr (std::is_base_of_v<IEngine, T>)
                 return *this;
             else
             {
-                static_assert(std::is_base_of_v<IEngineSystem, T>, "Dependency must be derived from ApplicationModule or Window/GraphicsApi");
+                static_assert(std::is_base_of_v<IEngineSystem, T>, "Dependency must be derived from IEngineSystem or Window/GraphicsApi");
                 return GetSystem<T>();
             }
         }
@@ -223,7 +252,7 @@ namespace Onyx::Application
         HashMap<EngineSystemId, UniquePtr<IEngineSystem>> m_Modules;
         HashMap<EngineSystemId, InplaceFunction<void(), 64>> m_ShutdownFunctors;
 
-        DynamicArray<InplaceFunction<void(GameTime)>> m_UpdatableModules;
+        DynamicArray<InplaceFunction<void(DeltaGameTime)>> m_UpdatableModules;
     };
 
     void OnApplicationCreate(ApplicationSettings& settings);

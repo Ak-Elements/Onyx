@@ -32,7 +32,6 @@ namespace Onyx::Editor
 {
     struct SelectedComponent
     {
-        bool m_Val;
     };
 
     class SceneEditorWindow : public Ui::ImGuiWindow

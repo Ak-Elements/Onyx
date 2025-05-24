@@ -3,20 +3,29 @@
 
 namespace Onyx
 {
-    struct GameTime
+    struct DeltaGameTime
     {
-        GameTime(onyxU64 milliseconds)
-            : m_Milliseconds(milliseconds)
+        DeltaGameTime(onyxU64 milliseconds)
+            : DeltaMilliseconds(milliseconds)
         {
         }
 
-        operator onyxU64() const { return m_Milliseconds; }
+        DeltaGameTime operator+(DeltaGameTime other) const { return DeltaMilliseconds + other.DeltaMilliseconds; }
+        DeltaGameTime operator-(DeltaGameTime other) const { return DeltaMilliseconds - other.DeltaMilliseconds; }
 
-        GameTime operator+(GameTime other) const { return m_Milliseconds + other.m_Milliseconds; }
-        GameTime operator-(GameTime other) const { return m_Milliseconds - other.m_Milliseconds; }
+        onyxU64 DeltaMilliseconds;
+    };
 
-        onyxU64 GetMilliseconds() const { return m_Milliseconds; }
-    private:
-        onyxU64 m_Milliseconds;
+    struct GameTime
+    {
+        GameTime(onyxU64 milliseconds)
+            : Milliseconds(milliseconds)
+        {
+        }
+
+        GameTime operator+(GameTime other) const { return Milliseconds + other.Milliseconds; }
+        GameTime operator-(GameTime other) const { return Milliseconds - other.Milliseconds; }
+
+        onyxU64 Milliseconds;
     };
 }

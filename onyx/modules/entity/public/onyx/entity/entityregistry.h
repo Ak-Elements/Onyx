@@ -4,12 +4,11 @@
 
 #include <entt/entity/registry.hpp>
 
-#include <entt/meta/meta.hpp>
 #include <entt/meta/factory.hpp>
-#include <entt/meta/resolve.hpp>
 
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/log/logger.h>
+
+#include <onyx/entity/componentfactory.h>
 
 namespace Onyx::FileSystem
 {
@@ -22,29 +21,6 @@ namespace Onyx
     {
         namespace Details
         {
-            template <typename T>
-            concept HasDrawImGuiEditor = requires(T& component)
-            {
-                { component.DrawImGuiEditor() } -> std::same_as<void>;
-            };
-
-            template<typename T>
-            concept HasHideInEditor = requires(T obj) { T::HideInEditor; };
-
-            template<typename T>
-            concept IsTransient = requires(T obj) { T::IsTransient; };
-
-            template<typename T>
-            concept IsJsonSerializable = requires(const T & obj, FileSystem::JsonValue& outStream)
-            {
-                { obj.SerializeJson(outStream) } -> std::same_as<void>;
-            };
-
-            template<typename T>
-            concept IsJsonDeserializable = requires(T& obj, const FileSystem::JsonValue& inStream)
-            {
-                { obj.DeserializeJson(inStream) } -> std::same_as<void>;
-            };
 
             template <typename T>
             T& CreateComponent(entt::basic_registry<EntityId>& registry, EntityId entityId, const FileSystem::JsonValue& json)
@@ -53,69 +29,99 @@ namespace Onyx
                 newComp.DeserializeJson(json);
                 return registry.emplace_or_replace<T>(entityId, newComp);
             }
+
+            template <typename T>
+            bool SerializeComponent(const void* componentPtr, FileSystem::JsonValue& value)
+            {
+                const T* component = std::bit_cast<const T*>(componentPtr);
+                component->SerializeJson(value);
+                return true;
+            }
+
+            template <typename T>
+            bool DeserializeComponent(void* componentPtr, const FileSystem::JsonValue& value)
+            {
+                T* component = std::bit_cast<T*>(componentPtr);
+                component->DeserializeJson(value);
+                return true;
+            }
+
+            template <typename T>
+            bool DrawPropertyGridEditor(void* componentPtr)
+            {
+                T* component = std::bit_cast<T*>(componentPtr);
+                component->DrawImGuiEditor();
+                return true;
+            }
         }
-
-        inline constexpr onyxU32 SHOW_IN_EDITOR_PROPERTY_HASH = entt::hashed_string("ShowInEditor").value();
-        inline constexpr onyxU32 TRANSIENT_PROPERTY_HASH = entt::hashed_string("Transient").value();
-
-        // serialize / deserialize functors
-        inline constexpr onyxU32 SERIALIZE_FUNCTION_HASH = entt::hashed_string("Serialize").value();
-        inline constexpr onyxU32 SERIALIZE_JSON_FUNCTION_HASH = entt::hashed_string("SerializeJson").value();
-        inline constexpr onyxU32 DESERIALIZE_FUNCTION_HASH = entt::hashed_string("Deserialize").value();
-        inline constexpr onyxU32 DESERIALIZE_JSON_FUNCTION_HASH = entt::hashed_string("DeserializeJson").value();
-
-        inline constexpr onyxU32 DRAW_IMGUI_FUNCTION_HASH = entt::hashed_string("DrawImGuiEditor").value();
 
         class EntityRegistry
         {
         public:
             using EntityRegistryT = entt::basic_registry<EntityId>;
-            template <typename T> requires HasTypeId<T>
+
+            template <typename T>
+            using FactoryT = void(*)(EntityRegistry&, EntityId, T&& component);
+
+            template <typename T>
+            static void Factory()
+            {
+                m_Factories[T::TypeId] = [](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
+                {
+                    T component = std::any_cast<T>(anyComponent);
+                    registry.GetRegistry().emplace_or_replace<T>(entity, component);
+                };
+            }
+
+            template <typename T>
+            static void Factory(FactoryT<T> factory)
+            {
+                m_Factories[T::TypeId] = [=](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
+                {
+                    T component = std::any_cast<T>(anyComponent);
+                    factory(registry, entity, std::move(component));
+                };
+            }
+
+        //private:
+            using EntityRegistryT = entt::basic_registry<EntityId>;
+            template <typename T>
             static void RegisterComponent()
             {
                 using namespace entt::literals;
 
-                constexpr auto typeHash = entt::type_hash<T>::value();
-                constexpr StringId32 typeId = T::TypeId;
-                auto metaClass = entt::meta<T>();
-                auto metaType = metaClass.type(typeHash);
-
-                s_SerializedIdToMetaClassId[typeId] = typeHash;
-
-                metaClass.template ctor<&EntityRegistryT::emplace_or_replace<T>, entt::as_ref_t>();
-
-                if constexpr (Details::HasHideInEditor<T>)
-                    metaType.prop(SHOW_IN_EDITOR_PROPERTY_HASH, false);
-                else
-                    metaType.prop(SHOW_IN_EDITOR_PROPERTY_HASH, true);
-
-                if constexpr (Details::IsTransient<T>)
+                //constexpr bool showInEditor = Details::HasHideInEditor<T> == false;
+                constexpr bool isTransient = Details::IsTransient<T>;
+                if constexpr (isTransient)
                 {
-                    metaType.prop(TRANSIENT_PROPERTY_HASH, true);
+                    //add flag components
                 }
                 else
                 {
-                    static_assert(HasSerialize<T> && HasDeserialize<T>, "Non transient component needs Serialize & Deserialize functions.");
-                    metaType.prop(TRANSIENT_PROPERTY_HASH, false);
-                    metaClass.template ctor<&Details::CreateComponent<T>, entt::as_ref_t>();
+                    s_Factory.Register<T>();
+                    Factory<T>();
+
+                    constexpr auto typeHash = entt::type_hash<T>::value();
+                    constexpr StringId32 typeId = T::TypeId;
+                    
+                    s_RuntimeTypeIdToStaticTypeId[typeHash] = typeId;
                 }
+            }
 
-                if constexpr (Details::HasDrawImGuiEditor<T>)
-                    metaClass.template func<&T::DrawImGuiEditor>(DRAW_IMGUI_FUNCTION_HASH);
-                
-                if constexpr (HasSerialize<T>)
-                    metaClass.template func<&T::Serialize>(SERIALIZE_FUNCTION_HASH);
+            static Optional<const IComponentMeta*> GetComponentMeta(StringId32 typeId)
+            {
+                return s_Factory.GetComponentMeta(typeId);
+            }
 
-                if constexpr (HasDeserialize<T>)
-                    metaClass.template func<&T::Deserialize>(DESERIALIZE_FUNCTION_HASH);
-
-                if constexpr (Details::IsJsonSerializable<T>)
+            static Optional<const IComponentMeta*> GetComponentMeta(entt::id_type runtimeTypeId)
+            {
+                auto it = s_RuntimeTypeIdToStaticTypeId.find(runtimeTypeId);
+                if (it == s_RuntimeTypeIdToStaticTypeId.end())
                 {
-                    ONYX_LOG_INFO("Registering json serialize function");
-                    metaClass.template func<&T::SerializeJson>(SERIALIZE_JSON_FUNCTION_HASH);
+                    return std::nullopt;
                 }
-                if constexpr (Details::IsJsonDeserializable<T>)
-                    metaClass.template func<&T::DeserializeJson>(DESERIALIZE_JSON_FUNCTION_HASH);
+
+                return s_Factory.GetComponentMeta(it->second);
             }
 
             EntityId CreateEntity()
@@ -143,16 +149,24 @@ namespace Onyx
 
                 return newEntity;
             }
-             
-            template <typename T, typename... Args>
-            decltype(auto) AddComponent(EntityId entity, Args&&... args)
+
+            template <typename T, typename... Args> requires (std::is_empty_v<T>)
+            void AddComponent(EntityId entity)
+            {
+                m_Registry.emplace_or_replace<T>(entity);
+            }
+
+            template <typename T, typename... Args> requires (std::is_empty_v<T> == false)
+            T& AddComponent(EntityId entity, Args&&... args)
             {
                 return m_Registry.emplace_or_replace<T>(entity, std::forward<Args>(args)...);
             }
 
-            void AddComponent(EntityId entity, StringId32 componentId, const FileSystem::JsonValue& json)
+            void AddComponent(EntityId entity, StringId32 componentId, std::any& anyComponent)
             {
-                std::ignore = entt::resolve(s_SerializedIdToMetaClassId[componentId]).construct(entt::forward_as_meta(m_Registry), entity, entt::forward_as_meta(json));
+                ONYX_ASSERT(m_Factories.contains(componentId));
+                const auto& factory = m_Factories.at(componentId);
+                factory(*this, entity, anyComponent);
             }
 
             template <typename T>
@@ -211,9 +225,15 @@ namespace Onyx
 
             void Clear() { m_Registry.clear(); }
 
-        private:
-            static HashMap<StringId32, entt::id_type> s_SerializedIdToMetaClassId;
+            const Entity::ComponentRegistry& GetComponentRegistry() { return s_Factory; }
+
+        public:
+            static HashMap<entt::id_type, StringId32> s_RuntimeTypeIdToStaticTypeId;
+
+            static HashMap<StringId32, InplaceFunction<void(EntityRegistry&, EntityId, std::any&)>> m_Factories;
+            
             EntityRegistryT m_Registry;
+            static ComponentRegistry s_Factory;
         };
     }
 }

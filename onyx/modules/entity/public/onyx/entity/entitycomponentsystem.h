@@ -2,7 +2,10 @@
 
 #include <onyx/entity/entityregistry.h>
 
-#include "entitycomponentsystem.h"
+namespace Onyx
+{
+    class IEngine;
+}
 
 namespace Onyx::Entity
 {
@@ -19,19 +22,41 @@ namespace Onyx::Entity
     template <typename T, typename... Other>
     struct EntityQuery
     {
+        using ViewT = entt::basic_view<entt::get_t<EntityRegistry::EntityRegistryT::storage_for_type<T>,
+            EntityRegistry::EntityRegistryT::storage_for_type<Other>...>,
+            entt::exclude_t<>>;
+
         EntityQuery(EntityRegistry& registry)
-            : m_EntityRegistry(&registry){}
-
-    public:
-
-        template <typename... Excludes>
-        ONYX_NO_DISCARD auto GetView(Excludes&&... excludes) const
+            : m_View(registry.GetView<T, Other...>())
         {
-            return m_EntityRegistry->GetView<T, Other...>(std::forward<Excludes>(excludes)...);
+        }
+
+        //template <typename... Excludes>
+        ViewT& GetView(/*Excludes&&... excludes*/)
+        {
+            return m_View;
         }
 
     private:
+        ViewT m_View;
         EntityRegistry* m_EntityRegistry = nullptr;
+    };
+
+    template <typename Type, typename... Other>
+    struct Entity
+    {
+    public:
+        Entity(EntityQuery<Type, Other...>& query, EntityId entityId)
+            : m_Query(query)
+            , m_EntityId(entityId)
+        {
+            
+        }
+        decltype(auto) Get() { return m_Query.GetView().template get<Type, Other...>(m_EntityId); }
+
+    private:
+        EntityQuery<Type, Other...>& m_Query;
+        EntityId m_EntityId;
     };
 
     class IDependentFunctionArg
@@ -43,15 +68,16 @@ namespace Onyx::Entity
 
     struct ECSExecutionContext
     {
-        GameTime DeltaTime;
+        DeltaGameTime DeltaTime;
         EntityRegistry& Registry;
+        IEngine& Engine;
     };
 
     template <typename T>
     class DependentFunctionArg : public IDependentFunctionArg
     {
     public:
-        static T Get(ECSExecutionContext& /*context*/) { return T{}; }
+        static T Get(const ECSExecutionContext& /*context*/) { return T{}; }
     };
 
     template <typename T, typename... Others>
@@ -77,12 +103,12 @@ namespace Onyx::Entity
     };
 
     template <>
-    class DependentFunctionArg<GameTime> : public IDependentFunctionArg
+    class DependentFunctionArg<DeltaGameTime> : public IDependentFunctionArg
     {
     public:
         ~DependentFunctionArg() override = default;
 
-        static GameTime Get(const ECSExecutionContext& context)
+        static DeltaGameTime Get(const ECSExecutionContext& context)
         {
             return context.DeltaTime;
         }
@@ -100,21 +126,49 @@ namespace Onyx::Entity
         }
 
         template <typename Callable>
-        void Register(Callable&& callable)
+        void Register(Callable callable)
         {
-            m_Systems.emplace_back([&](const ECSExecutionContext& context)
+            InplaceFunction<void(const ECSExecutionContext&), 64> functor = BuildSystemCall<Callable>(callable);
+            m_Systems.emplace_back(functor);
+        }
+
+        void Update(const ECSExecutionContext& context) const;
+
+    private:
+        template <typename System, typename... EntityQueryArgs, typename... Args>
+        static auto BuildSystemCall(void(*callable)(EntityQuery<EntityQueryArgs...>, Args...))
+        {
+            return [=](const ECSExecutionContext& context)
             {
-                using FunctionArgs = decltype(GetFunctionArgumentTypes(callable));
-                const auto& dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
+                const auto& dependencies = ForEachAndCollect<Tuple<Args...>>([&]<typename U>() -> U
                 {
                     return DependentFunctionArg<U>::Get(context);
                 });
 
-                std::apply(callable, dependencies);
-            });
+                EntityQuery<EntityQueryArgs...> query(context.Registry);
+                std::apply(callable, std::tuple_cat(std::make_tuple(query), dependencies));
+            };
         }
 
-        void Update(const ECSExecutionContext& context) const;
+        template <typename System, typename... EntityAccessT, typename... Args>
+        static auto BuildSystemCall(void(*callable)(Entity<EntityAccessT...>, Args...))
+        {
+            return [=](const ECSExecutionContext& context)
+                {
+                    const auto& dependencies = ForEachAndCollect<Tuple<Args...>>([&]<typename U>() -> U
+                    {
+                        return DependentFunctionArg<U>::Get(context);
+                    });
+
+                    EntityQuery<EntityAccessT...> query(context.Registry);
+                    const auto& entitiesView = query.GetView();
+                    for (const EntityId entityId : entitiesView)
+                    {
+                        Entity<EntityAccessT...> entity{ query, entityId };
+                        std::apply(callable, std::tuple_cat(std::make_tuple(entity), dependencies));
+                    }
+                };
+        }
 
     private:
 

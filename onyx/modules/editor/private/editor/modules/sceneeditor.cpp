@@ -414,7 +414,9 @@ namespace Onyx::Editor
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 1000.0f);
         camera.Camera.SetViewportExtents(api.GetSwapchainExtent());
-        registry.AddComponent<GameCore::FreeCameraControllerComponent>(editorCameraEntity);
+        GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(editorCameraEntity);
+        GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        runtimeComponent.Velocity = freeCameraController.BaseVelocity;
 
         api.SetCamera(camera.Camera);
 

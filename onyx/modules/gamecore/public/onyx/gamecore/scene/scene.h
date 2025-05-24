@@ -33,10 +33,6 @@ namespace Onyx::GameCore
         void OnTransformComponentConstructed(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
         void OnTransformComponentDestroyed(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
 
-        // we should handle those dependencies in a generic way
-        void OnFreeCameraControllerAdded(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
-        void OnFreeCameraControllerRemoved(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
-
     private:
         Vector3f m_LoadCenter; // center position of the streaming
 

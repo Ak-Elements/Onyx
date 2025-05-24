@@ -1,4 +1,3 @@
-#include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/volume/components/volumecomponent.h>
 
 #include <onyx/entity/entityregistry.h>
@@ -9,6 +8,10 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 
+// TODO: This is needed for the dependant function args - we should move them somewhere so they are included already
+#include <onyx/gamecore/gamecore.h>
+#include <onyx/entity/entitycomponentsystem.h>
+
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/vertex.h>
 
@@ -17,6 +20,7 @@
 #include <onyx/volume/source/csg/csgplane.h>
 #include <onyx/volume/source/csg/csgsphere.h>
 #include <onyx/volume/source/noise/simplexnoisesource.h>
+
 
 namespace Onyx::Volume
 {
@@ -63,15 +67,15 @@ namespace Onyx::Volume
         }
 
         using VolumeSourceEntitiesQuery = Entity::EntityQuery<VolumeSourceComponent>;
-        using VolumeComponentQuery = Entity::EntityQuery<GameCore::TransformComponent, VolumeComponent>;
+        using VolumeComponentQuery = Entity::EntityQuery<const GameCore::TransformComponent, VolumeComponent>;
         void system(VolumeSourceEntitiesQuery volumeSourceQuery, VolumeComponentQuery volumeEntitiesQuery, Graphics::GraphicsApi& graphicsApi)
         {
             VolumeBase* volumeSource = nullptr;
-            auto csgEntities = volumeSourceQuery.GetView();
+            auto& csgEntities = volumeSourceQuery.GetView();
             bool isModified = false;
             for (Entity::EntityId volumeEntity : csgEntities)
             {
-                VolumeSourceComponent& volumeComponent = csgEntities.get<VolumeSourceComponent>(volumeEntity);
+                auto&& [volumeComponent] = csgEntities.get(volumeEntity);
 
                 volumeSource = volumeComponent.Volume;
                 if (volumeComponent.IsModified)
@@ -92,8 +96,7 @@ namespace Onyx::Volume
             auto volumeEntities = volumeEntitiesQuery.GetView();
             for (Entity::EntityId volumeEntity : volumeEntities)
             {
-                GameCore::TransformComponent& transformComponent = volumeEntities.get<GameCore::TransformComponent>(volumeEntity);
-                VolumeComponent& volumeComponent = volumeEntities.get<VolumeComponent>(volumeEntity);
+                auto&& [ transformComponent, volumeComponent ]  = volumeEntities.get(volumeEntity);
 
                 bool hasPositionChanged = volumeComponent.Chunk->GetPosition() != transformComponent.GetTranslation();
                 if (isModified || hasPositionChanged)
@@ -114,37 +117,29 @@ namespace Onyx::Volume
 
     }
 
-    
-    using VolumeEntitiesQuery = Entity::EntityQuery<GameCore::MaterialComponent, VolumeComponent>;
-    void VolumeRendering::system(VolumeEntitiesQuery query, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
+    namespace VolumeRendering
     {
-        // MOVE THIS TO GAMECORE
-        if (frameContext.FrameData == nullptr)
-            frameContext.FrameData = MakeUnique<GameCore::SceneFrameData>();
-
-        GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
-        sceneFrameData.m_StaticMeshDrawCalls.clear();
-        // MOVE THIS TO GAMECORE END
-
-        auto csgEntities = query.GetView();
-        for (Entity::EntityId volumeEntity : csgEntities)
+        // TODO: Material component should be read access
+        using VolumeEntityAccess = Entity::Entity<const VolumeComponent, GameCore::MaterialComponent>;
+        void system(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
         {
-            GameCore::MaterialComponent& materialComponent = csgEntities.get<GameCore::MaterialComponent>(volumeEntity);
+            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
+            
+            auto&& [ volumeComponent, materialComponent ] = entity.Get();
 
             if (materialComponent.Material.IsValid() == false)
             {
                 // this should be moved to the component create
                 materialComponent.LoadMaterial(assetSytem);
-                continue;
+                return;
             }
 
             if ((materialComponent.Material.IsValid() == false) || materialComponent.Material->IsLoading())
-                continue;
-
-            VolumeComponent& volumeComponent = csgEntities.get<VolumeComponent>(volumeEntity);
-
+                return;
+            
             if (volumeComponent.IsLoading || (volumeComponent.Vertices.IsValid() == false))
-                continue;
+                return;
+
 
             GameCore::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
             drawCall.VertexData = volumeComponent.Vertices;
@@ -153,6 +148,15 @@ namespace Onyx::Volume
         }
     }
 
+    namespace Systems
+    {
+        void registerSystem(Entity::EntityComponentSystemsGraph& ecsGraph)
+        {
+            ecsGraph.Register(VolumeSource::system);
+            ecsGraph.Register(VolumeRendering::system);
+        }
+    }
+    
     VolumeComponent::VolumeComponent()
         : Chunk(new VolumeChunk())
     {

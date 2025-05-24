@@ -343,7 +343,7 @@ namespace Onyx::Ui
 		ImGui::DestroyContext();
     }
 
-    void ImGuiSystem::Update(GameTime deltaTime)
+    void ImGuiSystem::Update(DeltaGameTime deltaTime)
     {
 #if ONYX_IS_WINDOWS
 
@@ -356,7 +356,7 @@ namespace Onyx::Ui
 			eventFunctor(io);
 		}
 
-		io.DeltaTime = std::max(numeric_cast<onyxF32>(deltaTime.GetMilliseconds() * 0.001f), 0.001f);
+		io.DeltaTime = std::max(numeric_cast<onyxF32>(deltaTime.DeltaMilliseconds) * 0.001f, 0.001f);
 #endif
 
 

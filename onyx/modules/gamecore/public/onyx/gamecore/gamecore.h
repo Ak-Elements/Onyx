@@ -48,7 +48,7 @@ namespace Onyx::GameCore
     public:
         void Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
 
-        void Update(GameTime deltaTime);
+        void Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine);
 
         void SetScene(Reference<Scene>& scene) { Scene = scene; }
 

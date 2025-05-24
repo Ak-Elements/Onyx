@@ -12,8 +12,6 @@ namespace Onyx::GameCore
     {
         m_Registry.GetRegistry().on_construct<TransformComponent>().connect<&Scene::OnTransformComponentConstructed>(this);
         m_Registry.GetRegistry().on_destroy<TransformComponent>().connect<&Scene::OnTransformComponentDestroyed>(this);
-
-        m_Registry.GetRegistry().on_construct<FreeCameraControllerComponent>().connect<&Scene::OnFreeCameraControllerAdded>(this);
     }
 
     void Scene::SetLoadCenter(const Vector3f& loadCenter)
@@ -87,17 +85,5 @@ namespace Onyx::GameCore
        // }
 
         m_SectorStreamer.RemoveEntity(entity);
-    }
-
-    void Scene::OnFreeCameraControllerAdded(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity)
-    {
-        const FreeCameraControllerComponent& freeCameraController = registry.get<const FreeCameraControllerComponent>(entity);
-        FreeCameraRuntimeComponent& freeCam = registry.emplace_or_replace<FreeCameraRuntimeComponent>(entity);
-        freeCam.Velocity = freeCameraController.BaseVelocity;
-    }
-
-    void Scene::OnFreeCameraControllerRemoved(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity)
-    {
-        registry.remove<FreeCameraRuntimeComponent>(entity);
     }
 }

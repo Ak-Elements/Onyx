@@ -60,7 +60,7 @@ namespace Onyx
             void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& window);
             void Shutdown(Input::InputSystem& inputSystem, Graphics::Window& window);
             
-            void Update(GameTime deltaTime);
+            void Update(DeltaGameTime deltaTime);
 
             void OnBeginFrame(Graphics::FrameContext& context);
             
