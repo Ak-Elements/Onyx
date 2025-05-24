@@ -82,7 +82,8 @@ namespace Onyx::GameCore
         {
             graph.Register(FreeCamera::system);
 
-            Entity::EntityRegistry::Factory<FreeCameraControllerComponent>(FreeCamera::factory);
+            Entity::EntityRegistry::RegisterComponent<FreeCameraControllerComponent>(FreeCamera::factory);
+            Entity::EntityRegistry::RegisterComponent<FreeCameraRuntimeComponent>();
         }
     }
     

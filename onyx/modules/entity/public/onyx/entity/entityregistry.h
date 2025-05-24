@@ -57,34 +57,12 @@ namespace Onyx
 
         class EntityRegistry
         {
-        public:
-            using EntityRegistryT = entt::basic_registry<EntityId>;
-
             template <typename T>
             using FactoryT = void(*)(EntityRegistry&, EntityId, T&& component);
 
-            template <typename T>
-            static void Factory()
-            {
-                m_Factories[T::TypeId] = [](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
-                {
-                    T component = std::any_cast<T>(anyComponent);
-                    registry.GetRegistry().emplace_or_replace<T>(entity, component);
-                };
-            }
-
-            template <typename T>
-            static void Factory(FactoryT<T> factory)
-            {
-                m_Factories[T::TypeId] = [=](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
-                {
-                    T component = std::any_cast<T>(anyComponent);
-                    factory(registry, entity, std::move(component));
-                };
-            }
-
-        //private:
+        public:
             using EntityRegistryT = entt::basic_registry<EntityId>;
+
             template <typename T>
             static void RegisterComponent()
             {
@@ -98,22 +76,53 @@ namespace Onyx
                 }
                 else
                 {
-                    s_Factory.Register<T>();
-                    Factory<T>();
-
                     constexpr auto typeHash = entt::type_hash<T>::value();
                     constexpr StringId32 typeId = T::TypeId;
-                    
+
+                    s_ComponentRegistry.Register<T>();
                     s_RuntimeTypeIdToStaticTypeId[typeHash] = typeId;
+
+                    s_Factories[T::TypeId] = [](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
+                    {
+                        T component = std::any_cast<T>(anyComponent);
+                        registry.GetRegistry().emplace_or_replace<T>(entity, component);
+                    };
                 }
             }
 
-            static Optional<const IComponentMeta*> GetComponentMeta(StringId32 typeId)
+            template <typename T>
+            static void RegisterComponent(FactoryT<T> factory)
             {
-                return s_Factory.GetComponentMeta(typeId);
+                using namespace entt::literals;
+
+                //constexpr bool showInEditor = Details::HasHideInEditor<T> == false;
+                constexpr bool isTransient = Details::IsTransient<T>;
+                if constexpr (isTransient)
+                {
+                    //add flag components
+                }
+                else
+                {
+                    constexpr auto typeHash = entt::type_hash<T>::value();
+                    constexpr StringId32 typeId = T::TypeId;
+
+                    s_ComponentRegistry.Register<T>();
+                    s_RuntimeTypeIdToStaticTypeId[typeHash] = typeId;
+
+                    s_Factories[T::TypeId] = [=](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
+                    {
+                        T component = std::any_cast<T>(anyComponent);
+                        factory(registry, entity, std::move(component));
+                    };
+                }
             }
 
-            static Optional<const IComponentMeta*> GetComponentMeta(entt::id_type runtimeTypeId)
+            Optional<const IComponentMeta*> GetComponentMeta(StringId32 typeId) const
+            {
+                return s_ComponentRegistry.GetComponentMeta(typeId);
+            }
+
+            Optional<const IComponentMeta*> GetComponentMeta(entt::id_type runtimeTypeId) const
             {
                 auto it = s_RuntimeTypeIdToStaticTypeId.find(runtimeTypeId);
                 if (it == s_RuntimeTypeIdToStaticTypeId.end())
@@ -121,7 +130,7 @@ namespace Onyx
                     return std::nullopt;
                 }
 
-                return s_Factory.GetComponentMeta(it->second);
+                return s_ComponentRegistry.GetComponentMeta(it->second);
             }
 
             EntityId CreateEntity()
@@ -164,8 +173,8 @@ namespace Onyx
 
             void AddComponent(EntityId entity, StringId32 componentId, std::any& anyComponent)
             {
-                ONYX_ASSERT(m_Factories.contains(componentId));
-                const auto& factory = m_Factories.at(componentId);
+                ONYX_ASSERT(s_Factories.contains(componentId));
+                const auto& factory = s_Factories.at(componentId);
                 factory(*this, entity, anyComponent);
             }
 
@@ -225,15 +234,14 @@ namespace Onyx
 
             void Clear() { m_Registry.clear(); }
 
-            const Entity::ComponentRegistry& GetComponentRegistry() { return s_Factory; }
+            const ComponentRegistry& GetComponentRegistry() { return s_ComponentRegistry; }
 
-        public:
-            static HashMap<entt::id_type, StringId32> s_RuntimeTypeIdToStaticTypeId;
-
-            static HashMap<StringId32, InplaceFunction<void(EntityRegistry&, EntityId, std::any&)>> m_Factories;
-            
+        private:
             EntityRegistryT m_Registry;
-            static ComponentRegistry s_Factory;
+
+            static ComponentRegistry s_ComponentRegistry;
+            static HashMap<entt::id_type, StringId32> s_RuntimeTypeIdToStaticTypeId;
+            static HashMap<StringId32, InplaceFunction<void(EntityRegistry&, EntityId, std::any&)>> s_Factories;
         };
     }
 }

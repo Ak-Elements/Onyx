@@ -204,7 +204,7 @@ namespace Onyx::GameCore
             {
                 entt::id_type runtimeTypeId = componentStorageIt.first;
                 
-                if (const Entity::IComponentMeta* meta = Entity::EntityRegistry::GetComponentMeta(runtimeTypeId).value_or(nullptr))
+                if (const Entity::IComponentMeta* meta = registry.GetComponentMeta(runtimeTypeId).value_or(nullptr))
                 {
                     if (meta->IsTransient())
                         continue;
@@ -237,7 +237,7 @@ namespace Onyx::GameCore
             FileSystem::JsonValue componentJsonData;
             componentsMetaJsonObj.Get("data", componentJsonData);
 
-            if (const Entity::IComponentMeta* meta = Entity::EntityRegistry::GetComponentMeta(typeId).value_or(nullptr))
+            if (const Entity::IComponentMeta* meta = registry.GetComponentMeta(typeId).value_or(nullptr))
             {
                 std::any anyComponent = meta->Create(componentJsonData);
                 registry.AddComponent(entityId, typeId, anyComponent);

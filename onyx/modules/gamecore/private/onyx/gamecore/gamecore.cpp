@@ -56,9 +56,6 @@ namespace Onyx::GameCore
             Entity::EntityRegistry::RegisterComponent<TextComponent>();
 
             Entity::EntityRegistry::RegisterComponent<CameraComponent>();
-            Entity::EntityRegistry::RegisterComponent<FreeCameraControllerComponent>();
-            Entity::EntityRegistry::Factory<FreeCameraRuntimeComponent>();
-            Entity::EntityRegistry::RegisterComponent<FreeCameraRuntimeComponent>();
         }
 
         void RegisterEntitySystems(Entity::EntityComponentSystemsGraph& ecsGraph)
