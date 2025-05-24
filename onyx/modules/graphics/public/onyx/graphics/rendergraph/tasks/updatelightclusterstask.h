@@ -30,8 +30,8 @@ namespace Onyx::Graphics
             onyxF32 zNear;
             onyxF32 zFar;
 
-            onyxU32 ClusterSize;
-            Vector3u32 Padding;
+            Vector2u32 ClusterSize;
+            Vector2u32 Padding;
         };
 
         InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_LightClustersStorageBuffers;

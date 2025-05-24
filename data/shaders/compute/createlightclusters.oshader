@@ -13,8 +13,8 @@ layout(push_constant) uniform Constants
     float zNear;
     float zFar;
 
-    uint ClusterSize;
-    uint Padding[3];
+    uvec2 ClusterSize;
+    uint Padding[2];
 } u_Constants;
 
 // SSBO
@@ -44,23 +44,23 @@ vec4 ScreenToView(vec4 screenPos)
     vec2 texCoord = screenPos.xy / u_Constants.Viewport.xy;
 
     // Convert to Clip
-    vec4 clipPos = vec4(vec2(texCoord.x, texCoord.y) * 2.0 - 1.0f, screenPos.z, screenPos.w);
+    vec4 clipPos = vec4(vec2(texCoord.x, 1.0 - texCoord.y) * 2.0 - 1.0f, screenPos.z, screenPos.w);
     return ClipToView(clipPos);
 }
 
 //Creates a line from the eye/camera to the screenpoint, then finds its intersection
 //With a z oriented plane located at the given distance to the origin
-vec3 LineIntersectionToZPlane(vec3 A, vec3 B, float zDistance)
+vec3 LineIntersectionToZPlane(vec3 a, vec3 b, float zDistance)
 {
     // z plane normal
     vec3 normal = vec3(0.0, 0.0, 1.0);
 
-    vec3 ab = B - A;
+    vec3 ab = b - a;
 
     // Get interesection to plane
-    float t = (zDistance - dot(normal, A)) / dot(normal, ab);
+    float t = (zDistance - dot(normal, a)) / dot(normal, ab);
 
-    vec3 result = A + t * ab;
+    vec3 result = a + t * ab;
     return result;
 }
 
@@ -70,14 +70,13 @@ void main()
     const vec3 camPosition = vec3(0.0);
 
     // Per Tile
-    uint tileSizePx = u_Constants.ClusterSize; // how many pixels does a tile have (e.g.: 16 x 16)
     uint tileIndex = gl_WorkGroupID.x +
                      gl_WorkGroupID.y * gl_NumWorkGroups.x +
                      gl_WorkGroupID.z * (gl_NumWorkGroups.x * gl_NumWorkGroups.y);
 
     // Calculate Min/Max in screen space
-    vec4 minPointScreenSpace = vec4(gl_WorkGroupID.xy * tileSizePx, 1.0, 1.0); // Top Left
-    vec4 maxPointScreenSpace = vec4(vec2(gl_WorkGroupID.x + 1, gl_WorkGroupID.y + 1) * tileSizePx, 1.0, 1.0); // Bottom right
+    vec4 minPointScreenSpace = vec4(gl_WorkGroupID.xy * u_Constants.ClusterSize, 0.0, 1.0); // Top Left
+    vec4 maxPointScreenSpace = vec4(vec2(gl_WorkGroupID.x + 1, gl_WorkGroupID.y + 1) * u_Constants.ClusterSize, 0.0, 1.0); // Bottom right
 
     // Convert Min/Max to view space
     vec3 minPointViewSpace = ScreenToView(minPointScreenSpace).xyz;

@@ -35,6 +35,8 @@ namespace Onyx::GameCore
         Graphics::BufferHandle Indices;
 
         DynamicArray<Matrix4<onyxF32>> Transforms;
+        bool EnableClusterDebug = false;
+        bool EnableLightClusters = false;
     };
 
     //struct TextDrawCall

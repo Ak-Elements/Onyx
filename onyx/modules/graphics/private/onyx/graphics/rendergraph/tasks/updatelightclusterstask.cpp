@@ -6,6 +6,8 @@
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/profiler/profiler.h>
 
+#define BATCHED 1
+
 namespace Onyx::Graphics
 {
     void CreateLightClusters::OnInit(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
@@ -46,7 +48,8 @@ namespace Onyx::Graphics
 
         Constants constants;
         constants.InverseProjection = viewConstants.InverseProjectionMatrix;
-        constants.ClusterSize = (onyxU32)std::ceil(viewConstants.Viewport[0] / CLUSTER_X);
+        constants.ClusterSize[0] = (onyxU32)std::ceil(viewConstants.Viewport[0] / CLUSTER_X);
+        constants.ClusterSize[1] = (onyxU32)std::ceil(viewConstants.Viewport[1] / CLUSTER_Y);
 
         constants.zNear = viewConstants.Near;
         constants.zFar = viewConstants.Far;
@@ -149,8 +152,12 @@ namespace Onyx::Graphics
         commandBuffer.BindPushConstants(ShaderStage::Compute, 0, sizeof(PushConstants), &constants);
 
         commandBuffer.Bind(m_LightIndexGlobalCountSSBO[frameIndex], "globalindexcountssbo");
-        commandBuffer.Dispatch(1, 1, 6);
 
+#if BATCHED
+        commandBuffer.Dispatch(1, 1, 6);
+#else
+        commandBuffer.Dispatch(CLUSTER_X, CLUSTER_Y, CLUSTER_Z);
+#endif
         commandBuffer.GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT);
     }
 }

@@ -23,6 +23,6 @@ layout(std140, set = GLOBAL_SET, binding = VIEW_CONSTANTS_BINDING) uniform ViewC
 
 float LinearDepth(float depthSample)
 {
-    float linear = u_ViewConstants.Near * u_ViewConstants.Far / (u_ViewConstants.Far - depthSample * (u_ViewConstants.Far - u_ViewConstants.Near));
+    float linear = u_ViewConstants.Near * u_ViewConstants.Far / (u_ViewConstants.Far + depthSample * (u_ViewConstants.Near - u_ViewConstants.Far));
     return linear;
 }

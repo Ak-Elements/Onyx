@@ -1,0 +1,73 @@
+#version 460 core
+
+#include "includes/common.h"
+#include "includes/viewconstants.h"
+
+vertex
+{
+    layout(location = 0) out vec3 OutColor;
+
+    struct LightCluster
+    {
+        vec4 Min;
+        vec4 Max;
+    };
+
+    layout (std430, set = 1, binding = 0) buffer ClusterAABBs
+    {
+        LightCluster Clusters[];
+    };
+
+    // Edge index pairs: each line is between two of the 8 corners
+    const uvec2 EDGE_INDICES[12] = uvec2[](
+        uvec2(0,1), uvec2(1,3), uvec2(3,2), uvec2(2,0), // bottom face
+        uvec2(4,5), uvec2(5,7), uvec2(7,6), uvec2(6,4), // top face
+        uvec2(0,4), uvec2(1,5), uvec2(2,6), uvec2(3,7)  // vertical edges
+    );
+
+    const vec3 CORNER_OFFSETS[8] = vec3[](
+        vec3(0,0,0), vec3(1,0,0), vec3(0,1,0), vec3(1,1,0),
+        vec3(0,0,1), vec3(1,0,1), vec3(0,1,1), vec3(1,1,1)
+    );
+
+    vec3 COLORS[8] = vec3[](
+        vec3(0, 0, 0),    vec3( 0,  0,  1), vec3( 0, 1, 0),  vec3(0, 1,  1),
+        vec3(1,  0,  0),  vec3( 1,  0,  1), vec3( 1, 1, 0),  vec3(1, 1, 1)
+    );
+
+    void main()
+    {
+        uint vertexIndex = gl_VertexIndex; // 0 - 23
+        uint clusterIndex = gl_InstanceIndex;
+
+        LightCluster cluster = Clusters[clusterIndex];
+
+        vec3 minPos = cluster.Min.xyz;
+        vec3 maxPos = cluster.Max.xyz;
+
+        uint edgeIndex = vertexIndex / 2; // 0 - 11 range
+        uint edgeEndPoint = vertexIndex % 2; // 0 / 1
+
+        uvec2 indices = EDGE_INDICES[edgeIndex];
+
+        uint edgeStartPoint = edgeEndPoint == 0 ? indices.x : indices.y;
+
+        vec3 position = mix(minPos, maxPos, CORNER_OFFSETS[edgeStartPoint]);
+        
+        OutColor = COLORS[uint(mod(clusterIndex, 8.0))];
+
+        gl_Position = u_ViewConstants.ProjectionMatrix * vec4(position, 1.0);
+    }
+}
+
+fragment
+{
+    layout(location = 0) in vec3 InColor;
+
+    layout(location = 0) out vec4 OutColor;
+
+    void main()
+    {
+        OutColor = vec4(InColor, 0.2);
+    }
+}

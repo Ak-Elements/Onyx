@@ -21,7 +21,14 @@ namespace Onyx::GameCore
 
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Intensity", Light.Intensity);
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Radius", Light.Radius);
-        hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", Light.IsShadowCasting);
+
+        bool isEnabled = Light.IsEnabled == 1;
+        hasModified |= Ui::PropertyGrid::DrawBoolProperty("Is Enabled", isEnabled);
+        Light.IsEnabled = isEnabled == 1;
+
+        bool isShadowCasting = Light.IsShadowCasting == 1;
+        hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", isShadowCasting);
+        Light.IsShadowCasting = isShadowCasting == 1;
         ONYX_UNUSED(hasModified);
     }
 

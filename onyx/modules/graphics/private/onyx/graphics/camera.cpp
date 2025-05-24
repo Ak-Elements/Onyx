@@ -9,15 +9,15 @@ namespace Onyx::Graphics
         const Vector3f u(s.Cross(f));
 
         Matrix4<onyxF32> Result;
-        Result[0][0] = s[0];
-        Result[1][0] = s[1];
-        Result[2][0] = s[2];
-        Result[0][1] = u[0];
-        Result[1][1] = u[1];
-        Result[2][1] = u[2];
-        Result[0][2] = -f[0];
-        Result[1][2] = -f[1];
-        Result[2][2] = -f[2];
+        Result[0][0] = s.X;
+        Result[1][0] = s.Y;
+        Result[2][0] = s.Z;
+        Result[0][1] = u.X;
+        Result[1][1] = u.Y;
+        Result[2][1] = u.Z;
+        Result[0][2] = -f.X;
+        Result[1][2] = -f.Y;
+        Result[2][2] = -f.Z;
         Result[3][0] = -static_cast<onyxF32>(s.Dot(cameraPosition));
         Result[3][1] = -static_cast<onyxF32>(u.Dot(cameraPosition));
         Result[3][2] = static_cast<onyxF32>(f.Dot(cameraPosition));
@@ -85,9 +85,9 @@ namespace Onyx::Graphics
 
             projectionMatrix[0][0] = numeric_cast<onyxF32>(w);
             projectionMatrix[1][1] = numeric_cast<onyxF32>(h);
-            projectionMatrix[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            projectionMatrix[2][2] = farPlane / (nearPlane - farPlane); //
             projectionMatrix[2][3] = -1.0f;
-            projectionMatrix[3][2] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
+            projectionMatrix[3][2] = -(farPlane * nearPlane) / (farPlane - nearPlane); //
         }
         else
         {

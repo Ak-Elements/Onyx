@@ -37,7 +37,7 @@ namespace Onyx::GameCore
         static constexpr StringId32 TypeId = "Onyx::GameCore::Components::PointLightComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
-        Graphics::PointLight Light;
+        Graphics::PointLight Light { .IsEnabled =  true };
 
         void Serialize(Stream& outStream) const;
         void Deserialize(const Stream& inStream);

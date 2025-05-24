@@ -34,8 +34,9 @@ struct PointLight
     vec3 Color;
     float Radius;
 
-    bool IsShadowCasting;
-    float Pad[7];// unused
+    uint IsEnabled;
+    uint IsShadowCasting;
+    float Pad[6];// unused
 };
 
 struct SpotLight

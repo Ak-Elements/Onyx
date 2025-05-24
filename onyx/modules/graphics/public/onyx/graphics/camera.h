@@ -43,14 +43,14 @@ namespace Onyx::Graphics
         onyxF32 GetFar() const { return farPlane; }
 
     protected:
-        Matrix4<onyxF32> projectionMatrix;
-        Matrix4<onyxF32> inverseProjectionMatrix;
+        Matrix4<onyxF32> projectionMatrix { 0 };
+        Matrix4<onyxF32> inverseProjectionMatrix { 0 };
 
-        Matrix4<onyxF32> viewMatrix;
-        Matrix4<onyxF32> inverseViewMatrix;
+        Matrix4<onyxF32> viewMatrix { 0 };
+        Matrix4<onyxF32> inverseViewMatrix { 0 };
 
-        Matrix4<onyxF32> viewProjectionMatrix;
-        Matrix4<onyxF32> inverseViewProjectionMatrix;
+        Matrix4<onyxF32> viewProjectionMatrix { 0 };
+        Matrix4<onyxF32> inverseViewProjectionMatrix { 0 };
 
         Vector3f direction;
 

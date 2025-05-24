@@ -32,6 +32,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/rendergraph/rendergraphnodefactory.h
     ${TARGET_PUBLIC_PATH}/rendergraph/rendergraphtask.h
     ${TARGET_PUBLIC_PATH}/rendergraph/tasks/atmosphericskytask.h
+    ${TARGET_PUBLIC_PATH}/rendergraph/tasks/debuglightclusterspass.h
     ${TARGET_PUBLIC_PATH}/rendergraph/tasks/multiplescatteringtask.h
     ${TARGET_PUBLIC_PATH}/rendergraph/tasks/updatelightclusterstask.h
     ${TARGET_PUBLIC_PATH}/rendergraph/tasks/updateviewconstantstask.h
@@ -112,6 +113,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphtask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphnodefactory.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/atmosphericskytask.cpp
+    ${TARGET_PRIVATE_PATH}/rendergraph/tasks/debuglightclusterspass.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/multiplescatteringtask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/updatelightclusterstask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/updateviewconstantstask.cpp

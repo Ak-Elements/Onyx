@@ -5,6 +5,7 @@
 #include <onyx/graphics/textureasset.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
+#include <onyx/graphics/rendergraph/tasks/debuglightclusterspass.h>
 #include <onyx/graphics/rendergraph/tasks/multiplescatteringtask.h>
 #include <onyx/graphics/rendergraph/tasks/scatteringtask.h>
 #include <onyx/graphics/rendergraph/tasks/skyviewluttask.h>
@@ -43,6 +44,7 @@ namespace Onyx::Graphics
         RenderGraphNodeFactory::RegisterNode<SkyViewLutRenderGraphNode>("Scattering/Compute SkyViewLut");
         RenderGraphNodeFactory::RegisterNode<AtmosphericSkyRenderGraphNode>("Scattering/Atmospheric Sky");
         RenderGraphNodeFactory::RegisterNode<ToneMapPass>("PostFx/Tonemap");
+        RenderGraphNodeFactory::RegisterNode<DebugLightClustersRenderPass>("Debug/Lighting/Render Light Clusters");
 
         NodeGraph::NodeGraphTypeRegistry::RegisterType<TextureHandle>();
         NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle, "Onyx::Graphics::BufferHandle">();

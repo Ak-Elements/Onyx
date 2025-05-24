@@ -88,23 +88,25 @@ vec3 CalculateDirectionalLights(vec3 V, vec3 N, vec3 albedo, float metalness, fl
 	return Lo;
 }
 
-vec3 CalculatePointLights(uint clusterIndex, vec3 V, vec3 N, vec3 worldPosition, vec3 albedo, float metalness, float roughness)
+vec3 CalculatePointLights(uint clusterIndex, vec3 V, vec3 N, vec3 worldPosition, vec3 albedo, float metalness, float roughness, uint debugFlag)
 {
 	vec3 Lo = vec3(0, 0, 0);
 
-	uint pointLightCount = sbo_LightGrid.Cells[clusterIndex].PointLightCount;
+	uint pointLightCount = debugFlag == 2 ? sbo_LightGrid.Cells[clusterIndex].PointLightCount : SceneLights.PointLightCount; 
 	uint lightIndexOffset = sbo_LightGrid.Cells[clusterIndex].PointLightOffset;
 	for (uint i = 0; i < pointLightCount; ++i)
 	{
-		uint lightIndex = sbo_GlobalLightIndices.Indices[lightIndexOffset + i].PointLightIndex;
+		uint lightIndex = debugFlag == 2 ? sbo_GlobalLightIndices.Indices[lightIndexOffset + i].PointLightIndex : i;
 		PointLight light = SceneLights.PointLights[lightIndex];
 		
 		vec3 lightToFragPos = light.Position - worldPosition;
 		
 		vec3 L = normalize(lightToFragPos);
 
-		float dist = length(lightToFragPos);
-		float attenuation = 1.0 / (dist * dist);
+		float distance = length(lightToFragPos);
+
+        float attenuation = clamp(1.0 - (distance * distance) / (light.Radius * light.Radius), 0.0, 1.0);
+		attenuation *= mix(attenuation, 1.0, 0.5);
 
 		vec3 radiance = light.Color * light.Intensity * attenuation;
 		Lo += BRDF(L, V, N, radiance, albedo, metalness, roughness);
@@ -113,15 +115,15 @@ vec3 CalculatePointLights(uint clusterIndex, vec3 V, vec3 N, vec3 worldPosition,
 	return Lo;
 }
 
-vec3 CalculateSpotLights(uint clusterIndex, vec3 V, vec3 N, vec3 worldPosition, vec3 albedo, float metalness, float roughness)
+vec3 CalculateSpotLights(uint clusterIndex, vec3 V, vec3 N, vec3 worldPosition, vec3 albedo, float metalness, float roughness, uint debugFlag)
 {
 	vec3 Lo = vec3(0, 0, 0);
 
-	uint spotLightCount = sbo_LightGrid.Cells[clusterIndex].SpotLightCount;
+	uint spotLightCount = debugFlag == 2 ? sbo_LightGrid.Cells[clusterIndex].SpotLightCount : SceneLights.SpotLightCount;
 	uint lightIndexOffset = sbo_LightGrid.Cells[clusterIndex].SpotLightOffset;
 	for (int i = 0; i < spotLightCount; ++i)
 	{
-		uint lightIndex = sbo_GlobalLightIndices.Indices[lightIndexOffset + i].SpotLightIndex;
+		uint lightIndex = debugFlag == 2 ? sbo_GlobalLightIndices.Indices[lightIndexOffset + i].SpotLightIndex : i;
 		SpotLight light = SceneLights.SpotLights[lightIndex];
 		
 		vec3 lightToFragPos = light.Position - worldPosition;
@@ -144,27 +146,78 @@ vec3 CalculateSpotLights(uint clusterIndex, vec3 V, vec3 N, vec3 worldPosition, 
 	return Lo;
 }
 
-vec3 CalculatePBRLighting(vec3 worldPosition, vec3 worldNormal, vec3 cameraWorldPosition, uint clusterIndex, PBRMaterial material)
+vec3 ColorHeatMap(float heat)
 {
-	vec3 N = normalize(worldNormal);
-	vec3 V = normalize(cameraWorldPosition - worldPosition);
+	if (heat < 0.0)
+		return vec3(0.0);
+	else if (heat > 1.0)
+		return vec3(1.0);
 
-	// Specular contribution
-	vec3 Lo = CalculateDirectionalLights(V, N, material.Albedo, material.Metalness, material.Roughness);
-	Lo += CalculatePointLights(clusterIndex, V, N, worldPosition, material.Albedo, material.Metalness, material.Roughness);
-	Lo += CalculateSpotLights(clusterIndex, V, N, worldPosition, material.Albedo, material.Metalness, material.Roughness);
+	const vec4 kRedVec4   = vec4(0.13572138, 4.61539260, -42.66032258, 132.13108234);
+    const vec4 kGreenVec4 = vec4(0.09140261, 2.19418839, 4.84296658, -14.18503333);
+    const vec4 kBlueVec4  = vec4(0.10667330, 12.64194608, -60.58204836, 110.36276771);
+    const vec2 kRedVec2   = vec2(-152.94239396, 59.28637943);
+    const vec2 kGreenVec2 = vec2(4.27729857, 2.82956604);
+    const vec2 kBlueVec2  = vec2(-89.90310912, 27.34824973);
+	
+	heat = clamp(heat, 0.0, 1.0);
+	vec4 v4 = vec4(1.0, heat, heat * heat, heat * heat * heat);
+	vec2 v2 = v4.zw * v4.z;
 
-	vec3 color = material.Albedo + Lo;
-	return color;
+	return vec3(
+		dot(v4, kRedVec4) + dot(v2, kRedVec2),
+		dot(v4, kGreenVec4) + dot(v2, kGreenVec2),
+		dot(v4, kBlueVec4) + dot(v2, kBlueVec2)
+	);
 }
 
-uint GetClusterIndex(vec4 fragCoord, uvec4 clusterSize, float scale, float bias)
+vec3 debug_colors[8] = vec3[](
+   vec3(0, 0, 0),    vec3( 0,  0,  1), vec3( 0, 1, 0),  vec3(0, 1,  1),
+   vec3(1,  0,  0),  vec3( 1,  0,  1), vec3( 1, 1, 0),  vec3(1, 1, 1)
+);
+
+vec3 CalculatePBRLighting(vec3 worldPosition, vec3 worldNormal, vec3 cameraWorldPosition, vec4 fragCoord, float scale, float bias, uint clusterIndex, PBRMaterial material, uint debugFlag)
 {
-	 //Locating which cluster you are a part of
-    uint zTile     = uint(max(log2(LinearDepth(fragCoord.z)) * scale + bias, 0.0));
-    uvec3 tiles    = uvec3( uvec2( fragCoord.xy / clusterSize.w ), zTile);
-    uint clusterIndex = tiles.x +
-                     clusterSize.x * tiles.y +
-                     (clusterSize.x * clusterSize.y) * tiles.z;  
+    uint pointLightCount = sbo_LightGrid.Cells[clusterIndex].PointLightCount;
+    uint spotLightCount = sbo_LightGrid.Cells[clusterIndex].SpotLightCount;
+
+    if (debugFlag == 1)
+    {	
+        // light count per cluster
+        //int totalLightCount = int(pointLightCount + spotLightCount);
+        //if (totalLightCount == 0)
+        //	--totalLightCount;
+        //else if (totalLightCount == 2 * MAX_LIGHTS)
+        //	totalLightCount++;
+
+        //vec3 lightCountColor = ColorHeatMap(float(totalLightCount) / (2 * MAX_LIGHTS));
+        //return lightCountColor;
+
+        uint zTile     = uint(max(log2(LinearDepth(fragCoord.z)) * scale + bias, 0.0));
+        // cluster view
+        uint zIndex = uint(mod(zTile, 8.0));
+        return debug_colors[zIndex];
+    }
+
+    vec3 N = normalize(worldNormal);
+    vec3 V = normalize(cameraWorldPosition - worldPosition);
+
+    // Specular contribution
+    vec3 Lo = CalculateDirectionalLights(V, N, material.Albedo, material.Metalness, material.Roughness);
+    Lo += CalculatePointLights(clusterIndex, V, N, worldPosition, material.Albedo, material.Metalness, material.Roughness, debugFlag);
+    Lo += CalculateSpotLights(clusterIndex, V, N, worldPosition, material.Albedo, material.Metalness, material.Roughness, debugFlag);
+
+    vec3 color = material.Albedo + Lo;
+    return color;
+}
+
+uint GetClusterIndex(vec4 fragCoord, uvec3 clusterGridSize, uvec2 clusterSize, float scale, float bias)
+{
+    float linearDepth = LinearDepth(fragCoord.z);
+    uint zTile     = uint(max(log2(linearDepth) * scale + bias, 0.0));
+    uvec3 clusterIndex3D    = uvec3( uvec2( fragCoord.x / clusterSize.x, fragCoord.y / clusterSize.y ), zTile);
+    uint clusterIndex = clusterIndex3D.x +
+                     clusterGridSize.x * clusterIndex3D.y +
+                     (clusterGridSize.x * clusterGridSize.y) * clusterIndex3D.z;  
 	return clusterIndex;
 }

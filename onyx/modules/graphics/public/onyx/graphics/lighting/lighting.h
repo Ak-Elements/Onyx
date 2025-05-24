@@ -22,8 +22,9 @@ namespace Onyx::Graphics
         Vector3f Color{ 1.0f };
         onyxF32 Radius;
 
-        bool IsShadowCasting = true;
-        onyxF32 Padding[7];
+        onyxU32 IsEnabled = 0;
+        onyxU32 IsShadowCasting = 1;
+        onyxF32 Padding[6];
     };
 
     struct SpotLight
