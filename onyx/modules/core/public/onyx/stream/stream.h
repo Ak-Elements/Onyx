@@ -5,13 +5,13 @@ namespace Onyx
     class Stream;
 
     template<typename T>
-    concept HasSerialize = requires(const T & obj, Stream& outStream)
+    concept HasSerialize = requires(const T& obj, Stream& outStream)
     {
         { obj.Serialize(outStream) } -> std::same_as<void>;
     };
 
     template<typename T>
-    concept HasDeserialize = requires(T & obj, const Stream& inStream)
+    concept HasDeserialize = requires(T& obj, const Stream& inStream)
     {
         { obj.Deserialize(inStream) } -> std::same_as<void>;
     };
