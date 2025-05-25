@@ -54,6 +54,8 @@ namespace Onyx::NodeGraph
         virtual void OnUpdate(ExecutionContext& /*context*/) const { }
         virtual void OnFinished() { }
 
+        void SerializePin(const PinBase& pin, FileSystem::JsonValue& outPinsJsonArray) const; 
+
     public:
         // REMOVE
         const Guid64& GetId() const { return m_Id; }
@@ -202,9 +204,6 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename... Policies>
-    class NodeWithPolicy : public Node, public Policies... {};
-
     template <typename NodeType>
     class FlexiblePinsNode : public NodeType
     {
@@ -214,8 +213,8 @@ namespace Onyx::NodeGraph
 
         FlexiblePinsNode(FlexiblePinsNode&& other) noexcept
             : Node(std::move(other))
-            , m_InputPins(std::move(other.m_InputPins))
-            , m_OutputPins(std::move(other.m_OutputPins))
+              , m_InputPins(std::move(other.m_InputPins))
+              , m_OutputPins(std::move(other.m_OutputPins))
         {
         }
 
@@ -268,67 +267,8 @@ namespace Onyx::NodeGraph
             return true;
         }
 
-        bool DeserializePins(const FileSystem::JsonValue& pinsJsonArray, DynamicArray<UniquePtr<PinBase>>& outPins)
-        {
-            if (pinsJsonArray.Json.empty())
-            {
-                return true;
-            }
-
-            Guid64 globalPinId;
-            Guid64 linkedPinId;
-
-            const onyxU32 pinCount = static_cast<onyxU32>(pinsJsonArray.Json.size());
-            for (onyxU32 i = 0; i < pinCount; ++i)
-            {
-                FileSystem::JsonValue pinJson{ pinsJsonArray.Json[i] };
-
-                StringId32 localPinId;
-                if (pinJson.Get("localId", localPinId) == false)
-                {
-                    ONYX_LOG_ERROR("Pin is missing localId in json.");
-                    return false;
-                }
-
-                if (pinJson.Get("id", globalPinId) == false)
-                {
-                    ONYX_LOG_ERROR("Pin is missing global id in json.");
-                    return false;
-                }
-
-                auto pinIt = std::ranges::find_if(outPins, [&](const UniquePtr<PinBase>& pin)
-                    {
-                        return pin->GetLocalId() == localPinId;
-                    });
-
-                PinBase* pin = pinIt != outPins.end() ? pinIt->get() : nullptr;
-                if (pin == nullptr)
-                {
-                    StringId32 typeId;
-                    if (pinJson.Get("typeId", typeId) == false)
-                    {
-                        ONYX_LOG_ERROR("Pin is missing type id in json.");
-                        return false;
-                    }
-
-                    pin = outPins.emplace_back(CreatePin(typeId, globalPinId, localPinId)).get();
-
-                }
-                else
-                {
-                    pin->SetGlobalId(globalPinId);
-                }
-
-                if (pinJson.Get("linkedPin", linkedPinId))
-                {
-                    pin->ConnectPin(linkedPinId);
-                }
-            }
-
-            return true;
-        }
-        
 #if ONYX_IS_EDITOR
+
         std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             auto inputIt = std::find_if(m_InputPins.begin(), m_InputPins.end(), [&](const auto& pin)
@@ -438,6 +378,66 @@ namespace Onyx::NodeGraph
         //}
 
     private:
+        bool DeserializePins(const FileSystem::JsonValue& pinsJsonArray, DynamicArray<UniquePtr<PinBase>>& outPins)
+        {
+            if (pinsJsonArray.Json.empty())
+            {
+                return true;
+            }
+
+            Guid64 globalPinId;
+            Guid64 linkedPinId;
+
+            const onyxU32 pinCount = static_cast<onyxU32>(pinsJsonArray.Json.size());
+            for (onyxU32 i = 0; i < pinCount; ++i)
+            {
+                FileSystem::JsonValue pinJson{ pinsJsonArray.Json[i] };
+
+                StringId32 localPinId;
+                if (pinJson.Get("localId", localPinId) == false)
+                {
+                    ONYX_LOG_ERROR("Pin is missing localId in json.");
+                    return false;
+                }
+
+                if (pinJson.Get("id", globalPinId) == false)
+                {
+                    ONYX_LOG_ERROR("Pin is missing global id in json.");
+                    return false;
+                }
+
+                auto pinIt = std::ranges::find_if(outPins, [&](const UniquePtr<PinBase>& pin)
+                {
+                    return pin->GetLocalId() == localPinId;
+                });
+
+                PinBase* pin = pinIt != outPins.end() ? pinIt->get() : nullptr;
+                if (pin == nullptr)
+                {
+                    StringId32 typeId;
+                    if (pinJson.Get("typeId", typeId) == false)
+                    {
+                        ONYX_LOG_ERROR("Pin is missing type id in json.");
+                        return false;
+                    }
+
+                    pin = outPins.emplace_back(CreatePin(typeId, globalPinId, localPinId)).get();
+
+                }
+                else
+                {
+                    pin->SetGlobalId(globalPinId);
+                }
+
+                if (pinJson.Get("linkedPin", linkedPinId))
+                {
+                    pin->ConnectPin(linkedPinId);
+                }
+            }
+
+            return true;
+        }
+
 #if ONYX_ASSERTS_ENABLED
         //template <PinType Pin>
         /*bool HasInputPin() const
@@ -466,6 +466,9 @@ namespace Onyx::NodeGraph
         DynamicArray<UniquePtr<PinBase>> m_InputPins;
         DynamicArray<UniquePtr<PinBase>> m_OutputPins;
     };
+
+    template <typename... Policies>
+    class NodeWithPolicy : public Node, public Policies... {};
 
     /*class GraphInputNode : public FlexiblePinsNode
     {

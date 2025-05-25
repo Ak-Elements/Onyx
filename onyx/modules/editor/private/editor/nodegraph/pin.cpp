@@ -119,6 +119,11 @@ namespace Onyx::NodeGraph
         return Ui::PropertyGrid::DrawVector4Property(name, value);
     }
 
+    bool PinMetaObject<String>::DrawPinInPropertyGrid(StringView name, String& value)
+    {
+        return Ui::PropertyGrid::DrawStringProperty(name, value);
+    }
+
     bool PinMetaObject<Graphics::TextureHandle>::DrawPinInPropertyGrid(StringView name, Graphics::TextureHandle& /*value*/)
     {
         String test = "I'm a texture handle";

@@ -494,6 +494,27 @@ namespace Onyx::NodeGraph
         }
     };
 
+    template <>
+    struct PinMetaObject<String>
+    {
+#if ONYX_IS_EDITOR
+        static bool DrawPinInPropertyGrid(StringView name, String& value);
+        static constexpr onyxU32 GetPinTypeColor() { return 0xFF3030DC; }
+#endif
+
+        static bool Serialize(FileSystem::JsonValue& json, const String& value)
+        {
+            json.Set("data", value);
+            return true;
+        }
+
+        static bool Deserialize(const FileSystem::JsonValue& json, String& value)
+        {
+            json.Get("data", value);
+            return true;
+        }
+    };
+
     struct ExecutePin {};
 
     enum class PinTypeId : onyxU32

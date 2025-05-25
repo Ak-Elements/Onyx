@@ -1,4 +1,5 @@
 #include <onyx/nodegraph/node.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 
 namespace Onyx::NodeGraph
 {
@@ -17,20 +18,8 @@ namespace Onyx::NodeGraph
             FileSystem::JsonValue nodeInputsJsonArray;
             for (onyxU32 i = 0; i < inputPinCount; ++i)
             {
-                FileSystem::JsonValue inputPinObj;
                 const PinBase* inputPin = GetInputPin(i);
-                inputPinObj.Set("id", inputPin->GetGlobalId());
-                inputPinObj.Set("localId", inputPin->GetLocalId());
-
-                if (inputPin->GetType() != PinTypeId::Execute)
-                {
-                    if (inputPin->IsConnected())
-                    {
-                        inputPinObj.Set("linkedPin", inputPin->GetLinkedPinGlobalId());
-                    }
-                }
-
-                nodeInputsJsonArray.Add(inputPinObj);
+                SerializePin(*inputPin, nodeInputsJsonArray);
             }
 
             json.Set("inputs", nodeInputsJsonArray);
@@ -43,14 +32,7 @@ namespace Onyx::NodeGraph
             for (onyxU32 i = 0; i < outputPinCount; ++i)
             {
                 const PinBase* outputPin = GetOutputPin(i);
-                FileSystem::JsonValue outputPinObj;
-                outputPinObj.Set("id", outputPin->GetGlobalId());
-                outputPinObj.Set("localId", outputPin->GetLocalId());
-
-                if (outputPin->IsConnected())
-                    outputPinObj.Set("linkedPin", outputPin->GetLinkedPinGlobalId());
-
-                nodeOutputsJsonArray.Add(outputPinObj);
+                SerializePin(*outputPin, nodeOutputsJsonArray);
             }
 
             json.Set("outputs", nodeOutputsJsonArray);
@@ -59,6 +41,22 @@ namespace Onyx::NodeGraph
         OnSerialize(json);
 
         return true;
+    }
+
+    void Node::SerializePin(const PinBase& pin, FileSystem::JsonValue& outPinsJsonArray) const
+    {
+        FileSystem::JsonValue pinJsonObj;
+        
+        pinJsonObj.Set("id", pin.GetGlobalId());
+        pinJsonObj.Set("localId", pin.GetLocalId());
+        pinJsonObj.Set("typeId", NodeGraphTypeRegistry::GetSerializedTypeId(pin.GetType()));
+
+        if (pin.IsConnected())
+        {
+            pinJsonObj.Set("linkedPin", pin.GetLinkedPinGlobalId());
+        }
+
+        outPinsJsonArray.Add(pinJsonObj);
     }
 
     bool Node::Deserialize(const FileSystem::JsonValue& json)

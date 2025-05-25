@@ -52,6 +52,7 @@ namespace Onyx::NodeGraph
             constexpr StringId32 serializedTypeId = T::TypeId;
             ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
             s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, StringId32 localId) { return new DynamicPin<T>(globalId, localId); };
+            s_RuntimeToStaticTypeId[static_cast<PinTypeId>(TypeHash<T>())] = serializedTypeId;
         }
 
         template <typename T, CompileTimeString SerializedTypeId>
@@ -60,6 +61,12 @@ namespace Onyx::NodeGraph
             constexpr StringId32 serializedTypeId(SerializedTypeId);
             ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
             s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, StringId32 localId) { return new DynamicPin<T>(globalId, localId); };
+            s_RuntimeToStaticTypeId[static_cast<PinTypeId>(TypeHash<T>())] = serializedTypeId;
+        }
+
+        static StringId32 GetSerializedTypeId(PinTypeId pinTypeId)
+        {
+            return s_RuntimeToStaticTypeId.at(pinTypeId);
         }
 
         static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, StringId32 localId)
@@ -69,6 +76,7 @@ namespace Onyx::NodeGraph
 
     private:
         static HashMap<StringId32, InplaceFunction<PinBase*(Guid64, StringId32)>> s_RegisteredTypes;
+        static HashMap<PinTypeId, StringId32> s_RuntimeToStaticTypeId;
     };
 
     template <typename MetaDataContainerT = NodeEditorMetaData>
