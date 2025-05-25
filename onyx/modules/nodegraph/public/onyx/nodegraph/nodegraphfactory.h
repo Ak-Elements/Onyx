@@ -1,10 +1,8 @@
 #pragma once
 
-#include <onyx/nodegraph/node.h>
-#include <onyx/nodegraph/pin.h>
+#include <onyx/nodegraph/pins/dynamicpin.h>
+#include <onyx/nodegraph/nodes/node.h>
 #include <onyx/filesystem/onyxfile.h>
-
-#include <any>
 
 namespace Onyx::FileSystem
 {

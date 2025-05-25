@@ -1,9 +1,6 @@
 #pragma once
 
-#include <onyx/nodegraph/node.h>
 #include <onyx/geometry/vector.h>
-
-#include <onyx/nodegraph/executioncontext.h>
 
 namespace Onyx::Editor
 {

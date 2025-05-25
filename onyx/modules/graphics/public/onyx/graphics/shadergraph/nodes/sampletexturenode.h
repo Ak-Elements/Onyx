@@ -1,7 +1,8 @@
 #pragma once
 
-#include <onyx/assets/asset.h>
+#include <onyx/nodegraph/nodes/flexiblepinsnode.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
+#include <onyx/assets/asset.h>
 #include <onyx/geometry/common.h>
 
 namespace Onyx::Graphics

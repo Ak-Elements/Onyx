@@ -1,5 +1,5 @@
 #pragma once
-#include <onyx/nodegraph/node.h>
+#include <onyx/nodegraph/nodes/node.h>
 
 namespace Onyx::Assets
 {

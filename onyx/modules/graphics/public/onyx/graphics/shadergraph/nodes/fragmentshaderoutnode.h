@@ -1,6 +1,8 @@
 #pragma once
 
-#include <onyx/nodegraph/node.h>
+#include <onyx/nodegraph/nodes/fixedpinnode1in.h>
+#include <onyx/nodegraph/nodes/fixedpinsnode.h>
+#include <onyx/nodegraph/pins/pin.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 #include <onyx/geometry/common.h>
 

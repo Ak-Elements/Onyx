@@ -1,10 +1,16 @@
 #pragma once
 
-#include <onyx/nodegraph/node.h>
 #include <onyx/geometry/vector.h>
 
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/nodegraph/nodes/math/vectornodes_editor.h>
+#include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode1in2out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode1in3out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode1in4out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode4in1out.h>
 
 namespace Onyx::NodeGraph
 {

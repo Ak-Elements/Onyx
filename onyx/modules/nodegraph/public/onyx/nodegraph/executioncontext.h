@@ -1,7 +1,6 @@
 #pragma once
 
-#include <onyx/nodegraph/pin.h>
-#include <any>
+#include <onyx/nodegraph/pins/pinbase.h>
 
 namespace Onyx::NodeGraph
 {
@@ -42,7 +41,7 @@ namespace Onyx::NodeGraph
         {
         }
 
-        struct PinMetaData
+        struct PinRuntimeMetaData
         {
             bool IsConnected = false;
         };
@@ -50,7 +49,7 @@ namespace Onyx::NodeGraph
         struct NodeContext
         {
             HashMap<StringId32, std::any> PinData;
-            HashMap<StringId32, PinMetaData> PinMetaData;
+            HashMap<StringId32, PinRuntimeMetaData> PinMetaData;
         };
 
         template <PinType Pin>

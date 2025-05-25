@@ -8,7 +8,8 @@
 #include <onyx/graphics/pipeline.h>
 #include <onyx/graphics/texturestorage.h>
 #include <onyx/graphics/shader/shadermodule.h>
-#include <onyx/nodegraph/node.h>
+#include <onyx/nodegraph/nodes/node.h>
+#include <onyx/nodegraph/pins/pinmeta.h>
 
 namespace Onyx::NodeGraph
 {

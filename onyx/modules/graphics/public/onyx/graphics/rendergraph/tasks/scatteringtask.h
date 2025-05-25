@@ -1,4 +1,5 @@
 #pragma once
+#include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 

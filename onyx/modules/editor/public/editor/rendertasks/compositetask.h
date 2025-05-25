@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/nodegraph/nodes/flexiblepinsnode.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
 namespace Onyx

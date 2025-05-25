@@ -1,4 +1,4 @@
-#include <onyx/nodegraph/pin.h>
+#include <onyx/nodegraph/pins/dynamicpin.h>
 
 #include <onyx/nodegraph/nodegraphfactory.h>
 

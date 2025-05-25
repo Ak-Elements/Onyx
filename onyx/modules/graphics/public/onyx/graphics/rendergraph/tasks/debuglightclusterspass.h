@@ -1,14 +1,13 @@
 #pragma once
+
+#include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
-#include <onyx/nodegraph/graph.h>
-
 
 namespace Onyx::Graphics
 {
-    class DebugLightClustersRenderPass : public Onyx::NodeGraph::FixedPinNode_3_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, BufferHandle, BufferHandle, TextureHandle>
+    class DebugLightClustersRenderPass : public NodeGraph::FixedPinNode_3_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, BufferHandle, BufferHandle, TextureHandle>
     {
-        using Super = Onyx::NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>;
     public:
         static constexpr StringId32 TypeId = "RenderGraph::DebugLightClusters";
         StringId32 GetTypeId() const override { return TypeId; }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 namespace Onyx::GameCore

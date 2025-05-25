@@ -1,5 +1,5 @@
 #pragma once
-#include <onyx/nodegraph/node.h>
+#include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
 #include <onyx/nodegraph/executioncontext.h>
 
 namespace Onyx::NodeGraph

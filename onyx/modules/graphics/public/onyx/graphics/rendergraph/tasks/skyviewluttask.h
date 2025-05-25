@@ -1,4 +1,6 @@
 #pragma once
+
+#include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/graphics/scattering/scattering.h>
 

@@ -1,4 +1,4 @@
-#include <onyx/nodegraph/node.h>
+#include <onyx/nodegraph/nodes/node.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
 
 namespace Onyx::NodeGraph

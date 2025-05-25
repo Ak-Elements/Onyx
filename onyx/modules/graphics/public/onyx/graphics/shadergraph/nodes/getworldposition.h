@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
 namespace Onyx::Graphics
