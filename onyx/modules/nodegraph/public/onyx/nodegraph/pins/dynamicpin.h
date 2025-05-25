@@ -1,7 +1,7 @@
 #pragma once
 
 #include <onyx/nodegraph/pins/pinbase.h>
-#include <onyx/nodegraph/pins/pinmeta.h>
+#include <onyx/nodegraph/pins/pinmeta.hpp>
 
 namespace Onyx::NodeGraph
 {

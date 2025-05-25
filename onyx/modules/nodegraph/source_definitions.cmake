@@ -29,6 +29,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/pins/pin.h
     ${TARGET_PUBLIC_PATH}/pins/pinbase.h
     ${TARGET_PUBLIC_PATH}/pins/pinmeta.h
+    ${TARGET_PUBLIC_PATH}/pins/pinmeta.hpp
 )
 
 set(TARGET_PRIVATE_SOURCES

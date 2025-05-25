@@ -5,7 +5,6 @@
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/textureproperties.h>
 #include <onyx/graphics/texturestorageproperties.h>
-#include <onyx/graphics/shader/shadereffect.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <imgui.h>

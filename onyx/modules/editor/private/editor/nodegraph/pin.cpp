@@ -1,6 +1,7 @@
+#include <onyx/nodegraph/pins/pinmeta.hpp>
+#include <onyx/graphics/graphicshandles.h>
+
 #include <onyx/ui/propertygrid.h>
-#include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphics/graphicstypes.h>
 
 namespace Onyx::NodeGraph
 {

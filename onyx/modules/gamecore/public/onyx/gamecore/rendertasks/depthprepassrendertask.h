@@ -1,7 +1,7 @@
 #pragma once
 
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
-#include <onyx/graphics/rendergraph/rendergraph.h>
+#include <onyx/graphics/rendergraph/rendergraphtask.h>
 
 namespace Onyx::GameCore
 {
@@ -12,7 +12,7 @@ namespace Onyx::GameCore
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnInit(Graphics::GraphicsApi& api, Graphics::RenderGraphResourceCache& resourceCache) override;
+        void OnInit(Graphics::GraphicsApi& api, HashMap<Graphics::RenderGraphResourceId, Graphics::RenderGraphResource>& resourceCache) override;
 
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
 

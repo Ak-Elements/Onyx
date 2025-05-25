@@ -1,9 +1,8 @@
 #pragma once
 
 #include <onyx/nodegraph/nodes/flexiblepinsnode.h>
-#include <onyx/nodegraph/pins/pin.h>
-#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/nodegraph/pins/pin.h>
 
 namespace Onyx
 {
