@@ -63,8 +63,6 @@ namespace Onyx::Assets
 
     struct AssetMetaData
     {
-        String Name;
-        String Extension;
         FileSystem::Filepath Path;
         AssetId Id = AssetId::Invalid;
         AssetType Type = AssetType::Invalid;
@@ -72,6 +70,23 @@ namespace Onyx::Assets
         onyxS64 Handle = INVALID_INDEX_64;
 
         onyxU32 Version = 0; // Maybe not needed
+
+        String GetName() const
+        {
+             return Path.stem().string();
+        }
+
+        String GetExtension() const
+        {
+            //TODO: remove extension once we have meta data stored on disk
+            String extension = Path.extension().string();
+            if (extension.empty() == false)
+            {
+                return extension.substr(1); // ignore .
+            }
+
+            return "";
+        }
     };
 }
 

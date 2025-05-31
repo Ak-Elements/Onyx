@@ -19,7 +19,7 @@ namespace Onyx::Assets
                 return;
 
             UniquePtr<AssetLoadRequest> loadRequest = MakeUnique<AssetLoadRequest>();
-            loadRequest->Path = metaData.Path;
+            loadRequest->MetaData = metaData;
             loadRequest->Handle = assetHandle;
             loadRequest->Serializer = serializer.get();
             loadRequest->OnLoadFinished.Connect<&AssetIOHandler::OnAssetLoadFinished>(this);
@@ -35,7 +35,7 @@ namespace Onyx::Assets
                 return;
 
             UniquePtr<AssetSaveRequest> saveRequest = MakeUnique<AssetSaveRequest>();
-            saveRequest->Path = metaData.Path;
+            saveRequest->MetaData = metaData;
             saveRequest->Handle = assetHandle;
             saveRequest->Serializer = serializer.get();
             saveRequest->OnSaveFinished.Connect<&AssetIOHandler::OnAssetSaveFinished>(this);

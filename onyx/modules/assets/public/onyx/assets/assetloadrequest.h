@@ -18,7 +18,7 @@ namespace Onyx::Assets
         void Start(Threading::ThreadPool& loaderPool);
         void Cancel();
 
-        FileSystem::Filepath Path;
+        AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
         const AssetSerializer* Serializer = nullptr;
 
@@ -37,7 +37,7 @@ namespace Onyx::Assets
         void Start(Threading::ThreadPool& loaderPool);
         void Cancel();
 
-        FileSystem::Filepath Path;
+        AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
         const AssetSerializer* Serializer = nullptr;
 

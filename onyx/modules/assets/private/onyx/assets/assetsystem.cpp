@@ -43,13 +43,6 @@ namespace Onyx::Assets
                         assetPath = mountPoint.Prefix + assetPath;
                         metaData.Id = AssetId(FileSystem::Filepath(assetPath));
                         metaData.Path = entry.path();
-                        metaData.Name = metaData.Path.stem().string();
-                        //TODO: remove extension once we have meta data stored on disk
-                        metaData.Extension = metaData.Path.extension().string();
-                        if (metaData.Extension.empty() == false)
-                        {
-                            metaData.Extension = metaData.Extension.substr(1); // ignore .
-                        }
 
                         metaData.Version = version;
 

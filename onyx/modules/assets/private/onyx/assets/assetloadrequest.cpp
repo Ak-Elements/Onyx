@@ -36,26 +36,19 @@ namespace Onyx::Assets
         //ONYX_PROFILE
         ONYX_PROFILE(AssetSystem);
         ONYX_PROFILE_FUNCTION;
-        
 
         // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
         ONYX_ASSERT(Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not load assets on the main thread");
 
-        FileSystem::Filepath relativePath = Path.lexically_relative(FileSystem::Path::GetWorkingDirectory());
-        String assetName = relativePath.string();
+        FileSystem::Filepath relativePath = MetaData.Path.lexically_relative(FileSystem::Path::GetWorkingDirectory());
+        String assetName = MetaData.Path.string();
         //ZoneText(assetName.c_str(), assetName.length());
 
-        // those load functions should probably be static
-
-        FileSystem::OnyxFile inputConfigFile(Path);
+        FileSystem::OnyxFile inputConfigFile(MetaData.Path);
         const FileSystem::JsonValue& inputConfigData = inputConfigFile.LoadJson();
         FileSystem::JsonDeserializer serializer(inputConfigData.Json);
 
-        // TODO: Fix!!!
-        AssetMetaData meta;
-        meta.Path = Path;
-        meta.Name = assetName;
-        if (Serializer->Deserialize(Handle, meta, serializer) == false)
+        if (Serializer->Deserialize(Handle, MetaData, serializer) == false)
         {
             Handle->SetState(AssetState::Invalid);
         }
@@ -99,18 +92,12 @@ namespace Onyx::Assets
         //String assetName = relativePath.string();
         //ZoneText(assetName.c_str(), assetName.length());
 
-         // TODO: Fix!!!
-        AssetMetaData meta;
-        meta.Path = Path;
-        meta.Name = "";
-
-        // those load functions should probably be static
         FileSystem::JsonSerializer serializer;
-        bool succeeded = Serializer->Serialize(Handle, meta, serializer);
+        bool succeeded = Serializer->Serialize(Handle, MetaData, serializer);
 
         const String& jsonString = serializer.JsonRoot.dump(4);
         using namespace FileSystem;
-        OnyxFile inputConfigFile(Path);
+        OnyxFile inputConfigFile(MetaData.Path);
         FileStream stream = inputConfigFile.OpenStream(OpenMode::Write | OpenMode::Text);
         stream.WriteRaw(jsonString.data(), jsonString.size());
 

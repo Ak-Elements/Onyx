@@ -68,7 +68,8 @@ namespace Onyx::Assets
 
             for (const AssetMetaData& assetMeta : (m_AssetsMetaData | std::views::values))
             {
-                if ((type != AssetType::Invalid) && (extensionToAssetType[assetMeta.Extension] != type))
+                String extension(assetMeta.GetExtension());
+                if ((type != AssetType::Invalid) && (extensionToAssetType[extension] != type))
                 {
                     continue;
                 }
@@ -296,7 +297,7 @@ namespace Onyx::Assets
     {
         constexpr StringId32 assetTypeHash = T::TypeId;
         AssetId newAssetId(newPath);
-        AssetMetaData metaData{ newPath.stem().string(), newPath.extension().string().substr(1), newPath, newAssetId, static_cast<AssetType>(assetTypeHash.GetId()), INVALID_INDEX_64, 0};
+        AssetMetaData metaData{ newPath, newAssetId, static_cast<AssetType>(assetTypeHash.GetId()), INVALID_INDEX_64, 0};
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
 
         //TODO: should only add it IF we finish saving

@@ -41,11 +41,11 @@ namespace Onyx::Graphics
         storageProps.m_CpuAccess = Graphics::CPUAccess::None;
         storageProps.m_GpuAccess = Graphics::GPUAccess::Read;
         storageProps.m_IsTexture = true;
-        storageProps.m_DebugName = Format::Format("{} Texture Storage", meta.Name);
+        storageProps.m_DebugName = Format::Format("{} Texture Storage", meta.GetName());
 
         Graphics::TextureProperties textureProps;
         textureProps.m_Format = storageProps.m_Format;
-        textureProps.m_DebugName = Format::Format("{} Texture", meta.Name);
+        textureProps.m_DebugName = Format::Format("{} Texture", meta.GetName());
         const Span<onyxU8>& imageData = file.GetData();
 
         m_GraphicsApi->CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageData);

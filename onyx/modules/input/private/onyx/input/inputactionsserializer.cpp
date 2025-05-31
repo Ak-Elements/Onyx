@@ -139,7 +139,7 @@ namespace Onyx::Input
         HashMap<StringId32, InputActionsMap>& contexts = inputAsset.GetMaps();
 
         contexts.clear();
-        inputAsset.SetName(meta.Name);
+        inputAsset.SetName(meta.GetName());
         return deserializer.Read(contexts);
     }
 }

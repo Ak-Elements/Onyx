@@ -24,7 +24,7 @@ namespace Onyx::Ui::AssetSelectionControl
         if (outAssetId.IsValid())
         {
             const Assets::AssetMetaData& assetMeta = assetSystem.GetAssetMeta(outAssetId);
-            assetName = assetMeta.Name;
+            assetName = assetMeta.GetName();
         }
 
         ImGui::BeginHorizontal("#AssetControl");
@@ -40,13 +40,13 @@ namespace Onyx::Ui::AssetSelectionControl
 
             for (const Assets::AssetMetaData& assetMeta : availableAssets)
             {
-                if ((searchString.empty() == false) && IgnoreCaseFind(assetMeta.Name, searchString) == String::npos)
+                if ((searchString.empty() == false) && IgnoreCaseFind(assetMeta.GetName(), searchString) == String::npos)
                 {
                     continue;
                 }
 
                 bool isSelected = assetMeta.Id == outAssetId;
-                if (ImGui::Selectable(assetMeta.Name.data(), isSelected))
+                if (ImGui::Selectable(assetMeta.GetName().data(), isSelected))
                 {
                     hasModified = outAssetId != assetMeta.Id;
                     outAssetId = assetMeta.Id;
@@ -112,7 +112,7 @@ namespace Onyx::Ui::AssetSelectionControl
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 bool isSelected = assetMeta.Id == outAssetId;
-                if (ImGui::Selectable(assetMeta.Name.data(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
+                if (ImGui::Selectable(assetMeta.GetName().data(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
                 {
                     hasModified = outAssetId != assetMeta.Id;
                     outAssetId = assetMeta.Id;
