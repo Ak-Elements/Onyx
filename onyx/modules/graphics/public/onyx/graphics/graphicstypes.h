@@ -319,36 +319,6 @@ namespace Onyx::Graphics
         Negative_Z,
     };
 
-    template <typename Scalar>
-    struct Rect2D
-    {
-        Rect2D() = default;
-
-        // maybe store center and extents? similar to AABB
-        Rect2D(Scalar left, Scalar right, Scalar top, Scalar bottom)
-            : m_Position(left, top)
-            , m_Size(right - left, top - bottom)
-        {
-        }
-
-
-        Vector2<Scalar> m_Position = Vector2<Scalar>::Zero();
-        Vector2<Scalar> m_Size = Vector2<Scalar>::Zero();
-
-        Scalar GetLeft() const { return m_Position[0]; }
-        Scalar GetTop() const { return m_Position[1]; }
-        Scalar GetRight() const { return m_Position[0] + m_Size[0]; }
-        Scalar GetBottom() const { return m_Position[1] - m_Size[1]; }
-
-        Vector2<Scalar> GetTopLeft() { return m_Position; }
-        Vector2<Scalar> GetTopRight() { return { GetRight(), GetTop() } ; }
-        Vector2<Scalar> GetBottomRight() { return { GetRight(), GetBottom() }; }
-        Vector2<Scalar> GetBottomLeft() { return { GetLeft(), GetBottom() }; }
-    };
-
-    using Rect2Ds16 = Rect2D<onyxS16>;
-    using Rect2Df32 = Rect2D<onyxF32>;
-
     enum class IndexType
     {
         None,
@@ -367,7 +337,12 @@ namespace Onyx::Graphics
 
     struct Viewport
     {
-        Rect2Ds16 Rect;
+        onyxS16 X;
+        onyxS16 Y;
+
+        onyxS16 Width;
+        onyxS16 Height;
+
         onyxF32 MinDepth = 0.0f;
         onyxF32 MaxDepth = 0.0f;
     };

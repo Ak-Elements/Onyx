@@ -1,34 +1,18 @@
 #include <onyx/encoding.h>
 #include <onyx/gamecore/components/graphics/textcomponent.h>
-#include <onyx/filesystem/onyxfile.h>
+
 #include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/font/sdffont.h>
 
-namespace Onyx::GameCore
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
 {
-    void TextComponent::Serialize(Stream& outStream) const
-    {
-        outStream.Write(Text);
-    }
 
-    void TextComponent::Deserialize(const Stream& inStream)
-    {
-        inStream.Read(Text);
-        UpdateVertexBuffers();
-    }
-
-    void TextComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        outStream.Set("Text", Text);
-    }
-
-    void TextComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        inStream.Get("Text", Text);
-        inStream.Get("Size", Size);
-        UpdateVertexBuffers();
-    }
-
-    void TextComponent::SetFont(Reference<SDFFont>& font)
+namespace GameCore
+{
+    void TextComponent::SetFont(Reference<Graphics::SDFFont>& font)
     {
         Font = font;
         UpdateVertexBuffers();
@@ -43,8 +27,8 @@ namespace Onyx::GameCore
 
         const String_U32 textU32 = Encoding::utf8_to_utf32(Text.data());
 
-        const SDFFontMetrics& fontMetrics = Font->GetMetrics();
-        const HashMap<onyxU32, SDFFontGlyphData>& glyphs = Font->GetGlyphs();
+        const Graphics::SDFFontMetrics& fontMetrics = Font->GetMetrics();
+        const HashMap<onyxU32, Graphics::SDFFontGlyphData>& glyphs = Font->GetGlyphs();
 
         const Vector2f advanceDirection(1.0f, 0.0f);
         const Vector2f verticalDirection(0.0f, -1.0f);
@@ -63,7 +47,7 @@ namespace Onyx::GameCore
         for (onyxU32 i = 0; i < textLength; ++i)
         {
             char32_t character = textU32[i];
-            const SDFFontGlyphData& glyph = glyphs.at(character);
+            const Graphics::SDFFontGlyphData& glyph = glyphs.at(character);
 
             if (character != ' ')
             {
@@ -100,8 +84,8 @@ namespace Onyx::GameCore
 
     onyxF32 TextComponent::GetTextWidth(const String_U32& text)
     {
-        const SDFFontMetrics& fontMetrics = Font->GetMetrics();
-        const HashMap<onyxU32, SDFFontGlyphData>& glyphs = Font->GetGlyphs();
+        const Graphics::SDFFontMetrics& fontMetrics = Font->GetMetrics();
+        const HashMap<onyxU32, Graphics::SDFFontGlyphData>& glyphs = Font->GetGlyphs();
 
         const Vector2f advanceDirection(1.0f, 0.0f);
 
@@ -112,8 +96,7 @@ namespace Onyx::GameCore
             char32_t character = text[i];
 
             // handle multiline
-
-            const SDFFontGlyphData& glyph = glyphs.at(character);
+            const Graphics::SDFFontGlyphData& glyph = glyphs.at(character);
 
             Vector2f advance = advanceDirection * glyph.Advance * Size;
             if (i < (textLength - 1))
@@ -126,4 +109,26 @@ namespace Onyx::GameCore
 
         return totalWidth;
     }
+}
+
+bool Serialization<GameCore::TextComponent>::Serialize(Serializer& serializer, const GameCore::TextComponent& textComponent)
+{
+    serializer.Write<"text">(textComponent.Text);
+    serializer.Write<"size">(textComponent.Size);
+    serializer.Write<"font">(textComponent.FontId);
+    return false;
+}
+
+bool Serialization<GameCore::TextComponent>::Deserialize(const Deserializer& deserializer, GameCore::TextComponent& textComponent)
+{
+    deserializer.Read<"text">(textComponent.Text);
+    deserializer.Read<"size">(textComponent.Size);
+
+    onyxU64 fontId;
+    deserializer.Read<"font">(fontId);
+    textComponent.FontId = fontId;
+
+    return false;
+}
+
 }

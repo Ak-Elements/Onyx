@@ -48,6 +48,12 @@ namespace Onyx
     using Bivector3f32 = Bivector3<onyxF32>;
     using Bivectorf64 = Bivector3<onyxF64>;
 
+    template <typename ScalarT>
+    struct Rect2;
+
+    using Rect2s16 = Rect2<onyxS16>;
+    using Rect2f32 = Rect2<onyxF32>;
+
     template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     constexpr Vector2<T> ToRadians(Vector2<T> degrees)
     {

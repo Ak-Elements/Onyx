@@ -4,6 +4,7 @@
 #include <onyx/guid.h>
 #include <onyx/serialize/serialization.h>
 #include <onyx/geometry/vectorserialization.h>
+#include <onyx/geometry/rectserialization.h>
 
 namespace Onyx
 {

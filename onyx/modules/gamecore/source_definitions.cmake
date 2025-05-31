@@ -3,6 +3,7 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/gamecore)
 
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/gamecore.h
+    ${TARGET_PUBLIC_PATH}/assets/sdffont.h
 	${TARGET_PUBLIC_PATH}/components/cameracomponent.h
 	${TARGET_PUBLIC_PATH}/components/idcomponent.h
 	${TARGET_PUBLIC_PATH}/components/namecomponent.h
@@ -19,7 +20,6 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/scene/scenesector.h
 	${TARGET_PUBLIC_PATH}/scene/scenesectorstreamer.h
 	${TARGET_PUBLIC_PATH}/serialize/sceneserializer.h
-	${TARGET_PUBLIC_PATH}/serialize/sdffontserializer.h
     ${TARGET_PUBLIC_PATH}/systems/lightingsystem.h
 )
 
@@ -39,6 +39,5 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/scene/scene.cpp
 	${TARGET_PRIVATE_PATH}/scene/scenesectorstreamer.cpp
 	${TARGET_PRIVATE_PATH}/serialize/sceneserializer.cpp
-	${TARGET_PRIVATE_PATH}/serialize/sdffontserializer.cpp
     ${TARGET_PRIVATE_PATH}/systems/lightingsystem.cpp
 )

@@ -102,7 +102,7 @@ namespace Onyx::Assets
         template <typename T, onyxU64 N>
         constexpr bool GetAsset(const CompileTimeString<N>& path, Reference<T>& outAsset)
         {
-            constexpr AssetId id = static_cast<AssetId>(Hash::FNV1aHash(path));
+            AssetId id = static_cast<AssetId>(Hash::FNV1aHash(path, 0));
             return GetAsset(id, outAsset, false);
         }
 

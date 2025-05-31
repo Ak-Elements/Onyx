@@ -27,6 +27,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/presentthread.h
     ${TARGET_PUBLIC_PATH}/vertex.h
     ${TARGET_PUBLIC_PATH}/window.h
+    ${TARGET_PUBLIC_PATH}/font/sdffont.h
     ${TARGET_PUBLIC_PATH}/lighting/lighting.h
     ${TARGET_PUBLIC_PATH}/rendergraph/rendergraph.h
     ${TARGET_PUBLIC_PATH}/rendergraph/rendergraphnodefactory.h
@@ -42,6 +43,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/scattering/scattering.h
     ${TARGET_PUBLIC_PATH}/serialize/materialshadergraphserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/rendergraphserializer.h
+    ${TARGET_PUBLIC_PATH}/serialize/sdffontserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/shadergraphserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/textureserializer.h
     ${TARGET_PUBLIC_PATH}/shader/psocache.h
@@ -123,6 +125,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/rendergraph/tasks/tonemappass.cpp
     ${TARGET_PRIVATE_PATH}/serialize/materialshadergraphserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/rendergraphserializer.cpp
+    ${TARGET_PRIVATE_PATH}/serialize/sdffontserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/shadergraphserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/textureserializer.cpp
     ${TARGET_PRIVATE_PATH}/shader/psocache.cpp

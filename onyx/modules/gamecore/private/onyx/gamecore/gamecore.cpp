@@ -2,7 +2,6 @@
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entityregistry.h>
-#include <onyx/gamecore/assets/sdffont.h>
 #include <onyx/gamecore/components/cameracomponent.h>
 
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
@@ -10,7 +9,6 @@
 #include <onyx/gamecore/components/graphics/textcomponent.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
-#include <onyx/gamecore/serialize/sdffontserializer.h>
 #include <onyx/gamecore/systems/lightingsystem.h>
 #include <onyx/gamecore/components/freecameracomponent.h>
 #include <onyx/gamecore/components/idcomponent.h>
@@ -20,7 +18,6 @@
 #include <onyx/gamecore/rendertasks/staticmeshrendertask.h>
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
-#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
 namespace
@@ -37,7 +34,6 @@ namespace Onyx::GameCore
         void RegisterAssets(Assets::AssetSystem& assetSystem)
         {
             Assets::AssetSystem::Register<Scene, SceneSerializer>(assetSystem);
-            Assets::AssetSystem::Register<SDFFont, SDFFontSerializer>(assetSystem);
         }
 
         void RegisterComponents()
@@ -53,7 +49,15 @@ namespace Onyx::GameCore
             Entity::EntityRegistry::RegisterComponent<PointLightComponent>();
             Entity::EntityRegistry::RegisterComponent<SpotLightComponent>();
             Entity::EntityRegistry::RegisterComponent<MaterialComponent>();
-            //Entity::EntityRegistry::RegisterComponent<TextComponent>(); TODO: Readd
+            Entity::EntityRegistry::RegisterComponent<TextComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TextComponent&& textComponent)
+                
+            {
+                Reference<Graphics::SDFFont> fontAsset;
+                loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
+                textComponent.SetFont(fontAsset);
+
+                registry.AddComponent<TextComponent>(entity, std::move(textComponent));
+            });
 
             Entity::EntityRegistry::RegisterComponent<CameraComponent>();
         }

@@ -15,11 +15,11 @@
 
 #include <editor/panels/sceneeditor/componentspanel.h>
 #include <editor/panels/sceneeditor/entitiespanel.h>
+#include <editor/windows/editormainwindow.h>
 
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
-#include <editor/windows/editormainwindow.h>
 
 namespace Onyx::Editor
 {
@@ -62,7 +62,6 @@ namespace Onyx::Editor
         dockspace.SetId(dockspaceID);
         dockspace.SetWindowClass(*windowClass);
 
-        
         inputActionSystem.SetCurrentInputActionMap(StringId32("sceneeditor"));
 
         if (scene.IsValid() == false)
@@ -99,7 +98,6 @@ namespace Onyx::Editor
         {
             SetWindowFlags(ImGuiWindowFlags_MenuBar);
         }
-
 
         gameCore.SetScene(scene);
 

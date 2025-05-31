@@ -7,8 +7,10 @@
 #include <onyx/graphics/texturestorageproperties.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
-#include <imgui.h>
+#include <onyx/geometry/rect2.h>
 #include <onyx/profiler/profiler.h>
+
+#include <imgui.h>
 
 namespace Onyx
 {
@@ -228,11 +230,11 @@ namespace Onyx
                             clip_rect.y = 0.0f;
 
                         // Apply scissor/clipping rectangle
-                        Graphics::Rect2Ds16 scissor;
-                        scissor.m_Position[0] = (onyxS16)(clip_rect.x);
-                        scissor.m_Position[1] = (onyxS16)(clip_rect.y);
-                        scissor.m_Size[0] = (onyxS16)(std::abs(clip_rect.z - clip_rect.x));
-                        scissor.m_Size[1] = (onyxS16)(std::abs(clip_rect.w - clip_rect.y));
+                        Rect2s16 scissor;
+                        scissor.Position[0] = (onyxS16)(clip_rect.x);
+                        scissor.Position[1] = (onyxS16)(clip_rect.y);
+                        scissor.Extents[0] = (onyxS16)(std::abs(clip_rect.z - clip_rect.x));
+                        scissor.Extents[1] = (onyxS16)(std::abs(clip_rect.w - clip_rect.y));
                         //vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
                         commandBuffer.SetScissor(scissor);
@@ -245,9 +247,9 @@ namespace Onyx
             vertexOffset += cmd_list->VtxBuffer.Size;
             indexOffset += cmd_list->IdxBuffer.Size;
 
-            Graphics::Rect2Ds16 scissor;
-            scissor.m_Position = { 0, 0 };
-            scissor.m_Size = { (onyxS16)fb_width, (onyxS16)fb_height };
+            Rect2s16 scissor;
+            scissor.Position = { 0, 0 };
+            scissor.Extents = { (onyxS16)fb_width, (onyxS16)fb_height };
             commandBuffer.SetScissor(scissor);
         }
     }

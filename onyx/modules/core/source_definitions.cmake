@@ -39,12 +39,14 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/geometry/matrix2.h
 	${TARGET_PUBLIC_PATH}/geometry/matrix3.h
 	${TARGET_PUBLIC_PATH}/geometry/matrix4.h
+	${TARGET_PUBLIC_PATH}/geometry/rect2.h
 	${TARGET_PUBLIC_PATH}/geometry/rotor3.h
 	${TARGET_PUBLIC_PATH}/geometry/sat.h
 	${TARGET_PUBLIC_PATH}/geometry/vector.h
 	${TARGET_PUBLIC_PATH}/geometry/vector2.h
 	${TARGET_PUBLIC_PATH}/geometry/vector3.h
 	${TARGET_PUBLIC_PATH}/geometry/vector4.h
+	${TARGET_PUBLIC_PATH}/geometry/rectserialization.h
 	${TARGET_PUBLIC_PATH}/geometry/vectorserialization.h
 	${TARGET_PUBLIC_PATH}/log/backends/loggerbackend.h
 	${TARGET_PUBLIC_PATH}/log/backends/stdoutlogger.h
@@ -84,6 +86,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/guid.cpp
 	${TARGET_PRIVATE_PATH}/hash.cpp
     ${TARGET_PRIVATE_PATH}/stringid.cpp
+	${TARGET_PRIVATE_PATH}/geometry/rectserialization.cpp
 	${TARGET_PRIVATE_PATH}/geometry/vectorserialization.cpp
 	${TARGET_PRIVATE_PATH}/log/logger.cpp
 	${TARGET_PRIVATE_PATH}/log/backends/stdoutlogger.cpp

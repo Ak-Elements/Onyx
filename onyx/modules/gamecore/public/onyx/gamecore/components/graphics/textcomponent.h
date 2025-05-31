@@ -1,40 +1,27 @@
 #pragma once
-#include <onyx/gamecore/assets/sdffont.h>
+#include <onyx/graphics/font/sdffont.h>
 #include <onyx/graphics/graphicstypes.h>
 #include <onyx/graphics/vertex.h>
 
 namespace Onyx
-{namespace Graphics
-    {
-        class GraphicsApi;
-    }
+{
 
-    namespace FileSystem
-    {
-        struct JsonValue;
-    }
-
-    class Stream;
-}
-
-namespace Onyx::GameCore
+namespace GameCore
 {
     struct TextComponent
     {
+        friend struct Serialization<TextComponent>;
+
+    public:
         static constexpr StringId32 TypeId = "Onyx::GameCore::Components::TextComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
         String Text;
-        Reference<SDFFont> Font;
+        Assets::AssetId FontId;
+        Reference<Graphics::SDFFont> Font;
         onyxF32 Size = 50.0;
 
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
-
-        void SetFont(Reference<SDFFont>& font);
+        void SetFont(Reference<Graphics::SDFFont>& font);
 
         const DynamicArray<Graphics::FontVertex>& GetVertices() const { return m_Vertices; }
 
@@ -50,4 +37,13 @@ namespace Onyx::GameCore
     private:
         DynamicArray<Graphics::FontVertex> m_Vertices;
     };
+}
+
+template <>
+struct Serialization<GameCore::TextComponent>
+{
+    static bool Serialize(Serializer& serializer, const GameCore::TextComponent& textComponent);
+    static bool Deserialize(const Deserializer& deserializer, GameCore::TextComponent& outTextComponent);
+};
+
 }

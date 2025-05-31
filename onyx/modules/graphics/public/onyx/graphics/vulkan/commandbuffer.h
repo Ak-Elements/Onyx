@@ -42,7 +42,7 @@ namespace Onyx::Graphics::Vulkan
         void SetViewport() override;
         void SetViewport(const Viewport& viewport) override;
         void SetScissor() override;
-        void SetScissor(const Rect2Ds16& scissorRect) override;
+        void SetScissor(Rect2s16 scissorRect) override;
 
         void ClearColor(onyxF32 red, onyxF32 green, onyxF32 blue, onyxF32 alpha, onyxU32 attachmentIndex) override;
         void ClearDepthStencil(onyxF32 depth, onyxU8 stencil) override;

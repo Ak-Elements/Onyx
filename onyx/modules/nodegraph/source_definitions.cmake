@@ -8,6 +8,8 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/nodegraphfactory.h
     ${TARGET_PUBLIC_PATH}/nodegraphmodule.h
     ${TARGET_PUBLIC_PATH}/nodegraphserializer.h
+    ${TARGET_PUBLIC_PATH}/nodegraphtypemeta.h
+    ${TARGET_PUBLIC_PATH}/nodegraphtyperegistry.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in1out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in2out.h

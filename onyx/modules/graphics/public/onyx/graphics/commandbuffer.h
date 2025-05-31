@@ -34,7 +34,7 @@ namespace Onyx::Graphics
         virtual void SetViewport() = 0;
         virtual void SetViewport(const Viewport& viewport) = 0;
         virtual void SetScissor() = 0;
-        virtual void SetScissor(const Rect2Ds16& scissorRect) = 0;
+        virtual void SetScissor(Rect2s16 scissorRect) = 0;
 
         virtual void ClearColor(onyxF32 red, onyxF32 green, onyxF32 blue, onyxF32 alpha, onyxU32 attachmentIndex) = 0;
         virtual void ClearDepthStencil(onyxF32 depth, onyxU8 stencil) = 0;

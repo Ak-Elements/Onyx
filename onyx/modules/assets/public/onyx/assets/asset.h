@@ -100,6 +100,16 @@ struct std::hash<Onyx::Assets::AssetId>
     }
 };
 
+namespace Onyx
+{
+    template <>
+    struct Serialization<Assets::AssetId>
+    {
+        static bool Serialize(Serializer& serializer, const Assets::AssetId& assetId);
+        static bool Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId);
+    };
+}
+
 namespace Onyx::Assets
 {
     // Type trait to check if a class has Dependencies using alias

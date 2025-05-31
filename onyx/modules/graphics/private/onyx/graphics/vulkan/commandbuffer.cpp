@@ -13,7 +13,9 @@
 #include <onyx/graphics/vulkan/texture.h>
 #include <onyx/graphics/vulkan/vulkan.h>
 
-#include "onyx/graphics/vulkan/swapchain.h"
+#include <onyx/graphics/vulkan/swapchain.h>
+
+#include <onyx/geometry/rect2.h>
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -371,11 +373,11 @@ namespace Onyx::Graphics::Vulkan
     {
         VkViewport vkViewport;
 
-        vkViewport.x = viewport.Rect.m_Position[0] * 1.f;
-        vkViewport.width = viewport.Rect.m_Size[0] * 1.f;
+        vkViewport.x = numeric_cast<onyxF32>(viewport.X);
+        vkViewport.width = numeric_cast<onyxF32>(viewport.Width);
         // Invert Y with negative height and proper offset - Vulkan has unique Clipping Y.
-        vkViewport.y = viewport.Rect.m_Size[1] * 1.f - viewport.Rect.m_Position[1];
-        vkViewport.height = -viewport.Rect.m_Size[1] * 1.f;
+        vkViewport.y = numeric_cast<onyxF32>(viewport.Height - viewport.Y);
+        vkViewport.height = numeric_cast<onyxF32>(-viewport.Height);
         vkViewport.minDepth = viewport.MinDepth;
         vkViewport.maxDepth = viewport.MaxDepth;
 
@@ -395,13 +397,14 @@ namespace Onyx::Graphics::Vulkan
         vkCmdSetScissor(m_CommandBuffer, 0, 1, &vkScissor);
     }
 
-    void VulkanCommandBuffer::SetScissor(const Rect2Ds16& scissorRect)
+    void VulkanCommandBuffer::SetScissor(Rect2s16 scissorRect)
     {
         VkRect2D vkScissor;
-        vkScissor.offset.x = scissorRect.m_Position[0];
-        vkScissor.offset.y = scissorRect.m_Position[1];
-        vkScissor.extent.width = scissorRect.m_Size[0];
-        vkScissor.extent.height = scissorRect.m_Size[1];
+
+        vkScissor.offset.x = scissorRect.Position[0];
+        vkScissor.offset.y = scissorRect.Position[1];
+        vkScissor.extent.width = scissorRect.Extents[0];
+        vkScissor.extent.height = scissorRect.Extents[1];
 
         vkCmdSetScissor(m_CommandBuffer, 0, 1, &vkScissor);
     }

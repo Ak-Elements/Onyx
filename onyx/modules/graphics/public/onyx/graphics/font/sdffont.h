@@ -1,15 +1,15 @@
 #pragma once
 
 #include <onyx/assets/asset.h>
-#include <onyx/graphics/graphicstypes.h>
 #include <onyx/graphics/textureasset.h>
+#include <onyx/geometry/rect2.h>
 
 namespace Onyx::Input
 {
     enum class Key : onyxU16;
 }
 
-namespace Onyx::GameCore
+namespace Onyx::Graphics
 {
     struct SDFFontMetrics
     {
@@ -31,19 +31,21 @@ namespace Onyx::GameCore
         onyxU32 KeyCode;
         onyxF32 Advance = 0.0f;
 
-        Graphics::Rect2Df32 PlaneBounds;
-        Graphics::Rect2Df32 AtlasBounds; // converted already to UV space
+        Rect2f32 PlaneBounds;
+        Rect2f32 AtlasBounds; // converted already to UV space
     };
 
     class SDFFont : public Assets::Asset<SDFFont>
     {
     public:
-        static constexpr StringId32 TypeId{ "Onyx::GameCore::Assets::SDFFont" };
+        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::SDFFont" };
         StringId32 GetTypeId() const { return TypeId; }
 
+        void SetTextureId(const Assets::AssetId& textureId) { m_FontTextureId = textureId; }
+        Assets::AssetId GetTextureId() const { return m_FontTextureId; }
 
-        void SetTexture(const Reference<Graphics::TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
-        const Reference<Graphics::TextureAsset>& GetTexture() const { return m_FontTexture; }
+        void SetTexture(const Reference<TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
+        const Reference<TextureAsset>& GetTexture() const { return m_FontTexture; }
 
         SDFFontMetrics& GetMetrics() { return m_Metrics; }
         const SDFFontMetrics& GetMetrics() const { return m_Metrics; }
@@ -52,9 +54,10 @@ namespace Onyx::GameCore
         const HashMap<onyxU32, SDFFontGlyphData>& GetGlyphs() const { return m_Glyphs; }
 
     private:
-        Reference<Graphics::TextureAsset> m_FontTexture;
-
-        SDFFontMetrics m_Metrics;
         HashMap<onyxU32, SDFFontGlyphData> m_Glyphs;
+        SDFFontMetrics m_Metrics;
+
+        Assets::AssetId m_FontTextureId;
+        Reference<TextureAsset> m_FontTexture;
     };
 }

@@ -3,6 +3,7 @@
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/window.h>
 #include <onyx/graphics/textureasset.h>
+#include <onyx/graphics/font/sdffont.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
 #include <onyx/graphics/rendergraph/tasks/debuglightclusterspass.h>
@@ -14,6 +15,7 @@
 #include <onyx/graphics/rendergraph/tasks/updateviewconstantstask.h>
 #include <onyx/graphics/serialize/materialshadergraphserializer.h>
 #include <onyx/graphics/serialize/rendergraphserializer.h>
+#include <onyx/graphics/serialize/sdffontserializer.h>
 #include <onyx/graphics/serialize/textureserializer.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 
@@ -59,6 +61,7 @@ namespace Onyx::Graphics
         Assets::AssetSystem::Register<TextureAsset, TextureSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<MaterialShaderGraph, MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<RenderGraph, RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
+        Assets::AssetSystem::Register<SDFFont, SDFFontSerializer>(assetSystem);
 
         NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
         NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
