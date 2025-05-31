@@ -8,7 +8,7 @@
 
 namespace Onyx::Graphics
 {
-    bool RenderGraphShaderNode::OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData)
+    bool RenderGraphShaderNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
@@ -182,7 +182,7 @@ namespace Onyx::Graphics
         return false;
     }
 
-    bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData)
+    bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
         if (Ui::PropertyGrid::DrawStringProperty("Shader", m_ShaderPath))
         {

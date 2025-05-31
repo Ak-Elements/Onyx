@@ -1,12 +1,34 @@
 #include <onyx/graphics/serialize/rendergraphserializer.h>
 
 #include <onyx/graphics/textureasset.h>
-#include <onyx/filesystem/imagefile.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
+#include <onyx/nodegraph/nodegraphserializer.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
 namespace Onyx
 {
     class UIRenderGraphNode;
+
+    template <>
+    struct Serialization<Graphics::RenderGraph>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::RenderGraph& renderGraph)
+        {
+            const NodeGraph::NodeGraph& nodeGraph = renderGraph.GetNodeGraph();
+            NodeGraph::Serialize(serializer, nodeGraph);
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, Graphics::RenderGraph& outRenderGraph)
+        {
+            Graphics::RenderGraphNodeFactory factory;
+            NodeGraph::NodeGraph& outGraph = outRenderGraph.GetNodeGraph();
+            NodeGraph::Deserialize(deserializer, outGraph, factory);
+            return true;
+        }
+    };
 }
 
 namespace Onyx::Graphics
@@ -17,145 +39,24 @@ namespace Onyx::Graphics
     {
     }
 
-    bool RenderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(outStream);
-        return true;
-    }
-
-    bool RenderGraphSerializer::SerializeJson(const Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& filePath) const
+    bool RenderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer) const
     {
 #if ONYX_IS_EDITOR
         const RenderGraph& renderGraph = asset.As<RenderGraph>();
-        const NodeGraph::NodeGraph& nodeGraph = renderGraph.GetNodeGraph();
-
-        FileSystem::JsonValue jsonRoot;
-
-        // serialize
-        using NodeId = DirectedAcyclicGraph<UniquePtr<IRenderGraphNode>>::NodeId;
-        DynamicArray<NodeId> sortedNodes = nodeGraph.GetTopologicalOrder();
-
-        for (NodeId nodeId : sortedNodes)
-        {
-            const IRenderGraphNode& node = nodeGraph.GetNode<IRenderGraphNode>(nodeId);
-            
-            FileSystem::JsonValue nodeJsonObject;
-            node.Serialize(nodeJsonObject);
-
-            jsonRoot.Add(nodeJsonObject);
-        }
-
-        const String& jsonString = jsonRoot.Json.dump(4);
-        using namespace FileSystem;
-        OnyxFile graphOutFile(filePath);
-        FileStream stream = graphOutFile.OpenStream(OpenMode::Write | OpenMode::Text);
-        stream.WriteRaw(jsonString.data(), jsonString.size());
-
-        return true;
+        return serializer.Write(renderGraph);
 #else
         ONYX_UNUSED(asset);
-        ONYX_UNUSED(filePath);
+        ONYX_UNUSED(serializer);
         return false;
 #endif
     }
 
-    bool RenderGraphSerializer::SerializeYaml(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(outStream);
-        return true;
-    }
-
-    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(inStream);
-        return true;
-    }
-
-    bool RenderGraphSerializer::DeserializeJson(Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& filePath) const
+    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer) const
     {
         if (m_GraphicsApi == nullptr)
             return false;
 
-        RenderGraphNodeFactory factory;
-
         RenderGraph& renderGraph = asset.As<RenderGraph>();
-        renderGraph.Shutdown(*m_GraphicsApi);
-
-        NodeGraph::NodeGraph& graph = renderGraph.GetNodeGraph();
-        
-        FileSystem::OnyxFile graphFile(filePath);
-        const FileSystem::JsonValue& jsonRoot = graphFile.LoadJson();
-
-        FileSystem::JsonValue graphStructureJson;
-        FileSystem::JsonValue constantPinDataJson;
-
-        HashMap<Guid64, Guid64> edges;
-
-        for (const auto& nodeJson : jsonRoot.Json)
-        {
-            FileSystem::JsonValue nodeJsonObj{ nodeJson };
-
-            StringId32 typeId;
-            nodeJsonObj.Get("typeId", typeId);
-
-            UniquePtr<NodeGraph::Node> node = factory.CreateNode(typeId);
-            node->Deserialize(nodeJsonObj);
-
-            const onyxU32 inputPinCount = node->GetInputPinCount();
-            for (onyxU32 i = 0; i < inputPinCount; ++i)
-            {
-                NodeGraph::PinBase* pin = node->GetInputPin(i);
-                if (pin->IsConnected())
-                {
-                    edges[pin->GetGlobalId()] = pin->GetLinkedPinGlobalId();
-                    continue;
-                }
-
-                FileSystem::JsonValue dataJson;
-                Guid64 globalId = pin->GetGlobalId();
-                const StringView& globalIdString = Format::Format("{:x}", globalId.Get());
-                if (constantPinDataJson.Get(globalIdString, dataJson))
-                {
-                    std::any value = pin->CreateDefault();
-                    pin->Deserialize(dataJson, value);
-                }
-            }
-
-            const onyxU32 outputPinCount = node->GetOutputPinCount();
-            for (onyxU32 i = 0; i < outputPinCount; ++i)
-            {
-                NodeGraph::PinBase* pin = node->GetOutputPin(i);
-                if (pin->IsConnected() == false)
-                {
-                    continue;
-                }
-            }
-
-            UniquePtr<IRenderGraphNode> newRenderNode(static_cast<IRenderGraphNode*>(node.release()));
-            graph.Emplace(std::move(newRenderNode));
-        }
-
-        for (auto&& [fromPinId, toPinId] : edges)
-        {
-            bool isEdgeValid = graph.AddEdge(toPinId, fromPinId);
-
-            if (isEdgeValid == false)
-            {
-                ONYX_ASSERT(false, "Trying to add invalid edge, there is an error in the saved render graph {}", filePath);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    bool RenderGraphSerializer::DeserializeYaml(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(inStream);
-        return true;
+        return deserializer.Read(renderGraph);
     }
 }

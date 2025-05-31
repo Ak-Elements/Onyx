@@ -1,9 +1,15 @@
-#include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/cameracomponent.h>
-#include <onyx/filesystem/onyxfile.h>
+
+#include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 
-namespace Onyx::GameCore
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
+{
+
+namespace GameCore
 {
     using EntityQuery = Entity::EntityQuery<const TransformComponent, CameraComponent>;
 
@@ -12,7 +18,7 @@ namespace Onyx::GameCore
         auto cameraEntitiesView = query.GetView();
         for (Entity::EntityId entity : cameraEntitiesView)
         {
-            auto&&[transform, cameraComponent] = cameraEntitiesView.get<TransformComponent, CameraComponent>(entity);
+            auto&& [transform, cameraComponent] = cameraEntitiesView.get<TransformComponent, CameraComponent>(entity);
 
             const Rotor3f& worldRotation = transform.GetRotation();
             Vector3f forwardDirection = worldRotation.rotate(-Vector3f::Z_Unit());
@@ -21,24 +27,17 @@ namespace Onyx::GameCore
             cameraComponent.Camera.LookAt(transform.GetTranslation(), transform.GetTranslation() + forwardDirection, upDirection);
         }
     }
+}
 
-    void CameraComponent::Serialize(Stream& outStream) const
-    {
-        ONYX_UNUSED(outStream);
-    }
 
-    void CameraComponent::Deserialize(const Stream& inStream)
-    {
-        ONYX_UNUSED(inStream);
-    }
+bool Serialization<GameCore::CameraComponent>::Serialize(Serializer& serializer, const GameCore::CameraComponent& camera)
+{
+    return serializer.Write<"Primary">(camera.IsPrimary);
+}
 
-    void CameraComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        outStream.Set("Primary", IsPrimary);
-    }
+bool Serialization<GameCore::CameraComponent>::Deserialize(const Deserializer& deserializer, GameCore::CameraComponent& outCamera)
+{
+    return deserializer.Read<"Primary">(outCamera.IsPrimary);
+}
 
-    void CameraComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        inStream.Get("Primary", IsPrimary);
-    }
 }

@@ -11,7 +11,10 @@ namespace Onyx
     class Stream;
 }
 
-namespace Onyx::GameCore
+namespace Onyx
+{
+
+namespace GameCore
 {
     struct DirectionalLightComponent
     {
@@ -19,12 +22,6 @@ namespace Onyx::GameCore
         StringId32 GetTypeId() const { return TypeId; }
 
         Graphics::DirectionalLight Light;
-
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
@@ -39,12 +36,6 @@ namespace Onyx::GameCore
 
         Graphics::PointLight Light { .IsEnabled =  true };
 
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
-
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
         void DrawImGuiEditor();
@@ -58,15 +49,32 @@ namespace Onyx::GameCore
 
         Graphics::SpotLight Light;
 
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
-
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
         void DrawImGuiEditor();
 #endif
     };
+}
+
+template <>
+struct Serialization<GameCore::DirectionalLightComponent>
+{
+    static bool Serialize(Serializer& serializer, const GameCore::DirectionalLightComponent& directionalLight);
+    static bool Deserialize(const Deserializer& deserializer, GameCore::DirectionalLightComponent& outDirectionalLight);
+};
+
+template <>
+struct Serialization<GameCore::PointLightComponent>
+{
+    static bool Serialize(Serializer& serializer, const GameCore::PointLightComponent& pointLight);
+    static bool Deserialize(const Deserializer& deserializer, GameCore::PointLightComponent& outPointLight);
+};
+
+template <>
+struct Serialization<GameCore::SpotLightComponent>
+{
+    static bool Serialize(Serializer& serializer, const GameCore::SpotLightComponent& spotLight);
+    static bool Deserialize(const Deserializer& deserializer, GameCore::SpotLightComponent& outSpotLight);
+};
+
 }

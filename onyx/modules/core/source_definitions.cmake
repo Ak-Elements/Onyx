@@ -45,6 +45,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/geometry/vector2.h
 	${TARGET_PUBLIC_PATH}/geometry/vector3.h
 	${TARGET_PUBLIC_PATH}/geometry/vector4.h
+	${TARGET_PUBLIC_PATH}/geometry/vectorserialization.h
 	${TARGET_PUBLIC_PATH}/log/backends/loggerbackend.h
 	${TARGET_PUBLIC_PATH}/log/backends/stdoutlogger.h
 	${TARGET_PUBLIC_PATH}/log/backends/visualstudiolog.h
@@ -55,6 +56,9 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/platforms/platform.h
 	${TARGET_PUBLIC_PATH}/platforms/windows/platform.h
 	${TARGET_PUBLIC_PATH}/profiler/profiletimer.h
+    ${TARGET_PUBLIC_PATH}/serialize/serialization.h
+	${TARGET_PUBLIC_PATH}/serialize/deserializer.h
+    ${TARGET_PUBLIC_PATH}/serialize/serializer.h
 	${TARGET_PUBLIC_PATH}/stream/memorystream.h
 	${TARGET_PUBLIC_PATH}/stream/stream.h
 	${TARGET_PUBLIC_PATH}/stream/stringstream.h
@@ -72,17 +76,20 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/thread/synchronization/atomic_latch.h
 	${TARGET_PUBLIC_PATH}/thread/threadpool/threadpool.h
 	${TARGET_PUBLIC_PATH}/thread/threadpool/threadpooloptions.h
-	${TARGET_PUBLIC_PATH}/thread/threadpool/worker.h	
+	${TARGET_PUBLIC_PATH}/thread/threadpool/worker.h
 )
 
 set(TARGET_PRIVATE_SOURCES		
 	${TARGET_PRIVATE_PATH}/assert.cpp
 	${TARGET_PRIVATE_PATH}/guid.cpp
 	${TARGET_PRIVATE_PATH}/hash.cpp
+    ${TARGET_PRIVATE_PATH}/stringid.cpp
+	${TARGET_PRIVATE_PATH}/geometry/vectorserialization.cpp
 	${TARGET_PRIVATE_PATH}/log/logger.cpp
 	${TARGET_PRIVATE_PATH}/log/backends/stdoutlogger.cpp
 	${TARGET_PRIVATE_PATH}/log/backends/visualstudiolog.cpp
 	${TARGET_PRIVATE_PATH}/platforms/windows/platform.cpp
+    ${TARGET_PRIVATE_PATH}/serialize/serialization.cpp
 	${TARGET_PRIVATE_PATH}/stream/memorystream.cpp
 	${TARGET_PRIVATE_PATH}/stream/stream.cpp
 	${TARGET_PRIVATE_PATH}/stream/stringstream.cpp

@@ -12,43 +12,16 @@ namespace Onyx::Graphics
     {
     }
 
-    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(outStream);
-        return false;
-    }
-
-    bool MaterialShaderGraphSerializer::SerializeJson(const Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& filePath) const
+    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const
     {
         const MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
-        return ShaderGraphSerializer::SerializeJson(shaderGraph, filePath);
+        return ShaderGraphSerializer::Serialize(shaderGraph, meta, serializer);
     }
 
-    bool MaterialShaderGraphSerializer::SerializeYaml(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(outStream);
-        return false;
-    }
-
-    bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(inStream);
-        return false;
-    }
-
-    bool MaterialShaderGraphSerializer::DeserializeJson(Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& filePath) const
+    bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
     {
         MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
-        return ShaderGraphSerializer::DeserializeJson(shaderGraph, graphicsApi, m_AssetSystem, filePath);
+        return ShaderGraphSerializer::Deserialize(shaderGraph, graphicsApi, m_AssetSystem, meta, deserializer);
     }
 
-    bool MaterialShaderGraphSerializer::DeserializeYaml(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(inStream);
-        return false;
-    }
 }

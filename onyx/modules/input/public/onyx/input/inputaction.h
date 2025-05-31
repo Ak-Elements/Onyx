@@ -10,6 +10,7 @@ namespace Onyx::Input
 
     struct InputAction
     {
+        friend struct Serialization<InputAction>;
     public:
         InputAction();
         InputAction(StringId64 actionId);
@@ -26,8 +27,6 @@ namespace Onyx::Input
         void SetName(StringView name);
         void SetType(ActionType type) { m_Type = type; }
 #endif
-
-        static bool FromJson(const FileSystem::JsonValue& json, InputAction& outAction);
 
     private:
         StringId64 m_Id = 0;

@@ -5,6 +5,7 @@
 
 #include <nlohmann/json.hpp>
 #include <onyx/string/format.h>
+#include <onyx/serialize/serializer.h>
 
 namespace Onyx::FileSystem
 {

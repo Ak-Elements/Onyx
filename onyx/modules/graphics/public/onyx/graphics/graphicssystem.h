@@ -18,7 +18,7 @@ namespace Onyx::Graphics
     struct GraphicSettings
     {
         ApiType Api;
-        Assets::AssetId DefaultRenderGraph;
+        Assets::AssetId DefaultRenderGraph { "engine:/rendergraphs/default.orendergraph" };
 
         bool IsBindless;
         bool IsTimesamplingEnabled;

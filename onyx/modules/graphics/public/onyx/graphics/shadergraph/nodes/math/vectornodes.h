@@ -36,23 +36,23 @@ namespace Onyx::NodeGraph
         }
 
     protected:
-        bool OnSerialize(FileSystem::JsonValue& json) const override
+        bool OnSerialize(Serializer& serializer) const override
         {
             //Super::OnSerialize(json);
-            json.Set("swizzleMask", Mask);
-            json.Set("swizzle", OutIndexMapping);
+            serializer.Write<"swizzleMask">(Mask);
+            serializer.Write<"swizzle">(OutIndexMapping);
             return true;
         }
 
-        bool OnDeserialize(const FileSystem::JsonValue& json) override
+        bool OnDeserialize(const Deserializer& deserializer) override
         {
-            json.Get("swizzleMask", Mask);
-            json.Get("swizzle", OutIndexMapping);
+            deserializer.Read<"swizzleMask">(Mask);
+            deserializer.Read<"swizzle">(OutIndexMapping);
             return true;
         }
 
 #if ONYX_IS_EDITOR
-        bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData) override
+        bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override
         {
             bool hasModified = Super::OnDrawInPropertyGrid(constantPinData);
 

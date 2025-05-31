@@ -558,5 +558,4 @@ namespace Onyx::Input
             default: return "";
         }
     }
-
 }

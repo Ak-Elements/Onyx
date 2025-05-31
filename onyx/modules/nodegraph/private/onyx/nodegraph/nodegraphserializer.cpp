@@ -1,47 +1,36 @@
 #include <onyx/nodegraph/nodegraphserializer.h>
 
+#include <onyx/nodegraph/graph.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/nodegraph/nodegraphtyperegistry.h>
+#include <onyx/nodegraph/pins/pin.h>
 
-namespace Onyx::NodeGraph::Serializer
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+namespace Onyx
 {
-    bool SerializeJson(const NodeGraph& graph, FileSystem::JsonValue& json)
+}
+
+namespace Onyx::NodeGraph
+{
+    bool Serialize(Serializer& serializer, const NodeGraph& nodeGraph)
     {
 #if ONYX_IS_EDITOR
         // serialize
-        DynamicArray<onyxS8> nodeIdsOrdered = graph.GetTopologicalOrder();
-        const HashMap<onyxU64, std::any>& constantPinData = graph.GetConstantPinData();
+        DynamicArray<const Node*> nodes = nodeGraph.GetNodesSorted();
+        const HashMap<Guid64, std::any>& constantPinData = nodeGraph.GetConstantPinData();
 
-        FileSystem::JsonValue graphStructureJson;
-        FileSystem::JsonValue constantPinDataJson;
-
-        for (onyxS8 localNodeId : nodeIdsOrdered)
+        serializer.WriteForEach<"graph">(nodes, [](Serializer& scopedSerializer, const Node* node)
         {
-            const Node& node = graph.GetNode(localNodeId);
+            return node->Serialize(scopedSerializer);
+        });
 
-            FileSystem::JsonValue nodeJsonObject;
-            node.Serialize(nodeJsonObject);
-           
-            const onyxU32 inputPinCount = node.GetInputPinCount();
-            for (onyxU32 i = 0; i < inputPinCount; ++i)
-            {
-                const PinBase* pin = node.GetInputPin(i);
-                if (pin->IsConnected())
-                    continue;
-
-                if (constantPinData.contains(pin->GetGlobalId()))
-                {
-                    FileSystem::JsonValue pinDataJson;
-                    pin->Serialize(pinDataJson, constantPinData.at(pin->GetGlobalId()));
-                    constantPinDataJson.Set(Format::Format("{:x}", pin->GetGlobalId().Get()), pinDataJson);
-                }
-            }
-
-            graphStructureJson.Add(nodeJsonObject);
-        }
-
-        json.Set("graph", graphStructureJson);
-        json.Set("data", constantPinDataJson);
+        serializer.WriteForEach<"data">(constantPinData, [&](Serializer& scopedSerializer, const Guid64& globalPinId, const std::any& value)
+        {
+            const PinBase& pin = nodeGraph.GetPinById(globalPinId);
+            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta(pin.GetType());
+            return typeMeta.Serialize(scopedSerializer, value);
+        });
 
         return true;
 #else
@@ -51,63 +40,64 @@ namespace Onyx::NodeGraph::Serializer
 #endif
     }
 
-    /*static*/ bool DeserializeJson(NodeGraph& graph, const INodeFactory& nodeFactory, const FileSystem::JsonValue& json)
+    bool Deserialize(const Deserializer& deserializer, NodeGraph& outNodeGraph, const INodeFactory& nodeFactory)
     {
-        FileSystem::JsonValue graphStructureJson;
-        FileSystem::JsonValue constantPinDataJson;
-        json.Get("graph", graphStructureJson);
-        json.Get("data", constantPinDataJson);
-
         HashMap<Guid64, Guid64> edges;
-        HashMap<onyxU64, std::any>& constantPinData = graph.GetConstantPinData();
+        HashMap<Guid64, std::any>& constantPinData = outNodeGraph.GetConstantPinData();
 
-        for (const auto& nodeJson : graphStructureJson.Json)
+        bool success = deserializer.ReadForEach<"graph">([&](const Deserializer& scopedDeserializer)
         {
-            FileSystem::JsonValue nodeJsonObj{ nodeJson };
-
             StringId32 typeId;
-            nodeJsonObj.Get("typeId", typeId);
+            if (scopedDeserializer.Read<"typeId">(typeId) == false)
+            {
+                return false;
+            }
 
             UniquePtr<Node> node = nodeFactory.CreateNode(typeId);
-            node->Deserialize(nodeJsonObj);
+            if (node->Deserialize(scopedDeserializer) == false)
+            {
+                return false;
+            }
 
             const onyxU32 inputPinCount = node->GetInputPinCount();
-            for (onyxU32 i = 0; i < inputPinCount; ++i)
+            for (onyxU32 inputPinIndex = 0; inputPinIndex < inputPinCount; ++inputPinIndex)
             {
-                PinBase* pin = node->GetInputPin(i);
+                PinBase* pin = node->GetInputPin(inputPinIndex);
                 if (pin->IsConnected())
                 {
                     edges[pin->GetGlobalId()] = pin->GetLinkedPinGlobalId();
-                    continue;
-                }
-
-                FileSystem::JsonValue dataJson; 
-                Guid64 globalId = pin->GetGlobalId();
-                const StringView& globalIdString = Format::Format("{:x}", globalId.Get());
-                if (constantPinDataJson.Get(globalIdString, dataJson))
-                {
-                    pin->Deserialize(dataJson, constantPinData[globalId]);
                 }
             }
-
 
             const onyxU32 outputPinCount = node->GetOutputPinCount();
-            for (onyxU32 i = 0; i < outputPinCount; ++i)
+            for (onyxU32 outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex)
             {
-                PinBase* pin = node->GetOutputPin(i);
+                PinBase* pin = node->GetOutputPin(outputPinIndex);
                 if (pin->IsConnected())
                 {
                     edges[pin->GetGlobalId()] = pin->GetLinkedPinGlobalId();
-                    //continue;
                 }
             }
 
-            graph.Emplace(std::move(node));
+            outNodeGraph.Emplace(std::move(node));
+            return true;
+        });
+
+        if (success == false)
+        {
+            return false;
         }
+        
+        deserializer.ReadForEach<"data">(constantPinData, [&](const Deserializer& scopedDeserializer, const Guid64& globalPinId, std::any& outValue)
+        {
+            const PinBase& pin = outNodeGraph.GetPinById(globalPinId);
+            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta(pin.GetType());
+            return typeMeta.Deserialize(scopedDeserializer, outValue);
+        });
 
         for (auto&& [fromPinId, toPinId] : edges)
         {
-            bool isEdgeValid = graph.AddEdge(toPinId, fromPinId);
+            bool isEdgeValid = outNodeGraph.AddEdge(toPinId, fromPinId);
 
             if (isEdgeValid == false)
             {
@@ -116,6 +106,6 @@ namespace Onyx::NodeGraph::Serializer
             }
         }
 
-        return true;
+        return success;
     }
 }

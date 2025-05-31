@@ -108,6 +108,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/textureasset.cpp
     ${TARGET_PRIVATE_PATH}/texturestorage.cpp
     ${TARGET_PRIVATE_PATH}/renderpasscache.cpp
+    ${TARGET_PRIVATE_PATH}/pipeline.cpp
     ${TARGET_PRIVATE_PATH}/presentthread.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraph.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphtask.cpp

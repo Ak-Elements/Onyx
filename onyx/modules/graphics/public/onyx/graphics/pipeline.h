@@ -1,6 +1,7 @@
 #pragma once
 
 #include <onyx/graphics/graphicstypes.h>
+#include <onyx/serialize/serialization.h>
 
 namespace Onyx::Graphics
 {
@@ -9,6 +10,8 @@ namespace Onyx::Graphics
 
     struct PipelineProperties
     {
+        ~PipelineProperties();
+
         Rasterization Rasterization;
         DepthStencil DepthStencil;
         InplaceArray<BlendState, MAX_RENDERPASS_ATTACHMENTS> BlendStates;
@@ -30,5 +33,36 @@ namespace Onyx::Graphics
         const PipelineProperties& GetProperties() const { return m_Properties; }
     private:
         PipelineProperties m_Properties;
+    };
+}
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Graphics::PipelineProperties>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::PipelineProperties& properties);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::PipelineProperties& outProperties);
+    };
+
+    template <>
+    struct Serialization<Graphics::Rasterization>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::Rasterization& rasterization);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::Rasterization& outRasterization);
+    };
+
+    template <>
+    struct Serialization<Graphics::DepthStencil>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::DepthStencil& depthStencil);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::DepthStencil& outDepthStencil);
+    };
+
+    template <>
+    struct Serialization<Graphics::BlendState>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::BlendState& blendState);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::BlendState& outblendState);
     };
 }

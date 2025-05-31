@@ -53,7 +53,7 @@ namespace Onyx::GameCore
             Entity::EntityRegistry::RegisterComponent<PointLightComponent>();
             Entity::EntityRegistry::RegisterComponent<SpotLightComponent>();
             Entity::EntityRegistry::RegisterComponent<MaterialComponent>();
-            Entity::EntityRegistry::RegisterComponent<TextComponent>();
+            //Entity::EntityRegistry::RegisterComponent<TextComponent>(); TODO: Readd
 
             Entity::EntityRegistry::RegisterComponent<CameraComponent>();
         }

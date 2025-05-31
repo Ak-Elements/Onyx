@@ -1,5 +1,8 @@
 #include <onyx/guid.h>
 
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
 namespace Onyx
 {
     Guid64Generator::Guid64Generator(onyxU64 machineId)
@@ -57,5 +60,18 @@ namespace Onyx
             timestamp = GetCurrentTime();
 
         return timestamp;
+    }
+
+    bool Serialization<Guid64>::Serialize(Serializer& serializer, const Guid64& id)
+    {
+        return serializer.Write(id.Get(), 16);
+    }
+
+    bool Serialization<Guid64>::Deserialize(const Deserializer& deserializer, Guid64& outId)
+    {
+        onyxU64 id;
+        bool success = deserializer.Read(id, 16);
+        outId = Guid64(id);
+        return success;
     }
 }

@@ -1,6 +1,7 @@
 #include <onyx/nodegraph/nodegraphmodule.h>
 
 #include <onyx/nodegraph/nodegraphfactory.h>
+#include <onyx/nodegraph/nodegraphtyperegistry.h>
 
 #include <onyx/nodegraph/nodes/math/arithmeticnodes.h>
 #include <onyx/nodegraph/nodes/math/geometricnodes.h>

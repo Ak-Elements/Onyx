@@ -1,15 +1,15 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-#include <onyx/filesystem/filestream.h>
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/shader/shadermodule.h>
 #include <onyx/nodegraph/graphrunner.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
 
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
 namespace Onyx::Graphics
 {
@@ -51,27 +51,27 @@ namespace Onyx::Graphics
         commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, sizeof(PushConstants), &constants);
     }
 
-    bool ShaderGraph::Serialize(FileSystem::JsonValue& outJson) const
+    bool ShaderGraph::Serialize(Serializer& serializer) const
     {
-        bool success = NodeGraph::Serializer::SerializeJson(Graph, outJson);
+        bool success = NodeGraph::Serialize(serializer, Graph);
 
         if (success)
         {
-            success = OnSerialize(outJson);
+           success = OnSerialize(serializer);
         }
 
         return success;
     }
 
-    bool ShaderGraph::Deserialize(const FileSystem::JsonValue& inJson)
+    bool ShaderGraph::Deserialize(const Deserializer& deserializer)
     {
         ShaderGraphNodeFactory factory;
-        if (NodeGraph::Serializer::DeserializeJson(Graph, factory, inJson) == false)
+        if (NodeGraph::Deserialize(deserializer, Graph, factory) == false)
         {
             return false;
         }
 
-        if (OnDeserialize(inJson) == false)
+        if (OnDeserialize(deserializer) == false)
         {
             return false;
         }

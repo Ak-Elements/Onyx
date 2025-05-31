@@ -3,7 +3,10 @@
 
 #if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
 
-namespace Onyx::GameCore
+namespace Onyx
+{
+
+namespace GameCore
 {
     struct NameComponent
     {
@@ -13,12 +16,15 @@ namespace Onyx::GameCore
         static constexpr bool HideInEditor = true;
 
         String Name;
-
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
     };
+}
+
+template <>
+struct Serialization<GameCore::NameComponent>
+{
+    static bool Serialize(Serializer& serializer, const GameCore::NameComponent& name);
+    static bool Deserialize(const Deserializer& deserializer, GameCore::NameComponent& outName);
+};
+
 }
 #endif

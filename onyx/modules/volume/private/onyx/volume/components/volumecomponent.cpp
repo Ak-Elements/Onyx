@@ -1,7 +1,6 @@
 #include <onyx/volume/components/volumecomponent.h>
 
 #include <onyx/entity/entityregistry.h>
-#include <onyx/filesystem/onyxfile.h>
 
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
 #include <onyx/gamecore/components/transformcomponent.h>
@@ -21,8 +20,13 @@
 #include <onyx/volume/source/csg/csgsphere.h>
 #include <onyx/volume/source/noise/simplexnoisesource.h>
 
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
-namespace Onyx::Volume
+namespace Onyx
+{
+
+namespace Volume
 {
     namespace VolumeSource
     {
@@ -161,144 +165,132 @@ namespace Onyx::Volume
         : Chunk(new VolumeChunk())
     {
     }
-
-    void VolumeComponent::Serialize(Stream& outStream) const
-    {
-        ONYX_UNUSED(outStream);
-    }
-
-    void VolumeComponent::Deserialize(const Stream& inStream)
-    {
-        ONYX_UNUSED(inStream);
-    }
-
-    void VolumeComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        ONYX_UNUSED(outStream);
-    }
-
-    void VolumeComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        ONYX_UNUSED(inStream);
-    }
-
-    void VolumeSourceComponent::Serialize(Stream& outStream) const
-    {
-        ONYX_UNUSED(outStream);
-    }
-
-    void VolumeSourceComponent::Deserialize(const Stream& inStream)
-    {
-        ONYX_UNUSED(inStream);
-    }
-
-    void VolumeSourceComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        if (Volume == nullptr)
-            return;
-
-        outStream.Set("volumeType", VolumeType);
-
-        constexpr StringId32 SPHERE_TYPE("CSGSphere");
-        constexpr StringId32 PLANE_TYPE("CSGPlane");
-        constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
-
-        // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
-        if (VolumeType == SPHERE_TYPE)
-        {
-            CSGSphere* sphere = static_cast<CSGSphere*>(Volume);
-            Array<onyxF32, 3> center { sphere->GetCenter()[0], sphere->GetCenter()[1], sphere->GetCenter()[2] };
-
-            outStream.Set("center", center);
-            outStream.Set("radius", sphere->GetRadius());
-        } 
-        else if (VolumeType == PLANE_TYPE)
-        {
-            CSGPlane* plane = static_cast<CSGPlane*>(Volume);
-            Array<onyxF32, 3> normal { plane->GetNormal()[0], plane->GetNormal()[1], plane->GetNormal()[2] };
-            outStream.Set("normal", normal);
-            outStream.Set("distance", plane->GetDistance());
-        }
-        else if (VolumeType == NOISE_TYPE)
-        {
-            SimplexNoiseSource* noiseSource = static_cast<SimplexNoiseSource*>(Volume);
-           
-            outStream.Set("dimension", noiseSource->GetDimension());
-            outStream.Set("octaves", noiseSource->GetOctaves());
-            outStream.Set("amplitude", noiseSource->GetAmplitude());
-            outStream.Set("frequency", noiseSource->GetFrequency());
-            outStream.Set("lacunarity", noiseSource->GetLacunarity());
-            outStream.Set("gain", noiseSource->GetGain());
-            outStream.Set("scale", noiseSource->GetScale());
-        }
-    }
-
-    void VolumeSourceComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        inStream.Get("volumeType", VolumeType);
-
-        onyxU64 materialId;
-        inStream.Get("material", materialId);
-        Material = materialId;
-
-        constexpr StringId32 SPHERE_TYPE("CSGSphere");
-        constexpr StringId32 PLANE_TYPE("CSGPlane");
-        constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
-
-        // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
-        if (VolumeType == SPHERE_TYPE)
-        {
-            Array<onyxF32, 3> center;
-            inStream.Get("center", center);
-
-            onyxF32 radius;
-            inStream.Get("radius", radius);
-            Volume = new CSGSphere(radius, { center[0], center[1], center[2] });
-        }
-        else if (VolumeType == PLANE_TYPE)
-        {
-            Array<onyxF32, 3> normal;
-            inStream.Get("normal", normal);
-
-            onyxF32 distance;
-            inStream.Get("distance", distance);
-            Volume = new CSGPlane(distance, { normal[0], normal[1], normal[2] });
-        }
-        else if (VolumeType == NOISE_TYPE)
-        {
-            SimplexNoiseSource* noiseSource = new SimplexNoiseSource();
-
-            SimplexNoiseSource::Dimension dimension;
-            inStream.Get("dimension", dimension, SimplexNoiseSource::Dimension::Dimension_2D);
-            noiseSource->SetDimension(dimension);
-
-            onyxU32 octaves;
-            inStream.Get("octaves", octaves, 0u);
-            noiseSource->SetOctaves(octaves);
-
-            onyxF32 amplitude;
-            inStream.Get("amplitude", amplitude, 0.0f);
-            noiseSource->SetAmplitude(amplitude);
-
-            onyxF32 frequency;
-            inStream.Get("frequency", frequency, 0.0f);
-            noiseSource->SetFrequency(frequency);
-
-            onyxF32 lacunarity;
-            inStream.Get("lacunarity", lacunarity, 0.0f);
-            noiseSource->SetLacunarity(lacunarity);
-
-            onyxF32 gain;
-            inStream.Get("gain", gain, 0.0f);
-            noiseSource->SetGain(gain);
-
-            onyxF32 scale;
-            inStream.Get("scale", scale, 0.0f);
-            noiseSource->SetScale(scale);
-
-            Volume = noiseSource;
-        }
-
-        IsModified = true;
-    }
 }
+
+
+bool Serialization<Volume::VolumeComponent>::Serialize(Serializer& /*serializer*/, const Volume::VolumeComponent& /*volume*/)
+{
+    // Nothing to serialize yet
+    return true;
+}
+
+bool Serialization<Volume::VolumeComponent>::Deserialize(const Deserializer& /*deserializer*/, Volume::VolumeComponent& /*outVolume*/)
+{
+    // Nothing to serialize yet
+    return true;
+}
+
+bool Serialization<Volume::VolumeSourceComponent>::Serialize(Serializer& serializer, const Volume::VolumeSourceComponent& volumeSource)
+{
+    if (volumeSource.Volume == nullptr)
+    {
+        return true;
+    }
+
+    serializer.Write<"volumeType">(volumeSource.VolumeType);
+
+    constexpr StringId32 SPHERE_TYPE("CSGSphere");
+    constexpr StringId32 PLANE_TYPE("CSGPlane");
+    constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
+
+    // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
+    if (volumeSource.VolumeType == SPHERE_TYPE)
+    {
+        Volume::CSGSphere* sphere = static_cast<Volume::CSGSphere*>(volumeSource.Volume);
+        serializer.Write<"center">(sphere->GetCenter());
+        serializer.Write<"radius">( sphere->GetRadius());
+    }
+    else if (volumeSource.VolumeType == PLANE_TYPE)
+    {
+        Volume::CSGPlane* plane = static_cast<Volume::CSGPlane*>(volumeSource.Volume);
+        serializer.Write<"normal">(plane->GetNormal());
+        serializer.Write<"distance">(plane->GetDistance());
+    }
+    else if (volumeSource.VolumeType == NOISE_TYPE)
+    {
+        Volume::SimplexNoiseSource* noiseSource = static_cast<Volume::SimplexNoiseSource*>(volumeSource.Volume);
+
+        serializer.Write<"dimension">(noiseSource->GetDimension());
+        serializer.Write<"octaves">(noiseSource->GetOctaves());
+        serializer.Write<"amplitude">(noiseSource->GetAmplitude());
+        serializer.Write<"frequency">(noiseSource->GetFrequency());
+        serializer.Write<"lacunarity">(noiseSource->GetLacunarity());
+        serializer.Write<"gain">(noiseSource->GetGain());
+        serializer.Write<"scale">(noiseSource->GetScale());
+    }
+
+    return true;
+}
+bool Serialization<Volume::VolumeSourceComponent>::Deserialize(const Deserializer& deserializer, Volume::VolumeSourceComponent& outVolumeSource)
+{
+    deserializer.Read<"volumeType">(outVolumeSource.VolumeType);
+
+    onyxU64 materialId;
+    deserializer.Read<"material">(materialId);
+    outVolumeSource.Material = materialId;
+
+    constexpr StringId32 SPHERE_TYPE("CSGSphere");
+    constexpr StringId32 PLANE_TYPE("CSGPlane");
+    constexpr StringId32 NOISE_TYPE("SimplexNoiseSource");
+
+    // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
+    if (outVolumeSource.VolumeType == SPHERE_TYPE)
+    {
+        Vector3f center;
+        deserializer.Read<"center">(center);
+
+        onyxF32 radius;
+        deserializer.Read<"radius">(radius);
+        outVolumeSource.Volume = new Volume::CSGSphere(radius, center);
+    }
+    else if (outVolumeSource.VolumeType == PLANE_TYPE)
+    {
+        Vector3f normal;
+        deserializer.Read<"normal">(normal);
+
+        onyxF32 distance;
+        deserializer.Read<"distance">(distance);
+        outVolumeSource.Volume = new Volume::CSGPlane(distance, normal);
+    }
+    else if (outVolumeSource.VolumeType == NOISE_TYPE)
+    {
+        Volume::SimplexNoiseSource* noiseSource = new Volume::SimplexNoiseSource();
+
+        Volume::SimplexNoiseSource::Dimension dimension = Volume::SimplexNoiseSource::Dimension::Dimension_2D;
+        deserializer.Read<"dimension">(dimension);
+        noiseSource->SetDimension(dimension);
+
+        onyxU32 octaves = 0;
+        deserializer.Read<"octaves">(octaves);
+        noiseSource->SetOctaves(octaves);
+
+        onyxF32 amplitude = 0.0f;
+        deserializer.Read<"amplitude">(amplitude);
+        noiseSource->SetAmplitude(amplitude);
+
+        onyxF32 frequency = 0.0f;
+        deserializer.Read<"frequency">(frequency);
+        noiseSource->SetFrequency(frequency);
+
+        onyxF32 lacunarity = 0.0f;
+        deserializer.Read<"lacunarity">(lacunarity);
+        noiseSource->SetLacunarity(lacunarity);
+
+        onyxF32 gain = 0.0f;
+        deserializer.Read<"gain">(gain);
+        noiseSource->SetGain(gain);
+
+        onyxF32 scale = 0.0f;
+        deserializer.Read<"scale">(scale);
+        noiseSource->SetScale(scale);
+
+        outVolumeSource.Volume = noiseSource;
+    }
+
+    outVolumeSource.IsModified = true;
+    return true;
+}
+
+}
+
+

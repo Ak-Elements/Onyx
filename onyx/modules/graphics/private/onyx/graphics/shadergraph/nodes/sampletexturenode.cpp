@@ -36,25 +36,26 @@ namespace Onyx::Graphics
         }
     }
 
-    bool SampleTextureNode::OnSerialize(FileSystem::JsonValue& json) const
+    bool SampleTextureNode::OnSerialize(Serializer& serializer) const
     {
         if (TextureId.IsValid())
         {
-            json.Set("sampleTextureId", TextureId.Get());
+            // TODO: Add asset id serializer
+            serializer.Write<"sampleTextureId">(TextureId.Get());
         }
         
-        return FlexiblePinsNode::OnSerialize(json);
+        return FlexiblePinsNode::OnSerialize(serializer);
     }
 
-    bool SampleTextureNode::OnDeserialize(const FileSystem::JsonValue& json)
+    bool SampleTextureNode::OnDeserialize(const Deserializer& deserializer)
     {
         onyxU64 assetId;
-        if (json.Get("sampleTextureId", assetId))
+        if (deserializer.Read<"sampleTextureId">(assetId))
         {
             TextureId = Assets::AssetId(assetId);
         }
 
-        return FlexiblePinsNode::OnDeserialize(json);
+        return FlexiblePinsNode::OnDeserialize(deserializer);
     }
 
     void SampleTextureNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const

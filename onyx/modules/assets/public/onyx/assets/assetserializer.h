@@ -1,29 +1,19 @@
 #pragma once
-
-#include <onyx/filesystem/path.h>
-
-namespace Onyx::FileSystem
-{
-    class FileStream;
-}
+#include <onyx/filesystem/filestream.h>
 
 namespace Onyx::Assets
 {
     class AssetInterface;
     class AssetSystem;
+    struct AssetMetaData;
 
     struct AssetSerializer
     {
         AssetSerializer(AssetSystem& assetSystem) : m_AssetSystem(assetSystem) {}
         virtual ~AssetSerializer() = default;
 
-        virtual bool Serialize(const Reference<AssetInterface>& asset, FileSystem::FileStream& outStream) const = 0;
-        virtual bool SerializeJson(const Reference<AssetInterface>& asset, const FileSystem::Filepath& filePath) const = 0;
-        virtual bool SerializeYaml(const Reference<AssetInterface>& asset, FileSystem::FileStream& outStream) const = 0;
-
-        virtual bool Deserialize(Reference<AssetInterface>& asset, const FileSystem::FileStream& inStream) const = 0;
-        virtual bool DeserializeJson(Reference<AssetInterface>& asset, const FileSystem::Filepath& filePath) const = 0;
-        virtual bool DeserializeYaml(Reference<AssetInterface>& asset, const FileSystem::FileStream& inStream) const = 0;
+        virtual bool Serialize(const Reference<Assets::AssetInterface>& asset, const AssetMetaData& meta, Serializer& serializer) const = 0;
+        virtual bool Deserialize(Reference<AssetInterface>& asset, const AssetMetaData& meta, const Deserializer& deserializer) const = 0;
 
     protected:
         AssetSystem& m_AssetSystem;

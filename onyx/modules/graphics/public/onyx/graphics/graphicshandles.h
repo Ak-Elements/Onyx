@@ -66,6 +66,41 @@ namespace Onyx::Graphics
     };
 }
 
+namespace Onyx
+{
+    template<>
+    struct Serialization<Graphics::TextureHandle>
+    {
+        static bool Serialize(Serializer&, const Graphics::TextureHandle&)
+        {
+            // not supported but needed for the graph pins
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer&, Graphics::TextureHandle&)
+        {
+            // not supported but needed for the graph pins
+            return true;
+        }
+    };
+
+    template<>
+    struct Serialization<Graphics::BufferHandle>
+    {
+        static bool Serialize(Serializer&, const Graphics::BufferHandle&)
+        {
+            // not supported but needed for the graph pins
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer&, Graphics::BufferHandle&)
+        {
+            // not supported but needed for the graph pins
+            return true;
+        }
+    };
+}
+
 namespace Onyx::NodeGraph
 {
     template <>

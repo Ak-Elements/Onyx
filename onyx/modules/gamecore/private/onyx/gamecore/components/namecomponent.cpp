@@ -2,26 +2,20 @@
 
 #if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
 
-namespace Onyx::GameCore
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+
+namespace Onyx
 {
-    void NameComponent::Serialize(Stream& outStream) const
+    bool Serialization<GameCore::NameComponent>::Serialize(Serializer& serializer, const GameCore::NameComponent& name)
     {
-        outStream.Write(Name);
+        return serializer.Write<"name">(name.Name);
     }
 
-    void NameComponent::Deserialize(const Stream& inStream)
+    bool Serialization<GameCore::NameComponent>::Deserialize(const Deserializer& deserializer, GameCore::NameComponent& outName)
     {
-        inStream.Read(Name);
-    }
-
-    void NameComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        outStream.Set("name", Name);
-    }
-
-    void NameComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        inStream.Get("name", Name);
+        return deserializer.Read("name", outName.Name);
     }
 }
 

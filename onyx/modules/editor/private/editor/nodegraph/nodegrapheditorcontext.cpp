@@ -37,7 +37,7 @@ namespace Onyx::Editor
     {
         Node& editorNode = GetNode(nodeId);
         NodeGraph::Node& graphNode = GetNodeGraphNode(editorNode.LocalId);
-        HashMap<onyxU64, std::any>& constantPinData = GetNodeGraph().GetConstantPinData();
+        HashMap<Guid64, std::any>& constantPinData = GetNodeGraph().GetConstantPinData();
         // TODO: Change bool to enum - NodeChanged::PinAdded, NodeChanged::PinRemoved NodeChanged::PinRenamed etc...
         bool hasChanged = graphNode.DrawInPropertyGrid(constantPinData);
 

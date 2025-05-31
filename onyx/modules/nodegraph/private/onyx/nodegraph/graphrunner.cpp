@@ -7,7 +7,7 @@ namespace Onyx::NodeGraph
 {
     void GraphRunner::Prepare()
     {
-        const HashMap<onyxU64, std::any>& constantPinData = m_Graph->GetConstantPinData();
+        const HashMap<Guid64, std::any>& constantPinData = m_Graph->GetConstantPinData();
 
         const DynamicArray<onyxS8>& executionOrder = m_Graph->GetTopologicalOrder();
 

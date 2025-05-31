@@ -14,13 +14,6 @@ namespace Onyx
     {
         class GraphicsApi;
     }
-
-    namespace FileSystem
-    {
-        struct JsonValue;
-    }
-
-    class Stream;
 }
 
 namespace Onyx::GameCore
@@ -48,12 +41,6 @@ namespace Onyx::GameCore
 
         onyxF32 VelocityIncrementFactor = 0.3f;
 
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
-
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
         void DrawImGuiEditor();
@@ -80,5 +67,15 @@ namespace Onyx::GameCore
 
         onyxF32 PitchDelta = 0.0f;
         onyxF32 YawDelta = 0.0f;
+    };
+}
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<GameCore::FreeCameraControllerComponent>
+    {
+        static bool Serialize(Serializer& serializer, const GameCore::FreeCameraControllerComponent& freeCameraController);
+        static bool Deserialize(const Deserializer& deserializer, GameCore::FreeCameraControllerComponent& outFreeCameraController);
     };
 }

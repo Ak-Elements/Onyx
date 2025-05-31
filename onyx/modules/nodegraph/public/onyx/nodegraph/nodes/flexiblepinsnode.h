@@ -2,7 +2,9 @@
 
 #include <onyx/nodegraph/pins/pin.h>
 #include <onyx/nodegraph/pins/dynamicpin.h>
-#include <onyx/filesystem/onyxfile.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
 namespace Onyx::NodeGraph
 {
@@ -41,33 +43,6 @@ namespace Onyx::NodeGraph
 
         PinBase* GetOutputPin(onyxU32 index) override { return m_OutputPins[index].get(); }
         const PinBase* GetOutputPin(onyxU32 index) const override { return m_OutputPins[index].get(); }
-
-        bool Deserialize(const FileSystem::JsonValue& json) override
-        {
-            // TODO:
-            // We need to verify first that a pin with the localId does not exist before adding a new pin
-            // to support 'compile' time added pins in the constructor
-
-            json.Get("id", NodeType::m_Id);
-
-            FileSystem::JsonValue inputPinsJsonArray;
-            json.Get("inputs", inputPinsJsonArray);
-            if (DeserializePins(inputPinsJsonArray, m_InputPins) == false)
-            {
-                return false;
-            }
-
-            FileSystem::JsonValue outputPinsJsonArray;
-            json.Get("outputs", outputPinsJsonArray);
-            if (DeserializePins(outputPinsJsonArray, m_OutputPins) == false)
-            {
-                return false;
-            }
-        
-            this->OnDeserialize(json);
-
-            return true;
-        }
 
 #if ONYX_IS_EDITOR
 
@@ -180,44 +155,43 @@ namespace Onyx::NodeGraph
         //}
 
     private:
-        bool DeserializePins(const FileSystem::JsonValue& pinsJsonArray, DynamicArray<UniquePtr<PinBase>>& outPins)
+        bool DeserializePins(const Deserializer& deserializer) override
         {
-            if (pinsJsonArray.Json.empty())
-            {
-                return true;
-            }
+            return DeserializePins<"inputs">(deserializer, m_InputPins) &&
+                DeserializePins<"outputs">(deserializer, m_OutputPins);
+        }
 
+        template <CompileTimeString Name>
+        bool DeserializePins(const Deserializer& deserializer, DynamicArray<UniquePtr<PinBase>>& outPins)
+        {
             Guid64 globalPinId;
             Guid64 linkedPinId;
 
-            const onyxU32 pinCount = static_cast<onyxU32>(pinsJsonArray.Json.size());
-            for (onyxU32 i = 0; i < pinCount; ++i)
+            bool success = deserializer.ReadForEach<Name>([&](const Deserializer& scopedDeserializer)
             {
-                FileSystem::JsonValue pinJson{ pinsJsonArray.Json[i] };
-
                 StringId32 localPinId;
-                if (pinJson.Get("localId", localPinId) == false)
+                if (scopedDeserializer.Read<"localId">(localPinId) == false)
                 {
                     ONYX_LOG_ERROR("Pin is missing localId in json.");
                     return false;
                 }
 
-                if (pinJson.Get("id", globalPinId) == false)
+                if (scopedDeserializer.Read<"id">(globalPinId) == false)
                 {
                     ONYX_LOG_ERROR("Pin is missing global id in json.");
                     return false;
                 }
 
                 auto pinIt = std::ranges::find_if(outPins, [&](const UniquePtr<PinBase>& pin)
-                {
-                    return pin->GetLocalId() == localPinId;
-                });
+                    {
+                        return pin->GetLocalId() == localPinId;
+                    });
 
                 PinBase* pin = pinIt != outPins.end() ? pinIt->get() : nullptr;
                 if (pin == nullptr)
                 {
                     StringId32 typeId;
-                    if (pinJson.Get("typeId", typeId) == false)
+                    if (scopedDeserializer.Read<"typeId">(typeId) == false)
                     {
                         ONYX_LOG_ERROR("Pin is missing type id in json.");
                         return false;
@@ -231,13 +205,14 @@ namespace Onyx::NodeGraph
                     pin->SetGlobalId(globalPinId);
                 }
 
-                if (pinJson.Get("linkedPin", linkedPinId))
+                if (scopedDeserializer.Read<"linkedPin">(linkedPinId))
                 {
                     pin->ConnectPin(linkedPinId);
                 }
-            }
+                return true;
+            });
 
-            return true;
+            return success;
         }
 
 #if ONYX_ASSERTS_ENABLED

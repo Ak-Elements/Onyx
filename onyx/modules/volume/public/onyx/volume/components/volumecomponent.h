@@ -21,17 +21,12 @@ namespace Onyx
     {
         class EntityComponentSystemsGraph;
     }
-
-    namespace FileSystem
-    {
-        struct JsonValue;
-    }
-
-    class Stream;
-    
 }
 
-namespace Onyx::Volume
+namespace Onyx
+{
+
+namespace Volume
 {
     struct VolumeSourceComponent;
     struct VolumeComponent;
@@ -48,12 +43,6 @@ namespace Onyx::Volume
         StringId32 GetTypeId() const { return TypeId; }
 
         VolumeComponent();
-
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
@@ -80,15 +69,25 @@ namespace Onyx::Volume
         Assets::AssetId Material;
         bool IsModified = false;
 
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
-
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
         void DrawImGuiEditor();
 #endif
     };
+}
+
+template <>
+struct Serialization<Volume::VolumeComponent>
+{
+    static bool Serialize(Serializer& serializer, const Volume::VolumeComponent& volume);
+    static bool Deserialize(const Deserializer& deserializer, Volume::VolumeComponent& outVolume);
+};
+
+template <>
+struct Serialization<Volume::VolumeSourceComponent>
+{
+    static bool Serialize(Serializer& serializer, const Volume::VolumeSourceComponent& volumeSource);
+    static bool Deserialize(const Deserializer& deserializer, Volume::VolumeSourceComponent& outVolumeSource);
+};
+
 }

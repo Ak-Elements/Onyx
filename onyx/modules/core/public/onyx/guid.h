@@ -1,8 +1,12 @@
 #pragma once
 #include <mutex>
 
+#include <onyx/serialize/serialization.h>
+
 namespace Onyx
 {
+    class Serializer;
+
     struct Guid
     {
         onyxU64 LowPart = 0;
@@ -70,6 +74,16 @@ namespace Onyx
         onyxU64 m_MachineId;
         onyxU64 m_Sequence;
         onyxS64 m_LastTimestamp;
+    };
+
+    template <typename T>
+    constexpr bool IsGuid64 = std::is_same_v<Guid64, T>;
+
+    template <>
+    struct Serialization<Guid64>
+    {
+        static bool Serialize(Serializer& serializer, const Guid64& id);
+        static bool Deserialize(const Deserializer& deserializer, Guid64& outId);
     };
 }
 

@@ -2,6 +2,9 @@
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetserializer.h>
+#include <onyx/filesystem/jsondeserializer.h>
+#include <onyx/filesystem/jsonserializer.h>
+#include <onyx/filesystem/onyxfile.h>
 #include <onyx/thread/async/asynctask.h>
 #include <onyx/thread/thread.h>
 
@@ -43,7 +46,16 @@ namespace Onyx::Assets
         //ZoneText(assetName.c_str(), assetName.length());
 
         // those load functions should probably be static
-        if (Serializer->DeserializeJson(Handle, Path) == false)
+
+        FileSystem::OnyxFile inputConfigFile(Path);
+        const FileSystem::JsonValue& inputConfigData = inputConfigFile.LoadJson();
+        FileSystem::JsonDeserializer serializer(inputConfigData.Json);
+
+        // TODO: Fix!!!
+        AssetMetaData meta;
+        meta.Path = Path;
+        meta.Name = assetName;
+        if (Serializer->Deserialize(Handle, meta, serializer) == false)
         {
             Handle->SetState(AssetState::Invalid);
         }
@@ -87,8 +99,20 @@ namespace Onyx::Assets
         //String assetName = relativePath.string();
         //ZoneText(assetName.c_str(), assetName.length());
 
+         // TODO: Fix!!!
+        AssetMetaData meta;
+        meta.Path = Path;
+        meta.Name = "";
+
         // those load functions should probably be static
-        bool succeeded = Serializer->SerializeJson(Handle, Path);
+        FileSystem::JsonSerializer serializer;
+        bool succeeded = Serializer->Serialize(Handle, meta, serializer);
+
+        const String& jsonString = serializer.JsonRoot.dump(4);
+        using namespace FileSystem;
+        OnyxFile inputConfigFile(Path);
+        FileStream stream = inputConfigFile.OpenStream(OpenMode::Write | OpenMode::Text);
+        stream.WriteRaw(jsonString.data(), jsonString.size());
 
         Handle->OnSaveFinished(succeeded);
     }

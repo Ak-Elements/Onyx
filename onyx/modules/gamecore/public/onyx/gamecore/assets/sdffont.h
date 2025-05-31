@@ -4,6 +4,11 @@
 #include <onyx/graphics/graphicstypes.h>
 #include <onyx/graphics/textureasset.h>
 
+namespace Onyx::Input
+{
+    enum class Key : onyxU16;
+}
+
 namespace Onyx::GameCore
 {
     struct SDFFontMetrics
@@ -23,6 +28,7 @@ namespace Onyx::GameCore
 
     struct SDFFontGlyphData
     {
+        onyxU32 KeyCode;
         onyxF32 Advance = 0.0f;
 
         Graphics::Rect2Df32 PlaneBounds;

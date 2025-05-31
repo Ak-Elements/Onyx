@@ -33,15 +33,15 @@ namespace Onyx::Graphics
         void OnUpdate(NodeGraph::ExecutionContext& context) const override;
 
     private:
-        bool OnSerialize(FileSystem::JsonValue& json) const override;
-        bool OnDeserialize(const FileSystem::JsonValue& json) override;
+        bool OnSerialize(Serializer& serializer) const override;
+        bool OnDeserialize(const Deserializer& deserializer) override;
 
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
         void OnChanged(Assets::AssetSystem& assetSystem) override;
 
 #if ONYX_IS_EDITOR
     protected:
-        bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData) override;
+        bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
         void OnUIDrawNode() override;
         StringView GetPinName(StringId32 pinId) const override;
         NodeGraph::PinVisibility DoGetPinVisibility(StringId32 localPinId) const override;

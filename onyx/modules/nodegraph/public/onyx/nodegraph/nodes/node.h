@@ -1,7 +1,6 @@
 #pragma once
 
 #include <onyx/nodegraph/pins/pinbase.h>
-#include <onyx/filesystem/onyxfile.h>
 
 namespace Onyx::NodeGraph
 {
@@ -43,15 +42,16 @@ namespace Onyx::NodeGraph
         void Update(ExecutionContext& context) const { OnUpdate(context); }
         void Finish() { OnFinished(); }
 
-        virtual bool Serialize(FileSystem::JsonValue& json) const;
-        virtual bool Deserialize(const FileSystem::JsonValue& json);
+        bool Serialize(Serializer& serialize) const;
+        bool Deserialize(const Deserializer& deserializer);
 
     private:
         virtual void OnPrepare(PrepareContext& /*context*/) const { }
         virtual void OnUpdate(ExecutionContext& /*context*/) const { }
         virtual void OnFinished() { }
 
-        void SerializePin(const PinBase& pin, FileSystem::JsonValue& outPinsJsonArray) const; 
+        virtual bool SerializePins(Serializer& serializer) const;
+        virtual bool DeserializePins(const Deserializer& deserializer);
 
     public:
         // REMOVE
@@ -74,8 +74,8 @@ namespace Onyx::NodeGraph
         virtual const PinBase* GetOutputPin(onyxU32 /*index*/) const { ONYX_ASSERT(false, "Not implemenented."); return nullptr; }
 
     protected:
-        virtual bool OnSerialize(FileSystem::JsonValue& /*json*/) const { return true; }
-        virtual bool OnDeserialize(const FileSystem::JsonValue& /*json*/) { return true; }
+        virtual bool OnSerialize(Serializer& /*serializer*/) const { return true; }
+        virtual bool OnDeserialize(const Deserializer& /*deserializer*/) { return true; }
 
         template <typename PinT> //requires is_specialization_of_v<Pin, PinT>
         Optional<PinT*> GetInputPinByLocalId()
@@ -141,7 +141,7 @@ namespace Onyx::NodeGraph
 #endif
 
 #if ONYX_IS_EDITOR
-        bool DrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData)
+        bool DrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
         {
             return OnDrawInPropertyGrid(constantPinData);
         }
@@ -156,7 +156,7 @@ namespace Onyx::NodeGraph
         virtual std::any CreateDefaultForPin(StringId32 pinId) const = 0;
 
     protected:
-        virtual bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData)
+        virtual bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
         {
             bool modified = false;
             const onyxU32 inputPinCount = GetInputPinCount();

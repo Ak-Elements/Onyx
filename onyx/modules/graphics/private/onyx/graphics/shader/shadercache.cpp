@@ -5,6 +5,8 @@
 #include <onyx/graphics/vulkan/graphicsapi.h>
 
 #include <onyx/hash.h>
+#include <onyx/filesystem/filestream.h>
+#include <onyx/filesystem/onyxfile.h>
 
 namespace Onyx::Graphics
 {

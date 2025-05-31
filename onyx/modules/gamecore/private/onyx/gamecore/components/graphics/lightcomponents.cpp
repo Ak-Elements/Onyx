@@ -1,127 +1,70 @@
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
-#include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx::GameCore
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
 {
     /**
      * Directional light
      */
-    void DirectionalLightComponent::Serialize(Stream& outStream) const
+    bool Serialization<GameCore::DirectionalLightComponent>::Serialize(Serializer& serializer, const GameCore::DirectionalLightComponent& directionalLight)
     {
-        ONYX_UNUSED(outStream);
+        return serializer.Write<"color">(directionalLight.Light.Color) &&
+            serializer.Write<"Intensity">(directionalLight.Light.Intensity) &&
+            serializer.Write<"ShadowAmount">(directionalLight.Light.ShadowAmount) &&
+            serializer.Write<"IsShadowCasting">(directionalLight.Light.IsShadowCasting);
     }
 
-    void DirectionalLightComponent::Deserialize(const Stream& inStream)
+    bool Serialization<GameCore::DirectionalLightComponent>::Deserialize(const Deserializer& deserializer, GameCore::DirectionalLightComponent& outDirectionalLight)
     {
-        ONYX_UNUSED(inStream);
-    }
-
-    void DirectionalLightComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        std::array<onyxF32, 3> radiance{ 0.0f };
-        if (inStream.Get("color", radiance))
-        {
-            Light.Color[0] = radiance[0];
-            Light.Color[1] = radiance[1];
-            Light.Color[2] = radiance[2];
-        }
-
-        inStream.Get("Intensity", Light.Intensity);
-        inStream.Get("IsShadowCasting", Light.IsShadowCasting);
+        return deserializer.Read<"color">(outDirectionalLight.Light.Color) &&
+            deserializer.Read<"Intensity">(outDirectionalLight.Light.Intensity) &&
+            deserializer.Read<"ShadowAmount">(outDirectionalLight.Light.ShadowAmount) &&
+            deserializer.Read<"IsShadowCasting">(outDirectionalLight.Light.IsShadowCasting);
     }
 
     /**
      * Point light
      */
-    void PointLightComponent::Serialize(Stream& outStream) const
+    bool Serialization<GameCore::PointLightComponent>::Serialize(Serializer& serializer, const GameCore::PointLightComponent& pointLight)
     {
-        ONYX_UNUSED(outStream);
+        return serializer.Write<"color">(pointLight.Light.Color) &&
+            serializer.Write<"Intensity">(pointLight.Light.Intensity) &&
+            serializer.Write<"Radius">(pointLight.Light.Radius) &&
+            serializer.Write<"IsShadowCasting">(pointLight.Light.IsShadowCasting);
     }
 
-    void DirectionalLightComponent::SerializeJson(FileSystem::JsonValue& outStream) const
+    bool Serialization<GameCore::PointLightComponent>::Deserialize(const Deserializer& deserializer, GameCore::PointLightComponent& outPointLight)
     {
-        std::array<onyxF32, 3> color{ Light.Color[0], Light.Color[1], Light.Color[2] };
-        outStream.Set("color", color);
-
-        outStream.Set("Intensity", Light.Intensity);
-        outStream.Set("ShadowAmount", Light.ShadowAmount);
-        outStream.Set("IsShadowCasting", Light.IsShadowCasting);
-    }
-
-    void PointLightComponent::Deserialize(const Stream& inStream)
-    {
-        ONYX_UNUSED(inStream);
-    }
-
-    void PointLightComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-
-
-        std::array<onyxF32, 3> color{ Light.Color[0], Light.Color[1], Light.Color[2] };
-        outStream.Set("color", color);
-
-        outStream.Set("Intensity", Light.Intensity);
-        outStream.Set("Radius", Light.Radius);
-        outStream.Set("IsShadowCasting", Light.IsShadowCasting);
-    }
-
-    void PointLightComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        std::array<onyxF32, 3> color{ 0.0f };
-        if (inStream.Get("color", color))
-        {
-            Light.Color[0] = color[0];
-            Light.Color[1] = color[1];
-            Light.Color[2] = color[2];
-        }
-
-        inStream.Get("Intensity", Light.Intensity);
-        inStream.Get("Radius", Light.Radius);
-        inStream.Get("IsShadowCasting", Light.IsShadowCasting);
+        return deserializer.Read<"color">(outPointLight.Light.Color) &&
+            deserializer.Read<"Intensity">(outPointLight.Light.Intensity) &&
+            deserializer.Read<"Radius">(outPointLight.Light.Radius) &&
+            deserializer.Read<"IsShadowCasting">(outPointLight.Light.IsShadowCasting);
     }
 
     /**
      * Spot Light
      */
-    void SpotLightComponent::Serialize(Stream& outStream) const
+    bool Serialization<GameCore::SpotLightComponent>::Serialize(Serializer& serializer, const GameCore::SpotLightComponent& spotLight)
     {
-        ONYX_UNUSED(outStream);
+        return serializer.Write<"color">(spotLight.Light.Color) &&
+            serializer.Write<"Intensity">(spotLight.Light.Intensity) &&
+            serializer.Write<"Falloff">(spotLight.Light.Falloff) &&
+            serializer.Write<"Range">(spotLight.Light.Range) &&
+            serializer.Write<"Angle">(spotLight.Light.Angle) &&
+            serializer.Write<"AngleAttenuation">(spotLight.Light.AngleAttenuation) &&
+            serializer.Write<"IsShadowCasting">(spotLight.Light.IsShadowCasting);
     }
 
-    void SpotLightComponent::Deserialize(const Stream& inStream)
+    bool Serialization<GameCore::SpotLightComponent>::Deserialize(const Deserializer& deserializer, GameCore::SpotLightComponent& outSpotLight)
     {
-        ONYX_UNUSED(inStream);
-    }
-
-    void SpotLightComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-
-        std::array<onyxF32, 3> color{ Light.Color[0], Light.Color[1], Light.Color[2] };
-        outStream.Set("color", color);
-
-        outStream.Set("Intensity", Light.Intensity);
-        outStream.Set("Falloff", Light.Falloff);
-        outStream.Set("Range", Light.Range);
-        outStream.Set("Angle", Light.Angle);
-        outStream.Set("AngleAttenuation", Light.AngleAttenuation);
-        outStream.Set("IsShadowCasting", Light.IsShadowCasting);
-    }
-
-    void SpotLightComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        std::array<onyxF32, 3> color{ 0.0f };
-        if (inStream.Get("color", color))
-        {
-            Light.Color[0] = color[0];
-            Light.Color[1] = color[1];
-            Light.Color[2] = color[2];
-        }
-
-        inStream.Get("Intensity", Light.Intensity);
-        inStream.Get("Falloff", Light.Falloff);
-        inStream.Get("Range", Light.Range);
-        inStream.Get("Angle", Light.Angle);
-        inStream.Get("AngleAttenuation", Light.AngleAttenuation);
-        inStream.Get("IsShadowCasting", Light.IsShadowCasting);
+        return deserializer.Read<"color">(outSpotLight.Light.Color) &&
+            deserializer.Read<"Intensity">(outSpotLight.Light.Intensity) &&
+            deserializer.Read<"Falloff">(outSpotLight.Light.Falloff) &&
+            deserializer.Read<"Range">(outSpotLight.Light.Range) &&
+            deserializer.Read<"Angle">(outSpotLight.Light.Angle) &&
+            deserializer.Read<"AngleAttenuation">(outSpotLight.Light.AngleAttenuation) &&
+            deserializer.Read<"IsShadowCasting">(outSpotLight.Light.IsShadowCasting);
     }
 }

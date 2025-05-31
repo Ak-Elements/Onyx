@@ -136,10 +136,9 @@ namespace Onyx::Graphics
         StencilOperationState Back;
         CompareOperation Compare = CompareOperation::Always;
 
-        onyxU8 IsDepthEnabled : 1 = 0;
-        onyxU8 IsDepthWriteEnabled : 1 = 0;
-        onyxU8 IsStencilEnabled : 1 = 0;
-        onyxU8 Padding : 5;
+        bool IsDepthEnabled = false;
+        bool IsDepthWriteEnabled = false;
+        bool IsStencilEnabled = false;
     };
 
     struct BlendState

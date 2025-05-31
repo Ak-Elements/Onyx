@@ -1,25 +1,17 @@
 #include <onyx/gamecore/components/idcomponent.h>
-#include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx::GameCore
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
 {
-    void IdComponent::Serialize(Stream& outStream) const
+    bool Serialization<GameCore::IdComponent>::Serialize(Serializer& serializer, const GameCore::IdComponent& id)
     {
-        ONYX_UNUSED(outStream);
+        return serializer.Write<"id">(id.Id);
     }
 
-    void IdComponent::Deserialize(const Stream& inStream)
+    bool Serialization<GameCore::IdComponent>::Deserialize(const Deserializer& deserializer, GameCore::IdComponent& outId)
     {
-        ONYX_UNUSED(inStream);
-    }
-
-    void IdComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        outStream.Set("id", Id);
-    }
-    
-    void IdComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        inStream.Get("id", Id);
+        return deserializer.Read<"id">(outId.Id);
     }
 }

@@ -3,127 +3,143 @@
 #include <onyx/input/inputaction.h>
 #include <onyx/input/inputactionsasset.h>
 #include <onyx/input/inputbinding.h>
+#include <onyx/input/inputbindingsregistry.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Input::InputActionsMap>
+    {
+        static bool Serialize(Serializer& serializer, const Input::InputActionsMap& map)
+        {
+            serializer.Write(map.m_Actions);
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, Input::InputActionsMap& outMap)
+        {
+            deserializer.Read(outMap.m_Actions);
+            return true;
+        }
+    };
+
+    template <>
+    struct Serialization<Input::InputAction>
+    {
+        static bool Serialize(Serializer& serializer, const Input::InputAction& action)
+        {
+            return serializer.Write<"id">(action.m_Id) &&
+                serializer.Write<"type">(action.m_Type) &&
+                serializer.Write<"bindings">(action.m_Bindings);
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, Input::InputAction& outAction)
+        {
+            if (deserializer.Read<"id">(outAction.m_Id) == false)
+            {
+                return false;
+            }
+
+            if (deserializer.Read<"type">(outAction.m_Type) == false)
+            {
+                return false;
+            }
+
+            if (outAction.m_Type == Input::ActionType::Invalid)
+            {
+                ONYX_LOG_ERROR("Input action is missing action type.");
+                return false;
+            }
+
+            return deserializer.Read<"bindings">(outAction.m_Bindings);
+        }
+    };
+
+    template <>
+    struct Serialization<UniquePtr<Input::InputBinding>>
+    {
+        static bool Serialize(Serializer& serializer, const UniquePtr<Input::InputBinding>& binding)
+        {
+            if (serializer.Write<"typeId">(binding->GetTypeId()) == false)
+            {
+                return false;
+            }
+
+            if (serializer.Write<"inputType">(binding->GetInputType()) == false)
+            {
+                return false;
+            }
+
+            onyxU32 boundInput;
+            onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
+            for (onyxU32 i = 0; i < bindingSlotsCount; ++i)
+            {
+                StringView bindingSlotName = binding->GetInputBindingSlotName(i);
+                if (serializer.Write<onyxU32>(bindingSlotName.empty() ? "input" : bindingSlotName, boundInput) == false)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, UniquePtr<Input::InputBinding>& outBinding)
+        {
+            StringId32 bindingTypeId;
+            deserializer.Read<"typeId">(bindingTypeId);
+
+            outBinding = Input::InputBindingsRegistry::CreateBinding(bindingTypeId);
+
+            Input::InputType type;
+            deserializer.Read<"inputType">(type);
+            outBinding->SetInputType(type);
+
+            onyxU32 boundInput;
+            onyxU32 bindingSlotsCount = outBinding->GetInputBindingSlotsCount();
+            for (onyxU32 i = 0; i < bindingSlotsCount; ++i)
+            {
+                StringView bindingSlotName = outBinding->GetInputBindingSlotName(i);
+                deserializer.Read<onyxU32>(bindingSlotName.empty() ? "input" : bindingSlotName, boundInput);
+                outBinding->SetInputBindingSlot(i, boundInput);
+            }
+
+            return true;
+        }
+    };
+}
 
 namespace Onyx::Input
 {
-    bool InputActionsSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(outStream);
-        return true;
-    }
-
-    bool InputActionsSerializer::SerializeJson(const Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& filePath) const
+    bool InputActionsSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer) const
     {
 #if ONYX_IS_EDITOR
         const InputActionsAsset& inputActionsAsset = asset.As<InputActionsAsset>();
         const HashMap<StringId32, InputActionsMap>& contexts = inputActionsAsset.GetMaps();
-        FileSystem::JsonValue jsonRoot;
 
-        for (const InputActionsMap& actionMap : contexts | std::views::values)
+        bool success = serializer.Write(contexts);
+        if (success == false)
         {
-            FileSystem::JsonValue actionsJsonArray;
-
-            const DynamicArray<InputAction>& actions = actionMap.GetActions();
-            for (const InputAction& action : actions)
-            {
-                FileSystem::JsonValue actionJson;
-                actionJson.Set("id", action.GetId());
-                actionJson.Set("type", action.GetType());
-
-                FileSystem::JsonValue bindingsJsonArray;
-
-                const DynamicArray<UniquePtr<InputBinding>>& bindings = action.GetBindings();
-                for (const UniquePtr<InputBinding>& binding : bindings)
-                {
-                    FileSystem::JsonValue bindingJson;
-                    bindingJson.Set("typeId", binding->GetTypeId());
-                    bindingJson.Set("inputType", binding->GetInputType());
-
-                    onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
-                    for (onyxU32 i = 0; i < bindingSlotsCount; ++i)
-                    {
-                        StringView bindingSlotName = binding->GetInputBindingSlotName(i);
-                        bindingJson.Set(bindingSlotName.empty() ? "input" : bindingSlotName, binding->GetBoundInputForSlot(i));
-                    }
-
-                    bindingsJsonArray.Add(bindingJson);
-                }
-
-                actionJson.Set("bindings", bindingsJsonArray);
-
-                actionsJsonArray.Add(actionJson);
-            }
-
-            jsonRoot.Set(actionMap.GetName(), actionsJsonArray);
+            return false;
         }
-
-        const String& jsonString = jsonRoot.Json.dump(4);
-        using namespace FileSystem;
-        OnyxFile inputConfigFile(filePath);
-        FileStream stream = inputConfigFile.OpenStream(OpenMode::Write | OpenMode::Text);
-        stream.WriteRaw(jsonString.data(), jsonString.size());
 #else
         ONYX_UNUSED(asset);
-        ONYX_UNUSED(filePath);
+        ONYX_UNUSED(serializer);
 #endif
         return true;
     }
 
-    bool InputActionsSerializer::SerializeYaml(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(outStream);
-        return true;
-    }
-
-    bool InputActionsSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(inStream);
-        return true;
-    }
-
-    bool InputActionsSerializer::DeserializeJson(Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& filePath) const
+    bool InputActionsSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
     {
         InputActionsAsset& inputAsset = asset.As<InputActionsAsset>();
 
         HashMap<StringId32, InputActionsMap>& contexts = inputAsset.GetMaps();
 
-        if (filePath.empty())
-            return false;
-
         contexts.clear();
-
-        inputAsset.SetName(FileSystem::Path::GetFileName(filePath));
-
-        using namespace FileSystem;
-        OnyxFile inputConfigFile(filePath);
-        const JsonValue& inputConfigData = inputConfigFile.LoadJson();
-
-        // TODO: Fix the wrapping of the nlohmann::ordered_json into JsonValue object
-        for (auto&& [key, value] : inputConfigData.Json.items())
-        {
-            StringId32 contextId(key);
-
-            if (contexts.contains(contextId))
-            {
-                ONYX_LOG_ERROR("Duplicate action context id.");
-                continue;
-            }
-
-            JsonValue inputActionContextJson{ value };
-            contexts.try_emplace(contextId, contextId, key, inputActionContextJson);
-        }
-
-
-        return true;
-    }
-
-    bool InputActionsSerializer::DeserializeYaml(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const
-    {
-        ONYX_UNUSED(asset);
-        ONYX_UNUSED(inStream);
-        return true;
+        inputAsset.SetName(meta.Name);
+        return deserializer.Read(contexts);
     }
 }

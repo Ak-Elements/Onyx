@@ -56,6 +56,23 @@ namespace Onyx::NodeGraph
         return *pin;
     }
 
+    const PinBase& NodeGraph::GetPinById(Guid64 globalPinId) const
+    {
+        const PinBase* pin = nullptr;
+        for (const DirectedAcyclicGraphNodeContainerT& nodeContainer : (Graph.GetNodes() | std::views::values))
+        {
+            const UniquePtr<Node>& node = nodeContainer.m_Data;
+            pin = node->GetPinById(globalPinId);
+            if (pin != nullptr)
+            {
+                return *pin;
+            }
+        }
+
+        ONYX_ASSERT(false, "Failed finding pin with global id 0x{:x}", globalPinId.Get());
+        return *pin;
+    }
+
     bool NodeGraph::IsNewLinkValid(Guid64 fromGlobalPinId, Guid64 toGlobalPinId) const
     {
         HashSet<onyxU64> visited;
@@ -126,6 +143,21 @@ namespace Onyx::NodeGraph
         ONYX_ASSERT(fromNodeId != ONYX_INVALID_INDEX);
 
         return Graph.AddEdge(fromNodeId, toNodeId);
+    }
+
+    DynamicArray<const Node*> NodeGraph::GetNodesSorted() const
+    {
+        DynamicArray<const Node*> outNodes;
+        outNodes.reserve(TopologicalOrder.size());
+
+        // TODO: Fix
+        for (onyxS8 localNodeId : TopologicalOrder)
+        {
+            const Node& node = GetNode(localNodeId);
+            outNodes.emplace_back(&node);
+        }
+
+        return outNodes;
     }
 
     typename NodeGraph::LocalNodeId NodeGraph::GetLocalNodeIdForPin(Guid64 globalPinId)

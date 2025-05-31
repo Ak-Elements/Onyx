@@ -30,38 +30,6 @@ namespace Onyx::NodeGraph
         constexpr onyxU32 GetTypeColor() const override { return PinMetaObject<DataT>::GetPinTypeColor(); }
 #endif
 
-        bool Serialize(FileSystem::JsonValue& json, const std::any& anyValue) const override
-        {
-            if constexpr (std::is_same_v<DataT, ExecutePin> == false)
-            {
-                const DataT& value = std::any_cast<const DataT&>(anyValue);
-                return PinMetaObject<DataT>::Serialize(json, value);
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        bool Deserialize(const FileSystem::JsonValue& json, std::any& anyValue) override
-        {
-            if constexpr (std::is_same_v<DataT, ExecutePin> == false)
-            {
-                DataT data;
-                if (PinMetaObject<DataT>::Deserialize(json, data))
-                {
-                    anyValue = data;
-                    return true;
-                }
-
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
         StringId32 GetLocalId() const override { return LocalId; }
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         StringView GetLocalIdString() const override { return LocalId.GetString(); }

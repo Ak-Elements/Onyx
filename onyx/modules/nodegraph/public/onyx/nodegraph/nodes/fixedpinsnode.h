@@ -1,7 +1,5 @@
 #pragma once
 
-#include <onyx/nodegraph/pins/pinbase.h>
-
 namespace Onyx::NodeGraph
 {
     template <typename NodeType, onyxU8 InPinCount, onyxU8 OutPinCount>

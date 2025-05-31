@@ -1,32 +1,47 @@
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 
-#include <onyx/filesystem/filestream.h>
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/shader/shadermodule.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
+#include <onyx/filesystem/onyxfile.h>
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Graphics::ShaderGraph>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::ShaderGraph& nodeGraphNode)
+        {
+            return nodeGraphNode.Serialize(serializer);
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, Graphics::ShaderGraph& outGraphNode)
+        {
+            return outGraphNode.Deserialize(deserializer);
+        }
+    };
+}
+
 namespace Onyx::Graphics::ShaderGraphSerializer
 {
-    bool SerializeJson(const ShaderGraph& graph, const FileSystem::Filepath& filePath)
+    bool Serialize(const ShaderGraph& graph, const Assets::AssetMetaData& meta, Serializer& serializer)
     {
         using namespace FileSystem;
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
 
-        JsonValue graphJson;
-        bool success = graph.Serialize(graphJson);
+        bool success = serializer.Write(graph);
         if (success == false)
         {
             return false;
         }
 
-        OnyxFile graphOutFile(filePath);
-        graphOutFile.WriteJson(graphJson);
-
         // save shader to file
-        OnyxFile shaderOutFile(Path::ReplaceExtension(filePath, "oshader"));
+        OnyxFile shaderOutFile(Path::ReplaceExtension(meta.Path, "oshader"));
         FileStream shaderOutStream = shaderOutFile.OpenStream(OpenMode::Write | OpenMode::Text);
         shaderOutStream.WriteRaw(graph.GetShaderCode().data(), graph.GetShaderCode().size());
 
@@ -39,24 +54,18 @@ namespace Onyx::Graphics::ShaderGraphSerializer
 
     }
 
-    bool DeserializeJson(ShaderGraph& graph, GraphicsApi& graphicsApi, Assets::AssetSystem& assetSystem, const FileSystem::Filepath& filePath)
+    bool Deserialize(ShaderGraph& graph, GraphicsApi& graphicsApi, Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& meta, const Deserializer& deserializer)
     {
         using namespace FileSystem;
 
-        const Filepath& shaderPath = Path::ReplaceExtension(filePath, "oshader");
+        const Filepath& shaderPath = Path::ReplaceExtension(meta.Path, "oshader");
         ShaderHandle shader = graphicsApi.GetShader(shaderPath);
 
         // TODO: we need to handle the case that the shader graph is updated but the shader code is outdated
         // so we need to compare the compiled graph to the shader on disk
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
-        ShaderGraphNodeFactory factory;
-        OnyxFile graphJsonFile(filePath);
-        JsonValue graphJson = graphJsonFile.LoadJson();
-        if (graph.Deserialize(graphJson) == false)
-        {
-            return false;
-        }
+        deserializer.Read(graph);
 
         // TODO: Add shader generator factory here to create unlit shader
         PBRShaderGenerator shaderGenerator;

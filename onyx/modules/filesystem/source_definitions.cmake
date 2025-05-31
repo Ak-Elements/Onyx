@@ -11,7 +11,8 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/onyx/filesystem/onyx_filesystem_pch.h
 	${TARGET_PUBLIC_PATH}/onyx/filesystem/onyxfile.h
 	${TARGET_PUBLIC_PATH}/onyx/filesystem/path.h
-	
+	${TARGET_PUBLIC_PATH}/onyx/filesystem/jsonserializer.h
+    ${TARGET_PUBLIC_PATH}/onyx/filesystem/jsondeserializer.h
 )
 
 set(TARGET_PRIVATE_SOURCES
@@ -22,4 +23,6 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/onyx/filesystem/onyx_filesystem.cpp
 	${TARGET_PRIVATE_PATH}/onyx/filesystem/onyxfile.cpp
 	${TARGET_PRIVATE_PATH}/onyx/filesystem/path.cpp
+    ${TARGET_PRIVATE_PATH}/onyx/filesystem/jsonserializer.cpp
+    ${TARGET_PRIVATE_PATH}/onyx/filesystem/jsondeserializer.cpp
 )

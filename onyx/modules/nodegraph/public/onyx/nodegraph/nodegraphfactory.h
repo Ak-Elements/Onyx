@@ -1,8 +1,6 @@
 #pragma once
 
-#include <onyx/nodegraph/pins/dynamicpin.h>
 #include <onyx/nodegraph/nodes/node.h>
-#include <onyx/filesystem/onyxfile.h>
 
 namespace Onyx::FileSystem
 {
@@ -41,44 +39,17 @@ namespace Onyx::NodeGraph
         DynamicArray<PinTypeId> OutputPins;
     };
 
-    class NodeGraphTypeRegistry
-    {
+    class INodeFactory
+    { 
     public:
-        template <typename T> requires HasTypeId<T>
-        static void RegisterType()
-        {
-            constexpr StringId32 serializedTypeId = T::TypeId;
-            ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
-            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, StringId32 localId) { return new DynamicPin<T>(globalId, localId); };
-            s_RuntimeToStaticTypeId[static_cast<PinTypeId>(TypeHash<T>())] = serializedTypeId;
-        }
-
-        template <typename T, CompileTimeString SerializedTypeId>
-        static void RegisterType()
-        {
-            constexpr StringId32 serializedTypeId(SerializedTypeId);
-            ONYX_ASSERT(s_RegisteredTypes.contains(serializedTypeId) == false, "Type is already registered in this context");
-            s_RegisteredTypes[serializedTypeId] = [](Guid64 globalId, StringId32 localId) { return new DynamicPin<T>(globalId, localId); };
-            s_RuntimeToStaticTypeId[static_cast<PinTypeId>(TypeHash<T>())] = serializedTypeId;
-        }
-
-        static StringId32 GetSerializedTypeId(PinTypeId pinTypeId)
-        {
-            return s_RuntimeToStaticTypeId.at(pinTypeId);
-        }
-
-        static UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, StringId32 localId)
-        {
-            return UniquePtr<PinBase>(s_RegisteredTypes.at(typeId)(globalId, localId));
-        }
-
-    private:
-        static HashMap<StringId32, InplaceFunction<PinBase*(Guid64, StringId32)>> s_RegisteredTypes;
-        static HashMap<PinTypeId, StringId32> s_RuntimeToStaticTypeId;
+        virtual ~INodeFactory() = default;
+        virtual UniquePtr<Node> CreateNode(StringId32 typeId) const = 0;
+        virtual const HashSet<StringId32>& GetRegisteredNodeIds() const = 0;
+        virtual const NodeEditorMetaData& GetNodeMetaData(StringId32 typeId) const = 0;
     };
 
     template <typename MetaDataContainerT = NodeEditorMetaData>
-    requires std::is_base_of_v<NodeEditorMetaData, MetaDataContainerT>
+        requires std::is_base_of_v<NodeEditorMetaData, MetaDataContainerT>
     class NodeRegistry
     {
         // serialize / deserialize functors
@@ -90,7 +61,7 @@ namespace Onyx::NodeGraph
         }
 
         template <Details::IsNodeGraphNode NodeT>
-        void RegisterNode(const StringView& fullyQualifiedName) 
+        void RegisterNode(const StringView& fullyQualifiedName)
         {
             static HashMap<onyxU32, String> s_RegisteredNodesToName;
 
@@ -116,17 +87,17 @@ namespace Onyx::NodeGraph
             }
 
             m_RegisteredNodes[typeId] = [=]()
-            {
-                NodeT* newNode = new NodeT();
+                {
+                    NodeT* newNode = new NodeT();
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                newNode->SetTypeName(TypeName<NodeT>());
+                    newNode->SetTypeName(TypeName<NodeT>());
 
-                StringView::size_type index = fullyQualifiedName.find_last_of('/');
-                newNode->SetName((index == StringView::npos) ? String(fullyQualifiedName) : String(fullyQualifiedName.substr(index + 1)));
+                    StringView::size_type index = fullyQualifiedName.find_last_of('/');
+                    newNode->SetName((index == StringView::npos) ? String(fullyQualifiedName) : String(fullyQualifiedName.substr(index + 1)));
 #endif
 
-                return newNode;
-            };
+                    return newNode;
+                };
         }
 
         MetaDataContainerT& GetNodeMetaData(StringId32 typeId)
@@ -140,17 +111,8 @@ namespace Onyx::NodeGraph
 
     protected:
         HashSet<StringId32> m_RegisteredNodeTypeIds;
-        HashMap<StringId32, InplaceFunction<Node*()>> m_RegisteredNodes;
+        HashMap<StringId32, InplaceFunction<Node* ()>> m_RegisteredNodes;
         HashMap<StringId32, MetaDataContainerT> m_RegisteredNodesMetaData;
-    };
-
-    class INodeFactory
-    { 
-    public:
-        virtual ~INodeFactory() = default;
-        virtual UniquePtr<Node> CreateNode(StringId32 typeId) const = 0;
-        virtual const HashSet<StringId32>& GetRegisteredNodeIds() const = 0;
-        virtual const NodeEditorMetaData& GetNodeMetaData(StringId32 typeId) const = 0;
     };
 
     template <typename NodeType, typename MetaDataType>

@@ -57,13 +57,16 @@ namespace Onyx::NodeGraph
         const Node& GetNodeForPinId(Guid64 pinId) const;
 
         PinBase& GetPinById(Guid64 pinId);
+        const PinBase& GetPinById(Guid64 pinId) const;
 
         bool IsNewLinkValid(Guid64 fromGlobalPinId, Guid64 toGlobalPinId) const;
         bool AddEdge(Guid64 fromGlobalPinId, Guid64 toGlobalPinId);
 
+        DynamicArray<const Node*> GetNodesSorted() const;
+
         const DynamicArray<LocalNodeId>& GetTopologicalOrder() const { return TopologicalOrder; }
-        HashMap<onyxU64, std::any>& GetConstantPinData() { return ConstantPinData; }
-        const HashMap<onyxU64, std::any>& GetConstantPinData() const { return ConstantPinData; }
+        HashMap<Guid64, std::any>& GetConstantPinData() { return ConstantPinData; }
+        const HashMap<Guid64, std::any>& GetConstantPinData() const { return ConstantPinData; }
 
     private:
         LocalNodeId GetLocalNodeIdForPin(Guid64 globalPinId);
@@ -71,7 +74,7 @@ namespace Onyx::NodeGraph
 
     private:
         DirectedAcyclicGraphT Graph;
-        HashMap<onyxU64, std::any> ConstantPinData;
+        HashMap<Guid64, std::any> ConstantPinData;
 
         DynamicArray<LocalNodeId> TopologicalOrder;
     };

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <onyx/filesystem/onyxfile.h>
-
 namespace Onyx::NodeGraph
 {
     struct ExecutePin {};
@@ -71,9 +69,6 @@ namespace Onyx::NodeGraph
         virtual void DrawPropertyPanel(StringView name, std::any& anyValue) const = 0;
         constexpr virtual onyxU32 GetTypeColor() const = 0;
 #endif
-
-        virtual bool Serialize(FileSystem::JsonValue& json, const std::any& anyValue) const = 0;
-        virtual bool Deserialize(const FileSystem::JsonValue& json, std::any& anyValue) = 0;
 
     private:
         Guid64 m_GlobalId;

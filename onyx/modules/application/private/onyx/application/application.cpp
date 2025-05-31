@@ -12,66 +12,101 @@
 #include <onyx/ui/imguisystem.h>
 #include <onyx/application/taskgraph/taskgraph.h>
 #include <onyx/filesystem/filedialog.h>
+#include <onyx/filesystem/jsondeserializer.h>
+#include <onyx/filesystem/onyxfile.h>
 
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/profiler/profiler.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
 namespace
 {
     const char* const sl_CPU_Frame = "CPU";
 }
 
+namespace Onyx
+{
+    template <>
+    struct Serialization<Graphics::GraphicSettings>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings)
+        {
+            StringView path;
+            serializer.Write<"rendergraph">(path);
+            serializer.Write<"api">(settings.Api);
+            return true;
+
+        }
+        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings)
+        {
+            StringView path;
+            deserializer.Read<"rendergraph">(path);
+            outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
+
+            deserializer.Read<"api">(outSettings.Api);
+            return true;
+        }
+    };
+
+    template <>
+    struct Serialization<Graphics::WindowSettings>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::WindowSettings& settings)
+        {
+            serializer.Write<"size">(settings.Size);
+            serializer.Write<"mode">(settings.Mode);
+            return true;
+
+        }
+        static bool Deserialize(const Deserializer& deserializer, Graphics::WindowSettings& outSettings)
+        {
+            deserializer.Read<"size">(outSettings.Size);
+            deserializer.Read<"mode">(outSettings.Mode);
+            return true;
+        }
+    };
+}
+
 namespace Onyx::Application
 {
     namespace
     {
-        bool DeserializeApplicationSettings(ApplicationSettings& settings, const FileSystem::JsonValue& inJson)
+        bool DeserializeApplicationSettings(ApplicationSettings& settings, const Deserializer& deserializer)
         {
-            inJson.Get("name", settings.Name);
+            deserializer.Read<"name">(settings.Name);
             settings.WindowSettings.Title = settings.Name;
 
             //TODO: fix icon
             //appConfigJson.Get("icon", WindowSettings.m_Icon );
 
-            FileSystem::Filepath inputMapPath;
-            if (inJson.Get("inputmap", inputMapPath))
+            StringView inputMapPath;
+            if (deserializer.Read<"inputmap">(inputMapPath))
             {
-                settings.InputConfig = Assets::AssetId(inputMapPath);
+                settings.InputConfig = Assets::AssetId(FileSystem::Filepath(inputMapPath));
             }
 
-            FileSystem::JsonValue dataRoots;
-            if (inJson.Get("mountpoints", dataRoots))
+            deserializer.ReadForEach<"mountpoints">([&](const Deserializer& scopedDeserializer)
             {
-                for (const auto& jsonDataRoot : dataRoots.Json)
-                {
-                    String dataRootName = jsonDataRoot["name"];
-                    FileSystem::Filepath dataRootPath = jsonDataRoot["path"];
+                    String dataRootName;
+                    scopedDeserializer.Read<"name">(dataRootName);
+
+                    StringView dataRootPath;
+                    scopedDeserializer.Read<"path">(dataRootPath);
 
                     if (dataRootName.ends_with(":/") == false)
                     {
                         dataRootName += ":/";
                     }
 
-                    settings.MountPoints[StringId32(dataRootName)] = { .Prefix = dataRootName, .Path = dataRootPath.make_preferred() };
-                }
-            }
+                    settings.MountPoints[StringId32(dataRootName)] = { .Prefix = dataRootName, .Path = FileSystem::Filepath(dataRootPath).make_preferred() };
 
-            FileSystem::JsonValue graphicSettings;
-            if (inJson.Get("graphics", graphicSettings))
-            {
-                FileSystem::Filepath renderGraphPath = "engine:/rendergraphs/default.orendergraph";
-                graphicSettings.Get("rendergraph", renderGraphPath);
-                settings.GraphicSettings.DefaultRenderGraph = Assets::AssetId(renderGraphPath);
+                    return true;
+            });
 
-                graphicSettings.Get("api", settings.GraphicSettings.Api);
-            }
-
-            FileSystem::JsonValue windowSettings;
-            if (inJson.Get("window", windowSettings))
-            {
-                windowSettings.Get("size", settings.WindowSettings.Size);
-                windowSettings.Get("mode", settings.WindowSettings.Mode);
-            }
+            deserializer.Read<"graphics">(settings.GraphicSettings);
+            deserializer.Read<"window">(settings.WindowSettings);
 
             return true;
         }
@@ -81,7 +116,8 @@ namespace Onyx::Application
         FileSystem::OnyxFile appSettings(FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf");
         FileSystem::JsonValue appConfigJson = appSettings.LoadJson();
 
-        DeserializeApplicationSettings(*this, appConfigJson);
+        FileSystem::JsonDeserializer deserializer(appConfigJson.Json);
+        DeserializeApplicationSettings(*this, deserializer);
     }
 
     Application::Application(const ApplicationSettings& settings)

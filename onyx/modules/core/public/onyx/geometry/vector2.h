@@ -1,7 +1,6 @@
 #pragma once
 
 #include <onyx/geometry/vector.h>
-
 namespace Onyx
 {
     template <typename Scalar>

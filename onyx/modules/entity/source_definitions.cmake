@@ -3,6 +3,8 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/entity)
 
 set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/componentfactory.h
+    ${TARGET_PUBLIC_PATH}/componentmeta.h
+    ${TARGET_PUBLIC_PATH}/componentmeta.hpp
     ${TARGET_PUBLIC_PATH}/entity.h
     ${TARGET_PUBLIC_PATH}/entity.hpp
     ${TARGET_PUBLIC_PATH}/entitycomponentsystem.h

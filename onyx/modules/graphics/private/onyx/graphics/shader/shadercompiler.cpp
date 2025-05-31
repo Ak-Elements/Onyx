@@ -202,7 +202,8 @@ namespace Onyx::Graphics
 
         if (module.GetCompilationStatus() != shaderc_compilation_status_success)
         {
-            ONYX_LOG_ERROR("Failed to compile {} shader at stage: {}.\nError: {}", sourcePath, Enums::ToString(stage), module.GetErrorMessage());
+			String test = module.GetErrorMessage();
+            ONYX_LOG_ERROR("Failed to compile {} shader at stage: {}.\nError: {}", sourcePath, Enums::ToString(stage), test);
             return false;
         }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/graphicstypes.h>
 #include <onyx/graphics/renderpass.h>
 #include <onyx/graphics/buffer.h>
@@ -165,8 +164,8 @@ namespace Onyx::Graphics
 
         void EndFrame(const RenderGraphContext& context) final;
 
-        bool OnSerialize(FileSystem::JsonValue& json) const override;
-        bool OnDeserialize(const FileSystem::JsonValue& json) override;
+        bool OnSerialize(Serializer& serializer) const override;
+        bool OnDeserialize(const Deserializer& deserializer) override;
 
         const RenderGraphTextureResourceInfo& GetInputResourceInfo(onyxU32 pinIndex) { return pinIndex >= m_InputAttachmentInfos.size() ? m_InputAttachmentInfos.emplace_back() : m_InputAttachmentInfos[pinIndex]; }
         const RenderGraphTextureResourceInfo& GetOuputResourceInfo(onyxU32 pinIndex) { return pinIndex >= m_OutputAttachmentInfos.size() ? m_OutputAttachmentInfos.emplace_back() : m_OutputAttachmentInfos[pinIndex]; }
@@ -177,7 +176,7 @@ namespace Onyx::Graphics
 
     protected:
 #if ONYX_IS_EDITOR
-        bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData) override;
+        bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
 #endif
 
         void BindResources(ShaderEffectHandle& shader, const RenderGraphResourceCache& resourceCache, const FrameContext& frameContext);
@@ -220,12 +219,12 @@ namespace Onyx::Graphics
         bool IsComputeTask() const override { ONYX_ASSERT(m_Shader.IsValid()); return m_Shader->IsComputeShader(); }
         bool IsEnabled() override { return m_ShaderEffect.IsValid(); }
 
-        bool OnSerialize(FileSystem::JsonValue& json) const override;
-        bool OnDeserialize(const FileSystem::JsonValue& json) override;
+        bool OnSerialize(Serializer& serializer) const override;
+        bool OnDeserialize(const Deserializer& deserializer) override;
 
     private:
 #if ONYX_IS_EDITOR
-        bool OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData) override;
+        bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
 #endif
     protected:
         String& GetShaderPath() { return m_ShaderPath; }

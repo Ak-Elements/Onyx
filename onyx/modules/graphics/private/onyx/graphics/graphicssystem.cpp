@@ -28,6 +28,7 @@
 #include <onyx/graphics/shadergraph/nodes/math/geometricnodes.h>
 #include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
 #include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
+#include <onyx/nodegraph/nodegraphtyperegistry.h>
 
 namespace Onyx::Graphics
 {

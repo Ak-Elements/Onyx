@@ -1,6 +1,9 @@
 #pragma once
 
-#include <onyx/filesystem/path.h>
+namespace Onyx::Assets
+{
+    struct AssetMetaData;
+}
 
 namespace Onyx::Assets
 {
@@ -14,7 +17,7 @@ namespace Onyx::Graphics
 
     namespace ShaderGraphSerializer
     {
-        bool SerializeJson(const ShaderGraph& graph, const FileSystem::Filepath& filePath);
-        bool DeserializeJson(ShaderGraph& graph, GraphicsApi& graphicsApi, Assets::AssetSystem& assetSystem, const FileSystem::Filepath& filePath);
+        bool Serialize(const ShaderGraph& graph, const Assets::AssetMetaData& meta, Serializer& serializer);
+        bool Deserialize(ShaderGraph& graph, GraphicsApi& graphicsApi, Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& meta, const Deserializer& deserializer);
     };
 }

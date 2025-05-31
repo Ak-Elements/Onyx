@@ -1,6 +1,5 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/graphics/framebuffer.h>
@@ -14,6 +13,64 @@
 
 #include <onyx/graphics/vulkan/texturestorage.h>
 #include <onyx/profiler/profiler.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
+{
+    template<>
+    struct Serialization<Graphics::RenderGraphTextureResourceInfo>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::RenderGraphTextureResourceInfo& textureResourceInfo)
+        {
+            // serialize type and other parameters if not a reference
+            return serializer.Write<"type">(textureResourceInfo.Type) && (
+                (textureResourceInfo.Type == Graphics::RenderGraphResourceType::Reference) ||
+                (
+                    // only serialize if not a reference
+                    serializer.Write<"external">(textureResourceInfo.IsExternal) &&
+                    serializer.Write<"format">(textureResourceInfo.Format) &&
+                    serializer.Write<"loadOp">(textureResourceInfo.LoadOp) &&
+                    serializer.Write<"hassize">(textureResourceInfo.HasSize) &&
+                    serializer.Write<"size">(textureResourceInfo.Size) &&
+                    serializer.Write<"clearcolor">(textureResourceInfo.ClearColor)
+                ));
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, Graphics::RenderGraphTextureResourceInfo& outTextureResourceInfo)
+        {
+            // deserialize type and other parameters if not a reference
+            return deserializer.Read<"type">(outTextureResourceInfo.Type) && (
+                (outTextureResourceInfo.Type == Graphics::RenderGraphResourceType::Reference) ||
+                (
+                    // only deserialize if not a reference
+                    deserializer.Read<"external">(outTextureResourceInfo.IsExternal) &&
+                    deserializer.Read<"format">(outTextureResourceInfo.Format) &&
+                    deserializer.Read<"loadOp">(outTextureResourceInfo.LoadOp) &&
+                    deserializer.Read<"hassize">(outTextureResourceInfo.HasSize) &&
+                    deserializer.Read<"size">(outTextureResourceInfo.Size) &&
+                    deserializer.Read<"clearcolor">(outTextureResourceInfo.ClearColor)
+                ));
+        }
+    };
+
+    template<>
+    struct Serialization<Graphics::RenderGraphBufferResourceInfo>
+    {
+        static bool Serialize(Serializer&, const Graphics::RenderGraphBufferResourceInfo&)
+        {
+            // serialize type and other parameters if not a reference
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer&, Graphics::RenderGraphBufferResourceInfo&)
+        {
+            // not supported but needed for the graph pins
+            return true;
+        }
+    };
+}
 
 namespace Onyx::Graphics
 {
@@ -180,125 +237,19 @@ namespace Onyx::Graphics
         OnEndFrame(context);
     }
 
-    bool RenderGraphShaderNode::OnSerialize(FileSystem::JsonValue& json) const
+    bool RenderGraphShaderNode::OnSerialize(Serializer& serializer) const
     {
         ONYX_PROFILE_FUNCTION;
-
-        if (m_OutputAttachmentInfos.empty() == false)
-        {
-            FileSystem::JsonValue outputAttachmentsJsonArray;
-            FileSystem::JsonValue outputAttachmentJson;
-            for (const RenderGraphTextureResourceInfo& outputAttachment : m_OutputAttachmentInfos)
-            {
-                bool isReference = outputAttachment.Type == RenderGraphResourceType::Reference;
-                outputAttachmentJson.Set("reference", isReference);
-
-                if (isReference == false)
-                {
-                    outputAttachmentJson.Set("external", outputAttachment.IsExternal);
-
-                    outputAttachmentJson.Set("format", outputAttachment.Format);
-                    outputAttachmentJson.Set("loadOp", outputAttachment.LoadOp);
-                    outputAttachmentJson.Set("hassize", outputAttachment.HasSize);
-                    outputAttachmentJson.Set("size", outputAttachment.Size);
-                    outputAttachmentJson.Set("clearcolor", outputAttachment.ClearColor);
-                }
-
-                outputAttachmentsJsonArray.Add(outputAttachmentJson);
-
-            }
-
-            json.Set("output_attachments", outputAttachmentsJsonArray);
-        }
-
-        if (m_OutputBufferInfos.empty() == false)
-        {
-            FileSystem::JsonValue outputBuffersJsonArray;
-            FileSystem::JsonValue outputBufferJson;
-            for (const RenderGraphBufferResourceInfo& outputBuffer: m_OutputBufferInfos)
-            {
-                ONYX_UNUSED(outputBuffer);
-                /*bool isReference = outputBuffer.Type == RenderGraphResourceType::Reference;
-                outputAttachmentJson.Set("reference", isReference);
-
-                if (isReference == false)
-                {
-                    outputAttachmentJson.Set("external", outputAttachment.IsExternal);
-
-                    outputAttachmentJson.Set("format", outputAttachment.Format);
-                    outputAttachmentJson.Set("loadOp", outputAttachment.LoadOp);
-                    outputAttachmentJson.Set("hassize", outputAttachment.HasSize);
-                    outputAttachmentJson.Set("size", outputAttachment.Size);
-                    outputAttachmentJson.Set("clearcolor", outputAttachment.ClearColor);
-                }*/
-
-                outputBuffersJsonArray.Add(outputBufferJson);
-
-            }
-
-            json.Set("output_buffers", outputBuffersJsonArray);
-        }
-
-        return true;
+        return serializer.Write<"output_attachments">(m_OutputAttachmentInfos) &&
+            serializer.Write<"output_buffers">(m_OutputBufferInfos);
     }
 
-    bool RenderGraphShaderNode::OnDeserialize(const FileSystem::JsonValue& json)
+    bool RenderGraphShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        FileSystem::JsonValue outputAttachmentsJsonArray;
-        if (json.Get("output_attachments", outputAttachmentsJsonArray))
-        {
-            for (const nlohmann::basic_json<nlohmann::ordered_map>& outputMetaJsonRaw : outputAttachmentsJsonArray.Json)
-            {
-                const FileSystem::JsonValue outputAttachmentJson(outputMetaJsonRaw);
-
-                RenderGraphTextureResourceInfo& outputAttachment = m_OutputAttachmentInfos.emplace_back();
-
-                bool isReference = false;
-                outputAttachmentJson.Get("reference", isReference);
-                outputAttachment.Type = isReference ? RenderGraphResourceType::Reference : RenderGraphResourceType::Attachment;
-
-                if (isReference == false)
-                {
-                    outputAttachmentJson.Get("external", outputAttachment.IsExternal);
-
-                    outputAttachmentJson.Get("format", outputAttachment.Format);
-                    outputAttachmentJson.Get("loadOp", outputAttachment.LoadOp);
-                    outputAttachmentJson.Get("hassize", outputAttachment.HasSize);
-                    outputAttachmentJson.Get("size", outputAttachment.Size);
-                    outputAttachmentJson.Get("clearcolor", outputAttachment.ClearColor);
-                }
-            }
-        }
-
-        FileSystem::JsonValue outputBuffersJsonArray;
-        if (json.Get("output_buffers", outputBuffersJsonArray))
-        {
-            for (const nlohmann::basic_json<nlohmann::ordered_map>& outputMetaJsonRaw : outputBuffersJsonArray.Json)
-            {
-                const FileSystem::JsonValue outputAttachmentJson(outputMetaJsonRaw);
-
-                RenderGraphBufferResourceInfo& outputBuffer = m_OutputBufferInfos.emplace_back();
-                ONYX_UNUSED(outputBuffer);
-                /*bool isReference = false;
-                outputAttachmentJson.Get("reference", isReference);
-                outputAttachment.Type = isReference ? RenderGraphResourceType::Reference : RenderGraphResourceType::Attachment;
-
-                if (isReference == false)
-                {
-                    outputAttachmentJson.Get("external", outputAttachment.IsExternal);
-
-                    outputAttachmentJson.Get("format", outputAttachment.Format);
-                    outputAttachmentJson.Get("loadOp", outputAttachment.LoadOp);
-                    outputAttachmentJson.Get("hassize", outputAttachment.HasSize);
-                    outputAttachmentJson.Get("size", outputAttachment.Size);
-                    outputAttachmentJson.Get("clearcolor", outputAttachment.ClearColor);
-                }*/
-            }
-        }
-
-        return true;
+        return deserializer.ReadOptional<"output_attachments">(m_OutputAttachmentInfos) &&
+            deserializer.ReadOptional<"output_buffers">(m_OutputBufferInfos);
     }
 
     void RenderGraphShaderNode::OnSwapChainResized(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
@@ -648,115 +599,24 @@ namespace Onyx::Graphics
         }
     }
 
-    bool RenderGraphFixedShaderNode::OnSerialize(FileSystem::JsonValue& json) const
+    bool RenderGraphFixedShaderNode::OnSerialize(Serializer& serializer) const
     {
-        if (m_ShaderPath.empty() == false)
-            json.Set("shader", m_ShaderPath);
-
-        if (m_PipelineProperties.DepthStencil.IsDepthEnabled)
+        if ((m_ShaderPath.empty() == false) &&
+            (serializer.Write<"shader">(m_ShaderPath) == false))
         {
-            FileSystem::JsonValue depthStencilJson;
+            return false;
 
-            depthStencilJson.Set("enabled", static_cast<bool>(m_PipelineProperties.DepthStencil.IsDepthEnabled));
-            depthStencilJson.Set("write", static_cast<bool>(m_PipelineProperties.DepthStencil.IsDepthWriteEnabled));
-            depthStencilJson.Set("stencil", static_cast<bool>(m_PipelineProperties.DepthStencil.IsStencilEnabled));
-
-            depthStencilJson.Set("compare", m_PipelineProperties.DepthStencil.Compare);
-
-            // TODO: Serialize front / back operation states
-
-            json.Set("depthstencil", depthStencilJson);
         }
 
-        if (m_PipelineProperties.Rasterization.CullMode != CullMode::None)
-        {
-            json.Set("cull", m_PipelineProperties.Rasterization.CullMode);
-        }
-
-        if (m_PipelineProperties.Rasterization.FillMode != FillMode::Solid)
-        {
-            json.Set("fill", m_PipelineProperties.Rasterization.FillMode);
-        }
-
-        if (m_PipelineProperties.Rasterization.IsFrontFacing)
-        {
-            json.Set("frontfacing", m_PipelineProperties.Rasterization.IsFrontFacing);
-        }
-
-        if (m_PipelineProperties.BlendStates.empty() == false)
-        {
-            FileSystem::JsonValue blendStatesJsonArray;
-            FileSystem::JsonValue blendStateJson;
-            for (const BlendState& blendState : m_PipelineProperties.BlendStates)
-            {
-                blendStateJson.Set("enabled", blendState.IsBlendEnabled);
-                blendStateJson.Set("colormask", blendState.ColorWriteMask);
-
-                blendStateJson.Set("srccolor", blendState.SourceColor);
-                blendStateJson.Set("dstcolor", blendState.DestinationColor);
-                blendStateJson.Set("colorop", blendState.ColorOperation);
-
-                blendStateJson.Set("srcalpha", blendState.SourceAlpha);
-                blendStateJson.Set("dstalpha", blendState.DestinationAlpha);
-                blendStateJson.Set("alphaop", blendState.AlphaOperation);
-
-                blendStatesJsonArray.Add(blendStateJson);
-
-            }
-
-            json.Set("blend", blendStatesJsonArray);
-        }
-
-        return RenderGraphShaderNode::OnSerialize(json);
+        return serializer.Write<"pipeline">(m_PipelineProperties) &&
+            RenderGraphShaderNode::OnSerialize(serializer);
     }
 
-    bool RenderGraphFixedShaderNode::OnDeserialize(const FileSystem::JsonValue& json)
+    bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        json.Get("shader", m_ShaderPath);
-
-        FileSystem::JsonValue depthStencilJson;
-        if (json.Get("depthstencil", depthStencilJson))
-        {
-            bool value;
-            depthStencilJson.Get("enabled", value);
-            m_PipelineProperties.DepthStencil.IsDepthEnabled = value;
-
-            depthStencilJson.Get("write", value);
-            m_PipelineProperties.DepthStencil.IsDepthWriteEnabled = value;
-
-            depthStencilJson.Get("stencil", value);
-            m_PipelineProperties.DepthStencil.IsStencilEnabled = value;
-
-            depthStencilJson.Get("compare", m_PipelineProperties.DepthStencil.Compare);
-        }
-
-        json.Get("cull", m_PipelineProperties.Rasterization.CullMode);
-        json.Get("fill", m_PipelineProperties.Rasterization.FillMode);
-        json.Get("frontfacing", m_PipelineProperties.Rasterization.IsFrontFacing);
-
-        FileSystem::JsonValue blendStatesJsonArray;
-        if (json.Get("blend", blendStatesJsonArray))
-        {
-            for (const nlohmann::basic_json<nlohmann::ordered_map>& blendStateRawJson : blendStatesJsonArray.Json)
-            {
-                const FileSystem::JsonValue blendStateJson(blendStateRawJson);
-
-                BlendState& blendState = m_PipelineProperties.BlendStates.Emplace();
-
-                blendStateJson.Get("enabled", blendState.IsBlendEnabled);
-                blendStateJson.Get("colormask", blendState.ColorWriteMask);
-
-                blendStateJson.Get("srccolor", blendState.SourceColor);
-                blendStateJson.Get("dstcolor", blendState.DestinationColor);
-                blendStateJson.Get("colorop", blendState.ColorOperation);
-
-                blendStateJson.Get("srcalpha", blendState.SourceAlpha);
-                blendStateJson.Get("dstalpha", blendState.DestinationAlpha);
-                blendStateJson.Get("alphaop", blendState.AlphaOperation);
-            }
-        }
-
-        return RenderGraphShaderNode::OnDeserialize(json);
+        return deserializer.ReadOptional<"shader">(m_ShaderPath) &&
+            deserializer.ReadOptional<"pipeline">(m_PipelineProperties) &&
+            RenderGraphShaderNode::OnDeserialize(deserializer);
     }
 }
 

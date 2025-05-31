@@ -61,12 +61,12 @@ namespace Onyx::Graphics
 
 #endif
 
-        bool Serialize(FileSystem::JsonValue& outJson) const;
-        bool Deserialize(const FileSystem::JsonValue& outJson);
+        bool Serialize(Serializer& serializer) const;
+        bool Deserialize(const Deserializer& deserializer);
 
     private:
-        virtual bool OnSerialize(FileSystem::JsonValue& /*outJson*/) const { return true; }
-        virtual bool OnDeserialize(const FileSystem::JsonValue& /*outJson*/) { return true; }
+        virtual bool OnSerialize(Serializer& /*serializer*/) const { return true; }
+        virtual bool OnDeserialize(const Deserializer& /*deserializer*/) { return true; }
 
     private:
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR

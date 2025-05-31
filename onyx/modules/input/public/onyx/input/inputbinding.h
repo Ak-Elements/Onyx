@@ -1,7 +1,7 @@
 #pragma once
 
 #include <onyx/input/inputtypes.h>
-
+ 
 namespace Onyx
 {
     enum class GameControllerAxis : onyxU8;

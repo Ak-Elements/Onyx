@@ -1,11 +1,13 @@
 #include <onyx/gamecore/components/freecameracomponent.h>
 
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/transformcomponent.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
 #if ONYX_USE_IMGUI
 #include <imgui.h>
@@ -86,33 +88,25 @@ namespace Onyx::GameCore
             Entity::EntityRegistry::RegisterComponent<FreeCameraRuntimeComponent>();
         }
     }
-    
+}
 
-    void FreeCameraControllerComponent::Serialize(Stream& outStream) const
+namespace Onyx
+{
+    bool Serialization<GameCore::FreeCameraControllerComponent>::Serialize(Serializer& serializer, const GameCore::FreeCameraControllerComponent& freeCameraController)
     {
-        ONYX_UNUSED(outStream);
+        return serializer.Write<"baseVelocity">(freeCameraController.BaseVelocity) &&
+            serializer.Write<"minVelocity">(freeCameraController.MinVelocity) &&
+            serializer.Write<"maxVelocity">(freeCameraController.MaxVelocity) &&
+            serializer.Write<"rotationVelocity">(freeCameraController.RotationVelocity) &&
+            serializer.Write<"velocityIncrementFactor">(freeCameraController.VelocityIncrementFactor);
     }
 
-    void FreeCameraControllerComponent::Deserialize(const Stream& inStream)
+    bool Serialization<GameCore::FreeCameraControllerComponent>::Deserialize(const Deserializer& deserializer, GameCore::FreeCameraControllerComponent& outFreeCameraController)
     {
-        ONYX_UNUSED(inStream);
-    }
-
-    void FreeCameraControllerComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        outStream.Set("baseVelocity", BaseVelocity);
-        outStream.Set("minVelocity", MinVelocity);
-        outStream.Set("maxVelocity", MaxVelocity);
-        outStream.Set("rotationVelocity", RotationVelocity);
-        outStream.Set("velocityIncrementFactor", VelocityIncrementFactor);
-    }
-
-    void FreeCameraControllerComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        inStream.Get("baseVelocity", BaseVelocity);
-        inStream.Get("minVelocity", MinVelocity);
-        inStream.Get("maxVelocity", MaxVelocity);
-        inStream.Get("rotationVelocity", RotationVelocity);
-        inStream.Get("velocityIncrementFactor", VelocityIncrementFactor);
+        return deserializer.Read<"baseVelocity">(outFreeCameraController.BaseVelocity) &&
+            deserializer.Read<"minVelocity">(outFreeCameraController.MinVelocity) &&
+            deserializer.Read<"maxVelocity">(outFreeCameraController.MaxVelocity) &&
+            deserializer.Read<"rotationVelocity">(outFreeCameraController.RotationVelocity) &&
+            deserializer.Read<"velocityIncrementFactor">(outFreeCameraController.VelocityIncrementFactor);
     }
 }

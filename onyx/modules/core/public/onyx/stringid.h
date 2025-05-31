@@ -1,7 +1,11 @@
 #pragma once
 
+#include <onyx/serialize/serialization.h>
+
 namespace Onyx
 {
+    class Serializer;
+
     class StringIdCache
     {
     public:
@@ -56,6 +60,10 @@ namespace Onyx
     template <typename T> requires std::is_integral_v<T>
     struct StringId
     {
+    private:
+        friend struct Serialization<StringId>;
+
+    public:
         using IdType = T;
         static constexpr T Invalid = 0;
 
@@ -63,8 +71,8 @@ namespace Onyx
 #if ONYX_IS_RETAIL
             : Id(T(Invalid))
 #else
-            : IdString("Invalid")
-            , Id(T(Invalid))
+            : m_IdString("Invalid")
+            , m_Id(T(Invalid))
 #endif
         {
 
@@ -74,8 +82,8 @@ namespace Onyx
 #if ONYX_IS_RETAIL
             : Id(id)
 #else
-            : IdString("IdString not provided")
-            , Id(id)
+            : m_IdString("IdString not provided")
+            , m_Id(id)
 #endif
         {
         }
@@ -84,7 +92,7 @@ namespace Onyx
 #if ONYX_IS_RETAIL
             : Id(Hash::FNV1aHash<T>(string))
 #else
-            : IdString([&]() -> StringView
+            : m_IdString([&]() -> StringView
                 {
                     if (std::is_constant_evaluated())
                     {
@@ -95,7 +103,7 @@ namespace Onyx
                         return GetIdCache().Store(string);
                     }
                 }())
-            , Id(Hash::FNV1aHash<T>(string))
+            , m_Id(Hash::FNV1aHash<T>(string))
 #endif
         {
         }
@@ -114,39 +122,42 @@ namespace Onyx
 
 #if !ONYX_IS_RETAIL
         StringId(T id, const String& string)
-            : IdString(GetIdCache().Store(string))
-            , Id(id)
+            : m_IdString(GetIdCache().Store(string))
+            , m_Id(id)
         {
         }
 
         StringId(T id, StringView string)
-            : IdString(GetIdCache().Store(string))
-            , Id(id)
+            : m_IdString(GetIdCache().Store(string))
+            , m_Id(id)
             
         {
         }
 
 #endif
 
-        constexpr operator T() const { return Id; }
+        constexpr operator T() const { return m_Id; }
 
-        constexpr bool IsValid() const { return Id != Invalid; }
+        constexpr bool IsValid() const { return m_Id != Invalid; }
          
-        constexpr bool operator==(const StringId& other) const { return Id == other.Id; }
-        constexpr bool operator!=(const StringId& other) const { return Id != other.Id; }
+        constexpr bool operator==(const StringId& other) const { return m_Id == other.m_Id; }
+        constexpr bool operator!=(const StringId& other) const { return m_Id != other.m_Id; }
 
-        constexpr T GetId() const { return Id; }
-        constexpr StringView GetString() const { return IdString; }
+        constexpr T GetId() const { return m_Id; }
+        constexpr StringView GetString() const { return m_IdString; }
 
     private:
 #if !ONYX_IS_RETAIL
-        StringView IdString;
+        StringView m_IdString;
 #endif
-        T Id;
+        T m_Id;
     };
 
     using StringId32 = StringId<onyxU32>;
     using StringId64 = StringId<onyxU64>;
+
+    template <typename T>
+    constexpr bool IsStringId = is_specialization_of_v<StringId, T>;
 
     consteval StringId32 operator""_id32(const char* deg, std::size_t len)
     {
@@ -157,6 +168,20 @@ namespace Onyx
     {
         return StringId64(StringView(deg, len));
     }
+
+    template <>
+    struct Serialization<StringId32>
+    {
+        static bool Serialize(Serializer& serializer, const StringId32& id);
+        static bool Deserialize(const Deserializer& deserializer, StringId32& id);
+    };
+
+    template <>
+    struct Serialization<StringId64>
+    {
+        static bool Serialize(Serializer& serializer, const StringId64& id);
+        static bool Deserialize(const Deserializer& deserializer, StringId64& id);
+    };
 }
 
 namespace std

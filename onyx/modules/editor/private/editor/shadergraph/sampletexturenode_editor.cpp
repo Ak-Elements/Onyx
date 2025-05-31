@@ -6,7 +6,7 @@
 
 namespace Onyx::Graphics
 {
-    bool SampleTextureNode::OnDrawInPropertyGrid(HashMap<onyxU64, std::any>& constantPinData)
+    bool SampleTextureNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
         bool isModified = false;
         bool isTexturePinConnected = GetInputPin(0)->IsConnected();

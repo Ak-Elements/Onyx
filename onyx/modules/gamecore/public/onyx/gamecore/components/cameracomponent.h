@@ -1,33 +1,11 @@
 #pragma once
-#include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/camera.h>
-
 #include <onyx/entity/entitycomponentsystem.h>
-
-//#include <onyx/graphics/camera.h>
 
 namespace Onyx
 {
-    namespace Assets
-    {
-        class AssetSystem;
-    }
 
-    namespace Graphics
-    {
-        class GraphicsApi;
-    }
-
-    namespace FileSystem
-    {
-        struct JsonValue;
-    }
-
-    class Stream;
-}
-
-namespace Onyx::GameCore
+namespace GameCore
 {
     struct CameraComponent;
     struct TransformComponent;
@@ -46,11 +24,14 @@ namespace Onyx::GameCore
 
         bool IsPrimary;
         Graphics::Camera Camera;
-
-        void Serialize(Stream& outStream) const;
-        void Deserialize(const Stream& inStream);
-
-        void SerializeJson(FileSystem::JsonValue& outStream) const;
-        void DeserializeJson(const FileSystem::JsonValue& inStream);
     };
+}
+
+template <>
+struct Serialization<GameCore::CameraComponent>
+{
+    static bool Serialize(Serializer& serializer, const GameCore::CameraComponent& camera);
+    static bool Deserialize(const Deserializer& deserializer, GameCore::CameraComponent& outCamera);
+};
+
 }

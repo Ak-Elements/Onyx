@@ -1,35 +1,14 @@
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
-#include <onyx/filesystem/onyxfile.h>
 
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 
-namespace Onyx::GameCore
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
+
+namespace Onyx
 {
-    void MaterialComponent::Serialize(Stream& outStream) const
-    {
-        ONYX_UNUSED(outStream);
-    }
-
-    void MaterialComponent::Deserialize(const Stream& inStream)
-    {
-        ONYX_UNUSED(inStream);
-    }
-
-    void MaterialComponent::SerializeJson(FileSystem::JsonValue& outStream) const
-    {
-        outStream.Set("material", MaterialId.Get());
-    }
-
-    void MaterialComponent::DeserializeJson(const FileSystem::JsonValue& inStream)
-    {
-        String path;
-        onyxU64 materialId;
-        if (inStream.Get("material", materialId))
-        {
-            MaterialId = materialId;
-        }
-    }
-
+namespace GameCore
+{
     void MaterialComponent::LoadMaterial(Assets::AssetSystem& assetSystem)
     {
         if (MaterialId.IsValid() == false)
@@ -37,4 +16,23 @@ namespace Onyx::GameCore
 
         assetSystem.GetAsset(MaterialId, Material);
     }
+}
+
+bool Serialization<GameCore::MaterialComponent>::Serialize(Serializer& serializer, const GameCore::MaterialComponent& material)
+{
+    return serializer.Write<"material">(material.MaterialId.Get());
+}
+
+bool Serialization<GameCore::MaterialComponent>::Deserialize(const Deserializer& deserializer, GameCore::MaterialComponent& outMaterial)
+{
+    onyxU64 materialId;
+    if (deserializer.Read<"material">(materialId))
+    {
+        outMaterial.MaterialId = materialId;
+    }
+
+    return true;
+}
+
+
 }

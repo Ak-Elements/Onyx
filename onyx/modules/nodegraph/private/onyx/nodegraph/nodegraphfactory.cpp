@@ -1,7 +1,8 @@
 #include <onyx/nodegraph/nodegraphfactory.h>
+#include <onyx/nodegraph/nodegraphtyperegistry.h>
 
 namespace Onyx::NodeGraph
 {
-    HashMap<StringId32, InplaceFunction<PinBase* (Guid64, StringId32)>> NodeGraphTypeRegistry::s_RegisteredTypes;
+    HashMap<StringId32, UniquePtr<INodeGraphTypeMeta>> NodeGraphTypeRegistry::s_TypeMeta;
     HashMap<PinTypeId, StringId32> NodeGraphTypeRegistry::s_RuntimeToStaticTypeId;
 }

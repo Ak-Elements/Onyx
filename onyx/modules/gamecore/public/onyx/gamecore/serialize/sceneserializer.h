@@ -31,17 +31,12 @@ namespace Onyx::GameCore
 
         friend class SceneSectorStreamer;
 
-        bool Serialize(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const override;
-        bool SerializeJson(const Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& sceneFilePath) const override;
-        bool SerializeYaml(const Reference<Assets::AssetInterface>& asset, FileSystem::FileStream& outStream) const override;
-
-        bool Deserialize(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const override;
-        bool DeserializeJson(Reference<Assets::AssetInterface>& asset, const FileSystem::Filepath& sceneFilePath) const override;
-        bool DeserializeYaml(Reference<Assets::AssetInterface>& asset, const FileSystem::FileStream& inStream) const override;
-
+        bool Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const override;
+        bool Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const override;
+        
     private:
-        bool SerializeEntity(const Entity::EntityRegistry& registry, Entity::EntityId entityId, FileSystem::JsonValue& outEntityJsonObj) const;
-        bool DeserializeEntity(Entity::EntityRegistry& registry, Entity::EntityId entityId, const FileSystem::JsonValue& entityJson) const;
+        bool SerializeEntity(Serializer& serializer, const Entity::EntityRegistry& registry, Entity::EntityId entityId) const;
+        bool DeserializeEntity(const Deserializer& deserializer, Entity::EntityRegistry& registry, Entity::EntityId entityId) const;
 
         bool SerializeSectorsToJson(const Entity::EntityRegistry& registry, const DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const;
         bool SerializeSectorToJson(const Entity::EntityRegistry& registry, const SceneSector& sector, const FileSystem::Filepath& sectorDirectoryPath) const;
