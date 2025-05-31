@@ -3,7 +3,6 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/gamecore)
 
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/gamecore.h
-    ${TARGET_PUBLIC_PATH}/assets/sdffont.h
 	${TARGET_PUBLIC_PATH}/components/cameracomponent.h
 	${TARGET_PUBLIC_PATH}/components/idcomponent.h
 	${TARGET_PUBLIC_PATH}/components/namecomponent.h
