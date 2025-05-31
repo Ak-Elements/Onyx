@@ -8,10 +8,6 @@
 #include <editor/rendertasks/gridtask.h>
 #include <editor/rendertasks/guitask.h>
 
-#include <onyx/assets/assetsystem.h>
-#include <onyx/input/inputactionsasset.h>
-#include <onyx/input/inputactionsystem.h>
-
 #include <editor/windows/editormainwindow.h>
 #include <editor/windows/startupwindow.h>
 #include <editor/windows/settings/inputactionsettingswindow.h>

@@ -162,7 +162,7 @@ namespace Onyx::GameCore
 
     bool SceneSerializer::DeserializeEntity(const Deserializer& deserializer, Entity::EntityRegistry& registry, Entity::EntityId entityId) const
     {
-        return deserializer.ReadForEach<"data">([&](const Deserializer& scopeDeserializer)
+        return deserializer.ReadForEach<"components">([&](const Deserializer& scopeDeserializer)
         {
             StringId32 typeId;
             scopeDeserializer.Read<"typeId">(typeId);

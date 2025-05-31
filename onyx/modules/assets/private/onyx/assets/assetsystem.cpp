@@ -39,6 +39,7 @@ namespace Onyx::Assets
 
                         String assetPath = entry.path().lexically_relative(mountPoint.Path).string();
                         std::ranges::replace(assetPath, '\\', '/');
+                        ToLower(assetPath);
 
                         assetPath = mountPoint.Prefix + assetPath;
                         metaData.Id = AssetId(FileSystem::Filepath(assetPath));
