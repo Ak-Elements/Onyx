@@ -155,11 +155,11 @@ namespace Onyx::Volume
 			 *  *dnoise_dx += -8.0f * t21 * t1 * x1 * (gx1 * x1) + t41 * gx1;
 			 */
             
-            output[1] = t20 * t0 * gx0 * x20;
-            output[1] += t21 * t1 * gx1 * x21;
-            output[1] *= -8.0f;
-            output[1] += t40 * gx0 + t41 * gx1;
-            output[1] *= 0.25f; /* Scale derivative to match the noise scaling */
+			output[1] = t20 * t0 * gx0 * x20;
+			output[1] += t21 * t1 * gx1 * x21;
+			output[1] *= -8.0f;
+			output[1] += t40 * gx0 + t41 * gx1;
+			output[1] *= 0.25f; /* Scale derivative to match the noise scaling */
 
 			// The maximum value of this noise is 8*(3/4)^4 = 2.53125
 			// A factor of 0.395 would scale to fit exactly within [-1,1], but
@@ -185,8 +185,7 @@ namespace Onyx::Volume
 		  * If the last tthree arguments are not null, the analytic derivative
 		  * (the 3D gradient of the scalar noise field) is also calculated.
 		  */
-        void sdnoise3(const Vector3f& pos,
-			Vector4f& output)
+        void sdnoise3(const Vector3f& pos, Vector4f& output)
 		{
 			onyxF32 n0, n1, n2, n3; /* Noise contributions from the four simplex corners */
 			onyxF32 gx0, gy0, gz0, gx1, gy1, gz1; /* Gradients at simplex corners */
@@ -196,10 +195,10 @@ namespace Onyx::Volume
 			onyxF32 temp0, temp1, temp2, temp3;
 
 			/* Skew the input space to determine which simplex cell we're in */
-			onyxF32 s = (pos[0] + pos[1] + pos[2])*F3; /* Very nice and simple skew factor for 3D */
-			onyxF32 xs = pos[0] + s;
-			onyxF32 ys = pos[1] + s;
-			onyxF32 zs = pos[2] + s;
+			onyxF32 s = (pos.X + pos.Y + pos.Z)*F3; /* Very nice and simple skew factor for 3D */
+			onyxF32 xs = pos.X + s;
+			onyxF32 ys = pos.Y + s;
+			onyxF32 zs = pos.Z + s;
 			int ii, i = FASTFLOOR(xs);
 			int jj, j = FASTFLOOR(ys);
 			int kk, k = FASTFLOOR(zs);
@@ -208,9 +207,9 @@ namespace Onyx::Volume
 			onyxF32 X0 = i - t; /* Unskew the cell origin back to (x,y,z) space */
 			onyxF32 Y0 = j - t;
 			onyxF32 Z0 = k - t;
-			onyxF32 x0 = pos[0] - X0; /* The x,y,z distances from the cell origin */
-			onyxF32 y0 = pos[1] - Y0;
-			onyxF32 z0 = pos[2] - Z0;
+			onyxF32 x0 = pos.X - X0; /* The x,y,z distances from the cell origin */
+			onyxF32 y0 = pos.Y - Y0;
+			onyxF32 z0 = pos.Z - Z0;
 
 			/* For the 3D case, the simplex shape is a slightly irregular tetrahedron.
 			 * Determine which simplex we are in. */
@@ -291,7 +290,12 @@ namespace Onyx::Volume
 
 			/*  Add contributions from each corner to get the final noise value.
 			 * The result is scaled to return values in the range [-1,1] */
-			output[0] = 72.0f * (n0 + n1 + n2 + n3);
+			onyxF32 outX;
+			onyxF32 outY;
+			onyxF32 outZ;
+			onyxF32 outW;
+
+			outX = 72.0f * (n0 + n1 + n2 + n3);
 
 			/*  A straight, unoptimised calculation would be like:
 				*    dnoise_dx = -8.0f * t20 * t0 * x0 * dot(gx0, gy0, gz0, x0, y0, z0) + t40 * gx0;
@@ -308,31 +312,32 @@ namespace Onyx::Volume
 				*    dnoise_dz += -8.0f * t23 * t3 * z3 * dot(gx3, gy3, gz3, x3, y3, z3) + t43 * gz3;
 				*/
 			temp0 = t20 * t0 * (gx0 * x0 + gy0 * y0 + gz0 * z0);
-            output[1] = temp0 * x0;
-			output[2] = temp0 * y0;
-			output[3] = temp0 * z0;
+            outY = temp0 * x0;
+			outZ = temp0 * y0;
+			outW = temp0 * z0;
 			temp1 = t21 * t1 * (gx1 * x1 + gy1 * y1 + gz1 * z1);
-			output[1] += temp1 * x1;
-			output[2] += temp1 * y1;
-			output[3] += temp1 * z1;
+			outY += temp1 * x1;
+			outZ += temp1 * y1;
+			outW += temp1 * z1;
 			temp2 = t22 * t2 * (gx2 * x2 + gy2 * y2 + gz2 * z2);
-			output[1] += temp2 * x2;
-			output[2] += temp2 * y2;
-			output[3] += temp2 * z2;
+			outY += temp2 * x2;
+			outZ += temp2 * y2;
+			outW += temp2 * z2;
 			temp3 = t23 * t3 * (gx3 * x3 + gy3 * y3 + gz3 * z3);
-			output[1] += temp3 * x3;
-			output[2] += temp3 * y3;
-			output[3] += temp3 * z3;
-			output[1] *= -8.0f;
-			output[2] *= -8.0f;
-			output[3] *= -8.0f;
-			output[1] += t40 * gx0 + t41 * gx1 + t42 * gx2 + t43 * gx3;
-			output[2] += t40 * gy0 + t41 * gy1 + t42 * gy2 + t43 * gy3;
-			output[3] += t40 * gz0 + t41 * gz1 + t42 * gz2 + t43 * gz3;
-			output[1] *= 72.0f; /* Scale derivative to match the noise scaling */
-			output[2] *= 72.0f;//
-			output[3] *= 72.0f;//
+			outY += temp3 * x3;
+			outZ += temp3 * y3;
+			outW += temp3 * z3;
+			outY *= -8.0f;
+			outZ *= -8.0f;
+			outW *= -8.0f;
+			outY += t40 * gx0 + t41 * gx1 + t42 * gx2 + t43 * gx3;
+			outZ += t40 * gy0 + t41 * gy1 + t42 * gy2 + t43 * gy3;
+			outW += t40 * gz0 + t41 * gz1 + t42 * gz2 + t43 * gz3;
+			outY *= 72.0f; /* Scale derivative to match the noise scaling */
+			outZ *= 72.0f;//
+			outW *= 72.0f;//
 
+			output = Vector4f(outX, outY, outZ, outW);
 		}
 
 		// The skewing and unskewing factors are hairy again for the 4D case

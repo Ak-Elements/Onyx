@@ -111,7 +111,6 @@ namespace Onyx::Graphics
         }
 
         ShaderCode = generator.GenerateShader();
-        ONYX_LOG_INFO("Resulting shader: {}", ShaderCode);
         return true;
     }
 

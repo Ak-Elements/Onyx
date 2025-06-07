@@ -22,7 +22,7 @@ public:
     {
         using std::abs;
 
-        if (nodeLevel > super::m_MaxOctreeLevel)
+        if ((31 - nodeLevel) > super::m_MaxOctreeLevel)
         {
             return false;
         }

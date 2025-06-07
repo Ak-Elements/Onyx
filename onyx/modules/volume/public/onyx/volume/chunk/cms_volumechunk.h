@@ -30,6 +30,7 @@ namespace Onyx::Volume
 
             void SetHermiteData(onyxU64 index, const Vector4f& gradient);
             const HermiteData& GetHermiteData(onyxU64 index) const;
+            bool IsValid(onyxU64 index) { return index < m_VolumeData.size(); }
 
             ONYX_EVENT(MeshChanged, const MeshBuilder&);
 

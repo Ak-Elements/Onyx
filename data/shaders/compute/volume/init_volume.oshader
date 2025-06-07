@@ -1,0 +1,45 @@
+#version 460 core 
+
+compute
+{
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+    
+    struct Voxel
+    {
+        vec4 Position;
+        vec4 Gradient;
+    };
+
+    layout (std430, set = 1, binding = 0) buffer Voxels
+    {
+        Voxel VoxelGrid[];
+    };
+    
+    layout(push_constant) uniform Constants
+    {
+        vec3 Normal;
+        float Distance;
+
+        float CellSize;
+    } u_Constants;
+
+    vec4 GetPlaneValueAndGradient(vec3 worldPosition, vec3 normal, float distance)
+    {
+        return vec4(
+            normal.x,
+            normal.y,
+            normal.z,
+            distance - dot(normal, worldPosition));
+    }
+  
+    void main()
+    {
+        vec3 position = (vec3(gl_GlobalInvocationID.xyz) * u_Constants.CellSize);
+        
+        uint voxelIndex = gl_WorkGroupID.x +
+                        gl_WorkGroupID.y * gl_NumWorkGroups.x +
+                        gl_WorkGroupID.z * (gl_NumWorkGroups.x * gl_NumWorkGroups.y);
+
+        VoxelGrid[voxelIndex] = Voxel(vec4(position,0.0f), GetPlaneValueAndGradient(position, u_Constants.Normal, u_Constants.Distance) );
+    }
+}

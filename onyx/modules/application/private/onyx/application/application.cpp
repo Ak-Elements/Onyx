@@ -44,7 +44,6 @@ namespace Onyx
             StringView path;
             deserializer.Read<"rendergraph">(path);
             outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
-
             deserializer.Read<"api">(outSettings.Api);
             return true;
         }
@@ -107,6 +106,8 @@ namespace Onyx::Application
 
             deserializer.Read<"graphics">(settings.GraphicSettings);
             deserializer.Read<"window">(settings.WindowSettings);
+
+            deserializer.Read<"scene">(settings.StartScene);
 
             return true;
         }

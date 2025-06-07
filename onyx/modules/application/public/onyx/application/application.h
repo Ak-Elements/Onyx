@@ -57,6 +57,7 @@ namespace Onyx::Application
         HashMap<StringId32, FileSystem::MountPoint> MountPoints;
 
         Assets::AssetId InputConfig = "engine:/inputcontexts.oinput";
+        Assets::AssetId StartScene;
     };
 
     // Helper to detect member function existence

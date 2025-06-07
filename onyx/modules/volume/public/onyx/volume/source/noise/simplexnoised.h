@@ -111,17 +111,17 @@ namespace Onyx::Volume
             onyxF32 t20, t40, t21, t41, t22, t42;
 
             /* Skew the input space to determine which simplex cell we're in */
-            onyxF32 s = (pos[0] + pos[1]) * F2; /* Hairy factor for 2D */
-            //onyxF32 xs = pos[0] + s;
-            //onyxF32 ys = pos[1] + s;
-            int ii, i = FASTFLOOR((pos[0] + s));
-            int jj, j = FASTFLOOR((pos[1] + s));
+            onyxF32 s = (pos.X + pos.Y) * F2; /* Hairy factor for 2D */
+            //onyxF32 xs = pos.X + s;
+            //onyxF32 ys = pos.Y + s;
+            int ii, i = FASTFLOOR((pos.X + s));
+            int jj, j = FASTFLOOR((pos.Y + s));
 
             onyxF32 t = (i + j) * G2;
             onyxF32 X0 = i - t; /* Unskew the cell origin back to (x,y) space */
             onyxF32 Y0 = j - t;
-            onyxF32 x0 = pos[0] - X0; /* The x,y distances from the cell origin */
-            onyxF32 y0 = pos[1] - Y0;
+            onyxF32 x0 = pos.X - X0; /* The x,y distances from the cell origin */
+            onyxF32 y0 = pos.Y - Y0;
 
             /* For the 2D case, the simplex shape is an equilateral triangle.
              * Determine which simplex we are in. */
@@ -174,7 +174,11 @@ namespace Onyx::Volume
 
             /* Add contributions from each corner to get the final noise value.
              * The result is scaled to return values in the interval [-1,1]. */
-            output[0] = 40.0f * (n0 + n1 + n2);
+            onyxF32& outX = output.X;
+            onyxF32& outY = output.Y;
+            onyxF32& outZ = output.Z;
+
+            outX = 40.0f * (n0 + n1 + n2);
 
             if (calculateGradient)
             {
@@ -187,20 +191,20 @@ namespace Onyx::Volume
                     *    *dnoise_dy += -8.0f * t22 * t2 * y2 * ( gx2 * x2 + gy2 * y2 ) + t42 * gy2;
                     */
                 onyxF32 temp = t20 * t0 * (gx0* x0 + gy0 * y0);
-                output[1] = temp * x0;
-                output[2] = temp * y0;
+                outY = temp * x0;
+                outZ = temp * y0;
                 temp = t21 * t1 * (gx1 * x1 + gy1 * y1);
-                output[1] += temp * x1;
-                output[2] += temp * y1;
+                outY += temp * x1;
+                outZ += temp * y1;
                 temp = t22 * t2 * (gx2* x2 + gy2 * y2);
-                output[1] += temp * x2;
-                output[2] += temp * y2;
-                output[1] *= -8.0f;
-                output[2] *= -8.0f;
-                output[1] += t40 * gx0 + t41 * gx1 + t42 * gx2;
-                output[2] += t40 * gy0 + t41 * gy1 + t42 * gy2;
-                output[1] *= 40.0f; /* Scale derivative to match the noise scaling */
-                output[2] *= 40.0f;
+                outY += temp * x2;
+                outZ += temp * y2;
+                outY *= -8.0f;
+                outZ *= -8.0f;
+                outY += t40 * gx0 + t41 * gx1 + t42 * gx2;
+                outZ += t40 * gy0 + t41 * gy1 + t42 * gy2;
+                outY *= 40.0f; /* Scale derivative to match the noise scaling */
+                outZ *= 40.0f;
             }
         }
 

@@ -21,6 +21,7 @@ namespace Onyx::GameCore
         using LightGridInPin = NodeGraph::Pin<Graphics::BufferHandle, "Light Grid">;
         using LightIndicesInPin = NodeGraph::Pin<Graphics::BufferHandle, "Light Indices">;
         using LightsInPin = NodeGraph::Pin<Graphics::BufferHandle, "Lights">;
+        using VolumeInPin = NodeGraph::Pin<Graphics::BufferHandle, "Volume">;
 
         using OutPin = NodeGraph::Pin<Graphics::TextureHandle, "OutPin">;
 

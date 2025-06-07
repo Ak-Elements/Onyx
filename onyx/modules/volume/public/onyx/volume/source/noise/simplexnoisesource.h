@@ -146,11 +146,11 @@ namespace Onyx::Volume
                 octaves = static_cast<onyxU32>(m_PredefinedOctaves.size());
             }
 
+            Vector3f noiseD;
+            Vector3f deriative;
 			for (size_t i = 0; i < octaves; i++)
 			{
-                Vector3f noiseD;
-                onyxF32 noiseVal = 0.0f;
-                Vector3f deriative;
+                //onyxF32 noiseVal = 0.0f;
 
                 if (m_PredefinedOctaves.empty() == false)
                 {
@@ -165,17 +165,18 @@ namespace Onyx::Volume
                         break;
                     case Dimension::Dimension_2D:
                     {
-                        Vector3f tempPos(pos[0], pos[2], 0);
-                        SimplexNoiseD::sdnoise2(tempPos * frequency, noiseD, getGradient);
-                        noiseVal = noiseD[0];
-                        deriative = Vector3f(noiseD[1], 0.0f, noiseD[2]);
+                        Vector3f tempPos(pos.X * frequency, pos.Z * frequency, 0);
+                        SimplexNoiseD::sdnoise2(tempPos, noiseD, getGradient);
+
+                        deriative.X = noiseD.Y;
+                        deriative.Z = noiseD.Z;
                         break;
                     }
                     case Dimension::Dimension_3D:
                     {
                         Vector4f noise3;
                         SimplexNoiseD::sdnoise3(pos, noise3);
-                        noiseVal = noise3[0];
+                        //noiseVal = noise3[0];
                         deriative = Vector3f(noise3[1], noise3[2], noise3[3]);
                         break;
                     }
@@ -186,9 +187,11 @@ namespace Onyx::Volume
                     }
                 }
 
-                noiseValue += (amplitude * noiseVal);
+                noiseValue += (amplitude * noiseD.X);
                 if (getGradient)
-                    gradient += (deriative * frequency * amplitude);
+                {
+                    gradient += deriative * (frequency * amplitude);
+                }
 
                 if (m_PredefinedOctaves.empty())
                 {
@@ -198,10 +201,10 @@ namespace Onyx::Volume
 			}
 
             const onyxF32 amplitudeScaled = m_Amplitude * m_Scale;
-            Vector4f output(noiseValue * m_Amplitude, gradient[0] * amplitudeScaled, gradient[1] * amplitudeScaled, gradient[2] * amplitudeScaled);
-            gradient[0] = output[1];
-            gradient[1] = output[2];
-            gradient[2] = output[3];
+            Vector4f output(noiseValue * m_Amplitude, gradient.X * amplitudeScaled, gradient.Y * amplitudeScaled, gradient.Z * amplitudeScaled);
+            gradient.X = output[1];
+            gradient.Y = output[2];
+            gradient.Z = output[3];
 
 			return output[0];	
 		}

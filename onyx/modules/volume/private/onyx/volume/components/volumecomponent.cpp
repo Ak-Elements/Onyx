@@ -22,6 +22,7 @@
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
+#include <onyx/volume/graphics/generatemeshpass.h>
 
 namespace Onyx
 {
@@ -114,7 +115,7 @@ namespace Volume
                         OnVolumeLoaded(graphicsApi, volumeComponent, meshBuilder);
                     });
 
-                    volumeComponent.Chunk->Load(IsoSurfaceMethod::DMC_WITH_CMS_ERROR_METRIC, 4, chunkSize, loc_GeometricError, sampleResolution, loc_GeometricError, maxDistanceSkirts, *volumeSource);
+                    volumeComponent.Chunk->Load(IsoSurfaceMethod::CMS, 4, chunkSize, loc_GeometricError, sampleResolution, loc_GeometricError, maxDistanceSkirts, *volumeSource);
                 }
             }
         }
@@ -146,7 +147,8 @@ namespace Volume
 
 
             GameCore::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
-            drawCall.VertexData = volumeComponent.Vertices;
+            drawCall.VertexData = GenerateVolumeMesh::GetVertexBuffer();
+            //drawCall.VertexData = volumeComponent.Vertices;
             drawCall.Indices = volumeComponent.Indices;
             drawCall.Material = materialComponent.Material;
         }

@@ -66,7 +66,7 @@ namespace Onyx::Editor
 
         if (scene.IsValid() == false)
         {
-            StringView startupLevel = "";
+            StringView startupLevel = "project:/scenes/testscene/light_test_scene.oscene";
 
             if (startupLevel.empty())
             {

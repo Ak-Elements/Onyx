@@ -120,7 +120,7 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         pipelineProperties.DepthStencil.IsDepthEnabled = true;
         pipelineProperties.DepthStencil.IsDepthWriteEnabled = false;
         pipelineProperties.DepthStencil.IsStencilEnabled = false;
-        pipelineProperties.DepthStencil.Compare = CompareOperation::Equal;
+        pipelineProperties.DepthStencil.Compare = CompareOperation::LessOrEqual;
 
         BlendState& blendState = pipelineProperties.BlendStates.Emplace();
         blendState.SourceColor = Blend::SrcAlpha;
