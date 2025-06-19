@@ -67,7 +67,7 @@ namespace Onyx::Assets
 
     void AssetSystem::Init()
     {
-        if (GetAllAssetMetaData(m_AssetsMetaData))
+        if (GetAllAssetMetaData(m_AssetsMetaData) == false)
         {
             ONYX_LOG_FATAL("Failed loading asset meta data");
             return;
