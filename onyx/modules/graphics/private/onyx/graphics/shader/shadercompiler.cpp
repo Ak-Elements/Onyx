@@ -161,11 +161,7 @@ namespace Onyx::Graphics
 			shaderCOptions.AddMacroDefinition("ONYX_IS_DEBUG", api.IsShaderDebugEnabled() ? "1" : "0");
 			shaderCOptions.SetGenerateDebugInfo();
 		}
-		
 #endif
-
-        //if (options.Optimize)
-        //    shaderCOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
 
         shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
         switch (stage)
@@ -176,8 +172,8 @@ namespace Onyx::Graphics
             case ShaderStage::Invalid:
             case ShaderStage::Count:
             case ShaderStage::All:
-                    ONYX_ASSERT(false, "Not implemented");
-                    return false;
+                ONYX_ASSERT(false, "Not implemented");
+                return false;
         }
 
 		ShaderIncluder* includer = new ShaderIncluder();
