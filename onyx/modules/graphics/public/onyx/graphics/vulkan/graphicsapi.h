@@ -37,7 +37,7 @@ namespace Onyx::Graphics
             VulkanGraphicsApi();
             ~VulkanGraphicsApi() override;
 
-            void Init(const Window& window) override;
+            void Init(const GraphicSettings& settings, const Window& window) override;
             void Shutdown() override;
 
             bool BeginFrame(const FrameContext& context) override;
