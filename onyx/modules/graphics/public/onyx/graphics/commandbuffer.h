@@ -31,6 +31,8 @@ namespace Onyx::Graphics
         virtual void Bind(const TextureHandle& texture, const String& bindingName) = 0;
         virtual void Bind(const BufferHandle& buffer, const String& bindingName) = 0;
 
+        virtual void Barrier(BufferHandle& buffer, Context newContext, Access newAccess) = 0;
+
         virtual void SetViewport() = 0;
         virtual void SetViewport(const Viewport& viewport) = 0;
         virtual void SetScissor() = 0;
@@ -53,6 +55,7 @@ namespace Onyx::Graphics
 
         virtual void Copy(const BufferHandle& source, BufferHandle& destination) = 0;
 
+   
         // DEBUG
         virtual void GlobalBarrier(uint64_t srcAccess, uint64_t dstAccess) = 0;
 

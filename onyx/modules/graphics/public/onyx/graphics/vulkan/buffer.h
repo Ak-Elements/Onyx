@@ -28,7 +28,7 @@ namespace Onyx::Graphics::Vulkan
 
         const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 
-        void Transition(VulkanCommandBuffer& commandBuffer, VkAccessFlags2 srcFlags, VkAccessFlags2 dstFlags);
+        void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) override;
 
     private:
         void Init(const void* data = nullptr);
@@ -41,5 +41,8 @@ namespace Onyx::Graphics::Vulkan
         const Device* m_Device;
         VULKAN_HANDLE(VkBuffer, Buffer, nullptr);
         VkDescriptorBufferInfo m_DescriptorInfo;
+
+        Access m_Access = Access::None;
+        Context m_Context = Context::Graphics;
     };
 }

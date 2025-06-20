@@ -39,6 +39,8 @@ namespace Onyx::Graphics::Vulkan
         void Bind(const TextureHandle& texture, const String& bindingName) override;
         void Bind(const BufferHandle& buffer, const String& bindingName) override;
 
+        void Barrier(BufferHandle& buffer, Context newContext, Access newAccess) override;
+
         void SetViewport() override;
         void SetViewport(const Viewport& viewport) override;
         void SetScissor() override;
@@ -76,9 +78,7 @@ namespace Onyx::Graphics::Vulkan
 
     private:
         const VulkanGraphicsApi& m_Api;
-        onyxU8 m_FrameIndex;
 
-        bool m_IsRecording = false;
         Reference<VulkanRenderPass> m_CurrentRenderPass;
         Reference<VulkanFramebuffer> m_CurrentFrameBuffer;
 
@@ -86,5 +86,9 @@ namespace Onyx::Graphics::Vulkan
         Reference<Pipeline> m_CurrentPipeline;
 
         VULKAN_HANDLE(VkCommandBuffer, CommandBuffer, nullptr);
+
+        onyxU8 m_FrameIndex;
+
+        bool m_IsRecording = false;
     };
 }

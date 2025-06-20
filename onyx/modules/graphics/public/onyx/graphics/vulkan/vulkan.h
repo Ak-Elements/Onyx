@@ -178,10 +178,10 @@ namespace Onyx::Graphics::Vulkan
 	    {
 		case Context::Graphics:
 		{
-			if ((access_flags & (VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT)) != 0)
+			if ((access_flags & (VK_ACCESS_2_INDEX_READ_BIT | VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT)) != 0)
 				flags |= VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT_KHR;
 
-			if ((access_flags & (VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT)) != 0) {
+			if ((access_flags & (VK_ACCESS_2_UNIFORM_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_SHADER_WRITE_BIT)) != 0) {
 				flags |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT_KHR;
 				flags |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR;
 				flags |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR;
@@ -192,26 +192,26 @@ namespace Onyx::Graphics::Vulkan
 #endif
 			}
 
-			if ((access_flags & VK_ACCESS_INPUT_ATTACHMENT_READ_BIT) != 0)
+			if ((access_flags & VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT) != 0)
 				flags |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR;
 
-			if ((access_flags & (VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)) != 0)
+			if ((access_flags & (VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT)) != 0)
 				flags |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR;
 
-			if ((access_flags & (VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)) != 0)
+			if ((access_flags & (VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)) != 0)
 				flags |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT_KHR | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT_KHR;
 
 			break;
 		}
 		case Context::Compute:
 		{
-			if ((access_flags & (VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT)) != 0 ||
-				(access_flags & VK_ACCESS_INPUT_ATTACHMENT_READ_BIT) != 0 ||
-				(access_flags & (VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)) != 0 ||
-				(access_flags & (VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)) != 0)
+			if ((access_flags & (VK_ACCESS_2_INDEX_READ_BIT | VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT)) != 0 ||
+				(access_flags & VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT) != 0 ||
+				(access_flags & (VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT)) != 0 ||
+				(access_flags & (VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)) != 0)
 				return VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
 
-			if ((access_flags & (VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT)) != 0)
+			if ((access_flags & (VK_ACCESS_2_UNIFORM_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_SHADER_WRITE_BIT)) != 0)
 				flags |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR;
 
 			break;
@@ -221,19 +221,46 @@ namespace Onyx::Graphics::Vulkan
 		}
 
 		// Compatible with both compute and graphics queues
-		if ((access_flags & VK_ACCESS_INDIRECT_COMMAND_READ_BIT) != 0)
+		if ((access_flags & VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT) != 0)
 			flags |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT_KHR;
 
-		if ((access_flags & (VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT)) != 0)
+		if ((access_flags & (VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_TRANSFER_WRITE_BIT)) != 0)
 			flags |= VK_PIPELINE_STAGE_2_TRANSFER_BIT_KHR;
 
-		if ((access_flags & (VK_ACCESS_HOST_READ_BIT | VK_ACCESS_HOST_WRITE_BIT)) != 0)
+		if ((access_flags & (VK_ACCESS_2_HOST_READ_BIT | VK_ACCESS_2_HOST_WRITE_BIT)) != 0)
 			flags |= VK_PIPELINE_STAGE_2_HOST_BIT_KHR;
 
 		if (flags == 0)
 			flags = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT_KHR;
 
 		return flags;
+	}
+
+	inline constexpr VkAccessFlags2 ToAccessFlag(Access access)
+	{
+		switch (access)
+		{
+		case Access::None:
+			return VK_ACCESS_2_NONE;
+		case Access::IndirectRead:
+			return VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+		case Access::IndexRead:
+			return VK_ACCESS_2_INDEX_READ_BIT;
+		case Access::VertexRead:
+			return VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+		case Access::UniformRead:
+			return VK_ACCESS_2_UNIFORM_READ_BIT;
+		case Access::InputAttachmentRead:
+			return VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT;
+		case Access::ShaderRead:
+			return VK_ACCESS_2_SHADER_READ_BIT;
+		case Access::ShaderWrite:
+			return VK_ACCESS_2_SHADER_WRITE_BIT;
+		default:
+			ONYX_LOG_ERROR("Unhandled shader stage: %s", Enums::ToString(access).data());
+			return VK_ACCESS_2_NONE;
+
+        }
 	}
 }
 

@@ -290,6 +290,11 @@ namespace Onyx::Graphics::Vulkan
         m_CurrentShaderEffect->Bind(buffer, bindingName, m_FrameIndex);
     }
 
+    void VulkanCommandBuffer::Barrier(BufferHandle& buffer, Context newContext, Access newAccess)
+    {
+        buffer->Barrier(*this, newContext, newAccess);
+    }
+
     void VulkanCommandBuffer::BindDescriptorSets()
     {
         onyxU8 firstSet = 0;

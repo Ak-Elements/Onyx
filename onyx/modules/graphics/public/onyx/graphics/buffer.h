@@ -4,6 +4,10 @@
 
 namespace Onyx::Graphics
 {
+    enum class Access : onyxU8;
+    enum class Context : onyxU8;
+    class CommandBuffer;
+
     class Buffer : public RefCounted
     {
     public:
@@ -20,6 +24,8 @@ namespace Onyx::Graphics
 		virtual void Unmap() = 0;
 
 		virtual void Flush(onyxU32 offset, onyxU32 count) = 0;
+
+        virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) = 0;
 
     protected:
 		const BufferProperties m_Properties;

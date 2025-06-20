@@ -3,6 +3,7 @@
 #include <onyx/graphics/vulkan/device.h>
 #include <onyx/graphics/vulkan/memoryallocator.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
+#include <onyx/graphics/vulkan/vulkan.h>
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -33,26 +34,38 @@ namespace Onyx::Graphics::Vulkan
         }
     }
 
-    void VulkanBuffer::Transition(VulkanCommandBuffer& commandBuffer, VkAccessFlags2 srcFlags, VkAccessFlags2 dstFlags)
+    void VulkanBuffer::Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess)
     {
-        VkBufferMemoryBarrier2 barrier;
+        if ((m_Access == newAccess) && (m_Context == newContext))
+        {
+            return;
+        }
+
+        VulkanCommandBuffer& vkCommandBuffer = static_cast<VulkanCommandBuffer&>(commandBuffer);
+
+        VkBufferMemoryBarrier2 barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
-        barrier.srcAccessMask = srcFlags;
-        barrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
-        barrier.dstAccessMask = dstFlags;
-        barrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR;
+        barrier.srcAccessMask = ToAccessFlag(m_Access);
+        barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, m_Context);
+        barrier.dstAccessMask = ToAccessFlag(newAccess);
+        barrier.dstStageMask = GetPipelineFlags(barrier.dstAccessMask, newContext);
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
         barrier.buffer = m_Buffer;
         barrier.offset = 0;
         barrier.size = m_Properties.m_Size;
         barrier.pNext = nullptr;
 
-        VkDependencyInfo dependency_info;
+        VkDependencyInfo dependency_info{};
         dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
         dependency_info.bufferMemoryBarrierCount = 1;
         dependency_info.pBufferMemoryBarriers = &barrier;
         dependency_info.pNext = nullptr;
 
-        vkCmdPipelineBarrier2(commandBuffer.GetHandle(), &dependency_info);
+        vkCmdPipelineBarrier2(vkCommandBuffer.GetHandle(), &dependency_info);
+        m_Access = newAccess;
+        m_Context = newContext;
     }
 
     void VulkanBuffer::Init(const void* data)
