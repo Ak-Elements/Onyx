@@ -18,7 +18,7 @@ fragment
 {
     #define TextureIndex uint
 
-#if BINDLESS
+#if ONYX_IS_BINDLESS
     layout(push_constant) uniform constants
     {
         TextureIndex Textures[8];
@@ -42,7 +42,7 @@ fragment
 
     void main()
     {
-#if BINDLESS
+#if ONYX_IS_BINDLESS
         vec4 color = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[0])], vTexCoord.xy);
         vec4 grid = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[1])], vTexCoord.xy);
         vec4 fontTex = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[2])], vTexCoord.xy);

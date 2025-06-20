@@ -152,12 +152,17 @@ namespace Onyx::Graphics
         Compiler compiler;
         CompileOptions shaderCOptions;
 		shaderCOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-		shaderCOptions.AddMacroDefinition("BINDLESS", api.IsBindless() ? "1" : "0");
-		shaderCOptions.SetWarningsAsErrors();
+        shaderCOptions.SetWarningsAsErrors();
+        shaderCOptions.AddMacroDefinition("ONYX_IS_BINDLESS", api.IsBindless() ? "1" : "0");
 
-		//shaderCOptions
-        //if (options.GenerateDebugInfo)
-        //    shaderCOptions.SetGenerateDebugInfo();
+#if !ONYX_IS_RETAIL
+		if (api.IsShaderDebugEnabled())
+		{
+			shaderCOptions.AddMacroDefinition("ONYX_IS_DEBUG", api.IsShaderDebugEnabled() ? "1" : "0");
+			shaderCOptions.SetGenerateDebugInfo();
+		}
+		
+#endif
 
         //if (options.Optimize)
         //    shaderCOptions.SetOptimizationLevel(shaderc_optimization_level_performance);

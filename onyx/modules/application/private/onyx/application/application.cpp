@@ -36,6 +36,14 @@ namespace Onyx
             StringView path;
             serializer.Write<"rendergraph">(path);
             serializer.Write<"api">(settings.Api);
+            serializer.Write<"isbindless">(settings.IsBindless);
+            serializer.Write<"isdynamicrendering">(settings.IsDynamicRenderingEnabled);
+
+#if !ONYX_IS_RETAIL
+            serializer.Write<"istimelinesamplingenabled">(settings.IsTimeSamplingEnabled);
+            serializer.Write<"isdebugenabled">(settings.IsDebugEnabled);
+            serializer.Write<"isshaderdebugenabled">(settings.IsShaderDebugEnabled);
+#endif
             return true;
 
         }
@@ -45,6 +53,15 @@ namespace Onyx
             deserializer.Read<"rendergraph">(path);
             outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
             deserializer.Read<"api">(outSettings.Api);
+
+            deserializer.ReadOptional<"isbindless">(outSettings.IsBindless);
+            deserializer.ReadOptional<"isdynamicrendering">(outSettings.IsDynamicRenderingEnabled);
+
+#if !ONYX_IS_RETAIL
+            deserializer.ReadOptional<"istimelinesamplingenabled">(outSettings.IsTimeSamplingEnabled);
+            deserializer.ReadOptional<"isdebugenabled">(outSettings.IsDebugEnabled);
+            deserializer.ReadOptional<"isshaderdebugenabled">(outSettings.IsShaderDebugEnabled);
+#endif
             return true;
         }
     };

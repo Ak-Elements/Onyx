@@ -1,12 +1,13 @@
 #include <onyx/graphics/vulkan/instance.h>
-#include <onyx/graphics/vulkan/vulkan.h>
 
-#include <onyx/graphics/window.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/vulkan/debugutilsmessenger.h>
+#include <onyx/graphics/vulkan/vulkan.h>
+#include <onyx/graphics/window.h>
 
 namespace Onyx::Graphics::Vulkan
 {
-    Instance::Instance(const Window& window, const DynamicArray<const char*>& validationLayers)
+    Instance::Instance(const GraphicSettings& settings, const Window& window, const DynamicArray<const char*>& validationLayers)
         : m_Window(&window)
     {
 		// Application
@@ -39,6 +40,10 @@ namespace Onyx::Graphics::Vulkan
 		instanceCreateInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo{};
+		VkValidationFeaturesEXT  validationFeaturesExtensionInfo{};
+		DynamicArray<VkValidationFeatureEnableEXT> enabledValidationExtensions;
+
+		void* pNext = nullptr;
 		if (m_EnableValidations)
 		{
 			if (VerifyValidationLayerSupport(validationLayers))
@@ -52,11 +57,29 @@ namespace Onyx::Graphics::Vulkan
 				return;
 			}
 
-			debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-			debugUtilsMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-			debugUtilsMessengerCreateInfo.pfnUserCallback = DebugUtilsMessenger::VulkanDebugCallback;
-			instanceCreateInfo.pNext = static_cast<VkDebugUtilsMessengerCreateInfoEXT*>(&debugUtilsMessengerCreateInfo);
+			if (settings.IsDebugEnabled)
+			{
+				debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+				debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+				debugUtilsMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+				debugUtilsMessengerCreateInfo.pfnUserCallback = DebugUtilsMessenger::VulkanDebugCallback;
+				pNext = &debugUtilsMessengerCreateInfo;
+			}
+
+			if (settings.IsShaderDebugEnabled)
+			{
+				enabledValidationExtensions.emplace_back(VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT);
+				if (enabledValidationExtensions.empty() == false)
+				{
+					validationFeaturesExtensionInfo.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+					validationFeaturesExtensionInfo.enabledValidationFeatureCount = static_cast<onyxU32>(enabledValidationExtensions.size());
+					validationFeaturesExtensionInfo.pEnabledValidationFeatures = enabledValidationExtensions.data();
+					validationFeaturesExtensionInfo.pNext = pNext;
+					pNext = &validationFeaturesExtensionInfo;
+				}
+			}
+
+			instanceCreateInfo.pNext = pNext;
 		}
 		else
 		{

@@ -39,12 +39,12 @@ namespace Onyx::Graphics
     {
     }
 
-    GraphicsApi::~GraphicsApi()
-    {
-    }
+    GraphicsApi::~GraphicsApi() = default;
 
-    void GraphicsApi::Init()
+    void GraphicsApi::Init(const GraphicSettings& settings)
     {
+        m_Settings = settings;
+
         constexpr StringId32 defaultBlendStateId("default");
         constexpr StringId32 noBlendStateId("noblend");
         BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
@@ -60,7 +60,8 @@ namespace Onyx::Graphics
             m_FrameContext[i].Api = this;
         }
 
-        m_GraphicsApi->Init(m_Window);
+        m_GraphicsApi = MakeUnique<Vulkan::VulkanGraphicsApi>();
+        m_GraphicsApi->Init(settings, m_Window);
 
         m_DepthTextureFormat = TextureFormat::DEPTH_FLOAT32;
         CreateDepthImages();
@@ -227,33 +228,9 @@ namespace Onyx::Graphics
             nextFrameContext.ComputeFrame = currentFrameContext.ComputeFrame + 1;
     }
 
-    void GraphicsApi::SetApiType(ApiType api)
+    onyxU16 GraphicsApi::GetRefreshRate() const
     {
-        if (m_ApiType != api)
-        {
-            m_ApiType = api;
-            switch (m_ApiType)
-            {
-                case ApiType::None:
-                    ONYX_LOG_INFO("Graphics api set to none.");
-                    m_GraphicsApi.reset();
-                    return;
-                case ApiType::Dx12:
-                    ONYX_LOG_FATAL("DX12 is not implemented");
-                    m_GraphicsApi.reset();
-                    return;
-                case ApiType::Vulkan:
-                    m_GraphicsApi = MakeUnique<Vulkan::VulkanGraphicsApi>();
-                    break;
-            }
-
-            Init();
-        }
-    }
-
-    onyxU32 GraphicsApi::GetRefreshRate() const
-    {
-        return 144;
+        return m_Settings.RefreshRate;
     }
 
     void GraphicsApi::SetRenderGraph(Reference<RenderGraph>& renderGraph)

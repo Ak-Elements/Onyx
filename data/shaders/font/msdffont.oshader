@@ -29,7 +29,7 @@ vertex
 
 fragment
 {
-#if !BINDLESS
+#if !ONYX_IS_BINDLESS
     layout (set=GLOBAL_SET, binding = 5) uniform sampler2D FontAtlasSampler;
 #endif
 
@@ -56,7 +56,7 @@ fragment
     {
         vec4 backGroundColor = vec4(inColor.xyz, 0);
 
-#if BINDLESS
+#if ONYX_IS_BINDLESS
 		vec3 msdSample = texture(BindlessTextures[nonuniformEXT(inTextureIndex)], inTexCoord).xyz;
 #else
 		vec3 msdSample = texture(FontAtlasSampler, inTexCoord).xyz;

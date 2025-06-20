@@ -11,6 +11,8 @@
 
 #include <onyx/graphics/presentthread.h> 
 
+#include "graphicssystem.h"
+
 namespace Onyx
 {
     class Engine;
@@ -129,7 +131,7 @@ namespace Onyx
         public:
             virtual ~GraphicsApiImpl() = default;
 
-            virtual void Init(const Window& window) = 0;
+            virtual void Init(const GraphicSettings& settings, const Window& window) = 0;
             virtual void Shutdown() = 0;
 
             virtual bool BeginFrame(const FrameContext&) = 0;
@@ -178,15 +180,14 @@ namespace Onyx
             GraphicsApi(Window& window);
             ~GraphicsApi();
 
-            void Init();
+            void Init(const GraphicSettings& graphicSettings);
             void Shutdown();
 
             bool BeginFrame();
             void Render();
             void EndFrame();
 
-            void SetApiType(ApiType api);
-            ApiType GetApiType() const { return m_ApiType; }
+            ApiType GetApiType() const { return m_Settings.Api; }
 
             template <typename T>
             T& GetApi() { return *static_cast<T*>(m_GraphicsApi.get()); }
@@ -195,7 +196,7 @@ namespace Onyx
 
             const Window& GetWindow() const { return m_Window; }
 
-            onyxU32 GetRefreshRate() const;
+            onyxU16 GetRefreshRate() const;
 
             void SetRenderGraph(Reference<RenderGraph>& renderGraph);
 
@@ -242,9 +243,13 @@ namespace Onyx
             const BlendState& GetDefaultBlendState() const;
 
             bool IsBindless() const { return m_GraphicsApi->IsBindless(); }
+#if !ONYX_IS_RETAIL
+            bool IsShaderDebugEnabled() const { return m_Settings.IsShaderDebugEnabled; }
+#endif
             void WaitIdle();
 
             void OnWindowResize(onyxU32 width, onyxU32 height);
+  
 
         protected:
             void LoadSettings();
@@ -262,7 +267,7 @@ namespace Onyx
         private:
             std::mutex m_Mutex;
             Window& m_Window;
-            ApiType m_ApiType = ApiType::None;
+            GraphicSettings m_Settings;
 
             PresentThread m_PresentThread;
 

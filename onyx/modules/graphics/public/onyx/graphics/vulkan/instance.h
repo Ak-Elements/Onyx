@@ -10,7 +10,8 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-	class Window;
+    struct GraphicSettings;
+    class Window;
 }
 
 namespace Onyx::Graphics::Vulkan
@@ -20,7 +21,7 @@ namespace Onyx::Graphics::Vulkan
 	public:
 		static constexpr onyxU32 VULKAN_API_VERSION = VK_API_VERSION_1_3;
 
-		Instance(const Window& window, const std::vector<const char*>& validationLayers);
+		Instance(const GraphicSettings& settings, const Window& window, const std::vector<const char*>& validationLayers);
 		~Instance();
 
 		const Window* GetWindow() const { return m_Window; }

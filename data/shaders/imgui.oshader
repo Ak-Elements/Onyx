@@ -14,7 +14,7 @@ vertex
 	{
 		vec2 outUV;
 		vec4 outColor;
-#if BINDLESS
+#if ONYX_IS_BINDLESS
 		flat uint textureId;
 #endif
 	};
@@ -34,12 +34,12 @@ fragment
 	{
 		vec2 inUV;
 		vec4 inColor;
-#if BINDLESS
+#if ONYX_IS_BINDLESS
 		flat uint textureId;
 #endif
 	};
 	
-#if !BINDLESS
+#if !ONYX_IS_BINDLESS
 	layout (set = MATERIAL_SET, binding = 1) uniform sampler2D fontSampler;
 #endif
 
@@ -47,7 +47,7 @@ fragment
 
 	void main() 
 	{
-#if BINDLESS
+#if ONYX_IS_BINDLESS
 		vec4 sampledTex = texture(BindlessTextures[nonuniformEXT(textureId)], inUV);
 #else
 		vec4 sampledTex = texture(fontSampler, inUV);

@@ -29,7 +29,7 @@ namespace Onyx::Graphics::Vulkan
     VulkanGraphicsApi::VulkanGraphicsApi() = default;
     VulkanGraphicsApi::~VulkanGraphicsApi() = default;
 
-    void VulkanGraphicsApi::Init(const Window& window)
+    void VulkanGraphicsApi::Init(const GraphicSettings& settings, const Window& window)
     {
         // TODO: Add time query support for GPU profiling
         m_Window = &window;
@@ -39,8 +39,13 @@ namespace Onyx::Graphics::Vulkan
             "VK_LAYER_KHRONOS_validation"
         };
 
-        m_Instance = MakeUnique<Instance>(window, validationLayers);
-        m_DebugUtilsMessenger = MakeUnique<DebugUtilsMessenger>(*m_Instance, static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT));
+        m_Instance = MakeUnique<Instance>(settings, window, validationLayers);
+
+        if (settings.IsDebugEnabled)
+        {
+            m_DebugUtilsMessenger = MakeUnique<DebugUtilsMessenger>(*m_Instance, static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT));
+        }
+
         m_Surface = MakeUnique<Surface>(*m_Instance, window);
 
         m_PhysicalDevice = MakeUnique<PhysicalDevice>(*m_Instance, *m_Surface);
@@ -67,6 +72,7 @@ namespace Onyx::Graphics::Vulkan
         current_pnext = &vulkan_13_features;
 
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        deviceExtensions.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
 
         if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
         {

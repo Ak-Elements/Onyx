@@ -56,7 +56,7 @@ namespace Onyx::Graphics
         m_Window->Create(windowSettings);
 
         m_GraphicsApi = MakeUnique<GraphicsApi>(*m_Window);
-        m_GraphicsApi->SetApiType(graphicSettings.Api);
+        m_GraphicsApi->Init(graphicSettings);
 
         Assets::AssetSystem::Register<TextureAsset, TextureSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<MaterialShaderGraph, MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
