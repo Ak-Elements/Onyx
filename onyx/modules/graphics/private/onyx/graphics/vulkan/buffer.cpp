@@ -20,7 +20,10 @@ namespace Onyx::Graphics::Vulkan
         if (m_Buffer != nullptr)
         {
             if (m_MappedPtr)
+            {
                 DeviceMemory::Unmap();
+            }
+                
             Destroy();
         }
     }
@@ -78,7 +81,7 @@ namespace Onyx::Graphics::Vulkan
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.pNext = nullptr;
 
-        VK_CHECK_RESULT(vkCreateBuffer(m_Device->GetHandle(), &createInfo, nullptr, &m_Buffer))
+        VK_CHECK_RESULT(vkCreateBuffer(m_Device->GetHandle(), &createInfo, nullptr, &m_Buffer));
         SetResourceName(m_Device->GetHandle(), VK_OBJECT_TYPE_BUFFER, (onyxU64)m_Buffer, m_Properties.m_DebugName.empty() ? "Unnamed Buffer" : m_Properties.m_DebugName);
 
         VkMemoryRequirements memoryRequirements;
@@ -87,20 +90,22 @@ namespace Onyx::Graphics::Vulkan
         VkMemoryPropertyFlags requiredMemoryPropertyFlags, preferredMemoryPropertyFlags;
         GetMemoryPropertyFlags(m_Properties.m_CpuAccess, m_Properties.m_GpuAccess, requiredMemoryPropertyFlags, preferredMemoryPropertyFlags);
 
-        //TODO:
         m_Memory = m_Allocator->AllocateDedicatedMemory(m_Buffer, memoryRequirements.memoryTypeBits, requiredMemoryPropertyFlags, preferredMemoryPropertyFlags);
         m_IsNonCoherent = (requiredMemoryPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
         m_Allocator->Bind(m_Buffer, m_Memory);
 
         if ((m_Properties.m_CpuAccess == CPUAccess::UpdateUnsynchronized) || m_Properties.m_CpuAccess == CPUAccess::Write)
+        {
             Map(MapMode::Write);
+        }
 
         if (data != nullptr)
+        {
             SetData(0, data, m_Properties.m_Size);
+        }
 
         UpdateDescriptorInfo();
-
     }
 
     void VulkanBuffer::UpdateDescriptorInfo()
@@ -139,7 +144,7 @@ namespace Onyx::Graphics::Vulkan
         ONYX_UNUSED(commandPool);
         ONYX_UNUSED(src);
         ONYX_UNUSED(size);
-;        // TODO: reimplement
+        // TODO: reimplement
         /*commandPool.SingleSubmitBuffer([&](VkCommandBuffer commandBuffer)
         {
             VkBufferCopy copyRegion;
