@@ -20,11 +20,16 @@ namespace Onyx::Graphics
         ApiType Api;
         Assets::AssetId DefaultRenderGraph { "engine:/rendergraphs/default.orendergraph" };
 
-        bool IsBindless;
-        bool IsTimesamplingEnabled;
-        bool IsDebugEnabled;
+        onyxU16 RefreshRate;
 
-        bool IsDynamicRenderingEnabled;
+        bool IsBindless = true;
+        bool IsDynamicRenderingEnabled = true;
+
+#if !ONYX_IS_RETAIL
+        bool IsTimeSamplingEnabled = false;
+        bool IsDebugEnabled = false;
+        bool IsShaderDebugEnabled = false;
+#endif
     };
 
     class GraphicsSystem : public IEngineSystem
