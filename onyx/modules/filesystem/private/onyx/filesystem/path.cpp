@@ -124,6 +124,7 @@ namespace Onyx::FileSystem::Path
         {
             String prefixedPath = mountPoint->Prefix + relativePath.lexically_relative(mountPoint->Path).string();
             std::ranges::replace(prefixedPath, '\\', '/');
+            ToLower(prefixedPath);
             return prefixedPath;
         }
 
