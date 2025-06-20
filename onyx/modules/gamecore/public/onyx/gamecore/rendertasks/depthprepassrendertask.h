@@ -17,13 +17,5 @@ namespace Onyx::GameCore
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
 
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
-
-    private:
-        struct Vertex
-        {
-            Vector3f Position;
-            Vector3f Normal;
-            Vector2f UV;
-        };
     };
 }

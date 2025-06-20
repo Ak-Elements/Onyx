@@ -26,10 +26,8 @@ namespace Onyx::Graphics
         
         vertexInputs.emplace_back("InPosition", ShaderDataType::Float3);
         vertexInputs.emplace_back("InNormal", ShaderDataType::Float3);
-        vertexInputs.emplace_back("InUV", ShaderDataType::Float2);
 
         vertexOutputs.emplace_back("WorldPosition", ShaderDataType::Float3);
-        vertexOutputs.emplace_back("UV", ShaderDataType::Float2);
         vertexOutputs.emplace_back("WorldNormal", ShaderDataType::Float3);
 
         onyxU32 locationIndex = 0;
@@ -56,7 +54,6 @@ namespace Onyx::Graphics
         GeneratePushConstants(vertexShaderCode);
 
         StringView body = "Output.WorldPosition = InPosition;\n"
-            "Output.UV = InUV;\n"
             "Output.WorldNormal = InNormal;\n"
             "gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(InPosition, 1.0);";
 

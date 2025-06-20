@@ -1,0 +1,139 @@
+#version 460 core 
+
+#include "includes/viewconstants.h"
+#include "includes/volume/csg.h"
+
+const float ISO_LEVEL = 0.0f;
+
+compute
+{
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+    
+    struct Voxel
+    {
+        vec4 Position;
+        vec4 Gradient;
+    };
+
+    layout (std430, set = 1, binding = 0) buffer Voxels
+    {
+        Voxel VoxelGrid[];
+    };
+    
+    layout(push_constant) uniform Constants
+    {
+        vec2 MousePosition;
+        float CellSize;
+
+    } u_Constants;
+
+    bool IntersectRayAABB(vec3 rayOrigin, vec3 rayDirection, vec3 volumeChunkMin, vec3 volumeChunkMax, out float tEnter, out float tExit)
+    {
+        vec3 reciprocal = 1.0f / rayDirection;
+        vec3 tMin = (volumeChunkMin - rayOrigin) * reciprocal;
+        vec3 tMax = (volumeChunkMax - rayOrigin) * reciprocal;
+
+        vec3 t1 = min(tMin, tMax);
+        vec3 t2 = max(tMin, tMax);
+
+        float tNear = max(max(t1.x, t1.y), t1.z);
+        float tFar = min(min(t2.x, t2.y), t2.z);
+
+        tEnter = tNear;
+        tExit = tFar;
+
+        return tNear < tFar;
+    }
+  
+    void main()
+    {
+        //
+        
+        //uint voxelIndex = gl_WorkGroupID.x +
+        //                gl_WorkGroupID.y * gl_NumWorkGroups.x +
+        //                gl_WorkGroupID.z * (gl_NumWorkGroups.x * gl_NumWorkGroups.y);
+
+        //vec3 sphereCenter = vec3(28.0,2.0,28.0);
+        //float sphereRadius = 10.0;
+
+        //vec4 voxelGridValue = VoxelGrid[voxelIndex].Gradient;
+        //
+
+        //VoxelGrid[voxelIndex].Gradient = voxelGridValue.w > sphereGradient.w ? voxelGridValue : sphereGradient;
+
+        vec4 mouseClipPos = vec4(u_Constants.MousePosition.xy, 0.0f, 1.0f);
+        vec4 ray = u_ViewConstants.InverseProjectionMatrix * mouseClipPos;
+        ray /= ray.w;
+        ray = u_ViewConstants.InverseViewMatrix * ray;
+
+        vec3 rayOrigin = u_ViewConstants.CameraPosition;
+        vec3 rayDirection = normalize(ray.xyz - rayOrigin);
+
+        // intersect ray with volume chunk AABB
+        float tEnter;
+        float tExit;
+        if (IntersectRayAABB(rayOrigin, rayDirection, vec3(0,0,0), vec3(31.5,31.5,31.5), tEnter, tExit) == false)
+        {
+            return;
+        }
+
+        vec3 currentPoint = rayOrigin + rayDirection * tEnter;
+
+        ivec3 voxelCoord;
+        uint voxelIndex = 0;
+        bool hasHit = false;
+        uvec3 gridSize = uvec3(64, 64, 64);
+
+        while (currentPoint.x < gridSize.x || currentPoint.y < gridSize.y || currentPoint.z < gridSize.z)
+        {
+            // Convert world position to voxel coordinate (integer index)
+            voxelCoord = ivec3(floor(currentPoint / u_Constants.CellSize));
+            
+            voxelIndex = voxelCoord.x + gridSize.x * (voxelCoord.y + gridSize.y * voxelCoord.z);
+            Voxel currentVoxel = VoxelGrid[voxelIndex];
+            // Compute voxel index using Z-major ordering
+            if (currentVoxel.Gradient.w >= ISO_LEVEL)
+            {
+                hasHit = true;
+                break;
+            }
+
+            currentPoint += rayDirection;
+        }
+
+        if (hasHit == false)
+        {
+            return;
+        }
+
+        vec3 sphereCenter = vec3(voxelCoord) * u_Constants.CellSize;
+        float sphereRadius = 5.0;
+
+        for (int x = -10; x < 10; ++x)
+        {
+            for (int y = -10; y < 10; ++y)
+            {
+                for (int z = -10; z < 10; ++z)
+                {
+                    ivec3 editVoxelCoords = voxelCoord + ivec3(x, y, z);
+                    
+                    if (editVoxelCoords.x < 0 || editVoxelCoords.x >= gridSize.x)
+                        continue;
+
+                    if (editVoxelCoords.y < 0 || editVoxelCoords.y >= gridSize.y)
+                        continue;
+
+                    if (editVoxelCoords.z < 0 || editVoxelCoords.z >= gridSize.z)
+                        continue;
+
+                    uint editVoxelIndex = editVoxelCoords.x + gridSize.x * (editVoxelCoords.y + gridSize.y * editVoxelCoords.z);
+                    vec3 position = editVoxelCoords * u_Constants.CellSize;
+
+                    vec4 voxelGridValue = VoxelGrid[editVoxelIndex].Gradient;
+                    vec4 sphereGradient = GetSphereValueAndGradient(position, sphereCenter, sphereRadius);
+                    VoxelGrid[editVoxelIndex].Gradient = voxelGridValue.w > sphereGradient.w ? voxelGridValue : sphereGradient;
+                }
+            }
+        }
+    }
+}

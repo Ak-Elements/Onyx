@@ -65,6 +65,7 @@ namespace Onyx::Graphics::Vulkan
     {
 	    const VulkanBuffer& buffer = bufferHandle.As<VulkanBuffer>();
 
+        // Currently we return here if a binding does not exist because we bind resources for synchronization reasons and not because they are needed
         if (m_WriteDescriptorSets.contains(bindingName) == false)
             return;
 

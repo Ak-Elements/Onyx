@@ -389,43 +389,11 @@ namespace Onyx::Volume
             {
                 const Vector2T direction = edgeCrossingPoint1 - edgeCrossingPoint0;
 
-                // Choose the normal whose perpendicular is closest to direction
-                const Vector2T perp0(edgeCrossingNormal0[1], -edgeCrossingNormal0[0]);
-                const Vector2T perp1(edgeCrossingNormal1[1], -edgeCrossingNormal1[0]);
-
-                // Choose the normal whose perpendicular better aligns with the direction
-                auto dot1 = std::abs(direction.Dot(perp0));
-                auto dot2 = std::abs(direction.Dot(perp1));
-                bool useFirst = dot1 > dot2;
-                const Vector2T& chosenNormal = useFirst ? edgeCrossingNormal1 : edgeCrossingNormal0;
-                const Vector2T& chosenPerp = useFirst ? perp0 : perp1;
-                //Pproj = P + (((Q - P).n) / (v.n)) * v
-
-                //const Vector2T d1(edgeCrossingNormal0[1], -edgeCrossingNormal0[0]); // perpendicular to edgeCrossingNormal1
-                auto proj = (-chosenNormal | direction) / (chosenNormal | chosenPerp);
-                //auto projOther = (-chosenNormal2 | direction) / (chosenNormal2 | chosenPerp2);
-
                 const Vector2T d1(edgeCrossingNormal0[1], -edgeCrossingNormal0[0]); // perpendicular to edgeCrossingNormal1
                 auto proj2 = (edgeCrossingNormal1 | direction) / (edgeCrossingNormal1 | d1);
                 auto correctProjPoint = edgeCrossingPoint0 + d1 * static_cast<onyxF32>(proj2);
-                ONYX_UNUSED(correctProjPoint);
-                auto retPoint = edgeCrossingPoint1 + chosenPerp * static_cast<onyxF32>(proj);
-                //auto retPoint2 = edgeCrossingPoint1 + chosenPerp2 * static_cast<onyxF32>(projOther);
-                //ONYX_UNUSED(retPoint2);
 
                 return correctProjPoint;
-
-                //const Vector2T direction = edgeCrossingPoint1 - edgeCrossingPoint0;
-
-               // Given a plane defined by a point Q and a normal vector n, a point P can be projected
-               //     on the mentioned plane in a direction indicated by another vector v.We’ll call the
-               //     resulting projection point by P .
-
-                //Pproj = P + (((Q - P).n) / (v.n)) * v
-
-                //const Vector2T d1(edgeCrossingNormal0[1], -edgeCrossingNormal0[0]); // perpendicular to edgeCrossingNormal1
-                //auto proj = (edgeCrossingNormal1 | direction) / (edgeCrossingNormal1 | d1);
-                //return edgeCrossingPoint0 + d1 * static_cast<onyxF32>(proj);
             }
 
             inline bool HasSharpFeature(const Vector2T& edgeCrossingNormal0, const Vector2T& edgeCrossingNormal1)

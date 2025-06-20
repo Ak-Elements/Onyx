@@ -26,6 +26,17 @@ namespace Onyx::GameCore
         DynamicArray<Matrix4<onyxF32>> m_Transforms;
     };
 
+    struct StaticMeshIndirectDrawCall
+    {
+        // TODO: Change this to a struct / StaticMesh class
+        // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
+        Reference<Graphics::MaterialShaderGraph> Material;
+        Graphics::BufferHandle VertexData;
+        Graphics::BufferHandle DrawCommandBuffer;
+
+        DynamicArray<Matrix4<onyxF32>> Transforms;
+    };
+
     struct StaticMeshDrawCall
     {
         // TODO: Change this to a struct / StaticMesh class
@@ -33,10 +44,9 @@ namespace Onyx::GameCore
         Reference<Graphics::MaterialShaderGraph> Material;
         Graphics::BufferHandle VertexData;
         Graphics::BufferHandle Indices;
+        Graphics::BufferHandle DrawCommandBuffer;
 
         DynamicArray<Matrix4<onyxF32>> Transforms;
-        bool EnableClusterDebug = false;
-        bool EnableLightClusters = false;
     };
 
     //struct TextDrawCall
@@ -51,7 +61,10 @@ namespace Onyx::GameCore
     struct SceneFrameData : public Graphics::FrameData
     {
         DynamicArray<StaticSpriteDrawCall> m_StaticDrawCalls;
+
+        // group static mesh draw and indirect draw based on the material
         DynamicArray<StaticMeshDrawCall> m_StaticMeshDrawCalls;
+        DynamicArray<StaticMeshIndirectDrawCall> m_StaticMeshIndirectDrawCalls;
         //DynamicArray<TextDrawCall> m_TextDrawCalls;
 
         DynamicArray<LightData> Lights;

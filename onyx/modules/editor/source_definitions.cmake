@@ -22,6 +22,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/panels/nodeeditor/styles/widgets.h
 	${TARGET_PUBLIC_PATH}/panels/sceneeditor/entitiespanel.h
 	${TARGET_PUBLIC_PATH}/panels/sceneeditor/componentspanel.h
+    ${TARGET_PUBLIC_PATH}/panels/sceneeditor/terrainpanel.h
 	${TARGET_PUBLIC_PATH}/rendertasks/compositetask.h
 	${TARGET_PUBLIC_PATH}/rendertasks/gridtask.h
 	${TARGET_PUBLIC_PATH}/rendertasks/guitask.h
@@ -62,6 +63,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/panels/nodeeditor/styles/widgets.cpp
 	${TARGET_PRIVATE_PATH}/panels/sceneeditor/entitiespanel.cpp
 	${TARGET_PRIVATE_PATH}/panels/sceneeditor/componentspanel.cpp
+    ${TARGET_PRIVATE_PATH}/panels/sceneeditor/terrainpanel.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/compositetask.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/gridtask.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/guitask.cpp

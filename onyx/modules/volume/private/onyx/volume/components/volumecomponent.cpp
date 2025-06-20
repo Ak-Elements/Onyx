@@ -146,10 +146,9 @@ namespace Volume
                 return;
 
 
-            GameCore::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
+            GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
             drawCall.VertexData = GenerateVolumeMesh::GetVertexBuffer();
-            //drawCall.VertexData = volumeComponent.Vertices;
-            drawCall.Indices = volumeComponent.Indices;
+            drawCall.DrawCommandBuffer = GenerateVolumeMesh::GetDrawCommandBuffer();
             drawCall.Material = materialComponent.Material;
         }
     }

@@ -8,8 +8,6 @@ namespace Onyx::Volume
         /*
         // Marching Squares
         //
-        //
-        //
         //      v0 +--e0--+ v2
         //         +      +
         //         e2     e3

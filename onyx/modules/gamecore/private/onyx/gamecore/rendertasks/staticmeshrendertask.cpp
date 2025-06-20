@@ -22,7 +22,6 @@ namespace Onyx::GameCore
         AddInPin<LightGridInPin>();
         AddInPin<LightIndicesInPin>();
         AddInPin<LightsInPin>();
-        AddInPin<VolumeInPin>();
         
         AddOutPin<OutPin>();
 
@@ -62,6 +61,15 @@ namespace Onyx::GameCore
             BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
             hasBegun = true;
         }
+
+        for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
+        {
+            const Graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
+            Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
+
+            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+            hasBegun = true;
+        }
     }
 
     void StaticMeshRenderGraphNode::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
@@ -69,8 +77,7 @@ namespace Onyx::GameCore
         ONYX_PROFILE_FUNCTION;
 
         const Graphics::FrameContext& frameContext = context.FrameContext;
-        //const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
-
+        
         if (frameContext.FrameData == nullptr)
             return;
 
@@ -79,98 +86,83 @@ namespace Onyx::GameCore
 
         const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
 
-        /*struct PushConstants
-        {
-            Vector4u32 m_TextureIndices;
-
-            Vector4u32 ClusterSize;
-
-            onyxF32 Scale;
-            onyxF32 Bias;
-            onyxU32 EnableDebug;
-            onyxF32 Padding = 0.0f;
-        };
-
-        PushConstants constants;
-        constants.ClusterSize =
-        {
-            Graphics::CLUSTER_X,
-            Graphics::CLUSTER_Y,
-            Graphics::CLUSTER_Z,
-            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::CLUSTER_X))
-        };
-
-        const onyxF32 nearFarLog = log2(viewConstants.Far / viewConstants.Near);
-        constants.Scale = Graphics::CLUSTER_Z / nearFarLog;
-        constants.Bias = -(Graphics::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
-        constants.EnableDebug = 0;*/
-
-        onyxU32 instanceOffset = 0;
-        
         for (const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls)
         {
-            const Graphics::ShaderGraph& shaderGraph = *drawCall.Material;
-            Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
-
-            //shaderGraph.Render(context.FrameContext, commandBuffer);
-
-            NodeGraph::GraphRunner runner(shaderGraph.GetNodeGraph());
-            runner.Prepare();
-            runner.Update(0);
-
-            commandBuffer.BindShaderEffect(shaderGraph.GetShaderEffect());
-
-            const Graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<Graphics::ShaderGraphTextures>();
-            const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();
-            struct PushConstants
-            {
-                Vector3u32 LightClusterGridSize;
-                onyxF32 LightClusterScale;
-
-                Vector2u32 LightClusterSize;
-                onyxF32 LightClusterBias;
-                onyxU32 Debug;
-
-                onyxU32 Textures[8] = {0};
-            } constants;
-
-            const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
-            constants.LightClusterGridSize =
-            {
-                Graphics::CLUSTER_X,
-                Graphics::CLUSTER_Y,
-                Graphics::CLUSTER_Z
-            };
-
-            constants.LightClusterSize = {
-                static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::CLUSTER_X)),
-                static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / Graphics::CLUSTER_Y))
-            };
-
-            const onyxF32 nearFarLog = log2(viewConstants.Far / viewConstants.Near);
-            constants.LightClusterScale = Graphics::CLUSTER_Z / nearFarLog;
-            constants.LightClusterBias = -(Graphics::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
-            constants.Debug = drawCall.EnableClusterDebug ? 1 : 0;
-            constants.Debug |= drawCall.EnableLightClusters ? 2 : 0;
-            std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
-
-            commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, sizeof(PushConstants), &constants);
+            PrepareShaderGraph(commandBuffer, context.FrameContext, *drawCall.Material);
 
             const onyxU32 instanceCount = 1;
 
             commandBuffer.BindVertexBuffer(drawCall.VertexData, 0, 0);
             commandBuffer.BindIndexBuffer(drawCall.Indices, 0, Graphics::IndexType::uint32);
 
+            onyxU32 instanceOffset = 0;
+
             //for (Matrix4<onyxF32> transformMatrix : drawCall.m_Transforms)
             {
-                //commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(Matrix4<onyxF32>), &transformMatrix);
-                commandBuffer.Draw(Graphics::PrimitiveTopology::Triangle, 0, 30000, 0, instanceCount);
-                //commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, drawCall.Indices->GetProperties().m_Size / 4, instanceCount, 0, 0, instanceOffset);
+                commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, drawCall.Indices->GetProperties().m_Size / 4, instanceCount, 0, 0, instanceOffset);
                 instanceOffset += instanceCount;
             }
         }
+
+        for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
+        {
+            PrepareShaderGraph(commandBuffer, context.FrameContext, *indirectDrawCall.Material);
+
+            const onyxU32 instanceCount = 1;
+
+            commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
+
+            onyxU32 instanceOffset = 0;
+
+            commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
+            instanceOffset += instanceCount;
+        }
     }
-        
+
+    void StaticMeshRenderGraphNode::PrepareShaderGraph(Graphics::CommandBuffer& commandBuffer, const Graphics::FrameContext& frameContext, const Graphics::ShaderGraph& shaderGraph)
+    {
+        NodeGraph::GraphRunner runner(shaderGraph.GetNodeGraph());
+        runner.Prepare();
+        runner.Update(0);
+
+        commandBuffer.BindShaderEffect(shaderGraph.GetShaderEffect());
+
+        const Graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<Graphics::ShaderGraphTextures>();
+        const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();
+        struct PushConstants
+        {
+            Vector3u32 LightClusterGridSize;
+            onyxF32 LightClusterScale;
+
+            Vector2u32 LightClusterSize;
+            onyxF32 LightClusterBias;
+            onyxU32 Debug;
+
+            onyxU32 Textures[8] = { 0 };
+        } constants;
+
+        const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
+        constants.LightClusterGridSize =
+        {
+            Graphics::CLUSTER_X,
+            Graphics::CLUSTER_Y,
+            Graphics::CLUSTER_Z
+        };
+
+        constants.LightClusterSize = {
+            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::CLUSTER_X)),
+            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / Graphics::CLUSTER_Y))
+        };
+
+        const onyxF32 nearFarLog = log2(viewConstants.Far / viewConstants.Near);
+        constants.LightClusterScale = Graphics::CLUSTER_Z / nearFarLog;
+        constants.LightClusterBias = -(Graphics::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
+        constants.Debug = 0;
+        std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
+
+        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, sizeof(PushConstants), &constants);
+    }
+
     bool StaticMeshRenderGraphNode::IsEnabled()
     {
         return true;

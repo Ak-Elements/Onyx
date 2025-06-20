@@ -7,10 +7,13 @@ namespace Onyx::Volume
 {
     namespace 
     {
-        constexpr float CellSize = 8.0f;
+        constexpr float CellSize = 0.5f;
+        bool loc_IsModified = false;
     }
 
+    InplaceArray<Graphics::BufferHandle, 1> CreateVolumeMesh::m_VoxelGrid;
     InplaceArray<Graphics::BufferHandle, 1> GenerateVolumeMesh::m_VertexBuffer;
+    InplaceArray<Graphics::BufferHandle, 1> GenerateVolumeMesh::m_DrawCommandBuffer;
 
     CreateVolumeMesh::CreateVolumeMesh()
     {
@@ -19,13 +22,13 @@ namespace Onyx::Volume
 
     void CreateVolumeMesh::OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache)
     {
-        constexpr onyxU32 clusterCount = 10 * 10 * 10;
+        constexpr onyxU32 clusterCount = 8 * 8 * 8 * (8 * 8 * 8);
 
         for (onyxU8 i = 0; i < 1; ++i)
         {
             Graphics::BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "VoxelGrid";
-            ssboBufferProps.m_Size =  2* sizeof(Vector4f)  * clusterCount;
+            ssboBufferProps.m_Size =  2 * sizeof(Vector4f) * clusterCount;
             ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer);
             ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
             api.CreateBuffer(m_VoxelGrid[i], ssboBufferProps);
@@ -65,10 +68,12 @@ namespace Onyx::Volume
             float CellSize;
         };
 
-        PushConstants constants{ Vector3f::Y_Unit(), 10.0f, CellSize };
+        PushConstants constants{ Vector3f::Y_Unit(), 1.0f, CellSize };
 
         commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, sizeof(PushConstants), &constants);
         commandBuffer.Dispatch(8, 8, 8);
+
+        loc_IsModified = true;
     }
 
     GenerateVolumeMesh::GenerateVolumeMesh()
@@ -76,28 +81,37 @@ namespace Onyx::Volume
         m_ShaderPath = "engine:/shaders/compute/volume/generate_volume.oshader";
     }
 
+    void GenerateVolumeMesh::SetModified(bool modified)
+    {
+        loc_IsModified = modified;
+    }
+
     void GenerateVolumeMesh::OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache)
     {
-        constexpr onyxU32 clusterCount = 100 * 10 * 100;
+        constexpr onyxU32 clusterCount = 1 << 19;
+
+        struct VkDrawIndirectCommand
+        {
+            uint32_t    VertexCount;
+            uint32_t    InstanceCount;
+            uint32_t    FirstVertex;
+            uint32_t    FirstInstance;
+        };
 
         for (onyxU8 i = 0; i < 1; ++i)
         {
             Graphics::BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "VolumeMeshVertices";
-            ssboBufferProps.m_Size = (sizeof(Vector4f) + sizeof(Vector4f)) * clusterCount;
+            ssboBufferProps.m_Size = (sizeof(Vector3f) + sizeof(Vector3f)) * clusterCount;
             ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer | Graphics::BufferType::Vertex);
             ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
             api.CreateBuffer(m_VertexBuffer[i], ssboBufferProps);
 
-            ssboBufferProps.m_DebugName = "VolumeMeshVertexCount";
-            ssboBufferProps.m_Size = sizeof(onyxU32);
-            ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer);
+            ssboBufferProps.m_DebugName = "VolumeMeshDrawCommandBuffer";
+            ssboBufferProps.m_Size = sizeof(VkDrawIndirectCommand);
+            ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer | Graphics::BufferType::Indirect);
             ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-            ssboBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
-            api.CreateBuffer(m_VertexCountBuffer[i], ssboBufferProps);
-
-            onyxU32 count = 0;
-            m_VertexCountBuffer[i]->SetData(0, &count, sizeof(onyxU32));
+            api.CreateBuffer(m_DrawCommandBuffer[i], ssboBufferProps);
         }
 
         onyxU64 globalId = GetOutputPin(0)->GetGlobalId();
@@ -120,11 +134,11 @@ namespace Onyx::Volume
     void GenerateVolumeMesh::OnRender(Graphics::RenderGraphContext& /*context*/, Graphics::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
-     //   hasRun = true;
+        if (loc_IsModified == false)
+        {
+            return;
+        }
 
-        onyxF32 cellSize = CellSize;
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, sizeof(onyxF32), &cellSize);
-        commandBuffer.Bind(m_VertexCountBuffer[0], "meshverticescount");
-        commandBuffer.Dispatch(8, 8, 8);
+        ONYX_UNUSED(commandBuffer);
     }
 }

@@ -4,6 +4,11 @@
 #include <onyx/nodegraph/pins/pin.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
+namespace Onyx::Graphics
+{
+    class ShaderGraph;
+}
+
 namespace Onyx::GameCore
 {
     class StaticMeshRenderGraphNode : public NodeGraph::FlexiblePinsNode<Graphics::RenderGraphShaderNode>
@@ -21,16 +26,18 @@ namespace Onyx::GameCore
         using LightGridInPin = NodeGraph::Pin<Graphics::BufferHandle, "Light Grid">;
         using LightIndicesInPin = NodeGraph::Pin<Graphics::BufferHandle, "Light Indices">;
         using LightsInPin = NodeGraph::Pin<Graphics::BufferHandle, "Lights">;
-        using VolumeInPin = NodeGraph::Pin<Graphics::BufferHandle, "Volume">;
 
         using OutPin = NodeGraph::Pin<Graphics::TextureHandle, "OutPin">;
 
     public:
         StaticMeshRenderGraphNode();
 
+        bool IsEnabled() override;
+
+    private:
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
 
-        bool IsEnabled() override;
+        void PrepareShaderGraph(Graphics::CommandBuffer& commandBuffer, const Graphics::FrameContext& frameContext, const Graphics::ShaderGraph& shaderGraph);
     };
 }

@@ -1,8 +1,10 @@
 #version 460 core 
 
+#include "includes/volume/csg.h"
+
 compute
 {
-    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+    layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     
     struct Voxel
     {
@@ -23,22 +25,13 @@ compute
         float CellSize;
     } u_Constants;
 
-    vec4 GetPlaneValueAndGradient(vec3 worldPosition, vec3 normal, float distance)
-    {
-        return vec4(
-            normal.x,
-            normal.y,
-            normal.z,
-            distance - dot(normal, worldPosition));
-    }
-  
     void main()
     {
-        vec3 position = (vec3(gl_GlobalInvocationID.xyz) * u_Constants.CellSize);
-        
-        uint voxelIndex = gl_WorkGroupID.x +
-                        gl_WorkGroupID.y * gl_NumWorkGroups.x +
-                        gl_WorkGroupID.z * (gl_NumWorkGroups.x * gl_NumWorkGroups.y);
+        uvec3 globalID = gl_GlobalInvocationID;
+        uvec3 gridSize = gl_NumWorkGroups * gl_WorkGroupSize;
+
+        vec3 position = vec3(gl_GlobalInvocationID) * u_Constants.CellSize;
+        uint voxelIndex = globalID.x + gridSize.x * (globalID.y + gridSize.y * globalID.z);
 
         VoxelGrid[voxelIndex] = Voxel(vec4(position,0.0f), GetPlaneValueAndGradient(position, u_Constants.Normal, u_Constants.Distance) );
     }

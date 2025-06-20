@@ -52,8 +52,15 @@ namespace Onyx::GameCore
             {
                 //commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(Matrix4<onyxF32>), &transformMatrix);
                 commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, drawCall.Indices->GetProperties().m_Size / 4, instanceCount, 0, 0, instanceOffset);
+
                 instanceOffset += instanceCount;
             }
+        }
+
+        for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
+        {
+            commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
+            commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
         }
     }
 }
