@@ -16,6 +16,12 @@ namespace Onyx
         {
         }
 
+        explicit Rect2(ScalarT positionX, ScalarT positionY, ScalarT extentsX, ScalarT extentsY)
+            : Position(positionX, positionY)
+            , Extents(extentsX, extentsY)
+        {
+        }
+
         Vector2<ScalarT> Position = Vector2<ScalarT>::Zero();
         Vector2<ScalarT> Extents = Vector2<ScalarT>::Zero();
 
