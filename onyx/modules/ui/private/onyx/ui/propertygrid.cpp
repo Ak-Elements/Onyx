@@ -305,7 +305,7 @@ namespace Onyx::Ui::PropertyGrid
         return hasModified;
     }
 
-    bool DrawColorProperty(StringView propertyName, Vector3f& inOutColor)
+    bool DrawColorProperty(StringView propertyName, Vector3f32& inOutColor)
     {
         DrawPropertyName(propertyName);
         ImGui::EndHorizontal();
@@ -325,7 +325,7 @@ namespace Onyx::Ui::PropertyGrid
         return hasModified;
     }
 
-    bool DrawColorProperty(StringView propertyName, Vector4f& inOutColor)
+    bool DrawColorProperty(StringView propertyName, Vector4f32& inOutColor)
     {
         DrawPropertyName(propertyName);
         ImGui::EndHorizontal();
@@ -348,7 +348,7 @@ namespace Onyx::Ui::PropertyGrid
 
     bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor)
     {
-        Vector4f color{ numeric_cast<onyxF32>(inOutColor[0]) / 255.0f, numeric_cast<onyxF32>(inOutColor[1]) / 255.0f, numeric_cast<onyxF32>(inOutColor[2]) / 255.0f, numeric_cast<onyxF32>(inOutColor[3]) / 255.0f };
+        Vector4f32 color{ numeric_cast<onyxF32>(inOutColor[0]) / 255.0f, numeric_cast<onyxF32>(inOutColor[1]) / 255.0f, numeric_cast<onyxF32>(inOutColor[2]) / 255.0f, numeric_cast<onyxF32>(inOutColor[3]) / 255.0f };
         if (DrawColorProperty(propertyName, color))
         {
             inOutColor[0] = numeric_cast<onyxU8>(color[0] * 255.0f);

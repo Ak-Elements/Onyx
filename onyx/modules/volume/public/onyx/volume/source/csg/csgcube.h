@@ -17,7 +17,7 @@ namespace Onyx::Volume
         {
         }
 
-        CSGCube(const Vector3f& center, const Vector3f& halfExtents)
+        CSGCube(const Vector3f32& center, const Vector3f32& halfExtents)
             : m_Center(center)
             , m_HalfExtents(halfExtents)
         {
@@ -26,12 +26,12 @@ namespace Onyx::Volume
         bool GetUseV2() const { return m_UseV2; }
 		void SetUseV2(bool val) { m_UseV2 = val; }
 
-        virtual Vector4f GetValueAndGradient2(const Vector3f& position) const
+        virtual Vector4f32 GetValueAndGradient2(const Vector3f32& position) const
         {
             constexpr onyxF32 difference = 0.1f;
-            Vector3f gradient(GetValue(Vector3f(position[0] + difference, position[1], position[2])) - GetValue(Vector3f(position[0] - difference, position[1], position[2])),
-                GetValue(Vector3f(position[0], position[1] + difference, position[2])) - GetValue(Vector3f(position[0], position[1] - difference, position[2])),
-                GetValue(Vector3f(position[0], position[1], position[2] + difference)) - GetValue(Vector3f(position[0], position[1], position[2] - difference)));
+            Vector3f32 gradient(GetValue(Vector3f32(position[0] + difference, position[1], position[2])) - GetValue(Vector3f32(position[0] - difference, position[1], position[2])),
+                GetValue(Vector3f32(position[0], position[1] + difference, position[2])) - GetValue(Vector3f32(position[0], position[1] - difference, position[2])),
+                GetValue(Vector3f32(position[0], position[1], position[2] + difference)) - GetValue(Vector3f32(position[0], position[1], position[2] - difference)));
 
             if (gradient.IsZero() == false)
             {
@@ -39,14 +39,14 @@ namespace Onyx::Volume
                 gradient *= -1.0f;
             }
 
-            return Vector4f(
+            return Vector4f32(
                 gradient[0],
                 gradient[1],
                 gradient[2],
                 GetDistanceTo2(position));
         }
 
-        virtual Vector4f GetValueAndGradient(const Vector3f& position) const override
+        virtual Vector4f32 GetValueAndGradient(const Vector3f32& position) const override
         {
 			if (m_UseV2)
 			{
@@ -54,14 +54,14 @@ namespace Onyx::Volume
 			}
 			else
 			{
-				Vector3f gradient(GetValue(Vector3f(position[0] + 1.0f, position[1], position[2])) - GetValue(Vector3f(position[0] - 1.0f, position[1], position[2])),
-					GetValue(Vector3f(position[0], position[1] + 1.0f, position[2])) - GetValue(Vector3f(position[0], position[1] - 1.0f, position[2])),
-					GetValue(Vector3f(position[0], position[1], position[2] + 1.0f)) - GetValue(Vector3f(position[0], position[1], position[2] - 1.0f)));
+				Vector3f32 gradient(GetValue(Vector3f32(position[0] + 1.0f, position[1], position[2])) - GetValue(Vector3f32(position[0] - 1.0f, position[1], position[2])),
+					GetValue(Vector3f32(position[0], position[1] + 1.0f, position[2])) - GetValue(Vector3f32(position[0], position[1] - 1.0f, position[2])),
+					GetValue(Vector3f32(position[0], position[1], position[2] + 1.0f)) - GetValue(Vector3f32(position[0], position[1], position[2] - 1.0f)));
 
                 if (gradient.IsZero() == false)
 				    gradient.Normalize();
 				gradient *= -1.0f;
-				return Vector4f(
+				return Vector4f32(
 					gradient[0],
 					gradient[1],
 					gradient[2],
@@ -69,19 +69,19 @@ namespace Onyx::Volume
 			}
         }
 
-        virtual onyxF32 GetValue(const Vector3f& position) const override
+        virtual onyxF32 GetValue(const Vector3f32& position) const override
         {
             return m_UseV2 ? GetDistanceTo2(position) : GetDistanceTo(position);
         }
 
-        Vector3f GetCenter() const { return m_Center; }
-        void SetCenter(const Vector3f& center) { m_Center = center; }
+        Vector3f32 GetCenter() const { return m_Center; }
+        void SetCenter(const Vector3f32& center) { m_Center = center; }
 
-        Vector3f GetHalfExtents() const { return m_HalfExtents; }
-        void SetHalfExtents (const Vector3f& halfExtents) { m_HalfExtents = halfExtents; }
+        Vector3f32 GetHalfExtents() const { return m_HalfExtents; }
+        void SetHalfExtents (const Vector3f32& halfExtents) { m_HalfExtents = halfExtents; }
 
     protected:
-		onyxF32 GetDistanceTo2(const Vector3f& position) const
+		onyxF32 GetDistanceTo2(const Vector3f32& position) const
 		{
 			using std::abs;
 			using std::max;
@@ -103,7 +103,7 @@ namespace Onyx::Volume
 			return -d;
 		}
 
-        onyxF32 GetDistanceTo(const Vector3f& position) const
+        onyxF32 GetDistanceTo(const Vector3f32& position) const
         {
             using std::abs;
             using std::max;
@@ -122,7 +122,7 @@ namespace Onyx::Volume
             d = max(d, y);
             d = max(d, z);
             
-			Vector3f distance(x, y, z);
+			Vector3f32 distance(x, y, z);
 			return d <= 0 ? distance.Length() : -distance.Length();
 
             /*onyxF32 distance = 0.0f;
@@ -155,8 +155,8 @@ namespace Onyx::Volume
         }
 
     protected:
-        Vector3f m_Center;
-        Vector3f m_HalfExtents;
+        Vector3f32 m_Center;
+        Vector3f32 m_HalfExtents;
 		bool m_UseV2 = false;
     };
 }

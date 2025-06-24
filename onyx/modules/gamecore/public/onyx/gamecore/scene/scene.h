@@ -20,7 +20,7 @@ namespace Onyx::GameCore
 
         const SceneSectorStreamer& GetSectorStreamer() const { return m_SectorStreamer; }
 
-        void SetLoadCenter(const Vector3f& loadCenter);
+        void SetLoadCenter(const Vector3f32& loadCenter);
         void SetStreamInDistance(onyxF64 distance);
         void SetStreamOutDistance(onyxF64 distance);
 
@@ -34,7 +34,7 @@ namespace Onyx::GameCore
         void OnTransformComponentDestroyed(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
 
     private:
-        Vector3f m_LoadCenter; // center position of the streaming
+        Vector3f32 m_LoadCenter; // center position of the streaming
 
         SceneSectorStreamer m_SectorStreamer { *this };
         Entity::EntityRegistry m_Registry;

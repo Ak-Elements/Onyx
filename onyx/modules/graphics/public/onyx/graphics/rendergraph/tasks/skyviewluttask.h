@@ -16,7 +16,7 @@ namespace Onyx::Graphics
         void OnBeginFrame(const RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
-        Vector3f GetSunDirection(float timeOfDay) const;
+        Vector3f32 GetSunDirection(float timeOfDay) const;
 
 #if ONYX_IS_EDITOR
     private:

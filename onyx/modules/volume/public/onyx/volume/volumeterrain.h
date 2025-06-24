@@ -14,7 +14,7 @@ public:
 	void Init(const VolumeBase& volume);
 	void Exit();
 
-	void OnPositionChanged(const Vector3f& position);
+	void OnPositionChanged(const Vector3f32& position);
 
 	Vector3<onyxU32> GetTerrainSize() const { return m_TerrainSize; }
 	void SetTerrainSize(const Vector3<onyxU32>& val) { m_TerrainSize = val; }
@@ -29,7 +29,7 @@ private:
 	Vector3<onyxU32> GetChunk3DIndex(onyxU32 index);
 
 private:
-	Vector3f m_Position = { 0.0f, 0.0f, 0.0f };
+	Vector3f32 m_Position = { 0.0f, 0.0f, 0.0f };
 	Vector3<onyxU32> m_TerrainSize = { 6, 6, 6 };
 
 	onyxU16 m_ChunkSize = 2048; //power of 2

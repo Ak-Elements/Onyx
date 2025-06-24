@@ -7,16 +7,16 @@ namespace Onyx::Volume
 
     }
 
-    CSGSphere::CSGSphere(const onyxF32 radius, const Vector3f& center)
+    CSGSphere::CSGSphere(const onyxF32 radius, const Vector3f32& center)
         : m_Radius(radius)
         , m_Center(center)
     {
 
     }
 
-    Vector4f CSGSphere::GetValueAndGradient(const Vector3f& position) const
+    Vector4f32 CSGSphere::GetValueAndGradient(const Vector3f32& position) const
     {
-        Vector3f gradient = position - m_Center;
+        Vector3f32 gradient = position - m_Center;
 
         onyxF32 length = 0.0f;
         if (gradient.IsZero() == false) 
@@ -28,7 +28,7 @@ namespace Onyx::Volume
             }
         }
 
-        return Vector4f(
+        return Vector4f32(
             gradient[0],
             gradient[1],
             gradient[2],
@@ -36,9 +36,9 @@ namespace Onyx::Volume
         );
     }
 
-    onyxF32 CSGSphere::GetValue(const Vector3f& position) const
+    onyxF32 CSGSphere::GetValue(const Vector3f32& position) const
     {
-        const Vector3f pMinCenter = position - m_Center;
+        const Vector3f32 pMinCenter = position - m_Center;
         return m_Radius - numeric_cast<onyxF32>(pMinCenter.Length());
     }
 

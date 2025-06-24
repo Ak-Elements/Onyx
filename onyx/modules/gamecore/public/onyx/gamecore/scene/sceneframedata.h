@@ -14,9 +14,9 @@ namespace Onyx::GameCore
 
     struct LightData
     {
-        Vector3f Position;
-        Vector3f Direction;
-        Vector3f Radiance;
+        Vector3f32 Position;
+        Vector3f32 Direction;
+        Vector3f32 Radiance;
         onyxF32 Intensity;
     };
 

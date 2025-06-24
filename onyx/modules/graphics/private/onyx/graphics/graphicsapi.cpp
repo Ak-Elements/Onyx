@@ -172,9 +172,9 @@ namespace Onyx::Graphics
             viewConstants.InverseViewMatrix = m_Camera->GetViewMatrixInverse();
             viewConstants.ViewProjectionMatrix = m_Camera->GetViewProjectionMatrix();
             viewConstants.InverseViewProjectionMatrix = m_Camera->GetViewProjectionMatrixInverse();
-            viewConstants.CameraPosition = Vector3f(viewConstants.InverseViewMatrix[3]);
+            viewConstants.CameraPosition = Vector3f32(viewConstants.InverseViewMatrix[3]);
             viewConstants.CameraDirection = m_Camera->GetDirection();
-            viewConstants.Viewport = Vector2f{ m_Camera->GetViewportExtents() };
+            viewConstants.Viewport = Vector2f32{ m_Camera->GetViewportExtents() };
             viewConstants.Near = m_Camera->GetNear();
             viewConstants.Far = m_Camera->GetFar();
         }

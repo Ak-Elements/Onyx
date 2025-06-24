@@ -12,12 +12,12 @@ namespace Onyx::Volume
 
     }
 
-    Vector4f CSGIntersect::GetValueAndGradient(const Vector3f& position) const
+    Vector4f32 CSGIntersect::GetValueAndGradient(const Vector3f32& position) const
     {
         if (m_First && m_Second)
         {
-            Vector4f valueA = m_First->GetValueAndGradient(position);
-            Vector4f valueB = m_Second->GetValueAndGradient(position);
+            Vector4f32 valueA = m_First->GetValueAndGradient(position);
+            Vector4f32 valueB = m_Second->GetValueAndGradient(position);
             if (valueA[3] < valueB[3])
             {
                 return valueA;
@@ -25,10 +25,10 @@ namespace Onyx::Volume
             return valueB;
         }
 
-        return Vector4f(std::numeric_limits<onyxF32>::max());
+        return Vector4f32(std::numeric_limits<onyxF32>::max());
     }
 
-    onyxF32 CSGIntersect::GetValue(const Vector3f& position) const
+    onyxF32 CSGIntersect::GetValue(const Vector3f32& position) const
     {
         if (m_First && m_Second)
         {

@@ -60,8 +60,8 @@ namespace Onyx::GameCore
         static constexpr StringId32 TypeId = "Onyx::GameCore::Components::FreeCameraRuntimeComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
-        Vector3f InputDirection;
-        Vector3f InputRotation;
+        Vector3f32 InputDirection;
+        Vector3f32 InputRotation;
 
         onyxF32 Velocity = 0.0f;
 

@@ -15,9 +15,9 @@ namespace Onyx::Graphics
         using Super = NodeGraph::FlexiblePinsNode<ShaderGraphNode>;
 
         using TextureInPin = NodeGraph::Pin<TextureHandle, "Texture">;
-        using UVInPin = NodeGraph::Pin<Vector2f, "UV">;
-        using RGBOutPin = NodeGraph::Pin<Vector3f, "RGB">;
-        using RGBAOutPin = NodeGraph::Pin<Vector4f, "RGBA">;
+        using UVInPin = NodeGraph::Pin<Vector2f32, "UV">;
+        using RGBOutPin = NodeGraph::Pin<Vector3f32, "RGB">;
+        using RGBAOutPin = NodeGraph::Pin<Vector4f32, "RGBA">;
         using RedOutPin = NodeGraph::Pin<onyxF32, "R">;
         using GreenOutPin = NodeGraph::Pin<onyxF32, "G">;
         using BlueOutPin = NodeGraph::Pin<onyxF32, "B">;

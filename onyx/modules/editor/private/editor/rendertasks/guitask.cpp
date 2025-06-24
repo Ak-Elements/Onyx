@@ -178,8 +178,8 @@ namespace Onyx
 
         struct PushConstants
         {
-            Vector2f scale;
-            Vector2f translate;
+            Vector2f32 scale;
+            Vector2f32 translate;
         } constants;
 
         constants.scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };

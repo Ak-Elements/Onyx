@@ -943,7 +943,7 @@ namespace Onyx::Editor
 
             GraphEditorContext::Node& node = m_EditorContext->GetNode(nodeId);
             node.Name = nodeName;
-            node.Position = Vector2f(position[0], position[1]);
+            node.Position = Vector2f32(position[0], position[1]);
             node.HasUpdatedPosition = true;
         }
 
@@ -991,7 +991,7 @@ namespace Onyx::Editor
 
                 std::array<onyxF32, 2> position{};
                 rerouteNodeMetaJsonObj.Get("position", position);
-                newReroute.Position = Vector2f(position[0], position[1]);
+                newReroute.Position = Vector2f32(position[0], position[1]);
                 newReroute.HasUpdatedPosition = true;
             }
         }

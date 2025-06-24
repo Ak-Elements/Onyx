@@ -15,7 +15,7 @@ namespace Onyx::Volume
 
 struct VolumeChunckLoadRequestData
 {
-    VolumeChunckLoadRequestData(IsoSurfaceMethod isoSurfaceMethod, const Vector3f& position, onyxU8 maxOctreeLevel, onyxF32 octreeRootSize, onyxF32 maxGeometricError, onyxF32 sampleResolution, onyxF32 complexSurfaceThreshold, const VolumeBase& volumeBase)
+    VolumeChunckLoadRequestData(IsoSurfaceMethod isoSurfaceMethod, const Vector3f32& position, onyxU8 maxOctreeLevel, onyxF32 octreeRootSize, onyxF32 maxGeometricError, onyxF32 sampleResolution, onyxF32 complexSurfaceThreshold, const VolumeBase& volumeBase)
         : m_Position(position)
         , m_Size(octreeRootSize)
         , m_MaxOctreeLevel(maxOctreeLevel)
@@ -42,7 +42,7 @@ struct VolumeChunckLoadRequestData
     }
 
 public:
-    Vector3f m_Position{ 0.0f };
+    Vector3f32 m_Position{ 0.0f };
     onyxF32 m_Size = 0.0f;
 
     onyxU8 m_MaxOctreeLevel = onyxMax_U8;
@@ -80,7 +80,7 @@ private:
 
     void GenerateOctree(VolumeChunkOctree& octree);
     void GenerateOctreeChildren(VolumeChunkOctree::OctreeNodeT* node, onyxU8 octreeLevel);
-    VolumeOctreeNodeMetaData GetNodeMetaData(const Vector3f& nodeLocalPosition, onyxF32 nodeHalfExtents);
+    VolumeOctreeNodeMetaData GetNodeMetaData(const Vector3f32& nodeLocalPosition, onyxF32 nodeHalfExtents);
 
     void GenerateDualGridNode();
 

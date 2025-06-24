@@ -28,7 +28,7 @@ namespace Onyx::Graphics
         {
             Matrix4<onyxF32> InverseProjection;
 
-            Vector2f Viewport;
+            Vector2f32 Viewport;
             onyxF32 zNear;
             onyxF32 zFar;
 

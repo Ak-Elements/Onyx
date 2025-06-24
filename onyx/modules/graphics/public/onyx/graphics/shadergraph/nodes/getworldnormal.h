@@ -5,7 +5,7 @@
 
 namespace Onyx::Graphics
 {
-    class GetWorldNormalNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f>
+    class GetWorldNormalNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f32>
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::GetWorldNormal";

@@ -76,18 +76,18 @@ namespace Onyx::Volume
         }
 
 
-		Vector3f GetAnalyticalNormal(const Vector3f& position) const
+		Vector3f32 GetAnalyticalNormal(const Vector3f32& position) const
 		{
-			Vector3f deriative; //optimize away
+			Vector3f32 deriative; //optimize away
 			GetInternalValue(position, deriative, true);
 
-            Vector3f analyticalNormal(-deriative[0], 1.0f - deriative[1], -deriative[2]);
+            Vector3f32 analyticalNormal(-deriative[0], 1.0f - deriative[1], -deriative[2]);
             analyticalNormal.Normalize();
 
             return analyticalNormal;
 		}
 
-        virtual Vector4f GetValueAndGradient(const Vector3f& position) const override
+        virtual Vector4f32 GetValueAndGradient(const Vector3f32& position) const override
         {
             /*
             const onyxF32 offset = 0.001f;// m_Noise.GetGradientOffset();
@@ -102,27 +102,27 @@ namespace Onyx::Volume
 
             return Vector4f(centralDiffNormal[0], centralDiffNormal[1], centralDiffNormal[2], val);*/
 
-            Vector3f deriative; //optimize away
+            Vector3f32 deriative; //optimize away
             onyxF32 val = GetInternalValue(position, deriative, true);
 
-            Vector3f analyticalNormal(-deriative[0], 1.0f - deriative[1], -deriative[2]);
+            Vector3f32 analyticalNormal(-deriative[0], 1.0f - deriative[1], -deriative[2]);
             analyticalNormal.Normalize();
 
-            return Vector4f(analyticalNormal, val);
+            return Vector4f32(analyticalNormal, val);
             
         }
 
-        virtual onyxF32 GetValue(const Vector3f& position) const override
+        virtual onyxF32 GetValue(const Vector3f32& position) const override
         {
-			Vector3f normal;
+			Vector3f32 normal;
             return GetInternalValue(position, normal);
         }
 
     private:
-        inline onyxF32 GetInternalValue(const Vector3f& position, Vector3f& normal, bool getGradient = false) const
+        inline onyxF32 GetInternalValue(const Vector3f32& position, Vector3f32& normal, bool getGradient = false) const
         {
 			onyxF32 distance = 0;
-			Vector3f planeNormal(0, 1, 0);
+			Vector3f32 planeNormal(0, 1, 0);
 
 			onyxF32 value = distance - static_cast<onyxF32>(planeNormal.Dot(position));
             onyxF32 noise = GetNoiseVal(position, normal, getGradient);
@@ -130,12 +130,12 @@ namespace Onyx::Volume
             return value + noise;
         }
 
-		onyxF32 GetNoiseVal(const Vector3f& position, Vector3f& gradient, bool getGradient = false) const
+		onyxF32 GetNoiseVal(const Vector3f32& position, Vector3f32& gradient, bool getGradient = false) const
 		{
 			onyxF32 frequency = m_Frequency;
 			onyxF32 amplitude = 0.5f;
 
-			Vector3f pos = position * m_Scale;
+			Vector3f32 pos = position * m_Scale;
             
             onyxF32 noiseValue = 0.0f;
 
@@ -146,8 +146,8 @@ namespace Onyx::Volume
                 octaves = static_cast<onyxU32>(m_PredefinedOctaves.size());
             }
 
-            Vector3f noiseD;
-            Vector3f deriative;
+            Vector3f32 noiseD;
+            Vector3f32 deriative;
 			for (size_t i = 0; i < octaves; i++)
 			{
                 //onyxF32 noiseVal = 0.0f;
@@ -165,7 +165,7 @@ namespace Onyx::Volume
                         break;
                     case Dimension::Dimension_2D:
                     {
-                        Vector3f tempPos(pos.X * frequency, pos.Z * frequency, 0);
+                        Vector3f32 tempPos(pos.X * frequency, pos.Z * frequency, 0);
                         SimplexNoiseD::sdnoise2(tempPos, noiseD, getGradient);
 
                         deriative.X = noiseD.Y;
@@ -174,15 +174,15 @@ namespace Onyx::Volume
                     }
                     case Dimension::Dimension_3D:
                     {
-                        Vector4f noise3;
+                        Vector4f32 noise3;
                         SimplexNoiseD::sdnoise3(pos, noise3);
                         //noiseVal = noise3[0];
-                        deriative = Vector3f(noise3[1], noise3[2], noise3[3]);
+                        deriative = Vector3f32(noise3[1], noise3[2], noise3[3]);
                         break;
                     }
                     default:
                     {
-                        deriative = Vector3f();
+                        deriative = Vector3f32();
                         break;
                     }
                 }
@@ -201,7 +201,7 @@ namespace Onyx::Volume
 			}
 
             const onyxF32 amplitudeScaled = m_Amplitude * m_Scale;
-            Vector4f output(noiseValue * m_Amplitude, gradient.X * amplitudeScaled, gradient.Y * amplitudeScaled, gradient.Z * amplitudeScaled);
+            Vector4f32 output(noiseValue * m_Amplitude, gradient.X * amplitudeScaled, gradient.Y * amplitudeScaled, gradient.Z * amplitudeScaled);
             gradient.X = output[1];
             gradient.Y = output[2];
             gradient.Z = output[3];

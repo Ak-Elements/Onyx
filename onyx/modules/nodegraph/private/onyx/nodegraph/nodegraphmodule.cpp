@@ -19,16 +19,16 @@ namespace Onyx::NodeGraph
         NodeGraphTypeRegistry::RegisterType<String, "string">();
         NodeGraphTypeRegistry::RegisterType<Vector2s32, "vector2s32">();
         NodeGraphTypeRegistry::RegisterType<Vector2s64, "vector2s64">();
-        NodeGraphTypeRegistry::RegisterType<Vector2f, "vector2f32">();
-        NodeGraphTypeRegistry::RegisterType<Vector2d, "vector2f64">();
+        NodeGraphTypeRegistry::RegisterType<Vector2f32, "vector2f32">();
+        NodeGraphTypeRegistry::RegisterType<Vector2f64, "vector2f64">();
         NodeGraphTypeRegistry::RegisterType<Vector3s32, "vector3s32">();
         NodeGraphTypeRegistry::RegisterType<Vector3s64, "vector3s64">();
-        NodeGraphTypeRegistry::RegisterType<Vector3f, "vector3f32">();
-        NodeGraphTypeRegistry::RegisterType<Vector3d, "vector3f64">();
+        NodeGraphTypeRegistry::RegisterType<Vector3f32, "vector3f32">();
+        NodeGraphTypeRegistry::RegisterType<Vector3f64, "vector3f64">();
         NodeGraphTypeRegistry::RegisterType<Vector4s32, "vector4s32">();
         NodeGraphTypeRegistry::RegisterType<Vector4s64, "vector4s64">();
-        NodeGraphTypeRegistry::RegisterType<Vector4f, "vector4f32">();
-        NodeGraphTypeRegistry::RegisterType<Vector4d, "vector4f64">();
+        NodeGraphTypeRegistry::RegisterType<Vector4f32, "vector4f32">();
+        NodeGraphTypeRegistry::RegisterType<Vector4f64, "vector4f64">();
         NodeGraphTypeRegistry::RegisterType<ExecutePin, "execute">();
 
         RegisterArithmeticNodes<NodeGraphFactory, "NodeGraph">();

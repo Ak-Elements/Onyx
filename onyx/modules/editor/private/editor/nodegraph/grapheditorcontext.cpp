@@ -143,7 +143,7 @@ namespace Onyx::Editor
         node.Name = name;
     }
 
-    void GraphEditorContext::SetNodePosition(Guid64 nodeId, const Vector2f& position)
+    void GraphEditorContext::SetNodePosition(Guid64 nodeId, const Vector2f32& position)
     {
         Node& node = GetNode(nodeId);
 

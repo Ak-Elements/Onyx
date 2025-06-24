@@ -53,7 +53,7 @@ namespace Onyx::Editor::SceneEditor
 
             struct PushConstants
             {
-                Vector2f MousePosition;
+                Vector2f32 MousePosition;
                 float CellSize;
             };
 

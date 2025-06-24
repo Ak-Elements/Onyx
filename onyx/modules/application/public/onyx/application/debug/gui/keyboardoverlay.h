@@ -18,10 +18,10 @@ namespace Onyx::Application::Debug
     private:
         struct KeyData
         {
-            Vector2f m_Offset;
-            Vector2f m_Offset2; // optional
-            Vector2f m_Size;
-            Vector2f m_Size2; // optional
+            Vector2f32 m_Offset;
+            Vector2f32 m_Offset2; // optional
+            Vector2f32 m_Size;
+            Vector2f32 m_Size2; // optional
 
             Input::Key m_Key;
             String m_Label;

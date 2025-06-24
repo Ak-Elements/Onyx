@@ -14,15 +14,15 @@ namespace Onyx
 
     bool Serialization<GameCore::TransformComponent>::Deserialize(const Deserializer& deserializer, GameCore::TransformComponent& outTransform)
     {
-        Vector3f translation;
+        Vector3f32 translation;
         bool success = deserializer.Read<"translation">(translation);
         outTransform.SetTranslation(translation);
 
-        Vector3f rotation;
+        Vector3f32 rotation;
         success &= deserializer.Read<"rotation">(rotation);
         outTransform.SetRotation(rotation);
         
-        Vector3f scale{ 1.0f };
+        Vector3f32 scale{ 1.0f };
         success &= deserializer.Read<"scale">(scale);
         outTransform.SetScale(scale);
 

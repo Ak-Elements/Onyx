@@ -55,7 +55,7 @@ namespace Onyx::Editor
             onyxS8 LocalId = INVALID_INDEX_8;
 
             String Name;
-            Vector2f Position;
+            Vector2f32 Position;
 
             DynamicArray<Pin> Inputs;
             DynamicArray<Pin> Outputs;
@@ -105,7 +105,7 @@ namespace Onyx::Editor
         const Node& GetNodeForPin(Guid64 pinId) const;
 
         void SetNodeName(Guid64 nodeId, const String& name);
-        void SetNodePosition(Guid64 nodeId, const Vector2f& position);
+        void SetNodePosition(Guid64 nodeId, const Vector2f32& position);
 
         virtual bool IsNewLinkValid(Guid64 fromPinId, Guid64 toPinId) const = 0;
         Link& CreateNewLink(Guid64 fromPinId, Guid64 toPinId);

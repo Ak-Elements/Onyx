@@ -56,22 +56,22 @@ namespace Onyx
         }
     }
 
-    bool Serialization<Vector2f>::Serialize(Serializer& serializer, const Vector2f& value)
+    bool Serialization<Vector2f32>::Serialize(Serializer& serializer, const Vector2f32& value)
     {
         return Internal::Serialize(serializer, value);
     }
 
-    bool Serialization<Vector2f>::Deserialize(const Deserializer& deserializer, Vector2f& outValue)
+    bool Serialization<Vector2f32>::Deserialize(const Deserializer& deserializer, Vector2f32& outValue)
     {
         return Internal::Deserialize(deserializer, outValue);
     }
 
-    bool Serialization<Vector2d>::Serialize(Serializer& serializer, const Vector2d& value)
+    bool Serialization<Vector2f64>::Serialize(Serializer& serializer, const Vector2f64& value)
     {
         return Internal::Serialize(serializer, value);
     }
 
-    bool Serialization<Vector2d>::Deserialize(const Deserializer& deserializer, Vector2d& outValue)
+    bool Serialization<Vector2f64>::Deserialize(const Deserializer& deserializer, Vector2f64& outValue)
     {
         return Internal::Deserialize(deserializer, outValue);
     }
@@ -156,22 +156,22 @@ namespace Onyx
         return Internal::Deserialize(deserializer, outValue);
     }
 
-    bool Serialization<Vector3f>::Serialize(Serializer& serializer, const Vector3f& value)
+    bool Serialization<Vector3f32>::Serialize(Serializer& serializer, const Vector3f32& value)
     {
         return Internal::Serialize(serializer, value);
     }
 
-    bool Serialization<Vector3f>::Deserialize(const Deserializer & deserializer, Vector3f & outValue)
+    bool Serialization<Vector3f32>::Deserialize(const Deserializer & deserializer, Vector3f32 & outValue)
     {
         return Internal::Deserialize(deserializer, outValue);
     }
 
-    bool Serialization<Vector3d>::Serialize(Serializer& serializer, const Vector3d& value)
+    bool Serialization<Vector3f64>::Serialize(Serializer& serializer, const Vector3f64& value)
     {
         return Internal::Serialize(serializer, value);
     }
 
-    bool Serialization<Vector3d>::Deserialize(const Deserializer & deserializer, Vector3d & outValue)
+    bool Serialization<Vector3f64>::Deserialize(const Deserializer & deserializer, Vector3f64 & outValue)
     {
         return Internal::Deserialize(deserializer, outValue);
     }
@@ -256,22 +256,22 @@ namespace Onyx
         return Internal::Deserialize(deserializer, outValue);
     }
 
-    bool Serialization<Vector4f>::Serialize(Serializer& serializer, const Vector4f& value)
+    bool Serialization<Vector4f32>::Serialize(Serializer& serializer, const Vector4f32& value)
     {
         return Internal::Serialize(serializer, value);
     }
 
-    bool Serialization<Vector4f>::Deserialize(const Deserializer & deserializer, Vector4f & outValue)
+    bool Serialization<Vector4f32>::Deserialize(const Deserializer & deserializer, Vector4f32 & outValue)
     {
         return Internal::Deserialize(deserializer, outValue);
     }
 
-    bool Serialization<Vector4d>::Serialize(Serializer& serializer, const Vector4d& value)
+    bool Serialization<Vector4f64>::Serialize(Serializer& serializer, const Vector4f64& value)
     {
         return Internal::Serialize(serializer, value);
     }
 
-    bool Serialization<Vector4d>::Deserialize(const Deserializer& deserializer, Vector4d& outValue)
+    bool Serialization<Vector4f64>::Deserialize(const Deserializer& deserializer, Vector4f64& outValue)
     {
         return Internal::Deserialize(deserializer, outValue);
     }

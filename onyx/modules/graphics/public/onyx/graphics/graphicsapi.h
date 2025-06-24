@@ -60,26 +60,26 @@ namespace Onyx
             Matrix4<onyxF32> ViewProjectionMatrix;
             Matrix4<onyxF32> InverseViewProjectionMatrix;
 
-            Vector2f Viewport;
+            Vector2f32 Viewport;
             onyxF32 Near;
             onyxF32 Far;
 
-            Vector3f CameraPosition;
+            Vector3f32 CameraPosition;
             onyxF32 Padding;
 
-            Vector3f CameraDirection;
+            Vector3f32 CameraDirection;
             onyxF32 Padding2;
         };
 
         struct LightBlock
         {
-            Vector3f color;
+            Vector3f32 color;
             float intensity;
 
-            Vector3f position;
+            Vector3f32 position;
             float innerAngle;
 
-            Vector3f direction;
+            Vector3f32 direction;
             float outerAngle;
 
             int type;
@@ -90,8 +90,8 @@ namespace Onyx
 
         struct LightClusterAABB
         {
-            Vector4f Min;
-            Vector4f Max;
+            Vector4f32 Min;
+            Vector4f32 Max;
         };
 
         struct ONYX_ALIGN(16) Lighting

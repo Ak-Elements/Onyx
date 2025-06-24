@@ -5,7 +5,7 @@
 
 namespace Onyx::Graphics
 {
-    class GetWorldPositionNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f>
+    class GetWorldPositionNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f32>
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::GetWorldPosition";

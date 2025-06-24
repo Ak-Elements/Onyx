@@ -61,7 +61,7 @@ namespace Onyx::Editor
         void RenderEntitiesPanel();
         void RenderComponentsPanel();
         void RenderTerrainPanel();
-        void RenderImGuizmo(const Vector2f& viewportExtents);
+        void RenderImGuizmo(const Vector2f32& viewportExtents);
 
         void RenderMenuBar();
 

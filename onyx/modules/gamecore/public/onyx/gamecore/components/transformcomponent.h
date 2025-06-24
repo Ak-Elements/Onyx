@@ -16,16 +16,16 @@ namespace Onyx::GameCore
             m_Rotation.FromEulerAngles(0, 0, 0);
         }
 
-        const Vector3f& GetTranslation() const { return m_Translation; }
-        void SetTranslation(const Vector3f& translation) { m_Translation = translation; }
+        const Vector3f32& GetTranslation() const { return m_Translation; }
+        void SetTranslation(const Vector3f32& translation) { m_Translation = translation; }
 
-        const Rotor3f GetRotation() const { return m_Rotation; }
-        const Vector3f& GetRotationEuler() const { return m_RotationEuler; }
+        const Rotor3f32 GetRotation() const { return m_Rotation; }
+        const Vector3f32& GetRotationEuler() const { return m_RotationEuler; }
 
-        const Vector3f& GetScale() const { return m_Scale; }
-        void SetScale(const Vector3f& scale) { m_Scale = scale; }
+        const Vector3f32& GetScale() const { return m_Scale; }
+        void SetScale(const Vector3f32& scale) { m_Scale = scale; }
 
-        void SetRotation(const Rotor3f& rotation)
+        void SetRotation(const Rotor3f32& rotation)
         {
             if (m_Rotation == rotation)
             {
@@ -36,18 +36,18 @@ namespace Onyx::GameCore
             m_RotationEuler = m_Rotation.ToEulerAngles();
         }
 
-        void SetRotation(const Vector3f& eulerAngles)
+        void SetRotation(const Vector3f32& eulerAngles)
         {
             if (m_RotationEuler == eulerAngles)
                 return;
 
             m_RotationEuler = eulerAngles;
-            m_Rotation = Rotor3f::FromEulerAngles(m_RotationEuler);
+            m_Rotation = Rotor3f32::FromEulerAngles(m_RotationEuler);
         }
 
-        void Rotate(const Vector3f& eulerAngles)
+        void Rotate(const Vector3f32& eulerAngles)
         {
-            const Vector3f& newEuler = m_RotationEuler + eulerAngles;
+            const Vector3f32& newEuler = m_RotationEuler + eulerAngles;
             SetRotation(newEuler);
         }
 
@@ -89,11 +89,11 @@ namespace Onyx::GameCore
 #endif
 
     private:
-        Vector3f m_Translation;
-        Vector3f m_Scale{ 1.0f };
+        Vector3f32 m_Translation;
+        Vector3f32 m_Scale{ 1.0f };
 
-        Vector3f m_RotationEuler;
-        Rotor3f m_Rotation;
+        Vector3f32 m_RotationEuler;
+        Rotor3f32 m_Rotation;
     };
 }
 

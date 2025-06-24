@@ -16,9 +16,9 @@ namespace Onyx::Volume
 struct VolumeDataContainer
 {
     VolumeOctreeNodeMetaData MetaData = VolumeOctreeNodeMetaData::None;
-    Vector4f Gradient;
-	Vector3f AnalyticalNormal;
-    Vector3f Position; // position and half extent
+    Vector4f32 Gradient;
+	Vector3f32 AnalyticalNormal;
+    Vector3f32 Position; // position and half extent
     onyxF32 HalfExtent = 0.0f;
 };
 
@@ -28,8 +28,8 @@ public:
     VolumeChunk();
     ~VolumeChunk();
 
-	const Vector3f& GetPosition() const { return m_Position; }
-	void SetPosition(const Vector3f& position) { m_Position = position; }
+	const Vector3f32& GetPosition() const { return m_Position; }
+	void SetPosition(const Vector3f32& position) { m_Position = position; }
 
 	onyxF32 GetSize() const { return m_Size; }
 	void SetSize(onyxF32 size) { m_Size = size; }
@@ -44,7 +44,7 @@ public:
     ONYX_EVENT(MeshChanged, const MeshBuilder&);
 
 private:
-	Vector3f m_Position;
+	Vector3f32 m_Position;
 	onyxF32 m_Size = 0;
     
     VolumeChunkOctree m_VolumeOctree;

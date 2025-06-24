@@ -14,7 +14,7 @@ namespace Onyx::GameCore
     public:
         SceneSectorStreamer(Scene& scene);
 
-        void Update(const Vector3f& loadCenter);
+        void Update(const Vector3f32& loadCenter);
 
         void SetStreamInDistance(onyxF64 distance) { m_CloseStreamInDistance = distance; }
         void SetStreamOutDistance(onyxF64 distance) { m_CloseStreamOutDistance = std::max(distance, m_CloseStreamInDistance); }

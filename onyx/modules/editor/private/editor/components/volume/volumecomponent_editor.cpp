@@ -93,7 +93,7 @@ namespace Onyx::Volume
         if (VolumeType == SPHERE_TYPE)
         {
             CSGSphere* sphere = static_cast<CSGSphere*>(Volume);
-            Vector3f center = sphere->GetCenter();
+            Vector3f32 center = sphere->GetCenter();
             if (Ui::PropertyGrid::DrawVector3Property("Center", center))
             {
                 sphere->SetCenter(center);
@@ -118,14 +118,14 @@ namespace Onyx::Volume
                 IsModified = true;
             }
 
-            Vector3f center = cube->GetCenter();
+            Vector3f32 center = cube->GetCenter();
             if (Ui::PropertyGrid::DrawVector3Property("Center", center))
             {
                 cube->SetCenter(center);
                 IsModified = true;
             }
 
-            Vector3f halfExtents = cube->GetHalfExtents();
+            Vector3f32 halfExtents = cube->GetHalfExtents();
             if (Ui::PropertyGrid::DrawVector3Property("Half extents", halfExtents))
             {
                 cube->SetHalfExtents(halfExtents);
@@ -135,7 +135,7 @@ namespace Onyx::Volume
         else if (VolumeType == PLANE_TYPE)
         {
             CSGPlane* plane = static_cast<CSGPlane*>(Volume);
-            Vector3f normal = plane->GetNormal();
+            Vector3f32 normal = plane->GetNormal();
             if (Ui::PropertyGrid::DrawVector3Property("Normal", normal))
             {
                 plane->SetNormal(normal);

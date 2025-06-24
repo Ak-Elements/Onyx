@@ -13,7 +13,7 @@ namespace Onyx::Graphics
     public:
         virtual ~Camera() = default;
 
-        void LookAt(const Vector3f& cameraPosition, const Vector3f& lookAtPosition, const Vector3f& upDirection);
+        void LookAt(const Vector3f32& cameraPosition, const Vector3f32& lookAtPosition, const Vector3f32& upDirection);
 
         void SetPerspective(onyxF32 fovInDegrees);
         void SetPerspective(onyxF32 fovInDegrees, onyxF32 near);
@@ -36,7 +36,7 @@ namespace Onyx::Graphics
 
         void SetViewMatrix(const Matrix4<onyxF32>& matrix);
 
-        const Vector3f& GetDirection() const { return direction; }
+        const Vector3f32& GetDirection() const { return direction; }
 
         const Vector2s32& GetViewportExtents() const { return viewportExtents; }
         onyxF32 GetNear() const { return nearPlane; }
@@ -52,7 +52,7 @@ namespace Onyx::Graphics
         Matrix4<onyxF32> viewProjectionMatrix { 0 };
         Matrix4<onyxF32> inverseViewProjectionMatrix { 0 };
 
-        Vector3f direction;
+        Vector3f32 direction;
 
         ProjectionType type = ProjectionType::Perspective;
 

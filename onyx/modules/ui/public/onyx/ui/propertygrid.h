@@ -49,8 +49,8 @@ namespace Onyx::Ui
         bool DrawBoolProperty(StringView propertyName, bool& value);
 
         /* returns true if the value was modified */
-        bool DrawColorProperty(StringView propertyName, Vector3f& color);
-        bool DrawColorProperty(StringView propertyName, Vector4f& inOutColor);
+        bool DrawColorProperty(StringView propertyName, Vector3f32& color);
+        bool DrawColorProperty(StringView propertyName, Vector4f32& inOutColor);
         bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor);
 
         template <typename ScalarT>

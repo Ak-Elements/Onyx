@@ -4,7 +4,7 @@ namespace Onyx::Volume
 {
     namespace CubicalMarchingSquares
     {
-        void VolumeChunk_CMS::SetHermiteData(onyxU64 index, const Vector4f& gradient)
+        void VolumeChunk_CMS::SetHermiteData(onyxU64 index, const Vector4f32& gradient)
         {
             //onyxAssert(index < m_VolumeData.size());
             m_VolumeData[index].Gradient = gradient;

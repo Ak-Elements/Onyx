@@ -539,7 +539,7 @@ namespace Onyx::Graphics::Vulkan
     }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void VulkanCommandBuffer::BeginDebugLabel(StringView label, const Vector4f& color)
+    void VulkanCommandBuffer::BeginDebugLabel(StringView label, const Vector4f32& color)
     {
         if (vkCmdBeginDebugUtilsLabelEXT != nullptr)
         {

@@ -211,16 +211,16 @@ namespace Onyx::NodeGraph
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::AdditionF64">>("Math/Double/Double + Double");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::AdditionS32">>("Math/Integer/Integer + Integer");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::AdditionS64">>("Math/Integer64/Integer64 + Integer64");
-        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector2f, SerializedNameSpaceId + "::AdditionVector2f32">>("Math/Vector2f/Vector2f + Vector2f");
-        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector2d, SerializedNameSpaceId + "::AdditionVector2f64">>("Math/Vector2d/Vector2d + Vector2d");
+        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector2f32, SerializedNameSpaceId + "::AdditionVector2f32">>("Math/Vector2f32/Vector2f32 + Vector2f32");
+        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector2f64, SerializedNameSpaceId + "::AdditionVector2f64">>("Math/Vector2f64/Vector2f64 + Vector2f64");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector2s32, SerializedNameSpaceId + "::AdditionVector2s32">>("Math/Vector2s32/Vector2s32 + Vector2s32");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector2s64, SerializedNameSpaceId + "::AdditionVector2s64">>("Math/Vector2s64/Vector2s64 + Vector2s64");
-        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector3f, SerializedNameSpaceId + "::AdditionVector3f32">>("Math/Vector3f/Vector3f + Vector3f");
-        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector3d, SerializedNameSpaceId + "::AdditionVector3f64">>("Math/Vector3d/Vector3d + Vector3d");
+        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector3f32, SerializedNameSpaceId + "::AdditionVector3f32">>("Math/Vector3f32/Vector3f32 + Vector3f32");
+        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector3f64, SerializedNameSpaceId + "::AdditionVector3f64">>("Math/Vector3f64/Vector3f64 + Vector3f64");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector3s32, SerializedNameSpaceId + "::AdditionVector3s32">>("Math/Vector3s32/Vector3s32 + Vector3s32");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector3s64, SerializedNameSpaceId + "::AdditionVector3s64">>("Math/Vector3s64/Vector3s64 + Vector3s64");
-        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector4f, SerializedNameSpaceId + "::AdditionVector4f32">>("Math/Vector4f/Vector4f + Vector4f");
-        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector4d, SerializedNameSpaceId + "::AdditionVector4f64">>("Math/Vector4d/Vector4d + Vector4d");
+        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector4f32, SerializedNameSpaceId + "::AdditionVector4f32">>("Math/Vector4f32/Vector4f32 + Vector4f32");
+        FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector4f64, SerializedNameSpaceId + "::AdditionVector4f64">>("Math/Vector4f64/Vector4f64 + Vector4f64");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector4s32, SerializedNameSpaceId + "::AdditionVector4s32">>("Math/Vector4s32/Vector4s32 + Vector4s32");
         FactoryType::template RegisterNode<AddNode<FactoryNodeTypeT, Vector4s64, SerializedNameSpaceId + "::AdditionVector4s64">>("Math/Vector4s64/Vector4s64 + Vector4s64");
 
@@ -229,16 +229,16 @@ namespace Onyx::NodeGraph
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::SubtractDouble">>("Math/Double/Double - Double");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::SubtractInteger">>("Math/Integer/Integer - Integer");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::SubtractInteger64">>("Math/Integer64/Integer64 - Integer64");
-        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector2f, SerializedNameSpaceId + "::SubtractVector2f32">>("Math/Vector2f/Vector2f - Vector2f");
-        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector2d, SerializedNameSpaceId + "::SubtractVector2f64">>("Math/Vector2d/Vector2d - Vector2d");
+        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector2f32, SerializedNameSpaceId + "::SubtractVector2f32">>("Math/Vector2f32/Vector2f32 - Vector2f32");
+        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector2f64, SerializedNameSpaceId + "::SubtractVector2f64">>("Math/Vector2f64/Vector2f64 - Vector2f64");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector2s32, SerializedNameSpaceId + "::SubtractVector2s32">>("Math/Vector2s32/Vector2s32 - Vector2s32");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector2s64, SerializedNameSpaceId + "::SubtractVector2s64">>("Math/Vector2s64/Vector2s64 - Vector2s64");
-        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector3f, SerializedNameSpaceId + "::SubtractVector3f32">>("Math/Vector3f/Vector3f - Vector3f");
-        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector3d, SerializedNameSpaceId + "::SubtractVector3f64">>("Math/Vector3d/Vector3d - Vector3d");
+        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector3f32, SerializedNameSpaceId + "::SubtractVector3f32">>("Math/Vector3f32/Vector3f32 - Vector3f32");
+        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector3f64, SerializedNameSpaceId + "::SubtractVector3f64">>("Math/Vector3f64/Vector3f64 - Vector3f64");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector3s32, SerializedNameSpaceId + "::SubtractVector3s32">>("Math/Vector3s32/Vector3s32 - Vector3s32");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector3s64, SerializedNameSpaceId + "::SubtractVector3s64">>("Math/Vector3s64/Vector3s64 - Vector3s64");
-        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector4f, SerializedNameSpaceId + "::SubtractVector4f32">>("Math/Vector4f/Vector4f - Vector4f");
-        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector4d, SerializedNameSpaceId + "::SubtractVector4f64">>("Math/Vector4d/Vector4d - Vector4d");
+        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector4f32, SerializedNameSpaceId + "::SubtractVector4f32">>("Math/Vector4f32/Vector4f32 - Vector4f32");
+        FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector4f64, SerializedNameSpaceId + "::SubtractVector4f64">>("Math/Vector4f64/Vector4f64 - Vector4f64");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector4s32, SerializedNameSpaceId + "::SubtractVector4s32">>("Math/Vector4s32/Vector4s32 - Vector4s32");
         FactoryType::template RegisterNode<SubtractNode<FactoryNodeTypeT, Vector4s64, SerializedNameSpaceId + "::SubtractVector4s64">>("Math/Vector4s64/Vector4s64 - Vector4s64");
 
@@ -258,16 +258,16 @@ namespace Onyx::NodeGraph
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::AbsoluteF64">>("Math/Double/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::AbsoluteS32">>("Math/Integer/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::AbsoluteS64">>("Math/Integer64/Absolute");
-        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector2f, SerializedNameSpaceId + "::AbsoluteVector2f32">>("Math/Vector2f/Absolute");
-        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector2d, SerializedNameSpaceId + "::AbsoluteVector2f64">>("Math/Vector2d/Absolute");
+        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector2f32, SerializedNameSpaceId + "::AbsoluteVector2f32">>("Math/Vector2f32/Absolute");
+        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector2f64, SerializedNameSpaceId + "::AbsoluteVector2f64">>("Math/Vector2f64/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector2s32, SerializedNameSpaceId + "::AbsoluteVector2s32">>("Math/Vector2s32/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector2s64, SerializedNameSpaceId + "::AbsoluteVector2s64">>("Math/Vector2s64/Absolute");
-        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector3f, SerializedNameSpaceId + "::AbsoluteVector3f32">>("Math/Vector3f/Absolute");
-        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector3d, SerializedNameSpaceId + "::AbsoluteVector3f64">>("Math/Vector3d/Absolute");
+        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector3f32, SerializedNameSpaceId + "::AbsoluteVector3f32">>("Math/Vector3f32/Absolute");
+        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector3f64, SerializedNameSpaceId + "::AbsoluteVector3f64">>("Math/Vector3f64/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector3s32, SerializedNameSpaceId + "::AbsoluteVector3s32">>("Math/Vector3s32/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector3s64, SerializedNameSpaceId + "::AbsoluteVector3s64">>("Math/Vector3s64/Absolute");
-        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector4f, SerializedNameSpaceId + "::AbsoluteVector4f32">>("Math/Vector4f/Absolute");
-        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector4d, SerializedNameSpaceId + "::AbsoluteVector4f64">>("Math/Vector4d/Absolute");
+        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector4f32, SerializedNameSpaceId + "::AbsoluteVector4f32">>("Math/Vector4f32/Absolute");
+        FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector4f64, SerializedNameSpaceId + "::AbsoluteVector4f64">>("Math/Vector4f64/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector4s32, SerializedNameSpaceId + "::AbsoluteVector4s32">>("Math/Vector4s32/Absolute");
         FactoryType::template RegisterNode<AbsoluteNode<FactoryNodeTypeT, Vector4s64, SerializedNameSpaceId + "::AbsoluteVector4s64">>("Math/Vector4s64/Absolute");
     }

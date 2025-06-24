@@ -11,22 +11,22 @@ namespace Onyx::Volume
     {
     public:
         CSGPlane() = default;
-        CSGPlane(const onyxF32 distance, const Vector3f& normal)
+        CSGPlane(const onyxF32 distance, const Vector3f32& normal)
             : m_Distance(distance)
             , m_Normal(normal)
         {
         }
 
-        virtual Vector4f GetValueAndGradient(const Vector3f& position) const override
+        virtual Vector4f32 GetValueAndGradient(const Vector3f32& position) const override
         {
-            return Vector4f(
+            return Vector4f32(
                 m_Normal[0],
                 m_Normal[1],
                 m_Normal[2],
                 m_Distance - static_cast<onyxF32>(m_Normal.Dot(position)));
         }
 
-        virtual onyxF32 GetValue(const Vector3f& position) const override
+        virtual onyxF32 GetValue(const Vector3f32& position) const override
         {
             return m_Distance - static_cast<onyxF32>(m_Normal.Dot(position));
         }
@@ -34,11 +34,11 @@ namespace Onyx::Volume
         onyxF32 GetDistance() const { return m_Distance; }
 		void SetDistance(onyxF32 distance) { m_Distance = distance; }
 
-        const Vector3f& GetNormal() const { return m_Normal; }
-		void SetNormal(const Vector3f& normal) { m_Normal = normal; }
+        const Vector3f32& GetNormal() const { return m_Normal; }
+		void SetNormal(const Vector3f32& normal) { m_Normal = normal; }
 
     protected:
         onyxF32 m_Distance = 0.0f;
-        Vector3f m_Normal = Vector3f::Y_Unit();
+        Vector3f32 m_Normal = Vector3f32::Y_Unit();
     };
 }

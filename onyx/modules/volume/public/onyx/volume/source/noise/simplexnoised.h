@@ -89,7 +89,7 @@ namespace Onyx::Volume
 		 * is also calculated.
 		 */
          // change to vec 2 output
-		void sdnoise1(onyxF32 x, Vector3f& output);
+		void sdnoise1(onyxF32 x, Vector3f32& output);
 
 		/** 2D simplex noise with derivatives.
 		 * If the last two arguments are not null, the analytic derivative
@@ -103,7 +103,7 @@ namespace Onyx::Volume
          */
 #define F2 .366025403f
 #define G2 .211324865f
-		inline void sdnoise2(const Vector3f& pos, Vector3f& output, bool calculateGradient)
+		inline void sdnoise2(const Vector3f32& pos, Vector3f32& output, bool calculateGradient)
         {
             onyxF32 n0, n1, n2; /* Noise contributions from the three simplex corners */
             onyxF32 gx0, gy0, gx1, gy1, gx2, gy2; /* Gradients at simplex corners */
@@ -212,8 +212,8 @@ namespace Onyx::Volume
 		 * If the last tthree arguments are not null, the analytic derivative
 		 * (the 3D gradient of the scalar noise field) is also calculated.
 		 */
-		void sdnoise3(const Vector3f& pos,
-			Vector4f& output);
+		void sdnoise3(const Vector3f32& pos,
+			Vector4f32& output);
 
 		/** 4D simplex noise with derivatives.
 		 * If the last four arguments are not null, the analytic derivative

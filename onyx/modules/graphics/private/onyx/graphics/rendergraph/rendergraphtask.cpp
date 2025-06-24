@@ -139,7 +139,7 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        commandBuffer.BeginDebugLabel(GetName(), Vector4f{ 1.0f });
+        commandBuffer.BeginDebugLabel(GetName(), Vector4f32{ 1.0f });
 #endif
         Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
         onyxU32 inputPinCount = GetInputPinCount();

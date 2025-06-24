@@ -52,8 +52,8 @@ namespace Volume
             vertices.reserve(meshBuilder.GetVertices().size());
             for (const Vertex& vertex : meshBuilder.GetVertices())
             {
-                Vector2f uv(0.0f, 0.0f);
-                vertices.emplace_back(Vector3f(vertex.Position[0], vertex.Position[1], vertex.Position[2]) + volumeComponent.Chunk->GetPosition(), vertex.Normal, uv);
+                Vector2f32 uv(0.0f, 0.0f);
+                vertices.emplace_back(Vector3f32(vertex.Position[0], vertex.Position[1], vertex.Position[2]) + volumeComponent.Chunk->GetPosition(), vertex.Normal, uv);
             }
 
             volumeComponent.Vertices->SetData(0, vertices.data(), verticesBytes);
@@ -236,7 +236,7 @@ bool Serialization<Volume::VolumeSourceComponent>::Deserialize(const Deserialize
     // can't do a switch because MSVC is not happy with the type hashes (it considers them the same)
     if (outVolumeSource.VolumeType == SPHERE_TYPE)
     {
-        Vector3f center;
+        Vector3f32 center;
         deserializer.Read<"center">(center);
 
         onyxF32 radius;
@@ -245,7 +245,7 @@ bool Serialization<Volume::VolumeSourceComponent>::Deserialize(const Deserialize
     }
     else if (outVolumeSource.VolumeType == PLANE_TYPE)
     {
-        Vector3f normal;
+        Vector3f32 normal;
         deserializer.Read<"normal">(normal);
 
         onyxF32 distance;

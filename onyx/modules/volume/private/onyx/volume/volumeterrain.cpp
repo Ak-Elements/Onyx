@@ -15,7 +15,7 @@ namespace Onyx::Volume
 			VolumeChunkPtr& volumeChunk = m_VolumeChunks[i];
 			
 			Vector3<onyxU32> positon3dIndex = GetChunk3DIndex(i);
-			Vector3f position(static_cast<onyxF32>(positon3dIndex[0] * m_ChunkSize),
+			Vector3f32 position(static_cast<onyxF32>(positon3dIndex[0] * m_ChunkSize),
                 static_cast<onyxF32>(positon3dIndex[1] * m_ChunkSize),
                 static_cast<onyxF32>(positon3dIndex[2] * m_ChunkSize));
 			
@@ -36,7 +36,7 @@ namespace Onyx::Volume
 		m_VolumeChunks.clear();
 	}
 
-	void VolumeTerrain::OnPositionChanged(const Vector3f& position)
+	void VolumeTerrain::OnPositionChanged(const Vector3f32& position)
 	{
 		const onyxF64 lengthSquared = (position - m_Position).LengthSquared();
 

@@ -214,7 +214,7 @@ namespace Onyx::Editor
 
             ImGui::Image(finalSceneTexture.Texture->GetIndex(), sceneTextureExtents);
 
-            RenderImGuizmo(Vector2f(static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1])));
+            RenderImGuizmo(Vector2f32(static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1])));
         }
 
         ImGui::End();
@@ -246,7 +246,7 @@ namespace Onyx::Editor
         m_TerrainPanel.Render(*m_Scene);
     }
 
-    void SceneEditorWindow::RenderImGuizmo(const Vector2f& viewportExtents)
+    void SceneEditorWindow::RenderImGuizmo(const Vector2f32& viewportExtents)
     {
         Entity::EntityRegistry& registry = m_Scene->GetRegistry();
         auto selectedEntitesView = registry.GetView<SelectedComponent>();
@@ -284,7 +284,7 @@ namespace Onyx::Editor
                 
                 if (ImGuizmo::Manipulate(&(viewMatrix[0][0]), &(projectionMatrix[0][0]), operation, ImGuizmo::LOCAL, &(transformMatrix[0][0])))
                 {
-                    Vector3f translation, rotation, scale;
+                    Vector3f32 translation, rotation, scale;
                     Rotor3<onyxF32> rotationRotor;
                     transformMatrix.Decompose(translation, rotationRotor, scale);
 
@@ -299,13 +299,13 @@ namespace Onyx::Editor
                         {
                             constexpr onyxF32 PI = std::numbers::pi_v<onyxF32>;
                             constexpr onyxF32 TWO_PI = 2.0f * PI;
-                            Vector3f originalRotation = transformComponent.GetRotationEuler();
+                            Vector3f32 originalRotation = transformComponent.GetRotationEuler();
 
                             originalRotation[0] = std::fmod(originalRotation[0] + PI, TWO_PI) - PI;
                             originalRotation[1] = std::fmod(originalRotation[1] + PI, TWO_PI) - PI;
                             originalRotation[2] = std::fmod(originalRotation[2] + PI, TWO_PI) - PI;
 
-                            Vector3f deltaRotation = rotationRotor.ToEulerAngles() - originalRotation;
+                            Vector3f32 deltaRotation = rotationRotor.ToEulerAngles() - originalRotation;
 
                             if (IsZero(deltaRotation[0], 0.001f))
                                 deltaRotation[0] = 0.0f;
@@ -352,7 +352,7 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::OnCameraMoveInput(const Input::InputActionEvent& inputActionContext)
     {
-        const Vector3f& direction = inputActionContext.GetData<Vector3f>();
+        const Vector3f32& direction = inputActionContext.GetData<Vector3f32>();
         
         Entity::EntityRegistry& registry = m_Scene->GetRegistry();
         GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
@@ -361,7 +361,7 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::OnCameraRotationInput(const Input::InputActionEvent& inputActionContext)
     {
-        const Vector2f& rotationDelta = inputActionContext.GetData<Vector2f>();
+        const Vector2f32& rotationDelta = inputActionContext.GetData<Vector2f32>();
 
         Entity::EntityRegistry& registry = m_Scene->GetRegistry();
         GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
@@ -421,8 +421,8 @@ namespace Onyx::Editor
 
         registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
-        transform.SetTranslation(Vector3f{ 0.0f, 100.0f, 200.0f });
-        transform.SetRotation(Vector3f(0, 0, 0));
+        transform.SetTranslation(Vector3f32{ 0.0f, 100.0f, 200.0f });
+        transform.SetRotation(Vector3f32(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 1000.0f);

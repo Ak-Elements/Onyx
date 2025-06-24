@@ -146,19 +146,19 @@ namespace Onyx::NodeGraph
     };
 
     template <>
-    struct PinMetaObject<Vector2f>
+    struct PinMetaObject<Vector2f32>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Vector2f& value);
+        static bool DrawPinInPropertyGrid(StringView name, Vector2f32& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFF90EE90; }
 #endif
     };
 
     template <>
-    struct PinMetaObject<Vector2d>
+    struct PinMetaObject<Vector2f64>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Vector2d& value);
+        static bool DrawPinInPropertyGrid(StringView name, Vector2f64& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFFAAB220; }
 #endif
     };
@@ -182,19 +182,19 @@ namespace Onyx::NodeGraph
     };
 
     template <>
-    struct PinMetaObject<Vector3f>
+    struct PinMetaObject<Vector3f32>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Vector3f& value);
+        static bool DrawPinInPropertyGrid(StringView name, Vector3f32& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFFE6D8AD; }
 #endif
     };
 
     template <>
-    struct PinMetaObject<Vector3d>
+    struct PinMetaObject<Vector3f64>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Vector3d& value);
+        static bool DrawPinInPropertyGrid(StringView name, Vector3f64& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFFA09E5F; }
 #endif
     };
@@ -218,19 +218,19 @@ namespace Onyx::NodeGraph
     };
 
     template <>
-    struct PinMetaObject<Vector4f>
+    struct PinMetaObject<Vector4f32>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Vector4f& value);
+        static bool DrawPinInPropertyGrid(StringView name, Vector4f32& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFFDDA0DD; }
 #endif
     };
 
     template <>
-    struct PinMetaObject<Vector4d>
+    struct PinMetaObject<Vector4f64>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Vector4d& value);
+        static bool DrawPinInPropertyGrid(StringView name, Vector4f64& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFFCC3299; }
 #endif
     };

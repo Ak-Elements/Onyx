@@ -146,9 +146,9 @@ namespace Onyx::Editor
     }
 
     // Float
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f, Vector2f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f32, Vector2f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2f, Vector2f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f32, Vector2f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -156,9 +156,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f, Vector3f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f32, Vector3f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2f, Vector3f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f32, Vector3f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -166,9 +166,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f, Vector4f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f32, Vector4f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2f, Vector4f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f32, Vector4f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -176,9 +176,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f, Vector2f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f32, Vector2f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector3f, Vector2f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector3f32, Vector2f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -186,9 +186,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f, Vector3f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f32, Vector3f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector3f, Vector3f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector3f32, Vector3f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -196,9 +196,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f, Vector4f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f32, Vector4f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2f, Vector4f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f32, Vector4f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -206,9 +206,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f, Vector2f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f32, Vector2f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector4f, Vector2f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector4f32, Vector2f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -216,9 +216,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f, Vector3f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f32, Vector3f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector4f, Vector3f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector4f32, Vector3f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -226,9 +226,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f, Vector4f>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f32, Vector4f32>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector4f, Vector4f>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector4f32, Vector4f32>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -237,9 +237,9 @@ namespace Onyx::Editor
     }
 
     // Double
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2d, Vector2d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f64, Vector2f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2d, Vector2d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f64, Vector2f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -247,9 +247,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2d, Vector3d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f64, Vector3f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2d, Vector3d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f64, Vector3f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -257,9 +257,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2d, Vector4d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector2f64, Vector4f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector2d, Vector4d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector2f64, Vector4f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -267,9 +267,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3d, Vector2d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f64, Vector2f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector3d, Vector2d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector3f64, Vector2f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -277,9 +277,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3d, Vector3d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f64, Vector3f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector3d, Vector3d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector3f64, Vector3f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -287,9 +287,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3d, Vector4d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector3f64, Vector4f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector3d, Vector4d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector3f64, Vector4f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -297,9 +297,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4d, Vector2d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f64, Vector2f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector4d, Vector2d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector4f64, Vector2f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -307,9 +307,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4d, Vector3d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f64, Vector3f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector4d, Vector3d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector4f64, Vector3f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }
@@ -317,9 +317,9 @@ namespace Onyx::Editor
         return {};
     }
 
-    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4d, Vector4d>::Draw(SwizzleMask& currentMask)
+    Optional<Vector4u8> EditorSwizzleVectorControl<Vector4f64, Vector4f64>::Draw(SwizzleMask& currentMask)
     {
-        if (DrawSwizzleEnumPropertyGrid<Vector4d, Vector4d>(currentMask))
+        if (DrawSwizzleEnumPropertyGrid<Vector4f64, Vector4f64>(currentMask))
         {
             return ConvertMaskToVector(currentMask);
         }

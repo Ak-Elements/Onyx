@@ -15,7 +15,7 @@ namespace Onyx::GameCore
     {
     }
 
-    void SceneSectorStreamer::Update(const Vector3f& loadCenter)
+    void SceneSectorStreamer::Update(const Vector3f32& loadCenter)
     {
         // TODO: if entities change position this would need to adapt
         // This only works for static entities currently

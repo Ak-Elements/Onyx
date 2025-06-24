@@ -14,7 +14,7 @@ namespace Onyx::GameCore
         m_Registry.GetRegistry().on_destroy<TransformComponent>().connect<&Scene::OnTransformComponentDestroyed>(this);
     }
 
-    void Scene::SetLoadCenter(const Vector3f& loadCenter)
+    void Scene::SetLoadCenter(const Vector3f32& loadCenter)
     {
         if (loadCenter != m_LoadCenter)
         {

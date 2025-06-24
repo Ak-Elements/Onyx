@@ -96,7 +96,7 @@ namespace Onyx::Volume
             DynamicArray<Vertex> Vertices;
         };
 
-        void ExtractMesh(const Vector3f& octreeRootPosition, const OctreeNode<VolumeData>& octreeNode, const VolumeBase& csgSource, CubicalMarchingSquares::MarchingSquares<onyxF32> cubicalMarchingSquares, MeshBuilder& meshBuilder)
+        void ExtractMesh(const Vector3f32& octreeRootPosition, const OctreeNode<VolumeData>& octreeNode, const VolumeBase& csgSource, CubicalMarchingSquares::MarchingSquares<onyxF32> cubicalMarchingSquares, MeshBuilder& meshBuilder)
         {
             const VolumeData& octreeData = octreeNode.GetData();
             /*const Vector3f CORNER_0(-1.0f, -1.0f, -1.0f);
@@ -111,18 +111,18 @@ namespace Onyx::Volume
             ONYX_UNUSED(octreeRootPosition);
             ONYX_UNUSED(octreeData);
 
-            const Vector3f nodePosition;// octreeRootPosition + octreeData->Position;
+            const Vector3f32 nodePosition;// octreeRootPosition + octreeData->Position;
             const float halfExtents = 4.0f; //octreeData->HalfExtent;
-            Vector3f worldPositionCorner0 = nodePosition + Vector3f(-1, -1, -1) * halfExtents; // 0
-            Vector3f worldPositionCorner1 = nodePosition + Vector3f(-1, -1, 1) * halfExtents; // 1
-            Vector3f worldPositionCorner2 = nodePosition + Vector3f(-1, 1, -1) * halfExtents; // 2
-            Vector3f worldPositionCorner3 = nodePosition + Vector3f(-1, 1, 1) * halfExtents; // 3
-            Vector3f worldPositionCorner4 = nodePosition + Vector3f(1, -1, -1) * halfExtents; // 4
-            Vector3f worldPositionCorner5 = nodePosition + Vector3f(1, -1, 1) * halfExtents; // 5
-            Vector3f worldPositionCorner6 = nodePosition + Vector3f(1, 1, -1) * halfExtents; // 6
-            Vector3f worldPositionCorner7 = nodePosition + Vector3f(1, 1, 1) * halfExtents; // 7
+            Vector3f32 worldPositionCorner0 = nodePosition + Vector3f32(-1, -1, -1) * halfExtents; // 0
+            Vector3f32 worldPositionCorner1 = nodePosition + Vector3f32(-1, -1, 1) * halfExtents; // 1
+            Vector3f32 worldPositionCorner2 = nodePosition + Vector3f32(-1, 1, -1) * halfExtents; // 2
+            Vector3f32 worldPositionCorner3 = nodePosition + Vector3f32(-1, 1, 1) * halfExtents; // 3
+            Vector3f32 worldPositionCorner4 = nodePosition + Vector3f32(1, -1, -1) * halfExtents; // 4
+            Vector3f32 worldPositionCorner5 = nodePosition + Vector3f32(1, -1, 1) * halfExtents; // 5
+            Vector3f32 worldPositionCorner6 = nodePosition + Vector3f32(1, 1, -1) * halfExtents; // 6
+            Vector3f32 worldPositionCorner7 = nodePosition + Vector3f32(1, 1, 1) * halfExtents; // 7
 
-            Onyx::InplaceArray<Onyx::Vector3f, 8> corners       
+            Onyx::InplaceArray<Onyx::Vector3f32, 8> corners       
             {
                 worldPositionCorner0,
                 worldPositionCorner1,
@@ -134,16 +134,16 @@ namespace Onyx::Volume
                 worldPositionCorner7
             };
 
-            Vector4f gradientCorner0 = csgSource.GetValueAndGradient(worldPositionCorner0);
-            Vector4f gradientCorner1 = csgSource.GetValueAndGradient(worldPositionCorner1);
-            Vector4f gradientCorner2 = csgSource.GetValueAndGradient(worldPositionCorner2);
-            Vector4f gradientCorner3 = csgSource.GetValueAndGradient(worldPositionCorner3);
-            Vector4f gradientCorner4 = csgSource.GetValueAndGradient(worldPositionCorner4);
-            Vector4f gradientCorner5 = csgSource.GetValueAndGradient(worldPositionCorner5);
-            Vector4f gradientCorner6 = csgSource.GetValueAndGradient(worldPositionCorner6);
-            Vector4f gradientCorner7 = csgSource.GetValueAndGradient(worldPositionCorner7);
+            Vector4f32 gradientCorner0 = csgSource.GetValueAndGradient(worldPositionCorner0);
+            Vector4f32 gradientCorner1 = csgSource.GetValueAndGradient(worldPositionCorner1);
+            Vector4f32 gradientCorner2 = csgSource.GetValueAndGradient(worldPositionCorner2);
+            Vector4f32 gradientCorner3 = csgSource.GetValueAndGradient(worldPositionCorner3);
+            Vector4f32 gradientCorner4 = csgSource.GetValueAndGradient(worldPositionCorner4);
+            Vector4f32 gradientCorner5 = csgSource.GetValueAndGradient(worldPositionCorner5);
+            Vector4f32 gradientCorner6 = csgSource.GetValueAndGradient(worldPositionCorner6);
+            Vector4f32 gradientCorner7 = csgSource.GetValueAndGradient(worldPositionCorner7);
 
-            Onyx::InplaceArray<Onyx::Vector4f, 8> hermiteDataSamples
+            Onyx::InplaceArray<Onyx::Vector4f32, 8> hermiteDataSamples
             {
                 gradientCorner0,
                 gradientCorner1,
@@ -160,8 +160,8 @@ namespace Onyx::Volume
             using LineSegment = Onyx::Volume::CubicalMarchingSquares::Internal::LineSegment<Onyx::onyxF32>;
             Onyx::InplaceArray<LineSegment, 24> outLineSegements;
 
-            Onyx::InplaceArray<Onyx::Vector3f, 4> faceCorners;
-            Onyx::InplaceArray<Onyx::Vector4f, 4> hermiteData;
+            Onyx::InplaceArray<Onyx::Vector3f32, 4> faceCorners;
+            Onyx::InplaceArray<Onyx::Vector4f32, 4> hermiteData;
 
             InplaceArray<onyxU8, 6> faceCases;
             for (Onyx::onyxU8 faceIndex = 0; faceIndex < 6; ++faceIndex)
@@ -278,8 +278,8 @@ namespace Onyx::Volume
                 {
                     Onyx::onyxU32 vertexCount = static_cast<Onyx::onyxU32>(component.Vertices.size());
 
-                    Vector3f triangleFanCenter;
-                    Vector3f triangleFanCenterNormal;
+                    Vector3f32 triangleFanCenter;
+                    Vector3f32 triangleFanCenterNormal;
                     for (const Vertex& vertex : component.Vertices)
                     {
                         triangleFanCenter += vertex.Position;
@@ -430,7 +430,7 @@ namespace Onyx::Volume
             }
             else
             {
-                Vector4f& centerValue = node.GetData()->Gradient;
+                Vector4f32& centerValue = node.GetData()->Gradient;
                 if (centerValue.IsZero())
                 {
                     centerValue = volumeBase.GetValueAndGradient(node.GetData()->Position);
@@ -444,12 +444,12 @@ namespace Onyx::Volume
         }
     }
 
-    VolumeOctreeNodeMetaData VolumeChunkLoadRequest::GetNodeMetaData(const Vector3f& nodeLocalPosition, onyxF32 nodeHalfExtents)
+    VolumeOctreeNodeMetaData VolumeChunkLoadRequest::GetNodeMetaData(const Vector3f32& nodeLocalPosition, onyxF32 nodeHalfExtents)
     {
         VolumeOctreeNodeMetaData metaData = VolumeOctreeNodeMetaData::None;
         const onyxF32 rootNodeHalfExtent = m_LoadRequestData.m_Size * 0.5f;
-        const Vector3f from = nodeLocalPosition - Vector3f { nodeHalfExtents };
-        const Vector3f to = nodeLocalPosition + Vector3f { nodeHalfExtents };
+        const Vector3f32 from = nodeLocalPosition - Vector3f32 { nodeHalfExtents };
+        const Vector3f32 to = nodeLocalPosition + Vector3f32 { nodeHalfExtents };
 
         if (IsEqual(from[0], -rootNodeHalfExtent))
         {

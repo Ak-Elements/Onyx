@@ -13,13 +13,13 @@ namespace Onyx::Volume
     {
     }
 
-    onyxF32 CSGScale::GetValue(const Vector3f& /*position*/) const
+    onyxF32 CSGScale::GetValue(const Vector3f32& /*position*/) const
     {
         return m_Scale;
     }
 
-    Vector4f CSGScale::GetValueAndGradient(const Vector3f& /*position*/) const
+    Vector4f32 CSGScale::GetValueAndGradient(const Vector3f32& /*position*/) const
     {
-        return Vector4f();
+        return Vector4f32();
     }
 }

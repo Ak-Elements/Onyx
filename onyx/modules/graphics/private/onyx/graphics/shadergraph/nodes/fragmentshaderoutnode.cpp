@@ -13,7 +13,7 @@ namespace Onyx::Graphics
         }
         else
         {
-            const Vector4f& outColor = context.GetPinData<InPin>();
+            const Vector4f32& outColor = context.GetPinData<InPin>();
             generator.AppendCode(Format::Format("outColor = vec4({}, {}, {}, {});", outColor[0], outColor[1], outColor[2], outColor[3]));
         }
 

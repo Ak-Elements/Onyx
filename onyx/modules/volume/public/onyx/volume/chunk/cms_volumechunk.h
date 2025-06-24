@@ -10,7 +10,7 @@ namespace Onyx::Volume
     {
         struct HermiteData
         {
-            Vector4f Gradient;
+            Vector4f32 Gradient;
         };
 
         class VolumeChunk_CMS
@@ -23,19 +23,19 @@ namespace Onyx::Volume
                 m_VolumeData.resize(size);
             }
 
-            const Vector3f& GetPosition() const { return m_Position; }
-            void SetPosition(const Vector3f& position) { m_Position = position; }
+            const Vector3f32& GetPosition() const { return m_Position; }
+            void SetPosition(const Vector3f32& position) { m_Position = position; }
 
             void SetSize(onyxU32 size) { m_VolumeData.resize(size); }
 
-            void SetHermiteData(onyxU64 index, const Vector4f& gradient);
+            void SetHermiteData(onyxU64 index, const Vector4f32& gradient);
             const HermiteData& GetHermiteData(onyxU64 index) const;
             bool IsValid(onyxU64 index) { return index < m_VolumeData.size(); }
 
             ONYX_EVENT(MeshChanged, const MeshBuilder&);
 
         private:
-            Vector3f m_Position{};
+            Vector3f32 m_Position{};
             std::vector<HermiteData> m_VolumeData; // z ordered data
 
         };

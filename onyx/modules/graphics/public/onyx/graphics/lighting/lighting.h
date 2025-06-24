@@ -4,10 +4,10 @@ namespace Onyx::Graphics
 {
     struct DirectionalLight
     {
-        Vector3f Direction;
+        Vector3f32 Direction;
         onyxF32 Intensity = 1.0f;
 
-        Vector3f Color { 1.0f };
+        Vector3f32 Color { 1.0f };
         onyxF32 ShadowAmount = 1.0f;
 
         bool IsShadowCasting = true;
@@ -16,10 +16,10 @@ namespace Onyx::Graphics
 
     struct PointLight
     {
-        Vector3f Position;
+        Vector3f32 Position;
         onyxF32 Intensity = 1.0f;
 
-        Vector3f Color{ 1.0f };
+        Vector3f32 Color{ 1.0f };
         onyxF32 Radius;
 
         onyxU32 IsEnabled = 0;
@@ -29,13 +29,13 @@ namespace Onyx::Graphics
 
     struct SpotLight
     {
-        Vector3f Position;
+        Vector3f32 Position;
         onyxF32 Intensity = 1.0f;
 
-        Vector3f Direction;
+        Vector3f32 Direction;
         onyxF32 AngleAttenuation = 1.0f;
 
-        Vector3f Color{ 1.0f };
+        Vector3f32 Color{ 1.0f };
         onyxF32 Range;
 
         onyxF32 Angle;

@@ -9,17 +9,17 @@
 namespace Onyx
 {
     template <>
-    struct Serialization<Vector2f>
+    struct Serialization<Vector2f32>
     {
-        static bool Serialize(Serializer& serializer, const Vector2f& value);
-        static bool Deserialize(const Deserializer& deserializer, Vector2f& outValue);
+        static bool Serialize(Serializer& serializer, const Vector2f32& value);
+        static bool Deserialize(const Deserializer& deserializer, Vector2f32& outValue);
     };
 
     template <>
-    struct Serialization<Vector2d>
+    struct Serialization<Vector2f64>
     {
-        static bool Serialize(Serializer& serializer, const Vector2d& value);
-        static bool Deserialize(const Deserializer& deserializer, Vector2d& outValue);
+        static bool Serialize(Serializer& serializer, const Vector2f64& value);
+        static bool Deserialize(const Deserializer& deserializer, Vector2f64& outValue);
     };
 
     template <>
@@ -79,17 +79,17 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<Vector3f>
+    struct Serialization<Vector3f32>
     {
-        static bool Serialize(Serializer& serializer, const Vector3f& value);
-        static bool Deserialize(const Deserializer& deserializer, Vector3f& outValue);
+        static bool Serialize(Serializer& serializer, const Vector3f32& value);
+        static bool Deserialize(const Deserializer& deserializer, Vector3f32& outValue);
     };
 
     template <>
-    struct Serialization<Vector3d>
+    struct Serialization<Vector3f64>
     {
-        static bool Serialize(Serializer& serializer, const Vector3d& value);
-        static bool Deserialize(const Deserializer& deserializer, Vector3d& outValue);
+        static bool Serialize(Serializer& serializer, const Vector3f64& value);
+        static bool Deserialize(const Deserializer& deserializer, Vector3f64& outValue);
     };
 
     template <>
@@ -149,17 +149,17 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<Vector4f>
+    struct Serialization<Vector4f32>
     {
-        static bool Serialize(Serializer& serializer, const Vector4f& value);
-        static bool Deserialize(const Deserializer& deserializer, Vector4f& outValue);
+        static bool Serialize(Serializer& serializer, const Vector4f32& value);
+        static bool Deserialize(const Deserializer& deserializer, Vector4f32& outValue);
     };
 
     template <>
-    struct Serialization<Vector4d>
+    struct Serialization<Vector4f64>
     {
-        static bool Serialize(Serializer& serializer, const Vector4d& value);
-        static bool Deserialize(const Deserializer& deserializer, Vector4d& outValue);
+        static bool Serialize(Serializer& serializer, const Vector4f64& value);
+        static bool Deserialize(const Deserializer& deserializer, Vector4f64& outValue);
     };
 
 

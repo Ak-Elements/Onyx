@@ -16,9 +16,9 @@ namespace Onyx::Application
         StringView line;
 
         DynamicArray<onyxU32> vertexIndices, uvIndices, normalIndices;
-        DynamicArray<Vector3f> tempVertices;
-        DynamicArray<Vector3f> tempNormals;
-        DynamicArray<Vector2f> tempTexCoords;
+        DynamicArray<Vector3f32> tempVertices;
+        DynamicArray<Vector3f32> tempNormals;
+        DynamicArray<Vector2f32> tempTexCoords;
 
         //TODO fix mesh asset import
         while (stringStream.IsEof() == false)
@@ -28,21 +28,21 @@ namespace Onyx::Application
             if (line.starts_with("vn"))
             {
                 line.remove_prefix(4);
-                Vector3f vertexNormal;
+                Vector3f32 vertexNormal;
                 //Vector3f::FromString(line, vertexNormal);
                 tempNormals.push_back(vertexNormal);
             }
             else if (line.starts_with("vt"))
             {
                 line.remove_prefix(4);
-                Vector3f vertexTexCoord;
+                Vector3f32 vertexTexCoord;
                 //Vector3f::FromString(line, vertexTexCoord);
-                tempTexCoords.push_back(Vector2f(vertexTexCoord));
+                tempTexCoords.push_back(Vector2f32(vertexTexCoord));
             }
             if (line.starts_with("v"))
             {
                 line.remove_prefix(2);
-                Vector3f vertexPos;
+                Vector3f32 vertexPos;
                 //Vector3f::FromString(line, vertexPos);
                 tempVertices.push_back(vertexPos);
             }
@@ -78,7 +78,7 @@ namespace Onyx::Application
             onyxU32 texCoordIndex = uvIndices[i];
             onyxU32 normalIndex = normalIndices[i];
 
-            Vector3f vertex = tempVertices[vertexIndex - 1];
+            Vector3f32 vertex = tempVertices[vertexIndex - 1];
             auto it = std::find_if(m_Vertices.begin(), m_Vertices.end(), [&](const Graphics::Vertex& v)
                 {
                     return v.Position == vertex;
@@ -92,8 +92,8 @@ namespace Onyx::Application
             {
                 m_Indices.push_back(static_cast<onyxU32>(m_Vertices.size()));
 
-                Vector3f normal = tempNormals[normalIndex - 1];
-                Vector2f texCoord = tempTexCoords[texCoordIndex - 1];
+                Vector3f32 normal = tempNormals[normalIndex - 1];
+                Vector2f32 texCoord = tempTexCoords[texCoordIndex - 1];
                 m_Vertices.emplace_back(vertex, normal, texCoord);
             }
         }

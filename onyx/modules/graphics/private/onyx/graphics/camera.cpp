@@ -2,11 +2,11 @@
 
 namespace Onyx::Graphics
 {
-    void Camera::LookAt(const Vector3f& cameraPosition, const Vector3f& lookAtPosition, const Vector3f& upDirection)
+    void Camera::LookAt(const Vector3f32& cameraPosition, const Vector3f32& lookAtPosition, const Vector3f32& upDirection)
     {
-        const Vector3f f((lookAtPosition - cameraPosition).Normalized());
-        const Vector3f s(f.Cross(upDirection).Normalized());
-        const Vector3f u(s.Cross(f));
+        const Vector3f32 f((lookAtPosition - cameraPosition).Normalized());
+        const Vector3f32 s(f.Cross(upDirection).Normalized());
+        const Vector3f32 u(s.Cross(f));
 
         Matrix4<onyxF32> Result;
         Result[0][0] = s.X;

@@ -19,10 +19,10 @@ namespace Onyx::Application::Debug
 
         m_KeyboardLayout.reserve(6); // typical keyboards have 6 rows
 
-        Vector2f offset;
-        Vector2f offset2; // optional
-        Vector2f size{ 1.0f, 1.0f };
-        Vector2f size2{ 0.0f, 0.0f }; // optional
+        Vector2f32 offset;
+        Vector2f32 offset2; // optional
+        Vector2f32 size{ 1.0f, 1.0f };
+        Vector2f32 size2{ 0.0f, 0.0f }; // optional
 
         for (const auto& rowData : jsonDoc.Json)
         {
@@ -100,7 +100,7 @@ namespace Onyx::Application::Debug
         const onyxF32 renderSize = ImGui::GetContentRegionAvail().x;
         float size = renderSize / 23.0f;
         const ImVec2& initialPosition = ImGui::GetCursorScreenPos();
-        Vector2f cursorPos = { initialPosition.x, initialPosition.y };
+        Vector2f32 cursorPos = { initialPosition.x, initialPosition.y };
         float spacing = 1.0f;
 
         ImRect keyBounds;
@@ -110,9 +110,9 @@ namespace Onyx::Application::Debug
             for (onyxU32 i = 0; i < numButtonsInRow; ++i)
             {
                 const KeyData& key = keyboardRow[i];
-                const Vector2f& rectSize = key.m_Size * size;
+                const Vector2f32& rectSize = key.m_Size * size;
 
-                Vector2f tempCursorPos = cursorPos;
+                Vector2f32 tempCursorPos = cursorPos;
 
                 onyxU32 color = inputSystem.IsButtonDown(key.m_Key) ? pressedColorU32 : defaultColorU32;
 
@@ -122,8 +122,8 @@ namespace Onyx::Application::Debug
 
                 if (key.m_Size2.IsZero() == false)
                 {
-                    const Vector2f& rectSize2 = key.m_Size2 * size;
-                    Vector2f tmpCursorPos2 = tempCursorPos + (key.m_Offset2 * size);
+                    const Vector2f32& rectSize2 = key.m_Size2 * size;
+                    Vector2f32 tmpCursorPos2 = tempCursorPos + (key.m_Offset2 * size);
                     keyBounds = ImRect({ tmpCursorPos2[0], tmpCursorPos2[1] }, { tmpCursorPos2[0] + rectSize2[0] - spacing, tmpCursorPos2[1] + rectSize2[1] - spacing });
                     drawList->AddRectFilled(keyBounds.Min, keyBounds.Max, color);
                 }

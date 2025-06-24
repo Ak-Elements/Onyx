@@ -8,8 +8,8 @@ namespace Onyx::Volume
 {
     struct Vertex
     {
-        Vector3f Position;
-        Vector3f Normal;
+        Vector3f32 Position;
+        Vector3f32 Normal;
     };
 
     inline bool operator==(const Vertex& a, const Vertex& b)
@@ -33,13 +33,13 @@ namespace Onyx::Volume
     public:
         MeshBuilder() = default;
 
-        void AddVertexAndNormal(const Vector3f& position, const Vector3f& normal)
+        void AddVertexAndNormal(const Vector3f32& position, const Vector3f32& normal)
         {
             onyxU32 index = GetOrAddVertexInternal(position, normal);
             m_Indices.push_back(index);
         }
 
-        void AddTriangle(const Vector3f& v0, const Vector3f& n0, const Vector3f& v1, const Vector3f& n1, const Vector3f& v2, const Vector3f& n2)
+        void AddTriangle(const Vector3f32& v0, const Vector3f32& n0, const Vector3f32& v1, const Vector3f32& n1, const Vector3f32& v2, const Vector3f32& n2)
         {
             AddVertexAndNormal(v0, n0);
             AddVertexAndNormal(v1, n1);
@@ -56,7 +56,7 @@ namespace Onyx::Volume
             return m_VerticesMap.find(vertex);
         }
 
-		onyxU32 GetOrAddVertexInternal(const Vector3f& vertexPos, const Vector3f& normal)
+		onyxU32 GetOrAddVertexInternal(const Vector3f32& vertexPos, const Vector3f32& normal)
         {
             Vertex vertex;
             vertex.Position = vertexPos;

@@ -28,7 +28,7 @@ namespace Onyx::Volume
         {
             Graphics::BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "VoxelGrid";
-            ssboBufferProps.m_Size =  2 * sizeof(Vector4f) * clusterCount;
+            ssboBufferProps.m_Size =  2 * sizeof(Vector4f32) * clusterCount;
             ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer);
             ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
             api.CreateBuffer(m_VoxelGrid[i], ssboBufferProps);
@@ -62,13 +62,13 @@ namespace Onyx::Volume
 
         struct PushConstants
         {
-            Vector3f Normal;
+            Vector3f32 Normal;
             float Distance;
 
             float CellSize;
         };
 
-        PushConstants constants{ Vector3f::Y_Unit(), 1.0f, CellSize };
+        PushConstants constants{ Vector3f32::Y_Unit(), 1.0f, CellSize };
 
         commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, sizeof(PushConstants), &constants);
         commandBuffer.Dispatch(8, 8, 8);
@@ -102,7 +102,7 @@ namespace Onyx::Volume
         {
             Graphics::BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "VolumeMeshVertices";
-            ssboBufferProps.m_Size = (sizeof(Vector3f) + sizeof(Vector3f)) * clusterCount;
+            ssboBufferProps.m_Size = (sizeof(Vector3f32) + sizeof(Vector3f32)) * clusterCount;
             ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer | Graphics::BufferType::Vertex);
             ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
             api.CreateBuffer(m_VertexBuffer[i], ssboBufferProps);

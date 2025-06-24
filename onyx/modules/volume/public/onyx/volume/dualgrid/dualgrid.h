@@ -52,7 +52,7 @@ public:
     void SetIsoSurface(IsoSurface<onyxF32>* isoSurface) { m_IsoSurface = isoSurface; }
     void SetMarchingSquaresIsoSurface(MarchingSquaresSurface<onyxF32>* isoSurface) { m_MarchingSquaresIsoSurface = isoSurface; }
 
-    void GenerateDualgrid(const OctreeNodeT& root, const Vector3f& rootWorldPosition, const VolumeBase& volumeSource);
+    void GenerateDualgrid(const OctreeNodeT& root, const Vector3f32& rootWorldPosition, const VolumeBase& volumeSource);
 //#ifdef DEBUG
     std::vector<DualCell>& GetDualCells() { return m_DualCells; }
 //#endif
@@ -71,7 +71,7 @@ private:
 
     void AddDualCell(const OctreeNodeT& node0, const OctreeNodeT& node1, const OctreeNodeT& node2, const OctreeNodeT& node3, const OctreeNodeT& node4, const OctreeNodeT& node5, const OctreeNodeT& node6, const OctreeNodeT& node7);
     void CreateBorderCell(const OctreeNodeT& node0, const OctreeNodeT& node1, const OctreeNodeT& node2, const OctreeNodeT& node3, const OctreeNodeT& node4, const OctreeNodeT& node5, const OctreeNodeT& node6, const OctreeNodeT& node7);
-    void AddBorderDualCell(const Vector3f& position0, const Vector3f& position1, const Vector3f& position2, const Vector3f& position3, const Vector3f& position4, const Vector3f& position5, const Vector3f& position6, const Vector3f& position7);
+    void AddBorderDualCell(const Vector3f32& position0, const Vector3f32& position1, const Vector3f32& position2, const Vector3f32& position3, const Vector3f32& position4, const Vector3f32& position5, const Vector3f32& position6, const Vector3f32& position7);
     //TODO: debug only
 //#ifdef DEBUG
     std::vector<DualCell> m_DualCells;
@@ -82,7 +82,7 @@ private:
 
     const VolumeBase* m_Volume = nullptr;
     const OctreeNodeT* m_OctreeRoot = nullptr;
-    Vector3f m_OctreeRootWorldPosition;
+    Vector3f32 m_OctreeRootWorldPosition;
 };
 
 }

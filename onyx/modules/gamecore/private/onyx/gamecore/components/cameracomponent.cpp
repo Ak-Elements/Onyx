@@ -20,9 +20,9 @@ namespace GameCore
         {
             auto&& [transform, cameraComponent] = cameraEntitiesView.get<TransformComponent, CameraComponent>(entity);
 
-            const Rotor3f& worldRotation = transform.GetRotation();
-            Vector3f forwardDirection = worldRotation.rotate(-Vector3f::Z_Unit());
-            Vector3f upDirection = worldRotation.rotate(Vector3f::Y_Unit());
+            const Rotor3f32& worldRotation = transform.GetRotation();
+            Vector3f32 forwardDirection = worldRotation.rotate(-Vector3f32::Z_Unit());
+            Vector3f32 upDirection = worldRotation.rotate(Vector3f32::Y_Unit());
 
             cameraComponent.Camera.LookAt(transform.GetTranslation(), transform.GetTranslation() + forwardDirection, upDirection);
         }

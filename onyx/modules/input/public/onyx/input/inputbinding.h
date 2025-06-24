@@ -45,14 +45,14 @@ namespace Onyx::Input
     {
         void* GetData() override { return &Value; }
 
-        Vector2f Value;
+        Vector2f32 Value;
     };
 
     struct InputBindingAxis3DContext : public InputBindingContext
     {
         void* GetData() override { return &Value; }
 
-        Vector3f Value;
+        Vector3f32 Value;
     };
 
     struct InputBinding

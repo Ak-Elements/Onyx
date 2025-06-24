@@ -61,7 +61,7 @@ namespace Onyx::Volume
             intersectionPoints[4] = corners[indices[2]];
             intersectionPoints[6] = corners[indices[3]];
 
-            Vector4f innerVal = super::m_Volume->GetValueAndGradient(intersectionPoints[0]);
+            Vector4f32 innerVal = super::m_Volume->GetValueAndGradient(intersectionPoints[0]);
             intersectionNormals[0][0] = innerVal[0];
             intersectionNormals[0][1] = innerVal[1];
             intersectionNormals[0][2] = innerVal[2];

@@ -62,7 +62,7 @@ namespace Onyx::Editor
             NodeGraph::PinTypeId PinTypeId;
             onyxU32 Color;
 
-            Vector2f Position;
+            Vector2f32 Position;
             bool HasUpdatedPosition;
         };
 

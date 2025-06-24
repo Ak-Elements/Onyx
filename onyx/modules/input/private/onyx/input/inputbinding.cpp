@@ -24,7 +24,7 @@ namespace Onyx::Input
         }
 
         template <typename EnumT>
-        Vector2f GetInput2D(const InputBindingAxis2DComposite& binding, const InputSystem& inputSystem)
+        Vector2f32 GetInput2D(const InputBindingAxis2DComposite& binding, const InputSystem& inputSystem)
         {
             // do something
             bool upInputDown = inputSystem.IsButtonDown(static_cast<EnumT>(binding.GetBoundInputForSlot(0)));
@@ -32,7 +32,7 @@ namespace Onyx::Input
             bool leftInputDown = inputSystem.IsButtonDown(static_cast<EnumT>(binding.GetBoundInputForSlot(2)));
             bool rightInputDown = inputSystem.IsButtonDown(static_cast<EnumT>(binding.GetBoundInputForSlot(3)));
 
-            Vector2f result;
+            Vector2f32 result;
             if (leftInputDown && rightInputDown)
                 result[0] = 0.0f;
             else if (rightInputDown && !leftInputDown)
@@ -51,7 +51,7 @@ namespace Onyx::Input
         }
 
         template <typename EnumT>
-        Vector3f GetInput3D(const InputBindingAxis3DComposite& binding, const InputSystem& inputSystem)
+        Vector3f32 GetInput3D(const InputBindingAxis3DComposite& binding, const InputSystem& inputSystem)
         {
             // do something
             bool upInputDown = inputSystem.IsButtonDown(static_cast<EnumT>(binding.GetBoundInputForSlot(0)));
@@ -61,7 +61,7 @@ namespace Onyx::Input
             bool forwardInputDown = inputSystem.IsButtonDown(static_cast<EnumT>(binding.GetBoundInputForSlot(4)));
             bool backwardInputDown = inputSystem.IsButtonDown(static_cast<EnumT>(binding.GetBoundInputForSlot(5)));
 
-            Vector3f result;
+            Vector3f32 result;
             if (leftInputDown && rightInputDown)
                 result[0] = 0.0f;
             else if (rightInputDown && !leftInputDown)
@@ -186,7 +186,7 @@ namespace Onyx::Input
 
     bool InputBindingAxis2DComposite::UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context)
     {
-        Vector2f newValue;
+        Vector2f32 newValue;
         switch (m_Type)
         {
             case InputType::Mouse:
@@ -261,7 +261,7 @@ namespace Onyx::Input
 
     bool InputBindingAxis3DComposite::UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context)
     {
-        Vector3f newValue;
+        Vector3f32 newValue;
         switch (m_Type)
         {
             case InputType::Mouse:
@@ -343,7 +343,7 @@ namespace Onyx::Input
 
     bool InputBindingAxis2D::UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context)
     {
-        Vector2f newValue;
+        Vector2f32 newValue;
         switch (m_Type)
         {
             case InputType::Mouse:

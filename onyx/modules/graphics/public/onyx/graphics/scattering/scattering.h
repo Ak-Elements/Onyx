@@ -41,7 +41,7 @@ namespace Onyx::Graphics
     struct AtmosphereParameters
     {
         // The solar irradiance at the top of the atmosphere.
-        Vector3f SolarIrradiance;
+        Vector3f32 SolarIrradiance;
         // The sun's angular radius. Warning: the implementation uses approximations
         // that are valid only if this angle is smaller than 0.1 radians.
         onyxF32 SunAngularRadius;
@@ -54,7 +54,7 @@ namespace Onyx::Graphics
         // density is maximum (usually the bottom of the atmosphere), as a function of
         // wavelength. The scattering coefficient at altitude h is equal to
         // 'rayleigh_scattering' times 'rayleigh_density' at this altitude.
-        Vector3f RayleighScattering;
+        Vector3f32 RayleighScattering;
 
         // The cosine of the maximum Sun zenith angle for which atmospheric scattering
         // must be precomputed (for maximum precision, use the smallest Sun zenith
@@ -70,7 +70,7 @@ namespace Onyx::Graphics
         // is maximum (usually the bottom of the atmosphere), as a function of
         // wavelength. The scattering coefficient at altitude h is equal to
         // 'mie_scattering' times 'mie_density' at this altitude.
-        Vector3f MieScattering;
+        Vector3f32 MieScattering;
 
         // The distance between the planet center and the top of the atmosphere.
         onyxF32 TopRadius;
@@ -79,7 +79,7 @@ namespace Onyx::Graphics
         // is maximum (usually the bottom of the atmosphere), as a function of
         // wavelength. The extinction coefficient at altitude h is equal to
         // 'mie_extinction' times 'mie_density' at this altitude.
-        Vector3f MieExtinction;
+        Vector3f32 MieExtinction;
 
         // The asymetry parameter for the Cornette-Shanks phase function for the
         // aerosols.
@@ -92,13 +92,13 @@ namespace Onyx::Graphics
         // the altitude where their density is maximum, as a function of wavelength.
         // The extinction coefficient at altitude h is equal to
         // 'absorption_extinction' times 'absorption_density' at this altitude.
-        Vector3f AbsorptionExtinction;
+        Vector3f32 AbsorptionExtinction;
 
         // The distance between the planet center and the bottom of the atmosphere.
         onyxF32 BottomRadius;
 
         // The average albedo of the ground.
-        Vector3f GroundAlbedo;
+        Vector3f32 GroundAlbedo;
         float Padding;
     };
 }

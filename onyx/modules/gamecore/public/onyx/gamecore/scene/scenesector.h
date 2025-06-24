@@ -12,7 +12,7 @@ namespace Onyx::GameCore
 {
     struct SectorEntity
     {
-        Vector3f Position;
+        Vector3f32 Position;
         onyxF64 BoundsRadius;
         onyxF64 BoundsRadiusSquared;
         

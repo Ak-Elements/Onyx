@@ -9,110 +9,110 @@ namespace Onyx::Editor
 
     // Float
     template <>
-    struct EditorSwizzleVectorControl<Vector2f, Vector2f>
+    struct EditorSwizzleVectorControl<Vector2f32, Vector2f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector2f, Vector3f>
+    struct EditorSwizzleVectorControl<Vector2f32, Vector3f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector2f, Vector4f>
+    struct EditorSwizzleVectorControl<Vector2f32, Vector4f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector3f, Vector2f>
+    struct EditorSwizzleVectorControl<Vector3f32, Vector2f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector3f, Vector3f>
+    struct EditorSwizzleVectorControl<Vector3f32, Vector3f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector3f, Vector4f>
+    struct EditorSwizzleVectorControl<Vector3f32, Vector4f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector4f, Vector2f>
+    struct EditorSwizzleVectorControl<Vector4f32, Vector2f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector4f, Vector3f>
+    struct EditorSwizzleVectorControl<Vector4f32, Vector3f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector4f, Vector4f>
+    struct EditorSwizzleVectorControl<Vector4f32, Vector4f32>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     // Double
     template <>
-    struct EditorSwizzleVectorControl<Vector2d, Vector2d>
+    struct EditorSwizzleVectorControl<Vector2f64, Vector2f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector2d, Vector3d>
+    struct EditorSwizzleVectorControl<Vector2f64, Vector3f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector2d, Vector4d>
+    struct EditorSwizzleVectorControl<Vector2f64, Vector4f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector3d, Vector2d>
+    struct EditorSwizzleVectorControl<Vector3f64, Vector2f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector3d, Vector3d>
+    struct EditorSwizzleVectorControl<Vector3f64, Vector3f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector3d, Vector4d>
+    struct EditorSwizzleVectorControl<Vector3f64, Vector4f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector4d, Vector2d>
+    struct EditorSwizzleVectorControl<Vector4f64, Vector2f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector4d, Vector3d>
+    struct EditorSwizzleVectorControl<Vector4f64, Vector3f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };
 
     template <>
-    struct EditorSwizzleVectorControl<Vector4d, Vector4d>
+    struct EditorSwizzleVectorControl<Vector4f64, Vector4f64>
     {
         static Optional<Vector4u8> Draw(SwizzleMask& mask);
     };

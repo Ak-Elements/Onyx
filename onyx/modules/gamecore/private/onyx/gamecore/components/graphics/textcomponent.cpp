@@ -30,17 +30,17 @@ namespace GameCore
         const Graphics::SDFFontMetrics& fontMetrics = Font->GetMetrics();
         const HashMap<onyxU32, Graphics::SDFFontGlyphData>& glyphs = Font->GetGlyphs();
 
-        const Vector2f advanceDirection(1.0f, 0.0f);
-        const Vector2f verticalDirection(0.0f, -1.0f);
+        const Vector2f32 advanceDirection(1.0f, 0.0f);
+        const Vector2f32 verticalDirection(0.0f, -1.0f);
 
         const onyxF32 verticalOffset = fontMetrics.LineHeight * Size;
 
         onyxF32 textWidth = GetTextWidth(textU32);
 
-        Vector2f cursorPosition{ -textWidth / 2.0f, -verticalOffset };
+        Vector2f32 cursorPosition{ -textWidth / 2.0f, -verticalOffset };
         cursorPosition -= verticalDirection * Size * fontMetrics.Ascender;
-        const Vector2f scaledAdvance = advanceDirection * Size;
-        Vector2f verticalAdvance(-scaledAdvance[1], scaledAdvance[0]);
+        const Vector2f32 scaledAdvance = advanceDirection * Size;
+        Vector2f32 verticalAdvance(-scaledAdvance[1], scaledAdvance[0]);
 
         const onyxU32 textLength = static_cast<onyxU32>(textU32.size());
         onyxU32 color = 0xFFFFFFFF;
@@ -61,18 +61,18 @@ namespace GameCore
                 const onyxF32 atlasBoundTop = glyph.AtlasBounds.GetTop();
                 const onyxF32 atlasBoundBottom = glyph.AtlasBounds.GetBottom();
 
-                const Vector2f vertexPositionLeft = scaledAdvance * planeBoundLeft;
-                const Vector2f vertexPositionRight = scaledAdvance * planeBoundRight;
-                const Vector2f vertexPositionTop = verticalAdvance * planeBoundTop;
-                const Vector2f vertexPositionBottom = verticalAdvance * planeBoundBottom;
+                const Vector2f32 vertexPositionLeft = scaledAdvance * planeBoundLeft;
+                const Vector2f32 vertexPositionRight = scaledAdvance * planeBoundRight;
+                const Vector2f32 vertexPositionTop = verticalAdvance * planeBoundTop;
+                const Vector2f32 vertexPositionBottom = verticalAdvance * planeBoundBottom;
 
-                m_Vertices.emplace_back(Vector3f(cursorPosition + vertexPositionTop + vertexPositionLeft, 0), Vector2f{ atlasBoundLeft, atlasBoundTop }, color);
-                m_Vertices.emplace_back(Vector3f(cursorPosition + vertexPositionTop + vertexPositionRight, 0), Vector2f{ atlasBoundRight, atlasBoundTop }, color);
-                m_Vertices.emplace_back(Vector3f(cursorPosition + vertexPositionBottom + vertexPositionRight, 0), Vector2f{ atlasBoundRight, atlasBoundBottom }, color);
-                m_Vertices.emplace_back(Vector3f(cursorPosition + vertexPositionBottom + vertexPositionLeft, 0), Vector2f{ atlasBoundLeft, atlasBoundBottom }, color);
+                m_Vertices.emplace_back(Vector3f32(cursorPosition + vertexPositionTop + vertexPositionLeft, 0), Vector2f32{ atlasBoundLeft, atlasBoundTop }, color);
+                m_Vertices.emplace_back(Vector3f32(cursorPosition + vertexPositionTop + vertexPositionRight, 0), Vector2f32{ atlasBoundRight, atlasBoundTop }, color);
+                m_Vertices.emplace_back(Vector3f32(cursorPosition + vertexPositionBottom + vertexPositionRight, 0), Vector2f32{ atlasBoundRight, atlasBoundBottom }, color);
+                m_Vertices.emplace_back(Vector3f32(cursorPosition + vertexPositionBottom + vertexPositionLeft, 0), Vector2f32{ atlasBoundLeft, atlasBoundBottom }, color);
             }
 
-            Vector2f advance = advanceDirection * glyph.Advance * Size;
+            Vector2f32 advance = advanceDirection * glyph.Advance * Size;
             if (i < (textLength - 1))
             {
                 advance += advanceDirection * fontMetrics.Kerning * Size;
@@ -87,7 +87,7 @@ namespace GameCore
         const Graphics::SDFFontMetrics& fontMetrics = Font->GetMetrics();
         const HashMap<onyxU32, Graphics::SDFFontGlyphData>& glyphs = Font->GetGlyphs();
 
-        const Vector2f advanceDirection(1.0f, 0.0f);
+        const Vector2f32 advanceDirection(1.0f, 0.0f);
 
         onyxF32 totalWidth = 0.0f;
         const onyxU32 textLength = static_cast<onyxU32>(text.size());
@@ -98,7 +98,7 @@ namespace GameCore
             // handle multiline
             const Graphics::SDFFontGlyphData& glyph = glyphs.at(character);
 
-            Vector2f advance = advanceDirection * glyph.Advance * Size;
+            Vector2f32 advance = advanceDirection * glyph.Advance * Size;
             if (i < (textLength - 1))
             {
                 advance += advanceDirection * fontMetrics.Kerning * Size;

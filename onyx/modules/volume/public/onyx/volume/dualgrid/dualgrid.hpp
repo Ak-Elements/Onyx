@@ -16,7 +16,7 @@ namespace Onyx::Volume
     const onyxU8 Nodes[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 template <typename OctreeNodeT>
-void Dualgrid<OctreeNodeT>::GenerateDualgrid(const OctreeNodeT& root, const Vector3f& rootWorldPosition, const VolumeBase& volumeSource)
+void Dualgrid<OctreeNodeT>::GenerateDualgrid(const OctreeNodeT& root, const Vector3f32& rootWorldPosition, const VolumeBase& volumeSource)
 {
     m_OctreeRoot = &root;
     m_OctreeRootWorldPosition = rootWorldPosition;
@@ -27,41 +27,41 @@ void Dualgrid<OctreeNodeT>::GenerateDualgrid(const OctreeNodeT& root, const Vect
     // Build up a minimal dualgrid for octrees without children.
     if (root.IsSubdivided() == false)
     {
-        const Vector3f CORNER_0(-1.0f, -1.0f, -1.0f);
-        const Vector3f CORNER_1(1.0f, -1.0f, -1.0f);
-        const Vector3f CORNER_2(1.0f, -1.0f, 1.0f);
-        const Vector3f CORNER_3(-1.0f, -1.0f, 1.0f);
-        const Vector3f CORNER_4(-1.0f, 1.0f, -1.0f);
-        const Vector3f CORNER_5(1.0f, 1.0f, -1.0f);
-        const Vector3f CORNER_6(1.0f, 1.0f, 1.0f);
-        const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);
+        const Vector3f32 CORNER_0(-1.0f, -1.0f, -1.0f);
+        const Vector3f32 CORNER_1(1.0f, -1.0f, -1.0f);
+        const Vector3f32 CORNER_2(1.0f, -1.0f, 1.0f);
+        const Vector3f32 CORNER_3(-1.0f, -1.0f, 1.0f);
+        const Vector3f32 CORNER_4(-1.0f, 1.0f, -1.0f);
+        const Vector3f32 CORNER_5(1.0f, 1.0f, -1.0f);
+        const Vector3f32 CORNER_6(1.0f, 1.0f, 1.0f);
+        const Vector3f32 CORNER_7(-1.0f, 1.0f, 1.0f);
 
-        const Vector3f FACE_TOP(0.0f, 1.0f, 0.0f);
-        const Vector3f FACE_BOTTOM(0.0f, -1.0f, 0.0f);
-        const Vector3f FACE_RIGHT(1.0f, 0.0f, 0.0f);
-        const Vector3f FACE_LEFT(-1.0f, 0.0f, 0.0f);
-        const Vector3f FACE_FRONT(0.0f, 0.0f, 1.0f);
-        const Vector3f FACE_BACK(0.0f, 0.0f, -1.0f);
+        const Vector3f32 FACE_TOP(0.0f, 1.0f, 0.0f);
+        const Vector3f32 FACE_BOTTOM(0.0f, -1.0f, 0.0f);
+        const Vector3f32 FACE_RIGHT(1.0f, 0.0f, 0.0f);
+        const Vector3f32 FACE_LEFT(-1.0f, 0.0f, 0.0f);
+        const Vector3f32 FACE_FRONT(0.0f, 0.0f, 1.0f);
+        const Vector3f32 FACE_BACK(0.0f, 0.0f, -1.0f);
 
-        const Vector3f CENTER_BACK_BOTTOM(0.0f, -1.0f, -1.0f);
-        const Vector3f CENTER_FRONT_BOTTOM(0.0f, -1.0f, 1.0f);
-        const Vector3f CENTER_LEFT_BOTTOM(-1.0f, -1.0f, 0.0f);
-        const Vector3f CENTER_RIGHT_BOTTOM(1.0f, -1.0f, 0.0f);
+        const Vector3f32 CENTER_BACK_BOTTOM(0.0f, -1.0f, -1.0f);
+        const Vector3f32 CENTER_FRONT_BOTTOM(0.0f, -1.0f, 1.0f);
+        const Vector3f32 CENTER_LEFT_BOTTOM(-1.0f, -1.0f, 0.0f);
+        const Vector3f32 CENTER_RIGHT_BOTTOM(1.0f, -1.0f, 0.0f);
 
-        const Vector3f CENTER_BACK_LEFT(-1.0f, 0.0f, -1.0f);
-        const Vector3f CENTER_BACK_RIGHT(1.0f, 0.0f, -1.0f);
-        const Vector3f CENTER_FRONT_LEFT(-1.0f, 0.0f, 1.0f);
-        const Vector3f CENTER_FRONT_RIGHT(1.0f, 0.0f, 1.0f);
+        const Vector3f32 CENTER_BACK_LEFT(-1.0f, 0.0f, -1.0f);
+        const Vector3f32 CENTER_BACK_RIGHT(1.0f, 0.0f, -1.0f);
+        const Vector3f32 CENTER_FRONT_LEFT(-1.0f, 0.0f, 1.0f);
+        const Vector3f32 CENTER_FRONT_RIGHT(1.0f, 0.0f, 1.0f);
 
-        const Vector3f CENTER_BACK_TOP(0.0f, 1.0f, -1.0f);
-        const Vector3f CENTER_LEFT_TOP(-1.0f, 1.0f, 0.0f);
-        const Vector3f CENTER_RIGHT_TOP(1.0f, 1.0f, 0.0f);
-        const Vector3f CENTER_FRONT_TOP(0.0f, 1.0f, 1.0f);
+        const Vector3f32 CENTER_BACK_TOP(0.0f, 1.0f, -1.0f);
+        const Vector3f32 CENTER_LEFT_TOP(-1.0f, 1.0f, 0.0f);
+        const Vector3f32 CENTER_RIGHT_TOP(1.0f, 1.0f, 0.0f);
+        const Vector3f32 CENTER_FRONT_TOP(0.0f, 1.0f, 1.0f);
 
 
-        const auto GetNodePosition = [](const OctreeNodeT& node, const Vector3f& halfExtentScale = Vector3f(0.0f))
+        const auto GetNodePosition = [](const OctreeNodeT& node, const Vector3f32& halfExtentScale = Vector3f32(0.0f))
         {
-            Vector3f position = node.GetData()->Position;
+            Vector3f32 position = node.GetData()->Position;
             position += halfExtentScale * node.GetData()->HalfExtent;
             return position;
         };
@@ -372,7 +372,7 @@ void Dualgrid<OctreeNodeT>::AddDualCell(const OctreeNodeT& node0, const OctreeNo
 {
     m_DualCells.emplace_back(node0, node1, node2, node3, node4, node5, node6, node7);
 
-    Vector3f corners[8];
+    Vector3f32 corners[8];
     corners[0] = node0.GetData()->Position;
     corners[1] = node1.GetData()->Position;
     corners[2] = node2.GetData()->Position;
@@ -382,7 +382,7 @@ void Dualgrid<OctreeNodeT>::AddDualCell(const OctreeNodeT& node0, const OctreeNo
     corners[6] = node6.GetData()->Position;
     corners[7] = node7.GetData()->Position;
 
-    Vector4f values[8];
+    Vector4f32 values[8];
     values[0] = node0.GetData()->Gradient;
     values[1] = node1.GetData()->Gradient;
     values[2] = node2.GetData()->Gradient;
@@ -405,23 +405,23 @@ void Dualgrid<OctreeNodeT>::AddDualCell(const OctreeNodeT& node0, const OctreeNo
     analyticalNormals[6] = node6.GetData()->AnalyticalNormal;
     analyticalNormals[7] = node7.GetData()->AnalyticalNormal;
 #else
-    Vector3f analyticalNormals[8];
-    analyticalNormals[0] = Vector3f(node0.GetData()->Gradient);
-    analyticalNormals[1] = Vector3f(node1.GetData()->Gradient);
-    analyticalNormals[2] = Vector3f(node2.GetData()->Gradient);
-    analyticalNormals[3] = Vector3f(node3.GetData()->Gradient);
-    analyticalNormals[4] = Vector3f(node4.GetData()->Gradient);
-    analyticalNormals[5] = Vector3f(node5.GetData()->Gradient);
-    analyticalNormals[6] = Vector3f(node6.GetData()->Gradient);
-    analyticalNormals[7] = Vector3f(node7.GetData()->Gradient);
+    Vector3f32 analyticalNormals[8];
+    analyticalNormals[0] = Vector3f32(node0.GetData()->Gradient);
+    analyticalNormals[1] = Vector3f32(node1.GetData()->Gradient);
+    analyticalNormals[2] = Vector3f32(node2.GetData()->Gradient);
+    analyticalNormals[3] = Vector3f32(node3.GetData()->Gradient);
+    analyticalNormals[4] = Vector3f32(node4.GetData()->Gradient);
+    analyticalNormals[5] = Vector3f32(node5.GetData()->Gradient);
+    analyticalNormals[6] = Vector3f32(node6.GetData()->Gradient);
+    analyticalNormals[7] = Vector3f32(node7.GetData()->Gradient);
 #endif
 
     m_IsoSurface->AddTriangles(corners, values, analyticalNormals);
 
-    const Vector3f rootPosition = m_OctreeRoot->GetData()->Position;
+    const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
     const onyxF32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
-    Vector3f from = rootPosition - Vector3f(halfExtents, halfExtents, halfExtents);
-    Vector3f to = rootPosition + Vector3f(halfExtents, halfExtents, halfExtents);
+    Vector3f32 from = rootPosition - Vector3f32(halfExtents, halfExtents, halfExtents);
+    Vector3f32 to = rootPosition + Vector3f32(halfExtents, halfExtents, halfExtents);
 
 
     //if (corners[0][2] == from[2]/* && corners[0].z != mTotalFrom.z*/)
@@ -459,41 +459,41 @@ void Dualgrid<OctreeNodeT>::CreateBorderCell(const OctreeNodeT& node0, const Oct
     //0.0 = center
     //-1.0 = - halfExtent
 
-    const Vector3f CORNER_0(-1.0f, -1.0f, -1.0f);
-    const Vector3f CORNER_1(1.0f, -1.0f, -1.0f);
-    const Vector3f CORNER_2(1.0f, -1.0f, 1.0f);
-    const Vector3f CORNER_3(-1.0f, -1.0f, 1.0f);
-    const Vector3f CORNER_4(-1.0f, 1.0f, -1.0f);
-    const Vector3f CORNER_5(1.0f, 1.0f, -1.0f);
-    const Vector3f CORNER_6(1.0f, 1.0f, 1.0f);
-    const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);
+    const Vector3f32 CORNER_0(-1.0f, -1.0f, -1.0f);
+    const Vector3f32 CORNER_1(1.0f, -1.0f, -1.0f);
+    const Vector3f32 CORNER_2(1.0f, -1.0f, 1.0f);
+    const Vector3f32 CORNER_3(-1.0f, -1.0f, 1.0f);
+    const Vector3f32 CORNER_4(-1.0f, 1.0f, -1.0f);
+    const Vector3f32 CORNER_5(1.0f, 1.0f, -1.0f);
+    const Vector3f32 CORNER_6(1.0f, 1.0f, 1.0f);
+    const Vector3f32 CORNER_7(-1.0f, 1.0f, 1.0f);
 
-    const Vector3f FACE_TOP(0.0f, 1.0f, 0.0f);
-    const Vector3f FACE_BOTTOM(0.0f, -1.0f, 0.0f);
-    const Vector3f FACE_RIGHT(1.0f, 0.0f, 0.0f);
-    const Vector3f FACE_LEFT(-1.0f, 0.0f, 0.0f);
-    const Vector3f FACE_FRONT(0.0f, 0.0f, 1.0f);
-    const Vector3f FACE_BACK(0.0f, 0.0f, -1.0f);
+    const Vector3f32 FACE_TOP(0.0f, 1.0f, 0.0f);
+    const Vector3f32 FACE_BOTTOM(0.0f, -1.0f, 0.0f);
+    const Vector3f32 FACE_RIGHT(1.0f, 0.0f, 0.0f);
+    const Vector3f32 FACE_LEFT(-1.0f, 0.0f, 0.0f);
+    const Vector3f32 FACE_FRONT(0.0f, 0.0f, 1.0f);
+    const Vector3f32 FACE_BACK(0.0f, 0.0f, -1.0f);
 
-    const Vector3f CENTER_BACK_BOTTOM(0.0f, -1.0f, -1.0f);
-    const Vector3f CENTER_FRONT_BOTTOM(0.0f, -1.0f, 1.0f);
-    const Vector3f CENTER_LEFT_BOTTOM(-1.0f, -1.0f, 0.0f);
-    const Vector3f CENTER_RIGHT_BOTTOM(1.0f, -1.0f, 0.0f);
+    const Vector3f32 CENTER_BACK_BOTTOM(0.0f, -1.0f, -1.0f);
+    const Vector3f32 CENTER_FRONT_BOTTOM(0.0f, -1.0f, 1.0f);
+    const Vector3f32 CENTER_LEFT_BOTTOM(-1.0f, -1.0f, 0.0f);
+    const Vector3f32 CENTER_RIGHT_BOTTOM(1.0f, -1.0f, 0.0f);
     
-    const Vector3f CENTER_BACK_LEFT(-1.0f, 0.0f, -1.0f);
-    const Vector3f CENTER_BACK_RIGHT(1.0f, 0.0f, -1.0f);
-    const Vector3f CENTER_FRONT_LEFT(-1.0f, 0.0f, 1.0f);
-    const Vector3f CENTER_FRONT_RIGHT(1.0f, 0.0f, 1.0f);
+    const Vector3f32 CENTER_BACK_LEFT(-1.0f, 0.0f, -1.0f);
+    const Vector3f32 CENTER_BACK_RIGHT(1.0f, 0.0f, -1.0f);
+    const Vector3f32 CENTER_FRONT_LEFT(-1.0f, 0.0f, 1.0f);
+    const Vector3f32 CENTER_FRONT_RIGHT(1.0f, 0.0f, 1.0f);
 
-    const Vector3f CENTER_BACK_TOP(0.0f, 1.0f, -1.0f);
-    const Vector3f CENTER_LEFT_TOP(-1.0f, 1.0f, 0.0f);
-    const Vector3f CENTER_RIGHT_TOP(1.0f, 1.0f, 0.0f);
-    const Vector3f CENTER_FRONT_TOP(0.0f, 1.0f, 1.0f);
+    const Vector3f32 CENTER_BACK_TOP(0.0f, 1.0f, -1.0f);
+    const Vector3f32 CENTER_LEFT_TOP(-1.0f, 1.0f, 0.0f);
+    const Vector3f32 CENTER_RIGHT_TOP(1.0f, 1.0f, 0.0f);
+    const Vector3f32 CENTER_FRONT_TOP(0.0f, 1.0f, 1.0f);
 
 
-    const auto GetNodePosition = [](const OctreeNodeT& node, const Vector3f& halfExtentScale = Vector3f(0.0f))
+    const auto GetNodePosition = [](const OctreeNodeT& node, const Vector3f32& halfExtentScale = Vector3f32(0.0f))
     {
-        Vector3f position = node.GetData()->Position;
+        Vector3f32 position = node.GetData()->Position;
         position += halfExtentScale * node.GetData()->HalfExtent;
         return position;
     };
@@ -670,12 +670,12 @@ void Dualgrid<OctreeNodeT>::CreateBorderCell(const OctreeNodeT& node0, const Oct
 }
 
 template <typename OctreeNodeT>
-void Dualgrid<OctreeNodeT>::AddBorderDualCell(const Vector3f& position0, const Vector3f& position1, const Vector3f& position2, const Vector3f& position3, const Vector3f& position4, const Vector3f& position5, const Vector3f& position6, const Vector3f& position7)
+void Dualgrid<OctreeNodeT>::AddBorderDualCell(const Vector3f32& position0, const Vector3f32& position1, const Vector3f32& position2, const Vector3f32& position3, const Vector3f32& position4, const Vector3f32& position5, const Vector3f32& position6, const Vector3f32& position7)
 {
     // TODO add to debug view
     //m_DualCells.emplace_back(node0, node1, node2, node3, node4, node5, node6, node7);
 
-    Vector3f corners[8]
+    Vector3f32 corners[8]
     {
         position0,
         position1,
@@ -687,7 +687,7 @@ void Dualgrid<OctreeNodeT>::AddBorderDualCell(const Vector3f& position0, const V
         position7
     };
 
-    Vector4f values[8]
+    Vector4f32 values[8]
     {
         m_Volume->GetValueAndGradient(position0 + m_OctreeRootWorldPosition),
         m_Volume->GetValueAndGradient(position1 + m_OctreeRootWorldPosition),
@@ -714,23 +714,23 @@ void Dualgrid<OctreeNodeT>::AddBorderDualCell(const Vector3f& position0, const V
     analyticalNormals[6] = noiseSource->GetAnalyticalNormal(position6 + m_OctreeRootWorldPosition);
     analyticalNormals[7] = noiseSource->GetAnalyticalNormal(position7 + m_OctreeRootWorldPosition);
 #else
-    Vector3f analyticalNormals[8];
-    analyticalNormals[0] = Vector3f(values[0]);
-    analyticalNormals[1] = Vector3f(values[1]);
-    analyticalNormals[2] = Vector3f(values[2]);
-    analyticalNormals[3] = Vector3f(values[3]);
-    analyticalNormals[4] = Vector3f(values[4]);
-    analyticalNormals[5] = Vector3f(values[5]);
-    analyticalNormals[6] = Vector3f(values[6]);
-    analyticalNormals[7] = Vector3f(values[7]);
+    Vector3f32 analyticalNormals[8];
+    analyticalNormals[0] = Vector3f32(values[0]);
+    analyticalNormals[1] = Vector3f32(values[1]);
+    analyticalNormals[2] = Vector3f32(values[2]);
+    analyticalNormals[3] = Vector3f32(values[3]);
+    analyticalNormals[4] = Vector3f32(values[4]);
+    analyticalNormals[5] = Vector3f32(values[5]);
+    analyticalNormals[6] = Vector3f32(values[6]);
+    analyticalNormals[7] = Vector3f32(values[7]);
 #endif
 
     m_IsoSurface->AddTriangles(corners, values, analyticalNormals);
 
-    const Vector3f rootPosition = m_OctreeRoot->GetData()->Position;
+    const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
     const onyxF32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
-    Vector3f from = rootPosition - Vector3f(halfExtents, halfExtents, halfExtents);
-    Vector3f to = rootPosition + Vector3f(halfExtents, halfExtents, halfExtents);
+    Vector3f32 from = rootPosition - Vector3f32(halfExtents, halfExtents, halfExtents);
+    Vector3f32 to = rootPosition + Vector3f32(halfExtents, halfExtents, halfExtents);
 
 
     // disable marching squares skirts

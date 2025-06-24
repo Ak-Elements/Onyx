@@ -9,8 +9,8 @@
 
 namespace Onyx
 {
-    using Vector2f = Vector2<onyxF32>;
-    using Vector2d = Vector2<onyxF64>;
+    using Vector2f32 = Vector2<onyxF32>;
+    using Vector2f64 = Vector2<onyxF64>;
     using Vector2s8 = Vector2<onyxS8>;
     using Vector2s16 = Vector2<onyxS16>;
     using Vector2s32 = Vector2<onyxS32>;
@@ -20,8 +20,8 @@ namespace Onyx
     using Vector2u32 = Vector2<onyxU32>;
     using Vector2u64 = Vector2<onyxU64>;
 
-    using Vector3f = Vector3<onyxF32>;
-    using Vector3d = Vector3<onyxF64>;
+    using Vector3f32 = Vector3<onyxF32>;
+    using Vector3f64 = Vector3<onyxF64>;
     using Vector3s8 = Vector3<onyxS8>;
     using Vector3s16 = Vector3<onyxS16>;
     using Vector3s32 = Vector3<onyxS32>;
@@ -31,8 +31,8 @@ namespace Onyx
     using Vector3u32 = Vector3<onyxU32>;
     using Vector3u64 = Vector3<onyxU64>;
 
-    using Vector4f = Vector4<onyxF32>;
-    using Vector4d = Vector4<onyxF64>;
+    using Vector4f32 = Vector4<onyxF32>;
+    using Vector4f64 = Vector4<onyxF64>;
     using Vector4s8 = Vector4<onyxS8>;
     using Vector4s16 = Vector4<onyxS16>;
     using Vector4s32 = Vector4<onyxS32>;
@@ -42,11 +42,11 @@ namespace Onyx
     using Vector4u32 = Vector4<onyxU32>;
     using Vector4u64 = Vector4<onyxU64>;
 
-    using Rotor3f = Rotor3<onyxF32>;
-    using Rotor3d = Rotor3<onyxF64>;
+    using Rotor3f32 = Rotor3<onyxF32>;
+    using Rotor3f64 = Rotor3<onyxF64>;
 
     using Bivector3f32 = Bivector3<onyxF32>;
-    using Bivectorf64 = Bivector3<onyxF64>;
+    using Bivector3f64 = Bivector3<onyxF64>;
 
     template <typename ScalarT>
     struct Rect2;

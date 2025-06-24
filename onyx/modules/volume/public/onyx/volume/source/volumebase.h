@@ -13,8 +13,8 @@ namespace Onyx::Volume
         virtual ~VolumeBase() {}
 
         // TODO - Check if we can avoid creating Vector4f's 
-        virtual Vector4f GetValueAndGradient(const Vector3f& position) const = 0;
-        virtual onyxF32 GetValue(const Vector3f& position) const = 0;
+        virtual Vector4f32 GetValueAndGradient(const Vector3f32& position) const = 0;
+        virtual onyxF32 GetValue(const Vector3f32& position) const = 0;
 
         // most likely needed in some kind of form - lets see
         //void Serialize(const Vector3f& from, const Vector3f to, onyxF32 voxelWidth, onyxF32 maxClampedAbsoluteDensity, const char* file);

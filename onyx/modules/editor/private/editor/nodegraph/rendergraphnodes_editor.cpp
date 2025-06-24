@@ -81,7 +81,7 @@ namespace Onyx::Graphics
             if (isTexture)
             {
                 String rgba;
-                Vector3f size;
+                Vector3f32 size;
 
                 Ui::PropertyGrid::DrawStringProperty("Format", rgba);
                 Ui::PropertyGrid::DrawVector3Property("Size", size);

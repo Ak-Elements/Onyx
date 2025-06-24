@@ -29,19 +29,19 @@ namespace Onyx::GameCore
             if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 #endif
             {
-                Vector3f worldPosition = transformComponent.GetTranslation();
-                Rotor3f worldRotation = transformComponent.GetRotation();
+                Vector3f32 worldPosition = transformComponent.GetTranslation();
+                Rotor3f32 worldRotation = transformComponent.GetRotation();
 
-                Vector3f forwardDirection = worldRotation.rotate(-Vector3f::Z_Unit());
-                Vector3f rightDirection = worldRotation.rotate(Vector3f::X_Unit());
-                Vector3f upDirection = worldRotation.rotate(Vector3f::Y_Unit());
+                Vector3f32 forwardDirection = worldRotation.rotate(-Vector3f32::Z_Unit());
+                Vector3f32 rightDirection = worldRotation.rotate(Vector3f32::X_Unit());
+                Vector3f32 upDirection = worldRotation.rotate(Vector3f32::Y_Unit());
 
                 constexpr onyxF32 MAX_ROTATION_SPEED = 0.12f;
 
                 onyxF32 dt = static_cast<onyxF32>(deltaTime.DeltaMilliseconds);
 
                 const onyxF32 yawSign = upDirection[1] < 0 ? -1.0f : 1.0f;
-                const Vector3f globalUp(0.0f, yawSign, 0.0f);
+                const Vector3f32 globalUp(0.0f, yawSign, 0.0f);
 
                 // y direction is up / down (forward / back)
                 worldPosition += rightDirection * freeCameraRuntime.InputDirection[0] * dt * freeCameraRuntime.Velocity;
@@ -63,10 +63,10 @@ namespace Onyx::GameCore
             if ((IsZero(freeCameraRuntime.YawDelta) == false) ||
                 (IsZero(freeCameraRuntime.PitchDelta) == false))
             {
-                Rotor3f pitchRotor(-freeCameraRuntime.Pitch, Bivector3f32::YZ_Unit());
-                Rotor3f yawRotor(-freeCameraRuntime.Yaw, Bivector3f32::ZX_Unit());
+                Rotor3f32 pitchRotor(-freeCameraRuntime.Pitch, Bivector3f32::YZ_Unit());
+                Rotor3f32 yawRotor(-freeCameraRuntime.Yaw, Bivector3f32::ZX_Unit());
 
-                Rotor3f newRotation = (yawRotor * pitchRotor).Normalized();
+                Rotor3f32 newRotation = (yawRotor * pitchRotor).Normalized();
                 transformComponent.SetRotation(newRotation);
             }
             

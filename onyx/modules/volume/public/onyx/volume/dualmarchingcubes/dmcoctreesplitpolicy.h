@@ -193,14 +193,14 @@ private:
 	
     bool CheckCMSLike(const Vector3<Scalar>& center, const Scalar halfExtent)
 	{
-        const Vector3f CORNER_0(-1.0f, -1.0f, -1.0f);
-        const Vector3f CORNER_1(1.0f, -1.0f, -1.0f);
-        const Vector3f CORNER_2(1.0f, -1.0f, 1.0f);
-        const Vector3f CORNER_3(-1.0f, -1.0f, 1.0f);
-        const Vector3f CORNER_4(-1.0f, 1.0f, -1.0f);
-        const Vector3f CORNER_5(1.0f, 1.0f, -1.0f);
-        const Vector3f CORNER_6(1.0f, 1.0f, 1.0f);
-        const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);
+        const Vector3f32 CORNER_0(-1.0f, -1.0f, -1.0f);
+        const Vector3f32 CORNER_1(1.0f, -1.0f, -1.0f);
+        const Vector3f32 CORNER_2(1.0f, -1.0f, 1.0f);
+        const Vector3f32 CORNER_3(-1.0f, -1.0f, 1.0f);
+        const Vector3f32 CORNER_4(-1.0f, 1.0f, -1.0f);
+        const Vector3f32 CORNER_5(1.0f, 1.0f, -1.0f);
+        const Vector3f32 CORNER_6(1.0f, 1.0f, 1.0f);
+        const Vector3f32 CORNER_7(-1.0f, 1.0f, 1.0f);
 
         const VolumeBase& volumeBase = *(super::m_VolumeSource);
 
@@ -254,10 +254,10 @@ private:
         for (int i = 0; i < 12; ++i)
         {
             // Getting the start and end cell points of this edge
-            const Vector3f& edgeStartCorner = corners[EDGE_VERTICES[i][0]];
-            const Vector3f& edgeEndCorner = corners[EDGE_VERTICES[i][1]];
+            const Vector3f32& edgeStartCorner = corners[EDGE_VERTICES[i][0]];
+            const Vector3f32& edgeEndCorner = corners[EDGE_VERTICES[i][1]];
 
-            const Vector3f direction = (edgeEndCorner - edgeStartCorner).Normalized() * m_SampleResolution;
+            const Vector3f32 direction = (edgeEndCorner - edgeStartCorner).Normalized() * m_SampleResolution;
 
             // Resetting the crossing point of this edge to zero
             hasFoundCrossing = false;
@@ -266,9 +266,9 @@ private:
             //uint8_t edgeDirection = EDGE_DIRECTION[i];
 
             onyxF32 previousSample = volumeBase.GetValue(edgeStartCorner);
-            Vector3f currentSamplePosition = edgeStartCorner;
+            Vector3f32 currentSamplePosition = edgeStartCorner;
 
-            auto compare = [](const Vector3f& a, const Vector3f& b)
+            auto compare = [](const Vector3f32& a, const Vector3f32& b)
                 {
                     return a[0] < b[0] && a[1] < b[1] && a[2] < b[2];
                 };

@@ -15,16 +15,16 @@ namespace Onyx::NodeGraph
         String = TypeHash<String>(),
         Vector2s32 = TypeHash<Vector2s32>(),
         Vector2s64 = TypeHash<Vector2s64>(),
-        Vector2f = TypeHash<Vector2f>(),
-        Vector2d = TypeHash<Vector2d>(),
+        Vector2f = TypeHash<Vector2f32>(),
+        Vector2d = TypeHash<Vector2f64>(),
         Vector3s32 = TypeHash<Vector3s32>(),
         Vector3s64 = TypeHash<Vector3s64>(),
-        Vector3f = TypeHash<Vector3f>(),
-        Vector3d = TypeHash<Vector3d>(),
+        Vector3f32 = TypeHash<Vector3f32>(),
+        Vector3f64 = TypeHash<Vector3f64>(),
         Vector4s32 = TypeHash<Vector4s32>(),
         Vector4s64 = TypeHash<Vector4s64>(),
-        Vector4f = TypeHash<Vector4f>(),
-        Vector4d = TypeHash<Vector4d>(),
+        Vector4f = TypeHash<Vector4f32>(),
+        Vector4d = TypeHash<Vector4f64>(),
         Execute = TypeHash<ExecutePin>()
     };
 

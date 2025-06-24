@@ -121,7 +121,7 @@ namespace Onyx::Volume
 		 * If the last argument is not null, the analytic derivative
 		 * is also calculated.
 		 */
-		void sdnoise1(onyxF32 x, Vector3f& output)
+		void sdnoise1(onyxF32 x, Vector3f32& output)
 		{
 			int i0 = FASTFLOOR(x);
 			int i1 = i0 + 1;
@@ -185,7 +185,7 @@ namespace Onyx::Volume
 		  * If the last tthree arguments are not null, the analytic derivative
 		  * (the 3D gradient of the scalar noise field) is also calculated.
 		  */
-        void sdnoise3(const Vector3f& pos, Vector4f& output)
+        void sdnoise3(const Vector3f32& pos, Vector4f32& output)
 		{
 			onyxF32 n0, n1, n2, n3; /* Noise contributions from the four simplex corners */
 			onyxF32 gx0, gy0, gz0, gx1, gy1, gz1; /* Gradients at simplex corners */
@@ -337,7 +337,7 @@ namespace Onyx::Volume
 			outZ *= 72.0f;//
 			outW *= 72.0f;//
 
-			output = Vector4f(outX, outY, outZ, outW);
+			output = Vector4f32(outX, outY, outZ, outW);
 		}
 
 		// The skewing and unskewing factors are hairy again for the 4D case

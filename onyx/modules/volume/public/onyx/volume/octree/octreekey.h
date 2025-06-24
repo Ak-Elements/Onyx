@@ -189,9 +189,9 @@ public:
 
     KeyType operator[](size_t index) const { return m_Key[index]; }
 
-    Vector3f GetNodeRealPosition(const onyxF32 rootSize, KeyType depth) const
+    Vector3f32 GetNodeRealPosition(const onyxF32 rootSize, KeyType depth) const
     {
-        Vector3f position(0.0f, 0.0f, 0.0f);
+        Vector3f32 position(0.0f, 0.0f, 0.0f);
         while (depth < (MaxDepth - 1))
         {
             onyxU32 depthMask = 1 << depth;

@@ -7,7 +7,7 @@
 
 namespace Onyx::Graphics
 {
-    class FragmentShaderOutNode : public NodeGraph::FixedPinNode_1_In<ShaderGraphNode, Vector4f>
+    class FragmentShaderOutNode : public NodeGraph::FixedPinNode_1_In<ShaderGraphNode, Vector4f32>
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::FragmentShaderOut";
@@ -25,8 +25,8 @@ namespace Onyx::Graphics
     class PBRMaterialShaderOutNode : public NodeGraph::FixedPinNode<ShaderGraphNode, 4, 0>
     {
     private:
-        using AlbedoInPin = NodeGraph::Pin<Vector3f, "Albedo">;
-        using NormalInPin = NodeGraph::Pin<Vector3f, "Normal">;
+        using AlbedoInPin = NodeGraph::Pin<Vector3f32, "Albedo">;
+        using NormalInPin = NodeGraph::Pin<Vector3f32, "Normal">;
         using MetalnessInPin = NodeGraph::Pin<onyxF32, "Metalness">;
         using RoughnessInPin = NodeGraph::Pin<onyxF32, "Roughness">;
 

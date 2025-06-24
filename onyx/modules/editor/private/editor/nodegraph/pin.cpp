@@ -70,12 +70,12 @@ namespace Onyx::NodeGraph
         return Ui::PropertyGrid::DrawVector2Property(name, value);
     }
     
-    bool PinMetaObject<Vector2f>::DrawPinInPropertyGrid(StringView name, Vector2f& value)
+    bool PinMetaObject<Vector2f32>::DrawPinInPropertyGrid(StringView name, Vector2f32& value)
     {
         return Ui::PropertyGrid::DrawVector2Property(name, value);
     }
     
-    bool PinMetaObject<Vector2d>::DrawPinInPropertyGrid(StringView name, Vector2d& value)
+    bool PinMetaObject<Vector2f64>::DrawPinInPropertyGrid(StringView name, Vector2f64& value)
     {
         return Ui::PropertyGrid::DrawVector2Property(name, value);
     }
@@ -90,12 +90,12 @@ namespace Onyx::NodeGraph
         return Ui::PropertyGrid::DrawVector3Property(name, value);
     }
     
-    bool PinMetaObject<Vector3f>::DrawPinInPropertyGrid(StringView name, Vector3f& value)
+    bool PinMetaObject<Vector3f32>::DrawPinInPropertyGrid(StringView name, Vector3f32& value)
     {
         return Ui::PropertyGrid::DrawVector3Property(name, value);
     }
     
-    bool PinMetaObject<Vector3d>::DrawPinInPropertyGrid(StringView name, Vector3d& value)
+    bool PinMetaObject<Vector3f64>::DrawPinInPropertyGrid(StringView name, Vector3f64& value)
     {
         return Ui::PropertyGrid::DrawVector3Property(name, value);
     }
@@ -110,12 +110,12 @@ namespace Onyx::NodeGraph
         return Ui::PropertyGrid::DrawVector4Property(name, value);
     }
     
-    bool PinMetaObject<Vector4f>::DrawPinInPropertyGrid(StringView name, Vector4f& value)
+    bool PinMetaObject<Vector4f32>::DrawPinInPropertyGrid(StringView name, Vector4f32& value)
     {
         return Ui::PropertyGrid::DrawVector4Property(name, value);
     }
     
-    bool PinMetaObject<Vector4d>::DrawPinInPropertyGrid(StringView name, Vector4d& value)
+    bool PinMetaObject<Vector4f64>::DrawPinInPropertyGrid(StringView name, Vector4f64& value)
     {
         return Ui::PropertyGrid::DrawVector4Property(name, value);
     }
