@@ -48,7 +48,7 @@ namespace Onyx::GameCore
     class GameCoreSystem : public IEngineSystem
     {
     public:
-        void Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
+        void Init(Assets::AssetSystem& assetSystem);
 
         void Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine);
 

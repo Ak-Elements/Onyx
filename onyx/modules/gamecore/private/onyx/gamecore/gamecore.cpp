@@ -20,13 +20,6 @@
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
-namespace
-{
-    Onyx::Assets::AssetSystem* loc_AssetSystem = nullptr;
-    Onyx::Graphics::GraphicsApi* loc_GraphicsApi = nullptr;
-}
-
-
 namespace Onyx::GameCore
 {
     namespace GameCoreInit
@@ -54,7 +47,7 @@ namespace Onyx::GameCore
                 
             {
                 Reference<Graphics::SDFFont> fontAsset;
-                loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
+                //loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
                 textComponent.SetFont(fontAsset);
 
                 registry.AddComponent<TextComponent>(entity, std::move(textComponent));
@@ -72,7 +65,7 @@ namespace Onyx::GameCore
         }
     }
   
-    void GameCoreSystem::Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi)
+    void GameCoreSystem::Init(Assets::AssetSystem& assetSystem)
     {
         Graphics::RenderGraphNodeFactory::RegisterNode<DepthPrePassRenderGraphNode>("Scene/Depth Pre Pass");
         Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>("Graphics/Static Mesh Pass");
@@ -83,9 +76,6 @@ namespace Onyx::GameCore
         Entity::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };
         GameCoreInit::RegisterComponents(ecsBuilder);
         GameCoreInit::RegisterEntitySystems(ecsBuilder);
-
-        loc_AssetSystem = &assetSystem;
-        loc_GraphicsApi = &graphicsApi;
     }
 
     void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine)
@@ -111,16 +101,17 @@ namespace Onyx::GameCore
 
 Onyx::Graphics::GraphicsApi& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsApi&>::Get(const ECSExecutionContext& context)
 {
-    Graphics::GraphicsSystem& graphicsSystem = static_cast<Graphics::GraphicsSystem&>(context.Engine.GetSystem(static_cast<EngineSystemId>(TypeHash<Graphics::GraphicsSystem>())));
+    Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
     return graphicsSystem.GetGraphicsApi();
 }
 
-Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& /*context*/)
+Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& context)
 {
-    return *loc_AssetSystem;
+    return context.Engine.GetSystem<Assets::AssetSystem>();
 }
 
-Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext&>::Get(const ECSExecutionContext& /*context*/)
+Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext&>::Get(const ECSExecutionContext& context)
 {
-    return loc_GraphicsApi->GetFrameContext();
+    Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
+    return graphicsSystem.GetGraphicsApi().GetFrameContext();
 }
