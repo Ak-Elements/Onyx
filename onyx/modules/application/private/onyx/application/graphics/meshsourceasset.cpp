@@ -2,9 +2,6 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/stream/stringstream.h>
 
-#include <sstream>
-
-
 namespace Onyx::Application
 {
     MeshSourceAsset::MeshSourceAsset(const FileSystem::Filepath& path)
@@ -23,6 +20,7 @@ namespace Onyx::Application
         DynamicArray<Vector3f> tempNormals;
         DynamicArray<Vector2f> tempTexCoords;
 
+        //TODO fix mesh asset import
         while (stringStream.IsEof() == false)
         {
             stringStream.ReadLine(line);
@@ -31,21 +29,21 @@ namespace Onyx::Application
             {
                 line.remove_prefix(4);
                 Vector3f vertexNormal;
-                Vector3f::FromString(line, vertexNormal);
+                //Vector3f::FromString(line, vertexNormal);
                 tempNormals.push_back(vertexNormal);
             }
             else if (line.starts_with("vt"))
             {
                 line.remove_prefix(4);
                 Vector3f vertexTexCoord;
-                Vector3f::FromString(line, vertexTexCoord);
+                //Vector3f::FromString(line, vertexTexCoord);
                 tempTexCoords.push_back(Vector2f(vertexTexCoord));
             }
             if (line.starts_with("v"))
             {
                 line.remove_prefix(2);
                 Vector3f vertexPos;
-                Vector3f::FromString(line, vertexPos);
+                //Vector3f::FromString(line, vertexPos);
                 tempVertices.push_back(vertexPos);
             }
             else if (line.starts_with("f"))

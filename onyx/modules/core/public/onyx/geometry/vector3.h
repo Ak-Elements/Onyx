@@ -100,8 +100,8 @@ namespace Onyx
         }
 
         constexpr Vector3(const Vector2<ScalarT>& vec2, ScalarT z)
-            : X(vec2[0])
-            , Y(vec2[1])
+            : X(vec2.X)
+            , Y(vec2.Y)
             , Z(z)
         {
         }
@@ -205,16 +205,16 @@ namespace Onyx
 
             // q = P x
             Vector3 q;
-            q[0] = a * X + Y * b01 + Z * b02;
-            q[1] = a * Y - X * b01 + Z * b12;
-            q[2] = a * Z - X * b02 - Y * b12;
+            q.X = a * X + Y * b01 + Z * b02;
+            q.Y = a * Y - X * b01 + Z * b12;
+            q.Z = a * Z - X * b02 - Y * b12;
 
             ScalarT q012 = X * b12 - Y * b02 + Z * b01; // trivector
 
             // r = q P*
-            X = a * q[0] + q[1] * b01 + q[2] * b02 + q012 * b12;
-            Y = a * q[1] - q[0] * b01 - q012 * b02 + q[2] * b12;
-            Z = a * q[2] + q012 * b01 - q[0] * b02 - q[1] * b12;
+            X = a * q.X + q.Y * b01 + q.Z * b02 + q012 * b12;
+            Y = a * q.Y - q.X * b01 - q012 * b02 + q.Z * b12;
+            Z = a * q.Z + q012 * b01 - q.X * b02 - q.Y * b12;
 
             // trivector part of the result is always zero!
         }
@@ -458,18 +458,6 @@ namespace Onyx
                 Onyx::IsZero(Y, epsilon) &&
                 Onyx::IsZero(Z, epsilon);
         }
-
-        static bool FromString(StringView str, Vector3& outVector)
-        {
-            constexpr StringView delimiter = " ";
-            onyxS32 i = -1;
-            for (const auto& split : std::views::split(str, delimiter))
-            {
-                std::from_chars(split.data(), split.data() + split.size(), outVector[++i]);
-            }
-
-            return (i == 3);
-        }
     };
 
     template <typename Scalar>
@@ -477,9 +465,9 @@ namespace Onyx
     {
         return Bivector3<Scalar>
         {
-                lhs[0] * rhs.Y - lhs[1] * rhs.X, // XY
-                lhs[0] * rhs.Z - lhs[2] * rhs.X, // XZ
-                lhs[1] * rhs.Z - lhs[2] * rhs.Y  // YZ
+                lhs.X * rhs.Y - lhs.Y * rhs.X, // XY
+                lhs.X * rhs.Z - lhs.Z * rhs.X, // XZ
+                lhs.Y * rhs.Z - lhs.Z * rhs.Y  // YZ
         };
     }
 
@@ -544,13 +532,14 @@ namespace Onyx
     template <typename Scalar>
     constexpr Vector3<Scalar> Abs(Vector3<Scalar> vec3)
     {
-        return { std::abs(vec3[0]), std::abs(vec3[1]), std::abs(vec3[2]) };
+        return { std::abs(vec3.X), std::abs(vec3.Y), std::abs(vec3.Z) };
     }
 
     // Vector2 constructor from Vector3
     template <typename Scalar>
     constexpr Vector2<Scalar>::Vector2(const Vector3<Scalar>& vec3)
-        : m_Components{ vec3[0], vec3[1] }
+        : X(vec3.X)
+        , Y(vec3.Y)
     {
     }
 }

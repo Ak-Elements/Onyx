@@ -19,27 +19,48 @@ namespace Onyx
         constexpr Vector4() = default;
 
         explicit constexpr Vector4(Scalar scalar)
-            : m_Components { scalar, scalar, scalar, scalar }
+            : X(scalar)
+            , Y(scalar)
+            , Z(scalar)
+            , W(scalar)
         {
         }
 
         constexpr Vector4(Scalar x, Scalar y, Scalar z, Scalar w)
-            : m_Components { x, y, z, w }
+            : X(x)
+            , Y(y)
+            , Z(z)
+            , W(w)
         {
         }
 
         explicit constexpr Vector4(const Vector2<Scalar>& vec2, Scalar z = 0.0f, Scalar w = 0.0f)
-            : m_Components{ vec2[0], vec2[1], z, w }
+            : X(vec2.X)
+            , Y(vec2.Y)
+            , Z(z)
+            , W(w)
         {
         }
 
         explicit constexpr Vector4(const Vector3<Scalar>& vec3, Scalar w = 0.0f)
-            : m_Components { vec3[0], vec3[1], vec3[2], w }
+            : X(vec3.X)
+            , Y(vec3.Y)
+            , Z(vec3.Z)
+            , W(w)
         {
         }
 
-        constexpr Scalar& operator[] (onyxU32 index) { ONYX_ASSERT(index < 4, "Axis index out of bounds."); return m_Components[index]; }
-        constexpr const Scalar& operator[] (onyxU32 index) const { ONYX_ASSERT(index < 4, "Axis index out of bounds."); return m_Components[index]; }
+        constexpr Scalar& operator[] (onyxU32 index)
+        {
+            ONYX_ASSERT(index < 4, "Axis index out of bounds.");
+            return *(&X + index);
+        }
+
+        constexpr const Scalar& operator[] (onyxU32 index) const
+        {
+            ONYX_ASSERT(index < 4, "Axis index out of bounds.");
+            return *(&X + index);
+        }
 
         constexpr Scalar Length() const
         {
@@ -49,7 +70,7 @@ namespace Onyx
 
         constexpr Scalar LengthSquared() const
         {
-            return (m_Components[0] * m_Components[0]) + (m_Components[1] * m_Components[1]) + (m_Components[2] * m_Components[2]) + (m_Components[3] * m_Components[3]);
+            return (X * X) + (Y * Y) + (Z * Z) + (W * W);
         }
 
         constexpr void Normalize()
@@ -60,10 +81,10 @@ namespace Onyx
             if (length > std::numeric_limits<Scalar>::epsilon())
             {
                 const onyxF32 invLength = (1 / length);
-                m_Components[0] *= invLength;
-                m_Components[1] *= invLength;
-                m_Components[2] *= invLength;
-                m_Components[3] *= invLength;
+                X *= invLength;
+                Y *= invLength;
+                Z *= invLength;
+                W *= invLength;
             }
         }
 
@@ -75,7 +96,7 @@ namespace Onyx
             if (length > std::numeric_limits<Scalar>::epsilon())
             {
                 const onyxF32 invLength = (1 / length);
-                return Vector4(m_Components[0] * invLength, m_Components[1] * invLength, m_Components[2] * invLength, m_Components[3] * invLength);
+                return Vector4(X * invLength, Y * invLength, Z * invLength, W * invLength);
             }
 
             return Vector4();
@@ -83,113 +104,113 @@ namespace Onyx
 
         constexpr Scalar Dot3D(const Vector4& rhs) const
         {
-            return m_Components[0] * rhs.m_Components[0] + m_Components[1] * rhs.m_Components[1] + m_Components[2] * rhs.m_Components[2];
+            return X * rhs.X + Y * rhs.Y + Z * rhs.Z;
         }
 
         constexpr void operator+=(const Scalar scalar)
         {
-            m_Components[0] += scalar;
-            m_Components[1] += scalar;
-            m_Components[2] += scalar;
-            m_Components[3] += scalar;
+            X += scalar;
+            Y += scalar;
+            Z += scalar;
+            W += scalar;
         }
 
         constexpr void operator+=(const Vector4& rhs)
         {
-            m_Components[0] += rhs.m_Components[0];
-            m_Components[1] += rhs.m_Components[1];
-            m_Components[2] += rhs.m_Components[2];
-            m_Components[3] += rhs.m_Components[3];
+            X += rhs.X;
+            Y += rhs.Y;
+            Z += rhs.Z;
+            W += rhs.W;
         }
 
         constexpr void operator-=(const Scalar scalar)
         {
-            m_Components[0] -= scalar;
-            m_Components[1] -= scalar;
-            m_Components[2] -= scalar;
-            m_Components[3] -= scalar;
+            X -= scalar;
+            Y -= scalar;
+            Z -= scalar;
+            W -= scalar;
         }
 
         constexpr void operator-=(const Vector4& rhs)
         {
-            m_Components[0] -= rhs.m_Components[0];
-            m_Components[1] -= rhs.m_Components[1];
-            m_Components[2] -= rhs.m_Components[2];
-            m_Components[3] -= rhs.m_Components[3];
+            X -= rhs.X;
+            Y -= rhs.Y;
+            Z -= rhs.Z;
+            W -= rhs.W;
         }
 
         constexpr void operator*=(const Scalar scalar)
         {
-            m_Components[0] *= scalar;
-            m_Components[1] *= scalar;
-            m_Components[2] *= scalar;
-            m_Components[3] *= scalar;
+            X *= scalar;
+            Y *= scalar;
+            Z *= scalar;
+            W *= scalar;
         }
 
         constexpr void operator*=(const Vector4& rhs)
         {
-            m_Components[0] *= rhs.m_Components[0];
-            m_Components[1] *= rhs.m_Components[1];
-            m_Components[2] *= rhs.m_Components[2];
-            m_Components[3] *= rhs.m_Components[3];
+            X *= rhs.X;
+            Y *= rhs.Y;
+            Z *= rhs.Z;
+            W *= rhs.W;
         }
 
         constexpr void operator/=(const Scalar scalar)
         {
             const Scalar invScalar = 1 / scalar;
-            m_Components[0] *= invScalar;
-            m_Components[1] *= invScalar;
-            m_Components[2] *= invScalar;
-            m_Components[3] *= invScalar;
+            X *= invScalar;
+            Y *= invScalar;
+            Z *= invScalar;
+            W *= invScalar;
         }
 
         constexpr void operator/=(const Vector4& rhs)
         {
-            m_Components[0] /= rhs.m_Components[0];
-            m_Components[1] /= rhs.m_Components[1];
-            m_Components[2] /= rhs.m_Components[2];
-            m_Components[3] /= rhs.m_Components[3];
+            X /= rhs.X;
+            Y /= rhs.Y;
+            Z /= rhs.Z;
+            W /= rhs.W;
         }
 
         constexpr Vector4 operator+(Scalar scalar) const
         {
-            return Vector4(m_Components[0] + scalar, m_Components[1] + scalar, m_Components[2] + scalar, m_Components[3] + scalar);
+            return Vector4(X + scalar, Y + scalar, Z + scalar, W + scalar);
         }
 
         constexpr Vector4 operator+(const Vector4& rhs) const
         {
-            return Vector4(m_Components[0] + rhs.m_Components[0], m_Components[1] + rhs.m_Components[1], m_Components[2] + rhs.m_Components[2], m_Components[3] + rhs.m_Components[3]);
+            return Vector4(X + rhs.X, Y + rhs.Y, Z + rhs.Z, W + rhs.W);
         }
 
         constexpr Vector4 operator-(Scalar scalar) const
         {
-            return Vector4(m_Components[0] - scalar, m_Components[1] - scalar, m_Components[2] - scalar, m_Components[3] - scalar);
+            return Vector4(X - scalar, Y - scalar, Z - scalar, W - scalar);
         }
 
         Vector4 operator-(const Vector4& rhs) const
         {
-            return Vector4(m_Components[0] - rhs.m_Components[0], m_Components[1] - rhs.m_Components[1], m_Components[2] - rhs.m_Components[2], m_Components[3] - rhs.m_Components[3]);
+            return Vector4(X - rhs.X, Y - rhs.Y, Z - rhs.Z, W - rhs.W);
         }
 
         Vector4 operator*(Scalar scalar) const
         {
-            return Vector4(m_Components[0] * scalar, m_Components[1] * scalar, m_Components[2] * scalar, m_Components[3] * scalar);
+            return Vector4(X * scalar, Y * scalar, Z * scalar, W * scalar);
         }
 
         Vector4 operator*(const Vector4& rhs) const
         {
-            return Vector4(m_Components[0] * rhs.m_Components[0], m_Components[1] * rhs.m_Components[1], m_Components[2] * rhs.m_Components[2], m_Components[3] * rhs.m_Components[3]);
+            return Vector4(X * rhs.X, Y * rhs.Y, Z * rhs.Z, W * rhs.W);
         }
 
         Vector4 operator/(Scalar scalar) const
         {
             const Scalar invScalar = 1 / scalar;
-            return Vector4(m_Components[0] * invScalar, m_Components[1] * invScalar, m_Components[2] * invScalar, m_Components[3] * invScalar);
+            return Vector4(X * invScalar, Y * invScalar, Z * invScalar, W * invScalar);
         }
 
         constexpr Vector4 operator/(const Vector4& rhs) const
         {
-            return Vector4(m_Components[0] / rhs.m_Components[0], m_Components[1] / rhs.m_Components[1], m_Components[2] / rhs.m_Components[2], m_Components[3] / rhs.m_Components[3]);
+            return Vector4(X / rhs.X, Y / rhs.Y, Z / rhs.Z, W / rhs.W);
         }
 
         constexpr bool operator==(const Vector4& rhs) const { return IsApprox(rhs); }
@@ -199,87 +220,76 @@ namespace Onyx
         {
             using std::abs;
             constexpr Scalar epsilon = std::numeric_limits<Scalar>::epsilon();
-            return (abs(m_Components[0] - rhs.m_Components[0]) <= epsilon) &&
-                (abs(m_Components[1] - rhs.m_Components[1]) <= epsilon) &&
-                (abs(m_Components[2] - rhs.m_Components[2]) <= epsilon) &&
-                (abs(m_Components[3] - rhs.m_Components[3]) <= epsilon);
+            return (abs(X - rhs.X) <= epsilon) &&
+                (abs(Y - rhs.Y) <= epsilon) &&
+                (abs(Z - rhs.Z) <= epsilon) &&
+                (abs(W - rhs.W) <= epsilon);
         }
 
         constexpr bool IsApprox(const Vector4& rhs, Scalar epsilon) const
         {
             using std::abs;
-            return (abs(m_Components[0] - rhs.m_Components[0]) <= epsilon) &&
-                (abs(m_Components[1] - rhs.m_Components[1]) <= epsilon) &&
-                (abs(m_Components[2] - rhs.m_Components[2]) <= epsilon) &&
-                (abs(m_Components[3] - rhs.m_Components[3]) <= epsilon);
+            return (abs(X - rhs.X) <= epsilon) &&
+                (abs(Y - rhs.Y) <= epsilon) &&
+                (abs(Z - rhs.Z) <= epsilon) &&
+                (abs(W - rhs.W) <= epsilon);
         }
 
         constexpr bool IsZero() const
         {
             using std::abs;
             constexpr Scalar epsilon = std::numeric_limits<Scalar>::epsilon();
-            return (abs(m_Components[0]) <= epsilon) &&
-                (abs(m_Components[1]) <= epsilon) &&
-                (abs(m_Components[2]) <= epsilon) &&
-                (abs(m_Components[3]) <= epsilon);
+            return (abs(X) <= epsilon) &&
+                (abs(Y) <= epsilon) &&
+                (abs(Z) <= epsilon) &&
+                (abs(W) <= epsilon);
         }
 
         constexpr bool IsZero(Scalar epsilon) const
         {
             using std::abs;
-            return (abs(m_Components[0]) <= epsilon) &&
-                (abs(m_Components[1]) <= epsilon) &&
-                (abs(m_Components[2]) <= epsilon) &&
-                (abs(m_Components[3]) <= epsilon);
+            return (abs(X) <= epsilon) &&
+                (abs(Y) <= epsilon) &&
+                (abs(Z) <= epsilon) &&
+                (abs(W) <= epsilon);
         }
 
-        static Vector4 FromString(StringView str)
-        {
-            Vector4 result;
-            constexpr StringView delimiter = " ";
-            onyxS32 i = -1;
-            for (const auto& split : std::views::split(str, delimiter))
-            {
-                std::from_chars(split.data(), split.data() + split.size(), result.m_Components[++i]);
-            }
+        ScalarT X;
+        ScalarT Y;
+        ScalarT Z;
+        ScalarT W;
 
-            ONYX_ASSERT(i == 3);
-            return result;
-        }
-
-    private:
-        Scalar m_Components[4];
     };
 
     template <typename Scalar>
     Vector4<Scalar> operator+(Scalar lhs, const Vector4<Scalar>& rhs)
     {
-        return Vector4<Scalar>(lhs + rhs[0], lhs + rhs[1], lhs + rhs[2], lhs + rhs[3]);
+        return Vector4<Scalar>(lhs + rhs.X, lhs + rhs.Y, lhs + rhs.Z, lhs + rhs.W);
     }
 
     template <typename Scalar>
     Vector4<Scalar> operator-(Scalar lhs, const Vector4<Scalar>& rhs)
     {
-        return Vector4<Scalar>(lhs - rhs[0], lhs - rhs[1], lhs - rhs[2], lhs - rhs[3]);
+        return Vector4<Scalar>(lhs - rhs.X, lhs - rhs.Y, lhs - rhs.Z, lhs - rhs.W);
     }
 
     template <typename Scalar>
     Vector4<Scalar> operator*(Scalar lhs, const Vector4<Scalar>& rhs)
     {
-        return Vector4<Scalar>(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2], lhs * rhs[3]);
+        return Vector4<Scalar>(lhs * rhs.X, lhs * rhs.Y, lhs * rhs.Z, lhs * rhs.W);
     }
 
     template <typename Scalar>
     Vector4<Scalar> operator/(Scalar lhs, const Vector4<Scalar>& rhs)
     {
-        return Vector4<Scalar>(lhs / rhs[0], lhs / rhs[1], lhs / rhs[2], lhs / rhs[3]);
+        return Vector4<Scalar>(lhs / rhs.X, lhs / rhs.Y, lhs / rhs.Z, lhs / rhs.W);
     }
 
     template <typename Scalar>
     constexpr Vector3<Scalar>::Vector3(const Vector4<Scalar>& vec4)
-        : X(vec4[0])
-        , Y(vec4[1])
-        , Z(vec4[2])
+        : X(vec4.X)
+        , Y(vec4.Y)
+        , Z(vec4.Z)
     {
     }
 }

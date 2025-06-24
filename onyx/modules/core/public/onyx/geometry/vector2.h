@@ -35,37 +35,41 @@ namespace Onyx
         static constexpr Vector2 Y_Unit() { return Vector2(0, 1); }
 
         constexpr Vector2()
-            : m_Components{ ScalarT{}, ScalarT{} }
+            : X(ScalarT{})
+            , Y(ScalarT{})
         {
         }
 
         constexpr explicit Vector2(ScalarT scalar)
-            : m_Components { scalar, scalar }
+            : X(scalar)
+            , Y(scalar)
         {
         }
 
         constexpr Vector2(ScalarT x, ScalarT y)
-            : m_Components { x, y }
+            : X(x)
+            , Y(y)
         {
         }
 
         template <typename OtherScalarT>
         constexpr explicit Vector2(const Vector2<OtherScalarT>& vec2)
-            : m_Components{ numeric_cast<ScalarT>(vec2[0]), numeric_cast<ScalarT>(vec2[1]) }
+            : X(numeric_cast<ScalarT>(vec2.X))
+            , Y(numeric_cast<ScalarT>(vec2.Y))
         {
             
         }
         constexpr explicit Vector2(const Vector3<ScalarT>& vec3);
 
-        constexpr ScalarT& operator[] (onyxU32 index) { ONYX_ASSERT(index < 2, "Axis index out of bounds."); return m_Components[index]; }
-        constexpr ScalarT operator[] (onyxU32 index) const { ONYX_ASSERT(index < 2, "Axis index out of bounds."); return m_Components[index]; }
+        constexpr ScalarT& operator[] (onyxU32 index) { ONYX_ASSERT(index < 2, "Axis index out of bounds."); return *(&X + index); }
+        constexpr ScalarT operator[] (onyxU32 index) const { ONYX_ASSERT(index < 2, "Axis index out of bounds."); return *(&X + index); }
 
-        constexpr Vector2 operator-() const requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>) { return Vector2(-m_Components[0], -m_Components[1]); }
+        constexpr Vector2 operator-() const requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>) { return Vector2(-X, -Y); }
 
         constexpr void Inverse() requires (std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
         {
-            m_Components[0] = -m_Components[0];
-            m_Components[1] = -m_Components[1];
+            X = -X;
+            Y = -Y;
         }
 
         constexpr FloatingPointScalarT Length() const
@@ -81,8 +85,8 @@ namespace Onyx
 
         constexpr void Set(ScalarT x, ScalarT y)
         {
-            m_Components[0] = x;
-            m_Components[1] = y;
+            X = x;
+            Y = y;
         }
 
         constexpr void Normalize() requires std::is_floating_point_v<ScalarT>
@@ -92,8 +96,8 @@ namespace Onyx
             ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
 
             const FloatingPointScalarT invLength = (1 / length);
-            m_Components[0] *= invLength;
-            m_Components[1] *= invLength;
+            X *= invLength;
+            Y *= invLength;
         }
 
         constexpr Vector2<FloatingPointScalarT> Normalized() const
@@ -103,13 +107,13 @@ namespace Onyx
             ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
             
             const FloatingPointScalarT invLength = (1 / length);
-            return Vector2<FloatingPointScalarT>(m_Components[0] * invLength, m_Components[1] * invLength);
+            return Vector2<FloatingPointScalarT>(X * invLength, Y * invLength);
         }
 
         constexpr DotT Dot(const Vector2& rhs) const
         {
-            return numeric_cast<DotT>(m_Components[0]) * numeric_cast<DotT>(rhs[0]) +
-                numeric_cast<DotT>(m_Components[1]) * numeric_cast<DotT>(rhs[1]);
+            return numeric_cast<DotT>(X) * numeric_cast<DotT>(rhs.X) +
+                numeric_cast<DotT>(Y) * numeric_cast<DotT>(rhs.Y);
         }
 
         constexpr auto Cross(const Vector2& rhs) const
@@ -122,8 +126,8 @@ namespace Onyx
                 }())::type;
 
             // use static cast as we can guarantee that the component will fit
-            return (static_cast<OutT>(m_Components[0]) * static_cast<OutT>(rhs[1])) -
-                (static_cast<OutT>(m_Components[1]) * static_cast<OutT>(rhs[0]));
+            return (static_cast<OutT>(X) * static_cast<OutT>(rhs.Y)) -
+                (static_cast<OutT>(Y) * static_cast<OutT>(rhs.X));
         }
 
         constexpr DotT operator|(const Vector2& rhs) const
@@ -133,140 +137,140 @@ namespace Onyx
 
         constexpr void operator+=(const ScalarT scalar)
         {
-            ONYX_ASSERT(IsAdditionSafe(m_Components[0], scalar));
-            ONYX_ASSERT(IsAdditionSafe(m_Components[1], scalar));
+            ONYX_ASSERT(IsAdditionSafe(X, scalar));
+            ONYX_ASSERT(IsAdditionSafe(Y, scalar));
 
-            m_Components[0] += scalar;
-            m_Components[1] += scalar;
+            X += scalar;
+            Y += scalar;
         }
 
         constexpr void operator+=(const Vector2& rhs)
         {
-            ONYX_ASSERT(IsAdditionSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsAdditionSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsAdditionSafe(X, rhs.X));
+            ONYX_ASSERT(IsAdditionSafe(Y, rhs.Y));
 
-            m_Components[0] += rhs[0];
-            m_Components[1] += rhs[1];
+            X += rhs.X;
+            Y += rhs.Y;
         }
 
         constexpr void operator-=(const ScalarT scalar)
         {
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[0], scalar));
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[1], scalar));
+            ONYX_ASSERT(IsSubtractionSafe(X, scalar));
+            ONYX_ASSERT(IsSubtractionSafe(Y, scalar));
 
-            m_Components[0] -= scalar;
-            m_Components[1] -= scalar;
+            X -= scalar;
+            Y -= scalar;
         }
 
         constexpr void operator-=(const Vector2& rhs)
         {
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsSubtractionSafe(X, rhs.X));
+            ONYX_ASSERT(IsSubtractionSafe(Y, rhs.Y));
 
-            m_Components[0] -= rhs[0];
-            m_Components[1] -= rhs[1];
+            X -= rhs.X;
+            Y -= rhs.Y;
         }
 
         constexpr void operator*=(const ScalarT scalar)
         {
-            //ONYX_ASSERT(IsMultiplicationSafe(m_Components[0], scalar));
-            //ONYX_ASSERT(IsMultiplicationSafe(m_Components[1], scalar));
+            //ONYX_ASSERT(IsMultiplicationSafe(X, scalar));
+            //ONYX_ASSERT(IsMultiplicationSafe(Y, scalar));
 
-            m_Components[0] *= scalar;
-            m_Components[1] *= scalar;
+            X *= scalar;
+            Y *= scalar;
         }
 
         constexpr void operator*=(const Vector2& rhs)
         {
-            ONYX_ASSERT(IsMultiplicationSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsMultiplicationSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsMultiplicationSafe(X, rhs.X));
+            ONYX_ASSERT(IsMultiplicationSafe(Y, rhs.Y));
 
-            m_Components[0] *= rhs[0];
-            m_Components[1] *= rhs[1];
+            X *= rhs.X;
+            Y *= rhs.Y;
         }
 
         constexpr void operator/=(const ScalarT scalar)
         {
             const FloatingPointScalarT invScalar = 1 / numeric_cast<FloatingPointScalarT>(scalar);
 
-            ONYX_ASSERT(IsMultiplicationSafe(m_Components[0], invScalar));
-            ONYX_ASSERT(IsMultiplicationSafe(m_Components[1], invScalar));
+            ONYX_ASSERT(IsMultiplicationSafe(X, invScalar));
+            ONYX_ASSERT(IsMultiplicationSafe(Y, invScalar));
 
-            m_Components[0] = numeric_cast<ScalarT>(m_Components[0] * invScalar);
-            m_Components[1] = numeric_cast<ScalarT>(m_Components[1] * invScalar);
+            X = numeric_cast<ScalarT>(X * invScalar);
+            Y = numeric_cast<ScalarT>(Y * invScalar);
         }
 
         constexpr void operator/=(const Vector2& rhs)
         {
-            ONYX_ASSERT(IsDivisionSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsDivisionSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsDivisionSafe(X, rhs.X));
+            ONYX_ASSERT(IsDivisionSafe(Y, rhs.Y));
 
-            m_Components[0] /= rhs[0];
-            m_Components[1] /= rhs[1];
+            X /= rhs.X;
+            Y /= rhs.Y;
         }
 
         constexpr Vector2 operator+(ScalarT scalar) const
         {
-            ONYX_ASSERT(IsAdditionSafe(m_Components[0], scalar));
-            ONYX_ASSERT(IsAdditionSafe(m_Components[1], scalar));
+            ONYX_ASSERT(IsAdditionSafe(X, scalar));
+            ONYX_ASSERT(IsAdditionSafe(Y, scalar));
 
-            return Vector2(m_Components[0] + scalar, m_Components[1] + scalar);
+            return Vector2(X + scalar, Y + scalar);
         }
 
         constexpr Vector2 operator+(const Vector2& rhs) const
         {
-            ONYX_ASSERT(IsAdditionSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsAdditionSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsAdditionSafe(X, rhs.X));
+            ONYX_ASSERT(IsAdditionSafe(Y, rhs.Y));
 
-            return Vector2(m_Components[0] + rhs[0], m_Components[1] + rhs[1]);
+            return Vector2(X + rhs.X, Y + rhs.Y);
         }
 
         constexpr Vector2 operator-(ScalarT scalar) const
         {
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[0], scalar));
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[1], scalar));
+            ONYX_ASSERT(IsSubtractionSafe(X, scalar));
+            ONYX_ASSERT(IsSubtractionSafe(Y, scalar));
 
-            return Vector2(m_Components[0] - scalar, m_Components[1] - scalar);
+            return Vector2(X - scalar, Y - scalar);
         }
 
         constexpr Vector2 operator-(const Vector2& rhs) const
         {
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsSubtractionSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsSubtractionSafe(X, rhs.X));
+            ONYX_ASSERT(IsSubtractionSafe(Y, rhs.Y));
 
-            return Vector2(m_Components[0] - rhs[0], m_Components[1] - rhs[1]);
+            return Vector2(X - rhs.X, Y - rhs.Y);
         }
 
         constexpr Vector2 operator*(ScalarT scalar) const
         {
-            //ONYX_ASSERT(IsMultiplicationSafe(m_Components[0], scalar));
-            //ONYX_ASSERT(IsMultiplicationSafe(m_Components[1], scalar));
+            //ONYX_ASSERT(IsMultiplicationSafe(X, scalar));
+            //ONYX_ASSERT(IsMultiplicationSafe(Y, scalar));
 
-            return Vector2(m_Components[0] * scalar, m_Components[1] * scalar);
+            return Vector2(X * scalar, Y * scalar);
         }
 
         constexpr Vector2 operator*(const Vector2& rhs) const
         {
-            ONYX_ASSERT(IsMultiplicationSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsMultiplicationSafe(m_Components[1], rhs[1]));
+            ONYX_ASSERT(IsMultiplicationSafe(X, rhs.X));
+            ONYX_ASSERT(IsMultiplicationSafe(Y, rhs.Y));
 
-            return Vector2(m_Components[0] * rhs[0], m_Components[1] * rhs[1]);
+            return Vector2(X * rhs.X, Y * rhs.Y);
         }
 
         constexpr Vector2 operator/(ScalarT scalar) const
         {
-            ONYX_ASSERT(IsDivisionSafe(m_Components[0], scalar));
-            ONYX_ASSERT(IsDivisionSafe(m_Components[1], scalar));
+            ONYX_ASSERT(IsDivisionSafe(X, scalar));
+            ONYX_ASSERT(IsDivisionSafe(Y, scalar));
 
-            return Vector2(m_Components[0] / scalar, m_Components[1] / scalar);
+            return Vector2(X / scalar, Y / scalar);
         }
 
         constexpr Vector2 operator/(const Vector2& rhs) const
         {
-            ONYX_ASSERT(IsDivisionSafe(m_Components[0], rhs[0]));
-            ONYX_ASSERT(IsDivisionSafe(m_Components[0], rhs[1]));
+            ONYX_ASSERT(IsDivisionSafe(X, rhs.X));
+            ONYX_ASSERT(IsDivisionSafe(X, rhs.Y));
 
-            return Vector2(m_Components[0] / rhs[0], m_Components[1] / rhs[1]);
+            return Vector2(X / rhs.X, Y / rhs.Y);
         }
 
         constexpr void Rotate(ScalarT radians) requires std::is_floating_point_v<ScalarT>
@@ -274,10 +278,10 @@ namespace Onyx
             Scalar cosAlpha = std::cos(radians);
             Scalar sinAlpha = std::sin(radians);
 
-            Scalar rotatedX = cosAlpha * m_Components[0] - sinAlpha * m_Components[1];
-            Scalar rotatedY = sinAlpha * m_Components[0] + cosAlpha * m_Components[1];
-            m_Components[0] = rotatedX;
-            m_Components[1] = rotatedY;
+            Scalar rotatedX = cosAlpha * X - sinAlpha * Y;
+            Scalar rotatedY = sinAlpha * X + cosAlpha * Y;
+            X = rotatedX;
+            Y = rotatedY;
         }
 
         constexpr auto Rotated(onyxF64 radians) const requires(std::is_floating_point_v<ScalarT> || std::is_signed_v<ScalarT>)
@@ -288,8 +292,8 @@ namespace Onyx
 
             return Vector2<FloatingPointScalarT>
             {
-                numeric_cast<FloatingPointScalarT>(cosAlpha * m_Components[0] - sinAlpha * m_Components[1]),
-                numeric_cast<FloatingPointScalarT>(sinAlpha * m_Components[0] + cosAlpha * m_Components[1])
+                numeric_cast<FloatingPointScalarT>(cosAlpha * X - sinAlpha * Y),
+                numeric_cast<FloatingPointScalarT>(sinAlpha * X + cosAlpha * Y)
             };
         }
 
@@ -299,12 +303,12 @@ namespace Onyx
             const Vector2<FloatingPointScalarT>& toNormalized = to.Normalized();
 
             FloatingPointScalarT cosAlpha = numeric_cast<FloatingPointScalarT>(toNormalized.Dot(fromNormalized));
-            FloatingPointScalarT sinAlpha = fromNormalized[0] * toNormalized[1] - fromNormalized[1] * toNormalized[0];
+            FloatingPointScalarT sinAlpha = fromNormalized.X * toNormalized.Y - fromNormalized.Y * toNormalized.X;
 
             return Vector2<FloatingPointScalarT>
             {
-                numeric_cast<FloatingPointScalarT>(cosAlpha* m_Components[0] - sinAlpha * m_Components[1]),
-                numeric_cast<FloatingPointScalarT>(sinAlpha* m_Components[0] + cosAlpha * m_Components[1])
+                numeric_cast<FloatingPointScalarT>(cosAlpha* X - sinAlpha * Y),
+                numeric_cast<FloatingPointScalarT>(sinAlpha* X + cosAlpha * Y)
             };
         }
 
@@ -314,120 +318,101 @@ namespace Onyx
         template <typename T>
         constexpr VectorCompareMask operator<(const Vector2<T>& rhs) const
         {
-            return ((m_Components[0] < rhs[0]) ? VectorCompareMask::X : VectorCompareMask::None) |
-                    ((m_Components[1] < rhs[1]) ? VectorCompareMask::Y : VectorCompareMask::None);
+            return ((X < rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
+                    ((Y < rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None);
         }
 
         template <typename T>
         constexpr VectorCompareMask operator<=(const Vector2<T>& rhs) const
         {
-            return ((m_Components[0] <= rhs[0]) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((m_Components[1] <= rhs[1]) ? VectorCompareMask::Y : VectorCompareMask::None);
+            return ((X <= rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
+                ((Y <= rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None);
         }
 
 
         template <typename T>
         constexpr VectorCompareMask operator>(const Vector2<T>& rhs) const
         {
-            return((m_Components[0] > rhs[0]) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((m_Components[1] > rhs[1]) ? VectorCompareMask::Y : VectorCompareMask::None);
+            return((X > rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
+                ((Y > rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None);
         }
 
         template <typename T>
         constexpr VectorCompareMask operator>=(const Vector2<T>& rhs) const
         {
-            return((m_Components[0] >= rhs[0]) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((m_Components[1] >= rhs[1]) ? VectorCompareMask::Y : VectorCompareMask::None);
+            return((X >= rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
+                ((Y >= rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None);
         }
 
         constexpr bool IsEqual(const Vector2& rhs) const
         {
-            return (Onyx::IsEqual(m_Components[0], rhs[0])) &&
-                (Onyx::IsEqual(m_Components[1], rhs[1]));
+            return (Onyx::IsEqual(X, rhs.X)) &&
+                (Onyx::IsEqual(Y, rhs.Y));
         }
 
         constexpr bool IsEqual(const Vector2& rhs, Scalar epsilon) const requires std::is_floating_point_v<Scalar>
         {
-            return (Onyx::IsEqual(m_Components[0], rhs[0], epsilon)) &&
-                (Onyx::IsEqual(m_Components[1], rhs[1], epsilon));
+            return (Onyx::IsEqual(X, rhs.X, epsilon)) &&
+                (Onyx::IsEqual(Y, rhs.Y, epsilon));
         }
 
         constexpr bool IsZero() const
         {
-            return Onyx::IsZero(m_Components[0]) && Onyx::IsZero(m_Components[1]);
+            return Onyx::IsZero(X) && Onyx::IsZero(Y);
         }
 
         constexpr bool IsZero(ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
-            return Onyx::IsZero(m_Components[0], epsilon) && Onyx::IsZero(m_Components[1], epsilon);
+            return Onyx::IsZero(X, epsilon) && Onyx::IsZero(Y, epsilon);
         }
 
         constexpr Vector2 GetPerpendicularClockwise() const
         {
-            return Vector2(m_Components[1], -m_Components[0]);
+            return Vector2(Y, -X);
         }
 
         constexpr Vector2 GetPerpendicularCounterClockwise() const
         {
-            return Vector2(-m_Components[1], m_Components[0]);
+            return Vector2(-Y, X);
         }
 
-	    template <typename OtherVectorT>
-        constexpr void CopyTo(OtherVectorT& otherVec) const
-        {
-            otherVec[0] = m_Components[0];
-            otherVec[1] = m_Components[1];
-        }
-
-        static bool FromString(StringView str, Vector2& outVector)
-        {
-            constexpr StringView delimiter = " ";
-            onyxS32 i = -1;
-            for (const auto& split : std::views::split(str, delimiter))
-            {
-                std::from_chars(split.data(), split.data() + split.size(), outVector.m_Components[++i]);
-            }
-
-            return (i == 2);
-        }
-
-    private:
-        ScalarT m_Components[2];
+        ScalarT X;
+        ScalarT Y;
     };
 
     template <typename ScalarT>
     constexpr Vector2<ScalarT> operator+(ScalarT lhs, const Vector2<ScalarT>& rhs)
     {
-        ONYX_ASSERT(IsAdditionSafe(lhs, rhs[0]));
-        ONYX_ASSERT(IsAdditionSafe(lhs, rhs[1]));
+        ONYX_ASSERT(IsAdditionSafe(lhs, rhs.X));
+        ONYX_ASSERT(IsAdditionSafe(lhs, rhs.Y));
 
-        return Vector2<ScalarT>(lhs + rhs[0], lhs + rhs[1], lhs + rhs[2]);
+        return Vector2<ScalarT>(lhs + rhs.X, lhs + rhs.Y);
     }
 
     template <typename ScalarT>
     constexpr Vector2<ScalarT> operator-(ScalarT lhs, const Vector2<ScalarT>& rhs)
     {
-        ONYX_ASSERT(IsSubtractionSafe(lhs, rhs[0]));
-        ONYX_ASSERT(IsSubtractionSafe(lhs, rhs[1]));
+        ONYX_ASSERT(IsSubtractionSafe(lhs, rhs.X));
+        ONYX_ASSERT(IsSubtractionSafe(lhs, rhs.Y));
 
-        return Vector2<ScalarT>(lhs - rhs[0], lhs - rhs[1], lhs - rhs[2]);
+        return Vector2<ScalarT>(lhs - rhs.X, lhs - rhs.Y);
     }
 
     template <typename ScalarT>
     constexpr Vector2<ScalarT> operator*(ScalarT lhs, const Vector2<ScalarT>& rhs)
     {
-        ONYX_ASSERT(IsMultiplicationSafe(lhs, rhs[0]));
-        ONYX_ASSERT(IsMultiplicationSafe(lhs, rhs[1]));
+        ONYX_ASSERT(IsMultiplicationSafe(lhs, rhs.X));
+        ONYX_ASSERT(IsMultiplicationSafe(lhs, rhs.Y));
 
-        return Vector2<ScalarT>(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2]);
+        return Vector2<ScalarT>(lhs * rhs.X, lhs * rhs.Y);
     }
 
     template <typename ScalarT>
     constexpr Vector2<ScalarT> operator/(ScalarT lhs, const Vector2<ScalarT>& rhs)
     {
-        ONYX_ASSERT(IsDivisionSafe(lhs, rhs[0]));
-        ONYX_ASSERT(IsDivisionSafe(lhs, rhs[1]));
+        ONYX_ASSERT(IsDivisionSafe(lhs, rhs.X));
+        ONYX_ASSERT(IsDivisionSafe(lhs, rhs.Y));
 
-        return Vector2<ScalarT>(lhs / rhs[0], lhs / rhs[1], lhs / rhs[2]);
+        return Vector2<ScalarT>(lhs / rhs.X, lhs / rhs.Y);
     }
 }
