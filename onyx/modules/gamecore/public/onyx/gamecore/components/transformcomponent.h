@@ -3,16 +3,6 @@
 #include <onyx/geometry/common.h>
 #include <onyx/geometry/rotor3.h>
 
-namespace Onyx
-{
-    namespace FileSystem
-    {
-        struct JsonValue;
-    }
-
-    class Stream;
-}
-
 namespace Onyx::GameCore
 {
     struct TransformComponent
