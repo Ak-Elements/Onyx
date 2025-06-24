@@ -136,7 +136,7 @@ namespace Onyx::NodeGraph
         const String& GetName() const { return m_EditorMeta.Name; }
         void SetName(const String& name) { m_EditorMeta.Name = name; }
 
-        void SetTypeName(const StringView& typeName) { m_EditorMeta.TypeName = typeName; }
+        void SetTypeName(StringView typeName) { m_EditorMeta.TypeName = typeName; }
         const String& GetTypeName() const { return m_EditorMeta.TypeName; }
 #endif
 

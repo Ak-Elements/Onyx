@@ -16,7 +16,7 @@ namespace Onyx::Graphics::Vulkan
     class VulkanCommandBuffer : public CommandBuffer
     {
     public:
-        VulkanCommandBuffer(const VulkanGraphicsApi& api, const CommandPool& commandPool, VkCommandBufferLevel bufferLevel, onyxU8 frameIndex, const StringView& debugName);
+        VulkanCommandBuffer(const VulkanGraphicsApi& api, const CommandPool& commandPool, VkCommandBufferLevel bufferLevel, onyxU8 frameIndex, StringView debugName);
         ~VulkanCommandBuffer();
 
         VulkanCommandBuffer(VulkanCommandBuffer&&);
@@ -67,7 +67,7 @@ namespace Onyx::Graphics::Vulkan
         void GlobalBarrier(VkAccessFlagBits2 srcAccess, VkAccessFlagBits2 dstAccess) override;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        void BeginDebugLabel(const StringView& label, const Vector4f& color) override;
+        void BeginDebugLabel(StringView label, const Vector4f& color) override;
         void EndDebugLabel() override;
 #endif
 

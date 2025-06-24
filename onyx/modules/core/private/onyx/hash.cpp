@@ -73,7 +73,7 @@ namespace Onyx::Hash
         return crc;
     }
 
-    constexpr onyxU32 CRC32(const StringView& str, onyxU32 crc)
+    constexpr onyxU32 CRC32(StringView str, onyxU32 crc)
     {
         return CRC32(str.data(), str.length(), crc);
     };

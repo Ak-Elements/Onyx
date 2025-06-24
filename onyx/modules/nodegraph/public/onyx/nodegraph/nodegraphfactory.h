@@ -61,7 +61,7 @@ namespace Onyx::NodeGraph
         }
 
         template <Details::IsNodeGraphNode NodeT>
-        void RegisterNode(const StringView& fullyQualifiedName)
+        void RegisterNode(StringView fullyQualifiedName)
         {
             static HashMap<onyxU32, String> s_RegisteredNodesToName;
 
@@ -122,7 +122,7 @@ namespace Onyx::NodeGraph
         using NodeTypeT = NodeType;
 
         template <Details::IsNodeGraphNode T>
-        static void RegisterNode(const StringView& nodeName)
+        static void RegisterNode(StringView nodeName)
         {
             ms_NodeRegistry.template RegisterNode<T>(nodeName);
         }
@@ -154,7 +154,7 @@ namespace Onyx::NodeGraph
     public:
         //TODO: Node concept to enforce node
         template <typename T>
-        static void RegisterNode(const StringView& nodeName)
+        static void RegisterNode(StringView nodeName)
         {
             TypedNodeFactory::RegisterNode<T>(nodeName);
         }

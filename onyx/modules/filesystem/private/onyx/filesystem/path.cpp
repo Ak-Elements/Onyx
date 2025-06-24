@@ -12,7 +12,7 @@ namespace Onyx::FileSystem::Path
 
         HashMap<StringId32, MountPoint> MountPoints;
 
-        Optional<MountPoint> GetMountPointFromPrefixPath(const StringView& path)
+        Optional<MountPoint> GetMountPointFromPrefixPath(StringView path)
         {
             for (auto& [_, mountPoint] : MountPoints)
             {
@@ -24,7 +24,7 @@ namespace Onyx::FileSystem::Path
             return {};
         }
 
-        Optional<MountPoint> GetMountPointFromPath(const StringView& path)
+        Optional<MountPoint> GetMountPointFromPath(StringView path)
         {
             for (auto& [_, mountPoint] : MountPoints)
             {
@@ -64,7 +64,7 @@ namespace Onyx::FileSystem::Path
         return GetFullPath(path, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const Filepath& path, const StringView& /*newExtension*/)
+    Filepath GetFullPath(const Filepath& path, StringView /*newExtension*/)
     {
         Optional<MountPoint> mountPoint = GetMountPointFromPrefixPath(path.string());
         if (mountPoint.has_value())
@@ -80,17 +80,17 @@ namespace Onyx::FileSystem::Path
         return GetFullPath(pathStr, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const String& pathStr, const StringView& newExtension)
+    Filepath GetFullPath(const String& pathStr, StringView newExtension)
     {
         return GetFullPath(Filepath(pathStr), newExtension);
     }
 
-    Filepath GetFullPath(const StringView& pathStr)
+    Filepath GetFullPath(StringView pathStr)
     {
         return GetFullPath(pathStr, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const StringView& pathStr, const StringView& newExtension)
+    Filepath GetFullPath(StringView pathStr, StringView newExtension)
     {
         return GetFullPath(Filepath(pathStr), newExtension);
     }
@@ -100,12 +100,12 @@ namespace Onyx::FileSystem::Path
         return GetFullPath(path, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const char* path, const StringView& newExtension)
+    Filepath GetFullPath(const char* path, StringView newExtension)
     {
         return GetFullPath(StringView(path), newExtension);
     }
 
-    Filepath ReplaceExtension(const Filepath& path, const StringView& newExtension)
+    Filepath ReplaceExtension(const Filepath& path, StringView newExtension)
     {
         Filepath returnPath(path);
         return returnPath.replace_extension(newExtension);

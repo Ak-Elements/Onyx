@@ -19,7 +19,7 @@ namespace Onyx::Graphics::Vulkan
 
         // swapchain images
         VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image);
-        VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image, const StringView& name);
+        VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image, StringView name);
 
         ~VulkanTextureStorage() override;
         void Free(VulkanGraphicsApi& api);

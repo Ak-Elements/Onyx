@@ -42,7 +42,7 @@ namespace Onyx::Ui
     void DrawItemBackground(onyxF32 rounding, onyxF32 borderThickness, onyxU32 color);
     void DrawItemBorder(onyxF32 thickness, onyxF32 rounding, onyxU32 color);
 
-    bool DrawSearchBar(String& searchString, const StringView& hintLabel, bool& grabFocus);
+    bool DrawSearchBar(String& searchString, StringView hintLabel, bool& grabFocus);
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = 0);
 

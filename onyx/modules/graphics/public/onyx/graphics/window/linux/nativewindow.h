@@ -28,7 +28,7 @@ namespace Onyx::Graphics
         void ToggleCursor(bool enable) {}
         void UpdateCursorImage() {}
 
-        void SetTitle(const StringView& title) { m_Settings.Title = std::string(title); }
+        void SetTitle(StringView title) { m_Settings.Title = std::string(title); }
         void SetIcon(const FileSystem::Filepath& path) {}
 
         Vector2u32 GetFrameBufferSize() const { return m_Settings.Size; }

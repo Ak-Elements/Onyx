@@ -7,7 +7,7 @@ namespace Onyx
     {
     }
 
-    bool StringStream::ReadConditional(const StringView& expectedValue)
+    bool StringStream::ReadConditional(StringView expectedValue)
     {
         ONYX_ASSERT(IsEof() == false);
 

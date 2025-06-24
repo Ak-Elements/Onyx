@@ -65,7 +65,7 @@ namespace Onyx::Ui
         draw_list->AddRect(rect.Min, rect.Max, color, rounding, ImDrawFlags_None, thickness);
     }
 
-    bool DrawSearchBar(String& searchString, const StringView& hintLabel, bool& grabFocus)
+    bool DrawSearchBar(String& searchString, StringView hintLabel, bool& grabFocus)
     {
         bool modified = false;
         // Unique identifier for the input text field

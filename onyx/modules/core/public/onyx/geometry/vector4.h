@@ -233,7 +233,7 @@ namespace Onyx
                 (abs(m_Components[3]) <= epsilon);
         }
 
-        static Vector4 FromString(const StringView& str)
+        static Vector4 FromString(StringView str)
         {
             Vector4 result;
             constexpr StringView delimiter = " ";

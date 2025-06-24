@@ -63,7 +63,7 @@ namespace Onyx::Graphics
         return true;
     }
 
-    bool ShaderPreprocessor::ParseGlobalScope(const StringView& line, String& outShaderCode)
+    bool ShaderPreprocessor::ParseGlobalScope(StringView line, String& outShaderCode)
     {
         if (line.starts_with("#pragma"))
         {

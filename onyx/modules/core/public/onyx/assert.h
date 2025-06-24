@@ -14,7 +14,7 @@
 
 namespace Onyx
 {
-    inline InplaceFunction<void(const StringView& message)> ErrorFunctor = [](const StringView& /*msg*/)
+    inline InplaceFunction<void(StringView message)> ErrorFunctor = [](StringView /*msg*/)
     {
     };
 

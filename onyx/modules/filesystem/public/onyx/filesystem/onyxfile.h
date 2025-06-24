@@ -12,7 +12,7 @@ namespace Onyx::FileSystem
     struct JsonValue
     {
         template <typename ValueT>
-        bool Get(const StringView& name, ValueT& outValue) const
+        bool Get(StringView name, ValueT& outValue) const
         {
             if (const auto& it = Json.find(name.data()); it != Json.end())
             {
@@ -78,7 +78,7 @@ namespace Onyx::FileSystem
         }
 
         template <typename T>
-        bool Get(const StringView& name, T& outValue, T defaultValue) const
+        bool Get(StringView name, T& outValue, T defaultValue) const
         {
             if (const auto& it = Json.find(name.data()); it != Json.end())
             {
@@ -146,7 +146,7 @@ namespace Onyx::FileSystem
     };
 
     template <>
-    inline bool JsonValue::Get(const StringView& name, JsonValue& outValue) const
+    inline bool JsonValue::Get(StringView name, JsonValue& outValue) const
     {
         if (const auto& it = Json.find(name.data()); it != Json.end())
         {

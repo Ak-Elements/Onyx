@@ -94,7 +94,7 @@ namespace Onyx::Graphics
 
             PipelineHandle CreatePipeline(const PipelineProperties& properties) override;
             ShaderHandle CreateShader(InplaceArray<DynamicArray<onyxU32>, MAX_SHADER_STAGES>& perStageByteCode) override;
-            DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, const StringView& debugName) override;
+            DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) override;
 
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties) override;
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData) override;

@@ -943,7 +943,7 @@ namespace Onyx::Graphics::Vulkan
         return Reference<Shader>::Create(*this, perStageByteCode);
     }
 
-    DynamicArray<DescriptorSetHandle> VulkanGraphicsApi::CreateDescriptorSet(const ShaderHandle& shader, const StringView& debugName)
+    DynamicArray<DescriptorSetHandle> VulkanGraphicsApi::CreateDescriptorSet(const ShaderHandle& shader, StringView debugName)
     {
         DynamicArray<DescriptorSetHandle> descriptorSets;
 

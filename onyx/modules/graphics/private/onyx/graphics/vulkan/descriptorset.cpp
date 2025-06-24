@@ -32,7 +32,7 @@ namespace Onyx::Graphics::Vulkan
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.GetHandle(), &allocInfo, &m_DescriptorSet))
     }
 
-    DescriptorSet::DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout, const StringView& debugName)
+    DescriptorSet::DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout, StringView debugName)
         : DescriptorSet(device, pool, descriptorSetLayout)
     {
 		SetResourceName(device.GetHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET, (onyxU64)m_DescriptorSet, debugName);

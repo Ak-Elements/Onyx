@@ -2,16 +2,16 @@
 
 namespace Onyx
 {
-    DynamicArray<String> Split(const StringView& string, const StringView& delimiters);
-    DynamicArray<String> Split(const StringView& string, const char delimiter);
+    DynamicArray<String> Split(StringView string, StringView delimiters);
+    DynamicArray<String> Split(StringView string, const char delimiter);
 
     void ToLower(String& str);
-    String ToLower(const StringView& str);
+    String ToLower(StringView str);
 
-    StringView Trim(const StringView& str);
+    StringView Trim(StringView str);
 
-    int IgnoreCaseCompare(const StringView& lhs, const StringView& rhs);
-    bool IgnoreCaseEqual(const StringView& lhs, const StringView& rhs);
-    StringView::size_type IgnoreCaseFind(const StringView& string, const StringView& searchString);
+    int IgnoreCaseCompare(StringView lhs, StringView rhs);
+    bool IgnoreCaseEqual(StringView lhs, StringView rhs);
+    StringView::size_type IgnoreCaseFind(StringView string, StringView searchString);
 
 }

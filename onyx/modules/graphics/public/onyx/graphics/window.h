@@ -30,7 +30,7 @@ namespace Onyx::Graphics
     struct WindowSettings
     {
         WindowSettings() = default;
-        WindowSettings(const StringView& title, const Vector2u32& size, WindowMode mode)
+        WindowSettings(StringView title, const Vector2u32& size, WindowMode mode)
             : Mode(mode)
             , Size(size)
             , Title(title)

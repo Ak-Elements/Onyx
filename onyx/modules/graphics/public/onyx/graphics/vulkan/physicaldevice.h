@@ -34,7 +34,7 @@ namespace Onyx::Graphics::Vulkan
         onyxU32 GetMemoryType(onyxU32 typeBits, VkMemoryPropertyFlags properties, VkMemoryPropertyFlags preferredPropertyFlags) const;
         VkQueue GetQueue(onyxS32 queueIndex) const;
         VkResult CreateLogicalDevice(VkPhysicalDeviceFeatures enabledFeatures, DynamicArray<const char*> enabledExtensions, void* pNextChain, bool useSwapChain = true, VkQueueFlags requestedQueueTypes = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
-        bool IsExtensionSupported(const StringView& extension) const;
+        bool IsExtensionSupported(StringView extension) const;
         const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
         onyxS32 GetGraphicsQueueIndex() const { return m_QueueFamilyIndices.Graphics; }

@@ -149,7 +149,7 @@ namespace Onyx::Graphics::Vulkan
 		//ONYX_ASSERT()
 	}
 
-	bool PhysicalDevice::IsExtensionSupported(const StringView& extension) const
+	bool PhysicalDevice::IsExtensionSupported(StringView extension) const
 	{
 		return m_SupportedExtensions.find(extension.data()) != m_SupportedExtensions.end();
 	}

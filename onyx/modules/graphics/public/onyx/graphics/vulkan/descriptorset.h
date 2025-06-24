@@ -21,7 +21,7 @@ namespace Onyx::Graphics::Vulkan
     public:
         DescriptorSet(const Device& device, onyxU8 set, VkDescriptorSetAllocateInfo allocateInfo);
         DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout);
-        DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout, const StringView& debugName);
+        DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout, StringView debugName);
         // Don't need to be cleaned up as they will be cleaned up when the pool is destroyed
         //vkFreeDescriptorSets()
         ~DescriptorSet() override = default;

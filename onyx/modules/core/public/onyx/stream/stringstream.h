@@ -30,7 +30,7 @@ namespace Onyx
         bool ReadString(StringView& outStrView);
         bool ReadLine(StringView& outStrView);
         bool ReadStringUntil(StringView& outStrView, const char delimiter);
-        bool ReadConditional(const StringView& expectedValue);
+        bool ReadConditional(StringView expectedValue);
 
         template <typename T>
         bool ReadType(T& outValue)

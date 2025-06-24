@@ -159,7 +159,7 @@ namespace Onyx
             virtual RenderPassHandle CreateRenderPass(const RenderPassSettings& settings) = 0;
             virtual FramebufferHandle CreateFramebuffer(const FramebufferSettings& settings) = 0;
             virtual PipelineHandle CreatePipeline(const PipelineProperties& properties) = 0;
-            virtual DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, const StringView& debugName) = 0;
+            virtual DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) = 0;
             virtual ShaderHandle CreateShader(InplaceArray<DynamicArray<onyxU32>, MAX_SHADER_STAGES>& perStageByteCode) = 0;
 
             virtual void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties) = 0;
@@ -227,7 +227,7 @@ namespace Onyx
             void CreateAlias(TextureHandle& outTexture, TextureStorageHandle& storageHandle, const TextureStorageProperties& aliasStorageProperties, const TextureProperties& aliasTextureProperties);
             void CreateBuffer(BufferHandle& outBuffer, const BufferProperties& properties);
             
-            DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, const StringView& debugName) const;
+            DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) const;
 
             onyxU8 GetFrameIndex() const { return m_FrameIndex; }
             FrameContext& GetFrameContext() { return m_FrameContext[m_FrameIndex]; }

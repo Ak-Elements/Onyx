@@ -40,7 +40,7 @@ namespace Onyx::Graphics
 
         HWND GetWindowHandle() const { return m_WindowHandle; }
 
-        void SetTitle(const StringView& m_title);
+        void SetTitle(StringView m_title);
         void SetIcon(const FileSystem::Filepath& path);
 
         Vector2u32 GetFrameBufferSize() const { return m_Settings.Size; }

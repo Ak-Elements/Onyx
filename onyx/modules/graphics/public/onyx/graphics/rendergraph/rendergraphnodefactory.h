@@ -15,7 +15,7 @@ namespace Onyx::Graphics
     public:
         //TODO: Node concept to enforce node
         template <typename T> /*requires std::derived_from<Graphics::RenderGraphTask, T>*/
-        static void RegisterNode(const StringView& nodeName)
+        static void RegisterNode(StringView nodeName)
         {
             TypedNodeFactory::RegisterNode<T>(nodeName);
         }

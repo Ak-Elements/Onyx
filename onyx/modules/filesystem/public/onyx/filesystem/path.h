@@ -32,15 +32,15 @@ namespace Onyx::FileSystem
         // Get an absolute path to a file in the current working directory
         // If the path is already absolute this function is a no-op
         Filepath GetFullPath(const Filepath& path);
-        Filepath GetFullPath(const Filepath& path, const StringView& newExtension);
+        Filepath GetFullPath(const Filepath& path, StringView newExtension);
         Filepath GetFullPath(const String& path);
-        Filepath GetFullPath(const String& path, const StringView& newExtension);
-        Filepath GetFullPath(const StringView& path);
-        Filepath GetFullPath(const StringView& path, const StringView& newExtension);
+        Filepath GetFullPath(const String& path, StringView newExtension);
+        Filepath GetFullPath(StringView path);
+        Filepath GetFullPath(StringView path, StringView newExtension);
         Filepath GetFullPath(const char* path);
-        Filepath GetFullPath(const char* path, const StringView& newExtension);
+        Filepath GetFullPath(const char* path, StringView newExtension);
 
-        Filepath ReplaceExtension(const Filepath& path, const StringView& newExtension);
+        Filepath ReplaceExtension(const Filepath& path, StringView newExtension);
 
         Filepath ConvertToMountPath(const Filepath& absolutePath);
 

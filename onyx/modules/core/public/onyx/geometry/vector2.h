@@ -379,7 +379,7 @@ namespace Onyx
             otherVec[1] = m_Components[1];
         }
 
-        static bool FromString(const StringView& str, Vector2& outVector)
+        static bool FromString(StringView str, Vector2& outVector)
         {
             constexpr StringView delimiter = " ";
             onyxS32 i = -1;

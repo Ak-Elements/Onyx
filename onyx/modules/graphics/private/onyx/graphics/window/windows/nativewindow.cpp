@@ -752,7 +752,7 @@ namespace Onyx::Graphics
         return false;
     }
 
-    void Window::SetTitle(const std::string_view& title)
+    void Window::SetTitle(StringView title)
     {
         if (m_Settings.Title != title)
         {

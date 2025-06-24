@@ -686,7 +686,7 @@ namespace Onyx::Editor
         ImGui::End();
     }
 
-    void NodeGraphEditorWindow::FilterNodeListContextMenu(const StringView& searchString)
+    void NodeGraphEditorWindow::FilterNodeListContextMenu(StringView searchString)
     {
         m_EditorContext->FilterNodeListContextMenu([&](const NodeGraph::NodeEditorMetaData& nodeMetaData)
             {
@@ -1529,7 +1529,7 @@ namespace Onyx::Editor
 
             if (inputPin.PinTypeId != NodeGraph::PinTypeId::Execute)
             {
-                const StringView& inputName = inputPin.Name;
+                StringView inputName = inputPin.Name;
                 if (inputName.empty() == false)
                 {
                     ImGui::TextUnformatted(inputName.data());
@@ -1549,7 +1549,7 @@ namespace Onyx::Editor
         {
             builder.Output(outputPin.Id.Get());
 
-            const StringView& outputName = outputPin.Name;
+            StringView outputName = outputPin.Name;
             if (outputName.empty() == false)
             {
                 ImGui::Spring();

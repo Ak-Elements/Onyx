@@ -88,7 +88,7 @@ namespace Onyx::Hash
 
 
     template <typename T> requires std::is_integral_v<T>
-    ONYX_NO_DISCARD constexpr T FNV1aHash(const StringView& string, T seed)
+    ONYX_NO_DISCARD constexpr T FNV1aHash(StringView string, T seed)
     {
         if constexpr (std::is_same_v<T, onyxU64>)
         {
@@ -101,7 +101,7 @@ namespace Onyx::Hash
     }
 
     template <typename T> requires std::is_integral_v<T>
-    ONYX_NO_DISCARD constexpr T FNV1aHash(const StringView& string)
+    ONYX_NO_DISCARD constexpr T FNV1aHash(StringView string)
     {
         return FNV1aHash<T>(string, T{ 0 });
     }
@@ -164,5 +164,5 @@ namespace Onyx::Hash
     }
 
     ONYX_NO_DISCARD constexpr onyxU32 CRC32(const char* data, onyxU64 len, onyxU32 crc = 0);
-    ONYX_NO_DISCARD constexpr onyxU32 CRC32(const StringView& str, onyxU32 crc = 0);
+    ONYX_NO_DISCARD constexpr onyxU32 CRC32(StringView str, onyxU32 crc = 0);
 }

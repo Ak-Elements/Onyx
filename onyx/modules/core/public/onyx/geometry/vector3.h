@@ -459,7 +459,7 @@ namespace Onyx
                 Onyx::IsZero(Z, epsilon);
         }
 
-        static bool FromString(const StringView& str, Vector3& outVector)
+        static bool FromString(StringView str, Vector3& outVector)
         {
             constexpr StringView delimiter = " ";
             onyxS32 i = -1;

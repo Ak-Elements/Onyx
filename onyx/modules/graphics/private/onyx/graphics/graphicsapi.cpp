@@ -304,7 +304,7 @@ namespace Onyx::Graphics
         return m_GraphicsApi->CreateBuffer(outBuffer, properties);
     }
 
-    DynamicArray<DescriptorSetHandle> GraphicsApi::CreateDescriptorSet(const ShaderHandle& shader, const StringView& debugName) const
+    DynamicArray<DescriptorSetHandle> GraphicsApi::CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) const
     {
         return m_GraphicsApi->CreateDescriptorSet(shader, debugName);
     }

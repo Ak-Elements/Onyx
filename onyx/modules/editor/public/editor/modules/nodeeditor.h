@@ -98,7 +98,7 @@ namespace Onyx::Editor
 
         void DrawPropertiesPanel();
 
-        void FilterNodeListContextMenu(const StringView& searchString);
+        void FilterNodeListContextMenu(StringView searchString);
         void CreateNewNode(const GraphEditorContext::NodeListContextMenuItem& node);
 
         void Save();

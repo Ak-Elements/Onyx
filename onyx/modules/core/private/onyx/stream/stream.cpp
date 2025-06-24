@@ -27,7 +27,7 @@ namespace Onyx
         DoWrite(val.data(), sizeof(char) * val.size());
     }
 
-    void Stream::Write(const StringView& val)
+    void Stream::Write(StringView val)
     {
         Write(static_cast<onyxU64>(val.size()));
         DoWrite(val.data(), sizeof(char) * val.size());

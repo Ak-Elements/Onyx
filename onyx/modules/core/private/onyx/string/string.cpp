@@ -2,7 +2,7 @@
 
 namespace Onyx
 {
-    DynamicArray<String> Split(const StringView& string, const StringView& delimiters)
+    DynamicArray<String> Split(StringView string, StringView delimiters)
     {
 		DynamicArray<String> result;
 
@@ -40,17 +40,17 @@ namespace Onyx
 		return result;
     }
 
-    DynamicArray<String> Split(const StringView& string, const char delimiter)
+    DynamicArray<String> Split(StringView string, const char delimiter)
     {
 		return Split(string, std::string(1, delimiter));
     }
 
-    bool IgnoreCaseEqual(const StringView& lhs, const StringView& rhs)
+    bool IgnoreCaseEqual(StringView lhs, StringView rhs)
     {
         return std::ranges::equal(lhs, rhs, [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); });
     }
 
-    StringView::size_type IgnoreCaseFind(const StringView& string, const StringView& searchString)
+    StringView::size_type IgnoreCaseFind(StringView string, StringView searchString)
     {
         auto it = std::ranges::search(string, searchString, [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }).begin();
         if (it != string.end())
@@ -65,14 +65,14 @@ namespace Onyx
         std::ranges::transform(str, str.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     }
 
-    String ToLower(const StringView& str)
+    String ToLower(StringView str)
     {
         String result(str);
         ToLower(result);
         return result;
     }
 
-    StringView Trim(const StringView& str)
+    StringView Trim(StringView str)
     {
         if (str.empty())
             return str;

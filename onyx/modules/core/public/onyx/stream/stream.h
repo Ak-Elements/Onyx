@@ -217,7 +217,7 @@ namespace Onyx
         }
 
         void Write(const String& val);
-        void Write(const StringView& val);
+        void Write(StringView val);
 
         template <typename T>
         void Write(StringId<T> id)

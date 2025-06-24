@@ -19,7 +19,7 @@
 
 namespace Onyx::Graphics::Vulkan
 {
-    VulkanCommandBuffer::VulkanCommandBuffer(const VulkanGraphicsApi& api, const CommandPool& commandPool, VkCommandBufferLevel bufferLevel, onyxU8 frameIndex, const StringView& debugName)
+    VulkanCommandBuffer::VulkanCommandBuffer(const VulkanGraphicsApi& api, const CommandPool& commandPool, VkCommandBufferLevel bufferLevel, onyxU8 frameIndex, StringView debugName)
         : m_Api(api)
         , m_FrameIndex(frameIndex)
     {
@@ -539,7 +539,7 @@ namespace Onyx::Graphics::Vulkan
     }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void VulkanCommandBuffer::BeginDebugLabel(const StringView& label, const Vector4f& color)
+    void VulkanCommandBuffer::BeginDebugLabel(StringView label, const Vector4f& color)
     {
         if (vkCmdBeginDebugUtilsLabelEXT != nullptr)
         {

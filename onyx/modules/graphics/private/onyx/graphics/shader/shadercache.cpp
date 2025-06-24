@@ -44,7 +44,7 @@ namespace Onyx::Graphics
         }
 
         // check shader disk cache before recompiling / reloading shaders
-        const StringView& path = Format::Format("tmp:/{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash);
+        StringView path = Format::Format("tmp:/{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash);
         const FileSystem::Filepath& diskShaderCachePath = FileSystem::Path::GetFullPath(path);
         if (FileSystem::Path::Exists(diskShaderCachePath))
         {

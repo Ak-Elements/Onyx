@@ -16,7 +16,7 @@ namespace Onyx::Input
         }
 
         template <typename T> requires std::is_base_of_v<InputBinding, T> && HasTypeId<T>
-        static void Register(ActionType actionType, const StringView& name)
+        static void Register(ActionType actionType, StringView name)
         {
             constexpr StringId32 bindingTypeId = T::TypeId;
             ONYX_ASSERT(ms_RegisteredBindings.contains(bindingTypeId) == false, "Binding is already registered.");

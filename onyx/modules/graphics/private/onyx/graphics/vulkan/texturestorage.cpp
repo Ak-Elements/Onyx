@@ -65,7 +65,7 @@ namespace Onyx::Graphics::Vulkan
 	{
 	}
 
-	VulkanTextureStorage::VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image, const StringView& name)
+	VulkanTextureStorage::VulkanTextureStorage(VulkanGraphicsApi& api, VkImage image, StringView name)
 		: m_Device(&api.GetDevice())
         , m_Image(image)
 	{

@@ -31,7 +31,7 @@ namespace Onyx::Graphics
         const String& GetGeneralShaderCode() const { return m_ShaderCode; }
         const InplaceArray<PreprocessedShader, MAX_SHADER_STAGES>& GetStages() { return m_PreprocessedShaderStages; }
     private:
-        bool ParseGlobalScope(const StringView& line, String& outShaderCode);
+        bool ParseGlobalScope(StringView line, String& outShaderCode);
         bool IsShaderStage(StringStream& reader, ShaderStage& outStage) const;
 
         bool ParseStageCode(StringStream& reader, ShaderStage stage, PreprocessedShader& preprocessShader);

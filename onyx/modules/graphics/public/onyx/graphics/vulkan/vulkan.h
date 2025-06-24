@@ -51,7 +51,7 @@ namespace Onyx::Graphics::Vulkan
 		}
 	}
 
-	inline void SetResourceName(VkDevice device, VkObjectType type, onyxU64 objHandle, const StringView& name)
+	inline void SetResourceName(VkDevice device, VkObjectType type, onyxU64 objHandle, StringView name)
     {
 		if (vkSetDebugUtilsObjectNameEXT == nullptr)
 			return;

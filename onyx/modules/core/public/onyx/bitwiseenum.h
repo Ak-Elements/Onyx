@@ -42,7 +42,7 @@ namespace Onyx::Enums
 	}
 
 	template <typename Enum>
-	constexpr Enum FromString(const StringView& str)
+	constexpr Enum FromString(StringView str)
 	{
 		auto enumVal = magic_enum::enum_cast<Enum>(str, magic_enum::case_insensitive);
 		ONYX_ASSERT(enumVal.has_value());
@@ -50,7 +50,7 @@ namespace Onyx::Enums
 	}
 
 	template <typename Enum>
-	constexpr Enum FromString(const StringView& str, Enum defaultValue)
+	constexpr Enum FromString(StringView str, Enum defaultValue)
 	{
 		auto enumVal = magic_enum::enum_cast<Enum>(str, magic_enum::case_insensitive);
 		return enumVal.value_or(defaultValue);
