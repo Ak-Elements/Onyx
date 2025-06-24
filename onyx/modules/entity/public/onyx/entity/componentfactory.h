@@ -2,9 +2,12 @@
 
 #include <onyx/entity/componentmeta.h>
 
+#include <entt/core/fwd.hpp>
+#include <entt/core/type_info.hpp>
+
 namespace Onyx::Entity
 {
-    class ComponentRegistry
+    class ComponentFactory
     {
     public:
         template <typename T>
@@ -18,6 +21,21 @@ namespace Onyx::Entity
             }
 
             m_ComponentMeta[T::TypeId] = MakeUnique<ComponentMeta<T>>();
+            m_RuntimeIdToStaticId[entt::type_hash<T>::value()] = T::TypeId;
+        }
+
+        template <typename T>
+        void Register(ComponentFactoryFunction<T> factory)
+        {
+            if (const IComponentMeta* componentMeta = GetComponentMeta<T>().value_or(nullptr))
+            {
+                //TODO add some sanity check that the components registered are indeed the same
+                ONYX_UNUSED(componentMeta);
+                return;
+            }
+
+            m_ComponentMeta[T::TypeId] = MakeUnique<ComponentMeta<T>>(factory);
+            m_RuntimeIdToStaticId[entt::type_hash<T>::value()] = T::TypeId;
         }
 
         template <typename T>
@@ -43,9 +61,25 @@ namespace Onyx::Entity
             return it->second.get();
         }
 
+        Optional<const IComponentMeta*> GetComponentMeta(entt::id_type runtimeTypeId) const
+        {
+            auto staticIdIt = m_RuntimeIdToStaticId.find(runtimeTypeId);
+            if (staticIdIt == m_RuntimeIdToStaticId.end())
+            {
+                return std::nullopt;
+            }
+
+            return GetComponentMeta(staticIdIt->second);
+        }
+
         const HashMap<StringId32, UniquePtr<IComponentMeta>>& GetComponentMeta() const { return m_ComponentMeta; }
+
+        bool TryCreateComponent(EntityRegistry& registry, EntityId entity, StringId32 componentTypeId) const;
+        bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, const Deserializer& deserializer) const;
+        bool TryCopyComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, void* fromComponentPtr) const;
 
     private:
         HashMap<StringId32, UniquePtr<IComponentMeta>> m_ComponentMeta;
+        HashMap<entt::id_type, StringId32> m_RuntimeIdToStaticId;
     };
 }

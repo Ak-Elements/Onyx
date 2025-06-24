@@ -3,6 +3,7 @@
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/assets/assetsystem.h>
+#include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 
@@ -80,12 +81,12 @@ namespace Onyx::GameCore
             registry.AddComponent<FreeCameraRuntimeComponent>(entity, freeCameraRuntime);
         }
 
-        void registerSystems(Entity::EntityComponentSystemsGraph& graph)
+        void registerSystems(Entity::EcsBuilder& ecsBuilder)
         {
-            graph.Register(FreeCamera::system);
+            ecsBuilder.RegisterSystem(FreeCamera::system);
 
-            Entity::EntityRegistry::RegisterComponent<FreeCameraControllerComponent>(FreeCamera::factory);
-            Entity::EntityRegistry::RegisterComponent<FreeCameraRuntimeComponent>();
+            ecsBuilder.RegisterComponent<FreeCameraControllerComponent>(FreeCamera::factory);
+            ecsBuilder.RegisterComponent<FreeCameraRuntimeComponent>();
         }
     }
 }

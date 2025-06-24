@@ -45,6 +45,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/components/graphics/materialcomponent.cpp
 	${TARGET_PRIVATE_PATH}/components/graphics/textcomponent_editor.cpp
 	${TARGET_PRIVATE_PATH}/components/volume/volumecomponent_editor.cpp
+	${TARGET_PRIVATE_PATH}/components/volume/volumeterraincomponent_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/vectornodes_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/grapheditorcontext.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/nodegrapheditorcontext.cpp

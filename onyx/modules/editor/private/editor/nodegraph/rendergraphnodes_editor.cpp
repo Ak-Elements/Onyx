@@ -2,8 +2,8 @@
 
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
-#include <onyx/ui/imguistyle.h>
 #include <onyx/ui/propertygrid.h>
+#include <onyx/ui/imguistyle.h>
 #include <imgui_stacklayout.h>
 
 namespace Onyx::Graphics

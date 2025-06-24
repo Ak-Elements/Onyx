@@ -31,25 +31,26 @@ namespace Onyx::GameCore
 {
     namespace GameCoreInit
     {
-        void RegisterAssets(Assets::AssetSystem& assetSystem)
+        void RegisterAssets(GameCoreSystem& gameCoreSystem, Assets::AssetSystem& assetSystem)
         {
-            Assets::AssetSystem::Register<Scene, SceneSerializer>(assetSystem);
+            Assets::AssetSystem::Register<Scene, SceneSerializer>(gameCoreSystem, assetSystem);
         }
 
-        void RegisterComponents()
+        void RegisterComponents(Entity::EcsBuilder& ecsBuilder)
         {
-            Entity::EntityRegistry::RegisterComponent<IdComponent>();
-            Entity::EntityRegistry::RegisterComponent<TransformComponent>();
+
+            ecsBuilder.RegisterComponent<IdComponent>();
+            ecsBuilder.RegisterComponent<TransformComponent>();
 
 #if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
-            Entity::EntityRegistry::RegisterComponent<NameComponent>();
+            ecsBuilder.RegisterComponent<NameComponent>();
 #endif
 
-            Entity::EntityRegistry::RegisterComponent<DirectionalLightComponent>();
-            Entity::EntityRegistry::RegisterComponent<PointLightComponent>();
-            Entity::EntityRegistry::RegisterComponent<SpotLightComponent>();
-            Entity::EntityRegistry::RegisterComponent<MaterialComponent>();
-            Entity::EntityRegistry::RegisterComponent<TextComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TextComponent&& textComponent)
+            ecsBuilder.RegisterComponent<DirectionalLightComponent>();
+            ecsBuilder.RegisterComponent<PointLightComponent>();
+            ecsBuilder.RegisterComponent<SpotLightComponent>();
+            ecsBuilder.RegisterComponent<MaterialComponent>();
+            ecsBuilder.RegisterComponent<TextComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TextComponent&& textComponent)
                 
             {
                 Reference<Graphics::SDFFont> fontAsset;
@@ -59,15 +60,15 @@ namespace Onyx::GameCore
                 registry.AddComponent<TextComponent>(entity, std::move(textComponent));
             });
 
-            Entity::EntityRegistry::RegisterComponent<CameraComponent>();
+            ecsBuilder.RegisterComponent<CameraComponent>();
         }
 
-        void RegisterEntitySystems(Entity::EntityComponentSystemsGraph& ecsGraph)
+        void RegisterEntitySystems(Entity::EcsBuilder& ecsBuilder)
         {
-            FreeCamera::registerSystems(ecsGraph);
-            ecsGraph.Register(Camera::system);
+            FreeCamera::registerSystems(ecsBuilder);
+            ecsBuilder.RegisterSystem(Camera::system);
 
-            Lighting::registerSystems(ecsGraph);
+            Lighting::registerSystems(ecsBuilder);
         }
     }
   
@@ -77,11 +78,11 @@ namespace Onyx::GameCore
         Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>("Graphics/Static Mesh Pass");
         Graphics::RenderGraphNodeFactory::RegisterNode<MSDFFontRenderPass>("Scene/3D MSDF Font Pass");
 
-        GameCoreInit::RegisterAssets(assetSystem);
+        GameCoreInit::RegisterAssets(*this, assetSystem);
 
-        GameCoreInit::RegisterComponents();
-
-        GameCoreInit::RegisterEntitySystems(m_ECSGraph);
+        Entity::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };
+        GameCoreInit::RegisterComponents(ecsBuilder);
+        GameCoreInit::RegisterEntitySystems(ecsBuilder);
 
         loc_AssetSystem = &assetSystem;
         loc_GraphicsApi = &graphicsApi;
@@ -108,9 +109,10 @@ namespace Onyx::GameCore
     }
 }
 
-Onyx::Graphics::GraphicsApi& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsApi&>::Get(const ECSExecutionContext& /*context*/)
+Onyx::Graphics::GraphicsApi& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsApi&>::Get(const ECSExecutionContext& context)
 {
-    return *loc_GraphicsApi;
+    Graphics::GraphicsSystem& graphicsSystem = static_cast<Graphics::GraphicsSystem&>(context.Engine.GetSystem(static_cast<EngineSystemId>(TypeHash<Graphics::GraphicsSystem>())));
+    return graphicsSystem.GetGraphicsApi();
 }
 
 Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& /*context*/)

@@ -12,9 +12,8 @@ namespace Onyx::GameCore
 
 namespace Onyx::Entity
 {
-    class EntityComponentSystemsGraph;
+    class EcsBuilder;
 }
-
 
 namespace Onyx::Graphics
 {
@@ -23,6 +22,6 @@ namespace Onyx::Graphics
 
 namespace Onyx::GameCore::Lighting
 {
-    void registerSystems(Entity::EntityComponentSystemsGraph& ecsGraph);
+    void registerSystems(Entity::EcsBuilder& ecsBuilder);
 
 }

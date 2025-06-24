@@ -12,11 +12,12 @@
 namespace Onyx::Volume
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void VolumeComponent::DrawImGuiEditor()
+    bool VolumeComponent::DrawImGuiEditor()
     {
+        return false;
     }
 
-    void VolumeSourceComponent::DrawImGuiEditor()
+    bool VolumeSourceComponent::DrawImGuiEditor()
     {
         constexpr StringId32 SPHERE_TYPE("CSGSphere");
         constexpr StringId32 CUBE_TYPE ("CSGCube");
@@ -87,7 +88,7 @@ namespace Onyx::Volume
         });
 
         if ((VolumeType.IsValid() == false) || (Volume == nullptr))
-            return;
+            return IsModified;
 
         if (VolumeType == SPHERE_TYPE)
         {
@@ -201,6 +202,7 @@ namespace Onyx::Volume
                 IsModified = true;
             }
         }
+        return IsModified;
     }
 #endif
 }

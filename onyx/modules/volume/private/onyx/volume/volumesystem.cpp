@@ -5,15 +5,17 @@
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
 #include <onyx/volume/components/volumecomponent.h>
+#include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/graphics/generatemeshpass.h>
+#include <onyx/volume/systems/volumeterrainsystem.h>
 
 namespace Onyx::Volume
 {
     namespace
     {
-        void RegisterSystems(Entity::EntityComponentSystemsGraph& graph)
+        void RegisterSystems(Entity::EcsBuilder& ecsBuilder)
         {
-            Systems::registerSystem(graph);
+            Systems::registerSystem(ecsBuilder);
         }
     }
 
@@ -22,9 +24,12 @@ namespace Onyx::Volume
         Graphics::RenderGraphNodeFactory::RegisterNode<CreateVolumeMesh>("Volume/Create Volume Mesh");
         Graphics::RenderGraphNodeFactory::RegisterNode<GenerateVolumeMesh>("Volume/Generate Volume Mesh");
 
-        RegisterSystems(gameCore.GetECSGraph());
+        Entity::EcsBuilder ecsBuilder = gameCore.GetEcsBuilder();
+        RegisterSystems(ecsBuilder);
+        Terrain::Register(ecsBuilder);
 
-        Entity::EntityRegistry::RegisterComponent<VolumeComponent>();
-        Entity::EntityRegistry::RegisterComponent<VolumeSourceComponent>();
+        ecsBuilder.RegisterComponent<VolumeComponent>();
+        ecsBuilder.RegisterComponent<VolumeSourceComponent>();
+        
     }
 }

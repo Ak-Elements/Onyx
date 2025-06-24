@@ -4,6 +4,7 @@
 #include <onyx/entity/componentmeta.hpp>
 #include <onyx/filesystem/jsondeserializer.h>
 #include <onyx/filesystem/jsonserializer.h>
+#include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/components/transientcomponent.h>
 
@@ -133,6 +134,7 @@ namespace Onyx::GameCore
         // iterate all component storages and save out the components for the entity
         onyxU32 index = 0;
 
+        const Entity::ComponentFactory& componentFactory = m_GameCoreSystem.GetComponentFactory();
         for (auto componentStorageIt : registry.GetStorage())
         {
             // if the component storage contains the entity we know that the entity has this component
@@ -140,7 +142,7 @@ namespace Onyx::GameCore
             {
                 entt::id_type runtimeTypeId = componentStorageIt.first;
                 
-                if (const Entity::IComponentMeta* meta = registry.GetComponentMeta(runtimeTypeId).value_or(nullptr))
+                if (const Entity::IComponentMeta* meta = componentFactory.GetComponentMeta(runtimeTypeId).value_or(nullptr))
                 {
                     if (meta->IsTransient())
                         continue;
@@ -164,17 +166,13 @@ namespace Onyx::GameCore
     {
         return deserializer.ReadForEach<"components">([&](const Deserializer& scopeDeserializer)
         {
-            StringId32 typeId;
-            scopeDeserializer.Read<"typeId">(typeId);
+            StringId32 componentTypeId;
+            scopeDeserializer.Read<"typeId">(componentTypeId);
 
-            if (const Entity::IComponentMeta* meta = registry.GetComponentMeta(typeId).value_or(nullptr))
+            bool hasCreated = m_GameCoreSystem.GetComponentFactory().TryCreateComponent(registry, entityId, componentTypeId, scopeDeserializer);
+            if (hasCreated == false)
             {
-                std::any anyComponent = meta->Create(scopeDeserializer);
-                registry.AddComponent(entityId, typeId, anyComponent);
-            }
-            else
-            {
-                ONYX_LOG_WARNING("Failed deserializing component. Unkown component {}", typeId);
+                ONYX_LOG_WARNING("Failed deserializing component. Unkown component {}", componentTypeId);
             }
 
             return true;

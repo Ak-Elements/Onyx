@@ -84,10 +84,10 @@ namespace Onyx::GameCore::Lighting
         }
     }
 
-    void registerSystems(Entity::EntityComponentSystemsGraph& ecsGraph)
+    void registerSystems(Entity::EcsBuilder& ecsBuilder)
     {
-        ecsGraph.Register(DirectionalLights::system);
-        ecsGraph.Register(PointLights::system);
-        ecsGraph.Register(SpotLights::system);
+        ecsBuilder.RegisterSystem(DirectionalLights::system);
+        ecsBuilder.RegisterSystem(PointLights::system);
+        ecsBuilder.RegisterSystem(SpotLights::system);
     }
 }

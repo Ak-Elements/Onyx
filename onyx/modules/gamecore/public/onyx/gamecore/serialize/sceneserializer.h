@@ -4,6 +4,11 @@
 
 #include <onyx/entity/entity.h>
 
+namespace Onyx::GameCore
+{
+    class GameCoreSystem;
+}
+
 namespace Onyx::Entity
 {
     class EntityRegistry;
@@ -24,8 +29,9 @@ namespace Onyx::GameCore
         static constexpr auto Extensions = std::make_tuple( "oscene" );
 
         // remove
-        SceneSerializer(Assets::AssetSystem& assetSystem)
+        SceneSerializer(GameCoreSystem& gameCoreSystem, Assets::AssetSystem& assetSystem)
             : AssetSerializer(assetSystem)
+            , m_GameCoreSystem(gameCoreSystem)
         {
         }
 
@@ -43,5 +49,8 @@ namespace Onyx::GameCore
 
         bool DeserializeSectorsFromJson(Scene& scene, DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const;
         bool DeserializeSectorFromJson(Scene& scene, SceneSector& outSector, const FileSystem::Filepath& sectorFilePath) const;
+
+    private:
+        GameCoreSystem& m_GameCoreSystem;
     };
 }

@@ -7,6 +7,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/componentmeta.hpp
     ${TARGET_PUBLIC_PATH}/entity.h
     ${TARGET_PUBLIC_PATH}/entity.hpp
+    ${TARGET_PUBLIC_PATH}/ecsbuilder.h
     ${TARGET_PUBLIC_PATH}/entitycomponentsystem.h
     ${TARGET_PUBLIC_PATH}/entityregistry.h
     ${TARGET_PUBLIC_PATH}/prefab.h
@@ -15,6 +16,7 @@ set(TARGET_PUBLIC_SOURCES
 
 set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/entitycomponentsystem.cpp
+    ${TARGET_PRIVATE_PATH}/componentfactory.cpp
     ${TARGET_PRIVATE_PATH}/entityregistry.cpp
     ${TARGET_PRIVATE_PATH}/prefabregistry.cpp
 )

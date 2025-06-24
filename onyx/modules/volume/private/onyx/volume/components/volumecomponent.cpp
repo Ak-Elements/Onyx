@@ -145,7 +145,6 @@ namespace Volume
             if (volumeComponent.IsLoading || (volumeComponent.Vertices.IsValid() == false))
                 return;
 
-
             GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
             drawCall.VertexData = GenerateVolumeMesh::GetVertexBuffer();
             drawCall.DrawCommandBuffer = GenerateVolumeMesh::GetDrawCommandBuffer();
@@ -155,10 +154,10 @@ namespace Volume
 
     namespace Systems
     {
-        void registerSystem(Entity::EntityComponentSystemsGraph& ecsGraph)
+        void registerSystem(Entity::EcsBuilder& ecsBuilder)
         {
-            ecsGraph.Register(VolumeSource::system);
-            ecsGraph.Register(VolumeRendering::system);
+            ecsBuilder.RegisterSystem(VolumeSource::system);
+            ecsBuilder.RegisterSystem(VolumeRendering::system);
         }
     }
     

@@ -42,20 +42,20 @@ namespace Onyx::Entity
         EntityRegistry* m_EntityRegistry = nullptr;
     };
 
-    template <typename Type, typename... Other>
+    template <typename... Types>
     struct Entity
     {
     public:
-        Entity(EntityQuery<Type, Other...>& query, EntityId entityId)
+        Entity(EntityQuery<Types...>& query, EntityId entityId)
             : m_Query(query)
             , m_EntityId(entityId)
         {
             
         }
-        decltype(auto) Get() { return m_Query.GetView().template get<Type, Other...>(m_EntityId); }
+        decltype(auto) Get() { return m_Query.GetView().template get<Types...>(m_EntityId); }
 
     private:
-        EntityQuery<Type, Other...>& m_Query;
+        EntityQuery<Types...>& m_Query;
         EntityId m_EntityId;
     };
 

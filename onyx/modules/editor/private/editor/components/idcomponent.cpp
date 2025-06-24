@@ -8,9 +8,10 @@
 namespace Onyx::GameCore
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void IdComponent::DrawImGuiEditor()
+    bool IdComponent::DrawImGuiEditor()
     {
         ImGui::TextEx(Format::Format("{}", Id), 0, ImGuiInputTextFlags_ReadOnly);
+        return false;
     }
 #endif
 }

@@ -29,7 +29,7 @@ namespace Onyx::Ui
         Internal::loc_AssetSystem = &assetSystem;
     }
 
-    void PropertyGrid::BeginPropertyGrid(const StringView& propertyGrid, onyxF32 splitMinX)
+    void PropertyGrid::BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX)
     {
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->ChannelsSplit(2);
@@ -67,7 +67,12 @@ namespace Onyx::Ui
         drawList->ChannelsMerge();
     }
 
-    void PropertyGrid::DrawPropertyName(const StringView& propertyName)
+    void PropertyGrid::DrawPropertyName(StringView propertyName)
+    {
+        DrawPropertyName(propertyName, "");
+    }
+
+    void PropertyGrid::DrawPropertyName(StringView propertyName, StringView tooltip)
     {
         ImGuiID propertyGridID = Internal::loc_PropertyGridIdStack.top();
 
@@ -96,14 +101,14 @@ namespace Onyx::Ui
         label_pos.y += verticalOffset;
 
         onyxF32 ellipsis_max = label_pos.x + splitterPosX - style.ItemSpacing.x - indendation;
-        
+        ImVec2 label_pos_max = ImVec2(ellipsis_max, label_pos.y + label_size.y);
         ImGui::PushFont(ImGui::GetDefaultFont());
 
         // Render the text with ellipsis if it exceeds the available width
         ImGui::RenderTextEllipsis(
             ImGui::GetWindowDrawList(),
             label_pos,
-            ImVec2(ellipsis_max, label_pos.y + label_size.y),
+            label_pos_max,
             ellipsis_max,
             ellipsis_max,
             label,
@@ -113,7 +118,24 @@ namespace Onyx::Ui
 
         ImGui::PopFont();
 
+        // move into name group
+        const bool hasTooltip = tooltip.empty() == false;
+        if (hasTooltip)
+        {
+            auto cursorPos = ImGui::GetCursorPos();
+            ImGui::PushClipRect(label_pos, label_pos_max, true);
+            DrawInfoIcon(ImGui::GetWindowDrawList(), ImVec2(label_size.x + style.ItemSpacing.x, verticalOffset), ImGui::GetTextLineHeight() / 2.0f, 0x33FFFFFF);
+            ImGui::PopClipRect();
+            ImGui::SetCursorPos(cursorPos);
+        }
+
         ImGui::Dummy(ImVec2(splitterPosX - indendation + style.DockingSeparatorSize + 2 * style.ItemInnerSpacing.x, ImGui::GetFrameHeightWithSpacing()));
+
+        if (hasTooltip && ImGui::BeginItemTooltip())
+        {
+            ImGui::TextEx(tooltip.data());
+            ImGui::EndTooltip();
+        }
     }
 
     void PropertyGrid::DrawPropertyValue(const InplaceFunction<void(), 64>& functor)
@@ -122,7 +144,7 @@ namespace Onyx::Ui
         ImGui::EndHorizontal();
     }
 
-    bool PropertyGrid::BeginPropertyGroup(const StringView& propertyName)
+    bool PropertyGrid::BeginPropertyGroup(StringView propertyName)
     {
         ImGui::PushID(propertyName.data());
 
@@ -135,7 +157,7 @@ namespace Onyx::Ui
         return true;
     }
 
-    bool PropertyGrid::BeginCollapsiblePropertyGroup(const StringView& propertyName, ImGuiTreeNodeFlags flags)
+    bool PropertyGrid::BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags)
     {
         ImGui::PushID(propertyName.data());
 
@@ -157,7 +179,7 @@ namespace Onyx::Ui
         }
     }
 
-    bool PropertyGrid::BeginCollapsiblePropertyGroup(const StringView& propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags)
+    bool PropertyGrid::BeginCollapsiblePropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags)
     {
         ImGui::PushID(propertyName.data());
 
@@ -187,12 +209,12 @@ namespace Onyx::Ui
         ImGui::PopID();
     }
 
-    bool PropertyGrid::DrawStringProperty(const StringView& propertyName, String& value)
+    bool PropertyGrid::DrawStringProperty(StringView propertyName, String& value)
     {
         return DrawStringProperty(propertyName, value, ImGuiInputTextFlags_None);
     }
 
-    bool PropertyGrid::DrawStringProperty(const StringView& propertyName, String& value, ImGuiInputTextFlags textFlags)
+    bool PropertyGrid::DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags)
     {
         DrawPropertyName(propertyName);
 
@@ -203,7 +225,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawAssetSelector(const StringView& propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
+    bool PropertyGrid::DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
     {
         ONYX_ASSERT(Internal::loc_AssetSystem != nullptr);
 
@@ -219,7 +241,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawBoolProperty(const StringView& propertyName, bool& value)
+    bool PropertyGrid::DrawBoolProperty(StringView propertyName, bool& value)
     {
         DrawPropertyName(propertyName);
 
@@ -235,7 +257,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawColorProperty(const StringView& propertyName, Vector3f& inOutColor)
+    bool PropertyGrid::DrawColorProperty(StringView propertyName, Vector3f& inOutColor)
     {
         DrawPropertyName(propertyName);
         ImGui::EndHorizontal();
@@ -255,7 +277,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawColorProperty(const StringView& propertyName, Vector4f& inOutColor)
+    bool PropertyGrid::DrawColorProperty(StringView propertyName, Vector4f& inOutColor)
     {
         DrawPropertyName(propertyName);
         ImGui::EndHorizontal();
@@ -276,7 +298,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawColorProperty(const StringView& propertyName, Vector4u8& inOutColor)
+    bool PropertyGrid::DrawColorProperty(StringView propertyName, Vector4u8& inOutColor)
     {
         Vector4f color{ numeric_cast<onyxF32>(inOutColor[0]) / 255.0f, numeric_cast<onyxF32>(inOutColor[1]) / 255.0f, numeric_cast<onyxF32>(inOutColor[2]) / 255.0f, numeric_cast<onyxF32>(inOutColor[3]) / 255.0f };
         if (DrawColorProperty(propertyName, color))

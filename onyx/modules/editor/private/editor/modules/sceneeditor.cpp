@@ -236,7 +236,7 @@ namespace Onyx::Editor
         ImGui::SetNextWindowClass(m_WindowClass);
         if (ImGui::Begin(Format::Format("Components{}", m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            m_ComponentsPanel.Render(*m_Scene);
+            m_ComponentsPanel.Render(m_GameCore.GetComponentFactory(), *m_Scene);
         }
         ImGui::End();
     }

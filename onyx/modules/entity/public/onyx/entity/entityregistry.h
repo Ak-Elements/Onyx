@@ -1,116 +1,21 @@
 #pragma once
 
 #include <onyx/entity/entity.h>
-#include <onyx/entity/componentfactory.h>
 
 #include <entt/entity/registry.hpp>
-#include <entt/meta/factory.hpp>
 
 namespace Onyx::Entity
 {
     class EntityRegistry
     {
-        template <typename T>
-        using FactoryT = void(*)(EntityRegistry&, EntityId, T&& component);
-
     public:
         using EntityRegistryT = entt::basic_registry<EntityId>;
 
-        template <typename T>
-        static void RegisterComponent()
-        {
-            using namespace entt::literals;
+        EntityId CreateEntity();
 
-            //constexpr bool showInEditor = Details::HasHideInEditor<T> == false;
-            constexpr bool isTransient = Details::IsTransient<T>;
-            if constexpr (isTransient)
-            {
-                //add flag components
-            }
-            else
-            {
-                constexpr auto typeHash = entt::type_hash<T>::value();
-                constexpr StringId32 typeId = T::TypeId;
+        void DeleteEntity(EntityId entityId);
 
-                s_ComponentRegistry.Register<T>();
-                s_RuntimeTypeIdToStaticTypeId[typeHash] = typeId;
-
-                s_Factories[T::TypeId] = [](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
-                {
-                    T component = std::any_cast<T>(anyComponent);
-                    registry.GetRegistry().emplace_or_replace<T>(entity, component);
-                };
-            }
-        }
-
-        template <typename T>
-        static void RegisterComponent(FactoryT<T> factory)
-        {
-            using namespace entt::literals;
-
-            //constexpr bool showInEditor = Details::HasHideInEditor<T> == false;
-            constexpr bool isTransient = Details::IsTransient<T>;
-            if constexpr (isTransient)
-            {
-                //add flag components
-            }
-            else
-            {
-                constexpr auto typeHash = entt::type_hash<T>::value();
-                constexpr StringId32 typeId = T::TypeId;
-
-                s_ComponentRegistry.Register<T>();
-                s_RuntimeTypeIdToStaticTypeId[typeHash] = typeId;
-
-                s_Factories[T::TypeId] = [=](EntityRegistry& registry, EntityId entity, std::any& anyComponent)
-                {
-                    T component = std::any_cast<T>(anyComponent);
-                    factory(registry, entity, std::move(component));
-                };
-            }
-        }
-
-        Optional<const IComponentMeta*> GetComponentMeta(StringId32 typeId) const
-        {
-            return s_ComponentRegistry.GetComponentMeta(typeId);
-        }
-
-        Optional<const IComponentMeta*> GetComponentMeta(entt::id_type runtimeTypeId) const
-        {
-            auto it = s_RuntimeTypeIdToStaticTypeId.find(runtimeTypeId);
-            if (it == s_RuntimeTypeIdToStaticTypeId.end())
-            {
-                return std::nullopt;
-            }
-
-            return s_ComponentRegistry.GetComponentMeta(it->second);
-        }
-
-        EntityId CreateEntity()
-        {
-            return m_Registry.create();
-        }
-
-        void DeleteEntity(EntityId entityId)
-        {
-            m_Registry.destroy(entityId);
-        }
-
-        EntityId DuplicateEntity(EntityId entity)
-        {
-            EntityId newEntity = CreateEntity();
-
-            // create a copy of an entity component by component
-            for (const auto&& componentStorageIt : GetStorage())
-            {
-                if (auto& componentStorage = componentStorageIt.second; componentStorage.contains(entity))
-                {
-                    componentStorage.push(newEntity, componentStorage.value(entity));
-                }
-            }
-
-            return newEntity;
-        }
+        EntityId CopyEntity(EntityId entity);
 
         template <typename T, typename... Args> requires (std::is_empty_v<T>)
         void AddComponent(EntityId entity)
@@ -122,13 +27,6 @@ namespace Onyx::Entity
         T& AddComponent(EntityId entity, Args&&... args)
         {
             return m_Registry.emplace_or_replace<T>(entity, std::forward<Args>(args)...);
-        }
-
-        void AddComponent(EntityId entity, StringId32 componentId, std::any& anyComponent)
-        {
-            ONYX_ASSERT(s_Factories.contains(componentId));
-            const auto& factory = s_Factories.at(componentId);
-            factory(*this, entity, anyComponent);
         }
 
         template <typename T>
@@ -179,21 +77,15 @@ namespace Onyx::Entity
             return m_Registry.group<Type, Other...>(std::forward<Includes>(includes)...);
         }*/
 
-        ONYX_NO_DISCARD EntityRegistryT::iterable GetStorage() { return m_Registry.storage(); }
-        ONYX_NO_DISCARD EntityRegistryT::const_iterable GetStorage() const { return m_Registry.storage(); }
+        ONYX_NO_DISCARD EntityRegistryT::iterable GetStorage();
+        ONYX_NO_DISCARD EntityRegistryT::const_iterable GetStorage() const;
 
-        EntityRegistryT& GetRegistry() { return m_Registry; }
-        const EntityRegistryT& GetRegistry() const { return m_Registry; }
+        EntityRegistryT& GetRegistry();
+        const EntityRegistryT& GetRegistry() const;
 
-        void Clear() { m_Registry.clear(); }
-
-        const ComponentRegistry& GetComponentRegistry() { return s_ComponentRegistry; }
+        void Clear();
 
     private:
         EntityRegistryT m_Registry;
-
-        static ComponentRegistry s_ComponentRegistry;
-        static HashMap<entt::id_type, StringId32> s_RuntimeTypeIdToStaticTypeId;
-        static HashMap<StringId32, InplaceFunction<void(EntityRegistry&, EntityId, std::any&)>> s_Factories;
     };
 }

@@ -40,7 +40,7 @@ namespace GameCore
         void LoadMaterial(Assets::AssetSystem& assetSystem);
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
-        void DrawImGuiEditor();
+        bool DrawImGuiEditor();
 #endif
     };
 }

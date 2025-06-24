@@ -4,11 +4,11 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <imgui.h>
-#include <imgui_stacklayout.h>
-
 #include <onyx/ui/imguistyle.h>
 #include <onyx/ui/widgets.h>
+
+#include <imgui.h>
+#include <imgui_stacklayout.h>
 
 namespace Onyx::Ui
 {
@@ -38,10 +38,18 @@ namespace Onyx::Ui
             return hasModified;
         }
 
+
         template <typename ScalarT>
-        static bool Vector3Input(Vector3<ScalarT>& vector)
+        static bool Vector3Input(Vector3<ScalarT>& outVector)
         {
-            PrepareVectorInput(vector, Vector3<ScalarT>::Zero());
+            constexpr Vector3<ScalarT> minValue { std::numeric_limits<ScalarT>::lowest() };
+            return Vector3Input(outVector, minValue);
+        }
+
+        template <typename ScalarT>
+        static bool Vector3Input(Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
+        {
+            PrepareVectorInput(outVector, Vector3<ScalarT>::Zero());
 
             onyxF32 framePaddingX = ImGui::GetStyle().FramePadding.x;
 
@@ -52,9 +60,15 @@ namespace Onyx::Ui
 
             constexpr ImGuiDataType dataType = GetImGuiDataType<ScalarT>();
 
-            bool hasModified = VectorComponentInput("X", &vector[0], dataType, componentInputSize, BACKGROUND_COLOR_X_COMPONENT);
-            hasModified |= VectorComponentInput("Y", &vector[1], dataType, componentInputSize, BACKGROUND_COLOR_Y_COMPONENT);
-            hasModified |= VectorComponentInput("Z", &vector[2], dataType, componentInputSize, BACKGROUND_COLOR_Z_COMPONENT);
+            //TODO: show error tooltip or error effect on UI when clamping (red flash)
+            bool hasModified = VectorComponentInput("X", &outVector.X, dataType, componentInputSize, BACKGROUND_COLOR_X_COMPONENT);
+            outVector.X = std::max(outVector.X, minValue.X);
+
+            hasModified |= VectorComponentInput("Y", &outVector.Y, dataType, componentInputSize, BACKGROUND_COLOR_Y_COMPONENT);
+            outVector.Y = std::max(outVector.Y, minValue.Y);
+
+            hasModified |= VectorComponentInput("Z", &outVector.Z, dataType, componentInputSize, BACKGROUND_COLOR_Z_COMPONENT);
+            outVector.Z = std::max(outVector.Z, minValue.Z);
 
             ImGui::Dummy(ImVec2(framePaddingX, 0));
 

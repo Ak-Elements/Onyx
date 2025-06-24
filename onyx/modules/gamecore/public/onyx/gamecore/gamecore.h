@@ -1,6 +1,8 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 #include <onyx/entity/entitycomponentsystem.h>
+#include <onyx/entity/componentfactory.h>
+#include <onyx/entity/ecsbuilder.h>
 
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/graphicsapi.h>
@@ -52,11 +54,14 @@ namespace Onyx::GameCore
 
         void SetScene(Reference<Scene>& scene) { Scene = scene; }
 
-        Entity::EntityComponentSystemsGraph& GetECSGraph() { return m_ECSGraph; }
+        const Entity::ComponentFactory& GetComponentFactory() const { return m_ComponentFactory; }
+
+        Entity::EcsBuilder GetEcsBuilder() { return { m_ComponentFactory, m_ECSGraph }; }
 
     private:
         
         Reference<Scene> Scene;
+        Entity::ComponentFactory m_ComponentFactory;
         Entity::EntityComponentSystemsGraph m_ECSGraph;
     };
 }

@@ -151,7 +151,7 @@ namespace Onyx::Editor::SceneEditor
                 {
                     if (ImGui::MenuItem("Duplicate"))
                     {
-                        selectedEntity = registry.DuplicateEntity(selectedEntity);
+                       // selectedEntity = registry.DuplicateEntity(selectedEntity);
                         ImGui::CloseCurrentPopup();
                     }
                 }

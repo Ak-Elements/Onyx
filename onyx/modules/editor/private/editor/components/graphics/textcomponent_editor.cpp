@@ -4,14 +4,15 @@
 namespace Onyx::GameCore
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void TextComponent::DrawImGuiEditor()
+    bool TextComponent::DrawImGuiEditor()
     {
         if (Ui::PropertyGrid::DrawStringProperty("Text", Text))
         {
             UpdateVertexBuffers();
+            return true;
         }
 
-        Ui::PropertyGrid::DrawScalarProperty("Size", Size);
+        return Ui::PropertyGrid::DrawScalarProperty("Size", Size);
     }
 
 #endif  

@@ -5,7 +5,7 @@
 namespace Onyx::GameCore
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void TransformComponent::DrawImGuiEditor()
+    bool TransformComponent::DrawImGuiEditor()
     {
         bool hasModified = false;
         hasModified = Ui::PropertyGrid::DrawVector3Property("Translation", m_Translation);
@@ -19,10 +19,7 @@ namespace Onyx::GameCore
 
         hasModified |= Ui::PropertyGrid::DrawVector3Property("Scale", m_Scale);
 
-        if (hasModified)
-        {
-            // recalculate transform matrix
-        }
+        return hasModified;
     }
 #endif
 }

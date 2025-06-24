@@ -7,6 +7,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/chunk/volumechunkloader.h
     ${TARGET_PUBLIC_PATH}/chunk/volumechunkloadrequest.h
     ${TARGET_PUBLIC_PATH}/components/volumecomponent.h
+    ${TARGET_PUBLIC_PATH}/components/volumeterraincomponent.h
     ${TARGET_PUBLIC_PATH}/cubicalmarchingsquares/cmsoctreesplitpolicy.h
     ${TARGET_PUBLIC_PATH}/cubicalmarchingsquares/linesegment.h
     ${TARGET_PUBLIC_PATH}/cubicalmarchingsquares/vertex.h
@@ -55,6 +56,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/source/noise/simplexnoised.h
     ${TARGET_PUBLIC_PATH}/source/noise/simplexnoisesource.h
     ${TARGET_PUBLIC_PATH}/source/volumebase.h
+    ${TARGET_PUBLIC_PATH}/systems/volumeterrainsystem.h
     ${TARGET_PUBLIC_PATH}/tree/tree.h
     ${TARGET_PUBLIC_PATH}/tree/tree.hpp
     ${TARGET_PUBLIC_PATH}/tree/treebreadthfirstiterator.h
@@ -74,6 +76,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/chunk/volumechunkloader.cpp
     ${TARGET_PRIVATE_PATH}/chunk/volumechunkloadrequest.cpp
     ${TARGET_PRIVATE_PATH}/components/volumecomponent.cpp
+    ${TARGET_PRIVATE_PATH}/components/volumeterraincomponent.cpp
     ${TARGET_PRIVATE_PATH}/graphics/gpueditvolume.cpp
     ${TARGET_PRIVATE_PATH}/graphics/gpuinitvolume.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/isosurface.cpp
@@ -87,6 +90,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/source/csg/operations/csgunion.cpp
     ${TARGET_PRIVATE_PATH}/source/noise/simplexnoised.cpp
     ${TARGET_PRIVATE_PATH}/source/volumebase.cpp
+    ${TARGET_PRIVATE_PATH}/systems/volumeterrainsystem.cpp
     ${TARGET_PRIVATE_PATH}/volumeterrain.cpp
     ${TARGET_PRIVATE_PATH}/graphics/generatemeshpass.cpp
     ${TARGET_PRIVATE_PATH}/volumesystem.cpp

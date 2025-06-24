@@ -3,6 +3,7 @@
 #include <editor/modules/sceneeditor.h>
 #include <onyx/gamecore/scene/scene.h>
 
+#include <onyx/entity/componentfactory.h>
 #include <onyx/entity/entity.h>
 #include <onyx/entity/entityregistry.h>
 
@@ -16,18 +17,18 @@
 
 namespace Onyx::Editor::SceneEditor
 {
-
-    void ComponentsPanel::Render(GameCore::Scene& scene)
+    void ComponentsPanel::Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
     {
         ImGui::Checkbox("Show all", &m_ShowAll);
 
-        DrawSelectedEntityComponents(scene);
-        DrawCreateComponentContextMenu(scene);
+        DrawSelectedEntityComponents(componentFactory, scene);
+        DrawCreateComponentContextMenu(componentFactory, scene);
     }
 
-    void ComponentsPanel::DrawSelectedEntityComponents(GameCore::Scene& scene)
+    void ComponentsPanel::DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
     {
         Entity::EntityRegistry& registry = scene.GetRegistry();
+
         auto selectedEntities = registry.GetView<SelectedComponent>();
 
         for (Entity::EntityId selectedEntity : selectedEntities)
@@ -37,15 +38,15 @@ namespace Onyx::Editor::SceneEditor
                 // if the component storage contains the entity we know that the entity has this component
                 if (entt::basic_sparse_set<Entity::EntityId>& componentStorage = componentStorageIt.second; componentStorage.contains(selectedEntity))
                 {
-                    if (const Entity::IComponentMeta* componentMeta = registry.GetComponentMeta(componentStorageIt.first).value_or(nullptr))
+                    if (const Entity::IComponentMeta* componentMeta = componentFactory.GetComponentMeta(componentStorageIt.first).value_or(nullptr))
                     {
                         if ((m_ShowAll == false) && (componentMeta->ShowInEditor() == false))
                         {
                             continue;
                         }
 
-                        const StringId32 typeId = componentMeta->GetTypeId();
-                        Ui::ScopedImGuiId id(typeId.GetId());
+                        const StringId32 componentTypeId = componentMeta->GetTypeId();
+                        Ui::ScopedImGuiId id(componentTypeId.GetId());
                         Ui::ScopedImGuiStyle style
                         {
                             { ImGuiStyleVar_FrameBorderSize, 0.0f },
@@ -53,7 +54,7 @@ namespace Onyx::Editor::SceneEditor
                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
                         };
 
-                        const StringView& typeName = typeId.GetString();
+                        StringView typeName = componentTypeId.GetString();
                         StringView::difference_type index = typeName.find_last_of(':') + 1;
                         String name(typeName.substr(index));
 
@@ -65,7 +66,20 @@ namespace Onyx::Editor::SceneEditor
                            style.Reset();
 
                            Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
-                           componentMeta->DrawPropertyGridEditor(componentStorage.value(selectedEntity));
+                           void* componentPtr = componentStorage.value(selectedEntity);
+                           if ( componentMeta->DrawPropertyGridEditor(componentPtr) )
+                           {
+                               // we only need to copy and replace the component if there is a factory associated
+                               // else the component is just default constructed without special logic
+                               if (componentMeta->HasFactory())
+                               {
+                                   bool hasCopied = componentFactory.TryCopyComponent(registry, selectedEntity, componentTypeId, componentPtr);
+                                   if (hasCopied)
+                                   {
+                                       ONYX_LOG_WARNING("Failed updating component({}) after edit in property grid on entity {}", name, static_cast<onyxU32>(selectedEntity));
+                                   }
+                               }
+                           }
 
                            //TODO: Needed for now to not auto extend if component is empty
                            ImGui::Dummy(ImVec2(1, 1));
@@ -84,9 +98,11 @@ namespace Onyx::Editor::SceneEditor
                 }
             }
         }
+
+
     }
 
-    void ComponentsPanel::DrawCreateComponentContextMenu(GameCore::Scene& scene)
+    void ComponentsPanel::DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
     {
         auto selectedEntities = scene.GetRegistry().GetView<SelectedComponent>();
 
@@ -104,10 +120,9 @@ namespace Onyx::Editor::SceneEditor
 
             Entity::EntityRegistry& registry = scene.GetRegistry();
             bool hasMenuItem = false;
-            const Entity::ComponentRegistry& componentRegistry = registry.GetComponentRegistry();
-            for (auto&& [componentId, meta] : componentRegistry.GetComponentMeta())
+            for (const StringId32& componentTypeId : componentFactory.GetComponentMeta() | std::views::keys)
             {
-                const StringView& typeName = componentId.GetString();
+                StringView typeName = componentTypeId.GetString();
                 StringView::difference_type index = typeName.find_last_of(':') + 1;
                 StringView name(typeName.substr(index));
 
@@ -120,9 +135,7 @@ namespace Onyx::Editor::SceneEditor
                 {
                     for (Entity::EntityId selectedEntity : selectedEntities)
                     {
-                        ONYX_UNUSED(selectedEntity);
-                        std::any newComponent = meta->Create();
-                        registry.AddComponent(selectedEntity, componentId, newComponent);
+                        componentFactory.TryCreateComponent(registry, selectedEntity, componentTypeId);
                     }
 
                     ImGui::CloseCurrentPopup();

@@ -5,17 +5,17 @@
 namespace Onyx::GameCore
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    void DirectionalLightComponent::DrawImGuiEditor()
+    bool DirectionalLightComponent::DrawImGuiEditor()
     {
         bool hasModified = Ui::PropertyGrid::DrawColorProperty("Color", Light.Color);
 
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Intensity", Light.Intensity);
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Shadow Amount", Light.ShadowAmount);
         hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", Light.IsShadowCasting);
-        ONYX_UNUSED(hasModified);
+        return hasModified;
     }
 
-    void PointLightComponent::DrawImGuiEditor()
+    bool PointLightComponent::DrawImGuiEditor()
     {
         bool hasModified = Ui::PropertyGrid::DrawColorProperty("Color", Light.Color);
 
@@ -29,10 +29,10 @@ namespace Onyx::GameCore
         bool isShadowCasting = Light.IsShadowCasting == 1;
         hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", isShadowCasting);
         Light.IsShadowCasting = isShadowCasting == 1;
-        ONYX_UNUSED(hasModified);
+        return hasModified;
     }
 
-    void SpotLightComponent::DrawImGuiEditor()
+    bool SpotLightComponent::DrawImGuiEditor()
     {
         bool hasModified = Ui::PropertyGrid::DrawColorProperty("Color", Light.Color);
 
@@ -42,7 +42,7 @@ namespace Onyx::GameCore
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Angle", Light.Angle);
         hasModified |= Ui::PropertyGrid::DrawScalarProperty("Angle Attenuation", Light.AngleAttenuation);
         hasModified |= Ui::PropertyGrid::DrawBoolProperty("Cast Shadows", Light.IsShadowCasting);
-        ONYX_UNUSED(hasModified);
+        return hasModified;
     }
 #endif
 }

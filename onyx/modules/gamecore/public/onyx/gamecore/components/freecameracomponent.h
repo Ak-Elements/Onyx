@@ -14,6 +14,11 @@ namespace Onyx
     {
         class GraphicsApi;
     }
+
+    namespace Entity
+    {
+        class EcsBuilder;
+    };
 }
 
 namespace Onyx::GameCore
@@ -25,7 +30,7 @@ namespace Onyx::GameCore
 
     namespace FreeCamera
     {
-        void registerSystems(Entity::EntityComponentSystemsGraph& graph);
+        void registerSystems(Entity::EcsBuilder& ecsBuilder);
     }
 
     struct FreeCameraControllerComponent
@@ -43,7 +48,7 @@ namespace Onyx::GameCore
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
-        void DrawImGuiEditor();
+        bool DrawImGuiEditor();
 #endif
     };
 
