@@ -23,45 +23,38 @@ namespace Onyx::Ui
         PowerOf2,
     };
 
-    class PropertyGrid
+    namespace PropertyGrid
     {
-    public:
-        static void SetAssetSystem(Assets::AssetSystem& assetSystem);
+        void SetAssetSystem(Assets::AssetSystem& assetSystem);
 
-        static void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX);
-        static void EndPropertyGrid();
+        void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX);
+        void EndPropertyGrid();
 
-        static void DrawPropertyName(StringView propertyName);
-        static void DrawPropertyName(StringView propertyName, StringView tooltip);
-        static void DrawPropertyValue(const InplaceFunction<void(), 64>& functor);
+        void DrawPropertyName(StringView propertyName);
+        void DrawPropertyName(StringView propertyName, StringView tooltip);
+        void DrawPropertyValue(const InplaceFunction<void(), 64>& functor);
 
-        static bool BeginPropertyGroup(StringView propertyName);
-        static bool BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);
-        static bool BeginCollapsiblePropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);
+        bool BeginPropertyGroup(StringView propertyName);
+        bool BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);
+        bool BeginCollapsiblePropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);
 
-        static void EndPropertyGroup();
+        void EndPropertyGroup();
 
-        static bool DrawStringProperty(StringView propertyName, String& value);
-        static bool DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
+        bool DrawStringProperty(StringView propertyName, String& value);
+        bool DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
 
-        static bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType);
-
-        /* returns true if the value was modified */
-        static bool DrawBoolProperty(StringView propertyName, bool& value);
+        bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType);
 
         /* returns true if the value was modified */
-        static bool DrawColorProperty(StringView propertyName, Vector3f& color);
-        static bool DrawColorProperty(StringView propertyName, Vector4f& inOutColor);
-        static bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor);
+        bool DrawBoolProperty(StringView propertyName, bool& value);
+
+        /* returns true if the value was modified */
+        bool DrawColorProperty(StringView propertyName, Vector3f& color);
+        bool DrawColorProperty(StringView propertyName, Vector4f& inOutColor);
+        bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor);
 
         template <typename ScalarT>
-        static bool DrawScalarProperty(StringView propertyName, ScalarT& value)
-        {
-            return DrawScalarProperty(propertyName, value, ScalarInputFlag::None);
-        }
-
-        template <typename ScalarT>
-        static bool DrawScalarProperty(StringView propertyName, ScalarT& value, ScalarInputFlag flags)
+        bool DrawScalarProperty(StringView propertyName, ScalarT& value, ScalarInputFlag flags)
         {
             DrawPropertyName(propertyName);
 
@@ -86,7 +79,13 @@ namespace Onyx::Ui
         }
 
         template <typename ScalarT>
-        static bool DrawVector2Property(StringView propertyName, Vector2<ScalarT>& vector)
+        bool DrawScalarProperty(StringView propertyName, ScalarT& value)
+        {
+            return DrawScalarProperty(propertyName, value, ScalarInputFlag::None);
+        }
+
+        template <typename ScalarT>
+        bool DrawVector2Property(StringView propertyName, Vector2<ScalarT>& vector)
         {
             DrawPropertyName(propertyName);
 
@@ -100,20 +99,7 @@ namespace Onyx::Ui
         }
 
         template <typename ScalarT>
-        static bool DrawVector3Property(StringView propertyName, Vector3<ScalarT>& outVector)
-        {
-            return DrawVector3Property(propertyName, "", outVector);
-        }
-
-        template <typename ScalarT>
-        static bool DrawVector3Property(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector)
-        {
-            constexpr Vector3<ScalarT> min{ std::numeric_limits<ScalarT>::lowest() };
-            return DrawVector3Property(propertyName, tooltip, outVector, min);
-        }
-
-        template <typename ScalarT>
-        static bool DrawVector3Property(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
+        bool DrawVector3Property(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
         {
             DrawPropertyName(propertyName, tooltip);
 
@@ -128,7 +114,20 @@ namespace Onyx::Ui
         }
 
         template <typename ScalarT>
-        static bool DrawVector4Property(StringView propertyName, Vector4<ScalarT>& vector)
+        bool DrawVector3Property(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector)
+        {
+            constexpr Vector3<ScalarT> min{ std::numeric_limits<ScalarT>::lowest() };
+            return DrawVector3Property(propertyName, tooltip, outVector, min);
+        }
+
+        template <typename ScalarT>
+        bool DrawVector3Property(StringView propertyName, Vector3<ScalarT>& outVector)
+        {
+            return DrawVector3Property(propertyName, "", outVector);
+        }
+
+        template <typename ScalarT>
+        bool DrawVector4Property(StringView propertyName, Vector4<ScalarT>& vector)
         {
             DrawPropertyName(propertyName);
 
@@ -142,7 +141,7 @@ namespace Onyx::Ui
         }
 
         template <typename EnumT> requires std::is_enum_v<EnumT>
-        static bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
+        bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
         {
             DrawPropertyName(propertyName);
 
@@ -177,7 +176,7 @@ namespace Onyx::Ui
 
         // Renders a enum property only with enum values between FromValue - ToValue
         template <typename EnumT, EnumT FromValue, EnumT ToValue> requires std::is_enum_v<EnumT>
-        static bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
+        bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
         {
             DrawPropertyName(propertyName);
 
@@ -214,12 +213,6 @@ namespace Onyx::Ui
 
             return isModified;
         }
-
-    private:
-        static void DrawSplitter();
-
-    private:
-        static onyxF32 ms_SplitterMinX;
     };
 }
 #endif

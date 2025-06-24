@@ -11,34 +11,82 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Ui
+namespace Onyx::Ui::PropertyGrid
 {
-    namespace Internal
+    namespace
     {
         Assets::AssetSystem* loc_AssetSystem = nullptr;
         Stack<ImGuiID> loc_PropertyGridIdStack;
 
         constexpr onyxU32 BACKGROUND_CHANNEL = 0;
         constexpr onyxU32 FOREGROUND_CHANNEL = 1;
+
+        onyxF32 loc_SplitterMinX;
+
+        void DrawSplitter()
+        {
+            ImGuiID propertyGridID = loc_PropertyGridIdStack.top();
+
+            ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
+            onyxU32 splitterId = imguiStateStorage->GetInt(propertyGridID);
+            float& storedSplitterPosX = *imguiStateStorage->GetFloatRef(splitterId, loc_SplitterMinX);
+
+            const ImGuiStyle& style = ImGui::GetStyle();
+            ImVec2 size = ImGui::GetItemRectSize();
+            const float lineWidth = style.DockingSeparatorSize;
+            ImVec2 screenPos = ImGui::GetCursorScreenPos();
+
+            ImRect visualBB;
+            visualBB.Min = ImVec2(screenPos.x + storedSplitterPosX - lineWidth, screenPos.y - size.y - style.FramePadding.y);
+            visualBB.Max = ImVec2(screenPos.x + storedSplitterPosX, screenPos.y - style.FramePadding.y);
+
+            ImRect interactionBB = visualBB;
+            interactionBB.Min.x -= 1.0f;
+            interactionBB.Max.x += 1.0f;
+
+            bool isHovered = false;
+            bool isHeld = false;
+            ImGuiID splitterButtonId = ImGui::GetID("##splitter");
+            ImGui::ItemAdd(visualBB, splitterButtonId, nullptr, ImGuiItemFlags_NoNav);
+            ImGui::ButtonBehavior(interactionBB, splitterButtonId, &isHovered, &isHeld, ImGuiButtonFlags_FlattenChildren);
+
+            ImDrawList* drawList = ImGui::GetWindowDrawList();
+            drawList->ChannelsSetCurrent(BACKGROUND_CHANNEL);
+
+            const onyxU32 splitterColor = isHeld ? ImGui::GetColorU32(ImGuiCol_SeparatorActive) : (isHovered ? ImGui::GetColorU32(ImGuiCol_SeparatorHovered) : ImGui::GetColorU32(ImGuiCol_Separator));
+            drawList->AddRectFilled(visualBB.Min, visualBB.Max, splitterColor);
+
+            drawList->ChannelsSetCurrent(FOREGROUND_CHANNEL);
+            // Handle dragging the splitter
+            if (isHeld)
+            {
+                // Update splitter position as the user drags it
+                storedSplitterPosX = std::max(storedSplitterPosX + ImGui::GetIO().MouseDelta.x, loc_SplitterMinX);
+            }
+
+            // Change cursor on hover to indicate it's resizable
+            if (isHovered)
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+            }
+        }
     }
 
-    onyxF32 PropertyGrid::ms_SplitterMinX = 0.0f;
-
-    void PropertyGrid::SetAssetSystem(Assets::AssetSystem& assetSystem)
+    void SetAssetSystem(Assets::AssetSystem& assetSystem)
     {
-        Internal::loc_AssetSystem = &assetSystem;
+        loc_AssetSystem = &assetSystem;
     }
 
-    void PropertyGrid::BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX)
+    void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX)
     {
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->ChannelsSplit(2);
-        drawList->ChannelsSetCurrent(Internal::FOREGROUND_CHANNEL);
+        drawList->ChannelsSetCurrent(FOREGROUND_CHANNEL);
 
         ImGui::BeginGroup();
 
-        Internal::loc_PropertyGridIdStack.push(ImGui::GetID(propertyGrid.data()));
-        ImGuiID id = Internal::loc_PropertyGridIdStack.top();
+        loc_PropertyGridIdStack.push(ImGui::GetID(propertyGrid.data()));
+        ImGuiID id = loc_PropertyGridIdStack.top();
 
         ImGui::PushID(id);
         ImGui::BeginGroup();
@@ -49,10 +97,10 @@ namespace Onyx::Ui
 
         ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
         imguiStateStorage->SetInt(id, static_cast<onyxS32>(splitterPositionXId));
-        ms_SplitterMinX = splitMinX;
+        loc_SplitterMinX = splitMinX;
     }
 
-    void PropertyGrid::EndPropertyGrid()
+    void EndPropertyGrid()
     {
         ImGui::EndGroup();
         ImGui::PopID();
@@ -61,20 +109,20 @@ namespace Onyx::Ui
 
         ImGui::EndGroup();
 
-        Internal::loc_PropertyGridIdStack.pop();
+        loc_PropertyGridIdStack.pop();
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->ChannelsMerge();
     }
 
-    void PropertyGrid::DrawPropertyName(StringView propertyName)
+    void DrawPropertyName(StringView propertyName)
     {
         DrawPropertyName(propertyName, "");
     }
 
-    void PropertyGrid::DrawPropertyName(StringView propertyName, StringView tooltip)
+    void DrawPropertyName(StringView propertyName, StringView tooltip)
     {
-        ImGuiID propertyGridID = Internal::loc_PropertyGridIdStack.top();
+        ImGuiID propertyGridID = loc_PropertyGridIdStack.top();
 
         ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
         onyxU32 splitterId = imguiStateStorage->GetInt(propertyGridID);
@@ -138,13 +186,13 @@ namespace Onyx::Ui
         }
     }
 
-    void PropertyGrid::DrawPropertyValue(const InplaceFunction<void(), 64>& functor)
+    void DrawPropertyValue(const InplaceFunction<void(), 64>& functor)
     {
         functor();
         ImGui::EndHorizontal();
     }
 
-    bool PropertyGrid::BeginPropertyGroup(StringView propertyName)
+    bool BeginPropertyGroup(StringView propertyName)
     {
         ImGui::PushID(propertyName.data());
 
@@ -157,7 +205,7 @@ namespace Onyx::Ui
         return true;
     }
 
-    bool PropertyGrid::BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags)
+    bool BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags)
     {
         ImGui::PushID(propertyName.data());
 
@@ -179,7 +227,7 @@ namespace Onyx::Ui
         }
     }
 
-    bool PropertyGrid::BeginCollapsiblePropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags)
+    bool BeginCollapsiblePropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags)
     {
         ImGui::PushID(propertyName.data());
 
@@ -201,7 +249,7 @@ namespace Onyx::Ui
         }
     }
 
-    void PropertyGrid::EndPropertyGroup()
+    void EndPropertyGroup()
     {
         ImGui::EndGroup();
         ImGui::Unindent();
@@ -209,12 +257,12 @@ namespace Onyx::Ui
         ImGui::PopID();
     }
 
-    bool PropertyGrid::DrawStringProperty(StringView propertyName, String& value)
+    bool DrawStringProperty(StringView propertyName, String& value)
     {
         return DrawStringProperty(propertyName, value, ImGuiInputTextFlags_None);
     }
 
-    bool PropertyGrid::DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags)
+    bool DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags)
     {
         DrawPropertyName(propertyName);
 
@@ -225,15 +273,15 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
+    bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
     {
-        ONYX_ASSERT(Internal::loc_AssetSystem != nullptr);
+        ONYX_ASSERT(loc_AssetSystem != nullptr);
 
         DrawPropertyName(propertyName);
 
         ImGui::PushID(propertyName.data());
 
-        bool hasModified = AssetSelectionControl::Render(*Internal::loc_AssetSystem, assetType, outAssetId);
+        bool hasModified = AssetSelectionControl::Render(*loc_AssetSystem, assetType, outAssetId);
 
         ImGui::PopID();
         ImGui::EndHorizontal();
@@ -241,7 +289,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawBoolProperty(StringView propertyName, bool& value)
+    bool DrawBoolProperty(StringView propertyName, bool& value)
     {
         DrawPropertyName(propertyName);
 
@@ -257,7 +305,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawColorProperty(StringView propertyName, Vector3f& inOutColor)
+    bool DrawColorProperty(StringView propertyName, Vector3f& inOutColor)
     {
         DrawPropertyName(propertyName);
         ImGui::EndHorizontal();
@@ -277,7 +325,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawColorProperty(StringView propertyName, Vector4f& inOutColor)
+    bool DrawColorProperty(StringView propertyName, Vector4f& inOutColor)
     {
         DrawPropertyName(propertyName);
         ImGui::EndHorizontal();
@@ -298,7 +346,7 @@ namespace Onyx::Ui
         return hasModified;
     }
 
-    bool PropertyGrid::DrawColorProperty(StringView propertyName, Vector4u8& inOutColor)
+    bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor)
     {
         Vector4f color{ numeric_cast<onyxF32>(inOutColor[0]) / 255.0f, numeric_cast<onyxF32>(inOutColor[1]) / 255.0f, numeric_cast<onyxF32>(inOutColor[2]) / 255.0f, numeric_cast<onyxF32>(inOutColor[3]) / 255.0f };
         if (DrawColorProperty(propertyName, color))
@@ -311,54 +359,6 @@ namespace Onyx::Ui
         }
 
         return false;
-    }
-
-    void PropertyGrid::DrawSplitter()
-    {
-        ImGuiID propertyGridID = Internal::loc_PropertyGridIdStack.top();
-
-        ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
-        onyxU32 splitterId = imguiStateStorage->GetInt(propertyGridID);
-        float& storedSplitterPosX = *imguiStateStorage->GetFloatRef(splitterId, ms_SplitterMinX);
-
-        const ImGuiStyle& style = ImGui::GetStyle();
-        ImVec2 size = ImGui::GetItemRectSize();
-        const float lineWidth = style.DockingSeparatorSize;
-        ImVec2 screenPos = ImGui::GetCursorScreenPos();
-
-        ImRect visualBB;
-        visualBB.Min = ImVec2(screenPos.x + storedSplitterPosX - lineWidth, screenPos.y - size.y - style.FramePadding.y);
-        visualBB.Max = ImVec2(screenPos.x + storedSplitterPosX, screenPos.y - style.FramePadding.y);
-
-        ImRect interactionBB = visualBB;
-        interactionBB.Min.x -= 1.0f;
-        interactionBB.Max.x += 1.0f;
-
-        bool isHovered = false;
-        bool isHeld = false;
-        ImGuiID splitterButtonId = ImGui::GetID("##splitter");
-        ImGui::ItemAdd(visualBB, splitterButtonId, nullptr, ImGuiItemFlags_NoNav);
-        ImGui::ButtonBehavior(interactionBB, splitterButtonId, &isHovered, &isHeld, ImGuiButtonFlags_FlattenChildren);
-
-        ImDrawList* drawList = ImGui::GetWindowDrawList();
-        drawList->ChannelsSetCurrent(Internal::BACKGROUND_CHANNEL);
-
-        const onyxU32 splitterColor = isHeld ? ImGui::GetColorU32(ImGuiCol_SeparatorActive) : (isHovered ? ImGui::GetColorU32(ImGuiCol_SeparatorHovered) : ImGui::GetColorU32(ImGuiCol_Separator));
-        drawList->AddRectFilled(visualBB.Min, visualBB.Max, splitterColor);
-
-        drawList->ChannelsSetCurrent(Internal::FOREGROUND_CHANNEL);
-        // Handle dragging the splitter
-        if (isHeld)
-        {
-            // Update splitter position as the user drags it
-            storedSplitterPosX = std::max(storedSplitterPosX + ImGui::GetIO().MouseDelta.x, ms_SplitterMinX);
-        }
-
-        // Change cursor on hover to indicate it's resizable
-        if (isHovered)
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-        }
     }
 }
 #endif
