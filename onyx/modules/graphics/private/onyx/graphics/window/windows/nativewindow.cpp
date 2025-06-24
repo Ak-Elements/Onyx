@@ -328,8 +328,8 @@ namespace Onyx::Graphics
             (LPCWSTR)windowTitle.data(),
             (LPCWSTR)windowTitle.data(),
             dwStyle,
-            windowRect.left,
-            0,// windowRect.top,
+            std::max(windowRect.left, 0l),
+            std::max(windowRect.top, 0l),
             windowRect.right - windowRect.left,
             windowRect.bottom - windowRect.top,
             NULL, // parent window
