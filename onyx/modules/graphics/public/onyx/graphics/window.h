@@ -41,7 +41,7 @@ namespace Onyx::Graphics
         onyxS8 MonitorIndex = -1;
 
         Vector2s32 Position{ -1 ,-1 };
-        Vector2u32 Size = { 0, 0 };
+        Vector2s32 Size = { 0, 0 };
 
         Vector2s32 MinSize{ 0, 0 };
         Vector2s32 MaxSize{ 0, 0 };

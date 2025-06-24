@@ -43,10 +43,10 @@ namespace Onyx::Graphics
         void SetTitle(StringView m_title);
         void SetIcon(const FileSystem::Filepath& path);
 
-        Vector2u32 GetFrameBufferSize() const { return m_Settings.Size; }
+        Vector2s32 GetFrameBufferSize() const { return m_Settings.Size; }
         onyxU16 GetRefreshRate() const { return m_Settings.MonitorRefreshRate; }
 
-        void SetSize(onyxU32 width, onyxU32 height);
+        void SetSize(onyxS32 width, onyxS32 height);
         void SetMinimumSize(const Vector2s32& minSize);
         void SetMaximumSize(const Vector2s32& minSize);
         void SetWindowMode(WindowMode mode);
@@ -57,8 +57,8 @@ namespace Onyx::Graphics
         bool IsVSyncEnabled() const { return m_Settings.UseVsync; }
         bool IsMinimized() const { return m_State == WindowState::Minimized; }
 
-        onyxU32 GetWidth() const { return m_Settings.Size[0]; }
-        onyxU32 GetHeight() const { return m_Settings.Size[1]; }
+        onyxS32 GetWidth() const { return m_Settings.Size[0]; }
+        onyxS32 GetHeight() const { return m_Settings.Size[1]; }
 
         void SetWindowMessageHandler(const WindowMessageHandler& handler) { m_WindowMessageHandler = handler; }
         void ClearWindowMessageHandler() { m_WindowMessageHandler = nullptr; }

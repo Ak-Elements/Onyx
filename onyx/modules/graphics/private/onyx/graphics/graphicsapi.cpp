@@ -94,13 +94,14 @@ namespace Onyx::Graphics
 
     void GraphicsApi::CreateDepthImages()
     {
-        const Vector2u32& windowExtent = m_Window.GetFrameBufferSize();
+        const Vector2s32& windowExtent = m_Window.GetFrameBufferSize();
 
-        if (IsEqual(windowExtent[0], static_cast<onyxU32>(m_DepthTextureExtent[0])) &&
-            IsEqual(windowExtent[1], static_cast<onyxU32>(m_DepthTextureExtent[1])))
+        if (windowExtent == m_DepthTextureExtent)
+        {
             return;
+        }
 
-        m_DepthTextureExtent = { static_cast<onyxS32>(windowExtent[0]), static_cast<onyxS32>(windowExtent[1]) };
+        m_DepthTextureExtent = windowExtent;
 
         TextureStorageProperties depthTargetStorageProperties;
         depthTargetStorageProperties.m_Size = Vector3s32{ m_DepthTextureExtent, 1 };

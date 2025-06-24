@@ -286,7 +286,7 @@ VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentMod
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D SwapChain::ChooseSwapExtent(const Vector2u32& windowSize, const VkSurfaceCapabilitiesKHR& capabilities) const
+VkExtent2D SwapChain::ChooseSwapExtent(const Vector2s32& windowSize, const VkSurfaceCapabilitiesKHR& capabilities) const
 {
 	// Vulkan tells us to match the resolution of the window by setting the width and height in the currentExtent member.
 	// However, some window managers do allow us to differ here and this is indicated by setting the width and height in
@@ -297,9 +297,9 @@ VkExtent2D SwapChain::ChooseSwapExtent(const Vector2u32& windowSize, const VkSur
 		return capabilities.currentExtent;
 	}
 
-	VkExtent2D actualExtent { windowSize[0], windowSize[1] };
-	actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-	actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+	VkExtent2D actualExtent{};
+	actualExtent.width = std::max(static_cast<onyxU32>(windowSize.X), std::min(capabilities.maxImageExtent.width, actualExtent.width));
+	actualExtent.height = std::max(static_cast<onyxU32>(windowSize.Y), std::min(capabilities.maxImageExtent.height, actualExtent.height));
 
 	return actualExtent;
 }

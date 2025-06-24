@@ -62,7 +62,7 @@ namespace Onyx::Graphics::Vulkan
         SupportDetails QuerySwapChainSupport(const PhysicalDevice& physicalDevice, const Surface& surface) const;
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const DynamicArray<VkSurfaceFormatKHR>& formats) const;
         VkPresentModeKHR ChooseSwapPresentMode(const DynamicArray<VkPresentModeKHR>& presentModes, bool isVSyncEnabled) const;
-        VkExtent2D ChooseSwapExtent(const Vector2u32& windowSize, const VkSurfaceCapabilitiesKHR& capabilities) const;
+        VkExtent2D ChooseSwapExtent(const Vector2s32& windowSize, const VkSurfaceCapabilitiesKHR& capabilities) const;
         onyxU32 ChooseImageCount(const VkSurfaceCapabilitiesKHR& capabilities) const;
         VkSurfaceTransformFlagBitsKHR ChoosePreTransform(const VkSurfaceCapabilitiesKHR& capabilities) const;
 

@@ -298,48 +298,44 @@ namespace Onyx::Graphics
             return;
         }
 
-        onyxU32 screenWidth = static_cast<onyxU32>(::GetSystemMetrics(SM_CXSCREEN));
-        onyxU32 screenHeight = static_cast<onyxU32>(::GetSystemMetrics(SM_CYSCREEN));
+        onyxS32 screenWidth = static_cast<onyxS32>(::GetSystemMetrics(SM_CXSCREEN));
+        onyxS32 screenHeight = static_cast<onyxS32>(::GetSystemMetrics(SM_CYSCREEN));
 
         bool isFullscreen = (m_Settings.Mode == WindowMode::Fullscreen) || (m_Settings.Mode == WindowMode::Borderless);
 
         DWORD dwExStyle = GetExtendedStyle();
         DWORD dwStyle = GetStyle();
 
-        //TODO: build based on monitor index if user selected different display
-
-        if (m_Settings.Position[0] == -1)
+        if (m_Settings.Position.X == -1)
         {
-            m_Settings.Position[0] = (screenWidth - m_Settings.Size[0]) / 2;
-            m_Settings.Position[1] = (screenHeight - m_Settings.Size[1]) / 2;
+            m_Settings.Position.X = std::clamp((screenWidth - m_Settings.Size.X) / 2, 0, screenWidth);
+        }
+
+        if (m_Settings.Position.Y == -1)
+        {
+            m_Settings.Position.Y = std::clamp((screenHeight - m_Settings.Size.Y) / 2, 0, screenHeight);
         }
 
         RECT windowRect;
-        windowRect.left = isFullscreen ? 0 : m_Settings.Position[0];
-        windowRect.top = isFullscreen ? 0 : m_Settings.Position[0];
-        windowRect.right = isFullscreen ? screenWidth : m_Settings.Size[0];
-        windowRect.bottom = isFullscreen ? screenHeight : m_Settings.Size[1];
+        windowRect.left = isFullscreen ? 0 : m_Settings.Position.X;
+        windowRect.top = isFullscreen ? 0 : m_Settings.Position.Y;
+        windowRect.right = isFullscreen ? screenWidth : m_Settings.Size.X;
+        windowRect.bottom = isFullscreen ? screenHeight : m_Settings.Size.Y;
 
-        ::AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
+        ::AdjustWindowRectEx(&windowRect, dwStyle, false, dwExStyle);
 
         m_WindowHandle = ::CreateWindowW(
             (LPCWSTR)windowTitle.data(),
             (LPCWSTR)windowTitle.data(),
             dwStyle,
             windowRect.left,
-            windowRect.top,
+            0,// windowRect.top,
             windowRect.right - windowRect.left,
             windowRect.bottom - windowRect.top,
             NULL, // parent window
             NULL,
             instance,
             this);
-
-       /* if (m_Settings.m_Icon != nullptr)
-        {
-            SendMessage(m_WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)m_Settings.m_Icon);
-            SendMessage(m_WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)m_Settings.m_SmallIcon);
-        }*/
     }
 
     void Window::FitToMonitor()
@@ -773,7 +769,7 @@ namespace Onyx::Graphics
         SendMessage(m_WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)icon);
     }
 
-    void Window::SetSize(onyxU32 width, onyxU32 height)
+    void Window::SetSize(onyxS32 width, onyxS32 height)
     {
         if ((width != m_Settings.Size[0]) || (height != m_Settings.Size[1]))
         {
@@ -886,6 +882,7 @@ namespace Onyx::Graphics
         }*/
 
         DWORD style = WS_VISIBLE | GetStyle();
+        DWORD exStyle = GetExtendedStyle();
         if (mode == WindowMode::Fullscreen)
         {
             Vector2u32 pos(
@@ -921,9 +918,8 @@ namespace Onyx::Graphics
             bool maximized = m_State == WindowState::Maximized;
             bool minimized = (m_State == WindowState::Minimized);
 
-            Vector2u32 size = m_Settings.Size;
             // position of window in settings
-            RECT rect = { m_Settings.Position[0], m_Settings.Position[1], m_Settings.Position[0] + static_cast<onyxS32>(size[0]), m_Settings.Position[1] + static_cast<onyxS32>(size[1])};
+            RECT rect = { m_Settings.Position.X, m_Settings.Position.Y, m_Settings.Position.X + m_Settings.Size.X, m_Settings.Position.Y + m_Settings.Size.Y};
 
             // make sure the window is visible on at least one monitor
             /*if (!RectIntersectsAnyMonitor(rect))
@@ -934,20 +930,20 @@ namespace Onyx::Graphics
                 rect.bottom = rect.top + size.y;
             }*/
 
-            ::AdjustWindowRect(&rect, style, FALSE);
+            ::AdjustWindowRectEx(&rect, style, FALSE, exStyle);
             ::SetWindowLongPtrW(m_WindowHandle, GWL_STYLE, style);
-            ::SetWindowPos(m_WindowHandle, 0, rect.left, rect.top, (rect.right - rect.left), (rect.bottom - rect.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+            ::SetWindowPos(m_WindowHandle, 0, std::max(rect.left, 0l), std::max(rect.top, 0l), (rect.right - rect.left), (rect.bottom - rect.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
             ::ShowWindow(m_WindowHandle, minimized ? SW_SHOWMINIMIZED : (maximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL));
         }
 
         // set topmost status
-        LONG_PTR exStyle = ::GetWindowLongPtrW(m_WindowHandle, GWL_EXSTYLE);
-        bool isTopMost = (exStyle & WS_EX_TOPMOST) != 0;
+        LONG_PTR extendedStyle = ::GetWindowLongPtrW(m_WindowHandle, GWL_EXSTYLE);
+        bool isTopMost = (extendedStyle & WS_EX_TOPMOST) != 0;
         bool wantTopMost = mode == WindowMode::Fullscreen && m_State >= WindowState::Background;
         if (isTopMost != wantTopMost)
         {
             if (!wantTopMost)
-                ::SetWindowLongPtrW(m_WindowHandle, GWL_EXSTYLE, exStyle & ~WS_EX_TOPMOST);
+                ::SetWindowLongPtrW(m_WindowHandle, GWL_EXSTYLE, extendedStyle & ~WS_EX_TOPMOST);
             ::SetWindowPos(m_WindowHandle, wantTopMost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSENDCHANGING | SWP_NOSIZE | SWP_NOMOVE);
         }
 
