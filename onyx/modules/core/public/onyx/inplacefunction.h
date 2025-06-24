@@ -334,17 +334,17 @@ namespace Onyx
             );
         }
 
-        constexpr bool operator== (const InplaceFunction& other) noexcept
+        constexpr bool operator== (const InplaceFunction& other) const noexcept
         {
             return vtable_ptr_ == other.vtable_ptr_; //&& storage_ == other.storage_;
         }
 
-        constexpr bool operator== (std::nullptr_t) noexcept
+        constexpr bool operator== (std::nullptr_t) const noexcept
         {
             return !operator bool();
         }
 
-        constexpr bool operator!= (std::nullptr_t) noexcept
+        constexpr bool operator!= (std::nullptr_t) const noexcept
         {
             return operator bool();
         }
