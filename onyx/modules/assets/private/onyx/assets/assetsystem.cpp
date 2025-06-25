@@ -37,8 +37,7 @@ namespace Onyx::Assets
 
                         AssetMetaData metaData;
 
-                        String assetPath = entry.path().lexically_relative(mountPoint.Path).string();
-                        std::ranges::replace(assetPath, '\\', '/');
+                        String assetPath = entry.path().lexically_relative(mountPoint.Path).generic_string();
                         ToLower(assetPath);
 
                         assetPath = mountPoint.Prefix + assetPath;
@@ -47,7 +46,7 @@ namespace Onyx::Assets
 
                         metaData.Version = version;
 
-                        String extension = metaData.Path.extension().string();
+                        String extension = metaData.Path.extension().generic_string();
                         if (extension.empty() == false)
                         {
                             extension = extension.substr(1); // ignore .

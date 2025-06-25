@@ -28,7 +28,7 @@ namespace Onyx::FileSystem::Path
         {
             for (auto& [_, mountPoint] : MountPoints)
             {
-                if (path.starts_with(mountPoint.Path.string()))
+                if (path.starts_with(mountPoint.Path.generic_string()))
                 {
                     return mountPoint;
                 }
@@ -51,7 +51,7 @@ namespace Onyx::FileSystem::Path
     String GetFileName(const Filepath& path)
     {
         using namespace std::filesystem;
-        return path.stem().string();
+        return path.stem().generic_string();
     }
 
     const HashMap<StringId32, MountPoint>& GetMountPoints()
@@ -119,11 +119,10 @@ namespace Onyx::FileSystem::Path
             relativePath = absolutePath.lexically_relative(GetWorkingDirectory());
         }
 
-        Optional<MountPoint> mountPoint = GetMountPointFromPath(relativePath.string());
+        Optional<MountPoint> mountPoint = GetMountPointFromPath(relativePath.generic_string());
         if (mountPoint.has_value())
         {
-            String prefixedPath = mountPoint->Prefix + relativePath.lexically_relative(mountPoint->Path).string();
-            std::ranges::replace(prefixedPath, '\\', '/');
+            String prefixedPath = mountPoint->Prefix + relativePath.lexically_relative(mountPoint->Path).generic_string();
             ToLower(prefixedPath);
             return prefixedPath;
         }
@@ -140,7 +139,7 @@ namespace Onyx::FileSystem::Path
     bool TempFileExists(const Filepath& path)
     {
         using namespace std::filesystem;
-        return exists(GetTempDirectory().append(path.string()));
+        return exists(GetTempDirectory().append(path.generic_string()));
     }
 
     void SetMountPoints(const HashMap<StringId32, MountPoint>& dataRoots)
