@@ -1,0 +1,8 @@
+msgid "menu.file"
+msgstr "File"
+
+msgid "menu.edit"
+msgstr "Edit"
+
+msgid "object.1001.name"
+msgstr "Police Car"
