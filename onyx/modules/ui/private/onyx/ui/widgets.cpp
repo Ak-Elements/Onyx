@@ -2,7 +2,8 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedid.h>
 
 #include <imgui.h>
 #include <imgui_stacklayout.h>

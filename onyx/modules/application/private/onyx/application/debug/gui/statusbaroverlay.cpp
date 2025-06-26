@@ -1,8 +1,10 @@
 #include <onyx/application/debug/gui/statusbaroverlay.h>
 
 #if ONYX_UI_MODULE
-
 #define IMGUI_DEFINE_MATH_OPERATORS
+
+
+#include <onyx/ui/controls/button.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -33,7 +35,7 @@ namespace Onyx::Application::Debug
             const StringView overlayName = overlay->GetName();
             const StringView value = overlay->GetValue();
 
-            bool hasClicked = ImGui::Button(value.data(), ImVec2(100,0));
+            bool hasClicked = Ui::Button(value.data(), Vector2f(100,0));
 
             if (hasClicked)
             {

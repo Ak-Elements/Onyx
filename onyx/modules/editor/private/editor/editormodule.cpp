@@ -20,10 +20,11 @@ namespace Onyx::Editor
         Assets::AssetSystem& assetSystem,
         Graphics::GraphicsApi& graphicsApi,
         Input::InputSystem& inputSystem,
-        Input::InputActionSystem& inputActionSystem)
+        Input::InputActionSystem& inputActionSystem,
+        Localization::LocalizationModule& locaModule)
     {
         imguiSystem.OpenWindow<EditorMainWindow>();
-        imguiSystem.OpenWindow<StartupWindow>();
+        imguiSystem.OpenWindow<StartupWindow>(locaModule);
 
         imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore,assetSystem, graphicsApi, inputActionSystem);
         imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, inputActionSystem);

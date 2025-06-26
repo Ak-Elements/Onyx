@@ -2,7 +2,7 @@
 #include <onyx/engine/enginesystem.h>
 #include <onyx/assets/asset.h>
 
-#include "localizedstring.h"
+#include <onyx/localization/localizationbackend.h>
 
 namespace Onyx::Assets
 {
@@ -16,6 +16,7 @@ namespace Onyx::Localization
 
 namespace Onyx::Localization
 {
+    
     struct LocalizationSettings
     {
         onyxS32 Locale;
@@ -25,12 +26,30 @@ namespace Onyx::Localization
     class LocalizationModule : public IEngineSystem
     {
     public:
-        void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings);
+        void Init(Assets::AssetSystem& assetSystem/*, const LocalizationSettings& localizationSettings*/);
 
-        LocalizedString Localize(LocalizedStringId id) const;
+        template <CompileTimeString Context>
+        LocalizedString Localize(StringId32 id, onyxS32 count) const
+        {
+            const UniquePtr<ILocalizationBackend>& localizationBackend = m_LocalizationBackends.at(Context);
+            return Localize(*localizationBackend, id, count);
+        }
+
+        template <CompileTimeString Context>
+        LocalizedString Localize(StringId32 id) const
+        {
+            const UniquePtr<ILocalizationBackend>& localizationBackend = m_LocalizationBackends.at(Context);
+            return Localize(*localizationBackend, id);
+        }
+
+    
+
+    private:
+        LocalizedString Localize(ILocalizationBackend& localizationBackend, StringId32 id) const;
+        LocalizedString Localize(ILocalizationBackend& localizationBackend, StringId32 id, onyxS32 count) const;
 
     private:
         LocalizationSettings m_Settings;
-        UniquePtr<ILocalizationBackend> m_LocalizationBackend;
+        HashMap<StringId32, UniquePtr<ILocalizationBackend>> m_LocalizationBackends;
     };
 }

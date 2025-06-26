@@ -1,12 +1,12 @@
 #include <onyx/ui/propertygrid.h>
 
+#if ONYX_IS_EDITOR
+
 #include <onyx/ui/modals/assetselectionmodal.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/textureasset.h>
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedid.h>
 #include <onyx/ui/widgets.h>
-
-#if ONYX_IS_EDITOR
 
 #include <imgui.h>
 #include <imgui_internal.h>

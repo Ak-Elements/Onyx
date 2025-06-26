@@ -6,13 +6,14 @@
 #include <onyx/entity/entity.h>
 #include <onyx/entity/entityregistry.h>
 
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedid.h>
 #include <onyx/ui/propertygrid.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <imgui.h>
 #include <imgui_internal.h>
+
 
 namespace Onyx::Editor::SceneEditor
 {

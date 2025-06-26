@@ -58,7 +58,7 @@ namespace Onyx
 
         onyxU32 count = static_cast<onyxU32>(strEndPos - startPos);
         outStrView = { strStartPos + 1, count - 2 }; // exclude " from string
-        Skip(count); // + 1 to skip end delimiter
+        Skip(count + 1); // + 1 to skip end delimiter
         return true;
     }
 
@@ -85,7 +85,7 @@ namespace Onyx
     void StringStream::DoRead(char* destination, onyxU64 size) const
     {
         ONYX_ASSERT((m_CurrentDataPosition + size) < GetLength());
-        char* startPos = const_cast<char*>(m_Data.data());
+        char* startPos = const_cast<char*>(m_Data.data() + m_CurrentDataPosition);
         std::memcpy(destination, startPos, size);
         m_CurrentDataPosition += size;
     }

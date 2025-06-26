@@ -4,16 +4,18 @@ namespace Onyx::Localization
 {
     class ILocalizationBackend;
 
-    enum class LocalizedStringId : onyxU32;
-
     struct LocalizedString
     {
-        LocalizedString(ILocalizationBackend& backend);
+        LocalizedString() = default;
+        LocalizedString(StringId32 id, ILocalizationBackend& backend);
+        LocalizedString(StringId32 id, onyxS32 count, ILocalizationBackend& backend);
+
+        StringView Get() const;
 
     private:
         void OnLocalizationChanged(ILocalizationBackend& backend);
     private:
-        LocalizedStringId m_LocalizationId;
-        StringView m_LocalizedString;
+        StringId32 m_LocalizationId;
+        Optional<StringView> m_LocalizedString;
     };
 }

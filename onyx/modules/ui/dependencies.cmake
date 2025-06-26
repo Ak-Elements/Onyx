@@ -6,6 +6,7 @@ set(TARGET_PUBLIC_DEPENDENCIES
 	onyx-filesystem
 	onyx-graphics
 	onyx-input
+	onyx-localization
 	onyx-profiler
 	ImGui
     ImGuizmo

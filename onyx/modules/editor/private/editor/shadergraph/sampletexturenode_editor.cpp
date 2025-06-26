@@ -3,6 +3,7 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/graphics/textureasset.h>
+#include <onyx/ui/scopedid.h>
 
 namespace Onyx::Graphics
 {

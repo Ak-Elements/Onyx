@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <onyx/ui/widgets.h>
+#include <onyx/ui/controls/button.h>
 
 namespace Onyx::Ui::AssetSelectionControl
 {
@@ -66,29 +67,29 @@ namespace Onyx::Ui::AssetSelectionControl
 
         const ImGuiStyle& style = ImGui::GetStyle();
         ImVec2 buttonSize(16.0f, 16.0f);
-        bool hovered, held;
         ImGuiID browseButtonId = ImGui::GetID("BrowseButton");
 
         //ImVec2 currentPos = ImGui::GetCursorScreenPos();
         //const onyxF32 currentHeight = ImGui::GetFrameHeight();
         //currentPos.y += currentHeight * 0.5f - buttonSize.y * 0.5f;
-        ImRect bb(ImGui::GetCursorScreenPos() + style.FramePadding, ImGui::GetCursorScreenPos() + buttonSize + style.FramePadding);
-        if (ImGui::ButtonBehavior(bb, browseButtonId, &hovered, &held))
+        ImRect bb(ImGui::GetCursorScreenPos() + style.FramePadding, buttonSize + style.FramePadding);
+        ButtonState state = Ui::ButtonBehavior(browseButtonId, bb);
+        if (state == ButtonState::Pressed)
         {
             ImGui::OpenPopup("AssetBrowser");
         }
         ImGui::ItemAdd(bb, browseButtonId);
 
-        if (hovered || held)
+        if ((state == ButtonState::Held) || (state == ButtonState::Hovered))
         {
-            onyxU32 buttonBackgroundColor = held ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+            onyxU32 buttonBackgroundColor = state == ButtonState::Held ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_ButtonHovered);
             ImGui::GetForegroundDrawList()->AddRectFilled(bb.Min - style.FramePadding, bb.Max + style.FramePadding, buttonBackgroundColor);
         }
 
         // TODO: Move to style
         // TODO: Find held & hovered color
         onyxU32 folderColor = 0xFF666666;
-        onyxU32 lidColor = held ? 0xFFFF7929 : hovered ? 0xFFFF7929 : 0xFF888888;
+        onyxU32 lidColor = state == ButtonState::Held ? 0xFFFF7929 : state == ButtonState::Hovered ? 0xFFFF7929 : 0xFF888888;
         Ui::DrawFolderIcon(ImGui::GetForegroundDrawList(), style.FramePadding, buttonSize.x, 1.0f, folderColor, lidColor);
        
         ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);

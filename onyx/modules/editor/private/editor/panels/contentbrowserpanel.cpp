@@ -2,6 +2,7 @@
 
 #include <editor/assets/importer/textureimporter.h>
 
+#include <onyx/ui/controls/button.h>
 #include <imgui.h>
 #include <imgui_stacklayout.h>
 #include <imgui_internal.h>
@@ -127,7 +128,7 @@ namespace Onyx::Editor
         ImGui::BeginHorizontal("##selectedDirContent");
         for (const DirectoryInfo& childItem : m_SelectedDirectory->Items)
         {
-            if (ImGui::Button(childItem.Path.stem().string().c_str()))
+            if (Ui::Button(childItem.Path.stem().string().c_str()))
             {
                 if (childItem.Path.extension().string() == ".png")
                 {

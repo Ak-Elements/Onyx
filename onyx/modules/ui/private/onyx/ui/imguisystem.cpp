@@ -314,7 +314,7 @@ namespace Onyx::Ui
 #if ONYX_IS_EDITOR
 		PropertyGrid::SetAssetSystem(assetSystem);
 
-		Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
+		/*Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
 		assetSystem.GetAsset(closedId, ImGuiSystem::FolderClosedAsset);
 
 		Assets::AssetId openId("textures/editor/icons/contentbrowser/folder_open.png");
@@ -324,7 +324,7 @@ namespace Onyx::Ui
 		assetSystem.GetAsset(closedSelectedId, ImGuiSystem::FolderSelectedClosedAsset);
 
 		Assets::AssetId openSelectedId("textures/editor/icons/contentbrowser/folder_open_selected.png");
-		assetSystem.GetAsset(openSelectedId, ImGuiSystem::FolderSelectedOpenAsset);
+		assetSystem.GetAsset(openSelectedId, ImGuiSystem::FolderSelectedOpenAsset);*/
 #else
 		ONYX_UNUSED(assetSystem);
 #endif

@@ -3,6 +3,7 @@ message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 set(TARGET_PUBLIC_DEPENDENCIES
 	onyx-gamecore
 	onyx-input
+	onyx-localization
 	onyx-volume
 	ImGui
     ImGuiNodeEditor

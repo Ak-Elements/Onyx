@@ -42,8 +42,10 @@ namespace Onyx
         static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings)
         {
             StringView path;
-            deserializer.Read<"rendergraph">(path);
-            outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
+            if (deserializer.Read<"rendergraph">(path))
+            {
+                outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
+            }
 
             deserializer.Read<"api">(outSettings.Api);
             return true;

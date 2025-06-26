@@ -4,11 +4,12 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
+#include <onyx/ui/scopedstyle.h>
+#include <onyx/ui/controls/button.h>
+#include <onyx/ui/widgets.h>
+
 #include <imgui.h>
 #include <imgui_stacklayout.h>
-
-#include <onyx/ui/imguistyle.h>
-#include <onyx/ui/widgets.h>
 
 namespace Onyx::Ui
 {
@@ -88,7 +89,7 @@ namespace Onyx::Ui
         {
             if (ImGui::BeginPopupContextWindow("##ContextMenu", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (ImGui::Button("Reset"))
+                if (Ui::Button("Reset"))
                 {
                     value = defaultValue;
                     ImGui::CloseCurrentPopup();

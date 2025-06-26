@@ -11,9 +11,12 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedid.h>
+#include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
 #include <imgui_internal.h>
+#include <onyx/ui/controls/button.h>
 
 namespace Onyx::Editor::SceneEditor
 {
@@ -69,9 +72,9 @@ namespace Onyx::Editor::SceneEditor
 
                 ImGui::PushClipRect(rowAreaMin, rowAreaMax, false);
                 ImGuiID id = ImGui::GetID("rowSelection");
-                bool isRowHovered = false, isRowClicked = false, held = false;
-                isRowClicked |= ImGui::ButtonBehavior(ImRect(rowAreaMin, rowAreaMax), id,
-                    &isRowHovered, &held, ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+                Ui::ButtonState state = Ui::ButtonBehavior(id, ImRect(rowAreaMin, rowAreaMax), ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+                bool isRowClicked = state == Ui::ButtonState::Pressed;
+                bool isRowHovered = state == Ui::ButtonState::Hovered;
                 ImGui::KeepAliveID(id);
                 ImGui::PopClipRect();
 

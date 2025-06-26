@@ -5,6 +5,7 @@
 #include <onyx/input/inputactionsasset.h>
 #include <onyx/input/inputevent.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
 
 namespace Onyx::Assets
@@ -67,5 +68,8 @@ namespace Onyx::Editor
 
         bool m_IsListeningOnInput = false;
         bool m_IsDirty = false;
+
+        Localization::LocalizedString m_AddActionLabel;
+        Localization::LocalizedString m_ListenLabel;
     };
 }

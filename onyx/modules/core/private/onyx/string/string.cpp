@@ -50,6 +50,12 @@ namespace Onyx
         return std::ranges::equal(lhs, rhs, [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); });
     }
 
+    bool IgnoreCaseStartsWith(const StringView& string, const StringView& prefix)
+    {
+        auto it = std::ranges::mismatch(string.begin(), string.end(), prefix.begin(), prefix.end(), [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); });
+        return it.in1 != string.end();
+    }
+
     StringView::size_type IgnoreCaseFind(const StringView& string, const StringView& searchString)
     {
         auto it = std::ranges::search(string, searchString, [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); }).begin();
@@ -80,11 +86,26 @@ namespace Onyx
         StringView::size_type start = str.find_first_not_of("\n\r\t ");
         StringView::size_type end = str.find_last_not_of("\n\r\t ");
 
-        if ((start == StringView::npos) || (end == StringView::npos))
+        if ((start == StringView::npos) && (end == StringView::npos))
         {
-            return str.substr(0);
+            return "";
         }
 
         return str.substr(start, (end - start) + 1);
+    }
+
+    StringView TrimLeft(const StringView& str)
+    {
+        if (str.empty())
+            return str;
+
+        StringView::size_type start = str.find_first_not_of("\n\r\t ");
+
+        if (start == StringView::npos)
+        {
+            return str;
+        }
+
+        return str.substr(start);
     }
 }

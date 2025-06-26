@@ -2,8 +2,11 @@
 
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedid.h>
 #include <onyx/ui/propertygrid.h>
+#include <onyx/ui/controls/button.h>
+
 #include <imgui_stacklayout.h>
 
 namespace Onyx::Graphics
@@ -211,7 +214,7 @@ namespace Onyx::Graphics
                 bool shouldOpen = false;
                 ImGui::BeginDisabled(canAddBlendState == false);
                 ImGui::Spring();
-                if (ImGui::Button("+"))
+                if (Ui::Button("+"))
                 {
                     BlendState& state = m_PipelineProperties.BlendStates.Emplace();
                     state.IsBlendEnabled = true;

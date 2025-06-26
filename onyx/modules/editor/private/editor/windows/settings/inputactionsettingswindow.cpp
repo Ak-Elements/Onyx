@@ -14,11 +14,15 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedid.h>
+#include <onyx/ui/scopedindent.h>
+#include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
 
 #include <imgui_internal.h>
 #include <imgui_stacklayout.h>
+#include <onyx/ui/controls/button.h>
 
 namespace Onyx::Editor
 {
@@ -26,6 +30,9 @@ namespace Onyx::Editor
         : m_AssetSystem(&assetSystem)
     {
         inputSystem.AddOnInputHandler(this, &InputActionSettingsWindow::OnInputEvent);
+
+        //m_AddActionLabel = StringId32("editor.windows.inputactionsettings.buttons.listen.label");
+        //m_ListenLabel = StringId32("editor.windows.inputactionsettings.buttons.listen.label");
     }
 
     InputActionSettingsWindow::~InputActionSettingsWindow()
@@ -222,7 +229,7 @@ namespace Onyx::Editor
 
             if (ImGui::BeginPopupContextItem("##CreateInputAction", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (ImGui::Button("Add Action"))
+                if (Ui::Button(m_AddActionLabel))
                 {
                     Input::InputAction& newAction = selectedMap.GetActions().emplace_back("New Action");
                     newAction.SetType(Input::ActionType::Bool);
@@ -445,7 +452,7 @@ namespace Onyx::Editor
         if (m_SelectedBindingIndex == INVALID_INDEX_32)
             return;
 
-        if (ImGui::Button("Listen"))
+        if (Ui::Button(m_ListenLabel))
         {
             m_IsListeningOnInput = true;
         }

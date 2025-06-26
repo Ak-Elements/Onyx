@@ -11,6 +11,11 @@
 
 #include <mutex>
 
+namespace Onyx::Localization
+{
+    class LocalizationModule;
+}
+
 struct ImFont;
 struct ImGuiIO;
 
@@ -187,6 +192,7 @@ namespace Onyx
 
         private:
             Graphics::Window* window;
+            Localization::LocalizationModule* m_LocalizationModule;
             HashMap<StringId64, ImFont*> fonts;
             std::mutex mutex;
             LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;
