@@ -16,10 +16,29 @@
 #include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
 #include <imgui_internal.h>
+#include <onyx/localization/localizationmodule.h>
 #include <onyx/ui/controls/button.h>
 
 namespace Onyx::Editor::SceneEditor
 {
+    namespace
+    {
+        constexpr Localization::LocalizationId NAME_COLUMN_ID{ "editor.windows.sceneeditor.entitiespanel.columns.name" };
+        constexpr Localization::LocalizationId VISIBILITY_COLUMN_ID{ "editor.windows.sceneeditor.entitiespanel.columns.visibility" };
+        constexpr Localization::LocalizationId CREATE_LABEL_ID{ "editor.windows.sceneeditor.entitiespanel.createentity" };
+        constexpr Localization::LocalizationId DUPLICATE_LABEL_ID{ "editor.generic.duplicate" };
+        constexpr Localization::LocalizationId DELETE_LABEL_ID{ "editor.generic.delete" };
+    }
+
+    EntitiesPanel::EntitiesPanel(Localization::LocalizationModule& localizationModule)
+        : m_NameColumnLabel(localizationModule.Localize<"Editor">(NAME_COLUMN_ID))
+        , m_VisibilityColumnLabel(localizationModule.Localize<"Editor">(VISIBILITY_COLUMN_ID))
+        , m_DuplicateEntityLabel(localizationModule.Localize<"Editor">(DUPLICATE_LABEL_ID))
+        , m_CreateEntityLabel(localizationModule.Localize<"Editor">(CREATE_LABEL_ID))
+        , m_DeleteEntityLabel(localizationModule.Localize<"Editor">(DELETE_LABEL_ID))
+    {
+    }
+
     void EntitiesPanel::Render(GameCore::Scene& scene)
     {
         if ((selectedEntity != entt::null) &&
@@ -42,10 +61,10 @@ namespace Onyx::Editor::SceneEditor
 
             ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
             ImGui::TableSetColumnIndex(0);
-            ImGui::TableHeader("Name");
+            ImGui::TableHeader(m_NameColumnLabel.Get().data());
 
             ImGui::TableSetColumnIndex(1);
-            ImGui::TableHeader("Visibility");
+            ImGui::TableHeader(m_VisibilityColumnLabel.Get().data());
             Entity::EntityRegistry& registry = scene.GetRegistry();
 
             // TODO: sorting
@@ -107,7 +126,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
                 {
-                    if (ImGui::MenuItem("Delete"))
+                    if (ImGui::MenuItem(m_DeleteEntityLabel.Get().data()))
                     {
                         DeleteEntity(scene, entity);
                         ImGui::CloseCurrentPopup();
@@ -139,7 +158,7 @@ namespace Onyx::Editor::SceneEditor
 
             if (ImGui::BeginPopupContextWindow("CreateEntityPopUp", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (ImGui::MenuItem("Create Entity"))
+                if (ImGui::MenuItem(m_CreateEntityLabel.Get().data()))
                 {
                     Entity::EntityId createdEntity = registry.CreateEntity();
                     registry.AddComponent<GameCore::IdComponent>(createdEntity);
@@ -152,7 +171,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (selectedEntity != entt::null)
                 {
-                    if (ImGui::MenuItem("Duplicate"))
+                    if (ImGui::MenuItem(m_DuplicateEntityLabel.Get().data()))
                     {
                         selectedEntity = registry.DuplicateEntity(selectedEntity);
                         ImGui::CloseCurrentPopup();

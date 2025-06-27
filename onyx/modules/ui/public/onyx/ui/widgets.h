@@ -6,6 +6,11 @@
 
 #include <imgui.h>
 
+namespace Onyx::Localization
+{
+    struct LocalizationId;
+}
+
 struct ImDrawList;
 struct ImVec2;
 
@@ -43,6 +48,8 @@ namespace Onyx::Ui
     void DrawItemBorder(onyxF32 thickness, onyxF32 rounding, onyxU32 color);
 
     bool DrawSearchBar(String& searchString, const StringView& hintLabel, bool& grabFocus);
+
+    bool ContextMenuHeader(Localization::LocalizationId label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = 0);
 

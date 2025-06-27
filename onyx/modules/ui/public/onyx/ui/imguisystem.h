@@ -51,6 +51,14 @@ namespace Onyx
             { window.Open() } -> std::same_as<void>;
         };
 
+        struct ImGuiContext
+        {
+            Assets::AssetSystem* AssetSystem = nullptr;
+            Localization::LocalizationModule* LocalizationModule = nullptr;
+        };
+
+        extern ImGuiContext g_UiContext;
+
         class ImGuiSystem : public IEngineSystem
         {
         public:
@@ -62,7 +70,7 @@ namespace Onyx
             ImGuiSystem();
             ~ImGuiSystem() override;
 
-            void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& window);
+            void Init(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem, Graphics::Window& window);
             void Shutdown(Input::InputSystem& inputSystem, Graphics::Window& window);
             
             void Update(DeltaGameTime deltaTime);
@@ -198,7 +206,7 @@ namespace Onyx
             LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;
 
             DynamicArray<UniquePtr<ImGuiWindow>> windows;
-            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>()>> windowFactory;
+            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> windowFactory;
         };
     }
 }

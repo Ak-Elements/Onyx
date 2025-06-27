@@ -3,15 +3,16 @@
 
 namespace Onyx::Localization
 {
-    LocalizedString::LocalizedString(StringId32 id, ILocalizationBackend& backend)
+    LocalizedString::LocalizedString(LocalizationId id, Optional<StringView> localizedString, ILocalizationBackend& /*backend*/)
         : m_LocalizationId(id)
-        , m_LocalizedString(backend.Localize(id))
+        , m_LocalizedString(localizedString)
     {
     }
 
-    LocalizedString::LocalizedString(StringId32 id, onyxS32 count, ILocalizationBackend& backend)
+    LocalizedString::LocalizedString(LocalizationId id, Optional<StringView> localizedString, onyxS32 count, ILocalizationBackend& /*backend*/)
         : m_LocalizationId(id)
-        , m_LocalizedString(backend.Localize(id, count))
+        , m_LocalizedString(localizedString)
+        , m_Count(count)
     {
     }
     
@@ -26,7 +27,7 @@ namespace Onyx::Localization
         }
         else
         {
-            return Format::Format("!!!{}:{}", m_LocalizationId.GetString(), m_LocalizationId.GetId());
+            return Format::Format("!!!{}:{}", m_LocalizationId.Id.GetString(), m_LocalizationId.Id.GetId());
         }
 #endif
     }

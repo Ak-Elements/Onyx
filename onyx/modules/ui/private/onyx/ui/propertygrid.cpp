@@ -1,12 +1,15 @@
+
 #include <onyx/ui/propertygrid.h>
+
 
 #if ONYX_IS_EDITOR
 
-#include <onyx/ui/modals/assetselectionmodal.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/textureasset.h>
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/widgets.h>
+#include <onyx/ui/controls/assetselector.h>
+#include <onyx/ui/imguisystem.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -15,7 +18,6 @@ namespace Onyx::Ui
 {
     namespace Internal
     {
-        Assets::AssetSystem* loc_AssetSystem = nullptr;
         Stack<ImGuiID> loc_PropertyGridIdStack;
 
         constexpr onyxU32 BACKGROUND_CHANNEL = 0;
@@ -23,11 +25,6 @@ namespace Onyx::Ui
     }
 
     onyxF32 PropertyGrid::ms_SplitterMinX = 0.0f;
-
-    void PropertyGrid::SetAssetSystem(Assets::AssetSystem& assetSystem)
-    {
-        Internal::loc_AssetSystem = &assetSystem;
-    }
 
     void PropertyGrid::BeginPropertyGrid(const StringView& propertyGrid, onyxF32 splitMinX)
     {
@@ -76,7 +73,7 @@ namespace Onyx::Ui
         onyxF32 splitterPosX = imguiStateStorage->GetFloat(splitterId);
 
         const ImGuiStyle& style = ImGui::GetStyle();
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
 
         ImGui::BeginHorizontal(propertyName.data());
 
@@ -205,13 +202,13 @@ namespace Onyx::Ui
 
     bool PropertyGrid::DrawAssetSelector(const StringView& propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
     {
-        ONYX_ASSERT(Internal::loc_AssetSystem != nullptr);
+        ONYX_ASSERT(g_UiContext.AssetSystem != nullptr);
 
         DrawPropertyName(propertyName);
 
         ImGui::PushID(propertyName.data());
 
-        bool hasModified = AssetSelectionControl::Render(*Internal::loc_AssetSystem, assetType, outAssetId);
+        bool hasModified = AssetSelector(*g_UiContext.AssetSystem, assetType, outAssetId);
 
         ImGui::PopID();
         ImGui::EndHorizontal();

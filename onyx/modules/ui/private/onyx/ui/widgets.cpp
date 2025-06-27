@@ -1,3 +1,6 @@
+#include <onyx/localization/localizationmodule.h>
+#include <onyx/localization/localizedstring.h>
+#include <onyx/ui/imguisystem.h>
 #include <onyx/ui/widgets.h>
 
 #if ONYX_USE_IMGUI
@@ -13,7 +16,7 @@ namespace Onyx::Ui
 {
     void DrawItemBackground(onyxF32 rounding, onyxF32 borderThickness, onyxU32 color)
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
             return;
 
@@ -51,7 +54,7 @@ namespace Onyx::Ui
 
     void DrawItemBorder(onyxF32 thickness, onyxF32 rounding, onyxU32 color)
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
             return;
 
@@ -168,6 +171,12 @@ namespace Onyx::Ui
         return modified;
     }
 
+    bool ContextMenuHeader(Localization::LocalizationId label, ImGuiTreeNodeFlags flags)
+    {
+        Localization::LocalizedString localizedLabel = g_UiContext.LocalizationModule->Localize<"Editor">(label);
+        return ContextMenuHeader(localizedLabel.Get(), flags);
+    }
+
     // move to a UI base class
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags)
     {
@@ -185,30 +194,30 @@ namespace Onyx::Ui
 
         // Render the collapsible header
         const ImGuiID collapsibleId = ImGui::GetID(label.data());
-        bool isOpen = ImGui::TreeNodeBehavior(collapsibleId, flags | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog, label.data());
+        bool isOpen = ImGui::TreeNodeBehavior(collapsibleId, flags |  ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog, label.data());
 
         if (isOpen)
         {
-            ImGuiWindow* window = ImGui::GetCurrentWindow();
-            const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
-            const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
-                ? currentStyle.FramePadding
-                : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
+            //ImGuiWindow* window = ImGui::GetCurrentWindow();
+            //const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
+            //const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
+            //    ? currentStyle.FramePadding
+            //    : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
 
-            // Use bounding box of the last drawn item (the collapsing header)
-            const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
-            const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header
+            //// Use bounding box of the last drawn item (the collapsing header)
+            //const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
+            //const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header
 
-            // Calculate separator line positions
-            const ImVec2 label_size = ImGui::CalcTextSize(label.data());
-            const float text_offset_x = header_min.x + ImGui::GetFontSize() + padding.x * 4 + label_size.x;
-            const float line_y = header_min.y + ImGui::GetFrameHeight() * 0.5f; // Slightly below the header
-            const ImVec2 start = ImVec2(text_offset_x, line_y);
-            const ImVec2 end = ImVec2(header_max.x - padding.x, line_y);
+            //// Calculate separator line positions
+            //const ImVec2 label_size = ImGui::CalcTextSize(label.data());
+            //const float text_offset_x = header_min.x + ImGui::GetFontSize() + padding.x * 4 + label_size.x;
+            //const float line_y = header_min.y + ImGui::GetFrameHeight() * 0.5f; // Slightly below the header
+            //const ImVec2 start = ImVec2(text_offset_x, line_y);
+            //const ImVec2 end = ImVec2(header_max.x - padding.x, line_y);
 
-            window->DrawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator));
+            //window->DrawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator));
 
-            // next line
+            //// next line
         }
 
         ImGui::SameLine();
@@ -219,7 +228,7 @@ namespace Onyx::Ui
 
     bool ContextMenuHeader(StringView label, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags)
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
             return false;
 
@@ -391,7 +400,8 @@ namespace Onyx::Ui
 
         if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
         {
-            if (ImGui::MenuItem("Rename"))
+            static Localization::LocalizedString renameLabel = g_UiContext.LocalizationModule->Localize<"Editor">({ "editor.generic.rename" } );
+            if (ImGui::MenuItem(renameLabel.Get().data()))
             {
                 isRenaming = true;
                 ImGui::CloseCurrentPopup();

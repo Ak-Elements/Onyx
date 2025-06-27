@@ -37,10 +37,10 @@ namespace Onyx::Localization
             // Esperanto
             // Hungarian
             // Turkish 
-            PluralRule{ "nplurals=2;plural=(n!=1);", [](onyxS32 n) { return n == 1 ? 0 : 1; }  },
+            PluralRule{ "nplurals=2;plural=(n!=1);", [](onyxS32 n) { return n != 1 ? 1 : 0; }  },
 
             /// Brazilian Portuguese, French 
-            PluralRule{ "nplurals=2;plural=(n>1);", [](onyxS32 n) { return n > 1 ? 0 : 1; } },
+            PluralRule{ "nplurals=2;plural=(n>1);", [](onyxS32 n) { return n > 1 ? 1 : 0; } },
 
             // Macedonian
             PluralRule{ "nplurals=2;plural=n==1||n%10==1?0:1;", [](onyxS32 n) { return (n == 1) || ((n % 10) == 1) ? 0 : 1; } },
@@ -223,9 +223,9 @@ namespace Onyx::Localization
         }
     }
 
-    Optional<StringView> GetTextLocalizationBackend::Localize(StringId32 id) const
+    Optional<StringView> GetTextLocalizationBackend::Localize(LocalizationId id) const
     {
-        auto it = m_LocaleDatabase.find(id);
+        auto it = m_LocaleDatabase.find(id.Id);
         if (it == m_LocaleDatabase.end())
         {
             return std::nullopt;
@@ -234,9 +234,9 @@ namespace Onyx::Localization
         return it->second.front();
     }
 
-    Optional<StringView> GetTextLocalizationBackend::Localize(StringId32 id, onyxS32 count) const
+    Optional<StringView> GetTextLocalizationBackend::Localize(LocalizationId id, onyxS32 count) const
     {
-        auto it = m_LocaleDatabase.find(id);
+        auto it = m_LocaleDatabase.find(id.Id);
         if (it == m_LocaleDatabase.end())
         {
             return std::nullopt;

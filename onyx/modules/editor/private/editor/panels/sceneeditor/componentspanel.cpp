@@ -9,18 +9,35 @@
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/propertygrid.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
-#include <imgui.h>
+#include <onyx/localization/localizedstring.h>
 #include <imgui_internal.h>
+#include <onyx/localization/localizationmodule.h>
+#include <onyx/ui/imguisystem.h>
 
 
 namespace Onyx::Editor::SceneEditor
 {
+    namespace
+    {
+        // probably needed again once we add a button to add components
+        //constexpr Localization::LocalizationId ADD_COMPONENT_LABEL_ID{ "editor.sceneeditor.componentspanel.addcomponent" };
+        
+        constexpr Localization::LocalizationId SHOW_ALL_COMPONENTS_LABEL_ID{ "editor.windows.sceneeditor.componentspanel.showall" };
+        constexpr Localization::LocalizationId SEARCH_BAR_HINT_LABEL_ID{ "editor.generic.search" };
+    }
+
+    ComponentsPanel::ComponentsPanel(Localization::LocalizationModule& localizationModule)
+        : m_ShowAllLabel(localizationModule.Localize<"Editor">(SHOW_ALL_COMPONENTS_LABEL_ID))
+        , m_SearchHintLabel(localizationModule.Localize<"Editor">(SEARCH_BAR_HINT_LABEL_ID))
+        , m_LocalizationModule(&localizationModule)
+    {
+        
+    }
+
 
     void ComponentsPanel::Render(GameCore::Scene& scene)
     {
-        ImGui::Checkbox("Show all", &m_ShowAll);
+        ImGui::Checkbox(m_ShowAllLabel.Get().data(), &m_ShowAll);
 
         DrawSelectedEntityComponents(scene);
         DrawCreateComponentContextMenu(scene);
@@ -54,34 +71,29 @@ namespace Onyx::Editor::SceneEditor
                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
                         };
 
-                        const StringView& typeName = typeId.GetString();
-                        StringView::difference_type index = typeName.find_last_of(':') + 1;
-                        String name(typeName.substr(index));
+                        Localization::LocalizationId localizationId(typeId);
+                        if (Ui::ContextMenuHeader(localizationId, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
+                        {
+                            ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
 
-                       if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
-                       {
-                           ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
+                            // manually clear style
+                            style.Reset();
 
-                           // manually clear style
-                           style.Reset();
+                            Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
+                            componentMeta->DrawPropertyGridEditor(componentStorage.value(selectedEntity));
 
-                           Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
-                           componentMeta->DrawPropertyGridEditor(componentStorage.value(selectedEntity));
-
-                           //TODO: Needed for now to not auto extend if component is empty
-                           ImGui::Dummy(ImVec2(1, 1));
+                            //TODO: Needed for now to not auto extend if component is empty
+                            ImGui::Dummy(ImVec2(1, 1));
                            
-                           Ui::PropertyGrid::EndPropertyGrid();
-                           ImGui::EndChild();
-                       }
-                       else
-                       {
-                           style.Reset();
-                           ImGui::Spacing();
-                       }
+                            Ui::PropertyGrid::EndPropertyGrid();
+                            ImGui::EndChild();
+                        }
+                        else
+                        {
+                            style.Reset();
+                            ImGui::Spacing();
+                        }
                     }
-
-                   
                 }
             }
         }
@@ -91,7 +103,7 @@ namespace Onyx::Editor::SceneEditor
     {
         auto selectedEntities = scene.GetRegistry().GetView<SelectedComponent>();
 
-        if (ImGui::BeginPopupContextWindow("AddComponent", ImGuiPopupFlags_MouseButtonRight))
+        if (ImGui::BeginPopupContextWindow("AddComponentModal", ImGuiPopupFlags_MouseButtonRight))
         {
             static String s_SearchString;
             static bool s_HasFocus = false;
@@ -101,23 +113,23 @@ namespace Onyx::Editor::SceneEditor
             if (ImGui::GetCurrentWindow()->Appearing)
                 s_SearchString.clear();
 
-            Ui::DrawSearchBar(s_SearchString, "Search...", s_HasFocus);
+            Ui::DrawSearchBar(s_SearchString, m_SearchHintLabel.Get().data(), s_HasFocus);
 
             Entity::EntityRegistry& registry = scene.GetRegistry();
             bool hasMenuItem = false;
             const Entity::ComponentRegistry& componentRegistry = registry.GetComponentRegistry();
             for (auto&& [componentId, meta] : componentRegistry.GetComponentMeta())
             {
-                const StringView& typeName = componentId.GetString();
-                StringView::difference_type index = typeName.find_last_of(':') + 1;
-                StringView name(typeName.substr(index));
+                Localization::LocalizationId localizationId(componentId);
+                Localization::LocalizedString componentLocalizedName = m_LocalizationModule->Localize<"Editor">(localizationId);
 
-                if (IgnoreCaseFind(name, s_SearchString) == std::string::npos)
+                StringView componentName = componentLocalizedName.Get();
+                if (IgnoreCaseFind(componentName, s_SearchString) == std::string::npos)
                     continue;
 
                 hasMenuItem = true;
 
-                if (ImGui::MenuItem(name.data()))
+                if (ImGui::MenuItem(componentName.data()))
                 {
                     for (Entity::EntityId selectedEntity : selectedEntities)
                     {

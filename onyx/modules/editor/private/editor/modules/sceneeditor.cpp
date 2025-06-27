@@ -20,58 +20,73 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
+#include <onyx/localization/localizationmodule.h>
 
 namespace Onyx::Editor
 {
     namespace 
     {
         onyxU32 local_WindowId = 0;
+
+        constexpr Localization::LocalizationId SCENE_EDITOR_TITLE_ID{ "editor.windows.sceneeditor.title" };
+        constexpr Localization::LocalizationId COMPONENTS_PANEL_TITLE_ID{ "editor.windows.sceneeditor.componentspanel.title" };
+        constexpr Localization::LocalizationId ENTITIES_PANEL_TITLE_ID{ "editor.windows.sceneeditor.entitiespanel.title" };
+
+        Localization::LocalizedString sceneeditor_SceneEditorTitleLabel;
+        Localization::LocalizedString sceneeditor_ComponentsPanelLabel;
+        Localization::LocalizedString sceneeditor_EntitiesPanelLabel;
     }
 
-    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
-        : gameCore(gameCore)
-        , api(graphicsApi)
-        , inputActionSystem(inputActionSystem)
-        , assetSystem(&assetSystem)
-        , windowId(local_WindowId++)
+    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
+        : m_GameCore(gameCore)
+        , m_Api(graphicsApi)
+        , m_InputActionSystem(inputActionSystem)
+        , m_AssetSystem(&assetSystem)
+        , m_WindowId(local_WindowId++)
+        , m_ComponentsPanel(localizationModule)
+        , m_EntitiesPanel(localizationModule)
     {
-        windowClass = new ImGuiWindowClass();
-        windowClass->DockingAllowUnclassed = false;
+        m_WindowClass = new ImGuiWindowClass();
+        m_WindowClass->DockingAllowUnclassed = false;
+
+        sceneeditor_SceneEditorTitleLabel = localizationModule.Localize<"Editor">(SCENE_EDITOR_TITLE_ID);
+        sceneeditor_ComponentsPanelLabel = localizationModule.Localize<"Editor">(COMPONENTS_PANEL_TITLE_ID);
+        sceneeditor_EntitiesPanelLabel = localizationModule.Localize<"Editor">(ENTITIES_PANEL_TITLE_ID);
     }
 
     SceneEditorWindow::~SceneEditorWindow() = default;
 
     void SceneEditorWindow::OnOpen()
     {
-        SetName(Format::Format("Scene Editor###SceneEditor{}", windowId));
-        windowClass->ClassId = ImGui::GetID("scene");
+        SetName(Format::Format("{}###SceneEditor{}", sceneeditor_SceneEditorTitleLabel.Get(), m_WindowId));
+        m_WindowClass->ClassId = ImGui::GetID("scene");
 
-        sceneViewPanelId = Format::Format("###SceneViewPanel{}", windowId);
-        entitiesPanelId = Format::Format("###EntitiesPanel{}", windowId);
-        componentsPanelId = Format::Format("###ComponentsPanel{}", windowId);
+        m_SceneViewPanelId = Format::Format("###SceneViewPanel{}", m_WindowId);
+        m_EntitiesPanelId = Format::Format("###EntitiesPanel{}", m_WindowId);
+        m_ComponentsPanelId = Format::Format("###ComponentsPanel{}", m_WindowId);
 
-        ImGuiID dockspaceID = ImGui::GetID(Format::Format("SceneEditorDockspace{}", windowId));
-        dockspace = Ui::Dockspace::Create({
+        ImGuiID dockspaceID = ImGui::GetID(Format::Format("SceneEditorDockspace{}", m_WindowId));
+        m_Dockspace = Ui::Dockspace::Create({
           {
-              Ui::DockSplitDirection::Right, 0.8f, "", entitiesPanelId
+              Ui::DockSplitDirection::Right, 0.8f, "", m_EntitiesPanelId
           },
           {
-              Ui::DockSplitDirection::Right, 0.2f, componentsPanelId, sceneViewPanelId
+              Ui::DockSplitDirection::Right, 0.2f, m_ComponentsPanelId, m_SceneViewPanelId
           }
             });
-        dockspace.SetId(dockspaceID);
-        dockspace.SetWindowClass(*windowClass);
+        m_Dockspace.SetId(dockspaceID);
+        m_Dockspace.SetWindowClass(*m_WindowClass);
 
-        inputActionSystem.SetCurrentInputActionMap(StringId32("sceneeditor"));
+        m_InputActionSystem.SetCurrentInputActionMap(StringId32("sceneeditor"));
 
-        if (scene.IsValid() == false)
+        if (m_Scene.IsValid() == false)
         {
             StringView startupLevel = "";
 
             if (startupLevel.empty())
             {
-                scene = assetSystem->Create<GameCore::Scene>();
-                OnSceneLoaded(scene);
+                m_Scene = m_AssetSystem->Create<GameCore::Scene>();
+                OnSceneLoaded(m_Scene);
             }
             else
             {
@@ -82,7 +97,7 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::OnClose()
     {
-        inputActionSystem.Disconnect(this);
+        m_InputActionSystem.Disconnect(this);
     }
 
     void SceneEditorWindow::OnRender(Ui::ImGuiSystem& system)
@@ -99,7 +114,7 @@ namespace Onyx::Editor
             SetWindowFlags(ImGuiWindowFlags_MenuBar);
         }
 
-        gameCore.SetScene(scene);
+        m_GameCore.SetScene(m_Scene);
 
         Optional<EditorMainWindow*> mainWindowOptional = system.GetWindow<EditorMainWindow>();
         if (mainWindowOptional.has_value())
@@ -110,7 +125,7 @@ namespace Onyx::Editor
         
         if (Begin())
         {
-            dockspace.Render();
+            m_Dockspace.Render();
 
             RenderMenuBar();
 
@@ -128,7 +143,7 @@ namespace Onyx::Editor
         }
         else
         {
-            dockspace.Render();
+            m_Dockspace.Render();
         }
 
         End();
@@ -164,17 +179,17 @@ namespace Onyx::Editor
                 FileSystem::Filepath path;
                 if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
                 {
-                    assetSystem->SaveAssetAs(path, scene);
+                    m_AssetSystem->SaveAssetAs(path, m_Scene);
                 }
             }
 
             if (ImGui::MenuItem("Open Scene"))
             {
-                isLoading = true;
-                if (scene.IsValid())
+                m_IsLoading = true;
+                if (m_Scene.IsValid())
                 {
-                    scene->GetOnLoadedEvent().Disconnect(this);
-                    inputActionSystem.Disconnect(this);
+                    m_Scene->GetOnLoadedEvent().Disconnect(this);
+                    m_InputActionSystem.Disconnect(this);
                 }
 
                 FileSystem::Filepath path;
@@ -193,14 +208,14 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderSceneViewport()
     {
         // TODO TEMP: expose final pin to the outside
-        const Graphics::TextureHandle& finalSceneTexture  = api.GetRenderGraph()->GetFinalTexture();
+        const Graphics::TextureHandle& finalSceneTexture  = m_Api.GetRenderGraph()->GetFinalTexture();
 
         const Graphics::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
         ImVec2 sceneTextureExtents = { static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1]) };
 
-        ImGui::SetNextWindowClass(windowClass);
+        ImGui::SetNextWindowClass(m_WindowClass);
         //ImGui::SetNextWindowDockID(dockspace);
-        if (ImGui::Begin(Format::Format("Scene{}", sceneViewPanelId)))
+        if (ImGui::Begin(Format::Format("Scene{}", m_SceneViewPanelId)))
         {
             ImGui::Image(finalSceneTexture.Texture->GetIndex(), sceneTextureExtents);
 
@@ -212,10 +227,10 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::RenderEntitiesPanel()
     {
-        ImGui::SetNextWindowClass(windowClass);
-        if (ImGui::Begin(Format::Format("Entities{}", entitiesPanelId)))
+        ImGui::SetNextWindowClass(m_WindowClass);
+        if (ImGui::Begin(Format::Format("{}{}", sceneeditor_EntitiesPanelLabel.Get(), m_EntitiesPanelId)))
         {
-            entitiesPanel.Render(*scene);
+            m_EntitiesPanel.Render(*m_Scene);
         }
 
         ImGui::End();
@@ -223,26 +238,26 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::RenderComponentsPanel()
     {
-        ImGui::SetNextWindowClass(windowClass);
-        if (ImGui::Begin(Format::Format("Components{}", componentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
+        ImGui::SetNextWindowClass(m_WindowClass);
+        if (ImGui::Begin(Format::Format("{}{}", sceneeditor_ComponentsPanelLabel.Get(), m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            componentsPanel.Render(*scene);
+            m_ComponentsPanel.Render(*m_Scene);
         }
         ImGui::End();
     }
 
     void SceneEditorWindow::RenderImGuizmo(const Vector2f& viewportExtents)
     {
-        Entity::EntityRegistry& registry = scene->GetRegistry();
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
         auto selectedEntitesView = registry.GetView<SelectedComponent>();
 
-        hasSelectedEntity = false;
+        m_HasSelectedEntity = false;
         if (selectedEntitesView.empty() == false)
         {
             Entity::EntityId selectedEntity = *selectedEntitesView.begin();
             // draw gizmos
-            hasSelectedEntity = selectedEntity != entt::null;
-            if (hasSelectedEntity)
+            m_HasSelectedEntity = selectedEntity != entt::null;
+            if (m_HasSelectedEntity)
             {
                 GameCore::TransformComponent& transformComponent = registry.GetComponent<GameCore::TransformComponent>(selectedEntity);
 
@@ -254,7 +269,7 @@ namespace Onyx::Editor
                 //const ImVec2& windowSize = ImGui::GetWindowSize();
                 ImGuizmo::SetRect(windowPosition.x, windowPosition.y, viewportExtents[0], viewportExtents[1]);
 
-                GameCore::CameraComponent& editorCamera = registry.GetComponent<GameCore::CameraComponent>(editorCameraEntity);
+                GameCore::CameraComponent& editorCamera = registry.GetComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
                 const Matrix4<onyxF32>& projectionMatrix = editorCamera.Camera.GetProjectionMatrix();
                 const Matrix4<onyxF32>& viewMatrix = editorCamera.Camera.GetViewMatrix();
@@ -262,9 +277,9 @@ namespace Onyx::Editor
                 Matrix4<onyxF32> transformMatrix = transformComponent.GetTransform();
 
                 ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
-                if (currentGizmo == GizmoType::Rotate)
+                if (m_CurrentGizmo == GizmoType::Rotate)
                     operation = ImGuizmo::ROTATE;
-                else if (currentGizmo == GizmoType::Scale)
+                else if (m_CurrentGizmo == GizmoType::Scale)
                     operation = ImGuizmo::SCALE;
                 
                 if (ImGuizmo::Manipulate(&(viewMatrix[0][0]), &(projectionMatrix[0][0]), operation, ImGuizmo::LOCAL, &(transformMatrix[0][0])))
@@ -273,7 +288,7 @@ namespace Onyx::Editor
                     Rotor3<onyxF32> rotationRotor;
                     transformMatrix.Decompose(translation, rotationRotor, scale);
 
-                    switch (currentGizmo)
+                    switch (m_CurrentGizmo)
                     {
                         case GizmoType::Translate:
                         {
@@ -315,7 +330,7 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::OnGizmoModeAction(const Input::InputActionEvent& inputActionContext)
     {
-        if (hasSelectedEntity == false)
+        if (m_HasSelectedEntity == false)
             return;
         
         constexpr StringId64 GIZMO_TRANSLATE_ACTION_ID("GizmoTranslate");
@@ -323,24 +338,24 @@ namespace Onyx::Editor
         
         if (inputActionContext.GetId() == GIZMO_TRANSLATE_ACTION_ID)
         {
-            currentGizmo = GizmoType::Translate;
+            m_CurrentGizmo = GizmoType::Translate;
             return;
         }
         else if (inputActionContext.GetId() == GIZMO_ROTATE_ACTION_ID)
         {
-            currentGizmo = GizmoType::Rotate;
+            m_CurrentGizmo = GizmoType::Rotate;
             return;
         }
         
-        currentGizmo = GizmoType::Scale;
+        m_CurrentGizmo = GizmoType::Scale;
     }
 
     void SceneEditorWindow::OnCameraMoveInput(const Input::InputActionEvent& inputActionContext)
     {
         const Vector3f& direction = inputActionContext.GetData<Vector3f>();
         
-        Entity::EntityRegistry& registry = scene->GetRegistry();
-        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
         cameraRuntimeComponent.InputDirection = direction;
     }
 
@@ -348,8 +363,8 @@ namespace Onyx::Editor
     {
         const Vector2f& rotationDelta = inputActionContext.GetData<Vector2f>();
 
-        Entity::EntityRegistry& registry = scene->GetRegistry();
-        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
         cameraRuntimeComponent.InputRotation = { rotationDelta[0] * 0.003f, rotationDelta[1] * 0.003f, 0.0f };
     }
 
@@ -357,9 +372,9 @@ namespace Onyx::Editor
     {
         onyxF32 speedValue = inputActionContext.GetData<onyxF32>();
 
-        Entity::EntityRegistry& registry = scene->GetRegistry();
-        GameCore::FreeCameraControllerComponent& cameraControllerComponent = registry.GetComponent<GameCore::FreeCameraControllerComponent>(editorCameraEntity);
-        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        GameCore::FreeCameraControllerComponent& cameraControllerComponent = registry.GetComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
+        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
 
         cameraRuntimeComponent.Velocity += speedValue * cameraControllerComponent.VelocityIncrementFactor * cameraControllerComponent.BaseVelocity;
     }
@@ -368,8 +383,8 @@ namespace Onyx::Editor
     {
         bool isSpeedUp = inputActionContext.GetData<bool>();
 
-        Entity::EntityRegistry& registry = scene->GetRegistry();
-        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
 
         if (isSpeedUp)
             cameraRuntimeComponent.Velocity *= 10.0f;
@@ -381,8 +396,8 @@ namespace Onyx::Editor
     {
         bool isSlowdown = inputActionContext.GetData<bool>();
 
-        Entity::EntityRegistry& registry = scene->GetRegistry();
-        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        GameCore::FreeCameraRuntimeComponent& cameraRuntimeComponent = registry.GetComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
 
         if (isSlowdown)
             cameraRuntimeComponent.Velocity *= 0.1f;
@@ -393,39 +408,39 @@ namespace Onyx::Editor
     void SceneEditorWindow::LoadScene(Assets::AssetId sceneAssetId)
     {
         Reference<GameCore::Scene> newScene;
-        assetSystem->GetAssetUnmanaged(sceneAssetId, newScene);
+        m_AssetSystem->GetAssetUnmanaged(sceneAssetId, newScene);
         newScene->GetOnLoadedEvent().Connect<&SceneEditorWindow::OnSceneLoaded>(this);
     }
 
     void SceneEditorWindow::OnSceneLoaded(const Reference<GameCore::Scene>& sceneAsset)
     {
-        scene = sceneAsset;
+        m_Scene = sceneAsset;
         
-        Entity::EntityRegistry& registry = scene->GetRegistry();
-        editorCameraEntity = registry.CreateEntity();
+        Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        m_EditorCameraEntity = registry.CreateEntity();
 
-        registry.AddComponent<GameCore::TransientComponent>(editorCameraEntity);
-        GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(editorCameraEntity);
+        registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
+        GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
         transform.SetTranslation(Vector3f{ 0.0f, 100.0f, 200.0f });
         transform.SetRotation(Vector3f(0, 0, 0));
-        GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(editorCameraEntity);
+        GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 1000.0f);
-        camera.Camera.SetViewportExtents(api.GetSwapchainExtent());
-        GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(editorCameraEntity);
-        GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(editorCameraEntity);
+        camera.Camera.SetViewportExtents(m_Api.GetSwapchainExtent());
+        GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
+        GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
         runtimeComponent.Velocity = freeCameraController.BaseVelocity;
 
-        api.SetCamera(camera.Camera);
+        m_Api.SetCamera(camera.Camera);
 
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedInput>("CameraSpeed"_id64, this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSlowDown>("CameraSlowDown"_id64, this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedUp>("CameraSpeedUp"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedInput>("CameraSpeed"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraSlowDown>("CameraSlowDown"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedUp>("CameraSpeedUp"_id64, this);
 
-        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoTranslate"_id64, this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoRotate"_id64, this);
-        inputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoTranslate"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoRotate"_id64, this);
+        m_InputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);
     }
 }

@@ -26,6 +26,18 @@ namespace Onyx::Ui
         return ImGui::Button(label.data(), ImVec2(size[0], size[1]));
     }
 
+    bool Selectable(StringView label, bool isSelected, bool shouldFocusOnSelected)
+    {
+        isSelected = ImGui::Selectable(label.data(), isSelected);
+
+        if (isSelected && shouldFocusOnSelected)
+        {
+            ImGui::SetItemDefaultFocus();
+        }
+
+        return isSelected;
+    }
+
     ButtonState ButtonBehavior(onyxS32 id, const ImRect& boundingBox)
     {
         ImVec2 min = boundingBox.GetBL();

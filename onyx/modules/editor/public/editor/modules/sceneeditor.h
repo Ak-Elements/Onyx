@@ -39,16 +39,16 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "SceneEditor";
 
-        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem);
+        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem);
         ~SceneEditorWindow() override;
 
-        Reference<GameCore::Scene>& GetScene() { return scene; }
-        const Reference<GameCore::Scene>& GetScene() const { return scene; }
+        Reference<GameCore::Scene>& GetScene() { return m_Scene; }
+        const Reference<GameCore::Scene>& GetScene() const { return m_Scene; }
 
-        bool IsLoading() const { return (scene.IsValid() == false) || scene->IsLoading(); }
+        bool IsLoading() const { return (m_Scene.IsValid() == false) || m_Scene->IsLoading(); }
 
         StringView GetWindowId() override { return WindowId; }
-        ImGuiWindowClass* GetWindowClass() const { return windowClass; }
+        ImGuiWindowClass* GetWindowClass() const { return m_WindowClass; }
 
     private:
         void OnOpen() override;
@@ -81,30 +81,30 @@ namespace Onyx::Editor
             Scale
         };
 
-        Atomic<bool> isLoading = false;
+        Atomic<bool> m_IsLoading = false;
 
-        GameCore::GameCoreSystem& gameCore;
-        Graphics::GraphicsApi& api;
-        Input::InputActionSystem& inputActionSystem;
-        Assets::AssetSystem* assetSystem;
-        ImGuiWindowClass* windowClass;
+        GameCore::GameCoreSystem& m_GameCore;
+        Graphics::GraphicsApi& m_Api;
+        Input::InputActionSystem& m_InputActionSystem;
+        Assets::AssetSystem* m_AssetSystem;
+        ImGuiWindowClass* m_WindowClass;
 
-        Reference<GameCore::Scene> scene;
+        Reference<GameCore::Scene> m_Scene;
 
-        Ui::Dockspace dockspace;
-        SceneEditor::EntitiesPanel entitiesPanel;
-        SceneEditor::ComponentsPanel componentsPanel;
+        Ui::Dockspace m_Dockspace;
+        SceneEditor::EntitiesPanel m_EntitiesPanel;
+        SceneEditor::ComponentsPanel m_ComponentsPanel;
 
-        Reference<Input::InputActionsAsset> levelEditorActions;
-        Entity::EntityId editorCameraEntity = Entity::EntityId(0);
+        Reference<Input::InputActionsAsset> m_LevelEditorActions;
+        Entity::EntityId m_EditorCameraEntity = Entity::EntityId(0);
 
-        bool hasSelectedEntity = false;
-        GizmoType currentGizmo = GizmoType::Translate;
+        bool m_HasSelectedEntity = false;
+        GizmoType m_CurrentGizmo = GizmoType::Translate;
 
-        String sceneViewPanelId;
-        String entitiesPanelId;
-        String componentsPanelId;
+        String m_SceneViewPanelId;
+        String m_EntitiesPanelId;
+        String m_ComponentsPanelId;
 
-        onyxU32 windowId;
+        onyxU32 m_WindowId;
     };
 }

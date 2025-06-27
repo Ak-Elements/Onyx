@@ -10,16 +10,14 @@
 #include <onyx/ui/imguisystem.h>
 #include <onyx/ui/controls/button.h>
 
-#include <imgui.h>
-
 namespace Onyx::Editor
 {
     namespace
     {
-        constexpr StringId32 NODE_EDITOR_LOCALIZATION_ID = "editor.windows.nodeeditor.title";
-        constexpr StringId32 SHADER_GRAPH_EDITOR_LOCALIZATION_ID = "editor.windows.shadergrapheditor.title";
-        constexpr StringId32 RENDER_GRAPH_EDITOR_LOCALIZATION_ID = "editor.windows.rendergrapheditor.title";
-        constexpr StringId32 SCENE_EDITOR_LOCALIZATION_ID = "editor.windows.sceneeditor.title";
+        constexpr Localization::LocalizationId NODE_EDITOR_LOCALIZATION_ID{ "editor.windows.nodeeditor.title" };
+        constexpr Localization::LocalizationId SHADER_GRAPH_EDITOR_LOCALIZATION_ID { "editor.windows.shadergrapheditor.title" };
+        constexpr Localization::LocalizationId RENDER_GRAPH_EDITOR_LOCALIZATION_ID { "editor.windows.rendergrapheditor.title" };
+        constexpr Localization::LocalizationId SCENE_EDITOR_LOCALIZATION_ID { "editor.windows.sceneeditor.title" };
     }
 
     StartupWindow::StartupWindow(Localization::LocalizationModule& locaModule)

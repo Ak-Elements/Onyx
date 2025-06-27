@@ -1,4 +1,5 @@
 #pragma once
+#include <imgui.h>
 
 struct ImRect;
 
@@ -22,6 +23,8 @@ namespace Onyx::Ui
 
     bool Button(StringView label);
     bool Button(StringView label, Vector2f size);
+
+    bool Selectable(StringView label, bool isSelected, bool shouldFocusOnSelect);
 
     ButtonState ButtonBehavior(onyxS32 id, const ImRect& boundingBox);
     ButtonState ButtonBehavior(onyxS32 id, const ImRect& boundingBox, onyxS32 flags);

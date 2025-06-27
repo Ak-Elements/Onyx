@@ -7,8 +7,8 @@ namespace Onyx::Localization
     {
     public:
         virtual void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings) override;
-        Optional<StringView> Localize(StringId32 id) const override;
-        Optional<StringView> Localize(StringId32 id, onyxS32 count) const override;
+        Optional<StringView> Localize(LocalizationId id) const override;
+        Optional<StringView> Localize(LocalizationId id, onyxS32 count) const override;
 
     private:
         HashMap<StringId32, DynamicArray<String>> m_LocaleDatabase;

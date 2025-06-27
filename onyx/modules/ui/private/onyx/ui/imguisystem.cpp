@@ -24,6 +24,8 @@
 
 namespace Onyx::Ui
 {
+	ImGuiContext g_UiContext;
+
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderClosedAsset = {};
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderOpenAsset = {};
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderSelectedClosedAsset = {};
@@ -273,7 +275,7 @@ namespace Onyx::Ui
 	ImGuiSystem::ImGuiSystem() = default;
 	ImGuiSystem::~ImGuiSystem() = default;
 
-    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& _window)
+    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem, Graphics::Window& _window)
     {
 		window = &_window;
 
@@ -311,9 +313,10 @@ namespace Onyx::Ui
 		
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
-#if ONYX_IS_EDITOR
-		PropertyGrid::SetAssetSystem(assetSystem);
+		g_UiContext.AssetSystem = &assetSystem;
+		g_UiContext.LocalizationModule = &localizationModule;
 
+#if ONYX_IS_EDITOR
 		/*Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
 		assetSystem.GetAsset(closedId, ImGuiSystem::FolderClosedAsset);
 
