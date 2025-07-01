@@ -9,6 +9,7 @@
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/window.h>
 #include <onyx/graphics/graphicssystem.h>
+#include <onyx/localization/localizationmodule.h>
 
 namespace Onyx::Graphics
 {
@@ -53,6 +54,7 @@ namespace Onyx::Application
 
         Graphics::GraphicSettings GraphicSettings;
         Graphics::WindowSettings WindowSettings;
+        Localization::LocalizationSettings LocalizationSettings;
 
         HashMap<StringId32, FileSystem::MountPoint> MountPoints;
 
@@ -229,6 +231,8 @@ namespace Onyx::Application
                     return m_Settings.GraphicSettings;
             else if constexpr (std::is_base_of_v<Graphics::WindowSettings, T>)
                 return m_Settings.WindowSettings;
+            else if constexpr (std::is_base_of_v<Localization::LocalizationSettings, T>)
+                return m_Settings.LocalizationSettings;
             else if constexpr (std::is_base_of_v<Graphics::Window, T>)
                 return GetSystem<Graphics::GraphicsSystem>().GetWindow();
             else if constexpr (std::is_base_of_v<Graphics::GraphicsApi, T>)

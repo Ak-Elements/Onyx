@@ -1,9 +1,13 @@
+#include <editor/modules/nodeeditor.h>
 #include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/graphics/textureasset.h>
 #include <onyx/ui/scopedid.h>
+
+#include <imgui_internal.h>
+#include <imgui_node_editor.h>
 
 namespace Onyx::Graphics
 {
@@ -36,4 +40,5 @@ namespace Onyx::Graphics
         }
         ImGui::EndVertical();
     }
-}   
+
+}

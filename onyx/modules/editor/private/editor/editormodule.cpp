@@ -1,4 +1,5 @@
 #include <editor/editormodule.h>
+#include <editor/editor_localization.h>
 
 #include <editor/modules/nodeeditor.h>
 #include <editor/modules/sceneeditor.h>
@@ -23,16 +24,18 @@ namespace Onyx::Editor
         Input::InputActionSystem& inputActionSystem,
         Localization::LocalizationModule& localizationModule)
     {
+        Localization::Editor::InitLocalization(localizationModule);
+
         imguiSystem.OpenWindow<EditorMainWindow>();
-        imguiSystem.OpenWindow<StartupWindow>(localizationModule);
+        imguiSystem.OpenWindow<StartupWindow>();
 
         imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore,assetSystem, localizationModule, graphicsApi, inputActionSystem);
-        imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, inputActionSystem);
-        imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, inputSystem);
+        imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, localizationModule, inputActionSystem);
+        imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, localizationModule, inputSystem);
 
-        Graphics::RenderGraphNodeFactory::RegisterNode<UIRenderGraphNode>("UI/ImGui Pass");
-        Graphics::RenderGraphNodeFactory::RegisterNode<CompositeRenderGraphNode>("Graphics/Composite");
-        Graphics::RenderGraphNodeFactory::RegisterNode<GridRenderGraphNode>("Editor/Editor Scene Grid");
+        Graphics::RenderGraphNodeFactory::RegisterNode<UIRenderGraphNode>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<CompositeRenderGraphNode>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<GridRenderGraphNode>();
     }
     
     EditorSystem::~EditorSystem() = default;

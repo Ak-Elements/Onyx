@@ -1,17 +1,22 @@
 #pragma once
 #include <onyx/localization/localizationbackend.h>
+#include <onyx/filesystem/path.h>
 
 namespace Onyx::Localization
 {
     class GetTextLocalizationBackend : public ILocalizationBackend
     {
     public:
-        virtual void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings) override;
-        Optional<StringView> Localize(LocalizationId id) const override;
-        Optional<StringView> Localize(LocalizationId id, onyxS32 count) const override;
+        void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings) override;
+        Optional<StringView> GetLocalized(LocalizationId id) const override;
+        Optional<StringView> GetLocalized(LocalizationId id, onyxS32 count) const override;
 
     private:
-        HashMap<StringId32, DynamicArray<String>> m_LocaleDatabase;
+        void ParsePoFile(const FileSystem::Filepath& path);
+
+
+    private:
+        HashMap<LocalizationId, DynamicArray<String>> m_LocaleDatabase;
         InplaceFunction<onyxS32(onyxS32)> m_PluralFunction;
     };
 }

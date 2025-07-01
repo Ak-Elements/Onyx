@@ -1,0 +1,147 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);"
+
+msgid "generic.add"
+msgstr "Add"
+
+msgid "generic.create"
+msgstr "Create"
+
+msgid "generic.duplicate"
+msgstr "Duplicate"
+
+msgid "generic.delete"
+msgstr "Delete"
+
+msgid "generic.search"
+msgstr "Search"
+
+msgid "generic.none"
+msgstr "none"
+
+msgid "generic.name"
+msgstr "Name"
+
+msgid "generic.rename"
+msgstr "Rename"
+
+msgid "generic.open"
+msgstr "Open"
+
+msgid "generic.save"
+msgstr "Save"
+
+msgid "generic.saveas"
+msgstr "Save as..."
+
+msgid "generic.file"
+msgid_plural "generic.files"
+msgstr[0] "File"
+msgstr[1] "Files"
+
+msgid "generic.type"
+msgid_plural "generic.types"
+msgstr[0] "Type"
+msgstr[1] "Types"
+
+msgid "generic.default"
+msgstr "Default"
+
+msgid "generic.visibility"
+msgstr "Visibility"
+
+msgid "editor.mainmenubar.view"
+msgstr "View"
+
+msgid "editor.mainmenubar.project"
+msgstr "Project"
+
+msgid "editor.windows.startup.title"
+msgstr "Startup"
+
+msgid "editor.windows.shadergrapheditor.title"
+msgid_plural "editor.windows.shadergrapheditor.titles"
+msgstr[0] "Shader Graph Editor"
+msgstr[1] "Shader Graph Editors"
+
+msgid "editor.windows.rendergrapheditor.title"
+msgid_plural "editor.windows.rendergrapheditor.titles"
+msgstr[0] "Render Graph Editor"
+msgstr[1] "Render Graph Editors"
+
+msgid "editor.mainmenubar.view.layouts"
+msgstr "Layouts"
+
+msgid "ui.assetselector.modal.title"
+msgstr "Asset Browser"
+
+msgid "editor.windows.sceneeditor.title"
+msgid_plural "editor.windows.sceneeditor.titles"
+msgstr[0] "Scene Editor"
+msgstr[1] "Scene Editors"
+
+msgid "editor.windows.sceneeditor.sceneviewport"
+msgstr "Viewport"
+
+msgid "editor.windows.sceneeditor.componentspanel.title"
+msgstr "Components"
+
+msgid "editor.windows.sceneeditor.componentspanel.showall"
+msgstr "Show All"
+
+msgid "editor.windows.sceneeditor.entitiespanel.title"
+msgstr "Entities"
+
+msgid "editor.windows.inputactionsettings.title"
+msgstr "Input Action Settings"
+
+msgid "editor.windows.inputactionsettings.bindings.unbound"
+msgstr "Not bound"
+
+msgid "editor.windows.inputactionsettings.bindings.listen"
+msgstr "Listen"
+
+msgid "editor.windows.nodeeditor.title"
+msgid_plural "editor.windows.nodeeditor.titles"
+msgstr[0] "Node Editor"
+msgstr[1] "Node Editors"
+
+msgid "editor.windows.nodeeditor.unnamedgraph"
+msgstr "Unnamed Graph"
+
+msgid "editor.windows.nodeeditor.createnode"
+msgstr "Create node"
+
+msgid "editor.windows.nodeeditor.replacenode"
+msgstr "Replace node"
+
+msgid "editor.windows.nodeeditor.createlink"
+msgstr "Create link"
+
+msgid "editor.windows.nodeeditor.replacelink"
+msgstr "Replace link"
+
+msgid "editor.windows.nodeeditor.mainmenubar.debug"
+msgstr "Debug"
+
+msgid "editor.windows.nodeeditor.mainmenubar.debug.showlinkdirections"
+msgstr "Show link directions"
+
+msgid "editor.windows.nodeeditor.error.cantconnectsamepin"
+msgstr "Can't connect to same pin."
+
+msgid "editor.windows.nodeeditor.error.cantconnectself"
+msgstr "Can't connect to same node."
+
+msgid "editor.windows.nodeeditor.error.incompatiblepins"
+msgstr "Pin data types are incompatible."
+
+msgid "editor.windows.nodeeditor.error.twoinputpins"
+msgstr "Can't connect two input pins."
+
+msgid "editor.windows.nodeeditor.error.twooutputpins"
+msgstr "Can't connect two output pins."
+
+msgid "editor.windows.nodeeditor.error.dependencycycle"
+msgstr "Can't connect as it would create a dependency/execution cycle."

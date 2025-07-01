@@ -3,6 +3,7 @@
 
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 
+
 namespace Onyx::Graphics
 {
     class ShaderGraphNode;
@@ -10,10 +11,18 @@ namespace Onyx::Graphics
 
 namespace Onyx::NodeGraph
 {
+    void DrawPlusIconBackground(Guid64);
+    void DrawMinusIconBackground(Guid64);
+    void DrawMultiplyIconBackground(Guid64);
+    void DrawDivisionIconBackground(Guid64);
+    void DrawAbsoluteIconBackground(Guid64);
+
     template <typename ScalarT, CompileTimeString TypeIdString>
     class AddNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
@@ -31,22 +40,6 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(StringId32 pinId) const override
-        {
-            switch (pinId)
-            {
-            case Super::InPin0::LocalId: return "a";
-            case Super::InPin1::LocalId: return "b";
-            case Super::OutPin::LocalId: return "Result";
-            }
-
-            ONYX_ASSERT(false, "Invalid pin id");
-            return "";
-        }
-#endif
-
-#if ONYX_IS_EDITOR
-    private:
         void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
         {
             generator.AppendCode("// Add node \n");
@@ -60,6 +53,17 @@ namespace Onyx::NodeGraph
             generator.AppendCode("; \n");
 
         }
+
+        void OnUIDrawNodeBackground() override
+        {
+            DrawPlusIconBackground(Super::GetId());
+        }
+
+        StringView GetPinName(StringId32 /*pinId*/) const override
+        {
+            // this node should not show any labels
+            return "";
+        }
 #endif
     };
 
@@ -67,6 +71,8 @@ namespace Onyx::NodeGraph
     class SubtractNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
@@ -84,22 +90,6 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        StringView GetPinName(StringId32 pinId) const override
-        {
-            switch (pinId)
-            {
-            case Super::InPin0::LocalId: return "a";
-            case Super::InPin1::LocalId: return "b";
-            case Super::OutPin::LocalId: return "Result";
-            }
-
-            ONYX_ASSERT(false, "Invalid pin id");
-            return "";
-        }
-#endif
-
-#if ONYX_IS_EDITOR
-    private:
         void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
         {
             generator.AppendCode("// Subtract node \n");
@@ -112,6 +102,17 @@ namespace Onyx::NodeGraph
             generator.AppendCode(inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>()));
             generator.AppendCode("; \n");
         }
+
+        void OnUIDrawNodeBackground() override
+        {
+            DrawMinusIconBackground(Super::GetId());
+        }
+
+        StringView GetPinName(StringId32 /*pinId*/) const override
+        {
+            // this node should not show any labels
+            return "";
+        }
 #endif
     };
 
@@ -119,6 +120,8 @@ namespace Onyx::NodeGraph
     class MultiplyNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
@@ -135,7 +138,7 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-    public:
+    private:
         void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
         {
             generator.AppendCode("// Multiply node \n");
@@ -148,17 +151,15 @@ namespace Onyx::NodeGraph
             generator.AppendCode(inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>()));
             generator.AppendCode("; \n");
         }
-    private:
-        StringView GetPinName(StringId32 pinId) const override
-        {
-            switch (pinId)
-            {
-            case Super::InPin0::LocalId: return "a";
-            case Super::InPin1::LocalId: return "b";
-            case Super::OutPin::LocalId: return "Result";
-            }
 
-            ONYX_ASSERT(false, "Invalid pin id");
+        void OnUIDrawNodeBackground() override
+        {
+            DrawMultiplyIconBackground(Super::GetId());
+        }
+
+        StringView GetPinName(StringId32 /*pinId*/) const override
+        {
+            // this node should not show any labels
             return "";
         }
 #endif
@@ -168,6 +169,8 @@ namespace Onyx::NodeGraph
     class DivisionNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
@@ -184,7 +187,7 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-    public:
+    private:
         void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
         {
             generator.AppendCode("// Division node \n");
@@ -198,17 +201,14 @@ namespace Onyx::NodeGraph
             generator.AppendCode("; \n");
         }
 
-    private:
-        StringView GetPinName(StringId32 pinId) const override
+        void OnUIDrawNodeBackground() override
         {
-            switch (pinId)
-            {
-            case Super::InPin0::LocalId: return "a";
-            case Super::InPin1::LocalId: return "b";
-            case Super::OutPin::LocalId: return "Result";
-            }
+            DrawDivisionIconBackground(Super::GetId());
+        }
 
-            ONYX_ASSERT(false, "Invalid pin id");
+        StringView GetPinName(StringId32 /*pinId*/) const override
+        {
+            // this node should not show any labels
             return "";
         }
 #endif
@@ -218,6 +218,8 @@ namespace Onyx::NodeGraph
     class AbsoluteNode<Graphics::ShaderGraphNode, DataT, TypeIdString> : public FixedPinNode_1_In_1_Out<Graphics::ShaderGraphNode, DataT, DataT>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
@@ -248,7 +250,7 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-    public:
+    private:
         void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
         {
             const typename Super::InPin& inputPin = Super::GetInputPin();
@@ -259,16 +261,14 @@ namespace Onyx::NodeGraph
                 inputPin.IsConnected() ? Format::Format("pin_{:x}", inputPin.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>())));
         }
 
-    private:
-        StringView GetPinName(StringId32 pinId) const override
+        void OnUIDrawNodeBackground() override
         {
-            switch (pinId)
-            {
-                case Super::InPin::LocalId: return "In";
-                case Super::OutPin::LocalId: return "| In |";
-            }
+            DrawAbsoluteIconBackground(Super::GetId());
+        }
 
-            ONYX_ASSERT(false, "Invalid pin id");
+        StringView GetPinName(StringId32 /*pinId*/) const override
+        {
+            // this node should not show any labels
             return "";
         }
 #endif

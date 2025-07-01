@@ -36,7 +36,7 @@ struct BlueprintNodeBuilder
 
     void Output(ax::NodeEditor::PinId id);
     void EndOutput();
-
+    void Background();
 
 private:
     enum class Stage

@@ -1,5 +1,6 @@
 #pragma once
 
+#if ONYX_IS_EDITOR
 namespace Onyx::Assets
 {
     struct AssetId;
@@ -11,3 +12,4 @@ namespace Onyx::Ui
 {
     bool AssetSelector(const Assets::AssetSystem& assetSystem, Assets::AssetType assetType, Assets::AssetId& outAssetId);
 }
+#endif

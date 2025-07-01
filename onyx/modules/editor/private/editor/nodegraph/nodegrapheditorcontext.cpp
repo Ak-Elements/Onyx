@@ -1,6 +1,8 @@
 #include <editor/nodegraph/nodegrapheditorcontext.h>
 
 #include <editor/modules/nodeeditor.h>
+#include <onyx/localization/localizationmodule.h>
+#include <onyx/localization/localizedstring.h>
 
 #include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
@@ -22,6 +24,11 @@ namespace Onyx::Editor
         nodeGraphNode.UIDrawNode();
     }
 
+    void NodeGraphEditorContext::OnDrawNodeBackground(const Node& node)
+    {
+        NodeGraph::Node& nodeGraphNode = GetNodeGraphNode(node.LocalId);
+        nodeGraphNode.UIDrawNodeBackground();
+    }
     
     bool NodeGraphEditorContext::IsNewLinkValid(Guid64 fromPinId, Guid64 toPinId) const
     {
@@ -47,24 +54,25 @@ namespace Onyx::Editor
         }
     }
 
-    void NodeGraphEditorContext::FilterNodeListContextMenu(InplaceFunction<bool(const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor)
+    void NodeGraphEditorContext::FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData&)> filterFunctor)
     {
         m_ContextMenuRoot.m_Children.clear();
 
         const NodeGraph::INodeFactory& factory = GetNodeFactory();
         const auto& nodeTypeIds = factory.GetRegisteredNodeIds();
+        const Localization::LocalizationModule& localizationModule = GetLocalizationModule();
 
         for (const StringId32 typeId : nodeTypeIds)
         {
             const NodeGraph::NodeEditorMetaData& nodeMetaData = factory.GetNodeMetaData(typeId);
-
-            if (filterFunctor && filterFunctor(nodeMetaData) == false)
+            StringView localizedFullyQualifiedNodeName = localizationModule.GetLocalized(nodeMetaData.TypeId).Get();
+            if (filterFunctor && filterFunctor(localizedFullyQualifiedNodeName, nodeMetaData) == false)
             {
                 continue;
             }
 
             constexpr char delimiter = '/';
-            DynamicArray<String> split = Split(nodeMetaData.FullyQualifiedName, delimiter);
+            DynamicArray<String> split = Split(localizedFullyQualifiedNodeName, delimiter);
 
             NodeListContextMenuItem* currentParent = &m_ContextMenuRoot;
             for (onyxU32 i = 0; i < split.size(); ++i)

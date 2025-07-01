@@ -1,5 +1,7 @@
 #include <onyx/ui/controls/assetselector.h>
 
+#if ONYX_IS_EDITOR
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <onyx/assets/assetsystem.h>
 
@@ -10,9 +12,11 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/ui_localization.h>
 
 namespace Onyx::Ui
 {
@@ -20,22 +24,10 @@ namespace Onyx::Ui
     {
         bool loc_HasFocus = true;
         String loc_SearchString;
-
-        constexpr Localization::LocalizationId NONE_ASSET_ID { "generic.none" };
-        constexpr Localization::LocalizationId HINT_LABEL_ID{ "ui.assetselector.hintlabel" };
-        constexpr Localization::LocalizationId ASSET_BROWSER_TITLE_ID{ "ui.assetselector.browser.title" };
-        constexpr Localization::LocalizationId ASSET_BROWSER_COLUMN_FILE_ID{ "ui.assetselector.browser.columns.file" };
-        constexpr Localization::LocalizationId ASSET_BROWSER_COLUMN_TYPE_ID{ "ui.assetselector.browser.columns.type" };
     }
 
     bool AssetSelector(const Assets::AssetSystem& assetSystem, Assets::AssetType assetType, Assets::AssetId& outAssetId)
     {
-        static Localization::LocalizedString noneAsset = g_UiContext.LocalizationModule->Localize<"Editor">(NONE_ASSET_ID);
-        static Localization::LocalizedString hintLabel = g_UiContext.LocalizationModule->Localize<"Editor">(HINT_LABEL_ID);
-        static Localization::LocalizedString assetBrowserTitle = g_UiContext.LocalizationModule->Localize<"Editor">(ASSET_BROWSER_TITLE_ID);
-        static Localization::LocalizedString assetBrowserColumnFile = g_UiContext.LocalizationModule->Localize<"Editor">(ASSET_BROWSER_COLUMN_FILE_ID);
-        static Localization::LocalizedString assetBrowserColumnType = g_UiContext.LocalizationModule->Localize<"Editor">(ASSET_BROWSER_COLUMN_TYPE_ID);
-
         bool hasModified = false;
         DynamicArray<Assets::AssetMetaData> availableAssets;
 
@@ -47,13 +39,13 @@ namespace Onyx::Ui
         }
         else
         {
-            assetName = noneAsset.Get();
+            assetName = Localization::Generic::None.Get();
         }
 
         Layout::BeginHorizontal("#AssetControl");
         if (BeginCombobox("##selector", assetName.data()))
         {
-            DrawSearchBar(loc_SearchString, hintLabel.Get(), loc_HasFocus);
+            DrawSearchBar(loc_SearchString, Localization::Generic::Search.Get(), loc_HasFocus);
             StringView searchString = Trim(loc_SearchString);
 
             if (availableAssets.empty())
@@ -112,7 +104,7 @@ namespace Onyx::Ui
 
         ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);
         bool isOpen = true;
-        StringView modalName = Format::Format("{}###AssetBrowser", assetBrowserTitle);
+        StringView modalName = Format::Format("{}###AssetBrowser", Localization::Ui::AssetSelector::Modal::Title);
         if (ImGui::BeginPopupModal(modalName.data(), &isOpen))
         {
             if (availableAssets.empty())
@@ -121,8 +113,8 @@ namespace Onyx::Ui
             }
 
             ImGui::BeginTable("##assetlist", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable);
-            ImGui::TableSetupColumn(assetBrowserColumnFile.Get().data(), ImGuiTableColumnFlags_None, 0.7f);
-            ImGui::TableSetupColumn(assetBrowserColumnType.Get().data(), ImGuiTableColumnFlags_None, 0.3f);
+            ImGui::TableSetupColumn(Localization::Generic::File.Get().data(), ImGuiTableColumnFlags_None, 0.7f);
+            ImGui::TableSetupColumn(Localization::Generic::Type.Get().data(), ImGuiTableColumnFlags_None, 0.3f);
             ImGui::TableHeadersRow();
 
             for (const Assets::AssetMetaData& assetMeta : availableAssets)
@@ -156,3 +148,4 @@ namespace Onyx::Ui
         return hasModified;
     }
 }
+#endif

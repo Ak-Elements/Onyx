@@ -4,6 +4,17 @@
 
 namespace Onyx::Editor
 {
+    void GraphEditorContext::SetLocalizationModule(const Localization::LocalizationModule& localizationModule)
+    {
+        m_LocalizationModule = &localizationModule;
+    }
+
+    const Localization::LocalizationModule& GraphEditorContext::GetLocalizationModule() const
+    {
+        ONYX_ASSERT(m_LocalizationModule != nullptr);
+        return *m_LocalizationModule;
+    }
+
     void GraphEditorContext::Clear()
     {
         m_Nodes.clear();
@@ -270,6 +281,11 @@ namespace Onyx::Editor
     void GraphEditorContext::DrawNode(const Node& node)
     {
         OnDrawNode(node);
+    }
+
+    void GraphEditorContext::DrawNodeBackground(const Node& node)
+    {
+        OnDrawNodeBackground(node);
     }
 
     void GraphEditorContext::Load(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path)

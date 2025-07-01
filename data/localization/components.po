@@ -1,0 +1,39 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);"
+
+msgid "Onyx::GameCore::Components::TransformComponent"
+msgstr "Transform"
+
+msgid "Onyx::GameCore::Components::IdComponent"
+msgstr "Id"
+
+msgid "Onyx::GameCore::Components::NameComponent"
+msgstr "Editor Name"
+
+msgid "Onyx::GameCore::Components::CameraComponent"
+msgstr "Camera"
+
+msgid "Onyx::GameCore::Components::DirectionalLightComponent"
+msgstr "Directional Light"
+
+msgid "Onyx::GameCore::Components::PointLightComponent"
+msgstr "Point Light"
+
+msgid "Onyx::GameCore::Components::SpotLightComponent"
+msgstr "Spot Light"
+
+msgid "Onyx::GameCore::Components::TextComponent"
+msgstr "3D Text"
+
+msgid "Onyx::GameCore::Components::MaterialComponent"
+msgstr "Material"
+
+msgid "Onyx::Volume::Components::VolumeComponent"
+msgstr "Volume Mesh"
+
+msgid "Onyx::Volume::Components::VolumeSourceComponent"
+msgstr "Volume Source"
+
+msgid "Onyx::GameCore::Components::FreeCameraControllerComponent"
+msgstr "Free Camera Controller"

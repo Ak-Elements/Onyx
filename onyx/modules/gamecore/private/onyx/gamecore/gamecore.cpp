@@ -73,9 +73,9 @@ namespace Onyx::GameCore
   
     void GameCoreSystem::Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi)
     {
-        Graphics::RenderGraphNodeFactory::RegisterNode<DepthPrePassRenderGraphNode>("Scene/Depth Pre Pass");
-        Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>("Graphics/Static Mesh Pass");
-        Graphics::RenderGraphNodeFactory::RegisterNode<MSDFFontRenderPass>("Scene/3D MSDF Font Pass");
+        Graphics::RenderGraphNodeFactory::RegisterNode<DepthPrePassRenderGraphNode>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<MSDFFontRenderPass>();
 
         GameCoreInit::RegisterAssets(assetSystem);
 

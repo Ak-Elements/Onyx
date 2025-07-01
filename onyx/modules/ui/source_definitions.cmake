@@ -3,6 +3,7 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/ui)
 
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/uimodule.h
+    ${TARGET_PUBLIC_PATH}/ui_localization.h
 	${TARGET_PUBLIC_PATH}/imguinotify.h
     ${TARGET_PUBLIC_PATH}/imguisystem.h
     ${TARGET_PUBLIC_PATH}/imguiwindow.h
@@ -24,6 +25,7 @@ set(TARGET_PUBLIC_SOURCES
 
 set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/uimodule.cpp
+    ${TARGET_PRIVATE_PATH}/ui_localization.cpp
 	${TARGET_PRIVATE_PATH}/imguisystem.cpp
     ${TARGET_PRIVATE_PATH}/imguiwindow.cpp
     ${TARGET_PRIVATE_PATH}/notificationsystem.cpp

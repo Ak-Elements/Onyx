@@ -31,8 +31,8 @@ namespace Onyx::NodeGraph
         NodeGraphTypeRegistry::RegisterType<Vector4d, "vector4f64">();
         NodeGraphTypeRegistry::RegisterType<ExecutePin, "execute">();
 
-        RegisterArithmeticNodes<NodeGraphFactory, "NodeGraph">();
-        RegisterGeometricNodes<NodeGraphFactory, "NodeGraph">();
-        RegisterVectorNodes<NodeGraphFactory, "NodeGraph">();
+        RegisterArithmeticNodes<NodeGraphFactory, "Onyx::NodeGraph">();
+        RegisterGeometricNodes<NodeGraphFactory, "Onyx::NodeGraph">();
+        RegisterVectorNodes<NodeGraphFactory, "Onyx::NodeGraph">();
     }
 }

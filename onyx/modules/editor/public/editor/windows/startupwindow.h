@@ -14,18 +14,10 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "Startup";
 
-        StartupWindow(Localization::LocalizationModule& locaModule);
-
         StringView GetWindowId() override { return WindowId; }
 
     private:
         void OnRender(Ui::ImGuiSystem& system) override;
-
-    private:
-        Localization::LocalizedString m_NodeEditorTitle;
-        Localization::LocalizedString m_ShaderGraphEditorTitle;
-        Localization::LocalizedString m_RenderGraphEditorTitle;
-        Localization::LocalizedString m_SceneEditorTitle;
     };
 
 }

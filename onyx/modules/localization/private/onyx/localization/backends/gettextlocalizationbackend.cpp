@@ -110,9 +110,45 @@ namespace Onyx::Localization
     }
     void GetTextLocalizationBackend::Init(Assets::AssetSystem& /*assetSystem*/, const LocalizationSettings& /*localizationSettings*/)
     {
+        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/editor.po"));
+        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/components.po"));
+        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/nodegraph.po"));
+        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/shadergraphnodes.po"));
+    }
+
+    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId localizationKey) const
+    {
+        auto it = m_LocaleDatabase.find(localizationKey);
+        if (it == m_LocaleDatabase.end())
+        {
+            return std::nullopt;
+        }
+
+        return it->second.front();
+    }
+
+    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId localizationKey, onyxS32 count) const
+    {
+        auto it = m_LocaleDatabase.find(localizationKey);
+        if (it == m_LocaleDatabase.end())
+        {
+            return std::nullopt;
+        }
+
+        onyxS32 index = m_PluralFunction(count);
+        const DynamicArray<String>& localizedTexts = it->second;
+        if (index > localizedTexts.size())
+        {
+            return std::nullopt;
+        }
+
+        return localizedTexts[index];
+    }
+
+    void GetTextLocalizationBackend::ParsePoFile(const FileSystem::Filepath& path)
+    {
         String fileContent;
-        FileSystem::OnyxFile file("project:/localization/test.po");
-        bool hasSucceeded = file.ReadAll(FileSystem::Path::GetFullPath("engine:/localization/test.po"), fileContent);
+        bool hasSucceeded = FileSystem::OnyxFile::ReadAll(path, fileContent);
 
         if (hasSucceeded == false)
         {
@@ -137,30 +173,30 @@ namespace Onyx::Localization
                     break;
                 }
 
-                // remove quotes and newline
+                // remove quotes
                 headerLine.remove_prefix(1);
-                headerLine.remove_suffix(2);
+                headerLine.remove_suffix(1);
 
                 // implement parsing of plural form instead of that static lookup?
                 if (IgnoreCaseStartsWith(headerLine, PO_HEADER_PLURAL_FORMS))
                 {
                     headerLine.remove_prefix(PO_HEADER_PLURAL_FORMS.size());
 
-                    if (headerLine.ends_with("\\n"))
-                    {
-                        headerLine.remove_suffix(2);
-                    }
-
                     String pluralForm(headerLine);
                     std::erase_if(pluralForm, [](char c) { return std::isspace(c); });
 
                     auto it = std::ranges::find_if(PluralFunctions, [&](const PluralRule& rule) { return rule.Rule == pluralForm; });
-                    if (it == PluralFunctions.end())
+                    if ((m_PluralFunction == nullptr) && (it == PluralFunctions.end()))
                     {
                         ONYX_LOG_WARNING("Failed finding language plural rule for {}", pluralForm);
                     }
                     else
                     {
+                        if (m_PluralFunction != it->Function)
+                        {
+                            ONYX_LOG_WARNING("Found different plural function in language po file. This is not supported. Ignoring plural function for file {}", path);
+                        }
+
                         m_PluralFunction = it->Function;
                     }
                 }
@@ -170,11 +206,18 @@ namespace Onyx::Localization
         StringView localizationIdString;
         StringView localizationPluralIdString;
         StringView localizedText;
+        StringView contextIdString;
+        char peek;
+
+        LocalizationId localizationId;
         while (stringStream.IsEof() == false)
         {
-            if (stringStream.ReadConditional("msgid"))
+            stringStream.Peek(peek);
+            if (peek == '#')
             {
-                stringStream.ReadString(localizationIdString);
+                StringView line;
+                stringStream.ReadLine(line);
+                continue;
             }
 
             if (stringStream.ReadConditional("msgid_plural"))
@@ -182,11 +225,26 @@ namespace Onyx::Localization
                 // for now we ignore it, not sure if we actually need the plural id
                 stringStream.ReadString(localizationPluralIdString);
             }
-
-
-            if ((localizationIdString.empty() == false) && stringStream.ReadConditional("msgstr"))
+            else if (stringStream.ReadConditional("msgid"))
             {
-                char peek;
+                stringStream.ReadString(localizationIdString);
+                if (localizationId.Id.IsValid())
+                {
+                    localizationId.Context.Reset();
+                }
+
+                localizationId.Id = localizationIdString;
+            }
+
+            if (stringStream.ReadConditional("msgctx"))
+            {
+                stringStream.ReadString(contextIdString);
+                localizationId.Context = contextIdString;
+                localizationId.Id.Reset();
+            }
+
+            if ((localizationId.Id.IsValid()) && stringStream.ReadConditional("msgstr"))
+            {
                 stringStream.Peek(peek);
                 onyxS32 index = -1;
                 if (peek == '[')
@@ -202,8 +260,7 @@ namespace Onyx::Localization
 
                 stringStream.ReadString(localizedText);
 
-                StringId32 id(localizationIdString);
-                DynamicArray<String>& localizedTexts = m_LocaleDatabase[id];
+                DynamicArray<String>& localizedTexts = m_LocaleDatabase[localizationId];
                 if (index >= static_cast<onyxS32>(localizedTexts.size()))
                 {
                     localizedTexts.resize(index + 1);
@@ -221,34 +278,5 @@ namespace Onyx::Localization
 
             stringStream.SkipWhitespaces();
         }
-    }
-
-    Optional<StringView> GetTextLocalizationBackend::Localize(LocalizationId id) const
-    {
-        auto it = m_LocaleDatabase.find(id.Id);
-        if (it == m_LocaleDatabase.end())
-        {
-            return std::nullopt;
-        }
-
-        return it->second.front();
-    }
-
-    Optional<StringView> GetTextLocalizationBackend::Localize(LocalizationId id, onyxS32 count) const
-    {
-        auto it = m_LocaleDatabase.find(id.Id);
-        if (it == m_LocaleDatabase.end())
-        {
-            return std::nullopt;
-        }
-
-        onyxS32 index = m_PluralFunction(count);
-        const DynamicArray<String>& localizedTexts = it->second;
-        if (index > localizedTexts.size() )
-        {
-            return std::nullopt;
-        }
-
-        return localizedTexts[index];
     }
 }

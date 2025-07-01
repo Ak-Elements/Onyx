@@ -133,11 +133,8 @@ namespace Onyx::NodeGraph
 
     public:
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        const String& GetName() const { return m_EditorMeta.Name; }
-        void SetName(const String& name) { m_EditorMeta.Name = name; }
-
-        void SetTypeName(const StringView& typeName) { m_EditorMeta.TypeName = typeName; }
-        const String& GetTypeName() const { return m_EditorMeta.TypeName; }
+        StringView GetName() const { return m_DebugName; }
+        void SetName(const String& name) { m_DebugName = name; }
 #endif
 
 #if ONYX_IS_EDITOR
@@ -149,6 +146,7 @@ namespace Onyx::NodeGraph
         PinVisibility GetPinVisibility(StringId32 localPinId) const { return DoGetPinVisibility(localPinId); }
 
         void UIDrawNode() { OnUIDrawNode(); }
+        void UIDrawNodeBackground() { OnUIDrawNodeBackground(); }
 
         virtual StringView GetPinName(StringId32 /*localPinId*/) const;
         virtual PinVisibility DoGetPinVisibility(StringId32 /*localPinId*/) const { return PinVisibility::Default; }
@@ -183,21 +181,14 @@ namespace Onyx::NodeGraph
         }
 
         virtual void OnUIDrawNode() {}
+        virtual void OnUIDrawNodeBackground() {}
 #endif
 
     protected:
         Guid64 m_Id;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        struct EditorMetaInfo
-        {
-            String Name;
-            String TypeName;
-            // Used for serialize / deserialize of the node
-            // Runtime does not need to store this information though as we do not re-serialize nodes
-        };
-
-        EditorMetaInfo m_EditorMeta;
+        String m_DebugName;
 #endif
     };
 

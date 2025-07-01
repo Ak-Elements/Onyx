@@ -2,6 +2,11 @@
 
 #include <onyx/nodegraph/nodes/node.h>
 
+namespace Onyx::Localization
+{
+    struct LocalizationId;
+}
+
 namespace Onyx::FileSystem
 {
     struct JsonValue;
@@ -22,6 +27,12 @@ namespace Onyx::NodeGraph
             //{ node.Finish() };
             { node.HasPin(globalPinId) };
         } && HasTypeId<T>;
+
+        template <typename T>
+        concept HasAliases = requires(T node)
+        {
+            { T::HasAliases };
+        };
     }
 
     enum class GraphContext : onyxU32
@@ -33,10 +44,11 @@ namespace Onyx::NodeGraph
 
     struct NodeEditorMetaData
     {
-        onyxU32 TypeId;
-        String FullyQualifiedName;
         DynamicArray<PinTypeId> InputPins;
         DynamicArray<PinTypeId> OutputPins;
+
+        StringId32 TypeId;
+        bool HasAliases;
     };
 
     class INodeFactory
@@ -61,7 +73,7 @@ namespace Onyx::NodeGraph
         }
 
         template <Details::IsNodeGraphNode NodeT>
-        void RegisterNode(const StringView& fullyQualifiedName)
+        void RegisterNode()
         {
             static HashMap<onyxU32, String> s_RegisteredNodesToName;
 
@@ -70,7 +82,8 @@ namespace Onyx::NodeGraph
 
             m_RegisteredNodeTypeIds.emplace(typeId);
             MetaDataContainerT& metaContainer = m_RegisteredNodesMetaData[typeId];
-            metaContainer.FullyQualifiedName = fullyQualifiedName;
+            metaContainer.TypeId = typeId;
+            metaContainer.HasAliases = Details::HasAliases<NodeT>;
 
             // can we make this constexpr?
             NodeT node{};
@@ -89,13 +102,6 @@ namespace Onyx::NodeGraph
             m_RegisteredNodes[typeId] = [=]()
                 {
                     NodeT* newNode = new NodeT();
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-                    newNode->SetTypeName(TypeName<NodeT>());
-
-                    StringView::size_type index = fullyQualifiedName.find_last_of('/');
-                    newNode->SetName((index == StringView::npos) ? String(fullyQualifiedName) : String(fullyQualifiedName.substr(index + 1)));
-#endif
-
                     return newNode;
                 };
         }
@@ -122,9 +128,9 @@ namespace Onyx::NodeGraph
         using NodeTypeT = NodeType;
 
         template <Details::IsNodeGraphNode T>
-        static void RegisterNode(const StringView& nodeName)
+        static void RegisterNode()
         {
-            ms_NodeRegistry.template RegisterNode<T>(nodeName);
+            ms_NodeRegistry.template RegisterNode<T>();
         }
 
         UniquePtr<Node> CreateNode(StringId32 typeHash) const override
@@ -154,9 +160,9 @@ namespace Onyx::NodeGraph
     public:
         //TODO: Node concept to enforce node
         template <typename T>
-        static void RegisterNode(const StringView& nodeName)
+        static void RegisterNode()
         {
-            TypedNodeFactory::RegisterNode<T>(nodeName);
+            TypedNodeFactory::RegisterNode<T>();
         }
     };
 }

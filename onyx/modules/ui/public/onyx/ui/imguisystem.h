@@ -54,7 +54,6 @@ namespace Onyx
         struct ImGuiContext
         {
             Assets::AssetSystem* AssetSystem = nullptr;
-            Localization::LocalizationModule* LocalizationModule = nullptr;
         };
 
         extern ImGuiContext g_UiContext;
@@ -70,7 +69,7 @@ namespace Onyx
             ImGuiSystem();
             ~ImGuiSystem() override;
 
-            void Init(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem, Graphics::Window& window);
+            void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& window);
             void Shutdown(Input::InputSystem& inputSystem, Graphics::Window& window);
             
             void Update(DeltaGameTime deltaTime);

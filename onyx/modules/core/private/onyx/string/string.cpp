@@ -42,7 +42,7 @@ namespace Onyx
 
     DynamicArray<String> Split(const StringView& string, const char delimiter)
     {
-		return Split(string, std::string(1, delimiter));
+		return Split(string, String(1, delimiter));
     }
 
     bool IgnoreCaseEqual(const StringView& lhs, const StringView& rhs)

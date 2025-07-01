@@ -1,7 +1,6 @@
 
 #include <onyx/ui/propertygrid.h>
 
-
 #if ONYX_IS_EDITOR
 
 #include <onyx/assets/assetsystem.h>
@@ -202,8 +201,6 @@ namespace Onyx::Ui
 
     bool PropertyGrid::DrawAssetSelector(const StringView& propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
     {
-        ONYX_ASSERT(g_UiContext.AssetSystem != nullptr);
-
         DrawPropertyName(propertyName);
 
         ImGui::PushID(propertyName.data());

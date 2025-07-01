@@ -1,5 +1,6 @@
 #include <editor/panels/sceneeditor/componentspanel.h>
 
+#include <editor/editor_localization.h>
 #include <editor/modules/sceneeditor.h>
 #include <onyx/gamecore/scene/scene.h>
 
@@ -8,36 +9,22 @@
 
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/propertygrid.h>
-
 #include <onyx/localization/localizedstring.h>
-#include <imgui_internal.h>
 #include <onyx/localization/localizationmodule.h>
-#include <onyx/ui/imguisystem.h>
 
+#include <imgui_internal.h>
+#include <onyx/localization/localization.h>
 
 namespace Onyx::Editor::SceneEditor
 {
-    namespace
-    {
-        // probably needed again once we add a button to add components
-        //constexpr Localization::LocalizationId ADD_COMPONENT_LABEL_ID{ "editor.sceneeditor.componentspanel.addcomponent" };
-        
-        constexpr Localization::LocalizationId SHOW_ALL_COMPONENTS_LABEL_ID{ "editor.windows.sceneeditor.componentspanel.showall" };
-        constexpr Localization::LocalizationId SEARCH_BAR_HINT_LABEL_ID{ "editor.generic.search" };
-    }
-
     ComponentsPanel::ComponentsPanel(Localization::LocalizationModule& localizationModule)
-        : m_ShowAllLabel(localizationModule.Localize<"Editor">(SHOW_ALL_COMPONENTS_LABEL_ID))
-        , m_SearchHintLabel(localizationModule.Localize<"Editor">(SEARCH_BAR_HINT_LABEL_ID))
-        , m_LocalizationModule(&localizationModule)
+        : m_LocalizationModule(&localizationModule)
     {
-        
     }
-
 
     void ComponentsPanel::Render(GameCore::Scene& scene)
     {
-        ImGui::Checkbox(m_ShowAllLabel.Get().data(), &m_ShowAll);
+        ImGui::Checkbox(Localization::Editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll);
 
         DrawSelectedEntityComponents(scene);
         DrawCreateComponentContextMenu(scene);
@@ -71,8 +58,9 @@ namespace Onyx::Editor::SceneEditor
                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
                         };
 
-                        Localization::LocalizationId localizationId(typeId);
-                        if (Ui::ContextMenuHeader(localizationId, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
+                        Onyx::Localization::LocalizationId localizationId(typeId);
+                        Localization::LocalizedString componentName = m_LocalizationModule->GetLocalized(localizationId);
+                        if (Ui::ContextMenuHeader(componentName, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
                         {
                             ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
 
@@ -113,7 +101,7 @@ namespace Onyx::Editor::SceneEditor
             if (ImGui::GetCurrentWindow()->Appearing)
                 s_SearchString.clear();
 
-            Ui::DrawSearchBar(s_SearchString, m_SearchHintLabel.Get().data(), s_HasFocus);
+            Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get().data(), s_HasFocus);
 
             Entity::EntityRegistry& registry = scene.GetRegistry();
             bool hasMenuItem = false;
@@ -121,7 +109,7 @@ namespace Onyx::Editor::SceneEditor
             for (auto&& [componentId, meta] : componentRegistry.GetComponentMeta())
             {
                 Localization::LocalizationId localizationId(componentId);
-                Localization::LocalizedString componentLocalizedName = m_LocalizationModule->Localize<"Editor">(localizationId);
+                Localization::LocalizedString componentLocalizedName = m_LocalizationModule->GetLocalized(localizationId);
 
                 StringView componentName = componentLocalizedName.Get();
                 if (IgnoreCaseFind(componentName, s_SearchString) == std::string::npos)

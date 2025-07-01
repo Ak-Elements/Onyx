@@ -139,7 +139,8 @@ namespace Onyx
         constexpr operator T() const { return m_Id; }
 
         constexpr bool IsValid() const { return m_Id != Invalid; }
-         
+        constexpr void Reset() { m_Id = Invalid; m_IdString = ""; }
+
         constexpr bool operator==(const StringId& other) const { return m_Id == other.m_Id; }
         constexpr bool operator!=(const StringId& other) const { return m_Id != other.m_Id; }
 

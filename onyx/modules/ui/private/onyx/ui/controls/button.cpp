@@ -26,9 +26,29 @@ namespace Onyx::Ui
         return ImGui::Button(label.data(), ImVec2(size[0], size[1]));
     }
 
+    bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected)
+    {
+        return Selectable(localizedLabel.Get(), isSelected, false, ImGuiSelectableFlags_None);
+    }
+
+    bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelected)
+    {
+        return Selectable(localizedLabel.Get(), isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None);
+    }
+
+    bool Selectable(StringView label, bool isSelected)
+    {
+        return Selectable(label, isSelected, false, ImGuiSelectableFlags_None);
+    }
+
     bool Selectable(StringView label, bool isSelected, bool shouldFocusOnSelected)
     {
-        isSelected = ImGui::Selectable(label.data(), isSelected);
+        return Selectable(label, isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None);
+    }
+
+    bool Selectable(StringView label, bool isSelected, bool shouldFocusOnSelected, onyxS32 flags)
+    {
+        isSelected = ImGui::Selectable(label.data(), isSelected, flags);
 
         if (isSelected && shouldFocusOnSelected)
         {

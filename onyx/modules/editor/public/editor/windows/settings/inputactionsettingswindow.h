@@ -8,6 +8,11 @@
 #include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
 
+namespace Onyx::Localization
+{
+    class LocalizationModule;
+}
+
 namespace Onyx::Assets
 {
     class AssetSystem;
@@ -28,7 +33,7 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "InputActionSettings";
 
-        InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem);
+        InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem);
         ~InputActionSettingsWindow() override;
 
         StringView GetWindowId() override { return WindowId; }
@@ -53,6 +58,7 @@ namespace Onyx::Editor
 
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
+        Localization::LocalizationModule* m_LocalizationModule = nullptr;
 
         // Copy of InputActionAsset to edit until save
         Reference<Input::InputActionsAsset> m_EditableCopy;
@@ -68,8 +74,5 @@ namespace Onyx::Editor
 
         bool m_IsListeningOnInput = false;
         bool m_IsDirty = false;
-
-        Localization::LocalizedString m_AddActionLabel;
-        Localization::LocalizedString m_ListenLabel;
     };
 }

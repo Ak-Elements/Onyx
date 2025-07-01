@@ -1,5 +1,4 @@
 #pragma once
-#include <onyx/localization/localizedstring.h>
 
 namespace Onyx::Localization
 {
@@ -27,11 +26,7 @@ namespace Onyx::Editor::SceneEditor
         void DrawCreateComponentContextMenu(GameCore::Scene& scene);
 
     private:
-        Localization::LocalizedString m_ShowAllLabel;
-        Localization::LocalizedString m_SearchHintLabel;
-
-        Localization::LocalizationModule* m_LocalizationModule;
-
+        Localization::LocalizationModule* m_LocalizationModule = nullptr;
         bool m_ShowAll = false;
     };
 }

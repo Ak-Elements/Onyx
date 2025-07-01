@@ -1,0 +1,674 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);"
+
+msgid "Onyx::Graphics::ShaderGraph::FragmentShaderOut"
+msgstr "Shader/Fragment/Color Out"
+
+msgid "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut"
+msgstr "Shader/Fragment/Material Out"
+
+msgid "Onyx::Graphics::ShaderGraph::SampleTexture"
+msgstr "Shader/Texture/Sample Texture"
+
+msgid "Onyx::Graphics::ShaderGraph::GetWorldPosition"
+msgstr "Shader/Fragment/Get World Position"
+
+msgid "Onyx::Graphics::ShaderGraph::GetWorldNormal"
+msgstr "Shader/Fragment/Get World Normal"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionF32"
+msgstr "Math/Float/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionF32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionF64"
+msgstr "Math/Float64/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionF64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionS32"
+msgstr "Math/Integer/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionS32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionS64"
+msgstr "Math/Integer64/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionS64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2f32"
+msgstr "Math/Float/Vector2/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2f32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2f64"
+msgstr "Math/Float64/Vector2/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2f64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2s32"
+msgstr "Math/Integer/Vector2/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2s32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2s64"
+msgstr "Math/Integer64/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector2s64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3f32"
+msgstr "Math/Float/Vector3/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3f32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3f64"
+msgstr "Math/Float64/Vector3/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3f64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3s32"
+msgstr "Math/Integer/Vector3/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3s32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3s64"
+msgstr "Math/Integer64/Vector3/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector3s64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4f32"
+msgstr "Math/Float/Vector4/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4f32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4f64"
+msgstr "Math/Float64/Vector4/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4f64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4s32"
+msgstr "Math/Integer/Vector4/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4s32"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4s64"
+msgstr "Math/Integer64/Vector4/Addition"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AdditionVector4s64"
+msgstr "+;plus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractF32"
+msgstr "Math/Float/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractF32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractF64"
+msgstr "Math/Float64/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractF64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractS32"
+msgstr "Math/Integer/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractS32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractS64"
+msgstr "Math/Integer64/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractS64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2f32"
+msgstr "Math/Float/Vector2/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2f32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2f64"
+msgstr "Math/Float64/Vector2/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2f64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2s32"
+msgstr "Math/Integer/Vector2/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2s32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2s64"
+msgstr "Math/Integer64/Vector2/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector2s64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3f32"
+msgstr "Math/Float/Vector3/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3f32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3f64"
+msgstr "Math/Float64/Vector3/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3f64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3s32"
+msgstr "Math/Integer/Vector3/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3s32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3s64"
+msgstr "Math/Integer64/Vector3/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector3s64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4f32"
+msgstr "Math/Float/Vector4/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4f32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4f64"
+msgstr "Math/Float64/Vector4/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4f64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4s32"
+msgstr "Math/Integer/Vector4/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4s32"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4s64"
+msgstr "Math/Integer64/Vector4/Subtract"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::SubtractVector4s64"
+msgstr "-;minus"
+
+msgid "Onyx::Graphics::ShaderGraph::MultiplyF32"
+msgstr "Math/Float/Multiply"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::MultiplyF32"
+msgstr "*;times"
+
+msgid "Onyx::Graphics::ShaderGraph::MultiplyF64"
+msgstr "Math/Float64/Multiply"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::MultiplyF64"
+msgstr "*;times"
+
+msgid "Onyx::Graphics::ShaderGraph::MultiplyS32"
+msgstr "Math/Integer/Multiply"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::MultiplyS32"
+msgstr "*;times"
+
+msgid "Onyx::Graphics::ShaderGraph::MultiplyS64"
+msgstr "Math/Integer64/Multiply"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::MultiplyS64"
+msgstr "*;times"
+
+msgid "Onyx::Graphics::ShaderGraph::DivideF32"
+msgstr "Math/Float/Divide"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::DivideF32"
+msgstr "/"
+
+msgid "Onyx::Graphics::ShaderGraph::DivideF64"
+msgstr "Math/Float64/Divide"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::DivideF64"
+msgstr "/"
+
+msgid "Onyx::Graphics::ShaderGraph::DivideS32"
+msgstr "Math/Integer/Divide"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::DivideS32"
+msgstr "/"
+
+msgid "Onyx::Graphics::ShaderGraph::DivideS64"
+msgstr "Math/Integer64/Divide"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::DivideS64"
+msgstr "/"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteF32"
+msgstr "Math/Float/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteF32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteF64"
+msgstr "Math/Float64/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteF64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteS32"
+msgstr "Math/Integer/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteS32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteS64"
+msgstr "Math/Integer64/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteS64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2f32"
+msgstr "Math/Float/Vector2/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2f32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2f64"
+msgstr "Math/Float64/Vector2/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2f64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2s32"
+msgstr "Math/Integer/Vector2/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2s32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2s64"
+msgstr "Math/Integer64/Vector2/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector2s64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3f32"
+msgstr "Math/Float/Vector3/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3f32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3f64"
+msgstr "Math/Float64/Vector3/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3f64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3s32"
+msgstr "Math/Integer/Vector3/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3s32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3s64"
+msgstr "Math/Integer64/Vector3/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector3s64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4f32"
+msgstr "Math/Float/Vector4/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4f32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4f64"
+msgstr "Math/Float64/Vector4/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4f64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4s32"
+msgstr "Math/Integer/Vector4/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4s32"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4s64"
+msgstr "Math/Integer64/Vector4/Absolute"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::AbsoluteVector4s64"
+msgstr "|x|"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2f32"
+msgstr "Math/Float/Vector2/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2f32"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2f64"
+msgstr "Math/Float64/Vector2/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2f64"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2s32"
+msgstr "Math/Integer/Vector2/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2s32"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2s64"
+msgstr "Math/Integer64/Vector2/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector2s64"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3f32"
+msgstr "Math/Float/Vector3/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3f32"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3f64"
+msgstr "Math/Float64/Vector3/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3f64"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3s32"
+msgstr "Math/Integer/Vector3/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3s32"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3s64"
+msgstr "Math/Integer64/Vector3/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector3s64"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4f32"
+msgstr "Math/Float/Vector4/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4f32"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4f64"
+msgstr "Math/Float64/Vector4/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4f64"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4s32"
+msgstr "Math/Integer/Vector4/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4s32"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4s64"
+msgstr "Math/Integer64/Vector4/Scale"
+
+msgctx "alias"
+msgid "Onyx::Graphics::ShaderGraph::ScaleVector4s64"
+msgstr "*;multiply;times;/;divide"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector2f32Components"
+msgstr "Math/Float/Vector2/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector2f64Components"
+msgstr "Math/Float64/Vector2/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector2s32Components"
+msgstr "Math/Integer/Vector2/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector2s64Components"
+msgstr "Math/Integer64/Vector2/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector3f32Components"
+msgstr "Math/Float/Vector3/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector3f64Components"
+msgstr "Math/Float64/Vector3/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector3s32Components"
+msgstr "Math/Integer/Vector3/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector3s64Components"
+msgstr "Math/Integer64/Vector3/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector4f32Components"
+msgstr "Math/Float/Vector4/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector4f64Components"
+msgstr "Math/Float64/Vector4/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector4s32Components"
+msgstr "Math/Integer/Vector4/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::GetVector4s64Components"
+msgstr "Math/Integer64/Vector4/Get Components"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector2f32"
+msgstr "Math/Float/Vector2/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector2f64"
+msgstr "Math/Float64/Vector2/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector2s32"
+msgstr "Math/Integer/Vector2/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector2s64"
+msgstr "Math/Integer64/Vector2/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector3f32"
+msgstr "Math/Float/Vector3/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector3f64"
+msgstr "Math/Float64/Vector3/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector3s32"
+msgstr "Math/Integer/Vector3/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector3s64"
+msgstr "Math/Integer64/Vector3/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector4f32"
+msgstr "Math/Float/Vector4/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector4f64"
+msgstr "Math/Float64/Vector4/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector4s32"
+msgstr "Math/Integer/Vector4/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::CreateVector4s64"
+msgstr "Math/Integer64/Vector4/Create"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector2f32"
+msgstr "Math/Float/Vector2/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector3f32"
+msgstr "Math/Float/Vector2/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector4f32"
+msgstr "Math/Float/Vector2/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector2f64"
+msgstr "Math/Float64/Vector2/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector3f64"
+msgstr "Math/Float64/Vector2/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector4f64"
+msgstr "Math/Float64/Vector2/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s32"
+msgstr "Math/Integer/Vector2/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s32"
+msgstr "Math/Integer/Vector2/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s32"
+msgstr "Math/Integer/Vector2/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s64"
+msgstr "Math/Integer64/Vector2/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s64"
+msgstr "Math/Integer64/Vector2/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s64"
+msgstr "Math/Integer64/Vector2/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector2f32"
+msgstr "Math/Float/Vector3/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector3f32"
+msgstr "Math/Float/Vector3/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector4f32"
+msgstr "Math/Float/Vector3/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector2f64"
+msgstr "Math/Float64/Vector3/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector3f64"
+msgstr "Math/Float64/Vector3/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector4f64"
+msgstr "Math/Float64/Vector3/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector2s32"
+msgstr "Math/Integer/Vector3/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector3s32"
+msgstr "Math/Integer/Vector3/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector4s32"
+msgstr "Math/Integer/Vector3/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector2s64"
+msgstr "Math/Integer64/Vector3/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector3s64"
+msgstr "Math/Integer64/Vector3/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle3DVector4s64"
+msgstr "Math/Integer64/Vector3/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector2f32"
+msgstr "Math/Float/Vector4/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector3f32"
+msgstr "Math/Float/Vector4/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector4f32"
+msgstr "Math/Float/Vector4/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector2f64"
+msgstr "Math/Float64/Vector4/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector3f64"
+msgstr "Math/Float64/Vector4/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector4f64"
+msgstr "Math/Float64/Vector4/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector2s32"
+msgstr "Math/Integer/Vector4/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector3s32"
+msgstr "Math/Integer/Vector4/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s32"
+msgstr "Math/Integer/Vector4/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector2s64"
+msgstr "Math/Integer64/Vector4/Swizzle Vector2"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector3s64"
+msgstr "Math/Integer64/Vector4/Swizzle Vector3"
+
+msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s64"
+msgstr "Math/Integer64/Vector4/Swizzle Vector4"

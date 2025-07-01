@@ -22,17 +22,19 @@
 
 #include <imgui_internal.h>
 #include <imgui_stacklayout.h>
+#include <editor/editor_localization.h>
+#include <onyx/localization/localization.h>
+#include <onyx/localization/localizationmodule.h>
 #include <onyx/ui/controls/button.h>
+#include <onyx/ui/controls/combobox.h>
 
 namespace Onyx::Editor
 {
-    InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem)
+    InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem)
         : m_AssetSystem(&assetSystem)
+        , m_LocalizationModule(&localizationModule)
     {
         inputSystem.AddOnInputHandler(this, &InputActionSettingsWindow::OnInputEvent);
-
-        //m_AddActionLabel = StringId32("editor.windows.inputactionsettings.buttons.listen.label");
-        //m_ListenLabel = StringId32("editor.windows.inputactionsettings.buttons.listen.label");
     }
 
     InputActionSettingsWindow::~InputActionSettingsWindow()
@@ -50,16 +52,16 @@ namespace Onyx::Editor
 
         ImGui::SetNextWindowSizeConstraints(ImVec2(640, 480), ImVec2(FLT_MAX, FLT_MAX));
 
-        const char* windowName = Format::Format("{}{} - [Input Actions]###InputActionsEditor", m_IsDirty ? "*" : "", assetName.data());
+        const char* windowName = Format::Format("{}{} - [{}]###InputActionsEditor", m_IsDirty ? "*" : "", assetName.data(), Localization::Editor::InputActionSettings::Title);
         SetName(windowName);
 
         if (Begin())
         {
             if (BeginMenuBar())
             {
-                if (ImGui::BeginMenu("File"))
+                if (ImGui::BeginMenu(Localization::Generic::File.Get().data()))
                 {
-                    if (ImGui::MenuItem("Open"))
+                    if (ImGui::MenuItem(Localization::Generic::Open.Get().data()))
                     {
                         FileSystem::Filepath path;
                         if (FileSystem::FileDialog::OpenFileDialog(path, "Input actions asset", Input::InputActionsSerializer::Extensions))
@@ -70,7 +72,12 @@ namespace Onyx::Editor
                         }
                     }
 
-                    if (ImGui::MenuItem("Save"))
+                    if (ImGui::MenuItem(Localization::Generic::Save.Get().data()))
+                    {
+                        m_AssetSystem->SaveAsset(m_EditableCopy);
+                    }
+
+                    if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
                     {
                         FileSystem::Filepath path;
                         if (FileSystem::FileDialog::SaveFileDialog(path, "Input actions asset", Input::InputActionsSerializer::Extensions))
@@ -108,7 +115,7 @@ namespace Onyx::Editor
 
                     // right panel
                     ImGui::TableSetColumnIndex(2);
-                    ImGui::BeginVertical("##InputActionMap::InputAction::Data", ImGui::GetContentRegionAvail());
+                    ImGui::BeginVertical("###InputActionMap::InputAction::Data", ImGui::GetContentRegionAvail());
 
                     if (m_SelectedActionMapId.IsValid() && (m_SelectedActionIndex != INVALID_INDEX_32))
                         RenderActionProperties();
@@ -198,12 +205,12 @@ namespace Onyx::Editor
     void InputActionSettingsWindow::RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps)
     {
         // all action maps of the project
-        ImGui::BeginListBox("##InputActionMaps", ImGui::GetContentRegionAvail());
+        ImGui::BeginListBox("###InputActionMaps", ImGui::GetContentRegionAvail());
 
         onyxU32 i = 0;
         for (auto&& [key, actionMap] : actionMaps)
         {
-            if (ImGui::Selectable(actionMap.GetName().c_str(), m_MapsSelectedStates[i++], ImGuiSelectableFlags_SelectOnClick | ImGuiSelectableFlags_SpanAvailWidth))
+            if (Ui::Selectable(actionMap.GetName(), m_MapsSelectedStates[i++], false, ImGuiSelectableFlags_SelectOnClick | ImGuiSelectableFlags_SpanAvailWidth))
             {
                 if (m_SelectedActionMapId != key)
                 {
@@ -221,15 +228,15 @@ namespace Onyx::Editor
     void InputActionSettingsWindow::RenderInputActions()
     {
         // actions in the selected map
-        Ui::ScopedImGuiId id("##InputActionMap::InputActions");
+        Ui::ScopedImGuiId id("###InputActionMap::InputActions");
         if (m_SelectedActionMapId.IsValid())
         {
             onyxS32 i = 0;
             Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
 
-            if (ImGui::BeginPopupContextItem("##CreateInputAction", ImGuiPopupFlags_MouseButtonRight))
+            if (ImGui::BeginPopupContextItem("###CreateInputAction", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (Ui::Button(m_AddActionLabel))
+                if (Ui::Button(Localization::Editor::InputActionSettings::AddAction))
                 {
                     Input::InputAction& newAction = selectedMap.GetActions().emplace_back("New Action");
                     newAction.SetType(Input::ActionType::Bool);
@@ -264,8 +271,7 @@ namespace Onyx::Editor
                         const HashSet<StringId32>& registeredBindings = Input::InputBindingsRegistry::GetRegisteredBindings(action.GetType());
                         for (StringId32 bindingTypeId : registeredBindings)
                         {
-
-                            StringView buttonLabel = Format::Format("Add {}", Input::InputBindingsRegistry::GetBindingName(bindingTypeId));
+                            StringView buttonLabel = Format::Format("{} {}", Localization::Generic::Add, m_LocalizationModule->GetLocalized(bindingTypeId));
                             if (ImGui::MenuItem(buttonLabel.data()))
                             {
                                 action.GetBindings().emplace_back(Input::InputBindingsRegistry::CreateBinding(bindingTypeId));
@@ -374,7 +380,7 @@ namespace Onyx::Editor
 
                     if (boundInputValue == 0)
                     {
-                        boundInputLabel = "Unbound";
+                        boundInputLabel = Localization::Editor::InputActionSettings::Bindings::Unbound.Get();
                     }
                     else
                     {
@@ -408,7 +414,7 @@ namespace Onyx::Editor
                         inputBindingSlotLabel = Format::Format("{}{} {} [{}]", bindingSlotLabel, bindingSlotLabel.empty() ? "" : ":", boundInputLabel, bindingInputTypeLabel);
                     }
 
-                    if (ImGui::Selectable(inputBindingSlotLabel.data(), isBindingSlotSelected))
+                    if (Ui::Selectable(inputBindingSlotLabel, isBindingSlotSelected))
                     {
                         isSelected = true;
                         isBindingSelected = true;
@@ -430,14 +436,18 @@ namespace Onyx::Editor
 
         ImGui::TextEx((selectedAction.GetId().GetString().data()));
 
-        if (ImGui::BeginCombo("Action type", Enums::ToString(actionType).data()))
+        Localization::LocalizationId localizationId{ Enums::ToString(actionType) };
+        Localization::LocalizedString selectedActionLocalized = m_LocalizationModule->GetLocalized(localizationId);
+        if (Ui::BeginCombobox("###ActionType", selectedActionLocalized))
         {
             for (Input::ActionType type = Input::ActionType::Invalid; type < Input::ActionType::Count; ++type)
             {
                 if (type == Input::ActionType::Invalid)
                     continue;
 
-                if (ImGui::Selectable(Enums::ToString(type).data(), false))
+                localizationId = { Enums::ToString(type) };
+                Localization::LocalizedString actionLocalized = m_LocalizationModule->GetLocalized(localizationId);
+                if (Ui::Selectable(actionLocalized, false, false))
                 {
                     selectedAction.GetBindings().clear();
                 }
@@ -452,7 +462,7 @@ namespace Onyx::Editor
         if (m_SelectedBindingIndex == INVALID_INDEX_32)
             return;
 
-        if (Ui::Button(m_ListenLabel))
+        if (Ui::Button(Localization::Editor::InputActionSettings::Bindings::Listen))
         {
             m_IsListeningOnInput = true;
         }
