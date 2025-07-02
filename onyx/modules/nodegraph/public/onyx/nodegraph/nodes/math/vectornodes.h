@@ -357,13 +357,13 @@ namespace Onyx::NodeGraph
         FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector2s32">>();
         FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector2s64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f, Vector2f, SerializedNameSpaceId + "::Swizzle2DVector2f32">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f, Vector2f, SerializedNameSpaceId + "::Swizzle2DVector3f32">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f, Vector2f, SerializedNameSpaceId + "::Swizzle2DVector4f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector2f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector3f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector4f32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2d, Vector2d, SerializedNameSpaceId + "::Swizzle2DVector2f64">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3d, Vector2d, SerializedNameSpaceId + "::Swizzle2DVector3f64">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4d, Vector2d, SerializedNameSpaceId + "::Swizzle2DVector4f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector2f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector3f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector4f64">>();
 
         FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector2s32">>();
         FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector3s32">>();
@@ -384,13 +384,13 @@ namespace Onyx::NodeGraph
         FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector3s32">>();
         FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector3s64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f, Vector3f, SerializedNameSpaceId + "::Swizzle3DVector2f32">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f, Vector3f, SerializedNameSpaceId + "::Swizzle3DVector3f32">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f, Vector3f, SerializedNameSpaceId + "::Swizzle3DVector4f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector2f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector3f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector4f32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2d, Vector3d, SerializedNameSpaceId + "::Swizzle3DVector2f64">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3d, Vector3d, SerializedNameSpaceId + "::Swizzle3DVector3f64">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4d, Vector3d, SerializedNameSpaceId + "::Swizzle3DVector4f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector2f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector3f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector4f64">>();
 
         FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector2s32">>();
         FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector3s32">>();
@@ -411,13 +411,13 @@ namespace Onyx::NodeGraph
         FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector4s32">>();
         FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector4s64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f, Vector4f, SerializedNameSpaceId + "::Swizzle4DVector2f32">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f, Vector4f, SerializedNameSpaceId + "::Swizzle4DVector3f32">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f, Vector4f, SerializedNameSpaceId + "::Swizzle4DVector4f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector2f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector3f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector4f32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2d, Vector4d, SerializedNameSpaceId + "::Swizzle4DVector2f64">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3d, Vector4d, SerializedNameSpaceId + "::Swizzle4DVector3f64">>();
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4d, Vector4d, SerializedNameSpaceId + "::Swizzle4DVector4f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector2f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector3f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector4f64">>();
 
         FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector2s32">>();
         FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector3s32">>();

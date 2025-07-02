@@ -11,7 +11,7 @@ namespace Onyx::Ui
         return Button(localizedLabel.Get());
     }
 
-    bool Button(const Localization::LocalizedString& localizedLabel, Vector2f size)
+    bool Button(const Localization::LocalizedString& localizedLabel, Vector2f32 size)
     {
         return Button(localizedLabel.Get(), size);
     }
@@ -21,7 +21,7 @@ namespace Onyx::Ui
         return ImGui::Button(label.data());
     }
 
-    bool Button(StringView label, Vector2f size)
+    bool Button(StringView label, Vector2f32 size)
     {
         return ImGui::Button(label.data(), ImVec2(size[0], size[1]));
     }
@@ -82,8 +82,8 @@ namespace Onyx::Ui
         bool isHeld = false;
         bool isHovered = false;
 
-        const Vector2f& min = boundingBox.GetBottomLeft();
-        const Vector2f& max = boundingBox.GetTopRight();
+        const Vector2f32& min = boundingBox.GetBottomLeft();
+        const Vector2f32& max = boundingBox.GetTopRight();
 
         ImRect imguiBounds{ min[0], min[1], max[0], max[1] };
         bool isPressed = ImGui::ButtonBehavior(imguiBounds, id, &isHovered, &isHeld, flags);

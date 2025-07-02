@@ -23,7 +23,7 @@ namespace Onyx::Editor::SceneEditor
     {
     }
 
-    void ComponentsPanel::Render(GameCore::Scene& scene)
+    void ComponentsPanel::Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
     {
         ImGui::Checkbox(Localization::Editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll);
 
@@ -60,7 +60,7 @@ namespace Onyx::Editor::SceneEditor
                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
                         };
 
-                        Onyx::Localization::LocalizationId localizationId(typeId);
+                        Onyx::Localization::LocalizationId localizationId(componentTypeId);
                         Localization::LocalizedString componentName = m_LocalizationModule->GetLocalized(localizationId);
                         if (Ui::ContextMenuHeader(componentName, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
                         {
@@ -111,7 +111,7 @@ namespace Onyx::Editor::SceneEditor
             bool hasMenuItem = false;
             for (const StringId32& componentTypeId : componentFactory.GetComponentMeta() | std::views::keys)
             {
-                Localization::LocalizationId localizationId(componentId);
+                Localization::LocalizationId localizationId(componentTypeId);
                 Localization::LocalizedString componentLocalizedName = m_LocalizationModule->GetLocalized(localizationId);
 
                 StringView componentName = componentLocalizedName.Get();

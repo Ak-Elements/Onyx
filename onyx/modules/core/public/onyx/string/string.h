@@ -3,7 +3,7 @@
 namespace Onyx
 {
     DynamicArray<String> Split(StringView string, StringView delimiters);
-    DynamicArray<String> Split(StringView string, const char delimiter);
+    DynamicArray<String> Split(StringView string, char delimiter);
 
     void ToLower(String& str);
     String ToLower(StringView str);
@@ -13,7 +13,7 @@ namespace Onyx
 
     int IgnoreCaseCompare(StringView lhs, StringView rhs);
     bool IgnoreCaseEqual(StringView lhs, StringView rhs);
-    bool IgnoreCaseStartsWith(StringView& string, const StringView prefix);
+    bool IgnoreCaseStartsWith(StringView string, StringView prefix);
     StringView::size_type IgnoreCaseFind(StringView string, StringView searchString);
 
 }

@@ -21,8 +21,8 @@ namespace Onyx::Volume
 
     void VolumeSystem::Init(GameCore::GameCoreSystem& gameCore)
     {
-        Graphics::RenderGraphNodeFactory::RegisterNode<CreateVolumeMesh>("Volume/Create Volume Mesh");
-        Graphics::RenderGraphNodeFactory::RegisterNode<GenerateVolumeMesh>("Volume/Generate Volume Mesh");
+        Graphics::RenderGraphNodeFactory::RegisterNode<CreateVolumeMesh>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<GenerateVolumeMesh>();
 
         Entity::EcsBuilder ecsBuilder = gameCore.GetEcsBuilder();
         RegisterSystems(ecsBuilder);

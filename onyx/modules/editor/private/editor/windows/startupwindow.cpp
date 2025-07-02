@@ -26,28 +26,28 @@ namespace Onyx::Editor
 
         Begin();
 
-        if (Ui::Button(Localization::Editor::Windows::NodeEditorTitle, Vector2f(200, 50)))
+        if (Ui::Button(Localization::Editor::Windows::NodeEditorTitle, Vector2f32(200, 50)))
         {
             //NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             //window.SetContext(MakeUnique<NodeGraphEditorContext>());
             //Close();
         }
 
-        if (Ui::Button(Localization::Editor::Windows::ShaderGraphEditorTitle, Vector2f(200, 50)))
+        if (Ui::Button(Localization::Editor::Windows::ShaderGraphEditorTitle, Vector2f32(200, 50)))
         {
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             window.SetContext(MakeUnique<ShaderGraphEditorContext>());
             Close();
         }
 
-        if (Ui::Button(Localization::Editor::Windows::RenderGraphEditorTitle, Vector2f(200, 50)))
+        if (Ui::Button(Localization::Editor::Windows::RenderGraphEditorTitle, Vector2f32(200, 50)))
         {
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             window.SetContext(MakeUnique<RenderGraphEditorContext>());
             Close();
         }
 
-        if (Ui::Button(Localization::Editor::SceneEditor::Title, Vector2f(200, 50)))
+        if (Ui::Button(Localization::Editor::SceneEditor::Title, Vector2f32(200, 50)))
         {
             system.OpenWindow<SceneEditorWindow>();
             Close();

@@ -40,7 +40,7 @@ namespace Onyx
 		return result;
     }
 
-    DynamicArray<String> Split(StringView string, const char delimiter)
+    DynamicArray<String> Split(StringView string, char delimiter)
     {
 		return Split(string, String(1, delimiter));
     }

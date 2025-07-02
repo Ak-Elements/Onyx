@@ -18,10 +18,10 @@ namespace Onyx::Ui
     };
 
     bool Button(const Localization::LocalizedString& localizedLabel);
-    bool Button(const Localization::LocalizedString& localizedLabel, Vector2f size);
+    bool Button(const Localization::LocalizedString& localizedLabel, Vector2f32 size);
 
     bool Button(StringView label);
-    bool Button(StringView label, Vector2f size);
+    bool Button(StringView label, Vector2f32 size);
 
     bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected);
     bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelect);

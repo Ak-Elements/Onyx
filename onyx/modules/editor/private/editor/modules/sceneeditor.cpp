@@ -9,24 +9,21 @@
 #include <onyx/gamecore/components/transientcomponent.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
+#include <onyx/graphics/commandbuffer.h>
+#include <onyx/localization/localization.h>
 #include <onyx/ui/imguisystem.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
+#include <onyx/volume/graphics/generatemeshpass.h>
 
 #include <editor/panels/sceneeditor/componentspanel.h>
 #include <editor/panels/sceneeditor/entitiespanel.h>
 #include <editor/windows/editormainwindow.h>
+#include <editor/editor_localization.h>
 
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
-<<<<<<< HEAD
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/volume/graphics/generatemeshpass.h>
-=======
-#include <editor/editor_localization.h>
-#include <onyx/localization/localization.h>
->>>>>>> localization
 
 namespace Onyx::Editor
 {
@@ -245,7 +242,7 @@ namespace Onyx::Editor
         ImGui::SetNextWindowClass(m_WindowClass);
         if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::ComponentsPanel::Title, m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            m_ComponentsPanel.Render(*m_Scene);
+            m_ComponentsPanel.Render(m_GameCore.GetComponentFactory(), *m_Scene);
         }
         ImGui::End();
     }
@@ -430,8 +427,8 @@ namespace Onyx::Editor
 
         registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
-        transform.SetTranslation(Vector3f{ 0.0f, 100.0f, 200.0f });
-        transform.SetRotation(Vector3f(0, 0, 0));
+        transform.SetTranslation(Vector3f32{ 0.0f, 100.0f, 200.0f });
+        transform.SetRotation(Vector3f32(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 1000.0f);

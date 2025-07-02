@@ -73,9 +73,7 @@ namespace Onyx::Ui::PropertyGrid
         }
     }
 
-    onyxF32 PropertyGrid::ms_SplitterMinX = 0.0f;
-
-    void PropertyGrid::BeginPropertyGrid(const StringView& propertyGrid, onyxF32 splitMinX)
+    void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX)
     {
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->ChannelsSplit(2);

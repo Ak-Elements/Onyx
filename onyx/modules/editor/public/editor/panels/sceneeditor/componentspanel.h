@@ -22,10 +22,9 @@ namespace Onyx::Editor::SceneEditor
     class ComponentsPanel
     {
     public:
-        void Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene);
         ComponentsPanel(Localization::LocalizationModule& localizationModule);
 
-        void Render(GameCore::Scene& scene);
+        void Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene);
 
     private:
         void DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene);

@@ -15,13 +15,8 @@ namespace Onyx
             , Extents(Extents)
         {
         }
-        Rect2(ScalarT positionX, ScalarT positionY, ScalarT extentsX, ScalarT extentsY)
-            : Position(positionX, positionY)
-            , Extents(extentsX, extentsY)
-        {
-        }
 
-        explicit Rect2(ScalarT positionX, ScalarT positionY, ScalarT extentsX, ScalarT extentsY)
+        Rect2(ScalarT positionX, ScalarT positionY, ScalarT extentsX, ScalarT extentsY)
             : Position(positionX, positionY)
             , Extents(extentsX, extentsY)
         {

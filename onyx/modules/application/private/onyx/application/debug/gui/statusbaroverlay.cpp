@@ -35,7 +35,7 @@ namespace Onyx::Application::Debug
             const StringView overlayName = overlay->GetName();
             const StringView value = overlay->GetValue();
 
-            bool hasClicked = Ui::Button(value.data(), Vector2f(100,0));
+            bool hasClicked = Ui::Button(value.data(), Vector2f32(100,0));
 
             if (hasClicked)
             {
