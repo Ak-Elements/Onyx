@@ -145,3 +145,36 @@ msgstr "Can't connect two output pins."
 
 msgid "editor.windows.nodeeditor.error.dependencycycle"
 msgstr "Can't connect as it would create a dependency/execution cycle."
+
+msgid "Bool"
+msgstr "Bool"
+
+msgid "Axis1D"
+msgstr "1D Axis"
+
+msgid "Axis2D"
+msgstr "2D Axis"
+
+msgid "Axis3D"
+msgstr "3D Axis"
+
+msgid "Onyx::InputBinding::Bool"
+msgstr "Bool"
+
+msgid "Onyx::InputBinding::Axis1DComposite"
+msgstr "1D Axis Composite"
+
+msgid "Onyx::InputBinding::Axis1D"
+msgstr "1D Axis"
+
+msgid "Onyx::InputBinding::Axis2DComposite"
+msgstr "2D Axis Composite"
+
+msgid "Onyx::InputBinding::Axis2D"
+msgstr "2D Axis"
+
+msgid "Onyx::InputBinding::Axis3DComposite"
+msgstr "3D Axis Composite"
+
+msgid "Onyx::InputBinding::Axis3D"
+msgstr "3D Axis"

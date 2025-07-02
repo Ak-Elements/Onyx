@@ -20,7 +20,7 @@ namespace Onyx::Localization
     {
         onyxS32 Locale;
         // probably a flag indicating the backend to use
-        DynamicArray<String> m_LocalizationFiles;
+        Assets::AssetId m_Localization;
     };
 
     class LocalizationModule : public IEngineSystem
@@ -30,6 +30,11 @@ namespace Onyx::Localization
 
         LocalizedString GetLocalized(LocalizationId id) const;
         Optional<StringView> TryGetLocalized(LocalizationId id) const;
+
+#if !ONYX_IS_RETAIL
+        virtual void AddSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database);
+        virtual void RemoveSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database);
+#endif
 
     private:
         LocalizationSettings m_Settings;

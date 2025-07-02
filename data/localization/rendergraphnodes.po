@@ -2,3 +2,47 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
+msgid "Onyx::Ui::RenderGraph::UIPass"
+msgstr "UI Pass"
+
+msgid "CompositePass"
+msgstr "Composite Pass"
+
+msgid "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+msgstr "Editor Grid Pass"
+
+msgid "Onyx::GameCore::RenderGraph::DepthPrePass"
+msgstr "Depth Pre Pass"
+
+msgid "Onyx::GameCore::RenderGraph::StaticMeshPass"
+msgstr "StaticMesh Pass"
+
+msgid "Onyx::GameCore::RenderGraph::MSDFFontPass"
+msgstr "3D Font Pass"
+
+msgid "Onyx::Graphics::RenderGraph::GetViewConstants"
+msgstr "Get View Constants"
+
+msgid "Onyx::Graphics::RenderGraph::CreateLightClusters"
+msgstr "Create Light Clusters"
+
+msgid "Onyx::Graphics::RenderGraph::UpdateLightClusters"
+msgstr "Update Light Clusters"
+
+msgid "Onyx::Graphics::RenderGraph::CreateTransmittance"
+msgstr "Create Transmittance"
+
+msgid "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
+msgstr "Compute Multiple Scattering"
+
+msgid "Onyx::Graphics::RenderGraph::ComputeSkyViewLut"
+msgstr "Compute Sky View Lut"
+
+msgid "Onyx::Graphics::RenderGraph::AtmosphericSkyPass"
+msgstr "Atmospheric Sky Pass"
+
+msgid "Onyx::Graphics::RenderGraph::ToneMapPass"
+msgstr "Tone Map Pass"
+
+msgid "RenderGraph::DebugLightClusters"
+msgstr "Debug Light Clusters"

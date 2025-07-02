@@ -2,6 +2,12 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
+msgid "Onyx::Graphics::TextureHandle"
+msgstr "Texture Handle"
+
+msgid "Onyx::Graphics::BufferHandle"
+msgstr "GPU Buffer Handle"
+
 msgid "Onyx::Graphics::ShaderGraph::FragmentShaderOut"
 msgstr "Shader/Fragment/Color Out"
 

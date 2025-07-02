@@ -1,125 +1,104 @@
 #include <onyx/localization/backends/gettextlocalizationbackend.h>
-#include <onyx/stream/stringstream.h>
 
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/assets/assetsystem.h>
+
+#include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/localizedstring.h>
 
 namespace Onyx::Localization
 {
     namespace
     {
-        constexpr StringView PO_HEADER_MSG_ID = "msgid \"\"\n";
-        constexpr StringView PO_HEADER_MSG_STR = "msgstr \"\"\n";
-        constexpr StringView PO_HEADER_PLURAL_FORMS = "plural-forms:";
-
-        struct PluralRule
-        {
-            using PluralFunc = onyxS32(*)(onyxS32);
-
-            StringView Rule;
-            PluralFunc Function;
-        };
-
-        constexpr Array PluralFunctions =
-        {
-            // Note that the plural forms here shouldn't contain any spaces
-            // Japanese, Vietnamese, Korean
-            // Thai 
-            PluralRule{ "nplurals=1;plural=0;", [](onyxS32) { return 0; } },
-
-            // English, German, Dutch, Swedish, Danish, Norwegian, Faroese
-            // Spanish, Portuguese, Italian
-            // Greek
-            // Bulgarian
-            // Finnish, Estonian
-            // Hebrew
-            // Bahasa Indonesian
-            // Esperanto
-            // Hungarian
-            // Turkish 
-            PluralRule{ "nplurals=2;plural=(n!=1);", [](onyxS32 n) { return n != 1 ? 1 : 0; }  },
-
-            /// Brazilian Portuguese, French 
-            PluralRule{ "nplurals=2;plural=(n>1);", [](onyxS32 n) { return n > 1 ? 1 : 0; } },
-
-            // Macedonian
-            PluralRule{ "nplurals=2;plural=n==1||n%10==1?0:1;", [](onyxS32 n) { return (n == 1) || ((n % 10) == 1) ? 0 : 1; } },
-
-            // Macedonian 2
-            PluralRule{ "nplurals=2;plural=(n%10==1&&n%100!=11)?0:1;", [](onyxS32 n) { return ((n % 10) == 1) && ((n % 100) != 11) ? 0 : 1; } },
-
-            // Latvian 
-            PluralRule{ "nplurals=3;plural=n%10==1&&n%100!=11?0:n!=0?1:2);", [](onyxS32 n) { return ((n % 10) == 1) && ((n % 100) != 11) ? 0 : (n != 0) ? 1 : 2; } },
-
-            // Gaeilge Irish
-            PluralRule{ "nplurals=3;plural=n==1?0:n==2?1:2;", [](onyxS32 n) { return (n == 1) ? 0 : (n == 2) ? 1 : 2; } },
-
-            // Lithuanian
-            PluralRule{ "nplurals=3;plural=(n%10==1&&n%100!=11?0:n%10>=2&&(n%100<10||n%100>=20)?1:2);", [](onyxS32 n) { return ((n % 10) == 1) && ((n % 100) != 11) ? 0 : ((n % 10) >= 2) && (((n % 100) < 10) || ((n % 100) >= 20)) ? 1 : 2; }  },
-
-            // Russian, Ukrainian, Belarusian, Serbian, Croatian 
-            PluralRule{ "nplurals=3;plural=(n%10==1&&n%100!=11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2);", [](onyxS32 n) { return ((n % 10) == 1) && ((n % 100) != 11) ? 0 : ((n % 10) >= 2) && ((n % 10) <= 4) && (((n % 100) < 10) || ((n % 100) >= 20)) ? 1 : 2; }},
-
-            // Czech, Slovak 
-            PluralRule{ "nplurals=3;plural=(n==1)?0:(n>=2&&n<=4)?1:2;", [](onyxS32 n) { return (n == 1) ? 0 : (n >= 2) && (n <= 4) ? 1 : 2; }  },
-
-            // Polish
-            PluralRule{ "nplurals=3;plural=(n==1?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2);", [](onyxS32 n) { return (n == 1) ? 0 : ((n % 10) >= 2) && ((n % 10) <= 4) && (((n % 100) < 10) || ((n % 100) >= 20)) ? 1 : 2; } },
-
-            // Romanian            
-            PluralRule{ "nplurals=3;plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));", [](onyxS32 n) { return (n == 1) ? 0 : (((n % 100) > 19) || (((n % 100) == 0) && (n != 0))) ? 2 : 1; } },
-
-            // Slovenian
-            PluralRule{ "nplurals=4;plural=(n%100==1?0:n%100==2?1:n%100==3||n%100==4?2:3);", [](onyxS32 n) { return ((n % 100) == 1) ? 0 : ((n % 100) == 2) ? 1 : ((n % 100) == 3) || ((n % 100) == 4) ? 2 : 3; } },
-
-            // Slovak (alternative)
-            PluralRule{ "nplurals=4;plural=(n%1==0&&n==1?0:n%1==0&&n>=2&&n<=4?1:n%1!=0?2:3);", [](onyxS32 n) { return ((n % 1) == 0) && (n == 1) ? 0 : ((n % 1) == 0) && (n >= 2) && (n <= 4) ? 1 : ((n % 1) != 0) ? 2 : 3; } },
-
-            // Czech
-            PluralRule{ "nplurals=4;plural=(n==1&&n%1==0)?0:(n>=2&&n<=4&&n%1==0)?1:(n%1!=0)?2:3;", [](onyxS32 n) { return (n == 1) && ((n % 1) == 0) ? 0 : ((n >= 2) && (n <= 4) && ((n % 1) == 0)) ? 1 : ((n % 1) != 0) ? 2 : 3; } },
-
-            // Belarusian
-            PluralRule{ "nplurals=4;plural=(n%10==1&&n%100!=11?0:n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?1:n%10==0||(n%10>=5&&n%10<=9)||(n%100>=11&&n%100<=14)?2:3);", [](onyxS32 n) { return ((n % 10) == 1) && ((n % 100) != 11) ? 0 : ((n % 10) >= 2) && ((n % 10) <= 4) && (((n % 100) < 12) || ((n % 100) > 14)) ? 1 : ((n % 10) == 0) || (((n % 10) >= 5) && ((n % 10) <= 9)) || (((n % 100) >= 11) && ((n % 100) <= 14)) ? 2 : 3; } },
-
-            // Scottish Gaelic
-            PluralRule{ "nplurals=4;plural=(n==1||n==11)?0:(n==2||n==12)?1:(n>2&&n<20)?2:3;", [](onyxS32 n) { return (n == 1) || (n == 11) ? 0 : ((n == 2) || (n == 12)) ? 1 : ((n > 2) && (n < 20)) ? 2 : 3; } },
-
-            // Welsh
-            PluralRule{ "nplurals=4;plural=(n==1)?0:(n==2)?1:(n!=8&&n!=11)?2:3;", [](onyxS32 n) { return (n == 1) ? 0 : (n == 2) ? 1 : ((n != 8) && (n != 11)) ? 2 : 3; } },
-
-            // Lithuanian (alternative)
-            PluralRule{ "nplurals=4;plural=(n%10==1&&(n%100>19||n%100<11)?0:(n%10>=2&&n%10<=9)&&(n%100>19||n%100<11)?1:n%1!=0?2:3);", [](onyxS32 n) { return ((n % 10) == 1) && (((n % 100) > 19) || ((n % 100) < 11)) ? 0 : (((n % 10) >= 2) && ((n % 10) <= 9)) && (((n % 100) > 19) || ((n % 100) < 11)) ? 1 : ((n % 1) != 0) ? 2 : 3; } },
-
-            // Ukranian
-            PluralRule{ "nplurals=4;plural=(n%1==0&&n%10==1&&n%100!=11?0:n%1==0&&n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?1:n%1==0&&(n%10==0||(n%10>=5&&n%10<=9)||(n%100>=11&&n%100<=14))?2:3);", [](onyxS32 n) { return ((n % 1) == 0) && ((n % 10) == 1) && ((n % 100) != 11) ? 0 : ((n % 1) == 0) && ((n % 10) >= 2) && ((n % 10) <= 4) && (((n % 100) < 12) || ((n % 100) > 14)) ? 1 : ((n % 1) == 0) && (((n % 10) == 0) || (((n % 10) >= 5) && ((n % 10) <= 9)) || (((n % 100) >= 11) && ((n % 100) <= 14))) ? 2 : 3; } },
-
-            // Polish (alternative)
-            PluralRule{ "nplurals=4;plural=(n==1?0:(n%10>=2&&n%10<=4)&&(n%100<12||n%100>14)?1:n!=1&&(n%10>=0&&n%10<=1)||(n%10>=5&&n%10<=9)||(n%100>=12&&n%100<=14)?2:3);", [](onyxS32 n) { return (n == 1) ? 0 : (((n % 10) >= 2) && ((n % 10) <= 4)) && (((n % 100) < 12) || ((n % 100) > 14)) ? 1 : (n != 1) && (((n % 10) >= 0) && ((n % 10) <= 1)) || (((n % 10) >= 5) && ((n % 10) <= 9)) || (((n % 100) >= 12) && ((n % 100) <= 14)) ? 2 : 3; } },
-
-            // Hebrew
-            PluralRule{ "nplurals=4;plural=(n==1&&n%1==0)?0:(n==2&&n%1==0)?1:(n%10==0&&n%1==0&&n>10)?2:3;", [](onyxS32 n) { return (n == 1) && ((n % 1) == 0) ? 0 : ((n == 2) && ((n % 1) == 0)) ? 1 : (((n % 10) == 0) && ((n % 1) == 0) && (n > 10)) ? 2 : 3; } },
-
-            // Gaeilge Irish (alternative)
-            PluralRule{ "nplurals=5;plural=(n==1?0:n==2?1:n<7?2:n<11?3:4)", [](onyxS32 n) { return (n == 1) ? 0 : (n == 2) ? 1 : (n < 7) ? 2 : (n < 11) ? 3 : 4; } },
-
-            // Arabic
-            PluralRule{ "nplurals=6;plural=n==0?0:n==1?1:n==2?2:n%100>=3&&n%100<=10?3:n%100>=11?4:5", [](onyxS32 n) { return ( n == 0 ) ? 0 : ( n == 1 ) ? 1 : ( n == 2 ) ? 2 : ( ( n % 100 ) >= 3 ) && ( ( n % 100 ) <= 10 ) ? 3 : ( ( n % 100 ) >= 11 ) ? 4 : 5; } }
         
-        };
 
     }
-    void GetTextLocalizationBackend::Init(Assets::AssetSystem& /*assetSystem*/, const LocalizationSettings& /*localizationSettings*/)
+    void GetTextLocalizationBackend::Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings)
     {
-        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/editor.po"));
-        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/components.po"));
-        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/nodegraph.po"));
-        ParsePoFile(FileSystem::Path::GetFullPath("engine:/localization/shadergraphnodes.po"));
+        assetSystem.GetAsset(localizationSettings.m_Localization, m_MainDatabase);
     }
 
-    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId localizationKey) const
+    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId id) const
     {
-        auto it = m_LocaleDatabase.find(localizationKey);
-        if (it == m_LocaleDatabase.end())
+#if ONYX_IS_RETAIL
+        Optional<StringView> localization = GetLocalized(id, *m_MainDatabase);
+        return localization;
+#else
+        Optional<StringView> localization;
+        if (IsInitialized())
+        {
+            localization = GetLocalized(id, *m_MainDatabase);
+        }
+        else
+        {
+            // TODO: Add unique log
+            //ONYX_LOG_WARNING("Missing main localization file for project.");
+        }
+
+        if (localization.has_value() == false)
+        {
+            for (const auto& secondaryDb : m_SecondaryDatabases)
+            {
+                if ((secondaryDb.IsValid() == false) || (secondaryDb->IsLoaded() == false))
+                {
+                    continue;
+                }
+
+                localization = GetLocalized(id, secondaryDb);
+                if (localization.has_value())
+                {
+                    break;
+                }
+            }
+        }
+
+        return localization;
+#endif
+    }
+
+    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId id, onyxS32 count) const
+    {
+#if ONYX_IS_RETAIL
+        Optional<StringView> localization = GetLocalized(id, count, *m_MainDatabase);
+        return localization;
+#else
+        Optional<StringView> localization;
+        if (IsInitialized())
+        {
+            localization = GetLocalized(id, count, *m_MainDatabase);
+        }
+        else
+        {
+            // TODO: Add unique log
+            //ONYX_LOG_WARNING("Missing main localization file for project.");
+        }
+
+        if (localization.has_value() == false)
+        {
+            for (const auto& secondaryDb : m_SecondaryDatabases)
+            {
+                if ((secondaryDb.IsValid() == false) || (secondaryDb->IsLoaded() == false))
+                {
+                    continue;
+                }
+
+                localization = GetLocalized(id, count, *secondaryDb);
+                if (localization.has_value())
+                {
+                    break;
+                }
+            }
+        }
+
+        return localization;
+#endif
+
+    }
+
+    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId id, const GetTextLocalizationDatabase& database) const
+    {
+        const HashMap<LocalizationId, DynamicArray<String>>& databaseMap = database.GetDatabase();
+        auto it = databaseMap.find(id);
+        if (it == databaseMap.end())
         {
             return std::nullopt;
         }
@@ -127,15 +106,16 @@ namespace Onyx::Localization
         return it->second.front();
     }
 
-    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId localizationKey, onyxS32 count) const
+    Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId id, onyxS32 count, const GetTextLocalizationDatabase& database) const
     {
-        auto it = m_LocaleDatabase.find(localizationKey);
-        if (it == m_LocaleDatabase.end())
+        const HashMap<LocalizationId, DynamicArray<String>>& databaseMap = database.GetDatabase();
+        auto it = databaseMap.find(id);
+        if (it == databaseMap.end())
         {
             return std::nullopt;
         }
 
-        onyxS32 index = m_PluralFunction(count);
+        onyxS32 index = database.GetPluralFunction()(count);
         const DynamicArray<String>& localizedTexts = it->second;
         if (index > localizedTexts.size())
         {
@@ -145,138 +125,33 @@ namespace Onyx::Localization
         return localizedTexts[index];
     }
 
-    void GetTextLocalizationBackend::ParsePoFile(const FileSystem::Filepath& path)
+#if !ONYX_IS_RETAIL
+    void GetTextLocalizationBackend::AddSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database)
     {
-        String fileContent;
-        bool hasSucceeded = FileSystem::OnyxFile::ReadAll(path, fileContent);
-
-        if (hasSucceeded == false)
+        if (m_MainDatabase.IsValid() && (database->GetId() == m_MainDatabase->GetId()))
         {
             return;
         }
 
-        StringStream stringStream(fileContent);
-
-        // use english as default
-        m_PluralFunction = PluralFunctions[1].Function;
-
-        if (stringStream.ReadConditional(PO_HEADER_MSG_ID) &&
-            stringStream.ReadConditional(PO_HEADER_MSG_STR))
+        auto it = std::ranges::find_if(m_SecondaryDatabases, [&](const Reference<Localization::GetTextLocalizationDatabase>& secondaryDb)
         {
-            StringView headerLine;
-            while (stringStream.ReadLine(headerLine))
-            {
-                // reached end of header if an empty line is reached
-                headerLine = Trim(headerLine);
-                if (headerLine.empty())
-                {
-                    break;
-                }
+            return secondaryDb->GetId() == database->GetId();
+        });
 
-                // remove quotes
-                headerLine.remove_prefix(1);
-                headerLine.remove_suffix(1);
-
-                // implement parsing of plural form instead of that static lookup?
-                if (IgnoreCaseStartsWith(headerLine, PO_HEADER_PLURAL_FORMS))
-                {
-                    headerLine.remove_prefix(PO_HEADER_PLURAL_FORMS.size());
-
-                    String pluralForm(headerLine);
-                    std::erase_if(pluralForm, [](char c) { return std::isspace(c); });
-
-                    auto it = std::ranges::find_if(PluralFunctions, [&](const PluralRule& rule) { return rule.Rule == pluralForm; });
-                    if ((m_PluralFunction == nullptr) && (it == PluralFunctions.end()))
-                    {
-                        ONYX_LOG_WARNING("Failed finding language plural rule for {}", pluralForm);
-                    }
-                    else
-                    {
-                        if (m_PluralFunction != it->Function)
-                        {
-                            ONYX_LOG_WARNING("Found different plural function in language po file. This is not supported. Ignoring plural function for file {}", path);
-                        }
-
-                        m_PluralFunction = it->Function;
-                    }
-                }
-            }
+        if (it != m_SecondaryDatabases.end())
+        {
+            return;
         }
 
-        StringView localizationIdString;
-        StringView localizationPluralIdString;
-        StringView localizedText;
-        StringView contextIdString;
-        char peek;
-
-        LocalizationId localizationId;
-        while (stringStream.IsEof() == false)
-        {
-            stringStream.Peek(peek);
-            if (peek == '#')
-            {
-                StringView line;
-                stringStream.ReadLine(line);
-                continue;
-            }
-
-            if (stringStream.ReadConditional("msgid_plural"))
-            {
-                // for now we ignore it, not sure if we actually need the plural id
-                stringStream.ReadString(localizationPluralIdString);
-            }
-            else if (stringStream.ReadConditional("msgid"))
-            {
-                stringStream.ReadString(localizationIdString);
-                if (localizationId.Id.IsValid())
-                {
-                    localizationId.Context.Reset();
-                }
-
-                localizationId.Id = localizationIdString;
-            }
-
-            if (stringStream.ReadConditional("msgctx"))
-            {
-                stringStream.ReadString(contextIdString);
-                localizationId.Context = contextIdString;
-                localizationId.Id.Reset();
-            }
-
-            if ((localizationId.Id.IsValid()) && stringStream.ReadConditional("msgstr"))
-            {
-                stringStream.Peek(peek);
-                onyxS32 index = -1;
-                if (peek == '[')
-                {
-                    stringStream.Skip(); // skip opening
-                    stringStream.ReadType(index);
-                    stringStream.Skip(); // skip closing
-                }
-                else
-                {
-                    index = 0;
-                }
-
-                stringStream.ReadString(localizedText);
-
-                DynamicArray<String>& localizedTexts = m_LocaleDatabase[localizationId];
-                if (index >= static_cast<onyxS32>(localizedTexts.size()))
-                {
-                    localizedTexts.resize(index + 1);
-                }
-                else
-                {
-                    if (localizedTexts[index].empty() == false)
-                    {
-                        ONYX_LOG_WARNING("Duplicated entry for plural form found in localization file for id{} at plural index{}.", localizationIdString, index);
-                    }
-                }
-
-                localizedTexts[index] = localizedText;
-            }
-
-            stringStream.SkipWhitespaces();
-        }
+        m_SecondaryDatabases.push_back(Reference<GetTextLocalizationDatabase>(database));
     }
+
+    void GetTextLocalizationBackend::RemoveSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database)
+    {
+        std::erase_if(m_SecondaryDatabases, [&](const Reference<Localization::GetTextLocalizationDatabase>& secondaryDb)
+        {
+            return secondaryDb->GetId() == database->GetId();
+        });
+    }
+#endif
 }

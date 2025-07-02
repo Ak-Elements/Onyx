@@ -12,6 +12,8 @@
 #include <editor/windows/editormainwindow.h>
 #include <editor/windows/startupwindow.h>
 #include <editor/windows/settings/inputactionsettingswindow.h>
+#include <onyx/localization/localizationmodule.h>
+#include <onyx/localization/assets/gettextlocalizationdatabase.h>
 #include <onyx/ui/imguisystem.h>
 
 namespace Onyx::Editor
@@ -25,6 +27,22 @@ namespace Onyx::Editor
         Localization::LocalizationModule& localizationModule)
     {
         Localization::Editor::InitLocalization(localizationModule);
+
+        Reference<Localization::GetTextLocalizationDatabase> secondaryDb;
+        assetSystem.GetAsset("engine:/localization/editor.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
+
+        assetSystem.GetAsset("engine:/localization/components.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
+
+        assetSystem.GetAsset("engine:/localization/nodegraph.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
+
+        assetSystem.GetAsset("engine:/localization/shadergraphnodes.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
+
+        assetSystem.GetAsset("engine:/localization/rendergraphnodes.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
 
         imguiSystem.OpenWindow<EditorMainWindow>();
         imguiSystem.OpenWindow<StartupWindow>();
