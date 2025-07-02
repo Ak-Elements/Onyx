@@ -3,7 +3,8 @@
 #if ONYX_USE_IMGUI
 
 #include <onyx/ui/imguinotify.h>
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedstyle.h>
 #include <imgui.h>
 
 namespace Onyx::Ui::Gui

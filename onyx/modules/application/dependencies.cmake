@@ -7,6 +7,7 @@ set(TARGET_PUBLIC_DEPENDENCIES
 	onyx-entity
 	onyx-graphics
 	onyx-input
+    onyx-localization
 	onyx-nodegraph
 	onyx-ui
 	onyx-volume 

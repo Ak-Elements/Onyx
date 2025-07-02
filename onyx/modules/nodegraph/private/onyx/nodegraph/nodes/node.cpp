@@ -12,20 +12,13 @@ namespace Onyx::NodeGraph
         serializer.Write<"id">(GetId());
         serializer.Write<"typeId">(GetTypeId());
 
-#if ONYX_IS_EDITOR
-        serializer.Write<"type">(GetTypeName());
-#endif
-
         return SerializePins(serializer) && OnSerialize(serializer);
     }
 
     bool Node::Deserialize(const Deserializer& deserializer)
     {
         deserializer.Read<"id">(m_Id);
-
-#if ONYX_IS_EDITOR
-        deserializer.Read<"type">(m_EditorMeta.Name);
-#endif
+        // TypeId is a compile time / class based thing, therefore no deserialize is needed
 
         return DeserializePins(deserializer) && OnDeserialize(deserializer);
     }

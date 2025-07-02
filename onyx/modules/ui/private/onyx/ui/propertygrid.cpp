@@ -1,12 +1,14 @@
+
 #include <onyx/ui/propertygrid.h>
 
-#include <onyx/ui/modals/assetselectionmodal.h>
+#if ONYX_IS_EDITOR
+
 #include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/textureasset.h>
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedid.h>
 #include <onyx/ui/widgets.h>
-
-#if ONYX_IS_EDITOR
+#include <onyx/ui/controls/assetselector.h>
+#include <onyx/ui/imguisystem.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -15,7 +17,6 @@ namespace Onyx::Ui::PropertyGrid
 {
     namespace
     {
-        Assets::AssetSystem* loc_AssetSystem = nullptr;
         Stack<ImGuiID> loc_PropertyGridIdStack;
 
         constexpr onyxU32 BACKGROUND_CHANNEL = 0;
@@ -72,12 +73,9 @@ namespace Onyx::Ui::PropertyGrid
         }
     }
 
-    void SetAssetSystem(Assets::AssetSystem& assetSystem)
-    {
-        loc_AssetSystem = &assetSystem;
-    }
+    onyxF32 PropertyGrid::ms_SplitterMinX = 0.0f;
 
-    void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX)
+    void PropertyGrid::BeginPropertyGrid(const StringView& propertyGrid, onyxF32 splitMinX)
     {
         ImDrawList* drawList = ImGui::GetWindowDrawList();
         drawList->ChannelsSplit(2);
@@ -129,7 +127,7 @@ namespace Onyx::Ui::PropertyGrid
         onyxF32 splitterPosX = imguiStateStorage->GetFloat(splitterId);
 
         const ImGuiStyle& style = ImGui::GetStyle();
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
 
         ImGui::BeginHorizontal(propertyName.data());
 
@@ -275,13 +273,11 @@ namespace Onyx::Ui::PropertyGrid
 
     bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
     {
-        ONYX_ASSERT(loc_AssetSystem != nullptr);
-
         DrawPropertyName(propertyName);
 
         ImGui::PushID(propertyName.data());
 
-        bool hasModified = AssetSelectionControl::Render(*loc_AssetSystem, assetType, outAssetId);
+        bool hasModified = AssetSelector(*g_UiContext.AssetSystem, assetType, outAssetId);
 
         ImGui::PopID();
         ImGui::EndHorizontal();

@@ -10,6 +10,8 @@ namespace Onyx::NodeGraph
     class ScaleVectorNode<Graphics::ShaderGraphNode, VectorT, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, VectorT<ScalarT>, ScalarT, VectorT<ScalarT>>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
        StringId32 GetTypeId() const override { return TypeId; }
 

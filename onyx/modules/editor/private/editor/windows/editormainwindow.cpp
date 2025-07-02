@@ -2,8 +2,7 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <imgui.h>
-#include <imgui_internal.h>
+#include <editor/editor_localization.h>
 #include <editor/modules/nodeeditor.h>
 #include <editor/modules/sceneeditor.h>
 #include <editor/nodegraph/rendergrapheditorcontext.h>
@@ -11,6 +10,10 @@
 #include <editor/windows/startupwindow.h>
 #include <editor/windows/settings/inputactionsettingswindow.h>
 #include <onyx/ui/imguisystem.h>
+
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <onyx/localization/localization.h>
 
 namespace Onyx::Editor
 {
@@ -48,48 +51,48 @@ namespace Onyx::Editor
     {
         BeginMenuBar();
 
-        if (ImGui::BeginMenu("File"))
+        if (ImGui::BeginMenu(Format::Format("{}###File", Localization::Generic::File)))
         {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("View"))
+        if (ImGui::BeginMenu(Format::Format("{}###View", Localization::Editor::MainMenubar::View::Label)))
         {
-            if (ImGui::MenuItem("Startup"))
+            if (ImGui::MenuItem(Localization::Editor::Windows::StartupTitle.Get().data()))
             {
                 system.OpenWindow<StartupWindow>();
             }
 
-            if (ImGui::MenuItem("Scene Editor"))
+            if (ImGui::MenuItem(Localization::Editor::SceneEditor::Title.Get().data()))
             {
                 system.OpenWindow<SceneEditorWindow>();
             }
 
-            if (ImGui::MenuItem("Node Editor"))
+            if (ImGui::MenuItem(Localization::Editor::Windows::NodeEditorTitle.Get().data()))
             {
                 //system.OpenWindow<NodeGraphEditorWindow>();
             }
 
-            if (ImGui::MenuItem("Shader Graph Editor"))
+            if (ImGui::MenuItem(Localization::Editor::Windows::ShaderGraphEditorTitle.Get().data()))
             {
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<ShaderGraphEditorContext>());
             }
 
-            if (ImGui::MenuItem("Render Graph Editor"))
+            if (ImGui::MenuItem(Localization::Editor::Windows::RenderGraphEditorTitle.Get().data()))
             {
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<RenderGraphEditorContext>());
             }
 
-            if (ImGui::BeginMenu("Layouts"))
+            if (ImGui::BeginMenu(Localization::Editor::MainMenubar::View::Layouts::Label.Get().data()))
             {
-                if (ImGui::MenuItem("Default"))
+                if (ImGui::MenuItem(Localization::Generic::Default.Get().data()))
                 {
                     //Internal::loc_ReloadLayout = true;
                 }
 
-                if (ImGui::MenuItem("Save layout..."))
+                if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
                 {
                     //Internal::loc_SaveLayout = true;
                 }
@@ -101,9 +104,9 @@ namespace Onyx::Editor
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Project"))
+        if (ImGui::BeginMenu(Format::Format("{}###Project", Localization::Editor::MainMenubar::Project::Label)))
         {
-            if (ImGui::MenuItem("Input actions"))
+            if (ImGui::MenuItem(Localization::Editor::InputActionSettings::Title.Get().data()))
             {
                 system.OpenUniqueWindow<InputActionSettingsWindow>();
                 //UniquePtr<EditorWindow>& window = m_ActiveWindows.emplace_back(MakeUnique<InputActionSettingsWindow>(m_Application.GetAssetSystem(), m_Application.GetModule<Application::InputSystem>()));

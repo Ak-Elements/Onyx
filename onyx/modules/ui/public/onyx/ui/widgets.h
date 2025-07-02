@@ -6,6 +6,11 @@
 
 #include <imgui.h>
 
+namespace Onyx::Localization
+{
+    struct LocalizedString;
+}
+
 struct ImDrawList;
 struct ImVec2;
 
@@ -41,16 +46,24 @@ namespace Onyx::Ui
 
     void DrawItemBackground(onyxF32 rounding, onyxF32 borderThickness, onyxU32 color);
     void DrawItemBorder(onyxF32 thickness, onyxF32 rounding, onyxU32 color);
-
+    
     bool DrawSearchBar(String& searchString, StringView hintLabel, bool& grabFocus);
+
+    bool ContextMenuHeader(const Localization::LocalizedString& label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = 0);
 
+    bool DrawStringInput(StringView id, StringView hint, String& value);
     bool DrawStringInput(StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags);
+    bool DrawStringInput(StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags);
     void DrawMultilineText(StringView text, ImVec2 bounds, bool showEllipsis);
 
     bool DrawRenameInput(StringView id, String& outName, const ImVec2& size, bool& isSelected);
 
+    void DrawPlusIcon(ImDrawList* draw_list, ImVec2 pos, onyxF32 size, onyxU32 color);
+    void DrawMinusIcon(ImDrawList* draw_list, ImVec2 pos, onyxF32 size, onyxU32 color);
+    void DrawXIcon(ImDrawList* draw_list, ImVec2 pos, onyxF32 size, onyxU32 color);
+    void DrawDivisionIcon(ImDrawList* draw_list, ImVec2 pos, onyxF32 size, onyxU32 color);
     void DrawInfoIcon(ImDrawList* draw_list, ImVec2 pos, onyxF32 radius, onyxU32 color);
     void DrawSearchIcon(ImDrawList* draw_list, ImVec2 offset, onyxF32 radius, onyxU32 color);
     bool DrawCloseButton(ImDrawList* draw_list, ImVec2 pos, onyxF32 size, onyxU32 color);

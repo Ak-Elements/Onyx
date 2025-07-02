@@ -185,7 +185,6 @@ if (NOT PROJECT_IS_TOP_LEVEL)
         )
 
         configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/appconfig.oconf.in" "${ONYX_PROJECT_DATA_DIR}/appconfig.oconf")
-    
     endif()
 
     if (ONYX_GENERATE_DATA_SYMLINK)

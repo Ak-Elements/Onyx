@@ -4,6 +4,11 @@
 
 namespace Onyx
 {
+    namespace Localization
+    {
+        class LocalizationModule;
+    }
+
     namespace Assets
     {
         class AssetSystem;
@@ -43,6 +48,7 @@ namespace Onyx::Editor
             Assets::AssetSystem& assetSystem,
             Graphics::GraphicsApi& graphicsApi,
             Input::InputSystem& inputSystem,
-            Input::InputActionSystem& inputActionSystem);
+            Input::InputActionSystem& inputActionSystem,
+            Localization::LocalizationModule& locaModule);
     };
 }

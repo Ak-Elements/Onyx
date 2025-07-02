@@ -124,7 +124,7 @@ namespace Onyx::Assets
         bool GetAssetUnmanaged(AssetId id, Reference<T>& outAssetReference);
 
         template <typename T>
-        bool SaveAsset(AssetId id);
+        bool SaveAsset(const Reference<T>& asset);
 
         template <typename T>
         bool SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset);
@@ -269,13 +269,14 @@ namespace Onyx::Assets
     }
 
     template <typename T>
-    bool AssetSystem::SaveAsset(AssetId id)
+    bool AssetSystem::SaveAsset(const Reference<T>& asset)
     {
-        const auto assetIt = m_AssetsMetaData.find(id);
+        AssetId assetId = asset->GetId();
+        const auto assetIt = m_AssetsMetaData.find(assetId);
 
         if (assetIt == m_AssetsMetaData.end())
         {
-            ONYX_LOG_ERROR("Missing asset with id:{}.", id.Get());
+            ONYX_LOG_ERROR("Missing asset with id:{}.", assetId.Get());
             return false;
         }
 
@@ -285,7 +286,7 @@ namespace Onyx::Assets
             return false;
         }
 
-        const AssetType assetTypeHash = metaData.Type;
+        constexpr StringId32 assetTypeHash = T::TypeId;
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at((onyxU32)assetTypeHash);
 
         m_IOHandler.RequestSave(metaData, m_LoadedAssets.at(metaData.Handle), serializer);

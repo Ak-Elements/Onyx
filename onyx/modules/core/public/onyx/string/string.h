@@ -9,9 +9,11 @@ namespace Onyx
     String ToLower(StringView str);
 
     StringView Trim(StringView str);
+    StringView TrimLeft(StringView str);
 
     int IgnoreCaseCompare(StringView lhs, StringView rhs);
     bool IgnoreCaseEqual(StringView lhs, StringView rhs);
+    bool IgnoreCaseStartsWith(StringView& string, const StringView prefix);
     StringView::size_type IgnoreCaseFind(StringView string, StringView searchString);
 
 }

@@ -24,6 +24,8 @@
 
 namespace Onyx::Ui
 {
+	ImGuiContext g_UiContext;
+
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderClosedAsset = {};
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderOpenAsset = {};
 	Reference<Graphics::TextureAsset> ImGuiSystem::FolderSelectedClosedAsset = {};
@@ -311,10 +313,10 @@ namespace Onyx::Ui
 		
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
-#if ONYX_IS_EDITOR
-		PropertyGrid::SetAssetSystem(assetSystem);
+		g_UiContext.AssetSystem = &assetSystem;
 
-		Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
+#if ONYX_IS_EDITOR
+		/*Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
 		assetSystem.GetAsset(closedId, ImGuiSystem::FolderClosedAsset);
 
 		Assets::AssetId openId("textures/editor/icons/contentbrowser/folder_open.png");
@@ -324,7 +326,7 @@ namespace Onyx::Ui
 		assetSystem.GetAsset(closedSelectedId, ImGuiSystem::FolderSelectedClosedAsset);
 
 		Assets::AssetId openSelectedId("textures/editor/icons/contentbrowser/folder_open_selected.png");
-		assetSystem.GetAsset(openSelectedId, ImGuiSystem::FolderSelectedOpenAsset);
+		assetSystem.GetAsset(openSelectedId, ImGuiSystem::FolderSelectedOpenAsset);*/
 #else
 		ONYX_UNUSED(assetSystem);
 #endif

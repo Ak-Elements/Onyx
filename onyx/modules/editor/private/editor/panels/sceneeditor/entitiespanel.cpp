@@ -8,12 +8,17 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 
 #include <editor/modules/sceneeditor.h>
+#include <editor/editor_localization.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <onyx/ui/imguistyle.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedid.h>
+#include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
 #include <imgui_internal.h>
+#include <onyx/localization/localization.h>
+#include <onyx/ui/controls/button.h>
 
 namespace Onyx::Editor::SceneEditor
 {
@@ -39,10 +44,10 @@ namespace Onyx::Editor::SceneEditor
 
             ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
             ImGui::TableSetColumnIndex(0);
-            ImGui::TableHeader("Name");
+            ImGui::TableHeader(Localization::Generic::Name.Get().data());
 
             ImGui::TableSetColumnIndex(1);
-            ImGui::TableHeader("Visibility");
+            ImGui::TableHeader(Localization::Generic::Visibility.Get().data());
             Entity::EntityRegistry& registry = scene.GetRegistry();
 
             // TODO: sorting
@@ -69,9 +74,9 @@ namespace Onyx::Editor::SceneEditor
 
                 ImGui::PushClipRect(rowAreaMin, rowAreaMax, false);
                 ImGuiID id = ImGui::GetID("rowSelection");
-                bool isRowHovered = false, isRowClicked = false, held = false;
-                isRowClicked |= ImGui::ButtonBehavior(ImRect(rowAreaMin, rowAreaMax), id,
-                    &isRowHovered, &held, ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+                Ui::ButtonState state = Ui::ButtonBehavior(id, ImRect(rowAreaMin, rowAreaMax), ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+                bool isRowClicked = state == Ui::ButtonState::Pressed;
+                bool isRowHovered = state == Ui::ButtonState::Hovered;
                 ImGui::KeepAliveID(id);
                 ImGui::PopClipRect();
 
@@ -104,7 +109,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
                 {
-                    if (ImGui::MenuItem("Delete"))
+                    if (ImGui::MenuItem(Localization::Generic::Delete.Get().data()))
                     {
                         DeleteEntity(scene, entity);
                         ImGui::CloseCurrentPopup();
@@ -136,7 +141,7 @@ namespace Onyx::Editor::SceneEditor
 
             if (ImGui::BeginPopupContextWindow("CreateEntityPopUp", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (ImGui::MenuItem("Create Entity"))
+                if (ImGui::MenuItem(Localization::Generic::Create.Get().data()))
                 {
                     Entity::EntityId createdEntity = registry.CreateEntity();
                     registry.AddComponent<GameCore::IdComponent>(createdEntity);
@@ -149,7 +154,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (selectedEntity != entt::null)
                 {
-                    if (ImGui::MenuItem("Duplicate"))
+                    if (ImGui::MenuItem(Localization::Generic::Duplicate.Get().data()))
                     {
                        // selectedEntity = registry.DuplicateEntity(selectedEntity);
                         ImGui::CloseCurrentPopup();

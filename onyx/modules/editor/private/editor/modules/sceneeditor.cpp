@@ -20,8 +20,13 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
+<<<<<<< HEAD
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/volume/graphics/generatemeshpass.h>
+=======
+#include <editor/editor_localization.h>
+#include <onyx/localization/localization.h>
+>>>>>>> localization
 
 namespace Onyx::Editor
 {
@@ -30,13 +35,14 @@ namespace Onyx::Editor
         onyxU32 local_WindowId = 0;
     }
 
-    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
+    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
         : m_GameCore(gameCore)
         , m_Api(graphicsApi)
         , m_InputActionSystem(inputActionSystem)
         , m_AssetSystem(&assetSystem)
         , m_WindowId(local_WindowId++)
         , m_TerrainPanel(graphicsApi)
+        , m_ComponentsPanel(localizationModule)
     {
         m_WindowClass = new ImGuiWindowClass();
         m_WindowClass->DockingAllowUnclassed = false;
@@ -46,7 +52,7 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::OnOpen()
     {
-        SetName(Format::Format("Scene Editor###SceneEditor{}", m_WindowId));
+        SetName(Format::Format("{}###SceneEditor{}", Localization::Editor::SceneEditor::Title, m_WindowId));
         m_WindowClass->ClassId = ImGui::GetID("scene");
 
         m_SceneViewPanelId = Format::Format("###SceneViewPanel{}", m_WindowId);
@@ -162,18 +168,9 @@ namespace Onyx::Editor
     {
         BeginMenuBar();
     
-        if (ImGui::BeginMenu("File"))
+        if (ImGui::BeginMenu(Format::Format("{}###File", Localization::Generic::File)))
         {
-            if (ImGui::MenuItem("Save Scene"))
-            {
-                FileSystem::Filepath path;
-                if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
-                {
-                    m_AssetSystem->SaveAssetAs(path, m_Scene);
-                }
-            }
-
-            if (ImGui::MenuItem("Open Scene"))
+            if (ImGui::MenuItem(Localization::Generic::Open.Get().data()))
             {
                 m_IsLoading = true;
                 if (m_Scene.IsValid())
@@ -189,6 +186,20 @@ namespace Onyx::Editor
                 }
             }
 
+            if (ImGui::MenuItem(Localization::Generic::Save.Get().data()))
+            {
+                m_AssetSystem->SaveAsset(m_Scene);
+            }
+
+            if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
+            {
+                FileSystem::Filepath path;
+                if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
+                {
+                    m_AssetSystem->SaveAssetAs(path, m_Scene);
+                }
+            }
+            
             ImGui::EndMenu();
         }
 
@@ -205,9 +216,7 @@ namespace Onyx::Editor
 
         ImGui::SetNextWindowClass(m_WindowClass);
         //ImGui::SetNextWindowDockID(dockspace);
-
-        m_TerrainPanel.SetSceneViewPanelId(ImGui::GetID(m_SceneViewPanelId.c_str()));
-        if (ImGui::Begin(Format::Format("Scene{}", m_SceneViewPanelId)))
+        if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::SceneEditor::SceneViewport, m_SceneViewPanelId)))
         {
             m_ViewportBounds.Position = { static_cast<onyxS16>(ImGui::GetCursorPos().x), static_cast<onyxS16>(ImGui::GetCursorPos().y) };
             m_ViewportBounds.Extents = { static_cast<onyxS16>(sceneTextureProperties.m_Size[0]), static_cast<onyxS16>(sceneTextureProperties.m_Size[1]) };// = Vector2s16{ static_cast<onyxS16>(ImGui::GetContentRegionAvail().x), static_cast<onyxS16>(ImGui::GetContentRegionAvail().y) } - m_ViewportBounds.Position;
@@ -223,7 +232,7 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderEntitiesPanel()
     {
         ImGui::SetNextWindowClass(m_WindowClass);
-        if (ImGui::Begin(Format::Format("Entities{}", m_EntitiesPanelId)))
+        if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::EntitiesPanel::Title, m_EntitiesPanelId)))
         {
             m_EntitiesPanel.Render(*m_Scene);
         }
@@ -234,9 +243,9 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderComponentsPanel()
     {
         ImGui::SetNextWindowClass(m_WindowClass);
-        if (ImGui::Begin(Format::Format("Components{}", m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
+        if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::ComponentsPanel::Title, m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            m_ComponentsPanel.Render(m_GameCore.GetComponentFactory(), *m_Scene);
+            m_ComponentsPanel.Render(*m_Scene);
         }
         ImGui::End();
     }
@@ -421,8 +430,8 @@ namespace Onyx::Editor
 
         registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
-        transform.SetTranslation(Vector3f32{ 0.0f, 100.0f, 200.0f });
-        transform.SetRotation(Vector3f32(0, 0, 0));
+        transform.SetTranslation(Vector3f{ 0.0f, 100.0f, 200.0f });
+        transform.SetRotation(Vector3f(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 1000.0f);

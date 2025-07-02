@@ -1,37 +1,52 @@
-#include <onyx/application/ui/modals/assetselectionmodal.h>
-#include <onyx/assets/assetsystem.h>
+#include <onyx/ui/controls/assetselector.h>
+
+#if ONYX_IS_EDITOR
 
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include <onyx/assets/assetsystem.h>
+
+#include <onyx/ui/widgets.h>
+#include <onyx/ui/controls/button.h>
+#include <onyx/ui/controls/combobox.h>
+#include <onyx/ui/layout/imguilayout.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <onyx/application/ui/widgets.h>
+#include <onyx/localization/localization.h>
+#include <onyx/localization/localizationmodule.h>
+#include <onyx/localization/localizedstring.h>
+#include <onyx/ui/imguisystem.h>
+#include <onyx/ui/ui_localization.h>
 
-namespace Onyx::Application::AssetSelectionControl
+namespace Onyx::Ui
 {
-    namespace Internal
+    namespace
     {
         bool loc_HasFocus = true;
         String loc_SearchString;
     }
 
-    bool Render(const Assets::AssetSystem& assetSystem, Assets::AssetType assetType, Assets::AssetId& outAssetId)
+    bool AssetSelector(const Assets::AssetSystem& assetSystem, Assets::AssetType assetType, Assets::AssetId& outAssetId)
     {
         bool hasModified = false;
         DynamicArray<Assets::AssetMetaData> availableAssets;
 
-        String assetName = "None";
+        StringView assetName;
         if (outAssetId.IsValid())
         {
             const Assets::AssetMetaData& assetMeta = assetSystem.GetAssetMeta(outAssetId);
-            assetName = assetMeta.Name;
+            assetName = assetMeta.GetName();
+        }
+        else
+        {
+            assetName = Localization::Generic::None.Get();
         }
 
-        ImGui::BeginHorizontal("#AssetControl");
-        if (ImGui::BeginCombo("##selector", assetName.data()))
+        Layout::BeginHorizontal("#AssetControl");
+        if (BeginCombobox("##selector", assetName.data()))
         {
-            Gui::DrawSearchBar(Internal::loc_SearchString, "Asset", Internal::loc_HasFocus);
-            StringView searchString = Trim(Internal::loc_SearchString);
+            DrawSearchBar(loc_SearchString, Localization::Generic::Search.Get(), loc_HasFocus);
+            StringView searchString = Trim(loc_SearchString);
 
             if (availableAssets.empty())
             {
@@ -40,64 +55,57 @@ namespace Onyx::Application::AssetSelectionControl
 
             for (const Assets::AssetMetaData& assetMeta : availableAssets)
             {
-                if (assetMeta.Type != assetType)
-                {
-                    continue;
-                }
-
-                if ((searchString.empty() == false) && assetMeta.Name.find(searchString) == String::npos)
+                if ((searchString.empty() == false) && IgnoreCaseFind(assetMeta.GetName(), searchString) == String::npos)
                 {
                     continue;
                 }
 
                 bool isSelected = assetMeta.Id == outAssetId;
-                if (ImGui::Selectable(assetMeta.Name.data(), isSelected))
+                if (Selectable(assetMeta.GetName(), isSelected, true))
                 {
                     hasModified = outAssetId != assetMeta.Id;
                     outAssetId = assetMeta.Id;
-                    Internal::loc_HasFocus = true;
-                    Internal::loc_SearchString.clear();
+                    loc_HasFocus = true;
+                    loc_SearchString.clear();
                     break;
-                }
-
-                if (isSelected)
-                {
-                    ImGui::SetItemDefaultFocus();
                 }
             }
 
-            ImGui::EndCombo();
+            EndCombobox();
         }
 
         const ImGuiStyle& style = ImGui::GetStyle();
         ImVec2 buttonSize(16.0f, 16.0f);
-        bool hovered, held;
         ImGuiID browseButtonId = ImGui::GetID("BrowseButton");
 
         //ImVec2 currentPos = ImGui::GetCursorScreenPos();
         //const onyxF32 currentHeight = ImGui::GetFrameHeight();
         //currentPos.y += currentHeight * 0.5f - buttonSize.y * 0.5f;
         ImRect bb(ImGui::GetCursorScreenPos() + style.FramePadding, ImGui::GetCursorScreenPos() + buttonSize + style.FramePadding);
-        if (ImGui::ButtonBehavior(bb, browseButtonId, &hovered, &held))
+        ButtonState state = Ui::ButtonBehavior(browseButtonId, bb);
+
+        if (state == ButtonState::Pressed)
         {
-            ImGui::OpenPopup("AssetBrowser");
+            ImGui::OpenPopup("###AssetBrowser");
         }
         ImGui::ItemAdd(bb, browseButtonId);
 
-        if (hovered || held)
+        if ((state == ButtonState::Held) || (state == ButtonState::Hovered))
         {
-            onyxU32 buttonBackgroundColor = held ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+            onyxU32 buttonBackgroundColor = state == ButtonState::Held ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_ButtonHovered);
             ImGui::GetForegroundDrawList()->AddRectFilled(bb.Min - style.FramePadding, bb.Max + style.FramePadding, buttonBackgroundColor);
         }
 
         // TODO: Move to style
         // TODO: Find held & hovered color
         onyxU32 folderColor = 0xFF666666;
-        onyxU32 lidColor = held ? 0xFFFF7929 : hovered ? 0xFFFF7929 : 0xFF888888;
-        Gui::DrawFolderIcon(ImGui::GetForegroundDrawList(), style.FramePadding, buttonSize.x, 1.0f, folderColor, lidColor);
-       
+        onyxU32 lidColor = state == ButtonState::Held ? 0xFFFF7929 : state == ButtonState::Hovered ? 0xFFFF7929 : 0xFF888888;
+        DrawFolderIcon(ImGui::GetForegroundDrawList(), style.FramePadding, buttonSize.x, 1.0f, folderColor, lidColor);
+
         ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);
-        if (ImGui::BeginPopupModal("AssetBrowser", nullptr))
+        bool isOpen = true;
+        StringView modalName = Format::Format("{}###AssetBrowser", Localization::Ui::AssetSelector::Modal::Title);
+        if (ImGui::BeginPopupModal(modalName.data(), &isOpen))
         {
             if (availableAssets.empty())
             {
@@ -105,8 +113,8 @@ namespace Onyx::Application::AssetSelectionControl
             }
 
             ImGui::BeginTable("##assetlist", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable);
-            ImGui::TableSetupColumn("File Name", ImGuiTableColumnFlags_None, 0.7f);
-            ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_None, 0.3f);
+            ImGui::TableSetupColumn(Localization::Generic::File.Get().data(), ImGuiTableColumnFlags_None, 0.7f);
+            ImGui::TableSetupColumn(Localization::Generic::Type.Get().data(), ImGuiTableColumnFlags_None, 0.3f);
             ImGui::TableHeadersRow();
 
             for (const Assets::AssetMetaData& assetMeta : availableAssets)
@@ -117,12 +125,12 @@ namespace Onyx::Application::AssetSelectionControl
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 bool isSelected = assetMeta.Id == outAssetId;
-                if (ImGui::Selectable(assetMeta.Name.data(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
+                if (ImGui::Selectable(assetMeta.GetName().data(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
                 {
                     hasModified = outAssetId != assetMeta.Id;
                     outAssetId = assetMeta.Id;
-                    Internal::loc_HasFocus = true;
-                    Internal::loc_SearchString.clear();
+                    loc_HasFocus = true;
+                    loc_SearchString.clear();
                     ImGui::CloseCurrentPopup();
                     break;
                 }
@@ -135,8 +143,9 @@ namespace Onyx::Application::AssetSelectionControl
             ImGui::EndPopup();
         }
 
-        ImGui::EndHorizontal();
+        Layout::EndHorizontal();
 
         return hasModified;
     }
 }
+#endif

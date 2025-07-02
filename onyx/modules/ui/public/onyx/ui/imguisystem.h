@@ -11,6 +11,11 @@
 
 #include <mutex>
 
+namespace Onyx::Localization
+{
+    class LocalizationModule;
+}
+
 struct ImFont;
 struct ImGuiIO;
 
@@ -45,6 +50,13 @@ namespace Onyx
             { T::WindowId };
             { window.Open() } -> std::same_as<void>;
         };
+
+        struct ImGuiContext
+        {
+            Assets::AssetSystem* AssetSystem = nullptr;
+        };
+
+        extern ImGuiContext g_UiContext;
 
         class ImGuiSystem : public IEngineSystem
         {
@@ -187,12 +199,13 @@ namespace Onyx
 
         private:
             Graphics::Window* window;
+            Localization::LocalizationModule* m_LocalizationModule;
             HashMap<StringId64, ImFont*> fonts;
             std::mutex mutex;
             LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;
 
             DynamicArray<UniquePtr<ImGuiWindow>> windows;
-            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>()>> windowFactory;
+            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> windowFactory;
         };
     }
 }

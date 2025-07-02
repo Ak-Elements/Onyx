@@ -1,5 +1,11 @@
 #pragma once
+#include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
+
+namespace Onyx::Localization
+{
+    class LocalizationModule;
+}
 
 namespace Onyx::Editor
 {

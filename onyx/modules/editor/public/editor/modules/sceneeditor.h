@@ -40,7 +40,7 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "SceneEditor";
 
-        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem);
+        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem);
         ~SceneEditorWindow() override;
 
         Reference<GameCore::Scene>& GetScene() { return m_Scene; }

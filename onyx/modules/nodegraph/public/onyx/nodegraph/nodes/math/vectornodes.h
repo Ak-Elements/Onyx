@@ -347,85 +347,84 @@ namespace Onyx::NodeGraph
         using FactoryNodeTypeT = typename FactoryType::NodeTypeT;
 
         // Vector 2
-        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector2f32Components">>("Math/Vector2f32/Get Components");
-        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector2f64Components">>("Math/Vector2f64/Get Components");
-        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector2s32Components">>("Math/Vector2s32/Get Components");
-        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector2s64Components">>("Math/Vector2s64/Get Components");
+        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector2f32Components">>();
+        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector2f64Components">>();
+        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector2s32Components">>();
+        FactoryType::template RegisterNode<GetVector2Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector2s64Components">>();
 
-        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector2f32">>("Math/Vector2f32/Create Vector2f32");
-        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector2f64">>("Math/Vector2f64/Create Vector2f64");
-        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector2s32">>("Math/Vector2s32/Create Vector2s32");
-        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector2s64">>("Math/Vector2s64/Create Vector2s64");
+        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector2f32">>();
+        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector2f64">>();
+        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector2s32">>();
+        FactoryType::template RegisterNode<CreateVector2<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector2s64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector2f32">>("Math/Vector2f32/Swizzle Vector2f32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector3f32">>("Math/Vector2f32/Swizzle Vector3f32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector4f32">>("Math/Vector2f32/Swizzle Vector4f32");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f, Vector2f, SerializedNameSpaceId + "::Swizzle2DVector2f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f, Vector2f, SerializedNameSpaceId + "::Swizzle2DVector3f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f, Vector2f, SerializedNameSpaceId + "::Swizzle2DVector4f32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector2f64">>("Math/Vector2f64/Swizzle Vector2f64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector3f64">>("Math/Vector2f64/Swizzle Vector3f64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector4f64">>("Math/Vector2f64/Swizzle Vector4f64");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2d, Vector2d, SerializedNameSpaceId + "::Swizzle2DVector2f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3d, Vector2d, SerializedNameSpaceId + "::Swizzle2DVector3f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4d, Vector2d, SerializedNameSpaceId + "::Swizzle2DVector4f64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector2s32">>("Math/Vector2s32/Swizzle Vector2s32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector3s32">>("Math/Vector2s32/Swizzle Vector3s32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector4s32">>("Math/Vector2s32/Swizzle Vector4s32");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector2s32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector3s32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector4s32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector2s64">>("Math/Vector2s64/Swizzle Vector2s64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector3s64">>("Math/Vector2s64/Swizzle Vector3s64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector4s64">>("Math/Vector2s64/Swizzle Vector4s64");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector2s64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector3s64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector4s64">>();
 
         // Vector 3
-        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector3f32Components">>("Math/Vector3f32/Get Components");
-        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector3f64Components">>("Math/Vector3f64/Get Components");
-        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector3s32Components">>("Math/Vector3s32/Get Components");
-        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector3s64Components">>("Math/Vector3s64/Get Components");
+        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector3f32Components">>();
+        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector3f64Components">>();
+        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector3s32Components">>();
+        FactoryType::template RegisterNode<GetVector3Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector3s64Components">>();
 
-        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector3f32">>("Math/Vector3f32/Create Vector3f32");
-        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector3f64">>("Math/Vector3f64/Create Vector3f64");
-        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector3s32">>("Math/Vector3s32/Create Vector3s32");
-        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector3s64">>("Math/Vector3s64/Create Vector3s64");
+        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector3f32">>();
+        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector3f64">>();
+        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector3s32">>();
+        FactoryType::template RegisterNode<CreateVector3<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector3s64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector2f32">>("Math/Vector3f/Swizzle Vector2f32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector3f32">>("Math/Vector3f/Swizzle Vector3f32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector4f32">>("Math/Vector3f/Swizzle Vector4f32");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f, Vector3f, SerializedNameSpaceId + "::Swizzle3DVector2f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f, Vector3f, SerializedNameSpaceId + "::Swizzle3DVector3f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f, Vector3f, SerializedNameSpaceId + "::Swizzle3DVector4f32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector2f64">>("Math/Vector3f64/Swizzle Vector2f64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector3f64">>("Math/Vector3f64/Swizzle Vector3f64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector4f64">>("Math/Vector3f64/Swizzle Vector4f64");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2d, Vector3d, SerializedNameSpaceId + "::Swizzle3DVector2f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3d, Vector3d, SerializedNameSpaceId + "::Swizzle3DVector3f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4d, Vector3d, SerializedNameSpaceId + "::Swizzle3DVector4f64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector2s32">>("Math/Vector3s32/Swizzle Vector2s32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector3s32">>("Math/Vector3s32/Swizzle Vector3s32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector4s32">>("Math/Vector3s32/Swizzle Vector4s32");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector2s32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector3s32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector4s32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector2s64">>("Math/Vector3s64/Swizzle Vector2s64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector3s64">>("Math/Vector3s64/Swizzle Vector3s64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector4s64">>("Math/Vector3s64/Swizzle Vector4s64");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector2s64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector3s64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector4s64">>();
 
         // Vector 4
-        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector4f32Components">>("Math/Vector3f32/Get Components");
-        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector4f64Components">>("Math/Vector3f64/Get Components");
-        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector4s32Components">>("Math/Vector3s32/Get Components");
-        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector4s64Components">>("Math/Vector3s64/Get Components");
+        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector4f32Components">>();
+        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector4f64Components">>();
+        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector4s32Components">>();
+        FactoryType::template RegisterNode<GetVector4Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector4s64Components">>();
 
-        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector4f32">>("Math/Vector4f32/Create Vector4f32");
-        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector4f64">>("Math/Vector4f64/Create Vector4f64");
-        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector4s32">>("Math/Vector4s32/Create Vector4s32");
-        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector4s64">>("Math/Vector4s64/Create Vector4s64");
+        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector4f32">>();
+        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector4f64">>();
+        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector4s32">>();
+        FactoryType::template RegisterNode<CreateVector4<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector4s64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector2f32">>("Math/Vector4f32/Swizzle Vector2f32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector3f32">>("Math/Vector4f32/Swizzle Vector3f32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector4f32">>("Math/Vector4f32/Swizzle Vector4f32");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f, Vector4f, SerializedNameSpaceId + "::Swizzle4DVector2f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f, Vector4f, SerializedNameSpaceId + "::Swizzle4DVector3f32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f, Vector4f, SerializedNameSpaceId + "::Swizzle4DVector4f32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector2f64">>("Math/Vector4f64/Swizzle Vector2f64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector3f64">>("Math/Vector4f64/Swizzle Vector3f64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector4f64">>("Math/Vector4f64/Swizzle Vector4f64");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2d, Vector4d, SerializedNameSpaceId + "::Swizzle4DVector2f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3d, Vector4d, SerializedNameSpaceId + "::Swizzle4DVector3f64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4d, Vector4d, SerializedNameSpaceId + "::Swizzle4DVector4f64">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector2s32">>("Math/Vector4s32/Swizzle Vector2s32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector3s32">>("Math/Vector4s32/Swizzle Vector3s32");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector4s32">>("Math/Vector4s32/Swizzle Vector4s32");
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector2s32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector3s32">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector4s32">>();
 
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector2s64">>("Math/Vector4s64/Swizzle Vector2s64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector3s64">>("Math/Vector4s64/Swizzle Vector3s64");
-        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector4s64">>("Math/Vector4s64/Swizzle Vector4s64");
-
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector2s64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector3s64">>();
+        FactoryType::template RegisterNode<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector4s64">>();
     }
 }

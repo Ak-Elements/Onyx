@@ -74,6 +74,8 @@ namespace Onyx::Entity
         }
 
         void Create(EntityRegistry& registry, EntityId entity) const override
+
+        std::any Create(const Deserializer& deserializer) const override
         {
             if constexpr (Deserializable<T>)
             {

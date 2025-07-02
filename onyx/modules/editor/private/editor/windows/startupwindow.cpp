@@ -1,5 +1,7 @@
+#include <editor/editor_localization.h>
 #include <editor/windows/startupwindow.h>
 
+#include <onyx/localization/localizationmodule.h>
 #include <editor/modules/nodeeditor.h>
 #include <editor/modules/sceneeditor.h>
 #include <editor/nodegraph/rendergrapheditorcontext.h>
@@ -7,8 +9,7 @@
 #include <editor/windows/editormainwindow.h>
 
 #include <onyx/ui/imguisystem.h>
-
-#include <imgui.h>
+#include <onyx/ui/controls/button.h>
 
 namespace Onyx::Editor
 {
@@ -25,28 +26,28 @@ namespace Onyx::Editor
 
         Begin();
 
-        if (ImGui::Button("Node Editor", ImVec2(200, 50)))
+        if (Ui::Button(Localization::Editor::Windows::NodeEditorTitle, Vector2f(200, 50)))
         {
             //NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             //window.SetContext(MakeUnique<NodeGraphEditorContext>());
             //Close();
         }
 
-        if (ImGui::Button("Shader Graph Editor", ImVec2(200, 50)))
+        if (Ui::Button(Localization::Editor::Windows::ShaderGraphEditorTitle, Vector2f(200, 50)))
         {
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             window.SetContext(MakeUnique<ShaderGraphEditorContext>());
             Close();
         }
 
-        if (ImGui::Button("Render Graph Editor", ImVec2(200, 50)))
+        if (Ui::Button(Localization::Editor::Windows::RenderGraphEditorTitle, Vector2f(200, 50)))
         {
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             window.SetContext(MakeUnique<RenderGraphEditorContext>());
             Close();
         }
 
-        if (ImGui::Button("Scene Editor", ImVec2(200, 50)))
+        if (Ui::Button(Localization::Editor::SceneEditor::Title, Vector2f(200, 50)))
         {
             system.OpenWindow<SceneEditorWindow>();
             Close();

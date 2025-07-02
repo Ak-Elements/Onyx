@@ -26,6 +26,9 @@ namespace Onyx::Ui
     namespace PropertyGrid
     {
         void SetAssetSystem(Assets::AssetSystem& assetSystem);
+        
+        void BeginPropertyGrid(const StringView& propertyGrid, onyxF32 splitMinX);
+        void EndPropertyGrid();
 
         void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX);
         void EndPropertyGrid();

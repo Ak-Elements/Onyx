@@ -17,7 +17,7 @@ namespace Onyx::Editor
 
         void DrawNodeInPropertyPanel(Guid64 nodeId) override;
         
-        void FilterNodeListContextMenu(InplaceFunction<bool(const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor) override;
+        void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor) override;
         void ClearNodeListFilter() override;
         const NodeListContextMenuItem& GetNodeListContextMenuRoot() override;
 
@@ -40,6 +40,7 @@ namespace Onyx::Editor
 
     private:
         void OnDrawNode(const Node& node) override;
+        void OnDrawNodeBackground(const Node& node) override;
 
         bool OnNodeCreate(Node& newEditorNode, StringId32 typeId) override;
         void OnNodeDelete(Node& nodeToDelete) override;
@@ -104,7 +105,7 @@ namespace Onyx::Editor
             for (auto&& [id, nodeContainer] : graphNodes)
             {
                 const UniquePtr<NodeGraph::Node>& node = nodeContainer.m_Data;
-                Node& nodeEditorMeta = nodes.emplace_back(node->GetId(), node->GetName());
+                Node& nodeEditorMeta = nodes.emplace_back(node->GetId(), String(node->GetName()));
                 nodeEditorMeta.LocalId = id;
 
                 UpdateEditorNodeData(nodeEditorMeta, *node);

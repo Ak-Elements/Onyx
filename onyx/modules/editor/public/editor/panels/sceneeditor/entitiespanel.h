@@ -1,6 +1,12 @@
 #pragma once
 
 #include <onyx/entity/entityregistry.h>
+#include <onyx/localization/localizedstring.h>
+
+namespace Onyx::Localization
+{
+    class LocalizationModule;
+}
 
 namespace Onyx::GameCore
 {
@@ -26,7 +32,7 @@ namespace Onyx::Editor::SceneEditor
 
         void DeleteEntity(GameCore::Scene& scene, Entity::EntityId entity);
         void SetSelectedEntity(GameCore::Scene& scene, Entity::EntityId entity);
-    private:
+
         Entity::EntityId selectedEntity;
     };
 }

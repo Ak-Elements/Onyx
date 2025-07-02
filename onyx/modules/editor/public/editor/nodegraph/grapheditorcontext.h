@@ -5,6 +5,11 @@
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
 
+namespace Onyx::Localization
+{
+    class LocalizationModule;
+}
+
 namespace Onyx::Assets
 {
     class AssetSystem;
@@ -86,6 +91,9 @@ namespace Onyx::Editor
             HashMap<String, NodeListContextMenuItem> m_Children;
         };
 
+        void SetLocalizationModule(const Localization::LocalizationModule& localizationModule);
+        const Localization::LocalizationModule& GetLocalizationModule() const;
+
         DynamicArray<Node>& GetNodes() { return m_Nodes; }
         const DynamicArray<Node>& GetNodes() const { return m_Nodes; }
         DynamicArray<Link>& GetLinks() { return m_Links; }
@@ -118,10 +126,11 @@ namespace Onyx::Editor
         virtual bool ArePinTypesCompatible(NodeGraph::PinTypeId lhsPinType, NodeGraph::PinTypeId rhsPinType) const = 0;
 
         void DrawNode(const Node& node);
+        void DrawNodeBackground(const Node& node);
 
         virtual void DrawNodeInPropertyPanel(Guid64 nodeId) = 0;
 
-        virtual void FilterNodeListContextMenu(InplaceFunction<bool(const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor) = 0;
+        virtual void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData&)> filterFunctor) = 0;
         virtual void ClearNodeListFilter() = 0;
         virtual const NodeListContextMenuItem& GetNodeListContextMenuRoot() = 0;
 
@@ -151,6 +160,7 @@ namespace Onyx::Editor
         virtual void OnLoad(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path) = 0;
 
         virtual void OnDrawNode(const Node& node) = 0;
+        virtual void OnDrawNodeBackground(const Node& node) = 0;
         virtual void OnNodeChanged(const Node& newNode);
 
         virtual bool OnNodeCreate(Node& newNode, StringId32 typeId) = 0;
@@ -163,5 +173,6 @@ namespace Onyx::Editor
         DynamicArray<Link> m_Links;
 
         Atomic<bool> m_IsLoading = false;
+        const Localization::LocalizationModule* m_LocalizationModule = nullptr;
     };
 }

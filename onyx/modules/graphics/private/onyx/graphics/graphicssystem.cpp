@@ -39,15 +39,15 @@ namespace Onyx::Graphics
 
     void GraphicsSystem::Init(const GraphicSettings& graphicSettings, const WindowSettings& windowSettings, Assets::AssetSystem& assetSystem)
     {
-        RenderGraphNodeFactory::RegisterNode<GetViewConstantsNode>("Scene/Get View Constants");
-        RenderGraphNodeFactory::RegisterNode<CreateLightClusters>("Lighting/Create Light Clusters");
-        RenderGraphNodeFactory::RegisterNode<UpdateLightClustersRenderGraphNode>("Lighting/Update Light Pass");
-        RenderGraphNodeFactory::RegisterNode<CreateTransmittanceRenderGraphNode>("Scattering/Create Transmittance");
-        RenderGraphNodeFactory::RegisterNode<ComputeMultipleScatteringRenderGraphNode>("Scattering/Compute MultipleScattering");
-        RenderGraphNodeFactory::RegisterNode<SkyViewLutRenderGraphNode>("Scattering/Compute SkyViewLut");
-        RenderGraphNodeFactory::RegisterNode<AtmosphericSkyRenderGraphNode>("Scattering/Atmospheric Sky");
-        RenderGraphNodeFactory::RegisterNode<ToneMapPass>("PostFx/Tonemap");
-        RenderGraphNodeFactory::RegisterNode<DebugLightClustersRenderPass>("Debug/Lighting/Render Light Clusters");
+        RenderGraphNodeFactory::RegisterNode<GetViewConstantsNode>();
+        RenderGraphNodeFactory::RegisterNode<CreateLightClusters>();
+        RenderGraphNodeFactory::RegisterNode<UpdateLightClustersRenderGraphNode>();
+        RenderGraphNodeFactory::RegisterNode<CreateTransmittanceRenderGraphNode>();
+        RenderGraphNodeFactory::RegisterNode<ComputeMultipleScatteringRenderGraphNode>();
+        RenderGraphNodeFactory::RegisterNode<SkyViewLutRenderGraphNode>();
+        RenderGraphNodeFactory::RegisterNode<AtmosphericSkyRenderGraphNode>();
+        RenderGraphNodeFactory::RegisterNode<ToneMapPass>();
+        RenderGraphNodeFactory::RegisterNode<DebugLightClustersRenderPass>();
 
         NodeGraph::NodeGraphTypeRegistry::RegisterType<TextureHandle>();
         NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle, "Onyx::Graphics::BufferHandle">();
@@ -67,13 +67,13 @@ namespace Onyx::Graphics
         NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
         NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
 
-        ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>("Shader/Fragment/Shader Out");
-        ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>("Shader/Fragment/PBR Material");
+        ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>();
+        ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>();
         
-        ShaderGraphNodeFactory::RegisterNode<SampleTextureNode>("Shader/Texture/Sample Texture");
+        ShaderGraphNodeFactory::RegisterNode<SampleTextureNode>();
         
-        ShaderGraphNodeFactory::RegisterNode<GetWorldPositionNode>("Shader/Fragment/Get World Position");
-        ShaderGraphNodeFactory::RegisterNode<GetWorldNormalNode>("Shader/Fragment/Get World Normal");
+        ShaderGraphNodeFactory::RegisterNode<GetWorldPositionNode>();
+        ShaderGraphNodeFactory::RegisterNode<GetWorldNormalNode>();
     }
 
     void GraphicsSystem::Shutdown()

@@ -2,7 +2,11 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/ui/imguistyle.h>
+#include <onyx/localization/localization.h>
+#include <onyx/localization/localizedstring.h>
+
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/ui/scopedid.h>
 
 #include <imgui.h>
 #include <imgui_stacklayout.h>
@@ -12,7 +16,7 @@ namespace Onyx::Ui
 {
     void DrawItemBackground(onyxF32 rounding, onyxF32 borderThickness, onyxU32 color)
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
             return;
 
@@ -50,7 +54,7 @@ namespace Onyx::Ui
 
     void DrawItemBorder(onyxF32 thickness, onyxF32 rounding, onyxU32 color)
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
             return;
 
@@ -103,8 +107,6 @@ namespace Onyx::Ui
         DrawSearchIcon(ImGui::GetWindowDrawList(), ImVec2(0, 0), halfIconSize, 0x33FFFFFF);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + spacingX);
 
-        // Create the search bar input text field
-        searchString.reserve(256);
         {
             ScopedImGuiColor scopedColors
             {
@@ -114,13 +116,10 @@ namespace Onyx::Ui
                 { ImGuiCol_Border, 0x00000000 }
             };
 
-            onyxS32 capacity = static_cast<onyxS32>(searchString.capacity());
             ImGui::SetNextItemWidth(searchBarSize.x - 2 * iconSize - 2 * spacingX);
             searchInputId = ImGui::GetID("##searchbarinput");
-            if (ImGui::InputTextWithHint("##searchbarinput", hintLabel.data(), searchString.data(), capacity))
+            if (Ui::DrawStringInput("##searchbarinput", hintLabel, searchString))
             {
-                // Resize the string if needed
-                searchString.resize(std::strlen(searchString.data()));
                 modified = true;
             }
         }
@@ -167,6 +166,11 @@ namespace Onyx::Ui
         return modified;
     }
 
+    bool ContextMenuHeader(const Localization::LocalizedString& label, ImGuiTreeNodeFlags flags)
+    {
+        return ContextMenuHeader(label.Get(), flags);
+    }
+
     // move to a UI base class
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags)
     {
@@ -184,30 +188,30 @@ namespace Onyx::Ui
 
         // Render the collapsible header
         const ImGuiID collapsibleId = ImGui::GetID(label.data());
-        bool isOpen = ImGui::TreeNodeBehavior(collapsibleId, flags | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog, label.data());
+        bool isOpen = ImGui::TreeNodeBehavior(collapsibleId, flags |  ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog, label.data());
 
         if (isOpen)
         {
-            ImGuiWindow* window = ImGui::GetCurrentWindow();
-            const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
-            const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
-                ? currentStyle.FramePadding
-                : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
+            //ImGuiWindow* window = ImGui::GetCurrentWindow();
+            //const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
+            //const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
+            //    ? currentStyle.FramePadding
+            //    : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
 
-            // Use bounding box of the last drawn item (the collapsing header)
-            const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
-            const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header
+            //// Use bounding box of the last drawn item (the collapsing header)
+            //const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
+            //const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header
 
-            // Calculate separator line positions
-            const ImVec2 label_size = ImGui::CalcTextSize(label.data());
-            const float text_offset_x = header_min.x + ImGui::GetFontSize() + padding.x * 4 + label_size.x;
-            const float line_y = header_min.y + ImGui::GetFrameHeight() * 0.5f; // Slightly below the header
-            const ImVec2 start = ImVec2(text_offset_x, line_y);
-            const ImVec2 end = ImVec2(header_max.x - padding.x, line_y);
+            //// Calculate separator line positions
+            //const ImVec2 label_size = ImGui::CalcTextSize(label.data());
+            //const float text_offset_x = header_min.x + ImGui::GetFontSize() + padding.x * 4 + label_size.x;
+            //const float line_y = header_min.y + ImGui::GetFrameHeight() * 0.5f; // Slightly below the header
+            //const ImVec2 start = ImVec2(text_offset_x, line_y);
+            //const ImVec2 end = ImVec2(header_max.x - padding.x, line_y);
 
-            window->DrawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator));
+            //window->DrawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator));
 
-            // next line
+            //// next line
         }
 
         ImGui::SameLine();
@@ -218,7 +222,7 @@ namespace Onyx::Ui
 
     bool ContextMenuHeader(StringView label, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags)
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        ::ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
             return false;
 
@@ -272,7 +276,17 @@ namespace Onyx::Ui
         return isOpen;
     }
 
+    bool DrawStringInput(StringView id, StringView hint, String& value)
+    {
+        return DrawStringInput(id, hint, value, ImVec2(0,0), ImGuiInputTextFlags_None);
+    }
+
     bool DrawStringInput(StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags)
+    {
+        return DrawStringInput(id, "", value, size, flags);
+    }
+
+    bool DrawStringInput(StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags)
     {
         struct InputTextCallback_Payload
         {
@@ -298,7 +312,7 @@ namespace Onyx::Ui
         InputTextCallback_Payload payload;
         payload.Str = &value;
 
-        return ImGui::InputTextEx("##inputText", nullptr, value.data(), static_cast<onyxS32>(value.capacity() + 1), size, flags | ImGuiInputTextFlags_CallbackResize, TextInputCallback, &payload);
+        return ImGui::InputTextEx("##inputText", hint.data(), value.data(), static_cast<onyxS32>(value.capacity() + 1), size, flags | ImGuiInputTextFlags_CallbackResize, TextInputCallback, &payload);
     }
 
     void DrawMultilineText(StringView text, ImVec2 bounds, bool showEllipsis)
@@ -390,7 +404,7 @@ namespace Onyx::Ui
 
         if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
         {
-            if (ImGui::MenuItem("Rename"))
+            if (ImGui::MenuItem(Localization::Generic::Rename.Get().data()))
             {
                 isRenaming = true;
                 ImGui::CloseCurrentPopup();
@@ -530,7 +544,134 @@ namespace Onyx::Ui
         draw_list->PathLineTo(lid_points[0]);
         draw_list->PathFillConvex(color_folder_lid);
 
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
+        //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
+    }
+
+    void DrawPlusIcon(ImDrawList* draw_list, ImVec2 offset, onyxF32 size, onyxU32 color)
+    {
+        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+        ImVec2 center = cursorPos - offset;
+        float thickness = size * 0.2f;
+        float half_len = size * 0.5f;
+        float half_thick = thickness * 0.5f;
+
+        float gap = half_thick; // length to trim from each horizontal bar end to avoid overdraw
+
+        // --- Left horizontal rectangle (half bar)
+        draw_list->PathLineTo(ImVec2(center.x - half_len, center.y - half_thick));
+        draw_list->PathLineTo(ImVec2(center.x - gap, center.y - half_thick));
+        draw_list->PathLineTo(ImVec2(center.x - gap, center.y + half_thick));
+        draw_list->PathLineTo(ImVec2(center.x - half_len, center.y + half_thick));
+        draw_list->PathFillConvex(color);
+
+        // --- Right horizontal rectangle (half bar)
+        draw_list->PathLineTo(ImVec2(center.x + gap, center.y - half_thick));
+        draw_list->PathLineTo(ImVec2(center.x + half_len, center.y - half_thick));
+        draw_list->PathLineTo(ImVec2(center.x + half_len, center.y + half_thick));
+        draw_list->PathLineTo(ImVec2(center.x + gap, center.y + half_thick));
+        draw_list->PathFillConvex(color);
+
+        // --- Full vertical rectangle
+        draw_list->PathLineTo(ImVec2(center.x - half_thick, center.y - half_len));
+        draw_list->PathLineTo(ImVec2(center.x + half_thick, center.y - half_len));
+        draw_list->PathLineTo(ImVec2(center.x + half_thick, center.y + half_len));
+        draw_list->PathLineTo(ImVec2(center.x - half_thick, center.y + half_len));
+        draw_list->PathFillConvex(color);
+
+        //ImGui::setcurs(ImGui::GetCursorPosX() - offset.x + size);
+    }
+
+    void DrawMinusIcon(ImDrawList* draw_list, ImVec2 offset, onyxF32 size, onyxU32 color)
+    {
+        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+        ImVec2 center = cursorPos - offset;
+
+        // Define the size of the "X" lines
+        onyxF32 line_thickness = size * 0.2f; // Thickness of the lines
+        onyxF32 line_length = size * 1.0f;    // Length of the lines
+
+        // Calculate the end points for the diagonal lines
+        ImVec2 line_start = ImVec2(center.x - line_length * 0.5f, center.y);
+        ImVec2 line_end = ImVec2(center.x + line_length * 0.5f, center.y);
+
+        // Draw the diagonal lines
+        draw_list->AddLine(line_start, line_end, color, line_thickness);
+
+        //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
+    }
+
+    void DrawXIcon(ImDrawList* draw_list, ImVec2 offset, onyxF32 size, onyxU32 color)
+    {
+        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+        ImVec2 center = cursorPos - offset;
+
+        float thickness = size * 0.2f;
+        float half_len = size * 0.5f;
+        float gap = thickness * 0.5f; // Avoid overlap by trimming to center
+
+        // Diagonal directions
+        constexpr onyxF32 s2 = std::numbers::sqrt2_v<onyxF32> / 2.0f ;
+        ImVec2 dir1 = ImVec2(s2, s2); // direction top left to bottom right
+        ImVec2 dir2 = ImVec2(-s2,  s2); // direction bottom left to top right
+
+        ImVec2 ortho1 = ImVec2(-dir1.y, dir1.x) * (thickness * 0.5f);
+        ImVec2 ortho2 = ImVec2(-dir2.y, dir2.x) * (thickness * 0.5f);
+
+        auto draw_half = [&](ImVec2 from, ImVec2 to, ImVec2 ortho)
+        {
+            draw_list->PathLineTo(from + ortho);
+            draw_list->PathLineTo(from - ortho);
+            draw_list->PathLineTo(to - ortho);
+            draw_list->PathLineTo(to + ortho);
+            draw_list->PathFillConvex(color);
+        };
+
+        // Diagonal 1: 
+        draw_half(center - dir1 * half_len, center - dir1 * gap, ortho1);
+        draw_half(center + dir1 * gap, center + dir1 * half_len, ortho1);
+
+        // Diagonal 2:
+        draw_half(center - dir2 * half_len, center - dir2 * gap, ortho2);
+        draw_half(center + dir2 * gap, center + dir2 * half_len, ortho2);
+
+        // Center
+        ImVec2 p1 = center - dir1 * gap + ortho1;
+        ImVec2 p2 = center - dir2 * gap + ortho2;
+        ImVec2 p3 = center + dir1 * gap - ortho1;
+        ImVec2 p4 = center + dir2 * gap - ortho2;
+
+        draw_list->PathLineTo(p1);
+        draw_list->PathLineTo(p2);
+        draw_list->PathLineTo(p3);
+        draw_list->PathLineTo(p4);
+        draw_list->PathFillConvex(color);
+
+        //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
+    }
+
+    void DrawDivisionIcon(ImDrawList* draw_list, ImVec2 offset, onyxF32 size, onyxU32 color)
+    {
+        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+        ImVec2 center = cursorPos - offset;
+
+        onyxF32 line_thickness = size * 0.2f;
+        onyxF32 line_length = size * 1.0f;
+        onyxF32 dot_radius = size * 0.1f;
+
+        // Horizontal line
+        ImVec2 line_start = ImVec2(center.x - line_length * 0.5f, center.y);
+        ImVec2 line_end = ImVec2(center.x + line_length * 0.5f, center.y);
+        draw_list->AddLine(line_start, line_end, color, line_thickness);
+
+        // Top dot
+        ImVec2 top_dot_center = ImVec2(center.x, center.y - size * 0.4f);
+        draw_list->AddCircleFilled(top_dot_center, dot_radius, color);
+
+        // Bottom dot
+        ImVec2 bottom_dot_center = ImVec2(center.x, center.y + size * 0.4f);
+        draw_list->AddCircleFilled(bottom_dot_center, dot_radius, color);
+
+        //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
     }
 }
 #endif

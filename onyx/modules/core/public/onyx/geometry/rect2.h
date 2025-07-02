@@ -15,6 +15,11 @@ namespace Onyx
             , Extents(Extents)
         {
         }
+        Rect2(ScalarT positionX, ScalarT positionY, ScalarT extentsX, ScalarT extentsY)
+            : Position(positionX, positionY)
+            , Extents(extentsX, extentsY)
+        {
+        }
 
         explicit Rect2(ScalarT positionX, ScalarT positionY, ScalarT extentsX, ScalarT extentsY)
             : Position(positionX, positionY)
@@ -30,9 +35,9 @@ namespace Onyx
         ScalarT GetRight() const { return Position[0] + Extents[0]; }
         ScalarT GetBottom() const { return Position[1] - Extents[1]; }
 
-        Vector2<ScalarT> GetTopLeft() { return Position; }
-        Vector2<ScalarT> GetTopRight() { return { GetRight(), GetTop() }; }
-        Vector2<ScalarT> GetBottomRight() { return { GetRight(), GetBottom() }; }
-        Vector2<ScalarT> GetBottomLeft() { return { GetLeft(), GetBottom() }; }
+        Vector2<ScalarT> GetTopLeft() const { return Position; }
+        Vector2<ScalarT> GetTopRight() const { return { GetRight(), GetTop() }; }
+        Vector2<ScalarT> GetBottomRight() const { return { GetRight(), GetBottom() }; }
+        Vector2<ScalarT> GetBottomLeft() const { return { GetLeft(), GetBottom() }; }
     };
 }

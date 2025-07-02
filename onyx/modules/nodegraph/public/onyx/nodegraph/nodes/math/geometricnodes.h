@@ -8,6 +8,8 @@ namespace Onyx::NodeGraph
     class ScaleVectorNode : public FixedPinNode_2_In_1_Out<NodeType, VectorT<ScalarT>, ScalarT, VectorT<ScalarT>>
     {
     public:
+        static constexpr bool HasAliases = true;
+
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
@@ -46,19 +48,19 @@ namespace Onyx::NodeGraph
         using FactoryNodeTypeT = typename FactoryType::NodeTypeT;
 
         // Scale
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxF32, SerializedNameSpaceId + "::ScaleVector2f32">>("Geometric/Vector2f32/Scale Vector2f32");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxF64, SerializedNameSpaceId + "::ScaleVector2f64">>("Geometric/Vector2f64/Scale Vector2f64");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxS32, SerializedNameSpaceId + "::ScaleVector2s32">>("Geometric/Vector2s32/Scale Vector2s32");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxS64, SerializedNameSpaceId + "::ScaleVector2s64">>("Geometric/Vector2s64/Scale Vector2s64");
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxF32, SerializedNameSpaceId + "::ScaleVector2f32">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxF64, SerializedNameSpaceId + "::ScaleVector2f64">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxS32, SerializedNameSpaceId + "::ScaleVector2s32">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector2, onyxS64, SerializedNameSpaceId + "::ScaleVector2s64">>();
 
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxF32, SerializedNameSpaceId + "::ScaleVector3f32">>("Geometric/Vector3f32/Scale Vector3f32");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxF64, SerializedNameSpaceId + "::ScaleVector3f64">>("Geometric/Vector3f64/Scale Vector3f64");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxS32, SerializedNameSpaceId + "::ScaleVector3s32">>("Geometric/Vector3s32/Scale Vector3s32");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxS64, SerializedNameSpaceId + "::ScaleVector3s64">>("Geometric/Vector3s64/Scale Vector3s64");
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxF32, SerializedNameSpaceId + "::ScaleVector3f32">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxF64, SerializedNameSpaceId + "::ScaleVector3f64">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxS32, SerializedNameSpaceId + "::ScaleVector3s32">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector3, onyxS64, SerializedNameSpaceId + "::ScaleVector3s64">>();
 
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxF32, SerializedNameSpaceId + "::ScaleVector4f32">>("Geometric/Vector4f32/Scale Vector4f32");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxF64, SerializedNameSpaceId + "::ScaleVector4f64">>("Geometric/Vector4f64/Scale Vector4f64");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxS32, SerializedNameSpaceId + "::ScaleVector4s32">>("Geometric/Vector4s32/Scale Vector4s32");
-        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxS64, SerializedNameSpaceId + "::ScaleVector4s64">>("Geometric/Vector4s64/Scale Vector4s64");
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxF32, SerializedNameSpaceId + "::ScaleVector4f32">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxF64, SerializedNameSpaceId + "::ScaleVector4f64">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxS32, SerializedNameSpaceId + "::ScaleVector4s32">>();
+        FactoryType::template RegisterNode<ScaleVectorNode<FactoryNodeTypeT, Vector4, onyxS64, SerializedNameSpaceId + "::ScaleVector4s64">>();
     }
 }

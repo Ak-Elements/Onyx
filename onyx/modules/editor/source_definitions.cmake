@@ -3,6 +3,7 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/editor)
 
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/editormodule.h
+    ${TARGET_PUBLIC_PATH}/editor_localization.h
 	${TARGET_PUBLIC_PATH}/camera/freecamera.h
 	${TARGET_PUBLIC_PATH}/assets/importer/assetimporter.h
 	${TARGET_PUBLIC_PATH}/assets/importer/textureimporter.h
@@ -11,7 +12,6 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/nodegraph/rendergrapheditorcontext.h
 	${TARGET_PUBLIC_PATH}/nodegraph/shadergrapheditorcontext.h
 	${TARGET_PUBLIC_PATH}/nodegraph/typenodegrapheditorcontext.h
-	${TARGET_PUBLIC_PATH}/modals/assetselectionmodal.h
 	${TARGET_PUBLIC_PATH}/modules/nodeeditor.h
 	${TARGET_PUBLIC_PATH}/modules/sceneeditor.h
 	${TARGET_PUBLIC_PATH}/panels/contentbrowserpanel.h
@@ -34,6 +34,7 @@ set(TARGET_PUBLIC_SOURCES
 
 set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/editormodule.cpp
+    ${TARGET_PRIVATE_PATH}/editor_localization.cpp
 	${TARGET_PRIVATE_PATH}/camera/freecamera.cpp
 	${TARGET_PRIVATE_PATH}/assets/importer/textureimporter.cpp
 	${TARGET_PRIVATE_PATH}/components/cameracomponent.cpp
@@ -46,6 +47,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/components/graphics/textcomponent_editor.cpp
 	${TARGET_PRIVATE_PATH}/components/volume/volumecomponent_editor.cpp
 	${TARGET_PRIVATE_PATH}/components/volume/volumeterraincomponent_editor.cpp
+	${TARGET_PRIVATE_PATH}/nodegraph/arithmeticnodes_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/vectornodes_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/grapheditorcontext.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/nodegrapheditorcontext.cpp
@@ -53,7 +55,6 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/nodegraph/rendergrapheditorcontext.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/rendergraphnodes_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/shadergrapheditorcontext.cpp
-	${TARGET_PRIVATE_PATH}/modals/assetselectionmodal.cpp
 	${TARGET_PRIVATE_PATH}/modules/nodeeditor.cpp
 	${TARGET_PRIVATE_PATH}/modules/sceneeditor.cpp
 	${TARGET_PRIVATE_PATH}/panels/contentbrowserpanel.cpp
