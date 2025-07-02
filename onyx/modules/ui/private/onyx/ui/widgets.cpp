@@ -612,25 +612,26 @@ namespace Onyx::Ui
 
         // Diagonal directions
         constexpr onyxF32 s2 = std::numbers::sqrt2_v<onyxF32> / 2.0f ;
-        ImVec2 dir1 = ImVec2(s2, s2); // direction \ 
-        ImVec2 dir2 = ImVec2(-s2,  s2); // direction /
+        ImVec2 dir1 = ImVec2(s2, s2); // direction top left to bottom right
+        ImVec2 dir2 = ImVec2(-s2,  s2); // direction bottom left to top right
 
         ImVec2 ortho1 = ImVec2(-dir1.y, dir1.x) * (thickness * 0.5f);
         ImVec2 ortho2 = ImVec2(-dir2.y, dir2.x) * (thickness * 0.5f);
 
-        auto draw_half = [&](ImVec2 from, ImVec2 to, ImVec2 ortho) {
+        auto draw_half = [&](ImVec2 from, ImVec2 to, ImVec2 ortho)
+        {
             draw_list->PathLineTo(from + ortho);
             draw_list->PathLineTo(from - ortho);
             draw_list->PathLineTo(to - ortho);
             draw_list->PathLineTo(to + ortho);
             draw_list->PathFillConvex(color);
-            };
+        };
 
-        // Diagonal 1: \ 
+        // Diagonal 1: 
         draw_half(center - dir1 * half_len, center - dir1 * gap, ortho1);
         draw_half(center + dir1 * gap, center + dir1 * half_len, ortho1);
 
-        // Diagonal 2: /
+        // Diagonal 2:
         draw_half(center - dir2 * half_len, center - dir2 * gap, ortho2);
         draw_half(center + dir2 * gap, center + dir2 * half_len, ortho2);
 
