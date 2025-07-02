@@ -879,7 +879,7 @@ namespace Onyx::Editor
             nodeMetaInfo.Set("name", node.Name);
 
             ImVec2 nodePosition = ax::NodeEditor::GetNodePosition(node.Id.Get());
-            Array position{ nodePosition.x, nodePosition.y };
+            Array<onyxF32, 2>  position{ nodePosition.x, nodePosition.y };
             nodeMetaInfo.Set("position", position);
 
             nodesJsonArray.Add(nodeMetaInfo);
@@ -915,7 +915,7 @@ namespace Onyx::Editor
                 nodeMetaInfo.Set("outputpin", node.OutputPinId);
 
                 ImVec2 nodePosition = ax::NodeEditor::GetNodePosition(node.Id.Get());
-                Array position{ nodePosition.x, nodePosition.y };
+                Array<onyxF32, 2> position{ nodePosition.x, nodePosition.y };
                 nodeMetaInfo.Set("position", position);
 
                 rerouteNodesJsonArray.Add(nodeMetaInfo);
