@@ -62,7 +62,7 @@ namespace Onyx::Entity
         }
 
         
-        std::any Create(const Deserializer& deserializer) const
+        std::any Create(const Deserializer& deserializer) const override
         {
             if constexpr (Deserializable<T>)
             {
