@@ -7,6 +7,18 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CMakeDependentOption)
 
+set(MAJOR_VERSION 0)
+set(MINOR_VERSION 3)
+set(PATCH_VERSION 2)
+set(ONYX_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
+set(ONYX_VERSION_SUFFIX "${MAJOR_VERSION}.${MINOR_VERSION}")
+
+project (
+    onyx
+    VERSION ${ONYX_VERSION}
+    LANGUAGES CXX
+)
+
 # Bool Options
 option(ONYX_ENABLE_INSTALL "Install onyx components" ON)
 option(ONYX_BUILD_ALL "Build all" OFF)
@@ -130,18 +142,6 @@ if (STATIC_ANALYSIS)
 		)
 	endif()
 endif()
-
-set(MAJOR_VERSION 0)
-set(MINOR_VERSION 3)
-set(PATCH_VERSION 2)
-set(ONYX_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
-set(ONYX_VERSION_SUFFIX "${MAJOR_VERSION}.${MINOR_VERSION}")
-
-project (
-    onyx
-    VERSION ${ONYX_VERSION}
-    LANGUAGES CXX
-)
 
 #CLANG-CL We have to clear the system include flags on clang-cl because system includes are buggy
 if (WIN32 AND (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
