@@ -7,9 +7,9 @@ namespace Onyx
 
 namespace Volume
 {
-    struct VolumeTerrainComponent
+    struct VolumeTerrainSettingsComponent
     {
-        static constexpr StringId32 TypeId = "Onyx::Volume::Components::VolumeTerrainComponent";
+        static constexpr StringId32 TypeId = "Onyx::Volume::Components::VolumeTerrainSettingsComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -27,16 +27,14 @@ namespace Volume
         // resolution 64x64 - each voxel is 0.5x0.5x
         onyxU32 ChunkSize = 32; // size per volume chunk
         onyxU32 Resolution = 32; // resolution per chunk
-
-        bool IsModified = false;
     };
 }
 
 template <>
-struct Serialization<Volume::VolumeTerrainComponent>
+struct Serialization<Volume::VolumeTerrainSettingsComponent>
 {
-    static bool Serialize(Serializer& serializer, const Volume::VolumeTerrainComponent& volumeTerrain);
-    static bool Deserialize(const Deserializer& deserializer, Volume::VolumeTerrainComponent& outVolumeTerrain);
+    static bool Serialize(Serializer& serializer, const Volume::VolumeTerrainSettingsComponent& volumeTerrain);
+    static bool Deserialize(const Deserializer& deserializer, Volume::VolumeTerrainSettingsComponent& outVolumeTerrain);
 };
 
 }

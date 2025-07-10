@@ -19,7 +19,7 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE_FUNCTION;
 
-        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, sizeof(onyxU32), &m_TransmittanceTextureIndex);
+        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, m_TransmittanceTextureIndex);
         commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 

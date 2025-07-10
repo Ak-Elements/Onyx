@@ -46,7 +46,7 @@ namespace Onyx::Graphics
         pushConstants.MultipleScatteringTextureIndex = m_MultipleScatteringTextureIndex;
         pushConstants.SunDirection = GetSunDirection(frameContext.TimeOfDay);
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, sizeof(PushConstants), &pushConstants);
+        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, pushConstants);
         commandBuffer.Draw(Graphics::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 

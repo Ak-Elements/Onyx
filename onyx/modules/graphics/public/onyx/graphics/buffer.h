@@ -20,6 +20,8 @@ namespace Onyx::Graphics
 
         bool IsValid() const { return m_DataPointer != nullptr; }
 
+        onyxU64 GetGpuAddress() const { return m_GpuAddress; }
+
 		virtual void* Map(MapMode mode) = 0;
 		virtual void Unmap() = 0;
 
@@ -29,6 +31,8 @@ namespace Onyx::Graphics
 
     protected:
 		const BufferProperties m_Properties;
+
+        onyxU64 m_GpuAddress = 0;
 		void* m_DataPointer = nullptr;
     };
 }

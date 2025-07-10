@@ -57,6 +57,19 @@ namespace Onyx::GameCore
     //    DynamicArray<Matrix4<onyxF32>> Transforms;
     //};
 
+    struct VoxelChunk
+    {
+        Vector3s16 Coord;
+        Graphics::BufferHandle Grid;
+        Graphics::BufferHandle MeshVertices;
+        Graphics::BufferHandle VertexCount;
+        Graphics::BufferHandle IndirectDraw;
+        onyxU32 Index;
+
+        onyxU32 Size;
+        onyxU32 Resolution;
+    };
+
     // Data per frame that is sent from the level to the render api
     struct SceneFrameData : public Graphics::FrameData
     {
@@ -66,6 +79,7 @@ namespace Onyx::GameCore
         DynamicArray<StaticMeshDrawCall> m_StaticMeshDrawCalls;
         DynamicArray<StaticMeshIndirectDrawCall> m_StaticMeshIndirectDrawCalls;
         //DynamicArray<TextDrawCall> m_TextDrawCalls;
+        DynamicArray<VoxelChunk> m_VoxelChunksToInit;
 
         DynamicArray<LightData> Lights;
     };

@@ -15,7 +15,10 @@ namespace Onyx::Editor::SceneEditor
     public:
         TerrainPanel(Graphics::GraphicsApi& graphicsApi);
 
-        void SetSceneViewPanelId(onyxU32 panelId) { m_SceneViewPanelId = panelId; }
+        void SetSceneViewPanelId(onyxU32 panelId) {
+            m_SceneViewPanelId = panelId;
+            m_SceneViewPanelId = 0;
+        }
 
         void Render(GameCore::Scene& scene);
 

@@ -48,6 +48,7 @@ namespace Onyx::GameCore
             commandBuffer.BindVertexBuffer(drawCall.VertexData, 0, 0);
             commandBuffer.BindIndexBuffer(drawCall.Indices, 0, Graphics::IndexType::uint32);
 
+            //Matrix4<onyxF32> transformMatrix;
             //for (Matrix4<onyxF32> transformMatrix : drawCall.m_Transforms)
             {
                 //commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(Matrix4<onyxF32>), &transformMatrix);

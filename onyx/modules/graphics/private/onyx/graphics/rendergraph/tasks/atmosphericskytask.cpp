@@ -47,7 +47,7 @@ namespace Onyx::Graphics
         pushConstants.SkyViewLutTextureIndex = m_SkyViewLutTextureIndex;
         pushConstants.SunDirection = GetSunDirection(frameContext.TimeOfDay);
 
-        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, sizeof(PushConstants), &pushConstants);
+        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, pushConstants);
         commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 

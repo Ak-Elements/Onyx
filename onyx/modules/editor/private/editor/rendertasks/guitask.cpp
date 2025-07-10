@@ -50,13 +50,13 @@ namespace Onyx
 
         Graphics::BufferProperties vertexBufferProps;
         vertexBufferProps.m_Size = 400000 * sizeof(ImDrawVert);
-        vertexBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Vertex);
+        vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
         vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
         vertexBufferProps.m_DebugName = "ImGui Vertices";
 
         Graphics::BufferProperties indexBufferProps;
         indexBufferProps.m_Size = 200000 * sizeof(ImDrawIdx);
-        indexBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Index);
+        indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
         indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
         indexBufferProps.m_DebugName = "ImGui Indices";
 
@@ -184,7 +184,7 @@ namespace Onyx
 
         constants.scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
         constants.translate = { -1.0f - imDrawData->DisplayPos.x * constants.scale[0], 1.0f - imDrawData->DisplayPos.y * constants.scale[1] };
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(PushConstants), &constants);
+        commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, constants);
         ONYX_UNUSED(constants);
         /*Graphics::Viewport viewport;
         viewport.Rect.m_Position = { 0,0 };

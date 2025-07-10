@@ -26,7 +26,12 @@ namespace Onyx::Graphics
         virtual void BindVertexBuffer(const BufferHandle& bufferHandle, onyxU32 binding, onyxU32 offset) = 0;
         virtual void BindVertexBuffers(const InplaceArray<BufferHandle, 8>& bufferHandles, const InplaceArray<onyxU32, 8> bufferOffsets, onyxU32 firstBinding, onyxU32 bindingCount) = 0;
         virtual void BindIndexBuffer(const BufferHandle& buffer, onyxU32 offset, IndexType indexType) = 0;
-        virtual void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, void* data) = 0;
+
+        template <typename T>
+        void BindPushConstants(ShaderStage stage, onyxU32 offset, const T& data)
+        {
+            BindPushConstants(stage, offset, sizeof(T), &data);
+        }
 
         virtual void Bind(const TextureHandle& texture, const String& bindingName) = 0;
         virtual void Bind(const BufferHandle& buffer, const String& bindingName) = 0;
@@ -65,6 +70,8 @@ namespace Onyx::Graphics
 #endif
 
     protected:
+        virtual void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data) = 0;
+
         virtual void BindDescriptorSets() = 0;
         virtual void BindPipeline(const PipelineHandle& pipelineHandle) = 0;
     };

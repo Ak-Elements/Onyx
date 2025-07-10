@@ -73,6 +73,8 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanBuffer::Init(const void* data)
     {
+        VkDevice device = m_Device->GetHandle();
+
         VkBufferCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         createInfo.size = m_Properties.m_Size;
@@ -81,11 +83,11 @@ namespace Onyx::Graphics::Vulkan
         createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.pNext = nullptr;
 
-        VK_CHECK_RESULT(vkCreateBuffer(m_Device->GetHandle(), &createInfo, nullptr, &m_Buffer));
-        SetResourceName(m_Device->GetHandle(), VK_OBJECT_TYPE_BUFFER, (onyxU64)m_Buffer, m_Properties.m_DebugName.empty() ? "Unnamed Buffer" : m_Properties.m_DebugName);
+        VK_CHECK_RESULT(vkCreateBuffer(device, &createInfo, nullptr, &m_Buffer));
+        SetResourceName(device, VK_OBJECT_TYPE_BUFFER, (onyxU64)m_Buffer, m_Properties.m_DebugName.empty() ? "Unnamed Buffer" : m_Properties.m_DebugName);
 
         VkMemoryRequirements memoryRequirements;
-        vkGetBufferMemoryRequirements(m_Device->GetHandle(), m_Buffer, &memoryRequirements);
+        vkGetBufferMemoryRequirements(device, m_Buffer, &memoryRequirements);
 
         VkMemoryPropertyFlags requiredMemoryPropertyFlags, preferredMemoryPropertyFlags;
         GetMemoryPropertyFlags(m_Properties.m_CpuAccess, m_Properties.m_GpuAccess, requiredMemoryPropertyFlags, preferredMemoryPropertyFlags);
@@ -95,6 +97,13 @@ namespace Onyx::Graphics::Vulkan
 
         m_Allocator->Bind(m_Buffer, m_Memory);
 
+        if ( Enums::HasAllFlags(m_Properties.m_UsageFlags, BufferUsage::DeviceAddress ))
+        {
+            VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
+            addressInfo.buffer = m_Buffer;
+            m_GpuAddress = vkGetBufferDeviceAddress(device, &addressInfo);
+        }
+
         if ((m_Properties.m_CpuAccess == CPUAccess::UpdateUnsynchronized) || m_Properties.m_CpuAccess == CPUAccess::Write)
         {
             Map(MapMode::Write);
@@ -102,7 +111,7 @@ namespace Onyx::Graphics::Vulkan
 
         if (data != nullptr)
         {
-            SetData(0, data, m_Properties.m_Size);
+            SetData(0, data, numeric_cast<onyxS32>(m_Properties.m_Size));
         }
 
         UpdateDescriptorInfo();
@@ -170,16 +179,18 @@ namespace Onyx::Graphics::Vulkan
         else
             usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        if (Enums::HasAnyFlags(properties.m_BindFlags, BufferType::Vertex))
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Vertex))
             usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_BindFlags, BufferType::Index))
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Index))
             usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_BindFlags, BufferType::Uniform))
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Uniform))
             usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_BindFlags, BufferType::Buffer))
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Storage))
             usage |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_BindFlags, BufferType::Indirect))
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Indirect))
             usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::DeviceAddress))
+            usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 
         if (properties.m_IsWritable)
             usage |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;

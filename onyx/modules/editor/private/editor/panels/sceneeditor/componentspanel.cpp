@@ -70,7 +70,20 @@ namespace Onyx::Editor::SceneEditor
                             style.Reset();
 
                             Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
-                            componentMeta->DrawPropertyGridEditor(componentStorage.value(selectedEntity));
+                            void* componentPtr = componentStorage.value(selectedEntity);
+                            if (componentMeta->DrawPropertyGridEditor(componentPtr))
+                            {
+                                // we only need to copy and replace the component if there is a factory associated
+                                // else the component is just default constructed without special logic
+                                if (componentMeta->HasFactory())
+                                {
+                                    bool hasCopied = componentFactory.TryCopyComponent(registry, selectedEntity, componentTypeId, componentPtr);
+                                    if (hasCopied)
+                                    {
+                                        ONYX_LOG_WARNING("Failed updating component({}) after edit in property grid on entity {}", componentName, static_cast<onyxU32>(selectedEntity));
+                                    }
+                                }
+                            }
 
                             //TODO: Needed for now to not auto extend if component is empty
                             ImGui::Dummy(ImVec2(1, 1));

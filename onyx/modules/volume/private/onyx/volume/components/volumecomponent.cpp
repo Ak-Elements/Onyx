@@ -24,11 +24,19 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/volume/graphics/generatemeshpass.h>
 
+#include <onyx/volume/components/volumeterraincomponent.h>
+#include <onyx/volume/systems/volumeterrainsystem.h>
+
 namespace Onyx
 {
 
 namespace Volume
 {
+    namespace Terrain
+    {
+        struct VolumeTerrainRuntimeComponent;
+    }
+
     namespace VolumeSource
     {
         constexpr onyxF32 loc_GeometricError = 0.8f;
@@ -43,7 +51,7 @@ namespace Volume
             Graphics::BufferProperties vertexBufferProps;
             vertexBufferProps.m_DebugName = "VolumeSourceComponent Vertices";
             vertexBufferProps.m_Size = verticesBytes;
-            vertexBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Vertex);
+            vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
             vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
             api.CreateBuffer(volumeComponent.Vertices, vertexBufferProps);
@@ -62,7 +70,7 @@ namespace Volume
             Graphics::BufferProperties indexBufferProps;
             indexBufferProps.m_DebugName = "VolumeSourceComponent Indices";
             indexBufferProps.m_Size = indicesBytes;
-            indexBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Index);
+            indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
             indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
             api.CreateBuffer(volumeComponent.Indices, indexBufferProps);
@@ -125,30 +133,48 @@ namespace Volume
     namespace VolumeRendering
     {
         // TODO: Material component should be read access
-        using VolumeEntityAccess = Entity::Entity<const VolumeComponent, GameCore::MaterialComponent>;
+        using VolumeEntityAccess = Entity::Entity<const Terrain::VolumeTerrainRuntimeComponent, GameCore::MaterialComponent>;
         void system(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
         {
             GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
             
-            auto&& [ volumeComponent, materialComponent ] = entity.Get();
+            auto&& [ volumeTerrain, materialComponent ] = entity.Get();
 
             if (materialComponent.Material.IsValid() == false)
             {
                 // this should be moved to the component create
                 materialComponent.LoadMaterial(assetSytem);
-                return;
+                return; 
             }
 
             if ((materialComponent.Material.IsValid() == false) || materialComponent.Material->IsLoading())
                 return;
             
-            if (volumeComponent.IsLoading || (volumeComponent.Vertices.IsValid() == false))
-                return;
+            //if (volumeComponent.IsLoading || (volumeComponent.Vertices.IsValid() == false))
+            //    return;
 
-            GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
-            drawCall.VertexData = GenerateVolumeMesh::GetVertexBuffer();
-            drawCall.DrawCommandBuffer = GenerateVolumeMesh::GetDrawCommandBuffer();
-            drawCall.Material = materialComponent.Material;
+            onyxF32 cellSize = 8;
+#if PER_CHUNK_MESH_DATA
+            for (const auto& volumeChunk : volumeTerrain.Chunks)
+            {
+                Matrix4<onyxF32> transform;
+
+                transform[3] = Vector4f32(static_cast<onyxF32>(volumeChunk.Coordinate.X) * 32.0f * cellSize, static_cast<onyxF32>(volumeChunk.Coordinate.Y) * 32.0f * cellSize, static_cast<onyxF32>(volumeChunk.Coordinate.Z) * 32.0f * cellSize, 1.0f);
+#endif
+
+                GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
+
+#if PER_CHUNK_MESH_DATA
+                drawCall.Transforms.emplace_back(transform);
+                drawCall.VertexData = volumeChunk.MeshVertices;
+                drawCall.DrawCommandBuffer = volumeChunk.IndirectDrawBuffer;
+#else
+                drawCall.Transforms.emplace_back();
+                drawCall.VertexData = volumeTerrain.MeshVertices;
+                drawCall.DrawCommandBuffer = volumeTerrain.IndirectDrawBuffer;
+#endif
+                drawCall.Material = materialComponent.Material;
+            }
         }
     }
 

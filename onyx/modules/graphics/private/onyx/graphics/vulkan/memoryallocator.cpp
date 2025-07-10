@@ -22,6 +22,7 @@ namespace Onyx::Graphics::Vulkan
         allocatorInfo.physicalDevice = graphicsApi.GetPhysicalDevice().GetHandle();
         allocatorInfo.device = graphicsApi.GetDevice().GetHandle();
         allocatorInfo.instance = graphicsApi.GetInstance().GetHandle();
+        allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
 
         vmaCreateAllocator(&allocatorInfo, &m_Allocator);
     }
@@ -64,17 +65,17 @@ namespace Onyx::Graphics::Vulkan
     {
         VmaAllocationCreateInfo allocCreateInfo{};
         allocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        //allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
         allocCreateInfo.memoryTypeBits = memoryTypeBits;
         allocCreateInfo.requiredFlags = requiredFlags;
         allocCreateInfo.preferredFlags = preferredFlags;
-        
+
         VmaAllocation allocation;
         VmaAllocationInfo allocInfo{};
         VK_CHECK_RESULT(vmaAllocateMemoryForBuffer(m_Allocator, buffer, &allocCreateInfo, &allocation, &allocInfo))
 
         // TODO: Tracking
         ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating memory for buffer; size = {}", m_Tag, allocInfo.size);
-        
         return allocation;
     }
 
@@ -82,6 +83,7 @@ namespace Onyx::Graphics::Vulkan
     {
         VmaAllocationCreateInfo allocCreateInfo {};
         allocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        //allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
         allocCreateInfo.memoryTypeBits = memoryTypeBits;
         allocCreateInfo.requiredFlags = requiredFlags;
         allocCreateInfo.preferredFlags = preferredFlags;

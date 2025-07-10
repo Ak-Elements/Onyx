@@ -18,14 +18,14 @@ namespace Onyx::GameCore
 
         Graphics::BufferProperties vertexBufferProps;
         vertexBufferProps.m_Size = static_cast<onyxU32>(MAX_VERTICES * sizeof(Graphics::FontVertex));
-        vertexBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Vertex);
+        vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
         vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
         api.CreateBuffer(m_VertexBuffer, vertexBufferProps);
 
         Graphics::BufferProperties indexBufferProps;
         indexBufferProps.m_Size = static_cast<onyxU32>(MAX_INDICES * sizeof(onyxU16));
-        indexBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Index);
+        indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
         indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
         onyxU16 indices[MAX_INDICES];

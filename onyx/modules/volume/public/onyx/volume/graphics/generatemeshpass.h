@@ -6,7 +6,7 @@
 
 namespace Onyx::Volume
 {
-    class CreateVolumeMesh : public NodeGraph::FixedPinNode_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle>
+    class CreateVolumeMesh : public NodeGraph::FixedPinNode_1_Out<Graphics::RenderGraphShaderNode, Graphics::BufferHandle>
     {
     public:
         CreateVolumeMesh();
@@ -14,16 +14,21 @@ namespace Onyx::Volume
         static constexpr StringId32 TypeId = "Onyx::Volume::RenderGraph::CreateVolumeMesh";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        static Graphics::BufferHandle& GetVoxelGridBuffer() { return m_VoxelGrid[0]; }
+        bool IsEnabled() override { return true; }
+        bool IsComputeTask() const override { return true; }
 
     private:
         void OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
-
+       
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
 
     private:
-        static InplaceArray<Graphics::BufferHandle, 1> m_VoxelGrid;
+        Graphics::ShaderHandle m_CreateTerrainShader;
+        Graphics::ShaderEffectHandle m_CreateTerrainShaderEffect;
+
+        Graphics::ShaderHandle m_GenerateMeshShader;
+        Graphics::ShaderEffectHandle m_GenerateMeshShaderEffect;
     };
 
     class GenerateVolumeMesh : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::BufferHandle>
@@ -34,9 +39,9 @@ namespace Onyx::Volume
         static constexpr StringId32 TypeId = "Onyx::Volume::RenderGraph::GenerateVolumeMesh";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        static Graphics::BufferHandle& GetVertexBuffer() { return m_VertexBuffer[0]; }
-        static Graphics::BufferHandle& GetDrawCommandBuffer() { return m_DrawCommandBuffer[0]; }
         //static Graphics::BufferHandle GetVertexCountBuffer() { return m_VertexCountBuffer[0]; }
+
+        bool IsEnabled() override { return false; }
 
         static void SetModified(bool modified);
     private:
@@ -44,10 +49,6 @@ namespace Onyx::Volume
 
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
-
-    private:
-        static InplaceArray<Graphics::BufferHandle, 1> m_DrawCommandBuffer;
-        static InplaceArray<Graphics::BufferHandle, 1> m_VertexBuffer;
     };
 
 }

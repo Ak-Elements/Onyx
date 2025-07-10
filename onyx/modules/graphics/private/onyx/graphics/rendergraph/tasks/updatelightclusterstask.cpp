@@ -19,7 +19,7 @@ namespace Onyx::Graphics
             BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "LightClusterAABBs";
             ssboBufferProps.m_Size = sizeof(LightClusterAABB) * clusterCount;
-            ssboBufferProps.m_BindFlags = static_cast<onyxU8>(BufferType::Buffer);
+            ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Storage);
             ssboBufferProps.m_GpuAccess = GPUAccess::Write;
             ssboBufferProps.m_IsWritable = true;
             api.CreateBuffer(m_LightClustersStorageBuffers[i], ssboBufferProps);
@@ -57,7 +57,7 @@ namespace Onyx::Graphics
 
         commandBuffer.GlobalBarrier(0, VK_ACCESS_SHADER_WRITE_BIT);
 
-        commandBuffer.BindPushConstants(ShaderStage::Compute, 0, sizeof(Constants), &constants);
+        commandBuffer.BindPushConstants(ShaderStage::Compute, 0, constants);
         commandBuffer.Dispatch(CLUSTER_X, CLUSTER_Y, CLUSTER_Z);
 
         commandBuffer.GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
@@ -68,7 +68,7 @@ namespace Onyx::Graphics
         constexpr onyxU32 clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 
         BufferProperties ssboBufferProps;
-        ssboBufferProps.m_BindFlags = static_cast<onyxU8>(BufferType::Buffer);
+        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Storage);
         
         ssboBufferProps.m_IsWritable = true;
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
@@ -149,7 +149,7 @@ namespace Onyx::Graphics
 
         PushConstants constants{ context.FrameContext.ViewConstants.ViewMatrix };
 
-        commandBuffer.BindPushConstants(ShaderStage::Compute, 0, sizeof(PushConstants), &constants);
+        commandBuffer.BindPushConstants(ShaderStage::Compute, 0, constants);
 
         commandBuffer.Bind(m_LightIndexGlobalCountSSBO[frameIndex], "globalindexcountssbo");
 

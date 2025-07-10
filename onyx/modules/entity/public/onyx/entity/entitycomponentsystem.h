@@ -54,6 +54,8 @@ namespace Onyx::Entity
         }
         decltype(auto) Get() { return m_Query.GetView().template get<Types...>(m_EntityId); }
 
+        EntityId GetId() const { return m_EntityId; }
+
     private:
         EntityQuery<Types...>& m_Query;
         EntityId m_EntityId;
@@ -71,6 +73,45 @@ namespace Onyx::Entity
         DeltaGameTime DeltaTime;
         EntityRegistry& Registry;
         IEngine& Engine;
+    };
+
+    struct EntityCommandBuffer
+    {
+        EntityCommandBuffer(EntityRegistry& registry)
+            : m_Registry(&registry)
+        {
+        }
+
+        // TODO: they should probably be run at the end of the frame not at the end of the system call
+        ~EntityCommandBuffer()
+        {
+            for (const auto queuedCommand : m_QueuedCommands)
+            {
+                queuedCommand();
+            }
+        }
+
+        template <typename T>
+        void AddComponent(EntityId entityId)
+        {
+            m_QueuedCommands.push_back([registry = m_Registry, entityId]()
+            {
+                registry->AddComponent<T>(entityId);
+            });
+        }
+
+        template <typename T>
+        void RemoveComponent(EntityId entityId)
+        {
+            m_QueuedCommands.push_back([registry = m_Registry, entityId]()
+            {
+                registry->RemoveComponent<T>(entityId);
+            });
+        }
+
+    private:
+        EntityRegistry* m_Registry = nullptr;
+        DynamicArray<InplaceFunction<void()>> m_QueuedCommands;
     };
 
     template <typename T>
@@ -113,6 +154,19 @@ namespace Onyx::Entity
             return context.DeltaTime;
         }
     };
+
+    template <>
+    class DependentFunctionArg<EntityCommandBuffer> : public IDependentFunctionArg
+    {
+    public:
+        ~DependentFunctionArg() override = default;
+
+        static EntityCommandBuffer Get(const ECSExecutionContext& context)
+        {
+            return EntityCommandBuffer(context.Registry);
+        }
+    };
+
 
     class EntityComponentSystemsGraph
     {

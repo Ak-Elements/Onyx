@@ -1,11 +1,17 @@
 #version 460 core 
 
+#extension GL_EXT_buffer_reference : require
+#extension GL_EXT_buffer_reference2 : require
+
 #include "includes/debug/print.h"
 #include "includes/volume/cubicalmarchingsquares.h"
 
+#define PER_CHUNK_MESH_DATA 1
+
 compute
 {
-    layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+    #define TERRAIN_SHADER_LOCAL_SIZE 8
+    layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = TERRAIN_SHADER_LOCAL_SIZE, local_size_z = TERRAIN_SHADER_LOCAL_SIZE) in;
 
     struct Voxel
     {
@@ -13,12 +19,13 @@ compute
         vec4 Gradient;
     };
 
-    layout (std430, set = 1, binding = 0) readonly buffer Voxels
-    {
-        Voxel VoxelGrid[];
-    };
  
-    layout (std430, set = 1, binding = 1) buffer MeshVertices
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer Grid
+    {
+        Voxel Cells[];
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer VertexBuffer
     {
         Vertex Vertices[];
     };
@@ -31,25 +38,49 @@ compute
         uint FirstInstance;
     };
 
-    layout (std430, set = 1, binding = 2) buffer DrawCommandBuffer
+    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer DrawCommandBuffer
     {
         VkDrawIndirectCommand Commands;
     };
 
+     layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer VertexCountBuffer
+    {
+        uint Count;
+    };
+
     layout(push_constant) uniform Constants
     {
+        Grid GridPointer;
+        VertexBuffer VertexBufferPointer;
+        
+        vec3 Transform;
         float CellSize;
+
+        VertexCountBuffer VertexCountBufferPointer;
+        DrawCommandBuffer DrawCommandBufferPointer;
+
+        uint DrawCommandIndex;
+        vec3 Padding;
     } u_Constants;
 
     void main()
     {
         if (gl_GlobalInvocationID == uvec3(0,0,0))
         {
-            Commands.InstanceCount = 1;
-            Commands.VertexCount = 0;
-            Commands.FirstVertex = 0;
-            Commands.FirstInstance = 0;
+            u_Constants.DrawCommandBufferPointer.Commands.InstanceCount = 1;
+#if PER_CHUNK_MESH_DATA
+            u_Constants.DrawCommandBufferPointer.Commands.VertexCount = 0;
+#else
+            u_Constants.DrawCommandBufferPointer.Commands.VertexCount = 21504 * 36;
+            u_Constants.VertexCountBufferPointer.Count = 0;
+#endif
+            u_Constants.DrawCommandBufferPointer.Commands.FirstVertex = 0;
+            u_Constants.DrawCommandBufferPointer.Commands.FirstInstance = 0;
         }
+
+#if !PER_CHUNK_MESH_DATA
+        uint bufferOffset = u_Constants.DrawCommandIndex * 21504;
+#endif
 
         vec3 corners[8];
         vec4 hermiteData[8];
@@ -62,14 +93,14 @@ compute
         
         vec3 cellPosition = vec3(voxelCoordinate) * size;
 
-        corners[0] = (voxelCoordinate + vec3(0,0,0)) * size;
-        corners[1] = (voxelCoordinate + vec3(0,0,1)) * size;
-        corners[2] = (voxelCoordinate + vec3(0,1,0)) * size;
-        corners[3] = (voxelCoordinate + vec3(0,1,1)) * size;
-        corners[4] = (voxelCoordinate + vec3(1,0,0)) * size;
-        corners[5] = (voxelCoordinate + vec3(1,0,1)) * size;
-        corners[6] = (voxelCoordinate + vec3(1,1,0)) * size;
-        corners[7] = (voxelCoordinate + vec3(1,1,1)) * size;
+        corners[0] = u_Constants.Transform + (voxelCoordinate + vec3(0,0,0)) * size;
+        corners[1] = u_Constants.Transform + (voxelCoordinate + vec3(0,0,1)) * size;
+        corners[2] = u_Constants.Transform + (voxelCoordinate + vec3(0,1,0)) * size;
+        corners[3] = u_Constants.Transform + (voxelCoordinate + vec3(0,1,1)) * size;
+        corners[4] = u_Constants.Transform + (voxelCoordinate + vec3(1,0,0)) * size;
+        corners[5] = u_Constants.Transform + (voxelCoordinate + vec3(1,0,1)) * size;
+        corners[6] = u_Constants.Transform + (voxelCoordinate + vec3(1,1,0)) * size;
+        corners[7] = u_Constants.Transform + (voxelCoordinate + vec3(1,1,1)) * size;
 
         uint rightIndex = min(voxelCoordinate.x + 1, gridSize.x - 1);
         uint topIndex = min(voxelCoordinate.y + 1, gridSize.y - 1);
@@ -84,14 +115,14 @@ compute
         uint voxelIndex6 = rightIndex + gridSize.x * (topIndex + gridSize.y * voxelCoordinate.z);
         uint voxelIndex7 = rightIndex + gridSize.x * (topIndex + gridSize.y * frontIndex);
 
-        Voxel corner0Voxel = VoxelGrid[voxelIndex0];
-        Voxel corner1Voxel = VoxelGrid[voxelIndex1];
-        Voxel corner2Voxel = VoxelGrid[voxelIndex2];
-        Voxel corner3Voxel = VoxelGrid[voxelIndex3];
-        Voxel corner4Voxel = VoxelGrid[voxelIndex4];
-        Voxel corner5Voxel = VoxelGrid[voxelIndex5];
-        Voxel corner6Voxel = VoxelGrid[voxelIndex6];
-        Voxel corner7Voxel = VoxelGrid[voxelIndex7];
+        Voxel corner0Voxel = u_Constants.GridPointer.Cells[voxelIndex0];
+        Voxel corner1Voxel = u_Constants.GridPointer.Cells[voxelIndex1];
+        Voxel corner2Voxel = u_Constants.GridPointer.Cells[voxelIndex2];
+        Voxel corner3Voxel = u_Constants.GridPointer.Cells[voxelIndex3];
+        Voxel corner4Voxel = u_Constants.GridPointer.Cells[voxelIndex4];
+        Voxel corner5Voxel = u_Constants.GridPointer.Cells[voxelIndex5];
+        Voxel corner6Voxel = u_Constants.GridPointer.Cells[voxelIndex6];
+        Voxel corner7Voxel = u_Constants.GridPointer.Cells[voxelIndex7];
         
         hermiteData[0] = corner0Voxel.Gradient;
         hermiteData[1] = corner1Voxel.Gradient;
@@ -118,17 +149,24 @@ compute
 
             if (outComponents[i].VertexCount == 3)
             {
-                uint vertexOffset = atomicAdd(Commands.VertexCount, 3);
-
-                Vertices[vertexOffset++] = outComponents[i].Vertices[0];
-                Vertices[vertexOffset++] = outComponents[i].Vertices[2];
-                Vertices[vertexOffset++] = outComponents[i].Vertices[1];
+#if PER_CHUNK_MESH_DATA
+                uint vertexOffset = atomicAdd(u_Constants.DrawCommandBufferPointer.Commands.VertexCount, 3);
+#else
+                uint vertexOffset = bufferOffset + atomicAdd(u_Constants.VertexCountBufferPointer.Count, 3);
+#endif
+                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outComponents[i].Vertices[0];
+                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outComponents[i].Vertices[2];
+                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outComponents[i].Vertices[1];
             }
             else
             {  
                 uint vertCount = outComponents[i].VertexCount;
-                uint vertexOffset = atomicAdd(Commands.VertexCount, vertCount * 3); 
- 
+#if PER_CHUNK_MESH_DATA
+                uint vertexOffset = atomicAdd(u_Constants.DrawCommandBufferPointer.Commands.VertexCount, vertCount * 3);
+#else
+                uint vertexOffset = bufferOffset + atomicAdd(u_Constants.VertexCountBufferPointer.Count, vertCount * 3); 
+#endif
+
                 vec4 triangleFanCenter = vec4(0.0f);
                 vec4 triangleFanCenterNormal = vec4(0.0f);
 
@@ -149,15 +187,15 @@ compute
                 {
                     if (vertexIndex == lastVertexIndex)
                     { 
-                        Vertices[vertexOffset++] =  outComponents[i].Vertices[0];
-                        Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex];
-                        Vertices[vertexOffset++] =  triangleFanVertex;
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[0];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  triangleFanVertex;
                     }
                     else
                     {
-                        Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex + 1];
-                        Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex];
-                        Vertices[vertexOffset++] =  triangleFanVertex;
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex + 1];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  triangleFanVertex;
                     }
                 }
             }

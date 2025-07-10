@@ -272,7 +272,7 @@ namespace Onyx::Graphics::Vulkan
         vkCmdBindIndexBuffer(m_CommandBuffer, buffer.GetHandle(), offset, vkIndexType);
     }
     
-    void VulkanCommandBuffer::BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, void* data)
+    void VulkanCommandBuffer::BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data)
     {
         const Vulkan::PipelineLayout& pipelineLayout = m_CurrentPipeline->GetPipelineLayout();
         vkCmdPushConstants(m_CommandBuffer, pipelineLayout.GetHandle(), ToVulkanStage(stage), offset, size, data);

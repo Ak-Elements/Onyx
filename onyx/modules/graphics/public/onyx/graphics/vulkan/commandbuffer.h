@@ -34,7 +34,6 @@ namespace Onyx::Graphics::Vulkan
         void BindVertexBuffer(const BufferHandle& buffer, onyxU32 binding, onyxU32 offset) override;
         void BindVertexBuffers(const InplaceArray<BufferHandle, 8>& bufferHandles, const InplaceArray<onyxU32, 8> bufferOffsets, onyxU32 firstBinding, onyxU32 bindingCount) override;
         void BindIndexBuffer(const BufferHandle& buffer, onyxU32 offset, IndexType indexType) override;
-        void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, void* data) override;
 
         void Bind(const TextureHandle& texture, const String& bindingName) override;
         void Bind(const BufferHandle& buffer, const String& bindingName) override;
@@ -75,6 +74,7 @@ namespace Onyx::Graphics::Vulkan
         void PreDraw();
         void BindDescriptorSets() override;
         void BindPipeline(const PipelineHandle& pipeline) override;
+        void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data) override;
 
     private:
         const VulkanGraphicsApi& m_Api;

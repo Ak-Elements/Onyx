@@ -67,7 +67,7 @@ namespace Onyx
             ++constants.Count;
         }
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, sizeof(PushConstant), &constants);
+        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, constants);
         commandBuffer.Draw(Graphics::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 }

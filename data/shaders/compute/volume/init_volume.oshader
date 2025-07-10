@@ -1,20 +1,24 @@
 #version 460 core 
 
+#extension GL_EXT_buffer_reference : require
+#extension GL_EXT_buffer_reference2 : require
+
 #include "includes/volume/csg.h"
 
 compute
 {
-    layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+    #define TERRAIN_SHADER_LOCAL_SIZE 8
+    layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = TERRAIN_SHADER_LOCAL_SIZE, local_size_z = TERRAIN_SHADER_LOCAL_SIZE) in;
     
     struct Voxel
     {
         vec4 Position;
         vec4 Gradient;
     };
-
-    layout (std430, set = 1, binding = 0) buffer Voxels
+ 
+    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer Grid
     {
-        Voxel VoxelGrid[];
+        Voxel Cells[];
     };
     
     layout(push_constant) uniform Constants
@@ -22,7 +26,9 @@ compute
         vec3 Normal;
         float Distance;
 
+        Grid GridPointer;
         float CellSize;
+        float Padding;
     } u_Constants;
 
     void main()
@@ -33,6 +39,6 @@ compute
         vec3 position = vec3(gl_GlobalInvocationID) * u_Constants.CellSize;
         uint voxelIndex = globalID.x + gridSize.x * (globalID.y + gridSize.y * globalID.z);
 
-        VoxelGrid[voxelIndex] = Voxel(vec4(position,0.0f), GetPlaneValueAndGradient(position, u_Constants.Normal, u_Constants.Distance) );
+        u_Constants.GridPointer.Cells[voxelIndex] = Voxel( vec4(position,0.0f), GetPlaneValueAndGradient(position, u_Constants.Normal, u_Constants.Distance) );
     }
 }

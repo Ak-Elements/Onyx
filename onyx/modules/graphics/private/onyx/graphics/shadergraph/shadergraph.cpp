@@ -48,7 +48,7 @@ namespace Onyx::Graphics
 
         std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
 
-        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, sizeof(PushConstants), &constants);
+        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
     }
 
     bool ShaderGraph::Serialize(Serializer& serializer) const

@@ -213,6 +213,7 @@ namespace Onyx::Editor
 
         ImGui::SetNextWindowClass(m_WindowClass);
         //ImGui::SetNextWindowDockID(dockspace);
+        m_TerrainPanel.SetSceneViewPanelId(ImGui::GetID(m_SceneViewPanelId.c_str()));
         if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::SceneEditor::SceneViewport, m_SceneViewPanelId)))
         {
             m_ViewportBounds.Position = { static_cast<onyxS16>(ImGui::GetCursorPos().x), static_cast<onyxS16>(ImGui::GetCursorPos().y) };
@@ -431,7 +432,7 @@ namespace Onyx::Editor
         transform.SetRotation(Vector3f32(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
-        camera.Camera.SetPerspective(45.0f, 0.1f, 1000.0f);
+        camera.Camera.SetPerspective(45.0f, 0.1f, 10000.0f);
         camera.Camera.SetViewportExtents(m_Api.GetSwapchainExtent());
         GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
         GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);

@@ -38,5 +38,5 @@ msgstr "Volume Source"
 msgid "Onyx::GameCore::Components::FreeCameraControllerComponent"
 msgstr "Free Camera Controller"
 
-msgid "Onyx::Volume::Components::VolumeTerrainComponent"
+msgid "Onyx::Volume::Components::VolumeTerrainSettingsComponent"
 msgstr "Volume Terrain"

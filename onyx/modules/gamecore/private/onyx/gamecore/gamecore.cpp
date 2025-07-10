@@ -93,6 +93,7 @@ namespace Onyx::GameCore
         SceneFrameData& sceneFrameData = static_cast<SceneFrameData&>(*frameContext.FrameData);
         sceneFrameData.m_StaticMeshDrawCalls.clear();
         sceneFrameData.m_StaticMeshIndirectDrawCalls.clear();
+        sceneFrameData.m_VoxelChunksToInit.clear();
 
         Entity::ECSExecutionContext context { deltaTime, Scene->GetRegistry(), engine };
         m_ECSGraph.Update(context);

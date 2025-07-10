@@ -104,18 +104,26 @@ namespace Onyx::GameCore
             }
         }
 
+        if (sceneFrameData.m_StaticMeshIndirectDrawCalls.empty())
+            return;
+
+        const StaticMeshIndirectDrawCall& first = sceneFrameData.m_StaticMeshIndirectDrawCalls.front();
+        PrepareShaderGraph(commandBuffer, context.FrameContext, *first.Material);
+
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
-            PrepareShaderGraph(commandBuffer, context.FrameContext, *indirectDrawCall.Material);
-
             const onyxU32 instanceCount = 1;
 
-            commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
+            commandBuffer.BindVertexBuffer(first.VertexData, 0, 0);
 
             onyxU32 instanceOffset = 0;
 
-            commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
-            instanceOffset += instanceCount;
+            for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
+            {
+                commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
+                commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
+                instanceOffset += instanceCount;
+            }
         }
     }
 
@@ -160,7 +168,7 @@ namespace Onyx::GameCore
         constants.Debug = 0;
         std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, sizeof(PushConstants), &constants);
+        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64, constants);
     }
 
     bool StaticMeshRenderGraphNode::IsEnabled()

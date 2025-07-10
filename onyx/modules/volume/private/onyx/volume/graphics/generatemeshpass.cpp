@@ -1,79 +1,112 @@
+#include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/volume/graphics/generatemeshpass.h>
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/profiler/profiler.h>
 
+#include <onyx/volume/systems/volumeterrainsystem.h>
+
 namespace Onyx::Volume
 {
     namespace 
     {
-        constexpr float CellSize = 0.5f;
+        //constexpr float CellSize = 8.0f;
         bool loc_IsModified = false;
     }
 
-    InplaceArray<Graphics::BufferHandle, 1> CreateVolumeMesh::m_VoxelGrid;
-    InplaceArray<Graphics::BufferHandle, 1> GenerateVolumeMesh::m_VertexBuffer;
-    InplaceArray<Graphics::BufferHandle, 1> GenerateVolumeMesh::m_DrawCommandBuffer;
 
     CreateVolumeMesh::CreateVolumeMesh()
     {
-        m_ShaderPath = "engine:/shaders/compute/volume/init_volume.oshader";
     }
 
-    void CreateVolumeMesh::OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void CreateVolumeMesh::OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& /*resourceCache*/)
     {
-        constexpr onyxU32 clusterCount = 8 * 8 * 8 * (8 * 8 * 8);
+        m_CreateTerrainShader = api.GetShader("engine:/shaders/compute/volume/init_volume.oshader");
+        m_GenerateMeshShader = api.GetShader("engine:/shaders/compute/volume/generate_volume.oshader");
 
-        for (onyxU8 i = 0; i < 1; ++i)
-        {
-            Graphics::BufferProperties ssboBufferProps;
-            ssboBufferProps.m_DebugName = "VoxelGrid";
-            ssboBufferProps.m_Size =  2 * sizeof(Vector4f32) * clusterCount;
-            ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer);
-            ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-            api.CreateBuffer(m_VoxelGrid[i], ssboBufferProps);
-        }
+        Graphics::PipelineProperties properties;
+        properties.Shader = m_CreateTerrainShader;
+        m_CreateTerrainShaderEffect = api.CreateShaderEffect(properties);
 
-        onyxU64 globalId = GetOutputPin(0)->GetGlobalId();
-        resourceCache[globalId].Info.Id = globalId;
-        resourceCache[globalId].Info.Name = "voxels";
-        resourceCache[globalId].Info.Type = Graphics::RenderGraphResourceType::Buffer;
-        resourceCache[globalId].Handle = m_VoxelGrid[0];
-
-        resourceCache[globalId].Info.Id = globalId;
+        properties.Shader = m_GenerateMeshShader;
+        m_GenerateMeshShaderEffect = api.CreateShaderEffect(properties);
     }
 
-    void CreateVolumeMesh::OnBeginFrame(const Graphics::RenderGraphContext& context)
+    void CreateVolumeMesh::OnBeginFrame(const Graphics::RenderGraphContext& /*context*/)
     {
         ONYX_PROFILE_FUNCTION;
-
-        onyxU64 globalId = GetOutputPin(0)->GetGlobalId();
-        context.Graph.GetResource(globalId).Handle = m_VoxelGrid[0];
     }
 
-    void CreateVolumeMesh::OnRender(Graphics::RenderGraphContext& /*context*/, Graphics::CommandBuffer& commandBuffer)
+    void CreateVolumeMesh::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
     {
-        static bool hasRun = false;
-        if (hasRun)
-            return;
+        ONYX_PROFILE_FUNCTION
 
-        ONYX_PROFILE_FUNCTION;
-        hasRun = true;
-
-        struct PushConstants
+        struct CreatePushConstants
         {
             Vector3f32 Normal;
             float Distance;
 
+            onyxU64 GridAddress;
             float CellSize;
         };
 
-        PushConstants constants{ Vector3f32::Y_Unit(), 1.0f, CellSize };
+        struct GenerateMeshPushConstants
+        {
+            onyxU64 GridAddress;
+            onyxU64 VerticesAddress;
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, sizeof(PushConstants), &constants);
-        commandBuffer.Dispatch(8, 8, 8);
+            Vector3f32 Transform;
+            float CellSize;
 
-        loc_IsModified = true;
+            onyxU64 VertexCountAddress;
+            onyxU64 DrawCommandAddress;
+
+            onyxU32 DrawCommandIndex;
+        };
+
+        const Graphics::FrameContext& frameContext = context.FrameContext;
+        if (frameContext.FrameData == nullptr)
+            return;
+
+        const GameCore::SceneFrameData& sceneFrameData = static_cast<const GameCore::SceneFrameData&>(*frameContext.FrameData);
+
+        for (const auto& volumeChunk : sceneFrameData.m_VoxelChunksToInit)
+        {
+            const onyxU32 dispatchXYX = (volumeChunk.Resolution + (Terrain::TERRAIN_SHADER_LOCAL_SIZE - 1)) / Terrain::TERRAIN_SHADER_LOCAL_SIZE;
+
+            Graphics::BufferHandle handle(volumeChunk.Grid);
+            commandBuffer.BindShaderEffect(m_CreateTerrainShaderEffect);
+
+            const float cellSize = static_cast<onyxF32>(volumeChunk.Size) / static_cast<onyxF32>(volumeChunk.Resolution);
+            CreatePushConstants constants{ Vector3f32::Y_Unit(), 1.0f, volumeChunk.Grid->GetGpuAddress() , cellSize };
+
+            commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
+            commandBuffer.Barrier(handle, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            commandBuffer.Dispatch(dispatchXYX, dispatchXYX, dispatchXYX);
+
+            commandBuffer.Barrier(handle, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+
+#if PER_CHUNK_MESH_DATA
+            Vector3f32 chunkPosition;
+#else
+            Vector3f32 chunkPosition(volumeChunk.Coord);
+            chunkPosition *= 32.0f;
+#endif
+            GenerateMeshPushConstants meshPushConstants
+            {
+                volumeChunk.Grid->GetGpuAddress(),
+                volumeChunk.MeshVertices->GetGpuAddress(),
+                chunkPosition,
+                cellSize,
+                volumeChunk.VertexCount ? volumeChunk.VertexCount->GetGpuAddress() : 0,
+                volumeChunk.IndirectDraw->GetGpuAddress(),
+                volumeChunk.Index,
+            };
+
+            commandBuffer.BindShaderEffect(m_GenerateMeshShaderEffect);
+            commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, meshPushConstants);
+            commandBuffer.Dispatch(dispatchXYX, dispatchXYX, dispatchXYX);
+        }
     }
 
     GenerateVolumeMesh::GenerateVolumeMesh()
@@ -86,49 +119,13 @@ namespace Onyx::Volume
         loc_IsModified = modified;
     }
 
-    void GenerateVolumeMesh::OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void GenerateVolumeMesh::OnInit(Graphics::GraphicsApi& /*api*/, RenderGraphResourceCache& /*resourceCache*/)
     {
-        constexpr onyxU32 clusterCount = 1 << 19;
-
-        struct VkDrawIndirectCommand
-        {
-            uint32_t    VertexCount;
-            uint32_t    InstanceCount;
-            uint32_t    FirstVertex;
-            uint32_t    FirstInstance;
-        };
-
-        for (onyxU8 i = 0; i < 1; ++i)
-        {
-            Graphics::BufferProperties ssboBufferProps;
-            ssboBufferProps.m_DebugName = "VolumeMeshVertices";
-            ssboBufferProps.m_Size = (sizeof(Vector3f32) + sizeof(Vector3f32)) * clusterCount;
-            ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer | Graphics::BufferType::Vertex);
-            ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-            api.CreateBuffer(m_VertexBuffer[i], ssboBufferProps);
-
-            ssboBufferProps.m_DebugName = "VolumeMeshDrawCommandBuffer";
-            ssboBufferProps.m_Size = sizeof(VkDrawIndirectCommand);
-            ssboBufferProps.m_BindFlags = static_cast<onyxU8>(Graphics::BufferType::Buffer | Graphics::BufferType::Indirect);
-            ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-            api.CreateBuffer(m_DrawCommandBuffer[i], ssboBufferProps);
-        }
-
-        onyxU64 globalId = GetOutputPin(0)->GetGlobalId();
-        resourceCache[globalId].Info.Id = globalId;
-        resourceCache[globalId].Info.Name = "meshvertices";
-        resourceCache[globalId].Info.Type = Graphics::RenderGraphResourceType::Buffer;
-        resourceCache[globalId].Handle = m_VertexBuffer[0];
-
-        resourceCache[globalId].Info.Id = globalId;
     }
 
-    void GenerateVolumeMesh::OnBeginFrame(const Graphics::RenderGraphContext& context)
+    void GenerateVolumeMesh::OnBeginFrame(const Graphics::RenderGraphContext& /*context*/)
     {
         ONYX_PROFILE_FUNCTION;
-
-        onyxU64 globalId = GetOutputPin(0)->GetGlobalId();
-        context.Graph.GetResource(globalId).Handle = m_VertexBuffer[0];
     }
 
     void GenerateVolumeMesh::OnRender(Graphics::RenderGraphContext& /*context*/, Graphics::CommandBuffer& commandBuffer)
