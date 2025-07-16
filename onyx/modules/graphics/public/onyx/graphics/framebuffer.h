@@ -23,9 +23,9 @@ namespace Onyx::Graphics
 		String m_DebugName;
 
 	    bool operator==(const FramebufferSettings& other) const { return Hash() == other.Hash(); }
-
+		onyxU64 Hash() const;
     private:
-	    onyxU64 Hash() const;
+	   
     };
 
     class Framebuffer : public RefCounted
