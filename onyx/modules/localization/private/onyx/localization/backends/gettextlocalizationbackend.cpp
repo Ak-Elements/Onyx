@@ -117,7 +117,7 @@ namespace Onyx::Localization
 
         onyxS32 index = database.GetPluralFunction()(count);
         const DynamicArray<String>& localizedTexts = it->second;
-        if (index > localizedTexts.size())
+        if (index > static_cast<onyxS32>(localizedTexts.size()))
         {
             return std::nullopt;
         }

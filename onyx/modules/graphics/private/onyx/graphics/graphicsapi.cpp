@@ -24,7 +24,7 @@ ONYX_PROFILE_CREATE_TAG(Graphics, 0x1bf266)
 
 namespace
 {
-    const char* const GPU_FRAME_NAME = "Render";
+    //const char* const GPU_FRAME_NAME = "Render";
 }
 
 namespace Onyx::Graphics

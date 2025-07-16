@@ -291,7 +291,7 @@ namespace Onyx::Editor
                 
                 if (ImGuizmo::Manipulate(&(viewMatrix[0][0]), &(projectionMatrix[0][0]), operation, ImGuizmo::LOCAL, &(transformMatrix[0][0])))
                 {
-                    Vector3f32 translation, rotation, scale;
+                    Vector3f32 translation, scale;
                     Rotor3<onyxF32> rotationRotor;
                     transformMatrix.Decompose(translation, rotationRotor, scale);
 

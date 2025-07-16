@@ -17,6 +17,10 @@ namespace Onyx::Graphics::Vulkan
 	inline PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXT = nullptr;
 	inline PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXT = nullptr;
 
+	inline PFN_vkResetQueryPoolEXT vkResetQueryPoolEXT = nullptr;
+	inline PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT vkGetPhysicalDeviceCalibrateableTimeDomainsEXT = nullptr;
+	inline PFN_vkGetCalibratedTimestampsEXT vkGetCalibratedTimestampsEXT = nullptr;
+
 	inline String errorString(VkResult errorCode)
 	{
 		switch (errorCode)
@@ -77,7 +81,7 @@ namespace Onyx::Graphics::Vulkan
 		case VkShaderStageFlagBits::VK_SHADER_STAGE_ALL:
 			return ShaderStage::All;
 		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: %s", Enums::ToString(stage).data());
+			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
 			return ShaderStage::Invalid;
 		}
 	}
@@ -89,14 +93,13 @@ namespace Onyx::Graphics::Vulkan
 		case ShaderStage::Vertex:
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
 		case ShaderStage::Fragment:
-		
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
 		case ShaderStage::Compute:
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;
 		case ShaderStage::All:
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
 		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: %s", Enums::ToString(stage).data());
+			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 		}
 	}
@@ -258,7 +261,7 @@ namespace Onyx::Graphics::Vulkan
 		case Access::ShaderWrite:
 			return VK_ACCESS_2_SHADER_WRITE_BIT;
 		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: %s", Enums::ToString(access).data());
+			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(access).data());
 			return VK_ACCESS_2_NONE;
 
         }
@@ -277,7 +280,7 @@ namespace Onyx::Graphics::Vulkan
 	VkResult res = (f);																\
 	if (res != VK_SUCCESS)															\
 	{																				\
-		ONYX_LOG_FATAL("VkResult is %s ", vks::tools::errorString(res)));	\
+		ONYX_LOG_FATAL("VkResult is {} ", vks::tools::errorString(res)));	\
 		assert(res == VK_SUCCESS);													\
 	}																				\
 }
@@ -287,17 +290,17 @@ namespace Onyx::Graphics::Vulkan
 	VkResult res = (f);							\
 	if (res != VK_SUCCESS)						\
 	{											\
-		ONYX_LOG_FATAL("VkResult is %s", Onyx::Graphics::Vulkan::errorString(res));	\
+		ONYX_LOG_FATAL("VkResult is {}", Onyx::Graphics::Vulkan::errorString(res));	\
 		ONYX_ASSERT(res == VK_SUCCESS);			\
 	}											\
 }
 
-#define VK_CHECK_RESULT_RETURN_ON_FAIL(f)					\
+#define VK_CHECK_RESULT_RETURN_ON_FAIL(f)		\
 {												\
 	VkResult res = (f);							\
 	if (res != VK_SUCCESS)						\
 	{											\
-		ONYX_LOG_FATAL("VkResult is %s", Onyx::Graphics::Vulkan::errorString(res));	\
+		ONYX_LOG_FATAL("VkResult is {}", Onyx::Graphics::Vulkan::errorString(res));	\
 		ONYX_ASSERT(res == VK_SUCCESS);			\
 	    return false;							\
 	}											\
@@ -309,6 +312,6 @@ public:																	\
     VulkanHandleType* GetHandlePtr() { return &m_##name; }				\
     const VulkanHandleType* GetHandlePtr() const { return &m_##name; }	\
     VulkanHandleType GetHandle() { return m_##name; }					\
-	VulkanHandleType GetHandle() const { return m_##name; }		\
+	VulkanHandleType GetHandle() const { return m_##name; }				\
 private:																\
 	VulkanHandleType m_##name = defaultValue;
