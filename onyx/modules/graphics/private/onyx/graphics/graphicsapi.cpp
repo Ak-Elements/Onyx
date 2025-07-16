@@ -207,7 +207,7 @@ namespace Onyx::Graphics
             m_RenderGraph->EndFrame(currentFrameContext);
 
         m_GraphicsApi->EndFrame(currentFrameContext);
-
+        
         m_PresentThread.QueuePresent(m_FrameIndex, m_GraphicsApi->GetAcquiredBackbufferIndex());
 
         /*if (hasSucceeded == false)

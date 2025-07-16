@@ -8,7 +8,6 @@
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/graphrunner.h>
-#include <onyx/profiler/profiler.h>
 
 namespace Onyx::GameCore
 {
@@ -100,29 +99,25 @@ namespace Onyx::GameCore
             //for (Matrix4<onyxF32> transformMatrix : drawCall.m_Transforms)
             {
                 commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, drawCall.Indices->GetProperties().m_Size / 4, instanceCount, 0, 0, instanceOffset);
-                instanceOffset += instanceCount;
+                //instanceOffset += instanceCount;
             }
         }
 
         if (sceneFrameData.m_StaticMeshIndirectDrawCalls.empty())
             return;
 
+       
         const StaticMeshIndirectDrawCall& first = sceneFrameData.m_StaticMeshIndirectDrawCalls.front();
         PrepareShaderGraph(commandBuffer, context.FrameContext, *first.Material);
 
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
-            const onyxU32 instanceCount = 1;
-
             commandBuffer.BindVertexBuffer(first.VertexData, 0, 0);
-
-            onyxU32 instanceOffset = 0;
 
             for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
             {
                 commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
                 commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
-                instanceOffset += instanceCount;
             }
         }
     }

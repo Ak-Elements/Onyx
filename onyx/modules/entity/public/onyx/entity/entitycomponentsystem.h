@@ -85,7 +85,7 @@ namespace Onyx::Entity
         // TODO: they should probably be run at the end of the frame not at the end of the system call
         ~EntityCommandBuffer()
         {
-            for (const auto queuedCommand : m_QueuedCommands)
+            for (const auto& queuedCommand : m_QueuedCommands)
             {
                 queuedCommand();
             }

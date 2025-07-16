@@ -418,11 +418,10 @@ void Dualgrid<OctreeNodeT>::AddDualCell(const OctreeNodeT& node0, const OctreeNo
 
     m_IsoSurface->AddTriangles(corners, values, analyticalNormals);
 
-    const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
-    const onyxF32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
-    Vector3f32 from = rootPosition - Vector3f32(halfExtents, halfExtents, halfExtents);
-    Vector3f32 to = rootPosition + Vector3f32(halfExtents, halfExtents, halfExtents);
-
+    //const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
+    //const onyxF32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
+    //Vector3f32 from = rootPosition - Vector3f32(halfExtents, halfExtents, halfExtents);
+    //Vector3f32 to = rootPosition + Vector3f32(halfExtents, halfExtents, halfExtents);
 
     //if (corners[0][2] == from[2]/* && corners[0].z != mTotalFrom.z*/)
     //{
@@ -727,11 +726,10 @@ void Dualgrid<OctreeNodeT>::AddBorderDualCell(const Vector3f32& position0, const
 
     m_IsoSurface->AddTriangles(corners, values, analyticalNormals);
 
-    const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
-    const onyxF32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
-    Vector3f32 from = rootPosition - Vector3f32(halfExtents, halfExtents, halfExtents);
-    Vector3f32 to = rootPosition + Vector3f32(halfExtents, halfExtents, halfExtents);
-
+    //const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
+    //const onyxF32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
+    //Vector3f32 from = rootPosition - Vector3f32(halfExtents, halfExtents, halfExtents);
+    //Vector3f32 to = rootPosition + Vector3f32(halfExtents, halfExtents, halfExtents);
 
     // disable marching squares skirts
     //if (corners[0][2] == from[2]/* && corners[0].z != mTotalFrom.z*/)
@@ -758,7 +756,6 @@ void Dualgrid<OctreeNodeT>::AddBorderDualCell(const Vector3f32& position0, const
     //{
     //    m_MarchingSquaresIsoSurface->AddMarchingSquaresTriangles(corners, values, IsoSurface<onyxF32>::MS_CORNERS_BOTTOM);
     //}
-
 }
 
 }

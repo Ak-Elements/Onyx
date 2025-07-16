@@ -43,8 +43,8 @@ public:
 
     AsyncTask(AsyncTask&& other) noexcept
         : m_TaskFunctor(std::move(other.m_TaskFunctor))
-        , m_StopToken(std::move(other.m_StopToken))
         , m_Promise(std::move(other.m_Promise))
+        , m_StopToken(std::move(other.m_StopToken))
     {
     }
 

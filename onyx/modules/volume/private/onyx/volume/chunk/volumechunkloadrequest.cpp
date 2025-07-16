@@ -79,18 +79,6 @@ namespace Onyx::Volume
 //       1-------4------5 
 //                        
 
-        const onyxU32 COLORS[8] =
-        {
-            0xFF0000FF,
-            0xFF00FF00,
-            0xFFFF0000,
-            0xFFFF00FF,
-            0xFF00FFFF,
-            0xFF0F0F0F,
-            0xFF000FFF,
-            0xFF0F00FF
-        };
-
         struct Component
         {
             DynamicArray<Vertex> Vertices;

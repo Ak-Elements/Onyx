@@ -24,7 +24,7 @@ namespace Onyx::Volume::Terrain
         Graphics::BufferHandle IndirectDrawBuffer;
 #else
         Graphics::BufferHandle VertexCount;
-#endif;
+#endif
     };
 
     struct VolumeTerrainRuntimeComponent

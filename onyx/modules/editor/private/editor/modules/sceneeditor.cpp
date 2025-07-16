@@ -37,9 +37,9 @@ namespace Onyx::Editor
         , m_Api(graphicsApi)
         , m_InputActionSystem(inputActionSystem)
         , m_AssetSystem(&assetSystem)
-        , m_WindowId(local_WindowId++)
-        , m_TerrainPanel(graphicsApi)
         , m_ComponentsPanel(localizationModule)
+        , m_TerrainPanel(graphicsApi)
+        , m_WindowId(local_WindowId++)
     {
         m_WindowClass = new ImGuiWindowClass();
         m_WindowClass->DockingAllowUnclassed = false;
@@ -432,7 +432,7 @@ namespace Onyx::Editor
         transform.SetRotation(Vector3f32(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
-        camera.Camera.SetPerspective(45.0f, 0.1f, 10000.0f);
+        camera.Camera.SetPerspective(45.0f, 0.1f, 65000.0f);
         camera.Camera.SetViewportExtents(m_Api.GetSwapchainExtent());
         GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
         GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);

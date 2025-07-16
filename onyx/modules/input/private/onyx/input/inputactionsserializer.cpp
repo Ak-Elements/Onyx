@@ -73,12 +73,11 @@ namespace Onyx
                 return false;
             }
 
-            onyxU32 boundInput;
             onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
             for (onyxU32 i = 0; i < bindingSlotsCount; ++i)
             {
                 StringView bindingSlotName = binding->GetInputBindingSlotName(i);
-                if (serializer.Write<onyxU32>(bindingSlotName.empty() ? "input" : bindingSlotName, boundInput) == false)
+                if (serializer.Write<onyxU32>(bindingSlotName.empty() ? "input" : bindingSlotName, binding->GetBoundInputForSlot(i)) == false)
                 {
                     return false;
                 }

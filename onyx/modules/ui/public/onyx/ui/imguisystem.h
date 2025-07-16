@@ -199,7 +199,6 @@ namespace Onyx
 
         private:
             Graphics::Window* window;
-            Localization::LocalizationModule* m_LocalizationModule;
             HashMap<StringId64, ImFont*> fonts;
             std::mutex mutex;
             LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;

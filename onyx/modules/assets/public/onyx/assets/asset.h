@@ -18,17 +18,17 @@ namespace Onyx::Assets
         {
         }
 
-        constexpr AssetId(const char* id)
-            : AssetId(FileSystem::Filepath(id))
+        constexpr AssetId(const char* path)
+            : AssetId(StringView(path))
         {
         }
 
-        constexpr AssetId(StringView id)
-            : AssetId(FileSystem::Filepath(id))
+        constexpr AssetId(StringView path)
+            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
         {
         }
 
-        explicit constexpr AssetId(const FileSystem::Filepath& path)
+        explicit AssetId(const FileSystem::Filepath& path)
             : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
         {
         }
