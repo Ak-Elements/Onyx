@@ -10,6 +10,7 @@ jobs:
       matrix:
         compiler:
           - { pkg: clang, exe: 'clang++', version: 18 }
+          - { pkg: g++, exe: 'g++', version: 14 }
     steps:
       - uses: actions/checkout@v4
 
