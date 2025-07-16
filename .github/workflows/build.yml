@@ -54,7 +54,7 @@ jobs:
 
       - name: Install compiler & dependencies
         run: |
-          sudo apt update && sudo apt install -y --no-install-recommends clang-18 \
+          sudo apt update && sudo apt install -y --no-install-recommends ${{ matrix.compiler.pkg }}-${{ matrix.compiler.version }} \
               libgtk-3-dev \
             && sudo rm -rf /var/lib/apt/lists/*
           wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
