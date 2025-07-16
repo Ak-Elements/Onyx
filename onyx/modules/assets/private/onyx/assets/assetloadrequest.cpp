@@ -42,7 +42,8 @@ namespace Onyx::Assets
 
         FileSystem::Filepath relativePath = MetaData.Path.lexically_relative(FileSystem::Path::GetWorkingDirectory());
         String assetName = MetaData.Path.string();
-        //ZoneText(assetName.c_str(), assetName.length());
+        
+        //tracy_scope_AssetSystem.NameFmt("%s", assetName.c_str());
 
         FileSystem::OnyxFile inputConfigFile(MetaData.Path);
         const FileSystem::JsonValue& inputConfigData = inputConfigFile.LoadJson();
