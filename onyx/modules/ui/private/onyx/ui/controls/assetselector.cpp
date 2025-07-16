@@ -31,7 +31,7 @@ namespace Onyx::Ui
         bool hasModified = false;
         DynamicArray<Assets::AssetMetaData> availableAssets;
 
-        StringView assetName;
+        String assetName;
         if (outAssetId.IsValid())
         {
             const Assets::AssetMetaData& assetMeta = assetSystem.GetAssetMeta(outAssetId);
@@ -43,7 +43,7 @@ namespace Onyx::Ui
         }
 
         Layout::BeginHorizontal("#AssetControl");
-        if (BeginCombobox("##selector", assetName.data()))
+        if (BeginCombobox("##selector", assetName))
         {
             DrawSearchBar(loc_SearchString, Localization::Generic::Search.Get(), loc_HasFocus);
             StringView searchString = Trim(loc_SearchString);
