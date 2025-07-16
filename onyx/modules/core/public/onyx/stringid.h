@@ -206,7 +206,7 @@ namespace std
     };
 
     template <>
-    struct std::formatter<Onyx::StringId32> : std::formatter<std::string>
+    struct formatter<Onyx::StringId32> : std::formatter<std::string>
     {
         auto format(Onyx::StringId32 id, format_context& ctx) const
         {
@@ -219,7 +219,7 @@ namespace std
     };
 
     template <>
-    struct std::formatter<Onyx::StringId64> : std::formatter<std::string>
+    struct formatter<Onyx::StringId64> : std::formatter<std::string>
     {
         auto format(Onyx::StringId64 id, format_context& ctx) const
         {

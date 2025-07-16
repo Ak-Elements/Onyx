@@ -80,7 +80,7 @@ namespace Onyx::GameCore
 
     void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine)
     {
-        if ((Scene.IsValid() == false) || Scene->IsLoading())
+        if ((m_Scene.IsValid() == false) || m_Scene->IsLoading())
         {
             return;
         }
@@ -95,7 +95,7 @@ namespace Onyx::GameCore
         sceneFrameData.m_StaticMeshIndirectDrawCalls.clear();
         sceneFrameData.m_VoxelChunksToInit.clear();
 
-        Entity::ECSExecutionContext context { deltaTime, Scene->GetRegistry(), engine };
+        Entity::ECSExecutionContext context { deltaTime, m_Scene->GetRegistry(), engine };
         m_ECSGraph.Update(context);
     }
 }

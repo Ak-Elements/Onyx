@@ -37,7 +37,7 @@ namespace Onyx::NodeGraph
     {
     public:
         ExecutionContext(PrepareContext& prepareContext)
-            : PrepareContext(&prepareContext)
+            : m_PrepareContext(&prepareContext)
         {
         }
 
@@ -75,8 +75,8 @@ namespace Onyx::NodeGraph
 
         const PrepareContext& GetPrepareContext() const
         {
-            ONYX_ASSERT(PrepareContext != nullptr);
-            return *PrepareContext;
+            ONYX_ASSERT(m_PrepareContext != nullptr);
+            return *m_PrepareContext;
         }
 
         // debug functions
@@ -117,7 +117,7 @@ namespace Onyx::NodeGraph
         HashMap<onyxU64, NodeContext> m_NodeContexts;
         HashMap<onyxU32, std::any> GraphData;
 
-        PrepareContext* PrepareContext = nullptr; // non owning
+        PrepareContext* m_PrepareContext = nullptr; // non owning
         NodeContext* m_CurrentNodeContext = nullptr;
     };
 }

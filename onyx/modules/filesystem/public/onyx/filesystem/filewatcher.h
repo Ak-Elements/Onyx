@@ -34,6 +34,6 @@ namespace Onyx::FileSystem
         void OnFileAction(const Filepath& path, FileAction action);
 
     private:
-        UniquePtr<efsw::FileWatcher> m_Watcher = nullptr;
+        UniquePtr<efsw::FileWatcher> m_Watcher;
     };
 }
