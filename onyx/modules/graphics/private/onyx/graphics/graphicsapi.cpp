@@ -166,7 +166,7 @@ namespace Onyx::Graphics
 
         if (m_Camera != nullptr)
         {
-            ViewConstants& viewConstants = currentFrameContext.ViewConstants;
+            ViewConstants& viewConstants = currentFrameContext.m_ViewConstants;
             viewConstants.ProjectionMatrix = m_Camera->GetProjectionMatrix();
             viewConstants.InverseProjectionMatrix = m_Camera->GetProjectionMatrixInverse();
             viewConstants.ViewMatrix = m_Camera->GetViewMatrix();
@@ -180,7 +180,7 @@ namespace Onyx::Graphics
             viewConstants.Far = m_Camera->GetFar();
         }
 
-        m_ViewConstantsUniformBuffers[m_FrameIndex]->SetData(0, &currentFrameContext.ViewConstants, sizeof(ViewConstants));
+        m_ViewConstantsUniformBuffers[m_FrameIndex]->SetData(0, &currentFrameContext.m_ViewConstants, sizeof(ViewConstants));
         
         m_RenderGraph->BeginFrame(currentFrameContext);
 
@@ -324,14 +324,14 @@ namespace Onyx::Graphics
 
     ShaderEffectHandle GraphicsApi::CreateShaderEffect(const PipelineProperties& properties)
     {
-        ONYX_ASSERT(properties.Shader.IsValid(), "Shader handle is invalid.");
+        ONYX_ASSERT(properties.m_Shader.IsValid(), "Shader handle is invalid.");
 
         PipelineHandle pipelineHandle = m_GraphicsApi->CreatePipeline(properties);
 
         ONYX_ASSERT(pipelineHandle.IsValid(), "Pipeline handle is invalid.");
         
         // create shader effect
-        return ShaderEffectHandle::Create(*this, pipelineHandle, properties.Shader);
+        return ShaderEffectHandle::Create(*this, pipelineHandle, properties.m_Shader);
     }
 
     CommandBuffer& GraphicsApi::GetCommandBuffer(onyxU8 frameIndex)

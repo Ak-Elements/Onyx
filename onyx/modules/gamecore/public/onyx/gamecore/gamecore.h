@@ -52,7 +52,7 @@ namespace Onyx::GameCore
 
         void Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine);
 
-        void SetScene(Reference<Scene>& scene) { Scene = scene; }
+        void SetScene(Reference<Scene>& scene) { m_Scene = scene; }
 
         const Entity::ComponentFactory& GetComponentFactory() const { return m_ComponentFactory; }
 
@@ -60,7 +60,7 @@ namespace Onyx::GameCore
 
     private:
         
-        Reference<Scene> Scene;
+        Reference<Scene> m_Scene;
         Entity::ComponentFactory m_ComponentFactory;
         Entity::EntityComponentSystemsGraph m_ECSGraph;
     };

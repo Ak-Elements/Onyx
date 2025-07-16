@@ -12,14 +12,14 @@ namespace Onyx::Graphics
     {
         ~PipelineProperties();
 
-        Rasterization Rasterization;
-        DepthStencil DepthStencil;
+        Rasterization m_Rasterization;
+        DepthStencil m_DepthStencil;
         InplaceArray<BlendState, MAX_RENDERPASS_ATTACHMENTS> BlendStates;
 
         PrimitiveTopology Topology = PrimitiveTopology::Triangle;
-        Reference<RenderPass> RenderPass;
+        Reference<RenderPass> m_RenderPass;
 
-        Reference<Shader> Shader;
+        Reference<Shader> m_Shader;
 
         String m_DebugName;
     };

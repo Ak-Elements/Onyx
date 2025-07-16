@@ -29,7 +29,7 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE_FUNCTION;
 
-        const FrameContext& frameContext = context.FrameContext;
+        const FrameContext& frameContext = context.m_FrameContext;
 
         struct PushConstants
         {
@@ -41,7 +41,7 @@ namespace Onyx::Graphics
 
         } pushConstants;
 
-        pushConstants.CameraPosition = frameContext.ViewConstants.CameraPosition;
+        pushConstants.CameraPosition = frameContext.m_ViewConstants.CameraPosition;
         pushConstants.TransmittanceTextureIndex = m_TransmittanceTextureIndex;
         pushConstants.MultipleScatteringTextureIndex = m_MultipleScatteringTextureIndex;
         pushConstants.SunDirection = GetSunDirection(frameContext.TimeOfDay);

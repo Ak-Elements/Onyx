@@ -18,7 +18,7 @@ namespace Onyx::Graphics
 
     struct RenderGraphContext
     {
-        const FrameContext& FrameContext;
+        const FrameContext& m_FrameContext;
         RenderGraph& Graph;
 
         template <typename T>
@@ -62,7 +62,7 @@ namespace Onyx::Graphics
 
     struct RenderGraphBufferResourceInfo
     {
-        BufferProperties BufferProperties;
+        BufferProperties m_BufferProperties;
     };
 
     struct RenderGraphResourceInfo
@@ -86,7 +86,7 @@ namespace Onyx::Graphics
 
     struct RenderGraphBuffer
     {
-        BufferProperties BufferProperties;
+        BufferProperties m_BufferProperties;
     };
 
     struct RenderGraphResource

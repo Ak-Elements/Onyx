@@ -80,22 +80,22 @@ namespace Onyx::GameCore
 
     void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine)
     {
-        if ((Scene.IsValid() == false) || Scene->IsLoading())
+        if ((m_Scene.IsValid() == false) || m_Scene->IsLoading())
         {
             return;
         }
 
         // TODO: Can we find a cleaner / better solution for this?
         Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
-        if (frameContext.FrameData == nullptr)
-            frameContext.FrameData = MakeUnique<SceneFrameData>();
+        if (frameContext.m_FrameData == nullptr)
+            frameContext.m_FrameData = MakeUnique<SceneFrameData>();
 
-        SceneFrameData& sceneFrameData = static_cast<SceneFrameData&>(*frameContext.FrameData);
+        SceneFrameData& sceneFrameData = static_cast<SceneFrameData&>(*frameContext.m_FrameData);
         sceneFrameData.m_StaticMeshDrawCalls.clear();
         sceneFrameData.m_StaticMeshIndirectDrawCalls.clear();
         sceneFrameData.m_VoxelChunksToInit.clear();
 
-        Entity::ECSExecutionContext context { deltaTime, Scene->GetRegistry(), engine };
+        Entity::ECSExecutionContext context { deltaTime, m_Scene->GetRegistry(), engine };
         m_ECSGraph.Update(context);
     }
 }

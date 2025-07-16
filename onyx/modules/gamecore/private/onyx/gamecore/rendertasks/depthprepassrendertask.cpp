@@ -21,19 +21,19 @@ namespace Onyx::GameCore
     {
         ONYX_PROFILE_FUNCTION;
 
-        context.Graph.GetResourceCache()[GetOutputPin().GetGlobalId()].Handle = context.FrameContext.Api->GetDepthImage();
+        context.Graph.GetResourceCache()[GetOutputPin().GetGlobalId()].Handle = context.m_FrameContext.Api->GetDepthImage();
     }
 
     void DepthPrePassRenderGraphNode::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const Graphics::FrameContext& frameContext = context.m_FrameContext;
 
-        if (frameContext.FrameData == nullptr)
+        if (frameContext.m_FrameData == nullptr)
             return;
 
-        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
+        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.m_FrameData);
 
         commandBuffer.SetScissor();
 

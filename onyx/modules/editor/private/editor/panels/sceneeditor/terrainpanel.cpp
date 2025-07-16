@@ -17,10 +17,10 @@ namespace Onyx::Editor::SceneEditor
         m_GenerateMeshShader = graphicsApi.GetShader("engine:/shaders/compute/volume/generate_volume.oshader");
 
         Graphics::PipelineProperties properties;
-        properties.Shader = m_EditTerrainShader;
+        properties.m_Shader = m_EditTerrainShader;
         m_EditTerrainShaderEffect = graphicsApi.CreateShaderEffect(properties);
 
-        properties.Shader = m_GenerateMeshShader;
+        properties.m_Shader = m_GenerateMeshShader;
         m_GenerateMeshShaderEffect = graphicsApi.CreateShaderEffect(properties);
     }
 

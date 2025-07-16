@@ -102,8 +102,7 @@ namespace Onyx
     template <typename T, typename D>
     constexpr Reference<T, D> Reference<T, D>::Invalid()
     {
-        static Reference invalidRef(nullptr);
-        return invalidRef;
+        return nullptr;
     }
 
     template <typename T, typename D>

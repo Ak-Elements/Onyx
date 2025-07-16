@@ -111,8 +111,8 @@ namespace Onyx
             //TODO: Remove and pass as & parameter to functions along with the context
             GraphicsApi* Api;
 
-            ViewConstants ViewConstants;
-            Lighting Lighting;
+            ViewConstants m_ViewConstants;
+            Lighting m_Lighting;
 
             onyxF32 TimeOfDay = 15.0f;
             onyxU32 TonemapFunctor = 5;
@@ -121,7 +121,7 @@ namespace Onyx
             onyxU64 AbsoluteFrame = 0;
             onyxU8 FrameIndex = 0;
 
-            UniquePtr<FrameData> FrameData;
+            UniquePtr<FrameData> m_FrameData;
         };
 
         class GraphicsApiImpl : public NonCopyable

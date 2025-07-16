@@ -227,7 +227,7 @@ namespace Onyx::Graphics::Vulkan
         : Graphics::Pipeline(properties)
         , m_Device(api.GetDevice())
     {
-        const Shader& shader = properties.Shader.As<Shader>();
+        const Shader& shader = properties.m_Shader.As<Shader>();
 
         m_PipelineLayout = MakeUnique<PipelineLayout>(api, shader);
         CreatePipeline(api, properties, shader);
@@ -265,7 +265,7 @@ namespace Onyx::Graphics::Vulkan
         }
         else
         {
-            const RenderPassSettings& renderPassSettings = properties.RenderPass->GetSettings();
+            const RenderPassSettings& renderPassSettings = properties.m_RenderPass->GetSettings();
 
             DynamicArray<VkFormat> colorTargetFormats{};
             VkFormat depthStencilFormat = VK_FORMAT_UNDEFINED;
@@ -406,19 +406,19 @@ namespace Onyx::Graphics::Vulkan
             //// Depth Stencil
             VkPipelineDepthStencilStateCreateInfo depthStencil{};
             depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-            depthStencil.depthTestEnable = properties.DepthStencil.IsDepthEnabled ? VK_TRUE : VK_FALSE;
-            depthStencil.depthCompareOp = ToVulkanCompareOp(properties.DepthStencil.Compare);
-            depthStencil.stencilTestEnable = properties.DepthStencil.IsStencilEnabled ? VK_TRUE : VK_FALSE;
-            depthStencil.depthWriteEnable = properties.DepthStencil.IsDepthWriteEnabled ? VK_TRUE : VK_FALSE;
+            depthStencil.depthTestEnable = properties.m_DepthStencil.IsDepthEnabled ? VK_TRUE : VK_FALSE;
+            depthStencil.depthCompareOp = ToVulkanCompareOp(properties.m_DepthStencil.Compare);
+            depthStencil.stencilTestEnable = properties.m_DepthStencil.IsStencilEnabled ? VK_TRUE : VK_FALSE;
+            depthStencil.depthWriteEnable = properties.m_DepthStencil.IsDepthWriteEnabled ? VK_TRUE : VK_FALSE;
             depthStencil.depthBoundsTestEnable = VK_FALSE;
             depthStencil.minDepthBounds = 0.0f;
             depthStencil.maxDepthBounds = 1.0f;
             depthStencil.pNext = nullptr;
 
-            if (properties.DepthStencil.IsStencilEnabled)
+            if (properties.m_DepthStencil.IsStencilEnabled)
             {
-                depthStencil.front = ToVulkanStencilOpState(properties.DepthStencil.Front);
-                depthStencil.back = ToVulkanStencilOpState(properties.DepthStencil.Back);
+                depthStencil.front = ToVulkanStencilOpState(properties.m_DepthStencil.Front);
+                depthStencil.back = ToVulkanStencilOpState(properties.m_DepthStencil.Back);
             }
             else
             {
@@ -448,10 +448,10 @@ namespace Onyx::Graphics::Vulkan
             rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
             rasterizer.depthClampEnable = VK_FALSE;
             rasterizer.rasterizerDiscardEnable = VK_FALSE;
-            rasterizer.polygonMode = ToVulkanFillMode(properties.Rasterization.FillMode);
+            rasterizer.polygonMode = ToVulkanFillMode(properties.m_Rasterization.m_FillMode);
             rasterizer.lineWidth = 1.0f;
-            rasterizer.cullMode = ToVulkanCullMode(properties.Rasterization.CullMode);
-            rasterizer.frontFace = properties.Rasterization.IsFrontFacing ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
+            rasterizer.cullMode = ToVulkanCullMode(properties.m_Rasterization.m_CullMode);
+            rasterizer.frontFace = properties.m_Rasterization.IsFrontFacing ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
             rasterizer.depthBiasEnable = VK_FALSE;
             rasterizer.depthBiasConstantFactor = 0.0f; // Optional
             rasterizer.depthBiasClamp = 0.0f; // Optional
@@ -498,7 +498,7 @@ namespace Onyx::Graphics::Vulkan
             }
             else
             {
-                const VulkanRenderPass& renderPass = properties.RenderPass.As<VulkanRenderPass>();
+                const VulkanRenderPass& renderPass = properties.m_RenderPass.As<VulkanRenderPass>();
                 pipelineCreateInfo.renderPass = renderPass.GetHandle();
             }
 

@@ -48,17 +48,17 @@ namespace Onyx::GameCore
             outResource.Handle = inputResource.Handle;
         }
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
-        if (frameContext.FrameData == nullptr)
+        const Graphics::FrameContext& frameContext = context.m_FrameContext;
+        if (frameContext.m_FrameData == nullptr)
             return;
 
-        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
+        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.m_FrameData);
         for (const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls)
         {
             const Graphics::MaterialShaderGraph& shaderGraph = *drawCall.Material;
             Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
 
-            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.m_FrameContext);
             hasBegun = true;
         }
 
@@ -67,7 +67,7 @@ namespace Onyx::GameCore
             const Graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
             Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
 
-            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.m_FrameContext);
             hasBegun = true;
         }
     }
@@ -76,19 +76,19 @@ namespace Onyx::GameCore
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const Graphics::FrameContext& frameContext = context.m_FrameContext;
         
-        if (frameContext.FrameData == nullptr)
+        if (frameContext.m_FrameData == nullptr)
             return;
 
         if (hasBegun == false)
             return;
 
-        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
+        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.m_FrameData);
 
         for (const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls)
         {
-            PrepareShaderGraph(commandBuffer, context.FrameContext, *drawCall.Material);
+            PrepareShaderGraph(commandBuffer, context.m_FrameContext, *drawCall.Material);
 
             const onyxU32 instanceCount = 1;
 
@@ -108,7 +108,7 @@ namespace Onyx::GameCore
             return;
 
         const StaticMeshIndirectDrawCall& first = sceneFrameData.m_StaticMeshIndirectDrawCalls.front();
-        PrepareShaderGraph(commandBuffer, context.FrameContext, *first.Material);
+        PrepareShaderGraph(commandBuffer, context.m_FrameContext, *first.Material);
 
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
@@ -149,7 +149,7 @@ namespace Onyx::GameCore
             onyxU32 Textures[8] = { 0 };
         } constants;
 
-        const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
+        const Graphics::ViewConstants& viewConstants = frameContext.m_ViewConstants;
         constants.LightClusterGridSize =
         {
             Graphics::CLUSTER_X,

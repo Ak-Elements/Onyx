@@ -15,7 +15,7 @@ namespace Onyx::Graphics
 
     void GetViewConstantsNode::BeginFrame(const RenderGraphContext& context)
     {
-        const FrameContext& frameContext = context.FrameContext;
+        const FrameContext& frameContext = context.m_FrameContext;
         
         onyxU64 outputGlobalPinId = GetOutputPin(0)->GetGlobalId();
         context.Graph.GetResource(outputGlobalPinId).Handle = frameContext.Api->GetViewConstantsBuffer();

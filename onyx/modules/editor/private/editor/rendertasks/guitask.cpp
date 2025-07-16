@@ -112,14 +112,14 @@ namespace Onyx
         }
 
         // Vertex buffer
-        const onyxU8 frameIndex = context.FrameContext.FrameIndex;
+        const onyxU8 frameIndex = context.m_FrameContext.FrameIndex;
         Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
         if ((vertexBuffer.IsValid() == false) || (vertexBuffer->IsValid() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
         {
 			Graphics::BufferProperties vertexBufferProps = vertexBuffer->GetProperties();
             vertexBufferProps.m_Size = vertexBufferSize;
 
-            context.FrameContext.Api->CreateBuffer(vertexBuffer, vertexBufferProps);
+            context.m_FrameContext.Api->CreateBuffer(vertexBuffer, vertexBufferProps);
             m_VertexCounts[frameIndex] = imDrawData->TotalVtxCount;
         }
 
@@ -130,7 +130,7 @@ namespace Onyx
 			Graphics::BufferProperties indexBufferProps = indexBuffer->GetProperties();
             indexBufferProps.m_Size = indexBufferSize;
 
-            context.FrameContext.Api->CreateBuffer(indexBuffer, indexBufferProps);
+            context.m_FrameContext.Api->CreateBuffer(indexBuffer, indexBufferProps);
             m_IndexCounts[frameIndex] = imDrawData->TotalIdxCount;
         }
 
@@ -170,7 +170,7 @@ namespace Onyx
         onyxS32 vertexOffset = 0;
         onyxS32 indexOffset = 0;
 
-        const onyxU8 frameIndex = context.FrameContext.FrameIndex;
+        const onyxU8 frameIndex = context.m_FrameContext.FrameIndex;
         const Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
         const Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
         commandBuffer.BindVertexBuffer(vertexBuffer, 0, 0);

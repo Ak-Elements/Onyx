@@ -136,7 +136,7 @@ namespace Volume
         using VolumeEntityAccess = Entity::Entity<const Terrain::VolumeTerrainRuntimeComponent, GameCore::MaterialComponent>;
         void system(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
         {
-            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
+            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.m_FrameData);
             
             auto&& [ volumeTerrain, materialComponent ] = entity.Get();
 

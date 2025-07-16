@@ -57,12 +57,12 @@ namespace Onyx::GameCore
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const Graphics::FrameContext& frameContext = context.m_FrameContext;
 
-        if (frameContext.FrameData == nullptr)
+        if (frameContext.m_FrameData == nullptr)
             return;
             
-        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
+        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.m_FrameData);
         ONYX_UNUSED(sceneFrameData);
         //onyxU32 vertexOffset = 0;
         /*for (const TextDrawCall& drawCall : sceneFrameData.m_TextDrawCalls)
@@ -79,12 +79,12 @@ namespace Onyx::GameCore
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const Graphics::FrameContext& frameContext = context.m_FrameContext;
 
-        if (frameContext.FrameData == nullptr)
+        if (frameContext.m_FrameData == nullptr)
             return;
 
-        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
+        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.m_FrameData);
 
         commandBuffer.BindVertexBuffer(m_VertexBuffer, 0, 0);
         commandBuffer.BindIndexBuffer(m_IndexBuffer, 0, Graphics::IndexType::uint16);

@@ -48,7 +48,7 @@ namespace Onyx
 
         CachelinePadding m_Pad0 = {};
         Node m_Buffer[Size];
-        const size_t m_BufferMask = Size - 1;
+        size_t m_BufferMask = Size - 1;
         CachelinePadding m_Pad1 = {};
         Atomic<size_t> m_EnqueuePos = 0;
         CachelinePadding m_Pad2 = {};

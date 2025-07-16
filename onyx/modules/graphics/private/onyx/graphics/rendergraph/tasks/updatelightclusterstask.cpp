@@ -37,14 +37,14 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
         onyxU64 globalId = GetOutputPin(0)->GetGlobalId();
-        context.Graph.GetResource(globalId).Handle = m_LightClustersStorageBuffers[context.FrameContext.FrameIndex];
+        context.Graph.GetResource(globalId).Handle = m_LightClustersStorageBuffers[context.m_FrameContext.FrameIndex];
     }
 
     void CreateLightClusters::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
         
-        const ViewConstants& viewConstants = context.FrameContext.ViewConstants;
+        const ViewConstants& viewConstants = context.m_FrameContext.m_ViewConstants;
 
         Constants constants;
         constants.InverseProjection = viewConstants.InverseProjectionMatrix;
@@ -121,7 +121,7 @@ namespace Onyx::Graphics
 
     void UpdateLightClustersRenderGraphNode::OnBeginFrame(const RenderGraphContext& context)
     {
-        const onyxU8 frameIndex = context.FrameContext.FrameIndex;
+        const onyxU8 frameIndex = context.m_FrameContext.FrameIndex;
         onyxU64 globalId = GetOutputPin0().GetGlobalId();
         context.Graph.GetResource(globalId).Handle = m_LightIndexListSSBO[frameIndex];
 
@@ -129,7 +129,7 @@ namespace Onyx::Graphics
         context.Graph.GetResource(globalId).Handle = m_LightGridSSBO[frameIndex];
 
         globalId = GetOutputPin2().GetGlobalId();
-        const Lighting& lighting = context.FrameContext.Lighting;
+        const Lighting& lighting = context.m_FrameContext.m_Lighting;
 
         m_LightsStorageBuffers[frameIndex]->SetData(0, &lighting, sizeof(Lighting));
         context.Graph.GetResource(globalId).Handle = m_LightsStorageBuffers[frameIndex];
@@ -137,7 +137,7 @@ namespace Onyx::Graphics
 
     void UpdateLightClustersRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
     {
-        const FrameContext& frameContext = context.FrameContext;
+        const FrameContext& frameContext = context.m_FrameContext;
         const onyxU8 frameIndex = frameContext.FrameIndex;
 
         struct PushConstants
@@ -147,7 +147,7 @@ namespace Onyx::Graphics
 
         commandBuffer.GlobalBarrier(0, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 
-        PushConstants constants{ context.FrameContext.ViewConstants.ViewMatrix };
+        PushConstants constants{ context.m_FrameContext.m_ViewConstants.ViewMatrix };
 
         commandBuffer.BindPushConstants(ShaderStage::Compute, 0, constants);
 

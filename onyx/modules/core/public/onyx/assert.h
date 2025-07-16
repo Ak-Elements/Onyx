@@ -54,7 +54,7 @@ namespace Onyx
 #else
 #define DEBUG_BREAK __builtin_debugtrap()
 #endif
-#elif IS_GCC// gcc
+#elif ONYX_IS_GCC// gcc
 #define DEBUG_BREAK __builtin_trap()
 #else
 //static_assert(false, "Not supported on this platform yet");

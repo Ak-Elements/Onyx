@@ -112,15 +112,15 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::DepthReadStencilRead);
 
         PipelineProperties pipelineProperties;
-        pipelineProperties.Shader = shader;
-        pipelineProperties.RenderPass = graphicsApi.GetOrCreateRenderPass(renderPassSettings);
+        pipelineProperties.m_Shader = shader;
+        pipelineProperties.m_RenderPass = graphicsApi.GetOrCreateRenderPass(renderPassSettings);
         pipelineProperties.m_DebugName = "Test shader graph";
 
-        pipelineProperties.Rasterization.CullMode = CullMode::Back;
-        pipelineProperties.DepthStencil.IsDepthEnabled = true;
-        pipelineProperties.DepthStencil.IsDepthWriteEnabled = false;
-        pipelineProperties.DepthStencil.IsStencilEnabled = false;
-        pipelineProperties.DepthStencil.Compare = CompareOperation::LessOrEqual;
+        pipelineProperties.m_Rasterization.m_CullMode = CullMode::Back;
+        pipelineProperties.m_DepthStencil.IsDepthEnabled = true;
+        pipelineProperties.m_DepthStencil.IsDepthWriteEnabled = false;
+        pipelineProperties.m_DepthStencil.IsStencilEnabled = false;
+        pipelineProperties.m_DepthStencil.Compare = CompareOperation::LessOrEqual;
 
         BlendState& blendState = pipelineProperties.BlendStates.Emplace();
         blendState.SourceColor = Blend::SrcAlpha;
