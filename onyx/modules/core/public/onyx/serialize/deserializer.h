@@ -466,13 +466,13 @@ namespace Onyx
                 }
                 else if constexpr (IsGuid64<T>)
                 {
-                    onyxU64 id;
+                    onyxU64 id = 0;
                     std::ignore = std::from_chars(keyString.data(), keyString.data() + keyString.size(), id, 16);
                     return T{ id };
                 }
                 else
                 {
-                    T key;
+                    T key{};
                     std::ignore = std::from_chars(keyString.data(), keyString.data() + keyString.size(), key, 10);
                     return key;
                 }
