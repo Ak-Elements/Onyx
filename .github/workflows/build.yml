@@ -34,4 +34,4 @@ jobs:
       
       - name: Build
         run: |
-          cmake --build build --config ${{ matrix.configuration } --parallel 4
+          cmake --build build --config ${{ matrix.configuration }} --parallel 4
