@@ -125,9 +125,9 @@ namespace Onyx::Graphics
 
     struct Rasterization
     {
-        CullMode m_CullMode = CullMode::None;
+        CullMode CullMode = CullMode::None;
         bool IsFrontFacing = false;
-        FillMode m_FillMode = FillMode::Solid;
+        FillMode FillMode = FillMode::Solid;
     };
 
     struct StencilOperationState

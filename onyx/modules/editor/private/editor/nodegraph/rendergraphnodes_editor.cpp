@@ -263,32 +263,32 @@ namespace Onyx::Graphics
 
         if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Rasterization"))
         {
-            Ui::PropertyGrid::DrawBoolProperty("Front facing", m_PipelineProperties.m_Rasterization.IsFrontFacing);
-            Ui::PropertyGrid::DrawEnumProperty("Fill Mode", m_PipelineProperties.m_Rasterization.m_FillMode);
-            Ui::PropertyGrid::DrawEnumProperty("Cull Mode", m_PipelineProperties.m_Rasterization.m_CullMode);
+            Ui::PropertyGrid::DrawBoolProperty("Front facing", m_PipelineProperties.Rasterization.IsFrontFacing);
+            Ui::PropertyGrid::DrawEnumProperty("Fill Mode", m_PipelineProperties.Rasterization.FillMode);
+            Ui::PropertyGrid::DrawEnumProperty("Cull Mode", m_PipelineProperties.Rasterization.CullMode);
 
             Ui::PropertyGrid::EndPropertyGroup();
         }
 
         if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Depth Stencil"))
         {
-            bool isDepthEnabled = m_PipelineProperties.m_DepthStencil.IsDepthEnabled;
+            bool isDepthEnabled = m_PipelineProperties.DepthStencil.IsDepthEnabled;
             Ui::PropertyGrid::DrawBoolProperty("Enabled", isDepthEnabled);
-            m_PipelineProperties.m_DepthStencil.IsDepthEnabled = isDepthEnabled;
+            m_PipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
 
-            bool isDepthWriteEnabled = m_PipelineProperties.m_DepthStencil.IsDepthWriteEnabled;
+            bool isDepthWriteEnabled = m_PipelineProperties.DepthStencil.IsDepthWriteEnabled;
             Ui::PropertyGrid::DrawBoolProperty("Write", isDepthWriteEnabled);
-            m_PipelineProperties.m_DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
+            m_PipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
 
-            bool isStencilEnabled = m_PipelineProperties.m_DepthStencil.IsStencilEnabled;
+            bool isStencilEnabled = m_PipelineProperties.DepthStencil.IsStencilEnabled;
             Ui::PropertyGrid::DrawBoolProperty("Stencil", isStencilEnabled);
-            m_PipelineProperties.m_DepthStencil.IsStencilEnabled = isStencilEnabled;
+            m_PipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
 
-            Ui::PropertyGrid::DrawEnumProperty("Compare", m_PipelineProperties.m_DepthStencil.Compare);
+            Ui::PropertyGrid::DrawEnumProperty("Compare", m_PipelineProperties.DepthStencil.Compare);
 
             //if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Front Operation"))
             //{
-            //    //m_PipelineProperties.m_DepthStencil.Front
+            //    //m_PipelineProperties.DepthStencil.Front
             //}
 
             Ui::PropertyGrid::EndPropertyGroup();

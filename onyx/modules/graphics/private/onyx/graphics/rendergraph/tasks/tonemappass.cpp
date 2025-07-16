@@ -26,7 +26,7 @@ namespace Onyx
         };
 
         PushConstants constants;
-        constants.TonemapFunction = context.m_FrameContext.TonemapFunctor;
+        constants.TonemapFunction = context.FrameContext.TonemapFunctor;
 
         commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
         commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, inTextureHandle.Texture->GetIndex(), 1);

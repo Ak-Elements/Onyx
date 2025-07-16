@@ -8,9 +8,9 @@ namespace Onyx::Graphics
     //{
     //    ONYX_UNUSED(api);
     //    ONYX_UNUSED(outPso);
-    //    onyxU64 psoKey = Hash::FNV1aHash64(key.m_Rasterization);
+    //    onyxU64 psoKey = Hash::FNV1aHash64(key.Rasterization);
 
-    //    psoKey = Hash::FNV1aHash64(key.m_DepthStencil, psoKey);
+    //    psoKey = Hash::FNV1aHash64(key.DepthStencil, psoKey);
     //    psoKey = Hash::FNV1aHash64(key.BlendState, psoKey);
     //    psoKey = Hash::FNV1aHash64(key.ColorWriteMask, psoKey);
     //    psoKey = Hash::FNV1aHash64(key.IsBlendEnabled, psoKey);

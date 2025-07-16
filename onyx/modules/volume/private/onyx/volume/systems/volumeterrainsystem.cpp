@@ -26,7 +26,7 @@ namespace Onyx::Volume::Terrain
             const onyxU32 clusterCount = dispatchXYZ * dispatchXYZ * dispatchXYZ * (TERRAIN_SHADER_LOCAL_SIZE * TERRAIN_SHADER_LOCAL_SIZE * TERRAIN_SHADER_LOCAL_SIZE);
             constexpr onyxU32 maxVertexCount = (1 << 21); // Hacky
             Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
-            if (frameContext.m_FrameData == nullptr)
+            if (frameContext.FrameData == nullptr)
                 return;
 
             struct VkDrawIndirectCommand
@@ -37,7 +37,7 @@ namespace Onyx::Volume::Terrain
                 uint32_t    FirstInstance;
             };
 
-            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.m_FrameData);
+            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
             
             Graphics::BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "VoxelGrid";

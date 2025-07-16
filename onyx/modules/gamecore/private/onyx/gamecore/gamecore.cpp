@@ -87,10 +87,10 @@ namespace Onyx::GameCore
 
         // TODO: Can we find a cleaner / better solution for this?
         Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
-        if (frameContext.m_FrameData == nullptr)
-            frameContext.m_FrameData = MakeUnique<SceneFrameData>();
+        if (frameContext.FrameData == nullptr)
+            frameContext.FrameData = MakeUnique<SceneFrameData>();
 
-        SceneFrameData& sceneFrameData = static_cast<SceneFrameData&>(*frameContext.m_FrameData);
+        SceneFrameData& sceneFrameData = static_cast<SceneFrameData&>(*frameContext.FrameData);
         sceneFrameData.m_StaticMeshDrawCalls.clear();
         sceneFrameData.m_StaticMeshIndirectDrawCalls.clear();
         sceneFrameData.m_VoxelChunksToInit.clear();

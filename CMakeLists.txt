@@ -57,7 +57,7 @@ if (CMAKE_COMPILER_IS_GNUCXX OR ((${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") AND 
     set( ONYX_COMPILE_OPTIONS
 	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti -Wno-comment>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>: >
-    $<$<CXX_COMPILER_ID:GNU>: >)
+    $<$<CXX_COMPILER_ID:GNU>: -Wno-changes-meaning>)
 	set( ONYX_LINK_OPTIONS
 	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >)
 

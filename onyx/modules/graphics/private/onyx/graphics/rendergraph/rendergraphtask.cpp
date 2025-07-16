@@ -107,7 +107,7 @@ namespace Onyx::Graphics
             /* TODO: This is mostly done for framebuffers that change per frameIndex (e.g: Swapchain)
              * Might be better to have an array of framebuffers pre-created and just iterate
              */
-            UpdateFramebuffer(*context.m_FrameContext.Api, context.Graph.GetResourceCache());
+            UpdateFramebuffer(*context.FrameContext.Api, context.Graph.GetResourceCache());
         }
     }
 
@@ -562,8 +562,8 @@ namespace Onyx::Graphics
 
         RenderGraphShaderNode::Compile(api, resourceCache);
 
-        m_PipelineProperties.m_RenderPass = m_RenderPass;
-        m_PipelineProperties.m_Shader = m_Shader;
+        m_PipelineProperties.RenderPass = m_RenderPass;
+        m_PipelineProperties.Shader = m_Shader;
 #if ONYX_IS_DEBUG
         m_PipelineProperties.m_DebugName = GetName();
 #endif
@@ -574,7 +574,7 @@ namespace Onyx::Graphics
     {
         RenderGraphShaderNode::BeginFrame(context);
 
-        BindResources(m_ShaderEffect, context.Graph.GetResourceCache(), context.m_FrameContext);
+        BindResources(m_ShaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
     }
 
     void RenderGraphFixedShaderNode::Render(RenderGraphContext& context, CommandBuffer& commandBuffer)

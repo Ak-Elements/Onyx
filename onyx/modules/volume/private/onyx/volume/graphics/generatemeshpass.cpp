@@ -25,10 +25,10 @@ namespace Onyx::Volume
         m_GenerateMeshShader = api.GetShader("engine:/shaders/compute/volume/generate_volume.oshader");
 
         Graphics::PipelineProperties properties;
-        properties.m_Shader = m_CreateTerrainShader;
+        properties.Shader = m_CreateTerrainShader;
         m_CreateTerrainShaderEffect = api.CreateShaderEffect(properties);
 
-        properties.m_Shader = m_GenerateMeshShader;
+        properties.Shader = m_GenerateMeshShader;
         m_GenerateMeshShaderEffect = api.CreateShaderEffect(properties);
     }
 
@@ -64,11 +64,11 @@ namespace Onyx::Volume
             onyxU32 DrawCommandIndex;
         };
 
-        const Graphics::FrameContext& frameContext = context.m_FrameContext;
-        if (frameContext.m_FrameData == nullptr)
+        const Graphics::FrameContext& frameContext = context.FrameContext;
+        if (frameContext.FrameData == nullptr)
             return;
 
-        const GameCore::SceneFrameData& sceneFrameData = static_cast<const GameCore::SceneFrameData&>(*frameContext.m_FrameData);
+        const GameCore::SceneFrameData& sceneFrameData = static_cast<const GameCore::SceneFrameData&>(*frameContext.FrameData);
 
         for (const auto& volumeChunk : sceneFrameData.m_VoxelChunksToInit)
         {

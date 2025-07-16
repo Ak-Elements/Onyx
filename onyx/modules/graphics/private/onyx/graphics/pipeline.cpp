@@ -10,29 +10,29 @@ namespace Onyx
 {
     bool Serialization<Graphics::PipelineProperties>::Serialize(Serializer& serializer, const Graphics::PipelineProperties& properties)
     {
-        return serializer.Write<"depthstencil">(properties.m_DepthStencil) &&
-            serializer.Write<"rasterization">(properties.m_Rasterization) &&
+        return serializer.Write<"depthstencil">(properties.DepthStencil) &&
+            serializer.Write<"rasterization">(properties.Rasterization) &&
             serializer.Write<"blend">(properties.BlendStates);
     }
 
     bool Serialization<Graphics::PipelineProperties>::Deserialize(const Deserializer& deserializer, Graphics::PipelineProperties& outProperties)
     {
-        return deserializer.ReadOptional<"depthstencil">(outProperties.m_DepthStencil) &&
-            deserializer.ReadOptional<"rasterization">(outProperties.m_Rasterization) &&
+        return deserializer.ReadOptional<"depthstencil">(outProperties.DepthStencil) &&
+            deserializer.ReadOptional<"rasterization">(outProperties.Rasterization) &&
             deserializer.ReadOptional<"blend">(outProperties.BlendStates);
     }  
 
     bool Serialization<Graphics::Rasterization>::Serialize(Serializer& serializer, const Graphics::Rasterization& rasterization)
     {
-        return serializer.Write<"cull">(rasterization.m_CullMode) &&
-            serializer.Write<"fill">(rasterization.m_FillMode) &&
+        return serializer.Write<"cull">(rasterization.CullMode) &&
+            serializer.Write<"fill">(rasterization.FillMode) &&
             serializer.Write<"frontfacing">(rasterization.IsFrontFacing);
     }
 
     bool Serialization<Graphics::Rasterization>::Deserialize(const Deserializer& deserializer, Graphics::Rasterization& rasterization)
     {
-        return deserializer.ReadOptional<"cull">(rasterization.m_CullMode) &&
-            deserializer.ReadOptional<"fill">(rasterization.m_FillMode) &&
+        return deserializer.ReadOptional<"cull">(rasterization.CullMode) &&
+            deserializer.ReadOptional<"fill">(rasterization.FillMode) &&
             deserializer.ReadOptional<"frontfacing">(rasterization.IsFrontFacing);
     }
 
