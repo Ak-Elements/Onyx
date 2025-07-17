@@ -296,7 +296,7 @@ namespace Onyx::Graphics::ShaderCompiler
 		return false;
     }
 
-	bool ShaderCompiler::Reflect(ShaderStage shaderStage, const PreprocessedShader& preprocessedShader, const DynamicArray<onyxU32>& shaderByteCode, ShaderReflectionInfo& outReflectionInfo)
+	bool Reflect(ShaderStage shaderStage, const PreprocessedShader& preprocessedShader, const DynamicArray<onyxU32>& shaderByteCode, ShaderReflectionInfo& outReflectionInfo)
 	{
 		ONYX_UNUSED(preprocessedShader);
 		// TODO: Clean up & add support for alignment calculation for push constants for example
@@ -599,12 +599,12 @@ namespace Onyx::Graphics::ShaderCompiler
 		return true;
 	}
 
-	bool ShaderCompiler::IsReservedDescriptorSet(onyxU8 set)
+	bool IsReservedDescriptorSet(onyxU8 set)
 	{
 		return set == BINDLESS_SET;
 	}
 
-	ShaderDescriptorSet& ShaderCompiler::GetOrCreateShaderDescriptorSet(onyxU8 setIndex, ShaderReflectionInfo& reflectionInfo)
+	ShaderDescriptorSet& GetOrCreateShaderDescriptorSet(onyxU8 setIndex, ShaderReflectionInfo& reflectionInfo)
 	{
 		auto it = std::find_if(reflectionInfo.shaderDescriptorSets.begin(), reflectionInfo.shaderDescriptorSets.end(), [&](ShaderDescriptorSet& descriptorSet)
 			{

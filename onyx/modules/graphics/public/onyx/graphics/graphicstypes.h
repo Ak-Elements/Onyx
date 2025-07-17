@@ -195,6 +195,15 @@ namespace Onyx::Graphics
         STENCIL_UINT8,
     };
 
+    enum class ShaderLanguage : onyxU8
+    {
+        Invalid,
+        GLSL,
+        HLSL,
+        //SLANG,?
+        Count
+    };
+
     enum class ShaderStage : onyxU8
     {
         Invalid,
