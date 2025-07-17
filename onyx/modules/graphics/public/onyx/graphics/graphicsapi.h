@@ -3,6 +3,7 @@
 #include <onyx/noncopyable.h>
 #include <onyx/graphics/camera.h>
 #include <onyx/graphics/framebuffercache.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/renderpasscache.h>
 #include <onyx/graphics/lighting/lighting.h>
@@ -11,7 +12,6 @@
 
 #include <onyx/graphics/presentthread.h> 
 
-#include "graphicssystem.h"
 
 namespace Onyx
 {

@@ -73,7 +73,7 @@ bool SwapChain::BeginFrame(onyxU8 frameIndex)
 	return true;
 }
 
-bool SwapChain::Present(onyxU8 frameIndex, onyxU32& imageIndex)
+bool SwapChain::Present(onyxU8 frameIndex, onyxU32 imageIndex)
 {
 	if (m_CurrentImageIndex == onyxMax_U32)
 		return true;

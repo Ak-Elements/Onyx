@@ -237,7 +237,6 @@ namespace Onyx::Graphics::Vulkan
 
         m_GraphicsSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
         m_ComputeSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
-        m_PresentSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
 
         m_GraphicsSingleSubmitFence = MakeUnique<Fence>(*m_Device, false);
         m_ComputeSingleSubmitFence = MakeUnique<Fence>(*m_Device, false);
@@ -281,7 +280,6 @@ namespace Onyx::Graphics::Vulkan
 
         m_GraphicsSemaphore.reset();
         m_ComputeSemaphore.reset();
-        m_PresentSemaphore.reset();
 
         m_ComputeSingleSubmitFence.reset();
         m_GraphicsSingleSubmitFence.reset();
@@ -320,14 +318,14 @@ namespace Onyx::Graphics::Vulkan
             onyxU64 graphics_timeline_value = context.AbsoluteFrame - (MAX_FRAMES_IN_FLIGHT - 1);
             onyxU64 compute_timeline_value = context.ComputeFrame;
 
-            onyxU64 wait_values[]{ graphics_timeline_value, graphics_timeline_value, compute_timeline_value };
+            onyxU64 wait_values[]{ graphics_timeline_value, compute_timeline_value };
             const bool hasAsyncWork = false;
 
-            VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(), m_PresentSemaphore->GetHandle(), m_ComputeSemaphore->GetHandle() };
+            VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(), m_ComputeSemaphore->GetHandle() };
             
             VkSemaphoreWaitInfo semaphore_wait_info{};
             semaphore_wait_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-            semaphore_wait_info.semaphoreCount = hasAsyncWork ? 3 : 2;
+            semaphore_wait_info.semaphoreCount = hasAsyncWork ? 2 : 1;
             semaphore_wait_info.pSemaphores = semaphores;
             semaphore_wait_info.pValues = wait_values;
             semaphore_wait_info.pNext = nullptr;
@@ -470,13 +468,6 @@ namespace Onyx::Graphics::Vulkan
                     waitValues.Add(waitForFrameIndex);
                     waitStages.Add(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
                 }
-
-                /*if (has_pending_sparse_bindings)
-                {
-                    waitSemaphores.push(vulkan_bind_semaphore);
-                    wait_values.push(0);
-                    wait_stages.push(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-                }*/
 
                 InplaceArray<VkSemaphore, 2> signalSemaphores { renderCompleteSemaphore->GetHandle(), m_GraphicsSemaphore->GetHandle() };
                 InplaceArray<onyxU64, 2> signalValues { 0, context.AbsoluteFrame + 1};
@@ -629,20 +620,6 @@ namespace Onyx::Graphics::Vulkan
         //m_DeletionQueue.clear();
 
         return true;
-    }
-
-    void VulkanGraphicsApi::SignalPresent(onyxU32 presentIndex)
-    {
-        VkSemaphoreSignalInfo signalInfo;
-        signalInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO;
-        signalInfo.semaphore = m_PresentSemaphore->GetHandle();
-        signalInfo.value = presentIndex;
-        signalInfo.pNext = nullptr;
-
-        //// Signal that the presented image is now free
-        vkSignalSemaphore(m_Device->GetHandle(), &signalInfo);
-
-        //m_ConditionVariable.notify_one();
     }
 
     Reference<Graphics::Sampler> VulkanGraphicsApi::GetSampler(SamplerProperties properties) const
