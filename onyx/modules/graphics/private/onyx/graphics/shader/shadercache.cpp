@@ -13,10 +13,13 @@ namespace Onyx::Graphics
     ShaderCache::ShaderCache(GraphicsApi& api)
         : m_Api(api)
     {
-        if (FileSystem::Path::TempFileExists(SHADER_CACHE_PATH) == false)
+#if !ONYX_IS_RETAIL
+        const FileSystem::Filepath shaderCacheDirectory = FileSystem::Path::GetFullPath(SHADER_CACHE_PATH);
+        if (FileSystem::Path::Exists(shaderCacheDirectory) == false)
         {
-            FileSystem::Path::CreateDirectory(FileSystem::Path::GetTempDirectory().append(SHADER_CACHE_PATH));
+            FileSystem::Path::CreateDirectory(shaderCacheDirectory);
         }
+#endif
     }
 
     bool ShaderCache::GetOrLoadShader(const FileSystem::Filepath& shaderPath, ShaderCacheEntry& outEntry)
@@ -44,7 +47,7 @@ namespace Onyx::Graphics
         }
 
         // check shader disk cache before recompiling / reloading shaders
-        StringView path = Format::Format("tmp:/{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash);
+        StringView path = Format::Format("{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash);
         const FileSystem::Filepath& diskShaderCachePath = FileSystem::Path::GetFullPath(path);
         if (FileSystem::Path::Exists(diskShaderCachePath))
         {
@@ -84,7 +87,7 @@ namespace Onyx::Graphics
                 {
 					Shader::ByteCode& stageByteCode = perStageByteCodes[i];
 					entry.m_StageHashes[i] = stageHash;
-                    if (ShaderCompiler::Compile(m_Api, absoluteFilepath, preprocessedShader.m_Code, stage, stageByteCode) &&
+                    if (ShaderCompiler::Compile(m_Api, absoluteFilepath, preprocessedShader.m_Code, ShaderLanguage::GLSL, stage, stageByteCode) &&
                         ShaderCompiler::Reflect(stage, preprocessedShader, stageByteCode, reflectionInfo))
                     {
                         if (isExistingShader)

@@ -1,11 +1,12 @@
 #pragma once
 
 #include <onyx/filesystem/filestream.h>
-#include <filesystem>
 
-#include <nlohmann/json.hpp>
 #include <onyx/string/format.h>
 #include <onyx/serialize/serializer.h>
+
+#include <nlohmann/json.hpp>
+#include <filesystem>
 
 namespace Onyx::FileSystem
 {
@@ -169,6 +170,7 @@ namespace Onyx::FileSystem
             Json,
         };
 
+        OnyxFile(StringView mountPath);
         OnyxFile(const Filepath& filePath);
 
         ONYX_NO_DISCARD static bool ReadAll(const Filepath& filePath, String& outFileContent);
@@ -179,7 +181,7 @@ namespace Onyx::FileSystem
         void WriteJson(const JsonValue& json) const;
 
     private:
-        onyxU64 m_FileId; // file id get created from the path and has to be unique
         Filepath m_FilePath;
+        onyxU64 m_FileId; // file id get created from the path and has to be unique
     };
 }

@@ -28,7 +28,7 @@ namespace Onyx::Graphics
     {
     public:
         // Shader cache path in temp directory
-        static constexpr StringView SHADER_CACHE_PATH = "shaders/cache";
+        static constexpr StringView SHADER_CACHE_PATH = "tmp:/shaders/cache";
 
         ShaderCache(GraphicsApi& apiType);
         bool GetOrLoadShader(const FileSystem::Filepath& shaderPath, ShaderCacheEntry& outEntry);

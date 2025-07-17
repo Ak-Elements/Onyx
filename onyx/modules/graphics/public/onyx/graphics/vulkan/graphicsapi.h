@@ -76,7 +76,6 @@ namespace Onyx::Graphics
             const DescriptorSetLayout& GetBindlessDescriptorSetLayout() const { ONYX_ASSERT(m_BindlessDescriptorSetLayout != nullptr); return *m_BindlessDescriptorSetLayout; }
             const DescriptorSet& GetBindlessDescriptorSet() const { ONYX_ASSERT(m_BindlessDescriptorSets != nullptr); return *m_BindlessDescriptorSets; }
             void ReleaseTexture(const VulkanTexture& texture);
-            void SignalPresent(onyxU32 presentIndex);
             std::lock_guard<std::mutex> LockGraphicsQueue();
 
         private:
@@ -126,8 +125,7 @@ namespace Onyx::Graphics
 
             UniquePtr<Semaphore> m_GraphicsSemaphore;
             UniquePtr<Semaphore> m_ComputeSemaphore;
-            UniquePtr<Semaphore> m_PresentSemaphore;
-
+            
             UniquePtr<Fence> m_GraphicsSingleSubmitFence;
             UniquePtr<Fence> m_ComputeSingleSubmitFence;
 

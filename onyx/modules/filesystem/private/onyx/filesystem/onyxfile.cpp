@@ -7,8 +7,14 @@
 namespace Onyx::FileSystem
 {
     OnyxFile::OnyxFile(const std::filesystem::path& filePath)
-        : m_FileId(Hash::FNV1aHash<onyxU64>(filePath.string()))
-        , m_FilePath(filePath)
+        : m_FilePath(filePath)
+        , m_FileId(Hash::FNV1aHash<onyxU64>(filePath.string()))
+    {
+    }
+
+    OnyxFile::OnyxFile(StringView mountPath)
+        : m_FilePath(Path::GetFullPath(mountPath))
+        , m_FileId(Hash::FNV1aHash<onyxU64>(m_FilePath.string()))
     {
     }
 
@@ -33,7 +39,7 @@ namespace Onyx::FileSystem
 
     FileStream OnyxFile::OpenStream(OpenMode mode) const
     {
-        return { Path::GetFullPath(m_FilePath), mode };
+        return { m_FilePath, mode };
     }
 
     JsonValue OnyxFile::LoadJson() const

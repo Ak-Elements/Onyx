@@ -20,15 +20,14 @@ namespace Onyx::Graphics
         String m_Code;
     };
 
-    class ShaderCompiler
+    namespace ShaderCompiler
     {
-    public:
-        static bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderStage stage, DynamicArray<onyxU32>& outByteCode);
-        static bool Reflect(ShaderStage stage, const PreprocessedShader& preprocessedShader, const DynamicArray<onyxU32>& shaderByteCode, ShaderReflectionInfo& outReflectionInfo);
+        bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode);
+        bool Reflect(ShaderStage stage, const PreprocessedShader& preprocessedShader, const DynamicArray<onyxU32>& shaderByteCode, ShaderReflectionInfo& outReflectionInfo);
 
-    private:
-        static bool IsReservedDescriptorSet(onyxU8 set);
-        static ShaderDescriptorSet& GetOrCreateShaderDescriptorSet(onyxU8 setIndex, ShaderReflectionInfo& reflectionInfo);
+        bool IsReservedDescriptorSet(onyxU8 set);
+        ShaderDescriptorSet& GetOrCreateShaderDescriptorSet(onyxU8 setIndex, ShaderReflectionInfo& reflectionInfo);
+
     };
 }
 

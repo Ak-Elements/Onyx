@@ -14,7 +14,7 @@ namespace Onyx::Application::Debug
 {
     KeyboardOverlay::KeyboardOverlay()
     {
-        FileSystem::OnyxFile file{ "debug/keyboard/iso_105_us_international.json" };
+        FileSystem::OnyxFile file{ StringView("engine:/debug/keyboard/iso_105_us_international.json") };
         FileSystem::JsonValue jsonDoc = file.LoadJson();
 
         m_KeyboardLayout.reserve(6); // typical keyboards have 6 rows
