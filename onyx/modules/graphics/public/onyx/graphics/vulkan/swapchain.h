@@ -32,7 +32,7 @@ namespace Onyx::Graphics::Vulkan
         ~SwapChain();
 
         bool BeginFrame(onyxU8 frameIndex);
-        bool Present(onyxU8 frameIndex, onyxU32& imageIndex);
+        bool Present(onyxU8 frameIndex, onyxU32 imageIndex);
 
         bool HasValidBackBuffer() const { return (m_CurrentImageIndex != onyxMax_U32); }
         onyxU32 GetMinImageCount() const { return m_MinImageCount; }
