@@ -249,7 +249,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			FileSystem::FileStream shaderSourceFileStream = shaderSourceFile.OpenStream(FileSystem::OpenMode::Text | FileSystem::OpenMode::Write);
 			shaderSourceFileStream.WriteRaw(preprocessedSource.data(), preprocessedSource.size());
 
-			const StringView exportShaderBinaryPath = Format::Format("{}/{}/glsl/{}.spriv", SHADER_BINARIES_TMP_PATH, shaderStageString, sourcePath.stem());
+			const StringView exportShaderBinaryPath = Format::Format("{}/{}/glsl/{}.spirv", SHADER_BINARIES_TMP_PATH, shaderStageString, sourcePath.stem());
 			FileSystem::OnyxFile shaderBinaryFile(exportShaderBinaryPath);
 			FileSystem::FileStream shaderBinaryFileStream = shaderBinaryFile.OpenStream(FileSystem::OpenMode::Binary | FileSystem::OpenMode::Write);
 			shaderBinaryFileStream.WriteRaw(outByteCode, false);
