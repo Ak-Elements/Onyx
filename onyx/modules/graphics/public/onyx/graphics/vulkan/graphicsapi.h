@@ -78,6 +78,8 @@ namespace Onyx::Graphics
             void ReleaseTexture(const VulkanTexture& texture);
             std::lock_guard<std::mutex> LockGraphicsQueue();
 
+            void SignalPresent(onyxU32 presentIndex);
+
         private:
             void WaitIdle() const override;
             void OnWindowResize(onyxU32 width, onyxU32 height) override;
@@ -125,6 +127,7 @@ namespace Onyx::Graphics
 
             UniquePtr<Semaphore> m_GraphicsSemaphore;
             UniquePtr<Semaphore> m_ComputeSemaphore;
+        	UniquePtr<Semaphore> m_PresentSemaphore;
             
             UniquePtr<Fence> m_GraphicsSingleSubmitFence;
             UniquePtr<Fence> m_ComputeSingleSubmitFence;

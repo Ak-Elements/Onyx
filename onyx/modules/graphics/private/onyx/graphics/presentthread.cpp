@@ -90,7 +90,9 @@ namespace Onyx::Graphics
                 }
             }
 
+
             ++m_PresentCount;
+            vulkan.SignalPresent( m_PresentCount );
 
             onyxU64 presentDuration = Time::GetCurrentNanoseconds() - presentStart;
             if (presentDuration < m_TargetFrameTime)

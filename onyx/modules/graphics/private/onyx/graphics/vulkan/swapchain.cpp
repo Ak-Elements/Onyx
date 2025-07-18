@@ -75,7 +75,7 @@ bool SwapChain::BeginFrame(onyxU8 frameIndex)
 
 bool SwapChain::Present(onyxU8 frameIndex, onyxU32 imageIndex)
 {
-	if (m_CurrentImageIndex == onyxMax_U32)
+	if (imageIndex == onyxMax_U32)
 		return true;
 
 	SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
@@ -87,7 +87,8 @@ bool SwapChain::Present(onyxU8 frameIndex, onyxU32 imageIndex)
     presentInfo.swapchainCount = 1;
     presentInfo.pWaitSemaphores = syncObject.m_RenderComplete->GetHandlePtr();
     presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pImageIndices = &static_cast<onyxU32&>(imageIndex);
+	
+	presentInfo.pImageIndices = &imageIndex;
 	
 	{
 		std::lock_guard lock(mutex);
