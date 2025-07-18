@@ -127,7 +127,7 @@ namespace Onyx::FileSystem::Path
             return prefixedPath;
         }
 
-        return {};
+        return relativePath;
     }
 
     bool Exists(const Filepath& path)
