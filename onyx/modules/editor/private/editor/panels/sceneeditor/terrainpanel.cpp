@@ -6,7 +6,10 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <onyx/gamecore/scene/scene.h>
 #include <onyx/geometry/rect2.h>
+#include <onyx/volume/components/volumeterraincomponent.h>
+#include <onyx/volume/systems/volumeterrainsystem.h>
 
 namespace Onyx::Editor::SceneEditor
 {
@@ -34,57 +37,141 @@ namespace Onyx::Editor::SceneEditor
         //    return;
         //}
 
-        //ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName("Scene###SceneViewPanel0");
-        //if (sceneViewWindow == nullptr)
-        //{
-        //    return;
-        //}
+        ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName("Scene###SceneViewPanel0");
+        if (sceneViewWindow == nullptr)
+        {
+            return;
+        }
 
-        //Rect2f32 sceneViewport{ sceneViewWindow->Pos.x, sceneViewWindow->Pos.y, sceneViewWindow->Viewport->Size.x,sceneViewWindow->Viewport->Size.y };
+        Rect2f32 sceneViewport{ sceneViewWindow->Pos.x, sceneViewWindow->Pos.y, sceneViewWindow->Viewport->Size.x,sceneViewWindow->Viewport->Size.y };
 
-        //bool isSceneViewFocused = sceneViewWindow == GImGui->NavWindow;
+        bool isSceneViewFocused = sceneViewWindow == GImGui->NavWindow;
 
-        //Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsApi.GetCommandBuffer(m_GraphicsApi.GetFrameIndex(), true);
-        //if (isSceneViewFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-        //{
-        //    computeCommandBuffer.BindShaderEffect(m_EditTerrainShaderEffect);
-        //    computeCommandBuffer.Bind(m_GraphicsApi.GetViewConstantsBuffer(), "u_viewconstants");
-        //    computeCommandBuffer.Bind(Volume::CreateVolumeMesh::GetVoxelGridBuffer(), "voxels");
+        Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsApi.GetCommandBuffer(m_GraphicsApi.GetFrameIndex(), true);
+        auto runtimeComponentsView = scene.GetRegistry().GetView<Volume::VolumeTerrainSettingsComponent, Volume::Terrain::VolumeTerrainRuntimeComponent>();
 
-        //    struct PushConstants
-        //    {
-        //        Vector2f32 MousePosition;
-        //        float CellSize;
-        //    };
+        if (isSceneViewFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+            // shoot ray against terrain chunks/
 
-        //    ImVec2 mousePos = ImGui::GetMousePos();
+            struct EditPushConstants
+            {
+                Vector3f32 Position;
+                onyxU32 ChunkIndex; 
 
-        //    PushConstants constants;
+                Vector2f32 MousePosition;
+                onyxU64 ActiveChunksBuffer;
 
-        //    constants.MousePosition[0] = ( ( mousePos.x - sceneViewport.Position[0] ) / sceneViewport.Extents[0] ) * 2.0f - 1.0f;
-        //    constants.MousePosition[1] = -( ( ( mousePos.y - sceneViewport.Position[1] ) / sceneViewport.Extents[1] ) * 2.0f - 1.0f );
+                onyxU32 Resolution;
+                onyxU32 ChunkSize;
+                float VoxelSize;
+                //onyxU32 Padding;
+            };
 
-        //    constexpr onyxF32 c_cellSize = 0.5f;
-        //    constants.CellSize = c_cellSize;
-        //    computeCommandBuffer.Barrier(Volume::CreateVolumeMesh::GetVoxelGridBuffer(), Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            ImVec2 mousePos = ImGui::GetMousePos();
+            EditPushConstants constants;
 
-        //    computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
-        //    computeCommandBuffer.Dispatch(1, 1, 1);
+            constants.MousePosition[0] = ((mousePos.x - sceneViewport.Position[0]) / sceneViewport.Extents[0]) * 2.0f - 1.0f;
+            constants.MousePosition[1] = -(((mousePos.y - sceneViewport.Position[1]) / sceneViewport.Extents[1]) * 2.0f - 1.0f);
 
-        //    computeCommandBuffer.Barrier(Volume::CreateVolumeMesh::GetVoxelGridBuffer(), Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        //    computeCommandBuffer.Barrier(Volume::GenerateVolumeMesh::GetVertexBuffer(), Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-        //    computeCommandBuffer.Barrier(Volume::GenerateVolumeMesh::GetDrawCommandBuffer(), Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            for (auto entity : runtimeComponentsView)
+            {
+                //const Volume::VolumeTerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<Volume::VolumeTerrainSettingsComponent>(entity);
+                //const Volume::Terrain::VolumeTerrainRuntimeComponent& terrain = runtimeComponentsView.get<Volume::Terrain::VolumeTerrainRuntimeComponent>(entity);
 
-        //    onyxF32 cellSize = c_cellSize;
-        //    computeCommandBuffer.BindShaderEffect(m_GenerateMeshShaderEffect);
-        //    computeCommandBuffer.Bind(Volume::CreateVolumeMesh::GetVoxelGridBuffer(), "voxels");
-        //    computeCommandBuffer.Bind(Volume::GenerateVolumeMesh::GetVertexBuffer(), "meshvertices");
-        //    computeCommandBuffer.Bind(Volume::GenerateVolumeMesh::GetDrawCommandBuffer(), "drawcommandbuffer");
-        //    computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, cellSize);
-        //    computeCommandBuffer.Dispatch(8, 8, 8);
+                //const onyxU32 terrainResolution = terrainSettings.Resolution;
+                ////const onyxU32 chunkWorldSize = terrainSettings.ChunkSize;
+                //const onyxF32 cellSize = static_cast<onyxF32>(terrainSettings.ChunkSize) / static_cast<onyxF32>(terrainResolution);
 
-        //    computeCommandBuffer.Barrier(Volume::GenerateVolumeMesh::GetVertexBuffer(), Graphics::Context::Graphics, Graphics::Access::VertexRead);
-        //    computeCommandBuffer.Barrier(Volume::GenerateVolumeMesh::GetDrawCommandBuffer(),Graphics::Context::Graphics, Graphics::Access::IndirectRead);
-        //}
+                //constants.CellSize = cellSize;
+                //constants.ActiveChunksBuffer = terrain.ActiveChunks->GetGpuAddress();
+                //constants.ActiveChunksCount = static_cast<onyxU32>(terrain.Chunks.size());
+
+                ////computeCommandBuffer.Barrier(Volume::CreateVolumeMesh::GetVoxelGridBuffer(), Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+
+                //computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
+                //computeCommandBuffer.Dispatch(1, 1, 1);
+
+                //// dispatch indirect edit
+                ///
+                //TODO: this should be moved to generate mesh pass
+
+                const Volume::VolumeTerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<Volume::VolumeTerrainSettingsComponent>(entity);
+                Volume::Terrain::VolumeTerrainRuntimeComponent& terrain = runtimeComponentsView.get<Volume::Terrain::VolumeTerrainRuntimeComponent>(entity);
+
+                const onyxU32 terrainResolution = terrainSettings.Resolution;
+                //const onyxU32 chunkWorldSize = terrainSettings.ChunkSize;
+                const onyxF32 voxelSize = static_cast<onyxF32>(terrainSettings.ChunkSize) / static_cast<onyxF32>(terrainResolution);
+
+                constants.Resolution = terrainSettings.Resolution;
+                constants.ChunkSize = terrainSettings.ChunkSize;
+                constants.VoxelSize = voxelSize;
+                constants.ActiveChunksBuffer = terrain.ActiveChunks->GetGpuAddress();
+                //constants.ActiveChunksCount = static_cast<onyxU32>(terrain.Chunks.size());
+
+#pragma pack(push, 4)
+                struct GenerateMeshPushConstants
+                {
+                    onyxU64 GridAddress;
+                    onyxU64 VerticesAddress;
+
+                    Vector3f32 Transform;
+                    float CellSize;
+
+                    onyxU64 VertexCountAddress;
+                    onyxU64 DrawCommandAddress;
+
+                    onyxU32 DrawCommandIndex;
+                };
+#pragma pack(pop)
+
+                onyxU32 volumeChunkIndex = 0;
+                for (Volume::Terrain::VolumeTerrainChunk& volumeChunk : terrain.Chunks)
+                {
+                    Vector3f32 chunkPosition(volumeChunk.Coordinate);
+                    chunkPosition *= static_cast<onyxF32>(terrainResolution);
+
+                    constants.Position = chunkPosition;
+                    constants.ChunkIndex = volumeChunkIndex;
+                    computeCommandBuffer.Barrier(volumeChunk.VoxelGrid, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+                    computeCommandBuffer.BindShaderEffect( m_EditTerrainShaderEffect );
+                    computeCommandBuffer.Bind( m_GraphicsApi.GetViewConstantsBuffer(), "u_viewconstants" );
+                   // computeCommandBuffer.Bind(volumeChunk.VoxelGrid, "voxels");
+                    computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
+                    computeCommandBuffer.Dispatch(1, 1, 1);
+
+                    computeCommandBuffer.Barrier(volumeChunk.VoxelGrid, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+                    
+                    
+                    computeCommandBuffer.Barrier(volumeChunk.MeshVertices, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+                    computeCommandBuffer.Barrier(volumeChunk.IndirectDrawBuffer, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+
+                    const onyxU32 dispatchXYX = (terrainResolution + (Volume::Terrain::TERRAIN_SHADER_LOCAL_SIZE - 1)) / Volume::Terrain::TERRAIN_SHADER_LOCAL_SIZE;
+#if PER_CHUNK_MESH_DATA
+                    chunkPosition = Vector3f32::Zero();
+#else
+                    Vector3f32 chunkPosition(volumeChunk.Coord);
+                    chunkPosition *= 32.0f;
+#endif
+                    GenerateMeshPushConstants meshPushConstants
+                    {
+                        volumeChunk.VoxelGrid->GetGpuAddress(),
+                        volumeChunk.MeshVertices->GetGpuAddress(),
+                        chunkPosition,
+                        voxelSize,
+                         0,
+                        volumeChunk.IndirectDrawBuffer->GetGpuAddress(),
+                        volumeChunkIndex++,
+                    };
+
+                    computeCommandBuffer.BindShaderEffect(m_GenerateMeshShaderEffect);
+                    computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, meshPushConstants);
+                    computeCommandBuffer.Dispatch(dispatchXYX, dispatchXYX, dispatchXYX);
+
+                    computeCommandBuffer.Barrier(volumeChunk.VoxelGrid, Graphics::Context::Graphics, Graphics::Access::VertexRead);
+                    computeCommandBuffer.Barrier(volumeChunk.IndirectDrawBuffer, Graphics::Context::Graphics, Graphics::Access::IndirectRead);
+                }
+            }
+        }
     }
 }

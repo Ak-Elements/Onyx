@@ -27,6 +27,9 @@ namespace Onyx::Editor::SceneEditor
 
         onyxU32 m_SceneViewPanelId = 0;
 
+        Graphics::ShaderHandle m_RayTraceTerrainShader;
+        Graphics::ShaderEffectHandle m_RayTraceTerrainShaderEffect;
+
         Graphics::ShaderHandle m_EditTerrainShader;
         Graphics::ShaderEffectHandle m_EditTerrainShaderEffect;
 

@@ -60,7 +60,6 @@ compute
         DrawCommandBuffer DrawCommandBufferPointer;
 
         uint DrawCommandIndex;
-        vec3 Padding;
     } u_Constants;
 
     void main()

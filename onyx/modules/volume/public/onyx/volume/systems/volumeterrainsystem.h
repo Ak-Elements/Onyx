@@ -29,6 +29,10 @@ namespace Onyx::Volume::Terrain
 
     struct VolumeTerrainRuntimeComponent
     {
+        // first node is root of the tree
+
+        Graphics::BufferHandle ActiveChunks;
+
         DynamicArray<VolumeTerrainChunk> Chunks;
 
 #if !PER_CHUNK_MESH_DATA

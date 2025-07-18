@@ -20,6 +20,11 @@ compute
     {
         Voxel Cells[];
     };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer ActiveChunks
+    {
+        Grid Chunks[];
+    };
     
     layout(push_constant) uniform Constants
     {
@@ -27,8 +32,10 @@ compute
         float Distance;
 
         Grid GridPointer;
+        ActiveChunks ActiveChunksPointer;
+        
         float CellSize;
-        float Padding;
+        uint ChunkIndex;
     } u_Constants;
 
     void main()
@@ -38,6 +45,9 @@ compute
 
         vec3 position = vec3(gl_GlobalInvocationID) * u_Constants.CellSize;
         uint voxelIndex = globalID.x + gridSize.x * (globalID.y + gridSize.y * globalID.z);
+
+        // we should store the chunk index in the active chunks
+        u_Constants.ActiveChunksPointer.Chunks[u_Constants.ChunkIndex] = u_Constants.GridPointer;
 
         u_Constants.GridPointer.Cells[voxelIndex] = Voxel( vec4(position,0.0f), GetPlaneValueAndGradient(position, u_Constants.Normal, u_Constants.Distance) );
     }

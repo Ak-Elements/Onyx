@@ -232,6 +232,7 @@ namespace Onyx
             onyxU8 GetFrameIndex() const { return m_FrameIndex; }
             FrameContext& GetFrameContext() { return m_FrameContext[m_FrameIndex]; }
             const FrameContext& GetFrameContext() const { return m_FrameContext[m_FrameIndex]; }
+            const ViewConstants& GetViewContsants() const { return m_FrameContext[m_FrameIndex].ViewConstants; }
             const BufferHandle& GetViewConstantsBuffer() const { return m_ViewConstantsUniformBuffers[m_FrameIndex]; }
 
             CommandBuffer& GetCommandBuffer(onyxU8 frameIndex);
@@ -249,7 +250,7 @@ namespace Onyx
             void WaitIdle();
 
             void OnWindowResize(onyxU32 width, onyxU32 height);
-  
+     
 
         protected:
             void LoadSettings();

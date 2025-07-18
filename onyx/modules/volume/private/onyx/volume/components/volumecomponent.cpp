@@ -133,12 +133,12 @@ namespace Volume
     namespace VolumeRendering
     {
         // TODO: Material component should be read access
-        using VolumeEntityAccess = Entity::Entity<const Terrain::VolumeTerrainRuntimeComponent, GameCore::MaterialComponent>;
+        using VolumeEntityAccess = Entity::Entity<const VolumeTerrainSettingsComponent, const Terrain::VolumeTerrainRuntimeComponent, GameCore::MaterialComponent>;
         void system(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
         {
             GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
             
-            auto&& [ volumeTerrain, materialComponent ] = entity.Get();
+            auto&& [ volumeTerrainSettings, volumeTerrain, materialComponent ] = entity.Get();
 
             if (materialComponent.Material.IsValid() == false)
             {
@@ -153,13 +153,13 @@ namespace Volume
             //if (volumeComponent.IsLoading || (volumeComponent.Vertices.IsValid() == false))
             //    return;
 
-            onyxF32 cellSize = 8;
 #if PER_CHUNK_MESH_DATA
             for (const auto& volumeChunk : volumeTerrain.Chunks)
             {
                 Matrix4<onyxF32> transform;
 
-                transform[3] = Vector4f32(static_cast<onyxF32>(volumeChunk.Coordinate.X) * 32.0f * cellSize, static_cast<onyxF32>(volumeChunk.Coordinate.Y) * 32.0f * cellSize, static_cast<onyxF32>(volumeChunk.Coordinate.Z) * 32.0f * cellSize, 1.0f);
+                transform[3] = Vector4f32(volumeChunk.Coordinate.X, volumeChunk.Coordinate.Y, volumeChunk.Coordinate.Z, 1.0f / static_cast<onyxF32>(volumeTerrainSettings.ChunkSize));
+                transform[3] *= static_cast<onyxF32>(volumeTerrainSettings.ChunkSize);
 #endif
 
                 GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();

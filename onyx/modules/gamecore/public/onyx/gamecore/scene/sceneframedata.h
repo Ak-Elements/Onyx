@@ -64,6 +64,7 @@ namespace Onyx::GameCore
         Graphics::BufferHandle MeshVertices;
         Graphics::BufferHandle VertexCount;
         Graphics::BufferHandle IndirectDraw;
+        Graphics::BufferHandle ActiveChunks;
         onyxU32 Index;
 
         onyxU32 Size;

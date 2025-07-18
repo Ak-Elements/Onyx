@@ -26,9 +26,11 @@ namespace Onyx::Volume
 
         Graphics::PipelineProperties properties;
         properties.Shader = m_CreateTerrainShader;
+        properties.m_DebugName = "Fill Voxel Grid";
         m_CreateTerrainShaderEffect = api.CreateShaderEffect(properties);
 
         properties.Shader = m_GenerateMeshShader;
+        properties.m_DebugName = "Generate Volume Mesh";
         m_GenerateMeshShaderEffect = api.CreateShaderEffect(properties);
     }
 
@@ -47,9 +49,13 @@ namespace Onyx::Volume
             float Distance;
 
             onyxU64 GridAddress;
+            onyxU64 ActiveChunksAddress;
+
             float CellSize;
+            onyxU32 ChunkIndex;
         };
 
+#pragma pack(push, 4)
         struct GenerateMeshPushConstants
         {
             onyxU64 GridAddress;
@@ -63,6 +69,7 @@ namespace Onyx::Volume
 
             onyxU32 DrawCommandIndex;
         };
+#pragma pack(pop)
 
         const Graphics::FrameContext& frameContext = context.FrameContext;
         if (frameContext.FrameData == nullptr)
@@ -72,17 +79,17 @@ namespace Onyx::Volume
 
         for (const auto& volumeChunk : sceneFrameData.m_VoxelChunksToInit)
         {
-            const onyxU32 dispatchXYX = (volumeChunk.Resolution + (Terrain::TERRAIN_SHADER_LOCAL_SIZE - 1)) / Terrain::TERRAIN_SHADER_LOCAL_SIZE;
+            const onyxU32 dispatchXYZ = (volumeChunk.Resolution + (Terrain::TERRAIN_SHADER_LOCAL_SIZE - 1)) / Terrain::TERRAIN_SHADER_LOCAL_SIZE;
 
             Graphics::BufferHandle handle(volumeChunk.Grid);
             commandBuffer.BindShaderEffect(m_CreateTerrainShaderEffect);
 
             const float cellSize = static_cast<onyxF32>(volumeChunk.Size) / static_cast<onyxF32>(volumeChunk.Resolution);
-            CreatePushConstants constants{ Vector3f32::Y_Unit(), 1.0f, volumeChunk.Grid->GetGpuAddress() , cellSize };
+            CreatePushConstants constants{ Vector3f32::Y_Unit(), 1.0f, volumeChunk.Grid->GetGpuAddress() ,volumeChunk.ActiveChunks->GetGpuAddress(), cellSize, volumeChunk.Index };
 
             commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
             commandBuffer.Barrier(handle, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-            commandBuffer.Dispatch(dispatchXYX, dispatchXYX, dispatchXYX);
+            commandBuffer.Dispatch(dispatchXYZ, dispatchXYZ, dispatchXYZ);
 
             commandBuffer.Barrier(handle, Graphics::Context::Compute, Graphics::Access::ShaderRead);
 
@@ -105,7 +112,7 @@ namespace Onyx::Volume
 
             commandBuffer.BindShaderEffect(m_GenerateMeshShaderEffect);
             commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, meshPushConstants);
-            commandBuffer.Dispatch(dispatchXYX, dispatchXYX, dispatchXYX);
+            commandBuffer.Dispatch(dispatchXYZ, dispatchXYZ, dispatchXYZ);
         }
     }
 

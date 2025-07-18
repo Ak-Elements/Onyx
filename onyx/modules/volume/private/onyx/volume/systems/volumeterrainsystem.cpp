@@ -24,7 +24,7 @@ namespace Onyx::Volume::Terrain
 
             const onyxU32 dispatchXYZ = (terrainSettings.Resolution + (TERRAIN_SHADER_LOCAL_SIZE - 1)) / TERRAIN_SHADER_LOCAL_SIZE;
             const onyxU32 clusterCount = dispatchXYZ * dispatchXYZ * dispatchXYZ * (TERRAIN_SHADER_LOCAL_SIZE * TERRAIN_SHADER_LOCAL_SIZE * TERRAIN_SHADER_LOCAL_SIZE);
-            constexpr onyxU32 maxVertexCount = (1 << 21); // Hacky
+            constexpr onyxU32 maxVertexCount = 1000000; // Hacky
             Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
             if (frameContext.FrameData == nullptr)
                 return;
@@ -36,6 +36,14 @@ namespace Onyx::Volume::Terrain
                 uint32_t    FirstVertex;
                 uint32_t    FirstInstance;
             };
+
+            const onyxS32 maxChunkCount = 10;//static_cast<onyxS32>(std::ceil(graphicsApi.GetViewContsants().Far / static_cast<onyxS32>(terrainSettings.ChunkSize)));
+            const onyxS32 chunkCount = ((terrainSettings.Dimensions.X == -1) ? maxChunkCount : std::min(static_cast<onyxS32>(terrainSettings.Dimensions.X), maxChunkCount)) *
+                                        ((terrainSettings.Dimensions.Y == -1) ? maxChunkCount : std::min(static_cast<onyxS32>(terrainSettings.Dimensions.Y), maxChunkCount)) *
+                                        ((terrainSettings.Dimensions.Z == -1) ? maxChunkCount : std::min(static_cast<onyxS32>(terrainSettings.Dimensions.Z), maxChunkCount));
+
+            if (chunkCount == 0)
+                return;
 
             GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
             
@@ -57,6 +65,14 @@ namespace Onyx::Volume::Terrain
             ssboIndirectDrawProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Indirect | Graphics::BufferUsage::DeviceAddress);
             ssboIndirectDrawProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
+            Graphics::BufferProperties activeChunksBufferProps;
+            activeChunksBufferProps.m_DebugName = "Active Chunks";
+            activeChunksBufferProps.m_Size = sizeof(onyxU64) * chunkCount; // can be changed to uint32 once we have chunks in contiguous buffer
+            activeChunksBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
+            activeChunksBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
+
+            graphicsApi.CreateBuffer(terrainComponent.ActiveChunks, activeChunksBufferProps);
+
 #if !PER_CHUNK_MESH_DATA
             Graphics::BufferProperties ssboVertexCountDrawProps;
             ssboVertexCountDrawProps.m_DebugName = "VertexCount";
@@ -74,22 +90,32 @@ namespace Onyx::Volume::Terrain
            // else
             {
                 onyxU32 chunkIndex = 0;
-                constexpr onyxS16 dimension = 1;
+                const Vector3s16 dimension(
+                    std::max(terrainSettings.Dimensions[0] , onyxS16(1)), 
+                    std::max(terrainSettings.Dimensions[1], onyxS16(1)), 
+                    std::max(terrainSettings.Dimensions[0], onyxS16(1))
+                );
+
+
+                const Vector3s16 halfDimension = dimension / 2;
                 //onyxS16 flatSize = dimension * dimension * dimension;
-                for (onyxS16 x = 0; x < dimension; ++x)
+                for (onyxS16 x = 0; x < dimension.X; ++x)
                 {
-                    for (onyxS16 y = 0; y < 1; ++y)
+                    for (onyxS16 y = 0; y < dimension.Y; ++y)
                     {
-                        for (onyxS16 z = 0; z < dimension; ++z)
+                        for (onyxS16 z = 0; z < dimension.Z; ++z)
                         {
-                            VolumeTerrainChunk& chunk = terrainComponent.Chunks.emplace_back(Vector3s16(x, y, z));
+                            Vector3s16 coord(x, y, z);
+                            coord -= halfDimension;
+
+                            VolumeTerrainChunk& chunk = terrainComponent.Chunks.emplace_back(coord);
                             graphicsApi.CreateBuffer(chunk.VoxelGrid, ssboBufferProps);
 
 #if PER_CHUNK_MESH_DATA
                             graphicsApi.CreateBuffer(chunk.MeshVertices, ssboMeshVerticesProps);
                             graphicsApi.CreateBuffer(chunk.IndirectDrawBuffer, ssboIndirectDrawProps);
                             
-                            sceneFrameData.m_VoxelChunksToInit.emplace_back(chunk.Coordinate, chunk.VoxelGrid, chunk.MeshVertices, nullptr, chunk.IndirectDrawBuffer, chunkIndex++, terrainSettings.ChunkSize, terrainSettings.Resolution);
+                            sceneFrameData.m_VoxelChunksToInit.emplace_back(chunk.Coordinate, chunk.VoxelGrid, chunk.MeshVertices, nullptr, chunk.IndirectDrawBuffer, terrainComponent.ActiveChunks, chunkIndex++, terrainSettings.ChunkSize, terrainSettings.Resolution);
 #else
                             graphicsApi.CreateBuffer(chunk.VertexCount, ssboVertexCountDrawProps);
                             sceneFrameData.m_VoxelChunksToInit.emplace_back(chunk.Coordinate, chunk.VoxelGrid, terrainComponent.MeshVertices, chunk.VertexCount, terrainComponent.IndirectDrawBuffer, chunkIndex++);
@@ -98,8 +124,6 @@ namespace Onyx::Volume::Terrain
                         }
                     }
                 }
-
-                chunkIndex = dimension;
             }
 
             entityCommandBuffer.RemoveComponent<InitTerrainFlag>(terrainEntity.GetId());
