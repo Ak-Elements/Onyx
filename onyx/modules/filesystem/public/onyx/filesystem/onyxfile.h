@@ -177,6 +177,8 @@ namespace Onyx::FileSystem
         ONYX_NO_DISCARD static bool ReadAll(const Filepath& filePath, String& outFileContent, bool shouldSkipBOM);
         ONYX_NO_DISCARD FileStream OpenStream(OpenMode mode) const; // todo make base stream class?
 
+        ONYX_NO_DISCARD const Filepath& GetPath() const { return m_FilePath; }
+        
         JsonValue LoadJson() const;
         void WriteJson(const JsonValue& json) const;
 

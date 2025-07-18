@@ -36,6 +36,7 @@ public:
     void ReadAllWithoutBOM(std::string& outStr) const;
 
     std::iostream& get() { return *m_Stream; }
+    void Flush();
 
 private:
     void DoRead(char* destination, onyxU64 size) const override;

@@ -8,6 +8,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/debug/gui/notificationloggersink.h
 	${TARGET_PUBLIC_PATH}/debug/gui/fpsstatusbaritem.h
 	${TARGET_PUBLIC_PATH}/graphics/meshsourceasset.h
+	${TARGET_PUBLIC_PATH}/log/logsinkfile.h
 	${TARGET_PUBLIC_PATH}/taskgraph/taskgraph.h
 	${TARGET_PUBLIC_PATH}/taskgraph/taskgraphtask.h
 )
@@ -19,6 +20,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/debug/gui/notificationloggersink.cpp
 	${TARGET_PRIVATE_PATH}/debug/gui/fpsstatusbaritem.cpp
 	${TARGET_PRIVATE_PATH}/graphics/meshsourceasset.cpp
+	${TARGET_PRIVATE_PATH}/log/logsinkfile.cpp
 	${TARGET_PRIVATE_PATH}/platform/windows/main.cpp
 	${TARGET_PRIVATE_PATH}/taskgraph/taskgraph.cpp
 	${TARGET_PRIVATE_PATH}/taskgraph/taskgraphtask.cpp

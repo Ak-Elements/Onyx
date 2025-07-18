@@ -42,7 +42,7 @@ namespace Onyx::FileSystem
 
     FileStream::~FileStream()
     {
-        m_Stream->flush();
+        Flush();
     }
 
     void FileStream::SetPosition(onyxU64 position)
@@ -75,6 +75,11 @@ namespace Onyx::FileSystem
 
         // Read the rest of the stream
         outStr.assign((std::istreambuf_iterator<char>(*m_Stream)), std::istreambuf_iterator<char>());
+    }
+
+    void FileStream::Flush()
+    {
+        m_Stream->flush();
     }
 
     void FileStream::DoRead(char* destination, onyxU64 size) const

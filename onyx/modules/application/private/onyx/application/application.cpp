@@ -3,7 +3,7 @@
 #include <onyx/log/logger.h>
 #include <onyx/log/backends/stdoutlogger.h>
 #include <onyx/log/backends/visualstudiolog.h>
-
+#include <onyx/application/log/logsinkfile.h>
 #include <onyx/application/debug/gui/notificationloggersink.h>
 
 #include <onyx/graphics/graphicsapi.h>
@@ -150,6 +150,7 @@ namespace Onyx::Application
         Logger::s_DefaultLogger = m_Logger.get();
 
         m_Logger->AddLoggingBackend<StdoutLogger>();
+
 #if ONYX_IS_VISUAL_STUDIO
         m_Logger->AddLoggingBackend<VisualStudioLogger>();
 #endif
@@ -158,11 +159,19 @@ namespace Onyx::Application
         m_Logger->AddLoggingBackend<GuiNotificationLoggerSink>();
 #endif
 
-        m_Logger->SetSeverity(LogLevel::Trace);
-        m_Logger->Init();
-
         FileSystem::Path::SetMountPoints(settings.MountPoints);
         FileSystem::FileDialog::Init();
+
+        constexpr StringView lastSessionLogPath = "tmp:/logs/last_session.log";
+        FileSystem::Filepath logDirectory = FileSystem::Path::GetFullPath(lastSessionLogPath).parent_path();
+        if (FileSystem::Path::Exists(logDirectory) == false )
+        {
+            FileSystem::Path::CreateDirectory(logDirectory);
+        }
+
+        m_Logger->AddLoggingBackend<LogSinkFile>(lastSessionLogPath);
+        m_Logger->SetSeverity( LogLevel::Trace );
+        m_Logger->Init();
 
         OnApplicationCreated(*this);
     }
