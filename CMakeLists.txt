@@ -26,7 +26,7 @@ option(ONYX_BUILD_TESTS "Build tests" OFF)
 option(ONYX_STATIC_ANALYSIS "Turn static analysis on/off" OFF)
 option(ONYX_GENERATE_DATA_SYMLINK "Turn static analysis on/off" OFF)
 
-cmake_dependent_option(ONYX_GENERATE_APP_CONFIG "Generate default application config" ON "PROJECT_IS_TOP_LEVEL" OFF)
+cmake_dependent_option(ONYX_GENERATE_APP_CONFIG "Generate default application config" OFF "PROJECT_IS_TOP_LEVEL" ON)
 
 # String Options
 set(ONYX_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/onyx-${ONYX_VERSION_SUFFIX} CACHE STRING "Path to onyx cmake files")
