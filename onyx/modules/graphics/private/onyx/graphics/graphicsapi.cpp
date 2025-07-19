@@ -125,7 +125,7 @@ namespace Onyx::Graphics
     {
         BufferProperties uniformBufferProps;
         uniformBufferProps.m_Size = sizeof(ViewConstants);
-        uniformBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Uniform);
+        uniformBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Uniform | BufferUsage::DeviceAddress);
         uniformBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
