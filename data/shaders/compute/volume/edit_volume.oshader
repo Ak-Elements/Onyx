@@ -3,7 +3,6 @@
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
 
-#include "includes/viewconstants.h"
 #include "includes/volume/csg.h"
 
 const float ISO_LEVEL = 0.0f;
@@ -11,7 +10,7 @@ const float ISO_LEVEL = 0.0f;
 compute
 {
     layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-    
+
     struct Voxel
     {
         vec4 Position;
@@ -28,16 +27,38 @@ compute
         VolumeChunk Chunks[];
     };
 
+   layout(std430, buffer_reference, buffer_reference_align = 8) buffer ViewConstants
+    {
+        mat4 ProjectionMatrix;
+        mat4 InverseProjectionMatrix;
+        mat4 ViewMatrix;
+        mat4 InverseViewMatrix;
+        mat4 ViewProjectionMatrix;
+        mat4 InverseViewProjectionMatrix;
+
+        vec2 Viewport;
+        float Near;
+        float Far;
+
+        vec3 CameraPosition;
+        float Padding;
+
+        vec3 CameraDirection;
+        float Padding2;
+    };
+
     layout(push_constant) uniform Constants
     {
         vec3 Position;
         uint ChunkIndex;
 
-        vec2 MousePosition;  
+        ViewConstants ViewConstantsBuffer;
         ActiveChunks ActiveChunksPointer;
 
+        vec2 MousePosition;  
         uint Resolution;
         uint ChunkSize;
+        
         float VoxelSize;
         uint Padding;
     } u_Constants;
@@ -45,19 +66,19 @@ compute
     bool IntersectRayAABB(vec3 rayOrigin, vec3 rayDirection, vec3 volumeChunkMin, vec3 volumeChunkMax, out float tEnter, out float tExit)
     {
         vec3 reciprocal = 1.0f / rayDirection;
-        vec3 tMin = (volumeChunkMin - rayOrigin) * reciprocal;
-        vec3 tMax = (volumeChunkMax - rayOrigin) * reciprocal;
+        vec3 t0 = (volumeChunkMin - rayOrigin) * reciprocal;
+        vec3 t1 = (volumeChunkMax - rayOrigin) * reciprocal;
 
-        vec3 t1 = min(tMin, tMax);
-        vec3 t2 = max(tMin, tMax);
+        vec3 tMin = min(t0, t1);
+        vec3 tMax = max(t0, t1);
 
-        float tNear = max(max(t1.x, t1.y), t1.z);
-        float tFar = min(min(t2.x, t2.y), t2.z);
+        float tNear = max(max(tMin.x, tMin.y), tMin.z);
+        float tFar = min(min(tMax.x, tMax.y), tMax.z);
 
         tEnter = tNear;
         tExit = tFar;
 
-        return tNear < tFar;
+        return tNear <= tFar;
     }
   
     void main()
@@ -69,11 +90,11 @@ compute
         restrict VolumeChunk chunk = u_Constants.ActiveChunksPointer.Chunks[u_Constants.ChunkIndex];
 
         vec4 mouseClipPos = vec4(u_Constants.MousePosition.xy, 0.0f, 1.0f);
-        vec4 ray = u_ViewConstants.InverseProjectionMatrix * mouseClipPos;
+        vec4 ray = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix * mouseClipPos;
         ray /= ray.w;
-        ray = u_ViewConstants.InverseViewMatrix * ray;
+        ray = u_Constants.ViewConstantsBuffer.InverseViewMatrix * ray;
 
-        vec3 rayOrigin = u_ViewConstants.CameraPosition;
+        vec3 rayOrigin = u_Constants.ViewConstantsBuffer.CameraPosition;
         vec3 rayDirection = normalize(ray.xyz - rayOrigin);
 
         vec3 chunkPosition = u_Constants.Position;
@@ -97,10 +118,6 @@ compute
         uint voxelIndex = 0;
         bool hasHit = false; 
         uvec3 gridSize = uvec3(resolution);
-
-//        {
-//            return;
-//        }
 
         while (localHitPosition.x < chunkSize || localHitPosition.y < chunkSize || localHitPosition.z < chunkSize)
         {

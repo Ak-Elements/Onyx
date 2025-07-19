@@ -112,7 +112,7 @@ namespace Onyx::GameCore
 
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
-            commandBuffer.BindVertexBuffer(first.VertexData, 0, 0);
+            commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
 
             for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
             {

@@ -8,9 +8,14 @@ vertex
     layout (location = 0) in vec4 inPosition;
     layout (location = 1) in vec4 inNormal;
 
+    layout( push_constant ) uniform PushConstants 
+    { 
+        mat4 ModelMatrix;
+    }; 
+
     void main()
     {
-        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(inPosition.xyz, 1.0);
+        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * ModelMatrix * vec4(inPosition.xyz, 1.0);
     }
 }
 

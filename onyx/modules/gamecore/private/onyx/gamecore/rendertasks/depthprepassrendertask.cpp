@@ -10,6 +10,8 @@ namespace Onyx::GameCore
 {
     void DepthPrePassRenderGraphNode::OnInit(Graphics::GraphicsApi& api, Graphics::RenderGraphResourceCache& resourceCache)
     {
+        m_PipelineProperties.m_DebugName = "Depth Pre Pass";
+
         Graphics::RenderGraphResource& depthResource = resourceCache[GetOutputPin().GetGlobalId()];
         depthResource.Info.Type = Graphics::RenderGraphResourceType::Attachment;
         Graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get<Graphics::RenderGraphTextureResourceInfo>(depthResource.Properties);
@@ -60,8 +62,12 @@ namespace Onyx::GameCore
 
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
-            commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
-            commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
+            for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
+            {
+                commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
+                commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
+                commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
+            }
         }
     }
 }

@@ -93,7 +93,7 @@ namespace Onyx::Volume::Terrain
                 const Vector3s16 dimension(
                     std::max(terrainSettings.Dimensions[0] , onyxS16(1)), 
                     std::max(terrainSettings.Dimensions[1], onyxS16(1)), 
-                    std::max(terrainSettings.Dimensions[0], onyxS16(1))
+                    std::max(terrainSettings.Dimensions[2], onyxS16(1))
                 );
 
 

@@ -50,7 +50,8 @@ namespace Onyx::Editor::SceneEditor
         Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsApi.GetCommandBuffer(m_GraphicsApi.GetFrameIndex(), true);
         auto runtimeComponentsView = scene.GetRegistry().GetView<Volume::VolumeTerrainSettingsComponent, Volume::Terrain::VolumeTerrainRuntimeComponent>();
 
-        if (isSceneViewFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        bool hasClickedLeft =  ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+        if (isSceneViewFocused && hasClickedLeft)
         {
             // shoot ray against terrain chunks/
 
@@ -58,12 +59,14 @@ namespace Onyx::Editor::SceneEditor
             {
                 Vector3f32 Position;
                 onyxU32 ChunkIndex; 
-
-                Vector2f32 MousePosition;
+                    
+                onyxU64 ViewConstantsAddress;
                 onyxU64 ActiveChunksBuffer;
 
+                Vector2f32 MousePosition;
                 onyxU32 Resolution;
                 onyxU32 ChunkSize;
+
                 float VoxelSize;
                 //onyxU32 Padding;
             };
@@ -106,6 +109,7 @@ namespace Onyx::Editor::SceneEditor
                 constants.Resolution = terrainSettings.Resolution;
                 constants.ChunkSize = terrainSettings.ChunkSize;
                 constants.VoxelSize = voxelSize;
+                constants.ViewConstantsAddress = m_GraphicsApi.GetViewConstantsBuffer()->GetGpuAddress();
                 constants.ActiveChunksBuffer = terrain.ActiveChunks->GetGpuAddress();
                 //constants.ActiveChunksCount = static_cast<onyxU32>(terrain.Chunks.size());
 
@@ -129,20 +133,17 @@ namespace Onyx::Editor::SceneEditor
                 for (Volume::Terrain::VolumeTerrainChunk& volumeChunk : terrain.Chunks)
                 {
                     Vector3f32 chunkPosition(volumeChunk.Coordinate);
-                    chunkPosition *= static_cast<onyxF32>(terrainResolution);
+                    chunkPosition *= static_cast<onyxF32>(terrainSettings.ChunkSize);
 
                     constants.Position = chunkPosition;
                     constants.ChunkIndex = volumeChunkIndex;
                     computeCommandBuffer.Barrier(volumeChunk.VoxelGrid, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
                     computeCommandBuffer.BindShaderEffect( m_EditTerrainShaderEffect );
-                    computeCommandBuffer.Bind( m_GraphicsApi.GetViewConstantsBuffer(), "u_viewconstants" );
-                   // computeCommandBuffer.Bind(volumeChunk.VoxelGrid, "voxels");
                     computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
                     computeCommandBuffer.Dispatch(1, 1, 1);
 
                     computeCommandBuffer.Barrier(volumeChunk.VoxelGrid, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-                    
-                    
+
                     computeCommandBuffer.Barrier(volumeChunk.MeshVertices, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
                     computeCommandBuffer.Barrier(volumeChunk.IndirectDrawBuffer, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
 
@@ -161,7 +162,7 @@ namespace Onyx::Editor::SceneEditor
                         voxelSize,
                          0,
                         volumeChunk.IndirectDrawBuffer->GetGpuAddress(),
-                        volumeChunkIndex++,
+                        volumeChunkIndex,
                     };
 
                     computeCommandBuffer.BindShaderEffect(m_GenerateMeshShaderEffect);
@@ -170,6 +171,8 @@ namespace Onyx::Editor::SceneEditor
 
                     computeCommandBuffer.Barrier(volumeChunk.VoxelGrid, Graphics::Context::Graphics, Graphics::Access::VertexRead);
                     computeCommandBuffer.Barrier(volumeChunk.IndirectDrawBuffer, Graphics::Context::Graphics, Graphics::Access::IndirectRead);
+
+                    volumeChunkIndex++;
                 }
             }
         }
