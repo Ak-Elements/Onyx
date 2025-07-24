@@ -18,6 +18,9 @@ namespace Onyx::Assets
     class AssetSystem : public IEngineSystem
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::Assets::AssetModule";
+        StringId32 GetTypeId() const { return TypeId; }
+
         AssetSystem();
         ~AssetSystem() override;
 

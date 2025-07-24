@@ -34,10 +34,7 @@
 
 namespace Onyx::Graphics
 {
-    GraphicsSystem::GraphicsSystem() = default;
-    GraphicsSystem::~GraphicsSystem() = default;
-
-    void GraphicsSystem::Init(const GraphicSettings& graphicSettings, const WindowSettings& windowSettings, Assets::AssetSystem& assetSystem)
+    GraphicsSystem::GraphicsSystem()
     {
         RenderGraphNodeFactory::RegisterNode<GetViewConstantsNode>();
         RenderGraphNodeFactory::RegisterNode<CreateLightClusters>();
@@ -52,6 +49,23 @@ namespace Onyx::Graphics
         NodeGraph::NodeGraphTypeRegistry::RegisterType<TextureHandle>();
         NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle, "Onyx::Graphics::BufferHandle">();
 
+        NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
+        NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
+        NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
+
+        ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>();
+        ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>();
+
+        ShaderGraphNodeFactory::RegisterNode<SampleTextureNode>();
+
+        ShaderGraphNodeFactory::RegisterNode<GetWorldPositionNode>();
+        ShaderGraphNodeFactory::RegisterNode<GetWorldNormalNode>();
+    }
+
+    GraphicsSystem::~GraphicsSystem() = default;
+
+    void GraphicsSystem::Init(const GraphicSettings& graphicSettings, const WindowSettings& windowSettings, Assets::AssetSystem& assetSystem)
+    {
         m_Window = MakeUnique<Window>();
         m_Window->Create(windowSettings);
 
@@ -63,17 +77,13 @@ namespace Onyx::Graphics
         Assets::AssetSystem::Register<RenderGraph, RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<SDFFont, SDFFontSerializer>(assetSystem);
 
-        NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
-        NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
-        NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
+        Reference<Graphics::RenderGraph> mainRenderGraph;
+        assetSystem.GetAsset(graphicSettings.DefaultRenderGraph, mainRenderGraph);
 
-        ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>();
-        ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>();
-        
-        ShaderGraphNodeFactory::RegisterNode<SampleTextureNode>();
-        
-        ShaderGraphNodeFactory::RegisterNode<GetWorldPositionNode>();
-        ShaderGraphNodeFactory::RegisterNode<GetWorldNormalNode>();
+        m_Window->SetIcon("engine:/onyx128x128.png");
+
+        m_Window->Show();
+        m_GraphicsApi->SetRenderGraph(mainRenderGraph);
     }
 
     void GraphicsSystem::Shutdown()

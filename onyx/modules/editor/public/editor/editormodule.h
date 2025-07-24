@@ -41,6 +41,10 @@ namespace Onyx::Editor
     class EditorSystem : public IEngineSystem
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::Editor::EditorModule";
+        StringId32 GetTypeId() const { return TypeId; }
+
+        EditorSystem();
         ~EditorSystem() override;
 
         void Init(GameCore::GameCoreSystem& gameCore,

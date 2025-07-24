@@ -77,6 +77,7 @@ namespace Onyx::Graphics
         m_PresentThread.Shutdown();
 
         //m_Window.RemoveOnResizeHandler(this, &GraphicsApi::OnWindowResize);
+        m_FrameContext.Clear();
 
         m_FramebufferCache.Clear();
         m_RenderPassCache.Clear();

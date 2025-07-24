@@ -9,6 +9,7 @@ function(add_onyx_module ONYX_TARGET_NAME)
         ${ARGN}                 # Remaining arguments
     )
 
+
     #### Target ####
     
     string(SUBSTRING ${ONYX_TARGET_NAME} 5 -1 ONYX_TARGET_EXPORT_NAME)
@@ -19,10 +20,16 @@ function(add_onyx_module ONYX_TARGET_NAME)
     
     set_property(GLOBAL APPEND PROPERTY onyx_modules "${ONYX_TARGET_EXPORT_NAME}")
 
+    set(base_directory ${CMAKE_CURRENT_SOURCE_DIR}/public)
+
+    onyx_find_engine_modules("${TARGET_PUBLIC_SOURCES}" "${base_directory}" engineModuleClasses engineModuleIncludePaths)
+    set_property(GLOBAL APPEND PROPERTY onyx_module_classes ${engineModuleClasses})
+    set_property(GLOBAL APPEND PROPERTY onyx_module_include_paths ${engineModuleIncludePaths})
+
     if(TARGET_PUBLIC_SOURCES)
         target_sources(${ONYX_TARGET_NAME} PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/public
+            BASE_DIRS ${base_directory}
             FILES ${TARGET_PUBLIC_SOURCES}
         )
         source_group(TREE ${TARGET_PUBLIC_PATH} FILES ${TARGET_PUBLIC_SOURCES})

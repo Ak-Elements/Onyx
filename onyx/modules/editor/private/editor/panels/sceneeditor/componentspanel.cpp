@@ -122,8 +122,13 @@ namespace Onyx::Editor::SceneEditor
 
             Entity::EntityRegistry& registry = scene.GetRegistry();
             bool hasMenuItem = false;
-            for (const StringId32& componentTypeId : componentFactory.GetComponentMeta() | std::views::keys)
+            for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
             {
+                if (componentMeta->IsTransient())
+                {
+                    continue;
+                }
+
                 Localization::LocalizationId localizationId(componentTypeId);
                 Localization::LocalizedString componentLocalizedName = m_LocalizationModule->GetLocalized(localizationId);
 

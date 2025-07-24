@@ -1,4 +1,5 @@
 #include <onyx/application/application.h>
+#include <onyx/application/enginesystemfactory.h>
 
 #include <onyx/log/logger.h>
 #include <onyx/log/backends/stdoutlogger.h>
@@ -16,6 +17,8 @@
 #include <onyx/filesystem/onyxfile.h>
 
 #include <onyx/graphics/graphicssystem.h>
+#include <onyx/assets/assetsystem.h>
+#include <onyx/nodegraph/nodegraphmodule.h>
 #include <onyx/profiler/profiler.h>
 
 #include <onyx/serialize/serializer.h>
@@ -124,6 +127,8 @@ namespace Onyx::Application
                     return true;
             });
 
+            deserializer.Read<"modules">(settings.Modules);
+
             deserializer.Read<"graphics">(settings.GraphicSettings);
             deserializer.Read<"window">(settings.WindowSettings);
 
@@ -144,10 +149,26 @@ namespace Onyx::Application
     Application::Application(const ApplicationSettings& settings)
         : m_Settings(settings)
     {
+    }
+
+    Application::~Application() = default;
+
+    void Application::Init()
+    {
         Thread::MAIN_THREAD_ID = std::this_thread::get_id();
 
         m_Logger = MakeUnique<Logger>();
         Logger::s_DefaultLogger = m_Logger.get();
+
+        FileSystem::Path::SetMountPoints(m_Settings.MountPoints);
+        FileSystem::FileDialog::Init();
+
+        constexpr StringView lastSessionLogPath = "tmp:/logs/last_session.log";
+        FileSystem::Filepath logDirectory = FileSystem::Path::GetFullPath(lastSessionLogPath).parent_path();
+        if (FileSystem::Path::Exists(logDirectory) == false)
+        {
+            FileSystem::Path::CreateDirectory(logDirectory);
+        }
 
         m_Logger->AddLoggingBackend<StdoutLogger>();
 
@@ -159,24 +180,67 @@ namespace Onyx::Application
         m_Logger->AddLoggingBackend<GuiNotificationLoggerSink>();
 #endif
 
-        FileSystem::Path::SetMountPoints(settings.MountPoints);
-        FileSystem::FileDialog::Init();
+        m_Logger->AddLoggingBackend<LogSinkFile>(lastSessionLogPath);
 
-        constexpr StringView lastSessionLogPath = "tmp:/logs/last_session.log";
-        FileSystem::Filepath logDirectory = FileSystem::Path::GetFullPath(lastSessionLogPath).parent_path();
-        if (FileSystem::Path::Exists(logDirectory) == false )
+        m_Logger->SetSeverity(LogLevel::Trace);
+        m_Logger->Init();
+
+        // init node graph module
+        NodeGraph::Init();
+
+        // create modules requested by project
+        for (const StringId32& moduleId : m_Settings.Modules)
         {
-            FileSystem::Path::CreateDirectory(logDirectory);
+            const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
+            m_Modules.emplace_back(meta.CreateFunctor());
         }
 
-        m_Logger->AddLoggingBackend<LogSinkFile>(lastSessionLogPath);
-        m_Logger->SetSeverity( LogLevel::Trace );
-        m_Logger->Init();
+        // init modules project
+        for (UniquePtr<IEngineSystem>& engineModule : m_Modules)
+        {
+            const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
+            if (meta.InitFunctor)
+            {
+                meta.InitFunctor(*this, *engineModule);
+            }
+
+            if (meta.UpdateFunctor)
+            {
+                m_UpdatableModules.push_back([&](DeltaGameTime gameTime)
+                    {
+                        meta.UpdateFunctor(*this, *engineModule, gameTime);
+                    });
+            }
+        }
 
         OnApplicationCreated(*this);
     }
 
-    Application::~Application() = default;
+    void Application::Shutdown()
+    {
+        FileSystem::FileDialog::Shutdown();
+
+        OnApplicationShutdown(*this);
+
+        // shut down asset system manually first so we release all references
+        GetSystem<Assets::AssetSystem>().Shutdown();
+
+        GetSystem<Graphics::GraphicsSystem>().GetWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
+
+        // init modules project
+        for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
+        {
+            const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
+            if (meta.ShutdownFunctor)
+            {
+                meta.ShutdownFunctor(*this, *engineModule);
+            }
+
+            engineModule.reset();
+        }
+
+        m_Logger->Shutdown();
+    }
 
     void Application::Run()
     {
@@ -242,21 +306,6 @@ namespace Onyx::Application
             FrameMark;
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-    }
-
-    void Application::Shutdown()
-    {
-        FileSystem::FileDialog::Shutdown();
-
-        OnApplicationShutdown(*this);
-
-        GetSystem<Graphics::GraphicsSystem>().GetWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
-
-        // Shutdown functors are in 'random' order, we should shutdown in the opposite order of creation
-        for (const auto& shutdownFunctor : (m_ShutdownFunctors | std::views::values))
-            shutdownFunctor();
-
-        m_Logger->Shutdown();
     }
 
     void Application::OnWindowClose()

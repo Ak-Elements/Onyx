@@ -49,7 +49,7 @@ namespace Onyx
         static constexpr onyxU8 BINDLESS_SET = 0;
         static constexpr onyxU32 MAX_BINDLESS_RESOURCES = 1024;
 
-        struct FrameData {};
+        struct FrameData { virtual ~FrameData() = default; };
 
         struct ViewConstants
         {

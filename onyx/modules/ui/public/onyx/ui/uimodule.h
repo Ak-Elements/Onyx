@@ -11,6 +11,9 @@ namespace Onyx::Ui
     class UiModule : public IEngineSystem
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::Ui::UiModule";
+        StringId32 GetTypeId() const { return TypeId; }
+
         void Init(Localization::LocalizationModule& localizationModule);
     };
 }

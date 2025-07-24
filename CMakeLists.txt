@@ -149,10 +149,13 @@ endif()
 
 include(FetchContent)
 include(cmakepackagemanager)
-
+include(onyx_find_engine_modules)
+include(onyx_generate_modules_file)
+     
 include(GNUInstallDirs)
 
 set_property(GLOBAL PROPERTY onyx_modules "")
+
 add_subdirectory(libs)
 add_subdirectory(onyx)
 

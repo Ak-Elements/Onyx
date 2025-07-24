@@ -48,8 +48,13 @@ namespace Onyx::GameCore
     class GameCoreSystem : public IEngineSystem
     {
     public:
-        void Init(Assets::AssetSystem& assetSystem);
+        static constexpr StringId32 TypeId = "Onyx::GameCore::GameCoreModule";
+        StringId32 GetTypeId() const { return TypeId; }
 
+        GameCoreSystem();
+
+        void Init(Assets::AssetSystem& assetSystem);
+        
         void Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine);
 
         void SetScene(Reference<Scene>& scene) { m_Scene = scene; }

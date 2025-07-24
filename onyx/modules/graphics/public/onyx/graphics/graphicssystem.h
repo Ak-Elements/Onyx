@@ -35,6 +35,9 @@ namespace Onyx::Graphics
     class GraphicsSystem : public IEngineSystem
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::Graphics::GraphicsModule";
+        StringId32 GetTypeId() const { return TypeId; }
+
         GraphicsSystem();
         ~GraphicsSystem() override;
 

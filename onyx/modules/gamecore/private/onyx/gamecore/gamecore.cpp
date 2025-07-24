@@ -64,13 +64,16 @@ namespace Onyx::GameCore
             Lighting::registerSystems(ecsBuilder);
         }
     }
-  
-    void GameCoreSystem::Init(Assets::AssetSystem& assetSystem)
+
+    GameCoreSystem::GameCoreSystem()
     {
         Graphics::RenderGraphNodeFactory::RegisterNode<DepthPrePassRenderGraphNode>();
         Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>();
         Graphics::RenderGraphNodeFactory::RegisterNode<MSDFFontRenderPass>();
+    }
 
+    void GameCoreSystem::Init(Assets::AssetSystem& assetSystem)
+    {
         GameCoreInit::RegisterAssets(*this, assetSystem);
 
         Entity::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };

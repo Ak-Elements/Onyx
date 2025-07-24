@@ -26,6 +26,9 @@ namespace Onyx::Localization
     class LocalizationModule : public IEngineSystem
     {
     public:
+        static constexpr StringId32 TypeId = "Onyx::Localization::LocalizationModule";
+        StringId32 GetTypeId() const { return TypeId; }
+
         void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings);
 
         LocalizedString GetLocalized(LocalizationId id) const;

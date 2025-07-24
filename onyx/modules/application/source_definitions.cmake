@@ -3,6 +3,7 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/application)
 
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/application.h
+    ${TARGET_PUBLIC_PATH}/enginesystemfactory.h
 	${TARGET_PUBLIC_PATH}/debug/gui/statusbaroverlay.h
 	${TARGET_PUBLIC_PATH}/debug/gui/keyboardoverlay.h
 	${TARGET_PUBLIC_PATH}/debug/gui/notificationloggersink.h

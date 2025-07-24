@@ -117,7 +117,7 @@ namespace Onyx::NodeGraph
 
     protected:
         HashSet<StringId32> m_RegisteredNodeTypeIds;
-        HashMap<StringId32, InplaceFunction<Node* ()>> m_RegisteredNodes;
+        HashMap<StringId32, InplaceFunction<Node*()>> m_RegisteredNodes;
         HashMap<StringId32, MetaDataContainerT> m_RegisteredNodesMetaData;
     };
 

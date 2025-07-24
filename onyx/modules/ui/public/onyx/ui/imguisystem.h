@@ -61,6 +61,9 @@ namespace Onyx
         class ImGuiSystem : public IEngineSystem
         {
         public:
+            static constexpr StringId32 TypeId = "Onyx::Ui::ImGuiModule";
+            StringId32 GetTypeId() const { return TypeId; }
+
             static Reference<Graphics::TextureAsset> FolderClosedAsset;
             static Reference<Graphics::TextureAsset> FolderOpenAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;

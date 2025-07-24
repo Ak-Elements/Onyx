@@ -38,6 +38,7 @@ int CALLBACK WinMain(
     OnApplicationCreate(settings);
 
     Application app(settings);
+    app.Init();
     app.Run();
     app.Shutdown();
 

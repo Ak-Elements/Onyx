@@ -18,6 +18,15 @@
 
 namespace Onyx::Editor
 {
+    EditorSystem::EditorSystem()
+    {
+        Graphics::RenderGraphNodeFactory::RegisterNode<UIRenderGraphNode>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<CompositeRenderGraphNode>();
+        Graphics::RenderGraphNodeFactory::RegisterNode<GridRenderGraphNode>();
+    }
+
+    EditorSystem::~EditorSystem() = default;
+
     void EditorSystem::Init(GameCore::GameCoreSystem& gameCore,
         Ui::ImGuiSystem& imguiSystem,
         Assets::AssetSystem& assetSystem,
@@ -50,11 +59,5 @@ namespace Onyx::Editor
         imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore,assetSystem, localizationModule, graphicsApi, inputActionSystem);
         imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, localizationModule, inputActionSystem);
         imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, localizationModule, inputSystem);
-
-        Graphics::RenderGraphNodeFactory::RegisterNode<UIRenderGraphNode>();
-        Graphics::RenderGraphNodeFactory::RegisterNode<CompositeRenderGraphNode>();
-        Graphics::RenderGraphNodeFactory::RegisterNode<GridRenderGraphNode>();
     }
-    
-    EditorSystem::~EditorSystem() = default;
 }
