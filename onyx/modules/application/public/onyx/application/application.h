@@ -1,17 +1,14 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 
-#include <onyx/typetraits.h>
 #include <onyx/assets/asset.h>
 #include <onyx/entity/entitycomponentsystem.h>
-
 #include <onyx/filesystem/path.h>
 #include <onyx/graphics/graphicsapi.h>
-#include <onyx/graphics/window.h>
 #include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/window.h>
+#include <onyx/input/inputmodulesettings.h>
 #include <onyx/localization/localizationmodule.h>
-
-#include <algorithm>
 
 namespace Onyx::Application
 {
@@ -62,12 +59,11 @@ namespace Onyx::Application
         Graphics::GraphicSettings GraphicSettings;
         Graphics::WindowSettings WindowSettings;
         Localization::LocalizationSettings LocalizationSettings;
+        Input::InputModuleSettings InputModuleSettings;
 
         HashMap<StringId32, FileSystem::MountPoint> MountPoints;
 
         DynamicArray<StringId32> Modules;
-
-        Assets::AssetId InputConfig = "engine:/inputcontexts.oinput";
         Assets::AssetId StartScene;
     };
 

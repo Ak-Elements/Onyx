@@ -9,10 +9,11 @@
 #include <onyx/input/inputactionsserializer.h>
 #include <onyx/input/inputbinding.h>
 #include <onyx/input/inputbindingsregistry.h>
+#include <onyx/input/inputmodulesettings.h>
 
 namespace Onyx::Input
 {
-    void InputActionSystem::Init(InputSystem& inputSystem, Assets::AssetSystem& assetSystem)
+    void InputActionSystem::Init(const InputModuleSettings& inputModuleSettings, InputSystem& inputSystem, Assets::AssetSystem& assetSystem)
     {
         m_InputSystem = &inputSystem;
 
@@ -25,6 +26,14 @@ namespace Onyx::Input
         InputBindingsRegistry::Register<InputBindingAxis2DComposite>(ActionType::Axis2D, "Axis 2D Composite");
         InputBindingsRegistry::Register<InputBindingAxis3D>(ActionType::Axis3D, "Axis 3D");
         InputBindingsRegistry::Register<InputBindingAxis3DComposite>(ActionType::Axis3D, "Axis 3D Composite");
+
+        Reference<InputActionsAsset> defaultInputActionsMap;
+        assetSystem.GetAsset(inputModuleSettings.ActionsMap, defaultInputActionsMap);
+        defaultInputActionsMap->GetOnLoadedEvent().Connect<&InputActionSystem::SetActionsMapAsset>(this);
+        if (defaultInputActionsMap.IsValid() && defaultInputActionsMap->IsLoaded())
+        {
+            SetActionsMapAsset(defaultInputActionsMap);
+        }
     }
 
     InputActionSystem::~InputActionSystem() = default;
@@ -37,8 +46,10 @@ namespace Onyx::Input
         UpdateContext(m_InputActionsAsset->GetContext(m_ContextId));
     }
 
-    void InputActionSystem::SetActionsMapAsset(const Reference<InputActionsAsset>& inputAsset)
+    void InputActionSystem::SetActionsMapAsset(Reference<InputActionsAsset>& inputAsset)
     {
+        inputAsset->GetOnLoadedEvent().Disconnect(this);
+
         if (m_InputActionsAsset != inputAsset)
         {
             StringId32 newContextId = m_ContextId;

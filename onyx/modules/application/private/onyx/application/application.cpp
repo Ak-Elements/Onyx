@@ -106,7 +106,7 @@ namespace Onyx::Application
             StringView inputMapPath;
             if (deserializer.Read<"inputmap">(inputMapPath))
             {
-                settings.InputConfig = Assets::AssetId(FileSystem::Filepath(inputMapPath));
+                settings.InputModuleSettings.ActionsMap = Assets::AssetId(FileSystem::Filepath(inputMapPath));
             }
 
             deserializer.ReadForEach<"mountpoints">([&](const Deserializer& scopedDeserializer)

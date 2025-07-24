@@ -18,7 +18,6 @@ namespace Onyx
     {
         // Project Modules
 @REGISTER_PROJECT_MODULES@
-
         // Onyx Modules
 @REGISTER_ONYX_MODULES@
     }

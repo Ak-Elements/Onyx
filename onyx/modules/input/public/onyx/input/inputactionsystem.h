@@ -12,6 +12,7 @@ namespace Onyx::Assets
 
 namespace Onyx::Input
 {
+    struct InputModuleSettings;
     struct InputBindingContext;
     struct InputActionsMap;
     class InputActionsAsset;
@@ -45,12 +46,12 @@ namespace Onyx::Input
         
         ~InputActionSystem() override;
 
-        void Init(InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
+        void Init(const InputModuleSettings& inputModuleSettings, InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
         void Shutdown(InputSystem& inputSystem);
 
         void Update();
 
-        void SetActionsMapAsset(const Reference<InputActionsAsset>& inputAsset);
+        void SetActionsMapAsset(Reference<InputActionsAsset>& inputAsset);
         void SetCurrentInputActionMap(StringId32 id);
 
         template<auto Candidate, typename... Type>

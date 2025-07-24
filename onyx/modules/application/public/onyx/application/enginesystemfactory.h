@@ -1,6 +1,7 @@
 #include <onyx/engine/enginesystem.h>
 
 #include <onyx/application/application.h>
+#include <onyx/input/inputmodulesettings.h>
 
 namespace Onyx::Application
 {
@@ -83,6 +84,8 @@ namespace Onyx::Application
                 return application.GetSettings().WindowSettings;
             else if constexpr (std::is_base_of_v<Localization::LocalizationSettings, T>)
                 return application.GetSettings().LocalizationSettings;
+            else if constexpr (std::is_base_of_v<Input::InputModuleSettings, T>)
+                return application.GetSettings().InputModuleSettings;
             else if constexpr (std::is_base_of_v<Graphics::Window, T>)
                 return application.GetSystem<Graphics::GraphicsSystem>().GetWindow();
             else if constexpr (std::is_base_of_v<Graphics::GraphicsApi, T>)
