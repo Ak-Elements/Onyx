@@ -36,7 +36,7 @@ namespace Onyx::Graphics
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::GraphicsModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         GraphicsSystem();
         ~GraphicsSystem() override;

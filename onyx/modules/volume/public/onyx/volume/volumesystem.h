@@ -12,7 +12,7 @@ namespace Onyx::Volume
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Volume::VolumeModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         VolumeSystem();
 

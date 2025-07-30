@@ -19,7 +19,7 @@ namespace Onyx::Assets
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Assets::AssetModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         AssetSystem();
         ~AssetSystem() override;

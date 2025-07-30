@@ -62,7 +62,7 @@ namespace Onyx
         {
         public:
             static constexpr StringId32 TypeId = "Onyx::Ui::ImGuiModule";
-            StringId32 GetTypeId() const { return TypeId; }
+            StringId32 GetTypeId() const override { return TypeId; }
 
             static Reference<Graphics::TextureAsset> FolderClosedAsset;
             static Reference<Graphics::TextureAsset> FolderOpenAsset;

@@ -42,7 +42,7 @@ namespace Onyx::Input
         using InputActionSignalT = Signal<void(const InputActionEvent&)>;
     public:
         static constexpr StringId32 TypeId = "Onyx::Input::InputActionModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
         
         ~InputActionSystem() override;
 

@@ -27,7 +27,7 @@ namespace Onyx::Localization
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Localization::LocalizationModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings);
 

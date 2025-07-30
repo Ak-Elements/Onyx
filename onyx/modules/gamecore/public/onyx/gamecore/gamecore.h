@@ -49,7 +49,7 @@ namespace Onyx::GameCore
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::GameCore::GameCoreModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         GameCoreSystem();
 

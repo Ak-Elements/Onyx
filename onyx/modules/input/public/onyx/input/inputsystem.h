@@ -35,7 +35,7 @@ namespace Onyx::Input
         friend class Graphics::Window;
     public:
         static constexpr StringId32 TypeId = "Onyx::Input::InputModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         InputSystem() = default;
         ~InputSystem() override = default;
