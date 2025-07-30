@@ -28,6 +28,8 @@ namespace Onyx::GameCore
 
     struct StaticMeshIndirectDrawCall
     {
+        ~StaticMeshIndirectDrawCall();
+
         // TODO: Change this to a struct / StaticMesh class
         // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
         Reference<Graphics::MaterialShaderGraph> Material;
@@ -39,6 +41,8 @@ namespace Onyx::GameCore
 
     struct StaticMeshDrawCall
     {
+        StaticMeshDrawCall();
+
         // TODO: Change this to a struct / StaticMesh class
         // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
         Reference<Graphics::MaterialShaderGraph> Material;
@@ -60,11 +64,9 @@ namespace Onyx::GameCore
     struct VoxelChunk
     {
         Vector3s16 Coord;
-        Graphics::BufferHandle Grid;
         Graphics::BufferHandle MeshVertices;
         Graphics::BufferHandle VertexCount;
         Graphics::BufferHandle IndirectDraw;
-        Graphics::BufferHandle ActiveChunks;
         onyxU32 Index;
 
         onyxU32 Size;
@@ -74,6 +76,8 @@ namespace Onyx::GameCore
     // Data per frame that is sent from the level to the render api
     struct SceneFrameData : public Graphics::FrameData
     {
+        ~SceneFrameData();
+
         DynamicArray<StaticSpriteDrawCall> m_StaticDrawCalls;
 
         // group static mesh draw and indirect draw based on the material
@@ -81,6 +85,8 @@ namespace Onyx::GameCore
         DynamicArray<StaticMeshIndirectDrawCall> m_StaticMeshIndirectDrawCalls;
         //DynamicArray<TextDrawCall> m_TextDrawCalls;
         DynamicArray<VoxelChunk> m_VoxelChunksToInit;
+
+        Graphics::BufferHandle WorldChunksOctree;
 
         DynamicArray<LightData> Lights;
     };

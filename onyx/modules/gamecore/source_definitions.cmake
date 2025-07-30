@@ -35,6 +35,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/rendertasks/depthprepassrendertask.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/staticmeshrendertask.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/textrendertask.cpp
+    ${TARGET_PRIVATE_PATH}/scene/sceneframedata.cpp
 	${TARGET_PRIVATE_PATH}/scene/scene.cpp
 	${TARGET_PRIVATE_PATH}/scene/scenesectorstreamer.cpp
 	${TARGET_PRIVATE_PATH}/serialize/sceneserializer.cpp
