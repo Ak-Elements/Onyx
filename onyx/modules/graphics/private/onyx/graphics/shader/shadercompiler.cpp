@@ -243,7 +243,7 @@ namespace Onyx::Graphics::ShaderCompiler
 #endif
 			// TODO: Allow different shader language and update this export folder
 			String shaderStageString = ToLower(Enums::ToString(stage));
-			const StringView exportShaderSourcePath = Format::Format("{}/{}/glsl/{}.glsl", SHADER_SOURCE_TMP_PATH, shaderStageString, sourcePath.stem());
+			const StringView exportShaderSourcePath = Format::Format("{}/{}/glsl/{}.{}", SHADER_SOURCE_TMP_PATH, shaderStageString, sourcePath.stem(), GetShaderExtension(stage));
 
 			FileSystem::OnyxFile shaderSourceFile(exportShaderSourcePath);
 			FileSystem::FileStream shaderSourceFileStream = shaderSourceFile.OpenStream(FileSystem::OpenMode::Text | FileSystem::OpenMode::Write);
