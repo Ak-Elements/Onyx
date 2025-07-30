@@ -60,7 +60,9 @@ namespace Onyx::Volume
                     {
                         TreeNode* childNode = &(super::m_Tree->GetNode(firstChildIndex + childIndex));
 
-                        typename TreeDepthFirstIterator::KeyType nodeKey((state.m_Key << 2) + childIndex);
+                        // either morton2D or 3D
+                        constexpr onyxU8 keyDimension = is_specialization_of_v<MortonCode3D, typename TreeT::KeyType> ? 3 : 2;
+                        typename TreeDepthFirstIterator::KeyType nodeKey((state.m_Key << keyDimension) + childIndex);
 
                         m_IteratorStates.emplace_back(childNode, nodeKey, state.m_Depth);
                     }

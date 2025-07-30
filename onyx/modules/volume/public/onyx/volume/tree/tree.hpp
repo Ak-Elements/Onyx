@@ -12,13 +12,22 @@ namespace Onyx::Volume
     }
 
     template <typename T, typename KeyT, onyxU8 NumChildren>
+    inline Tree<T, KeyT, NumChildren>::Tree(onyxU32 capacity)
+    {
+        m_Nodes.reserve(capacity);
+        m_Data.reserve(capacity);
+
+        m_Nodes.emplace_back(); // emplace root
+    }
+
+    template <typename T, typename KeyT, onyxU8 NumChildren>
     inline Tree<T, KeyT, NumChildren>::~Tree()
     {
     }
 
 
     template <typename DataT, typename KeyT /*= MortonCode2D_32*/, onyxU8 NumChildren>
-    void Onyx::Tree<DataT, KeyT, NumChildren>::SplitNode(TreeNode& node)
+    void Tree<DataT, KeyT, NumChildren>::SplitNode(TreeNode& node)
     {
         ONYX_ASSERT(node.IsLeaf());
 

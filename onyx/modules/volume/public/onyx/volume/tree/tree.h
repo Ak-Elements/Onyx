@@ -16,9 +16,10 @@ namespace Onyx::Volume
         static constexpr onyxU8 ChildCount = NumChildren;
         using KeyType = KeyT;
         using DataType = DataT;
-
+        
         static constexpr const DataType& GetInvalidData() { return ms_InvalidData; }
         Tree();
+        Tree(onyxU32 capacity);
         ~Tree();
 
         Tree(const Tree& other) = delete;
