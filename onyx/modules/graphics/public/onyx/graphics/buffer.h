@@ -28,7 +28,6 @@ namespace Onyx::Graphics
 		virtual void Flush(onyxU32 offset, onyxU32 count) = 0;
 
         virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) = 0;
-
     protected:
 		const BufferProperties m_Properties;
 

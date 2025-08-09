@@ -17,7 +17,7 @@ namespace Onyx::Volume::Terrain
     {
         Vector3s16 Coordinate;
 
-        Graphics::BufferHandle VoxelGrid;
+        Graphics::BufferHandle VolumeOctree;
 
 #if PER_CHUNK_MESH_DATA
         Graphics::BufferHandle MeshVertices;
@@ -30,8 +30,14 @@ namespace Onyx::Volume::Terrain
     struct VolumeTerrainRuntimeComponent
     {
         // first node is root of the tree
+        Graphics::BufferHandle WorldChunksOctree;
 
-        Graphics::BufferHandle ActiveChunks;
+        Graphics::BufferHandle MeshVertices;
+        Graphics::BufferHandle IndirectDrawBuffer;
+
+        //Graphics::BufferHandle ActiveChunks;
+        onyxF32 RootSize;
+        onyxF32 ChunkSize;
 
         DynamicArray<VolumeTerrainChunk> Chunks;
 

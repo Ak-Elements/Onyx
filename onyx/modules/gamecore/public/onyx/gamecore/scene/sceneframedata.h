@@ -64,11 +64,9 @@ namespace Onyx::GameCore
     struct VoxelChunk
     {
         Vector3s16 Coord;
-        Graphics::BufferHandle Grid;
         Graphics::BufferHandle MeshVertices;
         Graphics::BufferHandle VertexCount;
         Graphics::BufferHandle IndirectDraw;
-        Graphics::BufferHandle ActiveChunks;
         onyxU32 Index;
 
         onyxU32 Size;
@@ -87,6 +85,8 @@ namespace Onyx::GameCore
         DynamicArray<StaticMeshIndirectDrawCall> m_StaticMeshIndirectDrawCalls;
         //DynamicArray<TextDrawCall> m_TextDrawCalls;
         DynamicArray<VoxelChunk> m_VoxelChunksToInit;
+
+        Graphics::BufferHandle WorldChunksOctree;
 
         DynamicArray<LightData> Lights;
     };

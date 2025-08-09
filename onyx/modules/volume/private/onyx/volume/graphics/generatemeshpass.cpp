@@ -51,7 +51,9 @@ namespace Onyx::Volume
             onyxU64 GridAddress;
             onyxU64 ActiveChunksAddress;
 
+            Vector3f32 Transform;
             float CellSize;
+
             onyxU32 ChunkIndex;
         };
 
@@ -77,16 +79,20 @@ namespace Onyx::Volume
 
         const GameCore::SceneFrameData& sceneFrameData = static_cast<const GameCore::SceneFrameData&>(*frameContext.FrameData);
 
+        Graphics::BufferHandle handle(sceneFrameData.WorldChunksOctree);
+        commandBuffer.BindShaderEffect(m_CreateTerrainShaderEffect);
+
         for (const auto& volumeChunk : sceneFrameData.m_VoxelChunksToInit)
         {
             const onyxU32 dispatchXYZ = (volumeChunk.Resolution + (Terrain::TERRAIN_SHADER_LOCAL_SIZE - 1)) / Terrain::TERRAIN_SHADER_LOCAL_SIZE;
 
-            Graphics::BufferHandle handle(volumeChunk.Grid);
-            commandBuffer.BindShaderEffect(m_CreateTerrainShaderEffect);
+            Vector3f32 chunkPosition(volumeChunk.Coord);
+            chunkPosition *= static_cast<onyxF32>(volumeChunk.Size);
 
             const float cellSize = static_cast<onyxF32>(volumeChunk.Size) / static_cast<onyxF32>(volumeChunk.Resolution);
-            CreatePushConstants constants{ Vector3f32::Y_Unit(), 1.0f, volumeChunk.Grid->GetGpuAddress() ,volumeChunk.ActiveChunks->GetGpuAddress(), cellSize, volumeChunk.Index };
+            CreatePushConstants constants{ Vector3f32::Y_Unit(), 10.0f, 0 ,0, chunkPosition, cellSize, volumeChunk.Index };
 
+         
             commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
             commandBuffer.Barrier(handle, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
             commandBuffer.Dispatch(dispatchXYZ, dispatchXYZ, dispatchXYZ);
@@ -94,14 +100,14 @@ namespace Onyx::Volume
             commandBuffer.Barrier(handle, Graphics::Context::Compute, Graphics::Access::ShaderRead);
 
 #if PER_CHUNK_MESH_DATA
-            Vector3f32 chunkPosition;
+            chunkPosition = Vector3f32::Zero();
 #else
             Vector3f32 chunkPosition(volumeChunk.Coord);
             chunkPosition *= 32.0f;
 #endif
             GenerateMeshPushConstants meshPushConstants
             {
-                volumeChunk.Grid->GetGpuAddress(),
+                0,//volumeChunk.->GetGpuAddress(),
                 volumeChunk.MeshVertices->GetGpuAddress(),
                 chunkPosition,
                 cellSize,

@@ -2,27 +2,35 @@
 
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
+#extension GL_ARB_gpu_shader_int64 : require
+#extension GL_EXT_shader_16bit_storage : require
+#extension GL_EXT_shader_explicit_arithmetic_types : require
 
-#include "includes/debug/print.h"
+#include "includes/morton.h"
+#include "includes/volume/csg/plane.h"
+#include "includes/volume/csg/sphere.h"
+#include "includes/volume/csg/simplexnoise2d.h"
+#include "includes/volume/csg/operations/union.h"
 #include "includes/volume/cubicalmarchingsquares.h"
+#include "includes/debug/print.h"
 
 #define PER_CHUNK_MESH_DATA 1
 
 compute
 {
-    #define TERRAIN_SHADER_LOCAL_SIZE 8
-    layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = TERRAIN_SHADER_LOCAL_SIZE, local_size_z = TERRAIN_SHADER_LOCAL_SIZE) in;
+    #define TERRAIN_SHADER_LOCAL_SIZE 64
+    layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = 1, local_size_z = 1) in;
 
-    struct Voxel
+    struct LeafNode
     {
-        vec4 Position;
-        vec4 Gradient;
+        uint64_t Morton;
+        uint Depth;
     };
 
- 
-    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer Grid
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer OctreeLeafNodes
     {
-        Voxel Cells[];
+        uint Count;
+        LeafNode Leaves[];
     };
 
     layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer VertexBuffer
@@ -38,29 +46,37 @@ compute
         uint FirstInstance;
     };
 
-    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer DrawCommandBuffer
+    layout(std430, buffer_reference, buffer_reference_align = 8) buffer DrawCommandBuffer
     {
         VkDrawIndirectCommand Commands;
     };
-
-     layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer VertexCountBuffer
+ 
+     layout(std430, buffer_reference, buffer_reference_align = 8) buffer VertexCountBuffer
     {
         uint Count;
     };
-
+  
     layout(push_constant) uniform Constants
     {
-        Grid GridPointer;
+        OctreeLeafNodes OctreeLeaves;
         VertexBuffer VertexBufferPointer;
         
-        vec3 Transform;
-        float CellSize;
-
-        VertexCountBuffer VertexCountBufferPointer;
         DrawCommandBuffer DrawCommandBufferPointer;
-
-        uint DrawCommandIndex;
+        float RootSize;
+        float RootHalfExtents;
     } u_Constants;
+
+    vec4 GetSampleValue(vec3 worldPosition)
+    {
+        // move to sample function
+        vec3 planeNormal = vec3(0,1,0);
+        vec4 planeGradient = GetPlaneValueAndGradient(worldPosition, planeNormal, 10);
+        vec4 sphereGradient = GetSphereValueAndGradient(worldPosition, vec3(0,0,-1000), 500);
+        //vec4 noiseGradient = snoise(worldPosition.xz * 0.05f);
+        
+        //float distanceToSurface = planeGradient.w + noiseGradient.w * 20;
+        return GetUnion(planeGradient, sphereGradient);
+    }
 
     void main()
     {
@@ -81,60 +97,48 @@ compute
         uint bufferOffset = u_Constants.DrawCommandIndex * 21504;
 #endif
 
-        vec3 corners[8];
-        vec4 hermiteData[8];
+        uint flatIndex = gl_GlobalInvocationID.x;
         
-        float size = u_Constants.CellSize;
-        float halfSize = size / 2.0f;
-
-        uvec3 voxelCoordinate = gl_GlobalInvocationID;
-        uvec3 gridSize = gl_NumWorkGroups * gl_WorkGroupSize;
+        if (flatIndex >= u_Constants.OctreeLeaves.Count)
+        {
+            return;
+        }
         
-        vec3 cellPosition = vec3(voxelCoordinate) * size;
-
-        corners[0] = u_Constants.Transform + (voxelCoordinate + vec3(0,0,0)) * size;
-        corners[1] = u_Constants.Transform + (voxelCoordinate + vec3(0,0,1)) * size;
-        corners[2] = u_Constants.Transform + (voxelCoordinate + vec3(0,1,0)) * size;
-        corners[3] = u_Constants.Transform + (voxelCoordinate + vec3(0,1,1)) * size;
-        corners[4] = u_Constants.Transform + (voxelCoordinate + vec3(1,0,0)) * size;
-        corners[5] = u_Constants.Transform + (voxelCoordinate + vec3(1,0,1)) * size;
-        corners[6] = u_Constants.Transform + (voxelCoordinate + vec3(1,1,0)) * size;
-        corners[7] = u_Constants.Transform + (voxelCoordinate + vec3(1,1,1)) * size;
-
-        uint rightIndex = min(voxelCoordinate.x + 1, gridSize.x - 1);
-        uint topIndex = min(voxelCoordinate.y + 1, gridSize.y - 1);
-        uint frontIndex = min(voxelCoordinate.z + 1, gridSize.z - 1);
+        LeafNode leaf = u_Constants.OctreeLeaves.Leaves[flatIndex];
+        uint64_t depthMask = ((1ul << (3ul * leaf.Depth)) - 1);
+        uint64_t mortonIndexAtDepth = leaf.Morton & depthMask;
         
-        uint voxelIndex0 = voxelCoordinate.x + gridSize.x * (voxelCoordinate.y + gridSize.y * voxelCoordinate.z);
-        uint voxelIndex1 = voxelCoordinate.x + gridSize.x * (voxelCoordinate.y + gridSize.y * frontIndex);
-        uint voxelIndex2 = voxelCoordinate.x + gridSize.x * (topIndex + gridSize.y * voxelCoordinate.z);
-        uint voxelIndex3 = voxelCoordinate.x + gridSize.x * (topIndex + gridSize.y * frontIndex);
-        uint voxelIndex4 = rightIndex + gridSize.x * (voxelCoordinate.y + gridSize.y * voxelCoordinate.z);
-        uint voxelIndex5 = rightIndex + gridSize.x * (voxelCoordinate.y + gridSize.y * frontIndex);
-        uint voxelIndex6 = rightIndex + gridSize.x * (topIndex + gridSize.y * voxelCoordinate.z);
-        uint voxelIndex7 = rightIndex + gridSize.x * (topIndex + gridSize.y * frontIndex);
+        float nodeExtents = u_Constants.RootSize / float(1 << leaf.Depth);
+        vec3 leafCoordinate = vec3(DecodeMorton(mortonIndexAtDepth)) + vec3(0.5f);
+        vec3 leafCenter = leafCoordinate * nodeExtents - vec3(u_Constants.RootHalfExtents);
 
-        Voxel corner0Voxel = u_Constants.GridPointer.Cells[voxelIndex0];
-        Voxel corner1Voxel = u_Constants.GridPointer.Cells[voxelIndex1];
-        Voxel corner2Voxel = u_Constants.GridPointer.Cells[voxelIndex2];
-        Voxel corner3Voxel = u_Constants.GridPointer.Cells[voxelIndex3];
-        Voxel corner4Voxel = u_Constants.GridPointer.Cells[voxelIndex4];
-        Voxel corner5Voxel = u_Constants.GridPointer.Cells[voxelIndex5];
-        Voxel corner6Voxel = u_Constants.GridPointer.Cells[voxelIndex6];
-        Voxel corner7Voxel = u_Constants.GridPointer.Cells[voxelIndex7];
-        
-        hermiteData[0] = corner0Voxel.Gradient;
-        hermiteData[1] = corner1Voxel.Gradient;
-        hermiteData[2] = corner2Voxel.Gradient;
-        hermiteData[3] = corner3Voxel.Gradient;
-        hermiteData[4] = corner4Voxel.Gradient;
-        hermiteData[5] = corner5Voxel.Gradient;
-        hermiteData[6] = corner6Voxel.Gradient;
-        hermiteData[7] = corner7Voxel.Gradient;
+        vec3 corners[8] = 
+        {
+            vec3(leafCenter + vec3(-0.5,-0.5,-0.5) * nodeExtents),
+            vec3(leafCenter + vec3(-0.5,-0.5, 0.5) * nodeExtents),
+            vec3(leafCenter + vec3(-0.5, 0.5,-0.5) * nodeExtents), 
+            vec3(leafCenter + vec3(-0.5, 0.5, 0.5) * nodeExtents), 
+            vec3(leafCenter + vec3( 0.5,-0.5,-0.5) * nodeExtents), 
+            vec3(leafCenter + vec3( 0.5,-0.5, 0.5) * nodeExtents),
+            vec3(leafCenter + vec3( 0.5, 0.5,-0.5) * nodeExtents),
+            vec3(leafCenter + vec3( 0.5, 0.5, 0.5) * nodeExtents),
+        };
+
+        vec4 cornerSamples[8] =
+        {
+            GetSampleValue(corners[0]),
+            GetSampleValue(corners[1]),
+            GetSampleValue(corners[2]),
+            GetSampleValue(corners[3]),
+            GetSampleValue(corners[4]),
+            GetSampleValue(corners[5]),
+            GetSampleValue(corners[6]),
+            GetSampleValue(corners[7])
+        };
 
         uint componentCount = 0;
         Component outComponents[12];
-        uint marchingSquaresCase = GenerateMesh(gl_GlobalInvocationID, corners, hermiteData, outComponents, componentCount);
+        uint marchingSquaresCase = GenerateMesh(gl_GlobalInvocationID, corners, cornerSamples, outComponents, componentCount);
 
         for (uint i = 0; i < componentCount; ++i)
         {

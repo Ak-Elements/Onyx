@@ -72,7 +72,7 @@ namespace Onyx::Editor
 
         if (m_Scene.IsValid() == false)
         {
-            StringView startupLevel = "";
+            StringView startupLevel = "project:/scenes/testscene/light_test_scene.oscene";
 
             if (startupLevel.empty())
             {
@@ -434,7 +434,7 @@ namespace Onyx::Editor
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 65000.0f);
         camera.Camera.SetViewportExtents(m_Api.GetSwapchainExtent());
-        GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
+        const GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
         GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
         runtimeComponent.Velocity = freeCameraController.BaseVelocity;
 

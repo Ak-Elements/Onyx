@@ -60,10 +60,9 @@ namespace Onyx::Graphics
 
         virtual void Copy(const BufferHandle& source, BufferHandle& destination) = 0;
 
-   
         // DEBUG
-        virtual void GlobalBarrier(uint64_t srcAccess, uint64_t dstAccess) = 0;
-
+        virtual void GlobalBarrier(onyxU64 srcAccess, onyxU64 dstAccess) = 0;
+        
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         virtual void BeginDebugLabel(StringView label, const Vector4f32& color) = 0;
         virtual void EndDebugLabel() = 0;

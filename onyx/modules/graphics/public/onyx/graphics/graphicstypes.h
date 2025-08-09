@@ -15,14 +15,16 @@ namespace Onyx::Graphics
     enum class Access : onyxU8
     {
         None,
-        IndirectRead,
-        IndexRead,
-        VertexRead,
-        UniformRead,
-        InputAttachmentRead,
-        ShaderRead,
-        ShaderWrite
+        IndirectRead = 1 << 0,
+        IndexRead = 1 << 1,
+        VertexRead = 1 << 2,
+        UniformRead = 1 << 3,
+        InputAttachmentRead = 1 << 4,
+        ShaderRead = 1 << 5,
+        ShaderWrite = 1 << 6
     };
+
+    ONYX_ENABLE_BITMASK_OPERATORS(Access);
 
     enum class CullMode : onyxU8
     {

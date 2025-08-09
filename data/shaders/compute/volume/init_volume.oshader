@@ -2,53 +2,47 @@
 
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
+#extension GL_ARB_gpu_shader_int64 : require
+#extension GL_EXT_shader_16bit_storage : require
+#extension GL_EXT_shader_explicit_arithmetic_types : require
 
-#include "includes/volume/csg.h"
+#include "includes/volume/csg/plane.h"
+#include "includes/volume/csg/simplexnoise2d.h"
 
 compute
 {
-    #define TERRAIN_SHADER_LOCAL_SIZE 8
-    layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = TERRAIN_SHADER_LOCAL_SIZE, local_size_z = TERRAIN_SHADER_LOCAL_SIZE) in;
+    #define TERRAIN_SHADER_LOCAL_SIZE 1
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     
-    struct Voxel
+    struct LeafNode
     {
-        vec4 Position;
-        vec4 Gradient;
-    };
- 
-    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer Grid
-    {
-        Voxel Cells[];
+        uint64_t Morton;
+        uint Depth;
     };
 
-    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer ActiveChunks
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer OctreeLeafNodes
     {
-        Grid Chunks[];
+        uint Count;
+        LeafNode Leaves[];
     };
     
+    layout(std430, buffer_reference, buffer_reference_align = 8) buffer IndirectDispatchBuffer
+    {
+        uint DispatchX;
+        uint DispatchY;
+        uint DispatchZ;
+    };
+
     layout(push_constant) uniform Constants
     {
-        vec3 Normal;
-        float Distance;
+        OctreeLeafNodes OctreeLeaves;
+        IndirectDispatchBuffer IndirectDispatch;
 
-        Grid GridPointer;
-        ActiveChunks ActiveChunksPointer;
-        
-        float CellSize;
-        uint ChunkIndex;
     } u_Constants;
 
     void main()
     {
-        uvec3 globalID = gl_GlobalInvocationID;
-        uvec3 gridSize = gl_NumWorkGroups * gl_WorkGroupSize;
-
-        vec3 position = vec3(gl_GlobalInvocationID) * u_Constants.CellSize;
-        uint voxelIndex = globalID.x + gridSize.x * (globalID.y + gridSize.y * globalID.z);
-
-        // we should store the chunk index in the active chunks
-        u_Constants.ActiveChunksPointer.Chunks[u_Constants.ChunkIndex] = u_Constants.GridPointer;
-
-        u_Constants.GridPointer.Cells[voxelIndex] = Voxel( vec4(position,0.0f), GetPlaneValueAndGradient(position, u_Constants.Normal, u_Constants.Distance) );
+        u_Constants.IndirectDispatch.DispatchX = uint(ceil(float(u_Constants.OctreeLeaves.Count) / 64.0f));
+        u_Constants.IndirectDispatch.DispatchY = 1;
+        u_Constants.IndirectDispatch.DispatchZ = 1;
     }
-}

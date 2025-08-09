@@ -20,7 +20,7 @@ namespace Onyx::Graphics
         class CommandBufferManager : public NonCopyable
         {
         public:
-            static constexpr onyxU32 COMMAND_BUFFERS_PER_THREAD = 3;
+            static constexpr onyxU32 COMMAND_BUFFERS_PER_THREAD = 5;
             static constexpr onyxU32 SECONDARY_COMMAND_BUFFERS_PER_THREAD = 2;
 
             void Init(VulkanGraphicsApi& api, onyxU32 queueIndex, onyxU32 threadCount);

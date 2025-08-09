@@ -29,7 +29,6 @@ namespace Onyx::Graphics::Vulkan
         const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 
         void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) override;
-
     private:
         void Init(const void* data = nullptr);
         void UpdateDescriptorInfo();

@@ -1,4 +1,4 @@
-#include <onyx/volume/volumesystem.h>
+#include <onyx/volume/volumemodule.h>
 
 #include <onyx/entity/entityregistry.h>
 #include <onyx/gamecore/gamecore.h>
@@ -7,6 +7,7 @@
 #include <onyx/volume/components/volumecomponent.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/graphics/generatemeshpass.h>
+#include <onyx/volume/systems/terrainworldchunksystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 namespace Onyx::Volume
@@ -19,17 +20,18 @@ namespace Onyx::Volume
         }
     }
 
-    VolumeSystem::VolumeSystem()
+    VolumeModule::VolumeModule()
     {
         Graphics::RenderGraphNodeFactory::RegisterNode<CreateVolumeMesh>();
         Graphics::RenderGraphNodeFactory::RegisterNode<GenerateVolumeMesh>();
     }
 
-    void VolumeSystem::Init(GameCore::GameCoreSystem& gameCore)
+    void VolumeModule::Init(GameCore::GameCoreSystem& gameCore)
     {
         Entity::EcsBuilder ecsBuilder = gameCore.GetEcsBuilder();
         RegisterSystems(ecsBuilder);
         Terrain::Register(ecsBuilder);
+        Terrain::RegisterTerrain(ecsBuilder);
 
         ecsBuilder.RegisterComponent<VolumeComponent>();
         ecsBuilder.RegisterComponent<VolumeSourceComponent>();

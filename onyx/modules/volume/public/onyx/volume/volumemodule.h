@@ -8,13 +8,13 @@ namespace Onyx::GameCore
 
 namespace Onyx::Volume
 {
-    class VolumeSystem : public IEngineSystem
+    class VolumeModule : public IEngineSystem
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Volume::VolumeModule";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        VolumeSystem();
+        VolumeModule();
 
         void Init(GameCore::GameCoreSystem& gameCore);
     };

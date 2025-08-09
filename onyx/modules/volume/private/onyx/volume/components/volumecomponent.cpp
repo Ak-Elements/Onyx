@@ -41,7 +41,7 @@ namespace Volume
     {
         constexpr onyxF32 loc_GeometricError = 0.8f;
 
-        void OnVolumeLoaded(Graphics::GraphicsApi& api, VolumeComponent& volumeComponent, const MeshBuilder& meshBuilder)
+        void OnVolumeLoaded(Graphics::GraphicsApi& /*api*/, VolumeComponent& volumeComponent, const MeshBuilder& meshBuilder)
         {
             if (meshBuilder.GetVertices().empty())
                 return;
@@ -54,7 +54,7 @@ namespace Volume
             vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
             vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
-            api.CreateBuffer(volumeComponent.Vertices, vertexBufferProps);
+           // api.CreateBuffer(volumeComponent.Vertices, vertexBufferProps);
 
             DynamicArray<Graphics::Vertex> vertices;
             vertices.reserve(meshBuilder.GetVertices().size());
@@ -64,7 +64,7 @@ namespace Volume
                 vertices.emplace_back(Vector3f32(vertex.Position[0], vertex.Position[1], vertex.Position[2]) + volumeComponent.Chunk->GetPosition(), vertex.Normal, uv);
             }
 
-            volumeComponent.Vertices->SetData(0, vertices.data(), verticesBytes);
+            //volumeComponent.Vertices->SetData(0, vertices.data(), verticesBytes);
 
             onyxU32 indicesBytes = static_cast<onyxU32>(meshBuilder.GetIndices().size() * sizeof(onyxU32));
             Graphics::BufferProperties indexBufferProps;
@@ -73,8 +73,8 @@ namespace Volume
             indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
             indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
 
-            api.CreateBuffer(volumeComponent.Indices, indexBufferProps);
-            volumeComponent.Indices->SetData(0, meshBuilder.GetIndices().data(), indicesBytes);
+            //api.CreateBuffer(volumeComponent.Indices, indexBufferProps);
+            //volumeComponent.Indices->SetData(0, meshBuilder.GetIndices().data(), indicesBytes);
 
             volumeComponent.IsLoading = false;
         }
@@ -153,28 +153,35 @@ namespace Volume
             //if (volumeComponent.IsLoading || (volumeComponent.Vertices.IsValid() == false))
             //    return;
 
-#if PER_CHUNK_MESH_DATA
-            for (const auto& volumeChunk : volumeTerrain.Chunks)
-            {
-                Matrix4<onyxF32> transform;
+            Matrix4<onyxF32> transform;
+            GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
+            drawCall.Transforms.emplace_back(transform);
+            drawCall.VertexData = volumeTerrain.MeshVertices;
+            drawCall.DrawCommandBuffer = volumeTerrain.IndirectDrawBuffer;
+            drawCall.Material = materialComponent.Material;
 
-                transform[3] = Vector4f32(volumeChunk.Coordinate.X, volumeChunk.Coordinate.Y, volumeChunk.Coordinate.Z, 1.0f / static_cast<onyxF32>(volumeTerrainSettings.ChunkSize));
-                transform[3] *= static_cast<onyxF32>(volumeTerrainSettings.ChunkSize);
-#endif
-
-                GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
-
-#if PER_CHUNK_MESH_DATA
-                drawCall.Transforms.emplace_back(transform);
-                drawCall.VertexData = volumeChunk.MeshVertices;
-                drawCall.DrawCommandBuffer = volumeChunk.IndirectDrawBuffer;
-#else
-                drawCall.Transforms.emplace_back();
-                drawCall.VertexData = volumeTerrain.MeshVertices;
-                drawCall.DrawCommandBuffer = volumeTerrain.IndirectDrawBuffer;
-#endif
-                drawCall.Material = materialComponent.Material;
-            }
+//#if PER_CHUNK_MESH_DATA
+//            for (const auto& volumeChunk : volumeTerrain.Chunks)
+//            {
+//                Matrix4<onyxF32> transform;
+//
+//                transform[3] = Vector4f32(volumeChunk.Coordinate.X, volumeChunk.Coordinate.Y, volumeChunk.Coordinate.Z, 1.0f / static_cast<onyxF32>(volumeTerrainSettings.ChunkSize));
+//                transform[3] *= static_cast<onyxF32>(volumeTerrainSettings.ChunkSize);
+//#endif
+//
+//                GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
+//
+//#if PER_CHUNK_MESH_DATA
+//                drawCall.Transforms.emplace_back(transform);
+//                drawCall.VertexData = volumeChunk.MeshVertices;
+//                drawCall.DrawCommandBuffer = volumeChunk.IndirectDrawBuffer;
+//#else
+//                drawCall.Transforms.emplace_back();
+//                drawCall.VertexData = volumeTerrain.MeshVertices;
+//                drawCall.DrawCommandBuffer = volumeTerrain.IndirectDrawBuffer;
+//#endif
+//                drawCall.Material = materialComponent.Material;
+//            }
         }
     }
 

@@ -3,7 +3,13 @@
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
 
-#include "includes/volume/csg.h"
+#include "includes/volume/csg/cube.h"
+#include "includes/volume/csg/sphere.h"
+#include "includes/volume/csg/plane.h"
+
+#include "includes/volume/csg/operations/union.h"
+#include "includes/volume/csg/operations/difference.h"
+#include "includes/volume/csg/operations/intersect.h"
 
 const float ISO_LEVEL = 0.0f;
 
@@ -60,7 +66,7 @@ compute
         uint ChunkSize;
         
         float VoxelSize;
-        uint Padding;
+        uint Operation;
     } u_Constants;
  
     bool IntersectRayAABB(vec3 rayOrigin, vec3 rayDirection, vec3 volumeChunkMin, vec3 volumeChunkMax, out float tEnter, out float tExit)
@@ -144,9 +150,9 @@ compute
             return;
         }
 
-        vec3 sphereCenter = vec3(voxelCoord) * voxelSize;
+        vec3 hitCenter = vec3(voxelCoord) * voxelSize;
         float sphereRadius = 5.0;
-
+        
         for (int x = -10; x < 10; ++x)
         {
             for (int y = -10; y < 10; ++y)
@@ -169,9 +175,18 @@ compute
 
                     restrict Voxel editVoxel = chunk.VoxelGrid[editVoxelIndex];
                     vec4 voxelGridValue = editVoxel.Gradient;
-                    vec4 sphereGradient = GetSphereValueAndGradient(position, sphereCenter, sphereRadius);
-                    //Grid[editVoxelIndex].Gradient = voxelGridValue.w > sphereGradient.w ? voxelGridValue : sphereGradient;
-                    chunk.VoxelGrid[editVoxelIndex].Gradient = voxelGridValue.w > sphereGradient.w ? voxelGridValue : sphereGradient;
+                    vec4 csgGradient = GetSphereValueAndGradient(position, hitCenter, sphereRadius);
+                    //vec4 csgGradient; = GetCubeValueAndGradient(position, hitCenter, vec3(2.5f));
+
+                    switch (u_Constants.Operation)
+                    {
+                        case 0: 
+                            chunk.VoxelGrid[editVoxelIndex].Gradient = GetUnion(voxelGridValue, csgGradient);
+                            break;
+                        case 1:
+                            chunk.VoxelGrid[editVoxelIndex].Gradient = GetDifference(voxelGridValue, csgGradient);
+                            break;
+                    }
                 }
             }
         }

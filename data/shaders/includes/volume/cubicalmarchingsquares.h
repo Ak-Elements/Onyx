@@ -22,6 +22,9 @@ struct Component
 {
     Vertex Vertices[32];
     uint VertexCount;
+    uint padding0;
+    uint padding1;
+    uint padding3;
 };
 
 vec2 ComputeIntersection(vec2 edgeCrossingPoint0, vec2 edgeCrossingNormal0, vec2 edgeCrossingPoint1, vec2 edgeCrossingNormal1)
@@ -89,7 +92,7 @@ bool ResolveFaceSharpFeature(uint faceIndex, Vertex edgeCrossing_From, Vertex ed
         outIntersection.Position = edgeCrossing_From.Position;
         outIntersection.Position[xIndex] = intersectionPoint.x;
         outIntersection.Position[yIndex] = intersectionPoint.y;
-        outIntersection.Normal = edgeCrossing_From.Normal; // TODO: This normal is wrong
+        outIntersection.Normal = vec4(normalize(edgeCrossing_From.Normal.xyz + edgeCrossing_To.Normal.xyz), 1.0f); // TODO: This normal is wrong
     }
 
     return hasSharpFeature;

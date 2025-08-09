@@ -56,7 +56,9 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/source/noise/simplexnoised.h
     ${TARGET_PUBLIC_PATH}/source/noise/simplexnoisesource.h
     ${TARGET_PUBLIC_PATH}/source/volumebase.h
+    ${TARGET_PUBLIC_PATH}/systems/terrainworldchunksystem.h
     ${TARGET_PUBLIC_PATH}/systems/volumeterrainsystem.h
+    ${TARGET_PUBLIC_PATH}/terrain/worldsparseoctreenode.h
     ${TARGET_PUBLIC_PATH}/tree/tree.h
     ${TARGET_PUBLIC_PATH}/tree/tree.hpp
     ${TARGET_PUBLIC_PATH}/tree/treebreadthfirstiterator.h
@@ -66,7 +68,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/tree/treeiterator.h
     ${TARGET_PUBLIC_PATH}/tree/treeleafiterator.h
     ${TARGET_PUBLIC_PATH}/tree/treenode.h
-    ${TARGET_PUBLIC_PATH}/volumesystem.h
+    ${TARGET_PUBLIC_PATH}/volumemodule.h
     ${TARGET_PUBLIC_PATH}/volumeterrain.h
 )
 
@@ -90,8 +92,9 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/source/csg/operations/csgunion.cpp
     ${TARGET_PRIVATE_PATH}/source/noise/simplexnoised.cpp
     ${TARGET_PRIVATE_PATH}/source/volumebase.cpp
+    ${TARGET_PRIVATE_PATH}/systems/terrainworldchunksystem.cpp
     ${TARGET_PRIVATE_PATH}/systems/volumeterrainsystem.cpp
     ${TARGET_PRIVATE_PATH}/volumeterrain.cpp
     ${TARGET_PRIVATE_PATH}/graphics/generatemeshpass.cpp
-    ${TARGET_PRIVATE_PATH}/volumesystem.cpp
+    ${TARGET_PRIVATE_PATH}/volumemodule.cpp
 )
