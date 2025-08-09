@@ -32,7 +32,7 @@ compute
     struct SplitNodeRequest
     {
         uint64_t Morton;
-        uint64_t Offset;
+        uint Offset;
     };
 
     layout(std430, buffer_reference, buffer_reference_align = 8) buffer NodeCountBuffer
@@ -231,11 +231,11 @@ compute
         }
         else if (distanceToCamera < 250)
         {
-            LodChildSize = 16.0f;
+            LodChildSize = 4.0f;
         }
         else if (distanceToCamera < 1000)
         {
-            LodChildSize = 16.0f;
+            LodChildSize = 8.0f;
         }
         else if (distanceToCamera < 2048)
         {
@@ -243,7 +243,7 @@ compute
         }
         else if (distanceToCamera < 4096)
         {
-            LodChildSize = 16.0f;
+            LodChildSize = 32.0f;
         }
         else if (distanceToCamera < 30000)  
         {
@@ -330,9 +330,6 @@ compute
             u_Constants.SplitRequestsWriteBuffer.Count = 0;
         }
 
-        barrier();
-        memoryBarrier();
-
         uint currentLevelRequestedNodeCount = u_Constants.SplitRequestsReadBuffer.Count;
 
         uint globalID = gl_GlobalInvocationID.x;
@@ -360,7 +357,6 @@ compute
             uint flatIndex = globalID;
             SplitNodeRequest splitRequest = u_Constants.SplitRequestsReadBuffer.Nodes[flatIndex];
             mortonIndex = splitRequest.Morton;
-           // bool isValid = (mortonIndex >> 63) != 0;
 
             uint64_t depthMask = ((1ul << (3ul * uint64_t(u_Constants.Depth))) - 1ul);
             uint64_t mortonIndexAtDepth = mortonIndex & depthMask;
@@ -389,7 +385,7 @@ compute
                 uint childMask = (1 << i);
                 if ((octreeNode.ValidMask & childMask) != 0)
                 {
-                    u_Constants.SplitRequestsWriteBuffer.Nodes[createStartIndex++] = SplitNodeRequest(shiftedMorton + i, uint64_t(octreeNode.ChildrenOffset + validChildIndex));
+                    u_Constants.SplitRequestsWriteBuffer.Nodes[createStartIndex++] = SplitNodeRequest(shiftedMorton + i, octreeNode.ChildrenOffset + validChildIndex);
                     ++validChildIndex;
                 }
             }

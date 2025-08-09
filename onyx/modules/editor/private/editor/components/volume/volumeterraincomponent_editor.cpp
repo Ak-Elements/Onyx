@@ -5,7 +5,7 @@
 namespace Onyx::Volume
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    bool VolumeTerrainSettingsComponent::DrawImGuiEditor()
+    bool TerrainSettingsComponent::DrawImGuiEditor()
     {
         constexpr StringView DimensionsTooltip = "The dimension limits of the terrain in each axis \n if e.g. x is set to 10 and chunk size is 32, the grid ranges max from -16.000 to 16.000 \n if e.g. x is set to -1 it can infinitely scale on the x axis";
             

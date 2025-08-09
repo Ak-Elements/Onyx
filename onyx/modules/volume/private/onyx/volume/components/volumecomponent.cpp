@@ -22,7 +22,6 @@
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
-#include <onyx/volume/graphics/generatemeshpass.h>
 
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
@@ -32,11 +31,6 @@ namespace Onyx
 
 namespace Volume
 {
-    namespace Terrain
-    {
-        struct VolumeTerrainRuntimeComponent;
-    }
-
     namespace VolumeSource
     {
         constexpr onyxF32 loc_GeometricError = 0.8f;
@@ -133,7 +127,7 @@ namespace Volume
     namespace VolumeRendering
     {
         // TODO: Material component should be read access
-        using VolumeEntityAccess = Entity::Entity<const VolumeTerrainSettingsComponent, const Terrain::VolumeTerrainRuntimeComponent, GameCore::MaterialComponent>;
+        using VolumeEntityAccess = Entity::Entity<const TerrainSettingsComponent, const Terrain::TerrainRuntimeComponent, GameCore::MaterialComponent>;
         void system(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSytem)
         {
             GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);

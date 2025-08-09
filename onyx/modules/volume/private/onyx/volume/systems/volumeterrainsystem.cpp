@@ -6,57 +6,106 @@
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/entity/entitycomponentsystem.h>
-#include <onyx/volume/systems/terrainworldchunksystem.h>
+#include <onyx/graphics/commandbuffer.h>
+#include <onyx/volume/systems/volumeterrainsystem.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
 
 namespace Onyx::Volume::Terrain
 {
+    namespace
+    {
+        // temp buffers should be in the graphics API per frame
+        Graphics::BufferHandle SplitRequestQueueBuffer0;
+        Graphics::BufferHandle SplitRequestQueueBuffer1;
+
+        Graphics::BufferHandle IndirectDispatchBuffer0;
+        Graphics::BufferHandle IndirectDispatchBuffer1;
+    }
+
     struct InitTerrainFlag
     {
     };
 
     namespace Init
     {
-        // TODO: Why do we need 2 components here? some template / tuple stuff not working
-        using TerrainEntity = Entity::Entity<const VolumeTerrainSettingsComponent, VolumeTerrainRuntimeComponent, InitTerrainFlag>;
-
-        void System(TerrainEntity terrainEntity, Graphics::GraphicsApi& graphicsApi, Entity::EntityCommandBuffer entityCommandBuffer)
+        struct UpdateOctreePushConstants
         {
-            auto&& [terrainSettings, terrainRuntime] = terrainEntity.Get();
+            onyxU64 WorldOctree;
+            onyxU64 WorldOctreeLeafBuffer;
 
-            //const onyxU32 dispatchXYZ = (terrainSettings.Resolution + (TERRAIN_SHADER_LOCAL_SIZE - 1)) / TERRAIN_SHADER_LOCAL_SIZE;
-            //const onyxU32 clusterCount = dispatchXYZ * dispatchXYZ * dispatchXYZ * (TERRAIN_SHADER_LOCAL_SIZE * TERRAIN_SHADER_LOCAL_SIZE * TERRAIN_SHADER_LOCAL_SIZE);
-            //constexpr onyxU32 maxVertexCount = 1000000; // Hacky
-            //Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
-            //if (frameContext  FrameData == nullptr)
-             //   return;
+            onyxU64 IndirectDispatch;
+            onyxU32 Depth;// Reconsider syncing the mask directly 
+            onyxU32 MaxDepth;// Reconsider syncing the mask directly
 
-            struct VkDrawIndirectCommand
-            {
-                uint32_t    VertexCount;
-                uint32_t    InstanceCount;
-                uint32_t    FirstVertex;
-                uint32_t    FirstInstance;
-            };
+            onyxU64 SplitRequestsReadBuffer;
+            onyxU64 SplitRequestsWriteBuffer;
 
-            //const onyxF32 farPlane = graphicsApi.GetViewContsants().Far;
-            
-            //const onyxS32 worldOctreeMaxDepth = 4;
-            //const onyxS32 worldOctreeChunkSize = static_cast<onyxS32>(std::ceil(farPlane / (1 << worldOctreeMaxDepth)));
+            Vector3f32 CameraPosition;
+            float RootHalfExtents;
 
-            //terrainRuntime.RootSize = std::ceil(farPlane + (2.0f * static_cast<onyxF32>(worldOctreeChunkSize)));
-            //terrainRuntime.ChunkSize = terrainComponent.RootSize / (1 << worldOctreeMaxDepth);
+            float NodeExtents;
+            onyxU32 Offset;
+            float MaxGeometricError;
+            float ComplexSurfaceThreshold;
+        };
 
-            if (terrainRuntime.MeshVertices.IsValid())
-            {
-                return;
-            }
+        void CreateBuffers(Graphics::GraphicsApi& graphicsApi, TerrainWorldOctreeComponent& worldOctree, TerrainRuntimeComponent& terrainMesh, onyxU32 nodeCount)
+        {
+            Graphics::BufferProperties ssboVolumeOctreeBufferProps;
+            ssboVolumeOctreeBufferProps.m_DebugName = "Volume-WorldChunksOctree";
+            ssboVolumeOctreeBufferProps.m_Size = sizeof(onyxU32) + sizeof(Terrain::WorldChunksOctreeNode) * nodeCount;
+            ssboVolumeOctreeBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
+            ssboVolumeOctreeBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
+            graphicsApi.CreateBuffer(worldOctree.OctreeGpuBuffer, ssboVolumeOctreeBufferProps);
+
+            Graphics::BufferProperties ssboVolumeLeafNodesProps;
+            ssboVolumeLeafNodesProps.m_DebugName = "Volume-WorldOctreeLeafNodes";
+            ssboVolumeLeafNodesProps.m_Size = sizeof(onyxU32) + (sizeof(onyxU64) + sizeof(onyxU32)) * nodeCount;
+            ssboVolumeLeafNodesProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
+            ssboVolumeLeafNodesProps.m_GpuAccess = Graphics::GPUAccess::Write;
+
+            graphicsApi.CreateBuffer(worldOctree.OctreeLeafNodesGpuBuffer, ssboVolumeLeafNodesProps);
+
+            // TEMP - MOVE TO TEMP FRAME BUFFERS
+
+            // queue
+            Graphics::BufferProperties ssboVolumeCreateQueueProps;
+            ssboVolumeCreateQueueProps.m_DebugName = "VolumeOctree-SplitRequests0";
+            ssboVolumeCreateQueueProps.m_Size = sizeof(onyxU32) + (sizeof(onyxU64) + sizeof(onyxU32)) * nodeCount;
+            ssboVolumeCreateQueueProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
+            ssboVolumeCreateQueueProps.m_GpuAccess = Graphics::GPUAccess::Write;
+
+            graphicsApi.CreateBuffer(SplitRequestQueueBuffer0, ssboVolumeCreateQueueProps);
+
+            ssboVolumeCreateQueueProps.m_DebugName = "VolumeOctree-SplitRequests1";
+            graphicsApi.CreateBuffer(SplitRequestQueueBuffer1, ssboVolumeCreateQueueProps);
+
+            // indirect dispatch
+            Graphics::BufferProperties ssboIndirectDispatchBufferProps;
+            ssboIndirectDispatchBufferProps.m_DebugName = "TMP Volume-IndirectDispatch0";
+            ssboIndirectDispatchBufferProps.m_Size = sizeof(onyxU32) * 3;
+            ssboIndirectDispatchBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Indirect | Graphics::BufferUsage::DeviceAddress);
+            ssboIndirectDispatchBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
+            graphicsApi.CreateBuffer(IndirectDispatchBuffer0, ssboIndirectDispatchBufferProps);
+
+            ssboIndirectDispatchBufferProps.m_DebugName = "TMP Volume-IndirectDispatch1";
+            graphicsApi.CreateBuffer(IndirectDispatchBuffer1, ssboIndirectDispatchBufferProps);
+
+            // create mesh buffer
             Graphics::BufferProperties ssboMeshVerticesProps;
             ssboMeshVerticesProps.m_DebugName = "VolumeMeshVertices";
             ssboMeshVerticesProps.m_Size = (sizeof(Vector3f32) + sizeof(Vector3f32)) * (1 << 22);
             ssboMeshVerticesProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Vertex | Graphics::BufferUsage::DeviceAddress);
             ssboMeshVerticesProps.m_GpuAccess = Graphics::GPUAccess::Write;
+
+            struct VkDrawIndirectCommand
+            {
+                onyxU32    VertexCount;
+                onyxU32    InstanceCount;
+                onyxU32    FirstVertex;
+                onyxU32    FirstInstance;
+            };
 
             Graphics::BufferProperties ssboIndirectDrawProps;
             ssboIndirectDrawProps.m_DebugName = "VolumeMeshDrawCommandBuffer";
@@ -64,112 +113,180 @@ namespace Onyx::Volume::Terrain
             ssboIndirectDrawProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Indirect | Graphics::BufferUsage::DeviceAddress);
             ssboIndirectDrawProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-            graphicsApi.CreateBuffer(terrainRuntime.MeshVertices, ssboMeshVerticesProps);
-            graphicsApi.CreateBuffer(terrainRuntime.IndirectDrawBuffer, ssboIndirectDrawProps);
+            graphicsApi.CreateBuffer(terrainMesh.MeshVertices, ssboMeshVerticesProps);
+            graphicsApi.CreateBuffer(terrainMesh.IndirectDrawBuffer, ssboIndirectDrawProps);
+        }
 
-//            //onyxS32 chunkCount = static_cast<onyxS32>(std::pow(8, worldOctreeMaxDepth));
-//
-//            //Graphics::BufferProperties ssboVolumeOctreeBufferProps;
-//            //ssboVolumeOctreeBufferProps.m_DebugName = "Volume-WorldChunksOctree";
-//            //ssboVolumeOctreeBufferProps.m_Size =  sizeof(WorldChunksOctreeNode) * chunkCount;
-//            //ssboVolumeOctreeBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
-//            //ssboVolumeOctreeBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-//
-//            //graphicsApi.CreateBuffer(terrainComponent.WorldChunksOctree, ssboVolumeOctreeBufferProps);
-//
-//            Graphics::BufferProperties ssboBufferProps;
-//            ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
-//            ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-//
-//            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
-//
-//            Graphics::BufferProperties ssboMeshVerticesProps;
-//            ssboMeshVerticesProps.m_DebugName = "VolumeMeshVertices";
-//            ssboMeshVerticesProps.m_Size = (sizeof(Vector3f32) + sizeof(Vector3f32)) * maxVertexCount;
-//            ssboMeshVerticesProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Vertex | Graphics::BufferUsage::DeviceAddress);
-//            ssboMeshVerticesProps.m_GpuAccess = Graphics::GPUAccess::Write;
-//
-//            Graphics::BufferProperties ssboIndirectDrawProps;
-//            ssboIndirectDrawProps.m_DebugName = "VolumeMeshDrawCommandBuffer";
-//            ssboIndirectDrawProps.m_Size = sizeof(VkDrawIndirectCommand);
-//            ssboIndirectDrawProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Indirect | Graphics::BufferUsage::DeviceAddress);
-//            ssboIndirectDrawProps.m_GpuAccess = Graphics::GPUAccess::Write;
-//
-//#if !PER_CHUNK_MESH_DATA
-//            Graphics::BufferProperties ssboVertexCountDrawProps;
-//            ssboVertexCountDrawProps.m_DebugName = "VertexCount";
-//            ssboVertexCountDrawProps.m_Size = sizeof(onyxU32);
-//            ssboVertexCountDrawProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
-//            ssboVertexCountDrawProps.m_GpuAccess = Graphics::GPUAccess::Write;
-//
-//            graphicsApi.CreateBuffer(terrainComponent.MeshVertices, ssboMeshVerticesProps);
-//            graphicsApi.CreateBuffer(terrainComponent.IndirectDrawBuffer, ssboIndirectDrawProps);
-//#endif
-//            //if (terrainSettings.Dimensions == Vector3s16(-1))
-//            //{
-//            //    terrainComponent.Chunks.emplace_back();
-//           // }
-//           // else
-//            {
-//                //onyxU32 chunkIndex = 0;
-//                const Vector3s16 dimension(
-//                    std::max(terrainSettings.Dimensions[0] , onyxS16(1)), 
-//                    std::max(terrainSettings.Dimensions[1], onyxS16(1)), 
-//                    std::max(terrainSettings.Dimensions[2], onyxS16(1))
-//                );
-//
-//                sceneFrameData.WorldChunksOctree = terrainComponent.WorldChunksOctree;
-//                const Vector3s16 halfDimension = dimension / 2;
-//                //onyxS16 flatSize = dimension * dimension * dimension;
-//                for (onyxS16 x = 0; x < dimension.X; ++x)
-//                {
-//                    for (onyxS16 y = 0; y < dimension.Y; ++y)
-//                    {
-//                        for (onyxS16 z = 0; z < dimension.Z; ++z)
-//                        {
-//                            Vector3s16 coord(x, y, z);
-//                            coord -= halfDimension;
-//
-//                            VolumeTerrainChunk& chunk = terrainComponent.Chunks.emplace_back(coord);
-//
-//                            ssboBufferProps.m_DebugName = Format::Format("VolumeOctree({} {} {})", coord.X, coord.Y, coord.Z);
-//                            ssboBufferProps.m_Size = 2 * sizeof(Vector4f32) * clusterCount;
-//                            graphicsApi.CreateBuffer(chunk.VolumeOctree, ssboBufferProps);
-//
-//#if PER_CHUNK_MESH_DATA
-//                            graphicsApi.CreateBuffer(chunk.MeshVertices, ssboMeshVerticesProps);
-//                            graphicsApi.CreateBuffer(chunk.IndirectDrawBuffer, ssboIndirectDrawProps);
-//                            
-//                            //sceneFrameData.m_VoxelChunksToInit.emplace_back(chunk.Coordinate, chunk.MeshVertices, nullptr, chunk.IndirectDrawBuffer, chunkIndex++, terrainSettings.ChunkSize, terrainSettings.Resolution);
-//#else
-//                            graphicsApi.CreateBuffer(chunk.VertexCount, ssboVertexCountDrawProps);
-//                            sceneFrameData.m_VoxelChunksToInit.emplace_back(chunk.Coordinate, chunk.VoxelGrid, terrainComponent.MeshVertices, chunk.VertexCount, terrainComponent.IndirectDrawBuffer, chunkIndex++);
-//#endif
-//                            
-//                        }
-//                    }
-//                }
-//            }
+        void LoadShaders(Graphics::GraphicsApi& graphicsApi, VolumeGenerationComponent& generationComponent)
+        {
+            if (generationComponent.UpdateWorldOctreeShader != nullptr)
+                return;
 
-            //entityCommandBuffer.RemoveComponent<InitTerrainFlag>(terrainEntity.GetId());
+            Graphics::PipelineProperties properties;
+            properties.m_DebugName = "World Chunk Tree Update";
+            properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/build_world_chunk_octree.oshader");
+            generationComponent.UpdateWorldOctreeShader = graphicsApi.CreateShaderEffect(properties);
 
-            //Graphics::ShaderHandle createTerrainShader = graphicsApi.GetShader("engine:/shaders/compute/volume/init_volume.oshader");
-            //Graphics::ShaderHandle generateMeshShader = graphicsApi.GetShader("engine:/shaders/compute/volume/generate_volume.oshader");
+            properties.m_DebugName = "Fill generation mesh indirect dispatch";
+            properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/init_volume.oshader");
+            generationComponent.SetupDispatchGenerateMeshShader = graphicsApi.CreateShaderEffect(properties);
 
-            //Graphics::PipelineProperties properties;
-            //properties.Shader = createTerrainShader;
-            //properties.m_DebugName = "Fill Voxel Grid";
-            //Graphics::ShaderEffectHandle createTerrainShaderEffect = graphicsApi.CreateShaderEffect(properties);
-            //Graphics::ShaderEffectHandle generateMeshShaderEffect = graphicsApi.CreateShaderEffect(properties);
+            properties.m_DebugName = "Isosurface extraction";
+            properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/generate_volume.oshader");
+            generationComponent.GenerateMeshShader = graphicsApi.CreateShaderEffect(properties);
+        }
+
+        void BuildWorldOctree(Graphics::CommandBuffer& commandBuffer, const VolumeGenerationComponent& generationComponent, TerrainWorldOctreeComponent& terrainWorldOctree)
+        {
+            //const onyxF32 farPlane = graphicsApi.GetViewContsants().Far;
+
+            const onyxS32 worldOctreeMaxDepth = 20;
+            //const onyxS32 worldOctreeChunkSize = static_cast<onyxS32>(std::ceil(farPlane / (1 << worldOctreeMaxDepth)));
+
+            terrainWorldOctree.RootSize = 1 << 16;// std::ceil(farPlane + (2.0f * static_cast<onyxF32>(worldOctreeChunkSize)));
+            terrainWorldOctree.Depth = worldOctreeMaxDepth;
+
+            UpdateOctreePushConstants pushConstants;
+            pushConstants.WorldOctree = terrainWorldOctree.OctreeGpuBuffer->GetGpuAddress();
+            pushConstants.WorldOctreeLeafBuffer = terrainWorldOctree.OctreeLeafNodesGpuBuffer->GetGpuAddress();
+
+            pushConstants.IndirectDispatch = IndirectDispatchBuffer0->GetGpuAddress();
+            pushConstants.Depth = 0;
+            pushConstants.MaxDepth = 21;
+            pushConstants.MaxGeometricError = 0.1f;
+            pushConstants.ComplexSurfaceThreshold = 0.89f;
+
+            pushConstants.CameraPosition = Vector3f32::Zero();
+
+            pushConstants.SplitRequestsReadBuffer = SplitRequestQueueBuffer0->GetGpuAddress();
+            pushConstants.SplitRequestsWriteBuffer = SplitRequestQueueBuffer1->GetGpuAddress();
+
+            pushConstants.RootHalfExtents = terrainWorldOctree.RootSize * 0.5f;
+            pushConstants.NodeExtents = terrainWorldOctree.RootSize;
+            pushConstants.Offset = 0;
+
+
+            //computeCommandBuffer.Barrier(LevelNodeCountBuffer0, Graphics::)
+            commandBuffer.BindShaderEffect(generationComponent.UpdateWorldOctreeShader);
+            commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, pushConstants);
+            commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            commandBuffer.Barrier(IndirectDispatchBuffer1, Graphics::Context::Compute, Graphics::Access::IndirectRead);
+            commandBuffer.Barrier(SplitRequestQueueBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
+            commandBuffer.Barrier(SplitRequestQueueBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+            commandBuffer.Dispatch(1, 1, 1);
+
+            onyxU64 dispatchBufferRead = IndirectDispatchBuffer0->GetGpuAddress();
+            onyxU64 dispatchBufferWrite = IndirectDispatchBuffer1->GetGpuAddress();
+
+            for (onyxU32 depth = 1; depth < 20; ++depth)
+            {
+                std::swap(pushConstants.SplitRequestsReadBuffer, pushConstants.SplitRequestsWriteBuffer);
+
+                pushConstants.IndirectDispatch = dispatchBufferWrite;
+                pushConstants.NodeExtents = terrainWorldOctree.RootSize / static_cast<onyxF32>(1 << depth);
+                pushConstants.Depth = depth;//(onyxU64(1) << (3 * depth)) - 1;
+
+                // TODO: Find right barrier to set
+
+                commandBuffer.Barrier(terrainWorldOctree.OctreeGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
+                commandBuffer.Barrier(terrainWorldOctree.OctreeLeafNodesGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
+
+                commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, pushConstants);
+                if (dispatchBufferRead == IndirectDispatchBuffer0->GetGpuAddress())
+                {
+                    commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::IndirectRead);
+                    commandBuffer.Barrier(SplitRequestQueueBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+                    commandBuffer.Barrier(SplitRequestQueueBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
+                    commandBuffer.Barrier(IndirectDispatchBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+                    commandBuffer.DispatchIndirect(IndirectDispatchBuffer0, 0);
+                }
+                else
+                {
+                    commandBuffer.Barrier(SplitRequestQueueBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
+                    commandBuffer.Barrier(SplitRequestQueueBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+                    commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+                    commandBuffer.Barrier(IndirectDispatchBuffer1, Graphics::Context::Compute, Graphics::Access::IndirectRead);
+                    commandBuffer.DispatchIndirect(IndirectDispatchBuffer1, 0);
+                }
+
+                std::swap(dispatchBufferRead, dispatchBufferWrite);
+            }
+
+            commandBuffer.Barrier(terrainWorldOctree.OctreeGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+            commandBuffer.Barrier(terrainWorldOctree.OctreeLeafNodesGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+        }
+
+        void ExtractIsoSurface(Graphics::CommandBuffer& commandBuffer, const VolumeGenerationComponent& generationComponent, const TerrainWorldOctreeComponent& worldOctree, TerrainRuntimeComponent& terrainMesh)
+        {
+            struct InitIsoSurfaceExtractionConstants
+            {
+                onyxU64 LeavesBuffer;
+                onyxU64 IndirectDispatchBuffer;
+            };
+
+            InitIsoSurfaceExtractionConstants initIsoSurfaceConstants;
+            initIsoSurfaceConstants.LeavesBuffer = worldOctree.OctreeLeafNodesGpuBuffer->GetGpuAddress();
+            initIsoSurfaceConstants.IndirectDispatchBuffer = IndirectDispatchBuffer0->GetGpuAddress();
+
+            commandBuffer.BindShaderEffect(generationComponent.SetupDispatchGenerateMeshShader);
+
+            commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, initIsoSurfaceConstants);
+            commandBuffer.Dispatch(1, 1, 1);
+
+            struct IsoSurfaceExtractionConstants
+            {
+                onyxU64 LeavesBuffer;
+                onyxU64 VertexBuffer;
+
+                onyxU64 IndirectDrawBuffer;
+                float RootSize;
+                float RootHalfExtents;
+            };
+
+            IsoSurfaceExtractionConstants isoSurfaceConstants;
+            isoSurfaceConstants.LeavesBuffer = worldOctree.OctreeLeafNodesGpuBuffer->GetGpuAddress();
+            isoSurfaceConstants.IndirectDrawBuffer = terrainMesh.IndirectDrawBuffer->GetGpuAddress();
+            isoSurfaceConstants.VertexBuffer = terrainMesh.MeshVertices->GetGpuAddress();
+            isoSurfaceConstants.RootSize = worldOctree.RootSize;
+            isoSurfaceConstants.RootHalfExtents = worldOctree.RootSize * 0.5f;
+
+            commandBuffer.Barrier(terrainMesh.MeshVertices, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            commandBuffer.Barrier(terrainMesh.IndirectDrawBuffer, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+            commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::IndirectRead);
+
+            commandBuffer.BindShaderEffect(generationComponent.GenerateMeshShader);
+            commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, isoSurfaceConstants);
+            commandBuffer.DispatchIndirect(IndirectDispatchBuffer0, 0);
+
+            commandBuffer.Barrier(terrainMesh.MeshVertices, Graphics::Context::Graphics, Graphics::Access::VertexRead);
+            commandBuffer.Barrier(terrainMesh.IndirectDrawBuffer, Graphics::Context::Graphics, Graphics::Access::IndirectRead);
+        }
+
+        using TerrainEntity = Entity::Entity<const TerrainSettingsComponent, VolumeGenerationComponent, TerrainWorldOctreeComponent, TerrainRuntimeComponent, InitTerrainFlag>;
+        void System(TerrainEntity terrainEntity, Graphics::GraphicsApi& graphicsApi, Entity::EntityCommandBuffer entityCommandBuffer)
+        {
+            auto&& [terrainSettings, generationComponent, terrainWorldOctree, terrainRuntime] = terrainEntity.Get();
+
+            constexpr onyxU32 nodeCount = (1 << 20);
+            CreateBuffers(graphicsApi, terrainWorldOctree, terrainRuntime, nodeCount);
+            LoadShaders(graphicsApi, generationComponent);
+            Graphics::CommandBuffer& computeCommandBuffer = graphicsApi.GetCommandBuffer(graphicsApi.GetFrameIndex(), true);
+
+            BuildWorldOctree(computeCommandBuffer, generationComponent, terrainWorldOctree);
+            ExtractIsoSurface(computeCommandBuffer, generationComponent, terrainWorldOctree, terrainRuntime);
+
+            entityCommandBuffer.RemoveComponent<InitTerrainFlag>(terrainEntity.GetId());
         }
     }
 
-    void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, VolumeTerrainSettingsComponent&& volumeTerrainComponent)
+    void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, TerrainSettingsComponent&& volumeTerrainComponent)
     {
         // compare if resolution or chunksize changed if entity already has the component
 
-        registry.AddComponent<VolumeTerrainSettingsComponent>(entity, std::move(volumeTerrainComponent));
-        registry.AddComponent<VolumeTerrainRuntimeComponent>(entity);
+        registry.AddComponent<TerrainSettingsComponent>(entity, std::move(volumeTerrainComponent));
+        registry.AddComponent<TerrainRuntimeComponent>(entity);
+        registry.AddComponent<VolumeGenerationComponent>(entity);
         registry.AddComponent<TerrainWorldOctreeComponent>(entity);
 
         registry.AddComponent<InitTerrainFlag>(entity);
@@ -177,7 +294,7 @@ namespace Onyx::Volume::Terrain
 
     void Register(Entity::EcsBuilder& ecsBuilder)
     {
-        ecsBuilder.RegisterComponent<VolumeTerrainSettingsComponent>(factory);
+        ecsBuilder.RegisterComponent<TerrainSettingsComponent>(factory);
 
         ecsBuilder.RegisterSystem(Init::System);
     }

@@ -1,15 +1,17 @@
 #pragma once
 #include <onyx/assets/asset.h>
+
 #include <onyx/graphics/graphicshandles.h>
+#include <onyx/volume/terrain/worldsparseoctreenode.h>
 
 namespace Onyx
 {
 
 namespace Volume
 {
-    struct VolumeTerrainSettingsComponent
+    struct TerrainSettingsComponent
     {
-        static constexpr StringId32 TypeId = "Onyx::Volume::Components::VolumeTerrainSettingsComponent";
+        static constexpr StringId32 TypeId = "Onyx::Volume::Components::TerrainSettingsComponent";
         StringId32 GetTypeId() const { return TypeId; }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -27,14 +29,32 @@ namespace Volume
         // resolution 64x64 - each voxel is 0.5x0.5x
         onyxU32 ChunkSize = 32; // size per volume chunk
         onyxU32 Resolution = 32; // resolution per chunk
+
+        onyxU32 MinimumVoxelSizeInCentimeters = 50;
+    };
+
+    struct TerrainWorldOctreeComponent
+    {
+        DynamicArray<Terrain::WorldChunksOctreeNode> Octree;
+        Graphics::BufferHandle OctreeGpuBuffer;
+        Graphics::BufferHandle OctreeLeafNodesGpuBuffer;
+        onyxF32 RootSize;
+        onyxU8 Depth;
+    };
+
+    struct VolumeGenerationComponent
+    {
+        Graphics::ShaderEffectHandle UpdateWorldOctreeShader;
+        Graphics::ShaderEffectHandle SetupDispatchGenerateMeshShader;
+        Graphics::ShaderEffectHandle GenerateMeshShader;
     };
 }
 
 template <>
-struct Serialization<Volume::VolumeTerrainSettingsComponent>
+struct Serialization<Volume::TerrainSettingsComponent>
 {
-    static bool Serialize(Serializer& serializer, const Volume::VolumeTerrainSettingsComponent& volumeTerrain);
-    static bool Deserialize(const Deserializer& deserializer, Volume::VolumeTerrainSettingsComponent& outVolumeTerrain);
+    static bool Serialize(Serializer& serializer, const Volume::TerrainSettingsComponent& volumeTerrain);
+    static bool Deserialize(const Deserializer& deserializer, Volume::TerrainSettingsComponent& outVolumeTerrain);
 };
 
 }

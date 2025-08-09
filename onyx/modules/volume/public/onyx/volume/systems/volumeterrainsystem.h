@@ -13,7 +13,7 @@ namespace Onyx::Volume::Terrain
 {
     constexpr onyxU32 TERRAIN_SHADER_LOCAL_SIZE = 8;
 
-    struct VolumeTerrainChunk
+    struct TerrainChunk
     {
         Vector3s16 Coordinate;
 
@@ -27,7 +27,7 @@ namespace Onyx::Volume::Terrain
 #endif
     };
 
-    struct VolumeTerrainRuntimeComponent
+    struct TerrainRuntimeComponent
     {
         // first node is root of the tree
         Graphics::BufferHandle WorldChunksOctree;
@@ -39,7 +39,7 @@ namespace Onyx::Volume::Terrain
         onyxF32 RootSize;
         onyxF32 ChunkSize;
 
-        DynamicArray<VolumeTerrainChunk> Chunks;
+        DynamicArray<TerrainChunk> Chunks;
 
 #if !PER_CHUNK_MESH_DATA
         Graphics::BufferHandle MeshVertices;

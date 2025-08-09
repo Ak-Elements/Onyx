@@ -14,7 +14,6 @@
 #include <onyx/ui/imguisystem.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
-#include <onyx/volume/graphics/generatemeshpass.h>
 
 #include <editor/panels/sceneeditor/componentspanel.h>
 #include <editor/panels/sceneeditor/entitiespanel.h>
