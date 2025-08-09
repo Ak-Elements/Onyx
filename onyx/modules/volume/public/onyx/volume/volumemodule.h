@@ -17,5 +17,6 @@ namespace Onyx::Volume
         VolumeModule();
 
         void Init(GameCore::GameCoreSystem& gameCore);
+        void Shutdown();
     };
 }
