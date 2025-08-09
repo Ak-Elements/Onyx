@@ -42,7 +42,7 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringId32 TypeId = "Onyx::Editor::EditorModule";
-        StringId32 GetTypeId() const { return TypeId; }
+        StringId32 GetTypeId() const override { return TypeId; }
 
         EditorSystem();
         ~EditorSystem() override;
