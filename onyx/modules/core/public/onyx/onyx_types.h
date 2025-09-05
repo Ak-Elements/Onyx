@@ -32,7 +32,7 @@ namespace Onyx
     using onyxU16 = std::uint16_t;
     using onyxU32 = std::uint32_t;
     using onyxU64 = std::uint64_t;
-    using onyxU128 = std::pair<onyxU64, onyxU64>;
+    struct onyxU128 { onyxU64 High; onyxU64 Low; };
 
     constexpr onyxS32 ONYX_INVALID_INDEX = -1;
 
