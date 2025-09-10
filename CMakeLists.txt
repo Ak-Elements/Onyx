@@ -55,11 +55,11 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;")
 
 if (CMAKE_COMPILER_IS_GNUCXX OR ((${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") AND NOT MSVC))
     set( ONYX_COMPILE_OPTIONS
-	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti -Wno-comment>
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti -Wno-comment>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>: >
     $<$<CXX_COMPILER_ID:GNU>: -Wno-changes-meaning>)
-	set( ONYX_LINK_OPTIONS
-	$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >)
+    set( ONYX_LINK_OPTIONS
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >)
 
 elseif (MSVC)
     set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- )
@@ -77,9 +77,9 @@ set( ONYX_PUBLIC_DEFINES
 
 set( ONYX_PRIVATE_DEFINES
     $<$<CXX_COMPILER_ID:Clang>:>
-	$<$<CXX_COMPILER_ID:AppleClang>:>
-	$<$<CXX_COMPILER_ID:GNU>:>
-	$<$<CXX_COMPILER_ID:MSVC>:>
+    $<$<CXX_COMPILER_ID:AppleClang>:>
+    $<$<CXX_COMPILER_ID:GNU>:>
+    $<$<CXX_COMPILER_ID:MSVC>:>
 )
 
 if(UNIX)
@@ -114,8 +114,11 @@ endif()
 # Remove 'lib' prefix for shared libraries on Windows
 # Add multi processor compile on Windows
 if (WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /EHsc")
-	set(CMAKE_SHARED_LIBRARY_PREFIX "")
+    if (MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /EHsc")
+    endif()
+    
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
 endif ()
 
 if (NOT APPLE)
@@ -123,23 +126,23 @@ if (NOT APPLE)
 endif()
 
 if (ONYX_BUILD_ALL)
-	set(ONYX_BUILD_TESTS ON)
-	set(ONYX_BUILD_SAMPLES ON)
+    set(ONYX_BUILD_TESTS ON)
+    set(ONYX_BUILD_SAMPLES ON)
 endif()
 
 if (STATIC_ANALYSIS)
-	find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
-	if (CMAKE_CXX_CPPCHECK)
-		list(
-			APPEND CMAKE_CXX_CPPCHECK 
-				"--enable=warning"
-				"--inconclusive"
-				"--force" 
-				"--inline-suppr"
-				"--error-exitcode=1"
-				"--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppressions.txt"
-		)
-	endif()
+    find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+    if (CMAKE_CXX_CPPCHECK)
+        list(
+            APPEND CMAKE_CXX_CPPCHECK 
+                "--enable=warning"
+                "--inconclusive"
+                "--force" 
+                "--inline-suppr"
+                "--error-exitcode=1"
+                "--suppressions-list=${CMAKE_SOURCE_DIR}/CppCheckSuppressions.txt"
+        )
+    endif()
 endif()
 
 #CLANG-CL We have to clear the system include flags on clang-cl because system includes are buggy
@@ -151,7 +154,7 @@ include(FetchContent)
 include(cmakepackagemanager)
 include(onyx_find_engine_modules)
 include(onyx_generate_modules_file)
-     
+
 include(GNUInstallDirs)
 
 set_property(GLOBAL PROPERTY onyx_modules "")
