@@ -6,6 +6,7 @@ set(${CURRENT_TARGET}_pch ${TARGET_PUBLIC_PATH}/onyx.h)
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/assert.h
 	${TARGET_PUBLIC_PATH}/bitwiseenum.h
+	${TARGET_PUBLIC_PATH}/debugging.h
 	${TARGET_PUBLIC_PATH}/defines.h
 	${TARGET_PUBLIC_PATH}/encoding.h
 	${TARGET_PUBLIC_PATH}/eventhandler.h
@@ -83,9 +84,10 @@ set(TARGET_PUBLIC_SOURCES
 
 set(TARGET_PRIVATE_SOURCES		
 	${TARGET_PRIVATE_PATH}/assert.cpp
+	${TARGET_PRIVATE_PATH}/debugging.cpp
 	${TARGET_PRIVATE_PATH}/guid.cpp
 	${TARGET_PRIVATE_PATH}/hash.cpp
-    ${TARGET_PRIVATE_PATH}/stringid.cpp
+	${TARGET_PRIVATE_PATH}/stringid.cpp
 	${TARGET_PRIVATE_PATH}/geometry/rectserialization.cpp
 	${TARGET_PRIVATE_PATH}/geometry/vectorserialization.cpp
 	${TARGET_PRIVATE_PATH}/log/logger.cpp
