@@ -8,6 +8,7 @@
 
 #if ONYX_ASSERTS_ENABLED
 
+#include <onyx/debugging.h>
 #include <onyx/inplacefunction.h>
 #include <onyx/string/inplacestring.h>
 #include <onyx/string/format.h>
@@ -60,15 +61,15 @@ namespace Onyx
 //static_assert(false, "Not supported on this platform yet");
 #endif
 
-#define ONYX_ASSERT(condition, ...)                                         \
-    do {                                                                    \
-        if (!(condition)) {                                                 \
-            if(Onyx::Assert(__FILE__, __LINE__, #condition, ##__VA_ARGS__)) \
-            {                                                               \
-                DEBUG_BREAK;                                                \
-                std::terminate();                                           \
-            }                                                               \
-        }                                                                   \
+#define ONYX_ASSERT(condition, ...)                                           \
+    do {                                                                      \
+        if (!(condition)) {                                                   \
+            if(::Onyx::Assert(__FILE__, __LINE__, #condition, ##__VA_ARGS__)) \
+            {                                                                 \
+                ::Onyx::Breakpoint                                            \
+                ::std::terminate();                                           \
+            }                                                                 \
+        }                                                                     \
     } while (false)
 #else
 #define ONYX_ASSERT(condition, ...)
