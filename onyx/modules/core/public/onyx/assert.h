@@ -66,7 +66,7 @@ namespace Onyx
         if (!(condition)) {                                                   \
             if(::Onyx::Assert(__FILE__, __LINE__, #condition, ##__VA_ARGS__)) \
             {                                                                 \
-                ::Onyx::Breakpoint                                            \
+                ::Onyx::Breakpoint();                                         \
                 ::std::terminate();                                           \
             }                                                                 \
         }                                                                     \
