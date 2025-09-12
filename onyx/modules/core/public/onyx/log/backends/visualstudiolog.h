@@ -1,6 +1,6 @@
 #pragma once
 
-#if ONYX_IS_VISUAL_STUDIO
+#if ONYX_IS_MSVC
 
 #include <onyx/log/backends/loggerbackend.h>
 

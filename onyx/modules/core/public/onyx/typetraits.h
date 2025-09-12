@@ -27,7 +27,7 @@ namespace Onyx
 			constexpr auto prefix = std::string_view{ "=" };
 			constexpr auto suffix = std::string_view{ "]" };
 			constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
-#elif ONYX_IS_VISUAL_STUDIO
+#elif ONYX_IS_MSVC
 			constexpr auto classPrefix = std::string_view{ "class " };
 			constexpr auto structPrefix = std::string_view{ "struct " };
 

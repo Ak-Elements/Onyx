@@ -172,7 +172,7 @@ namespace Onyx::Application
 
         m_Logger->AddLoggingBackend<StdoutLogger>();
 
-#if ONYX_IS_VISUAL_STUDIO
+#if ONYX_IS_MSVC
         m_Logger->AddLoggingBackend<VisualStudioLogger>();
 #endif
 

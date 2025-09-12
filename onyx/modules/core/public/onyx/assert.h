@@ -46,21 +46,6 @@ namespace Onyx
     }
 }
 
-#if ONYX_IS_VISUAL_STUDIO
-#define DEBUG_BREAK __debugbreak()
-#elif ONYX_IS_CLANG
-#if ANDROID
-#include <signal.h>
-#define DEBUG_BREAK raise(SIGTRAP)
-#else
-#define DEBUG_BREAK __builtin_debugtrap()
-#endif
-#elif ONYX_IS_GCC// gcc
-#define DEBUG_BREAK __builtin_trap()
-#else
-//static_assert(false, "Not supported on this platform yet");
-#endif
-
 #define ONYX_ASSERT(condition, ...)                                           \
     do {                                                                      \
         if (!(condition)) {                                                   \

@@ -1,6 +1,6 @@
 #include <onyx/log/backends/visualstudiolog.h>
 
-#if ONYX_IS_VISUAL_STUDIO
+#if ONYX_IS_MSVC
 
 #include <onyx/string/format.h>
 #include <onyx/log/loglevel.h>
