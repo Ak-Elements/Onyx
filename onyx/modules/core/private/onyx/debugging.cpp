@@ -36,7 +36,11 @@ namespace Onyx
 
             #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-            ::DebugBreak();
+            // Windows is special and crashes (throws an exception) if no debugger is present
+            if (IsDebuggerPresent())
+            {
+                ::DebugBreak();
+            }
 
             #else // ^^^ ONYX_IS_WINDOWS ^^^ || vvv !ONYX_IS_WINDOWS vvv
 
