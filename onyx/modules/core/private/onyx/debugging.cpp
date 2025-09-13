@@ -23,49 +23,42 @@ extern "C" int IsDebuggerPresent();
 
 #endif // ^^^ ONYX_IS_LINUX ^^^
 
-
 namespace Onyx
 {
-
     namespace Internal
     {
-
         void Breakpoint()
         {
-            #if ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
+#if ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
 
-            #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
+#if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-            // Windows is special and crashes (throws an exception) if no debugger is present
-            if (IsDebuggerPresent())
-            {
-                ::DebugBreak();
-            }
+            ::DebugBreak();
 
-            #else // ^^^ ONYX_IS_WINDOWS ^^^ || vvv !ONYX_IS_WINDOWS vvv
+#else // ^^^ ONYX_IS_WINDOWS ^^^ || vvv !ONYX_IS_WINDOWS vvv
 
             std::raise(SIGTRAP);
 
-            #endif // ^^^ !ONYX_IS_WINDOWS ^^^
+#endif // ^^^ !ONYX_IS_WINDOWS ^^^
 
-            #endif // ^^^ ONYX_IS_DEBUG ^^^
+#endif // ^^^ ONYX_IS_DEBUG ^^^
         }
 
     }
 
     bool IsDebuggerPresent()
     {
-        #if !ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
+#if !ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
 
         return false;
 
-        #else // ^^^ ONYX_IS_DEBUG ^^^ || vvv !ONYX_IS_DEBUG vvv
+#else // ^^^ ONYX_IS_DEBUG ^^^ || vvv !ONYX_IS_DEBUG vvv
 
-        #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
+#if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
         return ::IsDebuggerPresent();
 
-        #elif ONYX_IS_LINUX // ^^^ ONYX_IS_WINDOWS ^^^ || vvv ONYX_IS_LINUX vvv
+#elif ONYX_IS_LINUX // ^^^ ONYX_IS_WINDOWS ^^^ || vvv ONYX_IS_LINUX vvv
 
         // ! Possibility of hitting a no-fs linux system
 
@@ -95,15 +88,14 @@ namespace Onyx
 
         return is_debugger_present;
 
-        #else // ^^^ ONYX_IS_LINUX ^^^ || vvv !ONYX_IS_WINDOWS && !ONYX_IS_LINUX vvv
+#else // ^^^ ONYX_IS_LINUX ^^^ || vvv !ONYX_IS_WINDOWS && !ONYX_IS_LINUX vvv
 
-        #warning "IsDebuggerPresent() is not implemented for this platform"
+#warning "IsDebuggerPresent() is not implemented for this platform"
 
         return false;
 
-        #endif // ^^^ !ONYX_IS_WINDOWS && !ONYX_IS_LINUX ^^^
+#endif // ^^^ !ONYX_IS_WINDOWS && !ONYX_IS_LINUX ^^^
 
-        #endif // ^^^ !ONYX_IS_DEBUG ^^^
+#endif // ^^^ !ONYX_IS_DEBUG ^^^
     }
-
 }
