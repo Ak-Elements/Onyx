@@ -41,8 +41,8 @@ namespace Onyx::Editor
         ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
         ImGui::SetCursorPosY(menubarSize.y + ImGui::GetCurrentWindow()->WindowPadding.y);
 
-        CenterDockId = ImGui::GetID("EditorMainDockspace");
-        ImGui::DockSpace(CenterDockId, ImVec2{ 0,0 }, dockspaceFlags, nullptr);
+        m_CenterDockId = ImGui::GetID("EditorMainDockspace");
+        ImGui::DockSpace(m_CenterDockId, ImVec2{ 0,0 }, dockspaceFlags, nullptr);
         
         End();
     }
