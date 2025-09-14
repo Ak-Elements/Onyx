@@ -18,6 +18,10 @@ namespace Onyx::Entity
             { component.DrawImGuiEditor() } -> std::same_as<bool>;
         };
 
+
+        template <typename T>
+        concept IsFlagComponent = std::is_empty_v<T>;
+
     }
 
     class EntityRegistry;
@@ -39,6 +43,7 @@ namespace Onyx::Entity
 
         virtual constexpr bool ShowInEditor() const = 0;
         virtual constexpr bool IsTransient() const = 0;
+        virtual constexpr bool IsFlag() const = 0;
         virtual constexpr StringId32 GetTypeId() const = 0;
     };
 
@@ -49,8 +54,8 @@ namespace Onyx::Entity
     struct ComponentMeta : public IComponentMeta
     {
     public:
-        static_assert(Details::IsTransient<T> || (Serializable<T> && Deserializable<T>), "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities.");
-        static_assert(Details::HasHideInEditor<T> || Details::HasDrawImGuiEditor<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
+        static_assert(Details::IsTransient<T> || Details::IsFlagComponent<T> || (Serializable<T> && Deserializable<T>), "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities.");
+        static_assert(Details::HasHideInEditor<T> || Details::HasDrawImGuiEditor<T> || Details::IsFlagComponent<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
 
         ComponentMeta() = default;
         ComponentMeta(ComponentFactoryFunction<T> factory)
@@ -60,6 +65,8 @@ namespace Onyx::Entity
 
         constexpr bool IsTransient() const override { return Details::IsTransient<T>; }
         constexpr bool ShowInEditor() const override { return Details::HasHideInEditor<T> == false; }
+        constexpr bool IsFlag() const override { return Details::IsFlagComponent<T>; }
+
         constexpr StringId32 GetTypeId() const override
         {
             if constexpr (HasTypeId<T>)
@@ -75,7 +82,11 @@ namespace Onyx::Entity
 
         void Create(EntityRegistry& registry, EntityId entity) const override
         {
-            if constexpr (Deserializable<T>)
+            if constexpr (Details::IsFlagComponent<T>)
+            {
+                registry.AddComponent<T>(entity);
+            }
+            else if constexpr (Deserializable<T>)
             {
                 T component{};
                 if (m_Factory)
@@ -95,7 +106,11 @@ namespace Onyx::Entity
 
         void Create(EntityRegistry& registry, EntityId entity, const Deserializer& deserializer) const override
         {
-            if constexpr (Deserializable<T>)
+            if constexpr (Details::IsFlagComponent<T>)
+            {
+                registry.AddComponent<T>(entity);
+            }
+            else if constexpr (Deserializable<T>)
             {
                 T component{};
                 Serialization<T>::Deserialize(deserializer, component);
@@ -117,15 +132,22 @@ namespace Onyx::Entity
 
         void Copy(EntityRegistry& registry, EntityId entity, void* componentPtr) const override
         {
-            const T* component = static_cast<const T*>(componentPtr);
-            if (m_Factory)
+            if constexpr (Details::IsFlagComponent<T>)
             {
-                T copied = *component;
-                m_Factory(registry, entity, std::move(copied));
+                registry.AddComponent<T>(entity);
             }
             else
             {
-                registry.AddComponent<T>(entity, *component);
+                const T* component = static_cast<const T*>(componentPtr);
+                if (m_Factory)
+                {
+                    T copied = *component;
+                    m_Factory(registry, entity, std::move(copied));
+                }
+                else
+                {
+                    registry.AddComponent<T>(entity, *component);
+                }
             }
         }
 
