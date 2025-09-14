@@ -941,7 +941,7 @@ namespace Onyx::Editor
         }
 
         Filepath metaFilePath = Path::ReplaceExtension(path, "ometa");
-        OnyxFile metaDataFile(metaFilePath);
+        OnyxFile metaDataFile(Path::GetFullPath(metaFilePath));
         FileStream stream = metaDataFile.OpenStream(OpenMode::Write | OpenMode::Text);
 
         const String& jsonString = jsonRoot.Json.dump(4);

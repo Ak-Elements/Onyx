@@ -10,14 +10,14 @@ namespace Onyx::Editor
 
         StringView GetWindowId() override { return WindowId; }
 
-        onyxU32 GetCenterDockId() const { return CenterDockId; }
+        onyxU32 GetCenterDockId() const { return m_CenterDockId; }
 
     private:
         void OnRender(Ui::ImGuiSystem& system) override;
         void RenderMenuBar(Ui::ImGuiSystem& system);
 
     private:
-        onyxU32 CenterDockId = 0;
+        onyxU32 m_CenterDockId = 0;
     };
 }
  

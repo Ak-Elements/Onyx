@@ -98,7 +98,7 @@ namespace Onyx::Assets
 
         const String& jsonString = serializer.JsonRoot.dump(4);
         using namespace FileSystem;
-        OnyxFile inputConfigFile(MetaData.Path);
+        OnyxFile inputConfigFile(Path::GetFullPath(MetaData.Path));
         FileStream stream = inputConfigFile.OpenStream(OpenMode::Write | OpenMode::Text);
         stream.WriteRaw(jsonString.data(), jsonString.size());
 
