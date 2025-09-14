@@ -15,6 +15,7 @@
 
 #include <imgui_internal.h>
 #include <onyx/localization/localization.h>
+#include <onyx/ui/controls/treeview.h>
 
 namespace Onyx::Editor::SceneEditor
 {
@@ -106,53 +107,81 @@ namespace Onyx::Editor::SceneEditor
 
     void ComponentsPanel::DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
     {
-        auto selectedEntities = scene.GetRegistry().GetView<SelectedComponent>();
-
         if (ImGui::BeginPopupContextWindow("AddComponentModal", ImGuiPopupFlags_MouseButtonRight))
         {
             static String s_SearchString;
             static bool s_HasFocus = false;
 
-            s_HasFocus |= ImGui::GetCurrentWindow()->Appearing;
+            const bool isAppearing = ImGui::IsWindowAppearing();
+            s_HasFocus |= isAppearing;
 
-            if (ImGui::GetCurrentWindow()->Appearing)
-                s_SearchString.clear();
-
-            Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get().data(), s_HasFocus);
-
-            Entity::EntityRegistry& registry = scene.GetRegistry();
-            bool hasMenuItem = false;
-            for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
+            if (isAppearing)
             {
-                if (componentMeta->IsTransient())
-                {
-                    continue;
-                }
-
-                Localization::LocalizationId localizationId(componentTypeId);
-                Localization::LocalizedString componentLocalizedName = m_LocalizationModule->GetLocalized(localizationId);
-
-                StringView componentName = componentLocalizedName.Get();
-                if (IgnoreCaseFind(componentName, s_SearchString) == std::string::npos)
-                    continue;
-
-                hasMenuItem = true;
-
-                if (ImGui::MenuItem(componentName.data()))
-                {
-                    for (Entity::EntityId selectedEntity : selectedEntities)
-                    {
-                        componentFactory.TryCreateComponent(registry, selectedEntity, componentTypeId);
-                    }
-
-                    ImGui::CloseCurrentPopup();
-                }
+                s_SearchString.clear();
             }
 
-            if (hasMenuItem == false)
+            Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get(), s_HasFocus);
+
+            Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
+            Ui::TreeItem root = BuildComponentTree(componentFactory, scene, s_SearchString);
+            bool hasNoMenuItem = root.Children.empty();
+            Ui::RenderTreeView("componentMenu", root, flags);
+
+            if (hasNoMenuItem)
                 ImGui::Dummy(ImVec2(100, 10));
 
             ImGui::EndPopup();
         }
+    }
+
+    Ui::TreeItem ComponentsPanel::BuildComponentTree(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, StringView searchString) const
+    {
+        Ui::TreeItem root;
+        for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
+        {
+            if (componentMeta->IsTransient())
+            {
+                continue;
+            }
+
+            Localization::LocalizationId localizationId(componentTypeId);
+            Localization::LocalizedString localizedString = m_LocalizationModule->GetLocalized(localizationId);
+            StringView componentName = localizedString.Get();
+            if (IgnoreCaseFind(componentName, searchString) == StringView::npos)
+            {
+                continue;
+            }
+
+            constexpr char delimiter = '/';
+            DynamicArray<String> split = Split(componentName, delimiter);
+
+            Ui::TreeItem* currentParent = &root;
+            for (onyxU32 i = 0; i < split.size(); ++i)
+            {
+                const String& currentToken = split[i];
+                if (i == split.size() - 1)
+                {
+                    Ui::TreeItem& menuItem = currentParent->Children[currentToken];
+                    menuItem.Label = currentToken;
+                    menuItem.OnSelected = [&]()
+                        {
+                            Entity::EntityRegistry& registry = scene.GetRegistry();
+                            auto selectedEntities = registry.GetView<SelectedComponent>();
+                            for (Entity::EntityId selectedEntity : selectedEntities)
+                            {
+                                componentFactory.TryCreateComponent(registry, selectedEntity, componentTypeId);
+                            }
+
+                            ImGui::CloseCurrentPopup();
+                        };
+                    break;
+                }
+
+                currentParent = &currentParent->Children[currentToken];
+                currentParent->Label = currentToken;
+            }
+        }
+
+        return root;
     }
 }

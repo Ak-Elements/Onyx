@@ -19,6 +19,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/controls/button.h
     ${TARGET_PUBLIC_PATH}/controls/combobox.h
     ${TARGET_PUBLIC_PATH}/controls/dockspace.h
+    ${TARGET_PUBLIC_PATH}/controls/treeview.h
     ${TARGET_PUBLIC_PATH}/controls/vectorcontrol.h
     ${TARGET_PUBLIC_PATH}/layout/imguilayout.h
 )
@@ -40,6 +41,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/controls/button.cpp
     ${TARGET_PRIVATE_PATH}/controls/combobox.cpp
     ${TARGET_PRIVATE_PATH}/controls/dockspace.cpp
+    ${TARGET_PRIVATE_PATH}/controls/treeview.cpp
     ${TARGET_PRIVATE_PATH}/controls/vectorcontrol.cpp
     ${TARGET_PRIVATE_PATH}/layout/imguilayout.cpp
 )
