@@ -56,7 +56,7 @@ namespace Onyx::Editor
 
     void NodeGraphEditorContext::FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData&)> filterFunctor)
     {
-        m_ContextMenuRoot.m_Children.clear();
+        m_ContextMenuRoot.Children.clear();
 
         const NodeGraph::INodeFactory& factory = GetNodeFactory();
         const auto& nodeTypeIds = factory.GetRegisteredNodeIds();
@@ -74,19 +74,23 @@ namespace Onyx::Editor
             constexpr char delimiter = '/';
             DynamicArray<String> split = Split(localizedFullyQualifiedNodeName, delimiter);
 
-            NodeListContextMenuItem* currentParent = &m_ContextMenuRoot;
+            Ui::TreeItem* currentParent = &m_ContextMenuRoot;
             for (onyxU32 i = 0; i < split.size(); ++i)
             {
                 const String& currentToken = split[i];
                 if (i == split.size() - 1)
                 {
-                    NodeListContextMenuItem& menuItem = currentParent->m_Children[currentToken];
+                    Ui::TreeItem& menuItem = currentParent->Children[currentToken];
                     menuItem.Label = currentToken;
-                    menuItem.TypeId = typeId;
+                    menuItem.OnSelected = [&, typeId]()
+                    {
+                        CreateNewNode(typeId);
+                    };
+                    
                     break;
                 }
 
-                currentParent = &currentParent->m_Children[currentToken];
+                currentParent = &currentParent->Children[currentToken];
                 currentParent->Label = currentToken;
             }
         }
@@ -97,7 +101,7 @@ namespace Onyx::Editor
         FilterNodeListContextMenu(nullptr);
     }
 
-    const GraphEditorContext::NodeListContextMenuItem& NodeGraphEditorContext::GetNodeListContextMenuRoot()
+    const Ui::TreeItem& NodeGraphEditorContext::GetNodeListContextMenuRoot()
     {
         return m_ContextMenuRoot;
     }

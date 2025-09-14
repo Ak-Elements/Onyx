@@ -122,13 +122,19 @@ namespace Onyx::Editor::SceneEditor
 
             Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get(), s_HasFocus);
 
-            Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
-            Ui::TreeItem root = BuildComponentTree(componentFactory, scene, s_SearchString);
-            bool hasNoMenuItem = root.Children.empty();
-            Ui::RenderTreeView("componentMenu", root, flags);
+            if (ImGui::BeginChild("##ScrollList", ImVec2(350.0f, 350.0f)))
+            {
+                
+                Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
+                Ui::TreeItem root = BuildComponentTree(componentFactory, scene, s_SearchString);
+                //bool hasNoMenuItem = root.Children.empty();
+                Ui::RenderTreeView("componentMenu", root, flags);
 
-            if (hasNoMenuItem)
-                ImGui::Dummy(ImVec2(100, 10));
+                //if (hasNoMenuItem)
+                //    ImGui::Dummy(ImVec2(100, 10));
+            }
+
+            ImGui::EndChild();
 
             ImGui::EndPopup();
         }

@@ -8,47 +8,47 @@ namespace Onyx::Ui
 {
     void ImGuiWindow::Open()
     {
-        if (isOpen)
+        if (m_IsOpen)
         {
             BringToFront();
             SetIsCollapsed(false);
             return;
         }
         
-        isOpen = true;
+        m_IsOpen = true;
         OnOpen();
     }
 
     void ImGuiWindow::Close()
     {
-        if (isOpen == false)
+        if (m_IsOpen == false)
         {
             return;
         }
 
-        isOpen = false;
+        m_IsOpen = false;
         OnClose();
     }
 
     void ImGuiWindow::Render(ImGuiSystem& system)
     {
-        if (isOpen == false)
+        if (m_IsOpen == false)
         {
             return;
         }
 
-        const bool wasOpen = isOpen;
+        const bool wasOpen = m_IsOpen;
 
-        ::ImGuiWindow* window = ImGui::FindWindowByName(name.c_str());
-        isDocked = (window != nullptr) && (window->DockId != 0);
+        ::ImGuiWindow* window = ImGui::FindWindowByName(m_Name.c_str());
+        m_IsDocked = (window != nullptr) && (window->DockId != 0);
 
         OnRender(system);
 
-        if (isOpen && (wasOpen == false))
+        if (m_IsOpen && (wasOpen == false))
         {
             OnOpen();
         }
-        else if ((isOpen == false) && wasOpen)
+        else if ((m_IsOpen == false) && wasOpen)
         {
             OnClose();
         }
@@ -58,24 +58,24 @@ namespace Onyx::Ui
 
     void ImGuiWindow::BringToFront()
     {
-        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(name.c_str());
+        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(m_Name.c_str());
         ImGui::BringWindowToDisplayFront(imguiWindow);
     }
 
     void ImGuiWindow::SetIsCollapsed(bool _isCollapsed)
     {
-        if (isCollapsed != _isCollapsed)
+        if (m_IsCollapsed != _isCollapsed)
         {
-            isCollapsed = _isCollapsed;
-            ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(name.c_str());
-            ImGui::SetWindowCollapsed(imguiWindow, isCollapsed, ImGuiCond_Always);
+            m_IsCollapsed = _isCollapsed;
+            ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(m_Name.c_str());
+            ImGui::SetWindowCollapsed(imguiWindow, m_IsCollapsed, ImGuiCond_Always);
         }
     }
 
     bool ImGuiWindow::Begin()
     {
-        bool hasBegun = ImGui::Begin(name.c_str(), &isOpen, flags);
-        isCollapsed = ImGui::IsWindowCollapsed();
+        bool hasBegun = ImGui::Begin(m_Name.c_str(), &m_IsOpen, m_Flags);
+        m_IsCollapsed = ImGui::IsWindowCollapsed();
         return hasBegun;
     }
 
@@ -87,7 +87,7 @@ namespace Onyx::Ui
     bool ImGuiWindow::BeginMenuBar()
     {
         bool hasBegun = true;
-        if ((flags & ImGuiWindowFlags_MenuBar) != ImGuiWindowFlags_MenuBar)
+        if ((m_Flags & ImGuiWindowFlags_MenuBar) != ImGuiWindowFlags_MenuBar)
         {
             hasBegun = ImGui::Begin("MainWindow");
         }
@@ -99,7 +99,7 @@ namespace Onyx::Ui
     {
         ImGui::EndMenuBar();
 
-        if ((flags & ImGuiWindowFlags_MenuBar) != ImGuiWindowFlags_MenuBar)
+        if ((m_Flags & ImGuiWindowFlags_MenuBar) != ImGuiWindowFlags_MenuBar)
         {
             ImGui::End();
         }

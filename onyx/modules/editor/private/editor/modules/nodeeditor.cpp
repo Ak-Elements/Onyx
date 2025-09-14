@@ -72,7 +72,7 @@ namespace Onyx::Editor
         : m_AssetSystem(&assetSystem)
         , m_InputActionSystem(&inputActionSystem)
         , m_LocalizationModule(&localizationModule)
-        , windowId(local_WindowId++)
+        , m_WindowId(local_WindowId++)
     {
     }
 
@@ -80,18 +80,18 @@ namespace Onyx::Editor
 
     void NodeGraphEditorWindow::OnOpen()
     {
-        SetName(Format::Format("Node Editor###NodeEditor{}", Localization::Editor::NodeEditor::Title, windowId));
-        canvasPanelId = Format::Format("###CanvasPanel{}", windowId);
-        propertiesPanelId = Format::Format("###PropertiesPanel{}", windowId);
+        SetName(Format::Format("Node Editor###NodeEditor{}", Localization::Editor::NodeEditor::Title, m_WindowId));
+        m_CanvasPanelId = Format::Format("###CanvasPanel{}", m_WindowId);
+        m_PropertiesPanelId = Format::Format("###PropertiesPanel{}", m_WindowId);
 
-        ImGuiID dockspaceID = ImGui::GetID(Format::Format("NodeEditor{}", windowId));
-        dockspace = Ui::Dockspace::Create({
+        ImGuiID dockspaceID = ImGui::GetID(Format::Format("NodeEditor{}", m_WindowId));
+        m_Dockspace = Ui::Dockspace::Create({
             {
-                Ui::DockSplitDirection::Right, 0.2f, propertiesPanelId, canvasPanelId
+                Ui::DockSplitDirection::Right, 0.2f, m_PropertiesPanelId, m_CanvasPanelId
             }
             });
-        dockspace.SetId(dockspaceID);
-        dockspace.SetWindowClass(GetWindowClass());
+        m_Dockspace.SetId(dockspaceID);
+        m_Dockspace.SetWindowClass(GetWindowClass());
 
         ax::NodeEditor::Config config;
         // disable automatic save - We have to override SaveSettings to avoid a leak if the settings file is nullptr
@@ -152,9 +152,9 @@ namespace Onyx::Editor
 
             RenderMenuBar();
 
-            dockspace.Render();
+            m_Dockspace.Render();
 
-            ImGui::Begin(Format::Format("{}{}", Localization::Editor::NodeEditor::UnnamedGraph, canvasPanelId));
+            ImGui::Begin(Format::Format("{}{}", Localization::Editor::NodeEditor::UnnamedGraph, m_CanvasPanelId));
 
             NodeEditor::SetCurrentEditor(m_Context);
             NodeEditor::PushStyleColor(NodeEditor::StyleColor_Bg, ImGui::ColorConvertU32ToFloat4(m_EditorContext->GetCanvasBackgroundColor()));
@@ -185,7 +185,7 @@ namespace Onyx::Editor
         }
         else
         {
-            dockspace.Render();
+            m_Dockspace.Render();
         }
        
         End();
@@ -272,42 +272,40 @@ namespace Onyx::Editor
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
         if (ImGui::BeginPopup("Create New Node"))
         {
+            static String s_SearchString;
+            static bool s_HasFocus = false;
+
+            const bool isAppearing = ImGui::IsWindowAppearing();
+            s_HasFocus |= isAppearing;
+
+            bool hasChanged = false;
+            if (isAppearing)
+            {
+                s_SearchString.clear();
+                hasChanged = true;
+            }
+
+            hasChanged |= Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get(), s_HasFocus);
+            if (hasChanged)
+            {
+                if (s_SearchString.empty() && (m_CreateNodeData.PinId.IsValid() == false))
+                    m_EditorContext->ClearNodeListFilter();
+                else
+                    FilterNodeListContextMenu(s_SearchString);
+            }
+
             if (ImGui::BeginChild("##NodesScrollList", ImVec2(350.0f, 350.0f), ImGuiChildFlags_AlwaysUseWindowPadding))
             {
-                static String s_SearchString;
-                static bool s_HasFocus = false;
-
-                s_HasFocus |= ImGui::GetCurrentWindow()->Appearing;
-
-                bool hasChanged = false;
-                if (ImGui::GetCurrentWindow()->Appearing)
+                // TODO: Currently is we have a pin filter we force open all the time - we should fix thaxt to only force open once
+                const Ui::TreeItem& nodeListMenuRoot = m_EditorContext->GetNodeListContextMenuRoot();
+                Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
+                bool hasClickedItem = Ui::RenderTreeView("CreateNodeMenu", nodeListMenuRoot, flags);
+                if (hasClickedItem)
                 {
-                    s_SearchString.clear();
-                    hasChanged = true;
-                }
-
-                hasChanged |= Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get(), s_HasFocus);
-                if (hasChanged)
-                {
-                    if (s_SearchString.empty() && (m_CreateNodeData.PinId.IsValid() == false))
-                        m_EditorContext->ClearNodeListFilter();
-                    else
-                        FilterNodeListContextMenu(s_SearchString);
-                }
-
-                const GraphEditorContext::NodeListContextMenuItem& nodeListMenuRoot = m_EditorContext->GetNodeListContextMenuRoot();
-
-                // TODO: Currently is we have a pin filter we force open all the time - we should fix that to only force open once
-                bool forceOpenCollapsingHeaders = (s_SearchString.empty() == false) || m_CreateNodeData.PinId.IsValid();
-                for (const GraphEditorContext::NodeListContextMenuItem& childMenu : (nodeListMenuRoot.m_Children | std::views::values))
-                {
-                    if (DrawCanvasContextMenuNode(childMenu, forceOpenCollapsingHeaders))
-                    {
-                        ImGui::CloseCurrentPopup();
-                        break;
-                    }
+                    ImGui::CloseCurrentPopup();
                 }
             }
+
             ImGui::EndChild();
 
             ImGui::EndPopup();
@@ -323,54 +321,6 @@ namespace Onyx::Editor
         ImGui::PopStyleVar();
         
         NodeEditor::Resume();
-    }
-
-    bool NodeGraphEditorWindow::DrawCanvasContextMenuNode(const GraphEditorContext::NodeListContextMenuItem& node, bool shouldForceOpen)
-    {
-        using namespace ax;
-
-        if (node.TypeId.IsValid())
-        {
-            ONYX_ASSERT(node.m_Children.empty());
-
-            if (ImGui::MenuItem(node.Label.c_str(), nullptr, false, true))
-            {
-                CreateNewNode(node);
-                return true;
-            }
-        }
-        else
-        {
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(140, 140, 140, 255));
-
-            ImGui::SetNextItemOpen(false, ImGuiCond_Appearing);
-
-            if (shouldForceOpen)
-                ImGui::SetNextItemOpen(true);
-
-            Ui::ScopedImGuiId id(node.Label);
-            if (Ui::ContextMenuHeader(node.Label.c_str(), 0))
-            {
-                ImGui::PopStyleColor();
-
-                ImGui::Indent();
-
-                for (const GraphEditorContext::NodeListContextMenuItem& childNode : (node.m_Children | std::views::values))
-                {
-                    if (DrawCanvasContextMenuNode(childNode, shouldForceOpen))
-                        return true;
-                }
-
-                ImGui::Spacing();
-                ImGui::Unindent();
-            }
-            else
-            {
-                ImGui::PopStyleColor();
-            }
-        }
-
-        return false;
     }
 
     void NodeGraphEditorWindow::OnLinkDoubleClicked(Guid64 linkId)
@@ -646,7 +596,7 @@ namespace Onyx::Editor
                 { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
             };
 
-            ImGui::Begin(Format::Format("Properties{}", propertiesPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::Begin(Format::Format("Properties{}", m_PropertiesPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar);
         }
 
         DynamicArray<NodeEditor::NodeId> selectedNodes;
@@ -703,67 +653,65 @@ namespace Onyx::Editor
     void NodeGraphEditorWindow::FilterNodeListContextMenu(StringView searchString)
     {
         m_EditorContext->FilterNodeListContextMenu([&](StringView localizedFullyQualifiedNodeName ,const NodeGraph::NodeEditorMetaData& nodeMetaData)
+        {
+            if (IgnoreCaseFind(localizedFullyQualifiedNodeName, searchString) == StringView::npos)
             {
-                if (IgnoreCaseFind(localizedFullyQualifiedNodeName, searchString) == StringView::npos)
+                if (nodeMetaData.HasAliases == false)
                 {
-                    if (nodeMetaData.HasAliases == false)
-                    {
-                        return false;
-                    }
+                    return false;
+                }
 
-                    // look for any aliases
-                    Localization::LocalizationId aliasLocalizationId("alias", nodeMetaData.TypeId);
-                    Optional<StringView> localizedAliasesOptional = m_LocalizationModule->TryGetLocalized(aliasLocalizationId);
-                    if (localizedAliasesOptional.has_value())
+                // look for any aliases
+                Localization::LocalizationId aliasLocalizationId("alias", nodeMetaData.TypeId);
+                Optional<StringView> localizedAliasesOptional = m_LocalizationModule->TryGetLocalized(aliasLocalizationId);
+                if (localizedAliasesOptional.has_value())
+                {
+                    StringView localizedAliases = *localizedAliasesOptional;
+                    if (IgnoreCaseFind(localizedAliases, searchString) == StringView::npos)
                     {
-                        StringView localizedAliases = *localizedAliasesOptional;
-                        if (IgnoreCaseFind(localizedAliases, searchString) == StringView::npos)
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        ONYX_LOG_WARNING("Node is marked to have aliases but is missing the localization entry for it. TypeId: {}, Localized name: {}", nodeMetaData.TypeId, localizedFullyQualifiedNodeName);
                         return false;
                     }
                 }
-
-                if (m_CreateNodeData.PinTypeId != NodeGraph::PinTypeId::Invalid)
+                else
                 {
-                    if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input)
-                    {
-                        for (const NodeGraph::PinTypeId& outputType : nodeMetaData.OutputPins)
-                        {
-                            if (outputType == m_CreateNodeData.PinTypeId)
-                                return true;
-                        }
-
-                        return false;
-                    }
-                    else if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output)
-                    {
-                        for (const NodeGraph::PinTypeId& inputType : nodeMetaData.InputPins)
-                        {
-                            if (inputType == m_CreateNodeData.PinTypeId)
-                                return true;
-                        }
-
-                        return false;
-                    }
+                    ONYX_LOG_WARNING("Node is marked to have aliases but is missing the localization entry for it. TypeId: {}, Localized name: {}", nodeMetaData.TypeId, localizedFullyQualifiedNodeName);
+                    return false;
                 }
-
-                return true;
             }
-        );
+
+            if (m_CreateNodeData.PinTypeId != NodeGraph::PinTypeId::Invalid)
+            {
+                if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input)
+                {
+                    for (const NodeGraph::PinTypeId& outputType : nodeMetaData.OutputPins)
+                    {
+                        if (outputType == m_CreateNodeData.PinTypeId)
+                            return true;
+                    }
+
+                    return false;
+                }
+                else if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output)
+                {
+                    for (const NodeGraph::PinTypeId& inputType : nodeMetaData.InputPins)
+                    {
+                        if (inputType == m_CreateNodeData.PinTypeId)
+                            return true;
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
+        });
     }
 
-    void NodeGraphEditorWindow::CreateNewNode(const GraphEditorContext::NodeListContextMenuItem& node)
+    void NodeGraphEditorWindow::OnNodeCreated(const GraphEditorContext::Node& node)
     {
+        //if (m_cre)
         const ImVec2 newNodePostion = ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePosOnOpeningCurrentPopup());
-
-        GraphEditorContext::Node& newNode = m_EditorContext->CreateNewNode(node.TypeId);
-        ax::NodeEditor::SetNodePosition(newNode.Id.Get(), newNodePostion);
+        ax::NodeEditor::SetNodePosition(node.Id.Get(), newNodePostion);
 
         if (m_CreateNodeData.PinId)
         {
@@ -772,7 +720,7 @@ namespace Onyx::Editor
             Guid64 toPin = m_CreateNodeData.PinId;
             if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input)
             {
-                for (const GraphEditorContext::Pin& outputPin : newNode.Outputs)
+                for (const GraphEditorContext::Pin& outputPin : node.Outputs)
                 {
                     if (outputPin.PinTypeId == m_CreateNodeData.PinTypeId)
                     {
@@ -783,7 +731,7 @@ namespace Onyx::Editor
             }
             else if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output)
             {
-                for (const GraphEditorContext::Pin& inputPin : newNode.Inputs)
+                for (const GraphEditorContext::Pin& inputPin : node.Inputs)
                 {
                     if (inputPin.PinTypeId == m_CreateNodeData.PinTypeId)
                     {
@@ -835,7 +783,6 @@ namespace Onyx::Editor
         local_IsCreatingNode = false;
         m_EditorContext->ClearNodeListFilter();
     }
-
 
     void NodeGraphEditorWindow::Save()
     {

@@ -24,12 +24,12 @@ namespace Onyx::Ui
         void Render(ImGuiSystem& system);
 
         virtual StringView GetWindowId() = 0;
-        void SetName(const String& newName) { name = newName; }
+        void SetName(const String& newName) { m_Name = newName; }
 
-        bool IsOpen() const { return isOpen; }
-        bool IsCollapsed() const { return isCollapsed; }
+        bool IsOpen() const { return m_IsOpen; }
+        bool IsCollapsed() const { return m_IsCollapsed; }
         void SetIsCollapsed(bool _isCollapsed);
-        bool IsDocked() const { return isDocked; }
+        bool IsDocked() const { return m_IsDocked; }
 
         void BringToFront();
 
@@ -40,10 +40,10 @@ namespace Onyx::Ui
         bool BeginMenuBar();
         void EndMenuBar();
 
-        void SetWindowFlags(ImGuiWindowFlags newFlags) { flags = newFlags; }
-        ImGuiWindowFlags GetWindowFlags() const { return flags; }
+        void SetWindowFlags(ImGuiWindowFlags newFlags) { m_Flags = newFlags; }
+        ImGuiWindowFlags GetWindowFlags() const { return m_Flags; }
 
-        const ImGuiWindowClass& GetWindowClass() const { return windowClass; }
+        const ImGuiWindowClass& GetWindowClass() const { return m_WindowClass; }
 
     private:
         virtual void OnRender(ImGuiSystem& system) = 0;
@@ -54,13 +54,13 @@ namespace Onyx::Ui
         virtual void OnRenderMainMenuBar();
 
     private:
-        String name;
-        ImGuiWindowClass windowClass;
-        ImGuiWindowFlags flags;
+        String m_Name;
+        ImGuiWindowClass m_WindowClass;
+        ImGuiWindowFlags m_Flags;
 
-        bool isDocked = false;
-        bool isOpen = false;
-        bool isCollapsed = false;
+        bool m_IsDocked = false;
+        bool m_IsOpen = false;
+        bool m_IsCollapsed = false;
     };
 }
 

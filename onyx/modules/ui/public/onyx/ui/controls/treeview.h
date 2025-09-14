@@ -18,6 +18,6 @@ namespace Onyx::Ui
         HashMap<String, TreeItem> Children;
     };
 
-    void RenderTreeView(StringView id, const TreeItem& root);
-    void RenderTreeView(StringView id, const TreeItem& root, TreeViewFlags flags);
+    bool RenderTreeView(StringView id, const TreeItem& root);
+    bool RenderTreeView(StringView id, const TreeItem& root, TreeViewFlags flags);
 }

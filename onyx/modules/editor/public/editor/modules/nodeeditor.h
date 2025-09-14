@@ -38,7 +38,7 @@ namespace Onyx::Editor
             m_EditorContext->OnSaved.Connect<&NodeGraphEditorWindow::OnGraphSaved>(this);
             m_EditorContext->LoadEditorMetaDataFunctor.Connect<&NodeGraphEditorWindow::LoadEditorMetaData>(this);
             m_EditorContext->SaveEditorMetaDataFunctor.Connect<&NodeGraphEditorWindow::SaveEditorMetaData>(this);
-
+            m_EditorContext->OnNodeCreated.Connect<&NodeGraphEditorWindow::OnNodeCreated>(this);
             m_ShouldFocus = true;
             m_FocusDuration = 0.0f;
         }
@@ -96,7 +96,6 @@ namespace Onyx::Editor
         void DrawNodeLinks() const;
 
         void DrawContextMenu();
-        bool DrawCanvasContextMenuNode(const GraphEditorContext::NodeListContextMenuItem& node, bool shouldForceOpen);
 
         void DrawCreateLink();
         void DrawCreateNode();
@@ -104,7 +103,6 @@ namespace Onyx::Editor
         void DrawPropertiesPanel();
 
         void FilterNodeListContextMenu(StringView searchString);
-        void CreateNewNode(const GraphEditorContext::NodeListContextMenuItem& node);
 
         void Save();
         void SaveEditorMetaData(const FileSystem::Filepath& path);
@@ -117,6 +115,8 @@ namespace Onyx::Editor
         void OnCopyAction(const Input::InputActionEvent& inputActionContext);
         void OnPasteAction(const Input::InputActionEvent& inputActionContext);
         void OnDeleteAction(const Input::InputActionEvent& inputActionContext);
+
+        void OnNodeCreated(const GraphEditorContext::Node& node);
 
         void OnLinkDoubleClicked(Guid64 linkId);
 
@@ -141,7 +141,7 @@ namespace Onyx::Editor
         ax::NodeEditor::EditorContext* m_Context = nullptr;
         UniquePtr<GraphEditorContext> m_EditorContext;
 
-        Ui::Dockspace dockspace;
+        Ui::Dockspace m_Dockspace;
 
         DynamicArray<RerouteNode> m_RerouteNodes;
         DynamicArray<RerouteLink> m_RerouteLinks;
@@ -153,9 +153,9 @@ namespace Onyx::Editor
 
         GraphEditorContext::PinDirection m_ForcedReroutePinDirection;
 
-        String canvasPanelId;
-        String propertiesPanelId;
+        String m_CanvasPanelId;
+        String m_PropertiesPanelId;
 
-        onyxU32 windowId;
+        onyxU32 m_WindowId;
     };
 }

@@ -5,6 +5,11 @@
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
 
+namespace Onyx::Ui
+{
+    struct TreeItem;
+}
+
 namespace Onyx::Localization
 {
     class LocalizationModule;
@@ -84,13 +89,6 @@ namespace Onyx::Editor
             bool IsRerouted = false;
         };
 
-        struct NodeListContextMenuItem
-        {
-            String Label;
-            StringId32 TypeId = 0;
-            HashMap<String, NodeListContextMenuItem> m_Children;
-        };
-
         void SetLocalizationModule(const Localization::LocalizationModule& localizationModule);
         const Localization::LocalizationModule& GetLocalizationModule() const;
 
@@ -132,7 +130,7 @@ namespace Onyx::Editor
 
         virtual void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData&)> filterFunctor) = 0;
         virtual void ClearNodeListFilter() = 0;
-        virtual const NodeListContextMenuItem& GetNodeListContextMenuRoot() = 0;
+        virtual const Ui::TreeItem& GetNodeListContextMenuRoot() = 0;
 
         virtual bool Compile() = 0;
 

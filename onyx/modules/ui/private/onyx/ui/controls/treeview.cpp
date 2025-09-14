@@ -17,13 +17,14 @@ namespace Onyx::Ui
         };
     }
 
-    void RenderTreeItem(Stack<StackInfo>& itemStack, const StackInfo& currentItem, TreeViewFlags flags)
+    bool RenderTreeItem(Stack<StackInfo>& itemStack, const StackInfo& currentItem, TreeViewFlags flags)
     {
         if (currentItem.Item.Children.empty())
         {
             if (ImGui::MenuItem(currentItem.Item.Label.data(), nullptr, false, true))
             {
                 currentItem.Item.OnSelected();
+                return true;
             }
         }
         else
@@ -42,14 +43,16 @@ namespace Onyx::Ui
                 }
             }
         }
+
+        return false;
     }
 
-    void RenderTreeView(StringView id, const TreeItem& root)
+    bool RenderTreeView(StringView id, const TreeItem& root)
     {
-        RenderTreeView(id, root, TreeViewFlags::None);
+        return RenderTreeView(id, root, TreeViewFlags::None);
     }
 
-    void RenderTreeView(StringView id, const TreeItem& root, TreeViewFlags flags)
+    bool RenderTreeView(StringView id, const TreeItem& root, TreeViewFlags flags)
     {
         ScopedImGuiId treeViewId(id);
         
@@ -72,13 +75,17 @@ namespace Onyx::Ui
 
             if (currentItem.Depth == 0)
             {
-                RenderTreeItem(itemStack, currentItem, flags);
+                if (RenderTreeItem(itemStack, currentItem, flags))
+                    return true;
             }
             else
             {
                 ScopedImGuiIndent indent(static_cast<onyxF32>(currentItem.Depth) * ImGui::GetStyle().IndentSpacing);
-                RenderTreeItem(itemStack, currentItem, flags);
+                if (RenderTreeItem(itemStack, currentItem, flags))
+                    return true;
             }
         }
+
+        return false;
     }
 }

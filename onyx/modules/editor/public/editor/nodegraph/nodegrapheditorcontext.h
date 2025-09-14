@@ -5,6 +5,7 @@
 #include <onyx/nodegraph/graph.h>
 
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
+#include <onyx/ui/controls/treeview.h>
 
 namespace Onyx::Editor
 {
@@ -19,7 +20,7 @@ namespace Onyx::Editor
         
         void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor) override;
         void ClearNodeListFilter() override;
-        const NodeListContextMenuItem& GetNodeListContextMenuRoot() override;
+        const Ui::TreeItem& GetNodeListContextMenuRoot() override;
 
     protected:
         void UpdateEditorNodeData(Node& editorNode, const NodeGraph::Node& graphNode);
@@ -48,7 +49,7 @@ namespace Onyx::Editor
         void OnLinkDelete(const Link& linkToDelete) override;
 
     protected:
-        NodeListContextMenuItem m_ContextMenuRoot;
+        Ui::TreeItem m_ContextMenuRoot;
     };
 
     template <typename GraphAssetT, typename NodeFactoryT>
