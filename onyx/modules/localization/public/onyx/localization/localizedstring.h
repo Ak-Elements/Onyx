@@ -49,6 +49,7 @@ namespace Onyx::Localization
         }
 
         constexpr bool operator==(const LocalizationId& other) const { return Context == other.Context && Id == other.Id; }
+        constexpr bool IsValid() const { return Id.IsValid(); }
 
         StringId32 Context;
         StringId32 Id;
@@ -63,6 +64,8 @@ namespace Onyx::Localization
 
         StringView Get() const;
         StringView Get(onyxS32 count) const;
+
+        bool IsValid() const { return m_LocalizationId.IsValid(); }
 
     private:
         LocalizationId m_LocalizationId;
