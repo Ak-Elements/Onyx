@@ -15,6 +15,19 @@ namespace Onyx::Input
             return ms_RegisteredBindings.at(bindingTypeId)(); // call functor to create new node
         }
 
+        static UniquePtr<InputBindingContext> CreateContext(ActionType actionType)
+        {
+            ONYX_ASSERT(ms_RegisteredBindingContexts.contains(actionType), "Context is not registered");
+            return ms_RegisteredBindingContexts.at(actionType)(); // call functor to create new node
+        }
+
+        template <typename T> requires std::is_base_of_v<InputBindingContext, T>
+        static void RegisterContext(ActionType actionType)
+        {
+            ONYX_ASSERT(ms_RegisteredBindingContexts.contains(actionType) == false, "Context is already registered.");
+            ms_RegisteredBindingContexts[actionType] = []() { return MakeUnique<T>(); };
+        }
+
         template <typename T> requires std::is_base_of_v<InputBinding, T> && HasTypeId<T>
         static void Register(ActionType actionType, StringView name)
         {
@@ -41,6 +54,7 @@ namespace Onyx::Input
     protected:
         static HashMap<ActionType, HashSet<StringId32>> ms_RegisteredBindingsPerActionType;
         static HashMap<StringId32, InplaceFunction<UniquePtr<InputBinding>()>> ms_RegisteredBindings;
+        static HashMap<ActionType, InplaceFunction<UniquePtr<InputBindingContext>()>> ms_RegisteredBindingContexts;
         static HashMap<StringId32, String> ms_RegisteredBindingNames;
     };
 

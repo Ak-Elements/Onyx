@@ -19,7 +19,7 @@ namespace Onyx::Input
         
         constexpr StringId64 GetId() const { return m_Id; }
         ActionType GetType() const { return m_Type; }
-        
+
         DynamicArray<UniquePtr<InputBinding>>& GetBindings() { return m_Bindings; }
         const DynamicArray<UniquePtr<InputBinding>>& GetBindings() const { return m_Bindings; }
 

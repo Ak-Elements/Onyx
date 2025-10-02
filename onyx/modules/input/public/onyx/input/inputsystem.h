@@ -56,7 +56,9 @@ namespace Onyx::Input
 
         onyxS16 GetControllerAxisValue(onyxU32 controllerIndex, GameControllerAxis axis) const;
 
-        ONYX_EVENT(OnInput, const InputEvent*)
+        void EnableSystemMouseCapture(bool enable);
+
+        ONYX_EVENT(OnInput, const InputEvent*);
 
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
     private:
@@ -75,6 +77,7 @@ namespace Onyx::Input
 #endif
 
     private:
+        Graphics::Window* m_MainWindow = nullptr;
         // Move mouse and keyboard states to a pc specific impl and gameInput to a pointer instead of a value object to decrease InputSystem size
         struct Gamepad
         {

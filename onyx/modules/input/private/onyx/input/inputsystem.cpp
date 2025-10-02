@@ -17,6 +17,8 @@ namespace Onyx::Input
 {
     void InputSystem::Init(Graphics::Window& window)
     {
+        m_MainWindow = &window;
+
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
         window.SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
 #endif
@@ -42,7 +44,6 @@ namespace Onyx::Input
         }, this);
 #endif
         
-        //close the window when user clicks the X button or alt-f4s
     }
 
     void InputSystem::Shutdown(Graphics::Window& window)
@@ -98,111 +99,128 @@ namespace Onyx::Input
         return gamepad.m_AxisValues[Enums::ToIntegral(axis)];
     }
 
+    void InputSystem::EnableSystemMouseCapture(bool enable)
+    {
+        m_MainWindow->EnableSystemMouseCapture(enable);
+    }
+
+
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
+
     bool InputSystem::HandleNativeInput(onyxU32 messageType, onyxU64 wParam, onyxU64 lParam)
     {
         // TODO: Move to a windows specific implementation for the handler to not pollute this class
         switch (messageType)
         {
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-        case WM_KEYUP:
-        case WM_SYSKEYUP:
-        {
-            const bool hasReleased = (((lParam >> 16) & 0xFFFF) & KF_UP) == KF_UP;
-
-            KeyboardEvent event;
-            event.m_Id = (hasReleased ? InputEventId::KeyUp : (IsKeyRepeated(lParam) ? InputEventId::KeyRepeat : InputEventId::KeyDown));
-            event.m_Key = ConvertWindowsKey(wParam, lParam);
-            m_KeyState[static_cast<onyxS16>(event.m_Key)] = hasReleased == false;
-
-            Modifier modifiers = Modifier::None;
-            if (IsModifierKey(event.m_Key))
+            case WM_KEYDOWN:
+            case WM_SYSKEYDOWN:
+            case WM_KEYUP:
+            case WM_SYSKEYUP:
             {
-                if (m_KeyState[Enums::ToIntegral(Key::Left_Ctrl)] || m_KeyState[Enums::ToIntegral(Key::Right_Ctrl)])
-                    modifiers |= Modifier::Ctrl;
+                const bool hasReleased = (((lParam >> 16) & 0xFFFF) & KF_UP) == KF_UP;
 
-                if (m_KeyState[Enums::ToIntegral(Key::Left_Shift)] || m_KeyState[Enums::ToIntegral(Key::Right_Shift)])
-                    modifiers |= Modifier::Shift;
+                KeyboardEvent event;
+                event.m_Id = (hasReleased ? InputEventId::KeyUp : (IsKeyRepeated(lParam) ? InputEventId::KeyRepeat : InputEventId::KeyDown));
+                event.m_Key = ConvertWindowsKey(wParam, lParam);
+                m_KeyState[static_cast<onyxS16>(event.m_Key)] = hasReleased == false;
 
-                if (m_KeyState[Enums::ToIntegral(Key::Left_Alt)] || m_KeyState[Enums::ToIntegral(Key::Right_Alt)])
-                    modifiers |= Modifier::Alt;
+                Modifier modifiers = Modifier::None;
+                if (IsModifierKey(event.m_Key))
+                {
+                    if (m_KeyState[Enums::ToIntegral(Key::Left_Ctrl)] || m_KeyState[Enums::ToIntegral(Key::Right_Ctrl)])
+                        modifiers |= Modifier::Ctrl;
+
+                    if (m_KeyState[Enums::ToIntegral(Key::Left_Shift)] || m_KeyState[Enums::ToIntegral(Key::Right_Shift)])
+                        modifiers |= Modifier::Shift;
+
+                    if (m_KeyState[Enums::ToIntegral(Key::Left_Alt)] || m_KeyState[Enums::ToIntegral(Key::Right_Alt)])
+                        modifiers |= Modifier::Alt;
+                }
+
+                event.m_TriggerModifiers = modifiers;
+
+                m_OnInput(&event);
+                return true;
             }
-
-            event.m_TriggerModifiers = modifiers;
-
-            m_OnInput(&event);
-            return true;
-        }
-        case WM_CHAR:
-        case WM_SYSCHAR:
-        {
-            KeyboardEvent event;
-            event.m_Id = InputEventId::KeyCharacter;
-            event.m_Key = ConvertWindowsKey(wParam, lParam);
-            event.m_Char = static_cast<onyxU16>(wParam);
-            m_OnInput(&event);
-            return true;
-        }
-        case WM_MOUSEMOVE:
-        {
-            const Vector2s16 mousePosition(static_cast<onyxS16>(lParam & 0xFFFF), static_cast<onyxS16>((lParam >> 16) & 0xFFFF));
-            SetMousePosition(mousePosition); // event is sent in set mouse position
-            return true;
-        }
-        case WM_LBUTTONDOWN:
-        case WM_RBUTTONDOWN:
-        case WM_MBUTTONDOWN:
-        case WM_XBUTTONDOWN:
-        case WM_LBUTTONUP:
-        case WM_RBUTTONUP:
-        case WM_MBUTTONUP:
-        case WM_XBUTTONUP:
-        {
-            MouseEvent event;
-            if (messageType == WM_LBUTTONDOWN || messageType == WM_LBUTTONUP)
-                event.m_Button = MouseButton::Left;
-            else if (messageType == WM_RBUTTONDOWN || messageType == WM_RBUTTONUP)
-                event.m_Button = MouseButton::Right;
-            else if (messageType == WM_MBUTTONDOWN || messageType == WM_MBUTTONUP)
-                event.m_Button = MouseButton::Middle;
-            else
+            case WM_CHAR:
+            case WM_SYSCHAR:
             {
-                const onyxS32 extraMouseButton = (wParam >> 16) & 0xFFFF;
-                event.m_Button = static_cast<MouseButton>(static_cast<onyxS32>(MouseButton::Button_3) + extraMouseButton);
+                KeyboardEvent event;
+                event.m_Id = InputEventId::KeyCharacter;
+                event.m_Key = ConvertWindowsKey(wParam, lParam);
+                event.m_Char = static_cast<onyxU16>(wParam);
+                m_OnInput(&event);
+                return true;
             }
+            case WM_MOUSEMOVE:
+            {
+                const Vector2s16 mousePosition(static_cast<onyxS16>(lParam & 0xFFFF), static_cast<onyxS16>((lParam >> 16) & 0xFFFF));
+                SetMousePosition(mousePosition); // event is sent in set mouse position
+                return true;
+            }
+            case WM_LBUTTONDOWN:
+            case WM_RBUTTONDOWN:
+            case WM_MBUTTONDOWN:
+            case WM_XBUTTONDOWN:
+            case WM_LBUTTONUP:
+            case WM_RBUTTONUP:
+            case WM_MBUTTONUP:
+            case WM_XBUTTONUP:
+            case Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN:
+            case Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP:
+            {
+                MouseEvent event;
+                if (messageType == WM_LBUTTONDOWN || messageType == WM_LBUTTONUP || messageType == Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN || messageType == Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP)
+                    event.m_Button = MouseButton::Left;
+                else if (messageType == WM_RBUTTONDOWN || messageType == WM_RBUTTONUP)
+                    event.m_Button = MouseButton::Right;
+                else if (messageType == WM_MBUTTONDOWN || messageType == WM_MBUTTONUP)
+                    event.m_Button = MouseButton::Middle;
+                else
+                {
+                    const onyxS32 extraMouseButton = (wParam >> 16) & 0xFFFF;
+                    event.m_Button = static_cast<MouseButton>(static_cast<onyxS32>(MouseButton::Button_3) + extraMouseButton);
+                }
 
 
-            const bool hasReleased = ((messageType == WM_LBUTTONUP) || (messageType == WM_RBUTTONUP) || (messageType == WM_MBUTTONUP) || (messageType == WM_XBUTTONUP));
-            event.m_Id = hasReleased ? InputEventId::MouseButtonUp : InputEventId::MouseButtonDown;
-            m_MouseButtonStates[Enums::ToIntegral(event.m_Button)] = hasReleased == false;
-            m_OnInput(&event);
+                const bool hasReleased = ((messageType == WM_LBUTTONUP) ||
+                    (messageType == WM_RBUTTONUP) ||
+                    (messageType == WM_MBUTTONUP) ||
+                    (messageType == WM_XBUTTONUP) ||
+                    (messageType == Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP));
 
-            return true;
-        }
-        
-        case WM_MOUSEWHEEL:
-        {
-            MouseEvent event;
-            event.m_Id = InputEventId::MouseWheel;
+                event.m_Id = hasReleased ? InputEventId::MouseButtonUp : InputEventId::MouseButtonDown;
+                m_MouseButtonStates[Enums::ToIntegral(event.m_Button)] = hasReleased == false;
+                m_OnInput(&event);
+
+                return true;
+            }
             
-            event.m_Scroll = (onyxS16)HIWORD(wParam) / (onyxS16)WHEEL_DELTA;
-            m_MouseScroll += event.m_Scroll;
-            m_OnInput(&event);
-            return true;
-        }
-
-        case WM_DEVICECHANGE:
-        {
-#if ONYX_USE_GAMEINPUT
-            //if (wParam == DBT_DEVICEARRIVAL)
+            case WM_MOUSEWHEEL:
             {
-                bool hasHandled = m_Input.OnDeviceChange();
-                if (hasHandled)
-                    return true;
+                MouseEvent event;
+                event.m_Id = InputEventId::MouseWheel;
+                
+                event.m_Scroll = (onyxS16)HIWORD(wParam) / (onyxS16)WHEEL_DELTA;
+                m_MouseScroll += event.m_Scroll;
+                m_OnInput(&event);
+                return true;
             }
+
+            case WM_DEVICECHANGE:
+            {
+#if ONYX_USE_GAMEINPUT
+                //if (wParam == DBT_DEVICEARRIVAL)
+                {
+                    bool hasHandled = m_Input.OnDeviceChange();
+                    if (hasHandled)
+                        return true;
+                }
+#else
+                break;
 #endif
-        }
+                
+            }
         }
 
         return false;

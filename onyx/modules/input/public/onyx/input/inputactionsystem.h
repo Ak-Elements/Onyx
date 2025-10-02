@@ -91,7 +91,7 @@ namespace Onyx::Input
             Sink<InputActionSignalT> GetOnInputEvent() { return Sink<InputActionSignalT>(InputActionSignal); }
             InputActionSignalT InputActionSignal;
 
-            DynamicArray<UniquePtr<InputBindingContext>> BindingContexts;
+            UniquePtr<InputBindingContext> BindingContext;
             StringId64 ActionId;
         };
 

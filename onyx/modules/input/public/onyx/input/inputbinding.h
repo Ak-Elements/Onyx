@@ -61,7 +61,6 @@ namespace Onyx::Input
 
         virtual void Reset() = 0;
         virtual bool UpdateBinding(const InputSystem& /*inputSystem*/, UniquePtr<InputBindingContext>& /*context*/) { return false; }
-        virtual UniquePtr<InputBindingContext> CreateContext() const = 0;
 
         virtual StringId32 GetTypeId() const { return StringId32::Invalid; }
 
@@ -88,8 +87,6 @@ namespace Onyx::Input
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingBoolContext>(); }
-
         onyxS32 GetInputBindingSlotsCount() const override { return 1; }
         onyxU32 GetBoundInputForSlot(onyxU32) const override { return m_Input; }
         void SetInputBindingSlot(onyxU32, onyxU32 inputValue) override { m_Input = inputValue; }
@@ -109,8 +106,6 @@ namespace Onyx::Input
         void Reset() override;
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
-
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis1DContext>(); }
 
         onyxS32 GetInputBindingSlotsCount() const override { return 2; }
         onyxU32 GetBoundInputForSlot(onyxU32 index) const override;
@@ -132,8 +127,6 @@ namespace Onyx::Input
         void Reset() override;
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
-
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis2DContext>(); }
 
         onyxS32 GetInputBindingSlotsCount() const override { return 4; }
         onyxU32 GetBoundInputForSlot(onyxU32 index) const override;
@@ -157,8 +150,6 @@ namespace Onyx::Input
         void Reset() override;
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
-
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis3DContext>(); }
 
         onyxS32 GetInputBindingSlotsCount() const override { return 6; }
         onyxU32 GetBoundInputForSlot(onyxU32 index) const override;
@@ -185,8 +176,6 @@ namespace Onyx::Input
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
 
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis1DContext>(); }
-
         onyxS32 GetInputBindingSlotsCount() const override { return 1; }
         onyxU32 GetBoundInputForSlot(onyxU32 /*index*/) const override { return m_Axis; }
         void SetInputBindingSlot(onyxU32 index, onyxU32 inputValue) override;
@@ -207,8 +196,6 @@ namespace Onyx::Input
         void Reset() override;
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
-
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis2DContext>(); }
 
         onyxS32 GetInputBindingSlotsCount() const override { return 2; }
         onyxU32 GetBoundInputForSlot(onyxU32 index) const override;
@@ -231,8 +218,6 @@ namespace Onyx::Input
         void Reset() override;
 
         bool UpdateBinding(const InputSystem& inputSystem, UniquePtr<InputBindingContext>& context) override;
-
-        UniquePtr<InputBindingContext> CreateContext() const override { return MakeUnique<InputBindingAxis3DContext>(); }
 
         onyxS32 GetInputBindingSlotsCount() const override { return 3; }
         onyxU32 GetBoundInputForSlot(onyxU32 index) const override;

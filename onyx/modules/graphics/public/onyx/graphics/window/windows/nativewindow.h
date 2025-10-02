@@ -12,6 +12,9 @@
 struct HWND__;
 typedef HWND__* HWND;
 
+struct HHOOK__;
+typedef HHOOK__* HHOOK;
+
 struct HICON__;
 typedef HICON__* HICON;
 typedef HICON HCURSOR;
@@ -22,6 +25,12 @@ namespace Onyx::Graphics
     {
         using WindowMessageHandler = InplaceFunction<bool(onyxU32, onyxU64, onyxU64)>;
     public:
+        // 400 is WM_USER
+        static constexpr onyxU32 ONYX_WM_SYSTEM_MOUSEHOOK = 0x0400 + 1;
+
+        static constexpr onyxU32 ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN = 0x0400 + 2;
+        static constexpr onyxU32 ONYX_WM_SYSTEM_PRIMARY_MOUSEUP = 0x0400 + 3;
+
         ~Window() override;
 
         void Create(const WindowSettings& settings);
@@ -63,6 +72,7 @@ namespace Onyx::Graphics
         void SetWindowMessageHandler(const WindowMessageHandler& handler) { m_WindowMessageHandler = handler; }
         void ClearWindowMessageHandler() { m_WindowMessageHandler = nullptr; }
         void SetCursor(HCURSOR cursor);
+        void EnableSystemMouseCapture(bool enable);
 
         ONYX_EVENT(OnFocus, bool);
         ONYX_EVENT(OnResize, onyxU32, onyxU32);
@@ -88,8 +98,10 @@ namespace Onyx::Graphics
         onyxS32 GetExtendedStyle();
 
     private:
-        WindowState m_State = WindowState::None;
+        WindowMessageHandler m_WindowMessageHandler;
+
         Atomic<bool> m_IsInitialized = false;
+        WindowState m_State = WindowState::None;
         WindowSettings m_Settings;
 
         HCURSOR m_Cursor = nullptr;
@@ -98,7 +110,7 @@ namespace Onyx::Graphics
         HWND m_WindowHandle = nullptr;
         void* myWakeFromSleepEvent = nullptr;
 
-        WindowMessageHandler m_WindowMessageHandler;
+        HHOOK m_SystemMouseHook = nullptr;
     };
 }
 

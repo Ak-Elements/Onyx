@@ -27,6 +27,11 @@ namespace Onyx::Input
         InputBindingsRegistry::Register<InputBindingAxis3D>(ActionType::Axis3D, "Axis 3D");
         InputBindingsRegistry::Register<InputBindingAxis3DComposite>(ActionType::Axis3D, "Axis 3D Composite");
 
+        InputBindingsRegistry::RegisterContext<InputBindingBoolContext>(ActionType::Bool);
+        InputBindingsRegistry::RegisterContext<InputBindingAxis1DContext>(ActionType::Axis1D);
+        InputBindingsRegistry::RegisterContext<InputBindingAxis2DContext>(ActionType::Axis2D);
+        InputBindingsRegistry::RegisterContext<InputBindingAxis3DContext>(ActionType::Axis3D);
+
         Reference<InputActionsAsset> defaultInputActionsMap;
         assetSystem.GetAsset(inputModuleSettings.ActionsMap, defaultInputActionsMap);
         defaultInputActionsMap->GetOnLoadedEvent().Connect<&InputActionSystem::SetActionsMapAsset>(this);
@@ -96,21 +101,13 @@ namespace Onyx::Input
         m_CurrentActionStates.reserve(context.GetActions().size());
         for (const InputAction& action : context.GetActions())
         {
-            const DynamicArray<UniquePtr<InputBinding>>& bindings = action.GetBindings();
-
             auto it = std::find_if(m_CurrentActionStates.begin(), m_CurrentActionStates.end(), [&](const InputActionState& state)
                 {
                     return state.ActionId == action.GetId();
                 });
 
             InputActionState& actionState = (it == m_CurrentActionStates.end()) ? m_CurrentActionStates.emplace_back(action.GetId()) : *it;
-            actionState.BindingContexts.clear();
-            actionState.BindingContexts.reserve(bindings.size());
-
-            for (const UniquePtr<InputBinding>& binding : bindings)
-            {
-                actionState.BindingContexts.emplace_back(binding->CreateContext());
-            }
+            actionState.BindingContext = InputBindingsRegistry::CreateContext(action.GetType());
         }
     }
 
@@ -137,15 +134,21 @@ namespace Onyx::Input
 
             const DynamicArray<UniquePtr<InputBinding>>& bindings = action.GetBindings();
             const onyxU32 bindingsCount = static_cast<onyxU32>(bindings.size());
+            UniquePtr<InputBindingContext>& bindingState = actionState.BindingContext;
+
+            bool isTriggered = false;
             for (onyxU32 bindingIndex = 0; bindingIndex < bindingsCount; ++bindingIndex )
             {
                 const UniquePtr<InputBinding>& binding = bindings[bindingIndex];
-                UniquePtr<InputBindingContext>& bindingState = actionState.BindingContexts[bindingIndex];
-                if (binding->UpdateBinding(*m_InputSystem, bindingState))
-                {
-                    InputActionEvent event { action.GetId(), bindingState->GetData() };
-                    actionState.InputActionSignal.Dispatch(event);
-                }
+                isTriggered |= binding->UpdateBinding(*m_InputSystem, bindingState);
+                if (isTriggered)
+                    break;
+            }
+
+            if (isTriggered)
+            {
+                InputActionEvent event{ action.GetId(), bindingState->GetData() };
+                actionState.InputActionSignal.Dispatch(event);
             }
         }
     }

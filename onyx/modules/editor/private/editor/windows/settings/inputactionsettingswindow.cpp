@@ -236,7 +236,7 @@ namespace Onyx::Editor
 
             if (ImGui::BeginPopupContextItem("###CreateInputAction", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (Ui::Button(Localization::Editor::InputActionSettings::AddAction))
+                if (Ui::Button(Localization::Generic::Add))
                 {
                     Input::InputAction& newAction = selectedMap.GetActions().emplace_back("New Action");
                     newAction.SetType(Input::ActionType::Bool);
