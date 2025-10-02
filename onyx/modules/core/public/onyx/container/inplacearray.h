@@ -24,7 +24,16 @@ namespace Onyx {
         {
         }
 
-        explicit InplaceArray(std::initializer_list<value_type> data)
+        /*explicit InplaceArray(std::initializer_list<value_type> data)
+        {
+            ONYX_ASSERT(data.size() <= MAX_SIZE, "Initializer list is too large.");
+            for (const value_type& dataElement : data)
+            {
+                m_Data[m_NextIndex++] = dataElement;
+            }
+        }*/
+
+        constexpr InplaceArray(std::initializer_list<value_type> data)
         {
             ONYX_ASSERT(data.size() <= MAX_SIZE, "Initializer list is too large.");
             for (const value_type& dataElement : data)
@@ -60,11 +69,11 @@ namespace Onyx {
             return m_Data[i] = value_type(std::forward<Args>(args)...);
         }
 
-        bool empty() const { return m_NextIndex == 0; }
-        onyxU8 size() const { return m_NextIndex; }
+        constexpr bool empty() const { return m_NextIndex == 0; }
+        constexpr onyxU8 size() const { return m_NextIndex; }
         constexpr onyxU8 capacity() { return MAX_SIZE; }
 
-        value_type& operator[] (onyxU8 i)
+        constexpr value_type& operator[] (onyxU8 i)
         {
             // assert size
             ONYX_ASSERT(i < MAX_SIZE, "Index out of bounds.");
@@ -72,7 +81,7 @@ namespace Onyx {
             return m_Data[i];
         }
 
-        const value_type& operator[] (onyxU8 i) const
+        constexpr const value_type& operator[] (onyxU8 i) const
         {
             // assert size
             ONYX_ASSERT(i < MAX_SIZE, "Index out of bounds.");
