@@ -55,7 +55,7 @@ namespace Onyx::Graphics
         void SetWindowMessageHandler(const WindowMessageHandler& handler) { m_WindowMessageHandler = handler; }
         void ClearWindowMessageHandler() { m_WindowMessageHandler = nullptr; }
         void SetCursor(void* cursor) { m_Cursor = cursor; }
-
+        void EnableSystemMouseCapture(bool enable) { ONYX_UNUSED(enable); }
         void* GetWindowHandle() const { return m_NativeHandle; }
 
         ONYX_EVENT(OnFocus, bool);
