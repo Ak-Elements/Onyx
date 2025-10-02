@@ -9,6 +9,9 @@
 
 namespace Onyx
 {
+    template <typename T>
+    concept IsVector2 = is_specialization_of_v<Vector2, T>;
+
     using Vector2f32 = Vector2<onyxF32>;
     using Vector2f64 = Vector2<onyxF64>;
     using Vector2s8 = Vector2<onyxS8>;
@@ -20,6 +23,9 @@ namespace Onyx
     using Vector2u32 = Vector2<onyxU32>;
     using Vector2u64 = Vector2<onyxU64>;
 
+    template <typename T>
+    concept IsVector3 = is_specialization_of_v<Vector3, T>;
+
     using Vector3f32 = Vector3<onyxF32>;
     using Vector3f64 = Vector3<onyxF64>;
     using Vector3s8 = Vector3<onyxS8>;
@@ -30,6 +36,9 @@ namespace Onyx
     using Vector3u16 = Vector3<onyxU16>;
     using Vector3u32 = Vector3<onyxU32>;
     using Vector3u64 = Vector3<onyxU64>;
+
+    template <typename T>
+    concept IsVector4 = is_specialization_of_v<Vector4, T>;
 
     using Vector4f32 = Vector4<onyxF32>;
     using Vector4f64 = Vector4<onyxF64>;
