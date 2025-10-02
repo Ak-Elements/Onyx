@@ -7,7 +7,7 @@ namespace Onyx::Localization
 {
     struct PortableObjectSerializer : public Assets::AssetSerializer
     {
-        static constexpr auto Extensions = std::make_tuple("po");
+        static constexpr Array<StringView, 1> Extensions { "po" };
 
         PortableObjectSerializer(Assets::AssetSystem& assetSystem);
 

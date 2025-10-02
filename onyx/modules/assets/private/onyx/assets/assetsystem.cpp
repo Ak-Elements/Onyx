@@ -8,7 +8,7 @@ namespace Onyx::Assets
 {
     HashMap <StringId32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::registeredAssets = {};
     HashMap <StringId32, UniquePtr<AssetSerializer>> AssetSystem::registeredSerializer = {};
-    HashMap<String, AssetType> AssetSystem::extensionToAssetType = {};
+    HashMap<StringView, AssetType> AssetSystem::extensionToAssetType = {};
 
     namespace
     {

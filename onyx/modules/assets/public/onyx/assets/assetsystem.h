@@ -142,12 +142,10 @@ namespace Onyx::Assets
             registeredAssets[typeId] = []() { return Reference<AssetT>::Create(); };
             registeredSerializer[typeId] = MakeUnique<SerializerT>(std::forward<Args>(args)...);
 
-            std::apply([=](auto&&... extension)
-                { (
-                    ( extensionToAssetType[extension] = static_cast<AssetType>(typeId.GetId())),
-                    ...);
-                },
-                SerializerT::Extensions);
+            for (StringView extension : SerializerT::Extensions)
+            {
+                extensionToAssetType[extension] = static_cast<AssetType>(typeId.GetId());
+            }
 
             return true;
         }
@@ -164,7 +162,7 @@ namespace Onyx::Assets
         using CreateAssetFunction = InplaceFunction<Reference<AssetInterface>()>;
         static HashMap<StringId32, CreateAssetFunction> registeredAssets;
         static HashMap<StringId32, UniquePtr<AssetSerializer>> registeredSerializer;
-        static HashMap<String, AssetType> extensionToAssetType;
+        static HashMap<StringView, AssetType> extensionToAssetType;
     };
 
     template <typename T>

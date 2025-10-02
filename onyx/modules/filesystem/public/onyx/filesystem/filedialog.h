@@ -11,32 +11,27 @@ namespace Onyx::FileSystem
         static void Init();
         static void Shutdown();
 
-        template <typename T> requires is_tuple_v<T>
-        static bool OpenFileDialog(Filepath& outPath, StringView extensionName, const T& extensionsTuple)
+        template <typename T>
+        static bool OpenFileDialog(Filepath& outPath, StringView extensionName, const T& extensions)
         {
-            DynamicArray<StringView> extensions;
-            std::apply([&](auto&&... extension)
-                {
-                    (extensions.emplace_back(extension),
-                        ...);
-                },
-                extensionsTuple);
+            DynamicArray<StringView> extensionsList;
+            for (StringView extension : extensions)
+            {
+                extensionsList.push_back(extension);
+            }
 
-            return OpenFileDialog(outPath, extensionName, extensions);
+            return OpenFileDialog(outPath, extensionName, extensionsList);
         }
 
-        template <typename T> requires is_tuple_v<T>
-        static bool SaveFileDialog(Filepath& outPath, StringView extensionName, const T& extensionsTuple)
+        template <typename T>
+        static bool SaveFileDialog(Filepath& outPath, StringView extensionName, const T& extensions)
         {
-            DynamicArray<StringView> extensions;
-            std::apply([&](auto&&... extension)
-                {
-                    (extensions.emplace_back(extension),
-                        ...);
-                },
-                extensionsTuple);
-
-            return SaveFileDialog(outPath, extensionName, extensions);
+            DynamicArray<StringView> extensionsList;
+            for (StringView extension : extensions)
+            {
+                extensionsList.push_back(extension);
+            }
+            return SaveFileDialog(outPath, extensionName, extensionsList);
         }
 
         static bool OpenFileDialog(Filepath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions);

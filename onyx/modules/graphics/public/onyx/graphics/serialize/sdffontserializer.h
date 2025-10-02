@@ -7,7 +7,7 @@ namespace Onyx::Graphics
 {
     struct SDFFontSerializer : public Assets::AssetSerializer
     {
-        static constexpr auto Extensions = std::make_tuple( "ofont" );
+        static constexpr Array<StringView, 1> Extensions { "ofont" };
 
         SDFFontSerializer(Assets::AssetSystem& assetSystem);
 

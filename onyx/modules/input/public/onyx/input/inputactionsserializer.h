@@ -12,7 +12,7 @@ namespace Onyx::Input
 
     struct InputActionsSerializer : public Assets::AssetSerializer
     {
-        static constexpr auto Extensions = std::make_tuple( "oinput" );
+        static constexpr Array<StringView, 1> Extensions { "oinput" };
 
         InputActionsSerializer(Assets::AssetSystem& assetSystem)
             : AssetSerializer(assetSystem)
