@@ -15,6 +15,8 @@
 
 namespace
 {
+    HWND g_MainHwnd = nullptr; // set this when you create your window
+
 //    HHOOK g_hKeyboardHook = nullptr;
 //
 //    LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
@@ -40,6 +42,25 @@ namespace
 //        else
 //            return ::CallNextHookEx(g_hKeyboardHook, nCode, wParam, lParam);
 //    }
+
+    LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam)
+    {
+        if ((nCode >= 0) && (g_MainHwnd != nullptr))
+        {
+            if (wParam == WM_LBUTTONDOWN)
+            {
+                PostMessage(g_MainHwnd, Onyx::Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN, 0, 0);
+                return 1;
+            }
+            if (wParam == WM_LBUTTONUP)
+            {
+                PostMessage(g_MainHwnd, Onyx::Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP, 0, 0);
+                return 1;
+            }
+        }
+
+        return CallNextHookEx(nullptr, nCode, wParam, lParam);
+    }
 
     ::HICON CreateIconFromBitmap(const Onyx::Span<Onyx::onyxU8>& imageData, Onyx::Vector2s32 imageSize)
     {
@@ -336,6 +357,8 @@ namespace Onyx::Graphics
             NULL,
             instance,
             this);
+
+        g_MainHwnd = m_WindowHandle;
     }
 
     void Window::FitToMonitor()
@@ -738,6 +761,19 @@ namespace Onyx::Graphics
                 SetState(WindowState::Default);
                 break;
             }
+            case ONYX_WM_SYSTEM_MOUSEHOOK:
+            {
+                if (wParam == 0)
+                {
+                    UnhookWindowsHookEx(m_SystemMouseHook);
+                    m_SystemMouseHook = nullptr;
+                }
+                else
+                {
+                    m_SystemMouseHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, ::GetModuleHandle(nullptr), 0);
+                }
+                return true;
+            }
         }
 
         if (m_WindowMessageHandler && m_WindowMessageHandler(messageType, wParam, lParam))
@@ -1003,6 +1039,11 @@ namespace Onyx::Graphics
     {
         m_Cursor = cursor;
         ::SetCursor(cursor);
+    }
+
+    void Window::EnableSystemMouseCapture(bool enable)
+    {
+        ::PostMessage(m_WindowHandle, ONYX_WM_SYSTEM_MOUSEHOOK, enable ? 1 : 0, 0);
     }
 }
 #endif
