@@ -152,14 +152,6 @@ namespace Onyx::Ui
             constexpr bool hasAlpha = IsVector4<VectorT>;
             using ScalarT = typename VectorT::ScalarT;
 
-            constexpr auto Labels = []()
-                {
-                    if constexpr (hasAlpha)
-                        return InplaceArray<StringView, 4>{"R", "G", "B", "A" };
-                    else
-                        return InplaceArray<StringView, 3>{"R", "G", "B" };
-                }();
-
             ::ImGuiContext& g = *GImGui;
             ::ImGuiWindow* window = ImGui::GetCurrentWindow();
             if (window->SkipItems)
@@ -360,6 +352,7 @@ namespace Onyx::Ui
                     }
                 }
 
+#if ONYX_IS_WINDOWS
                 ImGuiID colorPickStateId = ImGui::GetID("isColorPickActive");
                 ImGuiStorage* storage = ImGui::GetStateStorage();
                 bool& colorPickState = *storage->GetBoolRef(colorPickStateId, false);
@@ -391,7 +384,7 @@ namespace Onyx::Ui
                         io.MouseDown[0] = false;
                     }
                 }
-
+#endif
                 ImGui::PopItemFlag();
                 ImGui::EndGroup();
             }
