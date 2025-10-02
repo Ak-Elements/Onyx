@@ -17,6 +17,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/widgets.h
     ${TARGET_PUBLIC_PATH}/controls/assetselector.h
     ${TARGET_PUBLIC_PATH}/controls/button.h
+    ${TARGET_PUBLIC_PATH}/controls/colorcontrol.h
     ${TARGET_PUBLIC_PATH}/controls/combobox.h
     ${TARGET_PUBLIC_PATH}/controls/dockspace.h
     ${TARGET_PUBLIC_PATH}/controls/treeview.h
@@ -39,6 +40,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/widgets.cpp
     ${TARGET_PRIVATE_PATH}/controls/assetselector.cpp
     ${TARGET_PRIVATE_PATH}/controls/button.cpp
+    ${TARGET_PRIVATE_PATH}/controls/colorcontrol.cpp
     ${TARGET_PRIVATE_PATH}/controls/combobox.cpp
     ${TARGET_PRIVATE_PATH}/controls/dockspace.cpp
     ${TARGET_PRIVATE_PATH}/controls/treeview.cpp

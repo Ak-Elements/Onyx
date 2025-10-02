@@ -81,13 +81,14 @@ namespace Onyx::Graphics
                     }
                 });
 
+            // TODO: Fix in 0.5.0
             if (isTexture)
             {
                 String rgba;
                 Vector3f32 size;
 
                 Ui::PropertyGrid::DrawStringProperty("Format", rgba);
-                Ui::PropertyGrid::DrawVector3Property("Size", size);
+                Ui::PropertyGrid::DrawVectorProperty("Size", size);
 
 
 
@@ -164,7 +165,7 @@ namespace Onyx::Graphics
 
                             if (info.HasSize)
                             {
-                                Ui::PropertyGrid::DrawVector3Property("Size", info.Size);
+                                Ui::PropertyGrid::DrawVectorProperty("Size", info.Size);
                             }
                         }
                     }

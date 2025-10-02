@@ -153,7 +153,10 @@ namespace Onyx::GameCore
 
                         const StringId32 typeId = meta->GetTypeId();
                         serializer.Write<"typeId">(typeId);
-                        meta->Serialize(componentStorage.value(entityId), serializer);
+                        if (meta->IsFlag() == false)
+                        {
+                            meta->Serialize(componentStorage.value(entityId), serializer);
+                        }
                     }
                 }
             }

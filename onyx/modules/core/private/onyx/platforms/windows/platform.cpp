@@ -56,6 +56,33 @@ namespace Onyx::Platform
         return -1;
     }
 
+    Vector2s32 GetMousePosition()
+    {
+        POINT mousePosition{};
+        ::GetCursorPos(&mousePosition);
+
+        return { static_cast<onyxS32>(mousePosition.x), static_cast<onyxS32>(mousePosition.y) };
+    }
+
+    Vector3u8 GetPixelColorAtMousePosition()
+    {
+        return GetPixelColor(GetMousePosition());
+    }
+
+    Vector3u8 GetPixelColor(const Vector2s32& screenPosition)
+    {
+        HDC dc = GetDC(nullptr);
+
+        COLORREF color = ::GetPixel(dc, static_cast<int>(screenPosition.X), static_cast<int>(screenPosition.Y));
+        ReleaseDC(nullptr, dc);
+
+        onyxU8 red = static_cast<onyxU8>(color & 0xff);
+        onyxU8 green = static_cast<onyxU8>((color >> 8) & 0xff);
+        onyxU8 blue = static_cast<onyxU8>((color >> 16) & 0xff);
+
+        return Vector3u8{ red, green, blue };
+    }
+
     onyxS32 GetPrimaryMonitor()
     {
         constexpr onyxU64 DISPLAY_DEVICE_SIZE = sizeof(DISPLAY_DEVICE);

@@ -44,7 +44,6 @@ namespace Onyx::Entity
 
 namespace Onyx::GameCore
 {
-    
     class GameCoreSystem : public IEngineSystem
     {
     public:

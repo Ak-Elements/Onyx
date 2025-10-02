@@ -74,7 +74,26 @@ namespace Onyx::Entity
 
         const HashMap<StringId32, UniquePtr<IComponentMeta>>& GetComponentMeta() const { return m_ComponentMeta; }
 
-        bool TryCreateComponent(EntityRegistry& registry, EntityId entity, StringId32 componentTypeId) const;
+        template <typename T>
+        bool TryCreateComponent(EntityRegistry& registry, EntityId entityId) const
+        {
+            return TryCreateComponent(registry, entityId, T::TypeId);
+        }
+
+        template <typename T, typename... Args>
+        bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, Args&&... args) const
+        {
+            const ComponentMeta<T>* componentMeta = static_cast<const ComponentMeta<T>*>(GetComponentMeta(T::TypeId).value_or(nullptr));
+            if (componentMeta != nullptr)
+            {
+                componentMeta->Create(registry, entityId, std::forward<Args>(args)...);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId) const;
         bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, const Deserializer& deserializer) const;
         bool TryCopyComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, void* fromComponentPtr) const;
 

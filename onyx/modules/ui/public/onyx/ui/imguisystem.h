@@ -54,6 +54,8 @@ namespace Onyx
         struct ImGuiContext
         {
             Assets::AssetSystem* AssetSystem = nullptr;
+            Graphics::Window* MainWindow = nullptr;
+            Input::InputSystem* InputSystem = nullptr;
         };
 
         extern ImGuiContext g_UiContext;

@@ -36,7 +36,9 @@ namespace Onyx
         template <onyxU32 Size, typename... Args>
         void FormatTo2(InplaceString<Size>& buffer, StringView fmt, Args&&... args)
         {
-            std::vformat_to(buffer.GetData(), fmt, std::forward<Args>(args)...);
+            auto formatArgs = std::make_format_args(args...);
+            char* result = std::vformat_to(buffer.GetData(), fmt, formatArgs);
+            *result = '\0';
         }
 
         template <onyxU32 Size,typename... Args>

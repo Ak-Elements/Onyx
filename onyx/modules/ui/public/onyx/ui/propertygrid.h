@@ -62,14 +62,15 @@ namespace Onyx::Ui
             ImGui::PushID(propertyName.data());
             constexpr ImGuiDataType dataType = GetImGuiDataType<ScalarT>();
             bool hasModified = false;
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
             if (flags == ScalarInputFlag::None)
             {
-                hasModified = ImGui::InputScalar("##inoutScalar", dataType, &value);
+                hasModified = DrawScalarInput("##inoutScalar", dataType, value);
             }
             else if (flags == ScalarInputFlag::PowerOf2)
             {
                 // TODO: Add powerof2 restriction
-                hasModified = ImGui::InputScalar("##inoutScalar", dataType, &value);
+                hasModified = DrawScalarInput("##inoutScalar", dataType, value);
             }
 
             ImGui::PopID();
@@ -85,13 +86,14 @@ namespace Onyx::Ui
         }
 
         template <typename ScalarT>
-        bool DrawVector2Property(StringView propertyName, Vector2<ScalarT>& vector)
+        bool DrawVectorProperty(StringView propertyName, Vector2<ScalarT>& vector)
         {
             DrawPropertyName(propertyName);
 
             // Draw Value
             ImGui::PushID(propertyName.data());
-            bool hasModified = VectorControl::Vector2Input(vector);
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+            bool hasModified = VectorControl::VectorInput(vector);
             ImGui::PopID();
             ImGui::EndHorizontal();
 
@@ -99,13 +101,14 @@ namespace Onyx::Ui
         }
 
         template <typename ScalarT>
-        bool DrawVector3Property(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
+        bool DrawVectorProperty(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
         {
             DrawPropertyName(propertyName, tooltip);
 
             // Draw Value
             ImGui::PushID(propertyName.data());
-            bool hasModified = VectorControl::Vector3Input(outVector, minValue);
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+            bool hasModified = VectorControl::VectorInput(outVector, minValue);
 
             ImGui::PopID();
             ImGui::EndHorizontal();
@@ -114,26 +117,27 @@ namespace Onyx::Ui
         }
 
         template <typename ScalarT>
-        bool DrawVector3Property(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector)
+        bool DrawVectorProperty(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector)
         {
             constexpr Vector3<ScalarT> min{ std::numeric_limits<ScalarT>::lowest() };
-            return DrawVector3Property(propertyName, tooltip, outVector, min);
+            return DrawVectorProperty(propertyName, tooltip, outVector, min);
         }
 
         template <typename ScalarT>
-        bool DrawVector3Property(StringView propertyName, Vector3<ScalarT>& outVector)
+        bool DrawVectorProperty(StringView propertyName, Vector3<ScalarT>& outVector)
         {
-            return DrawVector3Property(propertyName, "", outVector);
+            return DrawVectorProperty(propertyName, "", outVector);
         }
 
         template <typename ScalarT>
-        bool DrawVector4Property(StringView propertyName, Vector4<ScalarT>& vector)
+        bool DrawVectorProperty(StringView propertyName, Vector4<ScalarT>& vector)
         {
             DrawPropertyName(propertyName);
 
             // Draw Value
             ImGui::PushID(propertyName.data());
-            bool hasModified = VectorControl::Vector4Input(vector);
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+            bool hasModified = VectorControl::VectorInput(vector);
             ImGui::PopID();
             ImGui::EndHorizontal();
 
@@ -148,6 +152,7 @@ namespace Onyx::Ui
             ImGui::PushID(propertyName.data());
 
             bool isModified = false;
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
             if (ImGui::BeginCombo("##combo", Enums::ToString(currentValue).data()))
             {
                 constexpr auto enum_entries = magic_enum::enum_entries<EnumT>();
@@ -183,6 +188,7 @@ namespace Onyx::Ui
             ImGui::PushID(propertyName.data());
 
             bool isModified = false;
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
             if (ImGui::BeginCombo("##combo", Enums::ToString(currentValue).data()))
             {
                 constexpr auto enum_entries = magic_enum::enum_entries<EnumT>();

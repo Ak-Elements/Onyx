@@ -84,10 +84,15 @@ namespace Onyx::Editor
         m_CanvasPanelId = Format::Format("###CanvasPanel{}", m_WindowId);
         m_PropertiesPanelId = Format::Format("###PropertiesPanel{}", m_WindowId);
 
-        ImGuiID dockspaceID = ImGui::GetID(Format::Format("NodeEditor{}", m_WindowId));
+        ImGuiID dockspaceID = ImGui::GetID(Format::Format("NodeEditor{}", m_WindowId));\
+
+        // TODO: should those be somewhere defined as default sizes?
+        float windowWidth = ImGui::GetMainViewport()->Size.x;
+        float propertiesPanelRatio = ( 400.0f / windowWidth );
+
         m_Dockspace = Ui::Dockspace::Create({
             {
-                Ui::DockSplitDirection::Right, 0.2f, m_PropertiesPanelId, m_CanvasPanelId
+                Ui::DockSplitDirection::Right, propertiesPanelRatio, m_PropertiesPanelId, m_CanvasPanelId
             }
             });
         m_Dockspace.SetId(dockspaceID);

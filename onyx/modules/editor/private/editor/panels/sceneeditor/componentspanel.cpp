@@ -29,7 +29,13 @@ namespace Onyx::Editor::SceneEditor
         ImGui::Checkbox(Localization::Editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll);
 
         DrawSelectedEntityComponents(componentFactory, scene);
-        DrawCreateComponentContextMenu(componentFactory, scene);
+
+        Entity::EntityRegistry& registry = scene.GetRegistry();
+        auto selectedEntities = registry.GetView<SelectedComponent>();
+        if (selectedEntities.empty() == false)
+        {
+            DrawCreateComponentContextMenu(componentFactory, scene);
+        }
     }
 
     void ComponentsPanel::DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
@@ -65,7 +71,7 @@ namespace Onyx::Editor::SceneEditor
                         Localization::LocalizedString componentName = m_LocalizationModule->GetLocalized(localizationId);
                         if (Ui::ContextMenuHeader(componentName, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
                         {
-                            ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
+                            ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY );
 
                             // manually clear style
                             style.Reset();
@@ -124,7 +130,6 @@ namespace Onyx::Editor::SceneEditor
 
             if (ImGui::BeginChild("##ScrollList", ImVec2(350.0f, 350.0f)))
             {
-                
                 Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
                 Ui::TreeItem root = BuildComponentTree(componentFactory, scene, s_SearchString);
                 //bool hasNoMenuItem = root.Children.empty();
@@ -145,7 +150,7 @@ namespace Onyx::Editor::SceneEditor
         Ui::TreeItem root;
         for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
         {
-            if (componentMeta->IsTransient())
+            if (componentMeta->IsTransient() || (componentMeta->ShowInEditor() == false))
             {
                 continue;
             }

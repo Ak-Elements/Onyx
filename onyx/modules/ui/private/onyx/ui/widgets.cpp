@@ -1,3 +1,4 @@
+#include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
 
 #if ONYX_USE_IMGUI
@@ -104,7 +105,7 @@ namespace Onyx::Ui
         const onyxF32 iconSize = ImGui::GetTextLineHeightWithSpacing() - framePaddingY / 2.0f;
         const onyxF32 halfIconSize = iconSize / 2.0f;
 
-        DrawSearchIcon(ImGui::GetWindowDrawList(), ImVec2(0, 0), halfIconSize, 0x33FFFFFF);
+        DrawSearchIcon(ImGui::GetWindowDrawList(), ImVec2(0, 0), halfIconSize, ImGui::GetColorU32(ImGuiCol_Button));
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + spacingX);
 
         {
@@ -143,7 +144,7 @@ namespace Onyx::Ui
         bool isSearching = searchString.empty() == false;
         if (isSearching)
         {
-            if (DrawCloseButton(ImGui::GetWindowDrawList(), ImVec2(0.0f, 0.0f), halfIconSize, 0xC8A0A0A0))
+            if (DrawCloseButton(ImGui::GetWindowDrawList(), ImVec2(0.0f, 0.0f), halfIconSize, ImGui::GetColorU32(ImGuiCol_Button)))
             {
                 searchString.clear();
                 grabFocus = true; // grab focus in next update
@@ -155,7 +156,8 @@ namespace Onyx::Ui
 
         ImGui::EndHorizontal();
 
-        DrawItemBorder(borderSize, 3.0f, searchInputId == ImGui::GetActiveID() ? 0xFFFF7929 : 0x80474747);
+        bool isActive = searchInputId == ImGui::GetActiveID();
+        DrawItemBorder(borderSize, 3.0f, isActive ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_Border));
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1.0f);
 
@@ -183,33 +185,38 @@ namespace Onyx::Ui
         const ImVec2 headerAreaMax = cursorStart + ImVec2(contentRegion.x, ImGui::GetFrameHeight() + currentStyle.ItemSpacing.y);
 
         // Fill the background of the header (including gaps)
-        const ImU32 bgColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
-        ImGui::GetWindowDrawList()->AddRectFilled(headerAreaMin, headerAreaMax, bgColor);
+        //const ImU32 bgColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
+        //ImGui::GetWindowDrawList()->AddRectFilled(headerAreaMin, headerAreaMax, bgColor);
 
         // Render the collapsible header
         const ImGuiID collapsibleId = ImGui::GetID(label.data());
-        bool isOpen = ImGui::TreeNodeBehavior(collapsibleId, flags |  ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog, label.data());
+        ScopedImGuiStyle style
+        {
+            { ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f) }
+        };
+        bool isOpen = ImGui::TreeNodeBehavior(collapsibleId, flags | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_NoAutoOpenOnLog, label.data());
 
         if (isOpen)
         {
-            //ImGuiWindow* window = ImGui::GetCurrentWindow();
-            //const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
-            //const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
-            //    ? currentStyle.FramePadding
-            //    : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
+            ImGuiWindow* window = ImGui::GetCurrentWindow();
+            const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
+            const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
+                ? currentStyle.FramePadding
+                : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
 
             //// Use bounding box of the last drawn item (the collapsing header)
-            //const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
-            //const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header
+            const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
+            const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header
 
             //// Calculate separator line positions
-            //const ImVec2 label_size = ImGui::CalcTextSize(label.data());
-            //const float text_offset_x = header_min.x + ImGui::GetFontSize() + padding.x * 4 + label_size.x;
-            //const float line_y = header_min.y + ImGui::GetFrameHeight() * 0.5f; // Slightly below the header
-            //const ImVec2 start = ImVec2(text_offset_x, line_y);
-            //const ImVec2 end = ImVec2(header_max.x - padding.x, line_y);
+            const ImVec2 label_size = ImGui::CalcTextSize(label.data());
+            onyxF32 margin = ((header_max.x - header_min.x) - label_size.x);
+            const float text_offset_x = header_min.x + margin;
+            const float line_y = header_min.y + label_size.y + 1; // Slightly below the header
+            const ImVec2 start = ImVec2(text_offset_x, line_y);
+            const ImVec2 end = ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionAvail().x - margin, line_y);
 
-            //window->DrawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator));
+            window->DrawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_SeparatorActive), 1);
 
             //// next line
         }
@@ -308,59 +315,11 @@ namespace Onyx::Ui
                 return 0;
             };
 
-        ScopedImGuiId valueId(id);
+        //ScopedImGuiId valueId(id);
         InputTextCallback_Payload payload;
         payload.Str = &value;
 
-        return ImGui::InputTextEx("##inputText", hint.data(), value.data(), static_cast<onyxS32>(value.capacity() + 1), size, flags | ImGuiInputTextFlags_CallbackResize, TextInputCallback, &payload);
-    }
-
-    void DrawMultilineText(StringView text, ImVec2 bounds, bool showEllipsis)
-    {
-        ONYX_UNUSED(text);
-        ONYX_UNUSED(bounds);
-        ONYX_UNUSED(showEllipsis);
-        // Todo should be string views
-        /*DynamicArray<String> lines = Split(text, '\n');
-
-        const ImGuiStyle& style = ImGui::GetStyle();
-        ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + bounds.x - style.FramePadding.x);
-
-        onyxU32 maxLines = 0;
-        if (showEllipsis)
-        {
-            float accumulatedHeight = 0;
-            for (const String& line : lines)
-            {
-                ImVec2 lineSize = ImGui::CalcTextSize(line.data(), nullptr, false, bounds.x);
-
-                bool exceedsHeight = (ImGui::GetCursorPosY() + lineSize.y) >= (bounds.y - style.FramePadding.y);
-                if (showEllipsis && exceedsHeight)
-                {
-                    lines[i] += "...";
-                    ImGui::TextUnformatted(lines[i].data());
-                }
-                else
-                {
-                    ImGui::TextUnformatted(lines[i].data());
-                }
-
-
-                accumulatedHeight += lineSize.y;
-                ++maxLines;
-            }
-
-            showEllipsis &= lines.size() != maxLines;
-            for (onyxU32 i = 0; i < maxLines; ++i)
-            {
-                
-            }
-        }
-        else
-        {
-            ImGui::Text(text.data());
-        }*/
-        //ImGui::PopTextWrapPos();
+        return ImGui::InputTextEx(id.data(), hint.data(), value.data(), static_cast<onyxS32>(value.capacity() + 1), size, flags | ImGuiInputTextFlags_CallbackResize, TextInputCallback, &payload);
     }
 
     bool DrawRenameInput(StringView id, String& outName, const ImVec2& size, bool& isSelected)
@@ -555,7 +514,7 @@ namespace Onyx::Ui
         float half_len = size * 0.5f;
         float half_thick = thickness * 0.5f;
 
-        float gap = half_thick; // length to trim from each horizontal bar end to avoid overdraw
+        float gap = half_thick - 0.5f; // length to trim from each horizontal bar end to avoid overdraw
 
         // --- Left horizontal rectangle (half bar)
         draw_list->PathLineTo(ImVec2(center.x - half_len, center.y - half_thick));
@@ -673,5 +632,11 @@ namespace Onyx::Ui
 
         //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
     }
+
+    // Note: p_data, p_step, p_step_fast are _pointers_ to a memory address holding the data. For an Input widget, p_step and p_step_fast are optional.
+    // Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+    
+
+
 }
 #endif

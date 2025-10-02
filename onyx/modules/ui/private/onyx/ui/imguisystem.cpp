@@ -270,6 +270,281 @@ namespace Onyx::Ui
 			style.GrabMinSize = 10.0f;
 			style.TabBorderSize = 1.0f;
 		}
+
+		void SetupCatpuccin()
+	    {
+			ImGuiStyle& style = ImGui::GetStyle();
+			ImVec4* colors = style.Colors;
+
+			colors[ImGuiCol_Text] = ImVec4(0.91f, 0.89f, 0.84f, 1.00f); // text (#cdd6f4)
+			colors[ImGuiCol_TextDisabled] = ImVec4(0.63f, 0.61f, 0.65f, 1.00f); // overlay0 (#7f849c)
+			colors[ImGuiCol_WindowBg] = ImVec4(0.14f, 0.13f, 0.20f, 1.00f); // base (#1e1e2e)
+			colors[ImGuiCol_ChildBg] = ImVec4(0.14f, 0.13f, 0.20f, 1.00f); // base
+			colors[ImGuiCol_PopupBg] = ImVec4(0.16f, 0.15f, 0.24f, 1.00f); // mantle (#181825)
+			colors[ImGuiCol_Border] = ImVec4(0.37f, 0.36f, 0.49f, 0.65f); // surface1 (#45475a)
+			colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+
+			colors[ImGuiCol_FrameBg] = ImVec4(0.23f, 0.22f, 0.33f, 1.00f); // surface0 (#313244)
+			colors[ImGuiCol_FrameBgHovered] = ImVec4(0.29f, 0.28f, 0.40f, 1.00f); // surface1 (#45475a)
+			colors[ImGuiCol_FrameBgActive] = ImVec4(0.42f, 0.41f, 0.55f, 1.00f); // surface2 (#585b70)
+
+			colors[ImGuiCol_TitleBg] = ImVec4(0.16f, 0.15f, 0.24f, 1.00f); // mantle
+			colors[ImGuiCol_TitleBgActive] = ImVec4(0.19f, 0.18f, 0.27f, 1.00f); // crust (#11111b)
+			colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.16f, 0.15f, 0.24f, 0.75f);
+
+			colors[ImGuiCol_MenuBarBg] = ImVec4(0.16f, 0.15f, 0.24f, 1.00f); // mantle
+			colors[ImGuiCol_ScrollbarBg] = ImVec4(0.16f, 0.15f, 0.24f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.37f, 0.36f, 0.49f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.42f, 0.41f, 0.55f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.56f, 0.55f, 0.67f, 1.00f);
+
+			colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f); // mauve (#cba6f7)
+			colors[ImGuiCol_SliderGrab] = ImVec4(0.82f, 0.65f, 0.45f, 1.00f); // yellow (#f9e2af)
+			colors[ImGuiCol_SliderGrabActive] = ImVec4(0.95f, 0.80f, 0.54f, 1.00f);
+
+			colors[ImGuiCol_Button] = ImVec4(0.29f, 0.28f, 0.40f, 1.00f); // surface1
+			colors[ImGuiCol_ButtonHovered] = ImVec4(0.42f, 0.41f, 0.55f, 1.00f); // surface2
+			colors[ImGuiCol_ButtonActive] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f); // mauve
+
+			colors[ImGuiCol_Header] = ImVec4(0.29f, 0.28f, 0.40f, 1.00f);
+			colors[ImGuiCol_HeaderHovered] = ImVec4(0.90f, 0.53f, 0.79f, 0.80f); // mauve
+			colors[ImGuiCol_HeaderActive] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f);
+
+			colors[ImGuiCol_Separator] = ImVec4(0.37f, 0.36f, 0.49f, 0.65f);
+			colors[ImGuiCol_SeparatorHovered] = ImVec4(0.90f, 0.53f, 0.79f, 0.78f);
+			colors[ImGuiCol_SeparatorActive] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f);
+
+			colors[ImGuiCol_ResizeGrip] = ImVec4(0.90f, 0.53f, 0.79f, 0.25f);
+			colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.90f, 0.53f, 0.79f, 0.67f);
+			colors[ImGuiCol_ResizeGripActive] = ImVec4(0.90f, 0.53f, 0.79f, 0.95f);
+
+			colors[ImGuiCol_Tab] = ImVec4(0.29f, 0.28f, 0.40f, 1.00f);
+			colors[ImGuiCol_TabHovered] = ImVec4(0.90f, 0.53f, 0.79f, 0.80f);
+			colors[ImGuiCol_TabActive] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f);
+			colors[ImGuiCol_TabUnfocused] = ImVec4(0.19f, 0.18f, 0.27f, 1.00f);
+			colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.29f, 0.28f, 0.40f, 1.00f);
+
+			colors[ImGuiCol_DockingPreview] = ImVec4(0.90f, 0.53f, 0.79f, 0.70f);
+			colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.14f, 0.13f, 0.20f, 1.00f);
+
+			colors[ImGuiCol_PlotLines] = ImVec4(0.82f, 0.65f, 0.45f, 1.00f); // yellow
+			colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f); // mauve
+			colors[ImGuiCol_PlotHistogram] = ImVec4(0.82f, 0.65f, 0.45f, 1.00f); // yellow
+			colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f); // mauve
+
+			colors[ImGuiCol_TableHeaderBg] = ImVec4(0.19f, 0.18f, 0.27f, 1.00f);
+			colors[ImGuiCol_TableBorderStrong] = ImVec4(0.23f, 0.22f, 0.33f, 1.00f);
+			colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.22f, 0.33f, 0.50f);
+			colors[ImGuiCol_TableRowBg] = ImVec4(0.14f, 0.13f, 0.20f, 0.00f);
+			colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.14f, 0.13f, 0.20f, 0.06f);
+
+			colors[ImGuiCol_TextSelectedBg] = ImVec4(0.90f, 0.53f, 0.79f, 0.35f);
+			colors[ImGuiCol_DragDropTarget] = ImVec4(0.95f, 0.80f, 0.54f, 1.00f); // yellow
+
+			colors[ImGuiCol_NavHighlight] = ImVec4(0.90f, 0.53f, 0.79f, 1.00f);
+			colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+			colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.14f, 0.13f, 0.20f, 0.50f);
+			colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.14f, 0.13f, 0.20f, 0.50f);
+
+			// Optional tweaks for rounding/shadows
+			style.FrameRounding = 6.0f;
+			style.GrabRounding = 4.0f;
+			style.WindowRounding = 8.0f;
+	    }
+
+		void SetCatppuccinMochaBlue()
+		{
+			ImGuiStyle& style = ImGui::GetStyle();
+			ImVec4* colors = style.Colors;
+
+			// Base text & backgrounds
+			colors[ImGuiCol_Text] = ImVec4(0.804f, 0.839f, 0.957f, 1.00f); // Text (#cdd6f4)
+			colors[ImGuiCol_TextDisabled] = ImVec4(0.498f, 0.518f, 0.611f, 1.00f); // Overlay1 (#7f849c)
+			colors[ImGuiCol_WindowBg] = ImVec4(0.118f, 0.118f, 0.180f, 1.00f); // Base (#1e1e2e)
+			colors[ImGuiCol_ChildBg] = colors[ImGuiCol_WindowBg];
+			colors[ImGuiCol_PopupBg] = ImVec4(0.094f, 0.094f, 0.145f, 1.00f); // Mantle (#181825)
+			colors[ImGuiCol_Border] = ImVec4(0.271f, 0.278f, 0.353f, 0.65f); // Surface1 (#45475a)
+			colors[ImGuiCol_BorderShadow] = ImVec4(0, 0, 0, 0);
+
+			// Frames
+			colors[ImGuiCol_FrameBg] = ImVec4(0.192f, 0.196f, 0.267f, 1.00f); // Surface0 (#313244)
+			colors[ImGuiCol_FrameBgHovered] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f); // Surface1
+			colors[ImGuiCol_FrameBgActive] = ImVec4(0.345f, 0.357f, 0.439f, 1.00f); // Surface2 (#585b70)
+
+			// Titles
+			colors[ImGuiCol_TitleBg] = ImVec4(0.094f, 0.094f, 0.145f, 1.00f); // Mantle
+			colors[ImGuiCol_TitleBgActive] = ImVec4(0.067f, 0.067f, 0.106f, 1.00f); // Crust (#11111b)
+			colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.094f, 0.094f, 0.145f, 0.75f);
+
+			// Scrollbar
+			colors[ImGuiCol_ScrollbarBg] = colors[ImGuiCol_PopupBg];
+			colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.345f, 0.357f, 0.439f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.498f, 0.518f, 0.611f, 1.00f);
+
+			// Accent = Periwinkle (Blue-shifted Mauve, HSV [220°, 0.32, 0.969])
+			ImVec4 periwinkle = ImVec4(0.667f, 0.710f, 0.969f, 1.00f); // approx RGB from HSV
+
+			colors[ImGuiCol_CheckMark] = periwinkle;
+			colors[ImGuiCol_SliderGrab] = ImVec4(0.976f, 0.886f, 0.686f, 1.00f); // Yellow (#f9e2af)
+			colors[ImGuiCol_SliderGrabActive] = ImVec4(0.980f, 0.702f, 0.529f, 1.00f); // Peach (#fab387)
+
+			colors[ImGuiCol_Button] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f); // Surface1
+			colors[ImGuiCol_ButtonHovered] = ImVec4(0.345f, 0.357f, 0.439f, 1.00f); // Surface2
+			colors[ImGuiCol_ButtonActive] = periwinkle;
+
+			colors[ImGuiCol_Header] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f);
+			colors[ImGuiCol_HeaderHovered] = periwinkle;
+			colors[ImGuiCol_HeaderActive] = periwinkle;
+
+			colors[ImGuiCol_Separator] = ImVec4(0.271f, 0.278f, 0.353f, 0.65f);
+			colors[ImGuiCol_SeparatorHovered] = periwinkle;
+			colors[ImGuiCol_SeparatorActive] = periwinkle;
+
+			colors[ImGuiCol_ResizeGrip] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.25f);
+			colors[ImGuiCol_ResizeGripHovered] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.67f);
+			colors[ImGuiCol_ResizeGripActive] = periwinkle;
+
+			colors[ImGuiCol_Tab] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f);
+			colors[ImGuiCol_TabHovered] = ImVec4(0.533f, 0.569f, 0.773f, 1.0f);
+			colors[ImGuiCol_TabActive] = ImVec4(0.467f, 0.498f, 0.678f, 1.0f);
+			colors[ImGuiCol_TabUnfocused] = ImVec4(0.067f, 0.067f, 0.106f, 1.00f);
+			colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f);
+
+			colors[ImGuiCol_DockingPreview] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.70f);
+			colors[ImGuiCol_DockingEmptyBg] = colors[ImGuiCol_WindowBg];
+
+			colors[ImGuiCol_PlotLines] = ImVec4(0.976f, 0.886f, 0.686f, 1.00f); // Yellow
+			colors[ImGuiCol_PlotLinesHovered] = periwinkle;
+			colors[ImGuiCol_PlotHistogram] = ImVec4(0.976f, 0.886f, 0.686f, 1.00f); // Yellow
+			colors[ImGuiCol_PlotHistogramHovered] = periwinkle;
+
+			colors[ImGuiCol_TableHeaderBg] = ImVec4(0.067f, 0.067f, 0.106f, 1.00f); // Crust
+			colors[ImGuiCol_TableBorderStrong] = ImVec4(0.192f, 0.196f, 0.267f, 1.00f); // Surface0
+			colors[ImGuiCol_TableBorderLight] = ImVec4(0.192f, 0.196f, 0.267f, 0.50f);
+			colors[ImGuiCol_TableRowBg] = ImVec4(0, 0, 0, 0);
+			colors[ImGuiCol_TableRowBgAlt] = ImVec4(1, 1, 1, 0.06f);
+
+			colors[ImGuiCol_TextSelectedBg] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.35f);
+			colors[ImGuiCol_DragDropTarget] = ImVec4(0.976f, 0.886f, 0.686f, 1.00f); // Yellow
+
+			colors[ImGuiCol_NavHighlight] = periwinkle;
+			colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1, 1, 1, 0.70f);
+			colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.118f, 0.118f, 0.180f, 0.50f);
+			colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.118f, 0.118f, 0.180f, 0.50f);
+
+			// Optional style tweaks
+			style.FrameRounding = 6.0f;
+			style.GrabRounding = 4.0f;
+			style.WindowRounding = 8.0f;
+		}
+
+		void SetCatppuccinMochaGraphite()
+		{
+			ImGuiStyle& style = ImGui::GetStyle();
+			ImVec4* colors = style.Colors;
+
+			// Base text & backgrounds
+			colors[ImGuiCol_Text] = ImVec4(0.902f, 0.910f, 0.922f, 1.00f); // Text (#e6e8eb)
+			colors[ImGuiCol_TextDisabled] = ImVec4(0.588f, 0.596f, 0.627f, 1.00f); // Subtext0 (#9698a0)
+			colors[ImGuiCol_WindowBg] = ImVec4(0.118f, 0.118f, 0.137f, 1.00f); // Base (#1e1e23)
+			colors[ImGuiCol_ChildBg] = colors[ImGuiCol_WindowBg];
+			colors[ImGuiCol_PopupBg] = ImVec4(0.098f, 0.098f, 0.114f, 1.00f); // Mantle (#19191d)
+			colors[ImGuiCol_Border] = ImVec4(0.271f, 0.278f, 0.314f, 0.65f); // Surface1 (#454851)
+			colors[ImGuiCol_BorderShadow] = ImVec4(0, 0, 0, 0);
+
+			// Frames
+			colors[ImGuiCol_FrameBg] = ImVec4(0.204f, 0.208f, 0.231f, 1.00f); // Surface0 (#34363b)
+			colors[ImGuiCol_FrameBgHovered] = ImVec4(0.271f, 0.278f, 0.314f, 1.00f); // Surface1
+			colors[ImGuiCol_FrameBgActive] = ImVec4(0.345f, 0.357f, 0.392f, 1.00f); // Surface2 (#585b64)
+
+			// Titles
+			colors[ImGuiCol_TitleBg] = ImVec4(0.098f, 0.098f, 0.114f, 1.00f); // Mantle
+			colors[ImGuiCol_TitleBgActive] = ImVec4(0.067f, 0.067f, 0.078f, 1.00f); // Crust (#111114)
+			colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.098f, 0.098f, 0.114f, 0.75f);
+
+			// Scrollbar
+			colors[ImGuiCol_ScrollbarBg] = colors[ImGuiCol_PopupBg];
+			colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.271f, 0.278f, 0.314f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.345f, 0.357f, 0.392f, 1.00f);
+			colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.498f, 0.518f, 0.588f, 1.00f);
+
+			// Accent = Periwinkle blue
+			ImVec4 periwinkle = ImVec4(0.667f, 0.710f, 0.969f, 1.00f); // #aab5f7
+
+			colors[ImGuiCol_CheckMark] = periwinkle;
+			colors[ImGuiCol_SliderGrab] = ImVec4(0.820f, 0.875f, 0.957f, 1.00f); // Pale blue (#d1dff4)
+			colors[ImGuiCol_SliderGrabActive] = ImVec4(0.667f, 0.710f, 0.969f, 1.00f); // Periwinkle
+
+			// Buttons
+			colors[ImGuiCol_Button] = ImVec4(0.271f, 0.278f, 0.314f, 1.00f); // Surface1
+			colors[ImGuiCol_ButtonHovered] = ImVec4(0.345f, 0.357f, 0.392f, 1.00f); // Surface2
+			colors[ImGuiCol_ButtonActive] = periwinkle;
+
+			// Headers
+			colors[ImGuiCol_Header] = ImVec4(0.271f, 0.278f, 0.353f, 1.00f); // Surface1
+			colors[ImGuiCol_HeaderHovered] = ImVec4(0.533f, 0.569f, 0.773f, 1.0f);  // lighter periwinkle
+			colors[ImGuiCol_HeaderActive] = ImVec4(0.467f, 0.498f, 0.678f, 1.0f);  // darker periwinkle
+
+			// Separators
+			colors[ImGuiCol_Separator] = ImVec4(0.271f, 0.278f, 0.314f, 0.65f);
+			colors[ImGuiCol_SeparatorHovered] = periwinkle;
+			colors[ImGuiCol_SeparatorActive] = periwinkle;
+
+			// Resize grips
+			colors[ImGuiCol_ResizeGrip] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.25f);
+			colors[ImGuiCol_ResizeGripHovered] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.67f);
+			colors[ImGuiCol_ResizeGripActive] = periwinkle;
+
+			// Tabs
+			colors[ImGuiCol_Tab] = ImVec4(0.271f, 0.278f, 0.314f, 1.00f);
+			colors[ImGuiCol_TabHovered] = ImVec4(0.533f, 0.569f, 0.773f, 1.0f);
+			colors[ImGuiCol_TabActive] = ImVec4(0.365f, 0.392f, 0.553f, 1.0f);  // darker periwinkle
+			colors[ImGuiCol_TabUnfocused] = ImVec4(0.067f, 0.067f, 0.078f, 1.00f);
+			colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.271f, 0.278f, 0.314f, 1.00f);
+
+			// Docking
+			colors[ImGuiCol_DockingPreview] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.70f);
+			colors[ImGuiCol_DockingEmptyBg] = colors[ImGuiCol_WindowBg];
+
+			// Plots
+			colors[ImGuiCol_PlotLines] = ImVec4(0.667f, 0.710f, 0.969f, 1.00f); // Periwinkle
+			colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.820f, 0.875f, 0.957f, 1.00f); // Pale blue
+			colors[ImGuiCol_PlotHistogram] = ImVec4(0.667f, 0.710f, 0.969f, 1.00f);
+			colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.820f, 0.875f, 0.957f, 1.00f);
+
+			// Tables
+			colors[ImGuiCol_TableHeaderBg] = ImVec4(0.067f, 0.067f, 0.078f, 1.00f); // Crust
+			colors[ImGuiCol_TableBorderStrong] = ImVec4(0.204f, 0.208f, 0.231f, 1.00f); // Surface0
+			colors[ImGuiCol_TableBorderLight] = ImVec4(0.204f, 0.208f, 0.231f, 0.50f);
+			colors[ImGuiCol_TableRowBg] = ImVec4(0, 0, 0, 0);
+			colors[ImGuiCol_TableRowBgAlt] = ImVec4(1, 1, 1, 0.06f);
+
+			// Misc
+			colors[ImGuiCol_TextSelectedBg] = ImVec4(periwinkle.x, periwinkle.y, periwinkle.z, 0.35f);
+			colors[ImGuiCol_DragDropTarget] = periwinkle;
+
+			colors[ImGuiCol_NavHighlight] = periwinkle;
+			colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1, 1, 1, 0.70f);
+			colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.118f, 0.118f, 0.137f, 0.50f);
+			colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.118f, 0.118f, 0.137f, 0.50f);
+
+			style.WindowRounding = 4.0f;
+			style.FrameRounding = 2.5f;
+			style.FrameBorderSize = 0.0f;
+			style.GrabRounding = 4.0f;
+
+	        style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+			style.WindowPadding = ImVec2(8.0f, 8.0f);
+			style.FramePadding = ImVec2(4.0f, 4.0f);
+			style.ItemSpacing = ImVec2(8.0f, 8.0f);
+			style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
+			style.IndentSpacing = 20.0f;
+			style.ScrollbarSize = 15.0f;
+			style.GrabMinSize = 10.0f;
+			style.TabBorderSize = 1.0f;
+		}
+
 	}
 
 	ImGuiSystem::ImGuiSystem() = default;
@@ -288,9 +563,9 @@ namespace Onyx::Ui
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		Internal::SetupImGuiDarkMaterialStyle();// ImGui::StyleColorsDark();
+		Internal::SetCatppuccinMochaGraphite();// ImGui::StyleColorsDark();
 
-		FileSystem::Filepath settingsPath = FileSystem::Path::GetFullPath("tmp:/imgui.ini");
+		FileSystem::Filepath settingsPath = FileSystem::Path::GetFullPath("tmp:imgui.ini");
 		if (FileSystem::Path::Exists(settingsPath) == false)
 		{
 			settingsPath = FileSystem::Path::GetFullPath("engine:/layouts/default.ini");
@@ -314,22 +589,8 @@ namespace Onyx::Ui
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
 		g_UiContext.AssetSystem = &assetSystem;
-
-#if ONYX_IS_EDITOR
-		/*Assets::AssetId closedId("textures/editor/icons/contentbrowser/folder_closed.png");
-		assetSystem.GetAsset(closedId, ImGuiSystem::FolderClosedAsset);
-
-		Assets::AssetId openId("textures/editor/icons/contentbrowser/folder_open.png");
-		assetSystem.GetAsset(openId, ImGuiSystem::FolderOpenAsset);
-
-		Assets::AssetId closedSelectedId("textures/editor/icons/contentbrowser/folder_closed_selected.png");
-		assetSystem.GetAsset(closedSelectedId, ImGuiSystem::FolderSelectedClosedAsset);
-
-		Assets::AssetId openSelectedId("textures/editor/icons/contentbrowser/folder_open_selected.png");
-		assetSystem.GetAsset(openSelectedId, ImGuiSystem::FolderSelectedOpenAsset);*/
-#else
-		ONYX_UNUSED(assetSystem);
-#endif
+		g_UiContext.MainWindow = window;
+		g_UiContext.InputSystem = &inputSystem;
     }
 
     void ImGuiSystem::Shutdown(Input::InputSystem& inputSystem, Graphics::Window& _window)

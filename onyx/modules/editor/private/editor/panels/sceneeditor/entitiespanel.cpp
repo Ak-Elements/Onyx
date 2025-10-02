@@ -32,8 +32,9 @@ namespace Onyx::Editor::SceneEditor
 
         Ui::ScopedImGuiColor styleColor
         {
-            { ImGuiCol_TableRowBg, 0 },
-            { ImGuiCol_Separator, 0xFFFF0000 }
+            { ImGuiCol_TableRowBg, 0x0 },
+            { ImGuiCol_Separator, 0xFFFF0000 },
+            { ImGuiCol_NavCursor, 0x0 }
         };
         const onyxF32 rowHeight = 21.0f;
 
@@ -77,6 +78,7 @@ namespace Onyx::Editor::SceneEditor
                 Ui::ButtonState state = Ui::ButtonBehavior(id, ImRect(rowAreaMin, rowAreaMax), ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
                 bool isRowClicked = state == Ui::ButtonState::Pressed;
                 bool isRowHovered = state == Ui::ButtonState::Hovered;
+                bool isRowFocused = false;
                 ImGui::KeepAliveID(id);
                 ImGui::PopClipRect();
 
@@ -105,6 +107,7 @@ namespace Onyx::Editor::SceneEditor
 
                     isRowClicked |= isSelected;
                     isRowHovered |= ImGui::IsItemHovered();
+                    isRowFocused = ImGui::IsItemFocused();
                 }
 
                 if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
@@ -127,7 +130,7 @@ namespace Onyx::Editor::SceneEditor
                 ImGui::Checkbox("##load", &load);
                 ImGui::EndHorizontal();*/
 
-                if (isRowClicked)
+                if (isRowClicked || isRowFocused)
                 {
                     SetSelectedEntity(scene, entity);
                 }

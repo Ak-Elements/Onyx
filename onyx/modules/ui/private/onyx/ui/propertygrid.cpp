@@ -1,5 +1,6 @@
 
 #include <onyx/ui/propertygrid.h>
+#include <onyx/ui/controls/colorcontrol.h>
 
 #if ONYX_IS_EDITOR
 
@@ -262,7 +263,8 @@ namespace Onyx::Ui::PropertyGrid
     {
         DrawPropertyName(propertyName);
 
-        bool hasModified = DrawStringInput(propertyName, value, ImVec2(0,0), textFlags);
+        ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+        bool hasModified = DrawStringInput(Format::Format("##{}", propertyName), value, ImVec2(0,0), textFlags);
 
         ImGui::EndHorizontal();
 
@@ -291,6 +293,7 @@ namespace Onyx::Ui::PropertyGrid
         bool hasModified = false;
         {
             ScopedImGuiId valueId(propertyName);
+            ScopedImGuiStyle style { ImGuiStyleVar_FrameBorderSize, 1.0f };
             hasModified = ImGui::Checkbox("##inputBool", &value);
         }
 
@@ -307,13 +310,14 @@ namespace Onyx::Ui::PropertyGrid
         // Draw Value outside horizontal group as its not working with the layout
         ImGui::SameLine();
         bool hasModified = false;
-        float color[3] = { inOutColor[0], inOutColor[1], inOutColor[2] };
-        if (ImGui::ColorEdit3("##inputColor", color))
+        //float color[3] = { inOutColor[0], inOutColor[1], inOutColor[2] };
+        ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+        if (Ui::ColorInput("##inputColor", inOutColor))
         {
             hasModified = true;
-            inOutColor[0] = color[0];
-            inOutColor[1] = color[1];
-            inOutColor[2] = color[2];
+            //inOutColor[0] = color[0];
+            //inOutColor[1] = color[1];
+            //inOutColor[2] = color[2];
         }
 
         return hasModified;
@@ -328,6 +332,7 @@ namespace Onyx::Ui::PropertyGrid
         ImGui::SameLine();
         bool hasModified = false;
         float color[4] = { inOutColor[0], inOutColor[1], inOutColor[2], inOutColor[3]};
+        ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
         if (ImGui::ColorEdit4("##inputColor", color, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf))
         {
             hasModified = true;
@@ -342,6 +347,7 @@ namespace Onyx::Ui::PropertyGrid
 
     bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor)
     {
+        ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
         Vector4f32 color{ numeric_cast<onyxF32>(inOutColor[0]) / 255.0f, numeric_cast<onyxF32>(inOutColor[1]) / 255.0f, numeric_cast<onyxF32>(inOutColor[2]) / 255.0f, numeric_cast<onyxF32>(inOutColor[3]) / 255.0f };
         if (DrawColorProperty(propertyName, color))
         {

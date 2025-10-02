@@ -1,3 +1,4 @@
+#include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/controls/assetselector.h>
 
 #if ONYX_IS_EDITOR
@@ -43,6 +44,8 @@ namespace Onyx::Ui
         }
 
         Layout::BeginHorizontal("#AssetControl");
+
+        ScopedImGuiStyle styleOverride{ ImGuiStyleVar_FrameBorderSize, 1.0f };
         if (BeginCombobox("##selector", assetName))
         {
             DrawSearchBar(loc_SearchString, Localization::Generic::Search.Get(), loc_HasFocus);

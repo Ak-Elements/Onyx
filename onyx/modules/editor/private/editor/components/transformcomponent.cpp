@@ -8,16 +8,16 @@ namespace Onyx::GameCore
     bool TransformComponent::DrawImGuiEditor()
     {
         bool hasModified = false;
-        hasModified = Ui::PropertyGrid::DrawVector3Property("Translation", m_Translation);
+        hasModified = Ui::PropertyGrid::DrawVectorProperty("Translation", m_Translation);
 
         Vector3f32 rotationInDegrees = ToDegrees(m_RotationEuler);
-        if (Ui::PropertyGrid::DrawVector3Property("Rotation", rotationInDegrees))
+        if (Ui::PropertyGrid::DrawVectorProperty("Rotation", rotationInDegrees))
         {
             hasModified = true;
             SetRotation(ToRadians(rotationInDegrees));
         }
 
-        hasModified |= Ui::PropertyGrid::DrawVector3Property("Scale", m_Scale);
+        hasModified |= Ui::PropertyGrid::DrawVectorProperty("Scale", m_Scale);
 
         return hasModified;
     }
