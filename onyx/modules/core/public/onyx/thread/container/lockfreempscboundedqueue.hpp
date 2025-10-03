@@ -34,15 +34,15 @@ namespace Onyx
     bool LockFreeMPSCBoundedQueue<T, Size>::Push(T&& data)
     {
         Node* node;
-        size_t pos = m_EnqueuePos.load(std::memory_order_relaxed);
+        size_t pos = m_EnqueuePos.load(std::memory_order::relaxed);
         for (;;)
         {
             node = &m_Buffer[pos & m_BufferMask];
-            const size_t seq = node->m_Sequence.load(std::memory_order_acquire);
+            const size_t seq = node->m_Sequence.load(std::memory_order::acquire);
             const ptrdiff_t dif = static_cast<ptrdiff_t>(seq) - static_cast<ptrdiff_t>(pos);
             if (dif == 0)
             {
-                if (m_EnqueuePos.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed))
+                if (m_EnqueuePos.compare_exchange_weak(pos, pos + 1, std::memory_order::relaxed))
                 {
                     break;
                 }
@@ -53,12 +53,12 @@ namespace Onyx
             }
             else
             {
-                pos = m_EnqueuePos.load(std::memory_order_relaxed);
+                pos = m_EnqueuePos.load(std::memory_order::relaxed);
             }
         }
 
         node->m_Data = std::forward<T>(data);
-        node->m_Sequence.store(pos + 1, std::memory_order_release);
+        node->m_Sequence.store(pos + 1, std::memory_order::release);
 
         return true;
     }
@@ -69,7 +69,7 @@ namespace Onyx
         const size_t dequeuePosition = m_DequeuePos;
         Node* node = &m_Buffer[dequeuePosition & m_BufferMask];
 
-        const size_t seq = node->m_Sequence.load(std::memory_order_acquire);
+        const size_t seq = node->m_Sequence.load(std::memory_order::acquire);
         const ptrdiff_t dif = static_cast<ptrdiff_t>(seq) - static_cast<ptrdiff_t>(dequeuePosition + 1);
         if (dif == 0)
         {
@@ -85,7 +85,7 @@ namespace Onyx
         }
 
         data = std::move(node->m_Data);
-        node->m_Sequence.store(dequeuePosition + m_BufferMask + 1, std::memory_order_release);
+        node->m_Sequence.store(dequeuePosition + m_BufferMask + 1, std::memory_order::release);
 
         return true;
     }

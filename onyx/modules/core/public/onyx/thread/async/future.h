@@ -68,7 +68,7 @@ namespace details
 
             if constexpr (std::is_same_v<T, void> == false)
             {
-                if (m_State.load(std::memory_order_relaxed) == State::Completed)
+                if (m_State.load(std::memory_order::relaxed) == State::Completed)
                 {
                     return std::get<1>(m_Value);
                 }
@@ -79,17 +79,17 @@ namespace details
 
         bool IsPending() const
         {
-            return m_State.load(std::memory_order_relaxed) == State::Pending;
+            return m_State.load(std::memory_order::relaxed) == State::Pending;
         }
 
         bool IsCompleted() const
         {
-            return m_State.load(std::memory_order_relaxed) == State::Completed;
+            return m_State.load(std::memory_order::relaxed) == State::Completed;
         }
 
         bool IsCancelled() const
         {
-            return m_State.load(std::memory_order_relaxed) == State::Cancelled;
+            return m_State.load(std::memory_order::relaxed) == State::Cancelled;
         }
 
         template <typename U = T, REQUIRES(std::is_void<U>::value)>
@@ -134,7 +134,7 @@ namespace details
 
                 std::atomic_notify_all(&m_State);
             }
-            
+
         }
 
         void Cancel(bool waitForCancel)
@@ -165,7 +165,7 @@ namespace details
 
         bool UpdateState(State desired)
         {
-            State currentState = m_State.load(std::memory_order_relaxed);
+            State currentState = m_State.load(std::memory_order::relaxed);
             do
             {
                 if ((currentState == desired) ||

@@ -37,7 +37,7 @@ void Logger::Log(LogLevel level, const char* message, const std::source_location
 {
     //ASSERT(m_IsEnabled, "Log is not initialized yet.");
 
-    if (level < m_Severity.load(std::memory_order_relaxed))
+    if (level < m_Severity.load(std::memory_order::relaxed))
     {
         return;
     }

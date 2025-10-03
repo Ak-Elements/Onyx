@@ -17,7 +17,7 @@ namespace Onyx
 
     inline bool RefCounted::RemoveReference()
     {
-        return (m_RefCount.fetch_sub(1, std::memory_order_acq_rel) == 1);
+        return (m_RefCount.fetch_sub(1, std::memory_order::acq_rel) == 1);
     }
 
     // Reference
@@ -30,7 +30,7 @@ namespace Onyx
     template <typename T, typename D>
     const T* Reference<T, D>::Raw() const
     {
-        ONYX_ASSERT(IsValid()); return 
+        ONYX_ASSERT(IsValid()); return
         static_cast<T*>(m_Object);
     }
 
