@@ -61,7 +61,7 @@ namespace Onyx::Threading
     };
 
     /// Implementation
-#if ONYX_PROFILER_ENABLED 
+#if ONYX_PROFILER_ENABLED
     template <typename Task, template<typename> class Queue>
     inline ThreadPoolImpl<Task, Queue>::ThreadPoolImpl(const ThreadPoolOptions& options, const char* profilerName)
         : m_Workers(options.GetThreadCount())
@@ -156,7 +156,7 @@ namespace Onyx::Threading
         size_t workerCount = m_Workers.size();
         if (id > workerCount)
         {
-            id = m_NextWorker.fetch_add(1, std::memory_order_relaxed) % workerCount;
+            id = m_NextWorker.fetch_add(1, std::memory_order::relaxed) % workerCount;
         }
 
         return *m_Workers[id];

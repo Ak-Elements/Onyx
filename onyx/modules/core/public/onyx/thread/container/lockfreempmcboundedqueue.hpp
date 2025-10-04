@@ -49,16 +49,16 @@ template <typename T>
 inline bool LockFreeMPMCBoundedQueue<T>::Push(T&& data)
 {
     Node* node;
-    onyxS32 pos = m_EnqueuePos.load(std::memory_order_relaxed);
+    onyxS32 pos = m_EnqueuePos.load(std::memory_order::relaxed);
     for(;;)
     {
         node = &m_Buffer[pos & m_BufferMask];
-        onyxS32 seq = node->sequence.load(std::memory_order_acquire);
+        onyxS32 seq = node->sequence.load(std::memory_order::acquire);
         onyxPtrDiff dif = static_cast<onyxPtrDiff>(seq) - static_cast<onyxPtrDiff>(pos);
         if(dif == 0)
         {
             if(m_EnqueuePos.compare_exchange_weak(
-                   pos, pos + 1, std::memory_order_relaxed))
+                   pos, pos + 1, std::memory_order::relaxed))
             {
                 break;
             }
@@ -69,12 +69,12 @@ inline bool LockFreeMPMCBoundedQueue<T>::Push(T&& data)
         }
         else
         {
-            pos = m_EnqueuePos.load(std::memory_order_relaxed);
+            pos = m_EnqueuePos.load(std::memory_order::relaxed);
         }
     }
 
     node->data = std::move(data);
-    node->sequence.store(pos + 1, std::memory_order_release);
+    node->sequence.store(pos + 1, std::memory_order::release);
     return true;
 }
 
@@ -82,16 +82,16 @@ template <typename T>
 inline bool LockFreeMPMCBoundedQueue<T>::Pop(T& data)
 {
     Node* node;
-    onyxS32 pos = m_DequeuePos.load(std::memory_order_relaxed);
+    onyxS32 pos = m_DequeuePos.load(std::memory_order::relaxed);
     for(;;)
     {
         node = &m_Buffer[pos & m_BufferMask];
-        onyxS32 seq = node->sequence.load(std::memory_order_acquire);
+        onyxS32 seq = node->sequence.load(std::memory_order::acquire);
         onyxPtrDiff dif = static_cast<onyxPtrDiff>(seq) - static_cast<onyxPtrDiff>(pos + 1);
         if(dif == 0)
         {
             if(m_DequeuePos.compare_exchange_weak(
-                   pos, pos + 1, std::memory_order_relaxed))
+                   pos, pos + 1, std::memory_order::relaxed))
             {
                 break;
             }
@@ -102,14 +102,14 @@ inline bool LockFreeMPMCBoundedQueue<T>::Pop(T& data)
         }
         else
         {
-            pos = m_DequeuePos.load(std::memory_order_relaxed);
+            pos = m_DequeuePos.load(std::memory_order::relaxed);
         }
     }
 
     data = std::move(node->data);
 
     node->sequence.store(
-        pos + m_BufferMask + 1, std::memory_order_release);
+        pos + m_BufferMask + 1, std::memory_order::release);
 
     return true;
 }
