@@ -1,12 +1,18 @@
 #pragma once
 
-#include <onyx/input/inputbinding.h>
-
-#include <onyx/filesystem/onyxfile.h>
-
 namespace Onyx::Input
 {
-    struct InputBinding;
+    class InputBinding;
+
+    enum class ActionType : onyxU8
+    {
+        Invalid = 0,
+        Bool,
+        Axis1D,
+        Axis2D,
+        Axis3D,
+        Count
+    };
 
     struct InputAction
     {

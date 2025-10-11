@@ -31,6 +31,4 @@ namespace Onyx::Graphics
 		ReadUnsynchronized = Read | Unsynchronized,
 		ReadWriteUnsynchronized = ReadWrite | Unsynchronized,
 	};
-
-	ONYX_ENABLE_BITMASK_OPERATORS(MapMode);
 }

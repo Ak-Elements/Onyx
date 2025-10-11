@@ -4,7 +4,7 @@
 
 //struct IGameInput;
 //struct IGameInputDevice;
-#include <onyx/input/gamepad.h>
+#include <onyx/input/gamecontroller.h>
 #include <GameInput.h>
 
 namespace Onyx::Input

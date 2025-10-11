@@ -24,16 +24,12 @@ namespace Onyx::Graphics
         ShaderWrite = 1 << 6
     };
 
-    ONYX_ENABLE_BITMASK_OPERATORS(Access);
-
     enum class CullMode : onyxU8
     {
         None = 0,
         Front,
         Back
     };
-
-    ONYX_ENABLE_BITMASK_OPERATORS(CullMode);
 
     enum class FillMode : onyxU8
     {
@@ -109,8 +105,6 @@ namespace Onyx::Graphics
         RGB = Red | Green | Blue,
         RGBA = Red | Green | Blue | Alpha
     };
-
-    ONYX_ENABLE_BITMASK_OPERATORS(ColorChannel);
 
     enum class PrimitiveTopology : onyxU8
     {
@@ -215,8 +209,6 @@ namespace Onyx::Graphics
         All,
         Count
     };
-
-    ONYX_ENABLE_BITMASK_OPERATORS(ShaderStage);
 
     enum class ShaderDataType : onyxU8
     {

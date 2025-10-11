@@ -40,6 +40,7 @@ namespace Onyx::Ui
 
         void EndPropertyGroup();
 
+        bool DrawProperty(StringView propertyName, StringView readOnlyValue);
         bool DrawStringProperty(StringView propertyName, String& value);
         bool DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
 

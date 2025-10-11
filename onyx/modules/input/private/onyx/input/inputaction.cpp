@@ -1,7 +1,7 @@
 #include <onyx/input/inputaction.h>
-#include <onyx/input/inputbinding.h>
-#include <onyx/input/inputbindingsregistry.h>
 
+// Included to please c++ unique ptr forward declaration
+#include <onyx/input/bindings/inputbinding.h>
 namespace Onyx::Input
 {
     InputAction::InputAction() = default;

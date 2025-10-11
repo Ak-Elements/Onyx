@@ -299,16 +299,21 @@ namespace Onyx::FileSystem
     bool JsonDeserializer::CreateScope(StringView name) const
     {
         nlohmann::ordered_json& current = GetCurrent();
-        auto it = current.find(name);
-        if (it == current.end())
-        {
+        if (current.is_object() == false)
             return false;
+
+        for (auto it = current.begin(); it != current.end(); ++it)
+        {
+            if (IgnoreCaseEqual(it.key(), name))
+            {
+                m_CurrentScopeName = name;
+                nlohmann::ordered_json& newScope = *it;
+                JsonNodes.push(&newScope);
+                return true;
+            }
         }
 
-        m_CurrentScopeName = name;
-        nlohmann::ordered_json& newScope = *it;
-        JsonNodes.push(&newScope);
-        return true;
+        return false;
     }
 
     bool JsonDeserializer::GetScopeIdentifier(onyxU32& /*outKey*/) const

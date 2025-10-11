@@ -5,18 +5,16 @@ namespace Onyx
     enum class VectorCompareMask : onyxU8
     {
         None = 0,
-        X = 1,
-        Y = 2,
-        Z = 4,
-        W = 8,
+        X = 1 << 0,
+        Y = 1 << 2,
+        Z = 1 << 3,
+        W = 1 << 4,
         XY = X | Y,
         XZ = X | Z,
         YZ = Y | Z,
         XYZ = X | Y | Z,
         All = X | Y | Z | W
     };
-
-    ONYX_ENABLE_BITMASK_OPERATORS(VectorCompareMask);
 
     enum class SwizzleMask
     {
@@ -60,6 +58,7 @@ namespace Onyx
         // 3D In
         XYZ,
 
+        YXZ,
         XZY,
         XXZ,
         XZX,

@@ -23,6 +23,7 @@
 #include <imgui_node_editor.h>
 #include <imgui_internal.h>
 #include <editor/editor_localization.h>
+#include <onyx/filesystem/onyxfile.h>
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 

@@ -11,6 +11,7 @@
 
 #include <onyx/input/inputevent.h>
 #include <onyx/graphics/window.h>
+#include <onyx/input/inputid.h>
 #include <onyx/log/logger.h>
 
 namespace Onyx::Input
@@ -77,6 +78,105 @@ namespace Onyx::Input
 #endif
     }
 
+    onyxS16 InputSystem::GetAxisValue1D(onyxU32 deviceIndex, InputID id) const
+    {
+        switch (id.ID)
+        {
+            case Enums::ToIntegral(MouseAxis::X):
+                return m_MousePosition.X;
+            case Enums::ToIntegral(MouseAxis::Y):
+                return m_MousePosition.Y;
+            case Enums::ToIntegral(MouseAxis::DeltaX):
+                return m_MouseDelta.X;
+            case Enums::ToIntegral(MouseAxis::DeltaY):
+                return m_MouseDelta.Y;
+            case Enums::ToIntegral(MouseAxis::Wheel):
+                return m_MouseWheelDelta;
+            case Enums::ToIntegral(GameControllerAxis::LeftStick_X):
+            case Enums::ToIntegral(GameControllerAxis::LeftStick_Y):
+            case Enums::ToIntegral(GameControllerAxis::RightStick_X):
+            case Enums::ToIntegral(GameControllerAxis::RightStick_Y):
+            case Enums::ToIntegral(GameControllerAxis::LeftTrigger):
+            case Enums::ToIntegral(GameControllerAxis::RightTrigger):
+                return GetControllerAxisValue(deviceIndex, static_cast<GameControllerAxis>(id.ID));
+            default:
+                ONYX_ASSERT(false, "Invalid axis input id");
+                return 0;
+        }
+    }
+
+    Vector2s16 InputSystem::GetAxisValue2D(onyxU32 deviceIndex, InputID id) const
+    {
+        switch (id.ID)
+        {
+            case Enums::ToIntegral(MouseAxis::XY):
+                return m_MousePosition;
+            case Enums::ToIntegral(MouseAxis::DeltaXY):
+                return m_MouseDelta;
+            case Enums::ToIntegral(GameControllerAxis::LeftStick_XY):
+                return { GetControllerAxisValue(deviceIndex, GameControllerAxis::LeftStick_X), GetControllerAxisValue(deviceIndex, GameControllerAxis::LeftStick_Y) };
+            case Enums::ToIntegral(GameControllerAxis::RightStick_XY):
+                return { GetControllerAxisValue(deviceIndex, GameControllerAxis::RightStick_X), GetControllerAxisValue(deviceIndex, GameControllerAxis::RightStick_Y) };
+            default:
+                ONYX_ASSERT(false, "Invalid axis 2D input id");
+                return Vector2s16::Zero();
+        }
+    }
+
+    bool InputSystem::IsButtonDown(InputID id) const
+    {
+        if (IsMouseButton(id))
+        {
+            return IsButtonDown(static_cast<MouseButton>(id.ID));
+        }
+        if (IsKeyboardKey(id))
+        {
+            return IsButtonDown(static_cast<Key>(id.ID));
+        }
+        if (IsGameControllerButton(id))
+        {
+            return IsButtonDown(static_cast<GameControllerButton>(id.ID), 0);
+        }
+
+        return false;
+    }
+
+    bool InputSystem::IsButtonDown(MouseButton button) const
+    {
+        constexpr onyxU16 first = Enums::ToIntegral(MouseAxis::First);
+        constexpr onyxU16 last = Enums::ToIntegral(MouseAxis::Last);
+        ONYX_ASSERT(Enums::ToIntegral(button) > first);
+        ONYX_ASSERT(Enums::ToIntegral(button) < last);
+
+        onyxU16 index = Enums::ToIntegral(button) - first;
+        return m_MouseButtonStates[index];
+    }
+
+    bool InputSystem::IsButtonDown(Key key) const
+    {
+        constexpr onyxU16 first = Enums::ToIntegral(Key::First);
+        constexpr onyxU16 last = Enums::ToIntegral(Key::Last);
+        ONYX_ASSERT(Enums::ToIntegral(key) > first);
+        ONYX_ASSERT(Enums::ToIntegral(key) < last);
+
+        onyxU16 index = Enums::ToIntegral(key) - first;
+        return m_KeyState[index];
+    }
+
+    bool InputSystem::IsButtonDown(GameControllerButton button, onyxU8 deviceIndex) const
+    {
+        if (deviceIndex >= m_Gamepads.size())
+            return false;
+
+        constexpr onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
+        constexpr onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
+        ONYX_ASSERT(Enums::ToIntegral(button) > first);
+        ONYX_ASSERT(Enums::ToIntegral(button) < last);
+
+        onyxU16 bitmaskIndex = Enums::ToIntegral(button) - first;
+        return m_Gamepads[deviceIndex].m_ButtonStates & (1 << bitmaskIndex);
+    }
+
     void InputSystem::SetMousePosition(const Vector2s16& mousePos)
     {
         if (m_MousePosition != mousePos)
@@ -84,7 +184,7 @@ namespace Onyx::Input
             m_MousePosition = mousePos;
 
             MouseEvent event;
-            event.m_Id = InputEventId::MousePositionChanged;
+            event.m_Id = InputEventType::MousePositionChanged;
             event.m_Position = mousePos;
             m_OnInput(&event);
         }
@@ -92,18 +192,23 @@ namespace Onyx::Input
 
     onyxS16 InputSystem::GetControllerAxisValue(onyxU32 controllerIndex, GameControllerAxis axis) const
     {
+        //TODO: 0.5.0 fix this for controllers
+        if (controllerIndex >= m_Gamepads.size())
+            return 0;
+
         ONYX_ASSERT(controllerIndex < m_Gamepads.size());
         const Gamepad& gamepad = m_Gamepads[controllerIndex];
         ONYX_ASSERT(gamepad.m_IsConnected);
 
-        return gamepad.m_AxisValues[Enums::ToIntegral(axis)];
+        constexpr onyxU16 offset = Enums::ToIntegral(GameControllerButton::First);
+        onyxU8 index = static_cast<onyxU8>(Enums::ToIntegral(axis) - offset);
+        return gamepad.m_AxisValues[index];
     }
 
     void InputSystem::EnableSystemMouseCapture(bool enable)
     {
         m_MainWindow->EnableSystemMouseCapture(enable);
     }
-
 
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
 
@@ -120,11 +225,14 @@ namespace Onyx::Input
                 const bool hasReleased = (((lParam >> 16) & 0xFFFF) & KF_UP) == KF_UP;
 
                 KeyboardEvent event;
-                event.m_Id = (hasReleased ? InputEventId::KeyUp : (IsKeyRepeated(lParam) ? InputEventId::KeyRepeat : InputEventId::KeyDown));
+                event.m_Id = (hasReleased ? InputEventType::KeyUp : (IsKeyRepeated(lParam) ? InputEventType::KeyRepeat : InputEventType::KeyDown));
                 event.m_Key = ConvertWindowsKey(wParam, lParam);
-                m_KeyState[static_cast<onyxS16>(event.m_Key)] = hasReleased == false;
 
-                Modifier modifiers = Modifier::None;
+                constexpr onyxU32 offset = Enums::ToIntegral(Key::First);
+                onyxU16 index = Enums::ToIntegral(event.m_Key) - offset;
+                m_KeyState[index] = hasReleased == false;
+
+                /*Modifier modifiers = Modifier::None;
                 if (IsModifierKey(event.m_Key))
                 {
                     if (m_KeyState[Enums::ToIntegral(Key::Left_Ctrl)] || m_KeyState[Enums::ToIntegral(Key::Right_Ctrl)])
@@ -137,7 +245,7 @@ namespace Onyx::Input
                         modifiers |= Modifier::Alt;
                 }
 
-                event.m_TriggerModifiers = modifiers;
+                event.m_TriggerModifiers = modifiers;*/
 
                 m_OnInput(&event);
                 return true;
@@ -146,7 +254,7 @@ namespace Onyx::Input
             case WM_SYSCHAR:
             {
                 KeyboardEvent event;
-                event.m_Id = InputEventId::KeyCharacter;
+                event.m_Id = InputEventType::KeyCharacter;
                 event.m_Key = ConvertWindowsKey(wParam, lParam);
                 event.m_Char = static_cast<onyxU16>(wParam);
                 m_OnInput(&event);
@@ -171,11 +279,11 @@ namespace Onyx::Input
             {
                 MouseEvent event;
                 if (messageType == WM_LBUTTONDOWN || messageType == WM_LBUTTONUP || messageType == Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN || messageType == Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP)
-                    event.m_Button = MouseButton::Left;
+                    event.m_Button = MouseButton::Button_1;
                 else if (messageType == WM_RBUTTONDOWN || messageType == WM_RBUTTONUP)
-                    event.m_Button = MouseButton::Right;
+                    event.m_Button = MouseButton::Button_2;
                 else if (messageType == WM_MBUTTONDOWN || messageType == WM_MBUTTONUP)
-                    event.m_Button = MouseButton::Middle;
+                    event.m_Button = MouseButton::Button_3;
                 else
                 {
                     const onyxS32 extraMouseButton = (wParam >> 16) & 0xFFFF;
@@ -189,8 +297,9 @@ namespace Onyx::Input
                     (messageType == WM_XBUTTONUP) ||
                     (messageType == Graphics::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP));
 
-                event.m_Id = hasReleased ? InputEventId::MouseButtonUp : InputEventId::MouseButtonDown;
-                m_MouseButtonStates[Enums::ToIntegral(event.m_Button)] = hasReleased == false;
+                event.m_Id = hasReleased ? InputEventType::MouseButtonUp : InputEventType::MouseButtonDown;
+                constexpr onyxU32 offset = Enums::ToIntegral(MouseButton::First);
+                m_MouseButtonStates[Enums::ToIntegral(event.m_Button) - offset] = hasReleased == false;
                 m_OnInput(&event);
 
                 return true;
@@ -199,7 +308,7 @@ namespace Onyx::Input
             case WM_MOUSEWHEEL:
             {
                 MouseEvent event;
-                event.m_Id = InputEventId::MouseWheel;
+                event.m_Id = InputEventType::MouseWheel;
                 
                 event.m_Scroll = (onyxS16)HIWORD(wParam) / (onyxS16)WHEEL_DELTA;
                 m_MouseScroll += event.m_Scroll;
@@ -248,7 +357,9 @@ namespace Onyx::Input
         Gamepad& gamepad = m_Gamepads[controllerIndex];
         ONYX_ASSERT(gamepad.m_IsConnected);
 
-        onyxU32 buttonMask = 1 << Enums::ToIntegral(button);
+        constexpr onyxU16 offset = Enums::ToIntegral(Key::Last) + 1;
+        onyxU8 index = static_cast<onyxU8>(Enums::ToIntegral(button) - offset);
+        onyxU32 buttonMask = 1 << index;
         bool wasPressed = (gamepad.m_ButtonStates & buttonMask) != 0;
 
         if ((isPressed == false) && (wasPressed == false))
@@ -259,7 +370,7 @@ namespace Onyx::Input
         else
             gamepad.m_ButtonStates &= ~buttonMask;
 
-        InputEventId eventId = isPressed ? (wasPressed ? InputEventId::GameControllerButtonRepeat : InputEventId::GameControllerButtonDown) : InputEventId::GameControllerButtonUp;
+        InputEventType eventId = isPressed ? (wasPressed ? InputEventType::GameControllerButtonRepeat : InputEventType::GameControllerButtonDown) : InputEventType::GameControllerButtonUp;
 
         GameControllerButtonEvent event;
         event.m_Id = eventId;
@@ -274,13 +385,15 @@ namespace Onyx::Input
         Gamepad& gamepad = m_Gamepads[controllerIndex];
         ONYX_ASSERT(gamepad.m_IsConnected);
 
-        if (axisValue == gamepad.m_AxisValues[Enums::ToIntegral(axis)])
+        constexpr onyxU16 offset = Enums::ToIntegral(GameControllerButton::Last) + 1;
+        onyxU8 index = static_cast<onyxU8>(Enums::ToIntegral(axis) - offset);
+        if (axisValue == gamepad.m_AxisValues[index])
             return;
 
-        gamepad.m_AxisValues[Enums::ToIntegral(axis)] = axisValue;
+        gamepad.m_AxisValues[index] = axisValue;
 
         GameControllerAxisEvent event;
-        event.m_Id = InputEventId::GameControllerAxis;
+        event.m_Id = InputEventType::GameControllerAxis;
         event.m_ControllerIndex = controllerIndex;
         event.m_Axis = axis;
         event.m_Value = axisValue;

@@ -69,7 +69,6 @@ namespace Onyx::GameCore
                 Rotor3f32 newRotation = (yawRotor * pitchRotor).Normalized();
                 transformComponent.SetRotation(newRotation);
             }
-            
         }
 
         void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, FreeCameraControllerComponent&& controller)

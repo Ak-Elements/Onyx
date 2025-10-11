@@ -40,7 +40,8 @@ namespace Onyx::Graphics
         void SetWindowMode(WindowMode mode) {}
         void SetState(WindowState state) { m_State = state; }
 
-        bool GetRequiredExtensions(std::vector<const char*>& outExtensions) const {
+        bool GetRequiredExtensions(std::vector<const char*>& outExtensions) const
+        {
             outExtensions.push_back("VK_KHR_surface");
             outExtensions.push_back("VK_KHR_xcb_surface"); // Swap depending on Linux backend
             return true;

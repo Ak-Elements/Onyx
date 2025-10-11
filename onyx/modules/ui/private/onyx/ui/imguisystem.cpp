@@ -99,16 +99,16 @@ namespace Onyx::Ui
 			case Input::Key::Right_Alt: return ImGuiKey_RightAlt;
 			case Input::Key::Right_System: return ImGuiKey_RightSuper;
 			case Input::Key::Menu: return ImGuiKey_Menu;
-			case Input::Key::Key_0: return ImGuiKey_0;
-			case Input::Key::Key_1: return ImGuiKey_1;
-			case Input::Key::Key_2: return ImGuiKey_2;
-			case Input::Key::Key_3: return ImGuiKey_3;
-			case Input::Key::Key_4: return ImGuiKey_4;
-			case Input::Key::Key_5: return ImGuiKey_5;
-			case Input::Key::Key_6: return ImGuiKey_6;
-			case Input::Key::Key_7: return ImGuiKey_7;
-			case Input::Key::Key_8: return ImGuiKey_8;
-			case Input::Key::Key_9: return ImGuiKey_9;
+			case Input::Key::Key0: return ImGuiKey_0;
+			case Input::Key::Key1: return ImGuiKey_1;
+			case Input::Key::Key2: return ImGuiKey_2;
+			case Input::Key::Key3: return ImGuiKey_3;
+			case Input::Key::Key4: return ImGuiKey_4;
+			case Input::Key::Key5: return ImGuiKey_5;
+			case Input::Key::Key6: return ImGuiKey_6;
+			case Input::Key::Key7: return ImGuiKey_7;
+			case Input::Key::Key8: return ImGuiKey_8;
+			case Input::Key::Key9: return ImGuiKey_9;
 			case Input::Key::A: return ImGuiKey_A;
 			case Input::Key::B: return ImGuiKey_B;
 			case Input::Key::C: return ImGuiKey_C;
@@ -725,11 +725,11 @@ namespace Onyx::Ui
 
 			InplaceFunction<void(ImGuiIO&)> queuedInputEvent = [event = *mouseEvent](ImGuiIO& io)
 				{
-					if ((event.m_Id == Input::InputEventId::MouseButtonUp) || (event.m_Id == Input::InputEventId::MouseButtonDown))
-						io.AddMouseButtonEvent(static_cast<onyxS32>(event.m_Button) - 1, event.m_Id == Input::InputEventId::MouseButtonDown);
-					else if (event.m_Id == Input::InputEventId::MousePositionChanged)
+					if ((event.m_Id == Input::InputEventType::MouseButtonUp) || (event.m_Id == Input::InputEventType::MouseButtonDown))
+						io.AddMouseButtonEvent(static_cast<onyxS32>(event.m_Button) - 1, event.m_Id == Input::InputEventType::MouseButtonDown);
+					else if (event.m_Id == Input::InputEventType::MousePositionChanged)
 						io.AddMousePosEvent(event.m_Position[0], event.m_Position[1]);
-					else if (event.m_Id == Input::InputEventId::MouseWheel)
+					else if (event.m_Id == Input::InputEventType::MouseWheel)
 						io.AddMouseWheelEvent(0, event.m_Scroll);
 				};
 
@@ -743,9 +743,9 @@ namespace Onyx::Ui
 
 			InplaceFunction<void(ImGuiIO&)> queuedInputEvent = [event = *keyboardEvent](ImGuiIO& io)
 			{
-				if ((event.m_Id == Input::InputEventId::KeyUp) || (event.m_Id == Input::InputEventId::KeyDown))
+				if ((event.m_Id == Input::InputEventType::KeyUp) || (event.m_Id == Input::InputEventType::KeyDown))
 				{
-					bool isDown = event.m_Id == Input::InputEventId::KeyDown;
+					bool isDown = event.m_Id == Input::InputEventType::KeyDown;
 					if (IsModifierKey(event.m_Key))
 					{
 						switch (event.m_Key)
@@ -783,7 +783,7 @@ namespace Onyx::Ui
 					io.AddKeyEvent(Internal::ConvertToImGuiKey(event.m_Key), isDown);
 					
 				}
-				else if (event.m_Id == Input::InputEventId::KeyCharacter)
+				else if (event.m_Id == Input::InputEventType::KeyCharacter)
 					io.AddInputCharacterUTF16(event.m_Char);
 			};
 

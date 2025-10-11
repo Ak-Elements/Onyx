@@ -1,31 +1,20 @@
 #include <onyx/input/inputactionsserializer.h>
 
+#include <onyx/input/bindings/inputbinding.h>
+#include <onyx/input/modifiers/inputmodifier.h>
+
 #include <onyx/input/inputaction.h>
 #include <onyx/input/inputactionsasset.h>
-#include <onyx/input/inputbinding.h>
-#include <onyx/input/inputbindingsregistry.h>
+#include <onyx/input/inputid.h>
+#include <onyx/input/bindings/inputbindingsfactory.h>
+#include <onyx/input/modifiers/inputmodifiersfactory.h>
+#include <onyx/input/triggers/inputtriggersfactory.h>
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
 namespace Onyx
 {
-    template <>
-    struct Serialization<Input::InputActionsMap>
-    {
-        static bool Serialize(Serializer& serializer, const Input::InputActionsMap& map)
-        {
-            serializer.Write(map.m_Actions);
-            return true;
-        }
-
-        static bool Deserialize(const Deserializer& deserializer, Input::InputActionsMap& outMap)
-        {
-            deserializer.Read(outMap.m_Actions);
-            return true;
-        }
-    };
-
     template <>
     struct Serialization<Input::InputAction>
     {
@@ -55,6 +44,23 @@ namespace Onyx
             }
 
             return deserializer.Read<"bindings">(outAction.m_Bindings);
+
+        }
+    };
+
+    template <>
+    struct Serialization<Input::InputActionsMap>
+    {
+        static bool Serialize(Serializer& serializer, const Input::InputActionsMap& map)
+        {
+            serializer.Write(map.m_Actions);
+            return true;
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, Input::InputActionsMap& outMap)
+        {
+            deserializer.Read(outMap.m_Actions);
+            return true;
         }
     };
 
@@ -63,56 +69,97 @@ namespace Onyx
     {
         static bool Serialize(Serializer& serializer, const UniquePtr<Input::InputBinding>& binding)
         {
-            if (serializer.Write<"typeId">(binding->GetTypeId()) == false)
+            serializer.Write<"typeId">(binding->GetTypeId());
+
+            if (serializer.Write<"triggers">(binding->GetTriggers()) == false)
             {
                 return false;
             }
 
-            if (serializer.Write<"inputType">(binding->GetInputType()) == false)
+            if (serializer.Write<"modifiers">(binding->GetModifiers()) == false)
             {
                 return false;
             }
 
-            onyxU32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
-            for (onyxU32 i = 0; i < bindingSlotsCount; ++i)
-            {
-                StringView bindingSlotName = binding->GetInputBindingSlotName(i);
-                if (serializer.Write<onyxU32>(bindingSlotName.empty() ? "input" : bindingSlotName, binding->GetBoundInputForSlot(i)) == false)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            const Input::InputBindingsFactory::MetaData& metaData = Input::InputBindingsFactory::GetBindingMeta(binding->GetTypeId());
+            return metaData.SerializeFunctor(serializer, binding);
         }
 
         static bool Deserialize(const Deserializer& deserializer, UniquePtr<Input::InputBinding>& outBinding)
         {
-            StringId32 bindingTypeId;
-            deserializer.Read<"typeId">(bindingTypeId);
+            StringId32 typeId;
+            deserializer.Read<"typeId">(typeId);
 
-            outBinding = Input::InputBindingsRegistry::CreateBinding(bindingTypeId);
+            const Input::InputBindingsFactory::MetaData& metaData = Input::InputBindingsFactory::GetBindingMeta(typeId);
+            outBinding = metaData.CreateFunctor();
 
-            Input::InputType type;
-            deserializer.Read<"inputType">(type);
-            outBinding->SetInputType(type);
-
-            onyxU32 boundInput;
-            onyxU32 bindingSlotsCount = outBinding->GetInputBindingSlotsCount();
-            for (onyxU32 i = 0; i < bindingSlotsCount; ++i)
+            if (deserializer.ReadOptional<"triggers">(outBinding->GetTriggers()) == false)
             {
-                StringView bindingSlotName = outBinding->GetInputBindingSlotName(i);
-                deserializer.Read<onyxU32>(bindingSlotName.empty() ? "input" : bindingSlotName, boundInput);
-                outBinding->SetInputBindingSlot(i, boundInput);
+                return false;
             }
 
-            return true;
+            if (deserializer.ReadOptional<"modifiers">(outBinding->GetModifiers()) == false)
+            {
+                return false;
+            }
+
+            return metaData.DeserializeFunctor(deserializer, outBinding);
+        }
+    };
+
+    template <>
+    struct Serialization<UniquePtr<Input::InputTrigger>>
+    {
+        static bool Serialize(Serializer& serializer, const UniquePtr<Input::InputTrigger>& modifier)
+        {
+            serializer.Write<"typeId">(modifier->GetTypeId());
+            const Input::InputTriggersFactory::MetaData& metaData = Input::InputTriggersFactory::GetBindingMeta(modifier->GetTypeId());
+            return metaData.SerializeFunctor(serializer, modifier);
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, UniquePtr<Input::InputTrigger>& outModifier)
+        {
+            StringId32 typeId;
+            deserializer.Read<"typeId">(typeId);
+
+            const Input::InputTriggersFactory::MetaData& metaData = Input::InputTriggersFactory::GetBindingMeta(typeId);
+            outModifier = metaData.CreateFunctor();
+
+            return metaData.DeserializeFunctor(deserializer, outModifier);
+        }
+    };
+
+    template <>
+    struct Serialization<UniquePtr<Input::InputModifier>>
+    {
+        static bool Serialize(Serializer& serializer, const UniquePtr<Input::InputModifier>& modifier)
+        {
+            serializer.Write<"typeId">(modifier->GetTypeId());
+            const Input::InputModifiersFactory::MetaData& metaData = Input::InputModifiersFactory::GetBindingMeta(modifier->GetTypeId());
+
+            return metaData.SerializeFunctor(serializer, modifier);
+        }
+
+        static bool Deserialize(const Deserializer& deserializer, UniquePtr<Input::InputModifier>& outModifier)
+        {
+            StringId32 typeId;
+            deserializer.Read<"typeId">(typeId);
+
+            const Input::InputModifiersFactory::MetaData& metaData = Input::InputModifiersFactory::GetBindingMeta(typeId);
+            outModifier = metaData.CreateFunctor();
+
+            return metaData.DeserializeFunctor(deserializer, outModifier);
         }
     };
 }
 
 namespace Onyx::Input
 {
+    InputActionsSerializer::InputActionsSerializer(Assets::AssetSystem& assetSystem)
+        : AssetSerializer(assetSystem)
+    {
+    }
+
     bool InputActionsSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer) const
     {
 #if ONYX_IS_EDITOR

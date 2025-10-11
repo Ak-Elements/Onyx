@@ -1,222 +1,216 @@
 {
     "1e940b96": [
         {
-            "id":
-            {
+            "id": {
                 "id": "45156213b0fb2396",
                 "string": "Quit"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 41
+                    "input": 55
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "dc673e73b5c13aea",
                 "string": "Delete"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 76
+                    "input": 90
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "92e9f69eb1215c05",
                 "string": "GizmoTranslate"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 26
+                    "input": 37
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "913f1550f1ad4aba",
                 "string": "GizmoRotate"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 8
+                    "input": 35
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "3bc56f305a7afca1",
                 "string": "GizmoScale"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 21
+                    "input": 38
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
+                "id": "880f29902fa5daac",
+                "string": "TerrainBrushScale"
+            },
+            "type": "Axis1D",
+            "bindings": [
+                {
+                    "typeId": {
+                        "id": "635ea0d0",
+                        "string": "Onyx::InputBinding::Axis1D"
+                    },
+                    "triggers":[
+                        {
+                            "typeId": {
+                                "id": "501bda48",
+                                "string": "Onyx::Input::DependantActionInputTrigger"
+                            },
+                            "actionId": {
+                                "id": "ff56003c8610b583",
+                                "string": "CameraSlowDown"
+                            }
+                        }
+                    ],
+                    "axis": 14
+                }
+            ]
+        },
+        {
+            "id": {
                 "id": "b8b5c5730062477f",
                 "string": "CameraMovement"
             },
             "type": "Axis3D",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2001451",
                         "string": "Onyx::InputBinding::Axis3DComposite"
                     },
-                    "inputType": "Keyboard",
-                    "Up": 20,
-                    "Down": 8,
-                    "Left": 4,
-                    "Right": 7,
-                    "Forward": 26,
-                    "Backward": 22
+                    "up": 34,
+                    "down": 22,
+                    "left": 18,
+                    "right": 21,
+                    "forward": 40,
+                    "backward": 36
                 },
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2001451",
                         "string": "Onyx::InputBinding::Axis3DComposite"
                     },
-                    "inputType": "Gamepad",
-                    "Up": 10,
-                    "Down": 11,
-                    "Left": 14,
-                    "Right": 15,
-                    "Forward": 12,
-                    "Backward": 13
+                    "up": 266,
+                    "down": 267,
+                    "left": 270,
+                    "right": 271,
+                    "forward": 268,
+                    "backward": 269
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "fde5c8f1dbaac514",
                 "string": "CameraRotation"
             },
             "type": "Axis2D",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "5565468b",
                         "string": "Onyx::InputBinding::Axis2D"
                     },
-                    "inputType": "Mouse",
-                    "X": 3,
-                    "Y": 4
+                    "axisX": 12,
+                    "axisY": 13
                 },
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "5565468b",
                         "string": "Onyx::InputBinding::Axis2D"
                     },
-                    "inputType": "Gamepad",
-                    "X": 3,
-                    "Y": 4
+                    "axisX": 286,
+                    "axisY": 287
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "2f081d804850fbd1",
                 "string": "CameraSpeed"
             },
             "type": "Axis1D",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "635ea0d0",
                         "string": "Onyx::InputBinding::Axis1D"
                     },
-                    "inputType": "Mouse",
-                    "input": 5
+                    "axis": 14
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "ff56003c8610b583",
                 "string": "CameraSlowDown"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 224
+                    "input": 222
                 }
             ]
         },
         {
-            "id":
-            {
+            "id": {
                 "id": "2c38924d5b0638f4",
                 "string": "CameraSpeedUp"
             },
             "type": "Bool",
             "bindings": [
                 {
-                    "typeId":
-                    { 
+                    "typeId": {
                         "id": "e2271d64",
                         "string": "Onyx::InputBinding::Bool"
                     },
-                    "inputType": "Keyboard",
-                    "input": 225
+                    "input": 223
                 }
             ]
         }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <onyx/input/gamepad.h>
+#include <onyx/input/gamecontroller.h>
 #include <onyx/input/keycodes.h>
 #include <onyx/input/mouse.h>
 
 namespace Onyx::Input
 {
-    enum class InputEventId : onyxU8
+    enum class InputEventType : onyxU8
     {
         Invalid,
         MouseButtonUp,
@@ -27,20 +27,20 @@ namespace Onyx::Input
     {
         virtual ~InputEvent() = default;
 
-        bool IsMouseEvent() const { return (m_Id == InputEventId::MouseButtonUp) || (m_Id == InputEventId::MouseButtonDown) || (m_Id == InputEventId::MousePositionChanged) || (m_Id == InputEventId::MouseWheel); }
-        bool IsKeyboardEvent() const { return (m_Id == InputEventId::KeyUp) || (m_Id == InputEventId::KeyDown) || (m_Id == InputEventId::KeyRepeat) || (m_Id == InputEventId::KeyCharacter); }
+        bool IsMouseEvent() const { return (m_Id == InputEventType::MouseButtonUp) || (m_Id == InputEventType::MouseButtonDown) || (m_Id == InputEventType::MousePositionChanged) || (m_Id == InputEventType::MouseWheel); }
+        bool IsKeyboardEvent() const { return (m_Id == InputEventType::KeyUp) || (m_Id == InputEventType::KeyDown) || (m_Id == InputEventType::KeyRepeat) || (m_Id == InputEventType::KeyCharacter); }
 
-        bool IsGamepadButtonEvent() const { return (m_Id == InputEventId::GameControllerButtonDown) || (m_Id == InputEventId::GameControllerButtonUp) || (m_Id == InputEventId::GameControllerButtonRepeat); }
-        bool IsGamepadAxisEvent() const { return (m_Id == InputEventId::GameControllerAxis); }
+        bool IsGamepadButtonEvent() const { return (m_Id == InputEventType::GameControllerButtonDown) || (m_Id == InputEventType::GameControllerButtonUp) || (m_Id == InputEventType::GameControllerButtonRepeat); }
+        bool IsGamepadAxisEvent() const { return (m_Id == InputEventType::GameControllerAxis); }
 
-        InputEventId m_Id = InputEventId::Invalid;
-        Modifier m_TriggerModifiers = Modifier::None; // ctrl, alt, shift - is this needed on consoles?
+        InputEventType m_Id = InputEventType::Invalid;
     };
 
     struct KeyboardEvent : public InputEvent
     {
-        Key m_Key = Key::Invalid;
+        //Key
         onyxU16 m_Char = 0;
+        Key m_Key;
     };
 
     struct MouseEvent : public InputEvent

@@ -162,6 +162,33 @@ namespace Onyx
             return success;
         }
 
+        template <CompileTimeString Name, typename T, typename Callable> requires std::is_invocable_r_v<bool, Callable, const Deserializer&, T&>
+        bool ReadForEach(DynamicArray<T>& outValue, Callable forEachFunctor) const
+        {
+            if (CreateScope(Name.string_view()) == false)
+            {
+                return false;
+            }
+
+            bool success = false;
+            onyxU32 count = GetItemsCount();
+            outValue.reserve(count);
+            for (onyxU32 i = 0; i < count; ++i)
+            {
+                if (CreateScope(i) == false)
+                {
+                    return false;
+                }
+
+                T& arrayValue = outValue.emplace_back();
+                success = forEachFunctor(*this, arrayValue);
+                success &= EndScope();
+            }
+
+            success &= EndScope();
+            return success;
+        }
+
         template <typename Callable> requires std::is_invocable_r_v<bool, Callable, const Deserializer&>
         bool ReadForEach(Callable forEachFunctor) const
         {
@@ -317,8 +344,8 @@ namespace Onyx
             return success;
         }
 
-        template <typename KeyT, typename ValueT>
-        bool Read(HashMap<KeyT, ValueT>& out) const
+        template <typename KeyT, typename ValueT, typename... Args>
+        bool Read(HashMap<KeyT, ValueT>& out, Args&&... additionalArgs) const
         {
             bool success = false;
             onyxU32 count = GetItemsCount();
@@ -337,7 +364,7 @@ namespace Onyx
                         auto scopeKey = GetScopeKeyUnderlyingType<KeyT>();
 
                         GetScopeIdentifier(scopeKey);
-                        success = Deserializer::template Read<ValueT>(mapValue);
+                        success = Deserializer::template Read<ValueT, Args...>(mapValue, std::forward<Args...>(additionalArgs)...);
                         success &= EndScope();
 
                         if (success == false)
@@ -359,7 +386,7 @@ namespace Onyx
                 GetScopeIdentifier(keyString);
                 KeyT mapKey = StringToScopeKey<KeyT>(keyString);
 
-                success = Deserializer::template Read<ValueT>(mapValue);
+                success = Deserializer::template Read<ValueT, Args...>(mapValue, std::forward<Args...>(additionalArgs)...);
                 if (success == false)
                 {
                     return false;

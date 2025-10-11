@@ -57,6 +57,7 @@ namespace Onyx::Ui
     bool DrawStringInput(StringView id, StringView hint, String& value);
     bool DrawStringInput(StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags);
     bool DrawStringInput(StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags);
+    bool DrawStringInput(StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags);
     void DrawMultilineText(StringView text, ImVec2 bounds, bool showEllipsis);
 
     bool DrawRenameInput(StringView id, String& outName, const ImVec2& size, bool& isSelected);

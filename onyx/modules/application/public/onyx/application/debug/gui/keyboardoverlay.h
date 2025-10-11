@@ -4,8 +4,8 @@
 
 namespace Onyx::Input
 {
-    class InputSystem;
     enum class Key : onyxU16;
+    class InputSystem;
 }
 
 namespace Onyx::Application::Debug

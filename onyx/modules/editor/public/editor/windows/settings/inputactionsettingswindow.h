@@ -22,7 +22,7 @@ namespace Onyx::Input
 {
     struct InputActionsMap;
     class InputSystem;
-    struct InputBinding;
+    class InputBinding;
     struct InputActionContext;
 }
 
@@ -47,7 +47,9 @@ namespace Onyx::Editor
 
         void RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps);
         void RenderInputActions();
+        
         void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<Input::InputBinding>>& bindings);
+        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, Input::InputBinding& binding);
 
         void RenderActionProperties();
         void RenderSelectedBindingProperties();

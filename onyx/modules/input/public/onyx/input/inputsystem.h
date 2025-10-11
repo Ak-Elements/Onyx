@@ -6,7 +6,7 @@
 #include <SDL_events.h>
 #endif
 
-#include <onyx/input/gamepad.h>
+#include <onyx/input/gamecontroller.h>
 #include <onyx/input/keycodes.h>
 #include <onyx/input/mouse.h>
 
@@ -36,6 +36,7 @@ namespace Onyx::Input
     public:
         static constexpr StringId32 TypeId = "Onyx::Input::InputModule";
         StringId32 GetTypeId() const override { return TypeId; }
+       
 
         InputSystem() = default;
         ~InputSystem() override = default;
@@ -44,9 +45,12 @@ namespace Onyx::Input
         void Shutdown(Graphics::Window& window);
         void Update();
 
-        bool IsButtonDown(MouseButton button) const { return m_MouseButtonStates[Enums::ToIntegral(button)]; }
-        bool IsButtonDown(Key button) const { return m_KeyState[Enums::ToIntegral(button)]; }
-        bool IsButtonDown(GameControllerButton /*button*/) const { return false; }
+        onyxS16 GetAxisValue1D(onyxU32 deviceIndex, InputID id) const;
+        Vector2s16 GetAxisValue2D(onyxU32 deviceIndex, InputID id) const;
+        bool IsButtonDown(InputID id) const;
+        bool IsButtonDown(MouseButton button) const;
+        bool IsButtonDown(Key key) const;
+        bool IsButtonDown(GameControllerButton button, onyxU8 deviceIndex) const;
 
         const Vector2s16& GetMousePosition() const { return m_MousePosition; }
         void SetMousePosition(const Vector2s16& mousePos);
@@ -84,11 +88,11 @@ namespace Onyx::Input
             bool m_IsConnected = false;
 
             onyxU32 m_ButtonStates = 0;
-            InplaceArray<onyxS16, Enums::ToIntegral(GameControllerAxis::Count)> m_AxisValues;
+            InplaceArray<onyxS16, GameControllerAxis_Count> m_AxisValues;
         };
 
-        bool m_MouseButtonStates[Enums::ToIntegral(MouseButton::Count)] = { false };
-        bool m_KeyState[static_cast<onyxS16>(Key::Count)] = { false };
+        bool m_MouseButtonStates[MouseButton_Count] = { false };
+        bool m_KeyState[Key_Count] = { false };
 
         Vector2s16 m_MousePosition = { 0, 0 };
         Vector2s16 m_MouseDelta = { 0, 0 };

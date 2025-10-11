@@ -7,9 +7,20 @@
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputactionsmap.h>
 #include <onyx/input/inputactionsserializer.h>
-#include <onyx/input/inputbinding.h>
-#include <onyx/input/inputbindingsregistry.h>
+#include <onyx/input/bindings/inputbinding.h>
+
 #include <onyx/input/inputmodulesettings.h>
+#include <onyx/input/bindings/inputbindingaxis1d.h>
+#include <onyx/input/bindings/inputbindingaxis1dcomposite.h>
+#include <onyx/input/bindings/inputbindingaxis2d.h>
+#include <onyx/input/bindings/inputbindingaxis2dcomposite.h>
+#include <onyx/input/bindings/inputbindingaxis3d.h>
+#include <onyx/input/bindings/inputbindingaxis3dcomposite.h>
+#include <onyx/input/bindings/inputbindingbool.h>
+#include <onyx/input/bindings/inputbindingsfactory.h>
+#include <onyx/input/triggers/dependantactiontrigger.h>
+#include <onyx/input/triggers/inputtriggersfactory.h>
+
 
 namespace Onyx::Input
 {
@@ -19,18 +30,19 @@ namespace Onyx::Input
 
         Assets::AssetSystem::Register<InputActionsAsset, InputActionsSerializer>(assetSystem);
 
-        InputBindingsRegistry::Register<InputBindingBool>(ActionType::Bool, "Bool");
-        InputBindingsRegistry::Register<InputBindingAxis1D>(ActionType::Axis1D, "Axis 1D");
-        InputBindingsRegistry::Register<InputBindingAxis1DComposite>(ActionType::Axis1D, "Axis 1D Composite");
-        InputBindingsRegistry::Register<InputBindingAxis2D>(ActionType::Axis2D, "Axis 2D");
-        InputBindingsRegistry::Register<InputBindingAxis2DComposite>(ActionType::Axis2D, "Axis 2D Composite");
-        InputBindingsRegistry::Register<InputBindingAxis3D>(ActionType::Axis3D, "Axis 3D");
-        InputBindingsRegistry::Register<InputBindingAxis3DComposite>(ActionType::Axis3D, "Axis 3D Composite");
+        InputBindingsFactory::Register<InputBindingBool>();
+        InputBindingsFactory::Register<InputBindingAxis1D>();
+        InputBindingsFactory::Register<InputBindingAxis1DComposite>();
+        InputBindingsFactory::Register<InputBindingAxis2D>();
+        InputBindingsFactory::Register<InputBindingAxis2DComposite>();
+        InputBindingsFactory::Register<InputBindingAxis3D>();
+        InputBindingsFactory::Register<InputBindingAxis3DComposite>();
 
-        InputBindingsRegistry::RegisterContext<InputBindingBoolContext>(ActionType::Bool);
-        InputBindingsRegistry::RegisterContext<InputBindingAxis1DContext>(ActionType::Axis1D);
-        InputBindingsRegistry::RegisterContext<InputBindingAxis2DContext>(ActionType::Axis2D);
-        InputBindingsRegistry::RegisterContext<InputBindingAxis3DContext>(ActionType::Axis3D);
+        InputTriggersFactory::Register<DependantActionInputTrigger>();
+
+        //m_ModifiersRegistry.Register<NegateInputModifier>();
+        //m_ModifiersRegistry.Register<SwizzleInputModifier>();
+
 
         Reference<InputActionsAsset> defaultInputActionsMap;
         assetSystem.GetAsset(inputModuleSettings.ActionsMap, defaultInputActionsMap);
@@ -82,8 +94,9 @@ namespace Onyx::Input
     {
         if (id != m_ContextId)
         {
-            // TODO: we should only clear actions that are not present anymore
-            //m_CurrentActionStates.clear();
+            m_CurrentActionStates.clear();
+
+            // should we clear input signals not in the map anymore?
 
             m_ContextId = id;
 
@@ -92,6 +105,44 @@ namespace Onyx::Input
                 InitContext();
             }
         }
+    }
+
+    Optional<const InputActionState*> InputActionSystem::GetActionState(StringId64 actionId) const
+    {
+        auto it = std::find_if(m_CurrentActionStates.begin(), m_CurrentActionStates.end(), [&](const InputActionState& state)
+            {
+                return state.ActionId == actionId;
+            });
+
+        if (it == m_CurrentActionStates.end())
+            return std::nullopt;
+
+        const InputActionState& actionState = *it;
+        return &actionState;
+    }
+
+    Optional<InputActionState*> InputActionSystem::GetActionState(StringId64 actionId)
+    {
+        auto it = std::find_if(m_CurrentActionStates.begin(), m_CurrentActionStates.end(), [&](const InputActionState& state)
+            {
+                return state.ActionId == actionId;
+            });
+
+        if (it == m_CurrentActionStates.end())
+            return std::nullopt;
+
+        InputActionState& actionState = *it;
+        return &actionState;
+    }
+
+    bool InputActionSystem::IsActionTriggered(StringId64 actionId) const
+    {
+        if (const InputActionState* state = GetActionState(actionId).value_or(nullptr))
+        {
+            return IsZero(state->Value) == false;
+        }
+
+        return false;
     }
 
     void InputActionSystem::InitContext()
@@ -106,49 +157,59 @@ namespace Onyx::Input
                     return state.ActionId == action.GetId();
                 });
 
-            InputActionState& actionState = (it == m_CurrentActionStates.end()) ? m_CurrentActionStates.emplace_back(action.GetId()) : *it;
-            actionState.BindingContext = InputBindingsRegistry::CreateContext(action.GetType());
+            if (it != m_CurrentActionStates.end())
+                continue;
+
+            m_CurrentActionStates.emplace_back(action.GetId());
         }
     }
 
     void InputActionSystem::UpdateContext(InputActionsMap& context)
     {
-        const DynamicArray<InputAction>& actions = context.GetActions();
+        DynamicArray<InputAction>& actions = context.GetActions();
         const onyxU32 actionsCount = static_cast<onyxU32>(actions.size());
 
         for (onyxU32 actionIndex = 0; actionIndex < actionsCount; ++actionIndex)
         {
-            const InputAction& action = actions[actionIndex];
+            InputAction& action = actions[actionIndex];
+            StringId64 actionId = action.GetId();
 
-            auto it = std::ranges::find_if(m_CurrentActionStates, [&](const InputActionState& state)
-                {
-                    return state.ActionId == action.GetId();
-                });
+            Optional<InputActionState*> optionalActionState = GetActionState(actionId);
+            ONYX_ASSERT(optionalActionState.has_value());
 
-            if (it == m_CurrentActionStates.end())
-                continue;
+            InputActionState& actionState = *optionalActionState.value();
 
-            InputActionState& actionState = *it;
-
-            ONYX_ASSERT(actionState.ActionId == action.GetId());
-
-            const DynamicArray<UniquePtr<InputBinding>>& bindings = action.GetBindings();
+            DynamicArray<UniquePtr<InputBinding>>& bindings = action.GetBindings();
             const onyxU32 bindingsCount = static_cast<onyxU32>(bindings.size());
-            UniquePtr<InputBindingContext>& bindingState = actionState.BindingContext;
 
-            bool isTriggered = false;
+            bool hasTriggered = false;
+            Vector3f32 newInputValue(std::numeric_limits<onyxF32>::lowest());
             for (onyxU32 bindingIndex = 0; bindingIndex < bindingsCount; ++bindingIndex )
             {
-                const UniquePtr<InputBinding>& binding = bindings[bindingIndex];
-                isTriggered |= binding->UpdateBinding(*m_InputSystem, bindingState);
+                InputBinding& binding = *bindings[bindingIndex];
+
+                Vector3f32 bindingInputValue;
+                bool isTriggered = binding.Update(*m_InputSystem, *this, bindingInputValue);
+               
                 if (isTriggered)
-                    break;
+                {
+                    hasTriggered = true;
+                    newInputValue.X = std::max(newInputValue.X, bindingInputValue.X);
+                    newInputValue.Y = std::max(newInputValue.Y, bindingInputValue.Y);
+                    newInputValue.Z = std::max(newInputValue.Z, bindingInputValue.Z);
+                }
             }
 
-            if (isTriggered)
+            if (hasTriggered == false)
             {
-                InputActionEvent event{ action.GetId(), bindingState->GetData() };
-                actionState.InputActionSignal.Dispatch(event);
+                newInputValue = Vector3f32::Zero();
+            }
+
+            if (actionState.Value != newInputValue)
+            {
+                actionState.Value = newInputValue;
+                InputActionEvent event{ actionId, actionState.Value };
+                m_InputActionSignals[actionId].Dispatch(event);
             }
         }
     }

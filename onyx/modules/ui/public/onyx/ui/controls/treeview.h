@@ -5,10 +5,9 @@ namespace Onyx::Ui
     enum class TreeViewFlags
     {
         None = 0,
-        ForceOpenAll = 1,
-        ForceCloseAll = 2,
+        ForceOpenAll = 1 << 0,
+        ForceCloseAll = 1 << 1,
     };
-    ONYX_ENABLE_BITMASK_OPERATORS(TreeViewFlags);
 
     struct TreeItem
     {

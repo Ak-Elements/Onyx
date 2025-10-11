@@ -322,6 +322,12 @@ namespace Onyx::Ui
         return ImGui::InputTextEx(id.data(), hint.data(), value.data(), static_cast<onyxS32>(value.capacity() + 1), size, flags | ImGuiInputTextFlags_CallbackResize, TextInputCallback, &payload);
     }
 
+    bool DrawStringInput(StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags)
+    {
+        // const cast because we do not intend to edit anyways but imgui wants it to be a non const string
+        return ImGui::InputTextEx(id.data(), nullptr, const_cast<char*>(value.data()), static_cast<onyxU32>(value.length()), size, flags | ImGuiInputTextFlags_ReadOnly);
+    }
+
     bool DrawRenameInput(StringView id, String& outName, const ImVec2& size, bool& isSelected)
     {
         ScopedImGuiId scopedId(id);

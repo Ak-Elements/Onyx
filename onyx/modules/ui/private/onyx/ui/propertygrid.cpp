@@ -1,5 +1,6 @@
 
 #include <onyx/ui/propertygrid.h>
+#include <onyx/ui/scopeddisable.h>
 #include <onyx/ui/controls/colorcontrol.h>
 
 #if ONYX_IS_EDITOR
@@ -252,6 +253,22 @@ namespace Onyx::Ui::PropertyGrid
         ImGui::Unindent();
 
         ImGui::PopID();
+    }
+
+    bool DrawProperty(StringView propertyName, StringView readOnlyValue)
+    {
+        DrawPropertyName(propertyName);
+
+        bool hasModified = false;
+        {
+            ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+            ScopedImGuiDisabled disabled;
+            hasModified = DrawStringInput(Format::Format("##{}", propertyName), readOnlyValue, ImVec2(0, 0), ImGuiInputTextFlags_ReadOnly);
+        }
+
+        ImGui::EndHorizontal();
+
+        return hasModified;
     }
 
     bool DrawStringProperty(StringView propertyName, String& value)

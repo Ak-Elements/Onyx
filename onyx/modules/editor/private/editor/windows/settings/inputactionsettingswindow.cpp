@@ -1,10 +1,7 @@
 #include <editor/windows/settings/inputactionsettingswindow.h>
 
 #include <onyx/input/inputactionsmap.h>
-#include <onyx/input/mouse.h>
-#include <onyx/input/keycodes.h>
-#include <onyx/input/gamepad.h>
-#include <onyx/input/inputbindingsregistry.h>
+#include <onyx/input/inputid.h>
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputactionsserializer.h>
 #include <onyx/assets/assetsystem.h>
@@ -20,13 +17,16 @@
 #include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
 
-#include <imgui_internal.h>
-#include <imgui_stacklayout.h>
 #include <editor/editor_localization.h>
+
+#include <onyx/input/bindings/inputbindingsfactory.h>
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
+#include <onyx/ui/propertygrid.h>
 #include <onyx/ui/controls/button.h>
 #include <onyx/ui/controls/combobox.h>
+
+#include <imgui_internal.h>
 
 namespace Onyx::Editor
 {
@@ -115,7 +115,10 @@ namespace Onyx::Editor
 
                     // right panel
                     ImGui::TableSetColumnIndex(2);
-                    ImGui::BeginVertical("###InputActionMap::InputAction::Data", ImGui::GetContentRegionAvail());
+                    //ImGui::BeginVertical("###InputActionMap::InputAction::Data", ImGui::GetContentRegionAvail());
+
+
+                    Ui::PropertyGrid::BeginPropertyGrid("InputActionProps", 80.0f);
 
                     if (m_SelectedActionMapId.IsValid() && (m_SelectedActionIndex != INVALID_INDEX_32))
                         RenderActionProperties();
@@ -123,7 +126,9 @@ namespace Onyx::Editor
                     if (m_SelectedBindingIndex != INVALID_INDEX_32)
                         RenderSelectedBindingProperties();
 
-                    ImGui::EndVertical();
+                    Ui::PropertyGrid::EndPropertyGrid();
+
+                    //ImGui::EndVertical();
 
                     ImGui::EndTable();
                 }
@@ -135,71 +140,46 @@ namespace Onyx::Editor
 
     void InputActionSettingsWindow::OnInputEvent(const Input::InputEvent* inputEvent)
     {
-        if (m_IsListeningOnInput)
+        if (m_IsListeningOnInput == false)
+            return;
+
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
         {
-            if (m_SelectedBindingIndex == INVALID_INDEX_32)
-            {
-                m_IsListeningOnInput = false;
-                return;
-            }
-
-            if ((inputEvent->m_Id == Input::InputEventId::MousePositionChanged) || (inputEvent->m_Id == Input::InputEventId::MouseWheel))
-                return;
-
-            Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
-            DynamicArray<Input::InputAction>& availableActions = selectedMap.GetActions();
-            Input::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
-            DynamicArray<UniquePtr<Input::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
-            UniquePtr<Input::InputBinding>& selectedInputBinding = selectedActionBindings[m_SelectedBindingIndex];
-
-            const bool isAxisNonComposite = ((selectedInputBinding->GetTypeId() == Input::InputBindingAxis1D::TypeId) ||
-                (selectedInputBinding->GetTypeId() == Input::InputBindingAxis2D::TypeId) ||
-                (selectedInputBinding->GetTypeId() == Input::InputBindingAxis3D::TypeId));
-
-            if (isAxisNonComposite == false)
-            {
-                if (inputEvent->IsMouseEvent())
-                {
-                    const Input::MouseEvent* mouseEvent = static_cast<const Input::MouseEvent*>(inputEvent);
-
-                    if (selectedInputBinding->GetInputType() != Input::InputType::Mouse)
-                    {
-                        selectedInputBinding->SetInputType(Input::InputType::Mouse);
-                        selectedInputBinding->Reset();
-                    }
-
-                    
-                    selectedInputBinding->SetInputBindingSlot(m_SelectedBindingSlotIndex, Enums::ToIntegral(mouseEvent->m_Button));
-                }
-                else if (inputEvent->IsKeyboardEvent())
-                {
-                    const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(inputEvent);
-
-                    if (selectedInputBinding->GetInputType() != Input::InputType::Keyboard)
-                    {
-                        selectedInputBinding->SetInputType(Input::InputType::Keyboard);
-                        selectedInputBinding->Reset();
-                    }
-
-                    selectedInputBinding->SetInputBindingSlot(m_SelectedBindingSlotIndex, Enums::ToIntegral(keyboardEvent->m_Key));
-                }
-                else if (inputEvent->IsGamepadButtonEvent())
-                {
-                    const Input::GameControllerButtonEvent* gamepadButtonEvent = static_cast<const Input::GameControllerButtonEvent*>(inputEvent);
-
-
-                    if (selectedInputBinding->GetInputType() != Input::InputType::Gamepad)
-                    {
-                        selectedInputBinding->SetInputType(Input::InputType::Gamepad);
-                        selectedInputBinding->Reset();
-                    }
-
-                    selectedInputBinding->SetInputBindingSlot(m_SelectedBindingSlotIndex, Enums::ToIntegral(gamepadButtonEvent->m_Button));
-                }
-                
-                m_IsListeningOnInput = false;
-            }
+            m_IsListeningOnInput = false;
+            return;
         }
+
+        if (inputEvent->m_Id == Input::InputEventType::MousePositionChanged)
+            return;
+
+        Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+        DynamicArray<Input::InputAction>& availableActions = selectedMap.GetActions();
+        Input::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
+        DynamicArray<UniquePtr<Input::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
+        Input::InputBinding& selectedInputBinding = *selectedActionBindings[m_SelectedBindingIndex];
+
+        if (inputEvent->IsMouseEvent())
+        {
+            const Input::MouseEvent* mouseEvent = static_cast<const Input::MouseEvent*>(inputEvent);
+            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(mouseEvent->m_Button) });
+        }
+        else if (inputEvent->IsKeyboardEvent())
+        {
+            const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(inputEvent);
+            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(keyboardEvent->m_Key) });
+            }
+        else if (inputEvent->IsGamepadButtonEvent())
+        {
+            const Input::GameControllerButtonEvent* gamepadButtonEvent = static_cast<const Input::GameControllerButtonEvent*>(inputEvent);
+            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(gamepadButtonEvent->m_Button) });
+            }
+        else if (inputEvent->IsGamepadAxisEvent())
+        {
+            const Input::GameControllerAxisEvent* gamepadAxisEvent = static_cast<const Input::GameControllerAxisEvent*>(inputEvent);
+            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(gamepadAxisEvent->m_Axis) });
+        }
+        
+        m_IsListeningOnInput = false;
     }
 
     void InputActionSettingsWindow::RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps)
@@ -268,16 +248,16 @@ namespace Onyx::Editor
 
                     if (ImGui::BeginPopupEx(ImGui::GetItemID(), ImGuiWindowFlags_None))
                     {
-                        const HashSet<StringId32>& registeredBindings = Input::InputBindingsRegistry::GetRegisteredBindings(action.GetType());
-                        for (StringId32 bindingTypeId : registeredBindings)
-                        {
-                            StringView buttonLabel = Format::Format("{} {}", Localization::Generic::Add, m_LocalizationModule->GetLocalized(bindingTypeId));
-                            if (ImGui::MenuItem(buttonLabel.data()))
-                            {
-                                action.GetBindings().emplace_back(Input::InputBindingsRegistry::CreateBinding(bindingTypeId));
-                                ImGui::CloseCurrentPopup();
-                            }
-                        }
+                        //const HashMap<StringId32, InplaceFunction<UniquePtr<Input::InputBinding>()>>& registeredBindings = Input::InputBindingsRegistry::GetRegisteredBindings();
+                        //for (auto&& [typeId, createFunctor] : registeredBindings)
+                        //{
+                        //    StringView buttonLabel = Format::Format("{} {}", Localization::Generic::Add, m_LocalizationModule->GetLocalized(typeId));
+                        //    if (ImGui::MenuItem(buttonLabel.data()))
+                        //    {
+                        //        action.GetBindings().emplace_back(createFunctor());
+                        //        ImGui::CloseCurrentPopup();
+                        //    }
+                        //}
 
                         ImGui::EndPopup();
 
@@ -332,98 +312,72 @@ namespace Onyx::Editor
         onyxS32 bindingsCount = static_cast<onyxS32>(bindings.size());
         for (onyxS32 bindingIndex = 0; bindingIndex < bindingsCount; ++bindingIndex)
         {
-            UniquePtr<Input::InputBinding>& binding = bindings[bindingIndex];
-
             bool isBindingSelected = isSelected && (m_SelectedBindingIndex == bindingIndex);
-            //bool wasSelected = isSelected;
+            Input::InputBinding& binding = *bindings[bindingIndex];
+            RenderBinding(isBindingSelected, bindingIndex, binding);
+        }
+    }
 
-            StringView bindingInputTypeLabel = Enums::ToString(binding->GetInputType());
-            onyxS32 bindingSlotsCount = binding->GetInputBindingSlotsCount();
-            const bool hasCollapsibleHeader = bindingSlotsCount > 1;
-            bool showBindings = true;
-            if (hasCollapsibleHeader)
+    void InputActionSettingsWindow::RenderBinding(bool& isSelected, onyxS32 bindingIndex, Input::InputBinding& binding)
+    {
+        bool isBindingSelected = isSelected && (m_SelectedBindingIndex == bindingIndex);
+
+        onyxS32 bindingSlotsCount = binding.GetInputBindingSlotsCount();
+        const bool hasCollapsibleHeader = bindingSlotsCount > 1;
+        if (hasCollapsibleHeader)
+        {
+            ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
+            if (isSelected)
+                treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
+
+            StringView label = Format::Format("{}", binding.GetName());
+            ImGuiID headerId = ImGui::GetID(label.data());
+
+            bool wasOpen = ImGui::TreeNodeGetOpen(headerId);
+            if (Ui::ContextMenuHeader(label, treeNodeFlags))
             {
-                ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
-                if (isSelected)
-                    treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
-
-                StringView label = Format::Format("{} [{}]", binding->GetName(), bindingInputTypeLabel);
-                ImGuiID headerId = ImGui::GetID(label.data());
-
-                bool wasOpen = ImGui::TreeNodeGetOpen(headerId);
-                if (Ui::ContextMenuHeader(label, treeNodeFlags))
+                if (wasOpen == false)
                 {
-                    if (wasOpen == false)
-                    {
-                        isSelected = true;
-                        isBindingSelected = true;
-                        m_SelectedBindingIndex = bindingIndex;
-                        m_SelectedBindingSlotIndex = ONYX_INVALID_INDEX;
-                    }
-                }
-                else
-                {
-                    showBindings = false;
+                    isSelected = true;
+                    isBindingSelected = true;
+                    m_SelectedBindingIndex = bindingIndex;
+                    m_SelectedBindingSlotIndex = ONYX_INVALID_INDEX;
                 }
             }
-
-            if (showBindings)
+            else
             {
-                Ui::ScopedImGuiIndent indent(hasCollapsibleHeader ? 20.0f : 4.0f);
-                for (onyxS32 slotIndex = 0; slotIndex < bindingSlotsCount; ++slotIndex)
-                {
-                    bool isBindingSlotSelected = isBindingSelected && (m_SelectedBindingSlotIndex == slotIndex);
-
-                    StringView bindingSlotLabel = binding->GetInputBindingSlotName(slotIndex);
-                    StringView boundInputLabel;
-                    onyxU32 boundInputValue = binding->GetBoundInputForSlot(slotIndex);
-
-                    if (boundInputValue == 0)
-                    {
-                        boundInputLabel = Localization::Editor::InputActionSettings::Bindings::Unbound.Get();
-                    }
-                    else
-                    {
-                        switch (binding->GetInputType())
-                        {
-                            case Input::InputType::Mouse:
-                            {
-                                boundInputLabel = Enums::ToString(static_cast<Input::MouseButton>(boundInputValue));
-                                break;
-                            }
-                            case Input::InputType::Keyboard:
-                            {
-                                boundInputLabel = Enums::ToString(static_cast<Input::Key>(boundInputValue));
-                                break;
-                            }
-                            case Input::InputType::Gamepad:
-                            {
-                                boundInputLabel = Enums::ToString(static_cast<Input::GameControllerButton>(boundInputValue));
-                                break;
-                            }
-                        }
-                    }
-
-                    StringView inputBindingSlotLabel;
-                    if (hasCollapsibleHeader)
-                    {
-                        inputBindingSlotLabel = Format::Format("{}{} {}", bindingSlotLabel, bindingSlotLabel.empty() ? "" : ":", boundInputLabel);
-                    }
-                    else
-                    {
-                        inputBindingSlotLabel = Format::Format("{}{} {} [{}]", bindingSlotLabel, bindingSlotLabel.empty() ? "" : ":", boundInputLabel, bindingInputTypeLabel);
-                    }
-
-                    if (Ui::Selectable(inputBindingSlotLabel, isBindingSlotSelected))
-                    {
-                        isSelected = true;
-                        isBindingSelected = true;
-                        m_SelectedBindingIndex = bindingIndex;
-                        m_SelectedBindingSlotIndex = slotIndex;
-                    }
-                }
+                return;
             }
         }
+
+        Ui::ScopedImGuiIndent indent(hasCollapsibleHeader ? 20.0f : 4.0f);
+        for (onyxS32 slotIndex = 0; slotIndex < bindingSlotsCount; ++slotIndex)
+        {
+            bool isBindingSlotSelected = isBindingSelected;
+
+            StringView boundInputLabel;
+            Input::InputID boundInputValue = binding.GetBoundInputForSlot(slotIndex);
+            StringView bindingInputTypeLabel = Enums::ToString(Input::GetInputType(boundInputValue));
+
+            if (boundInputValue == Input::InputID::Invalid)
+            {
+                boundInputLabel = Localization::Editor::InputActionSettings::Bindings::Unbound.Get();
+            }
+            else
+            {
+                boundInputLabel = Input::ToString(boundInputValue);
+            }
+
+            StringView inputBindingSlotLabel = Format::Format("{} [{}]", boundInputLabel, bindingInputTypeLabel);
+            
+            if (Ui::Selectable(inputBindingSlotLabel, isBindingSlotSelected))
+            {
+                isSelected = true;
+                m_SelectedBindingIndex = bindingIndex;
+                m_SelectedBindingSlotIndex = slotIndex;
+            }
+        }
+        
     }
 
     void InputActionSettingsWindow::RenderActionProperties()
@@ -434,37 +388,15 @@ namespace Onyx::Editor
 
         Input::ActionType actionType = selectedAction.GetType();
 
-        ImGui::TextEx((selectedAction.GetId().GetString().data()));
+        Ui::PropertyGrid::DrawProperty("Action Id", selectedAction.GetId().GetString());
 
-        Localization::LocalizationId localizationId{ Enums::ToString(actionType) };
-        Localization::LocalizedString selectedActionLocalized = m_LocalizationModule->GetLocalized(localizationId);
-        if (Ui::BeginCombobox("###ActionType", selectedActionLocalized))
+
+        //Localization::LocalizationId localizationId{ Enums::ToString(actionType) };
+        //Localization::LocalizedString selectedActionLocalized = m_LocalizationModule->GetLocalized(localizationId);
+        if (Ui::PropertyGrid::DrawEnumProperty<Input::ActionType, Input::ActionType::Bool, Input::ActionType::Axis3D>("Value Type", actionType))
         {
-            for (Input::ActionType type = Input::ActionType::Invalid; type < Input::ActionType::Count; ++type)
-            {
-                if (type == Input::ActionType::Invalid)
-                    continue;
-
-                localizationId = { Enums::ToString(type) };
-                Localization::LocalizedString actionLocalized = m_LocalizationModule->GetLocalized(localizationId);
-                if (Ui::Selectable(actionLocalized, false, false))
-                {
-                    selectedAction.GetBindings().clear();
-                }
-            }
-
-            ImGui::EndCombo();
-        }
-    }
-
-    void InputActionSettingsWindow::RenderSelectedBindingProperties()
-    {
-        if (m_SelectedBindingIndex == INVALID_INDEX_32)
-            return;
-
-        if (Ui::Button(Localization::Editor::InputActionSettings::Bindings::Listen))
-        {
-            m_IsListeningOnInput = true;
+            selectedAction.GetBindings().clear();
+            selectedAction.SetType(actionType);
         }
     }
 
@@ -483,5 +415,75 @@ namespace Onyx::Editor
         m_SelectedActionMapId = 0;
         m_SelectedActionIndex = INVALID_INDEX_32;
         m_SelectedBindingIndex = INVALID_INDEX_32;
+        m_SelectedBindingSlotIndex = INVALID_INDEX_32;
+    }
+
+    void InputActionSettingsWindow::RenderSelectedBindingProperties()
+    {
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
+            return;
+
+        //Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+        //DynamicArray<Input::InputAction>& availableActions = selectedMap.GetActions();
+        //Input::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
+        //DynamicArray<Input::InputBinding>& selectedActionBindings = selectedAction.GetBindings();
+        //Input::InputBinding& selectedInputBinding = selectedActionBindings[m_SelectedBindingIndex];
+
+        //ImGui::BeginVertical("props");
+
+
+        //DynamicArray<Input::InputModifier>& modifiers = selectedInputBinding->GetModifiers();
+        //const onyxU32 modifiersCount = static_cast<onyxU32>(modifiers.size());
+        //
+        //auto AddModifierFunctor = [&]()
+        //{
+        //    Ui::ScopedImGuiStyle style
+        //    {
+        //         { ImGuiStyleVar_FrameBorderSize, 0.0f },
+        //    };
+        //    Ui::ScopedImGuiColor color
+        //    {
+        //        { ImGuiCol_Button, 0x30000000 },
+        //    };
+        //
+        //    bool shouldOpen = false;
+        //    ImGui::Spring();
+        //
+        //    if (Ui::Button("+"))
+        //    {
+        //        modifiers.emplace_back(0, selectedInputBinding->GetInputType());
+        //        shouldOpen = true;
+        //    }
+        //
+        //    return shouldOpen;
+        //};
+        //
+        //if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Modifiers", AddModifierFunctor))
+        //{
+        //    for (onyxU32 i = 0; i < modifiersCount; ++i)
+        //    {
+        //        Input::InputModifier& modifier = modifiers[i];
+        //        String input = Format::Format("{}", modifier.Input);
+        //        Ui::PropertyGrid::DrawPropertyName("Input");
+        //        Ui::PropertyGrid::DrawPropertyValue([&]()
+        //        {
+        //            ImGui::Text(input.data());
+        //            if (Ui::Button(Localization::Editor::InputActionSettings::Bindings::Listen))
+        //            {
+        //                m_IsListeningOnInput = true;
+        //            }
+        //        } );
+        //    }
+        //
+        //    Ui::PropertyGrid::EndPropertyGroup();
+        //}
+        //
+
+        if (Ui::Button(Localization::Editor::InputActionSettings::Bindings::Listen))
+        {
+            m_IsListeningOnInput = true;
+        }
+        
+        //ImGui::EndVertical();
     }
 }

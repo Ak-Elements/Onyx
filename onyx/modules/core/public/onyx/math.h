@@ -20,16 +20,16 @@ namespace Onyx
         return std::abs(lhs - rhs) <= epsilon;
     }
 
-    template <typename Scalar>
-    constexpr bool IsZero(Scalar value)
+    template <typename T>
+    constexpr bool IsZero(T value)
     {
-        if constexpr (std::is_floating_point_v<Scalar>)
+        if constexpr (std::is_floating_point_v<T>)
         {
-            constexpr Scalar epsilon = std::numeric_limits<Scalar>::epsilon();
+            constexpr T epsilon = std::numeric_limits<T>::epsilon();
             return (value >= -epsilon) && (value <= epsilon);
         }
         else
-            return value == 0;
+            return value == T(0);
     }
 
     template <typename Scalar, typename = std::enable_if_t<std::is_floating_point<Scalar>::value>>

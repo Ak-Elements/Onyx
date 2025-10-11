@@ -1,34 +1,43 @@
 #pragma once
 
+#include <onyx/input/inputid.h>
+
 namespace Onyx::Input
 {
-    enum class MouseButton : onyxS8
+    enum class MouseButton : onyxU16
     {
-        Invalid = 0,
         Button_1 = 1,
-        Button_2 = 2,
-        Button_3 = 3,
-        Button_4 = 4,
-        Button_5 = 5,
-        Button_6 = 6,
-        Button_7 = 7,
-        Button_8 = 8,
-        Button_Last = Button_8,
-        Count,
-        Left = Button_1,
-        Right = Button_2,
-        Middle = Button_3,
+        First = 1, // first is after Button_1 for the magic enum to return Button_1
+        Button_2,
+        Button_3,
+        Button_4,
+        Button_5,
+        Button_6,
+        Button_7,
+        Button_8,
+
+        Last,
+        Invalid = InputID::Invalid
     };
 
-    // Better name for this?
-    enum class MouseAxis : onyxS8
+    static constexpr onyxU16 MouseButton_Count = Enums::ToIntegral(MouseButton::Last) - Enums::ToIntegral(MouseButton::First);
+
+    enum class MouseAxis : onyxU16
     {
-        Invalid = 0,
-        PositionX,
-        PositionY,
+        First = Enums::ToIntegral(MouseButton::Last),
+
+        X,
+        Y,
         DeltaX,
         DeltaY,
         Wheel,
-        Count
+
+        XY,
+        DeltaXY,
+
+        Last,
+        Invalid = InputID::Invalid
     };
+
+    static constexpr onyxU16 MouseAxis_Count = Enums::ToIntegral(MouseAxis::Last) - Enums::ToIntegral(MouseAxis::First);
 }

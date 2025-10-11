@@ -15,8 +15,6 @@ namespace Onyx::FileSystem
 
     };
 
-    ONYX_ENABLE_BITMASK_OPERATORS(OpenMode);
-
 class FileStream : public Stream
 {
 public:
