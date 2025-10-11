@@ -45,7 +45,7 @@ function(add_onyx_module ONYX_TARGET_NAME)
         PROPERTIES
             EXPORT_NAME ${ONYX_TARGET_EXPORT_NAME}
             FOLDER "${ONYX_TARGETS_FOLDER}"
-            CXX_STANDARD 20
+            CXX_STANDARD 23
             CXX_STANDARD_REQUIRED YES
             CXX_EXTENSIONS NO
             CXX_VISIBILITY_PRESET hidden
