@@ -20,6 +20,7 @@ namespace Onyx::Input
     public:
         InputAction();
         InputAction(StringId64 actionId);
+        ~InputAction();
 
         constexpr bool operator==(StringId64 actionId) const { return m_Id == actionId; }
         
