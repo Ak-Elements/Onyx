@@ -1,9 +1,9 @@
 #pragma once
 
+#include <onyx/input/bindings/inputbinding.h>
+
 namespace Onyx::Input
 {
-    class InputBinding;
-
     enum class ActionType : onyxU8
     {
         Invalid = 0,
@@ -20,7 +20,6 @@ namespace Onyx::Input
     public:
         InputAction();
         InputAction(StringId64 actionId);
-        ~InputAction();
 
         constexpr bool operator==(StringId64 actionId) const { return m_Id == actionId; }
         
