@@ -33,12 +33,12 @@ namespace Onyx::Input
             };
         }
 
-        static UniquePtr<InputModifier> Create(const StringId32& typeId)
+        static UniquePtr<InputModifier> Create(StringId32 typeId)
         {
             return s_RegisteredModifiers[typeId].CreateFunctor();
         }
 
-        static const MetaData& GetBindingMeta(const StringId32& typeId) { ONYX_ASSERT(s_RegisteredModifiers.contains(typeId)); return s_RegisteredModifiers.at(typeId); }
+        static const MetaData& GetBindingMeta(StringId32 typeId) { ONYX_ASSERT(s_RegisteredModifiers.contains(typeId)); return s_RegisteredModifiers.at(typeId); }
         static const HashMap<StringId32, MetaData>& GetModifiersMeta() { return s_RegisteredModifiers; }
 
     private:

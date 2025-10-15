@@ -36,12 +36,12 @@ namespace Onyx::Input
             s_RegisteredBindings[T::TypeId] = metaData;
         }
 
-        static UniquePtr<InputBinding> Create(const StringId32& typeId)
+        static UniquePtr<InputBinding> Create(StringId32 typeId)
         {
             return s_RegisteredBindings[typeId].CreateFunctor();
         }
 
-        static const MetaData& GetBindingMeta(const StringId32& typeId) { ONYX_ASSERT(s_RegisteredBindings.contains(typeId)); return s_RegisteredBindings.at(typeId); }
+        static const MetaData& GetBindingMeta(StringId32 typeId) { ONYX_ASSERT(s_RegisteredBindings.contains(typeId)); return s_RegisteredBindings.at(typeId); }
         static const HashMap<StringId32, MetaData>& GetBindingsMeta() { return s_RegisteredBindings; }
 
     private:

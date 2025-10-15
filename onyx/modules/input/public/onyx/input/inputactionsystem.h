@@ -88,7 +88,7 @@ namespace Onyx::Input
         void OnInput(StringId64 actionId, Type&&...value_or_instance)
         {
             Sink sink(m_InputActionSignals[actionId]);
-            sink.Connect<Candidate>(std::forward<Type...>(value_or_instance)...);
+            sink.template Connect<Candidate>(std::forward<Type...>(value_or_instance)...);
         }
 
         template <typename... Type>
@@ -97,7 +97,7 @@ namespace Onyx::Input
             for (InputActionSignalT& inputSignal : m_InputActionSignals | std::views::values)
             {
                 Sink sink(inputSignal);
-                sink.Disconnect(std::forward<Type...>(value_or_instance)...);
+                sink.template Disconnect(std::forward<Type...>(value_or_instance)...);
             }
         }
 

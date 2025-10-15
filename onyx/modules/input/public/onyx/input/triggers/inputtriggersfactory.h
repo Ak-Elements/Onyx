@@ -33,12 +33,12 @@ namespace Onyx::Input
             };
         }
 
-        static UniquePtr<InputTrigger> Create(const StringId32& typeId)
+        static UniquePtr<InputTrigger> Create(StringId32 typeId)
         {
             return s_RegisteredTriggers[typeId].CreateFunctor();
         }
 
-        static const MetaData& GetBindingMeta(const StringId32& typeId) { ONYX_ASSERT(s_RegisteredTriggers.contains(typeId)); return s_RegisteredTriggers.at(typeId); }
+        static const MetaData& GetBindingMeta(StringId32 typeId) { ONYX_ASSERT(s_RegisteredTriggers.contains(typeId)); return s_RegisteredTriggers.at(typeId); }
         static const HashMap<StringId32, MetaData>& GetTriggersMeta() { return s_RegisteredTriggers; }
 
     private:
