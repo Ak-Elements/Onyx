@@ -4,7 +4,6 @@
 
 namespace Onyx::NodeGraph
 {
-    class Node;
     class NodeGraph;
 
     class GraphRunner

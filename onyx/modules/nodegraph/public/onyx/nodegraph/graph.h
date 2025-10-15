@@ -1,8 +1,7 @@
 #pragma once
 
-#include <onyx/assets/asset.h>
-
 #include <onyx/container/directedacyclicgraph.h>
+#include <onyx/nodegraph/nodes/node.h>
 
 #include <any>
 
