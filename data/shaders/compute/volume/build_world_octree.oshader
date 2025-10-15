@@ -1,0 +1,166 @@
+#version 460 core 
+
+#include "includes/common.h"
+
+#include "includes/volume/world_octree.h"
+#include "includes/volume/world_chunk.h"
+#include "includes/volume/volumesources.h"
+
+#include "includes/volume/isosurface_extraction.h"
+#include "includes/indirect_dispatch.h"
+
+#include "includes/morton.h"
+
+compute
+{
+    #define LOCAL_SIZE 64
+    layout(local_size_x = LOCAL_SIZE, local_size_y = 1, local_size_z = 1) in;
+    
+    struct SplitNodeRequest
+    {
+        uint64_t Morton;
+        uint Offset;
+        uint ChunkIndex;
+    }; 
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) buffer SplitOctreeRequests
+    {
+        uint Count;
+        SplitNodeRequest Nodes[];
+    };
+    
+    layout(push_constant) uniform Constants
+    {
+        WorldOctree Octree;
+        uint64_t OctreeAllocator;
+
+        WorldOctreeChunks Chunks;
+        uint64_t ChunkAllocator;
+        
+        WorldVolumeSourcesList VolumeSourcesList;
+        WorldVolumeSources VolumeSourcesData;
+
+        IsoSurfaceRequests SurfaceRequests;
+        IndirectDispatchBuffer IndirectDispatch;
+
+        SplitOctreeRequests SplitRequestsReadBuffer;
+        SplitOctreeRequests SplitRequestsWriteBuffer;
+
+        vec3 CameraPosition;
+        float RootHalfExtents;
+        
+        float NodeExtents;
+        uint Offset;
+        float MaxGeometricError;
+        float ComplexSurfaceThreshold;
+
+        uint Depth;
+        uint MaxDepth;
+        float Padding0;
+        float Padding1;
+    } u_Constants;
+
+#include "includes/volume/octree_split_policy.h"
+
+    void main()
+    {
+        if (gl_GlobalInvocationID == uvec3(0,0,0))
+        {
+            u_Constants.IndirectDispatch.Dispatch.X = 0;
+            u_Constants.IndirectDispatch.Dispatch.Y = 1;
+            u_Constants.IndirectDispatch.Dispatch.Z = 1;
+            
+            u_Constants.SplitRequestsWriteBuffer.Count = 0;
+        }
+        
+        uint currentLevelRequestedNodeCount = u_Constants.SplitRequestsReadBuffer.Count;
+
+        uint globalID = gl_GlobalInvocationID.x;
+        bool isRoot = u_Constants.Depth == 0;
+
+        if (isRoot && (globalID != 0))
+            return;
+
+        if ((isRoot == false) && (globalID >= currentLevelRequestedNodeCount))
+            return;
+
+        if (isRoot)
+        {
+            u_Constants.Octree.Count = 1;
+            u_Constants.Chunks.Count = 0;
+        }
+
+        vec3 centerPosition = vec3(0);
+        uint64_t mortonIndex = uint64_t(0);
+        OctreeNode octreeNode;
+        uint octreeFlatIndex = 0;
+        uint childCount = 0;
+    
+        bool isMaxDepth = u_Constants.Depth == u_Constants.MaxDepth;
+        if (isRoot == false)
+        {
+            uint flatIndex = globalID;
+            SplitNodeRequest splitRequest = u_Constants.SplitRequestsReadBuffer.Nodes[flatIndex];
+            mortonIndex = splitRequest.Morton;
+
+            uint64_t depthMask = ((1ul << (3ul * uint64_t(u_Constants.Depth))) - 1ul);
+            uint64_t mortonIndexAtDepth = mortonIndex & depthMask;
+            octreeFlatIndex = uint(splitRequest.Offset);
+            
+            vec3 coordinate = vec3(DecodeMorton(mortonIndexAtDepth)) + vec3(0.5f);
+            centerPosition = coordinate * u_Constants.NodeExtents - vec3(u_Constants.RootHalfExtents);
+        }
+
+        octreeNode = EvaluateOctreeNode(u_Constants.CameraPosition,
+            centerPosition,
+            u_Constants.NodeExtents,
+            u_Constants.MaxGeometricError,
+            u_Constants.ComplexSurfaceThreshold,
+            childCount);
+
+        if (octreeNode.ValidMask != 0)
+        {
+            octreeNode.ChildrenOffset = atomicAdd(u_Constants.Octree.Count, 8);
+            uint createStartIndex = atomicAdd(u_Constants.SplitRequestsWriteBuffer.Count, childCount);
+
+            uint chunkStartIndex = 0; 
+            if (isMaxDepth)
+            {
+                chunkStartIndex = atomicAdd(u_Constants.Chunks.Count, 8);
+            }
+
+            uint validChildIndex = 0;
+            uint64_t shiftedMorton = mortonIndex << 3ul;
+            for (uint i = 0; i < 8; ++i)
+            {
+                uint childMask = (1 << i);
+                if ((octreeNode.ValidMask & childMask) != 0)
+                {
+                    if (isMaxDepth)
+                    {
+                        u_Constants.Chunks.Chunks[chunkStartIndex] = WorldOctreeChunk(mortonIndex, uint(u_Constants.Depth), 0);
+                    }
+
+                    u_Constants.SplitRequestsWriteBuffer.Nodes[createStartIndex++] = SplitNodeRequest(shiftedMorton + i, octreeNode.ChildrenOffset + validChildIndex, chunkStartIndex);
+                    ++validChildIndex;
+                }
+
+                ++chunkStartIndex;
+            }
+        }
+        else if (octreeNode.LeafMask == 255)
+        {
+            uint chunkIndex = atomicAdd(u_Constants.Chunks.Count, 1);
+            u_Constants.Chunks.Chunks[chunkIndex] = WorldOctreeChunk(mortonIndex, uint(u_Constants.Depth), 0);
+
+            uint surfaceRequestIndex = atomicAdd(u_Constants.SurfaceRequests.Count, 1);
+            u_Constants.SurfaceRequests.Requests[surfaceRequestIndex] = IsoSurfaceRequest(mortonIndex, uint(u_Constants.Depth), chunkIndex);
+        }
+
+        u_Constants.Octree.Nodes[octreeFlatIndex] = PackOctreeNode(octreeNode);
+        
+        uint dispatchX = uint(ceil(u_Constants.SplitRequestsWriteBuffer.Count / float(LOCAL_SIZE)));
+        atomicMax(u_Constants.IndirectDispatch.Dispatch.X, max(1, dispatchX));
+    }
+
+}

@@ -131,7 +131,7 @@ namespace Onyx::Graphics
         globalId = GetOutputPin2().GetGlobalId();
         const Lighting& lighting = context.FrameContext.Lighting;
 
-        m_LightsStorageBuffers[frameIndex]->SetData(0, &lighting, sizeof(Lighting));
+        m_LightsStorageBuffers[frameIndex].Buffer->SetData(0, &lighting, sizeof(Lighting));
         context.Graph.GetResource(globalId).Handle = m_LightsStorageBuffers[frameIndex];
     }
 

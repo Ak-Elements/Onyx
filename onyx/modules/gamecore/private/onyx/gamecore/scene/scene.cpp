@@ -4,7 +4,9 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/gamecore/components/freecameracomponent.h>
+#include <onyx/gamecore/components/namecomponent.h>
 #include <onyx/gamecore/components/transientcomponent.h>
+#include <onyx/gamecore/scene/scenesector.h>
 
 namespace Onyx::GameCore
 {
@@ -65,6 +67,29 @@ namespace Onyx::GameCore
     void Scene::Update(onyxU64 /*deltaTime*/)
     {
         m_SectorStreamer.Update(m_LoadCenter);
+    }
+
+    String Scene::GetUniqueEntityName(const String& preferredName)
+    {
+        auto namesView = m_Registry.GetView<const NameComponent>();
+
+        onyxU32 count = 0;
+        for (Entity::EntityId entityId : namesView)
+        {
+            const NameComponent& nameComponent = namesView.get<const NameComponent>(entityId);
+
+            if (nameComponent.Name.starts_with(preferredName))
+            {
+                ++count;
+            }
+        }
+
+        if (count > 0)
+        {
+            return Format::Format("{}_{}", preferredName, count);
+        }
+
+        return preferredName;
     }
 
     void Scene::OnTransformComponentConstructed(Entity::EntityRegistry::EntityRegistryT& /*registry*/, Entity::EntityId entity)

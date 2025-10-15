@@ -1,11 +1,11 @@
 #include <onyx/graphics/vulkan/descriptorset.h>
 
-#include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/graphics/vulkan/descriptorpool.h>
 #include <onyx/graphics/vulkan/device.h>
 #include <onyx/graphics/vulkan/shader.h>
 #include <onyx/graphics/vulkan/texture.h>
+#include <onyx/graphics/vulkan/buffer.h>
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -63,7 +63,7 @@ namespace Onyx::Graphics::Vulkan
 
     void DescriptorSet::Bind(const BufferHandle& bufferHandle, const String& bindingName)
     {
-	    const VulkanBuffer& buffer = bufferHandle.As<VulkanBuffer>();
+	    const VulkanBuffer& buffer = bufferHandle.Buffer.As<VulkanBuffer>();
 
         // Currently we return here if a binding does not exist because we bind resources for synchronization reasons and not because they are needed
         if (m_WriteDescriptorSets.contains(bindingName) == false)

@@ -289,8 +289,7 @@ namespace Onyx::Assets
 
         constexpr StringId32 assetTypeHash = T::TypeId;
         const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at((onyxU32)assetTypeHash);
-
-        m_IOHandler.RequestSave(metaData, m_LoadedAssets.at(metaData.Handle), serializer);
+        m_IOHandler.RequestSave(metaData, asset, serializer);
         return true;
     }
 

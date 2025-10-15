@@ -30,20 +30,5 @@ namespace Onyx
             return "";
         }
 #endif
-
-    private:
-#if ONYX_IS_DEBUG
-        String m_Name;
-#endif
-
-        DynamicArray<Graphics::RenderGraphResourceId> m_Resources;
-
-        //TODO: Remove for non shader tasks e.g.: ViewConstants / Environment Constants / Scene data updates 
-        Graphics::PipelineProperties m_PipelineProperties;
-        Graphics::ShaderHandle m_Shader;
-        Graphics::ShaderEffectHandle m_ShaderEffect;
-
-        Graphics::RenderPassHandle m_RenderPass;
-        Graphics::FramebufferHandle m_Framebuffer;
     };
 }

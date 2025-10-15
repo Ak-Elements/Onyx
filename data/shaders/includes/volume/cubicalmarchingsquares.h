@@ -1,5 +1,6 @@
 #include "includes/volume/marchingsquares.h"
 #include "includes/math/sat.h"
+#include "includes/debug/print.h"
 
 const float ISO_LEVEL = 0.0f;
 
@@ -20,12 +21,24 @@ struct LineSegment
 
 struct Component
 {
-    Vertex Vertices[32];
+    uint VertexIndices[32];
     uint VertexCount;
-    uint padding0;
-    uint padding1;
-    uint padding3;
 };
+
+uint AddVertex(Vertex vertex, inout Vertex[32] vertices, inout uint vertexCount)
+{
+    for (uint i = 0; i < vertexCount; ++i)
+    {
+        if ( (vertices[i].Position == vertex.Position) && (vertices[i].Normal == vertex.Normal) )
+        {
+            return i;
+        }
+    }
+
+    uint index = vertexCount++;
+    vertices[index] = vertex;
+    return index;
+}
 
 vec2 ComputeIntersection(vec2 edgeCrossingPoint0, vec2 edgeCrossingNormal0, vec2 edgeCrossingPoint1, vec2 edgeCrossingNormal1)
 {
@@ -276,14 +289,14 @@ uint GenerateLines(uint faceIndex, vec3 corners[4], vec4 hermiteData[4], inout u
     vec2 corner1_2D = vec2(corners[1][xIndex], corners[1][yIndex]);
     vec2 corner2_2D = vec2(corners[2][xIndex], corners[2][yIndex]);
     vec2 corner3_2D = vec2(corners[3][xIndex], corners[3][yIndex]);
-    
+
     vec2 minBounds = min(corner0_2D, min(corner1_2D , min(corner2_2D, corner3_2D)));
     vec2 maxBounds = max(corner0_2D, max(corner1_2D , max(corner2_2D, corner3_2D)));
 
-    uint marchingSquaresCase = ((hermiteData[0].w < ISO_LEVEL) ? 1 : 0) |
-                               ((hermiteData[1].w < ISO_LEVEL) ? 2 : 0) |
-                               ((hermiteData[2].w < ISO_LEVEL) ? 4 : 0) |
-                               ((hermiteData[3].w < ISO_LEVEL) ? 8 : 0);
+    uint marchingSquaresCase = ((hermiteData[0].w > ISO_LEVEL) ? 1 : 0) |
+                               ((hermiteData[1].w > ISO_LEVEL) ? 2 : 0) |
+                               ((hermiteData[2].w > ISO_LEVEL) ? 4 : 0) |
+                               ((hermiteData[3].w > ISO_LEVEL) ? 8 : 0);
 
     if ((marchingSquaresCase == 0) || (marchingSquaresCase == 15))
     {
@@ -335,13 +348,15 @@ uint GenerateLines(uint faceIndex, vec3 corners[4], vec4 hermiteData[4], inout u
         }
     }
 
-    return MS_TABLE[marchingSquaresCase].z >= 0 ? marchingSquaresCase : 0;
+    return marchingSquaresCase;
 }
 
-uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component outComponents[12], out uint outComponentCount)
+uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component outComponents[12], out uint outComponentCount, out Vertex outVertices[32], out uint outVertexCount)
 {
     vec3 faceCorners[4];
     vec4 faceHermiteData[4];
+
+    outVertexCount = 0;
 
     uint nextLineSegmentIndex = 0;
     LineSegment outLineSegments[24];
@@ -360,7 +375,6 @@ uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component 
         faceHermiteData[3] = hermiteData[FACE_VERTICES[faceIndex].w];
 
         uint msCase = GenerateLines(faceIndex, faceCorners, faceHermiteData, nextLineSegmentIndex, outLineSegments);
-
         if (msCase != 0)
         {
             marchingSquaresCase = msCase;
@@ -374,22 +388,26 @@ uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component 
     false, false, false, false, false, false, false,
     false, false, false };
 
-    uint vertexIndex = 0;
+    uint vertexCount = 0;
     uint componentIndex = 0;
     uint edgeIndex = 0;
+            
     for (uint segmentIndex = 0; segmentIndex < nextLineSegmentIndex; ++segmentIndex)
     {
         if (tracedSegment[segmentIndex])
             continue;
         
-        vertexIndex = 0;
+        vertexCount = 0;
         outComponents[componentIndex].VertexCount = 0;
         
         edgeIndex = outLineSegments[segmentIndex].ToEdgeIndex;
 
         for (uint linePointIndex = 0; linePointIndex < outLineSegments[segmentIndex].LinePointsCount; ++linePointIndex)
         {
-            outComponents[componentIndex].Vertices[vertexIndex++] = outLineSegments[segmentIndex].LinePoints[linePointIndex];
+            Vertex linePointVertex = outLineSegments[segmentIndex].LinePoints[linePointIndex];
+            uint vertexIndex = AddVertex(linePointVertex, outVertices, outVertexCount);
+            
+            outComponents[componentIndex].VertexIndices[vertexCount++] = vertexIndex;
         }
         
         tracedSegment[segmentIndex] = true;
@@ -407,7 +425,10 @@ uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component 
                 {
                     for (uint linePointIndex = 0; linePointIndex < outLineSegments[traceSegmentIndex].LinePointsCount; ++linePointIndex)
                     {
-                        outComponents[componentIndex].Vertices[vertexIndex++] = outLineSegments[traceSegmentIndex].LinePoints[linePointIndex];
+                        Vertex linePointVertex = outLineSegments[traceSegmentIndex].LinePoints[linePointIndex];
+                        uint vertexIndex = AddVertex(linePointVertex, outVertices, outVertexCount);
+
+                        outComponents[componentIndex].VertexIndices[vertexCount++] = vertexIndex;
                     }
                     hasAdded = true;
                     edgeIndex = outLineSegments[traceSegmentIndex].ToEdgeIndex;
@@ -417,7 +438,10 @@ uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component 
                 {
                     for (int linePointIndex = int(outLineSegments[traceSegmentIndex].LinePointsCount) - 1; linePointIndex >= 0 ; --linePointIndex)
                     {
-                        outComponents[componentIndex].Vertices[vertexIndex++] = outLineSegments[traceSegmentIndex].LinePoints[linePointIndex];
+                        Vertex linePointVertex = outLineSegments[traceSegmentIndex].LinePoints[linePointIndex];
+                        uint vertexIndex = AddVertex(linePointVertex, outVertices, outVertexCount);
+
+                        outComponents[componentIndex].VertexIndices[vertexCount++] = vertexIndex;
                     }
 
                     hasAdded = true;
@@ -428,13 +452,16 @@ uint GenerateMesh(uvec3 id, vec3 corners[8], vec4 hermiteData[8], out Component 
         }
 
         // remove duplicate
-        while (outComponents[componentIndex].Vertices[0].Position == outComponents[componentIndex].Vertices[vertexIndex - 1].Position)
+        while (vertexCount > 0 && outComponents[componentIndex].VertexIndices[0] == outComponents[componentIndex].VertexIndices[vertexCount - 1])
         {
-            --vertexIndex;
+            --vertexCount;
         }
 
-        outComponents[componentIndex].VertexCount = vertexIndex;
-        ++componentIndex;
+        if (vertexCount != 0)
+        {
+            outComponents[componentIndex].VertexCount = vertexCount;
+            ++componentIndex;
+        }
     }
     // trace segement end
 

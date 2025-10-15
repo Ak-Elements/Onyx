@@ -1,0 +1,72 @@
+#version 460 core 
+
+#include "includes/common.h"
+
+#include "includes/volume/volumesources.h"
+#include "includes/volume/csg/sphere.h"
+#include "includes/volume/csg/cube.h"
+
+#include "includes/morton.h"
+#include "includes/debug/print.h"
+
+compute
+{
+    #define LOCAL_SIZE 1
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer HitPositionBuffer
+    {
+        vec3 HitPosition;
+        uint HasHit;
+    };
+
+    layout(push_constant) uniform Constants
+    {
+        WorldVolumeSourcesList WorldVolumesList;
+        WorldVolumeSources WorldVolumesData;
+
+        HitPositionBuffer HitPositionBuffer;
+        uint BrushType;
+        uint BrushOperation;
+
+        vec3 BrushSize;
+        float Smoothness;
+    } u_Constants;
+
+    void CreateVolumeSource(uint sourceIndex, vec3 hitPosition, vec3 brushSize)
+    {
+        uint dataStartIndex =  sourceIndex * VolumeSources_ItemSize;
+        switch (u_Constants.BrushType)
+        {
+            case VolumeSource_SphereBrush:
+            {
+                CsgSphere sphere = CsgSphere(hitPosition, brushSize.x);
+                //PackCsgSphere(u_Constants.WorldVolumesData, sphere, dataStartIndex);
+                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 4] = 0.0f;
+                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 5] = u_Constants.Smoothness;
+                break;
+            }
+            case VolumeSource_CubeBrush:
+            {
+                CsgCube cube = CsgCube(hitPosition, brushSize);
+                //PackCsgCube(u_Constants.WorldVolumesData, cube, dataStartIndex);
+                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 6] = 0.0f;
+                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 7] = u_Constants.Smoothness;
+                break;
+            }
+
+        }
+    }
+
+    void main()
+    {   
+        if (u_Constants.HitPositionBuffer.HasHit == 0)
+            return;
+        
+        vec3 hitPosition = u_Constants.HitPositionBuffer.HitPosition;
+        
+        uint volumeSourceIndex = atomicAdd(u_Constants.WorldVolumesList.Count, 1);
+        //u_Constants.WorldVolumesList.Sources[volumeSourceIndex] = VolumeSource(uint16_t(u_Constants.BrushType), uint16_t(u_Constants.BrushOperation), volumeSourceIndex);
+        //CreateVolumeSource(volumeSourceIndex, hitPosition, u_Constants.BrushSize);
+    }
+}

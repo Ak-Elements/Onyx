@@ -23,6 +23,9 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/panels/sceneeditor/entitiespanel.h
 	${TARGET_PUBLIC_PATH}/panels/sceneeditor/componentspanel.h
     ${TARGET_PUBLIC_PATH}/panels/sceneeditor/terrainpanel.h
+    ${TARGET_PUBLIC_PATH}/panels/sceneeditor/terraintools/terraintool.h
+    ${TARGET_PUBLIC_PATH}/panels/sceneeditor/terraintools/sculptterraintool.h
+    ${TARGET_PUBLIC_PATH}/panels/sceneeditor/terraintools/primitivesterraintool.h
 	${TARGET_PUBLIC_PATH}/rendertasks/compositetask.h
 	${TARGET_PUBLIC_PATH}/rendertasks/gridtask.h
 	${TARGET_PUBLIC_PATH}/rendertasks/guitask.h
@@ -45,7 +48,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/components/graphics/lightcomponents.cpp
 	${TARGET_PRIVATE_PATH}/components/graphics/materialcomponent.cpp
 	${TARGET_PRIVATE_PATH}/components/graphics/textcomponent_editor.cpp
-	${TARGET_PRIVATE_PATH}/components/volume/volumecomponent_editor.cpp
+    ${TARGET_PRIVATE_PATH}/components/volume/csg/spherecomponent_editor.cpp
 	${TARGET_PRIVATE_PATH}/components/volume/volumeterraincomponent_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/arithmeticnodes_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/vectornodes_editor.cpp
@@ -66,6 +69,9 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/panels/sceneeditor/entitiespanel.cpp
 	${TARGET_PRIVATE_PATH}/panels/sceneeditor/componentspanel.cpp
     ${TARGET_PRIVATE_PATH}/panels/sceneeditor/terrainpanel.cpp
+    ${TARGET_PRIVATE_PATH}/panels/sceneeditor/terraintools/terraintool.cpp
+    ${TARGET_PRIVATE_PATH}/panels/sceneeditor/terraintools/sculptterraintool.cpp
+    ${TARGET_PRIVATE_PATH}/panels/sceneeditor/terraintools/primitivesterraintool.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/compositetask.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/gridtask.cpp
 	${TARGET_PRIVATE_PATH}/rendertasks/guitask.cpp

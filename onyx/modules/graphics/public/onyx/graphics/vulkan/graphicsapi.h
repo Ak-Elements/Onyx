@@ -103,6 +103,7 @@ namespace Onyx::Graphics
             void CreateAlias(TextureHandle& outTexture, TextureStorageHandle& storageHandle, const TextureStorageProperties& aliasStorageProperties, const TextureProperties& aliasTextureProperties) override;
             
             void CreateBuffer(BufferHandle& outBuffer, const BufferProperties& properties) override;
+            BufferHandle GetTransientBuffer(onyxU8 frameIndex, const BufferProperties& properties) override;
 
         private:
             std::mutex m_GraphicsMutex;
@@ -124,6 +125,10 @@ namespace Onyx::Graphics
 
             UniquePtr<CommandBufferManager> m_CommandBufferManager;
             UniquePtr<CommandBufferManager> m_ComputeCommandBufferManager;
+
+            // TODO: Move to seperate class? 
+            InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_RingBuffer;
+            onyxU64 m_CurrentRingBufferSize;
 
             UniquePtr<Semaphore> m_GraphicsSemaphore;
             UniquePtr<Semaphore> m_ComputeSemaphore;

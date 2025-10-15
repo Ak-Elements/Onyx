@@ -130,15 +130,15 @@ namespace Onyx
     class Signal;
 
     template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr onyxF64 ToRadians(T deg)
+    constexpr T ToRadians(T deg)
     {
-       return static_cast<onyxF64>(deg * (std::numbers::pi_v<long double> / 180));
+       return static_cast<T>(deg * (std::numbers::pi_v<T> / T(180)));
     }
 
     template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr onyxF64 ToDegrees(T radians)
+    constexpr T ToDegrees(T radians)
     {
-        return static_cast<onyxF64>(radians * (180 / std::numbers::pi_v<long double>));
+        return static_cast<T>(radians * (T(180)/ std::numbers::pi_v<T>));
     }
 
     // Converts degrees to radians

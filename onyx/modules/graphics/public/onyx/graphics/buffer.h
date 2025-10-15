@@ -4,7 +4,7 @@
 
 namespace Onyx::Graphics
 {
-    enum class Access : onyxU8;
+    enum class Access : onyxU32;
     enum class Context : onyxU8;
     class CommandBuffer;
 
@@ -21,6 +21,8 @@ namespace Onyx::Graphics
         bool IsValid() const { return m_DataPointer != nullptr; }
 
         onyxU64 GetGpuAddress() const { return m_GpuAddress; }
+        virtual onyxU64 GetAliasOffset(onyxS8 alias) const = 0;
+        virtual onyxU64 GetAliasSize(onyxS8 alias) const = 0;
 
 		virtual void* Map(MapMode mode) = 0;
 		virtual void Unmap() = 0;
@@ -28,6 +30,10 @@ namespace Onyx::Graphics
 		virtual void Flush(onyxU32 offset, onyxU32 count) = 0;
 
         virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) = 0;
+        virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU64 offset, onyxU64 size) = 0;
+        virtual onyxS8 Alias(const BufferProperties& properties) = 0;
+        virtual void ClearAliases() = 0;
+
     protected:
 		const BufferProperties m_Properties;
 

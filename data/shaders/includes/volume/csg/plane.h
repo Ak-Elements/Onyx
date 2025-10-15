@@ -1,9 +1,15 @@
 
-vec4 GetPlaneValueAndGradient(vec3 worldPosition, vec3 normal, float distance)
+struct CsgPlane
+{
+    vec3 Normal;
+    float Distance;
+};
+
+vec4 GetValueAndGradient(vec3 worldPosition, CsgPlane plane)
 {
     return vec4(
-        normal.x,
-        normal.y,
-        normal.z,
-        distance - dot(normal, worldPosition));
+        plane.Normal.x,
+        plane.Normal.y,
+        plane.Normal.z,
+        dot(plane.Normal, worldPosition) - plane.Distance);
 }

@@ -225,7 +225,7 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanCommandBuffer::BindVertexBuffer(const BufferHandle& bufferHandle, onyxU32 binding, onyxU32 offset)
     {
-        const VulkanBuffer& buffer = bufferHandle.As<VulkanBuffer>();
+        const VulkanBuffer& buffer = bufferHandle.Buffer.As<VulkanBuffer>();
         VkDeviceSize offsets[] = { offset };
 
         // add support for parent vertex buffers?
@@ -243,7 +243,7 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanCommandBuffer::BindIndexBuffer(const BufferHandle& bufferHandle, onyxU32 offset, IndexType indexType)
     {
-        const VulkanBuffer& buffer = bufferHandle.As<VulkanBuffer>();
+        const VulkanBuffer& buffer = bufferHandle.Buffer.As<VulkanBuffer>();
         
         // add support for parent index buffers?
         /*if (buffer->parent_buffer.index != k_invalid_index) {
@@ -278,6 +278,27 @@ namespace Onyx::Graphics::Vulkan
         vkCmdPushConstants(m_CommandBuffer, pipelineLayout.GetHandle(), ToVulkanStage(stage), offset, size, data);
     }
 
+    void VulkanCommandBuffer::BeginConditionalRendering(const BufferHandle& conditionalBuffer, onyxU32 offset)
+    {
+        ONYX_ASSERT(vkCmdBeginConditionalRenderingEXT != nullptr);
+
+        const VulkanBuffer& vkBuffer = conditionalBuffer.Buffer.As<VulkanBuffer>();
+
+        VkConditionalRenderingBeginInfoEXT conditionalRenderingInfo{};
+        conditionalRenderingInfo.sType = VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT;
+        conditionalRenderingInfo.buffer = vkBuffer.GetHandle();
+        conditionalRenderingInfo.flags = 0;
+        conditionalRenderingInfo.offset = offset;
+
+        vkCmdBeginConditionalRenderingEXT(m_CommandBuffer, &conditionalRenderingInfo);
+    }
+
+    void VulkanCommandBuffer::EndConditionalRendering()
+    {
+        ONYX_ASSERT(vkCmdEndConditionalRenderingEXT != nullptr);
+        vkCmdEndConditionalRenderingEXT(m_CommandBuffer);
+    }
+
     void VulkanCommandBuffer::Bind(const TextureHandle& texture, const String& bindingName)
     {
         ONYX_ASSERT(m_CurrentShaderEffect, "No ShaderEffect is active.");
@@ -292,7 +313,9 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanCommandBuffer::Barrier(BufferHandle& buffer, Context newContext, Access newAccess)
     {
-        buffer->Barrier(*this, newContext, newAccess);
+        onyxU64 offset = buffer.Buffer->GetAliasOffset(buffer.Alias);
+        onyxU64 size = buffer.Buffer->GetAliasSize(buffer.Alias);
+        buffer.Buffer->Barrier(*this, newContext, newAccess, offset, size);
     }
 
     void VulkanCommandBuffer::BindDescriptorSets()
@@ -445,7 +468,7 @@ namespace Onyx::Graphics::Vulkan
     {
         PreDraw();
 
-        const VulkanBuffer& vkBuffer = bufferHandle.As<VulkanBuffer>();
+        const VulkanBuffer& vkBuffer = bufferHandle.Buffer.As<VulkanBuffer>();
 
         VkDeviceSize vkOffset = offset;
         vkCmdDrawIndirect(m_CommandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride);
@@ -455,8 +478,8 @@ namespace Onyx::Graphics::Vulkan
     {
         PreDraw();
 
-        const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.As<VulkanBuffer>();
-        const VulkanBuffer& vkCountBuffer = countBufferHandle.As<VulkanBuffer>();
+        const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.Buffer.As<VulkanBuffer>();
+        const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.As<VulkanBuffer>();
 
         vkCmdDrawIndirectCount(m_CommandBuffer, vkArgumentBuffer.GetHandle(), argumentOffset, vkCountBuffer.GetHandle(), countOffset, maxDraws, stride);
     }
@@ -465,7 +488,7 @@ namespace Onyx::Graphics::Vulkan
     {
         PreDraw();
 
-        const VulkanBuffer& vkBuffer = bufferHandle.As<VulkanBuffer>();
+        const VulkanBuffer& vkBuffer = bufferHandle.Buffer.As<VulkanBuffer>();
         VkDeviceSize vkOffset = offset;
 
         vkCmdDrawIndexedIndirect(m_CommandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride);
@@ -485,8 +508,8 @@ namespace Onyx::Graphics::Vulkan
 
         ONYX_ASSERT(vkCmdDrawMeshTasksIndirectCountNV != nullptr, "Mesh shader extension is not initialized.");
 
-        const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.As<VulkanBuffer>();
-        const VulkanBuffer& vkCountBuffer = countBufferHandle.As<VulkanBuffer>();
+        const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.Buffer.As<VulkanBuffer>();
+        const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.As<VulkanBuffer>();
 
         vkCmdDrawMeshTasksIndirectCountNV(m_CommandBuffer, vkArgumentBuffer.GetHandle(), argumentOffset, vkCountBuffer.GetHandle(), countOffset, maxDraws, stride);
     }
@@ -495,22 +518,40 @@ namespace Onyx::Graphics::Vulkan
     {
         PreDraw();
 
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        BeginDebugLabel(m_CurrentPipeline->GetProperties().m_DebugName, Vector4f32{ 1.0f } );
+#endif
+
         vkCmdDispatch(m_CommandBuffer, groupX, groupY, groupZ);
+
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        EndDebugLabel();
+#endif
     }
 
     void VulkanCommandBuffer::DispatchIndirect(const BufferHandle& bufferHandle, onyxU32 offset)
     {
-        const VulkanBuffer& vkBuffer = bufferHandle.As<VulkanBuffer>();
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        BeginDebugLabel(m_CurrentPipeline->GetProperties().m_DebugName, Vector4f32{ 1.0f });
+#endif
+
+        const VulkanBuffer& vkBuffer = bufferHandle.Buffer.As<VulkanBuffer>();
         vkCmdDispatchIndirect(m_CommandBuffer, vkBuffer.GetHandle(), offset);
+
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+        EndDebugLabel();
+#endif
     }
 
     void VulkanCommandBuffer::Copy(const BufferHandle& source, BufferHandle& destination)
     {
-        const VulkanBuffer& vkSourceBuffer = source.As<VulkanBuffer>();
-        VulkanBuffer& vkDestinationBuffer = destination.As<VulkanBuffer>();
+        const VulkanBuffer& vkSourceBuffer = source.Buffer.As<VulkanBuffer>();
+        VulkanBuffer& vkDestinationBuffer = destination.Buffer.As<VulkanBuffer>();
 
         VkBufferCopy copyRegion{};
-        copyRegion.size = source->GetProperties().m_Size;
+        copyRegion.srcOffset = source.Buffer->GetAliasOffset(source.Alias);
+        copyRegion.size = source.Buffer->GetAliasSize(source.Alias);
+        copyRegion.dstOffset = 0;
         vkCmdCopyBuffer(m_CommandBuffer, vkSourceBuffer.GetHandle(), vkDestinationBuffer.GetHandle(), 1, &copyRegion);
     }
 
@@ -560,5 +601,6 @@ namespace Onyx::Graphics::Vulkan
         if (vkCmdEndDebugUtilsLabelEXT != nullptr)
             vkCmdEndDebugUtilsLabelEXT(m_CommandBuffer);
     }
+
 #endif
 }

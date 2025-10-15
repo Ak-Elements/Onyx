@@ -1,6 +1,6 @@
 #version 460 core
 
-#include "includes/common.h"
+#include "includes/bindless.h"
 #include "includes/viewconstants.h"
 
 vertex
@@ -15,7 +15,7 @@ vertex
 
     void main()
     {
-        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * ModelMatrix * vec4(inPosition.xyz, 1.0);
+        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(inPosition.xyz, 1.0);
     }
 }
 

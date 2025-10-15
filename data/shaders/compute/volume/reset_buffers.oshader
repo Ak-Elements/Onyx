@@ -1,0 +1,27 @@
+#version 460 core 
+
+#include "includes/common.h"
+#include "includes/indirect_dispatch.h"
+#include "includes/indirect_draw.h"
+#include "includes/volume/isosurface_extraction.h"
+
+compute
+{
+    #define TERRAIN_SHADER_LOCAL_SIZE 1
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+    layout(push_constant) uniform Constants
+    {
+        IsoSurfaceRequests Requests;
+        IndirectDrawBuffer IndirectDraw;
+
+    } u_Constants;
+
+    void main()
+    {
+        u_Constants.Requests.Count = 0;
+        u_Constants.IndirectDraw.Draw.InstanceCount = 1;
+        u_Constants.IndirectDraw.Draw.VertexCount = 0;
+        u_Constants.IndirectDraw.Draw.FirstVertex = 0;
+        u_Constants.IndirectDraw.Draw.FirstInstance = 0;
+    }

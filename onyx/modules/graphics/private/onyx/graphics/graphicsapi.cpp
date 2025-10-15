@@ -131,7 +131,8 @@ namespace Onyx::Graphics
 
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-             CreateBuffer(m_ViewConstantsUniformBuffers[i], uniformBufferProps);
+            uniformBufferProps.m_DebugName = Format::Format("ViewConstants-{}", i);
+            CreateBuffer(m_ViewConstantsUniformBuffers[i], uniformBufferProps);
         }
     }
 
@@ -181,7 +182,7 @@ namespace Onyx::Graphics
             viewConstants.Far = m_Camera->GetFar();
         }
 
-        m_ViewConstantsUniformBuffers[m_FrameIndex]->SetData(0, &currentFrameContext.ViewConstants, sizeof(ViewConstants));
+        m_ViewConstantsUniformBuffers[m_FrameIndex].Buffer->SetData(0, &currentFrameContext.ViewConstants, sizeof(ViewConstants));
         
         m_RenderGraph->BeginFrame(currentFrameContext);
 
@@ -304,6 +305,11 @@ namespace Onyx::Graphics
     void GraphicsApi::CreateBuffer(BufferHandle& outBuffer, const BufferProperties& properties)
     {
         return m_GraphicsApi->CreateBuffer(outBuffer, properties);
+    }
+
+    BufferHandle GraphicsApi::GetTransientBuffer(const BufferProperties& properties)
+    {
+        return m_GraphicsApi->GetTransientBuffer(m_FrameIndex, properties);
     }
 
     DynamicArray<DescriptorSetHandle> GraphicsApi::CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) const

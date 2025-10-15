@@ -139,7 +139,7 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        commandBuffer.BeginDebugLabel(GetName(), Vector4f32{ 1.0f });
+        commandBuffer.BeginDebugLabel(GetTypeId().GetString(), Vector4f32{ 1.0f });
 #endif
         Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
         onyxU32 inputPinCount = GetInputPinCount();
@@ -174,10 +174,6 @@ namespace Onyx::Graphics
         {
             RenderGraphResource& output = context.Graph.GetResource(GetOutputPin(i)->GetGlobalId());
             //RenderGraphResource& output = context.Graph.GetResource(outputInfo.Id);
-
-            // Is this correct?
-            if (output.IsExternal)
-                continue;
 
             if (output.Info.Type == RenderGraphResourceType::Attachment)
             {

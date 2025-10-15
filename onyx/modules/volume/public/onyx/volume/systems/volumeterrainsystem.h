@@ -11,6 +11,11 @@ namespace Onyx::Entity
 
 namespace Onyx::Volume::Terrain
 {
+
+    struct InitTerrainFlag
+    {
+    };
+
     constexpr onyxU32 TERRAIN_SHADER_LOCAL_SIZE = 8;
 
     struct TerrainChunk

@@ -37,7 +37,7 @@ namespace Onyx::Editor
         , m_InputActionSystem(inputActionSystem)
         , m_AssetSystem(&assetSystem)
         , m_ComponentsPanel(localizationModule)
-        , m_TerrainPanel(graphicsApi)
+        , m_TerrainPanel(inputActionSystem, graphicsApi, gameCore)
         , m_WindowId(local_WindowId++)
     {
         m_WindowClass = new ImGuiWindowClass();
@@ -56,12 +56,18 @@ namespace Onyx::Editor
         m_ComponentsPanelId = Format::Format("###ComponentsPanel{}", m_WindowId);
 
         ImGuiID dockspaceID = ImGui::GetID(Format::Format("SceneEditorDockspace{}", m_WindowId));
+
+        // TODO: should those be somewhere defined as default sizes? And should be based on window size not main view port
+        float windowWidth = ImGui::GetMainViewport()->Size.x;
+        float compPanelRatio = 512.0f / windowWidth;
+        float entitiesPanelRatio = 256.0f / windowWidth;
+        
         m_Dockspace = Ui::Dockspace::Create({
           {
-              Ui::DockSplitDirection::Right, 0.8f, "", m_EntitiesPanelId
+              Ui::DockSplitDirection::Right, 1.0f - entitiesPanelRatio, "", m_EntitiesPanelId
           },
           {
-              Ui::DockSplitDirection::Right, 0.2f, m_ComponentsPanelId, m_SceneViewPanelId
+              Ui::DockSplitDirection::Right, compPanelRatio, m_ComponentsPanelId, m_SceneViewPanelId
           }
             });
         m_Dockspace.SetId(dockspaceID);
@@ -131,7 +137,6 @@ namespace Onyx::Editor
             RenderSceneViewport();
             RenderEntitiesPanel();
             RenderComponentsPanel();
-            RenderTerrainPanel();
         }
         else
         {
@@ -218,10 +223,13 @@ namespace Onyx::Editor
             m_ViewportBounds.Position = { static_cast<onyxS16>(ImGui::GetCursorPos().x), static_cast<onyxS16>(ImGui::GetCursorPos().y) };
             m_ViewportBounds.Extents = { static_cast<onyxS16>(sceneTextureProperties.m_Size[0]), static_cast<onyxS16>(sceneTextureProperties.m_Size[1]) };// = Vector2s16{ static_cast<onyxS16>(ImGui::GetContentRegionAvail().x), static_cast<onyxS16>(ImGui::GetContentRegionAvail().y) } - m_ViewportBounds.Position;
 
+            ImGui::SetNextItemAllowOverlap();
             ImGui::Image(finalSceneTexture.Texture->GetIndex(), sceneTextureExtents);
 
             RenderImGuizmo(Vector2f32(static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1])));
         }
+
+        RenderTerrainPanel();
 
         ImGui::End();
     }
@@ -427,11 +435,11 @@ namespace Onyx::Editor
 
         registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
-        transform.SetTranslation(Vector3f32{ 0.0f, 100.0f, 200.0f });
+        transform.SetTranslation(Vector3f32{ 0.0f, 100.0f, 1000.0f });
         transform.SetRotation(Vector3f32(0, 0, 0));
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
-        camera.Camera.SetPerspective(45.0f, 0.1f, 65000.0f);
+        camera.Camera.SetPerspective(45.0f, 0.1f, 65536);
         camera.Camera.SetViewportExtents(m_Api.GetSwapchainExtent());
         const GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
         GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);

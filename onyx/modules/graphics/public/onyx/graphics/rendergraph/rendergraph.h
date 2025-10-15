@@ -33,28 +33,29 @@ namespace Onyx::Graphics
         void Render(const FrameContext& context);
         void EndFrame(const FrameContext& frameContext);
 
+        bool HasResource(RenderGraphResourceId id) const;
         RenderGraphResource& GetResource(RenderGraphResourceId id);
         const RenderGraphResource& GetResource(RenderGraphResourceId id) const;
 
-        const TextureHandle& GetFinalTexture() const { return std::get<TextureHandle>(ResourceCache.at(FinalTextureId).Handle); }
+        const TextureHandle& GetFinalTexture() const { return std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle); }
         
         void OnSwapChainResized(GraphicsApi& graphicsApi);
 
         // TODO: Remove this
-        RenderGraphResourceCache& GetResourceCache() { return ResourceCache; }
+        RenderGraphResourceCache& GetResourceCache() { return m_ResourceCache; }
 
-        NodeGraph::NodeGraph& GetNodeGraph() { return Graph; }
-        const NodeGraph::NodeGraph& GetNodeGraph() const { return Graph; }
+        NodeGraph::NodeGraph& GetNodeGraph() { return m_Graph; }
+        const NodeGraph::NodeGraph& GetNodeGraph() const { return m_Graph; }
 
     private:
         bool CreateAttachment(GraphicsApi& graphicsApi, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
         //bool CreateBuffer(GraphicsApi& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource);
 
     private:
-        NodeGraph::NodeGraph Graph;
-        RenderGraphResourceCache ResourceCache;
+        NodeGraph::NodeGraph m_Graph;
+        RenderGraphResourceCache m_ResourceCache;
 
-        RenderGraphResourceId FinalTextureId;
+        RenderGraphResourceId m_FinalTextureId;
     };
 
 }

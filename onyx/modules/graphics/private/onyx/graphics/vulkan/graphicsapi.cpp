@@ -73,6 +73,13 @@ namespace Onyx::Graphics::Vulkan
 
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         deviceExtensions.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
+        deviceExtensions.push_back(VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME);
+        //deviceExtensions.push_back(VK_KHR_16BIT_STORAGE_EXTENSION_NAME );
+
+        // Tracy gpu query extensions
+        deviceExtensions.push_back(VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
+        deviceExtensions.push_back(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
+        //
 
         if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
         {
@@ -112,6 +119,16 @@ namespace Onyx::Graphics::Vulkan
             m_IsBindlessEnabled = bindlessExtenstion.descriptorBindingPartiallyBound && bindlessExtenstion.runtimeDescriptorArray;
         }
 
+      /*  VkPhysicalDevice16BitStorageFeatures bitStorageFeatures;
+        bitStorageFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES;
+        bitStorageFeatures.pNext = nullptr;
+
+        VkPhysicalDeviceFeatures2 deviceFeatures{};
+        deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+        deviceFeatures.pNext = &bitStorageFeatures;
+        vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &deviceFeatures);*/
+
+
         VkPhysicalDeviceMeshShaderFeaturesNV meshShaderExtension;
         
         if (m_PhysicalDevice->IsExtensionSupported(VK_NV_MESH_SHADER_EXTENSION_NAME))
@@ -139,6 +156,13 @@ namespace Onyx::Graphics::Vulkan
         vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkSetDebugUtilsObjectNameEXT");
         vkCmdBeginDebugUtilsLabelEXT = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdBeginDebugUtilsLabelEXT");
         vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdEndDebugUtilsLabelEXT");
+
+        vkResetQueryPoolEXT = (PFN_vkResetQueryPoolEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkResetQueryPool");
+        vkGetPhysicalDeviceCalibrateableTimeDomainsEXT = (PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)vkGetInstanceProcAddr(m_Instance->GetHandle(), "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT");
+        vkGetCalibratedTimestampsEXT = (PFN_vkGetCalibratedTimestampsEXT)vkGetInstanceProcAddr(m_Instance->GetHandle(), "vkGetCalibratedTimestampsEXT");
+
+        vkCmdBeginConditionalRenderingEXT = (PFN_vkCmdBeginConditionalRenderingEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdBeginConditionalRenderingEXT");
+        vkCmdEndConditionalRenderingEXT = (PFN_vkCmdEndConditionalRenderingEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdEndConditionalRenderingEXT");
 
         m_Allocator = MakeUnique<MemoryAllocator>("Default Allocator", *this);
 
@@ -226,18 +250,31 @@ namespace Onyx::Graphics::Vulkan
             m_BindlessDescriptorSets = MakeUnique<DescriptorSet>(*m_Device, BINDLESS_SET, descriptorSetAllocInfo);
         }
 
+        BufferProperties tempFrameBuffer;
+        tempFrameBuffer.m_DebugName = "TransientBuffer-0";
+        tempFrameBuffer.m_Size = 1ull << 28ull;// 8mb
+        tempFrameBuffer.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Storage | BufferUsage::Indirect | BufferUsage::DeviceAddress );
+        tempFrameBuffer.m_GpuAccess = GPUAccess::Write;
+        //tempFrameBuffer.m_IsWritable = true;
+
+        for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            tempFrameBuffer.m_DebugName = Format::Format("TransientBuffer-{}", i);
+            CreateBuffer(m_RingBuffer[i], tempFrameBuffer);
+        }
+
         m_SwapChain = MakeUnique<SwapChain>(*this);
 
         // TODO: Add proper thread count
         m_CommandBufferManager = MakeUnique<CommandBufferManager>();
         m_CommandBufferManager->Init(*this, m_PhysicalDevice->GetGraphicsQueueIndex(), 4);
-
+        
         m_ComputeCommandBufferManager = MakeUnique<CommandBufferManager>();
         m_ComputeCommandBufferManager->Init(*this, m_PhysicalDevice->GetComputeQueueIndex(), 4);
 
         m_GraphicsSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
         m_ComputeSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
-    	m_PresentSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
+        m_PresentSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
 
         m_GraphicsSingleSubmitFence = MakeUnique<Fence>(*m_Device, false);
         m_ComputeSingleSubmitFence = MakeUnique<Fence>(*m_Device, false);
@@ -276,6 +313,8 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanGraphicsApi::Shutdown()
     {
+        m_RingBuffer.Clear();
+
         m_CommandBufferManager.reset();
         m_ComputeCommandBufferManager.reset();
 
@@ -339,6 +378,8 @@ namespace Onyx::Graphics::Vulkan
 
         m_CommandBufferManager->Reset(*m_Device, context.FrameIndex);
         m_ComputeCommandBufferManager->Reset(*m_Device, context.FrameIndex);
+        m_CurrentRingBufferSize = 0;
+        m_RingBuffer[context.FrameIndex].Buffer->ClearAliases();
 
         return hasAcquiredImage;
     }
@@ -366,6 +407,8 @@ namespace Onyx::Graphics::Vulkan
             enqueuedComputeCommandBuffers.Add(cmdBuffer->GetHandle());
             cmdBuffer->End();
         }
+
+        
 
         // update bindless textures or should update them at the start of the frame?
         onyxU32 currentIndex = 0;
@@ -921,7 +964,17 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanGraphicsApi::CreateBuffer(BufferHandle& outBuffer, const BufferProperties& properties)
     {
-        outBuffer = Reference<VulkanBuffer>::Create(*this, properties);
+        outBuffer.Buffer = Reference<VulkanBuffer>::Create(*this, properties);
+    }
+
+    BufferHandle VulkanGraphicsApi::GetTransientBuffer(onyxU8 frameIndex, const BufferProperties& properties)
+    {
+        BufferHandle& ringBuffer = m_RingBuffer[frameIndex];
+        ONYX_ASSERT(m_CurrentRingBufferSize < ringBuffer.Buffer->GetProperties().m_Size);
+
+        m_CurrentRingBufferSize += properties.m_Size;
+        onyxS8 alias = ringBuffer.Buffer->Alias(properties);
+        return { ringBuffer.Buffer, alias };
     }
 
     PipelineHandle VulkanGraphicsApi::CreatePipeline(const PipelineProperties& properties)

@@ -13,6 +13,7 @@ namespace Onyx::Graphics
 
     class CommandBuffer : public NonCopyable
     {
+        friend struct ConditionalRender;
     public:
         virtual void Reset() = 0;
         virtual void Begin() = 0;
@@ -26,6 +27,12 @@ namespace Onyx::Graphics
         virtual void BindVertexBuffer(const BufferHandle& bufferHandle, onyxU32 binding, onyxU32 offset) = 0;
         virtual void BindVertexBuffers(const InplaceArray<BufferHandle, 8>& bufferHandles, const InplaceArray<onyxU32, 8> bufferOffsets, onyxU32 firstBinding, onyxU32 bindingCount) = 0;
         virtual void BindIndexBuffer(const BufferHandle& buffer, onyxU32 offset, IndexType indexType) = 0;
+
+        template <typename T>
+        void BindPushConstants(ShaderStage stage, const T& data)
+        {
+            BindPushConstants(stage, 0, sizeof(T), &data);
+        }
 
         template <typename T>
         void BindPushConstants(ShaderStage stage, onyxU32 offset, const T& data)
@@ -73,5 +80,31 @@ namespace Onyx::Graphics
 
         virtual void BindDescriptorSets() = 0;
         virtual void BindPipeline(const PipelineHandle& pipelineHandle) = 0;
+
+        virtual void BeginConditionalRendering(const BufferHandle& conditionalBuffer, onyxU32 offset) = 0;
+        virtual void EndConditionalRendering() = 0;
+    };
+
+    struct ConditionalRender
+    {
+        ConditionalRender(CommandBuffer& commandBuffer, const BufferHandle& conditionalBuffer)
+            : m_CommandBuffer(&commandBuffer)
+        {
+            commandBuffer.BeginConditionalRendering(conditionalBuffer, 0);
+        }
+
+        ConditionalRender(CommandBuffer& commandBuffer, const BufferHandle& conditionalBuffer, onyxU32 offset)
+            : m_CommandBuffer(&commandBuffer)
+        {
+            commandBuffer.BeginConditionalRendering(conditionalBuffer, offset);
+        }
+
+        ~ConditionalRender()
+        {
+            m_CommandBuffer->EndConditionalRendering();
+        }
+
+    private:
+        CommandBuffer* m_CommandBuffer = nullptr;
     };
 }

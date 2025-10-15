@@ -11,6 +11,7 @@ namespace Onyx::Volume
             
         bool isModified = Ui::PropertyGrid::DrawVectorProperty("Dimensions", DimensionsTooltip,Dimensions, { -1, -1, -1 } );
 
+
         if (Ui::PropertyGrid::BeginPropertyGroup("Chunk"))
         {
             isModified |= Ui::PropertyGrid::DrawScalarProperty("Size", ChunkSize, Ui::ScalarInputFlag::PowerOf2);

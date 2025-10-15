@@ -104,6 +104,32 @@ namespace Onyx::Entity
             }
         }
 
+        template <typename... Args>
+        void Create(EntityRegistry& registry, EntityId entity, Args&&... args) const
+        {
+            if constexpr (Details::IsFlagComponent<T>)
+            {
+                registry.AddComponent<T>(entity, std::forward<Args>(args)...);
+            }
+            else if constexpr (Deserializable<T>)
+            {
+                T component(std::forward<Args>(args)...);
+                if (m_Factory)
+                {
+                    m_Factory(registry, entity, std::move(component));
+                }
+                else
+                {
+                    registry.AddComponent<T>(entity, component);
+                }
+            }
+            else
+            {
+                ONYX_ASSERT(false, "Not supported for component");
+            }
+            
+        }
+
         void Create(EntityRegistry& registry, EntityId entity, const Deserializer& deserializer) const override
         {
             if constexpr (Details::IsFlagComponent<T>)

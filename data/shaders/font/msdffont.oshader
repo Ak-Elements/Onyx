@@ -2,6 +2,7 @@
 
 #include "includes/common.h"
 #include "includes/viewconstants.h"
+#include "includes/bindless.h"
 
 vertex
 {

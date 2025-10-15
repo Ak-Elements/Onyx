@@ -98,7 +98,6 @@ namespace Onyx::Graphics::Vulkan
 
         // TODO: Tracking
         ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating image; size = {}", m_Tag, allocInfo.size);
-
         return allocation;
     }
 
@@ -116,10 +115,10 @@ namespace Onyx::Graphics::Vulkan
         return alias;
     }
 
-    VkBuffer MemoryAllocator::Alias(VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo)
+    VkBuffer MemoryAllocator::Alias(VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, onyxU32 offset)
     {
         VkBuffer alias = nullptr;
-        VK_CHECK_RESULT(vmaCreateAliasingBuffer(m_Allocator, allocation, &aliasInfo, &alias))
+        VK_CHECK_RESULT(vmaCreateAliasingBuffer2(m_Allocator, allocation, offset, &aliasInfo, &alias))
         return alias;
     }
 

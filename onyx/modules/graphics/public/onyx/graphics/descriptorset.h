@@ -2,8 +2,8 @@
 
 namespace Onyx::Graphics
 {
-    class Buffer;
     struct TextureHandle;
+    struct BufferHandle;
 
     class DescriptorSet : public RefCounted
     {
@@ -15,7 +15,7 @@ namespace Onyx::Graphics
         virtual void UpdateDescriptors() = 0;
 
         virtual void Bind(const TextureHandle& textureHandle, const String& bindingName) = 0;
-        virtual void Bind(const Reference<Buffer>& bufferHandle, const String& bindingName) = 0;
+        virtual void Bind(const BufferHandle& bufferHandle, const String& bindingName) = 0;
         virtual HashSet<String> GetBindingIds() const = 0;
 
         onyxU8 GetSet() const { return m_Set; }

@@ -1,48 +1,32 @@
 #version 460 core 
 
-#extension GL_EXT_buffer_reference : require
-#extension GL_EXT_buffer_reference2 : require
-#extension GL_ARB_gpu_shader_int64 : require
-#extension GL_EXT_shader_16bit_storage : require
-#extension GL_EXT_shader_explicit_arithmetic_types : require
-
-#include "includes/volume/csg/plane.h"
-#include "includes/volume/csg/simplexnoise2d.h"
+#include "includes/common.h"
+#include "includes/indirect_dispatch.h"
+#include "includes/indirect_draw.h"
+#include "includes/volume/isosurface_extraction.h"
 
 compute
 {
     #define TERRAIN_SHADER_LOCAL_SIZE 1
     layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-    
-    struct LeafNode
-    {
-        uint64_t Morton;
-        uint Depth;
-    };
-
-    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer OctreeLeafNodes
-    {
-        uint Count;
-        LeafNode Leaves[];
-    };
-    
-    layout(std430, buffer_reference, buffer_reference_align = 8) buffer IndirectDispatchBuffer
-    {
-        uint DispatchX;
-        uint DispatchY;
-        uint DispatchZ;
-    };
 
     layout(push_constant) uniform Constants
     {
-        OctreeLeafNodes OctreeLeaves;
+        IsoSurfaceRequests Requests;
         IndirectDispatchBuffer IndirectDispatch;
+
+        IndirectDrawBuffer IndirectDraw;
 
     } u_Constants;
 
     void main()
     {
-        u_Constants.IndirectDispatch.DispatchX = uint(ceil(float(u_Constants.OctreeLeaves.Count) / 64.0f));
-        u_Constants.IndirectDispatch.DispatchY = 1;
-        u_Constants.IndirectDispatch.DispatchZ = 1;
+        u_Constants.IndirectDispatch.Dispatch.X = uint(ceil(float(u_Constants.Requests.Count) / 64.0f));
+        u_Constants.IndirectDispatch.Dispatch.Y = 1;
+        u_Constants.IndirectDispatch.Dispatch.Z = 1;
+
+        u_Constants.IndirectDraw.Draw.InstanceCount = 1;
+        u_Constants.IndirectDraw.Draw.VertexCount = 0;
+        u_Constants.IndirectDraw.Draw.FirstVertex = 0;
+        u_Constants.IndirectDraw.Draw.FirstInstance = 0;
     }

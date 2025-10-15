@@ -1,0 +1,94 @@
+#version 460 core 
+
+#include "includes/common.h"
+#include "includes/volume/world_octree.h"
+#include "includes/volume/volumesources.h"
+#include "includes/morton.h"
+#include "includes/debug/print.h"
+
+compute
+{
+    const float ISO_LEVEL = 0.0f;
+
+    #define TERRAIN_SHADER_LOCAL_SIZE 1
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+   layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer ViewConstants
+    {
+        mat4 ProjectionMatrix;
+        mat4 InverseProjectionMatrix;
+        mat4 ViewMatrix;
+        mat4 InverseViewMatrix;
+        mat4 ViewProjectionMatrix;
+        mat4 InverseViewProjectionMatrix;
+
+        vec2 Viewport;
+        float Near;
+        float Far;
+
+        vec3 CameraPosition;
+        float Padding;
+
+        vec3 CameraDirection;
+        float Padding2;
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer HitPositionBuffer
+    {
+        vec3 HitPosition;
+        uint HasHit;
+    };
+
+    layout(push_constant) uniform Constants
+    {
+        vec2 MousePosition;
+        ViewConstants ViewConstantsBuffer;
+
+        WorldVolumeSourcesList VolumeSourcesList;
+        WorldVolumeSources VolumeSourcesData;
+
+        HitPositionBuffer HitPositionBuffer;
+    } u_Constants;
+
+#include "includes/volume/test_sdf_function.h"
+
+    void main()
+    {
+        vec4 mouseClipPos = vec4(u_Constants.MousePosition.xy, 0.0f, 1.0f);
+
+        vec4 ray = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix * mouseClipPos;
+        ray /= ray.w;
+        ray = u_Constants.ViewConstantsBuffer.InverseViewMatrix * ray;
+
+        vec3 rayOrigin = u_Constants.ViewConstantsBuffer.CameraPosition;
+        vec3 rayDirection = normalize(ray.xyz - rayOrigin);
+
+        bool hasHit = false;
+        vec4 sampleValue = GetSampleValue(rayOrigin);
+        vec3 hitPosition;
+        float distance = sampleValue.w;
+        for(uint i = 0; i < 512; ++i)
+        {
+            vec3 position = rayOrigin + rayDirection * distance;
+            sampleValue = GetSampleValue(position);
+            if (sampleValue.w <= 0.0001f)
+            {
+                hasHit = true;
+                hitPosition = position;
+                break;
+            }
+        
+            distance += sampleValue.w;
+        }
+
+        if (hasHit)
+        {
+            u_Constants.HitPositionBuffer.HitPosition = hitPosition;
+            u_Constants.HitPositionBuffer.HasHit = 1;
+        }
+        else
+        {
+            u_Constants.HitPositionBuffer.HasHit = 0;
+        }
+    }
+}

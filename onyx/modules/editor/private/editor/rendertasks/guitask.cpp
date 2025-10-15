@@ -114,9 +114,9 @@ namespace Onyx
         // Vertex buffer
         const onyxU8 frameIndex = context.FrameContext.FrameIndex;
         Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
-        if ((vertexBuffer.IsValid() == false) || (vertexBuffer->IsValid() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
+        if ((vertexBuffer.Buffer.IsValid() == false) || (vertexBuffer.Buffer->IsValid() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
         {
-			Graphics::BufferProperties vertexBufferProps = vertexBuffer->GetProperties();
+			Graphics::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
             vertexBufferProps.m_Size = vertexBufferSize;
 
             context.FrameContext.Api->CreateBuffer(vertexBuffer, vertexBufferProps);
@@ -125,9 +125,9 @@ namespace Onyx
 
         // Index buffer
         Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
-		if ((indexBuffer.IsValid() == false) || (indexBuffer->IsValid() == false) || (m_IndexCounts[frameIndex] < imDrawData->TotalIdxCount))
+		if ((indexBuffer.Buffer.IsValid() == false) || (indexBuffer.Buffer->IsValid() == false) || (m_IndexCounts[frameIndex] < imDrawData->TotalIdxCount))
         {
-			Graphics::BufferProperties indexBufferProps = indexBuffer->GetProperties();
+			Graphics::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
             indexBufferProps.m_Size = indexBufferSize;
 
             context.FrameContext.Api->CreateBuffer(indexBuffer, indexBufferProps);
@@ -141,9 +141,9 @@ namespace Onyx
         for (int n = 0; n < imDrawData->CmdListsCount; n++)
         {
             const ImDrawList* cmd_list = imDrawData->CmdLists[n];
-            vertexBuffer->SetData(vertexCopyOffset, cmd_list->VtxBuffer.Data,
+            vertexBuffer.Buffer->SetData(vertexCopyOffset, cmd_list->VtxBuffer.Data,
                                     cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-            indexBuffer->SetData(indexCopyOffset, cmd_list->IdxBuffer.Data,
+            indexBuffer.Buffer->SetData(indexCopyOffset, cmd_list->IdxBuffer.Data,
                                    cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
 
             vertexCopyOffset += cmd_list->VtxBuffer.Size * sizeof(ImDrawVert);

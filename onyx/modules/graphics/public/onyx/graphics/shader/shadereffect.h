@@ -6,6 +6,7 @@ namespace Onyx::Graphics
 {
     class Buffer;
     struct TextureHandle;
+    struct BufferHandle;
     class Pipeline;
     class Shader;
     class ShaderCache;
@@ -26,7 +27,7 @@ namespace Onyx::Graphics
         bool IsCompute() const;
 
         void Bind(const TextureHandle& texture, const String& bindingName, onyxU8 frameIndex);
-        void Bind(const Reference<Buffer>& buffer, const String& bindingName, onyxU8 frameIndex);
+        void Bind(const BufferHandle& buffer, const String& bindingName, onyxU8 frameIndex);
 
         void PreDraw(onyxU8 frameIndex);
 

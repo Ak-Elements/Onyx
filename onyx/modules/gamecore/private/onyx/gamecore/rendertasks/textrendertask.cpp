@@ -44,13 +44,13 @@ namespace Onyx::GameCore
         }
 
         api.CreateBuffer(m_IndexBuffer, indexBufferProps);
-        m_IndexBuffer->SetData(0, indices, static_cast<onyxU32>(MAX_INDICES * sizeof(onyxU16)));
+        m_IndexBuffer.Buffer->SetData(0, indices, static_cast<onyxU32>(MAX_INDICES * sizeof(onyxU16)));
     }
 
     void MSDFFontRenderPass::OnShutdown(Graphics::GraphicsApi& /*api*/)
     {
-        m_VertexBuffer.Reset();
-        m_IndexBuffer.Reset();
+        m_VertexBuffer.Buffer.Reset();
+        m_IndexBuffer.Buffer.Reset();
     }
 
     void MSDFFontRenderPass::OnPreRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& /*commandBuffer*/)

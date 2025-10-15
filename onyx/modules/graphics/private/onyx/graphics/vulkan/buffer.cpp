@@ -1,3 +1,4 @@
+#include <numeric>
 #include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/graphics/vulkan/commandpool.h>
 #include <onyx/graphics/vulkan/device.h>
@@ -39,15 +40,20 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanBuffer::Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess)
     {
-        if ((m_Access == newAccess) && (m_Context == newContext))
+        /*if ((m_Access == newAccess) && (m_Context == newContext))
         {
             return;
-        }
+        }*/
 
+        Barrier(commandBuffer, newContext, newAccess, 0, m_Properties.m_Size);
+    }
+
+    void VulkanBuffer::Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU64 offset, onyxU64 size)
+    {
+        // TODO: hazard tracking for regions?
         VulkanCommandBuffer& vkCommandBuffer = static_cast<VulkanCommandBuffer&>(commandBuffer);
 
-        VkBufferMemoryBarrier2 barrier{};
-        barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+        VkBufferMemoryBarrier2 barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2 };
         barrier.srcAccessMask = ToAccessFlag(m_Access);
         barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, m_Context);
         barrier.dstAccessMask = ToAccessFlag(newAccess);
@@ -56,8 +62,8 @@ namespace Onyx::Graphics::Vulkan
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
         barrier.buffer = m_Buffer;
-        barrier.offset = 0;
-        barrier.size = m_Properties.m_Size;
+        barrier.offset = offset;
+        barrier.size = size;
         barrier.pNext = nullptr;
 
         VkDependencyInfo dependency_info{};
@@ -69,6 +75,37 @@ namespace Onyx::Graphics::Vulkan
         vkCmdPipelineBarrier2(vkCommandBuffer.GetHandle(), &dependency_info);
         m_Access = newAccess;
         m_Context = newContext;
+    }
+
+    onyxS8 VulkanBuffer::Alias(const BufferProperties& properties)
+    {
+        // do we support device address?
+        
+        onyxU64 offset = 0;
+        for (const AliasInfo& info : m_Aliases)
+        {
+            offset += info.Size;
+        }
+
+        m_Aliases.emplace_back(offset, properties.m_Size, nullptr);
+
+        //VkBufferCreateInfo createInfo{};
+        //createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        //createInfo.size = properties.m_Size;
+        //createInfo.usage = GetUsageFlags();
+        // TODO: do we need to use concurrent?
+        //createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        //createInfo.pNext = nullptr;
+
+        //VkBuffer buffer = m_Allocator->Alias(m_Memory, createInfo, offset);
+        //ONYX_UNUSED(buffer);
+        //VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
+        //addressInfo.buffer = buffer;
+        //onyxU64 gpuAddress = vkGetBufferDeviceAddress(m_Device->GetHandle(), &addressInfo);
+
+        //ONYX_LOG_INFO("{}", gpuAddress);
+
+        return static_cast<onyxS8>(m_Aliases.size() - 1);
     }
 
     void VulkanBuffer::Init(const void* data)
@@ -191,6 +228,8 @@ namespace Onyx::Graphics::Vulkan
             usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
         if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::DeviceAddress))
             usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Conditional))
+            usage |= VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT;
 
         if (properties.m_IsWritable)
             usage |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;

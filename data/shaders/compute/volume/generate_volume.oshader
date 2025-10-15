@@ -1,17 +1,19 @@
 #version 460 core 
 
+#define ENABLEDEB
+
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
 #extension GL_ARB_gpu_shader_int64 : require
 #extension GL_EXT_shader_16bit_storage : require
 #extension GL_EXT_shader_explicit_arithmetic_types : require
 
+#include "includes/common.h"
+#include "includes/indirect_draw.h"
 #include "includes/morton.h"
-#include "includes/volume/csg/plane.h"
-#include "includes/volume/csg/sphere.h"
-#include "includes/volume/csg/simplexnoise2d.h"
-#include "includes/volume/csg/operations/union.h"
+#include "includes/volume/isosurface_extraction.h"
 #include "includes/volume/cubicalmarchingsquares.h"
+#include "includes/volume/volumesources.h"
 #include "includes/debug/print.h"
 
 #define PER_CHUNK_MESH_DATA 1
@@ -21,94 +23,40 @@ compute
     #define TERRAIN_SHADER_LOCAL_SIZE 64
     layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = 1, local_size_z = 1) in;
 
-    struct LeafNode
-    {
-        uint64_t Morton;
-        uint Depth;
-    };
-
-    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer OctreeLeafNodes
-    {
-        uint Count;
-        LeafNode Leaves[];
-    };
-
     layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer VertexBuffer
     {
         Vertex Vertices[];
     };
-
-    struct VkDrawIndirectCommand
-    {
-        uint VertexCount;
-        uint InstanceCount;
-        uint FirstVertex;
-        uint FirstInstance;
-    };
-
-    layout(std430, buffer_reference, buffer_reference_align = 8) buffer DrawCommandBuffer
-    {
-        VkDrawIndirectCommand Commands;
-    };
- 
-     layout(std430, buffer_reference, buffer_reference_align = 8) buffer VertexCountBuffer
-    {
-        uint Count;
-    };
   
     layout(push_constant) uniform Constants
     {
-        OctreeLeafNodes OctreeLeaves;
+        IsoSurfaceRequests Requests;
         VertexBuffer VertexBufferPointer;
-        
-        DrawCommandBuffer DrawCommandBufferPointer;
+
+        WorldVolumeSourcesList VolumeSourcesList;
+        WorldVolumeSources VolumeSourcesData;
+
+        IndirectDrawBuffer IndirectDraw;
         float RootSize;
         float RootHalfExtents;
     } u_Constants;
 
-    vec4 GetSampleValue(vec3 worldPosition)
-    {
-        // move to sample function
-        vec3 planeNormal = vec3(0,1,0);
-        vec4 planeGradient = GetPlaneValueAndGradient(worldPosition, planeNormal, 10);
-        vec4 sphereGradient = GetSphereValueAndGradient(worldPosition, vec3(0,0,-1000), 500);
-        //vec4 noiseGradient = snoise(worldPosition.xz * 0.05f);
-        
-        //float distanceToSurface = planeGradient.w + noiseGradient.w * 20;
-        return GetUnion(planeGradient, sphereGradient);
-    }
+#include "includes/volume/test_sdf_function.h"
 
     void main()
     {
-        if (gl_GlobalInvocationID == uvec3(0,0,0))
-        {
-            u_Constants.DrawCommandBufferPointer.Commands.InstanceCount = 1;
-#if PER_CHUNK_MESH_DATA
-            u_Constants.DrawCommandBufferPointer.Commands.VertexCount = 0;
-#else
-            u_Constants.DrawCommandBufferPointer.Commands.VertexCount = 21504 * 36;
-            u_Constants.VertexCountBufferPointer.Count = 0;
-#endif
-            u_Constants.DrawCommandBufferPointer.Commands.FirstVertex = 0;
-            u_Constants.DrawCommandBufferPointer.Commands.FirstInstance = 0;
-        }
-
-#if !PER_CHUNK_MESH_DATA
-        uint bufferOffset = u_Constants.DrawCommandIndex * 21504;
-#endif
-
         uint flatIndex = gl_GlobalInvocationID.x;
         
-        if (flatIndex >= u_Constants.OctreeLeaves.Count)
+        if (flatIndex >= u_Constants.Requests.Count)
         {
             return;
         }
         
-        LeafNode leaf = u_Constants.OctreeLeaves.Leaves[flatIndex];
-        uint64_t depthMask = ((1ul << (3ul * leaf.Depth)) - 1);
-        uint64_t mortonIndexAtDepth = leaf.Morton & depthMask;
+        IsoSurfaceRequest surfaceRequest = u_Constants.Requests.Requests[flatIndex];
+        uint64_t depthMask = ((1ul << (3ul * surfaceRequest.Depth)) - 1);
+        uint64_t mortonIndexAtDepth = surfaceRequest.Morton & depthMask;
         
-        float nodeExtents = u_Constants.RootSize / float(1 << leaf.Depth);
+        float nodeExtents = u_Constants.RootSize / float(1 << surfaceRequest.Depth);
         vec3 leafCoordinate = vec3(DecodeMorton(mortonIndexAtDepth)) + vec3(0.5f);
         vec3 leafCenter = leafCoordinate * nodeExtents - vec3(u_Constants.RootHalfExtents);
 
@@ -138,8 +86,11 @@ compute
 
         uint componentCount = 0;
         Component outComponents[12];
-        uint marchingSquaresCase = GenerateMesh(gl_GlobalInvocationID, corners, cornerSamples, outComponents, componentCount);
+        Vertex outVertices[32];
+        uint vertexCount = 0;
+        uint marchingSquaresCase = GenerateMesh(gl_GlobalInvocationID, corners, cornerSamples, outComponents, componentCount, outVertices, vertexCount);
 
+     
         for (uint i = 0; i < componentCount; ++i)
         {
             if (outComponents[i].VertexCount < 3)
@@ -152,53 +103,66 @@ compute
 
             if (outComponents[i].VertexCount == 3)
             {
-#if PER_CHUNK_MESH_DATA
-                uint vertexOffset = atomicAdd(u_Constants.DrawCommandBufferPointer.Commands.VertexCount, 3);
-#else
-                uint vertexOffset = bufferOffset + atomicAdd(u_Constants.VertexCountBufferPointer.Count, 3);
-#endif
-                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outComponents[i].Vertices[0];
-                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outComponents[i].Vertices[2];
-                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outComponents[i].Vertices[1];
+                uint vertexOffset = atomicAdd(u_Constants.IndirectDraw.Draw.VertexCount, 3);
+
+                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[0]];
+                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[2]];
+                u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[1]];
             }
             else
             {  
                 uint vertCount = outComponents[i].VertexCount;
-#if PER_CHUNK_MESH_DATA
-                uint vertexOffset = atomicAdd(u_Constants.DrawCommandBufferPointer.Commands.VertexCount, vertCount * 3);
-#else
-                uint vertexOffset = bufferOffset + atomicAdd(u_Constants.VertexCountBufferPointer.Count, vertCount * 3); 
-#endif
+
+                uint vertexOffset = atomicAdd(u_Constants.IndirectDraw.Draw.VertexCount, vertCount * 3);
 
                 vec4 triangleFanCenter = vec4(0.0f);
                 vec4 triangleFanCenterNormal = vec4(0.0f);
 
-                for (uint vertexIndex = 0; vertexIndex < vertCount; ++vertexIndex)
+                // trace segments
+                bool vistitedVertex[32] =
                 {
-                    triangleFanCenter += outComponents[i].Vertices[vertexIndex].Position;
-                    triangleFanCenterNormal += outComponents[i].Vertices[vertexIndex].Normal;
+                    false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false
+                };
+
+                uint uniqueVerticesCount = 0;
+                for (uint j = 0; j < vertCount; ++j)
+                {
+                    uint vertexIndex = outComponents[i].VertexIndices[j];
+
+                    if (vistitedVertex[vertexIndex])
+                        continue;
+
+                    vistitedVertex[vertexIndex] = true;
+                    Vertex vertex = outVertices[vertexIndex];
+
+                    triangleFanCenter += vertex.Position;
+                    triangleFanCenterNormal += vertex.Normal;
+                    ++uniqueVerticesCount;
                 }
 
-                triangleFanCenter /= vertCount;
-                triangleFanCenterNormal /= vertCount;
+                triangleFanCenter /= uniqueVerticesCount;
+                triangleFanCenterNormal /= uniqueVerticesCount;
                 Vertex triangleFanVertex;
                 triangleFanVertex.Position = triangleFanCenter;
                 triangleFanVertex.Normal = triangleFanCenterNormal;
 
                 uint lastVertexIndex = (vertCount - 1);
                 for (uint vertexIndex = 0; vertexIndex < vertCount; ++vertexIndex)
-                {
+                {  
                     if (vertexIndex == lastVertexIndex)
                     { 
-                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[0];
-                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex];
-                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  triangleFanVertex;
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[0]];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[vertexIndex]];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = triangleFanVertex;
                     }
                     else
                     {
-                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex + 1];
-                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  outComponents[i].Vertices[vertexIndex];
-                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] =  triangleFanVertex;
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[vertexIndex + 1]];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[vertexIndex]];
+                        u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = triangleFanVertex;
                     }
                 }
             }

@@ -28,6 +28,10 @@ namespace Onyx::GameCore
 
         void Update(onyxU64 deltaTime);
 
+#if ONYX_IS_EDITOR
+        String GetUniqueEntityName(const String& preferredName);
+#endif
+
     private:
         // only needed in editor most likely 
         void OnTransformComponentConstructed(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);

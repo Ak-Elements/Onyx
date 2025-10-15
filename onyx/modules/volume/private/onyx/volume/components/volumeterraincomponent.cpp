@@ -8,16 +8,12 @@ namespace Onyx
 
 bool Serialization<Volume::TerrainSettingsComponent>::Serialize(Serializer& serializer, const Volume::TerrainSettingsComponent& volumeTerrain)
 {
-    return serializer.Write<"Dimensions">(volumeTerrain.Dimensions) &&
-        serializer.Write<"ChunkSize">(volumeTerrain.ChunkSize) &&
-        serializer.Write<"ChunkResolution">(volumeTerrain.Resolution);
+    return serializer.Write<"Dimensions">(volumeTerrain.Dimensions);
 }
 
 bool Serialization<Volume::TerrainSettingsComponent>::Deserialize(const Deserializer& deserializer, Volume::TerrainSettingsComponent& outVolumeTerrain)
 {
-    return deserializer.Read<"Dimensions">(outVolumeTerrain.Dimensions) &&
-        deserializer.Read<"ChunkSize">(outVolumeTerrain.ChunkSize) &&
-        deserializer.Read<"ChunkResolution">(outVolumeTerrain.Resolution);
+    return deserializer.Read<"Dimensions">(outVolumeTerrain.Dimensions);
 }
 
 }

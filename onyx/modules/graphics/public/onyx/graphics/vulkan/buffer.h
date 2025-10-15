@@ -28,13 +28,42 @@ namespace Onyx::Graphics::Vulkan
 
         const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 
+        onyxU64 GetAliasOffset(onyxS8 alias) const override
+        {
+            if (alias == INVALID_INDEX_8)
+                return 0;
+            return m_Aliases[alias].Offset;
+        }
+
+        onyxU64 GetAliasSize(onyxS8 alias) const override
+        {
+            if (alias == INVALID_INDEX_8)
+                return m_Properties.m_Size;
+
+            return m_Aliases[alias].Size;
+        }
+
+        void ClearAliases() override { m_Aliases.clear(); }
+
         void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) override;
+        void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU64 offset, onyxU64 size) override;
+        onyxS8 Alias(const BufferProperties& properties) override;
+
     private:
         void Init(const void* data = nullptr);
         void UpdateDescriptorInfo();
 
         VkBufferUsageFlags GetUsageFlags() const;
         static VkBufferUsageFlags GetUsageFlags(const BufferProperties& properties);
+
+        struct AliasInfo
+        {
+            onyxU64 Offset;
+            onyxU64 Size;
+            VkBuffer m_Buffer = nullptr;//only used if device address is not supported
+        };
+
+        DynamicArray<AliasInfo> m_Aliases;
 
     private:
         const Device* m_Device;

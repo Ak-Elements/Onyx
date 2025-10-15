@@ -16,6 +16,12 @@ namespace Onyx::GameCore
             m_Rotation.FromEulerAngles(0, 0, 0);
         }
 
+        TransformComponent(const Vector3f32& position)
+            : m_Translation(position)
+        {
+            m_Rotation.FromEulerAngles(0, 0, 0);
+        }
+
         const Vector3f32& GetTranslation() const { return m_Translation; }
         void SetTranslation(const Vector3f32& translation) { m_Translation = translation; }
 

@@ -22,7 +22,7 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
         // allocate all resources and descriptors?
-        Graph.Compile();
+        m_Graph.Compile();
         
         // Allocating resources
         DynamicArray<RenderGraphResourceId> allocations;
@@ -33,10 +33,10 @@ namespace Onyx::Graphics
         DynamicArray<RenderGraphResourceId> freeList;
 
         // Create render, framebuffers & pso's
-        const auto topologicalOrder = Graph.GetTopologicalOrder();
+        const auto topologicalOrder = m_Graph.GetTopologicalOrder();
         for (const LocalNodeId nodeId : topologicalOrder)
         {
-            IRenderGraphNode& graphNode = Graph.GetNode<IRenderGraphNode>(nodeId);
+            IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
             const onyxU32 inputPinCount = graphNode.GetInputPinCount();
             for (onyxU32 i = 0; i < inputPinCount; ++i)
             {
@@ -52,15 +52,15 @@ namespace Onyx::Graphics
         {
             const bool isLastNode = nodeId == topologicalOrder[(topologicalOrder.size() - 2)];
 
-            IRenderGraphNode& graphNode = Graph.GetNode<IRenderGraphNode>(nodeId);
+            IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
             // remove resource cache
-            graphNode.Init(graphicsApi, ResourceCache);
+            graphNode.Init(graphicsApi, m_ResourceCache);
 
             onyxU32 outputPinCount = graphNode.GetOutputPinCount();
             for (onyxU32 i = 0; i < outputPinCount; ++i)
             {
                 const NodeGraph::PinBase* outputPin = graphNode.GetOutputPin(i);
-                RenderGraphResource& output = ResourceCache[outputPin->GetGlobalId()];
+                RenderGraphResource& output = m_ResourceCache[outputPin->GetGlobalId()];
 
                 if (outputPin->GetType() == static_cast<NodeGraph::PinTypeId>(TypeHash<BufferHandle>()))
                     continue;
@@ -68,7 +68,17 @@ namespace Onyx::Graphics
                 // TODO: Improve handling of final texture Id as this is very error prone
                 if (isLastNode)
                 {
-                    FinalTextureId = outputPin->GetGlobalId();
+                    m_FinalTextureId = outputPin->GetGlobalId();
+                }
+
+                RenderGraphTextureResourceInfo& textureInfo = std::get<RenderGraphTextureResourceInfo>(output.Properties);
+                if (textureInfo.Type == RenderGraphResourceType::Reference)
+                {
+                    RenderGraphTextureResourceInfo& linkedTextureInfo = std::get<RenderGraphTextureResourceInfo>(m_ResourceCache[0xba68b0d91801004].Properties);
+                    textureInfo.Format = linkedTextureInfo.Format;
+                    textureInfo.Size = linkedTextureInfo.Size;
+                    textureInfo.HasSize = linkedTextureInfo.HasSize;
+                    continue;
                 }
 
                 if (output.IsExternal)
@@ -96,7 +106,7 @@ namespace Onyx::Graphics
                 Guid64 id = inputPin->GetLinkedPinGlobalId();
                 --resourceRefCounts[id];
 
-                RenderGraphResource& input = ResourceCache[id];
+                RenderGraphResource& input = m_ResourceCache[id];
                 if ((input.IsExternal == false) && (resourceRefCounts[input.Info.Id] == 0))
                 {
                     //deallocations.
@@ -118,8 +128,8 @@ namespace Onyx::Graphics
         // create renderpass and framebuffer
         for (const LocalNodeId nodeId : topologicalOrder)
         {
-            IRenderGraphNode& graphNode = Graph.GetNode<IRenderGraphNode>(nodeId);
-            graphNode.Compile(graphicsApi, ResourceCache);
+            IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
+            graphNode.Compile(graphicsApi, m_ResourceCache);
         }
 
     }
@@ -130,14 +140,14 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
 
-        for (const LocalNodeId nodeId : Graph.GetTopologicalOrder())
+        for (const LocalNodeId nodeId : m_Graph.GetTopologicalOrder())
         {
-            IRenderGraphNode& graphNode = Graph.GetNode<IRenderGraphNode>(nodeId);
+            IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
             graphNode.Shutdown(graphicsApi);
         }
 
-        ResourceCache.clear();
-        Graph.Clear();
+        m_ResourceCache.clear();
+        m_Graph.Clear();
     }
 
     void RenderGraph::BeginFrame(const FrameContext& frameContext)
@@ -146,11 +156,11 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
         const TextureHandle& swapchainTarget = frameContext.Api->GetAcquiredSwapChainImage();
-        RenderGraphResource& swapchainResource = ResourceCache[SWAPCHAIN_RESOURCE_ID];
+        RenderGraphResource& swapchainResource = m_ResourceCache[SWAPCHAIN_RESOURCE_ID];
         swapchainResource.Handle = swapchainTarget;
 
         const TextureHandle& depthTarget = frameContext.Api->GetDepthImage();
-        RenderGraphResource& depthResource = ResourceCache[DEPTH_RESOURCE_ID];
+        RenderGraphResource& depthResource = m_ResourceCache[DEPTH_RESOURCE_ID];
         depthResource.Handle = depthTarget;
 
         // TODO: move to OnResize
@@ -159,9 +169,9 @@ namespace Onyx::Graphics
 
         RenderGraphContext graphContext{ frameContext, *this };
 
-        for (onyxS8 nodeId : Graph.GetTopologicalOrder())
+        for (onyxS8 nodeId : m_Graph.GetTopologicalOrder())
         {
-            IRenderGraphNode& node = Graph.GetNode<IRenderGraphNode>(nodeId);
+            IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
             if (node.IsEnabled() == false)
             {
@@ -181,9 +191,9 @@ namespace Onyx::Graphics
         RenderGraphContext graphContext{ context, *this };
         CommandBuffer& commandBuffer = context.Api->GetCommandBuffer(context.FrameIndex, true);
 
-        for (onyxS8 nodeId : Graph.GetTopologicalOrder())
+        for (onyxS8 nodeId : m_Graph.GetTopologicalOrder())
         {
-            IRenderGraphNode& node = Graph.GetNode<IRenderGraphNode>(nodeId);
+            IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
             if (node.IsEnabled() == false)
             {
@@ -204,9 +214,9 @@ namespace Onyx::Graphics
         // wait for tasks
         RenderGraphContext graphContext{ frameContext, *this };
 
-        for (onyxS8 nodeId : Graph.GetTopologicalOrder())
+        for (onyxS8 nodeId : m_Graph.GetTopologicalOrder())
         {
-            IRenderGraphNode& node = Graph.GetNode<IRenderGraphNode>(nodeId);
+            IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
             if (node.IsEnabled() == false)
             {
@@ -217,7 +227,7 @@ namespace Onyx::Graphics
         }
 
         // Transition image to present
-        RenderGraphResource& swapchainResource = ResourceCache[SWAPCHAIN_RESOURCE_ID];
+        RenderGraphResource& swapchainResource = m_ResourceCache[SWAPCHAIN_RESOURCE_ID];
         TextureHandle& swapchainTarget = std::get<TextureHandle>(swapchainResource.Handle);
         Vulkan::VulkanTextureStorage& storage = swapchainTarget.Storage.As<Vulkan::VulkanTextureStorage>();
 
@@ -226,14 +236,19 @@ namespace Onyx::Graphics
         storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_ACCESS_2_NONE, 0, 1);
     }
 
+    bool RenderGraph::HasResource(RenderGraphResourceId id) const
+    {
+        return m_ResourceCache.contains(id);
+    }
+
     const RenderGraphResource& RenderGraph::GetResource(RenderGraphResourceId id) const
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
 
         // TODO: Add default missing texture
-        ONYX_ASSERT(ResourceCache.contains(id), "Invalid resource");
-        return ResourceCache.at(id);
+        ONYX_ASSERT(m_ResourceCache.contains(id), "Invalid resource");
+        return m_ResourceCache.at(id);
     }
 
     void RenderGraph::OnSwapChainResized(GraphicsApi& graphicsApi)
@@ -241,10 +256,10 @@ namespace Onyx::Graphics
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
 
-        for (LocalNodeId nodeId : Graph.GetTopologicalOrder())
+        for (LocalNodeId nodeId : m_Graph.GetTopologicalOrder())
         {
-            IRenderGraphNode& node = Graph.GetNode<IRenderGraphNode>(nodeId);
-            node.OnSwapChainResized(graphicsApi, ResourceCache);
+            IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
+            node.OnSwapChainResized(graphicsApi, m_ResourceCache);
         }
     }
 
@@ -254,8 +269,8 @@ namespace Onyx::Graphics
         ONYX_PROFILE_FUNCTION;
 
         // TODO: Add default missing texture
-        ONYX_ASSERT(ResourceCache.contains(id), "Invalid resource");
-        return ResourceCache.at(id);
+        ONYX_ASSERT(m_ResourceCache.contains(id), "Invalid resource");
+        return m_ResourceCache.at(id);
     }
 
     bool RenderGraph::CreateAttachment(GraphicsApi& graphicsApi, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList)
@@ -290,7 +305,7 @@ namespace Onyx::Graphics
         for (onyxU32 freeIndex = 0; freeIndex < freeList.size(); ++freeIndex)
         {
             RenderGraphResourceId id = freeList[freeIndex];
-            RenderGraphResource& freeResource = ResourceCache[id];
+            RenderGraphResource& freeResource = m_ResourceCache[id];
 
             TextureHandle& freeTexture = std::get<TextureHandle>(freeResource.Handle);
             const TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->GetProperties();

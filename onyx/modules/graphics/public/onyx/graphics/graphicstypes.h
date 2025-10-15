@@ -12,7 +12,7 @@ namespace Onyx::Graphics
     // keep in sync with ShaderStage enum in Graphics::ShaderModule
     inline constexpr onyxU8 MAX_SHADER_STAGES = 5;
 
-    enum class Access : onyxU8
+    enum class Access : onyxU32
     {
         None,
         IndirectRead = 1 << 0,
@@ -21,7 +21,8 @@ namespace Onyx::Graphics
         UniformRead = 1 << 3,
         InputAttachmentRead = 1 << 4,
         ShaderRead = 1 << 5,
-        ShaderWrite = 1 << 6
+        ShaderWrite = 1 << 6,
+        ConditionalRead = 0x00100000,
     };
 
     enum class CullMode : onyxU8

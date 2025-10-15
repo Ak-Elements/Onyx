@@ -12,21 +12,19 @@ namespace Onyx::Graphics
 		Storage = 8,
 		Indirect = 16,
 		DeviceAddress = 32,
+		Conditional = 64,
 	};
-
-	ONYX_ENABLE_BITMASK_OPERATORS(BufferUsage);
 
 	struct BufferProperties
 	{
-		onyxU32 m_Size = 0;
-		onyxU32 m_UsageFlags : 6 = 0;
-		onyxU32 m_StructSize : 23 = 0;
-		bool m_IsWritable : 1 = false;
-		bool m_AllowSuballocated : 1 = true;
+		String m_DebugName;
 
+		onyxU64 m_Size = 0;
+		onyxU8 m_UsageFlags = 0;
         CPUAccess m_CpuAccess = CPUAccess::None;
         GPUAccess m_GpuAccess = GPUAccess::Read;
 
-		String m_DebugName;
+		bool m_IsWritable = false;
+		bool m_AllowSuballocated = true;
     };
 }

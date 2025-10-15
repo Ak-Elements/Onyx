@@ -27,6 +27,7 @@ namespace Onyx::GameCore
         m_InputAttachmentInfos.emplace_back();
         Graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
         gbufferInfo.Type = Graphics::RenderGraphResourceType::Attachment;
+        gbufferInfo.Format = Graphics::TextureFormat::RGBA_FLOAT32;
 
         Graphics::RenderGraphTextureResourceInfo& depthtextureInfo = m_InputAttachmentInfos.emplace_back();
         depthtextureInfo.Type = Graphics::RenderGraphResourceType::Attachment;
@@ -98,7 +99,7 @@ namespace Onyx::GameCore
 
             //for (Matrix4<onyxF32> transformMatrix : drawCall.m_Transforms)
             {
-                commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, drawCall.Indices->GetProperties().m_Size / 4, instanceCount, 0, 0, instanceOffset);
+                commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);
                 //instanceOffset += instanceCount;
             }
         }

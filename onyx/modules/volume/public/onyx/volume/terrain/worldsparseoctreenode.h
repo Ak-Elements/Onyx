@@ -9,4 +9,25 @@ namespace Onyx::Volume::Terrain
         onyxU64 ChildrenOffset : 24;
         onyxU64 VoxelOffset : 24;
     };
+
+    struct WorldOctreeChunk
+    {
+        onyxU64 MortonIndex;
+        onyxU32 Depth;
+        onyxU32 ChunkIndex;
+    };
+
+    struct WorldOctreeSplitRequest
+    {
+        onyxU64 MortonIndex;
+        onyxU32 OctreeNodeIndex;
+        onyxU32 ChunkIndex;
+    };
+
+    struct IsoSurfaceRequest
+    {
+        onyxU64 MortonIndex;
+        onyxU32 Depth;
+        onyxU32 ChunkIndex;
+    };
 }

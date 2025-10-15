@@ -6,14 +6,18 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/chunk/volumechunk.h
     ${TARGET_PUBLIC_PATH}/chunk/volumechunkloader.h
     ${TARGET_PUBLIC_PATH}/chunk/volumechunkloadrequest.h
-    ${TARGET_PUBLIC_PATH}/components/volumecomponent.h
+    ${TARGET_PUBLIC_PATH}/components/volumesourcerenderdatacomponent.h
     ${TARGET_PUBLIC_PATH}/components/volumeterraincomponent.h
+    ${TARGET_PUBLIC_PATH}/components/csg/cubecomponent.h
+    ${TARGET_PUBLIC_PATH}/components/csg/planecomponent.h
+    ${TARGET_PUBLIC_PATH}/components/csg/spherecomponent.h
     ${TARGET_PUBLIC_PATH}/cubicalmarchingsquares/cmsoctreesplitpolicy.h
     ${TARGET_PUBLIC_PATH}/cubicalmarchingsquares/linesegment.h
     ${TARGET_PUBLIC_PATH}/cubicalmarchingsquares/vertex.h
     ${TARGET_PUBLIC_PATH}/dualgrid/dualgrid.h
     ${TARGET_PUBLIC_PATH}/dualgrid/dualgrid.hpp
     ${TARGET_PUBLIC_PATH}/dualmarchingcubes/dmcoctreesplitpolicy.h
+    ${TARGET_PUBLIC_PATH}/graphics/previewterrainedit.h
     ${TARGET_PUBLIC_PATH}/isosurface/isosurface.h
     ${TARGET_PUBLIC_PATH}/isosurface/marchingcubessurface.h
     ${TARGET_PUBLIC_PATH}/isosurface/marchingcubestable.h
@@ -54,6 +58,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/source/noise/simplexnoisesource.h
     ${TARGET_PUBLIC_PATH}/source/volumebase.h
     ${TARGET_PUBLIC_PATH}/systems/volumeterrainsystem.h
+    ${TARGET_PUBLIC_PATH}/systems/volumerendersystem.h
     ${TARGET_PUBLIC_PATH}/terrain/worldsparseoctreenode.h
     ${TARGET_PUBLIC_PATH}/tree/tree.h
     ${TARGET_PUBLIC_PATH}/tree/tree.hpp
@@ -73,8 +78,11 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/chunk/volumechunk.cpp
     ${TARGET_PRIVATE_PATH}/chunk/volumechunkloader.cpp
     ${TARGET_PRIVATE_PATH}/chunk/volumechunkloadrequest.cpp
-    ${TARGET_PRIVATE_PATH}/components/volumecomponent.cpp
     ${TARGET_PRIVATE_PATH}/components/volumeterraincomponent.cpp
+    ${TARGET_PRIVATE_PATH}/components/csg/cubecomponent.cpp
+    ${TARGET_PRIVATE_PATH}/components/csg/planecomponent.cpp
+    ${TARGET_PRIVATE_PATH}/components/csg/spherecomponent.cpp
+    ${TARGET_PRIVATE_PATH}/graphics/previewterrainedit.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/isosurface.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/marchingcubessurface.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/marchingsquaressurface.cpp
@@ -87,6 +95,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/source/noise/simplexnoised.cpp
     ${TARGET_PRIVATE_PATH}/source/volumebase.cpp
     ${TARGET_PRIVATE_PATH}/systems/volumeterrainsystem.cpp
+    ${TARGET_PRIVATE_PATH}/systems/volumerendersystem.cpp
     ${TARGET_PRIVATE_PATH}/volumeterrain.cpp
     ${TARGET_PRIVATE_PATH}/volumemodule.cpp
 )

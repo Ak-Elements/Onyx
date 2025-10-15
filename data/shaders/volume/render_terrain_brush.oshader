@@ -1,0 +1,128 @@
+#version 460 core
+
+#include "includes/common.h"
+#include "includes/viewconstants.h"
+#include "includes/bindless.h"
+
+#include "includes/volume/csg/sphere.h"
+#include "includes/volume/csg/cube.h"
+#include "includes/volume/csg/ellipsoid.h"
+
+#include "includes/debug/print.h"
+vertex
+{
+    layout (location = 0) out vec2 vTexCoord;
+
+    void main()
+    {
+        vTexCoord.xy = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(vTexCoord * 2.0f + -1.0f, 0.0f, 1.0f);
+	    //gl_Position.y = -gl_Position.y;
+    }
+}
+
+fragment
+{
+    const float ISO_LEVEL = 0.0f;
+
+    layout (location = 0) in vec2 vTexCoord;
+
+    layout (location = 0) out vec4 outColor;
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer HitPositionBuffer
+    {
+        vec3 HitPosition;
+        uint HasHit;
+    };
+
+    layout(push_constant) uniform constants
+    {
+        HitPositionBuffer HitBuffer;
+        uint DepthTextureIndex;
+        uint BrushType;
+
+        vec3 BrushSize;
+        uint BrushOperation;
+    };
+
+    void main()
+    {
+        if ( HitBuffer.HasHit == 0 )
+            discard;
+
+        const vec2 fragCoord = gl_FragCoord.xy;
+        const vec2 uv = (fragCoord / u_ViewConstants.Viewport);
+        vec3 clipspacePosition = vec3((fragCoord / u_ViewConstants.Viewport) * vec2(2.0, -2.0) - vec2(1.0, -1.0), 0.0);
+ 
+        vec4 ndcPosition = u_ViewConstants.InverseProjectionMatrix * vec4(clipspacePosition, 1.0);
+        ndcPosition /= ndcPosition.w;
+        vec4 worldPosition = u_ViewConstants.InverseViewMatrix * ndcPosition;
+        
+        vec3 rayOrigin = u_ViewConstants.CameraPosition;
+        vec3 rayDirection = normalize(worldPosition.xyz - rayOrigin);
+
+        vec3 hitPos = HitBuffer.HitPosition;
+        vec3 sphereSurfaceHit;
+        bool hasHit = false;
+        float distance = 0.0f;
+        vec4 hitPositionSdfValue;
+        for(uint i = 0; i < 512; ++i)
+        {
+            vec3 position = rayOrigin + rayDirection * distance;
+
+            switch (BrushType)
+            {
+                case VolumeSource_Sphere:
+                {
+                    CsgSphere sphere = CsgSphere(hitPos, BrushSize.x);
+                    hitPositionSdfValue = GetValueAndGradient(position, sphere);
+                    break;
+                }
+                case VolumeSource_Cube:
+                {
+                    CsgCube cube = CsgCube(hitPos, BrushSize);
+                    hitPositionSdfValue = GetValueAndGradient(position, cube);
+                    break;
+                }
+                case VolumeSource_Ellipsoid:
+                {
+                    CsgEllipsoid ellipsoid = CsgEllipsoid(hitPos, BrushSize);
+                    hitPositionSdfValue = GetValueAndGradient(position, ellipsoid);
+                    break;
+                }
+            }
+            
+
+            if (hitPositionSdfValue.w <= 0.0001f)
+            {
+                hasHit = true;
+                sphereSurfaceHit = position;
+                break;
+            }
+
+            distance += hitPositionSdfValue.w;
+        }
+
+        if (hasHit)
+        {
+            vec4 hitClipPosition = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(sphereSurfaceHit, 1.0);
+            vec3 ndcPosition = hitClipPosition.xyz / hitClipPosition.w;
+            float depth = ndcPosition.z;
+
+            float sceneDepth = texture(BindlessTextures[nonuniformEXT(DepthTextureIndex)], uv).r;
+            if (depth > sceneDepth)
+            {
+                discard;
+            }
+
+            vec3 directionalLight = normalize(vec3(0.5,0.8,0.3));
+            float diffuse = clamp(dot(hitPositionSdfValue.xyz, directionalLight), 0.0, 1.0);
+
+            vec3 shadedWhite = vec3(diffuse * 0.3 + 0.7f);
+            outColor = vec4(shadedWhite, 0.7);
+            return;
+        }
+        
+        outColor = vec4(0.0);
+    }
+}

@@ -1,0 +1,178 @@
+#version 460 core 
+
+#include "includes/common.h"
+#include "includes/volume/world_octree.h"
+#include "includes/volume/world_chunk.h"
+#include "includes/volume/volumesources.h"
+
+#include "includes/volume/isosurface_extraction.h"
+#include "includes/indirect_dispatch.h"
+
+#include "includes/morton.h"
+#include "includes/debug/print.h"
+
+compute
+{
+    #define LOCAL_SIZE 1
+    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+    
+    struct UpdateOctreeNodeRequest
+    {
+        uint64_t Morton;
+        uint Depth;
+        uint Offset;
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) buffer UpdateOctreeNodesBuffer
+    {
+        uint Count;
+        UpdateOctreeNodeRequest Requests[];
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer HitPositionBuffer
+    {
+        vec3 HitPosition;
+        uint HasHit;
+    };
+
+    layout(push_constant) uniform Constants
+    {
+        WorldOctree Octree;
+        float RootHalfExtents;
+        uint MaxDepth;
+
+        WorldVolumeSourcesList VolumeSourcesList;
+        WorldVolumeSources VolumeSourcesData;
+
+        UpdateOctreeNodesBuffer QueuedCollapseBuffer;
+        UpdateOctreeNodesBuffer QueuedSplitBuffer;
+
+        HitPositionBuffer HitPositionBuffer;
+        float BrushSizeSquared;
+        float MaxGeometricError;
+        
+        float ComplexSurfaceThreshold;
+        float Padding[3];
+
+    } u_Constants;
+
+#include "includes/volume/octree_split_policy.h"
+#include "includes/volume/test_sdf_function.h"
+
+    void main()
+    {
+        vec3 hitPosition = u_Constants.HitPositionBuffer.HitPosition;
+
+        debugPrintfEXT("%u volume sources count", u_Constants.VolumeSourcesList.Count);
+
+        uint depth = 0;
+        float nodeExtents = u_Constants.RootHalfExtents * 2.0f;
+        uint64_t currentMortonIndex = 0;
+        uint currentFlatNodeIndex = 0;
+        OctreeNode currentNode = UnpackOctreeNode(u_Constants.Octree.Nodes[currentFlatNodeIndex]);
+
+        vec3 centerPosition;
+        bool hasFoundNode = false;
+        while (depth < u_Constants.MaxDepth)
+        {
+            uint64_t depthMask = ((1ul << (3ul * uint64_t(depth))) - 1ul);
+            uint64_t mortonIndexAtDepth = currentMortonIndex & depthMask;
+
+            vec3 coordinate = vec3(DecodeMorton(mortonIndexAtDepth)) + vec3(0.5f);
+            centerPosition = coordinate * nodeExtents - vec3(u_Constants.RootHalfExtents);
+
+            float childNodeExtents = nodeExtents * 0.5f;
+            float childNodeHalfExtents = childNodeExtents * 0.5f;
+
+            uint childX = hitPosition.x < centerPosition.x ? 0 : 1;
+            uint childY = hitPosition.y < centerPosition.y ? 0 : 1;
+            uint childZ = hitPosition.z < centerPosition.z ? 0 : 1;
+
+            uint childIndex = childX | (childY << 1) | (childZ << 2);
+            if ((currentNode.ValidMask & childIndex) == 0)
+            {
+                // fill node info
+                hasFoundNode = true;
+                break;
+            }
+
+            uint64_t childMorton = (currentMortonIndex << 3ul) + childIndex;
+            coordinate = vec3(DecodeMorton(childMorton)) + vec3(0.5f);
+            vec3 childCenter = coordinate * childNodeExtents - vec3(u_Constants.RootHalfExtents);
+            
+            vec3 deltaToChild = childCenter - hitPosition;
+            float lengthSquared = dot(deltaToChild, deltaToChild);
+
+            if (u_Constants.BrushSizeSquared >= lengthSquared)
+            {
+                // fill node info
+                hasFoundNode = true;
+                break;
+            }
+
+            currentMortonIndex = childMorton;
+            currentFlatNodeIndex = currentNode.ChildrenOffset + childIndex;
+            currentNode = UnpackOctreeNode(u_Constants.Octree.Nodes[currentFlatNodeIndex]);
+            nodeExtents = childNodeExtents;
+            ++depth;
+        }
+
+        if (hasFoundNode == false)
+        {
+            return;
+        }
+
+        // put nodes in corresponding update requests
+        bool isMaxDepth = depth == u_Constants.MaxDepth;
+        if (isMaxDepth)
+        {
+            // queue that node for remesh
+            if (isMaxDepth)
+                debugPrintfEXT("Is at max depth");
+            else
+                debugPrintfEXT("Fully subdivided");
+        }
+        else
+        {
+            vec3 cameraPos;
+            uint childCount = 0;
+            uint64_t childBaseMorton = (currentMortonIndex << 3ul);
+            float childNodeExtents = nodeExtents * 0.5f;
+            for (uint childIndex = 0; childIndex < 8; ++childIndex)
+            {
+                uint childMask = (1 << childIndex);
+
+                uint64_t childMorton = childBaseMorton + childIndex;
+                vec3 coordinate = vec3(DecodeMorton(childMorton)) + vec3(0.5f);
+                vec3 childCenter = coordinate * childNodeExtents - vec3(u_Constants.RootHalfExtents);
+
+                OctreeNode evaluatedChild = EvaluateOctreeNode(cameraPos, childCenter, childNodeExtents, u_Constants.MaxGeometricError, u_Constants.ComplexSurfaceThreshold, childCount);
+
+                if ((currentNode.ValidMask & childMask) != 0)
+                {
+                    uint childFlatIndex = currentNode.ChildrenOffset + childIndex;
+                    OctreeNode currentChildNode = UnpackOctreeNode(u_Constants.Octree.Nodes[childFlatIndex]);
+                    
+                    bool hasSplitChanged = currentChildNode.ValidMask != evaluatedChild.ValidMask;
+                    if ((hasSplitChanged) && (evaluatedChild.ValidMask == 0))
+                    {
+                        // collapse
+                        debugPrintfEXT("Found node to collapse");
+                    }
+                    else
+                    {
+                        // split & traverse down
+                        debugPrintfEXT("Found node to split / update");
+                    }
+                }
+                else if ((currentNode.LeafMask & childMask) != 0)
+                {
+                    if (evaluatedChild.ValidMask == 0)
+                        debugPrintfEXT("Nothing changed");
+                    else
+                        debugPrintfEXT("Found node to split / update");
+                }
+            }
+        }
+    }
+}

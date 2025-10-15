@@ -7,6 +7,7 @@ namespace Onyx::Graphics
 {
     class Buffer;
     struct TextureHandle;
+    struct BufferHandle;
 }
 namespace Onyx::Graphics::Vulkan
 {
@@ -30,8 +31,8 @@ namespace Onyx::Graphics::Vulkan
 
         void UpdateDescriptors() override;
 
-        void Bind(const Reference<Buffer>& bufferHandle, const String& bindingName) override;
         void Bind(const TextureHandle& textureHandle, const String& bindingName) override;
+        void Bind(const BufferHandle& bufferHandle, const String& bindingName) override;
 
         HashSet<String> GetBindingIds() const override;
 

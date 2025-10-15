@@ -32,7 +32,7 @@ namespace Onyx::Graphics::Vulkan
 		VmaAllocationInfo GetAllocationInfo(const VmaAllocation& allocation);
 
 		VkImage Alias(VmaAllocation allocation, const VkImageCreateInfo& aliasInfo);
-		VkBuffer Alias(VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo);
+		VkBuffer Alias(VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, onyxU32 offset);
 
 		void Bind(VkBuffer buffer, VmaAllocation allocation);
 		void Bind(VkImage image, VmaAllocation allocation);

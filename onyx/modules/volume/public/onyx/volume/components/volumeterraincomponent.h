@@ -24,27 +24,34 @@ namespace Volume
         // if e.g. x is set to -1 it can infinitely scale on the x axis
         Vector3s16 Dimensions { -1, -1, -1 };
 
-        // if the chunksize is 32x32 and the resolution is 32x32, each voxel is 1x1.
-        // if the resolution is set to 16x16 each voxel is 2x2
-        // resolution 64x64 - each voxel is 0.5x0.5x
-        onyxU32 ChunkSize = 32; // size per volume chunk
-        onyxU32 Resolution = 32; // resolution per chunk
+        onyxU32 ChunkSize = 64; // world size of the smallest chunk
+        onyxU32 Resolution = 512; // resolution of a chunk (voxel size equals ChunkSize / Resolution)
 
-        onyxU32 MinimumVoxelSizeInCentimeters = 50;
+        onyxF32 MaxGeometricError = 0.1f;
+        onyxF32 ComplexSurfaceThreshold = 0.89f;
     };
 
     struct TerrainWorldOctreeComponent
     {
         DynamicArray<Terrain::WorldChunksOctreeNode> Octree;
+
         Graphics::BufferHandle OctreeGpuBuffer;
-        Graphics::BufferHandle OctreeLeafNodesGpuBuffer;
-        onyxF32 RootSize;
-        onyxU8 Depth;
+        Graphics::BufferHandle OctreeChunksBuffer;
+
+        //TODO: should be an octree / spatial structure in the future
+        onyxU32 VolumeObjectsCount = 0;
+        Graphics::BufferHandle VolumeObjects;
+        Graphics::BufferHandle VolumeObjectsData;
+
+        onyxF32 RootSize = 1.0f;
+        onyxU8 Depth = 0;
     };
 
     struct VolumeGenerationComponent
     {
+        Graphics::ShaderEffectHandle ResetBuffersShader;
         Graphics::ShaderEffectHandle UpdateWorldOctreeShader;
+        Graphics::ShaderEffectHandle UpdateWorldOctreeChunkShader;
         Graphics::ShaderEffectHandle SetupDispatchGenerateMeshShader;
         Graphics::ShaderEffectHandle GenerateMeshShader;
     };

@@ -30,7 +30,7 @@ namespace Onyx::Graphics
     //class Shader;
     //class ShaderEffect;
 
-    using BufferHandle = Reference<Buffer>;
+    //using BufferHandle = Reference<Buffer>;
     using TextureViewHandle = Reference<Texture, TextureDeleter>;
     using TextureStorageHandle = Reference<TextureStorage>;
     using ShaderHandle = Reference<Shader>;
@@ -39,6 +39,29 @@ namespace Onyx::Graphics
     using FramebufferHandle = Reference<Framebuffer>;
     using PipelineHandle = Reference<Pipeline>;
     using DescriptorSetHandle = Reference<DescriptorSet>;
+
+    struct BufferHandle
+    {
+        Reference<Buffer> Buffer;
+        onyxS8 Alias = INVALID_INDEX_8;
+
+        operator bool() const
+        {
+            return Buffer;
+        }
+
+        onyxU64 GetGpuAddress() const { return Buffer->GetGpuAddress() + Buffer->GetAliasOffset(Alias); }
+
+        friend bool operator==(const BufferHandle& lhs, const BufferHandle& rhs)
+        {
+            return lhs.Buffer == rhs.Buffer && lhs.Alias == rhs.Alias;
+        }
+
+        friend bool operator!=(const BufferHandle& lhs, const BufferHandle& rhs)
+        {
+            return !(lhs == rhs);
+        }
+    };
 
     struct TextureHandle
     {

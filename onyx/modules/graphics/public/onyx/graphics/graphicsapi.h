@@ -167,6 +167,7 @@ namespace Onyx
             virtual void CreateAlias(TextureHandle& outTexture, TextureStorageHandle& storageHandle, const TextureStorageProperties& aliasStorageProperties, const TextureProperties& aliasTextureProperties) = 0;
             
             virtual void CreateBuffer(BufferHandle& outBuffer, const BufferProperties& properties) = 0;
+            virtual BufferHandle GetTransientBuffer(onyxU8 frameIndex, const BufferProperties& properties) = 0;
         };
 
         class GraphicsApi : public NonCopyable
@@ -225,8 +226,10 @@ namespace Onyx
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties);
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData);
             void CreateAlias(TextureHandle& outTexture, TextureStorageHandle& storageHandle, const TextureStorageProperties& aliasStorageProperties, const TextureProperties& aliasTextureProperties);
+
             void CreateBuffer(BufferHandle& outBuffer, const BufferProperties& properties);
-            
+            BufferHandle GetTransientBuffer(const BufferProperties& properties);
+
             DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) const;
 
             onyxU8 GetFrameIndex() const { return m_FrameIndex; }

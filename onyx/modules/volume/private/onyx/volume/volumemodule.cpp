@@ -1,32 +1,32 @@
 #include <onyx/volume/volumemodule.h>
 
 #include <onyx/gamecore/gamecore.h>
-#include <onyx/volume/components/volumecomponent.h>
+#include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
+#include <onyx/volume/components/volumesourcerenderdatacomponent.h>
+#include <onyx/volume/components/csg/cubecomponent.h>
+#include <onyx/volume/components/csg/planecomponent.h>
+#include <onyx/volume/components/csg/spherecomponent.h>
+#include <onyx/volume/graphics/previewterrainedit.h>
+#include <onyx/volume/systems/volumerendersystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 namespace Onyx::Volume
 {
-    namespace
-    {
-        void RegisterSystems(Entity::EcsBuilder& ecsBuilder)
-        {
-            Systems::registerSystem(ecsBuilder);
-        }
-    }
-
     VolumeModule::VolumeModule()
     {
+        Graphics::RenderGraphNodeFactory::RegisterNode<PreviewTerrainEditPass>();
     }
 
     void VolumeModule::Init(GameCore::GameCoreSystem& gameCore)
     {
         Entity::EcsBuilder ecsBuilder = gameCore.GetEcsBuilder();
-        RegisterSystems(ecsBuilder);
         Terrain::Register(ecsBuilder);
+        Rendering::Register(ecsBuilder);
 
-        ecsBuilder.RegisterComponent<VolumeComponent>();
-        ecsBuilder.RegisterComponent<VolumeSourceComponent>();
-        
+        ecsBuilder.RegisterComponent<VolumeSourceRenderDataComponent>();
+        ecsBuilder.RegisterComponent<CubeComponent>();
+        ecsBuilder.RegisterComponent<PlaneComponent>();
+        ecsBuilder.RegisterComponent<SphereComponent>();
     }
 
     void VolumeModule::Shutdown()

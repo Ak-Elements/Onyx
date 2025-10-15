@@ -76,6 +76,9 @@ namespace Onyx::Graphics::Vulkan
         void BindPipeline(const PipelineHandle& pipeline) override;
         void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data) override;
 
+        void BeginConditionalRendering(const BufferHandle& conditionalBuffer, onyxU32 offset) override;
+        void EndConditionalRendering() override;
+
     private:
         const VulkanGraphicsApi& m_Api;
 
