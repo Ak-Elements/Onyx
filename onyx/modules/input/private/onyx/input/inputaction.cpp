@@ -11,6 +11,7 @@ namespace Onyx::Input
     {
     }
 
+    InputAction::~InputAction() = default;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     void InputAction::SetName(StringView name)

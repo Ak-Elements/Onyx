@@ -17,36 +17,36 @@ namespace Onyx::Ui
 {
     namespace
     {
-        // Convert hsv floats ([0-1],[0-1],[0-1]) to rgb uint , from Foley & van Dam p593
-        // also http://en.wikipedia.org/wiki/HSL_and_HSV
-        onyxU32 ColorConvertHSVtoBGR(float h, float s, float v)
-        {
-            auto ConvertToU32 = [](float value) { return static_cast<onyxU32>(value * 255.0f + 0.5f); };
+        //// Convert hsv floats ([0-1],[0-1],[0-1]) to rgb uint , from Foley & van Dam p593
+        //// also http://en.wikipedia.org/wiki/HSL_and_HSV
+        //onyxU32 ColorConvertHSVtoBGR(float h, float s, float v)
+        //{
+        //    auto ConvertToU32 = [](float value) { return static_cast<onyxU32>(value * 255.0f + 0.5f); };
 
-            if (s == 0.0f)
-            {
-                // gray
-                onyxU32 colorValue = ConvertToU32(v);
-                return colorValue << 16 | colorValue << 8 | colorValue;
-            }
+        //    if (s == 0.0f)
+        //    {
+        //        // gray
+        //        onyxU32 colorValue = ConvertToU32(v);
+        //        return colorValue << 16 | colorValue << 8 | colorValue;
+        //    }
 
-            h = ImFmod(h, 1.0f) / (60.0f / 360.0f);
-            int   i = (int)h;
-            float f = h - (float)i;
-            float p = v * (1.0f - s);
-            float q = v * (1.0f - s * f);
-            float t = v * (1.0f - s * (1.0f - f));
+        //    h = ImFmod(h, 1.0f) / (60.0f / 360.0f);
+        //    int   i = (int)h;
+        //    float f = h - (float)i;
+        //    float p = v * (1.0f - s);
+        //    float q = v * (1.0f - s * f);
+        //    float t = v * (1.0f - s * (1.0f - f));
 
-            switch (i)
-            {
-            case 0: return (255 << 24) | ConvertToU32(v) | ConvertToU32(t) << 8 | ConvertToU32(p) << 16;
-            case 1: return (255 << 24) |ConvertToU32(q) | ConvertToU32(v) << 8 | ConvertToU32(p) << 16;
-            case 2: return (255 << 24) |ConvertToU32(p) | ConvertToU32(v) << 8 | ConvertToU32(t) << 16;
-            case 3: return (255 << 24) |ConvertToU32(p) | ConvertToU32(q) << 8 | ConvertToU32(v) << 16;
-            case 4: return (255 << 24) |ConvertToU32(t) | ConvertToU32(p) << 8 | ConvertToU32(v) << 16;
-            case 5: default: return (255 << 24) | ConvertToU32(v) | ConvertToU32(p) << 8 | ConvertToU32(q) << 16;
-            }
-        }
+        //    switch (i)
+        //    {
+        //    case 0: return (255 << 24) | ConvertToU32(v) | ConvertToU32(t) << 8 | ConvertToU32(p) << 16;
+        //    case 1: return (255 << 24) |ConvertToU32(q) | ConvertToU32(v) << 8 | ConvertToU32(p) << 16;
+        //    case 2: return (255 << 24) |ConvertToU32(p) | ConvertToU32(v) << 8 | ConvertToU32(t) << 16;
+        //    case 3: return (255 << 24) |ConvertToU32(p) | ConvertToU32(q) << 8 | ConvertToU32(v) << 16;
+        //    case 4: return (255 << 24) |ConvertToU32(t) | ConvertToU32(p) << 8 | ConvertToU32(v) << 16;
+        //    case 5: default: return (255 << 24) | ConvertToU32(v) | ConvertToU32(p) << 8 | ConvertToU32(q) << 16;
+        //    }
+        //}
 
         template <typename VectorT> requires (IsVector3<VectorT> || IsVector4<VectorT>)
         bool ColorEdit(StringView id, VectorT& outColor, ImGuiColorEditFlags flags);

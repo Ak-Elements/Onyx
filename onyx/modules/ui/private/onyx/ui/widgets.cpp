@@ -179,11 +179,6 @@ namespace Onyx::Ui
         // Calculate header area including spacing
         ImGuiStyle& currentStyle = ImGui::GetStyle();
 
-        const ImVec2 cursorStart = ImGui::GetCursorScreenPos();
-        const ImVec2 contentRegion = ImGui::GetContentRegionAvail();
-        const ImVec2 headerAreaMin = cursorStart - ImVec2(0.0f, currentStyle.ItemSpacing.y);
-        const ImVec2 headerAreaMax = cursorStart + ImVec2(contentRegion.x, ImGui::GetFrameHeight() + currentStyle.ItemSpacing.y);
-
         // Fill the background of the header (including gaps)
         //const ImU32 bgColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
         //ImGui::GetWindowDrawList()->AddRectFilled(headerAreaMin, headerAreaMax, bgColor);
