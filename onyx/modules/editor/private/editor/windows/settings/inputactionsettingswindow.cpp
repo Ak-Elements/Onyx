@@ -128,8 +128,6 @@ namespace Onyx::Editor
 
                     Ui::PropertyGrid::EndPropertyGrid();
 
-                    //ImGui::EndVertical();
-
                     ImGui::EndTable();
                 }
             }
@@ -393,7 +391,7 @@ namespace Onyx::Editor
 
         //Localization::LocalizationId localizationId{ Enums::ToString(actionType) };
         //Localization::LocalizedString selectedActionLocalized = m_LocalizationModule->GetLocalized(localizationId);
-        if (Ui::PropertyGrid::DrawEnumProperty<Input::ActionType, Input::ActionType::Bool, Input::ActionType::Axis3D>("Value Type", actionType))
+        if (Ui::PropertyGrid::DrawEnumProperty<Input::ActionType, Input::ActionType::Invalid, Input::ActionType::Count>("Value Type", actionType))
         {
             selectedAction.GetBindings().clear();
             selectedAction.SetType(actionType);

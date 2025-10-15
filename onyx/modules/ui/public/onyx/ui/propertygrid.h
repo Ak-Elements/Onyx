@@ -70,8 +70,17 @@ namespace Onyx::Ui
             }
             else if (flags == ScalarInputFlag::PowerOf2)
             {
-                // TODO: Add powerof2 restriction
-                hasModified = DrawScalarInput("##inoutScalar", dataType, value);
+                // This works but the IsItemDeactivatedAfterEdit fires after losing focus which makes it hard to check if the value actually changed
+                //static ScalarT tmpValue = value;
+                DrawScalarInput("##inoutScalar", dataType, value);
+                if (ImGui::IsItemDeactivatedAfterEdit())
+                {
+                   // if (tmpValue != value)
+                  //  {
+                  //      value = tmpValue;
+                        hasModified = true;
+                  //  }
+                }
             }
 
             ImGui::PopID();
@@ -145,7 +154,7 @@ namespace Onyx::Ui
             return hasModified;
         }
 
-        template <typename EnumT> requires std::is_enum_v<EnumT>
+        template <typename EnumT, EnumT... ExcludeEnumTs> requires std::is_enum_v<EnumT>
         bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
         {
             DrawPropertyName(propertyName);
@@ -159,6 +168,10 @@ namespace Onyx::Ui
                 constexpr auto enum_entries = magic_enum::enum_entries<EnumT>();
                 for (auto&& [enumValue, name] : enum_entries)
                 {
+                    // Skip values passed in the variadic args
+                    if (((enumValue == ExcludeEnumTs) || ...))
+                        continue;
+
                     bool isSelected = enumValue == currentValue;
                     if (ImGui::Selectable(name.data(), isSelected))
                     {
@@ -182,7 +195,7 @@ namespace Onyx::Ui
 
         // Renders a enum property only with enum values between FromValue - ToValue
         template <typename EnumT, EnumT FromValue, EnumT ToValue> requires std::is_enum_v<EnumT>
-        bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
+        bool DrawEnumPropertyFromTo(StringView propertyName, EnumT& currentValue)
         {
             DrawPropertyName(propertyName);
 

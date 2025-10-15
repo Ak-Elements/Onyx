@@ -8,23 +8,23 @@ namespace Onyx::Editor
         template <typename InVectorT, typename OutVectorT>
         constexpr auto GetSwizzleMaskRange()
         {
-            if constexpr (is_specialization_of_v<Vector2, OutVectorT>)
+            if constexpr (IsVector2<OutVectorT>)
             {
-                if constexpr (is_specialization_of_v<Vector2, InVectorT>) return std::pair{ SwizzleMask::XY, SwizzleMask::YY };
-                if constexpr (is_specialization_of_v<Vector3, InVectorT>) return std::pair{ SwizzleMask::XY, SwizzleMask::ZZ };
-                if constexpr (is_specialization_of_v<Vector4, InVectorT>) return std::pair{ SwizzleMask::XY, SwizzleMask::WW };
+                if constexpr (IsVector2<InVectorT>) return std::pair{ SwizzleMask::XY, SwizzleMask::YY };
+                if constexpr (IsVector3<InVectorT>) return std::pair{ SwizzleMask::XY, SwizzleMask::ZZ };
+                if constexpr (IsVector4<InVectorT>) return std::pair{ SwizzleMask::XY, SwizzleMask::WW };
             }
-            else if constexpr (is_specialization_of_v<Vector3, OutVectorT>)
+            else if constexpr (IsVector3<OutVectorT>)
             {
-                if constexpr (is_specialization_of_v<Vector2, InVectorT>) return std::pair{ SwizzleMask::XXX, SwizzleMask::YYY };
-                if constexpr (is_specialization_of_v<Vector3, InVectorT>) return std::pair{ SwizzleMask::XXX, SwizzleMask::ZZZ };
-                if constexpr (is_specialization_of_v<Vector4, InVectorT>) return std::pair{ SwizzleMask::XXX, SwizzleMask::WWW };
+                if constexpr (IsVector2<InVectorT>) return std::pair{ SwizzleMask::XXX, SwizzleMask::YYY };
+                if constexpr (IsVector3<InVectorT>) return std::pair{ SwizzleMask::XXX, SwizzleMask::ZZZ };
+                if constexpr (IsVector4<InVectorT>) return std::pair{ SwizzleMask::XXX, SwizzleMask::WWW };
             }
-            else if constexpr (is_specialization_of_v<Vector4, OutVectorT>)
+            else if constexpr (IsVector4<OutVectorT>)
             {
-                if constexpr (is_specialization_of_v<Vector2, InVectorT>) return std::pair{ SwizzleMask::XXXX, SwizzleMask::YYYY };
-                if constexpr (is_specialization_of_v<Vector3, InVectorT>) return std::pair{ SwizzleMask::XXXX, SwizzleMask::ZZZZ };
-                if constexpr (is_specialization_of_v<Vector4, InVectorT>) return std::pair{ SwizzleMask::XXXX, SwizzleMask::WWWW };
+                if constexpr (IsVector2<InVectorT>) return std::pair{ SwizzleMask::XXXX, SwizzleMask::YYYY };
+                if constexpr (IsVector3<InVectorT>) return std::pair{ SwizzleMask::XXXX, SwizzleMask::ZZZZ };
+                if constexpr (IsVector4<InVectorT>) return std::pair{ SwizzleMask::XXXX, SwizzleMask::WWWW };
             }
         }
 
@@ -32,7 +32,7 @@ namespace Onyx::Editor
         bool DrawSwizzleEnumPropertyGrid(SwizzleMask& currentMask)
         {
             constexpr auto startEndPair = GetSwizzleMaskRange<InVectorT, OutVectorT>();
-            return Ui::PropertyGrid::DrawEnumProperty<SwizzleMask, startEndPair.first, startEndPair.second>("Swizzle", currentMask);
+            return Ui::PropertyGrid::DrawEnumPropertyFromTo<SwizzleMask, startEndPair.first, startEndPair.second>("Swizzle", currentMask);
         }
     }
 
