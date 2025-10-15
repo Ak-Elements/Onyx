@@ -97,7 +97,7 @@ namespace Onyx::Input
             for (InputActionSignalT& inputSignal : m_InputActionSignals | std::views::values)
             {
                 Sink sink(inputSignal);
-                sink.template Disconnect(std::forward<Type...>(value_or_instance)...);
+                sink.Disconnect(std::forward<Type...>(value_or_instance)...);
             }
         }
 
