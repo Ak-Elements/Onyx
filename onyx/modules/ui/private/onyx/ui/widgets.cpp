@@ -232,7 +232,6 @@ namespace Onyx::Ui
 
         // Start the horizontal layout
         ImGui::BeginGroup(); // Group to keep header and buttons together
-        //
 
         // Calculate header area including spacing
         const ImVec2 cursorStart = ImGui::GetCursorScreenPos();

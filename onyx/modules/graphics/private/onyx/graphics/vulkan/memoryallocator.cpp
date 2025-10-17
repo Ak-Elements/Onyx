@@ -115,7 +115,7 @@ namespace Onyx::Graphics::Vulkan
         return alias;
     }
 
-    VkBuffer MemoryAllocator::Alias(VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, onyxU32 offset)
+    VkBuffer MemoryAllocator::Alias(VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, onyxU64 offset)
     {
         VkBuffer alias = nullptr;
         VK_CHECK_RESULT(vmaCreateAliasingBuffer2(m_Allocator, allocation, offset, &aliasInfo, &alias))

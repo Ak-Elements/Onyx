@@ -17,7 +17,6 @@ namespace Onyx::Graphics::Vulkan
         VulkanBuffer(VulkanGraphicsApi& api, const BufferProperties& properties);
         ~VulkanBuffer() override;
 
-        void Copy(CommandPool& commandPool, const VulkanBuffer& src, VkDeviceSize size);
         void Destroy();
 
         void* Map(MapMode mode) override;
@@ -46,7 +45,7 @@ namespace Onyx::Graphics::Vulkan
         void ClearAliases() override { m_Aliases.clear(); }
 
         void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) override;
-        void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU64 offset, onyxU64 size) override;
+        void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxS8 aliasIndex) override;
         onyxS8 Alias(const BufferProperties& properties) override;
 
     private:
@@ -56,10 +55,16 @@ namespace Onyx::Graphics::Vulkan
         VkBufferUsageFlags GetUsageFlags() const;
         static VkBufferUsageFlags GetUsageFlags(const BufferProperties& properties);
 
+
+
         struct AliasInfo
         {
             onyxU64 Offset;
             onyxU64 Size;
+
+            Access Access = Access::None;
+            Context Context = Context::Graphics;
+
             VkBuffer m_Buffer = nullptr;//only used if device address is not supported
         };
 

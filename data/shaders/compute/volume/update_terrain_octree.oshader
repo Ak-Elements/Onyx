@@ -40,7 +40,7 @@ compute
         WorldVolumeSources VolumeSourcesData;
 
         IsoSurfaceRequests SurfaceRequests;
-        IndirectDispatchBuffer IndirectDispatch;
+        IndirectDispatch IndirectDispatch;
 
         UpdateOctreeNodesBuffer UpdateOctreeNodesReadBuffer;
         UpdateOctreeNodesBuffer UpdateOctreeNodesWriteBuffer;
@@ -60,9 +60,9 @@ compute
     {
         if (gl_GlobalInvocationID == uvec3(0,0,0))
         {
-            u_Constants.IndirectDispatch.Dispatch.X = 0;
-            u_Constants.IndirectDispatch.Dispatch.Y = 1;
-            u_Constants.IndirectDispatch.Dispatch.Z = 1;
+            u_Constants.IndirectDispatch.X = 0;
+            u_Constants.IndirectDispatch.Y = 1;
+            u_Constants.IndirectDispatch.Z = 1;
 
             u_Constants.UpdateOctreeNodesWriteBuffer.Count = 0;
         }
@@ -151,6 +151,6 @@ compute
         }
 
         uint dispatchX = uint(ceil(u_Constants.UpdateOctreeNodeRequest.Count / float(LOCAL_SIZE)));
-        atomicMax(u_Constants.IndirectDispatch.Dispatch.X, max(1, dispatchX));
+        atomicMax(u_Constants.IndirectDispatch.X, max(1, dispatchX));
     }
 }

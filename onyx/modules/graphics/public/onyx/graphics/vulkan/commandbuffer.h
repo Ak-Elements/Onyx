@@ -58,6 +58,7 @@ namespace Onyx::Graphics::Vulkan
         void DrawMeshTaskIndirect(const BufferHandle& argumentBuffer, onyxU32 argumentOffset, const BufferHandle& countBuffer, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride) override;
 
         void Dispatch(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ) override;
+        void DispatchIndirect(const BufferHandle& buffer) override;
         void DispatchIndirect(const BufferHandle& buffer, onyxU32 offset) override;
 
         void Copy(const BufferHandle& source, BufferHandle& destination) override;

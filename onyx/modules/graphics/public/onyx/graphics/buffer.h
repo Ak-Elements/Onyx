@@ -30,7 +30,7 @@ namespace Onyx::Graphics
 		virtual void Flush(onyxU32 offset, onyxU32 count) = 0;
 
         virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess) = 0;
-        virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU64 offset, onyxU64 size) = 0;
+        virtual void Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxS8 aliasIndex) = 0;
         virtual onyxS8 Alias(const BufferProperties& properties) = 0;
         virtual void ClearAliases() = 0;
 

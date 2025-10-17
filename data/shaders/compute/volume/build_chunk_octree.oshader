@@ -40,7 +40,7 @@ compute
         WorldVolumeSources VolumeSourcesData;
 
         IsoSurfaceRequests SurfaceRequests;
-        IndirectDispatchBuffer IndirectDispatch;
+        IndirectDispatch IndirectDispatch;
 
         SplitOctreeRequests SplitRequestsReadBuffer;
         SplitOctreeRequests SplitRequestsWriteBuffer;
@@ -66,17 +66,19 @@ compute
     {
         if (gl_GlobalInvocationID == uvec3(0,0,0))
         {
-            u_Constants.IndirectDispatch.Dispatch.X = 0;
-            u_Constants.IndirectDispatch.Dispatch.Y = 1;
-            u_Constants.IndirectDispatch.Dispatch.Z = 1;
-
+            u_Constants.IndirectDispatch.X = 0;
+            u_Constants.IndirectDispatch.Y = 1;
+            u_Constants.IndirectDispatch.Z = 1;
+            
             u_Constants.SplitRequestsWriteBuffer.Count = 0;
         }
 
         uint currentLevelRequestedNodeCount = u_Constants.SplitRequestsReadBuffer.Count;
 
-        uint globalID = gl_GlobalInvocationID.x;
+        if (currentLevelRequestedNodeCount == 0)
+            return;
 
+        uint globalID = gl_GlobalInvocationID.x;
         if (globalID >= currentLevelRequestedNodeCount)
         {
             return;
@@ -152,7 +154,7 @@ compute
             debugPrintfEXT("ERROR, wrong flat index %u", u_Constants.Depth);
         }
 
-        uint dispatchX = uint(ceil(u_Constants.SplitRequestsWriteBuffer.Count / float(LOCAL_SIZE)));
-        atomicMax(u_Constants.IndirectDispatch.Dispatch.X, max(1, dispatchX));
+        uint dispatchX = u_Constants.SplitRequestsWriteBuffer.Count == 0 ? 0 : uint(ceil(u_Constants.SplitRequestsWriteBuffer.Count / float(LOCAL_SIZE)));
+        atomicMax(u_Constants.IndirectDispatch.X, max(1, dispatchX));
     }
 }

@@ -50,7 +50,9 @@ namespace Onyx::Graphics
             return Buffer;
         }
 
-        onyxU64 GetGpuAddress() const { return Buffer->GetGpuAddress() + Buffer->GetAliasOffset(Alias); }
+        onyxU64 GetGpuAddress() const { return Buffer->GetGpuAddress() + GetOffset(); }
+        onyxU64 GetOffset() const { return Alias == INVALID_INDEX_8 ? 0 : Buffer->GetAliasOffset(Alias); }
+        onyxU64 GetSize() const { return Buffer->GetAliasSize(Alias); }
 
         friend bool operator==(const BufferHandle& lhs, const BufferHandle& rhs)
         {

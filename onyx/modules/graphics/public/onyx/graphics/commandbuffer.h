@@ -63,6 +63,7 @@ namespace Onyx::Graphics
         virtual void DrawMeshTaskIndirect(const BufferHandle& argumentBuffer, onyxU32 argumentOffset, const BufferHandle& countBuffer, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride) = 0;
 
         virtual void Dispatch(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ) = 0;
+        virtual void DispatchIndirect(const BufferHandle& buffer) = 0;
         virtual void DispatchIndirect(const BufferHandle& buffer, onyxU32 offset) = 0;
 
         virtual void Copy(const BufferHandle& source, BufferHandle& destination) = 0;

@@ -40,22 +40,33 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanBuffer::Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess)
     {
-        /*if ((m_Access == newAccess) && (m_Context == newContext))
-        {
-            return;
-        }*/
-
-        Barrier(commandBuffer, newContext, newAccess, 0, m_Properties.m_Size);
+        Barrier(commandBuffer, newContext, newAccess, INVALID_INDEX_8);
     }
 
-    void VulkanBuffer::Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU64 offset, onyxU64 size)
+    void VulkanBuffer::Barrier(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxS8 aliasIndex)
     {
         // TODO: hazard tracking for regions?
         VulkanCommandBuffer& vkCommandBuffer = static_cast<VulkanCommandBuffer&>(commandBuffer);
 
+        Access currentAccess = m_Access;
+        Context currentContext = m_Context;
+        onyxU64 offset = 0;
+        onyxU64 bufferSize = m_Properties.m_Size;
+        if (aliasIndex != INVALID_INDEX_8)
+        {
+            AliasInfo& aliasInfo = m_Aliases[aliasIndex];
+            currentAccess = aliasInfo.Access;
+            currentContext = aliasInfo.Context;
+            offset = aliasInfo.Offset;
+            bufferSize = aliasInfo.Size;
+
+            aliasInfo.Access = newAccess;
+            aliasInfo.Context = newContext;
+        }
+
         VkBufferMemoryBarrier2 barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2 };
-        barrier.srcAccessMask = ToAccessFlag(m_Access);
-        barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, m_Context);
+        barrier.srcAccessMask = ToAccessFlag(currentAccess);
+        barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, currentContext);
         barrier.dstAccessMask = ToAccessFlag(newAccess);
         barrier.dstStageMask = GetPipelineFlags(barrier.dstAccessMask, newContext);
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -63,7 +74,7 @@ namespace Onyx::Graphics::Vulkan
 
         barrier.buffer = m_Buffer;
         barrier.offset = offset;
-        barrier.size = size;
+        barrier.size = bufferSize;
         barrier.pNext = nullptr;
 
         VkDependencyInfo dependency_info{};
@@ -87,23 +98,25 @@ namespace Onyx::Graphics::Vulkan
             offset += info.Size;
         }
 
-        m_Aliases.emplace_back(offset, properties.m_Size, nullptr);
+        m_Aliases.emplace_back(offset, properties.m_Size);
 
         //VkBufferCreateInfo createInfo{};
         //createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         //createInfo.size = properties.m_Size;
         //createInfo.usage = GetUsageFlags();
-        // TODO: do we need to use concurrent?
+        //// TODO: do we need to use concurrent?
         //createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         //createInfo.pNext = nullptr;
-
+        //
         //VkBuffer buffer = m_Allocator->Alias(m_Memory, createInfo, offset);
         //ONYX_UNUSED(buffer);
         //VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
         //addressInfo.buffer = buffer;
         //onyxU64 gpuAddress = vkGetBufferDeviceAddress(m_Device->GetHandle(), &addressInfo);
-
-        //ONYX_LOG_INFO("{}", gpuAddress);
+        //
+        //onyxU64 calculatedGpuAddress = m_GpuAddress + offset;
+        //
+        //ONYX_LOG_INFO("{}, {}", gpuAddress, calculatedGpuAddress);
 
         return static_cast<onyxS8>(m_Aliases.size() - 1);
     }
@@ -183,23 +196,6 @@ namespace Onyx::Graphics::Vulkan
     void VulkanBuffer::SetData(onyxS32 offset, const void* data, onyxS32 length)
     {
         std::memcpy(&static_cast<char*>(m_DataPointer)[offset], data, length);
-    }
-
-    void VulkanBuffer::Copy(CommandPool& commandPool, const VulkanBuffer& src, VkDeviceSize size)
-    {
-        ONYX_UNUSED(commandPool);
-        ONYX_UNUSED(src);
-        ONYX_UNUSED(size);
-        // TODO: reimplement
-        /*commandPool.SingleSubmitBuffer([&](VkCommandBuffer commandBuffer)
-        {
-            VkBufferCopy copyRegion;
-            copyRegion.srcOffset = 0; // Optional
-            copyRegion.dstOffset = 0; // Optional
-            copyRegion.size = size;
-
-            vkCmdCopyBuffer(commandBuffer, src.GetHandle(), GetHandle(), 1, &copyRegion);
-        });*/
     }
 
     VkBufferUsageFlags VulkanBuffer::GetUsageFlags() const

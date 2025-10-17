@@ -313,9 +313,7 @@ namespace Onyx::Graphics::Vulkan
 
     void VulkanCommandBuffer::Barrier(BufferHandle& buffer, Context newContext, Access newAccess)
     {
-        onyxU64 offset = buffer.Buffer->GetAliasOffset(buffer.Alias);
-        onyxU64 size = buffer.Buffer->GetAliasSize(buffer.Alias);
-        buffer.Buffer->Barrier(*this, newContext, newAccess, offset, size);
+        buffer.Buffer->Barrier(*this, newContext, newAccess, buffer.Alias);
     }
 
     void VulkanCommandBuffer::BindDescriptorSets()
@@ -529,6 +527,11 @@ namespace Onyx::Graphics::Vulkan
 #endif
     }
 
+    void VulkanCommandBuffer::DispatchIndirect(const BufferHandle& bufferHandle)
+    {
+        DispatchIndirect(bufferHandle, 0);
+    }
+
     void VulkanCommandBuffer::DispatchIndirect(const BufferHandle& bufferHandle, onyxU32 offset)
     {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -536,7 +539,7 @@ namespace Onyx::Graphics::Vulkan
 #endif
 
         const VulkanBuffer& vkBuffer = bufferHandle.Buffer.As<VulkanBuffer>();
-        vkCmdDispatchIndirect(m_CommandBuffer, vkBuffer.GetHandle(), offset);
+        vkCmdDispatchIndirect(m_CommandBuffer, vkBuffer.GetHandle(), bufferHandle.GetOffset() + offset);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         EndDebugLabel();
