@@ -1,10 +1,10 @@
 #pragma once
 
-#include <onyx/volume/chunk/volumechunkloadrequest.h>
-#include <vector>
-
 namespace Onyx::Volume
 {
+    class VolumeChunkLoadRequest;
+    struct VolumeChunckLoadRequestData;
+
     class VolumeChunkLoader
     {
     public:
@@ -14,7 +14,7 @@ namespace Onyx::Volume
         void Cancel();
         void ClearCanceledTasks();
     private:
-        std::unique_ptr<VolumeChunkLoadRequest> m_ActiveLoadRequest;
-        std::vector<std::unique_ptr<VolumeChunkLoadRequest>> m_PendingCanceledTasks;
+        UniquePtr<VolumeChunkLoadRequest> m_ActiveLoadRequest;
+        DynamicArray<UniquePtr<VolumeChunkLoadRequest>> m_PendingCanceledTasks;
     };
 }

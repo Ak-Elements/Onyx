@@ -26,6 +26,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/isosurface/marchingsquarestable_cms.h
     ${TARGET_PUBLIC_PATH}/isosurface/marchingsquarestable.h
     ${TARGET_PUBLIC_PATH}/mesh/meshbuilder.h
+    ${TARGET_PUBLIC_PATH}/octree/metadata.h
     ${TARGET_PUBLIC_PATH}/octree/octree.h
     ${TARGET_PUBLIC_PATH}/octree/octree.hpp
     ${TARGET_PUBLIC_PATH}/octree/octreebreadthfirstiterator.h
@@ -39,10 +40,6 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/octree/octreenode.hpp
     ${TARGET_PUBLIC_PATH}/octree/octreesearch.h
     ${TARGET_PUBLIC_PATH}/octree/octreesplitpolicy.h
-    ${TARGET_PUBLIC_PATH}/onyx_export.h
-    ${TARGET_PUBLIC_PATH}/onyx_volume_pch.h
-    ${TARGET_PUBLIC_PATH}/onyxunrealcoordinatetransforms.h
-    ${TARGET_PUBLIC_PATH}/onyxunrealutil.h
     ${TARGET_PUBLIC_PATH}/shader/generators/volumeshadergraphgenerator.h
     ${TARGET_PUBLIC_PATH}/shadergraph/volumeshadergraph.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/differencevolumeshadergraphnode.h

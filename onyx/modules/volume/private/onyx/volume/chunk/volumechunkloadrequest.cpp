@@ -77,9 +77,9 @@ namespace Onyx::Volume
             DynamicArray<Vertex> Vertices;
         };
 
-        void ExtractMesh(const Vector3f32& octreeRootPosition, const OctreeNode<VolumeData>& octreeNode, const VolumeBase& csgSource, CubicalMarchingSquares::MarchingSquares<onyxF32> cubicalMarchingSquares, MeshBuilder& meshBuilder)
+        void ExtractMesh(const Vector3f32& octreeRootPosition, const OctreeNode<UniquePtr<VolumeDataContainer>>& octreeNode, const VolumeBase& csgSource, CubicalMarchingSquares::MarchingSquares<onyxF32> cubicalMarchingSquares, MeshBuilder& meshBuilder)
         {
-            const VolumeData& octreeData = octreeNode.GetData();
+            const UniquePtr<VolumeDataContainer>& octreeData = octreeNode.GetData();
             /*const Vector3f CORNER_0(-1.0f, -1.0f, -1.0f);
             const Vector3f CORNER_1(1.0f, -1.0f, -1.0f);
             const Vector3f CORNER_2(1.0f, -1.0f, 1.0f);
@@ -314,8 +314,8 @@ namespace Onyx::Volume
 
     void VolumeChunkLoadRequest::LoadChunk()
     {
-        VolumeChunkOctree volumeOctree;
-        VolumeChunkDualgrid volumeDualgrid;
+        VolumeChunk::VolumeChunkOctree volumeOctree;
+        VolumeChunk::VolumeChunkDualgrid volumeDualgrid;
 
         const VolumeBase& volumeBase = *m_LoadRequestData.m_VolumeSource;
 
@@ -327,7 +327,7 @@ namespace Onyx::Volume
 
             for (auto leafIt = volumeOctree.leaf_begin(); leafIt != volumeOctree.leaf_end(); ++leafIt)
             {
-                const OctreeNode<VolumeData>* node = leafIt.GetCurrentOctreeNode();
+                const OctreeNode<UniquePtr<VolumeDataContainer>>* node = leafIt.GetCurrentOctreeNode();
                 ExtractMesh(m_LoadRequestData.m_Position, *node, volumeBase, cubicalMarchingSquares, m_LoadRequestData.m_MeshBuilder);
             }
         }
@@ -340,7 +340,7 @@ namespace Onyx::Volume
 
             MarchingSquaresSurface<onyxF32> marchingSquaresSurface(m_LoadRequestData.m_VolumeSource, m_LoadRequestData.m_MeshBuilder, m_LoadRequestData.m_MaxDistanceSkirts);
 
-            VolumeChunkDualgrid& dualgrid = volumeDualgrid;
+            VolumeChunk::VolumeChunkDualgrid& dualgrid = volumeDualgrid;
             dualgrid.GetDualCells().clear();
 
             dualgrid.SetIsoSurface(&marchingCubesSurface);
@@ -351,7 +351,7 @@ namespace Onyx::Volume
         }
     }
 
-    void VolumeChunkLoadRequest::GenerateOctree(VolumeChunkOctree& octree)
+    void VolumeChunkLoadRequest::GenerateOctree(VolumeChunk::VolumeChunkOctree& octree)
     {
         UniquePtr<OctreeSplitPolicy<onyxF32>> splitPolicy = nullptr;
         if (m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DMC)
@@ -384,11 +384,11 @@ namespace Onyx::Volume
             //if (m_LoadingTaskFuture.IsCancelled())
             //    return;
 
-            VolumeChunkOctree::OctreeNodeT& node = *it.GetCurrentOctreeNode();
-            VolumeChunkOctree::OctreeKeyT key = it.GetCurrentOctreeKey();
+            VolumeChunk::VolumeChunkOctree::OctreeNodeT& node = *it.GetCurrentOctreeNode();
+            VolumeChunk::VolumeChunkOctree::OctreeKeyT key = it.GetCurrentOctreeKey();
             onyxU8 depth = it.GetCurrentOctreeDepth();
 
-            onyxU8 nodeLevel = (VolumeChunkOctree::OctreeKeyT::MaxDepth - 1) - depth;
+            onyxU8 nodeLevel = (VolumeChunk::VolumeChunkOctree::OctreeKeyT::MaxDepth - 1) - depth;
             onyxF32 cellSize = rootNodeSize;
             if (nodeLevel > 0)
                 cellSize /= (1 << nodeLevel);

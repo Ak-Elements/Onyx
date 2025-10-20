@@ -48,7 +48,7 @@ public:
     void SetUseTriPlanarError(bool val) { m_UseTriplanarError = val; }
     void SetUseEdgeAmbiguity(bool val) { m_UseCMSSplit = val; }
 
-    bool ShouldSplit(VolumeChunkOctree::OctreeNodeT& node, const Vector3<Scalar>& nodeWorldPosition, Scalar halfExtent, onyxU8 nodeLevel) override
+    bool ShouldSplit(VolumeChunk::VolumeChunkOctree::OctreeNodeT& node, const Vector3<Scalar>& nodeWorldPosition, Scalar halfExtent, onyxU8 nodeLevel) override
     {
         using std::abs;
         using std::numeric_limits;

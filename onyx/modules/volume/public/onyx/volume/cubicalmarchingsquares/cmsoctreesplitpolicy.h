@@ -18,7 +18,7 @@ public:
     {
     }
 
-    bool ShouldSplit(VolumeChunkOctree::OctreeNodeT& node, const Vector3<Scalar>& nodeWorldPosition, Scalar halfExtent, onyxU8 nodeLevel)
+    bool ShouldSplit(VolumeChunk::VolumeChunkOctree::OctreeNodeT& node, const Vector3<Scalar>& nodeWorldPosition, Scalar halfExtent, onyxU8 nodeLevel)
     {
         using std::abs;
 

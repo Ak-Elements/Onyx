@@ -1,5 +1,7 @@
 #include <onyx/volume/chunk/volumechunkloader.h>
 
+#include <onyx/volume/chunk/volumechunkloadrequest.h>
+
 namespace Onyx::Volume
 {
     void VolumeChunkLoader::RequestLoad(const VolumeChunckLoadRequestData& reqData, InplaceFunction<void(const VolumeChunckLoadRequestData&), 64>&& finishedCallback)

@@ -1,13 +1,12 @@
 ﻿#pragma once
 
 #include <onyx/onyx_types.h>
-#include <onyx/volume/octree/octree.h>
-#include <onyx/volume/octree/octreesplitpolicy.h>
 
 #include <onyx/volume/mesh/meshbuilder.h>
 #include <onyx/thread/async/asynctask.h>
-#include <onyx/volume/onyx_volume_pch.h>
 #include <onyx/volume/isosurface/isosurface.h>
+#include <onyx/volume/chunk/volumechunk.h>
+
 
 namespace Onyx::Volume
 {
@@ -78,8 +77,8 @@ public:
 private:
     void LoadChunk();
 
-    void GenerateOctree(VolumeChunkOctree& octree);
-    void GenerateOctreeChildren(VolumeChunkOctree::OctreeNodeT* node, onyxU8 octreeLevel);
+    void GenerateOctree(VolumeChunk::VolumeChunkOctree& octree);
+    void GenerateOctreeChildren(VolumeChunk::VolumeChunkOctree::OctreeNodeT* node, onyxU8 octreeLevel);
     VolumeOctreeNodeMetaData GetNodeMetaData(const Vector3f32& nodeLocalPosition, onyxF32 nodeHalfExtents);
 
     void GenerateDualGridNode();

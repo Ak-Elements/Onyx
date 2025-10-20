@@ -12,7 +12,6 @@
 
 namespace Onyx::Volume
 {
-
 struct VolumeDataContainer
 {
     VolumeOctreeNodeMetaData MetaData = VolumeOctreeNodeMetaData::None;
@@ -25,6 +24,9 @@ struct VolumeDataContainer
 class VolumeChunk
 {
 public:
+    using VolumeChunkOctree = Octree<UniquePtr<VolumeDataContainer>, onyxU32>;
+    using VolumeChunkDualgrid = Dualgrid<OctreeNode<UniquePtr<VolumeDataContainer>>>;
+
     VolumeChunk();
     ~VolumeChunk();
 

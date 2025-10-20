@@ -1,4 +1,5 @@
 ﻿#include <onyx/volume/chunk/volumechunk.h>
+#include <onyx/volume/chunk/volumechunkloadrequest.h>
 
 #include <onyx/volume/isosurface/isosurface.h>
 #include <onyx/volume/octree/octree.h>

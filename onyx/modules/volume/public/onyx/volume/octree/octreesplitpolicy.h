@@ -1,10 +1,11 @@
 #pragma once
 
-#include <onyx/volume/onyx_volume_pch.h>
-#include <onyx/volume/source/volumebase.h>
+#include <onyx/volume/octree/octreenode.h>
 
 namespace Onyx::Volume
 {
+    class VolumeBase;
+    struct VolumeDataContainer;
 
 // remove this template argument
 template <typename Scalar>
@@ -19,7 +20,7 @@ public:
     }
     virtual ~OctreeSplitPolicy() = default;
 
-    virtual bool ShouldSplit(OctreeNode<VolumeData>& node, const Vector3<Scalar>& nodeWorldPosition, Scalar halfExtent, onyxU8 nodeLevel) = 0;
+    virtual bool ShouldSplit(OctreeNode<UniquePtr<VolumeDataContainer>>& node, const Vector3<Scalar>& nodeWorldPosition, Scalar halfExtent, onyxU8 nodeLevel) = 0;
 
 protected:
     const Scalar m_OctreeRootSize;

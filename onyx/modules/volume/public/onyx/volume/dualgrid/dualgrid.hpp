@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include <onyx/volume/onyx_volume_pch.h>
 #include <onyx/volume/isosurface/isosurface.h>
-#include <onyx/volume/isosurface/marchingsquaressurface.h>
 #include <onyx/volume/source/volumebase.h>
+#include <onyx/volume/chunk/volumechunk.h>
+#include <onyx/volume/octree/metadata.h>
 
 #ifndef USE_ANALYTICAL_NORMAL
 #define USE_ANALYTICAL_NORMAL 0
