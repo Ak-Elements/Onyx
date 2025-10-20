@@ -54,6 +54,7 @@ namespace Onyx
         struct ImGuiContext
         {
             Assets::AssetSystem* AssetSystem = nullptr;
+            Graphics::GraphicsApi* GraphicsApi = nullptr;
             Graphics::Window* MainWindow = nullptr;
             Input::InputSystem* InputSystem = nullptr;
         };
@@ -77,7 +78,7 @@ namespace Onyx
             void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& window);
             void Shutdown(Input::InputSystem& inputSystem, Graphics::Window& window);
             
-            void Update(DeltaGameTime deltaTime);
+            void Update(Graphics::GraphicsApi& api,DeltaGameTime deltaTime);
 
             void OnBeginFrame(Graphics::FrameContext& context);
             

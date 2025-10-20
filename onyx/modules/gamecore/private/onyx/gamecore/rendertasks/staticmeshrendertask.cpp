@@ -129,7 +129,9 @@ namespace Onyx::GameCore
         runner.Prepare();
         runner.Update(0);
 
-        commandBuffer.BindShaderEffect(shaderGraph.GetShaderEffect());
+        // TODO: Fix for other types
+        const Graphics::MaterialShaderGraph& materialShader = static_cast<const Graphics::MaterialShaderGraph&>(shaderGraph);
+        commandBuffer.BindShaderEffect(materialShader.GetShaderEffect());
 
         const Graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<Graphics::ShaderGraphTextures>();
         const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();

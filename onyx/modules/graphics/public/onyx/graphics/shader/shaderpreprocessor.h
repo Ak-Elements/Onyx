@@ -9,6 +9,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
+    struct ShaderProperties;
     class Shader;
     class ShaderEffect;
 
@@ -24,7 +25,7 @@ namespace Onyx::Graphics
     class ShaderPreprocessor
     {
     public:
-        bool PreprocessShader(const String& shaderCode);
+        bool PreprocessShader(const ShaderProperties& properties, const String& shaderCode);
 
         static void Serialize(Stream& outStream, const ShaderPreprocessor& preprocessor);
 

@@ -3,7 +3,7 @@
 #include "includes/common.h"
 #include "includes/morton.h"
 #include "includes/volume/world_chunk.h"
-#include "includes/volume/test_sdf_function.h"
+#include "includes/volume/sample_terrain.h"
 #include "includes/debug/print.h"
 
 compute

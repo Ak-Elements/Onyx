@@ -28,6 +28,7 @@ namespace Onyx::Graphics
         bool IsReservedDescriptorSet(onyxU8 set);
         ShaderDescriptorSet& GetOrCreateShaderDescriptorSet(onyxU8 setIndex, ShaderReflectionInfo& reflectionInfo);
 
+        bool ValidateCode(const GraphicsApi& graphicsApi, const String& shaderSourceCode);
     };
 }
 

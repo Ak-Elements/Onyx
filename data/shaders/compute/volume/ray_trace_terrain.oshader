@@ -3,6 +3,7 @@
 #include "includes/common.h"
 #include "includes/volume/world_octree.h"
 #include "includes/volume/volumesources.h"
+#include "includes/volume/sample_terrain.h"
 #include "includes/morton.h"
 #include "includes/debug/print.h"
 
@@ -50,10 +51,8 @@ compute
         HitPositionBuffer HitPositionBuffer;
     } u_Constants;
 
-#include "includes/volume/test_sdf_function.h"
-
     void main()
-    {
+    { 
         vec4 mouseClipPos = vec4(u_Constants.MousePosition.xy, 0.0f, 1.0f);
 
         vec4 ray = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix * mouseClipPos;
@@ -64,13 +63,13 @@ compute
         vec3 rayDirection = normalize(ray.xyz - rayOrigin);
 
         bool hasHit = false;
-        vec4 sampleValue = GetSampleValue(rayOrigin);
+        vec4 sampleValue = SampleTerrain(rayOrigin, u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData);
         vec3 hitPosition;
         float distance = sampleValue.w;
         for(uint i = 0; i < 512; ++i)
         {
             vec3 position = rayOrigin + rayDirection * distance;
-            sampleValue = GetSampleValue(position);
+            sampleValue = SampleTerrain(position, u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData);
             if (sampleValue.w <= 0.0001f)
             {
                 hasHit = true;

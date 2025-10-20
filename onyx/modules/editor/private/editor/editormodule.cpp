@@ -38,6 +38,11 @@ namespace Onyx::Editor
         Localization::Editor::InitLocalization(localizationModule);
 
         Reference<Localization::GetTextLocalizationDatabase> secondaryDb;
+
+        // TODO: Move to app config?
+        assetSystem.GetAsset("engine:/localization/assets.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
+
         assetSystem.GetAsset("engine:/localization/editor.po", secondaryDb);
         localizationModule.AddSecondaryDatabase(secondaryDb);
 
@@ -51,6 +56,9 @@ namespace Onyx::Editor
         localizationModule.AddSecondaryDatabase(secondaryDb);
 
         assetSystem.GetAsset("engine:/localization/rendergraphnodes.po", secondaryDb);
+        localizationModule.AddSecondaryDatabase(secondaryDb);
+
+        assetSystem.GetAsset("engine:/localization/volumeshadergraphnodes.po", secondaryDb);
         localizationModule.AddSecondaryDatabase(secondaryDb);
 
         imguiSystem.OpenWindow<EditorMainWindow>();

@@ -4,8 +4,8 @@
 #include "includes/volume/world_octree.h"
 #include "includes/volume/world_chunk.h"
 #include "includes/volume/volumesources.h"
-
 #include "includes/volume/isosurface_extraction.h"
+#include "includes/volume/octree_split_policy.h"
 #include "includes/indirect_dispatch.h"
 
 #include "includes/morton.h"
@@ -56,8 +56,6 @@ compute
 
     } u_Constants;
 
-#include "includes/volume/octree_split_policy.h"
-#include "includes/volume/test_sdf_function.h"
 
     void main()
     {
@@ -146,7 +144,14 @@ compute
                 vec3 coordinate = vec3(DecodeMorton(childMorton)) + vec3(0.5f);
                 vec3 childCenter = coordinate * childNodeExtents - vec3(u_Constants.RootHalfExtents);
 
-                OctreeNode evaluatedChild = EvaluateOctreeNode(cameraPos, childCenter, childNodeExtents, u_Constants.MaxGeometricError, u_Constants.ComplexSurfaceThreshold, childCount);
+                OctreeNode evaluatedChild = EvaluateOctreeNode(cameraPos,
+                    childCenter,
+                    childNodeExtents,
+                    u_Constants.MaxGeometricError,
+                    u_Constants.ComplexSurfaceThreshold,
+                    u_Constants.VolumeSourcesList, 
+                    u_Constants.VolumeSourcesData,
+                    childCount);
 
                 if ((currentNode.ValidMask & childMask) != 0)
                 {

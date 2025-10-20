@@ -1,6 +1,7 @@
 #include <onyx/volume/components/volumeterraincomponent.h>
 
 #include <onyx/ui/propertygrid.h>
+#include <onyx/volume/shadergraph/volumeshadergraph.h>
 
 namespace Onyx::Volume
 {
@@ -11,7 +12,6 @@ namespace Onyx::Volume
             
         bool isModified = Ui::PropertyGrid::DrawVectorProperty("Dimensions", DimensionsTooltip,Dimensions, { -1, -1, -1 } );
 
-
         if (Ui::PropertyGrid::BeginPropertyGroup("Chunk"))
         {
             isModified |= Ui::PropertyGrid::DrawScalarProperty("Size", ChunkSize, Ui::ScalarInputFlag::PowerOf2);
@@ -19,6 +19,7 @@ namespace Onyx::Volume
             Ui::PropertyGrid::EndPropertyGroup();
         }
 
+        isModified |= Ui::PropertyGrid::DrawAssetSelector("Volume Graph", VolumeGraphAssetId, static_cast<Assets::AssetType>(VolumeShaderGraph::TypeId.GetId()));
         return isModified;
     }
 #endif

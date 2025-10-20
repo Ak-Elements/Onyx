@@ -43,6 +43,18 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/onyx_volume_pch.h
     ${TARGET_PUBLIC_PATH}/onyxunrealcoordinatetransforms.h
     ${TARGET_PUBLIC_PATH}/onyxunrealutil.h
+    ${TARGET_PUBLIC_PATH}/shader/generators/volumeshadergraphgenerator.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/volumeshadergraph.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/differencevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/intersectvolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/unionvolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/planevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/cubevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/ellipsoidvolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/spherevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/planevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/volumeshadergraphoutnode.h
+    ${TARGET_PUBLIC_PATH}/serialize/volumeshadergraphserializer.h
     ${TARGET_PUBLIC_PATH}/source/csg/csgcube.h
     ${TARGET_PUBLIC_PATH}/source/csg/csgplane.h
     ${TARGET_PUBLIC_PATH}/source/csg/csgsphere.h
@@ -86,6 +98,16 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/isosurface/isosurface.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/marchingcubessurface.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/marchingsquaressurface.cpp
+    ${TARGET_PRIVATE_PATH}/shader/generators/volumeshadergraphgenerator.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/differencevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/intersectvolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/unionvolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/cubevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/ellipsoidvolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/spherevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/planevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/volumeshadergraphoutnode.cpp
+    ${TARGET_PRIVATE_PATH}/serialize/volumeshadergraphserializer.cpp
     ${TARGET_PRIVATE_PATH}/source/csg/csgsphere.cpp
     ${TARGET_PRIVATE_PATH}/source/csg/operations/csgdifference.cpp
     ${TARGET_PRIVATE_PATH}/source/csg/operations/csgintersect.cpp

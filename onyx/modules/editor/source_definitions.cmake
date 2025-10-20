@@ -12,6 +12,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/nodegraph/rendergrapheditorcontext.h
 	${TARGET_PUBLIC_PATH}/nodegraph/shadergrapheditorcontext.h
 	${TARGET_PUBLIC_PATH}/nodegraph/typenodegrapheditorcontext.h
+    ${TARGET_PUBLIC_PATH}/nodegraph/volumeshadergrapheditorcontext.h
 	${TARGET_PUBLIC_PATH}/modules/nodeeditor.h
 	${TARGET_PUBLIC_PATH}/modules/sceneeditor.h
 	${TARGET_PUBLIC_PATH}/panels/contentbrowserpanel.h
@@ -58,6 +59,7 @@ set(TARGET_PRIVATE_SOURCES
 	${TARGET_PRIVATE_PATH}/nodegraph/rendergrapheditorcontext.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/rendergraphnodes_editor.cpp
 	${TARGET_PRIVATE_PATH}/nodegraph/shadergrapheditorcontext.cpp
+    ${TARGET_PRIVATE_PATH}/nodegraph/volumeshadergrapheditorcontext.cpp
 	${TARGET_PRIVATE_PATH}/modules/nodeeditor.cpp
 	${TARGET_PRIVATE_PATH}/modules/sceneeditor.cpp
 	${TARGET_PRIVATE_PATH}/panels/contentbrowserpanel.cpp

@@ -7,6 +7,7 @@
 #include <editor/modules/sceneeditor.h>
 #include <editor/nodegraph/rendergrapheditorcontext.h>
 #include <editor/nodegraph/shadergrapheditorcontext.h>
+#include <editor/nodegraph/volumeshadergrapheditorcontext.h>
 #include <editor/windows/startupwindow.h>
 #include <editor/windows/settings/inputactionsettingswindow.h>
 #include <onyx/ui/imguisystem.h>
@@ -75,14 +76,26 @@ namespace Onyx::Editor
 
             if (ImGui::MenuItem(Localization::Editor::Windows::ShaderGraphEditorTitle.Get().data()))
             {
+                ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
+                ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-                window.SetContext(MakeUnique<ShaderGraphEditorContext>());
+                window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
             }
 
             if (ImGui::MenuItem(Localization::Editor::Windows::RenderGraphEditorTitle.Get().data()))
             {
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<RenderGraphEditorContext>());
+            }
+
+            if (ImGui::MenuItem(Localization::Editor::Windows::VolumeShaderGraphEditorTitle.Get().data()))
+            {
+                ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
+                ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+
+                NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
+                window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
             }
 
             if (ImGui::BeginMenu(Localization::Editor::MainMenubar::View::Layouts::Label.Get().data()))

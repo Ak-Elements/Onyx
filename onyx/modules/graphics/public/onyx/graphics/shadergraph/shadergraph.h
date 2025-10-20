@@ -50,15 +50,11 @@ namespace Onyx::Graphics
         NodeGraph::NodeGraph& GetNodeGraph() { return Graph; }
         const NodeGraph::NodeGraph& GetNodeGraph() const { return Graph; }
 
-        ShaderEffectHandle& GetShaderEffect() { return ShaderEffect; }
-        const ShaderEffectHandle& GetShaderEffect() const { return ShaderEffect; }
-
-        void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
+      //  void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         const String& GetShaderCode() const { return ShaderCode; }
         bool GenerateShader(ShaderGenerator& generator);
-
 #endif
 
         bool Serialize(Serializer& serializer) const;
@@ -73,10 +69,6 @@ namespace Onyx::Graphics
         String ShaderCode;
 #endif
 
-        // Blendmode
-        // Cullmode
-
         NodeGraph::NodeGraph Graph;
-        ShaderEffectHandle ShaderEffect;
     };
 }

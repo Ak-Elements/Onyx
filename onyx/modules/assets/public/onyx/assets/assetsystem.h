@@ -41,7 +41,7 @@ namespace Onyx::Assets
         template <typename T> requires std::is_base_of_v<AssetInterface, T>
         static DynamicArray<StringView> GetExtensions()
         {
-            constexpr AssetType type = static_cast<AssetType>(TypeHash<T>());
+            constexpr AssetType type = static_cast<AssetType>(T::TypeId.GetId());
             return GetExtensions(type);
         }
 

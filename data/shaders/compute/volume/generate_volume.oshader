@@ -14,6 +14,7 @@
 #include "includes/volume/isosurface_extraction.h"
 #include "includes/volume/cubicalmarchingsquares.h"
 #include "includes/volume/volumesources.h"
+#include "includes/volume/sample_terrain.h"
 #include "includes/debug/print.h"
 
 #define PER_CHUNK_MESH_DATA 1
@@ -40,8 +41,6 @@ compute
         float RootSize;
         float RootHalfExtents;
     } u_Constants;
-
-#include "includes/volume/test_sdf_function.h"
 
     void main()
     {
@@ -74,14 +73,14 @@ compute
 
         vec4 cornerSamples[8] =
         {
-            GetSampleValue(corners[0]),
-            GetSampleValue(corners[1]),
-            GetSampleValue(corners[2]),
-            GetSampleValue(corners[3]),
-            GetSampleValue(corners[4]),
-            GetSampleValue(corners[5]),
-            GetSampleValue(corners[6]),
-            GetSampleValue(corners[7])
+            SampleTerrain(corners[0], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[1], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[2], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[3], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[4], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[5], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[6], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData),
+            SampleTerrain(corners[7], u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData)
         };
 
         uint componentCount = 0;

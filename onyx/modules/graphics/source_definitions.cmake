@@ -54,6 +54,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/shader/shadermodule.h
     ${TARGET_PUBLIC_PATH}/shader/shaderpass.h
     ${TARGET_PUBLIC_PATH}/shader/shaderpreprocessor.h
+    ${TARGET_PUBLIC_PATH}/shader/shaderproperties.h
     ${TARGET_PUBLIC_PATH}/shader/generators/shadergenerator.h
     ${TARGET_PUBLIC_PATH}/shadergraph/shadergraph.h
     ${TARGET_PUBLIC_PATH}/shadergraph/materialshadergraph.h

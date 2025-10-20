@@ -1,6 +1,6 @@
 #pragma once
 
-#include <editor/nodegraph/nodegrapheditorcontext.h>
+#include <editor/nodegraph/typenodegrapheditorcontext.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>

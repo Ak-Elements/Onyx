@@ -2,6 +2,7 @@
 
 #include <onyx/graphics/shader/shaderpreprocessor.h>
 #include <onyx/filesystem/onyxfile.h>
+#include <onyx/graphics/shader/shaderproperties.h>
 
 namespace
 {
@@ -74,11 +75,18 @@ namespace Onyx::Graphics
 		{
 			Filepath requestingPathDirectory = requestingPath;
 			requestedFilePath = Path::GetFullPath(requestingPathDirectory.parent_path() / requestedPath);
+			StringView requestedPathString(requestedPath);
 			if (Path::Exists(requestedFilePath) == false)
 			{
-				for (const Filepath& includeDirectory : m_IncludeDirectories)
+				for (const Filepath& includeDirectoryPath : m_IncludeDirectories)
 				{
-					requestedFilePath = Path::GetFullPath(includeDirectory / requestedPath);
+					String includeDirectory = includeDirectoryPath.generic_string();
+					if (IgnoreCaseStartsWith(requestedPathString, includeDirectory))
+					{
+						requestedPathString = requestedPathString.substr(includeDirectory.length());
+					}
+
+					requestedFilePath = Path::GetFullPath(includeDirectoryPath / requestedPathString);
 					if (Path::Exists(requestedFilePath))
 					{
 						break;
@@ -120,8 +128,9 @@ namespace Onyx::Graphics
 		shaderSource = sourceStream.str();
 
 		/// TODO: Add header preprocessor
+		ShaderProperties empty{};
 		ShaderPreprocessor preprocessor;
-		if (preprocessor.PreprocessShader(shaderSource) == false)
+		if (preprocessor.PreprocessShader(empty, shaderSource) == false)
 		{
 			ONYX_LOG_ERROR("Failed to retrive shader entry {} for {}", requestedPath, requestingPath);
 			return data;

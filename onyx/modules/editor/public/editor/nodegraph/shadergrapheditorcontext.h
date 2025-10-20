@@ -1,6 +1,6 @@
 #pragma once
 
-#include <editor/nodegraph/nodegrapheditorcontext.h>
+#include <editor/nodegraph/typenodegrapheditorcontext.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
@@ -9,8 +9,7 @@ namespace Onyx::Editor
     class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::MaterialShaderGraph, Graphics::ShaderGraphNodeFactory>
     {
     public:
-        ShaderGraphEditorContext() = default;
-        ShaderGraphEditorContext(Assets::AssetSystem& assetSystem);
+        ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
 
         bool Compile() override;
 
@@ -20,7 +19,8 @@ namespace Onyx::Editor
         void OnNodeChanged(const Node& newNode) override;
 
     private:
-        Assets::AssetSystem* m_AssetSystem;
+        Assets::AssetSystem* m_AssetSystem = nullptr;
+        Graphics::GraphicsApi* m_GraphicsApi = nullptr;
     };
 
 }

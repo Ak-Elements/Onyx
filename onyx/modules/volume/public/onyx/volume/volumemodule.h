@@ -1,6 +1,16 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 
+namespace Onyx::Assets
+{
+    class AssetSystem;
+}
+
+namespace Onyx::Graphics
+{
+    class GraphicsApi;
+}
+
 namespace Onyx::GameCore
 {
     class GameCoreSystem;
@@ -16,7 +26,7 @@ namespace Onyx::Volume
 
         VolumeModule();
 
-        void Init(GameCore::GameCoreSystem& gameCore);
+        void Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, GameCore::GameCoreSystem& gameCore);
         void Shutdown();
     };
 }

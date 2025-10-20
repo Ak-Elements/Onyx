@@ -7,6 +7,7 @@
 #include <onyx/hash.h>
 #include <onyx/filesystem/filestream.h>
 #include <onyx/filesystem/onyxfile.h>
+#include <onyx/graphics/shader/shaderproperties.h>
 
 namespace Onyx::Graphics
 {
@@ -22,18 +23,19 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool ShaderCache::GetOrLoadShader(const FileSystem::Filepath& shaderPath, ShaderCacheEntry& outEntry)
+    bool ShaderCache::GetOrLoadShader(const ShaderProperties& properties, ShaderCacheEntry& outEntry)
     {
-        onyxU64 fileHash = Hash::FNV1aHash<onyxU64>(shaderPath.string());
+        // TODO: Hash should be hash of properties not just the path
+        onyxU64 fileHash = Hash::FNV1aHash<onyxU64>(properties.Path.string());
         ShaderCacheEntry& entry = m_Cache[fileHash];
 
         // we have that shader already cached
-        FileSystem::Filepath absoluteFilepath = FileSystem::Path::GetFullPath(shaderPath);
+        FileSystem::Filepath absoluteFilepath = FileSystem::Path::GetFullPath(properties.Path);
         FileSystem::OnyxFile shaderSource = FileSystem::OnyxFile(absoluteFilepath);
         String shaderCode;
         if (FileSystem::OnyxFile::ReadAll(absoluteFilepath, shaderCode) == false)
         {
-            ONYX_LOG_ERROR("Missing shader file. ({})", shaderPath);
+            ONYX_LOG_ERROR("Missing shader file. ({})", properties.Path);
             return false;
         }
 
@@ -63,9 +65,9 @@ namespace Onyx::Graphics
 
         // re-load & recompile & reflection of shaders
         ShaderPreprocessor preprocessor;
-        if (preprocessor.PreprocessShader(shaderCode) == false)
+        if (preprocessor.PreprocessShader(properties, shaderCode) == false)
         {
-            ONYX_LOG_ERROR("Failed preprocessing of shader. ({})", shaderPath);
+            ONYX_LOG_ERROR("Failed preprocessing of shader. ({})", properties.Path);
             return false;
         }
 
@@ -96,7 +98,7 @@ namespace Onyx::Graphics
                     else
                     {
                         // failed compiling early out
-                        ONYX_LOG_ERROR("Failed compiling shader stage {}. ({})", Enums::ToString<ShaderStage>(i), shaderPath);
+                        ONYX_LOG_ERROR("Failed compiling shader stage {}. ({})", Enums::ToString<ShaderStage>(i), properties.Path);
                         return false;
                     }
                 }

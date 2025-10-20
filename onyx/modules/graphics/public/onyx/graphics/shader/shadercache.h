@@ -3,9 +3,9 @@
 #include <onyx/graphics/graphicstypes.h>
 #include <onyx/filesystem/path.h>
 
-
 namespace Onyx::Graphics
 {
+    struct ShaderProperties;
     class GraphicsApi;
     struct ShaderReflectionInfo;
     class Shader;
@@ -31,7 +31,7 @@ namespace Onyx::Graphics
         static constexpr StringView SHADER_CACHE_PATH = "tmp:/shaders/cache";
 
         ShaderCache(GraphicsApi& apiType);
-        bool GetOrLoadShader(const FileSystem::Filepath& shaderPath, ShaderCacheEntry& outEntry);
+        bool GetOrLoadShader(const ShaderProperties& properties, ShaderCacheEntry& outEntry);
         void Clear();
 
         //TODO: add logic to switch api type?

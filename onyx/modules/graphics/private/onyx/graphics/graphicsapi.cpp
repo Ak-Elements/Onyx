@@ -17,6 +17,7 @@
 #include <onyx/graphics/rendergraph/tasks/tonemappass.h>
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/graphics/rendergraph/tasks/updateviewconstantstask.h>
+#include <onyx/graphics/shader/shaderproperties.h>
 #include <onyx/graphics/vulkan/texturestorage.h>
 #include <onyx/profiler/profiler.h>
 
@@ -319,10 +320,16 @@ namespace Onyx::Graphics
 
     ShaderHandle GraphicsApi::GetShader(const FileSystem::Filepath& shaderPath)
     {
+        ShaderProperties properties{ .Path = shaderPath };
+        return GetShader(properties);
+    }
+
+    ShaderHandle GraphicsApi::GetShader(const ShaderProperties& properties)
+    {
         ShaderCacheEntry cached;
-        if (m_ShaderCache.GetOrLoadShader(shaderPath, cached) == false)
+        if (m_ShaderCache.GetOrLoadShader(properties, cached) == false)
         {
-            ONYX_LOG_ERROR("Failed creating shader effect for {}.", shaderPath);
+            ONYX_LOG_ERROR("Failed creating shader effect for {}.", properties.Path);
             return ShaderHandle::Invalid();
         }
 

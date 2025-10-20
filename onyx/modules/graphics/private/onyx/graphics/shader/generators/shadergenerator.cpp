@@ -9,12 +9,6 @@ namespace Onyx::Graphics
         constexpr onyxU8 MAX_TEXTURES = 8;
         #endif
     }
-    
-    ShaderGenerator::ShaderGenerator()
-    {
-        AddInclude(ShaderStage::All, "includes/common.h");
-        AddInclude(ShaderStage::All, "includes/viewconstants.h");
-    }
 
     void ShaderGenerator::GenerateVertexShader()
     {
@@ -190,6 +184,9 @@ namespace Onyx::Graphics
 
     PBRShaderGenerator::PBRShaderGenerator()
     {
+        AddInclude(ShaderStage::All, "includes/common.h");
+        AddInclude(ShaderStage::All, "includes/viewconstants.h");
+
         AddInclude(ShaderStage::Fragment, "includes/lighting.h");
 
         AddPushConstant(ShaderStage::Fragment, "LightClusterSize", ShaderDataType::UInt4);

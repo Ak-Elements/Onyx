@@ -8,9 +8,10 @@ namespace Onyx::Localization::Editor
         // Window Titles
         Windows::StartupTitle = localizationModule.GetLocalized("editor.windows.startup.title");
         Windows::NodeEditorTitle = localizationModule.GetLocalized("editor.windows.nodeeditor.title");
-        Windows::ShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.shadergrapheditor.title");
         Windows::RenderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.rendergrapheditor.title");
-        
+        Windows::ShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.shadergrapheditor.title");
+        Windows::VolumeShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.volumeshadergrapheditor.title");
+
         // Main Menubar
         MainMenubar::View::Label = localizationModule.GetLocalized("editor.mainmenubar.view");
         MainMenubar::Project::Label = localizationModule.GetLocalized("editor.mainmenubar.project");

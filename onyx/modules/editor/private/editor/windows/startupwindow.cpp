@@ -1,11 +1,11 @@
 #include <editor/editor_localization.h>
 #include <editor/windows/startupwindow.h>
 
-#include <onyx/localization/localizationmodule.h>
 #include <editor/modules/nodeeditor.h>
 #include <editor/modules/sceneeditor.h>
 #include <editor/nodegraph/rendergrapheditorcontext.h>
 #include <editor/nodegraph/shadergrapheditorcontext.h>
+#include <editor/nodegraph/volumeshadergrapheditorcontext.h>
 #include <editor/windows/editormainwindow.h>
 
 #include <onyx/ui/imguisystem.h>
@@ -35,8 +35,11 @@ namespace Onyx::Editor
 
         if (Ui::Button(Localization::Editor::Windows::ShaderGraphEditorTitle, Vector2f32(200, 50)))
         {
+            ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
+            ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-            window.SetContext(MakeUnique<ShaderGraphEditorContext>());
+            window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
             Close();
         }
 
@@ -44,6 +47,16 @@ namespace Onyx::Editor
         {
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
             window.SetContext(MakeUnique<RenderGraphEditorContext>());
+            Close();
+        }
+
+        if (Ui::Button(Localization::Editor::Windows::VolumeShaderGraphEditorTitle, Vector2f32(200, 50)))
+        {
+            ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
+            ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+
+            NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
+            window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
             Close();
         }
 

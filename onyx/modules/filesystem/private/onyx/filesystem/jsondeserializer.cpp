@@ -260,6 +260,7 @@ namespace Onyx::FileSystem
                     JsonNodes.push(&(GetCurrent()[item.key()]));
                     return true;
                 }
+                ++currentIndex;
             }
 
             return false;

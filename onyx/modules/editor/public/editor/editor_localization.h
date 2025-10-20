@@ -15,6 +15,7 @@ namespace Onyx::Localization
             inline LocalizedString NodeEditorTitle;
             inline LocalizedString ShaderGraphEditorTitle;
             inline LocalizedString RenderGraphEditorTitle;
+            inline LocalizedString VolumeShaderGraphEditorTitle;
         }
 
         // Main Menubar

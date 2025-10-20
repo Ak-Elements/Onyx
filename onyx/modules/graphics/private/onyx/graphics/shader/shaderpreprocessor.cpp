@@ -1,6 +1,7 @@
 #include <onyx/graphics/shader/shaderpreprocessor.h>
 
 #include <onyx/graphics/shader/shadercompiler.h>
+#include <onyx/graphics/shader/shaderproperties.h>
 
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/log/logger.h>
@@ -11,7 +12,7 @@
 
 namespace Onyx::Graphics
 {
-    bool ShaderPreprocessor::PreprocessShader(const String& shaderCode)
+    bool ShaderPreprocessor::PreprocessShader(const ShaderProperties& properties, const String& shaderCode)
     {
         // split the shader file into stages and preprocess defines/macros and includes
         using namespace FileSystem;
@@ -24,14 +25,26 @@ namespace Onyx::Graphics
         ShaderStage shaderStage = ShaderStage::Invalid;
 
         PreprocessedShader preprocessShader;
-        
+        bool hasAddedAdditionalIncludes = false;
         while (reader.IsEof() == false)
         {
             // global scope
             if (shaderStage == ShaderStage::Invalid)
             {
-                if (IsShaderStage(reader, shaderStage))
+                bool isShaderStage = IsShaderStage(reader, shaderStage);
+                if (isShaderStage)
                 {
+                    // leaving global scope for the first time, add additional includes
+                    if (hasAddedAdditionalIncludes == false)
+                    {
+                        for (const String& additionalInclude : properties.AdditionalIncludes)
+                        {
+                            m_ShaderCode.append(Format::Format("#include \"{}\"\n", additionalInclude));
+                        }
+
+                        hasAddedAdditionalIncludes = true;
+                    }
+
                     PreprocessedShader& shader = m_PreprocessedShaderStages[static_cast<onyxU8>(shaderStage)];
                     if (shader.m_IsValid == false)
                     {

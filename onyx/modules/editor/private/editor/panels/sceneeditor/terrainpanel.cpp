@@ -22,6 +22,7 @@
 #include <imgui_internal.h>
 #include <editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
 #include <editor/panels/sceneeditor/terraintools/sculptterraintool.h>
+#include <onyx/graphics/shader/shaderproperties.h>
 
 namespace
 {
@@ -673,15 +674,6 @@ namespace Onyx::Editor::SceneEditor
     {
         actionSystem.OnInput<&TerrainPanel::OnTerrainPanelBrushSizeInput>("TerrainBrushScale"_id64, this);
 
-        Graphics::PipelineProperties properties;
-        properties.m_DebugName = "RayTrace Terrain";
-        properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/ray_trace_terrain.oshader");
-        m_RayTraceTerrainShaderEffect = graphicsApi.CreateShaderEffect(properties);
-
-        properties.m_DebugName = "Find Terrain Node on RayHit";
-        properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/find_ray_traced_octreenode.oshader");
-        m_FindRayTracedOctreeNodeShaderEffect = graphicsApi.CreateShaderEffect(properties);
-
         // Should be transient buffers
         Graphics::BufferProperties ssboBufferProps;
         ssboBufferProps.m_DebugName = "Terrain Brush Hit";
@@ -743,10 +735,12 @@ namespace Onyx::Editor::SceneEditor
         }
 
         Entity::EntityRegistry& registry = scene.GetRegistry();
-        auto runtimeComponentsView = registry.GetView<Volume::TerrainSettingsComponent, Volume::TerrainWorldOctreeComponent>();
+        auto runtimeComponentsView = registry.GetView<Volume::TerrainSettingsComponent, Volume::TerrainWorldOctreeComponent, const Volume::VolumeGenerationComponent>();
 
-        const Volume::TerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<Volume::TerrainSettingsComponent>(runtimeComponentsView.front());
-        Volume::TerrainWorldOctreeComponent& terrainOctree = runtimeComponentsView.get<Volume::TerrainWorldOctreeComponent>(runtimeComponentsView.front());
+        const Entity::EntityId terrainEntity = runtimeComponentsView.front();
+        const Volume::TerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<Volume::TerrainSettingsComponent>(terrainEntity);
+        Volume::TerrainWorldOctreeComponent& terrainOctree = runtimeComponentsView.get<Volume::TerrainWorldOctreeComponent>(terrainEntity);
+        const Volume::VolumeGenerationComponent& volumeGenerationComponent = runtimeComponentsView.get<const Volume::VolumeGenerationComponent>(terrainEntity);
 
         if (terrainOctree.OctreeGpuBuffer == false)
         {
@@ -763,7 +757,7 @@ namespace Onyx::Editor::SceneEditor
         Rect2f32 sceneViewport{ sceneViewWindow->Pos.x, sceneViewWindow->Pos.y, sceneViewWindow->Viewport->Size.x,sceneViewWindow->Viewport->Size.y };
 
         Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsApi.GetCommandBuffer(m_GraphicsApi.GetFrameIndex(), true);
-        TraceTerrain(computeCommandBuffer, terrainOctree, sceneViewport);
+        TraceTerrain(computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport);
 
         bool hasClickedLeft = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
         if (hasClickedLeft)
@@ -776,7 +770,7 @@ namespace Onyx::Editor::SceneEditor
                 m_Tools[m_SelectedTab]->ApplyOperation(computeCommandBuffer, m_HitBuffer, terrainOctree);
             }
             //  after applying the operation we find the affected octree nodes and re-generate the terrain
-            FindWorldOctreeNode(computeCommandBuffer, terrainSettings, terrainOctree);
+            FindWorldOctreeNode(computeCommandBuffer, terrainSettings, terrainOctree, volumeGenerationComponent);
             // generate
             UpdateTerrainMesh(computeCommandBuffer, terrainSettings, terrainOctree);
         }
@@ -957,7 +951,7 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    void TerrainPanel::TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, Rect2f32 sceneViewport)
+    void TerrainPanel::TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewport)
     {
         struct RayTraceTerrainPushConstants
         {
@@ -983,7 +977,7 @@ namespace Onyx::Editor::SceneEditor
         computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        computeCommandBuffer.BindShaderEffect(m_RayTraceTerrainShaderEffect);
+        computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.RayTraceTerrainShaderEffect);
         computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
         computeCommandBuffer.Dispatch(1, 1, 1);
         computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::IndirectRead);
@@ -994,7 +988,7 @@ namespace Onyx::Editor::SceneEditor
         computeCommandBuffer.Copy(m_HitBuffer, m_HitReadbackBuffer);
     }
 
-    void TerrainPanel::FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree)
+    void TerrainPanel::FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent)
     {
         struct FindOctreeNodePushConstants
         {
@@ -1037,7 +1031,7 @@ namespace Onyx::Editor::SceneEditor
 
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        computeCommandBuffer.BindShaderEffect(m_FindRayTracedOctreeNodeShaderEffect);
+        computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.FindRayTracedOctreeNodeShaderEffect);
         computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, findOctreeNodeConstants);
         computeCommandBuffer.Dispatch(1, 1, 1);
     }

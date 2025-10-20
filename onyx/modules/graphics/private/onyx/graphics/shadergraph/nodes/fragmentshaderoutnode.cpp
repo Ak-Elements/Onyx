@@ -32,14 +32,6 @@ namespace Onyx::Graphics
     }
 #endif
 
-    PBRMaterialShaderOutNode::PBRMaterialShaderOutNode()
-    {
-        InputPins[0] = MakeUnique<AlbedoInPin>();
-        InputPins[1] = MakeUnique<NormalInPin>();
-        InputPins[2] = MakeUnique<MetalnessInPin>();
-        InputPins[3] = MakeUnique<RoughnessInPin>();
-    }
-
     void PBRMaterialShaderOutNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
     {
         generator.AppendCode("PBRMaterial material;\n");
@@ -76,4 +68,45 @@ namespace Onyx::Graphics
                 roughness.IsConnected() ? Format::Format("pin_{:x}", roughness.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<RoughnessInPin>())));
         }
     }
+
+    NodeGraph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index)
+    {
+        switch (index)
+        {
+        case 0: return &m_AlbedoInPin;
+        case 1: return &m_NormalInPin;
+        case 2: return &m_MetalnessInPin;
+        case 3: return &m_RoughnessInPin;
+        }
+
+        ONYX_ASSERT(false, "Invalid pin index");
+        return nullptr;
+    }
+
+    const NodeGraph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index) const
+    {
+        switch (index)
+        {
+        case 0: return &m_AlbedoInPin;
+        case 1: return &m_NormalInPin;
+        case 2: return &m_MetalnessInPin;
+        case 3: return &m_RoughnessInPin;
+        }
+
+        ONYX_ASSERT(false, "Invalid pin index");
+        return nullptr;
+    }
+
+    NodeGraph::PinBase* PBRMaterialShaderOutNode::GetOutputPin(onyxU32 /*index*/)
+    {
+        ONYX_ASSERT(false, "Invalid pin index");
+        return nullptr;
+    }
+
+    const NodeGraph::PinBase* PBRMaterialShaderOutNode::GetOutputPin(onyxU32 /*index*/) const
+    {
+        ONYX_ASSERT(false, "Invalid pin index");
+        return nullptr;
+    }
+
 }

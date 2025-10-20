@@ -1,5 +1,4 @@
-#include "includes/volume/test_sdf_function.h"
-#include "includes/debug/print.h"
+#include "includes/volume/sample_terrain.h"
 
 float Interpolate(float f000, float f001, float f010, float f011,
     float f100, float f101, float f110, float f111, vec3 position)
@@ -35,7 +34,7 @@ bool HasComplexSurface(vec4 cornerSamples[8], float complexSurfaceThreshold)
     return false;
 }
 
-bool HasGeometricError(vec3 center, vec3 corner[8], vec4 cornerSamples[8], float maxGeometricError)
+bool HasGeometricError(vec3 center, vec3 corner[8], vec4 cornerSamples[8], float maxGeometricError, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData)
 {
     // Error metric of http://www.andrew.cmu.edu/user/jessicaz/publication/meshing/
     const float f000 = cornerSamples[0].w;
@@ -82,7 +81,7 @@ bool HasGeometricError(vec3 center, vec3 corner[8], vec4 cornerSamples[8], float
 
     for (uint i = 0; i < 19; ++i)
     {
-        value = GetSampleValue(samplePositions[i][0]);
+        value = SampleTerrain(samplePositions[i][0], volumeSourcesList, volumeSourcesData);
         gradient[0] = value[0];
         gradient[1] = value[1];
         gradient[2] = value[2];
@@ -102,7 +101,7 @@ bool HasGeometricError(vec3 center, vec3 corner[8], vec4 cornerSamples[8], float
     return false;
 }
 
-OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float nodeExtents, float maxGeometricError, float complexSurfaceThreshold, out uint childCount)
+OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float nodeExtents, float maxGeometricError, float complexSurfaceThreshold, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData, out uint childCount)
 {
     OctreeNode octreeNode; 
     octreeNode.LeafMask = 0;
@@ -159,7 +158,7 @@ OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float node
     vec3 corner7 = nodePosition + vec3( 0.5, 0.5, 0.5) * nodeExtents;
 
     float diagonal = length(corner7 - corner0);
-    vec4 centerSample = GetSampleValue(nodePosition);
+    vec4 centerSample = SampleTerrain(nodePosition, volumeSourcesList, volumeSourcesData);
     bool shouldSplit = abs(centerSample.w) <= diagonal;
     if (shouldSplit == false)
     {
@@ -181,14 +180,14 @@ OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float node
 
     vec4 cornerSamples[8] =
     {
-        GetSampleValue(corner0),
-        GetSampleValue(corners[1]),
-        GetSampleValue(corners[2]),
-        GetSampleValue(corners[3]),
-        GetSampleValue(corners[4]),
-        GetSampleValue(corners[5]),
-        GetSampleValue(corners[6]),
-        GetSampleValue(corner7)
+        SampleTerrain(corner0, volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corners[1], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corners[2], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corners[3], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corners[4], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corners[5], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corners[6], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(corner7, volumeSourcesList, volumeSourcesData)
     };
 
     if (HasComplexSurface(cornerSamples, complexSurfaceThreshold))
@@ -198,7 +197,7 @@ OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float node
         return octreeNode;
     }
     
-    if (HasGeometricError(nodePosition, corners, cornerSamples, maxGeometricError))
+    if (HasGeometricError(nodePosition, corners, cornerSamples, maxGeometricError, volumeSourcesList, volumeSourcesData))
     {
         octreeNode.ValidMask = 255;
         childCount = 8;

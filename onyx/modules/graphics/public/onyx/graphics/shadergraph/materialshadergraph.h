@@ -9,10 +9,15 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::MaterialShaderGraph" };
         StringId32 GetTypeId() const { return TypeId; }
 
-        ShadingModel GetShadingModel() const { return shadingModel; }
-        void SetShadingModel(ShadingModel model) { shadingModel = model; }
+        ShadingModel GetShadingModel() const { return m_ShadingModel; }
+        void SetShadingModel(ShadingModel model) { m_ShadingModel = model; }
+
+        ShaderEffectHandle& GetShaderEffect() { return m_ShaderEffect; }
+        const ShaderEffectHandle& GetShaderEffect() const { return m_ShaderEffect; }
 
     private:
-        ShadingModel shadingModel = ShadingModel::Lit;
+        ShadingModel m_ShadingModel = ShadingModel::Lit;
+
+        ShaderEffectHandle m_ShaderEffect;
     };
 }

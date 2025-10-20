@@ -11,6 +11,9 @@
 #include "includes/volume/volumesources.h"
 #include "includes/debug/print.h"
 
+// forward declare - defined in default_terrain.h or a custom volumegraph
+vec4 SampleBaseTerrainValue(vec3 worldPosition);
+
 vec4 RaiseLowerBrush(vec3 worldPosition, vec3 brushCenter, float radius, float strength)
 {
     vec3 direction = normalize(worldPosition - brushCenter);
@@ -20,21 +23,11 @@ vec4 RaiseLowerBrush(vec3 worldPosition, vec3 brushCenter, float radius, float s
     return vec4(direction * delta, delta);
 }
 
-vec4 GetSampleValue(vec3 worldPosition)
+vec4 SampleVolumeSources(vec3 worldPosition, in vec4 terrainSample, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData)
 {
-    // move to sample function
-    vec3 planeNormal = vec3(0,1,0);
-    CsgPlane plane = CsgPlane(vec3(0,1,0), 10);
-    CsgSphere sphere = CsgSphere(vec3(0,0,-1000), 500);
-
-    vec4 planeGradient = GetValueAndGradient(worldPosition, plane);
-    vec4 sphereGradient = GetValueAndGradient(worldPosition, sphere);
-    
-    vec4 finalGradient = GetUnion(planeGradient, sphereGradient);
-
-    for (uint i = 0; i < u_Constants.VolumeSourcesList.Count; ++i)
+    for (uint i = 0; i < volumeSourcesList.Count; ++i)
     {
-        VolumeSource source = u_Constants.VolumeSourcesList.Sources[i];
+        VolumeSource source = volumeSourcesList.Sources[i];
         vec4 sourceGradient;
         uint dataStartIndex = source.Index * VolumeSources_ItemSize;
         
@@ -45,20 +38,20 @@ vec4 GetSampleValue(vec3 worldPosition)
         {
             case VolumeSource_Sphere:
             {
-                CsgSphere sphere = UnpackCsgSphere(u_Constants.VolumeSourcesData, dataStartIndex);
+                CsgSphere sphere = UnpackCsgSphere(volumeSourcesData, dataStartIndex);
                 sourceGradient = GetValueAndGradient(worldPosition, sphere);
                 break;
             }
             case VolumeSource_Cube:
             {
-                CsgCube cube = UnpackCsgCube(u_Constants.VolumeSourcesData, dataStartIndex);
+                CsgCube cube = UnpackCsgCube(volumeSourcesData, dataStartIndex);
                 sourceGradient = GetValueAndGradient(worldPosition, cube);
                 break;
             }
             case VolumeSource_Ellipsoid:
             {
                 CsgEllipsoid ellipsoid;
-                UnpackCsgSource(u_Constants.VolumeSourcesData, dataStartIndex, ellipsoid);
+                UnpackCsgSource(volumeSourcesData, dataStartIndex, ellipsoid);
                 sourceGradient = GetValueAndGradient(worldPosition, ellipsoid);
                 break;
             }
@@ -75,18 +68,18 @@ vec4 GetSampleValue(vec3 worldPosition)
             // TODO: Remove and merge into grid source
             case VolumeSource_SphereBrush:
             {
-                CsgSphere sphere = UnpackCsgSphere(u_Constants.VolumeSourcesData, dataStartIndex);
-                strength = u_Constants.VolumeSourcesData.SourcesData[dataStartIndex + 4];
-                smoothness = u_Constants.VolumeSourcesData.SourcesData[dataStartIndex + 5];
+                CsgSphere sphere = UnpackCsgSphere(volumeSourcesData, dataStartIndex);
+                strength = volumeSourcesData.SourcesData[dataStartIndex + 4];
+                smoothness = volumeSourcesData.SourcesData[dataStartIndex + 5];
                 
                 sourceGradient = GetValueAndGradient(worldPosition, sphere);
                 break;
             }
             case VolumeSource_CubeBrush:
             {
-                CsgCube cube = UnpackCsgCube(u_Constants.VolumeSourcesData, dataStartIndex);
-                strength = u_Constants.VolumeSourcesData.SourcesData[dataStartIndex + 6];
-                smoothness = u_Constants.VolumeSourcesData.SourcesData[dataStartIndex + 7];
+                CsgCube cube = UnpackCsgCube(volumeSourcesData, dataStartIndex);
+                strength = volumeSourcesData.SourcesData[dataStartIndex + 6];
+                smoothness = volumeSourcesData.SourcesData[dataStartIndex + 7];
                 sourceGradient = GetValueAndGradient(worldPosition, cube);
                 break;
             }
@@ -97,26 +90,33 @@ vec4 GetSampleValue(vec3 worldPosition)
             case VolumeOperation_Union:
             {
                 if (smoothness < 0.0f)
-                    finalGradient = GetUnion(sourceGradient, finalGradient);
+                    terrainSample = GetUnion(sourceGradient, terrainSample);
                 else
-                    finalGradient = GetUnionSmooth(sourceGradient, finalGradient, smoothness);
+                    terrainSample = GetUnionSmooth(sourceGradient, terrainSample, smoothness);
                 break;
             }
             case VolumeOperation_Difference:
             {
                 if (smoothness < 0.0f)
-                    finalGradient = GetDifference(sourceGradient, finalGradient);
+                    terrainSample = GetDifference(sourceGradient, terrainSample);
                 else
-                    finalGradient = -GetUnionSmooth(sourceGradient, -finalGradient, smoothness); 
+                    terrainSample = -GetUnionSmooth(sourceGradient, -terrainSample, smoothness); 
                 break;
             }
             case VolumeOperation_Intersect:
             {
-                finalGradient = GetIntersection(sourceGradient, finalGradient);
+                terrainSample = GetIntersection(sourceGradient, terrainSample);
                 break;
             }
         }
     }
+    
+    return terrainSample;
+}
 
-    return finalGradient;
+vec4 SampleTerrain(vec3 worldPosition, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData)
+{
+    vec4 baseTerrainSample = SampleBaseTerrainValue(worldPosition);
+    vec4 terrainSample = SampleVolumeSources(worldPosition, baseTerrainSample, volumeSourcesList, volumeSourcesData);
+    return terrainSample;
 }

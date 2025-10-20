@@ -11,12 +11,14 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/nodegraphtypemeta.h
     ${TARGET_PUBLIC_PATH}/nodegraphtyperegistry.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in.h
+    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode2in.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in1out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in2out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in3out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in4out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode2in1out.h
+    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode2in2out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode3in1out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode4in1out.h
     ${TARGET_PUBLIC_PATH}/nodes/fixedpinsnode.h

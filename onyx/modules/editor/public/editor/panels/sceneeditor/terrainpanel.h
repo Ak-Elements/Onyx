@@ -16,6 +16,7 @@ struct ImGuiWindow;
 
 namespace Onyx::Volume
 {
+    struct VolumeGenerationComponent;
     struct TerrainSettingsComponent;
     struct TerrainWorldOctreeComponent;
 }
@@ -52,10 +53,9 @@ namespace Onyx::Editor::SceneEditor
         void RenderToolbar(ImGuiWindow* sceneViewWindow);
         void RenderSelectedTabOperations();
 
-        void TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, Rect2f32 sceneViewPort);
+        void TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewPort);
         void ReadbackTerrainHit(Graphics::CommandBuffer& computeCommandBuffer);
-        void SpawnVolumeSource(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree);
-        void FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree);
+        void FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent);
         void UpdateTerrainMesh(const Graphics::CommandBuffer& command_buffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree);
 
         void OnTerrainPanelBrushSizeInput(const Input::InputActionEvent& inputEvent);
@@ -65,10 +65,6 @@ namespace Onyx::Editor::SceneEditor
         GameCore::GameCoreSystem& m_GameCore;
 
         onyxU32 m_SceneViewPanelId = 0;
-
-        Graphics::ShaderEffectHandle m_RayTraceTerrainShaderEffect;
-        Graphics::ShaderEffectHandle m_FindRayTracedOctreeNodeShaderEffect;
-   
 
         // should be a frame/transient buffer
         Graphics::BufferHandle m_HitBuffer;

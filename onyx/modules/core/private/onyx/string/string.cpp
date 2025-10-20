@@ -53,7 +53,7 @@ namespace Onyx
     bool IgnoreCaseStartsWith(StringView string, StringView prefix)
     {
         auto it = std::ranges::mismatch(string.begin(), string.end(), prefix.begin(), prefix.end(), [](char lhs, char rhs) { return std::tolower(lhs) == std::tolower(rhs); });
-        return it.in1 != string.end();
+        return it.in1 != string.end() && it.in1 != string.begin();
     }
 
     StringView::size_type IgnoreCaseFind(StringView string, StringView searchString)

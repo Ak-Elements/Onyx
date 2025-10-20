@@ -21,7 +21,7 @@ namespace Onyx::Graphics
     class ShaderGenerator
     {
     public:
-        ShaderGenerator();
+        ShaderGenerator() = default;
         virtual ~ShaderGenerator() = default;
 
         template <typename T>
@@ -112,7 +112,8 @@ namespace Onyx::Graphics
         void AddInclude(String include);
         void AddInclude(ShaderStage stage, String include);
 
-        String GenerateShader();
+        // TODO: Do not submit and fix shader generator isntead of hacking it like that
+        virtual String GenerateShader();
 
     private:
         void GenerateVertexShader();
@@ -123,8 +124,8 @@ namespace Onyx::Graphics
 
         virtual void DoGenerateFragmentMain() {}
 
-
-    private:
+    // TODO: Do not submit and fix shader generator isntead of hacking it like that
+    protected:
         DynamicArray<ShaderTexture> textures;
 
         InplaceArray<DynamicArray<ShaderVariable>, MAX_SHADER_STAGES> pushConstants;

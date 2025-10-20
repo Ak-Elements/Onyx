@@ -19,6 +19,9 @@ namespace Onyx::Volume::Rendering
 
         auto&& [volumeTerrainSettings, volumeTerrain, materialComponent] = entity.Get();
 
+        if (volumeTerrain.MeshVertices == false)
+            return;
+
         if (materialComponent.Material.IsValid() == false)
         {
             // this should be moved to the component create

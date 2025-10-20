@@ -2,6 +2,7 @@
 #include <onyx/assets/asset.h>
 
 #include <onyx/graphics/graphicshandles.h>
+#include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
 
 namespace Onyx
@@ -29,6 +30,8 @@ namespace Volume
 
         onyxF32 MaxGeometricError = 0.1f;
         onyxF32 ComplexSurfaceThreshold = 0.89f;
+
+        Assets::AssetId VolumeGraphAssetId;
     };
 
     struct TerrainWorldOctreeComponent
@@ -54,6 +57,14 @@ namespace Volume
         Graphics::ShaderEffectHandle UpdateWorldOctreeChunkShader;
         Graphics::ShaderEffectHandle SetupDispatchGenerateMeshShader;
         Graphics::ShaderEffectHandle GenerateMeshShader;
+
+        // Terrain Editor shaders
+        Graphics::ShaderEffectHandle RayTraceTerrainShaderEffect;
+        Graphics::ShaderEffectHandle FindRayTracedOctreeNodeShaderEffect;
+
+        Reference<VolumeShaderGraph> VolumeShaderGraph;
+
+        bool HasLoadedShaders = false;
     };
 }
 

@@ -99,6 +99,7 @@ namespace Onyx::Editor
 
         void Clear();
 
+        virtual StringView GetLocalizedAssetTypeName() const = 0;
         virtual DynamicArray<StringView> GetExtensions() const = 0;
         virtual onyxU32 GetCanvasBackgroundColor() const = 0;
 

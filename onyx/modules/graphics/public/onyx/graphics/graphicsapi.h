@@ -13,6 +13,11 @@
 #include <onyx/graphics/presentthread.h> 
 
 
+namespace Onyx::Graphics
+{
+    struct ShaderProperties;
+}
+
 namespace Onyx
 {
     class Engine;
@@ -221,6 +226,7 @@ namespace Onyx
             RenderPassHandle GetOrCreateRenderPass(const RenderPassSettings& settings);
             FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
             ShaderHandle GetShader(const FileSystem::Filepath& shaderPath);
+            ShaderHandle GetShader(const ShaderProperties& properties);
             ShaderEffectHandle CreateShaderEffect(const PipelineProperties& properties);
 
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties);
@@ -253,7 +259,6 @@ namespace Onyx
             void WaitIdle();
 
             void OnWindowResize(onyxU32 width, onyxU32 height);
-     
 
         protected:
             void LoadSettings();

@@ -34,8 +34,19 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        PBRMaterialShaderOutNode();
+        NodeGraph::PinBase* GetInputPin(onyxU32 index) override;
+        const NodeGraph::PinBase* GetInputPin(onyxU32 index) const override;
+
+        NodeGraph::PinBase* GetOutputPin(onyxU32 index) override;
+        const NodeGraph::PinBase* GetOutputPin(onyxU32 index) const override;
+
     private:
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
+
+    private:
+        AlbedoInPin m_AlbedoInPin;
+        NormalInPin m_NormalInPin;
+        MetalnessInPin m_MetalnessInPin;
+        RoughnessInPin m_RoughnessInPin;
     };
 }

@@ -606,9 +606,11 @@ namespace Onyx::Ui
 		ImGui::DestroyContext();
     }
 
-    void ImGuiSystem::Update(DeltaGameTime deltaTime)
+    void ImGuiSystem::Update(Graphics::GraphicsApi& api, DeltaGameTime deltaTime)
     {
 #if ONYX_IS_WINDOWS
+
+		g_UiContext.GraphicsApi = &api;
 
 		ImGuiIO& io = ImGui::GetIO();
 	
@@ -631,6 +633,8 @@ namespace Onyx::Ui
 			const UniquePtr<ImGuiWindow>& imguiWindow = windows[i];
 			imguiWindow->Render(*this);
 		}
+
+		g_UiContext.GraphicsApi = nullptr;
     }
 
     void ImGuiSystem::OnBeginFrame(Graphics::FrameContext&)

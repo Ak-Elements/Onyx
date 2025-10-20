@@ -31,25 +31,25 @@ namespace Onyx::Graphics
         return textureEntryIndex;
     }
 
-    void ShaderGraph::Render(const FrameContext& /*context*/, CommandBuffer& commandBuffer) const
-    {
-        NodeGraph::GraphRunner runner(Graph);
-        runner.Prepare();
-        runner.Update(0);
+    //void ShaderGraph::Render(const FrameContext& /*context*/, CommandBuffer& commandBuffer) const
+    //{
+    //    NodeGraph::GraphRunner runner(Graph);
+    //    runner.Prepare();
+    //    runner.Update(0);
 
-        commandBuffer.BindShaderEffect(ShaderEffect);
+    //    commandBuffer.BindShaderEffect(m_ShaderEffect);
 
-        const ShaderGraphTextures& shaderTextures = runner.GetContext().Get<ShaderGraphTextures>();
-        const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();
-        struct PushConstants
-        {
-            onyxU32 Textures[8];
-        } constants;
+    //    const ShaderGraphTextures& shaderTextures = runner.GetContext().Get<ShaderGraphTextures>();
+    //    const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();
+    //    struct PushConstants
+    //    {
+    //        onyxU32 Textures[8];
+    //    } constants;
 
-        std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
+    //    std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
 
-        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
-    }
+    //    commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
+    //}
 
     bool ShaderGraph::Serialize(Serializer& serializer) const
     {

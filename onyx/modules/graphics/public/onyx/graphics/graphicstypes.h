@@ -201,6 +201,8 @@ namespace Onyx::Graphics
         Count
     };
 
+    static constexpr onyxU32 ShaderCoreVersion = 460;
+
     enum class ShaderStage : onyxU8
     {
         Invalid,

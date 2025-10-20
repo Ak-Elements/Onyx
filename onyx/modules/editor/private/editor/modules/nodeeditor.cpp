@@ -27,7 +27,6 @@
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 
-
 namespace Onyx::Editor
 {
     namespace
@@ -793,7 +792,7 @@ namespace Onyx::Editor
     void NodeGraphEditorWindow::Save()
     {
         FileSystem::Filepath path;
-        if (FileSystem::FileDialog::SaveFileDialog(path, "Graph", m_EditorContext->GetExtensions()))
+        if (FileSystem::FileDialog::SaveFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
             Assets::AssetMetaData dummyAsset;
             dummyAsset.Path = path;
@@ -812,7 +811,7 @@ namespace Onyx::Editor
     void NodeGraphEditorWindow::Load()
     {
         FileSystem::Filepath path;
-        if (FileSystem::FileDialog::OpenFileDialog(path, "Graph", m_EditorContext->GetExtensions()))
+        if (FileSystem::FileDialog::OpenFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
             ONYX_ASSERT(m_AssetSystem != nullptr);
             m_EditorContext->Load(*m_AssetSystem, path);

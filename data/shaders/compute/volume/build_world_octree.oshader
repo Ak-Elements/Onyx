@@ -5,8 +5,8 @@
 #include "includes/volume/world_octree.h"
 #include "includes/volume/world_chunk.h"
 #include "includes/volume/volumesources.h"
-
 #include "includes/volume/isosurface_extraction.h"
+#include "includes/volume/octree_split_policy.h"
 #include "includes/indirect_dispatch.h"
 
 #include "includes/morton.h"
@@ -59,8 +59,6 @@ compute
         float Padding0;
         float Padding1;
     } u_Constants;
-
-#include "includes/volume/octree_split_policy.h"
 
     void main()
     {
@@ -116,6 +114,8 @@ compute
             u_Constants.NodeExtents,
             u_Constants.MaxGeometricError,
             u_Constants.ComplexSurfaceThreshold,
+            u_Constants.VolumeSourcesList,
+            u_Constants.VolumeSourcesData,
             childCount);
 
         if (octreeNode.ValidMask != 0)

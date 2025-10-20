@@ -2,8 +2,9 @@
 
 #include <editor/nodegraph/nodegrapheditorcontext.h>
 #include <onyx/assets/assetsystem.h>
+#include <onyx/localization/localizationmodule.h>
 #include <onyx/nodegraph/graph.h>
-#include <onyx/nodegraph/nodefactory.h>
+#include <onyx/nodegraph/nodegraphfactory.h>
 
 namespace Onyx::Editor
 {
@@ -16,9 +17,12 @@ namespace Onyx::Editor
             Graph = Reference<GraphAssetT>::Create();
         }
 
+        DynamicArray<StringView> GetExtensions() const override { return Assets::AssetSystem::GetExtensions<GraphAssetT>(); }
+        StringView GetLocalizedAssetTypeName() const override { return GetLocalizationModule().TryGetLocalized(GraphAssetT::TypeId).value_or("Unknown"); }
+
     protected:
-        NodeGraph::NodeGraph& GetGraph() override { return Graph->GetGraph(); }
-        const NodeGraph::NodeGraph& GetGraph() const override { return Graph->GetGraph(); }
+        NodeGraph::NodeGraph& GetNodeGraph() override { return Graph->GetNodeGraph(); }
+        const NodeGraph::NodeGraph& GetNodeGraph() const override { return Graph->GetNodeGraph(); }
 
     private:
         const NodeGraph::INodeFactory& GetNodeFactory() const override { return NodeFactory; }
@@ -32,31 +36,26 @@ namespace Onyx::Editor
             assetSystem.GetAssetUnmanaged(assetId, graphAsset);
             if (graphAsset.IsValid() && graphAsset->IsLoaded())
             {
-                OnAssetLoaded(graphAsset);
+                Reference<typename GraphAssetT::AssetT> baseAsset(graphAsset);
+                OnAssetLoaded(baseAsset);
             }
             else
             {
-                graphAsset->GetOnLoadedEvent().Connect<&TypedNodeGraphEditorContext::OnAssetLoaded>(this);
+                graphAsset->GetOnLoadedEvent().template Connect<&TypedNodeGraphEditorContext::OnAssetLoaded>(this);
             }
         }
 
-        void OnSave(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& /*metaData*/) override
+        void OnSave(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& metaData) override
         {
-            assetSystem.SaveAsset<GraphAssetT>(Graph->GetId());
+            assetSystem.SaveAssetAs(metaData.Path, Graph);
         }
 
-        DynamicArray<StringView> GetExtensions() const override
-        {
-            DynamicArray<StringView> extensions;
-            return extensions;
-        }
-
-        void OnAssetLoaded(Reference<GraphAssetT>& loadedGraph)
+        void OnAssetLoaded(Reference<typename GraphAssetT::AssetT>& loadedGraph)
         {
             Clear();
             Graph = loadedGraph;
 
-            const auto& graphNodes = Graph->GetGraph().GetNodes();
+            const auto& graphNodes = Graph->GetNodeGraph().GetNodes();
 
             DynamicArray<Node>& nodes = GetNodes();
             nodes.reserve(graphNodes.size());
@@ -64,7 +63,7 @@ namespace Onyx::Editor
             for (auto&& [id, nodeContainer] : graphNodes)
             {
                 const UniquePtr<NodeGraph::Node>& node = nodeContainer.m_Data;
-                Node& nodeEditorMeta = nodes.emplace_back(node->GetId(), node->GetName());
+                Node& nodeEditorMeta = nodes.emplace_back(node->GetId(), String(node->GetName()));
                 nodeEditorMeta.LocalId = id;
 
                 UpdateEditorNodeData(nodeEditorMeta, *node);
