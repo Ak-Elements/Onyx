@@ -14,7 +14,7 @@ namespace Onyx::Graphics
     public:
         ~Window() = default;
 
-        void Create(const WindowSettings& settings) { m_Settings = settings; m_IsInitialized = true; } // mock
+        void Create() { m_IsInitialized = true; } // mock
         void Destroy() { m_IsInitialized = false; m_NativeHandle = nullptr; }
 
         void Show() {}
