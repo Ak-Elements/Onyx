@@ -908,7 +908,7 @@ namespace Onyx::Editor
 
         using namespace FileSystem;
         Filepath metaFilePath = FileSystem::Path::ReplaceExtension(path, "ometa");
-        OnyxFile metaDataJsonFile(metaFilePath);
+        OnyxFile metaDataJsonFile(FileSystem::Path::GetFullPath(metaFilePath));
 
         const JsonValue& metaDataJsonRoot = metaDataJsonFile.LoadJson();
 

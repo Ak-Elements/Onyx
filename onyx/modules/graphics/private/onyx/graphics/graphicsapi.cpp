@@ -5,7 +5,7 @@
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/shader/shadercache.h>
 #include <onyx/graphics/window.h>
-#include <onyx/graphics/shader/shadereffect.h>
+#include <onyx/graphics/shader/shaderinstance.h>
 #include <onyx/graphics/texture.h>
 #include <onyx/graphics/texturestorage.h>
 #include <onyx/graphics/pipeline.h>
@@ -30,21 +30,13 @@ namespace
 
 namespace Onyx::Graphics
 {
-    GraphicsApi::GraphicsApi(Window& window)
-        : m_Window(window)
-        , m_PresentThread(*this)
-        , m_ShaderCache(*this)
-        , m_RenderGraph(nullptr)
-        , m_RenderPassCache(*this)
-        , m_FramebufferCache(*this)
-    {
-    }
-
     GraphicsApi::~GraphicsApi() = default;
 
-    void GraphicsApi::Init(const GraphicSettings& settings)
+    void GraphicsApi::Init(const GraphicSettings& graphicSettings, Assets::AssetSystem& assetSystem, Window& window)
     {
-        m_Settings = settings;
+        m_Settings = graphicSettings;
+        m_AssetSystem = &assetSystem;
+        m_Window = &window;
 
         constexpr StringId32 defaultBlendStateId("default");
         constexpr StringId32 noBlendStateId("noblend");
@@ -62,7 +54,7 @@ namespace Onyx::Graphics
         }
 
         m_GraphicsApi = MakeUnique<Vulkan::VulkanGraphicsApi>();
-        m_GraphicsApi->Init(settings, m_Window);
+        m_GraphicsApi->Init(m_Settings, *m_Window);
 
         m_DepthTextureFormat = TextureFormat::DEPTH_FLOAT32;
         CreateDepthImages();
@@ -96,7 +88,7 @@ namespace Onyx::Graphics
 
     void GraphicsApi::CreateDepthImages()
     {
-        const Vector2s32& windowExtent = m_Window.GetFrameBufferSize();
+        const Vector2s32& windowExtent = m_Window->GetFrameBufferSize();
 
         if (windowExtent == m_DepthTextureExtent)
         {
@@ -142,7 +134,7 @@ namespace Onyx::Graphics
         ONYX_PROFILE(Graphics);
         ONYX_PROFILE_FUNCTION;
 
-        if (m_Window.IsMinimized())
+        if (m_Window->IsMinimized())
             return false;
 
         if (m_RenderGraph.IsValid() == false || m_RenderGraph->IsLoaded() == false)
@@ -318,34 +310,14 @@ namespace Onyx::Graphics
         return m_GraphicsApi->CreateDescriptorSet(shader, debugName);
     }
 
-    ShaderHandle GraphicsApi::GetShader(const FileSystem::Filepath& shaderPath)
-    {
-        ShaderProperties properties{ .Path = shaderPath };
-        return GetShader(properties);
-    }
-
-    ShaderHandle GraphicsApi::GetShader(const ShaderProperties& properties)
-    {
-        ShaderCacheEntry cached;
-        if (m_ShaderCache.GetOrLoadShader(properties, cached) == false)
+    ShaderInstanceHandle GraphicsApi::CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties)
         {
-            ONYX_LOG_ERROR("Failed creating shader effect for {}.", properties.Path);
-            return ShaderHandle::Invalid();
-        }
-
-        return cached.m_Shader;
-    }
-
-    ShaderEffectHandle GraphicsApi::CreateShaderEffect(const PipelineProperties& properties)
-    {
-        ONYX_ASSERT(properties.Shader.IsValid(), "Shader handle is invalid.");
-
-        PipelineHandle pipelineHandle = m_GraphicsApi->CreatePipeline(properties);
-
-        ONYX_ASSERT(pipelineHandle.IsValid(), "Pipeline handle is invalid.");
+        ONYX_ASSERT(m_AssetSystem != nullptr);
+        ShaderHandle shader;
+        m_AssetSystem->GetAsset(shaderAssetId, shader);
+        PipelineHandle pipelineHandle = m_GraphicsApi->CreatePipeline(shader, properties);
         
-        // create shader effect
-        return ShaderEffectHandle::Create(*this, pipelineHandle, properties.Shader);
+        return ShaderInstanceHandle::Create(*this, pipelineHandle, shader);
     }
 
     CommandBuffer& GraphicsApi::GetCommandBuffer(onyxU8 frameIndex)
@@ -393,7 +365,7 @@ namespace Onyx::Graphics
 
     void GraphicsApi::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
     {
-        if (m_Window.IsMinimized())
+        if (m_Window->IsMinimized())
         {
             return;
         }
@@ -407,16 +379,7 @@ namespace Onyx::Graphics
 
     void GraphicsApi::OnRenderGraphLoaded(Reference<RenderGraph>& loadedGraph)
     {
-        loadedGraph->Init(*this);
         m_RenderGraph = loadedGraph;
-    }
-
-    ShaderHandle GraphicsApi::CreateShader(InplaceArray<DynamicArray<onyxU32>, MAX_SHADER_STAGES>& perStageByteCode)
-    {
-        ONYX_PROFILE(Graphics);
-        ONYX_PROFILE_FUNCTION;
-
-        return m_GraphicsApi->CreateShader(perStageByteCode);
     }
 
     RenderPassHandle GraphicsApi::CreateRenderPass(const RenderPassSettings& settings)

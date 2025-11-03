@@ -184,29 +184,70 @@ namespace Onyx::Graphics::ShaderCompiler
 			}
 #endif
 
-			ShaderIncluder* includer = new ShaderIncluder();
+			return shaderCOptions;
+		}
 
-			for (auto& [_, mountPoint] : FileSystem::Path::GetMountPoints())
+		UniquePtr<ShaderIncluder> SetupShaderIncluder()
+		{
+			UniquePtr<ShaderIncluder> includer = MakeUnique<ShaderIncluder>();
+			for (const FileSystem::Filepath& shaderDirectory : GetShaderDirectories())
 			{
-				const FileSystem::Filepath shaderIncludePath = mountPoint.Path / "shaders/";
-				if (FileSystem::Path::Exists(shaderIncludePath))
-				{
-					includer->AddIncludeDirectory(shaderIncludePath.generic_string().c_str());
-				}
+				includer->AddIncludeDirectory(shaderDirectory.generic_string().c_str());
 			}
 
-			//shaderCOptions.AddMacroDefinition("SHADERGRAPH", "test");
-			shaderCOptions.SetIncluder(std::unique_ptr<ShaderIncluder>(includer));
-			return shaderCOptions;
+			return std::move(includer);
 		}
 	}
 
 	namespace Glsl
 	{
-		bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& shaderSourceCode, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
+		bool Preprocess(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& shaderSourceCode, ShaderStage stage, String& outPreprocessedSource, HashSet<String>& outIncludes)
 		{
 			shaderc::Compiler compiler;
 			shaderc::CompileOptions shaderCOptions = SetupShaderOptions(api);
+
+			UniquePtr<ShaderIncluder> shaderIncluderPtr = SetupShaderIncluder();
+			ShaderIncluder* shaderIncluder = shaderIncluderPtr.get();
+			shaderCOptions.SetIncluder(std::move(shaderIncluderPtr));
+
+			shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
+			switch (stage)
+			{
+			case ShaderStage::Vertex: shaderKind = shaderc_vertex_shader; break;
+			case ShaderStage::Fragment: shaderKind = shaderc_fragment_shader; break;
+			case ShaderStage::Compute: shaderKind = shaderc_compute_shader; break;
+			case ShaderStage::Invalid:
+			case ShaderStage::Count:
+			case ShaderStage::All:
+				ONYX_ASSERT(false, "Not implemented");
+				return false;
+			}
+
+			const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderKind, sourcePath.string().c_str(), shaderCOptions);
+			if (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
+			{
+				ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, Enums::ToString(stage), preProcessingResult.GetErrorMessage());
+				return false;
+			}
+
+			outPreprocessedSource.assign(preProcessingResult.begin(), preProcessingResult.end());
+
+			for (const String& include : shaderIncluder->GetIncludes())
+			{
+				outIncludes.emplace(include);
+			}
+
+			return true;
+		}
+
+		bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
+		{
+			shaderc::Compiler compiler;
+			shaderc::CompileOptions shaderCOptions = SetupShaderOptions(api);
+
+			//UniquePtr<ShaderIncluder> shaderIncluderPtr = SetupShaderIncluder();
+			//ShaderIncluder* shaderIncluder = shaderIncluderPtr.get();
+			//shaderCOptions.SetIncluder(std::move(shaderIncluderPtr));
 
 			shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
 			switch (stage)
@@ -221,18 +262,18 @@ namespace Onyx::Graphics::ShaderCompiler
 				    return false;
 			}
 
-			const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderKind, sourcePath.string().c_str(), shaderCOptions);
-			if (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
-			{
-				ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, Enums::ToString(stage), preProcessingResult.GetErrorMessage());
-				return false;
-			}
+			//const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderKind, sourcePath.string().c_str(), shaderCOptions);
+			// (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
+			//{
+			//	ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, Enums::ToString(stage), preProcessingResult.GetErrorMessage());
+			//	return false;
+			//}
 
-			StringView preprocessedSource(preProcessingResult.begin(), preProcessingResult.end());
-
+			//StringView preprocessedSource(preProcessingResult.begin(), preProcessingResult.end());
+			
 			// Compile shader
 			shaderCOptions.SetOptimizationLevel(shaderc_optimization_level_zero);
-			const shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(preprocessedSource.data(), preprocessedSource.length(), shaderKind, sourcePath.string().c_str(), shaderCOptions);
+			const shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(preprocessedCode.data(), preprocessedCode.length(), shaderKind, sourcePath.string().c_str(), shaderCOptions);
 
 			if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 			{
@@ -255,7 +296,7 @@ namespace Onyx::Graphics::ShaderCompiler
 
 			FileSystem::OnyxFile shaderSourceFile(exportShaderSourcePath);
 			FileSystem::FileStream shaderSourceFileStream = shaderSourceFile.OpenStream(FileSystem::OpenMode::Text | FileSystem::OpenMode::Write);
-			shaderSourceFileStream.WriteRaw(preprocessedSource.data(), preprocessedSource.size());
+			shaderSourceFileStream.WriteRaw(preprocessedCode.data(), preprocessedCode.size());
 
 			const StringView exportShaderBinaryPath = Format::Format("{}/{}/glsl/{}.spirv", SHADER_BINARIES_TMP_PATH, shaderStageString, sourcePath.stem());
 			FileSystem::OnyxFile shaderBinaryFile(exportShaderBinaryPath);
@@ -267,7 +308,23 @@ namespace Onyx::Graphics::ShaderCompiler
 		}
 	}
 
-    bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
+    bool Preprocess(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes)
+    {
+		switch (language)
+		{
+		    case ShaderLanguage::GLSL:
+			    return Glsl::Preprocess(api, sourcePath, code, stage, outPreprocessedCode, outIncludes);
+		    case ShaderLanguage::Invalid:
+		    case ShaderLanguage::HLSL:
+		    case ShaderLanguage::Count:
+			    break;
+		}
+
+		ONYX_ASSERT(false, "Shader compiler not implemented for language ({}).", Enums::ToString(language));
+		return false;
+    }
+
+    bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
     {
 #if !ONYX_IS_RETAIL
 
@@ -293,7 +350,7 @@ namespace Onyx::Graphics::ShaderCompiler
 		switch (language)
 		{
 		    case ShaderLanguage::GLSL:
-			    return Glsl::Compile(api, sourcePath, code, stage, outByteCode);
+			    return Glsl::Compile(api, sourcePath, preprocessedCode, stage, outByteCode);
 		    case ShaderLanguage::Invalid:
 		    case ShaderLanguage::HLSL:
 		    case ShaderLanguage::Count:
@@ -631,6 +688,7 @@ namespace Onyx::Graphics::ShaderCompiler
     {
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions shaderCOptions = SetupShaderOptions(graphicsApi);
+		shaderCOptions.SetIncluder(std::move(SetupShaderIncluder()));
 		shaderCOptions.SetForcedVersionProfile(ShaderCoreVersion, shaderc_profile_core);
 		const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderc_glsl_default_vertex_shader, "validation", shaderCOptions);
 		if (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)

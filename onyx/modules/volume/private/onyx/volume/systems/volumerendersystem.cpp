@@ -29,7 +29,7 @@ namespace Onyx::Volume::Rendering
             return;
         }
 
-        if ((materialComponent.Material.IsValid() == false) || materialComponent.Material->IsLoading())
+        if ((materialComponent.Material.IsValid() == false))
             return;
 
         Matrix4<onyxF32> transform;

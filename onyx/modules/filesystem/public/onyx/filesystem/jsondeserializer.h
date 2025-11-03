@@ -75,11 +75,9 @@ namespace Onyx::FileSystem
         bool DoRead(StringView& outValue) const override;
         bool DoRead(StringView name, StringView& outValue) const override;
 
-
         bool CreateScope(onyxU32 index) const override;
         bool CreateScope(onyxU64 index) const override;
         bool CreateScope(StringView name) const override;
-
         bool EndScope() const override;
 
         onyxU32 GetItemsCount() const override;

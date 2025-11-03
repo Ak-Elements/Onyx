@@ -977,14 +977,9 @@ namespace Onyx::Graphics::Vulkan
         return { ringBuffer.Buffer, alias };
     }
 
-    PipelineHandle VulkanGraphicsApi::CreatePipeline(const PipelineProperties& properties)
+    PipelineHandle VulkanGraphicsApi::CreatePipeline(ShaderHandle& shader, const PipelineProperties& properties)
     {
-        return Reference<Pipeline>::Create(*this, properties);
-    }
-
-    ShaderHandle VulkanGraphicsApi::CreateShader(InplaceArray<DynamicArray<onyxU32>, MAX_SHADER_STAGES>& perStageByteCode)
-    {
-        return Reference<Shader>::Create(*this, perStageByteCode);
+        return Reference<Pipeline>::Create(*this, properties, shader);
     }
 
     DynamicArray<DescriptorSetHandle> VulkanGraphicsApi::CreateDescriptorSet(const ShaderHandle& shader, StringView debugName)

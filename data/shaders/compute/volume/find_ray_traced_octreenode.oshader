@@ -11,6 +11,8 @@
 #include "includes/morton.h"
 #include "includes/debug/print.h"
 
+#include "includes/volume/default_terrain.h"
+
 compute
 {
     #define LOCAL_SIZE 1
@@ -60,9 +62,7 @@ compute
     void main()
     {
         vec3 hitPosition = u_Constants.HitPositionBuffer.HitPosition;
-
-        debugPrintfEXT("%u volume sources count", u_Constants.VolumeSourcesList.Count);
-
+        
         uint depth = 0;
         float nodeExtents = u_Constants.RootHalfExtents * 2.0f;
         uint64_t currentMortonIndex = 0;

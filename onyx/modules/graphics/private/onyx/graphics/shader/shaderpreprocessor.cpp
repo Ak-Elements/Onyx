@@ -12,7 +12,7 @@
 
 namespace Onyx::Graphics
 {
-    bool ShaderPreprocessor::PreprocessShader(const ShaderProperties& properties, const String& shaderCode)
+    bool ShaderPreprocessor::PreprocessShader(const String& shaderCode)
     {
         // split the shader file into stages and preprocess defines/macros and includes
         using namespace FileSystem;
@@ -21,11 +21,9 @@ namespace Onyx::Graphics
         m_ShaderCode.clear();
         m_ShaderCode.reserve(shaderCode.length());
 
-        StringView currentLine;
         ShaderStage shaderStage = ShaderStage::Invalid;
 
-        PreprocessedShader preprocessShader;
-        bool hasAddedAdditionalIncludes = false;
+        //bool hasAddedAdditionalIncludes = false;
         while (reader.IsEof() == false)
         {
             // global scope
@@ -35,7 +33,7 @@ namespace Onyx::Graphics
                 if (isShaderStage)
                 {
                     // leaving global scope for the first time, add additional includes
-                    if (hasAddedAdditionalIncludes == false)
+                    /*if (hasAddedAdditionalIncludes == false)
                     {
                         for (const String& additionalInclude : properties.AdditionalIncludes)
                         {
@@ -43,7 +41,7 @@ namespace Onyx::Graphics
                         }
 
                         hasAddedAdditionalIncludes = true;
-                    }
+                    }*/
 
                     PreprocessedShader& shader = m_PreprocessedShaderStages[static_cast<onyxU8>(shaderStage)];
                     if (shader.m_IsValid == false)
@@ -57,8 +55,7 @@ namespace Onyx::Graphics
                 }
                 else
                 {
-                    reader.ReadLine(currentLine);
-                    m_ShaderCode.append(currentLine);
+                    ParseGlobalScope(reader);
                 }
             }
             else 
@@ -76,23 +73,24 @@ namespace Onyx::Graphics
         return true;
     }
 
-    bool ShaderPreprocessor::ParseGlobalScope(StringView line, String& outShaderCode)
+    bool ShaderPreprocessor::ParseGlobalScope(StringStream& reader)
     {
-        if (line.starts_with("#pragma"))
+        StringView line;
+        reader.ReadLine(line);
+
+        if (IgnoreCaseStartsWith(line, "#pragma"))
         {
             // parse pragma
-            outShaderCode += line;
-            return true;
 
         }
-        else if (line.starts_with("#define"))
+        else if (IgnoreCaseStartsWith(line, "#define"))
         {
             // parse define
-            outShaderCode += line;
-            return true;
+            
         }
 
-        return false;
+        m_ShaderCode.append(line);
+        return true;
     }
 
     bool ShaderPreprocessor::IsShaderStage(StringStream& reader, ShaderStage& outStage) const
@@ -210,13 +208,6 @@ namespace Onyx::Graphics
 
         for (const PreprocessedShader& stage : preprocessor.m_PreprocessedShaderStages)
         {
-            outStream.Write<onyxU64>(stage.m_Includes.size());
-            for (const String& includeStr : stage.m_Includes)
-            {
-                outStream.Write<onyxU64>(includeStr.length());
-                outStream.Write(includeStr);
-            }
-
             outStream.Write<onyxU64>(stage.m_Code.length());
             outStream.Write(stage.m_Code);
         }

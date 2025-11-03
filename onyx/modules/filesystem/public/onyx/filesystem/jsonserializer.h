@@ -26,7 +26,6 @@ namespace Onyx::FileSystem
         nlohmann::ordered_json& GetCurrent();
         nlohmann::ordered_json& GetCurrent() const;
 
-    private:
         bool DoWrite(bool value) override;
         bool DoWrite(StringView name, bool value) override;
 
@@ -80,12 +79,10 @@ namespace Onyx::FileSystem
 
         bool EndScope() override;
 
-        onyxU32 GetItemsCount() override;
-
-        bool GetScopeIdentifier(onyxU32& outKey) override;
-        bool GetScopeIdentifier(onyxU64& outKey) override;
-        bool GetScopeIdentifier(Guid64& outKey) override;
-        bool GetScopeIdentifier(StringView& outKey) override;
+        bool WriteItemsCount(onyxU8 /*count*/) override { return true; }
+        bool WriteItemsCount(onyxU16 /*count*/) override { return true; }
+        bool WriteItemsCount(onyxU32 /*count*/) override { return true; }
+        bool WriteItemsCount(onyxU64 /*count*/) override { return true; }
 
         bool IsSupportingIntegralScopes() const override { return false; }
 

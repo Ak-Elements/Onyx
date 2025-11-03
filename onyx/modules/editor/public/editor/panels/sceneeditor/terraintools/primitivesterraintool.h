@@ -41,6 +41,6 @@ namespace Onyx::Editor
         Primitives m_Type = Primitives::Sphere;
         Operation m_Operation = Operation::Union;
 
-        Graphics::ShaderEffectHandle m_CreateVolumeSourceShaderEffect;
+        Graphics::ShaderInstanceHandle m_CreateVolumeSourceShader;
     };
 }

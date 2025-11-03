@@ -41,6 +41,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/octree/octreesearch.h
     ${TARGET_PUBLIC_PATH}/octree/octreesplitpolicy.h
     ${TARGET_PUBLIC_PATH}/shader/generators/volumeshadergraphgenerator.h
+    ${TARGET_PUBLIC_PATH}/shader/generators/templates/volumeshadertemplates.h
     ${TARGET_PUBLIC_PATH}/shadergraph/volumeshadergraph.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/differencevolumeshadergraphnode.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/intersectvolumeshadergraphnode.h

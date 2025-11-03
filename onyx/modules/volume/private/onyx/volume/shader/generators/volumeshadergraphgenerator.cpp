@@ -16,6 +16,6 @@ namespace Onyx::Volume
         }
 
         // TODO: currently all node generated code is added as fragment code
-        return Format::Format("{}\nvec4 SampleBaseTerrainValue(vec3 worldPosition)\n{{\n{}\n}}\n", Graphics::ShaderCoreVersion, includes, shaderStagesCode[Enums::ToIntegral(Graphics::ShaderStage::Fragment)]);
+        return Format::Format("{}\nvec4 SampleBaseTerrainValue(vec3 worldPosition)\n{{\n{}\n}}\n", includes, shaderStagesCode[Enums::ToIntegral(Graphics::ShaderStage::Fragment)]);
     }
 }

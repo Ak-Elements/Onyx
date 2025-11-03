@@ -53,10 +53,20 @@ namespace Onyx::Graphics
 
     bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer) const
     {
-        if (m_GraphicsApi == nullptr)
-            return false;
+        ONYX_ASSERT(m_GraphicsApi != nullptr);
 
         RenderGraph& renderGraph = asset.As<RenderGraph>();
-        return deserializer.Read(renderGraph);
+        //if (deserializer.Read(renderGraph, m_GraphicsApi) == false)
+        //    return false;
+
+        RenderGraphNodeFactory factory;
+        NodeGraph::NodeGraph& outGraph = renderGraph.GetNodeGraph();
+        if (NodeGraph::Deserialize(deserializer, outGraph, factory) == false)
+        {
+            return false;
+        }
+
+        renderGraph.Init(*m_GraphicsApi);
+        return true;
     }
 }

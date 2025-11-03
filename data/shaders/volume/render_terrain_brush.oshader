@@ -1,14 +1,5 @@
 #version 460 core
 
-#include "includes/common.h"
-#include "includes/viewconstants.h"
-#include "includes/bindless.h"
-
-#include "includes/volume/csg/sphere.h"
-#include "includes/volume/csg/cube.h"
-#include "includes/volume/csg/ellipsoid.h"
-
-#include "includes/debug/print.h"
 vertex
 {
     layout (location = 0) out vec2 vTexCoord;
@@ -23,6 +14,16 @@ vertex
 
 fragment
 {
+    #include "includes/common.h"
+    #include "includes/viewconstants.h"
+    #include "includes/bindless.h"
+
+    #include "includes/volume/csg/sphere.h"
+    #include "includes/volume/csg/cube.h"
+    #include "includes/volume/csg/ellipsoid.h"
+
+    #include "includes/debug/print.h"
+
     const float ISO_LEVEL = 0.0f;
 
     layout (location = 0) in vec2 vTexCoord;

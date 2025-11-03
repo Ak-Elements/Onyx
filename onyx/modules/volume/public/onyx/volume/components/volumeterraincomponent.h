@@ -52,15 +52,15 @@ namespace Volume
 
     struct VolumeGenerationComponent
     {
-        Graphics::ShaderEffectHandle ResetBuffersShader;
-        Graphics::ShaderEffectHandle UpdateWorldOctreeShader;
-        Graphics::ShaderEffectHandle UpdateWorldOctreeChunkShader;
-        Graphics::ShaderEffectHandle SetupDispatchGenerateMeshShader;
-        Graphics::ShaderEffectHandle GenerateMeshShader;
+        Graphics::ShaderInstanceHandle ResetBuffersShader;
+        Graphics::ShaderInstanceHandle UpdateWorldOctreeShader;
+        Graphics::ShaderInstanceHandle UpdateWorldOctreeChunkShader;
+        Graphics::ShaderInstanceHandle SetupDispatchGenerateMeshShader;
+        Graphics::ShaderInstanceHandle GenerateMeshShader;
 
         // Terrain Editor shaders
-        Graphics::ShaderEffectHandle RayTraceTerrainShaderEffect;
-        Graphics::ShaderEffectHandle FindRayTracedOctreeNodeShaderEffect;
+        Graphics::ShaderInstanceHandle RayTraceTerrainShader;
+        Graphics::ShaderInstanceHandle FindRayTracedOctreeNodeShader;
 
         Reference<VolumeShaderGraph> VolumeShaderGraph;
 

@@ -128,6 +128,23 @@ namespace Onyx
             }
         }
 
+        template <typename T>
+        void Read(HashSet<T>& set, onyxU64 length = 0) const
+        {
+            if (length == 0)
+                Read(length);
+
+            if (length != 0)
+            {
+                for (onyxU64 i = 0; i < length; ++i)
+                {
+                    T element;
+                    Read(element);
+                    set.emplace(element);
+                }
+            }
+        }
+
         template <typename KeyT, typename ValueT>
         void Read(HashMap<KeyT, ValueT>& map, onyxU64 length = 0) const
         {
@@ -189,7 +206,7 @@ namespace Onyx
         }
 
         template <typename KeyT, typename ValueT>
-        void ReadRaw(const HashMap<KeyT, ValueT>& map, onyxU64 length = 0) const
+        void ReadRaw(HashMap<KeyT, ValueT>& map, onyxU64 length = 0) const
         {
             if (length == 0)
                 Read(length);
@@ -237,6 +254,22 @@ namespace Onyx
             if (array.empty() == false)
             {
                 for (const T& element : array)
+                {
+                    Write(element);
+                }
+            }
+        }
+
+
+        template <typename T>
+        void Write(const HashSet<T>& set, bool writeSize = true)
+        {
+            if (writeSize)
+                Write(static_cast<onyxU64>(set.size()));
+
+            if (set.empty() == false)
+            {
+                for (const T& element : set)
                 {
                     Write(element);
                 }

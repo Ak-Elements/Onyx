@@ -50,5 +50,24 @@ namespace Onyx::FileSystem
         void SetMountPoints(const HashMap<StringId32, MountPoint>& mountPoints);
         
         bool CreateDirectory(const Filepath& directoryPath);
+
+        void EnumerateFiles(const Filepath& directoryPath, InplaceFunction<bool(const Filepath&)> fileFunctor);
+    };
+}
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<FileSystem::Filepath>
+    {
+        static bool Serialize(Serializer& serializer, const FileSystem::Filepath& path);
+        static bool Deserialize(const Deserializer& deserializer, FileSystem::Filepath& outPath);
+    };
+
+    template <>
+    struct Serialization<FileSystem::MountPoint>
+    {
+        static bool Serialize(Serializer& serializer, const FileSystem::MountPoint& mountPoint);
+        static bool Deserialize(const Deserializer& deserializer, FileSystem::MountPoint& outMountPoint);
     };
 }

@@ -233,7 +233,6 @@ namespace Onyx
 
         T* Release();
 
-        bool IsValid();
         bool IsValid() const;
 
         template<typename U>
@@ -242,8 +241,11 @@ namespace Onyx
         template<typename U>
 		U& As();
 
-        template<typename... Args>
-		static Reference Create(Args&&... args);
+        template<typename... Args> requires !std::is_abstract_v<T>
+		static Reference Create(Args&&... args)
+        {
+            return Reference(new T(std::forward<Args>(args)...));
+        }
 
         bool operator==(const Reference<T>& other) const;
         bool operator!=(const Reference<T>& other) const;

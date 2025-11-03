@@ -42,7 +42,7 @@ namespace Onyx::Assets
 
                         assetPath = mountPoint.Prefix + assetPath;
                         metaData.Id = AssetId(FileSystem::Filepath(assetPath));
-                        metaData.Path = entry.path();
+                        metaData.Path = assetPath;
 
                         metaData.Version = version;
 

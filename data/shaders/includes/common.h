@@ -16,6 +16,8 @@
 #define BINDLESS_IMAGES 1
 #define VIEW_CONSTANTS_BINDING 2
 
+#include "includes/debug/print.h"
+
 vec4 FromLinearToSRGB(vec4 linearRGB)
 {
   bvec4 cutoff = lessThan(linearRGB, vec4(0.0031308));

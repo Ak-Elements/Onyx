@@ -5,19 +5,21 @@
 namespace Onyx::Graphics
 {
     class Buffer;
-    struct TextureHandle;
-    struct BufferHandle;
     class Pipeline;
     class Shader;
     class ShaderCache;
     class GraphicsApi;
     class DescriptorSet;
 
-    class ShaderEffect : public RefCounted
+    struct BufferHandle;
+    struct TextureHandle;
+    struct PipelineProperties;
+
+    class ShaderInstance : public RefCounted
     {
     public:
-        ShaderEffect() = default;
-        ShaderEffect(const GraphicsApi& api, const Reference<Pipeline>& pipeline, const Reference<Shader>& shader);
+        ShaderInstance() = default;
+        ShaderInstance(const GraphicsApi& api, const Reference<Pipeline>& pipeline, const Reference<Shader>& shader);
 
         const Reference<Pipeline>& GetPipeline() const { return m_Pipeline; }
         DynamicArray<Reference<DescriptorSet>>& GetDescriptorSets(onyxU8 frameIndex);
@@ -25,6 +27,8 @@ namespace Onyx::Graphics
 
         bool HasDescriptorSets() const { return m_DescriptorSets.empty() == false; }
         bool IsCompute() const;
+
+        bool IsValid() const;
 
         void Bind(const TextureHandle& texture, const String& bindingName, onyxU8 frameIndex);
         void Bind(const BufferHandle& buffer, const String& bindingName, onyxU8 frameIndex);
@@ -35,9 +39,13 @@ namespace Onyx::Graphics
         Reference<DescriptorSet>& GetDescriptorSet(onyxU8 frameIndex, onyxU8 descriptorSetIndex);
         const Reference<DescriptorSet>& GetDescriptorSet(onyxU8 frameIndex, onyxU8 descriptorSetIndex) const;
 
+        void OnShaderLoaded(Reference<Shader>& shader);
+
     private:
-        Reference<Pipeline> m_Pipeline; // node 1 Node has 1 Pipeline
-        Reference<Shader> m_Shader; // node can have N shaders
+        const GraphicsApi* m_Api = nullptr;
+
+        Reference<Shader> m_Shader;
+        Reference<Pipeline> m_Pipeline;
                                     // node can rebind descriptor bindings
         InplaceArray<DynamicArray<Reference<DescriptorSet>>, MAX_FRAMES_IN_FLIGHT> m_DescriptorSets; // per frame
         HashMap<String, onyxU8> m_BindingIdToDescriptorSet;

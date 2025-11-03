@@ -45,13 +45,14 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/serialize/rendergraphserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/sdffontserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/shadergraphserializer.h
+    ${TARGET_PUBLIC_PATH}/serialize/shaderserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/textureserializer.h
     ${TARGET_PUBLIC_PATH}/shader/psocache.h
     ${TARGET_PUBLIC_PATH}/shader/shadercache.h	
     ${TARGET_PUBLIC_PATH}/shader/shadercompiler.h
-    ${TARGET_PUBLIC_PATH}/shader/shadereffect.h
+    ${TARGET_PUBLIC_PATH}/shader/shaderinstance.h
     ${TARGET_PUBLIC_PATH}/shader/shaderincluder.h
-    ${TARGET_PUBLIC_PATH}/shader/shadermodule.h
+    ${TARGET_PUBLIC_PATH}/shader/shader.h
     ${TARGET_PUBLIC_PATH}/shader/shaderpass.h
     ${TARGET_PUBLIC_PATH}/shader/shaderpreprocessor.h
     ${TARGET_PUBLIC_PATH}/shader/shaderproperties.h
@@ -67,6 +68,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/sampletexturenode.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/math/arithmeticnodes.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/math/geometricnodes.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/math/simplexnoisenode.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/math/vectornodes.h
     ${TARGET_PUBLIC_PATH}/vulkan/buffer.h
     ${TARGET_PUBLIC_PATH}/vulkan/commandbuffer.h
@@ -128,11 +130,13 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/serialize/rendergraphserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/sdffontserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/shadergraphserializer.cpp
+    ${TARGET_PRIVATE_PATH}/serialize/shaderserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/textureserializer.cpp
     ${TARGET_PRIVATE_PATH}/shader/psocache.cpp
+    ${TARGET_PRIVATE_PATH}/shader/shader.cpp
     ${TARGET_PRIVATE_PATH}/shader/shadercache.cpp
     ${TARGET_PRIVATE_PATH}/shader/shadercompiler.cpp
-    ${TARGET_PRIVATE_PATH}/shader/shadereffect.cpp
+    ${TARGET_PRIVATE_PATH}/shader/shaderinstance.cpp
     ${TARGET_PRIVATE_PATH}/shader/shaderincluder.cpp
     ${TARGET_PRIVATE_PATH}/shader/shaderpreprocessor.cpp
     ${TARGET_PRIVATE_PATH}/shader/generators/shadergenerator.cpp
@@ -143,6 +147,7 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/getworldposition.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/sampletexturenode.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/shadergraphnodes.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/math/simplexnoisenode.cpp
     ${TARGET_PRIVATE_PATH}/vulkan/buffer.cpp
     ${TARGET_PRIVATE_PATH}/vulkan/commandbuffer.cpp
     ${TARGET_PRIVATE_PATH}/vulkan/commandbuffermanager.cpp

@@ -7,6 +7,8 @@
 #include "includes/morton.h"
 #include "includes/debug/print.h"
 
+#include "includes/volume/default_terrain.h"
+
 compute
 {
     const float ISO_LEVEL = 0.0f;

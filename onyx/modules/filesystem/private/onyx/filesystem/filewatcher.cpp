@@ -14,7 +14,7 @@ namespace Onyx::FileSystem
             {
                 Filepath fullpath(dir);
                 fullpath.append(filename);
-
+                fullpath = fullpath.lexically_normal();
                 FileWatcher::FileAction fileAction = FileWatcher::FileAction::Invalid;
                 switch (action)
                 {

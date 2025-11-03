@@ -12,12 +12,14 @@ namespace Onyx::Graphics
         ShadingModel GetShadingModel() const { return m_ShadingModel; }
         void SetShadingModel(ShadingModel model) { m_ShadingModel = model; }
 
-        ShaderEffectHandle& GetShaderEffect() { return m_ShaderEffect; }
-        const ShaderEffectHandle& GetShaderEffect() const { return m_ShaderEffect; }
+        ShaderInstanceHandle& GetShader() { return m_Shader; }
+        const ShaderInstanceHandle& GetShader() const { return m_Shader; }
+
+        bool IsValid() const { return m_Shader.IsValid(); }
 
     private:
         ShadingModel m_ShadingModel = ShadingModel::Lit;
 
-        ShaderEffectHandle m_ShaderEffect;
+        ShaderInstanceHandle m_Shader;
     };
 }

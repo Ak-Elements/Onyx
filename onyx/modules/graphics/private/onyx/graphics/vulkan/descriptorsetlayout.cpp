@@ -1,8 +1,7 @@
 #include <onyx/graphics/vulkan/descriptorsetlayout.h>
 
-#include <onyx/graphics/shader/shadermodule.h>
+#include <onyx/graphics/shader/shader.h>
 #include <onyx/graphics/vulkan/device.h>
-#include <onyx/graphics/vulkan/shader.h>
 
 #include <onyx/string/string.h>
 

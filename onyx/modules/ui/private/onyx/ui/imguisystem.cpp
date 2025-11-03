@@ -697,6 +697,8 @@ namespace Onyx::Ui
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 		}
+
+		ImGui::EndFrame();
     }
 
     Optional<ImGuiWindow*> ImGuiSystem::GetWindow(StringView windowName)

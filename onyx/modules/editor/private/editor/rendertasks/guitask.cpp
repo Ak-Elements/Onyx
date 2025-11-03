@@ -14,7 +14,7 @@
 
 namespace Onyx
 {
-    void UITask::Init(Graphics::GraphicsApi& api, Graphics::ShaderEffectHandle& /*shaderEffect*/)
+    void UITask::Init(Graphics::GraphicsApi& api, Graphics::ShaderInstanceHandle& /*shaderInstance*/)
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -114,7 +114,7 @@ namespace Onyx
         // Vertex buffer
         const onyxU8 frameIndex = context.FrameContext.FrameIndex;
         Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
-        if ((vertexBuffer.Buffer.IsValid() == false) || (vertexBuffer.Buffer->IsValid() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
+        if ((vertexBuffer.Buffer.IsValid() == false) || (vertexBuffer.Buffer->IsMapped() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
         {
 			Graphics::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
             vertexBufferProps.m_Size = vertexBufferSize;
@@ -125,7 +125,7 @@ namespace Onyx
 
         // Index buffer
         Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
-		if ((indexBuffer.Buffer.IsValid() == false) || (indexBuffer.Buffer->IsValid() == false) || (m_IndexCounts[frameIndex] < imDrawData->TotalIdxCount))
+		if ((indexBuffer.Buffer.IsValid() == false) || (indexBuffer.Buffer->IsMapped() == false) || (m_IndexCounts[frameIndex] < imDrawData->TotalIdxCount))
         {
 			Graphics::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
             indexBufferProps.m_Size = indexBufferSize;
@@ -267,7 +267,7 @@ namespace Onyx
 
     UIRenderGraphNode::UIRenderGraphNode()
     {
-        m_ShaderPath = "engine:/shaders/imgui.oshader";
+        m_PipelineProperties.Shader = "engine:/shaders/imgui.oshader";
 
         AddInPin<InPin>();
         AddOutPin<OutPin>();
@@ -304,7 +304,7 @@ namespace Onyx
         blendState.SourceColor = Graphics::Blend::SrcAlpha;
         blendState.DestinationColor = Graphics::Blend::OneMinusSrcAlpha;*/
         
-        m_Task.Init(api, m_ShaderEffect);
+        m_Task.Init(api, m_ShaderInstance);
     }
 
     void UIRenderGraphNode::OnBeginFrame(const Graphics::RenderGraphContext& context)

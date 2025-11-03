@@ -426,6 +426,11 @@ namespace Onyx
          */
         ONYX_NO_DISCARD bool empty() const noexcept { return signal->m_Callbacks.empty(); }
 
+        [[nodiscard]] auto& signal_or_assert() const noexcept {
+            ONYX_ASSERT(signal != nullptr, "Invalid pointer to signal");
+            return *signal;
+        }
+
         /**
          * @brief Connects a free function (with or without payload), a bound or an
          * unbound member to a signal.
@@ -434,18 +439,47 @@ namespace Onyx
          * @param value_or_instance A valid object that fits the purpose, if any.
          * @return A properly initialized connection object.
          */
-        template<auto Candidate, typename... Type>
-        Connection Connect(Type&&...value_or_instance)
+        template<auto Candidate>
+        Connection Connect()
         {
-            Disconnect<Candidate>(value_or_instance...);
+            Disconnect<Candidate>();
 
             delegate_type call{};
-            call.template Connect<Candidate>(value_or_instance...);
-            signal->m_Callbacks.push_back(std::move(call));
+            call.template Connect<Candidate>();
+            signal_or_assert().m_Callbacks.push_back(std::move(call));
 
             Callback<void(void*)> conn{};
-            conn.template Connect<&release<Candidate, Type...>>(value_or_instance...);
-            return { std::move(conn), signal };
+            conn.template Connect<&release<Candidate>>();
+            return { conn, signal };
+        }
+
+
+        template<auto Candidate, typename Type>
+        Connection Connect(Type& value_or_instance)
+        {
+            Disconnect<Candidate>(value_or_instance);
+
+            delegate_type call{};
+            call.template Connect<Candidate>(value_or_instance);
+            signal_or_assert().m_Callbacks.push_back(std::move(call));
+
+            Callback<void(void*)> conn{};
+            conn.template Connect<&release<Candidate, Type&>>(value_or_instance);
+            return { conn, signal };
+        }
+
+        template<auto Candidate, typename Type>
+        Connection Connect(Type* value_or_instance)
+        {
+            Disconnect<Candidate>(value_or_instance);
+
+            delegate_type call{};
+            call.template Connect<Candidate>(value_or_instance);
+            signal_or_assert().m_Callbacks.push_back(std::move(call));
+
+            Callback<void(void*)> conn{};
+            conn.template Connect<&release<Candidate, Type*>>(value_or_instance);
+            return { conn, signal };
         }
 
         /**
@@ -456,7 +490,7 @@ namespace Onyx
          * @param value_or_instance A valid object that fits the purpose, if any.
          */
         template<auto Candidate, typename... Type>
-        void Disconnect(Type &&...value_or_instance)
+        void Disconnect(Type&&...value_or_instance)
         {
             delegate_type call{};
             call.template Connect<Candidate>(value_or_instance...);

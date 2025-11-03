@@ -1,8 +1,13 @@
 #pragma once
 
-#include <onyx/graphics/shader/shadermodule.h>
+#include <onyx/graphics/shader/shader.h>
 #include <onyx/graphics/vulkan/descriptorsetlayout.h>
 #include <onyx/graphics/vulkan/vulkan.h>
+
+namespace Onyx::Graphics
+{
+    struct ShaderCacheEntry;
+}
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -24,12 +29,12 @@ namespace Onyx::Graphics::Vulkan
 	{
 		using Super = Graphics::Shader;
 	public:
-		Shader(VulkanGraphicsApi& api, const InplaceArray<ByteCode, MAX_SHADER_STAGES>& stageCode);
+		Shader() = default;
 		~Shader() override;
 
-		bool AddStage(ShaderStage stage, const DynamicArray<onyxU32>& byteCode) override;
+		bool AddStage(GraphicsApi& api, ShaderStage stage, const DynamicArray<onyxU32>& byteCode) override;
 		void RemoveStage(ShaderStage stage) override;
-		bool UpdateReflectionData(ShaderReflectionInfo& reflectionInfo) override;
+		bool UpdateReflectionData(GraphicsApi& api, ShaderReflectionInfo& reflectionInfo) override;
 		const ShaderReflectionInfo& GetReflectionData() const override { return m_ReflectionInfo; }
 
 		onyxU64 GetShaderHash() const override { return m_ShaderHash; }
@@ -45,8 +50,6 @@ namespace Onyx::Graphics::Vulkan
 
 		const DynamicArray<VkPipelineShaderStageCreateInfo>& GetPipelineShaderStageCreateInfos() const { return m_PipelineShaderStageCreateInfos; }
 	private:
-		VulkanGraphicsApi& m_Api;
-
 		onyxU64 m_ShaderHash = 0;
 
 	    DynamicArray<VkPipelineShaderStageCreateInfo> m_PipelineShaderStageCreateInfos;

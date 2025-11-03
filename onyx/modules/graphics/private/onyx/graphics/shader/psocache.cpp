@@ -30,7 +30,7 @@ namespace Onyx::Graphics
     //    //m_Cache[framebufferHash] = framebufferHandle;
     //    return PipelineHandle::Invalid();
     //}
-    bool PsoCache::GetShaderEffect(ShaderEffectKey key, ShaderEffectHandle& outPso)
+    bool PsoCache::GetShaderEffect(ShaderEffectKey key, ShaderInstanceHandle& outPso)
     {
         auto it = m_ShaderEffects.find(key);
 

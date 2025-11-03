@@ -6,7 +6,6 @@
 #include <onyx/graphics/graphicshandles.h>
 #include <onyx/graphics/pipeline.h>
 #include <onyx/graphics/texturestorage.h>
-#include <onyx/graphics/shader/shadermodule.h>
 #include <onyx/nodegraph/nodes/node.h>
 
 namespace Onyx::Graphics
@@ -158,6 +157,7 @@ namespace Onyx::Graphics
         void Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
 
         void BeginFrame(const RenderGraphContext& context) override;
+
         void PreRender(RenderGraphContext& context, CommandBuffer& commandBuffer) final;
         void Render(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
         void PostRender(RenderGraphContext& context, CommandBuffer& commandBuffer) final;
@@ -179,7 +179,7 @@ namespace Onyx::Graphics
         bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
 #endif
 
-        void BindResources(ShaderEffectHandle& shader, const RenderGraphResourceCache& resourceCache, const FrameContext& frameContext);
+        void BindResources(ShaderInstanceHandle shaderInstance, const RenderGraphResourceCache& resourceCache, const FrameContext& frameContext);
 
     protected:
         virtual void OnInit(GraphicsApi&, RenderGraphResourceCache&) {}
@@ -216,8 +216,8 @@ namespace Onyx::Graphics
         void BeginFrame(const RenderGraphContext& context) final;
         void Render(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
-        bool IsComputeTask() const override { ONYX_ASSERT(m_Shader.IsValid()); return m_Shader->IsComputeShader(); }
-        bool IsEnabled() override { return m_ShaderEffect.IsValid(); }
+        bool IsComputeTask() const override { ONYX_ASSERT(m_ShaderInstance.IsValid()); return m_ShaderInstance->IsCompute(); }
+        bool IsEnabled() override { return m_ShaderInstance.IsValid(); }
 
         bool OnSerialize(Serializer& serializer) const override;
         bool OnDeserialize(const Deserializer& deserializer) override;
@@ -227,13 +227,8 @@ namespace Onyx::Graphics
         bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
 #endif
     protected:
-        String& GetShaderPath() { return m_ShaderPath; }
-
         PipelineProperties m_PipelineProperties;
-
-        ShaderEffectHandle m_ShaderEffect;
-
-        String m_ShaderPath;
-        ShaderHandle m_Shader; // <- Should be an AssetHandle, that would make it possible to register on OnLoad
+        ShaderInstanceHandle m_ShaderInstance;
     };
+
 }

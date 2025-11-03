@@ -39,7 +39,7 @@ namespace Onyx::FileSystem
 
     FileStream OnyxFile::OpenStream(OpenMode mode) const
     {
-        return { m_FilePath, mode };
+        return { Path::GetWorkingDirectory() / m_FilePath, mode };
     }
 
     JsonValue OnyxFile::LoadJson() const

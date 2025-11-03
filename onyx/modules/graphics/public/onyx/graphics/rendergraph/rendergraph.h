@@ -3,7 +3,7 @@
 #include <onyx/assets/asset.h>
 
 #include <onyx/container/directedacyclicgraph.h>
-#include <onyx/filesystem/path.h>
+
 // TODO: move?
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/nodegraph/graph.h>

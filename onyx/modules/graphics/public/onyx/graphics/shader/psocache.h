@@ -8,7 +8,7 @@
 namespace Onyx::Graphics
 {
     struct PipelineProperties;
-    class ShaderEffect;
+    class ShaderInstance;
 
     class GraphicsApi;
 
@@ -17,9 +17,9 @@ namespace Onyx::Graphics
     public:
         void Clear();
 
-        bool GetShaderEffect(ShaderEffectKey key, Reference<ShaderEffect>& outPso);
+        bool GetShaderEffect(ShaderEffectKey key, Reference<ShaderInstance>& outPso);
 
     private:
-        HashMap<onyxU64, Reference<ShaderEffect>> m_ShaderEffects;
+        HashMap<onyxU64, Reference<ShaderInstance>> m_ShaderEffects;
     };
 }

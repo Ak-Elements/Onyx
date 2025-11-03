@@ -37,6 +37,6 @@ namespace Onyx::Editor
         onyxF32 m_Smoothness{ 1.0f };
         SculptType m_Type = SculptType::Raise;
 
-        Graphics::ShaderEffectHandle m_CreateVolumeSourceShaderEffect;
+        Graphics::ShaderInstanceHandle m_CreateVolumeSourceShader;
     };
 }

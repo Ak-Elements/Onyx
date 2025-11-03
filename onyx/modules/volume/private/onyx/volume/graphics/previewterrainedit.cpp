@@ -19,7 +19,7 @@ namespace Onyx::Volume
 
     PreviewTerrainEditPass::PreviewTerrainEditPass()
     {
-        m_ShaderPath = "engine:/shaders/volume/render_terrain_brush.oshader";
+        m_PipelineProperties.Shader = "engine:/shaders/volume/render_terrain_brush.oshader";
 
         m_InputAttachmentInfos.emplace_back(); // buffer
         Graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();

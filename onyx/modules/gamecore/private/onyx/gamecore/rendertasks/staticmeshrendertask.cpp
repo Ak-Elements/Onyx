@@ -56,18 +56,18 @@ namespace Onyx::GameCore
         for (const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls)
         {
             const Graphics::MaterialShaderGraph& shaderGraph = *drawCall.Material;
-            Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
+            const Graphics::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
 
-            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+            BindResources(shaderInstance, context.Graph.GetResourceCache(), context.FrameContext);
             hasBegun = true;
         }
 
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
             const Graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
-            Graphics::ShaderEffectHandle shaderEffect = shaderGraph.GetShaderEffect();
+            const Graphics::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
 
-            BindResources(shaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+            BindResources(shaderInstance, context.Graph.GetResourceCache(), context.FrameContext);
             hasBegun = true;
         }
     }
@@ -131,7 +131,7 @@ namespace Onyx::GameCore
 
         // TODO: Fix for other types
         const Graphics::MaterialShaderGraph& materialShader = static_cast<const Graphics::MaterialShaderGraph&>(shaderGraph);
-        commandBuffer.BindShaderEffect(materialShader.GetShaderEffect());
+        commandBuffer.BindShaderEffect(materialShader.GetShader());
 
         const Graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<Graphics::ShaderGraphTextures>();
         const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();

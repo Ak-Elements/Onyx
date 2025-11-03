@@ -11,6 +11,8 @@
 #include "includes/morton.h"
 #include "includes/debug/print.h"
 
+#include "includes/volume/default_terrain.h"
+
 compute
 {
     #define LOCAL_SIZE 64

@@ -3,6 +3,8 @@
 #include <onyx/filesystem/path.h>
 #include <onyx/function/signal.h>
 
+#include <onyx/assets/assetformat.h>
+
 namespace Onyx::Assets
 {
     struct AssetLoadRequest;
@@ -29,7 +31,7 @@ namespace Onyx::Assets
         }
 
         explicit AssetId(const FileSystem::Filepath& path)
-            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
+            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path.generic_string()))
         {
         }
 
@@ -66,6 +68,7 @@ namespace Onyx::Assets
         FileSystem::Filepath Path;
         AssetId Id = AssetId::Invalid;
         AssetType Type = AssetType::Invalid;
+        AssetFormat Format = AssetFormat::Json;
 
         onyxS64 Handle = INVALID_INDEX_64;
 
@@ -137,7 +140,7 @@ namespace Onyx::Assets
         bool IsLoaded() const { return m_State == AssetState::Loaded; }
 
     private:
-        virtual void OnLoadFinished() = 0;
+        virtual void OnLoadFinished(AssetState state) = 0;
 #if ONYX_IS_EDITOR
         virtual void OnSaveFinished(bool success) const = 0;
 #endif
@@ -165,10 +168,17 @@ namespace Onyx::Assets
 #endif
 
     private:
-        void OnLoadFinished() override
+        void OnLoadFinished(AssetState state) override
         {
-            Reference<AssetT> ref(this);
-            m_LoadedSignal.Dispatch(ref);
+            if (state == AssetState::Loaded)
+            {
+                Reference<AssetT> ref(this);
+                m_LoadedSignal.Dispatch(ref);
+            }
+            else
+            {
+                ONYX_LOG_WARNING("Failed loading asset {}", GetId().Get());
+            }
         }
 
 #if ONYX_IS_EDITOR

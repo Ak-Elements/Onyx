@@ -22,6 +22,7 @@
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h> // need this for texturehandle pin meta data - FIX
+#include <onyx/graphics/serialize/shaderserializer.h>
 
 #include <onyx/graphics/shadergraph/nodes/fragmentshaderoutnode.h>
 #include <onyx/graphics/shadergraph/nodes/getworldnormal.h>
@@ -30,6 +31,7 @@
 #include <onyx/graphics/shadergraph/nodes/math/geometricnodes.h>
 #include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
 #include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
+#include <onyx/graphics/vulkan/shader.h>
 #include <onyx/nodegraph/nodegraphtyperegistry.h>
 
 namespace Onyx::Graphics
@@ -70,11 +72,26 @@ namespace Onyx::Graphics
         m_Window->Create(windowSettings);
 
         m_GraphicsApi = MakeUnique<GraphicsApi>(*m_Window);
-        m_GraphicsApi->Init(graphicSettings);
+        m_GraphicsApi->Init(graphicSettings, assetSystem, *m_Window);
+
+        auto shaderFactory = [&]() -> Reference<Shader>
+        {
+            switch (m_GraphicsApi->GetApiType())
+            {
+            case ApiType::Vulkan:
+                return Reference<Vulkan::Shader>::Create();
+            case ApiType::Dx12:
+            case ApiType::None:
+                return nullptr;
+            }
+
+            return nullptr;
+        };
 
         Assets::AssetSystem::Register<TextureAsset, TextureSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<MaterialShaderGraph, MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<RenderGraph, RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
+        Assets::AssetSystem::Register<Shader, ShaderSerializer>(shaderFactory, assetSystem, *m_GraphicsApi);
         Assets::AssetSystem::Register<SDFFont, SDFFontSerializer>(assetSystem);
 
         Reference<Graphics::RenderGraph> mainRenderGraph;

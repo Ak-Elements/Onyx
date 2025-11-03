@@ -40,25 +40,32 @@ namespace Onyx::Assets
         // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
         ONYX_ASSERT(Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not load assets on the main thread");
 
-        FileSystem::Filepath relativePath = MetaData.Path.lexically_relative(FileSystem::Path::GetWorkingDirectory());
+        FileSystem::Filepath path = FileSystem::Path::GetFullPath(MetaData.Path);
         String assetName = MetaData.Path.string();
         
         //tracy_scope_AssetSystem.NameFmt("%s", assetName.c_str());
 
-        FileSystem::OnyxFile inputConfigFile(MetaData.Path);
-        const FileSystem::JsonValue& inputConfigData = inputConfigFile.LoadJson();
-        FileSystem::JsonDeserializer serializer(inputConfigData.Json);
-
-        if (Serializer->Deserialize(Handle, MetaData, serializer) == false)
+        bool succeeded = false;
+        FileSystem::OnyxFile assetFile(path);
+        switch (MetaData.Format)
         {
-            Handle->SetState(AssetState::Invalid);
-        }
-        else
-        {
-            Handle->SetState(AssetState::Loaded);
+            case AssetFormat::Text:
+                break;
+            case AssetFormat::Binary:
+                break;
+            case AssetFormat::Json:
+            {
+                const FileSystem::JsonValue& inputConfigData = assetFile.LoadJson();
+                FileSystem::JsonDeserializer serializer(inputConfigData.Json);
+                succeeded = Serializer->Deserialize(Handle, MetaData, serializer);
+                break;
+            }
         }
 
-        Handle->OnLoadFinished();
+        // first trigger loaded callbacks, than set the asset to be valid / loaded
+        AssetState state = succeeded ? AssetState::Loaded : AssetState::Invalid;
+        Handle->OnLoadFinished(state);
+        Handle->SetState(state);
     }
 
 #if ONYX_IS_EDITOR

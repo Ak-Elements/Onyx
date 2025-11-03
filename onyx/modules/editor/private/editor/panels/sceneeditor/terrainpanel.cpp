@@ -977,7 +977,7 @@ namespace Onyx::Editor::SceneEditor
         computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.RayTraceTerrainShaderEffect);
+        computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.RayTraceTerrainShader);
         computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
         computeCommandBuffer.Dispatch(1, 1, 1);
         computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::IndirectRead);
@@ -1031,7 +1031,7 @@ namespace Onyx::Editor::SceneEditor
 
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
         computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.FindRayTracedOctreeNodeShaderEffect);
+        computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.FindRayTracedOctreeNodeShader);
         computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, findOctreeNodeConstants);
         computeCommandBuffer.Dispatch(1, 1, 1);
     }

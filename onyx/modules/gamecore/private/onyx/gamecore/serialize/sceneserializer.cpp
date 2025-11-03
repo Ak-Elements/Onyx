@@ -81,9 +81,10 @@ namespace Onyx::GameCore
         // serialize scene generic settings (e.g.: Terrain/Environment and other settings)
         ONYX_UNUSED(deserializer);
 
+        FileSystem::Filepath sceneDirectoryPath = FileSystem::Path::GetFullPath(meta.Path.parent_path());
         SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
         DynamicArray<SceneSector>& sectors = sectorStreamer.m_Sectors;
-        bool hasSucceeded = DeserializeSectorsFromJson(scene, sectors, meta.Path.parent_path());
+        bool hasSucceeded = DeserializeSectorsFromJson(scene, sectors, sceneDirectoryPath);
 
         return hasSucceeded;
     }

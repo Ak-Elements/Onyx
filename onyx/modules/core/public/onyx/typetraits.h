@@ -92,5 +92,9 @@ namespace Onyx
 		{ obj.GetTypeId() };
 	};
 
-
+	template <typename T>
+	concept HasIsValid = requires(const T obj)
+    {
+		{ obj.IsValid() } -> std::same_as<bool>;
+	};
 }

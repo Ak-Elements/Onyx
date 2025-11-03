@@ -2,8 +2,8 @@
 
 #include <onyx/graphics/texture.h>
 #include <onyx/graphics/buffer.h>
-#include <onyx/graphics/shader/shadermodule.h>
-#include <onyx/graphics/shader/shadereffect.h>
+#include <onyx/graphics/shader/shader.h>
+#include <onyx/graphics/shader/shaderinstance.h>
 #include <onyx/graphics/pipeline.h>
 #include <onyx/graphics/texturestorage.h>
 #include <onyx/graphics/framebuffer.h>
@@ -34,7 +34,7 @@ namespace Onyx::Graphics
     using TextureViewHandle = Reference<Texture, TextureDeleter>;
     using TextureStorageHandle = Reference<TextureStorage>;
     using ShaderHandle = Reference<Shader>;
-    using ShaderEffectHandle = Reference<ShaderEffect>;
+    using ShaderInstanceHandle = Reference<ShaderInstance>;
     using RenderPassHandle = Reference<RenderPass>;
     using FramebufferHandle = Reference<Framebuffer>;
     using PipelineHandle = Reference<Pipeline>;

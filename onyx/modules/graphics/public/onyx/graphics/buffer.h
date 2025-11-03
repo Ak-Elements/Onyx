@@ -18,7 +18,7 @@ namespace Onyx::Graphics
 
         const BufferProperties& GetProperties() const { return m_Properties; }
 
-        bool IsValid() const { return m_DataPointer != nullptr; }
+        bool IsMapped() const { return m_DataPointer != nullptr; }
 
         onyxU64 GetGpuAddress() const { return m_GpuAddress; }
         virtual onyxU64 GetAliasOffset(onyxS8 alias) const = 0;

@@ -1,7 +1,7 @@
 #include <onyx/graphics/vulkan/commandbuffer.h>
 
 #include <onyx/graphics/graphicsapi.h>
-#include <onyx/graphics/shader/shadereffect.h>
+#include <onyx/graphics/shader/shaderinstance.h>
 #include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/graphics/vulkan/commandpool.h>
 #include <onyx/graphics/vulkan/device.h>
@@ -46,8 +46,7 @@ namespace Onyx::Graphics::Vulkan
 
         m_CurrentRenderPass = {};
         m_CurrentFrameBuffer = {};
-        m_CurrentPipeline = {};
-
+        m_CurrentShaderEffect.Reset();
         // reset descriptors
     }
 
@@ -202,25 +201,22 @@ namespace Onyx::Graphics::Vulkan
 
         m_CurrentRenderPass.Reset();
         m_CurrentFrameBuffer.Reset();
-        m_CurrentPipeline.Reset();
     }
 
-    void VulkanCommandBuffer::BindShaderEffect(const ShaderEffectHandle& shaderEffect)
+    void VulkanCommandBuffer::BindShaderEffect(const ShaderInstanceHandle& shader)
     {
         ONYX_ASSERT(m_IsRecording, "CommandBuffer needs to be recording for this action.");
-        ONYX_ASSERT(m_CurrentRenderPass || shaderEffect->IsCompute(), "RenderPass was not started");
+        ONYX_ASSERT(m_CurrentRenderPass || shader->IsCompute(), "RenderPass was not started");
 
-        m_CurrentShaderEffect = shaderEffect;
-        BindPipeline(shaderEffect->GetPipeline());
-        BindDescriptorSets();
-    }
+        m_CurrentShaderEffect = shader;
 
-    void VulkanCommandBuffer::BindPipeline(const PipelineHandle& pipelineHandle)
-    {
-        const Pipeline& pipeline = pipelineHandle.As<Pipeline>();
-        vkCmdBindPipeline(m_CommandBuffer, pipeline.GetBindPoint(), pipeline.GetHandle());
+        const Pipeline& pipeline = shader->GetPipeline().As<Pipeline>();
+        VkPipeline vkPipeline = pipeline.GetHandle();
+        VkPipelineLayout vkLayout = pipeline.GetPipelineLayout().GetHandle();
+        VkPipelineBindPoint vkBindPoint = pipeline.GetBindPoint();
 
-        m_CurrentPipeline = pipelineHandle;
+        vkCmdBindPipeline(m_CommandBuffer, vkBindPoint, vkPipeline);
+        BindDescriptorSets(vkLayout, vkBindPoint);
     }
 
     void VulkanCommandBuffer::BindVertexBuffer(const BufferHandle& bufferHandle, onyxU32 binding, onyxU32 offset)
@@ -274,8 +270,7 @@ namespace Onyx::Graphics::Vulkan
     
     void VulkanCommandBuffer::BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data)
     {
-        const Vulkan::PipelineLayout& pipelineLayout = m_CurrentPipeline->GetPipelineLayout();
-        vkCmdPushConstants(m_CommandBuffer, pipelineLayout.GetHandle(), ToVulkanStage(stage), offset, size, data);
+        vkCmdPushConstants(m_CommandBuffer, GetPipelineLayout(), ToVulkanStage(stage), offset, size, data);
     }
 
     void VulkanCommandBuffer::BeginConditionalRendering(const BufferHandle& conditionalBuffer, onyxU32 offset)
@@ -299,6 +294,12 @@ namespace Onyx::Graphics::Vulkan
         vkCmdEndConditionalRenderingEXT(m_CommandBuffer);
     }
 
+    VkPipelineLayout VulkanCommandBuffer::GetPipelineLayout() const
+    {
+        ONYX_ASSERT(m_CurrentShaderEffect.IsValid());
+        return m_CurrentShaderEffect->GetPipeline().As<Pipeline>().GetPipelineLayout().GetHandle();
+    }
+
     void VulkanCommandBuffer::Bind(const TextureHandle& texture, const String& bindingName)
     {
         ONYX_ASSERT(m_CurrentShaderEffect, "No ShaderEffect is active.");
@@ -316,7 +317,8 @@ namespace Onyx::Graphics::Vulkan
         buffer.Buffer->Barrier(*this, newContext, newAccess, buffer.Alias);
     }
 
-    void VulkanCommandBuffer::BindDescriptorSets()
+
+    void VulkanCommandBuffer::BindDescriptorSets(VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint)
     {
         onyxU8 firstSet = 0;
 
@@ -346,8 +348,7 @@ namespace Onyx::Graphics::Vulkan
                 {
                     if (vkDescriptorSets.empty() == false)
                     {
-                        const PipelineLayout& pipelineLayout = m_CurrentPipeline->GetPipelineLayout();
-                        vkCmdBindDescriptorSets(m_CommandBuffer, m_CurrentPipeline->GetBindPoint(), pipelineLayout.GetHandle(), firstSet, static_cast<onyxU32>(vkDescriptorSets.size()), vkDescriptorSets.data(), 0, nullptr);
+                        vkCmdBindDescriptorSets(m_CommandBuffer, bindingPoint, pipelineLayout, firstSet, static_cast<onyxU32>(vkDescriptorSets.size()), vkDescriptorSets.data(), 0, nullptr);
                     }
 
                     firstSet = descriptorSet->GetSet();
@@ -361,8 +362,7 @@ namespace Onyx::Graphics::Vulkan
         // push remaining descriptor sets
         if (vkDescriptorSets.empty() == false)
         {
-            const PipelineLayout& pipelineLayout = m_CurrentPipeline->GetPipelineLayout();
-            vkCmdBindDescriptorSets(m_CommandBuffer, m_CurrentPipeline->GetBindPoint(), pipelineLayout.GetHandle(), firstSet, static_cast<onyxU32>(vkDescriptorSets.size()), vkDescriptorSets.data(), 0, nullptr);
+            vkCmdBindDescriptorSets(m_CommandBuffer, bindingPoint, pipelineLayout, firstSet, static_cast<onyxU32>(vkDescriptorSets.size()), vkDescriptorSets.data(), 0, nullptr);
         }
     }
 
@@ -517,13 +517,13 @@ namespace Onyx::Graphics::Vulkan
         PreDraw();
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        BeginDebugLabel(m_CurrentPipeline->GetProperties().m_DebugName, Vector4f32{ 1.0f } );
+        //BeginDebugLabel(m_CurrentShaderEffect->GetPipeline()->GetProperties().m_DebugName, Vector4f32{ 1.0f } );
 #endif
 
         vkCmdDispatch(m_CommandBuffer, groupX, groupY, groupZ);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        EndDebugLabel();
+        //EndDebugLabel();
 #endif
     }
 
@@ -535,14 +535,14 @@ namespace Onyx::Graphics::Vulkan
     void VulkanCommandBuffer::DispatchIndirect(const BufferHandle& bufferHandle, onyxU32 offset)
     {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        BeginDebugLabel(m_CurrentPipeline->GetProperties().m_DebugName, Vector4f32{ 1.0f });
+        //BeginDebugLabel(m_CurrentPipeline->GetProperties().m_DebugName, Vector4f32{ 1.0f });
 #endif
 
         const VulkanBuffer& vkBuffer = bufferHandle.Buffer.As<VulkanBuffer>();
         vkCmdDispatchIndirect(m_CommandBuffer, vkBuffer.GetHandle(), bufferHandle.GetOffset() + offset);
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        EndDebugLabel();
+        //EndDebugLabel();
 #endif
     }
 

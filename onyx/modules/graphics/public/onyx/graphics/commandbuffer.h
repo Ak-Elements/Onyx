@@ -23,7 +23,7 @@ namespace Onyx::Graphics
         virtual void BeginRenderPass(const RenderPassHandle& renderPass, const FramebufferHandle& frameBuffer) = 0;
         virtual void EndRenderPass() = 0;
 
-        virtual void BindShaderEffect(const ShaderEffectHandle& shaderEffect) = 0;
+        virtual void BindShaderEffect(const ShaderInstanceHandle& shader) = 0;
         virtual void BindVertexBuffer(const BufferHandle& bufferHandle, onyxU32 binding, onyxU32 offset) = 0;
         virtual void BindVertexBuffers(const InplaceArray<BufferHandle, 8>& bufferHandles, const InplaceArray<onyxU32, 8> bufferOffsets, onyxU32 firstBinding, onyxU32 bindingCount) = 0;
         virtual void BindIndexBuffer(const BufferHandle& buffer, onyxU32 offset, IndexType indexType) = 0;
@@ -78,9 +78,6 @@ namespace Onyx::Graphics
 
     protected:
         virtual void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data) = 0;
-
-        virtual void BindDescriptorSets() = 0;
-        virtual void BindPipeline(const PipelineHandle& pipelineHandle) = 0;
 
         virtual void BeginConditionalRendering(const BufferHandle& conditionalBuffer, onyxU32 offset) = 0;
         virtual void EndConditionalRendering() = 0;

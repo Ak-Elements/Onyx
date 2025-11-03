@@ -9,7 +9,7 @@ namespace Onyx::Graphics
 {
     DebugLightClustersRenderPass::DebugLightClustersRenderPass()
     {
-        m_ShaderPath = "engine:/shaders/debug/renderlightclusters.oshader";
+        m_PipelineProperties.Shader = "engine:/shaders/debug/renderlightclusters.oshader";
 
         RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
         gbufferInfo.Type = RenderGraphResourceType::Attachment;

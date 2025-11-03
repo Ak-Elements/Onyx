@@ -9,7 +9,7 @@ namespace Onyx
     struct UITask
     {
     public:
-        void Init(Graphics::GraphicsApi& api, Graphics::ShaderEffectHandle& shaderEffect);
+        void Init(Graphics::GraphicsApi& api, Graphics::ShaderInstanceHandle& shaderInstance);
         void Shutdown(Graphics::GraphicsApi& api);
 
         void BeginFrame(const Graphics::RenderGraphContext& context);

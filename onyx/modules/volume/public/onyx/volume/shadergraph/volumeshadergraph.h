@@ -11,9 +11,17 @@ namespace Onyx::Volume
         static constexpr StringId32 TypeId{ "Onyx::Volume::Assets::VolumeShaderGraph" };
         StringId32 GetTypeId() const { return TypeId; }
 
-        FileSystem::Filepath GetVolumeShaderGraphPath() const { return m_VolumeShaderHeaderPath; }
+        Assets::AssetId GetBuildOctreeShader() const { return m_BuildOctreeShader; }
+        Assets::AssetId GetBuildChunkOctreeShader() const { return m_BuildChunkOctreeShader; }
+        Assets::AssetId GetFindOctreeNodeShader() const { return m_FindOctreeNodeShader; }
+        Assets::AssetId GetGenerateVolumeMeshShader() const { return m_GenerateVolumeMeshShader; }
+        Assets::AssetId GetRaytraceTerrainShader() const { return m_RaytraceTerrainShader; }
 
     private:
-        FileSystem::Filepath m_VolumeShaderHeaderPath;
+        Assets::AssetId m_BuildOctreeShader;
+        Assets::AssetId m_BuildChunkOctreeShader;
+        Assets::AssetId m_FindOctreeNodeShader;
+        Assets::AssetId m_GenerateVolumeMeshShader;
+        Assets::AssetId m_RaytraceTerrainShader;
     };
 }

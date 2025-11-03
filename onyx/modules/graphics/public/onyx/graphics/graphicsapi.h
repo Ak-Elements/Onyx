@@ -163,9 +163,8 @@ namespace Onyx
 
             virtual RenderPassHandle CreateRenderPass(const RenderPassSettings& settings) = 0;
             virtual FramebufferHandle CreateFramebuffer(const FramebufferSettings& settings) = 0;
-            virtual PipelineHandle CreatePipeline(const PipelineProperties& properties) = 0;
+            virtual PipelineHandle CreatePipeline(ShaderHandle& shader, const PipelineProperties& properties) = 0;
             virtual DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) = 0;
-            virtual ShaderHandle CreateShader(InplaceArray<DynamicArray<onyxU32>, MAX_SHADER_STAGES>& perStageByteCode) = 0;
 
             virtual void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties) = 0;
             virtual void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData) = 0;
@@ -183,10 +182,10 @@ namespace Onyx
         public:
             // maybe non static? but what would be the use case for non static?
 
-            GraphicsApi(Window& window);
-            ~GraphicsApi();
+            GraphicsApi() = default;
+            ~GraphicsApi() override;
 
-            void Init(const GraphicSettings& graphicSettings);
+            void Init(const GraphicSettings& graphicSettings, Assets::AssetSystem& assetSystem, Window& window);
             void Shutdown();
 
             bool BeginFrame();
@@ -200,7 +199,7 @@ namespace Onyx
             template <typename T>
             const T& GetApi() const { return *static_cast<const T*>(m_GraphicsApi.get()); }
 
-            const Window& GetWindow() const { return m_Window; }
+            const Window& GetWindow() const { ONYX_ASSERT(m_Window != nullptr); return *m_Window; }
 
             onyxU16 GetRefreshRate() const;
 
@@ -225,9 +224,7 @@ namespace Onyx
 
             RenderPassHandle GetOrCreateRenderPass(const RenderPassSettings& settings);
             FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
-            ShaderHandle GetShader(const FileSystem::Filepath& shaderPath);
-            ShaderHandle GetShader(const ShaderProperties& properties);
-            ShaderEffectHandle CreateShaderEffect(const PipelineProperties& properties);
+            ShaderInstanceHandle CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties);
 
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties);
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData);
@@ -259,26 +256,28 @@ namespace Onyx
             void WaitIdle();
 
             void OnWindowResize(onyxU32 width, onyxU32 height);
+            void CreatePipeline(const PipelineProperties& properties);
 
         protected:
             void LoadSettings();
 
         private:
             void OnRenderGraphLoaded(Reference<RenderGraph>& loadedGraph);
-
+            void OnShaderLoaded(Assets::AssetSystem* assetSystem, Reference<Shader>& loadedGraph);
             void CreateDepthImages();
             void CreateViewConstantBuffers();
 
             RenderPassHandle CreateRenderPass(const RenderPassSettings& settings);
             FramebufferHandle CreateFramebuffer(const FramebufferSettings& settings);
-            ShaderHandle CreateShader(InplaceArray<DynamicArray<onyxU32>, MAX_SHADER_STAGES>& perStageByteCode);
 
         private:
             std::mutex m_Mutex;
-            Window& m_Window;
+            Assets::AssetSystem* m_AssetSystem = nullptr;
+            Window* m_Window = nullptr;
+
             GraphicSettings m_Settings;
 
-            PresentThread m_PresentThread;
+            PresentThread m_PresentThread { *this };
 
             const Camera* m_QueuedCamera = nullptr;
             const Camera* m_Camera = nullptr; // non owning pointer
@@ -294,11 +293,11 @@ namespace Onyx
             InplaceArray<TextureHandle, MAX_FRAMES_IN_FLIGHT> m_DepthImages;
             InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_ViewConstantsUniformBuffers;
 
-            ShaderCache m_ShaderCache;
+            ShaderCache m_ShaderCache { *this };
             PsoCache m_PsoCache;
             Reference<RenderGraph> m_RenderGraph;
-            RenderPassCache m_RenderPassCache;
-            FramebufferCache m_FramebufferCache;
+            RenderPassCache m_RenderPassCache { *this };
+            FramebufferCache m_FramebufferCache{ *this };
 
             HashMap<StringId32, BlendState> m_BlendStates;
 

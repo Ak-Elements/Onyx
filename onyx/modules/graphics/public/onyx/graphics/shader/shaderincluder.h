@@ -45,7 +45,9 @@ namespace Onyx::Graphics
 		void ReleaseInclude(shaderc_include_result* data) override;
 		void AddIncludeDirectory(const char* str) { m_IncludeDirectories.emplace(str); }
 
-	private:
+		HashSet<String> GetIncludes() const;
+
+    private:
 		HashSet<FileSystem::Filepath> m_IncludeDirectories;
 		HashSet<ShaderInclude> m_Includes;
 		HashSet<String> m_ParsedSpecialMacros;

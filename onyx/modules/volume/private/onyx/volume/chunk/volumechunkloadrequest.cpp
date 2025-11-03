@@ -381,9 +381,6 @@ namespace Onyx::Volume
 
         for (auto it = octree.leaf_begin(); it != octree.leaf_end(); ++it)
         {
-            //if (m_LoadingTaskFuture.IsCancelled())
-            //    return;
-
             VolumeChunk::VolumeChunkOctree::OctreeNodeT& node = *it.GetCurrentOctreeNode();
             VolumeChunk::VolumeChunkOctree::OctreeKeyT key = it.GetCurrentOctreeKey();
             onyxU8 depth = it.GetCurrentOctreeDepth();

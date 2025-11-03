@@ -1,7 +1,7 @@
 #include <onyx/graphics/pipeline.h>
 
 #include <onyx/graphics/renderpass.h>
-#include <onyx/graphics/shader/shadermodule.h> // needed for destructor of PipelineProperties
+#include <onyx/graphics/shader/shader.h> // needed for destructor of PipelineProperties
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
@@ -20,7 +20,7 @@ namespace Onyx
         return deserializer.ReadOptional<"depthstencil">(outProperties.DepthStencil) &&
             deserializer.ReadOptional<"rasterization">(outProperties.Rasterization) &&
             deserializer.ReadOptional<"blend">(outProperties.BlendStates);
-    }  
+    }
 
     bool Serialization<Graphics::Rasterization>::Serialize(Serializer& serializer, const Graphics::Rasterization& rasterization)
     {
@@ -75,9 +75,4 @@ namespace Onyx
             deserializer.ReadOptional<"dstalpha">(outBlendState.DestinationAlpha) &&
             deserializer.ReadOptional<"alphaop">(outBlendState.AlphaOperation);
     }
-}
-
-namespace Onyx::Graphics
-{
-    PipelineProperties::~PipelineProperties() = default;
 }

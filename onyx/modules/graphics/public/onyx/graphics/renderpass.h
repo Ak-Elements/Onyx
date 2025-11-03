@@ -49,8 +49,6 @@ namespace Onyx::Graphics
         InplaceArray<Attachment, MAX_RENDERPASS_ATTACHMENTS> m_Attachments;
         InplaceArray<Subpass, MAX_SUBPASSES> m_SubPasses;
 
-        String m_DebugName;
-
         // TODO: this is not a proper compare I think as the content of the attachments are not compared
         bool operator==(const RenderPassSettings& other) const { return std::memcmp(this, &other, sizeof(RenderPassSettings)); }
     };

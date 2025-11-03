@@ -2,7 +2,6 @@
 #include "includes/volume/csg/sphere.h"
 #include "includes/volume/csg/cube.h"
 #include "includes/volume/csg/ellipsoid.h"
-#include "includes/volume/csg/simplexnoise2d.h"
 
 #include "includes/volume/csg/operations/difference.h"
 #include "includes/volume/csg/operations/intersect.h"

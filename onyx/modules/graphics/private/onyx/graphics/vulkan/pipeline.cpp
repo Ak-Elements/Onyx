@@ -1,7 +1,7 @@
 #include <onyx/graphics/vulkan/pipeline.h>
 
 #include <onyx/graphics/texture.h>
-#include <onyx/graphics/shader/shadermodule.h>
+#include <onyx/graphics/shader/shader.h>
 #include <onyx/graphics/vulkan/device.h>
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/vulkan/pipelinelayout.h>
@@ -223,48 +223,54 @@ namespace Onyx::Graphics::Vulkan
         }
     }
 
-    Pipeline::Pipeline(const VulkanGraphicsApi& api, const PipelineProperties& properties)
+    Pipeline::Pipeline(const VulkanGraphicsApi& api, const PipelineProperties& properties, ShaderHandle& shader)
         : Graphics::Pipeline(properties)
-        , m_Device(api.GetDevice())
+        , m_Api(&api)
     {
-        const Shader& shader = properties.Shader.As<Shader>();
-
-        m_PipelineLayout = MakeUnique<PipelineLayout>(api, shader);
-        CreatePipeline(api, properties, shader);
-        SetResourceName(api.GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (onyxU64)m_Pipeline, properties.m_DebugName.empty() ? "Unnamed Pipeline" : properties.m_DebugName.c_str());
+        shader->GetOnLoadedEvent().Connect<&Pipeline::OnShaderLoaded>(*this);
+        if (shader->IsLoaded())
+        {
+            CreatePipeline(shader.As<Shader>());
+        }
     }
 
     Pipeline::~Pipeline()
     {
         if (m_Pipeline != nullptr)
         {
-            vkDestroyPipeline(m_Device.GetHandle(), m_Pipeline, nullptr);
+            vkDestroyPipeline(m_Api->GetDevice().GetHandle(), m_Pipeline, nullptr);
             m_Pipeline = nullptr;
         }
 
         m_PipelineLayout.reset();
     }
 
-    void Pipeline::CreatePipeline(const VulkanGraphicsApi& api, const PipelineProperties& properties, const Shader& shader)
+    void Pipeline::CreatePipeline(const Shader& shader)
     {
-        const DynamicArray<VkPipelineShaderStageCreateInfo>& pipelineStageCreateInfos = shader.GetPipelineShaderStageCreateInfos();
-
-        VkPipelineCache pipelineCache = nullptr;
+        m_PipelineLayout = MakeUnique<PipelineLayout>(*m_Api, shader);
 
         if (shader.IsComputeShader())
         {
+            m_BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+            const DynamicArray<VkPipelineShaderStageCreateInfo>& pipelineStageCreateInfos = shader.GetPipelineShaderStageCreateInfos();
+
             VkComputePipelineCreateInfo pipelineCreateInfo{};
             pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
             pipelineCreateInfo.stage = pipelineStageCreateInfos[0];
             pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
             pipelineCreateInfo.pNext = nullptr;
 
-            VK_CHECK_RESULT(vkCreateComputePipelines(m_Device.GetHandle(), pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
-
-            m_BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+            VK_CHECK_RESULT(vkCreateComputePipelines(m_Api->GetDevice().GetHandle(), nullptr, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
         }
         else
         {
+            m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+            const PipelineProperties& properties = GetProperties();
+            const DynamicArray<VkPipelineShaderStageCreateInfo>& pipelineStageCreateInfos = shader.GetPipelineShaderStageCreateInfos();
+
+            VkPipelineCache pipelineCache = nullptr;
+
             const RenderPassSettings& renderPassSettings = properties.RenderPass->GetSettings();
 
             DynamicArray<VkFormat> colorTargetFormats{};
@@ -328,7 +334,7 @@ namespace Onyx::Graphics::Vulkan
 
                 vertexBindingDescriptions.emplace_back(0, stride, ToVulkanInputRate(VertexStreamInputRate::Vertex));
             }
-            
+
             vertexInputInfo.pVertexBindingDescriptions = static_cast<onyxU32>(vertexBindingDescriptions.size()) == 0 ? nullptr : vertexBindingDescriptions.data();
             vertexInputInfo.vertexBindingDescriptionCount = static_cast<onyxU32>(vertexBindingDescriptions.size());
 
@@ -475,7 +481,7 @@ namespace Onyx::Graphics::Vulkan
             //// Render Pass
             VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo{};
             pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-            if (api.IsDynamicRenderingEnabled())
+            if (m_Api->IsDynamicRenderingEnabled())
             {
                 pipelineRenderingCreateInfo.viewMask = 0;
 
@@ -513,15 +519,23 @@ namespace Onyx::Graphics::Vulkan
 
             pipelineCreateInfo.pDynamicState = &dynamicStatesInfo;
 
+            VkDevice deviceHandle = m_Api->GetDevice().GetHandle();
             VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
             pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-            VK_CHECK_RESULT(vkCreatePipelineCache(m_Device.GetHandle(), &pipelineCacheCreateInfo, nullptr, &pipelineCache));
+            VK_CHECK_RESULT(vkCreatePipelineCache(deviceHandle, &pipelineCacheCreateInfo, nullptr, &pipelineCache));
 
-            VK_CHECK_RESULT(vkCreateGraphicsPipelines(m_Device.GetHandle(), pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
-            
-            m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            VK_CHECK_RESULT(vkCreateGraphicsPipelines(deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
 
-            vkDestroyPipelineCache(m_Device.GetHandle(), pipelineCache, nullptr);
+                m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+            vkDestroyPipelineCache(deviceHandle, pipelineCache, nullptr);
         }
+        
     }
+
+    void Pipeline::OnShaderLoaded(const ShaderHandle& shader)
+    {
+        CreatePipeline(shader.As<Shader>());
+    }
+
 }

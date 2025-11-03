@@ -8,7 +8,7 @@
 namespace Onyx::Graphics::Vulkan
 {
     ShaderModule::ShaderModule(VulkanGraphicsApi& api, const Shader::ByteCode& byteCode)
-        :m_Api(api)
+        : m_Api(api)
         , m_ByteCode(byteCode)
     {
         VkShaderModuleCreateInfo moduleCreateInfo{};
@@ -28,25 +28,15 @@ namespace Onyx::Graphics::Vulkan
         }
     }
 
-    Shader::Shader(VulkanGraphicsApi& api, const PerStageByteCodes& stageCode)
-        : m_Api(api)
-    {
-        for (onyxU8 i = 0; i < stageCode.size(); ++i)
-        {
-            if (stageCode[i].empty())
-                continue;
-
-			AddStage(Enums::ToEnum<ShaderStage>(i), stageCode[i]);
-        }
-    }
-
     Shader::~Shader()
     {
         m_Stages.Clear();
     }
 
-    bool Shader::AddStage(ShaderStage stage, const ByteCode& byteCode)
+    bool Shader::AddStage(GraphicsApi& api, ShaderStage stage, const ByteCode& byteCode)
     {
+        VulkanGraphicsApi& vulkanApi = api.GetApi<VulkanGraphicsApi>();
+
 		const onyxU8 stageIndex = Enums::ToIntegral(stage);
 #if ONYX_ASSERTS_ENABLED
 		if (stage == ShaderStage::Compute)
@@ -54,9 +44,15 @@ namespace Onyx::Graphics::Vulkan
 		else
 			ONYX_ASSERT(IsComputeShader() == false, "Compute shader does not support %s shader stage", Enums::ToString(stage).data());
 #endif
-		UniquePtr<ShaderModule> module = MakeUnique<ShaderModule>(m_Api, byteCode);
+		UniquePtr<ShaderModule> module = MakeUnique<ShaderModule>(vulkanApi, byteCode);
 
-        VkPipelineShaderStageCreateInfo& pipelineShaderStageCreateInfo = m_PipelineShaderStageCreateInfos.emplace_back();
+        VkShaderStageFlagBits vulkanStage = ToVulkanStage(stage);
+        auto it = std::ranges::find_if(m_PipelineShaderStageCreateInfos, [&](const VkPipelineShaderStageCreateInfo& info)
+        {
+            return info.stage == vulkanStage;
+        });
+
+        VkPipelineShaderStageCreateInfo& pipelineShaderStageCreateInfo = it == m_PipelineShaderStageCreateInfos.end() ? m_PipelineShaderStageCreateInfos.emplace_back() : *it;
 		pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		pipelineShaderStageCreateInfo.stage = ToVulkanStage(stage);
 		pipelineShaderStageCreateInfo.module = module->GetHandle();
@@ -71,17 +67,20 @@ namespace Onyx::Graphics::Vulkan
         m_Stages[Enums::ToIntegral(stage)].reset();
     }
 
-    bool Shader::UpdateReflectionData(ShaderReflectionInfo& reflectionInfo)
+    bool Shader::UpdateReflectionData(GraphicsApi& api, ShaderReflectionInfo& reflectionInfo)
     {
+        VulkanGraphicsApi& vulkanApi = api.GetApi<VulkanGraphicsApi>();
+
         m_ReflectionInfo = reflectionInfo;
 
         const onyxU8 descriptorSetCount = numeric_cast<onyxU8>(reflectionInfo.shaderDescriptorSets.size());
 		for (onyxU8 i = 0; i < descriptorSetCount; ++i)
 		{
 			const ShaderDescriptorSet& shaderDescriptorSet = reflectionInfo.shaderDescriptorSets[i];
-            m_DescriptorSetLayouts.Emplace(MakeUnique<DescriptorSetLayout>(m_Api.GetDevice(), shaderDescriptorSet));
+            m_DescriptorSetLayouts.Emplace(MakeUnique<DescriptorSetLayout>(vulkanApi.GetDevice(), shaderDescriptorSet));
 		}
 
 		return true;
     }
 }
+

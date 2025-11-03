@@ -3,6 +3,8 @@
 #include <filesystem>
 
 #include <onyx/log/logger.h>
+#include <onyx/serialize/deserializer.h>
+#include <onyx/serialize/serializer.h>
 
 namespace Onyx::FileSystem::Path
 {
@@ -186,4 +188,56 @@ namespace Onyx::FileSystem::Path
         return true;
     }
 
+    void EnumerateFiles(const Filepath& directoryPath, InplaceFunction<bool(const Filepath&)> forEach)
+    {
+        for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(directoryPath))
+        {
+            if (entry.is_directory())
+                continue;
+
+            if (forEach(entry.path()) == false)
+                return;
+        }
+    }
 }
+
+namespace Onyx
+{
+    bool Serialization<std::filesystem::path>::Serialize(Serializer& serializer, const FileSystem::Filepath& path)
+    {
+        return serializer.Write(path.generic_string());
+    }
+
+    bool Serialization<std::filesystem::path>::Deserialize(const Deserializer& deserializer, FileSystem::Filepath& outPath)
+    {
+        StringView path;
+        if (deserializer.Read(path))
+        {
+            outPath = path;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool Serialization<FileSystem::MountPoint>::Serialize(Serializer& serializer, const FileSystem::MountPoint& mountPoint)
+    {
+        return serializer.Write<"name">(mountPoint.Prefix) &&
+            serializer.Write<"path">(mountPoint.Path);
+    }
+
+    bool Serialization<FileSystem::MountPoint>::Deserialize(const Deserializer& deserializer, FileSystem::MountPoint& outMountPoint)
+    {
+        bool success = deserializer.Read<"name">(outMountPoint.Prefix);
+        if (success == false)
+            return false;
+
+        if (outMountPoint.Prefix.ends_with(":/") == false)
+        {
+            outMountPoint.Prefix += ":/";
+        }
+
+        return deserializer.Read<"path">(outMountPoint.Path);
+    }
+}
+

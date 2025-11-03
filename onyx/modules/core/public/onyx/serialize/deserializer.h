@@ -387,6 +387,8 @@ namespace Onyx
                 KeyT mapKey = StringToScopeKey<KeyT>(keyString);
 
                 success = Deserializer::template Read<ValueT, Args...>(mapValue, std::forward<Args...>(additionalArgs)...);
+                success &= EndScope();
+
                 if (success == false)
                 {
                     return false;

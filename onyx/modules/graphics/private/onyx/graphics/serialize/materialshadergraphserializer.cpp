@@ -37,7 +37,8 @@ namespace Onyx::Graphics
             return false;
 
         const FileSystem::Filepath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");
-        ShaderHandle shader = graphicsApi.GetShader(shaderPath);
+        //ShaderHandle shader = graphicsApi.CreateShader();
+        //graphicsApi.GetShaderCache().GetOrLoadShader(shaderPath, shader);
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         // TODO: Add shader generator factory here to create unlit shader
@@ -45,20 +46,20 @@ namespace Onyx::Graphics
         if (shaderGraph.GenerateShader(shaderGenerator) == false)
             return false;
 
-        const onyxU64 shaderCodeHash = Hash::FNV1aHash<onyxU64>(shaderGraph.GetShaderCode(), Hash::FNV1aHash<onyxU64>(shaderPath));
-        if ((shader == nullptr) || (shaderCodeHash != shader->GetShaderHash()))
-        {
-            // Save out shader again and trigger reload
-            ONYX_LOG_INFO("Shader is not matching need to generate new");
-            // save shader and hot reload
-        }
+        //const onyxU64 shaderCodeHash = Hash::FNV1aHash<onyxU64>(shaderGraph.GetShaderCode(), Hash::FNV1aHash<onyxU64>(shaderPath));
+        //if ((shader == nullptr) || (shaderCodeHash != shader->GetShaderHash()))
+        //{
+        //    // Save out shader again and trigger reload
+        //    ONYX_LOG_INFO("Shader is not matching need to generate new");
+        //    // save shader and hot reload
+        //}
 #endif
 
-        if (shader == nullptr)
+        /*if (shader == nullptr)
         {
             ONYX_LOG_ERROR("Failed to compile shader for shader graph.");
             return false;
-        }
+        }*/
 
         // call on changed on nodes to queue dependency loading (e.g. textures)
         NodeGraph::NodeGraph& nodeGraph = shaderGraph.GetNodeGraph();
@@ -84,10 +85,9 @@ namespace Onyx::Graphics
         subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::DepthReadStencilRead);
 
         PipelineProperties pipelineProperties;
-        pipelineProperties.Shader = shader;
+        pipelineProperties.Shader = Assets::AssetId(shaderPath);
         pipelineProperties.RenderPass = graphicsApi.GetOrCreateRenderPass(renderPassSettings);
-        pipelineProperties.m_DebugName = "Test shader graph";
-
+        
         pipelineProperties.Rasterization.CullMode = CullMode::Back;
         pipelineProperties.DepthStencil.IsDepthEnabled = true;
         pipelineProperties.DepthStencil.IsDepthWriteEnabled = false;
@@ -102,8 +102,12 @@ namespace Onyx::Graphics
         blendState.DestinationAlpha = Blend::OneMinusSrcAlpha;
         blendState.AlphaOperation = BlendOperation::Add;
 
-        ShaderEffectHandle& shaderEffect = shaderGraph.GetShaderEffect();
-        shaderEffect = graphicsApi.CreateShaderEffect(pipelineProperties);
+        ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
+        shaderEffect = graphicsApi.CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
+
+        //
+        //graphicsApi.CreateShaderInstance(shaderId, properties);
+        //
         return true;
     }
 

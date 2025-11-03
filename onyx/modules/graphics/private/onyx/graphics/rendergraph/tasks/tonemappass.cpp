@@ -8,7 +8,7 @@ namespace Onyx
 {
     Graphics::ToneMapPass::ToneMapPass()
     {
-        m_ShaderPath = "engine:/shaders/post/tonemap.oshader";
+        m_PipelineProperties.Shader = "engine:/shaders/post/tonemap.oshader";
     }
 
     void Graphics::ToneMapPass::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)

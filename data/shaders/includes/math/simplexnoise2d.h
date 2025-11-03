@@ -23,7 +23,7 @@ vec3 permute(vec3 x)
     return mod289(((x*34.0)+10.0)*x);
 }
 
-vec4 snoise(vec2 v)
+vec3 snoise(vec2 v)
 {
     const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
                         0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
@@ -68,6 +68,6 @@ vec4 snoise(vec2 v)
     // Compute final noise value at P
     vec3 g;
     g.x  = a0.x  * x0.x  + h.x  * x0.y;
-    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-    return vec4(g, 130.0 * dot(m, g));
+    g.xz = a0.yz * x12.xz + h.yz * x12.yw;
+    return vec3(g.xz, 130.0 * dot(m, g));
 }

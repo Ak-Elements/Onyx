@@ -16,4 +16,6 @@ namespace Onyx
     bool IgnoreCaseStartsWith(StringView string, StringView prefix);
     StringView::size_type IgnoreCaseFind(StringView string, StringView searchString);
 
+    String Replace(StringView str, StringView search, StringView replace);
+
 }

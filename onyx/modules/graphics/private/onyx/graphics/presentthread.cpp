@@ -11,7 +11,6 @@ namespace Onyx::Graphics
     PresentThread::PresentThread(GraphicsApi& graphicsApi)
         : m_GraphicsApi(&graphicsApi)
     {
-        SetRefreshRate(graphicsApi.GetRefreshRate());
     }
 
     PresentThread::~PresentThread() = default;
@@ -61,6 +60,8 @@ namespace Onyx::Graphics
     {
         Vulkan::VulkanGraphicsApi& vulkan = m_GraphicsApi->GetApi<Vulkan::VulkanGraphicsApi>();
         Vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
+
+        SetRefreshRate(m_GraphicsApi->GetRefreshRate());
 
         while (IsRunning())
         {

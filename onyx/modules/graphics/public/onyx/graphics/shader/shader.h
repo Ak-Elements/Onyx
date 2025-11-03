@@ -1,12 +1,15 @@
 #pragma once
 
+#include <onyx/assets/asset.h>
 #include <onyx/graphics/graphicstypes.h>
 
 #include <onyx/stream/stream.h>
 
 namespace Onyx::Graphics
 {
-	struct UniformBuffer
+    class GraphicsApi;
+
+    struct UniformBuffer
 	{
         StringId32 Id = 0;
         onyxU32 BindingPoint = 0;
@@ -291,17 +294,20 @@ namespace Onyx::Graphics
 		}
 	};
 
-	class Shader : public RefCounted
+	class Shader : public Assets::Asset<Shader>
     {
-    public:
+	public:
+		static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::Shader" };
+		StringId32 GetTypeId() const { return TypeId; }
+
 		using ByteCode = DynamicArray<onyxU32>;
 		using PerStageByteCodes = InplaceArray<ByteCode, MAX_SHADER_STAGES>;
 
-		virtual bool AddStage(ShaderStage stage, const ByteCode& byteCode) = 0;
+		virtual bool AddStage(GraphicsApi& api, ShaderStage stage, const ByteCode& byteCode) = 0;
 		virtual void RemoveStage(ShaderStage stage) = 0;
 
 		virtual const ShaderReflectionInfo& GetReflectionData() const = 0;
-	    virtual bool UpdateReflectionData(ShaderReflectionInfo& reflectionInfo) = 0;
+	    virtual bool UpdateReflectionData(GraphicsApi& api, ShaderReflectionInfo& reflectionInfo) = 0;
 
 		virtual onyxU64 GetShaderHash() const = 0;
 		virtual void SetShaderHash(onyxU64 hash) = 0;
@@ -309,4 +315,6 @@ namespace Onyx::Graphics
 		virtual bool IsComputeShader() const = 0;
 		virtual bool HasDescriptorSetLayout() const = 0;
     };
+
+	DynamicArray<FileSystem::Filepath> GetShaderDirectories();
 }

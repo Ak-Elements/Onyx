@@ -64,6 +64,16 @@ namespace Onyx::Graphics
 	{
 	}
 
+	HashSet<String> ShaderIncluder::GetIncludes() const
+	{
+		HashSet<String> allIncludes;
+		for (const ShaderInclude& include : m_Includes)
+		{
+			allIncludes.emplace(include.IncludedFilePath);
+		}
+		return allIncludes;
+	}
+
 	shaderc_include_result* ShaderIncluder::GetInclude(const char* requestedPath, shaderc_include_type type, const char* requestingPath, size_t /*includeDepth*/)
 	{
 		(void)requestingPath;
@@ -128,16 +138,15 @@ namespace Onyx::Graphics
 		shaderSource = sourceStream.str();
 
 		/// TODO: Add header preprocessor
-		ShaderProperties empty{};
 		ShaderPreprocessor preprocessor;
-		if (preprocessor.PreprocessShader(empty, shaderSource) == false)
+		if (preprocessor.PreprocessShader(shaderSource) == false)
 		{
 			ONYX_LOG_ERROR("Failed to retrive shader entry {} for {}", requestedPath, requestingPath);
 			return data;
 		}
 
 		bool isGuarded = false;
-		auto [_, hasAdded] = m_Includes.emplace(requestedFilePath.string(), isGuarded, 0, shaderSource);
+		auto [_, hasAdded] = m_Includes.emplace(requestedFilePath.generic_string(), isGuarded, 0, shaderSource);
 		if (hasAdded == false)
 		{
 			shaderSource.clear();

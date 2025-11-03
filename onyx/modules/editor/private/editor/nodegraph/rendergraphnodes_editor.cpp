@@ -188,7 +188,7 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
-        if (Ui::PropertyGrid::DrawStringProperty("Shader", m_ShaderPath))
+        if (Ui::PropertyGrid::DrawAssetSelector("Shader", m_PipelineProperties.Shader, static_cast<Assets::AssetType>(Shader::TypeId.GetId())))
         {
             // TODO: remove shaderPath and change m_Shader to be an asset
             // shaderHandle.isLoaded?

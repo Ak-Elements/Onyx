@@ -1,5 +1,7 @@
 #pragma once
 
+#include <onyx/typetraits.h>
+
 namespace Onyx
 {
     // RefCounted
@@ -51,15 +53,12 @@ namespace Onyx
     }
 
     template <typename T, typename D>
-    bool Reference<T, D>::IsValid()
-    {
-        return m_Object != nullptr;
-    }
-
-    template <typename T, typename D>
     bool Reference<T, D>::IsValid() const
     {
-        return m_Object != nullptr;
+        if constexpr (HasIsValid<T>)
+            return m_Object != nullptr && static_cast<const T*>(m_Object)->IsValid();
+        else
+            return m_Object != nullptr;
     }
 
     template <typename T, typename D>
@@ -78,13 +77,6 @@ namespace Onyx
         static_assert(std::is_base_of_v<T, U> || std::is_base_of_v<U, T>, "Classes are not convertible or inherited from each other");
         ONYX_ASSERT(IsValid());
         return *static_cast<U*>(m_Object);
-    }
-
-    template <typename T, typename D>
-    template <typename ... Args>
-    Reference<T, D> Reference<T, D>::Create(Args&&... args)
-    {
-        return Reference<T, D>(new T(std::forward<Args>(args)...));
     }
 
     template <typename T, typename D>

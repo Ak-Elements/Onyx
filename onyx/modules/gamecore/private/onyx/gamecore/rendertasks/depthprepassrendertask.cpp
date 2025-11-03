@@ -10,13 +10,13 @@ namespace Onyx::GameCore
 {
     void DepthPrePassRenderGraphNode::OnInit(Graphics::GraphicsApi& api, Graphics::RenderGraphResourceCache& resourceCache)
     {
-        m_PipelineProperties.m_DebugName = "Depth Pre Pass";
-
         Graphics::RenderGraphResource& depthResource = resourceCache[GetOutputPin().GetGlobalId()];
         depthResource.Info.Type = Graphics::RenderGraphResourceType::Attachment;
         Graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get<Graphics::RenderGraphTextureResourceInfo>(depthResource.Properties);
         resourceInfo.Format = api.GetDepthTextureFormat();
         resourceInfo.LoadOp = Graphics::RenderPassSettings::LoadOp::Clear;
+
+        resourceCache[GetOutputPin().GetGlobalId()].Handle = api.GetDepthImage();
     }
 
     void DepthPrePassRenderGraphNode::OnBeginFrame(const Graphics::RenderGraphContext& context)

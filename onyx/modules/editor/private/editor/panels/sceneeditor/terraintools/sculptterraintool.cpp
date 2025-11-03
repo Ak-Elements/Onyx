@@ -545,12 +545,12 @@ namespace Onyx::Editor
         }
     }
 
-    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsApi& graphicsApi)
+    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsApi& /*graphicsApi*/)
     {
-        Graphics::PipelineProperties properties;
-        properties.m_DebugName = "Apply Terrain Brush";
-        properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/createvolumebrush.oshader");
-        m_CreateVolumeSourceShaderEffect = graphicsApi.CreateShaderEffect(properties);
+        //Graphics::PipelineProperties properties;
+        //properties.m_DebugName = "Apply Terrain Brush";
+        //properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/createvolumebrush.oshader");
+        //m_CreateVolumeSourceShaderEffect = graphicsApi.CreateShaderEffect(properties);
     }
 
     StringView SculptTerrainTool::GetTitle()
@@ -618,7 +618,7 @@ namespace Onyx::Editor
         createVolumeSourceConstants.BrushType = 5;
         createVolumeSourceConstants.BrushOperation = 0;
         createVolumeSourceConstants.Smoothness = m_Smoothness;
-        commandBuffer.BindShaderEffect(m_CreateVolumeSourceShaderEffect);
+        commandBuffer.BindShaderEffect(m_CreateVolumeSourceShader);
         commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, createVolumeSourceConstants);
         commandBuffer.Dispatch(1, 1, 1);
 

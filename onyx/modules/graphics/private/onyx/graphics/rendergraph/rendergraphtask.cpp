@@ -1,5 +1,6 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/graphics/framebuffer.h>
@@ -7,7 +8,7 @@
 #include <onyx/graphics/pipeline.h>
 #include <onyx/graphics/renderpass.h>
 #include <onyx/graphics/texture.h>
-#include <onyx/graphics/shader/shadereffect.h>
+#include <onyx/graphics/shader/shaderinstance.h>
 #include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/log/logger.h>
 
@@ -125,10 +126,10 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE_FUNCTION;
 
-        if (IsComputeTask())
-        {
-            return;
-        }
+        //if (IsComputeTask())
+        //{
+        //    return;
+        //}
 
         CreateRenderPass(api, resourceCache);
         UpdateFramebuffer(api, resourceCache);
@@ -202,6 +203,7 @@ namespace Onyx::Graphics
         const bool isCompute = IsComputeTask();
         if (isCompute == false)
         {
+            //UpdateFramebuffer(*context.FrameContext.Api, context.Graph.GetResourceCache());
             commandBuffer.BeginRenderPass(m_RenderPass, m_Framebuffer);
             commandBuffer.SetViewport();
             commandBuffer.SetScissor();
@@ -305,9 +307,6 @@ namespace Onyx::Graphics
         RenderPassSettings renderPassSettings;
         RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
 
-#if ONYX_IS_DEBUG
-        renderPassSettings.m_DebugName = GetName();
-#endif
         // handle outputs
         onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
@@ -464,10 +463,16 @@ namespace Onyx::Graphics
                 ONYX_LOG_ERROR("Height of input attachments is not matching.");
             }
 
+            TextureHandle texture = std::get<TextureHandle>(inputResource.Handle);
+            if (texture.Texture.IsValid() == false)
+            {
+                ONYX_LOG_INFO("here");
+            }
+
             if (Utils::IsDepthFormat(properties.Format))
-                framebufferSettings.m_DepthTarget = std::get<TextureHandle>(inputResource.Handle).Texture;
+                framebufferSettings.m_DepthTarget = texture.Texture;
             else
-                framebufferSettings.m_ColorTargets.Add(std::get<TextureHandle>(inputResource.Handle).Texture);
+                framebufferSettings.m_ColorTargets.Add(texture.Texture);
         }
 
         //if (m_Framebuffer && m_Framebuffer->GetSettings() == framebufferSettings)
@@ -476,9 +481,9 @@ namespace Onyx::Graphics
         m_Framebuffer = api.GetOrCreateFramebuffer(framebufferSettings);
     }
 
-    void RenderGraphShaderNode::BindResources(ShaderEffectHandle& shaderEffect, const HashMap<RenderGraphResourceId, RenderGraphResource>& resourceCache, const FrameContext& frameContext)
+    void RenderGraphShaderNode::BindResources(ShaderInstanceHandle shaderInstance, const HashMap<RenderGraphResourceId, RenderGraphResource>& resourceCache, const FrameContext& frameContext)
     {
-        ONYX_ASSERT(shaderEffect.IsValid());
+        ONYX_ASSERT(shaderInstance.IsValid());
         ONYX_PROFILE_FUNCTION;
 
         //// Inputs
@@ -501,9 +506,9 @@ namespace Onyx::Graphics
                     break;
                 case RenderGraphResourceType::Buffer:
     #if ONYX_IS_DEBUG
-                    shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
     #else
-                    shaderEffect->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
     #endif
                     break;
                 case RenderGraphResourceType::Invalid:
@@ -531,9 +536,9 @@ namespace Onyx::Graphics
                     break;
                 case RenderGraphResourceType::Buffer:
     #if ONYX_IS_DEBUG
-                    shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
     #else
-                    shaderEffect->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
     #endif
                     break;
                 case RenderGraphResourceType::Invalid:
@@ -545,32 +550,24 @@ namespace Onyx::Graphics
 
     void RenderGraphFixedShaderNode::Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
     {
-        m_Shader = api.GetShader(m_ShaderPath);
+        //assetSystem.GetAsset(Assets::AssetId(StringView(m_ShaderPath)), m_Shader);
+        //m_Shader->GetOnLoadedEvent().Connect<&RenderGraphFixedShaderNode::OnShaderLoaded>(this);
         RenderGraphShaderNode::Init(api, resourceCache);
+
     }
 
     void RenderGraphFixedShaderNode::Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
     {
-        if (m_Shader.IsValid() == false)
-        {
-            return;
-        }
-
         RenderGraphShaderNode::Compile(api, resourceCache);
 
         m_PipelineProperties.RenderPass = m_RenderPass;
-        m_PipelineProperties.Shader = m_Shader;
-#if ONYX_IS_DEBUG
-        m_PipelineProperties.m_DebugName = GetName();
-#endif
-        m_ShaderEffect = api.CreateShaderEffect(m_PipelineProperties);
+        m_ShaderInstance = api.CreateShaderInstance(m_PipelineProperties.Shader, m_PipelineProperties);
     }
 
     void RenderGraphFixedShaderNode::BeginFrame(const RenderGraphContext& context)
     {
         RenderGraphShaderNode::BeginFrame(context);
-
-        BindResources(m_ShaderEffect, context.Graph.GetResourceCache(), context.FrameContext);
+        BindResources(m_ShaderInstance, context.Graph.GetResourceCache(), context.FrameContext);
     }
 
     void RenderGraphFixedShaderNode::Render(RenderGraphContext& context, CommandBuffer& commandBuffer)
@@ -585,7 +582,7 @@ namespace Onyx::Graphics
             commandBuffer.SetScissor();
         }
 
-        commandBuffer.BindShaderEffect(m_ShaderEffect);
+        commandBuffer.BindShaderEffect(m_ShaderInstance);
 
         OnRender(context, commandBuffer);
 
@@ -597,11 +594,10 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnSerialize(Serializer& serializer) const
     {
-        if ((m_ShaderPath.empty() == false) &&
-            (serializer.Write<"shader">(m_ShaderPath) == false))
+        if ((m_PipelineProperties.Shader.IsValid()) &&
+            (serializer.Write<"shader">(m_PipelineProperties.Shader) == false))
         {
             return false;
-
         }
 
         return serializer.Write<"pipeline">(m_PipelineProperties) &&
@@ -610,7 +606,11 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        return deserializer.ReadOptional<"shader">(m_ShaderPath) &&
+        String shaderPath;
+        if (deserializer.ReadOptional<"shader">(shaderPath))
+            m_PipelineProperties.Shader = shaderPath.c_str();
+
+        return
             deserializer.ReadOptional<"pipeline">(m_PipelineProperties) &&
             RenderGraphShaderNode::OnDeserialize(deserializer);
     }

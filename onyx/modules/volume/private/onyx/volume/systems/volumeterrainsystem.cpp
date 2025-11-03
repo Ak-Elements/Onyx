@@ -181,57 +181,62 @@ namespace Onyx::Volume::Terrain
             if (generationComponent.UpdateWorldOctreeShader != nullptr)
                 return;
 
-            if (terrainSettings.VolumeGraphAssetId.IsValid() == false)
-                return;
-
-            if ((generationComponent.VolumeShaderGraph.IsValid() == false) || (generationComponent.VolumeShaderGraph->GetId() != terrainSettings.VolumeGraphAssetId))
+            if (terrainSettings.VolumeGraphAssetId.IsValid())
             {
-                generationComponent.HasLoadedShaders = false;
-                assetSystem.GetAsset(terrainSettings.VolumeGraphAssetId, generationComponent.VolumeShaderGraph);
+                if ((generationComponent.VolumeShaderGraph.IsValid() == false) || (generationComponent.VolumeShaderGraph->GetId() != terrainSettings.VolumeGraphAssetId))
+                {
+                    generationComponent.HasLoadedShaders = false;
+                    assetSystem.GetAsset(terrainSettings.VolumeGraphAssetId, generationComponent.VolumeShaderGraph);
+                }
+
+                if ((generationComponent.VolumeShaderGraph.IsValid() == false) || generationComponent.VolumeShaderGraph->IsLoading())
+                    return;
             }
 
-            if ((generationComponent.VolumeShaderGraph.IsValid() == false) || generationComponent.VolumeShaderGraph->IsLoading())
-                return;
-
             Graphics::PipelineProperties properties;
-            properties.m_DebugName = "Terrain Reset Buffers";
-            properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/reset_buffers.oshader");
-            generationComponent.ResetBuffersShader = graphicsApi.CreateShaderEffect(properties);
+            //properties.DebugName = "Terrain Reset Buffers";
+            properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/reset_buffers.oshader");
+            generationComponent.ResetBuffersShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
 
-            properties.m_DebugName = "World Octree Update";
-            Graphics::ShaderProperties shaderProperties;
+            //properties.m_DebugName = "Fill generation mesh indirect dispatch";
+            properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/init_volume.oshader");
+            generationComponent.SetupDispatchGenerateMeshShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
 
-            shaderProperties.AdditionalIncludes.emplace_back(generationComponent.VolumeShaderGraph->GetVolumeShaderGraphPath().generic_string());
+            //properties.DebugName = "Terrain Reset Buffers";
+            if (generationComponent.VolumeShaderGraph == nullptr)
+            {
+                properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_world_octree.oshader");
+                generationComponent.UpdateWorldOctreeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
 
-            shaderProperties.Path = "engine:/shaders/compute/volume/build_world_octree.oshader";
-            properties.Shader = graphicsApi.GetShader(shaderProperties);
+                properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_chunk_octree.oshader");
+                generationComponent.UpdateWorldOctreeChunkShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
 
-            generationComponent.UpdateWorldOctreeShader = graphicsApi.CreateShaderEffect(properties);
+                properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/find_ray_traced_octreenode.oshader");
+                generationComponent.FindRayTracedOctreeNodeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
 
-            shaderProperties.Path = "engine:/shaders/compute/volume/build_chunk_octree.oshader";
-            properties.m_DebugName = "World Octree Chunk Update";
-            properties.Shader = graphicsApi.GetShader(shaderProperties);
-            generationComponent.UpdateWorldOctreeChunkShader = graphicsApi.CreateShaderEffect(properties);
+                properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/generate_volume.oshader");
+                generationComponent.GenerateMeshShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
 
-            properties.m_DebugName = "Fill generation mesh indirect dispatch";
-            properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/init_volume.oshader");
-            generationComponent.SetupDispatchGenerateMeshShader = graphicsApi.CreateShaderEffect(properties);
-
-            shaderProperties.Path = "engine:/shaders/compute/volume/generate_volume.oshader";
-            properties.m_DebugName = "Isosurface extraction";
-            properties.Shader = graphicsApi.GetShader(shaderProperties);
-            generationComponent.GenerateMeshShader = graphicsApi.CreateShaderEffect(properties);
-
-            properties.m_DebugName = "RayTrace Terrain";
-
-            shaderProperties.Path = "engine:/shaders/compute/volume/ray_trace_terrain.oshader";
-            properties.Shader = graphicsApi.GetShader(shaderProperties);
-            generationComponent.RayTraceTerrainShaderEffect = graphicsApi.CreateShaderEffect(properties);
-
-            shaderProperties.Path = "engine:/shaders/compute/volume/find_ray_traced_octreenode.oshader";
-            properties.m_DebugName = "Find Terrain Node on RayHit";
-            properties.Shader = graphicsApi.GetShader(shaderProperties);
-            generationComponent.FindRayTracedOctreeNodeShaderEffect = graphicsApi.CreateShaderEffect(properties);
+                properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/ray_trace_terrain.oshader");
+                generationComponent.RayTraceTerrainShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+            }
+           else
+           {
+               properties.Shader = generationComponent.VolumeShaderGraph->GetBuildOctreeShader();
+               generationComponent.UpdateWorldOctreeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+           
+               properties.Shader = generationComponent.VolumeShaderGraph->GetBuildChunkOctreeShader();
+               generationComponent.UpdateWorldOctreeChunkShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+           
+               properties.Shader = generationComponent.VolumeShaderGraph->GetFindOctreeNodeShader();
+               generationComponent.FindRayTracedOctreeNodeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+           
+               properties.Shader = generationComponent.VolumeShaderGraph->GetGenerateVolumeMeshShader();
+               generationComponent.GenerateMeshShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+           
+               properties.Shader = generationComponent.VolumeShaderGraph->GetRaytraceTerrainShader();
+               generationComponent.RayTraceTerrainShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+           }
 
             generationComponent.HasLoadedShaders = true;
         }
@@ -486,7 +491,12 @@ namespace Onyx::Volume::Terrain
 
             LoadShaders(assetSystem, graphicsApi, terrainSettings, generationComponent);
 
-            if (generationComponent.HasLoadedShaders == false)
+            if ((generationComponent.HasLoadedShaders == false) ||
+                !generationComponent.UpdateWorldOctreeShader.IsValid() ||
+                !generationComponent.UpdateWorldOctreeChunkShader.IsValid() ||
+                !generationComponent.ResetBuffersShader.IsValid() ||
+                !generationComponent.GenerateMeshShader.IsValid() ||
+                !generationComponent.SetupDispatchGenerateMeshShader.IsValid())
                 return;
 
             constexpr onyxU32 nodeCount = (1 << 20);
@@ -523,7 +533,6 @@ namespace Onyx::Volume::Terrain
                 lastPosition = cameraTransform.GetTranslation();
                 Entity::EntityId terrainEntityId = terrainEntity.GetId();
                 entityCommandBuffer.AddComponent<InitTerrainFlag>(terrainEntityId);
-                ONYX_LOG_INFO("Updating terrain");
             }
         }
 

@@ -143,6 +143,10 @@ namespace Onyx
         {
             bool success = true;
             onyxU32 count = numeric_cast<onyxU32>(outValue.size());
+
+            if (WriteItemsCount(count) == false)
+                return false;
+
             for (onyxU32 i = 0; i < count; ++i)
             {
                 if (CreateScope(i) == false)
@@ -193,6 +197,10 @@ namespace Onyx
 
             bool success = true;
             onyxU8 count = outValue.size();
+
+            if (WriteItemsCount(count) == false)
+                return false;
+
             for (onyxU8 i = 0; i < count; ++i)
             {
                 success = CreateScope(static_cast<onyxU32>(i));
@@ -219,6 +227,10 @@ namespace Onyx
         {
             // write out count
             bool success = true;
+
+            if (WriteItemsCount(numeric_cast<onyxU64>(map.size())) == false)
+                return false;
+
             for (auto&& [key, value] : map)
             {
                 if constexpr (std::is_integral_v<KeyT> || IsStringId<KeyT> || IsGuid64<KeyT>)
@@ -272,6 +284,10 @@ namespace Onyx
         {
             bool success = true;
             onyxU32 count = numeric_cast<onyxU32>(value.size());
+
+            if (WriteItemsCount(count) == false)
+                return false;
+
             for (onyxU32 i = 0; i < count; ++i)
             {
                 if (CreateScope(i) == false)
@@ -295,6 +311,10 @@ namespace Onyx
         bool WriteForEach(Callable forEachFunctor, onyxU32 count)
         {
             bool success = true;
+
+            if (WriteItemsCount(count) == false)
+                return false;
+
             for (onyxU32 i = 0; i < count; ++i)
             {
                 if (CreateScope(i) == false)
@@ -353,6 +373,10 @@ namespace Onyx
         bool WriteForEach(const HashMap<KeyT, ValueT>& outMap, Callable forEachFunctor)
         {
             bool success = true;
+
+            if (WriteItemsCount(numeric_cast<onyxU64>(outMap.size())) == false)
+                return false;
+
             for (auto&& [key, value] : outMap)
             {
                 if constexpr (std::is_integral_v<KeyT> || IsStringId<KeyT> || IsGuid64<KeyT>)
@@ -452,13 +476,10 @@ namespace Onyx
 
         virtual bool EndScope() = 0;
 
-        virtual onyxU32 GetItemsCount() = 0;
-
-        virtual bool GetScopeIdentifier(onyxU32& outKey) = 0;
-        virtual bool GetScopeIdentifier(onyxU64& outKey) = 0;
-        virtual bool GetScopeIdentifier(Guid64& outKey) = 0;
-        virtual bool GetScopeIdentifier(StringView& outKey) = 0;
-
+        virtual bool WriteItemsCount(onyxU8 count) = 0;
+        virtual bool WriteItemsCount(onyxU16 count) = 0;
+        virtual bool WriteItemsCount(onyxU32 count) = 0;
+        virtual bool WriteItemsCount(onyxU64 count) = 0;
 
         virtual bool IsSupportingIntegralScopes() const = 0;
 

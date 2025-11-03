@@ -3,6 +3,7 @@ set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/assets)
 
 set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/asset.h
+    ${TARGET_PUBLIC_PATH}/assetformat.h
 	${TARGET_PUBLIC_PATH}/assethotreloadsystem.h
 	${TARGET_PUBLIC_PATH}/assetloader.h
 	${TARGET_PUBLIC_PATH}/assetloadrequest.h

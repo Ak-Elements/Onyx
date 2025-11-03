@@ -320,41 +320,10 @@ namespace Onyx::FileSystem
         return true;
     }
 
-    bool JsonSerializer::GetScopeIdentifier(onyxU32& /*outKey*/)
-    {
-        ONYX_ASSERT(false, "Integral scope identifiers not supported in json");
-        return false;
-    }
-
-    bool JsonSerializer::GetScopeIdentifier(onyxU64& /*outKey*/)
-    {
-        ONYX_ASSERT(false, "Integral scope identifiers not supported in json");
-        return false;
-    }
-
-    bool JsonSerializer::GetScopeIdentifier(Guid64& outKey)
-    {
-        onyxU64 guid64 = 0;
-        bool success = std::from_chars(m_CurrentScopeName.data(), m_CurrentScopeName.data() + m_CurrentScopeName.size(), guid64, 16).ec == std::errc{};
-        outKey = Guid64(guid64);
-        return success;
-    }
-
-    bool JsonSerializer::GetScopeIdentifier(StringView& outKey)
-    {
-        outKey = m_CurrentScopeName;
-        return true;
-    }
-
     bool JsonSerializer::EndScope()
     {
         JsonNodes.pop();
         return true;
-    }
-
-    onyxU32 JsonSerializer::GetItemsCount()
-    {
-        return numeric_cast<onyxU32>(GetCurrent().size());
     }
 
     nlohmann::ordered_json& JsonSerializer::GetCurrent()

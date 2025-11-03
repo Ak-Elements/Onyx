@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/assets/asset.h>
 #include <onyx/graphics/graphicstypes.h>
 #include <onyx/serialize/serialization.h>
 
@@ -10,18 +11,14 @@ namespace Onyx::Graphics
 
     struct PipelineProperties
     {
-        ~PipelineProperties();
-
-        Rasterization Rasterization;
-        DepthStencil DepthStencil;
         InplaceArray<BlendState, MAX_RENDERPASS_ATTACHMENTS> BlendStates;
+        DepthStencil DepthStencil;
+
+        Reference<RenderPass> RenderPass;
+        Assets::AssetId Shader;
+        Rasterization Rasterization;
 
         PrimitiveTopology Topology = PrimitiveTopology::Triangle;
-        Reference<RenderPass> RenderPass;
-
-        Reference<Shader> Shader;
-
-        String m_DebugName;
     };
 
     class Pipeline : public RefCounted
@@ -29,8 +26,11 @@ namespace Onyx::Graphics
     public:
         Pipeline(const PipelineProperties& properties)
             : m_Properties(properties)
-        {}
-        const PipelineProperties& GetProperties() const { return m_Properties; }
+        {
+        }
+
+        ONYX_NO_DISCARD const PipelineProperties& GetProperties() const { return m_Properties; }
+
     private:
         PipelineProperties m_Properties;
     };

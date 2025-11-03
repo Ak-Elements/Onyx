@@ -1,5 +1,6 @@
-#pragma once
-#include <onyx/graphics/shader/shadereffect.h>
+#pragma 
+
+#include <onyx/graphics/graphicstypes.h>
 
 namespace Onyx
 {
@@ -9,14 +10,9 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    struct ShaderProperties;
-    class Shader;
-    class ShaderEffect;
-
     struct PreprocessedShader
     {
         bool m_IsValid = false;
-        DynamicArray<String> m_Includes;
         String m_Code;
 
         HashMap<StringId32, TextureFormat> m_Formats;
@@ -25,14 +21,14 @@ namespace Onyx::Graphics
     class ShaderPreprocessor
     {
     public:
-        bool PreprocessShader(const ShaderProperties& properties, const String& shaderCode);
-
+        bool PreprocessShader(const String& shaderCode);
+        
         static void Serialize(Stream& outStream, const ShaderPreprocessor& preprocessor);
 
         const String& GetGeneralShaderCode() const { return m_ShaderCode; }
         const InplaceArray<PreprocessedShader, MAX_SHADER_STAGES>& GetStages() { return m_PreprocessedShaderStages; }
     private:
-        bool ParseGlobalScope(StringView line, String& outShaderCode);
+        bool ParseGlobalScope(StringStream& reader);
         bool IsShaderStage(StringStream& reader, ShaderStage& outStage) const;
 
         bool ParseStageCode(StringStream& reader, ShaderStage stage, PreprocessedShader& preprocessShader);

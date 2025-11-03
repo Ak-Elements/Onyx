@@ -30,7 +30,7 @@ namespace Onyx::Graphics::Vulkan
         void BeginRenderPass(const RenderPassHandle& renderPass, const FramebufferHandle& frameBuffer) override;
         void EndRenderPass() override;
 
-        void BindShaderEffect(const ShaderEffectHandle& shaderEffect) override;
+        void BindShaderEffect(const ShaderInstanceHandle& shader) override;
         void BindVertexBuffer(const BufferHandle& buffer, onyxU32 binding, onyxU32 offset) override;
         void BindVertexBuffers(const InplaceArray<BufferHandle, 8>& bufferHandles, const InplaceArray<onyxU32, 8> bufferOffsets, onyxU32 firstBinding, onyxU32 bindingCount) override;
         void BindIndexBuffer(const BufferHandle& buffer, onyxU32 offset, IndexType indexType) override;
@@ -72,13 +72,15 @@ namespace Onyx::Graphics::Vulkan
 #endif
 
     protected:
-        void PreDraw();
-        void BindDescriptorSets() override;
-        void BindPipeline(const PipelineHandle& pipeline) override;
         void BindPushConstants(ShaderStage stage, onyxU32 offset, onyxU32 size, const void* data) override;
-
         void BeginConditionalRendering(const BufferHandle& conditionalBuffer, onyxU32 offset) override;
         void EndConditionalRendering() override;
+
+    private:
+        void PreDraw();
+        void BindDescriptorSets(VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint);
+
+        VkPipelineLayout GetPipelineLayout() const;
 
     private:
         const VulkanGraphicsApi& m_Api;
@@ -86,8 +88,7 @@ namespace Onyx::Graphics::Vulkan
         Reference<VulkanRenderPass> m_CurrentRenderPass;
         Reference<VulkanFramebuffer> m_CurrentFrameBuffer;
 
-        ShaderEffectHandle m_CurrentShaderEffect;
-        Reference<Pipeline> m_CurrentPipeline;
+        ShaderInstanceHandle m_CurrentShaderEffect;
 
         VULKAN_HANDLE(VkCommandBuffer, CommandBuffer, nullptr);
 
