@@ -41,7 +41,7 @@ namespace Onyx::Graphics
         GraphicsSystem();
         ~GraphicsSystem() override;
 
-        void Init(const GraphicSettings& graphicSettings, const WindowSettings& windowSettings, Assets::AssetSystem& assetSystem);
+        void Init(Assets::AssetSystem& assetSystem);
         void Shutdown();
 
         Window& GetWindow() { return *m_Window; }
@@ -53,5 +53,15 @@ namespace Onyx::Graphics
     private:
         UniquePtr<Window> m_Window;
         UniquePtr<GraphicsApi> m_GraphicsApi;
+    };
+}
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Graphics::GraphicsSystem>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::GraphicsSystem& system);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicsSystem& outSystem);
     };
 }

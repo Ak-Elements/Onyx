@@ -33,7 +33,7 @@ namespace Onyx::Graphics
 
         ~Window() override;
 
-        void Create(const WindowSettings& settings);
+        void Create();
         void Destroy();
 
         void Show();
@@ -73,6 +73,9 @@ namespace Onyx::Graphics
         void ClearWindowMessageHandler() { m_WindowMessageHandler = nullptr; }
         void SetCursor(HCURSOR cursor);
         void EnableSystemMouseCapture(bool enable);
+
+        WindowSettings& GetSettings() { return m_Settings; }
+        const WindowSettings& GetSettings() const { return m_Settings; }
 
         ONYX_EVENT(OnFocus, bool);
         ONYX_EVENT(OnResize, onyxU32, onyxU32);

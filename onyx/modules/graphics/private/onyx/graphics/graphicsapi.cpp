@@ -1,3 +1,4 @@
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/graphicsapi.h>
 
@@ -32,9 +33,8 @@ namespace Onyx::Graphics
 {
     GraphicsApi::~GraphicsApi() = default;
 
-    void GraphicsApi::Init(const GraphicSettings& graphicSettings, Assets::AssetSystem& assetSystem, Window& window)
+    void GraphicsApi::Init(Assets::AssetSystem& assetSystem, Window& window)
     {
-        m_Settings = graphicSettings;
         m_AssetSystem = &assetSystem;
         m_Window = &window;
 
@@ -61,6 +61,9 @@ namespace Onyx::Graphics
         CreateViewConstantBuffers();
 
         m_PresentThread.Start();
+
+        // load default rendergraph
+        assetSystem.GetAsset(m_Settings.DefaultRenderGraph, m_RenderGraph);
     }
 
     void GraphicsApi::Shutdown()
@@ -311,12 +314,12 @@ namespace Onyx::Graphics
     }
 
     ShaderInstanceHandle GraphicsApi::CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties)
-        {
+    {
         ONYX_ASSERT(m_AssetSystem != nullptr);
         ShaderHandle shader;
         m_AssetSystem->GetAsset(shaderAssetId, shader);
         PipelineHandle pipelineHandle = m_GraphicsApi->CreatePipeline(shader, properties);
-        
+
         return ShaderInstanceHandle::Create(*this, pipelineHandle, shader);
     }
 

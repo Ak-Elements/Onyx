@@ -263,6 +263,6 @@ namespace Onyx::Localization
     {
         // po files are not json or yaml so we do not use the provided serializer and instead read the file as raw text
         GetTextLocalizationDatabase& localizationDatabase = asset.As<GetTextLocalizationDatabase>();
-        return ParsePoFile(meta.Path, localizationDatabase);
+        return ParsePoFile(FileSystem::Path::GetFullPath(meta.Path), localizationDatabase);
     }
 }

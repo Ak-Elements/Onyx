@@ -165,7 +165,7 @@ namespace Onyx
             virtual FramebufferHandle CreateFramebuffer(const FramebufferSettings& settings) = 0;
             virtual PipelineHandle CreatePipeline(ShaderHandle& shader, const PipelineProperties& properties) = 0;
             virtual DynamicArray<DescriptorSetHandle> CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) = 0;
-
+            
             virtual void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties) = 0;
             virtual void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData) = 0;
             virtual void CreateAlias(TextureHandle& outTexture, TextureStorageHandle& storageHandle, const TextureStorageProperties& aliasStorageProperties, const TextureProperties& aliasTextureProperties) = 0;
@@ -185,7 +185,7 @@ namespace Onyx
             GraphicsApi() = default;
             ~GraphicsApi() override;
 
-            void Init(const GraphicSettings& graphicSettings, Assets::AssetSystem& assetSystem, Window& window);
+            void Init(Assets::AssetSystem& assetSystem, Window& window);
             void Shutdown();
 
             bool BeginFrame();
@@ -193,6 +193,8 @@ namespace Onyx
             void EndFrame();
 
             ApiType GetApiType() const { return m_Settings.Api; }
+            GraphicSettings& GetSettings() { return m_Settings; }
+            const GraphicSettings& GetSettings() const { return m_Settings; }
 
             template <typename T>
             T& GetApi() { return *static_cast<T*>(m_GraphicsApi.get()); }
@@ -225,7 +227,7 @@ namespace Onyx
             RenderPassHandle GetOrCreateRenderPass(const RenderPassSettings& settings);
             FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
             ShaderInstanceHandle CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties);
-
+   
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties);
             void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData);
             void CreateAlias(TextureHandle& outTexture, TextureStorageHandle& storageHandle, const TextureStorageProperties& aliasStorageProperties, const TextureProperties& aliasTextureProperties);
@@ -276,7 +278,7 @@ namespace Onyx
             Window* m_Window = nullptr;
 
             GraphicSettings m_Settings;
-
+             
             PresentThread m_PresentThread { *this };
 
             const Camera* m_QueuedCamera = nullptr;

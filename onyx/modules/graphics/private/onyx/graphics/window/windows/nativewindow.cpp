@@ -144,9 +144,8 @@ namespace Onyx::Graphics
         Destroy();
     }
 
-    void Window::Create(const WindowSettings& settings)
+    void Window::Create()
     {
-        m_Settings = settings;
         m_IsInitialized = false;
         myWakeFromSleepEvent = CreateEvent(nullptr, FALSE, FALSE, "Local\\WindowThread_WakeFromSleepEvent");
         Start();

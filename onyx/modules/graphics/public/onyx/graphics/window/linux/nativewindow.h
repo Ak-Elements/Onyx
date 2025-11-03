@@ -59,6 +59,9 @@ namespace Onyx::Graphics
         void EnableSystemMouseCapture(bool enable) { ONYX_UNUSED(enable); }
         void* GetWindowHandle() const { return m_NativeHandle; }
 
+        WindowSettings& GetSettings() { return m_Settings; }
+        const WindowSettings& GetSettings() const { return m_Settings; }
+
         ONYX_EVENT(OnFocus, bool);
         ONYX_EVENT(OnResize, onyxU32, onyxU32);
         ONYX_EVENT(OnClose);

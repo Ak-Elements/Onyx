@@ -1,17 +1,39 @@
 #include <onyx/engine/enginesystem.h>
 
 #include <onyx/application/application.h>
-#include <onyx/input/inputmodulesettings.h>
 
 namespace Onyx::Application
 {
+    template <typename T>
+    concept IsMemberFunctionPointer = std::is_member_function_pointer_v<T>;
+
+    template <typename T>
+    concept Initializable = requires (T type)
+    {
+        { &T::Init } -> IsMemberFunctionPointer;
+    };
+
+    template <typename T>
+    concept Shutdownable = requires (T type)
+    {
+        { &T::Shutdown } -> IsMemberFunctionPointer;
+    };
+
+    template <typename T>
+    concept Updatable = requires (T type)
+    {
+        { &T::Update } -> IsMemberFunctionPointer;
+    };
+
     struct EngineModuleMeta
     {
-        std::function<UniquePtr<IEngineSystem>()> CreateFunctor;
-        std::function<void(Application&, IEngineSystem&) > InitFunctor;
-        std::function<void(Application&, IEngineSystem&)> ShutdownFunctor;
+        Function<UniquePtr<IEngineSystem>()> CreateFunctor;
+        Function<bool(Serializer&, const IEngineSystem&)> SaveConfigFunctor;
+        Function<bool(const Deserializer&, IEngineSystem&)> LoadConfigFunctor;
+        Function<void(Application&, IEngineSystem&)> InitFunctor;
+        Function<void(Application&, IEngineSystem&)> ShutdownFunctor;
 
-        std::function<void(Application&, IEngineSystem&, DeltaGameTime)> UpdateFunctor;
+        Function<void(Application&, IEngineSystem&, DeltaGameTime)> UpdateFunctor;
     };
 
     struct EngineModuleFactory
@@ -24,7 +46,7 @@ namespace Onyx::Application
 
             systemMeta.CreateFunctor = []() { return MakeUnique<T>(); };
 
-            if constexpr (InitializableSystem<T>)
+            if constexpr (Initializable<T>)
             {
                 systemMeta.InitFunctor = [](Application& application, IEngineSystem& systemInstance)
                     {
@@ -35,7 +57,7 @@ namespace Onyx::Application
                     };
             }
 
-            if constexpr (TerminableSystem<T>)
+            if constexpr (Shutdownable<T>)
             {
                 systemMeta.ShutdownFunctor = [](Application& application, IEngineSystem& systemInstance)
                     {
@@ -46,7 +68,7 @@ namespace Onyx::Application
                     };
             }
 
-            if constexpr (UpdatableSystem<T>)
+            if constexpr (Updatable<T>)
             {
                 systemMeta.UpdateFunctor = [](Application& application, IEngineSystem& systemInstance, DeltaGameTime deltaTime)
                     {
@@ -67,6 +89,24 @@ namespace Onyx::Application
                     };
             }
 
+            if constexpr (Serializable<T>)
+            {
+                systemMeta.SaveConfigFunctor = [](Serializer& serializer, const IEngineSystem& systemInstance)
+                {
+                    const T& typedSystemInstance = static_cast<const T&>(systemInstance);
+                    return Serialization<T>::Serialize(serializer, typedSystemInstance);
+                };
+            }
+
+            if constexpr (Deserializable<T>)
+            {
+                systemMeta.LoadConfigFunctor = [](const Deserializer& deserializer, IEngineSystem& systemInstance)
+                {
+                    T& typedSystemInstance = static_cast<T&>(systemInstance);
+                    return Serialization<T>::Deserialize(deserializer, typedSystemInstance);
+                };
+            }
+
             return true;
         }
 
@@ -76,17 +116,7 @@ namespace Onyx::Application
         template <typename T>
         static T& GetModuleDependency(Application& application)
         {
-            if constexpr (std::is_base_of_v<ApplicationSettings, T>)
-                return application.GetSettings();
-            else if constexpr (std::is_base_of_v<Graphics::GraphicSettings, T>)
-                return application.GetSettings().GraphicSettings;
-            else if constexpr (std::is_base_of_v<Graphics::WindowSettings, T>)
-                return application.GetSettings().WindowSettings;
-            else if constexpr (std::is_base_of_v<Localization::LocalizationSettings, T>)
-                return application.GetSettings().LocalizationSettings;
-            else if constexpr (std::is_base_of_v<Input::InputModuleSettings, T>)
-                return application.GetSettings().InputModuleSettings;
-            else if constexpr (std::is_base_of_v<Graphics::Window, T>)
+            if constexpr (std::is_base_of_v<Graphics::Window, T>)
                 return application.GetSystem<Graphics::GraphicsSystem>().GetWindow();
             else if constexpr (std::is_base_of_v<Graphics::GraphicsApi, T>)
                 return application.GetSystem<Graphics::GraphicsSystem>().GetGraphicsApi();

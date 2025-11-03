@@ -7,7 +7,6 @@
 #include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/window.h>
-#include <onyx/input/inputmodulesettings.h>
 #include <onyx/localization/localizationmodule.h>
 
 namespace Onyx::Application
@@ -48,61 +47,10 @@ namespace Onyx::Application
     class TaskGraph;
     class ApplicationModule;
 
-    struct ApplicationSettings
-    {
-        ApplicationSettings();
-
-        String Name = "Onyx";
-        bool UseFixedUpdateInterval = true;
-        onyxU64 FixedUpdateInterval = 20;
-
-        Graphics::GraphicSettings GraphicSettings;
-        Graphics::WindowSettings WindowSettings;
-        Localization::LocalizationSettings LocalizationSettings;
-        Input::InputModuleSettings InputModuleSettings;
-
-        HashMap<StringId32, FileSystem::MountPoint> MountPoints;
-
-        DynamicArray<StringId32> Modules;
-        Assets::AssetId StartScene;
-    };
-
-    // Helper to detect member function existence
-    template <typename, typename = void>
-    struct HasInit : std::false_type {};
-
-    template <typename T>
-    struct HasInit<T, std::void_t<decltype(&T::Init)>> : std::true_type {};
-
-    template <typename, typename = void>
-    struct HasShutdown : std::false_type {};
-
-    template <typename T>
-    struct HasShutdown<T, std::void_t<decltype(&T::Shutdown)>> : std::true_type {};
-
-    // Helper to detect member function existence
-    template <typename, typename = void>
-    struct HasUpdate : std::false_type {};
-
-    template <typename T>
-    struct HasUpdate<T, std::void_t<decltype(&T::Update)>> : std::true_type {};
-
-    // Concept to check if a type has an Init function with any parameters
-    template <typename T>
-    concept InitializableSystem = HasInit<T>::value;
-
-    // Concept to check if a type has a Shutdown function with any parameters
-    template <typename T>
-    concept TerminableSystem = HasShutdown<T>::value;
-
-    // Concept to check if a type has a Shutdown function with any parameters
-    template <typename T>
-    concept UpdatableSystem = HasUpdate<T>::value;
-
     class Application : public IEngine
     {
     public:
-        Application(const ApplicationSettings& settings);
+        Application();
         ~Application() override;
 
         Application(const Application& other) = delete;
@@ -110,8 +58,6 @@ namespace Onyx::Application
 
         Application(Application&& other) noexcept = default;
         Application& operator=(Application&& other) noexcept = default;
-
-        const ApplicationSettings& GetSettings() const { return m_Settings; }
 
         void Init();
         void Shutdown();
@@ -180,8 +126,6 @@ namespace Onyx::Application
     private:
         bool m_IsRunning = true;
 
-        ApplicationSettings m_Settings;
-
         UniquePtr<Logger> m_Logger;
 
         DynamicArray<UniquePtr<IEngineSystem>> m_Modules;
@@ -190,7 +134,7 @@ namespace Onyx::Application
         DynamicArray<InplaceFunction<void(DeltaGameTime)>> m_UpdatableModules;
     };
 
-    void OnApplicationCreate(ApplicationSettings& settings);
+    void OnApplicationCreate();
     void OnApplicationCreated(Application& application);
 
     void OnApplicationShutdown(Application& application);

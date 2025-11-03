@@ -20,16 +20,18 @@ namespace Onyx::Localization
     {
         onyxS32 Locale;
         // probably a flag indicating the backend to use
-        Assets::AssetId m_Localization;
+        Assets::AssetId Database;
     };
 
     class LocalizationModule : public IEngineSystem
     {
+        friend struct Serialization<LocalizationModule>;
+
     public:
         static constexpr StringId32 TypeId = "Onyx::Localization::LocalizationModule";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        void Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings);
+        void Init(Assets::AssetSystem& assetSystem);
 
         LocalizedString GetLocalized(LocalizationId id) const;
         Optional<StringView> TryGetLocalized(LocalizationId id) const;
@@ -42,5 +44,22 @@ namespace Onyx::Localization
     private:
         LocalizationSettings m_Settings;
         UniquePtr<ILocalizationBackend> m_LocalizationBackend;
+    };
+}
+
+namespace Onyx
+{
+    template<>
+    struct Serialization<Localization::LocalizationModule>
+    {
+        static bool Serialize(Serializer& serializer, const Localization::LocalizationModule& localizationModule);
+        static bool Deserialize(const Deserializer& deserializer, Localization::LocalizationModule& outLocalizationModule);
+    };
+
+    template <>
+    struct Serialization<Localization::LocalizationSettings>
+    {
+        static bool Serialize(Serializer& serializer, const Localization::LocalizationSettings& localizationSettings);
+        static bool Deserialize(const Deserializer& deserializer, Localization::LocalizationSettings& outLocalizationSettings);
     };
 }

@@ -14,7 +14,7 @@ namespace Onyx::Localization
     }
     void GetTextLocalizationBackend::Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings)
     {
-        assetSystem.GetAsset(localizationSettings.m_Localization, m_MainDatabase);
+        assetSystem.GetAsset(localizationSettings.Database, m_MainDatabase);
     }
 
     Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId id) const

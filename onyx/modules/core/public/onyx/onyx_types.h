@@ -126,6 +126,9 @@ namespace Onyx
     template <typename T>
     using Queue = std::queue<T>;
 
+    template <typename T>
+    using Function = std::function<T>;
+
     template<typename Type, typename = std::allocator<void>>
     class Signal;
 

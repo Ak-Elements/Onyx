@@ -66,6 +66,8 @@ namespace Onyx::Input
 
     class InputActionSystem : public IEngineSystem
     {
+        friend struct Serialization<InputActionSystem>;
+
         using InputActionSignalT = Signal<void(const InputActionEvent&)>;
     public:
         static constexpr StringId32 TypeId = "Onyx::Input::InputActionModule";
@@ -73,7 +75,7 @@ namespace Onyx::Input
         
         ~InputActionSystem() override;
 
-        void Init(const InputModuleSettings& inputModuleSettings, InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
+        void Init(InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
         void Shutdown(InputSystem& inputSystem);
 
         void Update();
@@ -85,7 +87,7 @@ namespace Onyx::Input
         Optional<const InputActionState*> GetActionState(StringId64 actionId) const;
 
         template<auto Candidate, typename... Type>
-        void OnInput(StringId64 actionId, Type&&...value_or_instance)
+        void OnInput(StringId64 actionId, Type&&... value_or_instance)
         {
             Sink sink(m_InputActionSignals[actionId]);
             sink.template Connect<Candidate>(std::forward<Type...>(value_or_instance)...);
@@ -110,10 +112,21 @@ namespace Onyx::Input
     private:
         InputSystem* m_InputSystem = nullptr;
 
+        Assets::AssetId m_InputActionsId { "engine:/inputcontexts.oinput" };
         Reference<InputActionsAsset> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
         HashMap<StringId64, InputActionSignalT> m_InputActionSignals;
 
         StringId32 m_ContextId = 0;
+    };
+}
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Input::InputActionSystem>
+    {
+        static bool Serialize(Serializer& serializer, const Input::InputActionSystem& inputActionSystem);
+        static bool Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outinputActionSystem);
     };
 }

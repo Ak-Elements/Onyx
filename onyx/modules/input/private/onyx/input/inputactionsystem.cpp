@@ -9,7 +9,6 @@
 #include <onyx/input/inputactionsserializer.h>
 #include <onyx/input/bindings/inputbinding.h>
 
-#include <onyx/input/inputmodulesettings.h>
 #include <onyx/input/bindings/inputbindingaxis1d.h>
 #include <onyx/input/bindings/inputbindingaxis1dcomposite.h>
 #include <onyx/input/bindings/inputbindingaxis2d.h>
@@ -20,11 +19,12 @@
 #include <onyx/input/bindings/inputbindingsfactory.h>
 #include <onyx/input/triggers/dependantactiontrigger.h>
 #include <onyx/input/triggers/inputtriggersfactory.h>
+#include <onyx/serialize/deserializer.h>
 
 
 namespace Onyx::Input
 {
-    void InputActionSystem::Init(const InputModuleSettings& inputModuleSettings, InputSystem& inputSystem, Assets::AssetSystem& assetSystem)
+    void InputActionSystem::Init(InputSystem& inputSystem, Assets::AssetSystem& assetSystem)
     {
         m_InputSystem = &inputSystem;
 
@@ -43,9 +43,8 @@ namespace Onyx::Input
         //m_ModifiersRegistry.Register<NegateInputModifier>();
         //m_ModifiersRegistry.Register<SwizzleInputModifier>();
 
-
         Reference<InputActionsAsset> defaultInputActionsMap;
-        assetSystem.GetAsset(inputModuleSettings.ActionsMap, defaultInputActionsMap);
+        assetSystem.GetAsset(m_InputActionsId, defaultInputActionsMap);
         defaultInputActionsMap->GetOnLoadedEvent().Connect<&InputActionSystem::SetActionsMapAsset>(this);
         if (defaultInputActionsMap.IsValid() && defaultInputActionsMap->IsLoaded())
         {
@@ -100,7 +99,7 @@ namespace Onyx::Input
 
             m_ContextId = id;
 
-            if (id.IsValid() && m_InputActionsAsset.IsValid() && m_InputActionsAsset->IsLoaded())
+            if (id.IsValid() && m_InputActionsAsset.IsValid())
             {
                 InitContext();
             }
@@ -217,5 +216,24 @@ namespace Onyx::Input
     void InputActionSystem::Shutdown(InputSystem& /*inputSystem*/)
     {
     }
-    
 }
+
+namespace Onyx
+{
+    bool Serialization<Input::InputActionSystem>::Serialize(Serializer& /*serializer*/, const Input::InputActionSystem& /*inputActionSystem*/)
+    {
+        return true;
+    }
+
+    bool Serialization<Input::InputActionSystem>::Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outinputActionSystem)
+    {
+        StringView inputMapPath;
+        if (deserializer.Read<"inputmap">(inputMapPath))
+        {
+            outinputActionSystem.m_InputActionsId = Assets::AssetId(FileSystem::Filepath(inputMapPath));
+        }
+
+        return true;
+    }
+}
+

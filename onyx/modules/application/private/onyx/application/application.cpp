@@ -21,7 +21,6 @@
 #include <onyx/nodegraph/nodegraphmodule.h>
 #include <onyx/profiler/profiler.h>
 
-#include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
 namespace
@@ -29,128 +28,9 @@ namespace
     const char* const sl_CPU_Frame = "CPU";
 }
 
-namespace Onyx
-{
-    template <>
-    struct Serialization<Graphics::GraphicSettings>
-    {
-        static bool Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings)
-        {
-            StringView path;
-            serializer.Write<"rendergraph">(path);
-            serializer.Write<"api">(settings.Api);
-            serializer.Write<"isbindless">(settings.IsBindless);
-            serializer.Write<"isdynamicrendering">(settings.IsDynamicRenderingEnabled);
-
-#if !ONYX_IS_RETAIL
-            serializer.Write<"istimelinesamplingenabled">(settings.IsTimeSamplingEnabled);
-            serializer.Write<"isdebugenabled">(settings.IsDebugEnabled);
-            serializer.Write<"isshaderdebugenabled">(settings.IsShaderDebugEnabled);
-#endif
-            return true;
-
-        }
-        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings)
-        {
-            StringView path;
-            if (deserializer.Read<"rendergraph">(path))
-            {
-                outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
-            }
-
-            deserializer.Read<"api">(outSettings.Api);
-
-            deserializer.ReadOptional<"isbindless">(outSettings.IsBindless);
-            deserializer.ReadOptional<"isdynamicrendering">(outSettings.IsDynamicRenderingEnabled);
-
-#if !ONYX_IS_RETAIL
-            deserializer.ReadOptional<"istimelinesamplingenabled">(outSettings.IsTimeSamplingEnabled);
-            deserializer.ReadOptional<"isdebugenabled">(outSettings.IsDebugEnabled);
-            deserializer.ReadOptional<"isshaderdebugenabled">(outSettings.IsShaderDebugEnabled);
-#endif
-            return true;
-        }
-    };
-
-    template <>
-    struct Serialization<Graphics::WindowSettings>
-    {
-        static bool Serialize(Serializer& serializer, const Graphics::WindowSettings& settings)
-        {
-            serializer.Write<"size">(settings.Size);
-            serializer.Write<"mode">(settings.Mode);
-            return true;
-
-        }
-        static bool Deserialize(const Deserializer& deserializer, Graphics::WindowSettings& outSettings)
-        {
-            deserializer.Read<"size">(outSettings.Size);
-            deserializer.Read<"mode">(outSettings.Mode);
-            return true;
-        }
-    };
-}
-
 namespace Onyx::Application
 {
-    namespace
-    {
-        bool DeserializeApplicationSettings(ApplicationSettings& settings, const Deserializer& deserializer)
-        {
-            deserializer.Read<"name">(settings.Name);
-            settings.WindowSettings.Title = settings.Name;
-
-            //TODO: fix icon
-            //appConfigJson.Get("icon", WindowSettings.m_Icon );
-
-            StringView inputMapPath;
-            if (deserializer.Read<"inputmap">(inputMapPath))
-            {
-                settings.InputModuleSettings.ActionsMap = Assets::AssetId(FileSystem::Filepath(inputMapPath));
-            }
-
-            deserializer.ReadForEach<"mountpoints">([&](const Deserializer& scopedDeserializer)
-            {
-                    String dataRootName;
-                    scopedDeserializer.Read<"name">(dataRootName);
-
-                    StringView dataRootPath;
-                    scopedDeserializer.Read<"path">(dataRootPath);
-
-                    if (dataRootName.ends_with(":/") == false)
-                    {
-                        dataRootName += ":/";
-                    }
-
-                    settings.MountPoints[StringId32(dataRootName)] = { .Prefix = dataRootName, .Path = FileSystem::Filepath(dataRootPath).make_preferred() };
-
-                    return true;
-            });
-
-            deserializer.Read<"modules">(settings.Modules);
-
-            deserializer.Read<"graphics">(settings.GraphicSettings);
-            deserializer.Read<"window">(settings.WindowSettings);
-
-            deserializer.Read<"scene">(settings.StartScene);
-
-            return true;
-        }
-    }
-    ApplicationSettings::ApplicationSettings()
-    {
-        FileSystem::OnyxFile appSettings(FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf");
-        FileSystem::JsonValue appConfigJson = appSettings.LoadJson();
-
-        FileSystem::JsonDeserializer deserializer(appConfigJson.Json);
-        DeserializeApplicationSettings(*this, deserializer);
-    }
-
-    Application::Application(const ApplicationSettings& settings)
-        : m_Settings(settings)
-    {
-    }
-
+    Application::Application() = default;
     Application::~Application() = default;
 
     void Application::Init()
@@ -160,7 +40,27 @@ namespace Onyx::Application
         m_Logger = MakeUnique<Logger>();
         Logger::s_DefaultLogger = m_Logger.get();
 
-        FileSystem::Path::SetMountPoints(m_Settings.MountPoints);
+        const FileSystem::Filepath appConfigPath = FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf";
+
+        FileSystem::OnyxFile appSettings(appConfigPath);
+        FileSystem::JsonValue appConfigJson = appSettings.LoadJson();
+
+        FileSystem::JsonDeserializer configDeserializer(appConfigJson.Json);
+
+        HashMap<StringId32, FileSystem::MountPoint> mountPoints;
+        configDeserializer.ReadForEach<"mountpoints">([&](const Deserializer& scopedDeserializer)
+        {
+            FileSystem::MountPoint mountPoint;
+            if (scopedDeserializer.Read(mountPoint))
+            {
+                mountPoints[StringId32(mountPoint.Prefix)] = mountPoint;
+                return true;
+            }
+            return false;
+        });
+
+        FileSystem::Path::SetMountPoints(mountPoints);
+
         FileSystem::FileDialog::Init();
 
         constexpr StringView lastSessionLogPath = "tmp:/logs/last_session.log";
@@ -188,11 +88,28 @@ namespace Onyx::Application
         // init node graph module
         NodeGraph::Init();
 
-        // create modules requested by project
-        for (const StringId32& moduleId : m_Settings.Modules)
+        DynamicArray<StringId32> applicationModules;
+        if (configDeserializer.Read<"modules">(applicationModules))
         {
-            const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
-            m_Modules.emplace_back(meta.CreateFunctor());
+            // create modules requested by project
+            for (const StringId32& moduleId : applicationModules)
+            {
+                const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
+                UniquePtr<IEngineSystem> engineSystem = meta.CreateFunctor();
+
+                if (meta.LoadConfigFunctor)
+                {
+                    bool success = meta.LoadConfigFunctor(configDeserializer, *engineSystem);
+                    if (success == false)
+                    {
+                        ONYX_LOG_WARNING("Failed loading config for module {}. Module is skipped.", moduleId);
+                        continue;
+                    }
+
+                }
+                
+                m_Modules.emplace_back(std::move(engineSystem));
+            }
         }
 
         // init modules project

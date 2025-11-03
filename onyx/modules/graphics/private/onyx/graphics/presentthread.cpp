@@ -37,7 +37,7 @@ namespace Onyx::Graphics
     void PresentThread::SetRefreshRate(onyxU32 refreshRate)
     {
         m_RefreshRate = refreshRate;
-        m_TargetFrameTime = 1000000000 / m_RefreshRate;
+        m_TargetFrameTime = 1000000000 / std::max<onyxU32>(m_RefreshRate, 1);
     }
 
     void PresentThread::ClearQueue()

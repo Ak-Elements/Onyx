@@ -1,8 +1,10 @@
 #include <onyx/application/application.h>
+#include <onyx/filesystem/jsondeserializer.h>
+#include <onyx/filesystem/onyxfile.h>
 
 namespace Onyx::Application
 {
-    extern void OnApplicationCreate(ApplicationSettings& settings);
+    extern void OnApplicationCreate();
     extern void OnApplicationCreated(Application& application);
     extern void OnApplicationShutdown(Application& application);
 }
@@ -34,13 +36,13 @@ int CALLBACK WinMain(
 {
     using namespace Onyx::Application;
 
-    ApplicationSettings settings;
-    OnApplicationCreate(settings);
 
-    Application app(settings);
-    app.Init();
-    app.Run();
-    app.Shutdown();
+    OnApplicationCreate();
+
+    Application application;
+    application.Init();
+    application.Run();
+    application.Shutdown();
 
     return 0;
 }

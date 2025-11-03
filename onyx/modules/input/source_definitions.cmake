@@ -9,8 +9,6 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/inputactionsserializer.h
     ${TARGET_PUBLIC_PATH}/inputactionsystem.h
     ${TARGET_PUBLIC_PATH}/inputid.h
-    ${TARGET_PUBLIC_PATH}/inputmodule.h
-    ${TARGET_PUBLIC_PATH}/inputmodulesettings.h
     ${TARGET_PUBLIC_PATH}/inputsystem.h
     ${TARGET_PUBLIC_PATH}/inputtypes.h
     ${TARGET_PUBLIC_PATH}/keycodes.h
@@ -40,7 +38,6 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/inputactionsserializer.cpp
     ${TARGET_PRIVATE_PATH}/inputactionsystem.cpp
     ${TARGET_PRIVATE_PATH}/inputid.cpp
-    ${TARGET_PRIVATE_PATH}/inputmodule.cpp
     ${TARGET_PRIVATE_PATH}/inputsystem.cpp
     ${TARGET_PRIVATE_PATH}/bindings/inputbinding.cpp
     ${TARGET_PRIVATE_PATH}/bindings/inputbindingaxis1d.cpp
