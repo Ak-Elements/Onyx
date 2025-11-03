@@ -28,13 +28,14 @@ namespace Onyx::Volume
         Graphics::RenderGraphNodeFactory::RegisterNode<PreviewTerrainEditPass>();
     }
 
-    void VolumeModule::Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, GameCore::GameCoreSystem& gameCore)
+    void VolumeModule::Init(Assets::AssetSystem& assetSystem, GameCore::GameCoreSystem& gameCore)
     {
         Entity::EcsBuilder ecsBuilder = gameCore.GetEcsBuilder();
         Terrain::Register(ecsBuilder);
         Rendering::Register(ecsBuilder);
 
-        Assets::AssetSystem::Register<VolumeShaderGraph, VolumeShaderGraphSerializer>(assetSystem, graphicsApi);
+        Assets::AssetSystem::Register<VolumeShaderGraph>();
+        Assets::AssetSystem::Register<VolumeShaderGraphSerializer>(assetSystem);
 
         Graphics::ShaderGraphNodeFactory::RegisterNode<CubeVolumeShaderGraphNode>();
         Graphics::ShaderGraphNodeFactory::RegisterNode<EllipsoidVolumeShaderGraphNode>();

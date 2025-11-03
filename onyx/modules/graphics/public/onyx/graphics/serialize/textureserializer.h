@@ -1,11 +1,13 @@
 #pragma once
+
 #include <onyx/assets/assetserializer.h>
 
 namespace Onyx::Graphics
 {
+    class TextureAsset;
     class GraphicsApi;
 
-    struct TextureSerializer : public Assets::AssetSerializer
+    struct TextureSerializer : public Assets::AssetSerializer<TextureAsset>
     {
         static constexpr Array<StringView, 2> Extensions { "png", "jpg" };
 

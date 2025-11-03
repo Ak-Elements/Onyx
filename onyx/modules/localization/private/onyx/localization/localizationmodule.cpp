@@ -10,7 +10,8 @@ namespace Onyx::Localization
 {
     void LocalizationModule::Init(Assets::AssetSystem& assetSystem)
     {
-        Assets::AssetSystem::Register<GetTextLocalizationDatabase, PortableObjectSerializer>(assetSystem);
+        Assets::AssetSystem::Register<GetTextLocalizationDatabase>();
+        Assets::AssetSystem::Register<PortableObjectSerializer>(assetSystem);
 
         m_LocalizationBackend = MakeUnique<GetTextLocalizationBackend>();
         m_LocalizationBackend->Init(assetSystem, m_Settings);

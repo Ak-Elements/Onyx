@@ -1,6 +1,7 @@
 #include <onyx/graphics/serialize/rendergraphserializer.h>
 
-#include <onyx/graphics/textureasset.h>
+#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
 

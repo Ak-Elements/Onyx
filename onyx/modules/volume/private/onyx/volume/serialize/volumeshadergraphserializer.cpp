@@ -37,9 +37,8 @@ namespace Onyx::Volume
         }
     }
 
-    VolumeShaderGraphSerializer::VolumeShaderGraphSerializer(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi)
+    VolumeShaderGraphSerializer::VolumeShaderGraphSerializer(Assets::AssetSystem& assetSystem)
         : AssetSerializer(assetSystem)
-        , graphicsApi(graphicsApi)
     {
     }
 
@@ -72,8 +71,6 @@ namespace Onyx::Volume
         VolumeShaderGraph& shaderGraph = asset.As<VolumeShaderGraph>();
         if (Graphics::ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
             return false;
-
-        //({m_Id=2654190505659080186 }, {Path=L"project:/shaders/volumegraphs/testvolumegraph/build_chunk_octree.oshader" Id={m_Id=2654190505659080186 } ...})
 
         FileSystem::Filepath directoryPath = FileSystem::Path::ConvertToMountPath(meta.Path).parent_path();
         shaderGraph.m_BuildOctreeShader = Assets::AssetId(directoryPath / BUILD_OCTREE_SHADER_FILENAME);

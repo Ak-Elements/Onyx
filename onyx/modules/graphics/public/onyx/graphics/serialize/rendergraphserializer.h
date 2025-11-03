@@ -1,14 +1,16 @@
 #pragma once
 #include <onyx/assets/assetserializer.h>
-#include <onyx/graphics/graphicsapi.h>
 
 namespace Onyx::Graphics
 {
-    struct RenderGraphSerializer : public Assets::AssetSerializer
+    class RenderGraph;
+    class GraphicsApi;
+
+    struct RenderGraphSerializer : public Assets::AssetSerializer<RenderGraph>
     {
         static constexpr Array<StringView, 1> Extensions { "orendergraph" };
 
-        RenderGraphSerializer(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
+        RenderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi);
 
         bool Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const override;
         bool Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const override;

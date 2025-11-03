@@ -26,7 +26,8 @@ namespace Onyx::GameCore
     {
         void RegisterAssets(GameCoreSystem& gameCoreSystem, Assets::AssetSystem& assetSystem)
         {
-            Assets::AssetSystem::Register<Scene, SceneSerializer>(gameCoreSystem, assetSystem);
+            Assets::AssetSystem::Register<Scene>();
+            Assets::AssetSystem::Register<SceneSerializer>(gameCoreSystem, assetSystem);
         }
 
         void RegisterComponents(Entity::EcsBuilder& ecsBuilder)

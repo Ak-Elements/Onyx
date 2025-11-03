@@ -24,7 +24,7 @@ namespace Onyx::GameCore
     struct SceneSector;
     class Scene;
 
-    struct SceneSerializer : public Assets::AssetSerializer
+    struct SceneSerializer : public Assets::AssetSerializer<Scene>
     {
         static constexpr Array<StringView, 1> Extensions { "oscene" };
 

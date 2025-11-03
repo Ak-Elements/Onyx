@@ -1,6 +1,7 @@
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/serialize/materialshadergraphserializer.h>
 
+#include <onyx/filesystem/onyxfile.h>
+#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
@@ -11,7 +12,7 @@ namespace Onyx::Graphics
 {
     MaterialShaderGraphSerializer::MaterialShaderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi)
         : AssetSerializer(assetSystem)
-        , graphicsApi(graphicsApi)
+        , m_GraphicsApi(&graphicsApi)
     {
     }
 
@@ -31,6 +32,8 @@ namespace Onyx::Graphics
 
     bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
     {
+        ONYX_ASSERT(m_GraphicsApi != nullptr);
+
         MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
 
         if (ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
@@ -86,7 +89,7 @@ namespace Onyx::Graphics
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Shader = Assets::AssetId(shaderPath);
-        pipelineProperties.RenderPass = graphicsApi.GetOrCreateRenderPass(renderPassSettings);
+        pipelineProperties.RenderPass = m_GraphicsApi->GetOrCreateRenderPass(renderPassSettings);
         
         pipelineProperties.Rasterization.CullMode = CullMode::Back;
         pipelineProperties.DepthStencil.IsDepthEnabled = true;
@@ -103,11 +106,8 @@ namespace Onyx::Graphics
         blendState.AlphaOperation = BlendOperation::Add;
 
         ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
-        shaderEffect = graphicsApi.CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
+        shaderEffect = m_GraphicsApi->CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
 
-        //
-        //graphicsApi.CreateShaderInstance(shaderId, properties);
-        //
         return true;
     }
 

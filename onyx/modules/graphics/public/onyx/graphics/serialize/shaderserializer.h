@@ -4,9 +4,10 @@
 
 namespace Onyx::Graphics
 {
+    class Shader;
     class GraphicsApi;
 
-    struct ShaderSerializer : public Assets::AssetSerializer
+    struct ShaderSerializer : public Assets::AssetSerializer<Shader>
     {
         static constexpr Array<StringView, 1> Extensions{ "oshader" };
         static constexpr Assets::AssetFormat Format = Assets::AssetFormat::Text;

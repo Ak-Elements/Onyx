@@ -26,7 +26,7 @@ namespace Onyx::Volume
 
         VolumeModule();
 
-        void Init(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, GameCore::GameCoreSystem& gameCore);
+        void Init(Assets::AssetSystem& assetSystem, GameCore::GameCoreSystem& gameCore);
         void Shutdown();
     };
 }

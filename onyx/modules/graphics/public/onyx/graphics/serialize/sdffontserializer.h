@@ -1,11 +1,12 @@
 #pragma once
 
 #include <onyx/assets/assetserializer.h>
-#include <onyx/assets/assetsystem.h>
 
 namespace Onyx::Graphics
 {
-    struct SDFFontSerializer : public Assets::AssetSerializer
+    class SDFFont;
+
+    struct SDFFontSerializer : public Assets::AssetSerializer<SDFFont>
     {
         static constexpr Array<StringView, 1> Extensions { "ofont" };
 

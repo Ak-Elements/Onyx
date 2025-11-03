@@ -150,25 +150,20 @@ namespace Onyx::Graphics
 
     void GraphicsSystem::Init(Assets::AssetSystem& assetSystem)
     {
-        auto shaderFactory = [&]() -> Reference<Shader>
-            {
-                switch (m_GraphicsApi->GetApiType())
-                {
-                case ApiType::Vulkan:
-                    return Reference<Vulkan::Shader>::Create();
-                case ApiType::Dx12:
-                case ApiType::None:
-                    return nullptr;
-                }
+        Assets::AssetSystem::Register<TextureAsset>();
+        Assets::AssetSystem::Register<TextureSerializer>(assetSystem, *m_GraphicsApi);
 
-                return nullptr;
-            };
+        Assets::AssetSystem::Register<MaterialShaderGraph>();
+        Assets::AssetSystem::Register<MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
 
-        Assets::AssetSystem::Register<TextureAsset, TextureSerializer>(assetSystem, *m_GraphicsApi);
-        Assets::AssetSystem::Register<MaterialShaderGraph, MaterialShaderGraphSerializer>(assetSystem, *m_GraphicsApi);
-        Assets::AssetSystem::Register<RenderGraph, RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
-        Assets::AssetSystem::Register<Shader, ShaderSerializer>(shaderFactory, assetSystem, *m_GraphicsApi);
-        Assets::AssetSystem::Register<SDFFont, SDFFontSerializer>(assetSystem);
+        Assets::AssetSystem::Register<RenderGraph>();
+        Assets::AssetSystem::Register<RenderGraphSerializer>(assetSystem, *m_GraphicsApi);
+
+        Assets::AssetSystem::Register<Shader>(*m_GraphicsApi);
+        Assets::AssetSystem::Register<ShaderSerializer>(assetSystem, *m_GraphicsApi);
+
+        Assets::AssetSystem::Register<SDFFont>();
+        Assets::AssetSystem::Register<SDFFontSerializer>(assetSystem);
 
         m_Window->Create();
         m_GraphicsApi->Init(assetSystem, *m_Window);

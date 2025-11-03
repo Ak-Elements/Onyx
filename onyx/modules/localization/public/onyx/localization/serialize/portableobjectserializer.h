@@ -1,11 +1,12 @@
 #pragma once
 
 #include <onyx/assets/assetserializer.h>
-#include <onyx/assets/assetsystem.h>
 
 namespace Onyx::Localization
 {
-    struct PortableObjectSerializer : public Assets::AssetSerializer
+    class GetTextLocalizationDatabase;
+
+    struct PortableObjectSerializer : public Assets::AssetSerializer<GetTextLocalizationDatabase>
     {
         static constexpr Array<StringView, 1> Extensions { "po" };
 

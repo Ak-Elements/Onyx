@@ -7,7 +7,7 @@
 
 namespace Onyx::Assets
 {
-    struct AssetSerializer;
+    struct IAssetSerializer;
     class AssetLoader;
     struct AssetId;
     class AssetInterface;
@@ -20,7 +20,7 @@ namespace Onyx::Assets
 
         AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
-        const AssetSerializer* Serializer = nullptr;
+        const IAssetSerializer* Serializer = nullptr;
 
         Callback<void(Reference<AssetInterface>&)> OnLoadFinished;
     private:
@@ -39,7 +39,7 @@ namespace Onyx::Assets
 
         AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
-        const AssetSerializer* Serializer = nullptr;
+        const IAssetSerializer* Serializer = nullptr;
 
         Callback<void(const Reference<AssetInterface>&)> OnSaveFinished;
     private:

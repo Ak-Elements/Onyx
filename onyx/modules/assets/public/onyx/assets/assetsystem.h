@@ -11,7 +11,7 @@
 
 namespace Onyx::Assets
 {
-    struct AssetSerializer;
+    struct IAssetSerializer;
 
     struct AssetId;
 
@@ -30,7 +30,7 @@ namespace Onyx::Assets
         template <typename T>
         Reference<T> Create()
         {
-            const InplaceFunction<Reference<AssetInterface>()>& createFunctor = registeredAssets.at(T::TypeId);
+            const InplaceFunction<Reference<AssetInterface>()>& createFunctor = s_RegisteredAssets.at(T::TypeId);
             Reference<T> newAsset = createFunctor();
             newAsset->SetState(AssetState::Loaded);
 
@@ -47,7 +47,7 @@ namespace Onyx::Assets
         static DynamicArray<StringView> GetExtensions(AssetType type)
         {
             DynamicArray<StringView> extensions;
-            for (auto&& [extension, assetType] : extensionToAssetType)
+            for (auto&& [extension, assetType] : s_ExtensionToAssetType)
             {
                 if (assetType == type)
                 {
@@ -71,7 +71,7 @@ namespace Onyx::Assets
             for (const AssetMetaData& assetMeta : (m_AssetsMetaData | std::views::values))
             {
                 String extension(assetMeta.GetExtension());
-                if ((type != AssetType::Invalid) && (extensionToAssetType[extension] != type))
+                if ((type != AssetType::Invalid) && (s_ExtensionToAssetType[extension] != type))
                 {
                     continue;
                 }
@@ -132,23 +132,32 @@ namespace Onyx::Assets
         bool SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset);
 #endif
 
-        template <typename AssetT, IAssetSerializer SerializerT, typename... Args> requires std::is_base_of_v<AssetInterface, AssetT>
+        template <typename AssetT, typename... Args> requires std::is_base_of_v<AssetInterface, AssetT >
         static constexpr bool Register(Args&&... args)
         {
-            return Register<AssetT, SerializerT>([]() { return Reference<AssetT>::Create(); }, std::forward<Args>(args)...);
+            constexpr StringId32 typeId(AssetT::TypeId);
+            ONYX_ASSERT(s_RegisteredAssets.contains(typeId) == false, "Asset with that type is already registered.");
+            if constexpr (std::is_abstract_v<AssetT>)
+            {
+                s_RegisteredAssets[typeId] = [&args...]() -> Reference<AssetInterface> { return AssetT::Create(std::forward<Args>(args)...); };
+            }
+            else
+            {
+                s_RegisteredAssets[typeId] = [&args...]() -> Reference<AssetInterface> { return Reference<AssetT>::Create(std::forward<Args>(args)...); };
+            }
+
+            return true;
         }
 
-        template <typename AssetT, IAssetSerializer SerializerT, typename Callable, typename... Args> requires std::is_base_of_v<AssetInterface, AssetT > && std::is_invocable_v<Callable>
-        static constexpr bool Register(Callable&& factoryFunction, Args&&... args)
+        template <typename SerializerT, typename... Args>
+        static constexpr bool Register(Args&&... args)
         {
-            constexpr StringId32 typeId(AssetT::TypeId);
-            ONYX_ASSERT(registeredAssets.contains(typeId) == false, "Asset with that type is already registered.");
-            registeredAssets[typeId] = std::forward<Callable>(factoryFunction);
-            registeredSerializer[typeId] = MakeUnique<SerializerT>(std::forward<Args>(args)...);
+            ONYX_ASSERT(s_RegisteredSerializer.contains(SerializerT::AssetT::TypeId) == false, "Serializer with that type is already registered.");
+            s_RegisteredSerializer[SerializerT::AssetT::TypeId] = MakeUnique<SerializerT>(std::forward<Args>(args)...);
 
             for (StringView extension : SerializerT::Extensions)
             {
-                extensionToAssetType[extension] = static_cast<AssetType>(typeId.GetId());
+                s_ExtensionToAssetType[extension] = static_cast<AssetType>(SerializerT::AssetT::TypeId.GetId());
             }
 
             return true;
@@ -163,9 +172,9 @@ namespace Onyx::Assets
         HashMap<AssetId, AssetMetaData> m_AssetsMetaData;
         DynamicArray<Reference<AssetInterface>> m_LoadedAssets;
 
-        static HashMap<StringId32, InplaceFunction<Reference<AssetInterface>()>> registeredAssets;
-        static HashMap<StringId32, UniquePtr<AssetSerializer>> registeredSerializer;
-        static HashMap<StringView, AssetType> extensionToAssetType;
+        static HashMap<StringId32, InplaceFunction<Reference<AssetInterface>()>> s_RegisteredAssets;
+        static HashMap<StringId32, UniquePtr<IAssetSerializer>> s_RegisteredSerializer;
+        static HashMap<StringView, AssetType> s_ExtensionToAssetType;
     };
 
     template <typename T>
@@ -198,15 +207,15 @@ namespace Onyx::Assets
             Reference<AssetInterface>& reloadAsset = m_LoadedAssets[metaData.Handle];
             {
                 std::lock_guard lock(m_Mutex);
-                const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
+                const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
                 m_IOHandler.RequestLoad(metaData, reloadAsset, serializer);
             }
             outAsset = reloadAsset;
             return true;
         }
 
-        const InplaceFunction<Reference<AssetInterface>()>& createFunctor = registeredAssets.at(assetTypeHash);
-        const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
+        const InplaceFunction<Reference<AssetInterface>()>& createFunctor = s_RegisteredAssets.at(assetTypeHash);
+        const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
 
         Reference<AssetInterface> newAsset = createFunctor();
         newAsset->SetId(id);
@@ -216,7 +225,7 @@ namespace Onyx::Assets
             std::lock_guard lock(m_Mutex);
             if (metaData.Handle == INVALID_INDEX_64)
             {
-                metaData.Handle = m_LoadedAssets.size();
+                metaData.Handle = static_cast<onyxS64>(m_LoadedAssets.size());
                 newAsset = m_LoadedAssets.emplace_back(std::move(newAsset));
                 m_IOHandler.RequestLoad(metaData, newAsset, serializer);
             }
@@ -263,8 +272,8 @@ namespace Onyx::Assets
         const AssetMetaData& metaData = assetIt->second;
 
         constexpr StringId32 assetTypeHash = T::TypeId;
-        const InplaceFunction<Reference<AssetInterface>()>& createFunctor = registeredAssets.at(assetTypeHash);
-        const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
+        const InplaceFunction<Reference<AssetInterface>()>& createFunctor = s_RegisteredAssets.at(assetTypeHash);
+        const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
 
         Reference<AssetInterface> assetCopy = createFunctor();
         assetCopy->SetId(id);
@@ -294,7 +303,7 @@ namespace Onyx::Assets
         }
 
         constexpr StringId32 assetTypeHash = T::TypeId;
-        const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at((onyxU32)assetTypeHash);
+        const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at((onyxU32)assetTypeHash);
         m_IOHandler.RequestSave(metaData, asset, serializer);
         return true;
     }
@@ -305,7 +314,7 @@ namespace Onyx::Assets
         constexpr StringId32 assetTypeHash = T::TypeId;
         AssetId newAssetId(newPath);
         AssetMetaData metaData{ .Path = newPath, .Id = newAssetId, .Type = static_cast<AssetType>(assetTypeHash.GetId()) };
-        const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(assetTypeHash);
+        const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
 
         //TODO: should only add it IF we finish saving
         m_AssetsMetaData.try_emplace(newAssetId, metaData);

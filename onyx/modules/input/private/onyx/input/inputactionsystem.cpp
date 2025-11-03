@@ -28,7 +28,8 @@ namespace Onyx::Input
     {
         m_InputSystem = &inputSystem;
 
-        Assets::AssetSystem::Register<InputActionsAsset, InputActionsSerializer>(assetSystem);
+        Assets::AssetSystem::Register<InputActionsAsset>();
+        Assets::AssetSystem::Register<InputActionsSerializer>(assetSystem);
 
         InputBindingsFactory::Register<InputBindingBool>();
         InputBindingsFactory::Register<InputBindingAxis1D>();

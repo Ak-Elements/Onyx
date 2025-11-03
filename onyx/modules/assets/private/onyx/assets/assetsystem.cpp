@@ -6,9 +6,9 @@
 
 namespace Onyx::Assets
 {
-    HashMap <StringId32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::registeredAssets = {};
-    HashMap <StringId32, UniquePtr<AssetSerializer>> AssetSystem::registeredSerializer = {};
-    HashMap<StringView, AssetType> AssetSystem::extensionToAssetType = {};
+    HashMap <StringId32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::s_RegisteredAssets = {};
+    HashMap <StringId32, UniquePtr<IAssetSerializer>> AssetSystem::s_RegisteredSerializer = {};
+    HashMap<StringView, AssetType> AssetSystem::s_ExtensionToAssetType = {};
 
     namespace
     {
@@ -96,7 +96,7 @@ namespace Onyx::Assets
             reloadAsset->SetState(AssetState::Loading);
             {
                 std::lock_guard lock(m_Mutex);
-                const UniquePtr<AssetSerializer>& serializer = registeredSerializer.at(StringId32(static_cast<onyxU32>(metaData.Type)));
+                const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(StringId32(static_cast<onyxU32>(metaData.Type)));
                 m_IOHandler.RequestLoad(metaData, reloadAsset, serializer);
             }
         }

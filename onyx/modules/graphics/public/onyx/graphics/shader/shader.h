@@ -297,6 +297,8 @@ namespace Onyx::Graphics
 	class Shader : public Assets::Asset<Shader>
     {
 	public:
+		static Reference<Shader> Create(GraphicsApi& api);
+
 		static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::Shader" };
 		StringId32 GetTypeId() const { return TypeId; }
 
