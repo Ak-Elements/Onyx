@@ -59,8 +59,6 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/platforms/platform.h
     ${TARGET_PUBLIC_PATH}/platforms/windows/platform.h
     ${TARGET_PUBLIC_PATH}/profiler/profiletimer.h
-    ${TARGET_PUBLIC_PATH}/serialize/binaryserializer.h
-    ${TARGET_PUBLIC_PATH}/serialize/binarydeserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/serialization.h
     ${TARGET_PUBLIC_PATH}/serialize/deserializer.h
     ${TARGET_PUBLIC_PATH}/serialize/serializer.h
@@ -96,8 +94,6 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/log/backends/stdoutlogger.cpp
     ${TARGET_PRIVATE_PATH}/log/backends/visualstudiolog.cpp
     ${TARGET_PRIVATE_PATH}/platforms/windows/platform.cpp
-    ${TARGET_PRIVATE_PATH}/serialize/binaryserializer.cpp
-    ${TARGET_PRIVATE_PATH}/serialize/binarydeserializer.cpp
     ${TARGET_PRIVATE_PATH}/serialize/serialization.cpp
     ${TARGET_PRIVATE_PATH}/stream/memorystream.cpp
     ${TARGET_PRIVATE_PATH}/stream/stream.cpp
