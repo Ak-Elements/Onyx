@@ -241,7 +241,7 @@ namespace Onyx
         template<typename U>
 		U& As();
 
-        template<typename... Args> requires !std::is_abstract_v<T>
+        template<typename... Args> requires (!std::is_abstract_v<T>)
 		static Reference Create(Args&&... args)
         {
             return Reference(new T(std::forward<Args>(args)...));
