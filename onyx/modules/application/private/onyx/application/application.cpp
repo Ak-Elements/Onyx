@@ -94,9 +94,7 @@ namespace Onyx::Application
             // create modules requested by project
             for (const StringId32& moduleId : applicationModules)
             {
-                const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
-                UniquePtr<IEngineSystem> engineSystem = meta.CreateWithConfigFunctor ? meta.CreateWithConfigFunctor(configDeserializer) : meta.CreateFunctor();
-                m_Modules.emplace_back(std::move(engineSystem));
+                m_Modules.emplace_back(EngineModuleFactory::CreateSystem(moduleId, configDeserializer));
             }
         }
 

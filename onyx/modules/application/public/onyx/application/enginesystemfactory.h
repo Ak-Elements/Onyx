@@ -109,6 +109,13 @@ namespace Onyx::Application
             return true;
         }
 
+        static UniquePtr<IEngineSystem> CreateSystem(StringId32 moduleId, const Deserializer& deserializer)
+        {
+            const EngineModuleMeta& meta = GetMeta(moduleId);
+            return meta.CreateWithConfigFunctor ? meta.CreateWithConfigFunctor(deserializer) : meta.CreateFunctor();
+        }
+
+        static UniquePtr<IEngineSystem> CreateSystem(StringId32 moduleId) { return GetMeta(moduleId).CreateFunctor(); }
         static const EngineModuleMeta& GetMeta(StringId32 moduleId) { return s_SystemMeta.at(moduleId); }
 
     private:
