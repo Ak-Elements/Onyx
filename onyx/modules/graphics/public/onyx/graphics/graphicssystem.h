@@ -2,6 +2,8 @@
 #include <onyx/assets/asset.h>
 #include <onyx/engine/enginesystem.h>
 
+#include <onyx/graphics/graphicsapi.h>
+
 namespace Onyx::Assets
 {
     class AssetSystem;
@@ -14,23 +16,6 @@ namespace Onyx::Graphics
     struct WindowSettings;
     class GraphicsApi;
     class Window;
-
-    struct GraphicSettings
-    {
-        ApiType Api;
-        Assets::AssetId DefaultRenderGraph { "engine:/rendergraphs/default.orendergraph" };
-
-        onyxU16 RefreshRate;
-
-        bool IsBindless = true;
-        bool IsDynamicRenderingEnabled = true;
-
-#if !ONYX_IS_RETAIL
-        bool IsTimeSamplingEnabled = false;
-        bool IsDebugEnabled = false;
-        bool IsShaderDebugEnabled = false;
-#endif
-    };
 
     class GraphicsSystem : public IEngineSystem
     {
@@ -61,7 +46,14 @@ namespace Onyx
     template <>
     struct Serialization<Graphics::GraphicsSystem>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::GraphicsSystem& system);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicsSystem& outSystem);
+        static bool Serialize(Serializer& serializer, const Graphics::GraphicsSystem& settings);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicsSystem& outSettings);
+    };
+
+    template <>
+    struct Serialization<Graphics::GraphicSettings>
+    {
+        static bool Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings);
+        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings);
     };
 }

@@ -95,19 +95,7 @@ namespace Onyx::Application
             for (const StringId32& moduleId : applicationModules)
             {
                 const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
-                UniquePtr<IEngineSystem> engineSystem = meta.CreateFunctor();
-
-                if (meta.LoadConfigFunctor)
-                {
-                    bool success = meta.LoadConfigFunctor(configDeserializer, *engineSystem);
-                    if (success == false)
-                    {
-                        ONYX_LOG_WARNING("Failed loading config for module {}. Module is skipped.", moduleId);
-                        continue;
-                    }
-
-                }
-                
+                UniquePtr<IEngineSystem> engineSystem = meta.CreateWithConfigFunctor ? meta.CreateWithConfigFunctor(configDeserializer) : meta.CreateFunctor();
                 m_Modules.emplace_back(std::move(engineSystem));
             }
         }
@@ -124,9 +112,9 @@ namespace Onyx::Application
             if (meta.UpdateFunctor)
             {
                 m_UpdatableModules.push_back([&](DeltaGameTime gameTime)
-                    {
-                        meta.UpdateFunctor(*this, *engineModule, gameTime);
-                    });
+                {
+                    meta.UpdateFunctor(*this, *engineModule, gameTime);
+                });
             }
         }
 

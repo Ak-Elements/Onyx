@@ -63,9 +63,12 @@ namespace Onyx
             else if constexpr (std::is_enum_v<T>)
             {
                 StringView enumValue;
-                bool success = DoRead(enumValue);
-                outValue = Enums::FromString<T>(enumValue);
-                return success;
+                if (DoRead(enumValue))
+                {
+                    outValue = Enums::FromString<T>(enumValue);
+                    return true;
+                }
+                return false;
             }
             else
             {
@@ -91,9 +94,13 @@ namespace Onyx
             else if constexpr (std::is_enum_v<T>)
             {
                 StringView enumValue;
-                bool success = DoRead(name, enumValue);
-                outValue = Enums::FromString<T>(enumValue);
-                return success;
+                if (DoRead(name, enumValue))
+                {
+                    outValue = Enums::FromString<T>(enumValue);
+                    return true;
+                }
+
+                return false;
             }
             else
             {

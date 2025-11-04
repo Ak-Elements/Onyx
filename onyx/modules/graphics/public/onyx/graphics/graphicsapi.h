@@ -3,7 +3,6 @@
 #include <onyx/noncopyable.h>
 #include <onyx/graphics/camera.h>
 #include <onyx/graphics/framebuffercache.h>
-#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/renderpasscache.h>
 #include <onyx/graphics/lighting/lighting.h>
@@ -21,6 +20,11 @@ namespace Onyx::Graphics
 namespace Onyx
 {
     class Engine;
+
+    namespace Assets
+    {
+        class AssetSystem;
+    }
 
     namespace Graphics
     {
@@ -127,6 +131,23 @@ namespace Onyx
             onyxU8 FrameIndex = 0;
 
             UniquePtr<FrameData> FrameData;
+        };
+
+        struct GraphicSettings
+        {
+            ApiType Api = ApiType::Vulkan;
+            Assets::AssetId DefaultRenderGraph{ "engine:/rendergraphs/default.orendergraph" };
+
+            onyxU16 RefreshRate = 60;
+
+            bool IsBindless = true;
+            bool IsDynamicRenderingEnabled = true;
+
+#if !ONYX_IS_RETAIL
+            bool IsTimeSamplingEnabled = false;
+            bool IsDebugEnabled = false;
+            bool IsShaderDebugEnabled = false;
+#endif
         };
 
         class GraphicsApiImpl : public NonCopyable

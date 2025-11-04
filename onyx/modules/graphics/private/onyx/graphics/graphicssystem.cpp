@@ -37,46 +37,44 @@
 
 namespace Onyx
 {
-    template <>
-    struct Serialization<Graphics::GraphicSettings>
+    bool Serialization<Graphics::GraphicSettings>::Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings)
     {
-        static bool Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings)
-        {
-            StringView path;
-            serializer.Write<"rendergraph">(path);
-            serializer.Write<"api">(settings.Api);
-            serializer.Write<"isbindless">(settings.IsBindless);
-            serializer.Write<"isdynamicrendering">(settings.IsDynamicRenderingEnabled);
+        StringView path;
+        serializer.Write<"rendergraph">(path);
+        serializer.Write<"api">(settings.Api);
+        serializer.Write<"isbindless">(settings.IsBindless);
+        serializer.Write<"isdynamicrendering">(settings.IsDynamicRenderingEnabled);
 
 #if !ONYX_IS_RETAIL
-            serializer.Write<"istimelinesamplingenabled">(settings.IsTimeSamplingEnabled);
-            serializer.Write<"isdebugenabled">(settings.IsDebugEnabled);
-            serializer.Write<"isshaderdebugenabled">(settings.IsShaderDebugEnabled);
+        serializer.Write<"istimelinesamplingenabled">(settings.IsTimeSamplingEnabled);
+        serializer.Write<"isdebugenabled">(settings.IsDebugEnabled);
+        serializer.Write<"isshaderdebugenabled">(settings.IsShaderDebugEnabled);
 #endif
-            return true;
+        return true;
 
-        }
-        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings)
+    }
+
+    bool Serialization<Graphics::GraphicSettings>::Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings)
+    {
+        StringView path;
+        if (deserializer.Read<"rendergraph">(path))
         {
-            StringView path;
-            if (deserializer.Read<"rendergraph">(path))
-            {
-                outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
-            }
+            outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
+        }
 
-            deserializer.Read<"api">(outSettings.Api);
+        deserializer.Read<"api">(outSettings.Api);
 
-            deserializer.ReadOptional<"isbindless">(outSettings.IsBindless);
-            deserializer.ReadOptional<"isdynamicrendering">(outSettings.IsDynamicRenderingEnabled);
+        deserializer.ReadOptional<"isbindless">(outSettings.IsBindless);
+        deserializer.ReadOptional<"isdynamicrendering">(outSettings.IsDynamicRenderingEnabled);
 
 #if !ONYX_IS_RETAIL
-            deserializer.ReadOptional<"istimelinesamplingenabled">(outSettings.IsTimeSamplingEnabled);
-            deserializer.ReadOptional<"isdebugenabled">(outSettings.IsDebugEnabled);
-            deserializer.ReadOptional<"isshaderdebugenabled">(outSettings.IsShaderDebugEnabled);
+        deserializer.ReadOptional<"istimelinesamplingenabled">(outSettings.IsTimeSamplingEnabled);
+        deserializer.ReadOptional<"isdebugenabled">(outSettings.IsDebugEnabled);
+        deserializer.ReadOptional<"isshaderdebugenabled">(outSettings.IsShaderDebugEnabled);
 #endif
-            return true;
-        }
-    };
+        return true;
+    }
+    
 
     template <>
     struct Serialization<Graphics::WindowSettings>

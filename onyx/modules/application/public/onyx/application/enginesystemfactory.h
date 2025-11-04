@@ -1,6 +1,7 @@
 #include <onyx/engine/enginesystem.h>
 
 #include <onyx/application/application.h>
+#include <onyx/serialize/deserializer.h>
 
 namespace Onyx::Application
 {
@@ -28,8 +29,7 @@ namespace Onyx::Application
     struct EngineModuleMeta
     {
         Function<UniquePtr<IEngineSystem>()> CreateFunctor;
-        Function<bool(Serializer&, const IEngineSystem&)> SaveConfigFunctor;
-        Function<bool(const Deserializer&, IEngineSystem&)> LoadConfigFunctor;
+        Function<UniquePtr<IEngineSystem>(const Deserializer&)> CreateWithConfigFunctor;
         Function<void(Application&, IEngineSystem&)> InitFunctor;
         Function<void(Application&, IEngineSystem&)> ShutdownFunctor;
 
@@ -46,64 +46,63 @@ namespace Onyx::Application
 
             systemMeta.CreateFunctor = []() { return MakeUnique<T>(); };
 
+            if constexpr (Deserializable<T>)
+            {
+                systemMeta.CreateWithConfigFunctor = [](const Deserializer& deserializer)
+                {
+                    UniquePtr<T> newInstance = MakeUnique<T>();
+                    deserializer.Read(*newInstance);
+                    return std::move(newInstance);
+                };
+            }
+
             if constexpr (Initializable<T>)
             {
                 systemMeta.InitFunctor = [](Application& application, IEngineSystem& systemInstance)
+                {
+                    T& typedSystemInstance = static_cast<T&>(systemInstance);
+                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Init));
+
+                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
                     {
-                        T& typedSystemInstance = static_cast<T&>(systemInstance);
-                        using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Init));
-                        auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U { return GetModuleDependency<std::remove_reference_t<U>>(application); });
-                        std::apply(std::bind_front(&T::Init, &typedSystemInstance), dependencies);
-                    };
+                        return GetModuleDependency<std::remove_reference_t<U>>(application);
+                    });
+
+                    std::apply(std::bind_front(&T::Init, &typedSystemInstance), dependencies);
+                };
+                
             }
 
             if constexpr (Shutdownable<T>)
             {
                 systemMeta.ShutdownFunctor = [](Application& application, IEngineSystem& systemInstance)
-                    {
-                        T& typedSystemInstance = static_cast<T&>(systemInstance);
-                        using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Shutdown));
-                        auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U { return GetModuleDependency<std::remove_reference_t<U>>(application); });
-                        std::apply(std::bind_front(&T::Shutdown, &typedSystemInstance), dependencies);
-                    };
+                {
+                    T& typedSystemInstance = static_cast<T&>(systemInstance);
+                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Shutdown));
+                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U { return GetModuleDependency<std::remove_reference_t<U>>(application); });
+                    std::apply(std::bind_front(&T::Shutdown, &typedSystemInstance), dependencies);
+                };
             }
 
             if constexpr (Updatable<T>)
             {
                 systemMeta.UpdateFunctor = [](Application& application, IEngineSystem& systemInstance, DeltaGameTime deltaTime)
+                {
+                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Update));
+                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
                     {
-                        using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Update));
-                        auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
+                        if constexpr (std::is_same_v<U, DeltaGameTime>)
                         {
-                            if constexpr (std::is_same_v<U, DeltaGameTime>)
-                            {
-                                return deltaTime;
-                            }
-                            else
-                            {
-                                return GetModuleDependency<std::remove_reference_t<U>>(application);
-                            }
-                        });
-                        T& typedSystemInstance = static_cast<T&>(systemInstance);
-                        std::apply(std::bind_front(&T::Update, &typedSystemInstance), dependencies);
-                    };
-            }
+                            return deltaTime;
+                        }
+                        else
+                        {
+                            return GetModuleDependency<std::remove_reference_t<U>>(application);
+                        }
+                    });
 
-            if constexpr (Serializable<T>)
-            {
-                systemMeta.SaveConfigFunctor = [](Serializer& serializer, const IEngineSystem& systemInstance)
-                {
-                    const T& typedSystemInstance = static_cast<const T&>(systemInstance);
-                    return Serialization<T>::Serialize(serializer, typedSystemInstance);
-                };
-            }
-
-            if constexpr (Deserializable<T>)
-            {
-                systemMeta.LoadConfigFunctor = [](const Deserializer& deserializer, IEngineSystem& systemInstance)
-                {
                     T& typedSystemInstance = static_cast<T&>(systemInstance);
-                    return Serialization<T>::Deserialize(deserializer, typedSystemInstance);
+                    std::apply(std::bind_front(&T::Update, &typedSystemInstance), dependencies);
                 };
             }
 

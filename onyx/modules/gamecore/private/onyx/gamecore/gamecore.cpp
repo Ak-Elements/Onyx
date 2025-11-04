@@ -18,6 +18,7 @@
 #include <onyx/gamecore/rendertasks/staticmeshrendertask.h>
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
 namespace Onyx::GameCore

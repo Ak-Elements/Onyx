@@ -112,7 +112,7 @@ namespace Onyx::Input
     private:
         InputSystem* m_InputSystem = nullptr;
 
-        Assets::AssetId m_InputActionsId { "engine:/inputcontexts.oinput" };
+        Assets::AssetId m_InputActionId { "engine:/inputcontexts.oinput" };
         Reference<InputActionsAsset> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
         HashMap<StringId64, InputActionSignalT> m_InputActionSignals;
@@ -126,7 +126,7 @@ namespace Onyx
     template <>
     struct Serialization<Input::InputActionSystem>
     {
-        static bool Serialize(Serializer& serializer, const Input::InputActionSystem& inputActionSystem);
-        static bool Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outinputActionSystem);
+        static bool Serialize(Serializer& serializer, const Input::InputActionSystem& system);
+        static bool Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outSystem);
     };
 }

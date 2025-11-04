@@ -45,7 +45,7 @@ namespace Onyx::Input
         //m_ModifiersRegistry.Register<SwizzleInputModifier>();
 
         Reference<InputActionsAsset> defaultInputActionsMap;
-        assetSystem.GetAsset(m_InputActionsId, defaultInputActionsMap);
+        assetSystem.GetAsset(m_InputActionId, defaultInputActionsMap);
         defaultInputActionsMap->GetOnLoadedEvent().Connect<&InputActionSystem::SetActionsMapAsset>(this);
         if (defaultInputActionsMap.IsValid() && defaultInputActionsMap->IsLoaded())
         {
@@ -221,17 +221,17 @@ namespace Onyx::Input
 
 namespace Onyx
 {
-    bool Serialization<Input::InputActionSystem>::Serialize(Serializer& /*serializer*/, const Input::InputActionSystem& /*inputActionSystem*/)
+    bool Serialization<Input::InputActionSystem>::Serialize(Serializer& /*serializer*/, const Input::InputActionSystem& /*system*/)
     {
         return true;
     }
 
-    bool Serialization<Input::InputActionSystem>::Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outinputActionSystem)
+    bool Serialization<Input::InputActionSystem>::Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outSystem)
     {
         StringView inputMapPath;
         if (deserializer.Read<"inputmap">(inputMapPath))
         {
-            outinputActionSystem.m_InputActionsId = Assets::AssetId(FileSystem::Filepath(inputMapPath));
+            outSystem.m_InputActionId = Assets::AssetId(FileSystem::Filepath(inputMapPath));
         }
 
         return true;
