@@ -22,7 +22,7 @@ namespace Onyx::Editor
         };
 
     public:
-        PrimitivesTerrainTool(Graphics::GraphicsApi& graphicsApi);
+        PrimitivesTerrainTool(Graphics::GraphicsSystem& graphicsSystem);
 
         StringView GetTitle() override;
         void Render() override;

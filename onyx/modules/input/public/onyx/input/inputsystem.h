@@ -23,6 +23,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
+    class WindowSystem;
     class Window;
 }
 
@@ -39,10 +40,9 @@ namespace Onyx::Input
        
 
         InputSystem() = default;
-        ~InputSystem() override = default;
+        ~InputSystem() override;
 
-        void Init(Graphics::Window& window);
-        void Shutdown(Graphics::Window& window);
+        void Init(Graphics::WindowSystem& windowSystem);
         void Update();
 
         onyxS16 GetAxisValue1D(onyxU32 deviceIndex, InputID id) const;

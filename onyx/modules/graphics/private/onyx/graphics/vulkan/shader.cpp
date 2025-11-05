@@ -1,15 +1,15 @@
 #include <onyx/graphics/vulkan/shader.h>
 #include <onyx/graphics/vulkan/vulkan.h>
 
-#include <onyx/graphics/shader/shadercompiler.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/vulkan/device.h>
 
 namespace Onyx::Graphics::Vulkan
 {
-    ShaderModule::ShaderModule(VulkanGraphicsApi& api, const Shader::ByteCode& byteCode)
+    ShaderModule::ShaderModule(VulkanGraphicsApi& api, Shader::ByteCode byteCode)
         : m_Api(api)
-        , m_ByteCode(byteCode)
+        , m_ByteCode(std::move(byteCode))
     {
         VkShaderModuleCreateInfo moduleCreateInfo{};
         moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -33,9 +33,9 @@ namespace Onyx::Graphics::Vulkan
         m_Stages.Clear();
     }
 
-    bool Shader::AddStage(GraphicsApi& api, ShaderStage stage, const ByteCode& byteCode)
+    bool Shader::AddStage(GraphicsSystem& graphicsSystem, ShaderStage stage, const ByteCode& byteCode)
     {
-        VulkanGraphicsApi& vulkanApi = api.GetApi<VulkanGraphicsApi>();
+        VulkanGraphicsApi& vulkanApi = graphicsSystem.GetApi<VulkanGraphicsApi>();
 
 		const onyxU8 stageIndex = Enums::ToIntegral(stage);
 #if ONYX_ASSERTS_ENABLED
@@ -67,9 +67,9 @@ namespace Onyx::Graphics::Vulkan
         m_Stages[Enums::ToIntegral(stage)].reset();
     }
 
-    bool Shader::UpdateReflectionData(GraphicsApi& api, ShaderReflectionInfo& reflectionInfo)
+    bool Shader::UpdateReflectionData(GraphicsSystem& graphicsSystem, ShaderReflectionInfo& reflectionInfo)
     {
-        VulkanGraphicsApi& vulkanApi = api.GetApi<VulkanGraphicsApi>();
+        VulkanGraphicsApi& vulkanApi = graphicsSystem.GetApi<VulkanGraphicsApi>();
 
         m_ReflectionInfo = reflectionInfo;
 

@@ -10,7 +10,7 @@ namespace Onyx::Graphics
     struct PipelineProperties;
     class ShaderInstance;
 
-    class GraphicsApi;
+    class GraphicsSystem;
 
     class PsoCache : NonCopyable
     {

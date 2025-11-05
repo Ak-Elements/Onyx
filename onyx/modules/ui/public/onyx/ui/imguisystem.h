@@ -7,7 +7,7 @@
 #include <onyx/engine/enginesystem.h>
 
 #include <onyx/thread/container/lockfreempscboundedqueue.h>
-#include <onyx/graphics/textureasset.h>
+
 
 #include <mutex>
 
@@ -34,9 +34,12 @@ namespace Onyx
 
     namespace Graphics
     {
+        class TextureAsset;
         struct FrameContext;
-        class GraphicsApi;
+
+        class GraphicsSystem;
         class Window;
+        class WindowSystem;
     }
 
     namespace Ui
@@ -54,7 +57,7 @@ namespace Onyx
         struct ImGuiContext
         {
             Assets::AssetSystem* AssetSystem = nullptr;
-            Graphics::GraphicsApi* GraphicsApi = nullptr;
+            Graphics::GraphicsSystem* GraphicsSystem = nullptr;
             Graphics::Window* MainWindow = nullptr;
             Input::InputSystem* InputSystem = nullptr;
         };
@@ -75,10 +78,9 @@ namespace Onyx
             ImGuiSystem();
             ~ImGuiSystem() override;
 
-            void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& window);
-            void Shutdown(Input::InputSystem& inputSystem, Graphics::Window& window);
+            void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem);
             
-            void Update(Graphics::GraphicsApi& api,DeltaGameTime deltaTime);
+            void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
 
             void OnBeginFrame(Graphics::FrameContext& context);
             
@@ -88,8 +90,8 @@ namespace Onyx
             void RegisterWindow(Args&&... args)
             {
                 constexpr onyxU32 windowTypeId = TypeHash<T>();
-                ONYX_ASSERT(windowFactory.contains(windowTypeId) == false);
-                windowFactory[windowTypeId] = [&]()
+                ONYX_ASSERT(m_WindowFactory.contains(windowTypeId) == false);
+                m_WindowFactory[windowTypeId] = [&]()
                 {
                     return MakeUnique<T>(std::forward<Args>(args)...);
                 };
@@ -99,12 +101,12 @@ namespace Onyx
             T& OpenWindow(Args&&... args)
             {
                 // find first non open window matching the id and reuse
-                auto it = std::ranges::find_if(windows, [&](const UniquePtr<ImGuiWindow>& window)
+                auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
                     {
                         return (window->IsOpen() == false) && (window->GetWindowId() == T::WindowId);
                     });
 
-                if (it != windows.end())
+                if (it != m_Windows.end())
                 {
                     UniquePtr<ImGuiWindow>& imguiWindow = *it;
                     imguiWindow->Open();
@@ -112,9 +114,9 @@ namespace Onyx
                 }
 
                 constexpr onyxU32 windowTypeId = TypeHash<T>();
-                auto factoryIt = windowFactory.find(windowTypeId);
+                auto factoryIt = m_WindowFactory.find(windowTypeId);
                 UniquePtr<ImGuiWindow> newWindow;
-                if (factoryIt == windowFactory.end())
+                if (factoryIt == m_WindowFactory.end())
                 {
                     if constexpr (std::is_constructible<T, Args...>())
                     {
@@ -134,7 +136,7 @@ namespace Onyx
                 newWindow->SetName(String(newWindow->GetWindowId()));
                 newWindow->Open();
                 T& newWindowRef = static_cast<T&>(*newWindow);
-                windows.push_back(std::move(newWindow));
+                m_Windows.push_back(std::move(newWindow));
                 return newWindowRef;
             }
 
@@ -142,12 +144,12 @@ namespace Onyx
             T& OpenUniqueWindow(Args&&... args)
             {
                 // check if the window is already opened if it is, bring it to the front
-                auto it = std::ranges::find_if(windows, [&](const UniquePtr<ImGuiWindow>& window)
+                auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
                     {
                         return (window->GetWindowId() == T::WindowId);
                     });
 
-                if (it != windows.end())
+                if (it != m_Windows.end())
                 {
                     UniquePtr<ImGuiWindow>& imguiWindow = *it;
                     imguiWindow->Open();
@@ -156,9 +158,9 @@ namespace Onyx
 
                 // create window as its not opened yet
                 constexpr onyxU32 windowTypeId = TypeHash<T>();
-                auto factoryIt = windowFactory.find(windowTypeId);
+                auto factoryIt = m_WindowFactory.find(windowTypeId);
                 UniquePtr<ImGuiWindow> newWindow;
-                if (factoryIt == windowFactory.end())
+                if (factoryIt == m_WindowFactory.end())
                 {
                     if constexpr (std::is_constructible<T, Args...>())
                     {
@@ -178,7 +180,7 @@ namespace Onyx
                 newWindow->SetName(String(newWindow->GetWindowId()));
                 newWindow->Open();
                 T& newWindowRef = static_cast<T&>(*newWindow);
-                windows.push_back(std::move(newWindow));
+                m_Windows.push_back(std::move(newWindow));
                 return newWindowRef;
             }
 
@@ -204,13 +206,13 @@ namespace Onyx
             void OnInputEvent(const Input::InputEvent* event);
 
         private:
-            Graphics::Window* window;
-            HashMap<StringId64, ImFont*> fonts;
-            std::mutex mutex;
-            LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> queuedInputs;
-
-            DynamicArray<UniquePtr<ImGuiWindow>> windows;
-            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> windowFactory;
+            LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> m_QueuedInputs;
+            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> m_WindowFactory;
+            HashMap<StringId64, ImFont*> m_Fonts;
+            std::mutex m_Mutex;
+            DynamicArray<UniquePtr<ImGuiWindow>> m_Windows;
+            Graphics::Window* m_Window;
+            Input::InputSystem* m_InputSystem;
         };
     }
 }

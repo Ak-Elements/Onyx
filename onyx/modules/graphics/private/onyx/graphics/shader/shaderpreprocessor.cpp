@@ -1,7 +1,6 @@
 #include <onyx/graphics/shader/shaderpreprocessor.h>
 
 #include <onyx/graphics/shader/shadercompiler.h>
-#include <onyx/graphics/shader/shaderproperties.h>
 
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/log/logger.h>

@@ -36,10 +36,10 @@ namespace Onyx::Editor
         if (Ui::Button(Localization::Editor::Windows::ShaderGraphEditorTitle, Vector2f32(200, 50)))
         {
             ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
-            ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+            ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
 
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-            window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
+            window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             Close();
         }
 
@@ -53,10 +53,10 @@ namespace Onyx::Editor
         if (Ui::Button(Localization::Editor::Windows::VolumeShaderGraphEditorTitle, Vector2f32(200, 50)))
         {
             ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
-            ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+            ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
 
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-            window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
+            window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             Close();
         }
 

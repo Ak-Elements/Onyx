@@ -2,7 +2,9 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/windowsystem.h>
+#include <onyx/graphics/textureasset.h>
 #include <onyx/graphics/window.h>
 
 #include <onyx/input/inputsystem.h>
@@ -548,11 +550,23 @@ namespace Onyx::Ui
 	}
 
 	ImGuiSystem::ImGuiSystem() = default;
-	ImGuiSystem::~ImGuiSystem() = default;
+	ImGuiSystem::~ImGuiSystem()
+	{
+		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
+		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
 
-    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::Window& _window)
+		m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		m_InputSystem->RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
+
+		ImPlot::DestroyContext();
+		ImPlot3D::DestroyContext();
+		ImGui::DestroyContext();
+	}
+
+    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem)
     {
-		window = &_window;
+		m_Window = &windowSystem.GetMainWindow();
+		m_InputSystem = &inputSystem;
 
         ImGui::CreateContext();
 		ImPlot::CreateContext();
@@ -578,45 +592,32 @@ namespace Onyx::Ui
 		constexpr StringId64 fontHash("fonts/Roboto-Regular.ttf");
 
         FileSystem::Filepath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
-		auto [it,_] = fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
-		fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
+		auto [it,_] = m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
+		m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
 
 		io.FontDefault = it->second;
 
-        _window.AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		OnWindowResize(_window.GetWidth(), _window.GetHeight());
+		m_Window->AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		OnWindowResize(m_Window->GetWidth(), m_Window->GetHeight());
 		
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
 		g_UiContext.AssetSystem = &assetSystem;
-		g_UiContext.MainWindow = window;
+		g_UiContext.MainWindow = m_Window;
 		g_UiContext.InputSystem = &inputSystem;
     }
 
-    void ImGuiSystem::Shutdown(Input::InputSystem& inputSystem, Graphics::Window& _window)
-    {
-		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
-		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
-
-		_window.RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		inputSystem.RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
-
-		ImPlot::DestroyContext();
-		ImPlot3D::DestroyContext();
-		ImGui::DestroyContext();
-    }
-
-    void ImGuiSystem::Update(Graphics::GraphicsApi& api, DeltaGameTime deltaTime)
+    void ImGuiSystem::Update(Graphics::GraphicsSystem& system, DeltaGameTime deltaTime)
     {
 #if ONYX_IS_WINDOWS
 
-		g_UiContext.GraphicsApi = &api;
+		g_UiContext.GraphicsSystem = &system;
 
 		ImGuiIO& io = ImGui::GetIO();
 	
 		// TODO: Add single producer single consumer queue that supports popping the entire queue at once
 		InplaceFunction<void(ImGuiIO&)> eventFunctor;
-		while (queuedInputs.Pop(eventFunctor))
+		while (m_QueuedInputs.Pop(eventFunctor))
 		{
 			eventFunctor(io);
 		}
@@ -627,14 +628,14 @@ namespace Onyx::Ui
 
 
 		//// this is an index based loop on purpose as windows might be added during rendering by other windows
-		const onyxU32 windowsCount = numeric_cast<onyxU32>(windows.size());
+		const onyxU32 windowsCount = numeric_cast<onyxU32>(m_Windows.size());
 		for (onyxU32 i = 0; i < windowsCount; ++i)
 		{
-			const UniquePtr<ImGuiWindow>& imguiWindow = windows[i];
+			const UniquePtr<ImGuiWindow>& imguiWindow = m_Windows[i];
 			imguiWindow->Render(*this);
 		}
 
-		g_UiContext.GraphicsApi = nullptr;
+		g_UiContext.GraphicsSystem = nullptr;
     }
 
     void ImGuiSystem::OnBeginFrame(Graphics::FrameContext&)
@@ -686,7 +687,7 @@ namespace Onyx::Ui
 			case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
 			}
 
-			window->SetCursor(::LoadCursor(NULL, win32Cursor));
+			m_Window->SetCursor(::LoadCursor(NULL, win32Cursor));
 		}
 #endif
 
@@ -703,12 +704,12 @@ namespace Onyx::Ui
 
     Optional<ImGuiWindow*> ImGuiSystem::GetWindow(StringView windowName)
     {
-        auto it = std::ranges::find_if(windows, [&](const UniquePtr<ImGuiWindow>& window)
+        auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
         {
             return window->GetWindowId() == windowName;
         });
 
-        if (it == windows.end())
+        if (it == m_Windows.end())
         {
             return {};
         }
@@ -739,7 +740,7 @@ namespace Onyx::Ui
 						io.AddMouseWheelEvent(0, event.m_Scroll);
 				};
 
-			queuedInputs.Push(std::move(queuedInputEvent));
+			m_QueuedInputs.Push(std::move(queuedInputEvent));
 			
 			//return io.WantCaptureMouse; TODO 
 		}
@@ -793,7 +794,7 @@ namespace Onyx::Ui
 					io.AddInputCharacterUTF16(event.m_Char);
 			};
 
-			queuedInputs.Push(std::move(queuedInputEvent));
+			m_QueuedInputs.Push(std::move(queuedInputEvent));
 		}
 		else if (event->IsGamepadButtonEvent())
 		{

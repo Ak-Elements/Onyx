@@ -1,3 +1,4 @@
+#include <onyx/assets/assetsystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 #include <onyx/entity/ecsbuilder.h>
@@ -6,8 +7,7 @@
 #include <onyx/gamecore/components/freecameracomponent.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
-#include <onyx/graphics/shader/shaderproperties.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
@@ -62,7 +62,7 @@ namespace Onyx::Volume::Terrain
             onyxF32 Padding1;
         };
 
-        void CreateBuffers(Graphics::GraphicsApi& graphicsApi, TerrainWorldOctreeComponent& worldOctree, TerrainRuntimeComponent& terrainMesh, onyxU32 nodeCount)
+        void CreateBuffers(Graphics::GraphicsSystem& graphicsSystem, TerrainWorldOctreeComponent& worldOctree, TerrainRuntimeComponent& terrainMesh, onyxU32 nodeCount)
         {
             if (worldOctree.VolumeObjects == false)
             {
@@ -72,7 +72,7 @@ namespace Onyx::Volume::Terrain
                 ssboVolumeOctreeBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
                 ssboVolumeOctreeBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-                graphicsApi.CreateBuffer(worldOctree.OctreeGpuBuffer, ssboVolumeOctreeBufferProps);
+                graphicsSystem.CreateBuffer(worldOctree.OctreeGpuBuffer, ssboVolumeOctreeBufferProps);
 
                 Graphics::BufferProperties ssboVolumeLeafNodesProps;
                 ssboVolumeLeafNodesProps.m_DebugName = "Volume-WorldChunks";
@@ -80,7 +80,7 @@ namespace Onyx::Volume::Terrain
                 ssboVolumeLeafNodesProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
                 ssboVolumeLeafNodesProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-                graphicsApi.CreateBuffer(worldOctree.OctreeChunksBuffer, ssboVolumeLeafNodesProps);
+                graphicsSystem.CreateBuffer(worldOctree.OctreeChunksBuffer, ssboVolumeLeafNodesProps);
 
 
                 // TODO: Fix amount of max sources (100) and data size (vec4)
@@ -90,7 +90,7 @@ namespace Onyx::Volume::Terrain
                 ssboVolumeSourceListProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
                 ssboVolumeSourceListProps.m_GpuAccess = Graphics::GPUAccess::Write;
                 ssboVolumeSourceListProps.m_IsWritable = true;
-                graphicsApi.CreateBuffer(worldOctree.VolumeObjects, ssboVolumeSourceListProps);
+                graphicsSystem.CreateBuffer(worldOctree.VolumeObjects, ssboVolumeSourceListProps);
 
 
                 Graphics::BufferProperties ssboVolumeSourcesDataProps;
@@ -99,7 +99,7 @@ namespace Onyx::Volume::Terrain
                 ssboVolumeSourcesDataProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
                 ssboVolumeSourcesDataProps.m_GpuAccess = Graphics::GPUAccess::Write;
                 ssboVolumeSourcesDataProps.m_IsWritable = true;
-                graphicsApi.CreateBuffer(worldOctree.VolumeObjectsData, ssboVolumeSourcesDataProps);
+                graphicsSystem.CreateBuffer(worldOctree.VolumeObjectsData, ssboVolumeSourcesDataProps);
 
                 // create mesh buffer
                 Graphics::BufferProperties ssboMeshVerticesProps;
@@ -108,7 +108,7 @@ namespace Onyx::Volume::Terrain
                 ssboMeshVerticesProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Vertex | Graphics::BufferUsage::DeviceAddress);
                 ssboMeshVerticesProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-                graphicsApi.CreateBuffer(terrainMesh.MeshVertices, ssboMeshVerticesProps);
+                graphicsSystem.CreateBuffer(terrainMesh.MeshVertices, ssboMeshVerticesProps);
 
                 struct VkDrawIndirectCommand
                 {
@@ -124,7 +124,7 @@ namespace Onyx::Volume::Terrain
                 ssboIndirectDrawProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Indirect | Graphics::BufferUsage::DeviceAddress);
                 ssboIndirectDrawProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-                graphicsApi.CreateBuffer(terrainMesh.IndirectDrawBuffer, ssboIndirectDrawProps);
+                graphicsSystem.CreateBuffer(terrainMesh.IndirectDrawBuffer, ssboIndirectDrawProps);
             }
 
             // TEMP - MOVE TO TEMP FRAME BUFFERS
@@ -135,11 +135,11 @@ namespace Onyx::Volume::Terrain
             ssboIndirectDispatchBufferProps.m_Size = sizeof(onyxU32) * 3;
             ssboIndirectDispatchBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::Indirect | Graphics::BufferUsage::DeviceAddress);
             ssboIndirectDispatchBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
-            IndirectDispatchBuffer0 = graphicsApi.GetTransientBuffer(ssboIndirectDispatchBufferProps);
+            IndirectDispatchBuffer0 = graphicsSystem.GetTransientBuffer(ssboIndirectDispatchBufferProps);
             //graphicsApi.CreateBuffer(IndirectDispatchBuffer0, ssboIndirectDispatchBufferProps);
 
             ssboIndirectDispatchBufferProps.m_DebugName = "TMP Volume-IndirectDispatch1";
-            IndirectDispatchBuffer1 = graphicsApi.GetTransientBuffer(ssboIndirectDispatchBufferProps);
+            IndirectDispatchBuffer1 = graphicsSystem.GetTransientBuffer(ssboIndirectDispatchBufferProps);
             //graphicsApi.CreateBuffer(IndirectDispatchBuffer1, ssboIndirectDispatchBufferProps);
 
 
@@ -150,10 +150,10 @@ namespace Onyx::Volume::Terrain
             ssboVolumeCreateQueueProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
             ssboVolumeCreateQueueProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-            SplitRequestQueueBuffer0 = graphicsApi.GetTransientBuffer(ssboVolumeCreateQueueProps);
+            SplitRequestQueueBuffer0 = graphicsSystem.GetTransientBuffer(ssboVolumeCreateQueueProps);
 
             ssboVolumeCreateQueueProps.m_DebugName = "VolumeOctree-SplitRequests1";
-            SplitRequestQueueBuffer1 = graphicsApi.GetTransientBuffer(ssboVolumeCreateQueueProps);
+            SplitRequestQueueBuffer1 = graphicsSystem.GetTransientBuffer(ssboVolumeCreateQueueProps);
             //graphicsApi.CreateBuffer(SplitRequestQueueBuffer1, ssboVolumeCreateQueueProps);
 
             // iso surface requests
@@ -163,7 +163,7 @@ namespace Onyx::Volume::Terrain
             ssboIsoSurfaceRequestsProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
             ssboIsoSurfaceRequestsProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-            IsoSurfaceRequestsBuffer = graphicsApi.GetTransientBuffer(ssboIsoSurfaceRequestsProps);
+            IsoSurfaceRequestsBuffer = graphicsSystem.GetTransientBuffer(ssboIsoSurfaceRequestsProps);
             //graphicsApi.CreateBuffer(IsoSurfaceRequestsBuffer, ssboIsoSurfaceRequestsProps);
 
             // create transient vertex buffer
@@ -173,10 +173,10 @@ namespace Onyx::Volume::Terrain
             ssboMeshVerticesProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
             ssboMeshVerticesProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
-            TransientVertexBuffer = graphicsApi.GetTransientBuffer(ssboMeshVerticesProps);
+            TransientVertexBuffer = graphicsSystem.GetTransientBuffer(ssboMeshVerticesProps);
         }
 
-        void LoadShaders(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, const TerrainSettingsComponent& terrainSettings, VolumeGenerationComponent& generationComponent)
+        void LoadShaders(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem, const TerrainSettingsComponent& terrainSettings, VolumeGenerationComponent& generationComponent)
         {
             if (generationComponent.UpdateWorldOctreeShader != nullptr)
                 return;
@@ -196,46 +196,46 @@ namespace Onyx::Volume::Terrain
             Graphics::PipelineProperties properties;
             //properties.DebugName = "Terrain Reset Buffers";
             properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/reset_buffers.oshader");
-            generationComponent.ResetBuffersShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+            generationComponent.ResetBuffersShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
             //properties.m_DebugName = "Fill generation mesh indirect dispatch";
             properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/init_volume.oshader");
-            generationComponent.SetupDispatchGenerateMeshShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+            generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
             //properties.DebugName = "Terrain Reset Buffers";
             if (generationComponent.VolumeShaderGraph == nullptr)
             {
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_world_octree.oshader");
-                generationComponent.UpdateWorldOctreeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+                generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_chunk_octree.oshader");
-                generationComponent.UpdateWorldOctreeChunkShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+                generationComponent.UpdateWorldOctreeChunkShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/find_ray_traced_octreenode.oshader");
-                generationComponent.FindRayTracedOctreeNodeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+                generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/generate_volume.oshader");
-                generationComponent.GenerateMeshShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+                generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/ray_trace_terrain.oshader");
-                generationComponent.RayTraceTerrainShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+                generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
             }
            else
            {
                properties.Shader = generationComponent.VolumeShaderGraph->GetBuildOctreeShader();
-               generationComponent.UpdateWorldOctreeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+               generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
            
                properties.Shader = generationComponent.VolumeShaderGraph->GetBuildChunkOctreeShader();
-               generationComponent.UpdateWorldOctreeChunkShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+               generationComponent.UpdateWorldOctreeChunkShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
            
                properties.Shader = generationComponent.VolumeShaderGraph->GetFindOctreeNodeShader();
-               generationComponent.FindRayTracedOctreeNodeShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+               generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
            
                properties.Shader = generationComponent.VolumeShaderGraph->GetGenerateVolumeMeshShader();
-               generationComponent.GenerateMeshShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+               generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
            
                properties.Shader = generationComponent.VolumeShaderGraph->GetRaytraceTerrainShader();
-               generationComponent.RayTraceTerrainShader = graphicsApi.CreateShaderInstance(properties.Shader, properties);
+               generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
            }
 
             generationComponent.HasLoadedShaders = true;
@@ -485,11 +485,11 @@ namespace Onyx::Volume::Terrain
 
         using CameraEntityQuery = Entity::EntityQuery<const GameCore::TransformComponent, const GameCore::FreeCameraRuntimeComponent>;
         using TerrainEntity = Entity::Entity<const TerrainSettingsComponent, VolumeGenerationComponent, TerrainWorldOctreeComponent, TerrainRuntimeComponent, InitTerrainFlag>;
-        void System(TerrainEntity terrainEntity, CameraEntityQuery cameraQuery, Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi, Entity::EntityCommandBuffer entityCommandBuffer)
+        void System(TerrainEntity terrainEntity, CameraEntityQuery cameraQuery, Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
         {
             auto&& [terrainSettings, generationComponent, terrainWorldOctree, terrainRuntime] = terrainEntity.Get();
 
-            LoadShaders(assetSystem, graphicsApi, terrainSettings, generationComponent);
+            LoadShaders(assetSystem, graphicsSystem, terrainSettings, generationComponent);
 
             if ((generationComponent.HasLoadedShaders == false) ||
                 !generationComponent.UpdateWorldOctreeShader.IsValid() ||
@@ -501,9 +501,9 @@ namespace Onyx::Volume::Terrain
 
             constexpr onyxU32 nodeCount = (1 << 20);
             
-            CreateBuffers(graphicsApi, terrainWorldOctree, terrainRuntime, nodeCount);
+            CreateBuffers(graphicsSystem, terrainWorldOctree, terrainRuntime, nodeCount);
 
-            Graphics::CommandBuffer& computeCommandBuffer = graphicsApi.GetCommandBuffer(graphicsApi.GetFrameIndex(), true);
+            Graphics::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer(graphicsSystem.GetFrameIndex(), true);
 
             Entity::EntityId cameraEntity = cameraQuery.GetView().front();
             const GameCore::TransformComponent& cameraTransform = cameraQuery.GetView().get<const GameCore::TransformComponent>(cameraEntity);

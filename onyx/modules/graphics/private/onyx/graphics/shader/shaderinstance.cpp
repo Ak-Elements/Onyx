@@ -2,12 +2,12 @@
 #include <onyx/graphics/shader/shaderinstance.h>
 
 #include <onyx/graphics/descriptorset.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/shader/shader.h>
 
 namespace Onyx::Graphics
 {
-    ShaderInstance::ShaderInstance(const GraphicsApi& api, const PipelineHandle& pipeline, const ShaderHandle& shader)
+    ShaderInstance::ShaderInstance(const GraphicsSystem& api, const PipelineHandle& pipeline, const ShaderHandle& shader)
         : m_Api(&api)
         , m_Pipeline(pipeline)
         , m_Shader(shader)

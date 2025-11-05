@@ -12,7 +12,7 @@ namespace Onyx::Assets
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
     class ShaderGraph;
 
     namespace ShaderGraphSerializer

@@ -1,11 +1,11 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/framecontext.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/graphics/texture.h>
 #include <onyx/graphics/texturestorage.h>
-#include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/graphics/vulkan/texturestorage.h>
 #include <onyx/log/logger.h>
 #include <onyx/thread/threadpool/threadpool.h>
@@ -16,7 +16,7 @@ ONYX_PROFILE_CREATE_TAG(RenderGraph, 0x3ed694);
 
 namespace Onyx::Graphics
 {
-    void RenderGraph::Init(GraphicsApi& graphicsApi)
+    void RenderGraph::Init(GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -54,7 +54,7 @@ namespace Onyx::Graphics
 
             IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
             // remove resource cache
-            graphNode.Init(graphicsApi, m_ResourceCache);
+            graphNode.Init(graphicsSystem, m_ResourceCache);
 
             onyxU32 outputPinCount = graphNode.GetOutputPinCount();
             for (onyxU32 i = 0; i < outputPinCount; ++i)
@@ -87,7 +87,7 @@ namespace Onyx::Graphics
                     continue;
                 }
 
-                if (CreateAttachment(graphicsApi, output, freeList) == false)
+                if (CreateAttachment(graphicsSystem, output, freeList) == false)
                 {
                     // TODO: Add info for node / which output resource etc.
                     ONYX_LOG_WARNING("Failed creating output attachment for graph resource.");
@@ -129,12 +129,12 @@ namespace Onyx::Graphics
         for (const LocalNodeId nodeId : topologicalOrder)
         {
             IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
-            graphNode.Compile(graphicsApi, m_ResourceCache);
+            graphNode.Compile(graphicsSystem, m_ResourceCache);
         }
 
     }
 
-    void RenderGraph::Shutdown(GraphicsApi& graphicsApi)
+    void RenderGraph::Shutdown(GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -143,7 +143,7 @@ namespace Onyx::Graphics
         for (const LocalNodeId nodeId : m_Graph.GetTopologicalOrder())
         {
             IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
-            graphNode.Shutdown(graphicsApi);
+            graphNode.Shutdown(graphicsSystem);
         }
 
         m_ResourceCache.clear();
@@ -251,7 +251,7 @@ namespace Onyx::Graphics
         return m_ResourceCache.at(id);
     }
 
-    void RenderGraph::OnSwapChainResized(GraphicsApi& graphicsApi)
+    void RenderGraph::OnSwapChainResized(GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -259,7 +259,7 @@ namespace Onyx::Graphics
         for (LocalNodeId nodeId : m_Graph.GetTopologicalOrder())
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
-            node.OnSwapChainResized(graphicsApi, m_ResourceCache);
+            node.OnSwapChainResized(graphicsSystem, m_ResourceCache);
         }
     }
 
@@ -273,14 +273,14 @@ namespace Onyx::Graphics
         return m_ResourceCache.at(id);
     }
 
-    bool RenderGraph::CreateAttachment(GraphicsApi& graphicsApi, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList)
+    bool RenderGraph::CreateAttachment(GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
 
         const RenderGraphTextureResourceInfo& resourceInfo = std::get<RenderGraphTextureResourceInfo>(resource.Properties);
 
-        const Vector2s32& swapChainExtent = graphicsApi.GetSwapchainExtent();
+        const Vector2s32& swapChainExtent = graphicsSystem.GetSwapchainExtent();
 
         TextureStorageProperties storageProperties;
         storageProperties.m_Size = resourceInfo.HasSize ? resourceInfo.Size : Vector3s32(swapChainExtent, 1);
@@ -320,15 +320,15 @@ namespace Onyx::Graphics
 #if ONYX_IS_DEBUG
             texProp.m_DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.m_DebugName;
 #endif
-            graphicsApi.CreateAlias(std::get<TextureHandle>(resource.Handle), freeTexture.Storage, storageProperties, texProp);
+            graphicsSystem.CreateAlias(std::get<TextureHandle>(resource.Handle), freeTexture.Storage, storageProperties, texProp);
             return true;
         }
 
-        graphicsApi.CreateTexture(std::get<TextureHandle>(resource.Handle), storageProperties, texProp);
+        graphicsSystem.CreateTexture(std::get<TextureHandle>(resource.Handle), storageProperties, texProp);
         return true;
     }
 
-    //bool RenderGraph::CreateBuffer(GraphicsApi& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource)
+    //bool RenderGraph::CreateBuffer(GraphicsSystem& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource)
     //{
     //    ONYX_UNUSED(graphicsApi);
     //    ONYX_UNUSED(node);

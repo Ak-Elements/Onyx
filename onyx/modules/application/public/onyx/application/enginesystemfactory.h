@@ -1,6 +1,6 @@
+#pragma once
 #include <onyx/engine/enginesystem.h>
 
-#include <onyx/application/application.h>
 #include <onyx/serialize/deserializer.h>
 
 namespace Onyx::Application
@@ -26,14 +26,130 @@ namespace Onyx::Application
         { &T::Update } -> IsMemberFunctionPointer;
     };
 
-    struct EngineModuleMeta
+    struct IEngineModuleMeta
     {
-        Function<UniquePtr<IEngineSystem>()> CreateFunctor;
-        Function<UniquePtr<IEngineSystem>(const Deserializer&)> CreateWithConfigFunctor;
-        Function<void(Application&, IEngineSystem&)> InitFunctor;
-        Function<void(Application&, IEngineSystem&)> ShutdownFunctor;
+        virtual ~IEngineModuleMeta() = default;
 
-        Function<void(Application&, IEngineSystem&, DeltaGameTime)> UpdateFunctor;
+        virtual constexpr bool IsInitializable() const = 0;
+        virtual constexpr bool IsShutdownable() const = 0;
+        virtual constexpr bool IsUpdatable() const = 0;
+
+        virtual UniquePtr<IEngineSystem> Create() const = 0;
+        virtual UniquePtr<IEngineSystem> Create(const Deserializer&) const = 0;
+        virtual void Init(IEngine& engine, IEngineSystem&) const = 0;
+        virtual void Shutdown(IEngine& engine, IEngineSystem&) const = 0;
+        virtual InplaceFunction<void(IEngine&, DeltaGameTime)> BuildUpdateCall(IEngineSystem&) const = 0;
+    };
+
+    template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+    struct EngineModuleMeta final : public IEngineModuleMeta
+    {
+        bool IsInitializable() const override { return Initializable<T>; }
+        bool IsShutdownable() const override { return Shutdownable<T>; }
+        bool IsUpdatable() const override { return Updatable<T>; }
+
+        UniquePtr<IEngineSystem> Create() const override  { return MakeUnique<T>(); }
+        UniquePtr<IEngineSystem> Create(const Deserializer& deserializer) const override
+        {
+            if constexpr (Deserializable<T>)
+            {
+                UniquePtr<T> newInstance = MakeUnique<T>();
+                deserializer.Read(*newInstance);
+                return std::move(newInstance);
+            }
+            else
+            {
+                return MakeUnique<T>();
+            }
+        }
+
+        void Init(IEngine& engine, IEngineSystem& systemInstance) const override
+        {
+            if constexpr (Initializable<T>)
+            {
+                T& typedSystemInstance = static_cast<T&>(systemInstance);
+                using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Init));
+                InvokeWithTypeList(FunctionArgs{}, [&]<typename... FunctionArg>()
+                {
+                    typedSystemInstance.Init(engine.GetSystem<std::remove_reference_t<FunctionArg>>()...);
+                });
+            }
+            else
+            {
+                ONYX_ASSERT(false, "Not supported");
+            }
+        }
+
+        void Shutdown(IEngine& engine, IEngineSystem& systemInstance) const override
+        {
+            if constexpr (Shutdownable<T>)
+            {
+                T& typedSystemInstance = static_cast<T&>(systemInstance);
+                using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Shutdown));
+                InvokeWithTypeList(FunctionArgs{}, [&]<typename... FunctionArg>()
+                {
+                    typedSystemInstance.Shutdown(engine.GetSystem<std::remove_reference_t<FunctionArg>>()...);
+                });
+                //CallShutdown<T, FunctionArgs...>(typedSystemInstance, engine);
+            }
+            else
+            {
+                ONYX_ASSERT(false, "Not supported");
+            }
+        }
+
+        InplaceFunction<void(IEngine&, DeltaGameTime)> BuildUpdateCall(IEngineSystem& systemInstance) const override
+        {
+            if constexpr (Updatable<T>)
+            {
+                using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Update));
+                return [&](IEngine& engine, DeltaGameTime deltaTime)
+                {
+                    T& typedSystemInstance = static_cast<T&>(systemInstance);
+                    InvokeWithTypeList(FunctionArgs{}, [&]<typename... FunctionArg>()
+                    {
+                        typedSystemInstance.Update(ResolveFunctionArg<FunctionArg>(engine, deltaTime)...);
+                    });
+                };
+            }
+            else
+            {
+                ONYX_ASSERT(false, "Not supported");
+                return nullptr;
+            }
+        }
+
+    private:
+        
+
+        template<typename FunctionArg>
+        FunctionArg ResolveFunctionArg(IEngine& engine, DeltaGameTime deltaTime) const
+        {
+            if constexpr (std::is_same_v<DeltaGameTime, FunctionArg>)
+                return deltaTime;
+            else if constexpr (std::is_base_of_v<IEngine, std::remove_const_t<std::remove_reference_t<FunctionArg>>>)
+                return static_cast<FunctionArg>(engine);
+            else
+                return engine.GetSystem<std::remove_reference_t<FunctionArg>>();
+        }
+
+        template <typename T, typename... Args>
+        void CallInit(T& instance, IEngine& engine) const
+        {
+            instance.Init(engine.GetSystem<std::remove_reference_t<Args>>()...);
+        }
+
+        template <typename T, typename... Args>
+        void CallShutdown(T& instance, IEngine& engine) const
+        {
+            instance.Shutdown(engine.GetSystem<std::remove_reference_t<Args>>()...);
+        }
+
+        template <typename T, typename... Args>
+        void CallUpdate(T& instance, IEngine& engine) const
+        {
+            instance.Update(engine.GetSystem<std::remove_reference_t<Args>>()...);
+        }
     };
 
     struct EngineModuleFactory
@@ -42,100 +158,14 @@ namespace Onyx::Application
         template <typename T> requires std::is_base_of_v<IEngineSystem, T>
         static bool RegisterSystem()
         {
-            EngineModuleMeta& systemMeta = s_SystemMeta[T::TypeId];
-
-            systemMeta.CreateFunctor = []() { return MakeUnique<T>(); };
-
-            if constexpr (Deserializable<T>)
-            {
-                systemMeta.CreateWithConfigFunctor = [](const Deserializer& deserializer)
-                {
-                    UniquePtr<T> newInstance = MakeUnique<T>();
-                    deserializer.Read(*newInstance);
-                    return std::move(newInstance);
-                };
-            }
-
-            if constexpr (Initializable<T>)
-            {
-                systemMeta.InitFunctor = [](Application& application, IEngineSystem& systemInstance)
-                {
-                    T& typedSystemInstance = static_cast<T&>(systemInstance);
-                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Init));
-
-                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
-                    {
-                        return GetModuleDependency<std::remove_reference_t<U>>(application);
-                    });
-
-                    std::apply(std::bind_front(&T::Init, &typedSystemInstance), dependencies);
-                };
-                
-            }
-
-            if constexpr (Shutdownable<T>)
-            {
-                systemMeta.ShutdownFunctor = [](Application& application, IEngineSystem& systemInstance)
-                {
-                    T& typedSystemInstance = static_cast<T&>(systemInstance);
-                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Shutdown));
-                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U { return GetModuleDependency<std::remove_reference_t<U>>(application); });
-                    std::apply(std::bind_front(&T::Shutdown, &typedSystemInstance), dependencies);
-                };
-            }
-
-            if constexpr (Updatable<T>)
-            {
-                systemMeta.UpdateFunctor = [](Application& application, IEngineSystem& systemInstance, DeltaGameTime deltaTime)
-                {
-                    using FunctionArgs = decltype(GetFunctionArgumentTypes(&T::Update));
-                    auto dependencies = ForEachAndCollect<FunctionArgs>([&]<typename U>() -> U
-                    {
-                        if constexpr (std::is_same_v<U, DeltaGameTime>)
-                        {
-                            return deltaTime;
-                        }
-                        else
-                        {
-                            return GetModuleDependency<std::remove_reference_t<U>>(application);
-                        }
-                    });
-
-                    T& typedSystemInstance = static_cast<T&>(systemInstance);
-                    std::apply(std::bind_front(&T::Update, &typedSystemInstance), dependencies);
-                };
-            }
-
+            s_SystemMeta[T::TypeId] = MakeUnique<EngineModuleMeta<T>>();
             return true;
         }
 
-        static UniquePtr<IEngineSystem> CreateSystem(StringId32 moduleId, const Deserializer& deserializer)
-        {
-            const EngineModuleMeta& meta = GetMeta(moduleId);
-            return meta.CreateWithConfigFunctor ? meta.CreateWithConfigFunctor(deserializer) : meta.CreateFunctor();
-        }
-
-        static UniquePtr<IEngineSystem> CreateSystem(StringId32 moduleId) { return GetMeta(moduleId).CreateFunctor(); }
-        static const EngineModuleMeta& GetMeta(StringId32 moduleId) { return s_SystemMeta.at(moduleId); }
-
-    private:
-        template <typename T>
-        static T& GetModuleDependency(Application& application)
-        {
-            if constexpr (std::is_base_of_v<Graphics::Window, T>)
-                return application.GetSystem<Graphics::GraphicsSystem>().GetWindow();
-            else if constexpr (std::is_base_of_v<Graphics::GraphicsApi, T>)
-                return application.GetSystem<Graphics::GraphicsSystem>().GetGraphicsApi();
-            else if constexpr (std::is_base_of_v<IEngine, T>)
-                return application;
-            else
-            {
-                static_assert(std::is_base_of_v<IEngineSystem, T>, "Dependency must be derived from IEngineSystem or Window/GraphicsApi");
-                return application.GetSystem<T>();
-            }
-        }
         
+        static const IEngineModuleMeta& GetMeta(StringId32 moduleId) { return *s_SystemMeta.at(moduleId); }
+
     private:
-        static inline HashMap<StringId32, EngineModuleMeta> s_SystemMeta;
+        static inline HashMap<StringId32, UniquePtr<IEngineModuleMeta>> s_SystemMeta;
     };
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
-#include <onyx/assets/asset.h>
+#include <onyx/assets/assetid.h>
 
 #include <onyx/localization/localizationbackend.h>
 

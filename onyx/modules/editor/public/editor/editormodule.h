@@ -27,7 +27,7 @@ namespace Onyx
 
     namespace Graphics
     {
-        class GraphicsApi;
+        class GraphicsSystem;
     }
 
     namespace Ui
@@ -50,7 +50,7 @@ namespace Onyx::Editor
         void Init(GameCore::GameCoreSystem& gameCore,
             Ui::ImGuiSystem& imguiSystem,
             Assets::AssetSystem& assetSystem,
-            Graphics::GraphicsApi& graphicsApi,
+            Graphics::GraphicsSystem& graphicsSystem,
             Input::InputSystem& inputSystem,
             Input::InputActionSystem& inputActionSystem,
             Localization::LocalizationModule& locaModule);

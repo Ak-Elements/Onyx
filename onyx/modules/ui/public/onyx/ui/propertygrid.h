@@ -2,17 +2,14 @@
 
 #if ONYX_IS_EDITOR
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <onyx/ui/controls/vectorcontrol.h>
-#include <onyx/assets/asset.h>
-
-#include <imgui_internal.h>
+#include <onyx/assets/assetid.h>
 
 namespace Onyx::Assets
 {
     class AssetSystem;
     struct AssetMetaData;
+    enum class AssetType : onyxU32;
 }
 
 namespace Onyx::Ui

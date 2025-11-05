@@ -7,7 +7,7 @@
 #include <onyx/application/log/logsinkfile.h>
 #include <onyx/application/debug/gui/notificationloggersink.h>
 
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/windowsystem.h>
 #include <onyx/graphics/window.h>
 
 #include <onyx/ui/imguisystem.h>
@@ -94,25 +94,23 @@ namespace Onyx::Application
             // create modules requested by project
             for (const StringId32& moduleId : applicationModules)
             {
-                m_Modules.emplace_back(EngineModuleFactory::CreateSystem(moduleId, configDeserializer));
+                const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
+                m_Modules.emplace_back(meta.Create(configDeserializer));
             }
         }
 
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : m_Modules)
         {
-            const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
-            if (meta.InitFunctor)
+            const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
+            if (meta.IsInitializable())
             {
-                meta.InitFunctor(*this, *engineModule);
+                meta.Init(*this, *engineModule);
             }
 
-            if (meta.UpdateFunctor)
+            if (meta.IsUpdatable())
             {
-                m_UpdatableModules.push_back([&](DeltaGameTime gameTime)
-                {
-                    meta.UpdateFunctor(*this, *engineModule, gameTime);
-                });
+                m_UpdatableModules.emplace_back(meta.BuildUpdateCall(*engineModule));
             }
         }
 
@@ -125,18 +123,18 @@ namespace Onyx::Application
 
         OnApplicationShutdown(*this);
 
-        // shut down asset system manually first so we release all references
-        GetSystem<Assets::AssetSystem>().Shutdown();
+        // Remove asset system first so we release all loaded resource references
+        RemoveModule<Assets::AssetSystem>();
 
-        GetSystem<Graphics::GraphicsSystem>().GetWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
+        GetSystem<Graphics::WindowSystem>().GetMainWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
 
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
         {
-            const EngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
-            if (meta.ShutdownFunctor)
+            const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
+            if (meta.IsShutdownable())
             {
-                meta.ShutdownFunctor(*this, *engineModule);
+                meta.Shutdown(*this, *engineModule);
             }
 
             engineModule.reset();
@@ -154,8 +152,8 @@ namespace Onyx::Application
 #endif
 
         Graphics::GraphicsSystem& graphicsSystem = GetSystem<Graphics::GraphicsSystem>();
-        Graphics::GraphicsApi& graphicsApi = graphicsSystem.GetGraphicsApi();
-        graphicsSystem.GetWindow().AddOnCloseHandler(this, &Application::OnWindowClose);
+        Graphics::WindowSystem& windowSystem = GetSystem<Graphics::WindowSystem>();
+        windowSystem.GetMainWindow().AddOnCloseHandler(this, &Application::OnWindowClose);
 
         //onyxU64 lastFixedUpdateFrameTime = 0;
         onyxU64 lastFrameTime = Time::GetCurrentMilliseconds();
@@ -164,12 +162,12 @@ namespace Onyx::Application
         {
             const onyxU64 currentFrameTime = Time::GetCurrentMilliseconds();
             const onyxU64 deltaFrameTime = currentFrameTime - lastFrameTime;
-            const bool hasBegunFrame = graphicsApi.BeginFrame();
+            const bool hasBegunFrame = graphicsSystem.BeginFrame();
 
             if (hasBegunFrame == false)
                 continue;
 
-            Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
+            Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
             ONYX_UNUSED(frameContext);
 #if ONYX_USE_IMGUI
             if (hasImGuiSystem)
@@ -184,13 +182,13 @@ namespace Onyx::Application
                 ONYX_PROFILE_SECTION(UpdateModules)
                 for (const auto& updateModule : m_UpdatableModules)
                 {
-                    updateModule(deltaFrameTime);
+                    updateModule(*this, deltaFrameTime);
                 }
             }
 
             if (hasBegunFrame)
             {
-                graphicsApi.Render();
+                graphicsSystem.Render();
 
 #if ONYX_USE_IMGUI
                 if (hasImGuiSystem)
@@ -199,7 +197,7 @@ namespace Onyx::Application
                     imGuiSystem.OnEndFrame();
                 }
 #endif
-                graphicsApi.EndFrame();
+                graphicsSystem.EndFrame();
             }
 
             lastFrameTime = currentFrameTime;

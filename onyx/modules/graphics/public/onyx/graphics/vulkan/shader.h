@@ -16,7 +16,7 @@ namespace Onyx::Graphics::Vulkan
 	class ShaderModule
     {
 	public:
-		ShaderModule(VulkanGraphicsApi& api, const DynamicArray<onyxU32>& byteCode);
+		ShaderModule(VulkanGraphicsApi& api, DynamicArray<onyxU32> byteCode);
 		~ShaderModule();
 
 	private:
@@ -32,9 +32,9 @@ namespace Onyx::Graphics::Vulkan
 		Shader() = default;
 		~Shader() override;
 
-		bool AddStage(GraphicsApi& api, ShaderStage stage, const DynamicArray<onyxU32>& byteCode) override;
+		bool AddStage(GraphicsSystem& graphicsSystem, ShaderStage stage, const DynamicArray<onyxU32>& byteCode) override;
 		void RemoveStage(ShaderStage stage) override;
-		bool UpdateReflectionData(GraphicsApi& api, ShaderReflectionInfo& reflectionInfo) override;
+		bool UpdateReflectionData(GraphicsSystem& graphicsSystem, ShaderReflectionInfo& reflectionInfo) override;
 		const ShaderReflectionInfo& GetReflectionData() const override { return m_ReflectionInfo; }
 
 		onyxU64 GetShaderHash() const override { return m_ShaderHash; }

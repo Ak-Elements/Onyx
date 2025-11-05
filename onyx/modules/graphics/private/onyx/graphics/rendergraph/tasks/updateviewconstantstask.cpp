@@ -1,10 +1,11 @@
 #include <onyx/graphics/rendergraph/tasks/updateviewconstantstask.h>
 
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 
 namespace Onyx::Graphics
 {
-    void GetViewConstantsNode::Init(GraphicsApi& /*api*/, RenderGraphResourceCache& resourceCache)
+    void GetViewConstantsNode::Init(GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache)
     {
         onyxU64 outputGlobalPinId = GetOutputPin(0)->GetGlobalId();
         RenderGraphResource& resource = resourceCache[outputGlobalPinId];

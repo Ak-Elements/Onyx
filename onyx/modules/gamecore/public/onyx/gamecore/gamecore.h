@@ -5,7 +5,11 @@
 #include <onyx/entity/ecsbuilder.h>
 
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/graphicsapi.h>
+
+namespace Onyx::Graphics
+{
+    class GraphicsSystem;
+}
 
 namespace Onyx::Assets
 {
@@ -15,12 +19,12 @@ namespace Onyx::Assets
 namespace Onyx::Entity
 {
     template <>
-    class DependentFunctionArg<Graphics::GraphicsApi&> : public IDependentFunctionArg
+    class DependentFunctionArg<Graphics::GraphicsSystem&> : public IDependentFunctionArg
     {
     public:
         ~DependentFunctionArg() override = default;
 
-        static Graphics::GraphicsApi& Get(const ECSExecutionContext& context);
+        static Graphics::GraphicsSystem& Get(const ECSExecutionContext& context);
     };
 
     template <>
@@ -54,7 +58,7 @@ namespace Onyx::GameCore
 
         void Init(Assets::AssetSystem& assetSystem);
         
-        void Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine);
+        void Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine);
 
         void SetScene(Reference<Scene>& scene) { m_Scene = scene; }
 

@@ -12,7 +12,7 @@ namespace Onyx::GameCore
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnInit(Graphics::GraphicsApi& api, HashMap<Graphics::RenderGraphResourceId, Graphics::RenderGraphResource>& resourceCache) override;
+        void OnInit(Graphics::GraphicsSystem& api, HashMap<Graphics::RenderGraphResourceId, Graphics::RenderGraphResource>& resourceCache) override;
 
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
 

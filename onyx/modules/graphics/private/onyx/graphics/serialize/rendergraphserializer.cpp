@@ -1,6 +1,6 @@
 #include <onyx/graphics/serialize/rendergraphserializer.h>
 
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
@@ -34,9 +34,9 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    RenderGraphSerializer::RenderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi)
+    RenderGraphSerializer::RenderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsSystem& graphicsSystem)
         : AssetSerializer(assetSystem)
-        , m_GraphicsApi(&graphicsApi)
+        , m_GraphicsSystem(&graphicsSystem)
     {
     }
 
@@ -54,11 +54,9 @@ namespace Onyx::Graphics
 
     bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer) const
     {
-        ONYX_ASSERT(m_GraphicsApi != nullptr);
+        ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
         RenderGraph& renderGraph = asset.As<RenderGraph>();
-        //if (deserializer.Read(renderGraph, m_GraphicsApi) == false)
-        //    return false;
 
         RenderGraphNodeFactory factory;
         NodeGraph::NodeGraph& outGraph = renderGraph.GetNodeGraph();
@@ -67,7 +65,7 @@ namespace Onyx::Graphics
             return false;
         }
 
-        renderGraph.Init(*m_GraphicsApi);
+        renderGraph.Init(*m_GraphicsSystem);
         return true;
     }
 }

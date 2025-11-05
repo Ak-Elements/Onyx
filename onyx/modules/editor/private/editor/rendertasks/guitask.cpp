@@ -2,7 +2,6 @@
 
 #include <onyx/graphics/bufferproperties.h>
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/textureproperties.h>
 #include <onyx/graphics/texturestorageproperties.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
@@ -11,10 +10,11 @@
 #include <onyx/profiler/profiler.h>
 
 #include <imgui.h>
+#include <onyx/graphics/graphicssystem.h>
 
 namespace Onyx
 {
-    void UITask::Init(Graphics::GraphicsApi& api, Graphics::ShaderInstanceHandle& /*shaderInstance*/)
+    void UITask::Init(Graphics::GraphicsSystem& api, Graphics::ShaderInstanceHandle& /*shaderInstance*/)
     {
         ImGuiIO& io = ImGui::GetIO();
 
@@ -72,7 +72,7 @@ namespace Onyx
         }
     }
 
-    void UITask::Shutdown(Graphics::GraphicsApi& /*api*/)
+    void UITask::Shutdown(Graphics::GraphicsSystem& /*api*/)
     {
         m_VertexBuffers.Clear();
         m_IndexBuffers.Clear();
@@ -273,7 +273,7 @@ namespace Onyx
         AddOutPin<OutPin>();
     }
 
-    void UIRenderGraphNode::OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& /*resourceCache*/)
+    void UIRenderGraphNode::OnInit(Graphics::GraphicsSystem& api, RenderGraphResourceCache& /*resourceCache*/)
     {
         /*Graphics::RenderGraphResourceInfo& input = m_Inputs.emplace_back();
         input.Id = Hash::FNV1aHash32("final");

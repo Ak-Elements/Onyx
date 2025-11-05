@@ -77,10 +77,10 @@ namespace Onyx::Editor
             if (ImGui::MenuItem(Localization::Editor::Windows::ShaderGraphEditorTitle.Get().data()))
             {
                 ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
-                ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+                ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
 
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-                window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
+                window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             }
 
             if (ImGui::MenuItem(Localization::Editor::Windows::RenderGraphEditorTitle.Get().data()))
@@ -92,10 +92,10 @@ namespace Onyx::Editor
             if (ImGui::MenuItem(Localization::Editor::Windows::VolumeShaderGraphEditorTitle.Get().data()))
             {
                 ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
-                ONYX_ASSERT(Ui::g_UiContext.GraphicsApi != nullptr);
+                ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
 
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-                window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsApi));
+                window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             }
 
             if (ImGui::BeginMenu(Localization::Editor::MainMenubar::View::Layouts::Label.Get().data()))

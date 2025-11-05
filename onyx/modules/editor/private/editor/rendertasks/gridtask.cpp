@@ -1,7 +1,6 @@
 #include <editor/rendertasks/gridtask.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
 
 #include <onyx/profiler/profiler.h>
 

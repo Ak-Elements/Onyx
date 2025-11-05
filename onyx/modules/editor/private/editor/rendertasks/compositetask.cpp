@@ -6,7 +6,7 @@
 
 namespace Onyx
 {
-    void CompositeRenderGraphNode::OnInit(Graphics::GraphicsApi& /*api*/ , RenderGraphResourceCache& /*resourceCache*/)
+    void CompositeRenderGraphNode::OnInit(Graphics::GraphicsSystem& /*api*/ , RenderGraphResourceCache& /*resourceCache*/)
     {
         /*Graphics::RenderGraphResourceInfo& input = m_Inputs.emplace_back();
         input.Id = Hash::FNV1aHash32("grid");

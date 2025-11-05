@@ -9,7 +9,6 @@
 #include <onyx/input/inputactionsystem.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/entity/entityregistry.h>
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/ui/imguiwindow.h>
 #include <onyx/ui/controls/dockspace.h>
 
@@ -40,7 +39,7 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "SceneEditor";
 
-        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem);
+        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, Input::InputActionSystem& inputActionSystem);
         ~SceneEditorWindow() override;
 
         Reference<GameCore::Scene>& GetScene() { return m_Scene; }
@@ -86,7 +85,7 @@ namespace Onyx::Editor
         Atomic<bool> m_IsLoading = false;
 
         GameCore::GameCoreSystem& m_GameCore;
-        Graphics::GraphicsApi& m_Api;
+        Graphics::GraphicsSystem& m_GraphicsSystem;
         Input::InputActionSystem& m_InputActionSystem;
         Assets::AssetSystem* m_AssetSystem;
         ImGuiWindowClass* m_WindowClass;

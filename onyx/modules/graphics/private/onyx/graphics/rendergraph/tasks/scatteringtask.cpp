@@ -1,7 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/scatteringtask.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
 
 namespace Onyx::Graphics
 {

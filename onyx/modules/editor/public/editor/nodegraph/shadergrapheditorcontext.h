@@ -4,12 +4,17 @@
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
+namespace Onyx::Graphics
+{
+    class GraphicsSystem;
+}
+
 namespace Onyx::Editor
 {
     class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::MaterialShaderGraph, Graphics::ShaderGraphNodeFactory>
     {
     public:
-        ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
+        ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem);
 
         bool Compile() override;
 
@@ -20,7 +25,7 @@ namespace Onyx::Editor
 
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
-        Graphics::GraphicsApi* m_GraphicsApi = nullptr;
+        Graphics::GraphicsSystem* m_GraphicsSystem = nullptr;
     };
 
 }

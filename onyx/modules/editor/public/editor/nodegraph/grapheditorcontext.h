@@ -1,6 +1,5 @@
 #pragma once
 
-#include <onyx/assets/asset.h>
 #include <onyx/filesystem/path.h>
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/nodegraphfactory.h>

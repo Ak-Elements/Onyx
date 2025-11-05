@@ -1,55 +1,43 @@
 #pragma once
 
-#include <onyx/assets/asset.h>
+#include <onyx/assets/assetid.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 
 namespace Onyx
 {
+    namespace Assets
+    {
+        class AssetSystem;
+    }
+
     namespace Graphics
     {
         class MaterialShaderGraph;
     }
 
-    class Stream;
-
-    namespace Assets
+    namespace GameCore
     {
-        struct AssetId;
+        struct MaterialComponent
+        {
+            static constexpr StringId32 TypeId = "Onyx::GameCore::Components::MaterialComponent";
+            StringId32 GetTypeId() const { return TypeId; }
+
+            Assets::AssetId MaterialId;
+            Reference<Graphics::MaterialShaderGraph> Material;
+
+            void LoadMaterial(Assets::AssetSystem& assetSystem);
+    #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+            // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
+            bool DrawImGuiEditor();
+    #endif
+        };
     }
 
-    namespace FileSystem
+    template <>
+    struct Serialization<GameCore::MaterialComponent>
     {
-        struct JsonValue;
-    }
-
-}
-
-namespace Onyx
-{
-
-namespace GameCore
-{
-    struct MaterialComponent
-    {
-        static constexpr StringId32 TypeId = "Onyx::GameCore::Components::MaterialComponent";
-        StringId32 GetTypeId() const { return TypeId; }
-
-        Assets::AssetId MaterialId;
-        Reference<Graphics::MaterialShaderGraph> Material;
-
-        void LoadMaterial(Assets::AssetSystem& assetSystem);
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
-        bool DrawImGuiEditor();
-#endif
+        static bool Serialize(Serializer& serializer, const GameCore::MaterialComponent& material);
+        static bool Deserialize(const Deserializer& deserializer, GameCore::MaterialComponent& outMaterial);
     };
-}
-
-template <>
-struct Serialization<GameCore::MaterialComponent>
-{
-    static bool Serialize(Serializer& serializer, const GameCore::MaterialComponent& material);
-    static bool Deserialize(const Deserializer& deserializer, GameCore::MaterialComponent& outMaterial);
-};
 
 }

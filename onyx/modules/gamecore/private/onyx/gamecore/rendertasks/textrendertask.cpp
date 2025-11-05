@@ -2,15 +2,16 @@
 #include <onyx/graphics/textureasset.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 
 #include <onyx/gamecore/scene/sceneframedata.h>
-#include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
+#include <onyx/graphics/vertex.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::GameCore
 {
-    void MSDFFontRenderPass::OnInit(Graphics::GraphicsApi& api, Graphics::RenderGraphResourceCache& /*resourceCache*/)
+    void MSDFFontRenderPass::OnInit(Graphics::GraphicsSystem& api, Graphics::RenderGraphResourceCache& /*resourceCache*/)
     {
         constexpr onyxU32 MAX_QUADS = 10000;
         constexpr onyxU32 MAX_VERTICES = MAX_QUADS * 4;
@@ -47,7 +48,7 @@ namespace Onyx::GameCore
         m_IndexBuffer.Buffer->SetData(0, indices, static_cast<onyxU32>(MAX_INDICES * sizeof(onyxU16)));
     }
 
-    void MSDFFontRenderPass::OnShutdown(Graphics::GraphicsApi& /*api*/)
+    void MSDFFontRenderPass::OnShutdown(Graphics::GraphicsSystem& /*api*/)
     {
         m_VertexBuffer.Buffer.Reset();
         m_IndexBuffer.Buffer.Reset();

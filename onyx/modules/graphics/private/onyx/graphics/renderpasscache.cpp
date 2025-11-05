@@ -1,10 +1,10 @@
 #include <onyx/graphics/renderpasscache.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 
 namespace Onyx::Graphics
 {
-    RenderPassCache::RenderPassCache(GraphicsApi& graphicsApi)
-        : m_GraphicsApi(graphicsApi)
+    RenderPassCache::RenderPassCache(GraphicsSystem& graphicsSystem)
+        : m_GraphicsSystem(graphicsSystem)
     {
     }
 
@@ -21,7 +21,7 @@ namespace Onyx::Graphics
         if (it != m_Cache.end())
             return it->second;
 
-        RenderPassHandle renderPassHandle = m_GraphicsApi.CreateRenderPass(settings);
+        RenderPassHandle renderPassHandle = m_GraphicsSystem.CreateRenderPass(settings);
         m_Cache[renderPassHash] = renderPassHandle;
         return renderPassHandle;
     }

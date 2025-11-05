@@ -4,7 +4,7 @@
 
 namespace Onyx::Graphics
 {
-    //PipelineHandle PsoCache::GetOrCreatePipeline(GraphicsApi& api, const PsoKey& key, ShaderEffectHandle& outPso)
+    //PipelineHandle PsoCache::GetOrCreatePipeline(GraphicsSystem& api, const PsoKey& key, ShaderEffectHandle& outPso)
     //{
     //    ONYX_UNUSED(api);
     //    ONYX_UNUSED(outPso);
@@ -26,7 +26,7 @@ namespace Onyx::Graphics
     }
 
     //    // TODO: maybe friend class and not expose CreateFramebuffer in the public interface?
-    //    //FramebufferHandle framebufferHandle = m_GraphicsApi.CreateFramebuffer(framebufferSettings);
+    //    //FramebufferHandle framebufferHandle = m_GraphicsSystem.CreateFramebuffer(framebufferSettings);
     //    //m_Cache[framebufferHash] = framebufferHandle;
     //    return PipelineHandle::Invalid();
     //}

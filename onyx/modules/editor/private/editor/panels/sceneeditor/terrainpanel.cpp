@@ -1,6 +1,5 @@
 ﻿#include <editor/panels/sceneeditor/terrainpanel.h>
 
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/commandbuffer.h>
 
 #include <onyx/gamecore/scene/scene.h>
@@ -13,6 +12,10 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/ui/scopedcolor.h>
 
+#include <editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
+#include <editor/panels/sceneeditor/terraintools/sculptterraintool.h>
+#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -20,9 +23,7 @@
 #include <ImGuizmo.h>
 #include <imgui_extra_math.inl>
 #include <imgui_internal.h>
-#include <editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
-#include <editor/panels/sceneeditor/terraintools/sculptterraintool.h>
-#include <onyx/graphics/shader/shaderproperties.h>
+
 
 namespace
 {
@@ -668,8 +669,8 @@ namespace
 
 namespace Onyx::Editor::SceneEditor
 {
-    TerrainPanel::TerrainPanel(Input::InputActionSystem& actionSystem, Graphics::GraphicsApi& graphicsApi, GameCore::GameCoreSystem& gameCore)
-        : m_GraphicsApi(graphicsApi)
+    TerrainPanel::TerrainPanel(Input::InputActionSystem& actionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore)
+        : m_GraphicsSystem(graphicsSystem)
         , m_GameCore(gameCore)
     {
         actionSystem.OnInput<&TerrainPanel::OnTerrainPanelBrushSizeInput>("TerrainBrushScale"_id64, this);
@@ -681,7 +682,7 @@ namespace Onyx::Editor::SceneEditor
         ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress | Graphics::BufferUsage::Conditional);
         ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
-        graphicsApi.CreateBuffer(m_HitBuffer, ssboBufferProps);
+        graphicsSystem.CreateBuffer(m_HitBuffer, ssboBufferProps);
 
         ssboBufferProps.m_DebugName = "Terrain Brush Hit Readback";
         ssboBufferProps.m_Size = sizeof(Vector3f32) + sizeof(onyxU32);
@@ -689,24 +690,24 @@ namespace Onyx::Editor::SceneEditor
         ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Staging;
         //ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Read;
         ssboBufferProps.m_IsWritable = true;
-        graphicsApi.CreateBuffer(m_HitReadbackBuffer, ssboBufferProps);
+        graphicsSystem.CreateBuffer(m_HitReadbackBuffer, ssboBufferProps);
 
         ssboBufferProps.m_DebugName = "Split Update Request";
         ssboBufferProps.m_Size = sizeof(onyxU64) + 2 * sizeof(onyxU32);
         ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
         ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
-        graphicsApi.CreateBuffer(m_SplitRequestsBuffer, ssboBufferProps);
+        graphicsSystem.CreateBuffer(m_SplitRequestsBuffer, ssboBufferProps);
 
         ssboBufferProps.m_DebugName = "Collapse Update Request";
         ssboBufferProps.m_Size = sizeof(onyxU64) + 2 * sizeof(onyxU32);
         ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
         ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
-        graphicsApi.CreateBuffer(m_CollapseRequestsBuffer, ssboBufferProps);
+        graphicsSystem.CreateBuffer(m_CollapseRequestsBuffer, ssboBufferProps);
 
-        m_Tools.push_back(MakeUnique<SculptTerrainTool>(graphicsApi));
-        m_Tools.push_back(MakeUnique<PrimitivesTerrainTool>(graphicsApi));
+        m_Tools.push_back(MakeUnique<SculptTerrainTool>(graphicsSystem));
+        m_Tools.push_back(MakeUnique<PrimitivesTerrainTool>(graphicsSystem));
     }
 
     TerrainPanel::~TerrainPanel() = default;
@@ -725,7 +726,7 @@ namespace Onyx::Editor::SceneEditor
         bool isUsingAnyGizmo = ImGuizmo::IsUsingAny();
         bool isHoveringGizmo = ImGuizmo::IsOver();
 
-        Reference<Graphics::RenderGraph>& renderGraph = m_GraphicsApi.GetRenderGraph();
+        Reference<Graphics::RenderGraph>& renderGraph = m_GraphicsSystem.GetRenderGraph();
         Graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
 
         if (isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo)
@@ -756,7 +757,7 @@ namespace Onyx::Editor::SceneEditor
 
         Rect2f32 sceneViewport{ sceneViewWindow->Pos.x, sceneViewWindow->Pos.y, sceneViewWindow->Viewport->Size.x,sceneViewWindow->Viewport->Size.y };
 
-        Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsApi.GetCommandBuffer(m_GraphicsApi.GetFrameIndex(), true);
+        Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsSystem.GetCommandBuffer(m_GraphicsSystem.GetFrameIndex(), true);
         TraceTerrain(computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport);
 
         bool hasClickedLeft = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
@@ -969,7 +970,7 @@ namespace Onyx::Editor::SceneEditor
 
         constants.MousePosition[0] = ((mousePos.x - sceneViewport.Position[0]) / sceneViewport.Extents[0]) * 2.0f - 1.0f;
         constants.MousePosition[1] = (((mousePos.y - sceneViewport.Position[1]) / sceneViewport.Extents[1]) * -2.0f + 1.0f);
-        constants.ViewConstantsAddress = m_GraphicsApi.GetViewConstantsBuffer().GetGpuAddress();
+        constants.ViewConstantsAddress = m_GraphicsSystem.GetViewConstantsBuffer().GetGpuAddress();
         constants.HitBufferAddress = m_HitBuffer.GetGpuAddress();
         constants.VolumeSourcesList = terrainOctree.VolumeObjects.GetGpuAddress();
         constants.VolumeSourcesData = terrainOctree.VolumeObjectsData.GetGpuAddress();

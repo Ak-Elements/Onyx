@@ -12,6 +12,7 @@
 #include <editor/windows/editormainwindow.h>
 #include <editor/windows/startupwindow.h>
 #include <editor/windows/settings/inputactionsettingswindow.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/assets/gettextlocalizationdatabase.h>
 #include <onyx/ui/imguisystem.h>
@@ -30,7 +31,7 @@ namespace Onyx::Editor
     void EditorSystem::Init(GameCore::GameCoreSystem& gameCore,
         Ui::ImGuiSystem& imguiSystem,
         Assets::AssetSystem& assetSystem,
-        Graphics::GraphicsApi& graphicsApi,
+        Graphics::GraphicsSystem& graphicsSystem,
         Input::InputSystem& inputSystem,
         Input::InputActionSystem& inputActionSystem,
         Localization::LocalizationModule& localizationModule)
@@ -64,7 +65,7 @@ namespace Onyx::Editor
         imguiSystem.OpenWindow<EditorMainWindow>();
         imguiSystem.OpenWindow<StartupWindow>();
 
-        imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore,assetSystem, localizationModule, graphicsApi, inputActionSystem);
+        imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore,assetSystem, localizationModule, graphicsSystem, inputActionSystem);
         imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, localizationModule, inputActionSystem);
         imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, localizationModule, inputSystem);
     }

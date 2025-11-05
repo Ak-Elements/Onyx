@@ -6,8 +6,7 @@
 
 namespace Onyx::Graphics
 {
-    struct ShaderProperties;
-    class GraphicsApi;
+    class GraphicsSystem;
     struct ShaderReflectionInfo;
     class Shader;
 
@@ -52,7 +51,7 @@ namespace Onyx::Graphics
         // Shader cache path in temp directory
         static constexpr StringView SHADER_CACHE_PATH = "tmp:/shaders/cache";
 
-        ShaderCache(GraphicsApi& api);
+        ShaderCache(GraphicsSystem& graphicsSystem);
         bool GetOrLoadShader(const FileSystem::Filepath& shaderPath, Reference<Shader>& outShader);
         void Clear();
 
@@ -67,7 +66,7 @@ namespace Onyx::Graphics
         bool AreIncludesUpToDate(const HashMap<onyxU64, onyxU64>& includeHashes) const;
 
     private:
-        GraphicsApi& m_Api;
+        GraphicsSystem& m_GraphicsSystem;
         HashMap<onyxU64, ShaderCacheEntry> m_Cache;
         // stores a shader include path and the hashed content - used to identify if a shader has changed
         HashMap<onyxU64, ShaderIncludeCacheEntry> m_IncludesCache;

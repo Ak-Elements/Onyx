@@ -1,7 +1,6 @@
 #include <editor/panels/sceneeditor/terraintools/sculptterraintool.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
@@ -545,7 +544,7 @@ namespace Onyx::Editor
         }
     }
 
-    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsApi& /*graphicsApi*/)
+    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsSystem& /*graphicsSystem*/)
     {
         //Graphics::PipelineProperties properties;
         //properties.m_DebugName = "Apply Terrain Brush";

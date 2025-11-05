@@ -1,7 +1,7 @@
 #pragma once
 
 #include <onyx/noncopyable.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicshandles.h>
 #include <onyx/graphics/vulkan/vulkan.h>
 
 namespace Onyx::Graphics

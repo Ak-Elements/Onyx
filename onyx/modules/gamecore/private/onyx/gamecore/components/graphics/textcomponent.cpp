@@ -1,7 +1,6 @@
-#include <onyx/encoding.h>
 #include <onyx/gamecore/components/graphics/textcomponent.h>
+#include <onyx/encoding.h>
 
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/font/sdffont.h>
 
 #include <onyx/serialize/serializer.h>

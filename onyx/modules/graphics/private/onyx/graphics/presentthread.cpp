@@ -1,6 +1,6 @@
-#include <onyx/graphics/graphicsapi.h>
-
 #include <onyx/graphics/presentthread.h>
+
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/vulkan/swapchain.h>
 #include <onyx/graphics/window/windows/nativewindow.h>
@@ -8,8 +8,8 @@
 
 namespace Onyx::Graphics
 {
-    PresentThread::PresentThread(GraphicsApi& graphicsApi)
-        : m_GraphicsApi(&graphicsApi)
+    PresentThread::PresentThread(GraphicsSystem& graphicsSystem)
+        : m_GraphicsSystem(&graphicsSystem)
     {
     }
 
@@ -58,10 +58,10 @@ namespace Onyx::Graphics
 
     void PresentThread::OnUpdate()
     {
-        Vulkan::VulkanGraphicsApi& vulkan = m_GraphicsApi->GetApi<Vulkan::VulkanGraphicsApi>();
+        Vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->GetApi<Vulkan::VulkanGraphicsApi>();
         Vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
 
-        SetRefreshRate(m_GraphicsApi->GetRefreshRate());
+        SetRefreshRate(m_GraphicsSystem->GetRefreshRate());
 
         while (IsRunning())
         {
@@ -87,7 +87,7 @@ namespace Onyx::Graphics
                 if (hasPresented == false)
                 {
                     ClearQueue();
-                    m_GraphicsApi->OnWindowResize(swapChain.GetExtent()[0], swapChain.GetExtent()[1]);
+                    m_GraphicsSystem->OnWindowResize(swapChain.GetExtent()[0], swapChain.GetExtent()[1]);
                 }
             }
 

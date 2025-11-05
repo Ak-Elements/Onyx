@@ -1,5 +1,6 @@
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 
 #include <onyx/serialize/serializer.h>

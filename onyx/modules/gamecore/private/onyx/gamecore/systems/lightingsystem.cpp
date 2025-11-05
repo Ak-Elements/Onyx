@@ -7,7 +7,7 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/framecontext.h>
 
 namespace Onyx::GameCore::Lighting
 {

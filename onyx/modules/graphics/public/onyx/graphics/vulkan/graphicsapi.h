@@ -1,6 +1,6 @@
 #pragma once
 
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicsapiinterface.h>
 #include <onyx/graphics/graphicsresourcepool.h>
 #include <onyx/graphics/sampler.h>
 
@@ -31,7 +31,7 @@ namespace Onyx::Graphics
 
         static constexpr onyxU32 BINDLESS_TEXTURE_BINDING = 0;
 
-        class VulkanGraphicsApi : public GraphicsApiImpl
+        class VulkanGraphicsApi : public GraphicsApiInterface
         {
         public:
             VulkanGraphicsApi();

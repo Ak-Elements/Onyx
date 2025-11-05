@@ -12,6 +12,16 @@ namespace Onyx::Graphics
     // keep in sync with ShaderStage enum in Graphics::ShaderModule
     inline constexpr onyxU8 MAX_SHADER_STAGES = 5;
 
+    inline constexpr onyxU8 BINDLESS_SET = 0;
+    inline constexpr onyxU32 MAX_BINDLESS_RESOURCES = 1024;
+
+    enum class ApiType : onyxU8
+    {
+        None,
+        Dx12,
+        Vulkan
+    };
+
     enum class Access : onyxU32
     {
         None,

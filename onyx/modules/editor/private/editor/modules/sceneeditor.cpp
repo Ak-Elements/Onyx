@@ -10,6 +10,8 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/localization/localization.h>
 #include <onyx/ui/imguisystem.h>
 #include <onyx/filesystem/filedialog.h>
@@ -31,13 +33,13 @@ namespace Onyx::Editor
         onyxU32 local_WindowId = 0;
     }
 
-    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsApi& graphicsApi, Input::InputActionSystem& inputActionSystem)
+    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, Input::InputActionSystem& inputActionSystem)
         : m_GameCore(gameCore)
-        , m_Api(graphicsApi)
+        , m_GraphicsSystem(graphicsSystem)
         , m_InputActionSystem(inputActionSystem)
         , m_AssetSystem(&assetSystem)
         , m_ComponentsPanel(localizationModule)
-        , m_TerrainPanel(inputActionSystem, graphicsApi, gameCore)
+        , m_TerrainPanel(inputActionSystem, graphicsSystem, gameCore)
         , m_WindowId(local_WindowId++)
     {
         m_WindowClass = new ImGuiWindowClass();
@@ -210,7 +212,7 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderSceneViewport()
     {
         // TODO TEMP: expose final pin to the outside
-        const Graphics::TextureHandle& finalSceneTexture  = m_Api.GetRenderGraph()->GetFinalTexture();
+        const Graphics::TextureHandle& finalSceneTexture  = m_GraphicsSystem.GetRenderGraph()->GetFinalTexture();
 
         const Graphics::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
         ImVec2 sceneTextureExtents = { static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1]) };
@@ -440,12 +442,12 @@ namespace Onyx::Editor
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 65536);
-        camera.Camera.SetViewportExtents(m_Api.GetSwapchainExtent());
+        camera.Camera.SetViewportExtents(m_GraphicsSystem.GetSwapchainExtent());
         const GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
         GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
         runtimeComponent.Velocity = freeCameraController.BaseVelocity;
 
-        m_Api.SetCamera(camera.Camera);
+        m_GraphicsSystem.SetCamera(camera.Camera);
 
         m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
         m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);

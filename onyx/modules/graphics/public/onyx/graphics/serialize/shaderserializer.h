@@ -5,19 +5,19 @@
 namespace Onyx::Graphics
 {
     class Shader;
-    class GraphicsApi;
+    class GraphicsSystem;
 
     struct ShaderSerializer : public Assets::AssetSerializer<Shader>
     {
         static constexpr Array<StringView, 1> Extensions{ "oshader" };
         static constexpr Assets::AssetFormat Format = Assets::AssetFormat::Text;
 
-        ShaderSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi);
+        ShaderSerializer(Assets::AssetSystem& assetSystem, GraphicsSystem& graphicsSystem);
 
         bool Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const override;
         bool Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const override;
 
     private:
-        GraphicsApi* m_GraphicsApi;
+        GraphicsSystem* m_GraphicsSystem;
     };
 }

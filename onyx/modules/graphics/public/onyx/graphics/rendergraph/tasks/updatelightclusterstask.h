@@ -18,7 +18,7 @@ namespace Onyx::Graphics
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnInit(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
+        void OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
         void OnBeginFrame(const RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
@@ -48,7 +48,7 @@ namespace Onyx::Graphics
     private:
         using Super = NodeGraph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, BufferHandle, BufferHandle, BufferHandle, BufferHandle>;
 
-        void OnInit(GraphicsApi & api, RenderGraphResourceCache& resourceCache) override;
+        void OnInit(GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache) override;
 
         void OnBeginFrame(const RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;

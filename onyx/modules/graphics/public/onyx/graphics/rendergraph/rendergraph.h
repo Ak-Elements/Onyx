@@ -26,8 +26,8 @@ namespace Onyx::Graphics
         RenderGraph() = default;
         ~RenderGraph() override = default;
 
-        void Init(GraphicsApi& graphicsApi);
-        void Shutdown(GraphicsApi& graphicsApi);
+        void Init(GraphicsSystem& graphicsSystem);
+        void Shutdown(GraphicsSystem& graphicsSystem);
 
         void BeginFrame(const FrameContext& frameContext);
         void Render(const FrameContext& context);
@@ -39,7 +39,7 @@ namespace Onyx::Graphics
 
         const TextureHandle& GetFinalTexture() const { return std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle); }
         
-        void OnSwapChainResized(GraphicsApi& graphicsApi);
+        void OnSwapChainResized(GraphicsSystem& graphicsSystem);
 
         // TODO: Remove this
         RenderGraphResourceCache& GetResourceCache() { return m_ResourceCache; }
@@ -48,8 +48,8 @@ namespace Onyx::Graphics
         const NodeGraph::NodeGraph& GetNodeGraph() const { return m_Graph; }
 
     private:
-        bool CreateAttachment(GraphicsApi& graphicsApi, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
-        //bool CreateBuffer(GraphicsApi& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource);
+        bool CreateAttachment(GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
+        //bool CreateBuffer(GraphicsSystem& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource);
 
     private:
         NodeGraph::NodeGraph m_Graph;

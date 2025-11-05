@@ -11,17 +11,18 @@
 
 #include <onyx/input/inputevent.h>
 #include <onyx/graphics/window.h>
+#include <onyx/graphics/windowsystem.h>
 #include <onyx/input/inputid.h>
 #include <onyx/log/logger.h>
 
 namespace Onyx::Input
 {
-    void InputSystem::Init(Graphics::Window& window)
+    void InputSystem::Init(Graphics::WindowSystem& windowSystem)
     {
-        m_MainWindow = &window;
+        m_MainWindow = &windowSystem.GetMainWindow();
 
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
-        window.SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
+        m_MainWindow->SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
 #endif
 
 #if ONYX_USE_GAMEINPUT
@@ -47,9 +48,9 @@ namespace Onyx::Input
         
     }
 
-    void InputSystem::Shutdown(Graphics::Window& window)
+    InputSystem::~InputSystem()
     {
-        window.ClearWindowMessageHandler();
+        m_MainWindow->ClearWindowMessageHandler();
     }
 
     void InputSystem::Update()

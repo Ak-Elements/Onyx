@@ -11,7 +11,6 @@
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/ui/scopedid.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/nodegraph/executioncontext.h>

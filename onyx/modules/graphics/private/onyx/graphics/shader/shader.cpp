@@ -1,5 +1,4 @@
 #include <onyx/graphics/shader/shader.h>
-#include <onyx/graphics/graphicsapi.h>
 
 #if ONYX_USE_VULKAN
 #include <onyx/graphics/vulkan/shader.h>
@@ -7,19 +6,20 @@
 
 namespace Onyx::Graphics
 {
-    Reference<Shader> Shader::Create(GraphicsApi& api)
+    Reference<Shader> Shader::Create(const ApiType& apiType)
     {
-        switch (api.GetApiType())
+        switch (apiType)
         {
-        case ApiType::Vulkan:
-#if ONYX_USE_VULKAN
-            return Reference<Vulkan::Shader>::Create();
-#else
-            return nullptr;
-#endif
-        case ApiType::Dx12:
-        case ApiType::None:
-            return nullptr;
+            using enum ApiType;
+            case Vulkan:
+    #if ONYX_USE_VULKAN
+                return Reference<Vulkan::Shader>::Create();
+    #else
+                return nullptr;
+    #endif
+            case Dx12:
+            case None:
+                return nullptr;
         }
 
         return nullptr;

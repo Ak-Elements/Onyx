@@ -2,7 +2,6 @@
 
 #include <onyx/graphics/shader/shaderpreprocessor.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphics/shader/shaderproperties.h>
 
 namespace
 {

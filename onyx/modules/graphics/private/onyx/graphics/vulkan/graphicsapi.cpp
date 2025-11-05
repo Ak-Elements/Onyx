@@ -1,5 +1,7 @@
 #include <onyx/graphics/vulkan/graphicsapi.h>
 
+#include <onyx/graphics/framecontext.h>
+#include <onyx/graphics/graphicsettings.h>
 #include <onyx/graphics/vulkan/commandbuffermanager.h>
 #include <onyx/graphics/vulkan/debugutilsmessenger.h>
 #include <onyx/graphics/vulkan/descriptorpool.h>

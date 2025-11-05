@@ -4,10 +4,12 @@
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/graphics/framebuffer.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/framecontext.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/pipeline.h>
 #include <onyx/graphics/renderpass.h>
 #include <onyx/graphics/texture.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/shader/shaderinstance.h>
 #include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/log/logger.h>
@@ -75,7 +77,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    void RenderGraphShaderNode::Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -112,7 +114,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraphShaderNode::Shutdown(GraphicsApi& api)
+    void RenderGraphShaderNode::Shutdown(GraphicsSystem& api)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -122,7 +124,7 @@ namespace Onyx::Graphics
         OnShutdown(api);
     }
 
-    void RenderGraphShaderNode::Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -250,7 +252,7 @@ namespace Onyx::Graphics
             deserializer.ReadOptional<"output_buffers">(m_OutputBufferInfos);
     }
 
-    void RenderGraphShaderNode::OnSwapChainResized(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::OnSwapChainResized(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -300,7 +302,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraphShaderNode::CreateRenderPass(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::CreateRenderPass(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -383,7 +385,7 @@ namespace Onyx::Graphics
         m_RenderPass = api.GetOrCreateRenderPass(renderPassSettings);
     }
 
-    void RenderGraphShaderNode::UpdateFramebuffer(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::UpdateFramebuffer(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -548,7 +550,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraphFixedShaderNode::Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphFixedShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         //assetSystem.GetAsset(Assets::AssetId(StringView(m_ShaderPath)), m_Shader);
         //m_Shader->GetOnLoadedEvent().Connect<&RenderGraphFixedShaderNode::OnShaderLoaded>(this);
@@ -556,7 +558,7 @@ namespace Onyx::Graphics
 
     }
 
-    void RenderGraphFixedShaderNode::Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphFixedShaderNode::Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         RenderGraphShaderNode::Compile(api, resourceCache);
 

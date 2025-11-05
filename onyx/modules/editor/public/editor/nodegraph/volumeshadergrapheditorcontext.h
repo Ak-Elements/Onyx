@@ -9,7 +9,7 @@ namespace Onyx::Editor
     class VolumeShaderGraphEditorContext : public TypedNodeGraphEditorContext<Volume::VolumeShaderGraph, Graphics::ShaderGraphNodeFactory>
     {
     public:
-        VolumeShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi);
+        VolumeShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem);
 
         bool Compile() override;
 
@@ -20,7 +20,7 @@ namespace Onyx::Editor
 
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
-        Graphics::GraphicsApi* m_GraphicsApi = nullptr;
+        Graphics::GraphicsSystem* m_GraphicsSystem = nullptr;
     };
 
 }

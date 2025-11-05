@@ -1,9 +1,7 @@
 #pragma once
 #include <onyx/assets/asset.h>
-#include <onyx/assets/assetsystem.h>
 #include <onyx/nodegraph/graph.h>
-#include <onyx/assets/assetserializer.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicshandles.h>
 
 namespace Onyx::Graphics
 {

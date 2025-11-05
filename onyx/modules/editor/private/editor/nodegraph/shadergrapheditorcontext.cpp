@@ -1,5 +1,6 @@
 #include <editor/nodegraph/shadergrapheditorcontext.h>
 
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shader/shadercompiler.h>
 
@@ -8,19 +9,19 @@
 
 namespace Onyx::Editor
 {
-    ShaderGraphEditorContext::ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi)
+    ShaderGraphEditorContext::ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem)
         : m_AssetSystem(&assetSystem)
-        , m_GraphicsApi(&graphicsApi)
+        , m_GraphicsSystem(&graphicsSystem)
     {
     }
 
     bool ShaderGraphEditorContext::Compile()
     {
-        ONYX_ASSERT(m_GraphicsApi != nullptr);
+        ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
         Graphics::PBRShaderGenerator generator;
         bool hasGenerated = Graph->GenerateShader(generator);
-        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsApi, Graph->GetShaderCode());
+        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
     }
 
     void ShaderGraphEditorContext::OnNodeChanged(const Node& newNode)

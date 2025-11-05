@@ -139,9 +139,18 @@ namespace
 
 namespace Onyx::Graphics
 {
+    Window::Window()
+    {
+        
+    }
+
     Window::~Window()
     {
-        Destroy();
+        Stop(true);
+        if (myWakeFromSleepEvent != nullptr)
+        {
+            ::CloseHandle(myWakeFromSleepEvent);
+        }
     }
 
     void Window::Create()
@@ -151,16 +160,6 @@ namespace Onyx::Graphics
         Start();
 
         m_IsInitialized.wait(false);
-    }
-
-    void Window::Destroy()
-    {
-        Stop(true);
-        if (myWakeFromSleepEvent != nullptr)
-        {
-            ::CloseHandle(myWakeFromSleepEvent);
-            myWakeFromSleepEvent = nullptr;
-        }
     }
 
     void Window::Show()

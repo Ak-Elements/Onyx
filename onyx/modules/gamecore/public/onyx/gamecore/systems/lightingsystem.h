@@ -17,7 +17,7 @@ namespace Onyx::Entity
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
 }
 
 namespace Onyx::GameCore::Lighting

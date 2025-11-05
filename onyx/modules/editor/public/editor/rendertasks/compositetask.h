@@ -12,7 +12,7 @@ namespace Onyx
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnInit(Graphics::GraphicsApi&, RenderGraphResourceCache&) override;
+        void OnInit(Graphics::GraphicsSystem&, RenderGraphResourceCache&) override;
         void OnRender(Graphics::RenderGraphContext&, Graphics::CommandBuffer&) override;
     };
 }

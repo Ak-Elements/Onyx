@@ -1,7 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/debuglightclusterspass.h>
 
-#include <onyx/graphics/graphicsapi.h>
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/profiler/profiler.h>
 

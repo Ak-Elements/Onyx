@@ -8,7 +8,7 @@ namespace Onyx::Graphics
     class Pipeline;
     class Shader;
     class ShaderCache;
-    class GraphicsApi;
+    class GraphicsSystem;
     class DescriptorSet;
 
     struct BufferHandle;
@@ -19,7 +19,7 @@ namespace Onyx::Graphics
     {
     public:
         ShaderInstance() = default;
-        ShaderInstance(const GraphicsApi& api, const Reference<Pipeline>& pipeline, const Reference<Shader>& shader);
+        ShaderInstance(const GraphicsSystem& api, const Reference<Pipeline>& pipeline, const Reference<Shader>& shader);
 
         const Reference<Pipeline>& GetPipeline() const { return m_Pipeline; }
         DynamicArray<Reference<DescriptorSet>>& GetDescriptorSets(onyxU8 frameIndex);
@@ -42,7 +42,7 @@ namespace Onyx::Graphics
         void OnShaderLoaded(Reference<Shader>& shader);
 
     private:
-        const GraphicsApi* m_Api = nullptr;
+        const GraphicsSystem* m_Api = nullptr;
 
         Reference<Shader> m_Shader;
         Reference<Pipeline> m_Pipeline;

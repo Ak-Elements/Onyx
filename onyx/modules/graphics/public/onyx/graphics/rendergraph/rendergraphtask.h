@@ -10,7 +10,7 @@
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
     class CommandBuffer;
     class RenderGraph;
     struct FrameContext;
@@ -113,10 +113,10 @@ namespace Onyx::Graphics
     {
         using RenderGraphResourceCache = HashMap<RenderGraphResourceId, RenderGraphResource>;
     public:
-        virtual void Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache) = 0;
-        virtual void Shutdown(GraphicsApi& api) = 0;
+        virtual void Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) = 0;
+        virtual void Shutdown(GraphicsSystem& api) = 0;
 
-        virtual void Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache) = 0;
+        virtual void Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) = 0;
 
         virtual void BeginFrame(const RenderGraphContext& context) = 0;
 
@@ -128,15 +128,15 @@ namespace Onyx::Graphics
 
         virtual bool IsEnabled() = 0;
 
-        virtual void OnSwapChainResized(GraphicsApi& api, RenderGraphResourceCache& resourceCache) = 0;
+        virtual void OnSwapChainResized(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) = 0;
     };
 
     class IRenderGraphNode : public NodeGraph::NodeWithPolicy<RenderGraphPolicy>
     {
     public:
-        void Init(GraphicsApi& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override { }
-        void Shutdown(GraphicsApi& /*api*/) override { }
-        void Compile(GraphicsApi& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override { }
+        void Init(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override { }
+        void Shutdown(GraphicsSystem& /*api*/) override { }
+        void Compile(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override { }
         void BeginFrame(const RenderGraphContext& /*context*/) override { }
         void PreRender(RenderGraphContext& /*context*/, CommandBuffer& /*commandBuffer*/) override { }
         void Render(RenderGraphContext& /*context*/, CommandBuffer& /*commandBuffer*/) override { }
@@ -145,16 +145,16 @@ namespace Onyx::Graphics
 
         bool IsEnabled() override { return false; }
 
-        void OnSwapChainResized(GraphicsApi& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override {}
+        void OnSwapChainResized(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override {}
     };
 
     class RenderGraphShaderNode : public IRenderGraphNode 
     {
     public:
-        void Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
-        void Shutdown(GraphicsApi& api) final;
+        void Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
+        void Shutdown(GraphicsSystem& api) final;
 
-        void Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
+        void Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
         void BeginFrame(const RenderGraphContext& context) override;
 
@@ -170,7 +170,7 @@ namespace Onyx::Graphics
         const RenderGraphTextureResourceInfo& GetInputResourceInfo(onyxU32 pinIndex) { return pinIndex >= m_InputAttachmentInfos.size() ? m_InputAttachmentInfos.emplace_back() : m_InputAttachmentInfos[pinIndex]; }
         const RenderGraphTextureResourceInfo& GetOuputResourceInfo(onyxU32 pinIndex) { return pinIndex >= m_OutputAttachmentInfos.size() ? m_OutputAttachmentInfos.emplace_back() : m_OutputAttachmentInfos[pinIndex]; }
 
-        void OnSwapChainResized(GraphicsApi& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override;
+        void OnSwapChainResized(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override;
 
         virtual bool IsComputeTask() const { return false; }
 
@@ -182,8 +182,8 @@ namespace Onyx::Graphics
         void BindResources(ShaderInstanceHandle shaderInstance, const RenderGraphResourceCache& resourceCache, const FrameContext& frameContext);
 
     protected:
-        virtual void OnInit(GraphicsApi&, RenderGraphResourceCache&) {}
-        virtual void OnShutdown(GraphicsApi&) {}
+        virtual void OnInit(GraphicsSystem&, RenderGraphResourceCache&) {}
+        virtual void OnShutdown(GraphicsSystem&) {}
 
         virtual void OnBeginFrame(const RenderGraphContext&) {}
 
@@ -193,8 +193,8 @@ namespace Onyx::Graphics
 
         virtual void OnEndFrame(const RenderGraphContext&) {}
 
-        void CreateRenderPass(GraphicsApi& api, RenderGraphResourceCache& resourceCache);
-        void UpdateFramebuffer(GraphicsApi& api, RenderGraphResourceCache& resourceCache);
+        void CreateRenderPass(GraphicsSystem& api, RenderGraphResourceCache& resourceCache);
+        void UpdateFramebuffer(GraphicsSystem& api, RenderGraphResourceCache& resourceCache);
 
     protected:
         RenderPassHandle m_RenderPass;
@@ -209,9 +209,9 @@ namespace Onyx::Graphics
     class RenderGraphFixedShaderNode : public RenderGraphShaderNode
     {
     public:
-        void Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache) final;
+        void Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) final;
 
-        void Compile(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
+        void Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
         void BeginFrame(const RenderGraphContext& context) final;
         void Render(RenderGraphContext& context, CommandBuffer& commandBuffer) override;

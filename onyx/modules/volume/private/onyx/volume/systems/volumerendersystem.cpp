@@ -5,7 +5,6 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 

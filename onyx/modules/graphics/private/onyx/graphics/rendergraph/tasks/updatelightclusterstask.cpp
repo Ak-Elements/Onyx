@@ -1,7 +1,10 @@
-#include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphics/framecontext.h>
+#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/viewconstants.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/profiler/profiler.h>
@@ -10,7 +13,7 @@
 
 namespace Onyx::Graphics
 {
-    void CreateLightClusters::OnInit(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void CreateLightClusters::OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         constexpr onyxU32 clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 
@@ -63,7 +66,7 @@ namespace Onyx::Graphics
         commandBuffer.GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
     }
 
-    void UpdateLightClustersRenderGraphNode::OnInit(GraphicsApi& api, RenderGraphResourceCache& resourceCache)
+    void UpdateLightClustersRenderGraphNode::OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         constexpr onyxU32 clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 

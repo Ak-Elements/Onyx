@@ -1,5 +1,4 @@
 #include <onyx/application/taskgraph/taskgraphtask.h>
-#include <onyx/graphics/graphicsapi.h>
 
 namespace Onyx::Application
 {

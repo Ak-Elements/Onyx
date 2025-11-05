@@ -4,7 +4,7 @@
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
 }
 
 namespace Onyx::Graphics
@@ -12,7 +12,7 @@ namespace Onyx::Graphics
     class PresentThread : public Thread
     {
     public:
-        PresentThread(GraphicsApi& graphicsApi);
+        PresentThread(GraphicsSystem& graphicsSystem);
         ~PresentThread() override;
 
         void Shutdown();
@@ -37,7 +37,7 @@ namespace Onyx::Graphics
         std::mutex m_Mutex;
         std::condition_variable m_WaitCondition;
 
-        GraphicsApi* m_GraphicsApi;
+        GraphicsSystem* m_GraphicsSystem;
 
         Queue<PresentInfo> m_PresentQueue;
         onyxU32 m_RefreshRate;

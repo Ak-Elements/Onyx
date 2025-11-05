@@ -43,4 +43,40 @@ namespace Onyx::Graphics
         bool IsShadowCasting = true;
         onyxF32 Padding;
     };
+
+
+    struct LightBlock
+    {
+        Vector3f32 color;
+        float intensity;
+
+        Vector3f32 position;
+        float innerAngle;
+
+        Vector3f32 direction;
+        float outerAngle;
+
+        int type;
+        int numShadowSamples;
+        float radius;
+        float pad;
+    };
+
+    struct LightClusterAABB
+    {
+        Vector4f32 Min;
+        Vector4f32 Max;
+    };
+
+    struct ONYX_ALIGN(16) Lighting
+    {
+        Array<DirectionalLight, 64> DirectionalLights;
+        Array<PointLight, 64> PointLights;
+        Array<SpotLight, 64> SpotLights;
+
+        onyxU32 DirectionalLightsCount = 0;
+        onyxU32 PointLightsCount;
+        onyxU32 SpotLightsCount;
+        onyxU32 Padding;
+    };
 }

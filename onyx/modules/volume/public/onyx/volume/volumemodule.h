@@ -6,11 +6,6 @@ namespace Onyx::Assets
     class AssetSystem;
 }
 
-namespace Onyx::Graphics
-{
-    class GraphicsApi;
-}
-
 namespace Onyx::GameCore
 {
     class GameCoreSystem;

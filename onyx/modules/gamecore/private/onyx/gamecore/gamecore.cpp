@@ -4,6 +4,7 @@
 #include <onyx/entity/entityregistry.h>
 #include <onyx/gamecore/components/cameracomponent.h>
 
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
 #include <onyx/gamecore/components/graphics/textcomponent.h>
@@ -83,7 +84,7 @@ namespace Onyx::GameCore
         GameCoreInit::RegisterEntitySystems(ecsBuilder);
     }
 
-    void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsApi& graphicsApi, IEngine& engine)
+    void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine)
     {
         if ((m_Scene.IsValid() == false) || m_Scene->IsLoading())
         {
@@ -91,7 +92,7 @@ namespace Onyx::GameCore
         }
 
         // TODO: Can we find a cleaner / better solution for this?
-        Graphics::FrameContext& frameContext = graphicsApi.GetFrameContext();
+        Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
         if (frameContext.FrameData == nullptr)
             frameContext.FrameData = MakeUnique<SceneFrameData>();
 
@@ -105,10 +106,9 @@ namespace Onyx::GameCore
     }
 }
 
-Onyx::Graphics::GraphicsApi& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsApi&>::Get(const ECSExecutionContext& context)
+Onyx::Graphics::GraphicsSystem& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsSystem&>::Get(const ECSExecutionContext& context)
 {
-    Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
-    return graphicsSystem.GetGraphicsApi();
+    return context.Engine.GetSystem<Graphics::GraphicsSystem>();
 }
 
 Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& context)
@@ -119,5 +119,5 @@ Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::Asse
 Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext&>::Get(const ECSExecutionContext& context)
 {
     Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
-    return graphicsSystem.GetGraphicsApi().GetFrameContext();
+    return graphicsSystem.GetFrameContext();
 }

@@ -12,7 +12,7 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::GetViewConstants";
        StringId32 GetTypeId() const override { return TypeId; }
 
-        void Init(GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
+        void Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
         void BeginFrame(const RenderGraphContext& context) override;
 
         bool IsEnabled() override { return true; }

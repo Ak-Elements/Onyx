@@ -2,13 +2,13 @@
 
 #include <onyx/hash.h>
 #include <onyx/graphics/framebuffer.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/vulkan/graphicsapi.h>
 
 namespace Onyx::Graphics
 {
-    FramebufferCache::FramebufferCache(GraphicsApi& graphicsApi)
-        : m_GraphicsApi(graphicsApi)
+    FramebufferCache::FramebufferCache(GraphicsSystem& graphicsSystem)
+        : m_GraphicsSystem(graphicsSystem)
     {
     }
 
@@ -26,7 +26,7 @@ namespace Onyx::Graphics
         if (it != m_Cache.end())
             return it->second;
 
-        FramebufferHandle framebufferHandle = m_GraphicsApi.CreateFramebuffer(framebufferSettings);
+        FramebufferHandle framebufferHandle = m_GraphicsSystem.CreateFramebuffer(framebufferSettings);
         m_Cache[framebufferHash] = framebufferHandle;
         return framebufferHandle;
     }

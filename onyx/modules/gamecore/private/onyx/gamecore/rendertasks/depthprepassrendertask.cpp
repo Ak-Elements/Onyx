@@ -1,14 +1,14 @@
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
-
 #include <onyx/gamecore/scene/sceneframedata.h>
+#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::GameCore
 {
-    void DepthPrePassRenderGraphNode::OnInit(Graphics::GraphicsApi& api, Graphics::RenderGraphResourceCache& resourceCache)
+    void DepthPrePassRenderGraphNode::OnInit(Graphics::GraphicsSystem& api, Graphics::RenderGraphResourceCache& resourceCache)
     {
         Graphics::RenderGraphResource& depthResource = resourceCache[GetOutputPin().GetGlobalId()];
         depthResource.Info.Type = Graphics::RenderGraphResourceType::Attachment;

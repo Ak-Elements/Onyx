@@ -5,7 +5,7 @@
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
     struct PreprocessedShader;
     class Shader;
     class ShaderInstance;
@@ -21,14 +21,14 @@ namespace Onyx::Graphics
 
     namespace ShaderCompiler
     {
-        bool Preprocess(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes);
-        bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode);
+        bool Preprocess(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes);
+        bool Compile(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode);
         bool Reflect(ShaderStage stage, const PreprocessedShader& preprocessedShader, const DynamicArray<onyxU32>& shaderByteCode, ShaderReflectionInfo& outReflectionInfo);
 
         bool IsReservedDescriptorSet(onyxU8 set);
         ShaderDescriptorSet& GetOrCreateShaderDescriptorSet(onyxU8 setIndex, ShaderReflectionInfo& reflectionInfo);
 
-        bool ValidateCode(const GraphicsApi& graphicsApi, const String& shaderSourceCode);
+        bool ValidateCode(const GraphicsSystem& graphicsSystem, const String& shaderSourceCode);
     };
 }
 

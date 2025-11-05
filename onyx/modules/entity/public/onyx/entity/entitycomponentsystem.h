@@ -194,13 +194,11 @@ namespace Onyx::Entity
         {
             return [=](const ECSExecutionContext& context)
             {
-                const auto& dependencies = ForEachAndCollect<Tuple<Args...>>([&]<typename U>() -> U
-                {
-                    return DependentFunctionArg<U>::Get(context);
-                });
-
                 EntityQuery<EntityQueryArgs...> query(context.Registry);
-                std::apply(callable, std::tuple_cat(std::make_tuple(query), dependencies));
+                InvokeWithTypeList(TypeList<Args...>{}, [&]<typename... FunctionArg>()
+                {
+                    callable(query, DependentFunctionArg<FunctionArg>::Get(context)...);
+                });
             };
         }
 
@@ -208,20 +206,20 @@ namespace Onyx::Entity
         static auto BuildSystemCall(void(*callable)(Entity<EntityAccessT...>, Args...))
         {
             return [=](const ECSExecutionContext& context)
+            {
+                const auto& dependencies = ForEachAndCollect<Tuple<Args...>>([&]<typename U>() -> U
                 {
-                    const auto& dependencies = ForEachAndCollect<Tuple<Args...>>([&]<typename U>() -> U
-                    {
-                        return DependentFunctionArg<U>::Get(context);
-                    });
-
-                    EntityQuery<EntityAccessT...> query(context.Registry);
-                    const auto& entitiesView = query.GetView();
-                    for (const EntityId entityId : entitiesView)
-                    {
-                        Entity<EntityAccessT...> entity{ query, entityId };
-                        std::apply(callable, std::tuple_cat(std::make_tuple(entity), dependencies));
-                    }
-                };
+                    return DependentFunctionArg<U>::Get(context);
+                });
+                
+                EntityQuery<EntityAccessT...> query(context.Registry);
+                const auto& entitiesView = query.GetView();
+                for (const EntityId entityId : entitiesView)
+                {
+                    Entity<EntityAccessT...> entity{ query, entityId };
+                    std::apply(callable, std::tuple_cat(std::make_tuple(entity), dependencies));
+                }
+            };
         }
 
     private:

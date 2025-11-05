@@ -1,7 +1,7 @@
 #include <onyx/graphics/serialize/materialshadergraphserializer.h>
 
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
@@ -10,9 +10,9 @@
 
 namespace Onyx::Graphics
 {
-    MaterialShaderGraphSerializer::MaterialShaderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsApi& graphicsApi)
+    MaterialShaderGraphSerializer::MaterialShaderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsSystem& graphicsSystem)
         : AssetSerializer(assetSystem)
-        , m_GraphicsApi(&graphicsApi)
+        , m_GraphicsSystem(&graphicsSystem)
     {
     }
 
@@ -32,7 +32,7 @@ namespace Onyx::Graphics
 
     bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
     {
-        ONYX_ASSERT(m_GraphicsApi != nullptr);
+        ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
         MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
 
@@ -89,7 +89,7 @@ namespace Onyx::Graphics
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Shader = Assets::AssetId(shaderPath);
-        pipelineProperties.RenderPass = m_GraphicsApi->GetOrCreateRenderPass(renderPassSettings);
+        pipelineProperties.RenderPass = m_GraphicsSystem->GetOrCreateRenderPass(renderPassSettings);
         
         pipelineProperties.Rasterization.CullMode = CullMode::Back;
         pipelineProperties.DepthStencil.IsDepthEnabled = true;
@@ -106,7 +106,7 @@ namespace Onyx::Graphics
         blendState.AlphaOperation = BlendOperation::Add;
 
         ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
-        shaderEffect = m_GraphicsApi->CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
+        shaderEffect = m_GraphicsSystem->CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
 
         return true;
     }

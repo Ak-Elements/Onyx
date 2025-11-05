@@ -2,7 +2,6 @@ set(TARGET_PUBLIC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/public/onyx/graphics)
 set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/graphics)
 
 set(TARGET_PUBLIC_SOURCES
-    ${TARGET_PUBLIC_PATH}/graphicssystem.h
     ${TARGET_PUBLIC_PATH}/buffer.h
     ${TARGET_PUBLIC_PATH}/bufferproperties.h
     ${TARGET_PUBLIC_PATH}/camera.h
@@ -10,9 +9,12 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/descriptorset.h
     ${TARGET_PUBLIC_PATH}/framebuffer.h
     ${TARGET_PUBLIC_PATH}/framebuffercache.h
-    ${TARGET_PUBLIC_PATH}/graphicsapi.h
+    ${TARGET_PUBLIC_PATH}/framecontext.h
+    ${TARGET_PUBLIC_PATH}/graphicsapiinterface.h
+    ${TARGET_PUBLIC_PATH}/graphicsettings.h
     ${TARGET_PUBLIC_PATH}/graphicsresourcepool.h
     ${TARGET_PUBLIC_PATH}/graphicstypes.h
+    ${TARGET_PUBLIC_PATH}/graphicssystem.h
     ${TARGET_PUBLIC_PATH}/memoryaccess.h
     ${TARGET_PUBLIC_PATH}/pipeline.h
     ${TARGET_PUBLIC_PATH}/pipelinelayout.h
@@ -26,7 +28,9 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/texturestorageproperties.h
     ${TARGET_PUBLIC_PATH}/presentthread.h
     ${TARGET_PUBLIC_PATH}/vertex.h
+    ${TARGET_PUBLIC_PATH}/viewconstants.h
     ${TARGET_PUBLIC_PATH}/window.h
+    ${TARGET_PUBLIC_PATH}/windowsystem.h
     ${TARGET_PUBLIC_PATH}/font/sdffont.h
     ${TARGET_PUBLIC_PATH}/lighting/lighting.h
     ${TARGET_PUBLIC_PATH}/rendergraph/rendergraph.h
@@ -55,7 +59,6 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/shader/shader.h
     ${TARGET_PUBLIC_PATH}/shader/shaderpass.h
     ${TARGET_PUBLIC_PATH}/shader/shaderpreprocessor.h
-    ${TARGET_PUBLIC_PATH}/shader/shaderproperties.h
     ${TARGET_PUBLIC_PATH}/shader/generators/shadergenerator.h
     ${TARGET_PUBLIC_PATH}/shadergraph/shadergraph.h
     ${TARGET_PUBLIC_PATH}/shadergraph/materialshadergraph.h
@@ -103,18 +106,18 @@ set(TARGET_PUBLIC_SOURCES
 )
 
 set(TARGET_PRIVATE_SOURCES
-    ${TARGET_PRIVATE_PATH}/graphicssystem.cpp
     ${TARGET_PRIVATE_PATH}/buffer.cpp
     ${TARGET_PRIVATE_PATH}/camera.cpp
     ${TARGET_PRIVATE_PATH}/framebuffer.cpp
     ${TARGET_PRIVATE_PATH}/framebuffercache.cpp
-    ${TARGET_PRIVATE_PATH}/graphicsapi.cpp
+    ${TARGET_PRIVATE_PATH}/graphicssystem.cpp
     ${TARGET_PRIVATE_PATH}/texture.cpp
     ${TARGET_PRIVATE_PATH}/textureasset.cpp
     ${TARGET_PRIVATE_PATH}/texturestorage.cpp
     ${TARGET_PRIVATE_PATH}/renderpasscache.cpp
     ${TARGET_PRIVATE_PATH}/pipeline.cpp
     ${TARGET_PRIVATE_PATH}/presentthread.cpp
+    ${TARGET_PRIVATE_PATH}/windowsystem.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraph.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphtask.cpp
     ${TARGET_PRIVATE_PATH}/rendergraph/rendergraphnodefactory.cpp

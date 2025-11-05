@@ -7,12 +7,11 @@
 
 #include <onyx/filesystem/filestream.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphics/shader/shaderproperties.h>
 
 namespace Onyx::Graphics
 {
-    ShaderCache::ShaderCache(GraphicsApi& api)
-        : m_Api(api)
+    ShaderCache::ShaderCache(GraphicsSystem& graphicsSystem)
+        : m_GraphicsSystem(graphicsSystem)
     {
 #if !ONYX_IS_RETAIL
         const FileSystem::Filepath shaderCacheDirectory = FileSystem::Path::GetFullPath(SHADER_CACHE_PATH);
@@ -146,11 +145,11 @@ namespace Onyx::Graphics
                     stageIncludes.clear();
                     
                     String shaderCPreprocessedSource;
-                    if (ShaderCompiler::Preprocess(m_Api, absoluteFilepath, preprocessedShader.m_Code, ShaderLanguage::GLSL, stage, shaderCPreprocessedSource, stageIncludes) &&
-                        ShaderCompiler::Compile(m_Api, absoluteFilepath, shaderCPreprocessedSource, ShaderLanguage::GLSL, stage, stageCacheEntry.ByteCode) &&
+                    if (ShaderCompiler::Preprocess(m_GraphicsSystem, absoluteFilepath, preprocessedShader.m_Code, ShaderLanguage::GLSL, stage, shaderCPreprocessedSource, stageIncludes) &&
+                        ShaderCompiler::Compile(m_GraphicsSystem, absoluteFilepath, shaderCPreprocessedSource, ShaderLanguage::GLSL, stage, stageCacheEntry.ByteCode) &&
                         ShaderCompiler::Reflect(stage, preprocessedShader, stageCacheEntry.ByteCode, reflectionInfo))
                     {
-                        entry.Shader->AddStage(m_Api, stage, stageCacheEntry.ByteCode);
+                        entry.Shader->AddStage(m_GraphicsSystem, stage, stageCacheEntry.ByteCode);
                     }
                     else
                     {
@@ -181,7 +180,7 @@ namespace Onyx::Graphics
 		//}
 
         // Create descriptors for shader stage
-        entry.Shader->UpdateReflectionData(m_Api, reflectionInfo);
+        entry.Shader->UpdateReflectionData(m_GraphicsSystem, reflectionInfo);
         entry.Shader->SetShaderHash(shaderHash);
         entry.ShaderHash = shaderHash;
 
@@ -220,7 +219,7 @@ namespace Onyx::Graphics
             stream.ReadRaw(stageEntry.ByteCode);
             stream.ReadRaw(stageEntry.IncludeHashes);
 
-            outEntry.Shader->AddStage(m_Api, Enums::ToEnum<ShaderStage>(i), stageEntry.ByteCode);
+            outEntry.Shader->AddStage(m_GraphicsSystem, Enums::ToEnum<ShaderStage>(i), stageEntry.ByteCode);
         }
 
         ShaderReflectionInfo reflectionInfo;
@@ -228,7 +227,7 @@ namespace Onyx::Graphics
 
         
         outEntry.Shader->SetShaderHash(outEntry.ShaderHash);
-        outEntry.Shader->UpdateReflectionData(m_Api, reflectionInfo);
+        outEntry.Shader->UpdateReflectionData(m_GraphicsSystem, reflectionInfo);
 
         return true;
     }

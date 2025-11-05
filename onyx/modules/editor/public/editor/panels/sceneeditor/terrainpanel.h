@@ -36,7 +36,7 @@ namespace Onyx::Editor::SceneEditor
     public:
         static constexpr StringId64 HIT_BUFFER_RESOURCE_ID = "hit buffer";
 
-        TerrainPanel(Input::InputActionSystem& inputActionSystem, Graphics::GraphicsApi& graphicsApi, GameCore::GameCoreSystem& gameCore);
+        TerrainPanel(Input::InputActionSystem& inputActionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore);
         ~TerrainPanel();
 
         void SetSceneViewPanelId(onyxU32 panelId)
@@ -61,7 +61,7 @@ namespace Onyx::Editor::SceneEditor
         void OnTerrainPanelBrushSizeInput(const Input::InputActionEvent& inputEvent);
 
     private:
-        Graphics::GraphicsApi& m_GraphicsApi;
+        Graphics::GraphicsSystem& m_GraphicsSystem;
         GameCore::GameCoreSystem& m_GameCore;
 
         onyxU32 m_SceneViewPanelId = 0;

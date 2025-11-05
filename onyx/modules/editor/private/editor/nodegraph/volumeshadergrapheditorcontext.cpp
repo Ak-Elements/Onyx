@@ -8,19 +8,19 @@
 
 namespace Onyx::Editor
 {
-    VolumeShaderGraphEditorContext::VolumeShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi)
+    VolumeShaderGraphEditorContext::VolumeShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem)
         : m_AssetSystem(&assetSystem)
-        , m_GraphicsApi(&graphicsApi)
+        , m_GraphicsSystem(&graphicsSystem)
     {
     }
 
     bool VolumeShaderGraphEditorContext::Compile()
     {
-        ONYX_ASSERT(m_GraphicsApi != nullptr);
+        ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
         Volume::VolumeShaderGraphGenerator generator;
         bool hasGenerated = Graph->GenerateShader(generator);
-        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsApi, Graph->GetShaderCode());
+        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
     }
 
     void VolumeShaderGraphEditorContext::OnNodeChanged(const Node& newNode)

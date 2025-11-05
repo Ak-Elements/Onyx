@@ -77,14 +77,6 @@ namespace Onyx
 	template<typename Type>
 	inline constexpr bool is_tuple_v = is_tuple<Type>::value;
 
-	// Helper to extract function argument types
-	template <typename Ret, typename... Args>
-	constexpr Tuple<Args...> GetFunctionArgumentTypes(Ret(*)(Args...)) { return {}; }
-
-	// Overload for member functions
-	template <typename Ret, typename ClassType, typename... Args>
-	constexpr Tuple<Args...> GetFunctionArgumentTypes(Ret(ClassType::*)(Args...)) { return {}; }
-
 	template <typename T>
 	concept HasTypeId = requires(const T obj)
 	{

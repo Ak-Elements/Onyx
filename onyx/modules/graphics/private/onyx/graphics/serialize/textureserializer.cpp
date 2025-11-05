@@ -1,6 +1,6 @@
 #include <onyx/graphics/serialize/textureserializer.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 
 #include <onyx/graphics/textureasset.h>
 #include <onyx/graphics/textureproperties.h>
@@ -8,9 +8,9 @@
 
 namespace Onyx::Graphics
 {
-    TextureSerializer::TextureSerializer(Assets::AssetSystem& assetSystem, Graphics::GraphicsApi& graphicsApi)
+    TextureSerializer::TextureSerializer(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem)
         : AssetSerializer(assetSystem)
-        , m_GraphicsApi(&graphicsApi)
+        , m_GraphicsSystem(&graphicsSystem)
     {
     }
 
@@ -24,7 +24,7 @@ namespace Onyx::Graphics
 
     bool TextureSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/) const
     {
-        if (m_GraphicsApi == nullptr)
+        if (m_GraphicsSystem == nullptr)
             return false;
 
         TextureAsset& textureAsset = asset.As<TextureAsset>();
@@ -48,7 +48,7 @@ namespace Onyx::Graphics
         textureProps.m_DebugName = Format::Format("{} Texture", meta.GetName());
         const Span<onyxU8>& imageData = file.GetData();
 
-        m_GraphicsApi->CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageData);
+        m_GraphicsSystem->CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageData);
         return true;
 
         //TextureAsset& textureAsset = asset.As<TextureAsset>();
@@ -77,7 +77,7 @@ namespace Onyx::Graphics
         //textureProps.m_Format = storageProps.m_Format;
 
         //Span<onyxU8> imageDataSpan { imageData.data(),  imageData.size() };
-        //m_GraphicsApi->CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageDataSpan);
+        //m_GraphicsSystem->CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageDataSpan);
 
         return true;
     }

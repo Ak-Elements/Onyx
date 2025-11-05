@@ -7,7 +7,6 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
@@ -20,7 +19,7 @@
 
 namespace Onyx::Editor
 {
-    PrimitivesTerrainTool::PrimitivesTerrainTool(Graphics::GraphicsApi& /*graphicsApi*/)
+    PrimitivesTerrainTool::PrimitivesTerrainTool(Graphics::GraphicsSystem& /*graphicsSystem*/)
     {
         //Graphics::PipelineProperties properties;
         //properties.m_DebugName = "Apply Terrain Brush";

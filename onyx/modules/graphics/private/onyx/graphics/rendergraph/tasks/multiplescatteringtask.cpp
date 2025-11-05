@@ -1,7 +1,7 @@
 #include <onyx/graphics/rendergraph/tasks/multiplescatteringtask.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::Graphics

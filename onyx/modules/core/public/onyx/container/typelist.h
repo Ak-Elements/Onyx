@@ -118,4 +118,18 @@ namespace Onyx
      */
     template<std::size_t Index, typename List>
     using typelist_element_t = typename typelist_element<Index, List>::type;
+
+    // Helper to extract function argument types
+    template <typename Ret, typename... Args>
+    constexpr TypeList<Args...> GetFunctionArgumentTypes(Ret(*)(Args...)) { return {}; }
+
+    // Overload for member functions
+    template <typename Ret, typename ClassType, typename... Args>
+    constexpr TypeList<Args...> GetFunctionArgumentTypes(Ret(ClassType::*)(Args...)) { return {}; }
+
+    template<typename... Args, typename F>
+    constexpr void InvokeWithTypeList(TypeList<Args...>, F&& f)
+    {
+        f.template operator() < Args... > ();
+    }
 }

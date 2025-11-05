@@ -1,6 +1,5 @@
 #include <onyx/graphics/vulkan/commandbuffer.h>
 
-#include <onyx/graphics/graphicsapi.h>
 #include <onyx/graphics/shader/shaderinstance.h>
 #include <onyx/graphics/vulkan/buffer.h>
 #include <onyx/graphics/vulkan/commandpool.h>

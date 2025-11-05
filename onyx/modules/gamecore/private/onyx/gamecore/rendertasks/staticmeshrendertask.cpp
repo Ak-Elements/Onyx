@@ -1,13 +1,14 @@
 #include <onyx/gamecore/rendertasks/staticmeshrendertask.h>
 
 #include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicsapi.h>
 
 #include <onyx/gamecore/scene/sceneframedata.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/graphrunner.h>
+#include <onyx/profiler/profiler.h>
 
 namespace Onyx::GameCore
 {

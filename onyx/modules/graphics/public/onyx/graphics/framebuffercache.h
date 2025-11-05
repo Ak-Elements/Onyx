@@ -7,20 +7,20 @@
 namespace Onyx::Graphics
 {
     struct FramebufferSettings;
-    class GraphicsApi;
+    class GraphicsSystem;
     class RenderPassCache;
 
     class FramebufferCache : public NonCopyable
     {
     public:
-        FramebufferCache(GraphicsApi& graphicsApi);
+        FramebufferCache(GraphicsSystem& graphicsSystem);
 
         void Clear();
 
         FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
 
     private:
-        GraphicsApi& m_GraphicsApi;
+        GraphicsSystem& m_GraphicsSystem;
 
         HashMap<onyxU64, FramebufferHandle> m_Cache;
     };

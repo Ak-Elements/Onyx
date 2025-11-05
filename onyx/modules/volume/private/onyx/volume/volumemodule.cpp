@@ -1,5 +1,6 @@
 #include <onyx/volume/volumemodule.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>

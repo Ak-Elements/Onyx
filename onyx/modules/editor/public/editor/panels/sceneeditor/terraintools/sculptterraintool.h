@@ -18,7 +18,7 @@ namespace Onyx::Editor
         };
 
     public:
-        SculptTerrainTool(Graphics::GraphicsApi& graphicsApi);
+        SculptTerrainTool(Graphics::GraphicsSystem& graphicsSystem);
 
         StringView GetTitle() override;
         void Render() override;

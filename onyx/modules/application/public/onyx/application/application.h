@@ -1,46 +1,7 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 
-#include <onyx/assets/asset.h>
-#include <onyx/entity/entitycomponentsystem.h>
-#include <onyx/filesystem/path.h>
-#include <onyx/graphics/graphicsapi.h>
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/window.h>
-#include <onyx/localization/localizationmodule.h>
-
-namespace Onyx::Application
-{
-    struct EngineModuleFactory;
-}
-
-namespace Onyx::Graphics
-{
-    enum class ApiType : onyxU8;
-}
-
-namespace Onyx
-{
-    namespace Input
-    {
-        struct InputAction;
-    }
-
-    namespace Assets
-    {
-        class AssetSystem;
-    }
-
-    class Logger;
-
-    namespace Graphics
-    {
-        class RenderGraph;
-        class Window;
-        class GraphicsApi;
-        class GraphicsSystem;
-    }
-}
+#include <onyx/application/enginesystemfactory.h>
 
 namespace Onyx::Application
 {
@@ -70,15 +31,17 @@ namespace Onyx::Application
         {
             ONYX_ASSERT(HasSystem<T>(), "Module is not added.");
 
-            auto it = m_ShutdownFunctors.find(T::TypeId);
-            if (it != m_ShutdownFunctors.end())
+            const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(T::TypeId);
+            auto it = std::ranges::find_if(m_Modules, [=](const UniquePtr<IEngineSystem>& module) { return module->GetTypeId() == T::TypeId; });
+
+            if (meta.IsShutdownable())
             {
-                it->second();
-                m_ShutdownFunctors.erase(it);
+                UniquePtr<IEngineSystem>& systemInstance = *it;
+                meta.Shutdown(*this, *systemInstance);
             }
 
             // TODO: Remove all modules that depend on it
-            m_Modules.erase(T::TypeId);
+            m_Modules.erase(it);
         }
 
         template <typename T> requires std::is_base_of_v<IEngineSystem, T>
@@ -129,9 +92,8 @@ namespace Onyx::Application
         UniquePtr<Logger> m_Logger;
 
         DynamicArray<UniquePtr<IEngineSystem>> m_Modules;
-        HashMap<StringId32, InplaceFunction<void(), 64>> m_ShutdownFunctors;
 
-        DynamicArray<InplaceFunction<void(DeltaGameTime)>> m_UpdatableModules;
+        DynamicArray<InplaceFunction<void(IEngine&, DeltaGameTime)>> m_UpdatableModules;
     };
 
     void OnApplicationCreate();

@@ -5,18 +5,18 @@
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
 
     class RenderPassCache
     {
     public:
-        RenderPassCache(GraphicsApi& graphicsApi);
+        RenderPassCache(GraphicsSystem& graphicsSystem);
         void Clear();
 
         RenderPassHandle GetOrCreateRenderPass(const RenderPassSettings& settings);
 
     private:
-        GraphicsApi& m_GraphicsApi;
+        GraphicsSystem& m_GraphicsSystem;
 
         HashMap<onyxU64, RenderPassHandle> m_Cache;
     };

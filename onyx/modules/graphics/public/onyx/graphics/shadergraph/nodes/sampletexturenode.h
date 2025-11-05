@@ -2,7 +2,7 @@
 
 #include <onyx/nodegraph/nodes/flexiblepinsnode.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
-#include <onyx/assets/asset.h>
+#include <onyx/assets/assetid.h>
 
 namespace Onyx::Graphics
 {

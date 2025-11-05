@@ -5,7 +5,7 @@
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
     class TextureStorage;
 
 	namespace Vulkan

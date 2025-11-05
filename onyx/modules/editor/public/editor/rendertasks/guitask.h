@@ -9,8 +9,8 @@ namespace Onyx
     struct UITask
     {
     public:
-        void Init(Graphics::GraphicsApi& api, Graphics::ShaderInstanceHandle& shaderInstance);
-        void Shutdown(Graphics::GraphicsApi& api);
+        void Init(Graphics::GraphicsSystem& api, Graphics::ShaderInstanceHandle& shaderInstance);
+        void Shutdown(Graphics::GraphicsSystem& api);
 
         void BeginFrame(const Graphics::RenderGraphContext& context);
 
@@ -42,8 +42,8 @@ namespace Onyx
         using InPin = NodeGraph::Pin<Graphics::TextureHandle, "InPin">;
         using OutPin = NodeGraph::Pin<Graphics::TextureHandle, "OutPin">;
 
-        void OnInit(Graphics::GraphicsApi& api, RenderGraphResourceCache& resourceCache) override;
-        void OnShutdown(Graphics::GraphicsApi& api) override { m_Task.Shutdown(api); }
+        void OnInit(Graphics::GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
+        void OnShutdown(Graphics::GraphicsSystem& api) override { m_Task.Shutdown(api); }
 
         void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
         void OnPreRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;

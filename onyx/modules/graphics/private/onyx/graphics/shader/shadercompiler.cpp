@@ -1,7 +1,6 @@
 #include <onyx/graphics/shader/shadercompiler.h>
 
-#include <onyx/graphics/shader/shadercache.h>
-#include <onyx/graphics/graphicsapi.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/shader/shaderincluder.h>
 #include <onyx/graphics/shader/shaderpreprocessor.h>
 #include <onyx/graphics/vulkan/shader.h>
@@ -168,18 +167,18 @@ namespace Onyx::Graphics::ShaderCompiler
 			return "";
 		}
 
-        shaderc::CompileOptions SetupShaderOptions(const GraphicsApi& api)
+        shaderc::CompileOptions SetupShaderOptions(const GraphicsSystem& graphicsSystem)
 		{
 			using namespace shaderc;
 			CompileOptions shaderCOptions;
 			shaderCOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
 			shaderCOptions.SetWarningsAsErrors();
-			shaderCOptions.AddMacroDefinition("ONYX_IS_BINDLESS", api.IsBindless() ? "1" : "0");
+			shaderCOptions.AddMacroDefinition("ONYX_IS_BINDLESS", graphicsSystem.IsBindless() ? "1" : "0");
 
 #if !ONYX_IS_RETAIL
-			if (api.IsShaderDebugEnabled())
+			if (graphicsSystem.IsShaderDebugEnabled())
 			{
-				shaderCOptions.AddMacroDefinition("ONYX_IS_DEBUG", api.IsShaderDebugEnabled() ? "1" : "0");
+				shaderCOptions.AddMacroDefinition("ONYX_IS_DEBUG", graphicsSystem.IsShaderDebugEnabled() ? "1" : "0");
 				shaderCOptions.SetGenerateDebugInfo();
 			}
 #endif
@@ -201,7 +200,7 @@ namespace Onyx::Graphics::ShaderCompiler
 
 	namespace Glsl
 	{
-		bool Preprocess(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& shaderSourceCode, ShaderStage stage, String& outPreprocessedSource, HashSet<String>& outIncludes)
+		bool Preprocess(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& shaderSourceCode, ShaderStage stage, String& outPreprocessedSource, HashSet<String>& outIncludes)
 		{
 			shaderc::Compiler compiler;
 			shaderc::CompileOptions shaderCOptions = SetupShaderOptions(api);
@@ -240,7 +239,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			return true;
 		}
 
-		bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
+		bool Compile(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
 		{
 			shaderc::Compiler compiler;
 			shaderc::CompileOptions shaderCOptions = SetupShaderOptions(api);
@@ -308,7 +307,7 @@ namespace Onyx::Graphics::ShaderCompiler
 		}
 	}
 
-    bool Preprocess(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes)
+    bool Preprocess(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes)
     {
 		switch (language)
 		{
@@ -324,7 +323,7 @@ namespace Onyx::Graphics::ShaderCompiler
 		return false;
     }
 
-    bool Compile(const GraphicsApi& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
+    bool Compile(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode)
     {
 #if !ONYX_IS_RETAIL
 
@@ -684,10 +683,10 @@ namespace Onyx::Graphics::ShaderCompiler
 		return reflectionInfo.shaderDescriptorSets.emplace_back(setIndex);
 	}
 
-    bool ValidateCode(const GraphicsApi& graphicsApi, const String& shaderSourceCode)
+    bool ValidateCode(const GraphicsSystem& graphicsSystem, const String& shaderSourceCode)
     {
 		shaderc::Compiler compiler;
-		shaderc::CompileOptions shaderCOptions = SetupShaderOptions(graphicsApi);
+		shaderc::CompileOptions shaderCOptions = SetupShaderOptions(graphicsSystem);
 		shaderCOptions.SetIncluder(std::move(SetupShaderIncluder()));
 		shaderCOptions.SetForcedVersionProfile(ShaderCoreVersion, shaderc_profile_core);
 		const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderc_glsl_default_vertex_shader, "validation", shaderCOptions);

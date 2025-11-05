@@ -7,7 +7,7 @@
 
 namespace Onyx::Graphics
 {
-    class GraphicsApi;
+    class GraphicsSystem;
 
     struct UniformBuffer
 	{
@@ -297,7 +297,7 @@ namespace Onyx::Graphics
 	class Shader : public Assets::Asset<Shader>
     {
 	public:
-		static Reference<Shader> Create(GraphicsApi& api);
+		static Reference<Shader> Create(const ApiType& apiType);
 
 		static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::Shader" };
 		StringId32 GetTypeId() const { return TypeId; }
@@ -305,11 +305,11 @@ namespace Onyx::Graphics
 		using ByteCode = DynamicArray<onyxU32>;
 		using PerStageByteCodes = InplaceArray<ByteCode, MAX_SHADER_STAGES>;
 
-		virtual bool AddStage(GraphicsApi& api, ShaderStage stage, const ByteCode& byteCode) = 0;
+		virtual bool AddStage(GraphicsSystem& api, ShaderStage stage, const ByteCode& byteCode) = 0;
 		virtual void RemoveStage(ShaderStage stage) = 0;
 
 		virtual const ShaderReflectionInfo& GetReflectionData() const = 0;
-	    virtual bool UpdateReflectionData(GraphicsApi& api, ShaderReflectionInfo& reflectionInfo) = 0;
+	    virtual bool UpdateReflectionData(GraphicsSystem& api, ShaderReflectionInfo& reflectionInfo) = 0;
 
 		virtual onyxU64 GetShaderHash() const = 0;
 		virtual void SetShaderHash(onyxU64 hash) = 0;
