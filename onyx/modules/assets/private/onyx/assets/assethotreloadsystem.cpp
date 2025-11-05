@@ -1,6 +1,6 @@
 #include <onyx/assets/assethotreloadsystem.h>
 
-#include <onyx/assets/asset.h>
+#include <onyx/assets/assetid.h>
 #include <onyx/assets/assetsystem.h>
 
 namespace Onyx::Assets

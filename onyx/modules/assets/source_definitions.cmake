@@ -5,6 +5,7 @@ set(TARGET_PUBLIC_SOURCES
 	${TARGET_PUBLIC_PATH}/asset.h
     ${TARGET_PUBLIC_PATH}/assetformat.h
 	${TARGET_PUBLIC_PATH}/assethotreloadsystem.h
+    ${TARGET_PUBLIC_PATH}/assetid.h
 	${TARGET_PUBLIC_PATH}/assetloader.h
 	${TARGET_PUBLIC_PATH}/assetloadrequest.h
 	${TARGET_PUBLIC_PATH}/assetserializer.h
@@ -12,8 +13,8 @@ set(TARGET_PUBLIC_SOURCES
 )
 
 set(TARGET_PRIVATE_SOURCES
-	${TARGET_PRIVATE_PATH}/asset.cpp
 	${TARGET_PRIVATE_PATH}/assethotreloadsystem.cpp
+    ${TARGET_PRIVATE_PATH}/assetid.cpp
 	${TARGET_PRIVATE_PATH}/assetloader.cpp
 	${TARGET_PRIVATE_PATH}/assetloadrequest.cpp
 	${TARGET_PRIVATE_PATH}/assetsystem.cpp

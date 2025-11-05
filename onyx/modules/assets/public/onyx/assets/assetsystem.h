@@ -7,7 +7,6 @@
 
 #include <onyx/filesystem/path.h>
 #include <onyx/log/logger.h>
-#include <onyx/string/compiletimestring.h>
 
 namespace Onyx::Assets
 {
