@@ -70,6 +70,11 @@ msgid_plural "editor.windows.rendergrapheditor.titles"
 msgstr[0] "Render Graph Editor"
 msgstr[1] "Render Graph Editors"
 
+msgid "editor.windows.volumeshadergrapheditor.title"
+msgid_plural "editor.windows.volumeshadergrapheditor.titles"
+msgstr[0] "Volume Shader Graph Editor"
+msgstr[1] "Volume Shader Graph Editors"
+
 msgid "editor.mainmenubar.view.layouts"
 msgstr "Layouts"
 
