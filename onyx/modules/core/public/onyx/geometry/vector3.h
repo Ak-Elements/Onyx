@@ -85,13 +85,6 @@ namespace Onyx
         {
         }
 
-        explicit constexpr Vector3(ScalarT scalar)
-            : X(scalar)
-            , Y(scalar)
-            , Z(scalar)
-        {
-        }
-
         constexpr Vector3(ScalarT x, ScalarT y, ScalarT z)
             : X(x)
             , Y(y)
@@ -103,6 +96,18 @@ namespace Onyx
             : X(vec2.X)
             , Y(vec2.Y)
             , Z(z)
+        {
+        }
+
+        explicit constexpr Vector3(ScalarT scalar)
+            : X(scalar)
+            , Y(scalar)
+            , Z(scalar)
+        {
+        }
+
+        explicit constexpr Vector3(const Vector2<ScalarT>& vec2)
+            : Vector3(vec2, 0)
         {
         }
 
