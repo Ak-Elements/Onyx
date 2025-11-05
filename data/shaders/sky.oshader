@@ -50,7 +50,7 @@ fragment
         const vec3 clipspacePosition = vec3((fragCoord / u_ViewConstants.Viewport) * vec2(2.0, -2.0) - vec2(1.0, -1.0), 1.0);
         const vec4 viewspacePosition = u_ViewConstants.InverseProjectionMatrix * vec4(clipspacePosition, 1.0);
         const vec3 rayDirection = normalize(mat3(u_ViewConstants.InverseViewMatrix) * (viewspacePosition.xyz / viewspacePosition.w));
-        const vec3 fragWorldPos = (u_ViewConstants.CameraPosition / 1000000.0f) + vec3(0.0, groundRadiusMM, 0.0);
+        const vec3 fragWorldPos = max((u_ViewConstants.CameraPosition / 1000000.0f) + vec3(0.0, groundRadiusMM, 0.0), vec3(0.0, groundRadiusMM + 1.0f / 1000000.0f, 0.0));
         
         vec3 luminance = GetSkyLuminance(BindlessTextures[nonuniformEXT(PushConstants.SkyViewLutTextureIndex)], fragWorldPos, rayDirection, PushConstants.SunDirection);
 
