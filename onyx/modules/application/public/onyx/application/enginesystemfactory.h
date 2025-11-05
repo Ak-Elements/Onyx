@@ -120,8 +120,6 @@ namespace Onyx::Application
         }
 
     private:
-        
-
         template<typename FunctionArg>
         FunctionArg ResolveFunctionArg(IEngine& engine, DeltaGameTime deltaTime) const
         {
@@ -133,19 +131,19 @@ namespace Onyx::Application
                 return engine.GetSystem<std::remove_reference_t<FunctionArg>>();
         }
 
-        template <typename T, typename... Args>
+        template <typename... Args>
         void CallInit(T& instance, IEngine& engine) const
         {
             instance.Init(engine.GetSystem<std::remove_reference_t<Args>>()...);
         }
 
-        template <typename T, typename... Args>
+        template <typename... Args>
         void CallShutdown(T& instance, IEngine& engine) const
         {
             instance.Shutdown(engine.GetSystem<std::remove_reference_t<Args>>()...);
         }
 
-        template <typename T, typename... Args>
+        template <typename... Args>
         void CallUpdate(T& instance, IEngine& engine) const
         {
             instance.Update(engine.GetSystem<std::remove_reference_t<Args>>()...);
