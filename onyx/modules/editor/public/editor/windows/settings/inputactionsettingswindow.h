@@ -33,7 +33,7 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "InputActionSettings";
 
-        InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem);
+        InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem);
         ~InputActionSettingsWindow() override;
 
         StringView GetWindowId() override { return WindowId; }
@@ -60,7 +60,6 @@ namespace Onyx::Editor
 
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
-        Localization::LocalizationModule* m_LocalizationModule = nullptr;
 
         // Copy of InputActionAsset to edit until save
         Reference<Input::InputActionsAsset> m_EditableCopy;

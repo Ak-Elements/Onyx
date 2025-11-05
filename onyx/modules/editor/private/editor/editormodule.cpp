@@ -67,6 +67,6 @@ namespace Onyx::Editor
 
         imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore,assetSystem, localizationModule, graphicsSystem, inputActionSystem);
         imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, localizationModule, inputActionSystem);
-        imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, localizationModule, inputSystem);
+        imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, inputSystem);
     }
 }

@@ -30,9 +30,8 @@
 
 namespace Onyx::Editor
 {
-    InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Input::InputSystem& inputSystem)
+    InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem)
         : m_AssetSystem(&assetSystem)
-        , m_LocalizationModule(&localizationModule)
     {
         inputSystem.AddOnInputHandler(this, &InputActionSettingsWindow::OnInputEvent);
     }
