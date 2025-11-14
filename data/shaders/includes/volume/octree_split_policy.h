@@ -211,117 +211,15 @@ OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float node
     float exponent = 2.0f;
     maxGeometricError = max((maxGeometricError * (pow(distanceToCamera, exponent)) * 2.0f * tan(fov* 0.5f)) / screenHeight, 0.2f);
 
-   //if (distanceToCamera > 2000)
-   //{
-   //    complexSurfaceThreshold = 0.95f;
-   //}
-   //if (distanceToCamera > 4000)
-   //{
-   //    complexSurfaceThreshold = 0.8f;
-   //}
-  // if (halfExtents > 8000)
-  // {
-  //  
-  //     childCount = 8;
-  //     octreeNode.ValidMask = 255;
-  //     return octreeNode;
-  // }
+    if (halfExtents > 8000)
+    {
 
-    //if (distanceToCamera < 1.0f)
-    //{
-    //    LodChildSize = 0.1f;
-    //}
-    //if (distanceToCamera < 10)
-    //{
-    //    LodChildSize = 1.0f;
-    //}
-    //if (distanceToCamera < 20)
-    //{
-    //    LodChildSize = 4.0f;
-    //}
-    //else if (distanceToCamera < 50)
-    //{
-    //    LodChildSize = 4.0f;
-    //}
-    //else if (distanceToCamera < 512)
-    //{
-    //    LodChildSize = 8.0f;
-    //}
-    //else if (distanceToCamera < 2048)
-    //{
-    //    LodChildSize = 8.0f;
-    //}
-  // if (distanceToCamera >= 1024)
-  // {
-  //     LodChildSize = 8;
-  // }
+        childCount = 8;
+        octreeNode.ValidMask = 255;
+        return octreeNode;
+    }
+
     LodChildSize = CalculateLodChildSize(distanceToCamera);
-
-   /////////if (distanceToCamera >= 16)
-   /////////{
-   /////////    LodChildSize = 1;
-   /////////}
-   /////////if (distanceToCamera >= 32)
-   /////////{
-   /////////    LodChildSize = 2;
-   /////////}
-   /////////if (distanceToCamera >= 64)
-   /////////{
-   /////////    LodChildSize = 4;
-   /////////}
-   /////////if (distanceToCamera >= 128)
-   /////////{
-   /////////    LodChildSize = 8;
-   /////////}
-   /////////if (distanceToCamera >= 256)
-   /////////{
-   /////////    LodChildSize = 16;
-   /////////}
-   /////////if (distanceToCamera >= 512)
-   /////////{
-   /////////    LodChildSize = 32;
-   /////////}
-   /////////if (distanceToCamera >= 1024)
-   /////////{
-   /////////    LodChildSize = 64;
-   /////////}
-   /////////if (distanceToCamera >= 2048)
-   /////////{
-   /////////    LodChildSize = 64;
-   /////////}
-   /////////if (distanceToCamera >= 4096)
-   /////////{
-   /////////    LodChildSize = 128;
-   /////////}
-   /////////if (distanceToCamera >= 8192)
-   /////////{
-   /////////    LodChildSize = 256;
-   /////////}
-   /////////if (distanceToCamera >= 20000)
-   /////////{
-   /////////    LodChildSize = 512;
-   /////////}
-   /////////if (distanceToCamera >= 30000)
-   /////////{
-   /////////    LodChildSize = 1024;
-   /////////}
-    //if (distanceToCamera >= 35000)
-    //{
-    //    LodChildSize = 1024;
-    //}
-    //float minSize = 2.0f;
-    //float maxSize = 1024.0f;
-    //float t = clamp(distanceToCamera / 8192.0f, 0.0f, 1.0f);
-    //float LodChildSize = minSize * pow(maxSize / minSize, t);
-    
-    //else if (distanceToCamera < 16000)  
-    //{
-    //    LodChildSize = 128;
-    //}
-    //else
-    //{
-    //    LodChildSize = 128;
-    //}
     
     if (halfExtents <= LodChildSize)
     {
