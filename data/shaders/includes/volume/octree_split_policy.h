@@ -1,5 +1,17 @@
 #include "includes/volume/sample_terrain.h"
 
+const uint cornerIndices[8][8] =
+{
+    { 0, 2, 9, 12, 1, 4, 10, 13 },      // 0
+    { 1, 4, 10, 13, 5, 6, 11, 14 },     // 1
+    { 9, 12, 18, 20, 10, 13, 19, 23 },  // 2
+    { 10, 13, 19, 23, 11, 14, 22, 24 }, // 3
+    { 2, 3, 12, 15, 4, 8, 13, 16 },     // 4
+    { 4, 8, 13, 16, 6, 7, 14, 17 },     // 5
+    { 12, 15, 20, 21, 13, 16, 23, 25},  // 6
+    { 13, 16, 23, 25, 14, 17, 24, 26 }, // 7
+};
+
 float Interpolate(float f000, float f001, float f010, float f011,
     float f100, float f101, float f110, float f111, vec3 position)
 {
@@ -91,6 +103,7 @@ bool HasGeometricError(vec3 center, vec3 corner[8], vec4 cornerSamples[8], float
         {
             gradientMagnitude = 1.0f;
         }
+
         error += abs(value.w - interpolated) / gradientMagnitude;
         if (error >= maxGeometricError)
         {
@@ -101,109 +114,312 @@ bool HasGeometricError(vec3 center, vec3 corner[8], vec4 cornerSamples[8], float
     return false;
 }
 
-OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float nodeExtents, float maxGeometricError, float complexSurfaceThreshold, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData, out uint childCount)
+bool ShouldSubdivide(uint childIndex, vec3 childCornerPositions[27], vec4 childCornerSamples[27], float maxGeometricError, float complexSurfaceThreshold, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData)
 {
-    OctreeNode octreeNode; 
-    octreeNode.LeafMask = 0;
-    octreeNode.ChildrenOffset = 0;
-    octreeNode.ValidMask = 0;
-    octreeNode.IsFar = false;
-
-    childCount = 0;
-
-    float halfExtents = nodeExtents * 0.5;
-    float LodChildSize = 128.0f;
-    float distanceToCamera = length(nodePosition - cameraPosition);
-    
-    if (distanceToCamera < 2.0f)
-    {
-        LodChildSize = 0.05f;
-    }
-    if (distanceToCamera < 20)
-    {
-        LodChildSize = 0.1f;
-    }
-    else if (distanceToCamera < 50)
-    {
-        LodChildSize = 1.0f;
-    }
-    else if (distanceToCamera < 512)
-    {
-        LodChildSize = 4.0f;
-    }
-    else if (distanceToCamera < 2048)
-    {
-        LodChildSize = 8.0f;
-    }
-    else if (distanceToCamera < 8096)
-    {
-        LodChildSize = 8.0f;
-    }
-    else if (distanceToCamera < 16000)  
-    {
-        LodChildSize = 16;
-    }
-    else
-    {
-        LodChildSize = 128;
-    }
-    
-    if (halfExtents < LodChildSize)
-    {
-        octreeNode.LeafMask = 255;
-        return octreeNode;
-    }
-
-    vec3 corner0 = nodePosition + vec3(-0.5,-0.5,-0.5) * nodeExtents;
-    vec3 corner7 = nodePosition + vec3( 0.5, 0.5, 0.5) * nodeExtents;
+    vec3 corner0 = childCornerPositions[cornerIndices[childIndex][0]];
+    vec3 corner7 = childCornerPositions[cornerIndices[childIndex][7]];
+    vec3 childCenter = corner0 + (corner7 - corner0) * 0.5f;
 
     float diagonal = length(corner7 - corner0);
-    vec4 centerSample = SampleTerrain(nodePosition, volumeSourcesList, volumeSourcesData);
+    vec4 centerSample = SampleTerrain(childCenter, volumeSourcesList, volumeSourcesData);
     bool shouldSplit = abs(centerSample.w) <= diagonal;
     if (shouldSplit == false)
     {
-        octreeNode.LeafMask = 255;
-        return octreeNode;
+        return false;
     }
 
     vec3 corners[8] = 
     {
         corner0,
-        vec3( nodePosition + vec3(-0.5,-0.5, 0.5) * nodeExtents ),
-        vec3( nodePosition + vec3(-0.5, 0.5,-0.5) * nodeExtents ), 
-        vec3( nodePosition + vec3(-0.5, 0.5, 0.5) * nodeExtents ), 
-        vec3( nodePosition + vec3( 0.5,-0.5,-0.5) * nodeExtents ), 
-        vec3( nodePosition + vec3( 0.5,-0.5, 0.5) * nodeExtents ),
-        vec3( nodePosition + vec3( 0.5, 0.5,-0.5) * nodeExtents ),
+        childCornerPositions[cornerIndices[childIndex][1]],
+        childCornerPositions[cornerIndices[childIndex][2]],
+        childCornerPositions[cornerIndices[childIndex][3]],
+        childCornerPositions[cornerIndices[childIndex][4]],
+        childCornerPositions[cornerIndices[childIndex][5]],
+        childCornerPositions[cornerIndices[childIndex][6]],
         corner7
     };
 
     vec4 cornerSamples[8] =
     {
-        SampleTerrain(corner0, volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corners[1], volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corners[2], volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corners[3], volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corners[4], volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corners[5], volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corners[6], volumeSourcesList, volumeSourcesData),
-        SampleTerrain(corner7, volumeSourcesList, volumeSourcesData)
+        childCornerSamples[cornerIndices[childIndex][0]],
+        childCornerSamples[cornerIndices[childIndex][1]],
+        childCornerSamples[cornerIndices[childIndex][2]],
+        childCornerSamples[cornerIndices[childIndex][3]],
+        childCornerSamples[cornerIndices[childIndex][4]],
+        childCornerSamples[cornerIndices[childIndex][5]],
+        childCornerSamples[cornerIndices[childIndex][6]],
+        childCornerSamples[cornerIndices[childIndex][7]]
     };
 
     if (HasComplexSurface(cornerSamples, complexSurfaceThreshold))
     {
-        octreeNode.ValidMask = 255;
-        childCount = 8;
-        return octreeNode;
+        return true;
     }
     
-    if (HasGeometricError(nodePosition, corners, cornerSamples, maxGeometricError, volumeSourcesList, volumeSourcesData))
+    if (HasGeometricError(childCenter, corners, cornerSamples, maxGeometricError, volumeSourcesList, volumeSourcesData))
     {
-        octreeNode.ValidMask = 255;
-        childCount = 8;
+        return true;
+    }
+    return false;
+}
+
+uint RoundDownToPowerOfTwo(uint x)
+{
+    if (x == 0) return 0;
+    x |= (x >> 1);
+    x |= (x >> 2);
+    x |= (x >> 4);
+    x |= (x >> 8);
+    x |= (x >> 16);
+    return x - (x >> 1);
+}
+float CalculateLodChildSize(float distanceToCamera)
+{
+    if (distanceToCamera < 16.0f)
+        return 1.0f;
+
+    float base = 16.0f;
+    float exponent = 1.1f;
+    float scale = 0.4f; // ← increased from 0.6f
+
+    float size = pow(distanceToCamera / base, exponent) * scale;
+
+    uint rounded = RoundDownToPowerOfTwo(uint(size));
+    return float(min(rounded, 1024u));
+}
+
+OctreeNode EvaluateOctreeNode(vec3 cameraPosition, vec3 nodePosition, float nodeExtents, float maxGeometricError, float complexSurfaceThreshold, in WorldVolumeSourcesList volumeSourcesList, in WorldVolumeSources volumeSourcesData, out uint childCount)
+{
+    OctreeNode octreeNode; 
+    octreeNode.LeafMask = 0;
+    octreeNode.ValidMask = 0;
+    octreeNode.ChildrenOffset = 0;
+    octreeNode.IsFar = false;
+
+    childCount = 0;
+
+    // Scale geometric error based on distance and FOV
+   
+
+    float halfExtents = nodeExtents;
+    float LodChildSize = 0.1f;
+    float distanceToCamera = length(nodePosition - cameraPosition);
+    
+    float fov = radians(45.0f);
+    float screenHeight = 900;
+    float exponent = 2.0f;
+    maxGeometricError = max((maxGeometricError * (pow(distanceToCamera, exponent)) * 2.0f * tan(fov* 0.5f)) / screenHeight, 0.2f);
+
+   //if (distanceToCamera > 2000)
+   //{
+   //    complexSurfaceThreshold = 0.95f;
+   //}
+   //if (distanceToCamera > 4000)
+   //{
+   //    complexSurfaceThreshold = 0.8f;
+   //}
+  // if (halfExtents > 8000)
+  // {
+  //  
+  //     childCount = 8;
+  //     octreeNode.ValidMask = 255;
+  //     return octreeNode;
+  // }
+
+    //if (distanceToCamera < 1.0f)
+    //{
+    //    LodChildSize = 0.1f;
+    //}
+    //if (distanceToCamera < 10)
+    //{
+    //    LodChildSize = 1.0f;
+    //}
+    //if (distanceToCamera < 20)
+    //{
+    //    LodChildSize = 4.0f;
+    //}
+    //else if (distanceToCamera < 50)
+    //{
+    //    LodChildSize = 4.0f;
+    //}
+    //else if (distanceToCamera < 512)
+    //{
+    //    LodChildSize = 8.0f;
+    //}
+    //else if (distanceToCamera < 2048)
+    //{
+    //    LodChildSize = 8.0f;
+    //}
+  // if (distanceToCamera >= 1024)
+  // {
+  //     LodChildSize = 8;
+  // }
+    LodChildSize = CalculateLodChildSize(distanceToCamera);
+
+   /////////if (distanceToCamera >= 16)
+   /////////{
+   /////////    LodChildSize = 1;
+   /////////}
+   /////////if (distanceToCamera >= 32)
+   /////////{
+   /////////    LodChildSize = 2;
+   /////////}
+   /////////if (distanceToCamera >= 64)
+   /////////{
+   /////////    LodChildSize = 4;
+   /////////}
+   /////////if (distanceToCamera >= 128)
+   /////////{
+   /////////    LodChildSize = 8;
+   /////////}
+   /////////if (distanceToCamera >= 256)
+   /////////{
+   /////////    LodChildSize = 16;
+   /////////}
+   /////////if (distanceToCamera >= 512)
+   /////////{
+   /////////    LodChildSize = 32;
+   /////////}
+   /////////if (distanceToCamera >= 1024)
+   /////////{
+   /////////    LodChildSize = 64;
+   /////////}
+   /////////if (distanceToCamera >= 2048)
+   /////////{
+   /////////    LodChildSize = 64;
+   /////////}
+   /////////if (distanceToCamera >= 4096)
+   /////////{
+   /////////    LodChildSize = 128;
+   /////////}
+   /////////if (distanceToCamera >= 8192)
+   /////////{
+   /////////    LodChildSize = 256;
+   /////////}
+   /////////if (distanceToCamera >= 20000)
+   /////////{
+   /////////    LodChildSize = 512;
+   /////////}
+   /////////if (distanceToCamera >= 30000)
+   /////////{
+   /////////    LodChildSize = 1024;
+   /////////}
+    //if (distanceToCamera >= 35000)
+    //{
+    //    LodChildSize = 1024;
+    //}
+    //float minSize = 2.0f;
+    //float maxSize = 1024.0f;
+    //float t = clamp(distanceToCamera / 8192.0f, 0.0f, 1.0f);
+    //float LodChildSize = minSize * pow(maxSize / minSize, t);
+    
+    //else if (distanceToCamera < 16000)  
+    //{
+    //    LodChildSize = 128;
+    //}
+    //else
+    //{
+    //    LodChildSize = 128;
+    //}
+    
+    if (halfExtents <= LodChildSize)
+    {
+        octreeNode.LeafMask = 255;
         return octreeNode;
     }
-    
-    octreeNode.LeafMask = 255;
+ 
+    // evaluate each child to get a valid and leaf mask
+    // sample all child corner positions
+    vec3 corner0 = nodePosition + -0.5f * nodeExtents;
+    vec3 corner1 = vec3( nodePosition + vec3(-0.5,-0.5, 0.5) * nodeExtents );
+    vec3 corner2 = vec3( nodePosition + vec3(-0.5, 0.5,-0.5) * nodeExtents );
+    vec3 corner3 = vec3( nodePosition + vec3(-0.5, 0.5, 0.5) * nodeExtents );
+    vec3 corner4 = vec3( nodePosition + vec3( 0.5,-0.5,-0.5) * nodeExtents );
+    vec3 corner5 = vec3( nodePosition + vec3( 0.5,-0.5, 0.5) * nodeExtents );
+    vec3 corner6 = vec3( nodePosition + vec3( 0.5, 0.5,-0.5) * nodeExtents );
+    vec3 corner7 = nodePosition + 0.5f * nodeExtents;
+
+    const vec3 childCornerPositions[27] =
+    {
+        // bottom face
+        corner0,
+        vec3(nodePosition.x, corner0.y, corner0.z), // center back bottom
+        vec3(corner0.x, corner0.y, nodePosition.z), // center left bottom
+        corner1,
+        vec3(nodePosition.x, corner0.y, nodePosition.z), // center bottom
+        corner4,
+        vec3(corner7.x, corner0.y, nodePosition.z), // center right bottom
+        corner5,
+        vec3(nodePosition.x, corner0.y, corner7.z), // center front bottom
+
+        vec3(corner0.x, nodePosition.y, corner0.z), // center back left
+        vec3(nodePosition.x, nodePosition.y, corner0.z), // center back
+        vec3(corner7.x, nodePosition.y, corner0.z), // center back right
+        vec3(corner0.x, nodePosition.y, nodePosition.z), // center left
+
+        nodePosition, // center
+        vec3(corner7.x, nodePosition.y, nodePosition.z), // center right
+        vec3(corner0.x, nodePosition.y, corner7.z), // center front left
+        vec3(nodePosition.x, nodePosition.y, corner7.z), // center front
+        vec3(corner7.x, nodePosition.y, corner7.z), // center front right
+
+        // top face
+        corner2,
+        vec3(nodePosition.x, corner7.y, corner0.z), // center back top
+        vec3(corner0.x, corner7.y, nodePosition.z), // center left top
+        corner3,
+        corner6,
+        vec3(nodePosition.x, corner7.y, nodePosition.z), // center top
+        vec3(corner7.x, corner7.y, nodePosition.z), // center right top
+        vec3(nodePosition.x, corner7.y, corner7.z), // center front top
+        corner7
+    };
+
+    vec4 childCornerSamples[27] =
+    {
+        SampleTerrain(childCornerPositions[ 0], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 1], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 2], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 3], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 4], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 5], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 6], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 7], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 8], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[ 9], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[10], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[11], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[12], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[13], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[14], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[15], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[16], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[17], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[18], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[19], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[20], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[21], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[22], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[23], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[24], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[25], volumeSourcesList, volumeSourcesData),
+        SampleTerrain(childCornerPositions[26], volumeSourcesList, volumeSourcesData),
+    };
+
+    for (uint i = 0; i < 8; ++i)
+    {
+        if (ShouldSubdivide(i, childCornerPositions, childCornerSamples, maxGeometricError, complexSurfaceThreshold, volumeSourcesList, volumeSourcesData))
+        {
+            octreeNode.ValidMask |= 1 << i;
+            ++childCount;
+        }
+        else
+        {
+            octreeNode.LeafMask |= 1 << i;
+        }
+    }
+
+    //octreeNode.LeafMask = 255;
     return octreeNode;
 }

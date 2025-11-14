@@ -153,6 +153,7 @@ compute
                     u_Constants.VolumeSourcesData,
                     childCount);
 
+                // TODO: Do proper update instead of full terrain update
                 if ((currentNode.ValidMask & childMask) != 0)
                 {
                     uint childFlatIndex = currentNode.ChildrenOffset + childIndex;
@@ -162,20 +163,20 @@ compute
                     if ((hasSplitChanged) && (evaluatedChild.ValidMask == 0))
                     {
                         // collapse
-                        debugPrintfEXT("Found node to collapse");
+                        //debugPrintfEXT("Found node to collapse");
                     }
                     else
                     {
                         // split & traverse down
-                        debugPrintfEXT("Found node to split / update");
+                        //debugPrintfEXT("Found node to split / update");
                     }
                 }
                 else if ((currentNode.LeafMask & childMask) != 0)
                 {
-                    if (evaluatedChild.ValidMask == 0)
-                        debugPrintfEXT("Nothing changed");
-                    else
-                        debugPrintfEXT("Found node to split / update");
+                    //if (evaluatedChild.ValidMask == 0)
+                    //    debugPrintfEXT("Nothing changed");
+                    //else
+                    //    debugPrintfEXT("Found node to split / update");
                 }
             }
         }

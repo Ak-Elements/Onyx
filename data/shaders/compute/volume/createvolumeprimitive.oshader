@@ -44,14 +44,7 @@ compute
             case VolumeSource_Sphere:
             {
                 CsgSphere sphere = CsgSphere(hitPosition, brushSize.x);
-                //debugPrintfEXT("adding sphere at index %u at pos %f %f %f and size %f", dataStartIndex, hitPosition.x,  hitPosition.y,  hitPosition.z,  brushSize.x);
-                
-                u_Constants.WorldVolumesData.SourcesData[dataStartIndex] = sphere.Position.x;
-                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 1] = sphere.Position.y;
-                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 2] = sphere.Position.z;
-                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 3] = sphere.Radius;
-
-                //PackCsgSphere(u_Constants.WorldVolumesData, sphere, dataStartIndex);
+                PackCsgSphere(u_Constants.WorldVolumesData, sphere, dataStartIndex);
                 break;
             }
             case VolumeSource_Cube:
@@ -73,6 +66,12 @@ compute
     {   
         if (u_Constants.HitPositionBuffer.HasHit == 0)
             return;
+        
+        if (u_Constants.WorldVolumesList.Count >= 100)
+        {
+            debugPrintfEXT("Reached current max brush count");
+            return;
+        }
         
         vec3 hitPosition = u_Constants.HitPositionBuffer.HitPosition;
         

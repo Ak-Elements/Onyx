@@ -1,13 +1,5 @@
 #version 460 core 
 
-#define ENABLEDEB
-
-#extension GL_EXT_buffer_reference : require
-#extension GL_EXT_buffer_reference2 : require
-#extension GL_ARB_gpu_shader_int64 : require
-#extension GL_EXT_shader_16bit_storage : require
-#extension GL_EXT_shader_explicit_arithmetic_types : require
-
 #include "includes/common.h"
 #include "includes/indirect_draw.h"
 #include "includes/morton.h"
@@ -54,7 +46,7 @@ compute
         IsoSurfaceRequest surfaceRequest = u_Constants.Requests.Requests[flatIndex];
         uint64_t depthMask = ((1ul << (3ul * surfaceRequest.Depth)) - 1);
         uint64_t mortonIndexAtDepth = surfaceRequest.Morton & depthMask;
-        
+
         float nodeExtents = u_Constants.RootSize / float(1 << surfaceRequest.Depth);
         vec3 leafCoordinate = vec3(DecodeMorton(mortonIndexAtDepth)) + vec3(0.5f);
         vec3 leafCenter = leafCoordinate * nodeExtents - vec3(u_Constants.RootHalfExtents);
@@ -89,7 +81,6 @@ compute
         uint vertexCount = 0;
         uint marchingSquaresCase = GenerateMesh(gl_GlobalInvocationID, corners, cornerSamples, outComponents, componentCount, outVertices, vertexCount);
 
-     
         for (uint i = 0; i < componentCount; ++i)
         {
             if (outComponents[i].VertexCount < 3)
@@ -103,6 +94,16 @@ compute
             if (outComponents[i].VertexCount == 3)
             {
                 uint vertexOffset = atomicAdd(u_Constants.IndirectDraw.Draw.VertexCount, 3);
+                vertexCount += 3;
+
+#if ONYX_IS_DEBUG
+            if (vertexOffset >= (1 << 22) )
+            {
+                // stop subdividing
+                debugPrintfEXT("Exceeding vertex buffer");
+                return;
+            }
+#endif
 
                 u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[0]];
                 u_Constants.VertexBufferPointer.Vertices[vertexOffset++] = outVertices[outComponents[i].VertexIndices[2]];
@@ -111,8 +112,17 @@ compute
             else
             {  
                 uint vertCount = outComponents[i].VertexCount;
-
+                vertexCount += vertCount;
                 uint vertexOffset = atomicAdd(u_Constants.IndirectDraw.Draw.VertexCount, vertCount * 3);
+
+#if ONYX_IS_DEBUG
+            if (vertexOffset + vertCount * 3 >= (1 << 22) )
+            {
+                // stop subdividing
+                debugPrintfEXT("Exceeding vertex buffer");
+                return;
+            }
+#endif
 
                 vec4 triangleFanCenter = vec4(0.0f);
                 vec4 triangleFanCenterNormal = vec4(0.0f);

@@ -41,17 +41,17 @@ compute
             case VolumeSource_SphereBrush:
             {
                 CsgSphere sphere = CsgSphere(hitPosition, brushSize.x);
-                //PackCsgSphere(u_Constants.WorldVolumesData, sphere, dataStartIndex);
-                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 4] = 0.0f;
-                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 5] = u_Constants.Smoothness;
+                PackCsgSphere(u_Constants.WorldVolumesData, sphere, dataStartIndex);
+                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 4] = 0.0f;
+                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 5] = u_Constants.Smoothness;
                 break;
             }
             case VolumeSource_CubeBrush:
             {
                 CsgCube cube = CsgCube(hitPosition, brushSize);
-                //PackCsgCube(u_Constants.WorldVolumesData, cube, dataStartIndex);
-                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 6] = 0.0f;
-                //u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 7] = u_Constants.Smoothness;
+                PackCsgCube(u_Constants.WorldVolumesData, cube, dataStartIndex);
+                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 6] = 0.0f;
+                u_Constants.WorldVolumesData.SourcesData[dataStartIndex + 7] = u_Constants.Smoothness;
                 break;
             }
 
@@ -63,10 +63,15 @@ compute
         if (u_Constants.HitPositionBuffer.HasHit == 0)
             return;
         
+        if (u_Constants.WorldVolumesList.Count >= 100)
+        {
+            debugPrintfEXT("Reached current max brush count");
+            return;
+        }
         vec3 hitPosition = u_Constants.HitPositionBuffer.HitPosition;
         
         uint volumeSourceIndex = atomicAdd(u_Constants.WorldVolumesList.Count, 1);
-        //u_Constants.WorldVolumesList.Sources[volumeSourceIndex] = VolumeSource(uint16_t(u_Constants.BrushType), uint16_t(u_Constants.BrushOperation), volumeSourceIndex);
-        //CreateVolumeSource(volumeSourceIndex, hitPosition, u_Constants.BrushSize);
+        u_Constants.WorldVolumesList.Sources[volumeSourceIndex] = VolumeSource(uint16_t(u_Constants.BrushType), uint16_t(u_Constants.BrushOperation), volumeSourceIndex);
+        CreateVolumeSource(volumeSourceIndex, hitPosition, u_Constants.BrushSize);
     }
 }

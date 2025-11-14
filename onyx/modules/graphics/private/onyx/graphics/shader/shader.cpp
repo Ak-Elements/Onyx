@@ -1,3 +1,4 @@
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/shader/shader.h>
 
 #if ONYX_USE_VULKAN
@@ -6,9 +7,9 @@
 
 namespace Onyx::Graphics
 {
-    Reference<Shader> Shader::Create(const ApiType& apiType)
+    Reference<Shader> Shader::Create(const GraphicsSystem& graphicsSystem)
     {
-        switch (apiType)
+        switch (graphicsSystem.GetApiType())
         {
             using enum ApiType;
             case Vulkan:

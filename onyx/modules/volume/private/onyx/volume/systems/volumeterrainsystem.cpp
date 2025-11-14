@@ -58,8 +58,8 @@ namespace Onyx::Volume::Terrain
 
             onyxU32 Depth;// Reconsider syncing the mask directly 
             onyxU32 MaxDepth;// Reconsider syncing the mask directly
-            onyxF32 Padding0;
-            onyxF32 Padding1;
+            onyxU32 ChunkMaxDepth;
+            onyxF32 Padding;
         };
 
         void CreateBuffers(Graphics::GraphicsSystem& graphicsSystem, TerrainWorldOctreeComponent& worldOctree, TerrainRuntimeComponent& terrainMesh, onyxU32 nodeCount)
@@ -112,10 +112,10 @@ namespace Onyx::Volume::Terrain
 
                 struct VkDrawIndirectCommand
                 {
-                    onyxU32    VertexCount;
-                    onyxU32    InstanceCount;
-                    onyxU32    FirstVertex;
-                    onyxU32    FirstInstance;
+                    onyxU32 VertexCount;
+                    onyxU32 InstanceCount;
+                    onyxU32 FirstVertex;
+                    onyxU32 FirstInstance;
                 };
 
                 Graphics::BufferProperties ssboIndirectDrawProps;
@@ -154,8 +154,7 @@ namespace Onyx::Volume::Terrain
 
             ssboVolumeCreateQueueProps.m_DebugName = "VolumeOctree-SplitRequests1";
             SplitRequestQueueBuffer1 = graphicsSystem.GetTransientBuffer(ssboVolumeCreateQueueProps);
-            //graphicsApi.CreateBuffer(SplitRequestQueueBuffer1, ssboVolumeCreateQueueProps);
-
+            
             // iso surface requests
             Graphics::BufferProperties ssboIsoSurfaceRequestsProps;
             ssboIsoSurfaceRequestsProps.m_DebugName = "Volume-IsoSurfaceRequests";
@@ -164,8 +163,7 @@ namespace Onyx::Volume::Terrain
             ssboIsoSurfaceRequestsProps.m_GpuAccess = Graphics::GPUAccess::Write;
 
             IsoSurfaceRequestsBuffer = graphicsSystem.GetTransientBuffer(ssboIsoSurfaceRequestsProps);
-            //graphicsApi.CreateBuffer(IsoSurfaceRequestsBuffer, ssboIsoSurfaceRequestsProps);
-
+            
             // create transient vertex buffer
             Graphics::BufferProperties ssboMeshVerticesProps;
             ssboMeshVerticesProps.m_DebugName = "Transient VolumeMesh Vertices";
@@ -202,14 +200,10 @@ namespace Onyx::Volume::Terrain
             properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/init_volume.oshader");
             generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
-            //properties.DebugName = "Terrain Reset Buffers";
             if (generationComponent.VolumeShaderGraph == nullptr)
             {
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_world_octree.oshader");
                 generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-
-                properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_chunk_octree.oshader");
-                generationComponent.UpdateWorldOctreeChunkShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/find_ray_traced_octreenode.oshader");
                 generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
@@ -220,13 +214,10 @@ namespace Onyx::Volume::Terrain
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/ray_trace_terrain.oshader");
                 generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
             }
-           else
-           {
+            else
+            {
                properties.Shader = generationComponent.VolumeShaderGraph->GetBuildOctreeShader();
                generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-           
-               properties.Shader = generationComponent.VolumeShaderGraph->GetBuildChunkOctreeShader();
-               generationComponent.UpdateWorldOctreeChunkShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
            
                properties.Shader = generationComponent.VolumeShaderGraph->GetFindOctreeNodeShader();
                generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
@@ -236,7 +227,7 @@ namespace Onyx::Volume::Terrain
            
                properties.Shader = generationComponent.VolumeShaderGraph->GetRaytraceTerrainShader();
                generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-           }
+            }
 
             generationComponent.HasLoadedShaders = true;
         }
@@ -262,16 +253,20 @@ namespace Onyx::Volume::Terrain
             computeCommandBuffer.Barrier(indirectDraw, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
             computeCommandBuffer.Barrier(indirectDispatch, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
             computeCommandBuffer.Barrier(splitRequests, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-
+                
             computeCommandBuffer.BindShaderEffect(volumeGeneration.ResetBuffersShader);
             computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, constants);
             computeCommandBuffer.Dispatch(1, 1, 1);
         }
 
-        void BuildWorldOctree(Graphics::CommandBuffer& commandBuffer, const TerrainSettingsComponent& terrainSettings, const VolumeGenerationComponent& generationComponent, TerrainWorldOctreeComponent& terrainWorldOctree, const Vector3f32& cameraPosition)
+        void BuildWorldOctree(Graphics::CommandBuffer& commandBuffer, const TerrainSettingsComponent& terrainSettings, const VolumeGenerationComponent& generationComponent, TerrainWorldOctreeComponent& terrainWorldOctree, const Vector3f32& cameraPosition, onyxF32 farPlane)
         {
-            terrainWorldOctree.RootSize = 1 << 16;// std::ceil(farPlane + (2.0f * static_cast<onyxF32>(worldOctreeChunkSize)));
-            terrainWorldOctree.Depth = static_cast<onyxU8>(std::log2(terrainWorldOctree.RootSize / static_cast<onyxF32>(terrainSettings.ChunkSize)));
+            const onyxF32 requestedTerrainSize = terrainSettings.Size > 0 ? numeric_cast<onyxF32>(terrainSettings.Size) : farPlane;
+            const onyxF32 voxelResolution = numeric_cast<onyxF32>(terrainSettings.ChunkSize) / numeric_cast<onyxF32>(terrainSettings.Resolution);
+
+            terrainWorldOctree.RootSize = std::ceil(std::min(requestedTerrainSize, farPlane));
+            terrainWorldOctree.MaxDepth = static_cast<onyxU8>(std::ceil(std::log2(terrainWorldOctree.RootSize / voxelResolution)));
+            terrainWorldOctree.ChunkMaxDepth = static_cast<onyxU8>(std::log2(terrainWorldOctree.RootSize / static_cast<onyxF32>(terrainSettings.ChunkSize)));
 
             UpdateOctreePushConstants pushConstants;
             pushConstants.OctreeBuffer = terrainWorldOctree.OctreeGpuBuffer.GetGpuAddress();
@@ -283,7 +278,8 @@ namespace Onyx::Volume::Terrain
             pushConstants.SurfaceRequestsBuffer = IsoSurfaceRequestsBuffer.GetGpuAddress();
             pushConstants.IndirectDispatchBuffer = IndirectDispatchBuffer0.GetGpuAddress();
             pushConstants.Depth = 0;
-            pushConstants.MaxDepth = terrainWorldOctree.Depth;
+            pushConstants.MaxDepth = terrainWorldOctree.MaxDepth;
+            pushConstants.ChunkMaxDepth = terrainWorldOctree.ChunkMaxDepth; 
             pushConstants.MaxGeometricError = terrainSettings.MaxGeometricError;
             pushConstants.ComplexSurfaceThreshold = terrainSettings.ComplexSurfaceThreshold;
 
@@ -308,7 +304,7 @@ namespace Onyx::Volume::Terrain
             onyxU64 dispatchBufferRead = IndirectDispatchBuffer0.GetGpuAddress();
             onyxU64 dispatchBufferWrite = IndirectDispatchBuffer1.GetGpuAddress();
 
-            for (onyxU32 depth = 1; depth <= terrainWorldOctree.Depth; ++depth)
+            for (onyxU32 depth = 1; depth <= terrainWorldOctree.MaxDepth; ++depth)
             {
                 std::swap(pushConstants.SplitRequestsReadBuffer, pushConstants.SplitRequestsWriteBuffer);
 
@@ -349,72 +345,6 @@ namespace Onyx::Volume::Terrain
             // subdivided?
             // voxelOffset -> index to leaf structure
             //
-
-            commandBuffer.Barrier(terrainWorldOctree.OctreeGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-            commandBuffer.Barrier(terrainWorldOctree.OctreeChunksBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        }
-
-        void BuildChunkOctree(Graphics::CommandBuffer& commandBuffer, const TerrainSettingsComponent& terrainSettings, const VolumeGenerationComponent& generationComponent, TerrainWorldOctreeComponent& terrainWorldOctree, const Vector3f32& cameraPosition)
-        {
-            onyxF32 voxelResolution = numeric_cast<onyxF32>(terrainSettings.ChunkSize) / numeric_cast<onyxF32>(terrainSettings.Resolution);
-            const onyxU8 maxDepth = static_cast<onyxU8>(std::ceil(std::log2(terrainWorldOctree.RootSize / voxelResolution)));
-
-            UpdateOctreePushConstants pushConstants;
-            pushConstants.OctreeBuffer = terrainWorldOctree.OctreeGpuBuffer.GetGpuAddress();
-            pushConstants.ChunksBuffer = terrainWorldOctree.OctreeChunksBuffer.GetGpuAddress();
-
-            pushConstants.SurfaceRequestsBuffer = IsoSurfaceRequestsBuffer.GetGpuAddress();
-
-            pushConstants.CameraPosition = cameraPosition;
-
-            pushConstants.VolumeSourcesList = terrainWorldOctree.VolumeObjects.GetGpuAddress();
-            pushConstants.VolumeSourcesData = terrainWorldOctree.VolumeObjectsData.GetGpuAddress();
-
-            pushConstants.SplitRequestsReadBuffer = SplitRequestQueueBuffer1.GetGpuAddress();
-            pushConstants.SplitRequestsWriteBuffer = SplitRequestQueueBuffer0.GetGpuAddress();
-
-            pushConstants.RootHalfExtents = terrainWorldOctree.RootSize * 0.5f;
-            pushConstants.Offset = 0;
-            pushConstants.MaxDepth = maxDepth;
-            pushConstants.MaxGeometricError = terrainSettings.MaxGeometricError;
-            pushConstants.ComplexSurfaceThreshold = terrainSettings.ComplexSurfaceThreshold;
-
-            onyxU64 dispatchBufferRead = IndirectDispatchBuffer0.GetGpuAddress();
-            onyxU64 dispatchBufferWrite = IndirectDispatchBuffer1.GetGpuAddress();
-
-            commandBuffer.BindShaderEffect(generationComponent.UpdateWorldOctreeChunkShader);
-            for (onyxU32 depth = terrainWorldOctree.Depth + 1; depth <= maxDepth; ++depth)
-            {
-                std::swap(pushConstants.SplitRequestsReadBuffer, pushConstants.SplitRequestsWriteBuffer);
-
-                pushConstants.IndirectDispatchBuffer = dispatchBufferWrite;
-                pushConstants.NodeExtents = terrainWorldOctree.RootSize / static_cast<onyxF32>(1 << depth);
-
-                pushConstants.Depth = depth;
-
-                commandBuffer.Barrier(terrainWorldOctree.OctreeGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
-                commandBuffer.Barrier(terrainWorldOctree.OctreeChunksBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
-
-                commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, pushConstants);
-                if (dispatchBufferRead == IndirectDispatchBuffer0.GetGpuAddress())
-                {
-                    commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::IndirectRead);
-                    commandBuffer.Barrier(SplitRequestQueueBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-                    commandBuffer.Barrier(SplitRequestQueueBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
-                    commandBuffer.Barrier(IndirectDispatchBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
-                    commandBuffer.DispatchIndirect(IndirectDispatchBuffer0);
-                }
-                else
-                {
-                    commandBuffer.Barrier(SplitRequestQueueBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
-                    commandBuffer.Barrier(SplitRequestQueueBuffer1, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-                    commandBuffer.Barrier(IndirectDispatchBuffer0, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::ShaderWrite);
-                    commandBuffer.Barrier(IndirectDispatchBuffer1, Graphics::Context::Compute, Graphics::Access::IndirectRead);
-                    commandBuffer.DispatchIndirect(IndirectDispatchBuffer1);
-                }
-
-                std::swap(dispatchBufferRead, dispatchBufferWrite);
-            }
 
             commandBuffer.Barrier(terrainWorldOctree.OctreeGpuBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
             commandBuffer.Barrier(terrainWorldOctree.OctreeChunksBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
@@ -472,9 +402,6 @@ namespace Onyx::Volume::Terrain
             commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, isoSurfaceConstants);
             commandBuffer.DispatchIndirect(IndirectDispatchBuffer0);
 
-            // Why do I need this global barrier?
-            //commandBuffer.GlobalBarrier(0, 96);
-
             commandBuffer.Barrier(terrainMesh.MeshVertices, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
             commandBuffer.Barrier(TransientVertexBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
             commandBuffer.Copy(TransientVertexBuffer, terrainMesh.MeshVertices);
@@ -493,7 +420,6 @@ namespace Onyx::Volume::Terrain
 
             if ((generationComponent.HasLoadedShaders == false) ||
                 !generationComponent.UpdateWorldOctreeShader.IsValid() ||
-                !generationComponent.UpdateWorldOctreeChunkShader.IsValid() ||
                 !generationComponent.ResetBuffersShader.IsValid() ||
                 !generationComponent.GenerateMeshShader.IsValid() ||
                 !generationComponent.SetupDispatchGenerateMeshShader.IsValid())
@@ -507,11 +433,10 @@ namespace Onyx::Volume::Terrain
 
             Entity::EntityId cameraEntity = cameraQuery.GetView().front();
             const GameCore::TransformComponent& cameraTransform = cameraQuery.GetView().get<const GameCore::TransformComponent>(cameraEntity);
-
+           
             ResetBuffers(computeCommandBuffer, generationComponent, IsoSurfaceRequestsBuffer, terrainRuntime.IndirectDrawBuffer, IndirectDispatchBuffer0, SplitRequestQueueBuffer0);
-
-            BuildWorldOctree(computeCommandBuffer, terrainSettings, generationComponent, terrainWorldOctree, cameraTransform.GetTranslation());
-            BuildChunkOctree(computeCommandBuffer, terrainSettings, generationComponent, terrainWorldOctree, cameraTransform.GetTranslation());
+            onyxF32 farPlane = graphicsSystem.GetViewContsants().Far;
+            BuildWorldOctree(computeCommandBuffer, terrainSettings, generationComponent, terrainWorldOctree, cameraTransform.GetTranslation(), farPlane);
             ExtractIsoSurface(computeCommandBuffer, generationComponent, terrainWorldOctree, terrainRuntime);
 
             entityCommandBuffer.RemoveComponent<InitTerrainFlag>(terrainEntity.GetId());
@@ -521,9 +446,10 @@ namespace Onyx::Volume::Terrain
     namespace Streaming
     {
         using CameraEntityAccess = Entity::EntityQuery<const GameCore::TransformComponent, const GameCore::FreeCameraRuntimeComponent>;
-        using TerrainEntity = Entity::Entity<TerrainWorldOctreeComponent, TerrainRuntimeComponent>;
-        void System(TerrainEntity terrainEntity, CameraEntityAccess cameraQuery, Entity::EntityCommandBuffer entityCommandBuffer)
+            using TerrainEntity = Entity::Entity<TerrainWorldOctreeComponent, TerrainRuntimeComponent>;
+            void System(TerrainEntity terrainEntity, CameraEntityAccess cameraQuery, Entity::EntityCommandBuffer entityCommandBuffer)
         {
+            // TODO: make smarter instead of updates every 50 meters of movement
             Entity::EntityId cameraEntity = cameraQuery.GetView().front();
             const GameCore::TransformComponent& cameraTransform = cameraQuery.GetView().get<const GameCore::TransformComponent>(cameraEntity);
 
@@ -535,8 +461,6 @@ namespace Onyx::Volume::Terrain
                 entityCommandBuffer.AddComponent<InitTerrainFlag>(terrainEntityId);
             }
         }
-
-
     }
 
     void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, TerrainSettingsComponent&& volumeTerrainComponent)

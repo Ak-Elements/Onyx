@@ -1,6 +1,7 @@
 #include <editor/panels/sceneeditor/terraintools/sculptterraintool.h>
 
 #include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
@@ -544,12 +545,9 @@ namespace Onyx::Editor
         }
     }
 
-    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsSystem& /*graphicsSystem*/)
+    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsSystem& graphicsSystem)
+        : m_CreateVolumeSourceShader(graphicsSystem.CreateShaderInstance("engine:/shaders/compute/volume/createvolumebrush.oshader"))
     {
-        //Graphics::PipelineProperties properties;
-        //properties.m_DebugName = "Apply Terrain Brush";
-        //properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/createvolumebrush.oshader");
-        //m_CreateVolumeSourceShaderEffect = graphicsApi.CreateShaderEffect(properties);
     }
 
     StringView SculptTerrainTool::GetTitle()
@@ -577,10 +575,12 @@ namespace Onyx::Editor
             };
             focusSceneView |= RenderBrushToolbarButton(SculptType::Raise, iconSize);
             focusSceneView |= RenderBrushToolbarButton(SculptType::Lower, iconSize);
-            focusSceneView |= RenderBrushToolbarButton(SculptType::Smooth, iconSize);
-            focusSceneView |= RenderBrushToolbarButton(SculptType::Flatten, iconSize);
-            focusSceneView |= RenderBrushToolbarButton(SculptType::Noise, iconSize);
-            focusSceneView |= RenderBrushToolbarButton(SculptType::Stamp, iconSize);
+
+            // not implemented yet
+            //focusSceneView |= RenderBrushToolbarButton(SculptType::Smooth, iconSize);
+            //focusSceneView |= RenderBrushToolbarButton(SculptType::Flatten, iconSize);
+            //focusSceneView |= RenderBrushToolbarButton(SculptType::Noise, iconSize);
+            //focusSceneView |= RenderBrushToolbarButton(SculptType::Stamp, iconSize);
 
         }
         ImGui::EndHorizontal();
@@ -615,7 +615,7 @@ namespace Onyx::Editor
         createVolumeSourceConstants.HitBufferAddress = hitBuffer.GetGpuAddress();
         createVolumeSourceConstants.BrushSize = m_BrushSize;
         createVolumeSourceConstants.BrushType = 5;
-        createVolumeSourceConstants.BrushOperation = 0;
+        createVolumeSourceConstants.BrushOperation = m_Type == SculptType::Lower ? 1 :  0;
         createVolumeSourceConstants.Smoothness = m_Smoothness;
         commandBuffer.BindShaderEffect(m_CreateVolumeSourceShader);
         commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, createVolumeSourceConstants);
@@ -638,24 +638,6 @@ namespace Onyx::Editor
     void SculptTerrainTool::RenderProperties()
     {
         ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_None, ImGuiWindowFlags_HorizontalScrollbar);
-        /*ImDrawList* drawList = ImGui::GetWindowDrawList();
-        ImGui::BeginHorizontal("Operations", ImVec2(ImGui::GetContentRegionAvail().x, 0));
-        ImGui::Spring();
-        onyxU32 color = m_Operation == Operation::Union ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_Button);
-        Onyx::Ui::DrawPlusIcon(drawList, ImVec2(-16, -16), 32.0f, color);
-        if (ImGui::InvisibleButton("plus", ImVec2(32.0f, 32.0f)))
-        {
-            m_Operation = Operation::Union;
-        }
-
-        color = m_Operation == Operation::Subtract ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_Button);;
-        Onyx::Ui::DrawMinusIcon(drawList, ImVec2(-16, -16), 32.0f, color);
-        if (ImGui::InvisibleButton("minus", ImVec2(32.0f, 32.0f)))
-        {
-            m_Operation = Operation::Subtract;
-        }
-        ImGui::Spring();
-        ImGui::EndHorizontal();*/
 
         Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
 

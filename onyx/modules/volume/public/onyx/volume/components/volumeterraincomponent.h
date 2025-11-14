@@ -20,16 +20,13 @@ namespace Volume
         bool DrawImGuiEditor();
 #endif
 
-        // the dimension limits of the terrain in each axis
-        // if e.g. x is set to 10 and chunk size is 32, the grid ranges max from -16.000 to 16.000
-        // if e.g. x is set to -1 it can infinitely scale on the x axis
-        Vector3s16 Dimensions { -1, -1, -1 };
+        onyxS32 Size = -1; // world size of the terrain
 
         onyxU32 ChunkSize = 64; // world size of the smallest chunk
         onyxU32 Resolution = 512; // resolution of a chunk (voxel size equals ChunkSize / Resolution)
 
         onyxF32 MaxGeometricError = 0.1f;
-        onyxF32 ComplexSurfaceThreshold = 0.89f;
+        onyxF32 ComplexSurfaceThreshold = 0.9f;
 
         Assets::AssetId VolumeGraphAssetId;
     };
@@ -47,14 +44,14 @@ namespace Volume
         Graphics::BufferHandle VolumeObjectsData;
 
         onyxF32 RootSize = 1.0f;
-        onyxU8 Depth = 0;
+        onyxU8 MaxDepth = 0;
+        onyxU8 ChunkMaxDepth = 0;
     };
 
     struct VolumeGenerationComponent
     {
         Graphics::ShaderInstanceHandle ResetBuffersShader;
         Graphics::ShaderInstanceHandle UpdateWorldOctreeShader;
-        Graphics::ShaderInstanceHandle UpdateWorldOctreeChunkShader;
         Graphics::ShaderInstanceHandle SetupDispatchGenerateMeshShader;
         Graphics::ShaderInstanceHandle GenerateMeshShader;
 

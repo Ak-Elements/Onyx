@@ -322,20 +322,22 @@ uint GenerateLines(uint faceIndex, vec3 corners[4], vec4 hermiteData[4], inout u
         Vertex edge0ToVertex;
         CalculateZeroCrossing(edge0_To, corners, hermiteData, edge0ToVertex);
 
-        Vertex intersectionVertex;
-        if (ResolveFaceSharpFeature(faceIndex, edge0FromVertex, edge0ToVertex, minBounds, maxBounds, intersectionVertex))
-        {
-            LineSegment segment;
-            segment.LinePoints[0] = edge0FromVertex;
-            segment.LinePoints[1] = intersectionVertex;
-            segment.LinePoints[2] = edge0ToVertex;
-            segment.FromEdgeIndex = cubeEdge0_From;
-            segment.ToEdgeIndex = cubeEdge0_To;
+        //TODO: Fix Face sharp feature, as it currently can fail and produce wrong meshes
+        // E.g.: Simplex noise on 512 octree size and 0.001f scaling
+        //Vertex intersectionVertex;
+        //if (ResolveFaceSharpFeature(faceIndex, edge0FromVertex, edge0ToVertex, minBounds, maxBounds, intersectionVertex))
+        //{
+        //    LineSegment segment;
+        //    segment.LinePoints[0] = edge0FromVertex;
+        //    segment.LinePoints[1] = intersectionVertex;
+        //    segment.LinePoints[2] = edge0ToVertex;
+        //    segment.FromEdgeIndex = cubeEdge0_From;
+        //    segment.ToEdgeIndex = cubeEdge0_To;
 
-            segment.LinePointsCount = 3;
-            outLineSegments[nextSegmentIndex++] = segment;
-        }
-       else
+        //    segment.LinePointsCount = 3;
+        //    outLineSegments[nextSegmentIndex++] = segment;
+        //}
+        //else
         {
             LineSegment segment;
             segment.LinePoints[0] = edge0FromVertex;

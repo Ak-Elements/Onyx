@@ -142,7 +142,7 @@ namespace Onyx::Graphics
         Assets::AssetSystem::Register<RenderGraph>();
         Assets::AssetSystem::Register<RenderGraphSerializer>(assetSystem, *this);
 
-        Assets::AssetSystem::Register<Shader>(m_Settings.Api);
+        Assets::AssetSystem::Register<Shader>(*this);
         Assets::AssetSystem::Register<ShaderSerializer>(assetSystem, *this);
 
         Assets::AssetSystem::Register<SDFFont>();
@@ -428,6 +428,12 @@ namespace Onyx::Graphics
     DynamicArray<DescriptorSetHandle> GraphicsSystem::CreateDescriptorSet(const ShaderHandle& shader, StringView debugName) const
     {
         return m_GraphicsSystem->CreateDescriptorSet(shader, debugName);
+    }
+
+    ShaderInstanceHandle GraphicsSystem::CreateShaderInstance(Assets::AssetId shaderAssetId)
+    {
+        PipelineProperties properties;
+        return CreateShaderInstance(shaderAssetId, properties);
     }
 
     ShaderInstanceHandle GraphicsSystem::CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties)

@@ -94,6 +94,7 @@ namespace Onyx::Graphics
 
         RenderPassHandle GetOrCreateRenderPass(const RenderPassSettings& settings);
         FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
+        ShaderInstanceHandle CreateShaderInstance(Assets::AssetId shaderAssetId);
         ShaderInstanceHandle CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties);
 
         void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties);

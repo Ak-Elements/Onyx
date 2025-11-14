@@ -12,7 +12,6 @@ namespace Onyx::Volume
     namespace
     {
         constexpr StringView BUILD_OCTREE_SHADER_FILENAME = "build_octree.oshader";
-        constexpr StringView BUILD_CHUNK_OCTREE_SHADER_FILENAME = "build_chunk_octree.oshader";
         constexpr StringView FIND_OCTREE_NODE_SHADER_FILENAME = "find_octree_node.oshader";
         constexpr StringView GENERATE_VOLUME_MESH_SHADER_FILENAME = "generate_volume.oshader";
         constexpr StringView RAYTRACE_TERRAIN_SHADER_FILENAME = "raytrace_terrain.oshader";
@@ -58,7 +57,6 @@ namespace Onyx::Volume
         FileSystem::Filepath volumeHeaderFileName = volumeShaderPath.filename();
 
         WriteTemplateFile(directoryPath / BUILD_OCTREE_SHADER_FILENAME, BUILD_OCTREE_SHADER, volumeHeaderFileName);
-        WriteTemplateFile(directoryPath / BUILD_CHUNK_OCTREE_SHADER_FILENAME, BUILD_CHUNK_OCTREE_SHADER, volumeHeaderFileName);
         WriteTemplateFile(directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME, FIND_OCTREE_NODE_SHADER, volumeHeaderFileName);
         WriteTemplateFile(directoryPath / GENERATE_VOLUME_MESH_SHADER_FILENAME, GENERATE_VOLUME_MESH_SHADER, volumeHeaderFileName);
         WriteTemplateFile(directoryPath / RAYTRACE_TERRAIN_SHADER_FILENAME, RAYTRACE_TERRAIN_SHADER, volumeHeaderFileName);
@@ -74,7 +72,6 @@ namespace Onyx::Volume
 
         FileSystem::Filepath directoryPath = FileSystem::Path::ConvertToMountPath(meta.Path).parent_path();
         shaderGraph.m_BuildOctreeShader = Assets::AssetId(directoryPath / BUILD_OCTREE_SHADER_FILENAME);
-        shaderGraph.m_BuildChunkOctreeShader = Assets::AssetId(directoryPath / BUILD_CHUNK_OCTREE_SHADER_FILENAME);
         shaderGraph.m_FindOctreeNodeShader = Assets::AssetId(directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME);
         shaderGraph.m_GenerateVolumeMeshShader = Assets::AssetId(directoryPath / GENERATE_VOLUME_MESH_SHADER_FILENAME);
         shaderGraph.m_RaytraceTerrainShader = Assets::AssetId(directoryPath / RAYTRACE_TERRAIN_SHADER_FILENAME);

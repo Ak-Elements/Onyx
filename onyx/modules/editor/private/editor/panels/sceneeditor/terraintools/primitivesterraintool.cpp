@@ -7,6 +7,7 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphics/graphicssystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
@@ -19,12 +20,9 @@
 
 namespace Onyx::Editor
 {
-    PrimitivesTerrainTool::PrimitivesTerrainTool(Graphics::GraphicsSystem& /*graphicsSystem*/)
+    PrimitivesTerrainTool::PrimitivesTerrainTool(Graphics::GraphicsSystem& graphicsSystem)
+        : m_CreateVolumeSourceShader(graphicsSystem.CreateShaderInstance("engine:/shaders/compute/volume/createvolumeprimitive.oshader"))
     {
-        //Graphics::PipelineProperties properties;
-        //properties.m_DebugName = "Apply Terrain Brush";
-        //properties.Shader = graphicsApi.GetShader("engine:/shaders/compute/volume/createvolumeprimitive.oshader");
-        //m_CreateVolumeSourceShaderEffect = graphicsApi.CreateShaderEffect(properties);
     }
 
     StringView PrimitivesTerrainTool::GetTitle()
@@ -50,7 +48,6 @@ namespace Onyx::Editor
         {
             m_Type = Primitives::Ellipsoid;
         }
-
 
         ImGui::EndHorizontal();
 
@@ -90,9 +87,6 @@ namespace Onyx::Editor
         commandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
         commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, createVolumeSourceConstants);
         commandBuffer.Dispatch(1, 1, 1);
-
-        //commandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        //commandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
     }
 
     void PrimitivesTerrainTool::OnHitPositionReadback(GameCore::Scene& scene, const Entity::ComponentFactory& componentFactory, const Vector3f32& hitPosition)

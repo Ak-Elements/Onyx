@@ -815,52 +815,24 @@ namespace Onyx::Editor::SceneEditor
 
     void TerrainPanel::RenderToolbar(ImGuiWindow* sceneViewWindow)
     {
-        bool isVisible;
-        //if (m_IsDocked)
-        //{
-        //    //TODO: Fix, Not used right now
-        //    ImVec2 topLeft = sceneViewWindow->ContentRegionRect.GetTL();
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoResize;
 
-        //    ImGui::SetCursorPos(ImVec2(topLeft.x + 50, topLeft.y + 50));
-
-        //}
-        //else
-        {
-            ImGuiWindowFlags flags =
-                ImGuiWindowFlags_NoResize;
-
-            ImGui::SetNextWindowClass(&sceneViewWindow->WindowClass);
-            ImGui::SetNextWindowSize(ImVec2(700, 300));
-            isVisible = ImGui::Begin("Terrain Toolbar", nullptr, flags);
-        }
-
+        ImGui::SetNextWindowClass(&sceneViewWindow->WindowClass);
+        ImGui::SetNextWindowSize(ImVec2(700, 300));
+        bool isVisible = ImGui::Begin("Terrain Toolbar", nullptr, flags);
         if (isVisible)
         {
-            //if (m_Orientation == ToolbarOrientation::Vertical)
-            //{
-            //    ImGui::BeginVertical("TerrainToolbar", ImVec2(0, 0));
-
- //           }
-            //else
-            //{
-            //    ImGui::BeginHorizontal("TerrainToolbar", ImVec2(0, 0));
-            //}
-
             Ui::ScopedImGuiColor styleColor
             {
                 { ImGuiCol_TableRowBg, 0x0 },
                 { ImGuiCol_NavCursor, 0x0 }
             };
-            //const onyxF32 rowHeight = 21.0f;
 
             bool focusSceneView = false;
 
             if (ImGui::BeginTable("##scene", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp))
             {
-               // ImGui::TableSetupColumn("#tabs", ImGuiTableColumnFlags_None, 0.1f);
-               // ImGui::TableSetupColumn("#operations", ImGuiTableColumnFlags_None, 0.6f);
-               // ImGui::TableSetupColumn("#properties", ImGuiTableColumnFlags_None, 0.3f);
-
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
 
@@ -875,75 +847,10 @@ namespace Onyx::Editor::SceneEditor
                 ImGui::EndTable();
             }
 
-            ImGui::DebugDrawItemRect();
-
             if (focusSceneView)
             {
                 ImGui::FocusWindow(sceneViewWindow);
             }
-
-            //if (m_IsDocked)
-            //{
-            //    //TODO: Fix, Not used right now
-            //}
-            //else
-            //{
-            //    // No orientation for now
-
-            //    //ImVec2 winPos = ImGui::GetWindowPos();
-            //    //ImVec2 winSize = ImGui::GetWindowSize();
-            //    //
-            //    //float gripSize = 16.0f;
-            //    //ImVec2 gripMin = ImVec2(winPos.x + winSize.x - gripSize, winPos.y + winSize.y - gripSize);
-            //    //ImVec2 gripMax = ImVec2(winPos.x + winSize.x, winPos.y + winSize.y);
-            //    //
-            //    //ImRect gripRect(gripMin, gripMax);
-            //    //ImGuiID id = ImGui::GetID("##ToolbarGrip");
-            //    //
-            //    //static ImVec2 dragStart;
-            //    //
-            //    //ImGui::ItemAdd(gripRect, id);
-            //    //bool hovered, held;
-            //    //bool pressed = ImGui::ButtonBehavior(gripRect, id, &hovered, &held, ImGuiButtonFlags_PressedOnClick);
-            //    //ImGui::KeepAliveID(id);
-            //    //if (pressed)
-            //    //{
-            //    //    // Drag started
-            //    //    dragStart = ImGui::GetIO().MousePos;
-            //    //}
-
-            //   
-            //    //if (held)
-            //    //{
-            //    //    ImVec2 dragDelta(ImGui::GetIO().MousePos.x - dragStart.x, ImGui::GetIO().MousePos.y - dragStart.y);
-            //    //    float threshold = 20.0f;
-
-            //    //    if (m_Orientation == ToolbarOrientation::Horizontal)
-            //    //    {
-            //    //        // Flip to vertical if drag has a significant downward component
-            //    //        if (dragDelta.y > threshold || (dragDelta.y > 0 && dragDelta.x < 0))
-            //    //        {
-            //    //            m_Orientation = ToolbarOrientation::Vertical;
-            //    //            dragStart = ImGui::GetIO().MousePos; // reset for continuous flipping
-            //    //        }
-            //    //    }
-            //    //    else
-            //    //    { // vertical
-            //    //        // Flip to horizontal if drag has significant rightward component
-            //    //        if (dragDelta.x > threshold || (dragDelta.x > 0 && dragDelta.y < 0))
-            //    //        {
-            //    //            m_Orientation = ToolbarOrientation::Horizontal;
-            //    //            dragStart = ImGui::GetIO().MousePos; // reset for continuous flipping
-            //    //        }
-            //    //    }
-            //    //}
-            //    // Draw grip triangle
-            //    //ImDrawList* dl = ImGui::GetWindowDrawList();
-            //    //ImVec2 a = ImVec2(gripMax.x, gripMax.y);
-            //    //ImVec2 b = ImVec2(gripMin.x, gripMax.y);
-            //    //ImVec2 c = ImVec2(gripMax.x, gripMin.y);
-            //    //dl->AddTriangleFilled(a, b, c, hovered ? IM_COL32(255, 255, 255, 200) : IM_COL32(200, 200, 200, 150));
-            //}
         }
 
         //if (m_IsDocked == false)
@@ -1015,7 +922,7 @@ namespace Onyx::Editor::SceneEditor
         FindOctreeNodePushConstants findOctreeNodeConstants;
         findOctreeNodeConstants.OctreeBufferAddress = terrainOctree.OctreeGpuBuffer.GetGpuAddress();
         findOctreeNodeConstants.RootHalfExtents = terrainOctree.RootSize * 0.5f;
-        findOctreeNodeConstants.MaxDepth = terrainOctree.Depth;
+        findOctreeNodeConstants.MaxDepth = terrainOctree.ChunkMaxDepth;
 
         findOctreeNodeConstants.VolumeSourcesList = terrainOctree.VolumeObjects.GetGpuAddress();
         findOctreeNodeConstants.VolumeSourcesData = terrainOctree.VolumeObjectsData.GetGpuAddress();

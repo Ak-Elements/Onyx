@@ -1,3 +1,4 @@
+//
 // Description : Array and textureless GLSL 2D simplex noise function.
 //      Author : Ian McEwan, Ashima Arts.
 //  Maintainer : stegu
@@ -23,7 +24,7 @@ vec3 permute(vec3 x)
     return mod289(((x*34.0)+10.0)*x);
 }
 
-vec3 snoise(vec2 v)
+float snoise(vec2 v)
 {
     const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
                         0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
@@ -50,8 +51,9 @@ vec3 snoise(vec2 v)
         + i.x + vec3(0.0, i1.x, 1.0 ));
 
     vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-    m = m*m ;
-    m = m*m ;
+    vec3 m2 = m * m;
+    vec3 m4 = m2 * m2;
+    
 
     // Gradients: 41 points uniformly over a line, mapped onto a diamond.
     // The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
@@ -68,6 +70,13 @@ vec3 snoise(vec2 v)
     // Compute final noise value at P
     vec3 g;
     g.x  = a0.x  * x0.x  + h.x  * x0.y;
-    g.xz = a0.yz * x12.xz + h.yz * x12.yw;
-    return vec3(g.xz, 130.0 * dot(m, g));
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+
+    // Determine noise gradient
+    vec3 temp = m2 * m * pdotx;
+    gradient = -8.0 * (temp.x * x0 + temp.y * x1 + temp.z * x2 + temp.w * x3);
+    gradient += m4.x * p0 + m4.y * p1 + m4.z * p2 + m4.w * p3;
+    gradient *= 105.0;
+
+    return 130.0 * dot(m, g);
 }

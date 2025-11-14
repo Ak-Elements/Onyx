@@ -12,14 +12,12 @@ namespace Onyx::Volume
         StringId32 GetTypeId() const { return TypeId; }
 
         Assets::AssetId GetBuildOctreeShader() const { return m_BuildOctreeShader; }
-        Assets::AssetId GetBuildChunkOctreeShader() const { return m_BuildChunkOctreeShader; }
         Assets::AssetId GetFindOctreeNodeShader() const { return m_FindOctreeNodeShader; }
         Assets::AssetId GetGenerateVolumeMeshShader() const { return m_GenerateVolumeMeshShader; }
         Assets::AssetId GetRaytraceTerrainShader() const { return m_RaytraceTerrainShader; }
 
     private:
         Assets::AssetId m_BuildOctreeShader;
-        Assets::AssetId m_BuildChunkOctreeShader;
         Assets::AssetId m_FindOctreeNodeShader;
         Assets::AssetId m_GenerateVolumeMeshShader;
         Assets::AssetId m_RaytraceTerrainShader;
