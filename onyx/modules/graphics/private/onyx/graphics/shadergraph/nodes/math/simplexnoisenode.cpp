@@ -26,17 +26,16 @@ namespace Onyx::Graphics
 
         const InPin& inputPin0 = GetInputPin();
         
-        generator.AddInclude(ShaderStage::All, "includes/math/simplexnoise2d.h");
+        generator.AddInclude(ShaderStage::All, "includes/math/psrdnoise2d.h");
 
         String noiseVariable = Format::Format("noiseNode_{:x}", GetId().Get());
-        String outPin0VariableName = Format::Format("pin_{:x}", GetOutputPin0().GetGlobalId().Get());
-        String outPin1VariableName = Format::Format("pin_{:x}", GetOutputPin1().GetGlobalId().Get());
+        String noiseValueOutVariableName = Format::Format("pin_{:x}", GetOutputPin0().GetGlobalId().Get());
+        String noiseGradientOutVariableName = Format::Format("pin_{:x}", GetOutputPin1().GetGlobalId().Get());
 
-        generator.AppendCode(Format::Format("vec3 {} = snoise({});\n", noiseVariable,
-            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>())));
-
-        generator.AppendCode(Format::Format("vec2 {} = {}.xy;\n", outPin0VariableName, noiseVariable));
-        generator.AppendCode(Format::Format("float {} = {}.z;\n", outPin1VariableName, noiseVariable));
+        generator.AppendCode(Format::Format("vec2 {};\n", noiseGradientOutVariableName));
+        generator.AppendCode(Format::Format("float {} = psrdnoise({}, vec2(0.0f,0.0f), 0.0f, {});\n", noiseValueOutVariableName,
+            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>()), 
+            noiseGradientOutVariableName));
     }
 
 #if ONYX_IS_EDITOR
@@ -45,8 +44,8 @@ namespace Onyx::Graphics
         switch (pinId)
         {
         case InPin::LocalId: return "Position";
-        case OutPin0::LocalId: return "Gradient";
-        case OutPin1::LocalId: return "Noise Value";
+        case OutPin0::LocalId: return "Noise Value";
+        case OutPin1::LocalId: return "Noise Gradient";
         }
 
         ONYX_ASSERT(false, "Invalid pin id");
@@ -74,17 +73,16 @@ namespace Onyx::Graphics
 
         const InPin& inputPin0 = GetInputPin();
 
-        generator.AddInclude(ShaderStage::All, "includes/math/simplexnoise3d.h");
+        generator.AddInclude(ShaderStage::All, "includes/math/psrdnoise2d.h");
 
         String noiseVariable = Format::Format("noiseNode_{:x}", GetId().Get());
-        String outPin0VariableName = Format::Format("pin_{:x}", GetOutputPin0().GetGlobalId().Get());
-        String outPin1VariableName = Format::Format("pin_{:x}", GetOutputPin1().GetGlobalId().Get());
+        String noiseValueOutVariableName = Format::Format("pin_{:x}", GetOutputPin0().GetGlobalId().Get());
+        String noiseGradientOutVariableName = Format::Format("pin_{:x}", GetOutputPin1().GetGlobalId().Get());
 
-        generator.AppendCode(Format::Format("vec4 {} = snoise({});\n", noiseVariable,
-            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>())));
-
-        generator.AppendCode(Format::Format("vec3 {} = {}.xy;\n", outPin0VariableName, noiseVariable));
-        generator.AppendCode(Format::Format("float {} = {}.z;\n", outPin1VariableName, noiseVariable));
+        generator.AppendCode(Format::Format("vec3 {};\n", noiseGradientOutVariableName));
+        generator.AppendCode(Format::Format("float {} = psrdnoise({}, vec3(0.0f,0.0f, 0.0f), 0.0f, {});\n", noiseValueOutVariableName,
+            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>()),
+            noiseGradientOutVariableName));
     }
 
 #if ONYX_IS_EDITOR
@@ -93,8 +91,8 @@ namespace Onyx::Graphics
         switch (pinId)
         {
             case InPin::LocalId: return "Position";
-            case OutPin0::LocalId: return "Gradient";
-            case OutPin1::LocalId: return "Noise Value";
+            case OutPin0::LocalId: return "Noise Value";
+            case OutPin1::LocalId: return "Noise Gradient";
         }
 
         ONYX_ASSERT(false, "Invalid pin id");

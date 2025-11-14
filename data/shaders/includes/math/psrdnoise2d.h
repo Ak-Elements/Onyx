@@ -23,7 +23,8 @@ float psrdnoise(vec2 x, vec2 period, float alpha, out vec2 gradient)
     if(period.y > 0.0)
       yw = mod(vec3(v0.y, v1.y, v2.y), period.y);
     iu = floor(xw + 0.5*yw + 0.5); iv = floor(yw + 0.5);
-  } else
+  }
+  else
   {
     iu = vec3(i0.x, i1.x, i2.x); iv = vec3(i0.y, i1.y, i2.y);
   }
