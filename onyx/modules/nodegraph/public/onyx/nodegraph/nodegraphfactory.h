@@ -33,6 +33,12 @@ namespace Onyx::NodeGraph
         {
             { T::HasAliases };
         };
+
+        template <typename T>
+        concept HasShowNodeName = requires(T node)
+        {
+            { T::ShowNodeName };
+        };
     }
 
     enum class GraphContext : onyxU32
@@ -49,6 +55,7 @@ namespace Onyx::NodeGraph
 
         StringId32 TypeId;
         bool HasAliases;
+        bool ShowNodeName;
     };
 
     class INodeFactory
@@ -84,6 +91,14 @@ namespace Onyx::NodeGraph
             MetaDataContainerT& metaContainer = m_RegisteredNodesMetaData[typeId];
             metaContainer.TypeId = typeId;
             metaContainer.HasAliases = Details::HasAliases<NodeT>;
+            if constexpr (Details::HasShowNodeName<NodeT>)
+            {
+                metaContainer.ShowNodeName = NodeT::ShowNodeName;
+            }
+            else
+            {
+                metaContainer.ShowNodeName = true;
+            }
 
             // can we make this constexpr?
             NodeT node{};

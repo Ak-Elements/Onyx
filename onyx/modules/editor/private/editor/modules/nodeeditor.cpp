@@ -1494,7 +1494,7 @@ namespace Onyx::Editor
 
    void NodeGraphEditorWindow::DrawNodeHeader(const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder)
     {
-        if (node.Name.empty())
+        if (node.Name.empty() || (node.ShowNodeName == false))
         {
             return;
         }

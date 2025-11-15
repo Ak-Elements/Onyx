@@ -12,7 +12,7 @@ namespace Onyx::Graphics
             return;
         }
 
-        generator.AppendCode(Format::Format("vec4 pin_{:x} = vec4(WorldNormal, 1.0); \n", GetOutputPin().GetGlobalId().Get()));
+        generator.AppendCode(Format::Format("vec4 pin_{:x} = vec4(worldNormal, 1.0); \n", GetOutputPin().GetGlobalId().Get()));
     }
 
 #if ONYX_IS_EDITOR

@@ -678,3 +678,9 @@ msgstr "Math/Integer64/Vector4/Swizzle Vector3"
 
 msgid "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s64"
 msgstr "Math/Integer64/Vector4/Swizzle Vector4"
+
+msgid "Onyx::Graphics::ShaderGraph::SimplexNoise2DShaderGraphNode"
+msgstr "Math/Float/Noise/Simplex Noise 2D"
+
+msgid "Onyx::Graphics::ShaderGraph::SimplexNoise3DShaderGraphNode"
+msgstr "Math/Float/Noise/Simplex Noise 3D"

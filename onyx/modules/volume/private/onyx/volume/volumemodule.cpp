@@ -11,14 +11,16 @@
 #include <onyx/volume/graphics/previewterrainedit.h>
 #include <onyx/volume/serialize/volumeshadergraphserializer.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
-#include <onyx/volume/shadergraph/nodes/primitives/spherevolumeshadergraphnode.h>
-#include <onyx/volume/shadergraph/nodes/primitives/cubevolumeshadergraphnode.h>
-#include <onyx/volume/shadergraph/nodes/primitives/ellipsoidvolumeshadergraphnode.h>
-#include <onyx/volume/shadergraph/nodes/primitives/planevolumeshadergraphnode.h>
-#include <onyx/volume/shadergraph/nodes/operations/differencevolumeshadergraphnode.h>
-#include <onyx/volume/shadergraph/nodes/operations/intersectvolumeshadergraphnode.h>
-#include <onyx/volume/shadergraph/nodes/operations/unionvolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/sdfnoiseshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/primitives/sdfspherevolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/primitives/sdfcubevolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/primitives/sdfellipsoidvolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/primitives/sdfplanevolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/operations/sdfdifferencevolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/operations/sdfintersectvolumeshadergraphnode.h>
+#include <onyx/volume/shadergraph/nodes/operations/sdfunionvolumeshadergraphnode.h>
 #include <onyx/volume/shadergraph/nodes/volumeshadergraphoutnode.h>
+#include <onyx/volume/shadergraph/nodes/voxelpositionshadergraphnode.h>
 #include <onyx/volume/systems/volumerendersystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
@@ -38,14 +40,18 @@ namespace Onyx::Volume
         Assets::AssetSystem::Register<VolumeShaderGraph>();
         Assets::AssetSystem::Register<VolumeShaderGraphSerializer>(assetSystem);
 
-        Graphics::ShaderGraphNodeFactory::RegisterNode<CubeVolumeShaderGraphNode>();
-        Graphics::ShaderGraphNodeFactory::RegisterNode<EllipsoidVolumeShaderGraphNode>();
-        Graphics::ShaderGraphNodeFactory::RegisterNode<SphereVolumeShaderGraphNode>();
-        Graphics::ShaderGraphNodeFactory::RegisterNode<PlaneVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfCubeVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfEllipsoidVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfSphereVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfPlaneVolumeShaderGraphNode>();
 
-        Graphics::ShaderGraphNodeFactory::RegisterNode<DifferenceVolumeShaderGraphNode>();
-        Graphics::ShaderGraphNodeFactory::RegisterNode<IntersectVolumeShaderGraphNode>();
-        Graphics::ShaderGraphNodeFactory::RegisterNode<UnionVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfDifferenceVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfIntersectVolumeShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfUnionVolumeShaderGraphNode>();
+
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfNoise2DShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<SdfNoise3DShaderGraphNode>();
+        Graphics::ShaderGraphNodeFactory::RegisterNode<GetVoxelPositionShaderGraphNode>();
 
         Graphics::ShaderGraphNodeFactory::RegisterNode<VolumeShaderGraphOutNode>();
 

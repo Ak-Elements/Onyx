@@ -117,8 +117,8 @@ namespace Onyx
     template <typename T>
     using Set = std::set<T>;
 
-    template <typename T>
-    using HashSet = std::unordered_set<T>;
+    template <typename T, typename _Hasher = std::hash<T>, typename _Keyeq = std::equal_to<T>>
+    using HashSet = std::unordered_set<T, _Hasher, _Keyeq>;
 
     template <typename T>
     using Stack = std::stack<T>;

@@ -5,14 +5,15 @@
 
 namespace Onyx::Volume
 {
-    class EllipsoidVolumeShaderGraphNode : public NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, Vector3f32, onyxF32>
+    class SdfEllipsoidVolumeShaderGraphNode : public NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, onyxF32, Vector3f32>
     {
     private:
-        using Super = NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, Vector3f32, onyxF32>;
+        using Super = NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, onyxF32, Vector3f32>;
     public:
-        EllipsoidVolumeShaderGraphNode();
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::EllipsoidVolumeShaderGraphNode";
+        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::SdfEllipsoidVolumeShaderGraphNode";
         StringId32 GetTypeId() const override { return TypeId; }
+
+        SdfEllipsoidVolumeShaderGraphNode() = default;
 
         void OnUpdate(NodeGraph::ExecutionContext& context) const override;
 

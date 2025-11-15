@@ -22,6 +22,7 @@ namespace Onyx::NodeGraph
     {
     public:
         static constexpr bool HasAliases = true;
+        static constexpr bool ShowNodeName = false;
 
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
@@ -72,6 +73,7 @@ namespace Onyx::NodeGraph
     {
     public:
         static constexpr bool HasAliases = true;
+        static constexpr bool ShowNodeName = false;
 
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
@@ -121,6 +123,7 @@ namespace Onyx::NodeGraph
     {
     public:
         static constexpr bool HasAliases = true;
+        static constexpr bool ShowNodeName = false;
 
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
@@ -170,6 +173,7 @@ namespace Onyx::NodeGraph
     {
     public:
         static constexpr bool HasAliases = true;
+        static constexpr bool ShowNodeName = false;
 
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
@@ -219,6 +223,7 @@ namespace Onyx::NodeGraph
     {
     public:
         static constexpr bool HasAliases = true;
+        static constexpr bool ShowNodeName = false;
 
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }

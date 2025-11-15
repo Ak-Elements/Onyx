@@ -8,8 +8,8 @@ namespace Onyx::NodeGraph
     class FixedPinNode : public NodeType
     {
     public:
-        onyxU32 GetInputPinCount() const override final { return InPinCount; }
-        onyxU32 GetOutputPinCount() const override final { return OutPinCount; }
+        onyxU32 GetInputPinCount() const final { return InPinCount; }
+        onyxU32 GetOutputPinCount() const final { return OutPinCount; }
 
 #if ONYX_IS_EDITOR
         std::any CreateDefaultForPin(StringId32 pinId) const override

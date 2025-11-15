@@ -2,7 +2,7 @@
 
 namespace Onyx
 {
-    enum class VectorCompareMask : onyxU8
+    enum class VectorComponentMask : onyxU8
     {
         None = 0,
         X = 1 << 0,

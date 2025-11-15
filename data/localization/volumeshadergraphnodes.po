@@ -1,3 +1,36 @@
 msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
+
+msgid "Onyx::Volume::VolumeShaderGraph::GetVoxelPositionShaderGraphNode"
+msgstr "Volume/Get Voxel Position"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfSphereVolumeShaderGraphNode"
+msgstr "Volume/Primitives/SDF Sphere"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfCubeVolumeShaderGraphNode"
+msgstr "Volume/Primitives/SDF Cube"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfPlaneVolumeShaderGraphNode"
+msgstr "Volume/Primitives/SDF Plane"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfEllipsoidVolumeShaderGraphNode"
+msgstr "Volume/Primitives/SDF Ellipsoid"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfNoise2DShaderGraphNode"
+msgstr "Volume/Noise/SDF Noise 2D"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfNoise3DShaderGraphNode"
+msgstr "Volume/Noise/SDF Noise 3D"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfDifferenceVolumeShaderGraphNode"
+msgstr "Volume/Operations/Difference"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfUnionVolumeShaderGraphNode"
+msgstr "Volume/Operations/Union"
+
+msgid "Onyx::Volume::VolumeShaderGraph::SdfIntersectVolumeShaderGraphNode"
+msgstr "Volume/Operations/Intersect"
+
+msgid "Onyx::Volume::VolumeShaderGraph::VolumeGraphOutNode"
+msgstr "Volume/Volume Out"

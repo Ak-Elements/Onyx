@@ -6,11 +6,6 @@
 
 namespace Onyx::Graphics
 {
-    SimplexNoise2DShaderGraphNode::SimplexNoise2DShaderGraphNode()
-    {
-        m_DebugName = "Simplex Noise 2D";
-    }
-
     void SimplexNoise2DShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
     {
 
@@ -52,11 +47,6 @@ namespace Onyx::Graphics
         return "";
     }
 #endif
-
-    SimplexNoise3DShaderGraphNode::SimplexNoise3DShaderGraphNode()
-    {
-        m_DebugName = "Simplex Noise 3D";
-    }
 
     void SimplexNoise3DShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
     {

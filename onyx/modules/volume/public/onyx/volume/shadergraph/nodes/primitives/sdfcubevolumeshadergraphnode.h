@@ -5,14 +5,15 @@
 
 namespace Onyx::Volume
 {
-    class CubeVolumeShaderGraphNode : public NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, Vector3f32, onyxF32>
+    class SdfCubeVolumeShaderGraphNode : public NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, onyxF32, Vector3f32>
     {
     private:
-        using Super = NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, Vector3f32, onyxF32>;
+        using Super = NodeGraph::FixedPinNode_2_In_2_Out<Graphics::ShaderGraphNode, Vector3f32, Vector3f32, onyxF32, Vector3f32>;
     public:
-        CubeVolumeShaderGraphNode();
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::CubeVolumeShaderGraphNode";
+        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::SdfCubeVolumeShaderGraphNode";
         StringId32 GetTypeId() const override { return TypeId; }
+
+        SdfCubeVolumeShaderGraphNode() = default;
 
         void OnUpdate(NodeGraph::ExecutionContext& context) const override;
 

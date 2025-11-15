@@ -10,12 +10,12 @@ namespace Onyx::Volume
     String VolumeShaderGraphGenerator::GenerateShader()
     {
         String includes;
-        for (const String& include : shaderStagesIncludes[Enums::ToIntegral(Graphics::ShaderStage::All)])
+        for (const String& include : m_ShaderStagesIncludes[Enums::ToIntegral(Graphics::ShaderStage::All)])
         {
             includes += Format::Format("#include \"{}\"\n", include);
         }
 
         // TODO: currently all node generated code is added as fragment code
-        return Format::Format("{}\nvec4 SampleBaseTerrainValue(vec3 worldPosition)\n{{\n{}\n}}\n", includes, shaderStagesCode[Enums::ToIntegral(Graphics::ShaderStage::Fragment)]);
+        return Format::Format("{}\nvec4 SampleBaseTerrainValue(vec3 voxelPosition)\n{{\n{}\n}}\n", includes, m_ShaderStagesCode[Enums::ToIntegral(Graphics::ShaderStage::Fragment)]);
     }
 }

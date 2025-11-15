@@ -13,6 +13,13 @@ namespace Onyx::Graphics
         ShaderDataType Type;
     };
 
+    struct ShaderVariableHash
+    {
+        using is_transparent = void;
+        size_t operator()(const ShaderVariable& variable) const { return std::hash<String>{}(variable.Name); }
+        size_t operator()(const String& name) const { return std::hash<String>{}(name); }
+    };
+
     struct ShaderTexture
     {
         onyxU64 Id;
@@ -82,24 +89,24 @@ namespace Onyx::Graphics
                 return index;
             }
 
-            index = static_cast<onyxS32>(textures.size());
-            textures.emplace_back(textureId);
+            index = static_cast<onyxS32>(m_Textures.size());
+            m_Textures.emplace_back(textureId);
             return index;
         }
 
         onyxS32 GetTextureIndex(onyxU64 textureId)
         {
-            auto it = std::ranges::find_if(textures, [&](const ShaderTexture& texture) { return texture.Id == textureId; });
-            if (it == textures.end())
+            auto it = std::ranges::find_if(m_Textures, [&](const ShaderTexture& texture) { return texture.Id == textureId; });
+            if (it == m_Textures.end())
             {
                 return INVALID_INDEX_32;
             }
 
-            return static_cast<onyxS32>(std::distance(textures.begin(), it));
+            return static_cast<onyxS32>(std::distance(m_Textures.begin(), it));
         }
 
-        void SetStage(ShaderStage stage) { currentStage = stage; }
-        ShaderStage GetStage() const { return currentStage; }
+        void SetStage(ShaderStage stage) { m_CurrentStage = stage; }
+        ShaderStage GetStage() const { return m_CurrentStage; }
 
         void AppendCode(StringView code);
 
@@ -126,16 +133,16 @@ namespace Onyx::Graphics
 
     // TODO: Do not submit and fix shader generator isntead of hacking it like that
     protected:
-        DynamicArray<ShaderTexture> textures;
+        DynamicArray<ShaderTexture> m_Textures;
 
-        InplaceArray<DynamicArray<ShaderVariable>, MAX_SHADER_STAGES> pushConstants;
+        InplaceArray<DynamicArray<ShaderVariable>, MAX_SHADER_STAGES> m_PushConstants;
 
-        DynamicArray<ShaderVariable> vertexInputs;
-        DynamicArray<ShaderVariable> vertexOutputs;
+        DynamicArray<ShaderVariable> m_VertexInputs;
+        DynamicArray<ShaderVariable> m_VertexOutputs;
 
-        ShaderStage currentStage = ShaderStage::Invalid;
-        InplaceArray<HashSet<String>, MAX_SHADER_STAGES> shaderStagesIncludes;
-        InplaceArray<String, MAX_SHADER_STAGES> shaderStagesCode;
+        ShaderStage m_CurrentStage = ShaderStage::Invalid;
+        InplaceArray<HashSet<String>, MAX_SHADER_STAGES> m_ShaderStagesIncludes;
+        InplaceArray<String, MAX_SHADER_STAGES> m_ShaderStagesCode;
     };
 
     class PBRShaderGenerator : public ShaderGenerator
@@ -146,6 +153,4 @@ namespace Onyx::Graphics
     protected:
         void DoGenerateFragmentMain() override;
     };
-
-    
 }

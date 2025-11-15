@@ -826,8 +826,8 @@ namespace Onyx::Graphics
         if (m_Settings.MinSize != minSize)
         {
             m_Settings.MinSize = minSize;
-            VectorCompareMask compared = m_Settings.Size > m_Settings.MinSize;
-            SetSize(Enums::HasAllFlags(compared, VectorCompareMask::X)  ? m_Settings.MinSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorCompareMask::Y) ? m_Settings.MinSize[1] : m_Settings.Size[1]);
+            VectorComponentMask compared = m_Settings.Size > m_Settings.MinSize;
+            SetSize(Enums::HasAllFlags(compared, VectorComponentMask::X)  ? m_Settings.MinSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MinSize[1] : m_Settings.Size[1]);
         }
     }
 
@@ -836,8 +836,8 @@ namespace Onyx::Graphics
         if (m_Settings.MaxSize != maxSize)
         {
             m_Settings.MaxSize = maxSize;
-            VectorCompareMask compared = m_Settings.Size > m_Settings.MaxSize;
-            SetSize(Enums::HasAllFlags(compared, VectorCompareMask::X) ? m_Settings.MaxSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorCompareMask::Y) ? m_Settings.MaxSize[1] : m_Settings.Size[1]);
+            VectorComponentMask compared = m_Settings.Size > m_Settings.MaxSize;
+            SetSize(Enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MaxSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MaxSize[1] : m_Settings.Size[1]);
         }
     }
 

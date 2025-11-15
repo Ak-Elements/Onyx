@@ -110,6 +110,7 @@ namespace Onyx::Editor
     {
         DynamicArray<Link>& editorLinks = GetLinks();
         const onyxU32 inputPinCount = graphNode.GetInputPinCount();
+        editorNode.Inputs.clear();
         editorNode.Inputs.reserve(inputPinCount);
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
@@ -135,6 +136,8 @@ namespace Onyx::Editor
         }
 
         const onyxU32 outputPinCount = graphNode.GetOutputPinCount();
+        editorNode.Outputs.clear();
+        editorNode.Outputs.reserve(outputPinCount);
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
             const NodeGraph::PinBase* outputPin = graphNode.GetOutputPin(i);
@@ -245,8 +248,18 @@ namespace Onyx::Editor
         newNode->SetId(newEditorNode.Id);
 
         newEditorNode.Name = newNode->GetName();
+        if (newEditorNode.Name.empty())
+        {
+            StringView localizedFullyQualifiedNodeName = GetLocalizationModule().GetLocalized(typeId).Get();
+            constexpr char delimiter = '/';
+            DynamicArray<String> split = Split(localizedFullyQualifiedNodeName, delimiter);
+            newEditorNode.Name = split.back();
+        }
+
         UpdateEditorNodeData(newEditorNode, *newNode);
 
+        const NodeGraph::NodeEditorMetaData& nodeMetaData = GetNodeFactory().GetNodeMetaData(typeId);
+        newEditorNode.ShowNodeName = nodeMetaData.ShowNodeName;
         newEditorNode.LocalId = GetNodeGraph().Emplace(std::move(newNode));
         return true;
     }

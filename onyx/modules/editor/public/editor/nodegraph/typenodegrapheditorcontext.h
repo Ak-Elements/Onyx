@@ -63,7 +63,14 @@ namespace Onyx::Editor
             for (auto&& [id, nodeContainer] : graphNodes)
             {
                 const UniquePtr<NodeGraph::Node>& node = nodeContainer.m_Data;
-                Node& nodeEditorMeta = nodes.emplace_back(node->GetId(), String(node->GetName()));
+
+                String nodeName(node->GetName());
+                if (nodeName.empty())
+                {
+                    nodeName = GetLocalizationModule().GetLocalized(node->GetTypeId()).Get();
+                }
+
+                Node& nodeEditorMeta = nodes.emplace_back(node->GetId(), nodeName);
                 nodeEditorMeta.LocalId = id;
 
                 UpdateEditorNodeData(nodeEditorMeta, *node);

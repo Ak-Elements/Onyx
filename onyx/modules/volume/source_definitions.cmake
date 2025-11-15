@@ -43,15 +43,17 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/shader/generators/volumeshadergraphgenerator.h
     ${TARGET_PUBLIC_PATH}/shader/generators/templates/volumeshadertemplates.h
     ${TARGET_PUBLIC_PATH}/shadergraph/volumeshadergraph.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/differencevolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/intersectvolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/unionvolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/planevolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/cubevolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/ellipsoidvolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/spherevolumeshadergraphnode.h
-    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/planevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/sdfdifferencevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/sdfintersectvolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/operations/sdfunionvolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/sdfplanevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/sdfcubevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/sdfellipsoidvolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/sdfspherevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/primitives/sdfplanevolumeshadergraphnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/sdfnoiseshadergraphnode.h
     ${TARGET_PUBLIC_PATH}/shadergraph/nodes/volumeshadergraphoutnode.h
+    ${TARGET_PUBLIC_PATH}/shadergraph/nodes/voxelpositionshadergraphnode.h
     ${TARGET_PUBLIC_PATH}/serialize/volumeshadergraphserializer.h
     ${TARGET_PUBLIC_PATH}/source/csg/csgcube.h
     ${TARGET_PUBLIC_PATH}/source/csg/csgplane.h
@@ -97,14 +99,16 @@ set(TARGET_PRIVATE_SOURCES
     ${TARGET_PRIVATE_PATH}/isosurface/marchingcubessurface.cpp
     ${TARGET_PRIVATE_PATH}/isosurface/marchingsquaressurface.cpp
     ${TARGET_PRIVATE_PATH}/shader/generators/volumeshadergraphgenerator.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/differencevolumeshadergraphnode.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/intersectvolumeshadergraphnode.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/unionvolumeshadergraphnode.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/cubevolumeshadergraphnode.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/ellipsoidvolumeshadergraphnode.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/spherevolumeshadergraphnode.cpp
-    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/planevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/sdfdifferencevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/sdfintersectvolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/operations/sdfunionvolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/sdfcubevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/sdfellipsoidvolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/sdfspherevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/primitives/sdfplanevolumeshadergraphnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/sdfnoiseshadergraphnode.cpp
     ${TARGET_PRIVATE_PATH}/shadergraph/nodes/volumeshadergraphoutnode.cpp
+    ${TARGET_PRIVATE_PATH}/shadergraph/nodes/voxelpositionshadergraphnode.cpp
     ${TARGET_PRIVATE_PATH}/serialize/volumeshadergraphserializer.cpp
     ${TARGET_PRIVATE_PATH}/source/csg/csgsphere.cpp
     ${TARGET_PRIVATE_PATH}/source/csg/operations/csgdifference.cpp

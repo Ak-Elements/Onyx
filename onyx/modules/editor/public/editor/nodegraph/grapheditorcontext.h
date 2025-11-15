@@ -70,6 +70,7 @@ namespace Onyx::Editor
             DynamicArray<Pin> Outputs;
 
             bool HasUpdatedPosition = false;
+            bool ShowNodeName = true;
         };
 
         struct Link

@@ -404,36 +404,36 @@ namespace Onyx
         constexpr bool operator!=(const Vector3& rhs) const { return IsEqual(rhs) == false; }
 
         template <typename T>
-        constexpr VectorCompareMask operator<(const Vector3<T>& rhs) const
+        constexpr VectorComponentMask operator<(const Vector3<T>& rhs) const
         {
-            return ((X < rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((Y < rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None) |
-                ((Z < rhs.Z) ? VectorCompareMask::Z : VectorCompareMask::None);
+            return ((X < rhs.X) ? VectorComponentMask::X : VectorComponentMask::None) |
+                ((Y < rhs.Y) ? VectorComponentMask::Y : VectorComponentMask::None) |
+                ((Z < rhs.Z) ? VectorComponentMask::Z : VectorComponentMask::None);
         }
 
         template <typename T>
-        constexpr VectorCompareMask operator<=(const Vector3<T>& rhs) const
+        constexpr VectorComponentMask operator<=(const Vector3<T>& rhs) const
         {
-            return ((X <= rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((Y <= rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None) |
-                ((Z <= rhs.Z) ? VectorCompareMask::Z : VectorCompareMask::None);
+            return ((X <= rhs.X) ? VectorComponentMask::X : VectorComponentMask::None) |
+                ((Y <= rhs.Y) ? VectorComponentMask::Y : VectorComponentMask::None) |
+                ((Z <= rhs.Z) ? VectorComponentMask::Z : VectorComponentMask::None);
         }
 
 
         template <typename T>
-        constexpr VectorCompareMask operator>(const Vector3<T>& rhs) const
+        constexpr VectorComponentMask operator>(const Vector3<T>& rhs) const
         {
-            return((X > rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((Y > rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None) |
-                ((Z > rhs.Z) ? VectorCompareMask::Z : VectorCompareMask::None);
+            return((X > rhs.X) ? VectorComponentMask::X : VectorComponentMask::None) |
+                ((Y > rhs.Y) ? VectorComponentMask::Y : VectorComponentMask::None) |
+                ((Z > rhs.Z) ? VectorComponentMask::Z : VectorComponentMask::None);
         }
 
         template <typename T>
-        constexpr VectorCompareMask operator>=(const Vector3<T>& rhs) const
+        constexpr VectorComponentMask operator>=(const Vector3<T>& rhs) const
         {
-            return((X >= rhs.X) ? VectorCompareMask::X : VectorCompareMask::None) |
-                ((Y >= rhs.Y) ? VectorCompareMask::Y : VectorCompareMask::None) |
-                ((Z >= rhs.Z) ? VectorCompareMask::Z : VectorCompareMask::None);
+            return((X >= rhs.X) ? VectorComponentMask::X : VectorComponentMask::None) |
+                ((Y >= rhs.Y) ? VectorComponentMask::Y : VectorComponentMask::None) |
+                ((Z >= rhs.Z) ? VectorComponentMask::Z : VectorComponentMask::None);
         }
 
         constexpr bool IsEqual(const Vector3& rhs) const

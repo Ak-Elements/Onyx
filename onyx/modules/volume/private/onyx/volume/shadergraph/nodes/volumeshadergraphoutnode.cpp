@@ -5,11 +5,6 @@
 
 namespace Onyx::Volume
 {
-    VolumeShaderGraphOutNode::VolumeShaderGraphOutNode()
-    {
-        m_DebugName = "Volume Out";
-    }
-
     void VolumeShaderGraphOutNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
     {
     }
@@ -23,8 +18,8 @@ namespace Onyx::Volume
         const InPin1& inputPin1 = GetInputPin1();
 
         generator.AppendCode(Format::Format("return vec4({}, {});\n",
-            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
-            inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
+            inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
+            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
     }
 
 #if ONYX_IS_EDITOR
@@ -32,8 +27,8 @@ namespace Onyx::Volume
     {
         switch (pinId)
         {
-            case InPin0::LocalId: return "Gradient";
-            case InPin1::LocalId: return "Iso Value";
+            case InPin0::LocalId: return "Iso Value";
+            case InPin1::LocalId: return "Gradient";
         }
 
         ONYX_ASSERT(false, "Invalid pin id");

@@ -1,25 +1,22 @@
 #pragma once
 
-#include <onyx/nodegraph/nodes/fixedpinnode2in.h>
+#include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
 namespace Onyx::Volume
 {
-    class VolumeShaderGraphOutNode : public NodeGraph::FixedPinNode_2_In<Graphics::ShaderGraphNode, onyxF32, Vector3f32>
+    class GetVoxelPositionShaderGraphNode : public NodeGraph::FixedPinNode_1_Out<Graphics::ShaderGraphNode, Vector3f32>
     {
-    private:
-        using Super = NodeGraph::FixedPinNode_2_In<Graphics::ShaderGraphNode, onyxF32, Vector3f32>;
     public:
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::VolumeGraphOutNode";
+        GetVoxelPositionShaderGraphNode();
+        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::GetVoxelPositionShaderGraphNode";
         StringId32 GetTypeId() const override { return TypeId; }
-
-        VolumeShaderGraphOutNode() = default;
 
         void OnUpdate(NodeGraph::ExecutionContext& context) const override;
 
     private:
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const override;
-        
+
 #if ONYX_IS_EDITOR
         StringView GetPinName(StringId32 pinId) const override;
 #endif
