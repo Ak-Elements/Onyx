@@ -234,10 +234,12 @@ compute
 
         u_Constants.Octree.Nodes[octreeFlatIndex] = PackOctreeNode(octreeNode);
         
+#if ONYX_IS_DEBUG
         if (isRoot == false && octreeFlatIndex == 0)
         {
             debugPrintfEXT("ERROR, wrong flat index %u", u_Constants.Depth);
         }
+#endif
 
         uint dispatchX = u_Constants.SplitRequestsWriteBuffer.Count == 0 ? 0 : uint(ceil(u_Constants.SplitRequestsWriteBuffer.Count / float(LOCAL_SIZE)));
         atomicMax(u_Constants.IndirectDispatch.X, max(1, dispatchX));

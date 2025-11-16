@@ -22,7 +22,7 @@ namespace Onyx
             static constexpr StringId32 TypeId = "Onyx::GameCore::Components::MaterialComponent";
             StringId32 GetTypeId() const { return TypeId; }
 
-            Assets::AssetId MaterialId = "engine:/materials/default_material.omaterial";
+            Assets::AssetId MaterialId = "engine:/materials/default/default_material.omaterial";
             Reference<Graphics::MaterialShaderGraph> Material;
 
             void LoadMaterial(Assets::AssetSystem& assetSystem);

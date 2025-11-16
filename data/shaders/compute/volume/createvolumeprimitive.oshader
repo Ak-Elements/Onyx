@@ -69,7 +69,9 @@ compute
         
         if (u_Constants.WorldVolumesList.Count >= 100)
         {
+#if ONYX_IS_DEBUG
             debugPrintfEXT("Reached current max brush count");
+#endif
             return;
         }
         

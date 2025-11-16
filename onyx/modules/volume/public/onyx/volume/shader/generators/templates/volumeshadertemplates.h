@@ -232,10 +232,12 @@ compute
 
         u_Constants.Octree.Nodes[octreeFlatIndex] = PackOctreeNode(octreeNode);
         
+#if ONYX_IS_DEBUG
         if (isRoot == false && octreeFlatIndex == 0)
         {
             debugPrintfEXT("ERROR, wrong flat index %u", u_Constants.Depth);
         }
+#endif
 
         uint dispatchX = u_Constants.SplitRequestsWriteBuffer.Count == 0 ? 0 : uint(ceil(u_Constants.SplitRequestsWriteBuffer.Count / float(LOCAL_SIZE)));
         atomicMax(u_Constants.IndirectDispatch.X, max(1, dispatchX));
@@ -373,11 +375,13 @@ compute
         bool isMaxDepth = depth == u_Constants.MaxDepth;
         if (isMaxDepth)
         {
+#if ONYX_IS_DEBUG
             // queue that node for remesh
             if (isMaxDepth)
                 debugPrintfEXT("Is at max depth");
             else
                 debugPrintfEXT("Fully subdivided");
+#endif
         }
         else
         {
@@ -524,9 +528,9 @@ compute
         {
             if (outComponents[i].VertexCount < 3)
             {
-            #if ONYX_IS_DEBUG
+#if ONYX_IS_DEBUG
                 debugPrintfEXT("Invalid vertex count for component");
-            #endif
+#endif
                 continue;
             }
 

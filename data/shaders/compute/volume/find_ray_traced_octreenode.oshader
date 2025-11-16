@@ -124,11 +124,13 @@ compute
         bool isMaxDepth = depth == u_Constants.MaxDepth;
         if (isMaxDepth)
         {
+#if ONYX_IS_DEBUG
             // queue that node for remesh
             if (isMaxDepth)
                 debugPrintfEXT("Is at max depth");
             else
                 debugPrintfEXT("Fully subdivided");
+#endif
         }
         else
         {

@@ -7,7 +7,6 @@
 #include "includes/volume/csg/cube.h"
 
 #include "includes/morton.h"
-#include "includes/debug/print.h"
 
 compute
 {
@@ -65,7 +64,9 @@ compute
         
         if (u_Constants.WorldVolumesList.Count >= 100)
         {
+#if ONYX_IS_DEBUG
             debugPrintfEXT("Reached current max brush count");
+#endif
             return;
         }
         vec3 hitPosition = u_Constants.HitPositionBuffer.HitPosition;
