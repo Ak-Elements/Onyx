@@ -430,7 +430,7 @@ namespace Onyx::Volume::Terrain
                 !generationComponent.SetupDispatchGenerateMeshShader.IsValid())
                 return;
 
-            constexpr onyxU32 nodeCount = (1 << 20);
+            constexpr onyxU32 nodeCount = (1 << 19);
             
             CreateBuffers(graphicsSystem, terrainWorldOctree, terrainRuntime, nodeCount);
 

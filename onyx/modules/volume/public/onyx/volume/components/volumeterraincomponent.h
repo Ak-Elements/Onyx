@@ -20,7 +20,7 @@ namespace Volume
         bool DrawImGuiEditor();
 #endif
 
-        onyxS32 Size = -1; // world size of the terrain
+        onyxS32 Size =  1 << 14; // world size of the terrain
 
         onyxU32 ChunkSize = 64; // world size of the smallest chunk
         onyxU32 Resolution = 512; // resolution of a chunk (voxel size equals ChunkSize / Resolution)

@@ -14,6 +14,10 @@ struct OutStruct
 vec3 WorldPosition;
 vec3 WorldNormal;
 };
+layout( push_constant ) uniform PushConstants 
+{ 
+mat4 Model;
+}; 
 layout(location = 0) out OutStruct Output;
 void main() 
 { 

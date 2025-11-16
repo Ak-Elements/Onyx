@@ -738,6 +738,9 @@ namespace Onyx::Editor::SceneEditor
         Entity::EntityRegistry& registry = scene.GetRegistry();
         auto runtimeComponentsView = registry.GetView<Volume::TerrainSettingsComponent, Volume::TerrainWorldOctreeComponent, const Volume::VolumeGenerationComponent>();
 
+        if (runtimeComponentsView.begin() == runtimeComponentsView.end())
+            return;
+
         const Entity::EntityId terrainEntity = runtimeComponentsView.front();
         const Volume::TerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<Volume::TerrainSettingsComponent>(terrainEntity);
         Volume::TerrainWorldOctreeComponent& terrainOctree = runtimeComponentsView.get<Volume::TerrainWorldOctreeComponent>(terrainEntity);
