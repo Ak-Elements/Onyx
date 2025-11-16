@@ -37,7 +37,7 @@ To successfully build and run Onyx, ensure the following software and tools are 
    - [Download Vulkan SDK](https://vulkan.lunarg.com/sdk/home)
 
 3. **C++ Compiler**  
-   - **Standard**: `C++20` or higher  
+   - **Standard**: `C++23` or higher  
    - **Examples**:  
      - Microsoft Visual Studio
          - The free [Community Edition](https://visualstudio.microsoft.com/vs/community/) includes the MSVC compiler with C++20 support.
