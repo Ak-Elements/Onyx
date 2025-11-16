@@ -1,0 +1,118 @@
+{
+    "graph": [
+        {
+            "id": "d4bb268c9001000",
+            "typeId": {
+                "id": "c46e1588",
+                "string": "Onyx::Graphics::ShaderGraph::CreateVector3f32"
+            },
+            "inputs": [
+                {
+                    "id": "d4bb268c9001001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "a6fd6c8",
+                        "string": "onyxF32"
+                    }
+                },
+                {
+                    "id": "d4bb268c9001002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "a6fd6c8",
+                        "string": "onyxF32"
+                    }
+                },
+                {
+                    "id": "d4bb268c9001003",
+                    "localId": {
+                        "id": "eb644785",
+                        "string": "InPin2"
+                    },
+                    "typeId": {
+                        "id": "a6fd6c8",
+                        "string": "onyxF32"
+                    }
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "d4bb268c9001004",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "2b7cd042",
+                        "string": "vector3f32"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "d4bb261b3801000",
+            "typeId": {
+                "id": "72df408f",
+                "string": "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut"
+            },
+            "inputs": [
+                {
+                    "id": "d4bb261b3801001",
+                    "localId": {
+                        "id": "70e29958",
+                        "string": "Albedo"
+                    },
+                    "typeId": {
+                        "id": "2b7cd042",
+                        "string": "vector3f32"
+                    },
+                    "linkedPin": "d4bb268c9001004"
+                },
+                {
+                    "id": "d4bb261b3801002",
+                    "localId": {
+                        "id": "58de2772",
+                        "string": "Normal"
+                    },
+                    "typeId": {
+                        "id": "2b7cd042",
+                        "string": "vector3f32"
+                    }
+                },
+                {
+                    "id": "d4bb261b3801003",
+                    "localId": {
+                        "id": "63dfe607",
+                        "string": "Metalness"
+                    },
+                    "typeId": {
+                        "id": "a6fd6c8",
+                        "string": "onyxF32"
+                    }
+                },
+                {
+                    "id": "d4bb261b3801004",
+                    "localId": {
+                        "id": "dfb38495",
+                        "string": "Roughness"
+                    },
+                    "typeId": {
+                        "id": "a6fd6c8",
+                        "string": "onyxF32"
+                    }
+                }
+            ]
+        }
+    ],
+    "data": {
+        "d4bb268c9001001": 0.699999988079071,
+        "d4bb268c9001002": 0.699999988079071,
+        "d4bb268c9001003": 0.699999988079071
+    }
+}

@@ -18,7 +18,10 @@ msgid "generic.search"
 msgstr "Search"
 
 msgid "generic.none"
-msgstr "none"
+msgstr "None"
+
+msgid "generic.invalid"
+msgstr "Invalid"
 
 msgid "generic.name"
 msgstr "Name"

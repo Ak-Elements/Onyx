@@ -181,14 +181,19 @@ namespace Onyx::Volume::Terrain
 
             if (terrainSettings.VolumeGraphAssetId.IsValid())
             {
+                bool isAssetAvailable = true;
                 if ((generationComponent.VolumeShaderGraph.IsValid() == false) || (generationComponent.VolumeShaderGraph->GetId() != terrainSettings.VolumeGraphAssetId))
                 {
                     generationComponent.HasLoadedShaders = false;
-                    assetSystem.GetAsset(terrainSettings.VolumeGraphAssetId, generationComponent.VolumeShaderGraph);
+                    isAssetAvailable = assetSystem.GetAsset(terrainSettings.VolumeGraphAssetId, generationComponent.VolumeShaderGraph);
                 }
 
-                if ((generationComponent.VolumeShaderGraph.IsValid() == false) || generationComponent.VolumeShaderGraph->IsLoading())
-                    return;
+                if (isAssetAvailable)
+                {
+                    if ((generationComponent.VolumeShaderGraph.IsValid() == false) || generationComponent.VolumeShaderGraph->IsLoading())
+                        return;
+                }
+                
             }
 
             Graphics::PipelineProperties properties;

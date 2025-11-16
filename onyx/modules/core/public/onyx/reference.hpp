@@ -26,14 +26,13 @@ namespace Onyx
     template <typename T, typename D>
     T* Reference<T, D>::Raw()
     {
-        ONYX_ASSERT(IsValid()); return static_cast<T*>(m_Object);
+        ONYX_ASSERT(m_Object != nullptr); return static_cast<T*>(m_Object);
     }
 
     template <typename T, typename D>
     const T* Reference<T, D>::Raw() const
     {
-        ONYX_ASSERT(IsValid()); return
-        static_cast<T*>(m_Object);
+        ONYX_ASSERT(m_Object != nullptr); return static_cast<T*>(m_Object);
     }
 
     template <typename T, typename D>
@@ -66,7 +65,7 @@ namespace Onyx
     const U& Reference<T, D>::As() const
     {
         static_assert(std::is_base_of_v<T, U> || std::is_base_of_v<U, T>, "Classes are not convertible or inherited from each other");
-        ONYX_ASSERT(IsValid());
+        ONYX_ASSERT(m_Object != nullptr);
         return *static_cast<U*>(m_Object);
     }
 
@@ -75,7 +74,7 @@ namespace Onyx
     U& Reference<T, D>::As()
     {
         static_assert(std::is_base_of_v<T, U> || std::is_base_of_v<U, T>, "Classes are not convertible or inherited from each other");
-        ONYX_ASSERT(IsValid());
+        ONYX_ASSERT(m_Object != nullptr);
         return *static_cast<U*>(m_Object);
     }
 

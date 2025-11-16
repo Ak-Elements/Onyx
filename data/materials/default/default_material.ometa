@@ -1,0 +1,20 @@
+{
+    "nodes": [
+        {
+            "id": "d4bb261b3801000",
+            "name": "Material Out",
+            "position": [
+                856.0,
+                292.0
+            ]
+        },
+        {
+            "id": "d4bb268c9001000",
+            "name": "Create",
+            "position": [
+                456.0,
+                308.0
+            ]
+        }
+    ]
+}

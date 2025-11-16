@@ -136,6 +136,7 @@ namespace Onyx::GameCore
 
         const Graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<Graphics::ShaderGraphTextures>();
         const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();
+
         struct PushConstants
         {
             Vector3u32 LightClusterGridSize;
@@ -144,30 +145,30 @@ namespace Onyx::GameCore
             Vector2u32 LightClusterSize;
             onyxF32 LightClusterBias;
             onyxU32 Debug;
-
-            onyxU32 Textures[8] = { 0 };
-        } constants;
+        } generalConstants;
 
         const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
-        constants.LightClusterGridSize =
+        generalConstants.LightClusterGridSize =
         {
             Graphics::CLUSTER_X,
             Graphics::CLUSTER_Y,
             Graphics::CLUSTER_Z
         };
 
-        constants.LightClusterSize = {
+        generalConstants.LightClusterSize = {
             static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::CLUSTER_X)),
             static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / Graphics::CLUSTER_Y))
         };
 
         const onyxF32 nearFarLog = log2(viewConstants.Far / viewConstants.Near);
-        constants.LightClusterScale = Graphics::CLUSTER_Z / nearFarLog;
-        constants.LightClusterBias = -(Graphics::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
-        constants.Debug = 0;
-        std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
-
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64, constants);
+        generalConstants.LightClusterScale = Graphics::CLUSTER_Z / nearFarLog;
+        generalConstants.LightClusterBias = -(Graphics::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
+        generalConstants.Debug = 0;
+        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64, generalConstants);
+        if (textureIndices.empty() == false)
+        {
+            commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64 + sizeof(PushConstants), textureIndices);
+        }
     }
 
     bool StaticMeshRenderGraphNode::IsEnabled()

@@ -13,7 +13,8 @@ namespace Onyx::Localization
         inline LocalizedString Name;
         inline LocalizedString Rename;
         inline LocalizedString None;
-    
+        inline LocalizedString Invalid;
+
         inline LocalizedString Add;
         inline LocalizedString Create;
         inline LocalizedString Delete;

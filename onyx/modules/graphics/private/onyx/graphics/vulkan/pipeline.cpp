@@ -530,7 +530,6 @@ namespace Onyx::Graphics::Vulkan
 
             vkDestroyPipelineCache(deviceHandle, pipelineCache, nullptr);
         }
-        
     }
 
     void Pipeline::OnShaderLoaded(const ShaderHandle& shader)

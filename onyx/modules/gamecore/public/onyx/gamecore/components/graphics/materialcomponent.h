@@ -22,7 +22,7 @@ namespace Onyx
             static constexpr StringId32 TypeId = "Onyx::GameCore::Components::MaterialComponent";
             StringId32 GetTypeId() const { return TypeId; }
 
-            Assets::AssetId MaterialId;
+            Assets::AssetId MaterialId = "engine:/materials/default_material.omaterial";
             Reference<Graphics::MaterialShaderGraph> Material;
 
             void LoadMaterial(Assets::AssetSystem& assetSystem);
@@ -30,7 +30,7 @@ namespace Onyx
             // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
             bool DrawImGuiEditor();
     #endif
-        };
+        }; 
     }
 
     template <>

@@ -30,6 +30,7 @@ namespace Onyx::Graphics
         using MetalnessInPin = NodeGraph::Pin<onyxF32, "Metalness">;
         using RoughnessInPin = NodeGraph::Pin<onyxF32, "Roughness">;
 
+        using Super = NodeGraph::FixedPinNode<ShaderGraphNode, 4, 0>;
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut";
         StringId32 GetTypeId() const override { return TypeId; }
@@ -43,6 +44,9 @@ namespace Onyx::Graphics
     private:
         void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
 
+#if ONYX_IS_EDITOR
+        std::any CreateDefaultForPin(StringId32 pinId) const override;
+#endif
     private:
         AlbedoInPin m_AlbedoInPin;
         NormalInPin m_NormalInPin;

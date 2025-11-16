@@ -6,8 +6,8 @@ const float ISO_LEVEL = 0.0f;
 
 struct Vertex
 {
-    vec4 Position;
-    vec4 Normal;
+    vec3 Position;
+    vec3 Normal;
 };
 
 struct LineSegment
@@ -105,7 +105,7 @@ bool ResolveFaceSharpFeature(uint faceIndex, Vertex edgeCrossing_From, Vertex ed
         outIntersection.Position = edgeCrossing_From.Position;
         outIntersection.Position[xIndex] = intersectionPoint.x;
         outIntersection.Position[yIndex] = intersectionPoint.y;
-        outIntersection.Normal = vec4(normalize(edgeCrossing_From.Normal.xyz + edgeCrossing_To.Normal.xyz), 1.0f); // TODO: This normal is wrong
+        outIntersection.Normal = vec3(normalize(edgeCrossing_From.Normal.xyz + edgeCrossing_To.Normal.xyz)); // TODO: This normal is wrong
     }
 
     return hasSharpFeature;
@@ -122,8 +122,8 @@ void CalculateZeroCrossing(uint edgeIndex, vec3 corners[4], vec4 hermiteData[4],
     // linear interpolation to get the point on the surface and the normal
     const float interpolated = (ISO_LEVEL - isoVal0) / (isoVal1 - isoVal0);
 
-    outVertex.Position = vec4(corners[v0] + interpolated * (corners[v1] - corners[v0]), 1.0f);
-    outVertex.Normal = vec4(normalize(vec3(hermiteData[v0] + (hermiteData[v1] - hermiteData[v0]) * interpolated)), 1.0f);
+    outVertex.Position = vec3(corners[v0] + interpolated * (corners[v1] - corners[v0]));
+    outVertex.Normal = vec3(normalize(vec3(hermiteData[v0] + (hermiteData[v1] - hermiteData[v0]) * interpolated)));
 }
 
 bool HasFaceAmbiguity(uint faceIndex, Vertex edgeCrossing0_From, Vertex edgeCrossing0_To, Vertex edgeCrossing1_From, Vertex edgeCrossing1_To, vec2 minBounds, vec2 maxBounds)

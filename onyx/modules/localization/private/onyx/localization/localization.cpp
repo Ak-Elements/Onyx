@@ -15,7 +15,8 @@ namespace Onyx::Localization
        Generic::Search = localizationModule.GetLocalized("generic.search");
        Generic::Rename = localizationModule.GetLocalized("generic.rename");
        Generic::None = localizationModule.GetLocalized("generic.none");
-
+       Generic::Invalid = localizationModule.GetLocalized("generic.invalid");
+       
        Generic::Open = localizationModule.GetLocalized("generic.open");
        Generic::Save = localizationModule.GetLocalized("generic.save");
        Generic::SaveAs = localizationModule.GetLocalized("generic.saveas");

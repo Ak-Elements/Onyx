@@ -16,7 +16,7 @@ compute
     #define TERRAIN_SHADER_LOCAL_SIZE 64
     layout(local_size_x = TERRAIN_SHADER_LOCAL_SIZE, local_size_y = 1, local_size_z = 1) in;
 
-    layout(std430, buffer_reference, buffer_reference_align = 8) writeonly buffer VertexBuffer
+    layout(std430, buffer_reference, buffer_reference_align = 4) writeonly buffer VertexBuffer
     {
         Vertex Vertices[];
     };
@@ -124,8 +124,8 @@ compute
             }
 #endif
 
-                vec4 triangleFanCenter = vec4(0.0f);
-                vec4 triangleFanCenterNormal = vec4(0.0f);
+                vec3 triangleFanCenter = vec3(0.0f);
+                vec3 triangleFanCenterNormal = vec3(0.0f);
 
                 // trace segments
                 bool vistitedVertex[32] =

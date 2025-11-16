@@ -69,6 +69,18 @@ namespace Onyx::Graphics
         }
     }
 
+#if ONYX_IS_EDITOR
+    std::any PBRMaterialShaderOutNode::CreateDefaultForPin(StringId32 pinId) const
+    {
+        if (pinId == RoughnessInPin::LocalId)
+        {
+            return 0.5f;
+        }
+
+        return Super::CreateDefaultForPin(pinId);
+    }
+#endif
+
     NodeGraph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index)
     {
         switch (index)

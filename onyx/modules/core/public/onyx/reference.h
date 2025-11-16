@@ -208,22 +208,22 @@ namespace Onyx
 
         T* operator->()
         {
-            ONYX_ASSERT(IsValid()); return Raw();
+            ONYX_ASSERT(m_Object != nullptr); return Raw();
         }
 
         const T* operator->() const
         {
-            ONYX_ASSERT(IsValid()); return Raw();
+            ONYX_ASSERT(m_Object != nullptr); return Raw();
         }
 
         T& operator*()
         {
-            ONYX_ASSERT(IsValid()); return *Raw();
+            ONYX_ASSERT(m_Object != nullptr); return *Raw();
         }
 
         const T& operator*() const
         {
-            ONYX_ASSERT(IsValid()); return *Raw();
+            ONYX_ASSERT(m_Object != nullptr); return *Raw();
         }
 
         T* Raw();

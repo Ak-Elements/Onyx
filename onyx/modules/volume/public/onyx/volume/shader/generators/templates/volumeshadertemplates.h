@@ -563,8 +563,8 @@ compute
             }
 #endif
 
-                vec4 triangleFanCenter = vec4(0.0f);
-                vec4 triangleFanCenterNormal = vec4(0.0f);
+                vec3 triangleFanCenter = vec4(0.0f);
+                vec3 triangleFanCenterNormal = vec4(0.0f);
 
                 // trace segments
                 bool vistitedVertex[32] =

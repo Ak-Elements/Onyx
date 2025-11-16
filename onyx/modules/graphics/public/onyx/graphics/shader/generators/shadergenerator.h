@@ -11,6 +11,7 @@ namespace Onyx::Graphics
     {
         String Name;
         ShaderDataType Type;
+        onyxU32 Offset = 0;
     };
 
     struct ShaderVariableHash
@@ -115,6 +116,7 @@ namespace Onyx::Graphics
 
         void AddPushConstant(StringView name, ShaderDataType type);
         void AddPushConstant(ShaderStage stage, StringView name, ShaderDataType type);
+        void AddPushConstant(ShaderStage stage, StringView name, ShaderDataType type, onyxU32 offset);
 
         void AddInclude(String include);
         void AddInclude(ShaderStage stage, String include);

@@ -40,6 +40,12 @@ namespace Onyx::Graphics
             BindPushConstants(stage, offset, sizeof(T), &data);
         }
 
+        template <typename T>
+        void BindPushConstants(ShaderStage stage, onyxU32 offset, const DynamicArray<T>& container)
+        {
+            BindPushConstants(stage, offset, static_cast<onyxU32>(container.size() * sizeof(T)), container.data());
+        }
+
         virtual void Bind(const TextureHandle& texture, const String& bindingName) = 0;
         virtual void Bind(const BufferHandle& buffer, const String& bindingName) = 0;
 

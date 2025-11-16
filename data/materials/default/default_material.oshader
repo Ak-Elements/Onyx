@@ -1,0 +1,69 @@
+#version 460 core
+#include "includes/common.h"
+#include "includes/viewconstants.h"
+
+vertex
+{
+
+layout (location = 0) in vec3 InPosition;
+layout (location = 1) in float InUVX;
+layout (location = 2) in vec3 InNormal;
+layout (location = 3) in float InUVY;
+struct OutStruct
+{
+vec3 WorldPosition;
+vec3 WorldNormal;
+};
+layout(location = 0) out OutStruct Output;
+void main() 
+{ 
+ Output.WorldPosition = InPosition;
+Output.WorldNormal = InNormal;
+gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(InPosition, 1.0); 
+}
+
+} 
+fragment
+{
+#include "includes/lighting.h"
+
+layout(location = 0) in InStruct 
+{
+vec3 WorldPosition;
+vec3 WorldNormal;
+};
+layout(location = 0) out vec4 outColor;
+layout( push_constant ) uniform PushConstants 
+{ 
+layout(offset = 64) uvec3 LightClusterGridSize;
+float LightClusterScale;
+
+uvec2 LightClusterSize;
+float LightClusterBias;
+uint debug;
+};
+
+float checker( vec2 p )
+{
+    p = mod(floor(p),2.0);
+    return mod(p.x + p.y, 2.0) < 1.0 ? .25 : 0.1;
+}
+
+void main() 
+{ 
+
+vec3 pin_d4bb268c9001004 = vec3(checker(WorldPosition.xz / 100));
+
+//  0xd4bb261b3801000 
+PBRMaterial material;
+material.Albedo = pin_d4bb268c9001004;
+material.Normal = vec3(0, 0, 0);
+material.Metalness = 0.000000;
+material.Roughness = 0.500000;
+vec3 worldPosition = WorldPosition;
+vec3 worldNormal = WorldNormal;
+uint clusterIndex = GetClusterIndex(gl_FragCoord, LightClusterGridSize, LightClusterSize, LightClusterScale, LightClusterBias); 
+outColor = vec4(CalculatePBRLighting(WorldPosition, WorldNormal, u_ViewConstants.CameraPosition, gl_FragCoord, LightClusterScale, LightClusterBias, clusterIndex, material, debug), 1.0); 
+}
+
+}

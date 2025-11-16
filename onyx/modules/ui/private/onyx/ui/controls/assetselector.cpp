@@ -35,8 +35,14 @@ namespace Onyx::Ui
         String assetName;
         if (outAssetId.IsValid())
         {
-            const Assets::AssetMetaData& assetMeta = assetSystem.GetAssetMeta(outAssetId);
-            assetName = assetMeta.GetName();
+            Optional<const Assets::AssetMetaData*> assetMetaOptional = assetSystem.TryGetAssetMeta(outAssetId);
+            const Assets::AssetMetaData* assetMeta = assetMetaOptional.value_or(nullptr);
+            if (assetMeta)
+                assetName = assetMeta->GetName();
+            else
+            {
+                assetName = Localization::Generic::None.Get();
+            }
         }
         else
         {

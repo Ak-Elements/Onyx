@@ -56,9 +56,17 @@ namespace Onyx::Assets
             return extensions;
         }
 
+        Optional<const AssetMetaData*> TryGetAssetMeta(AssetId id) const
+        {
+            auto it = m_AssetsMetaData.find(id);
+            if (it == m_AssetsMetaData.end())
+                return std::nullopt;
+
+            return &it->second;
+        }
+
         const AssetMetaData& GetAssetMeta(AssetId id) const
         {
-            //ONYX_ASSERT(m_AssetsMetaData.contains(id), "Asset with this ID(0x{:x}) is unknown", id.Get());
             return m_AssetsMetaData.at(id);
         }
 
