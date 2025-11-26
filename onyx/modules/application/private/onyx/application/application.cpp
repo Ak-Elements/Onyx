@@ -1,5 +1,5 @@
 #include <onyx/application/application.h>
-#include <onyx/application/enginesystemfactory.h>
+#include <onyx/engine/enginesystemfactory.h>
 
 #include <onyx/log/logger.h>
 #include <onyx/log/backends/stdoutlogger.h>

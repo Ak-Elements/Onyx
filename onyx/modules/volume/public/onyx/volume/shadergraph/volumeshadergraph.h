@@ -3,7 +3,7 @@
 
 namespace Onyx::Volume
 {
-    class VolumeShaderGraph : public Graphics::ShaderGraph
+    class VolumeShaderGraph : public Onyx::Graphics::ShaderGraph
     {
         friend struct VolumeShaderGraphSerializer;
 

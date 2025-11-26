@@ -3,6 +3,7 @@
 endif()
 
 include(add_onyx_module)
+include(onyx_generate_module)
 
 option(ONYX_BUILD_EDITOR "Build editor" OFF)
 
@@ -20,9 +21,9 @@ add_subdirectory(nodegraph)
 add_subdirectory(graphics)
 add_subdirectory(entity)
 add_subdirectory(input)
+add_subdirectory(localization)
+add_subdirectory(ui)
 add_subdirectory(gamecore)
 add_subdirectory(volume)
-add_subdirectory(ui)
-add_subdirectory(localization)
 add_subdirectory(editor)
 add_subdirectory(application)

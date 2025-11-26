@@ -90,7 +90,6 @@ namespace Onyx::Application
                 {
                     typedSystemInstance.Shutdown(engine.GetSystem<std::remove_reference_t<FunctionArg>>()...);
                 });
-                //CallShutdown<T, FunctionArgs...>(typedSystemInstance, engine);
             }
             else
             {
@@ -132,7 +131,7 @@ namespace Onyx::Application
         }
 
         template <typename... Args>
-        void CallInit(T& instance, IEngine& engine) const
+        void CallInit(T& instance, IEngine& engine, TypeList<Args...>) const
         {
             instance.Init(engine.GetSystem<std::remove_reference_t<Args>>()...);
         }
@@ -156,7 +155,7 @@ namespace Onyx::Application
         template <typename T> requires std::is_base_of_v<IEngineSystem, T>
         static bool RegisterSystem()
         {
-            s_SystemMeta[T::TypeId] = MakeUnique<EngineModuleMeta<T>>();
+            s_SystemMeta[T::TypeId] = new EngineModuleMeta<T>();
             return true;
         }
 
@@ -164,6 +163,6 @@ namespace Onyx::Application
         static const IEngineModuleMeta& GetMeta(StringId32 moduleId) { return *s_SystemMeta.at(moduleId); }
 
     private:
-        static inline HashMap<StringId32, UniquePtr<IEngineModuleMeta>> s_SystemMeta;
+        static inline HashMap<StringId32, IEngineModuleMeta*> s_SystemMeta;
     };
 }

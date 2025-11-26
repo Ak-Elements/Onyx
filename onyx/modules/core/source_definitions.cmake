@@ -33,6 +33,7 @@ set(TARGET_PUBLIC_SOURCES
     ${TARGET_PUBLIC_PATH}/container/span.h
     ${TARGET_PUBLIC_PATH}/container/typelist.h
     ${TARGET_PUBLIC_PATH}/engine/enginesystem.h
+    ${TARGET_PUBLIC_PATH}/engine/enginesystemfactory.h
     ${TARGET_PUBLIC_PATH}/engine/gametime.h
     ${TARGET_PUBLIC_PATH}/function/callback.h
     ${TARGET_PUBLIC_PATH}/function/signal.h

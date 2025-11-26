@@ -16,20 +16,20 @@ namespace Onyx
     {
     public:
 
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
         ONYX_NO_DISCARD bool HasSystem() const
         {
             return HasSystem(T::TypeId);
         }
 
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
         ONYX_NO_DISCARD T& GetSystem()
         {
             ONYX_ASSERT(HasSystem(T::TypeId), "System is not registered.");
             return static_cast<T&>(GetSystem(T::TypeId));
         }
 
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
         ONYX_NO_DISCARD const T& GetSystem() const
         {
             ONYX_ASSERT(HasSystem(T::TypeId), "System is not registered.");

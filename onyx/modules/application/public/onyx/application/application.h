@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 
-#include <onyx/application/enginesystemfactory.h>
+#include <onyx/engine/enginesystemfactory.h>
 
 namespace Onyx::Application
 {

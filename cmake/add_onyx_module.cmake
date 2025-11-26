@@ -1,4 +1,4 @@
-function(add_onyx_module ONYX_TARGET_NAME)
+function(add_onyx_module ONYX_TARGET_NAME ONYX_TARGET_NAMESPACE)
     
     # Parse arguments using cmake_parse_arguments
     cmake_parse_arguments(
@@ -26,18 +26,24 @@ function(add_onyx_module ONYX_TARGET_NAME)
     set_property(GLOBAL APPEND PROPERTY onyx_module_classes ${engineModuleClasses})
     set_property(GLOBAL APPEND PROPERTY onyx_module_include_paths ${engineModuleIncludePaths})
 
+    set(GENERATED_OUTPUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/generated")
+    set(GENERATED_HEADER_PATH "${GENERATED_OUTPUT_PATH}/${ONYX_TARGET_NAME}.h")
+    set(GENERATED_CPP_PATH "${GENERATED_OUTPUT_PATH}/${ONYX_TARGET_NAME}.cpp")
+
     if(TARGET_PUBLIC_SOURCES)
         target_sources(${ONYX_TARGET_NAME} PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS ${base_directory}
-            FILES ${TARGET_PUBLIC_SOURCES}
+            BASE_DIRS ${base_directory} ${GENERATED_OUTPUT_PATH}
+            FILES ${TARGET_PUBLIC_SOURCES} ${GENERATED_HEADER_PATH}
         )
         source_group(TREE ${TARGET_PUBLIC_PATH} FILES ${TARGET_PUBLIC_SOURCES})
+        source_group(TREE ${CMAKE_CURRENT_BINARY_DIR} FILES ${GENERATED_HEADER_PATH})
     endif()
 
     if(TARGET_PRIVATE_SOURCES)
-        target_sources(${ONYX_TARGET_NAME} PRIVATE ${TARGET_PRIVATE_SOURCES})
+        target_sources(${ONYX_TARGET_NAME} PRIVATE ${TARGET_PRIVATE_SOURCES} ${GENERATED_CPP_PATH})
         source_group(TREE ${TARGET_PRIVATE_PATH} FILES ${TARGET_PRIVATE_SOURCES})
+        source_group(TREE "${CMAKE_CURRENT_BINARY_DIR}" FILES ${GENERATED_CPP_PATH})
     endif()
     
     #### Target Properties ####
@@ -75,11 +81,6 @@ function(add_onyx_module ONYX_TARGET_NAME)
     target_compile_options(${ONYX_TARGET_NAME} PRIVATE ${ONYX_COMPILE_OPTIONS})
     target_link_options(${ONYX_TARGET_NAME} PRIVATE ${ONYX_LINK_OPTIONS})
 
-    #### Includes ####
-    target_include_directories(${ONYX_TARGET_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
-        $<INSTALL_INTERFACE:include>
-    )
     target_include_directories(${ONYX_TARGET_NAME} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>
         $<INSTALL_INTERFACE:source>
@@ -93,7 +94,18 @@ function(add_onyx_module ONYX_TARGET_NAME)
     if(DEFINED TARGET_PRIVATE_DEPENDENCIES)
         target_link_libraries(${ONYX_TARGET_NAME} PRIVATE ${TARGET_PRIVATE_DEPENDENCIES})
     endif()
-
+    
+    #### Module Code Generation Target ####
+    onyx_add_code_gen_target(${ONYX_TARGET_NAME}
+        ${ONYX_TARGET_NAMESPACE}
+        ${GENERATED_OUTPUT_PATH}
+        ${GENERATED_HEADER_PATH}
+        ${GENERATED_CPP_PATH}
+        "${TARGET_PUBLIC_SOURCES}"
+        "${TARGET_PUBLIC_DEPENDENCIES}"
+        "${TARGET_PRIVATE_DEPENDENCIES}"
+    )
+ 
 if (ONYX_ENABLE_INSTALL)
     #### Install ####
     include(GNUInstallDirs)
