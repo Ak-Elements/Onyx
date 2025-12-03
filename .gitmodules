@@ -1,0 +1,3 @@
+[submodule "tools/codegeneration"]
+	path = tools/codegeneration
+	url = https://github.com/Ak-Elements/Onyx-CodeGeneration.git
