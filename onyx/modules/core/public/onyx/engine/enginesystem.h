@@ -1,10 +1,12 @@
 #pragma once
 
 #include <onyx/noncopyable.h>
+#include <onyx/stream/stream.h>
 
 namespace Onyx
 {
     class IEngine;
+    class Deserializer;
 
     class IEngineSystem : public NonCopyable
     {
@@ -39,5 +41,44 @@ namespace Onyx
         virtual bool HasSystem(StringId32 systemId) const = 0;
         virtual IEngineSystem& GetSystem(StringId32 systemId) = 0;
         virtual const IEngineSystem& GetSystem(StringId32 systemId) const = 0;
+    };
+
+    struct EngineSystemCreateContext
+    {
+        IEngine& Engine;
+        const Deserializer& Deserializer;
+
+        template <typename T> requires std::is_base_of_v<IEngine, T>
+        T& Get() const { return static_cast<T&>(Engine); }
+
+        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        T& Get() const { return Engine.GetSystem<T>(); }
+
+        template <typename T> requires (Deserializable<T> && (std::is_base_of_v<IEngineSystem, T> == false))
+        auto Get() const
+        {
+            T obj;
+            Serialization<T>::Deserialize(Deserializer, obj);
+            return obj;
+        }
+    };
+
+    struct EngineSystemUpdateContext
+    {
+        IEngine& Engine;
+        DeltaGameTime Delta;
+        GameTime Time;
+
+        template <typename T> requires std::is_base_of_v<IEngine, T>
+        T& Get() const { return static_cast<T&>(Engine); }
+
+        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
+        T& Get() const { return Engine.GetSystem<T>(); }
+
+        template <typename T> requires std::is_same_v<DeltaGameTime, T>
+        DeltaGameTime Get() const { return Delta; }
+
+        template <typename T> requires std::is_same_v<GameTime, T>
+        GameTime Get() const { return Time; }
     };
 }

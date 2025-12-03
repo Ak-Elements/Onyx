@@ -75,10 +75,9 @@ namespace Onyx
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
 
-            ImGuiSystem();
+            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem);
             ~ImGuiSystem() override;
 
-            void Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem);
             
             void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
 

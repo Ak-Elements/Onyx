@@ -1,5 +1,4 @@
 #pragma once
-#include <onyx/noncopyable.h>
 
 namespace Onyx
 {

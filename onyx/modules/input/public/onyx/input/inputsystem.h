@@ -37,12 +37,10 @@ namespace Onyx::Input
     public:
         static constexpr StringId32 TypeId = "Onyx::Input::InputModule";
         StringId32 GetTypeId() const override { return TypeId; }
-       
 
-        InputSystem() = default;
+        InputSystem(Graphics::WindowSystem& windowSystem);
         ~InputSystem() override;
 
-        void Init(Graphics::WindowSystem& windowSystem);
         void Update();
 
         onyxS16 GetAxisValue1D(onyxU32 deviceIndex, InputID id) const;

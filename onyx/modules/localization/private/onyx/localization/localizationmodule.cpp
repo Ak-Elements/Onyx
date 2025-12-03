@@ -8,11 +8,20 @@
 
 namespace Onyx::Localization
 {
-    void LocalizationModule::Init(Assets::AssetSystem& assetSystem)
-    {
-        Assets::AssetSystem::Register<GetTextLocalizationDatabase>();
-        Assets::AssetSystem::Register<PortableObjectSerializer>(assetSystem);
+   // void LocalizationModule::Init(Assets::AssetSystem& assetSystem)
+   // {
+   //     Assets::AssetSystem::Register<GetTextLocalizationDatabase>();
+   //     Assets::AssetSystem::Register<PortableObjectSerializer>(assetSystem);
+   //
+   //     m_LocalizationBackend = MakeUnique<GetTextLocalizationBackend>();
+   //     m_LocalizationBackend->Init(assetSystem, m_Settings);
+   //
+   //     InitLocalization(*this);
+   // }
 
+    LocalizationModule::LocalizationModule(const LocalizationSettings& settings, Assets::AssetSystem& assetSystem)
+        : m_Settings(settings)
+    {
         m_LocalizationBackend = MakeUnique<GetTextLocalizationBackend>();
         m_LocalizationBackend->Init(assetSystem, m_Settings);
 
@@ -44,16 +53,6 @@ namespace Onyx::Localization
 
 namespace Onyx
 {
-    bool Serialization<Localization::LocalizationModule>::Serialize(Serializer& /*serializer*/, const Localization::LocalizationModule& /*localizationModule*/)
-    {
-        return true;
-    }
-
-    bool Serialization<Localization::LocalizationModule>::Deserialize(const Deserializer& deserializer, Localization::LocalizationModule& outLocalizationModule)
-    {
-        return deserializer.ReadOptional<"localization">(outLocalizationModule.m_Settings);
-    }
-
     bool Serialization<Localization::LocalizationSettings>::Serialize(Serializer& serializer, const Localization::LocalizationSettings& localizationSettings)
     {
         return serializer.Write<"locale">(localizationSettings.Locale) &&

@@ -1,6 +1,4 @@
-message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
-
-set(TARGET_PUBLIC_DEPENDENCIES
+set(onyx_TARGET_PUBLIC_DEPENDENCIES
 	onyx-core
 	onyx-assets
 	onyx-filesystem
@@ -15,7 +13,6 @@ set(TARGET_PUBLIC_DEPENDENCIES
 
 #remove onyx modules that should not be there (e.g. onyx-volume)
 
-set(TARGET_PRIVATE_DEPENDENCIES
+set(onyx_TARGET_PRIVATE_DEPENDENCIES
 	onyx-profiler
 )
-message(STATUS "[${CURRENT_TARGET}] Finished getting dependencies.")

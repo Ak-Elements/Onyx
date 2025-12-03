@@ -248,18 +248,13 @@ namespace Onyx::Localization
         }
     }
 
-    PortableObjectSerializer::PortableObjectSerializer(Assets::AssetSystem& assetSystem)
-        : AssetSerializer(assetSystem)
-    {
-    }
-
-    bool PortableObjectSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/) const
+    bool PortableObjectSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
     {
         // we can't save po files as they are created in a localization editor
         return false;
     }
 
-    bool PortableObjectSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/) const
+    bool PortableObjectSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& /*engine*/) const
     {
         // po files are not json or yaml so we do not use the provided serializer and instead read the file as raw text
         GetTextLocalizationDatabase& localizationDatabase = asset.As<GetTextLocalizationDatabase>();

@@ -19,9 +19,7 @@ namespace Onyx::Volume
         static constexpr StringId32 TypeId = "Onyx::Volume::VolumeModule";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        VolumeModule();
-
-        void Init(Assets::AssetSystem& assetSystem, GameCore::GameCoreSystem& gameCore);
-        void Shutdown();
+        VolumeModule(GameCore::GameCoreSystem& gameCore);
+        ~VolumeModule() override;
     };
 }

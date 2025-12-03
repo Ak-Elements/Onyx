@@ -53,7 +53,7 @@ namespace Onyx::GameCore
                 freeCameraRuntime.YawDelta += std::clamp(yawSign * freeCameraRuntime.InputRotation[0] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
                 freeCameraRuntime.PitchDelta += std::clamp(freeCameraRuntime.InputRotation[1] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
             }
-
+            
             freeCameraRuntime.Yaw += freeCameraRuntime.YawDelta;
             freeCameraRuntime.Pitch += freeCameraRuntime.PitchDelta;
 

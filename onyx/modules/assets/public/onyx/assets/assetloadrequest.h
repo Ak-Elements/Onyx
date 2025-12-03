@@ -5,6 +5,11 @@
 #include <onyx/thread/async/future.h>
 #include <onyx/thread/threadpool/threadpool.h>
 
+namespace Onyx
+{
+    class IEngine;
+}
+
 namespace Onyx::Assets
 {
     struct IAssetSerializer;
@@ -18,6 +23,7 @@ namespace Onyx::Assets
         void Start(Threading::ThreadPool& loaderPool);
         void Cancel();
 
+        IEngine* Engine = nullptr;
         AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
         const IAssetSerializer* Serializer = nullptr;
@@ -37,6 +43,7 @@ namespace Onyx::Assets
         void Start(Threading::ThreadPool& loaderPool);
         void Cancel();
 
+        const IEngine* Engine = nullptr;
         AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
         const IAssetSerializer* Serializer = nullptr;

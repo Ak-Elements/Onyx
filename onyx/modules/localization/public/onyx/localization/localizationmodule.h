@@ -31,7 +31,7 @@ namespace Onyx::Localization
         static constexpr StringId32 TypeId = "Onyx::Localization::LocalizationModule";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        void Init(Assets::AssetSystem& assetSystem);
+        LocalizationModule(const LocalizationSettings& settings, Assets::AssetSystem& assetSystem);
 
         LocalizedString GetLocalized(LocalizationId id) const;
         Optional<StringView> TryGetLocalized(LocalizationId id) const;
@@ -49,13 +49,6 @@ namespace Onyx::Localization
 
 namespace Onyx
 {
-    template<>
-    struct Serialization<Localization::LocalizationModule>
-    {
-        static bool Serialize(Serializer& serializer, const Localization::LocalizationModule& localizationModule);
-        static bool Deserialize(const Deserializer& deserializer, Localization::LocalizationModule& outLocalizationModule);
-    };
-
     template <>
     struct Serialization<Localization::LocalizationSettings>
     {

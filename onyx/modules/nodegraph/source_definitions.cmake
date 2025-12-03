@@ -1,48 +1,45 @@
-set(TARGET_PUBLIC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/public/onyx/nodegraph)
-set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private/onyx/nodegraph)
-
-set(TARGET_PUBLIC_SOURCES
-    ${TARGET_PUBLIC_PATH}/executioncontext.h
-    ${TARGET_PUBLIC_PATH}/graph.h
-    ${TARGET_PUBLIC_PATH}/graphrunner.h
-    ${TARGET_PUBLIC_PATH}/nodegraphfactory.h
-    ${TARGET_PUBLIC_PATH}/nodegraphmodule.h
-    ${TARGET_PUBLIC_PATH}/nodegraphserializer.h
-    ${TARGET_PUBLIC_PATH}/nodegraphtypemeta.h
-    ${TARGET_PUBLIC_PATH}/nodegraphtyperegistry.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode2in.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in1out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in2out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in3out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1in4out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode1out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode2in1out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode2in2out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode3in1out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinnode4in1out.h
-    ${TARGET_PUBLIC_PATH}/nodes/fixedpinsnode.h
-    ${TARGET_PUBLIC_PATH}/nodes/flexiblepinsnode.h
-    ${TARGET_PUBLIC_PATH}/nodes/math/arithmeticnodes.h
-    ${TARGET_PUBLIC_PATH}/nodes/math/geometricnodes.h
-    ${TARGET_PUBLIC_PATH}/nodes/math/vectornodes_editor.h
-    ${TARGET_PUBLIC_PATH}/nodes/math/vectornodes.h
-    ${TARGET_PUBLIC_PATH}/nodes/node.h
-    ${TARGET_PUBLIC_PATH}/pins/dynamicpin.h
-    ${TARGET_PUBLIC_PATH}/pins/pin.h
-    ${TARGET_PUBLIC_PATH}/pins/pin.h
-    ${TARGET_PUBLIC_PATH}/pins/pinbase.h
-    ${TARGET_PUBLIC_PATH}/pins/pinmeta.h
-    ${TARGET_PUBLIC_PATH}/pins/pinmeta.hpp
+set(onyx_TARGET_PUBLIC_SOURCES
+    executioncontext.h
+    graph.h
+    graphrunner.h
+    nodegraphfactory.h
+    nodegraphmodule.h
+    nodegraphserializer.h
+    nodegraphtypemeta.h
+    nodegraphtyperegistry.h
+    nodes/fixedpinnode1in.h
+    nodes/fixedpinnode2in.h
+    nodes/fixedpinnode1in1out.h
+    nodes/fixedpinnode1in2out.h
+    nodes/fixedpinnode1in3out.h
+    nodes/fixedpinnode1in4out.h
+    nodes/fixedpinnode1out.h
+    nodes/fixedpinnode2in1out.h
+    nodes/fixedpinnode2in2out.h
+    nodes/fixedpinnode3in1out.h
+    nodes/fixedpinnode4in1out.h
+    nodes/fixedpinsnode.h
+    nodes/flexiblepinsnode.h
+    nodes/math/arithmeticnodes.h
+    nodes/math/geometricnodes.h
+    nodes/math/vectornodes_editor.h
+    nodes/math/vectornodes.h
+    nodes/node.h
+    pins/dynamicpin.h
+    pins/pin.h
+    pins/pin.h
+    pins/pinbase.h
+    pins/pinmeta.h
+    pins/pinmeta.hpp
 )
 
-set(TARGET_PRIVATE_SOURCES
-    ${TARGET_PRIVATE_PATH}/executioncontext.cpp
-    ${TARGET_PRIVATE_PATH}/graph.cpp
-    ${TARGET_PRIVATE_PATH}/graphrunner.cpp
-    ${TARGET_PRIVATE_PATH}/nodegraphfactory.cpp
-    ${TARGET_PRIVATE_PATH}/nodegraphmodule.cpp
-    ${TARGET_PRIVATE_PATH}/nodegraphserializer.cpp
-    ${TARGET_PRIVATE_PATH}/nodes/node.cpp
-    ${TARGET_PRIVATE_PATH}/pins/dynamicpin.cpp
+set(onyx_TARGET_PRIVATE_SOURCES
+    executioncontext.cpp
+    graph.cpp
+    graphrunner.cpp
+    nodegraphfactory.cpp
+    nodegraphmodule.cpp
+    nodegraphserializer.cpp
+    nodes/node.cpp
+    pins/dynamicpin.cpp
 )

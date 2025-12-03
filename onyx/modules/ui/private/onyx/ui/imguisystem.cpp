@@ -550,33 +550,19 @@ namespace Onyx::Ui
 
 	}
 
-	ImGuiSystem::ImGuiSystem() = default;
-	ImGuiSystem::~ImGuiSystem()
-	{
-		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
-		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
-
-		m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		m_InputSystem->RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
-
-		ImPlot::DestroyContext();
-		ImPlot3D::DestroyContext();
-		ImGui::DestroyContext();
-	}
-
-    void ImGuiSystem::Init(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem)
+	
+    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem)
+        : m_Window(&windowSystem.GetMainWindow())
+        , m_InputSystem(&inputSystem)
     {
-		m_Window = &windowSystem.GetMainWindow();
-		m_InputSystem = &inputSystem;
-
-        ImGui::CreateContext();
+		ImGui::CreateContext();
 		ImPlot::CreateContext();
 		ImPlot3D::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.IniFilename = nullptr;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		Internal::SetCatppuccinMochaGraphite();// ImGui::StyleColorsDark();
 
@@ -592,21 +578,34 @@ namespace Onyx::Ui
 		fontConfig.FontDataOwnedByAtlas = false;
 		constexpr StringId64 fontHash("fonts/Roboto-Regular.ttf");
 
-        FileSystem::Filepath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
-		auto [it,_] = m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
+		FileSystem::Filepath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
+		auto [it, _] = m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
 		m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
 
 		io.FontDefault = it->second;
 
 		m_Window->AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
 		OnWindowResize(m_Window->GetWidth(), m_Window->GetHeight());
-		
+
 		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
 
 		g_UiContext.AssetSystem = &assetSystem;
 		g_UiContext.MainWindow = m_Window;
 		g_UiContext.InputSystem = &inputSystem;
     }
+
+	ImGuiSystem::~ImGuiSystem()
+	{
+		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
+		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
+
+		m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		m_InputSystem->RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
+
+		ImPlot::DestroyContext();
+		ImPlot3D::DestroyContext();
+		ImGui::DestroyContext();
+	}
 
     void ImGuiSystem::Update(Graphics::GraphicsSystem& system, DeltaGameTime deltaTime)
     {

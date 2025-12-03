@@ -139,7 +139,8 @@ namespace
 
 namespace Onyx::Graphics
 {
-    Window::Window()
+    Window::Window(const WindowSettings& settings)
+        : m_Settings(settings)
     {
         
     }

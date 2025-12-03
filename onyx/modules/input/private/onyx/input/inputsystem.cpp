@@ -17,10 +17,9 @@
 
 namespace Onyx::Input
 {
-    void InputSystem::Init(Graphics::WindowSystem& windowSystem)
+    InputSystem::InputSystem(Graphics::WindowSystem& windowSystem)
+        : m_MainWindow(&windowSystem.GetMainWindow())
     {
-        m_MainWindow = &windowSystem.GetMainWindow();
-
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
         m_MainWindow->SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
 #endif

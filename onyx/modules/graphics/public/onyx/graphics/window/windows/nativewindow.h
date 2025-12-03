@@ -31,7 +31,7 @@ namespace Onyx::Graphics
         static constexpr onyxU32 ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN = 0x0400 + 2;
         static constexpr onyxU32 ONYX_WM_SYSTEM_PRIMARY_MOUSEUP = 0x0400 + 3;
 
-        Window();
+        Window(const WindowSettings& settings);
         ~Window() override;
 
         void Create();

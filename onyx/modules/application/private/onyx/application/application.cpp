@@ -89,28 +89,21 @@ namespace Onyx::Application
         NodeGraph::Init();
 
         DynamicArray<StringId32> applicationModules;
+        EngineSystemCreateContext context{ *this, configDeserializer };
         if (configDeserializer.Read<"modules">(applicationModules))
         {
+            onyxU32 systemIndex = 0;
             // create modules requested by project
             for (const StringId32& moduleId : applicationModules)
             {
-                const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(moduleId);
-                m_Modules.emplace_back(meta.Create(configDeserializer));
-            }
-        }
+                m_Modules.emplace_back(EngineSystemFactory::Create(moduleId, context));
+                Optional<EngineSystemFactory::UpdateFunction> updateFunction = EngineSystemFactory::GetUpdate(moduleId);
+                if (updateFunction.has_value())
+                {
+                    m_UpdatableModules.emplace_back(systemIndex, *updateFunction);
+                }
 
-        // init modules project
-        for (UniquePtr<IEngineSystem>& engineModule : m_Modules)
-        {
-            const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
-            if (meta.IsInitializable())
-            {
-                meta.Init(*this, *engineModule);
-            }
-
-            if (meta.IsUpdatable())
-            {
-                m_UpdatableModules.emplace_back(meta.BuildUpdateCall(*engineModule));
+                ++systemIndex;
             }
         }
 
@@ -131,11 +124,11 @@ namespace Onyx::Application
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
         {
-            const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
-            if (meta.IsShutdownable())
-            {
-                meta.Shutdown(*this, *engineModule);
-            }
+            //const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
+            //if (meta.IsShutdownable())
+            //{
+            //    meta.Shutdown(*this, *engineModule);
+            //}
 
             engineModule.reset();
         }
@@ -180,9 +173,10 @@ namespace Onyx::Application
 
             {
                 ONYX_PROFILE_SECTION(UpdateModules)
-                for (const auto& updateModule : m_UpdatableModules)
+                EngineSystemUpdateContext context{ *this, deltaFrameTime, 0 };
+                for (const auto& updateInfo : m_UpdatableModules)
                 {
-                    updateModule(*this, deltaFrameTime);
+                    updateInfo.UpdateFunctionPtr(*m_Modules[updateInfo.SystemIndex], context);
                 }
             }
 

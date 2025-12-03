@@ -31,15 +31,7 @@ namespace Onyx::Application
         {
             ONYX_ASSERT(HasSystem<T>(), "Module is not added.");
 
-            const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(T::TypeId);
             auto it = std::ranges::find_if(m_Modules, [=](const UniquePtr<IEngineSystem>& module) { return module->GetTypeId() == T::TypeId; });
-
-            if (meta.IsShutdownable())
-            {
-                UniquePtr<IEngineSystem>& systemInstance = *it;
-                meta.Shutdown(*this, *systemInstance);
-            }
-
             // TODO: Remove all modules that depend on it
             m_Modules.erase(it);
         }
@@ -87,13 +79,19 @@ namespace Onyx::Application
         void OnWindowClose();
 
     private:
+        struct SystemUpdate
+        {
+            onyxU32 SystemIndex;
+            EngineSystemFactory::UpdateFunction UpdateFunctionPtr;
+        };
+
         bool m_IsRunning = true;
 
         UniquePtr<Logger> m_Logger;
 
         DynamicArray<UniquePtr<IEngineSystem>> m_Modules;
 
-        DynamicArray<InplaceFunction<void(IEngine&, DeltaGameTime)>> m_UpdatableModules;
+        DynamicArray<SystemUpdate> m_UpdatableModules;
     };
 
     void OnApplicationCreate();

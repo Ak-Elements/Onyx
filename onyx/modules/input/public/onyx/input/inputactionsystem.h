@@ -12,7 +12,6 @@ namespace Onyx::Assets
 
 namespace Onyx::Input
 {
-    struct InputModuleSettings;
     struct InputBindingContext;
     struct InputActionsMap;
     class InputActionsAsset;
@@ -64,6 +63,11 @@ namespace Onyx::Input
         StringId64 ActionId;
     };
 
+    struct InputActionSystemSettings
+    {
+        Assets::AssetId InputActionId { "engine:/inputcontexts.oinput" };
+    };
+
     class InputActionSystem : public IEngineSystem
     {
         friend struct Serialization<InputActionSystem>;
@@ -72,11 +76,9 @@ namespace Onyx::Input
     public:
         static constexpr StringId32 TypeId = "Onyx::Input::InputActionModule";
         StringId32 GetTypeId() const override { return TypeId; }
-        
-        ~InputActionSystem() override;
 
-        void Init(InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
-        void Shutdown(InputSystem& inputSystem);
+        InputActionSystem(const InputActionSystemSettings& settings, InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
+        ~InputActionSystem() override;
 
         void Update();
 
@@ -112,7 +114,6 @@ namespace Onyx::Input
     private:
         InputSystem* m_InputSystem = nullptr;
 
-        Assets::AssetId m_InputActionId { "engine:/inputcontexts.oinput" };
         Reference<InputActionsAsset> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
         HashMap<StringId64, InputActionSignalT> m_InputActionSignals;
@@ -124,9 +125,9 @@ namespace Onyx::Input
 namespace Onyx
 {
     template <>
-    struct Serialization<Input::InputActionSystem>
+    struct Serialization<Input::InputActionSystemSettings>
     {
-        static bool Serialize(Serializer& serializer, const Input::InputActionSystem& system);
-        static bool Deserialize(const Deserializer& deserializer, Input::InputActionSystem& outSystem);
+        static bool Serialize(Serializer& serializer, const Input::InputActionSystemSettings& settings);
+        static bool Deserialize(const Deserializer& deserializer, Input::InputActionSystemSettings& outSettings);
     };
 }

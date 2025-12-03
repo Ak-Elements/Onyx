@@ -2,15 +2,8 @@
     message(FATAL_ERROR "Please build using the outermost CMakeLists.txt file.")
 endif()
 
-#### Target ####
-set(CURRENT_TARGET onyx-ui)
-include(${CMAKE_CURRENT_SOURCE_DIR}/dependencies.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
-
-add_onyx_module(${CURRENT_TARGET}  "Onyx::Ui"
-    PUBLIC_SOURCES ${TARGET_PUBLIC_SOURCES}
-    PRIVATE_SOURCES ${TARGET_PRIVATE_SOURCES}
-    PUBLIC_DEPENDENCIES ${TARGET_PUBLIC_DEPENDENCIES}
-    PRIVATE_DEPENDENCIES ${TARGET_PRIVATE_DEPENDENCIES}
+onyx_add_target(onyx-ui
+    FOLDER ${ONYX_TARGETS_FOLDER}
+    NAMESPACE "Onyx::Ui"
     PUBLIC_DEFINES "ONYX_UI_MODULE=1"
 )

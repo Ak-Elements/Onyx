@@ -1,17 +1,14 @@
-message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
-
-set(TARGET_PUBLIC_DEPENDENCIES
-	onyx-gamecore
-	onyx-input
-	onyx-localization
-	onyx-volume
-	ImGui
+set(onyx_TARGET_PUBLIC_DEPENDENCIES
+    onyx-gamecore
+    onyx-input
+    onyx-localization
+    onyx-volume
+    ImGui
     ImGuiNodeEditor
-	ImGuiPlot2D
-	ImGuiPlot3D
+    ImGuiPlot2D
+    ImGuiPlot3D
 )
 
-set(TARGET_PRIVATE_DEPENDENCIES
+set(onyx_TARGET_PRIVATE_DEPENDENCIES
 
 )
-message(STATUS "[${CURRENT_TARGET}] Finished getting dependencies.")

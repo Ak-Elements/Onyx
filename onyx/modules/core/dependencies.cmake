@@ -1,5 +1,3 @@
-message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
-
 CPMAddPackage(
     NAME utf8cpp
     GITHUB_REPOSITORY nemtrif/utfcpp
@@ -18,13 +16,9 @@ endif()
 
 find_package(Threads)
 
-set(TARGET_PUBLIC_DEPENDENCIES
+set(onyx_TARGET_PUBLIC_DEPENDENCIES
 	utf8cpp
 	magic_enum
 	onyx-profiler
 	${CMAKE_THREAD_LIBS_INIT}
 )
-
-message(STATUS "[${CURRENT_TARGET}] Finished getting dependencies.")
-
-	

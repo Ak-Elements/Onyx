@@ -1,28 +1,23 @@
-set(TARGET_PUBLIC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/public)
-set(TARGET_PRIVATE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/private)
-
-set(${CURRENT_TARGET}_pch ${TARGET_PUBLIC_PATH}/onyx/filesystem/onyx_filesystem_pch.h)
-
-set(TARGET_PUBLIC_SOURCES
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/filedialog.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/filestream.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/filewatcher.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/imagefile.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/onyx_filesystem_pch.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/onyxfile.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/path.h
-	${TARGET_PUBLIC_PATH}/onyx/filesystem/jsonserializer.h
-    ${TARGET_PUBLIC_PATH}/onyx/filesystem/jsondeserializer.h
+set(onyx_TARGET_PUBLIC_SOURCES
+    filedialog.h
+    filestream.h
+    filewatcher.h
+    imagefile.h
+    onyx_filesystem_pch.h
+    onyxfile.h
+    path.h
+    jsonserializer.h
+    jsondeserializer.h
 )
 
-set(TARGET_PRIVATE_SOURCES
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/filedialog.cpp
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/filestream.cpp
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/filewatcher.cpp
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/imagefile.cpp
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/onyx_filesystem.cpp
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/onyxfile.cpp
-	${TARGET_PRIVATE_PATH}/onyx/filesystem/path.cpp
-    ${TARGET_PRIVATE_PATH}/onyx/filesystem/jsonserializer.cpp
-    ${TARGET_PRIVATE_PATH}/onyx/filesystem/jsondeserializer.cpp
+set(onyx_TARGET_PRIVATE_SOURCES
+    filedialog.cpp
+    filestream.cpp
+    filewatcher.cpp
+    imagefile.cpp
+    onyx_filesystem.cpp
+    onyxfile.cpp
+    path.cpp
+    jsonserializer.cpp
+    jsondeserializer.cpp
 )

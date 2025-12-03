@@ -1,6 +1,7 @@
 #include <onyx/graphics/serialize/materialshadergraphserializer.h>
 
 #include <onyx/filesystem/onyxfile.h>
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
@@ -10,13 +11,7 @@
 
 namespace Onyx::Graphics
 {
-    MaterialShaderGraphSerializer::MaterialShaderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsSystem& graphicsSystem)
-        : AssetSerializer(assetSystem)
-        , m_GraphicsSystem(&graphicsSystem)
-    {
-    }
-
-    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const
+    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
         if (ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
@@ -30,9 +25,10 @@ namespace Onyx::Graphics
         return true;
     }
 
-    bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
+    bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
-        ONYX_ASSERT(m_GraphicsSystem != nullptr);
+        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
+        Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
 
         MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
 
@@ -69,7 +65,7 @@ namespace Onyx::Graphics
         for (auto& node : (nodeGraph.GetNodes() | std::views::values))
         {
             ShaderGraphNode& shaderGraphNode = static_cast<ShaderGraphNode&>(*node.m_Data);
-            shaderGraphNode.OnNodeChanged(m_AssetSystem);
+            shaderGraphNode.OnNodeChanged(assetSystem);
         }
 
         RenderPassSettings renderPassSettings;
@@ -89,7 +85,7 @@ namespace Onyx::Graphics
 
         PipelineProperties pipelineProperties;
         pipelineProperties.Shader = Assets::AssetId(shaderPath);
-        pipelineProperties.RenderPass = m_GraphicsSystem->GetOrCreateRenderPass(renderPassSettings);
+        pipelineProperties.RenderPass = graphicsSystem.GetOrCreateRenderPass(renderPassSettings);
         
         pipelineProperties.Rasterization.CullMode = CullMode::Back;
         pipelineProperties.DepthStencil.IsDepthEnabled = true;
@@ -106,7 +102,7 @@ namespace Onyx::Graphics
         blendState.AlphaOperation = BlendOperation::Add;
 
         ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
-        shaderEffect = m_GraphicsSystem->CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
+        shaderEffect = graphicsSystem.CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
 
         return true;
     }

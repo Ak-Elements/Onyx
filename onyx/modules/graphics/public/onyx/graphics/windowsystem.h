@@ -13,10 +13,8 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId = "Onyx::Graphics::WindowSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        WindowSystem();
+        WindowSystem(const WindowSettings& windowSettings);
         ~WindowSystem() override;
-
-        void Init();
 
         Window& GetMainWindow() { return *m_MainWindow; }
         const Window& GetMainWindow() const { return *m_MainWindow; }
@@ -27,8 +25,8 @@ namespace Onyx::Graphics
 }
 
 template <>
-struct Onyx::Serialization<Onyx::Graphics::WindowSystem>
+struct Onyx::Serialization<Onyx::Graphics::WindowSettings>
 {
-    static bool Serialize(Serializer& serializer, const Graphics::WindowSystem& settings);
-    static bool Deserialize(const Deserializer& deserializer, Graphics::WindowSystem& outSettings);
+    static bool Serialize(Serializer& serializer, const Graphics::WindowSettings& settings);
+    static bool Deserialize(const Deserializer& deserializer, Graphics::WindowSettings& outSettings);
 };

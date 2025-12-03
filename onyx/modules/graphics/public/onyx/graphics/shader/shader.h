@@ -5,6 +5,11 @@
 
 #include <onyx/stream/stream.h>
 
+namespace Onyx
+{
+	class IEngine;
+}
+
 namespace Onyx::Graphics
 {
     class GraphicsSystem;
@@ -297,7 +302,7 @@ namespace Onyx::Graphics
 	class Shader : public Assets::Asset<Shader>
     {
 	public:
-		static Reference<Shader> Create(const GraphicsSystem& graphicsSystem);
+		static Reference<Shader> Create(const IEngine& engine);
 
 		static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::Shader" };
 		StringId32 GetTypeId() const { return TypeId; }

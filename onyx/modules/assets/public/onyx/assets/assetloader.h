@@ -13,12 +13,13 @@ namespace Onyx::Assets
     class AssetIOHandler
     {
     public:
-        void RequestLoad(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer)
+        void RequestLoad(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, IEngine* engine)
         {
             if (m_LoadRequests.contains(metaData.Id))
                 return;
 
             UniquePtr<AssetLoadRequest> loadRequest = MakeUnique<AssetLoadRequest>();
+            loadRequest->Engine = engine;
             loadRequest->MetaData = metaData;
             loadRequest->Handle = assetHandle;
             loadRequest->Serializer = serializer.get();
@@ -29,12 +30,13 @@ namespace Onyx::Assets
         }
 
 #if ONYX_IS_EDITOR
-        void RequestSave(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer)
+        void RequestSave(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, const IEngine* engine)
         {
             if (m_SaveRequests.contains(metaData.Id))
                 return;
 
             UniquePtr<AssetSaveRequest> saveRequest = MakeUnique<AssetSaveRequest>();
+            saveRequest->Engine = engine;
             saveRequest->MetaData = metaData;
             saveRequest->Handle = assetHandle;
             saveRequest->Serializer = serializer.get();

@@ -1,7 +1,5 @@
 set(CMAKE_FOLDER_PREV, ${CMAKE_FOLDER})	
 
-message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
-
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
 if (WIN32 AND NOT Vulkan_shaderc_combined_DEBUG_LIBRARY)
@@ -16,21 +14,20 @@ CPMAddPackage(SPIRV-Cross
         "SPIRV_CROSS_ENABLE_TESTS OFF"
 )
 
-set(TARGET_PUBLIC_DEPENDENCIES
-	onyx-assets
-	onyx-nodegraph
+set(onyx_TARGET_PUBLIC_DEPENDENCIES
+    onyx-assets
+    onyx-nodegraph
 )
 
-set(TARGET_PRIVATE_DEPENDENCIES
-	onyx-core
-	onyx-filesystem
+set(onyx_TARGET_PRIVATE_DEPENDENCIES
+    onyx-core
+    onyx-filesystem
     onyx-profiler
     onyx-vma
-	Vulkan::Vulkan
+    Vulkan::Vulkan
     Vulkan::shaderc_combined
-	spirv-cross-core
-	spirv-cross-glsl
+    spirv-cross-core
+    spirv-cross-glsl
 )
 
 set(CMAKE_FOLDER ${CMAKE_FOLDER_PREV})
-message(STATUS "[${CURRENT_TARGET}] Finished getting dependencies.")

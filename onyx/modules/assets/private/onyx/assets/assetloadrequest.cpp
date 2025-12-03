@@ -57,7 +57,7 @@ namespace Onyx::Assets
             {
                 const FileSystem::JsonValue& inputConfigData = assetFile.LoadJson();
                 FileSystem::JsonDeserializer serializer(inputConfigData.Json);
-                succeeded = Serializer->Deserialize(Handle, MetaData, serializer);
+                succeeded = Serializer->Deserialize(Handle, MetaData, serializer, *Engine);
                 break;
             }
         }
@@ -101,7 +101,7 @@ namespace Onyx::Assets
         //ZoneText(assetName.c_str(), assetName.length());
 
         FileSystem::JsonSerializer serializer;
-        bool succeeded = Serializer->Serialize(Handle, MetaData, serializer);
+        bool succeeded = Serializer->Serialize(Handle, MetaData, serializer, *Engine);
 
         const String& jsonString = serializer.JsonRoot.dump(4);
         using namespace FileSystem;

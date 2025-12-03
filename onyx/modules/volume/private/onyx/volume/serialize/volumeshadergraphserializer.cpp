@@ -36,12 +36,7 @@ namespace Onyx::Volume
         }
     }
 
-    VolumeShaderGraphSerializer::VolumeShaderGraphSerializer(Assets::AssetSystem& assetSystem)
-        : AssetSerializer(assetSystem)
-    {
-    }
-
-    bool VolumeShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const
+    bool VolumeShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const VolumeShaderGraph& shaderGraph = asset.As<VolumeShaderGraph>();
         if (Graphics::ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
@@ -64,7 +59,7 @@ namespace Onyx::Volume
         return true;
     }
 
-    bool VolumeShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
+    bool VolumeShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
         VolumeShaderGraph& shaderGraph = asset.As<VolumeShaderGraph>();
         if (Graphics::ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)

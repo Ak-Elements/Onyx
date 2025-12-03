@@ -6,7 +6,7 @@
 
 namespace Onyx::Assets
 {
-    HashMap <StringId32, InplaceFunction<Reference<AssetInterface>()>> AssetSystem::s_RegisteredAssets = {};
+    HashMap <StringId32, InplaceFunction<Reference<AssetInterface>(IEngine&)>> AssetSystem::s_RegisteredAssets = {};
     HashMap <StringId32, UniquePtr<IAssetSerializer>> AssetSystem::s_RegisteredSerializer = {};
     HashMap<StringView, AssetType> AssetSystem::s_ExtensionToAssetType = {};
 
@@ -61,10 +61,8 @@ namespace Onyx::Assets
         }
     }
 
-    AssetSystem::AssetSystem() = default;
-    AssetSystem::~AssetSystem() = default;
-
-    void AssetSystem::Init()
+    AssetSystem::AssetSystem(IEngine& engine)
+        : m_Engine(&engine)
     {
         if (GetAllAssetMetaData(m_AssetsMetaData) == false)
         {
@@ -73,7 +71,7 @@ namespace Onyx::Assets
         }
     }
 
-    void AssetSystem::Shutdown()
+    AssetSystem::~AssetSystem()
     {
         m_AssetsMetaData.clear();
         m_LoadedAssets.clear();
@@ -97,7 +95,7 @@ namespace Onyx::Assets
             {
                 std::lock_guard lock(m_Mutex);
                 const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(StringId32(static_cast<onyxU32>(metaData.Type)));
-                m_IOHandler.RequestLoad(metaData, reloadAsset, serializer);
+                m_IOHandler.RequestLoad(metaData, reloadAsset, serializer, m_Engine);
             }
         }
     }

@@ -14,6 +14,6 @@ namespace Onyx::Ui
         static constexpr StringId32 TypeId = "Onyx::Ui::UiModule";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        void Init(Localization::LocalizationModule& localizationModule);
+        UiModule(Localization::LocalizationModule& localizationModule);
     };
 }

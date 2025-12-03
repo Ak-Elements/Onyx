@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/noncopyable.h>
 #include <onyx/entity/componentfactory.h>
 #include <onyx/entity/entitycomponentsystem.h>
 

@@ -4,7 +4,7 @@
 
 namespace Onyx::Ui
 {
-    void UiModule::Init(Localization::LocalizationModule& localizationModule)
+    UiModule::UiModule(Localization::LocalizationModule& localizationModule)
     {
         Localization::Ui::InitLocalization(localizationModule);
     }

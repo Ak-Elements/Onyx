@@ -1,4 +1,4 @@
-function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_OUTPUT_PATH GENERATED_HEADER_PATH GENERATED_CPP_PATH PUBLIC_SOURCES PUBLIC_DEPS PRIVATE_DEPS)
+function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_PUBLIC_PATH GENERATED_PRIVATE_PATH GENERATED_HEADER_PATH GENERATED_CPP_PATH PUBLIC_SOURCES PUBLIC_DEPS PRIVATE_DEPS)
     file(MAKE_DIRECTORY "${GENERATED_OUTPUT_PATH}")
 
     # Temporary input lists for the code generator
@@ -13,19 +13,25 @@ function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_OUTPUT_PATH 
         "${PRIVATE_DEPS}"
     )
 
+    set(ONYX_CODEGEN "${onyx_SOURCE_DIR}/tools/codegeneration/onyx-codegen")
+    if(WIN32)
+        set(ONYX_CODEGEN "${ONYX_CODEGEN}.exe")
+    endif()
+
     add_custom_command(
         OUTPUT "${GENERATED_HEADER_PATH}" "${GENERATED_CPP_PATH}"
-        COMMAND ${onyx_SOURCE_DIR}/tools/codegeneration/onyx-codegen
+        COMMAND ${ONYX_CODEGEN} "--module"
                 "${TARGET}"
                 "${TARGET_NAMESPACE}"
                 "${CMAKE_CURRENT_SOURCE_DIR}"
-                "${GENERATED_OUTPUT_PATH}"
+                "${GENERATED_PUBLIC_PATH}"
+                "${GENERATED_PRIVATE_PATH}"
                 "${SRC_LIST_FILE}"
                 "${INC_LIST_FILE}"
         DEPENDS
             ${PUBLIC_SOURCES}           # If source changes, regenerate
-            "${SRC_LIST_FILE}"          # If list changes, regenerate
             "${INC_LIST_FILE}"          # If include dirs change, regenerate
+            "${ONYX_CODEGEN}"  # generator changed
         COMMENT "Running Onyx code generation for ${TARGET}"
         VERBATIM
     )
@@ -43,6 +49,7 @@ function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_OUTPUT_PATH 
 
     # Make module depend on the generated code
     add_dependencies(${TARGET} "${TARGET}_code_gen")
+    set_property(GLOBAL APPEND PROPERTY onyx_generated_module_headers "${GENERATED_HEADER_PATH}")
 endfunction()
 
 function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
@@ -59,7 +66,7 @@ function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
     set(all_deps "${PUBLIC_DEPS};${PRIVATE_DEPS}")
 
     set(_deps ${PUBLIC_DEPS})
-list(APPEND _deps ${PRIVATE_DEPS})
+    list(APPEND _deps ${PRIVATE_DEPS})
     collect_recursive_deps(recursed "${_deps}")
     list(APPEND all_deps ${recursed})
     list(REMOVE_DUPLICATES all_deps)

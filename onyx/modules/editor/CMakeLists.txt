@@ -6,15 +6,7 @@ if (NOT ONYX_BUILD_EDITOR)
         return()
 endif()
 
-
-#### Target ####
-set(CURRENT_TARGET onyx-editor)
-include(${CMAKE_CURRENT_SOURCE_DIR}/dependencies.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
-
-add_onyx_module(${CURRENT_TARGET} "Onyx::Editor"
-    PUBLIC_SOURCES ${TARGET_PUBLIC_SOURCES}
-    PRIVATE_SOURCES ${TARGET_PRIVATE_SOURCES}
-    PUBLIC_DEPENDENCIES ${TARGET_PUBLIC_DEPENDENCIES}
-    PRIVATE_DEPENDENCIES ${TARGET_PRIVATE_DEPENDENCIES}
+onyx_add_target(onyx-editor
+    FOLDER ${ONYX_TARGETS_FOLDER}
+    NAMESPACE "Onyx::Editor"
 )

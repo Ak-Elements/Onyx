@@ -55,8 +55,6 @@ namespace Onyx::GameCore
         StringId32 GetTypeId() const override { return TypeId; }
 
         GameCoreSystem();
-
-        void Init(Assets::AssetSystem& assetSystem);
         
         void Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine);
 

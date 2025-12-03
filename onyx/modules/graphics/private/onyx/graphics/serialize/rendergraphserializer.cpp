@@ -34,13 +34,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    RenderGraphSerializer::RenderGraphSerializer(Assets::AssetSystem& assetSystem, GraphicsSystem& graphicsSystem)
-        : AssetSerializer(assetSystem)
-        , m_GraphicsSystem(&graphicsSystem)
-    {
-    }
-
-    bool RenderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer) const
+    bool RenderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
         const RenderGraph& renderGraph = asset.As<RenderGraph>();
@@ -52,9 +46,9 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer) const
+    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& engine) const
     {
-        ONYX_ASSERT(m_GraphicsSystem != nullptr);
+        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
 
         RenderGraph& renderGraph = asset.As<RenderGraph>();
 
@@ -65,7 +59,7 @@ namespace Onyx::Graphics
             return false;
         }
 
-        renderGraph.Init(*m_GraphicsSystem);
+        renderGraph.Init(graphicsSystem);
         return true;
     }
 }

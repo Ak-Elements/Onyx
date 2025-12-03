@@ -26,12 +26,6 @@ namespace Onyx::GameCore
 {
     namespace GameCoreInit
     {
-        void RegisterAssets(GameCoreSystem& gameCoreSystem, Assets::AssetSystem& assetSystem)
-        {
-            Assets::AssetSystem::Register<Scene>();
-            Assets::AssetSystem::Register<SceneSerializer>(gameCoreSystem, assetSystem);
-        }
-
         void RegisterComponents(Entity::EcsBuilder& ecsBuilder)
         {
 
@@ -73,11 +67,6 @@ namespace Onyx::GameCore
         Graphics::RenderGraphNodeFactory::RegisterNode<DepthPrePassRenderGraphNode>();
         Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>();
         Graphics::RenderGraphNodeFactory::RegisterNode<MSDFFontRenderPass>();
-    }
-
-    void GameCoreSystem::Init(Assets::AssetSystem& assetSystem)
-    {
-        GameCoreInit::RegisterAssets(*this, assetSystem);
 
         Entity::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };
         GameCoreInit::RegisterComponents(ecsBuilder);

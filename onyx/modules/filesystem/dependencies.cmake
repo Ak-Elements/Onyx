@@ -1,7 +1,3 @@
-unset(TARGET_PUBLIC_DEPENDENCIES)
-unset(TARGET_PRIVATE_DEPENDENCIES)
-
-message(STATUS "[${CURRENT_TARGET}] Getting dependencies.")
 
 set(STB_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/stb-src)
 
@@ -65,14 +61,13 @@ set_target_properties(nfd PROPERTIES FOLDER extern/nfd)
 set_target_properties(efsw PROPERTIES FOLDER extern/efsw)
 set_target_properties(efsw-static PROPERTIES FOLDER extern/efsw)
 
-set(TARGET_PUBLIC_DEPENDENCIES
-	nlohmann_json
+set(onyx_TARGET_PUBLIC_DEPENDENCIES
+    nlohmann_json
 )
 
-set(TARGET_PRIVATE_DEPENDENCIES
-	onyx-core
-	stb_image
-	efsw-static
-	nfd
+set(onyx_TARGET_PRIVATE_DEPENDENCIES
+    onyx-core
+    stb_image
+    efsw-static
+    nfd
 )
-message(STATUS "[${CURRENT_TARGET}] Finished getting dependencies.")

@@ -50,11 +50,8 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId = "Onyx::Graphics::GraphicsSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        GraphicsSystem();
+        GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, WindowSystem& window);
         ~GraphicsSystem() override;
-
-        void Init(Assets::AssetSystem& assetSystem, WindowSystem& window);
-        void Shutdown();
 
         bool BeginFrame();
         void Render();
@@ -174,19 +171,11 @@ namespace Onyx::Graphics
 
         bool m_HasComputeWork = false;
         bool m_HasWindowResized = false;
-
     };
 }
 
 namespace Onyx
 {
-    template <>
-    struct Serialization<Graphics::GraphicsSystem>
-    {
-        static bool Serialize(Serializer& serializer, const Graphics::GraphicsSystem& settings);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicsSystem& outSettings);
-    };
-
     template <>
     struct Serialization<Graphics::GraphicSettings>
     {

@@ -1,4 +1,5 @@
 #pragma once
+#include <onyx/engine/enginesystem.h>
 
 namespace Onyx::Graphics
 {

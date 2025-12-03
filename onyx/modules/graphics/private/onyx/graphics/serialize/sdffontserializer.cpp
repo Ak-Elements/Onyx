@@ -111,12 +111,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    SDFFontSerializer::SDFFontSerializer(Assets::AssetSystem& assetSystem)
-        : AssetSerializer(assetSystem)
-    {
-    }
-
-    bool SDFFontSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer) const
+    bool SDFFontSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const SDFFont& font = asset.As<SDFFont>();
 
@@ -124,8 +119,10 @@ namespace Onyx::Graphics
             serializer.Write(font);
     }
 
-    bool SDFFontSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const
+    bool SDFFontSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
+        Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
+
         SDFFont& font = asset.As<SDFFont>();
 
         onyxU64 textureAssetId;
@@ -142,7 +139,7 @@ namespace Onyx::Graphics
         }
 
         Reference<TextureAsset> fontTexture;
-        m_AssetSystem.GetAsset(textureAssetId, fontTexture);
+        assetSystem.GetAsset(textureAssetId, fontTexture);
         font.SetTextureId(Assets::AssetId(textureAssetId));
         font.SetTexture(fontTexture);
 

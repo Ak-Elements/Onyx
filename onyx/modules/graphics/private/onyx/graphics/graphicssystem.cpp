@@ -82,21 +82,14 @@ namespace Onyx
 #endif
         return true;
     }
-
-    bool Serialization<Graphics::GraphicsSystem>::Serialize(Serializer& serializer, const Graphics::GraphicsSystem& system)
-    {
-        return serializer.Write<"graphics">(system.GetSettings());
-    }
-
-    bool Serialization<Graphics::GraphicsSystem>::Deserialize(const Deserializer& deserializer, Graphics::GraphicsSystem& outSystem)
-    {
-        return deserializer.Read<"graphics">(outSystem.GetSettings());
-    }
 }
 
 namespace Onyx::Graphics
 {
-    GraphicsSystem::GraphicsSystem()
+    GraphicsSystem::GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, WindowSystem& windowSystem)
+        : m_AssetSystem(&assetSystem)
+        , m_Window(&windowSystem.GetMainWindow())
+        , m_Settings(settings)
     {
         RenderGraphNodeFactory::RegisterNode<GetViewConstantsNode>();
         RenderGraphNodeFactory::RegisterNode<CreateLightClusters>();
@@ -125,32 +118,7 @@ namespace Onyx::Graphics
 
         ShaderGraphNodeFactory::RegisterNode<SimplexNoise2DShaderGraphNode>();
         ShaderGraphNodeFactory::RegisterNode<SimplexNoise3DShaderGraphNode>();
-    }
 
-    GraphicsSystem::~GraphicsSystem()
-    {
-    }
-
-    void GraphicsSystem::Init(Assets::AssetSystem& assetSystem, WindowSystem& windowSystem)
-    {
-        Assets::AssetSystem::Register<TextureAsset>();
-        Assets::AssetSystem::Register<TextureSerializer>(assetSystem, *this);
-
-        Assets::AssetSystem::Register<MaterialShaderGraph>();
-        Assets::AssetSystem::Register<MaterialShaderGraphSerializer>(assetSystem, *this);
-
-        Assets::AssetSystem::Register<RenderGraph>();
-        Assets::AssetSystem::Register<RenderGraphSerializer>(assetSystem, *this);
-
-        Assets::AssetSystem::Register<Shader>(*this);
-        Assets::AssetSystem::Register<ShaderSerializer>(assetSystem, *this);
-
-        Assets::AssetSystem::Register<SDFFont>();
-        Assets::AssetSystem::Register<SDFFontSerializer>(assetSystem);
-
-        m_AssetSystem = &assetSystem;
-        m_Window = &windowSystem.GetMainWindow();
-        
         constexpr StringId32 defaultBlendStateId("default");
         constexpr StringId32 noBlendStateId("noblend");
         BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
@@ -179,7 +147,7 @@ namespace Onyx::Graphics
         assetSystem.GetAsset(m_Settings.DefaultRenderGraph, m_RenderGraph);
     }
 
-    void GraphicsSystem::Shutdown()
+    GraphicsSystem::~GraphicsSystem()
     {
         WaitIdle();
 

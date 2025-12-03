@@ -19,6 +19,14 @@ project (
     LANGUAGES CXX
 )
 
+if (NOT onyx_SOURCE_DIR)
+    set(onyx_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
+if (NOT onyx_BINARY_DIR)
+    set(onyx_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 # Bool Options
 option(ONYX_ENABLE_INSTALL "Install onyx components" ON)
 option(ONYX_BUILD_ALL "Build all" OFF)
@@ -152,12 +160,11 @@ endif()
 
 include(FetchContent)
 include(cmakepackagemanager)
-include(onyx_find_engine_modules)
-include(onyx_generate_modules_file)
+include(onyx_generate_project_init)
 
 include(GNUInstallDirs)
 
-set_property(GLOBAL PROPERTY onyx_modules "")
+set_property(GLOBAL PROPERTY onyx_generated_module_headers "")
 
 add_subdirectory(libs)
 add_subdirectory(onyx)

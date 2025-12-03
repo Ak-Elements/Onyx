@@ -8,13 +8,8 @@
 
 namespace Onyx::Graphics
 {
-    TextureSerializer::TextureSerializer(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem)
-        : AssetSerializer(assetSystem)
-        , m_GraphicsSystem(&graphicsSystem)
-    {
-    }
 
-    bool TextureSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const
+    bool TextureSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         ONYX_UNUSED(asset);
         ONYX_UNUSED(meta);
@@ -22,11 +17,9 @@ namespace Onyx::Graphics
         return false;
     }
 
-    bool TextureSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/) const
+    bool TextureSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& engine) const
     {
-        if (m_GraphicsSystem == nullptr)
-            return false;
-
+        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
         TextureAsset& textureAsset = asset.As<TextureAsset>();
 
         FileSystem::ImageFile file(FileSystem::Path::ReplaceExtension(meta.Path, "png"));
@@ -48,7 +41,7 @@ namespace Onyx::Graphics
         textureProps.m_DebugName = Format::Format("{} Texture", meta.GetName());
         const Span<onyxU8>& imageData = file.GetData();
 
-        m_GraphicsSystem->CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageData);
+        graphicsSystem.CreateTexture(textureAsset.m_Texture, storageProps, textureProps, imageData);
         return true;
 
         //TextureAsset& textureAsset = asset.As<TextureAsset>();

@@ -7,8 +7,9 @@
 
 namespace Onyx::Graphics
 {
-    Reference<Shader> Shader::Create(const GraphicsSystem& graphicsSystem)
+    Reference<Shader> Shader::Create(const IEngine& engine)
     {
+        const GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
         switch (graphicsSystem.GetApiType())
         {
             using enum ApiType;

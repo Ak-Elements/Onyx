@@ -11,6 +11,7 @@ namespace Onyx::GameCore
 
 namespace Onyx::Entity
 {
+    class ComponentFactory;
     class EntityRegistry;
 }
 
@@ -28,29 +29,19 @@ namespace Onyx::GameCore
     {
         static constexpr Array<StringView, 1> Extensions { "oscene" };
 
-        // remove
-        SceneSerializer(GameCoreSystem& gameCoreSystem, Assets::AssetSystem& assetSystem)
-            : AssetSerializer(assetSystem)
-            , m_GameCoreSystem(gameCoreSystem)
-        {
-        }
-
         friend class SceneSectorStreamer;
 
-        bool Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer) const override;
-        bool Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer) const override;
+        bool Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const override;
+        bool Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const override;
         
     private:
-        bool SerializeEntity(Serializer& serializer, const Entity::EntityRegistry& registry, Entity::EntityId entityId) const;
-        bool DeserializeEntity(const Deserializer& deserializer, Entity::EntityRegistry& registry, Entity::EntityId entityId) const;
+        bool SerializeEntity(Serializer& serializer, const Entity::EntityRegistry& registry, const Entity::ComponentFactory& componentFactory, Entity::EntityId entityId) const;
+        bool DeserializeEntity(const Deserializer& deserializer, Entity::EntityRegistry& registry, const Entity::ComponentFactory& componentFactory, Entity::EntityId entityId) const;
 
-        bool SerializeSectorsToJson(const Entity::EntityRegistry& registry, const DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const;
-        bool SerializeSectorToJson(const Entity::EntityRegistry& registry, const SceneSector& sector, const FileSystem::Filepath& sectorDirectoryPath) const;
+        bool SerializeSectorsToJson(const Entity::EntityRegistry& registry, const Entity::ComponentFactory& componentFactory, const DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const;
+        bool SerializeSectorToJson(const Entity::EntityRegistry& registry, const Entity::ComponentFactory& componentFactory, const SceneSector& sector, const FileSystem::Filepath& sectorDirectoryPath) const;
 
-        bool DeserializeSectorsFromJson(Scene& scene, DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const;
-        bool DeserializeSectorFromJson(Scene& scene, SceneSector& outSector, const FileSystem::Filepath& sectorFilePath) const;
-
-    private:
-        GameCoreSystem& m_GameCoreSystem;
+        bool DeserializeSectorsFromJson(Scene& scene, const Entity::ComponentFactory& componentFactory, DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const;
+        bool DeserializeSectorFromJson(Scene& scene, const Entity::ComponentFactory& componentFactory, SceneSector& outSector, const FileSystem::Filepath& sectorFilePath) const;
     };
 }
