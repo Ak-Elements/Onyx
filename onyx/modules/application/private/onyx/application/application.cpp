@@ -88,23 +88,29 @@ namespace Onyx::Application
         // init node graph module
         NodeGraph::Init();
 
-        DynamicArray<StringId32> applicationModules;
-        EngineSystemCreateContext context{ *this, configDeserializer };
-        if (configDeserializer.Read<"modules">(applicationModules))
+        
+        bool hasLoadedModules = configDeserializer.ReadForEach<"modules">([&](const Deserializer& scopedDeserializer)
         {
-            onyxU32 systemIndex = 0;
-            // create modules requested by project
-            for (const StringId32& moduleId : applicationModules)
-            {
-                m_Modules.emplace_back(EngineSystemFactory::Create(moduleId, context));
-                Optional<EngineSystemFactory::UpdateFunction> updateFunction = EngineSystemFactory::GetUpdate(moduleId);
-                if (updateFunction.has_value())
-                {
-                    m_UpdatableModules.emplace_back(systemIndex, *updateFunction);
-                }
+            StringId32 moduleId;
+            if (scopedDeserializer.Read<"typeId">(moduleId) == false)
+                return false;
 
-                ++systemIndex;
+            onyxU32 systemIndex = numeric_cast<onyxU32>(m_Modules.size());
+            
+            EngineSystemCreateContext context{ *this, scopedDeserializer };
+            m_Modules.emplace_back(EngineSystemFactory::Create(moduleId, context));
+            Optional<EngineSystemFactory::UpdateFunction> updateFunction = EngineSystemFactory::GetUpdate(moduleId);
+            if (updateFunction.has_value())
+            {
+                m_UpdatableModules.emplace_back(systemIndex, *updateFunction);
             }
+
+            return true;
+        });
+
+        if (hasLoadedModules == false)
+        {
+            ONYX_LOG_ERROR("Failed loading modules");
         }
 
         OnApplicationCreated(*this);

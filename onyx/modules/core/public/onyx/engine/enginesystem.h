@@ -1,7 +1,7 @@
 #pragma once
 
 #include <onyx/noncopyable.h>
-#include <onyx/stream/stream.h>
+#include <onyx/serialize/deserializer.h>
 
 namespace Onyx
 {
@@ -58,7 +58,7 @@ namespace Onyx
         auto Get() const
         {
             T obj;
-            Serialization<T>::Deserialize(Deserializer, obj);
+            Deserializer.Read<"settings">(obj);
             return obj;
         }
     };

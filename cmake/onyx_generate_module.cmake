@@ -12,12 +12,7 @@ function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_PUBLIC_PATH 
         "${PUBLIC_DEPS}"
         "${PRIVATE_DEPS}"
     )
-
-    set(ONYX_CODEGEN "${onyx_SOURCE_DIR}/tools/codegeneration/onyx-codegen")
-    if(WIN32)
-        set(ONYX_CODEGEN "${ONYX_CODEGEN}.exe")
-    endif()
-
+    
     add_custom_command(
         OUTPUT "${GENERATED_HEADER_PATH}" "${GENERATED_CPP_PATH}"
         COMMAND ${ONYX_CODEGEN} "--module"
@@ -35,20 +30,7 @@ function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_PUBLIC_PATH 
         COMMENT "Running Onyx code generation for ${TARGET}"
         VERBATIM
     )
-
-    add_custom_target("${TARGET}_code_gen"
-        DEPENDS "${GENERATED_HEADER_PATH}" "${GENERATED_CPP_PATH}"
-    )
-
-    set_target_properties("${TARGET}_code_gen"
-        PROPERTIES
-            FOLDER "${ONYX_CODEGENERATION_TARGETS_FOLDER}"
-            SOVERSION ${MAJOR_VERSION}
-            VERSION ${PROJECT_VERSION}
-    )
-
-    # Make module depend on the generated code
-    add_dependencies(${TARGET} "${TARGET}_code_gen")
+    
     set_property(GLOBAL APPEND PROPERTY onyx_generated_module_headers "${GENERATED_HEADER_PATH}")
 endfunction()
 

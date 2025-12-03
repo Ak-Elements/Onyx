@@ -42,6 +42,13 @@ set(ONYX_PROJECT_DATA_DIR "${CMAKE_SOURCE_DIR}/data" CACHE STRING "Path to the p
 set(ONYX_PROJECT_TMP_DIR "${CMAKE_SOURCE_DIR}/tmp" CACHE STRING "Path to the projects tmp directory")
 set(ONYX_TARGETS_FOLDER "modules" CACHE STRING "Folder for all onyx targets")
 
+set(_ONYX_CODEGEN "${onyx_SOURCE_DIR}/tools/codegeneration/out/onyx-codegen")
+if(WIN32)
+    set(_ONYX_CODEGEN "${_ONYX_CODEGEN}.exe")
+endif()
+
+set(ONYX_CODEGEN "${_ONYX_CODEGEN}" CACHE STRING "Path to code generation tool for onyx")
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_SUPPRESS_REGENERATION true)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
