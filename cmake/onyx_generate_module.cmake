@@ -12,7 +12,10 @@ function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_PUBLIC_PATH 
         "${PUBLIC_DEPS}"
         "${PRIVATE_DEPS}"
     )
-    
+
+    file(TOUCH ${GENERATED_HEADER_PATH})
+    file(TOUCH ${GENERATED_CPP_PATH})
+
     add_custom_command(
         OUTPUT "${GENERATED_HEADER_PATH}" "${GENERATED_CPP_PATH}"
         COMMAND ${ONYX_CODEGEN} "--module"

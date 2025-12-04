@@ -2,11 +2,11 @@ function(onyx_generate_project_init ONYX_PROJECT_NAME)
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
     get_property(onyx_generated_module_headers GLOBAL PROPERTY onyx_generated_module_headers)
-    set(GENERATED_CPP_PATH "${CMAKE_CURRENT_BINARY_DIR}/engine_init.gen.cpp")
+    set(GENERATED_CPP_PATH "${CMAKE_CURRENT_BINARY_DIR}/init.gen.cpp")
     # Temporary input lists for the code generator
 
     write_all_modules("${CMAKE_CURRENT_BINARY_DIR}/generatedmoduleheaders" "${onyx_generated_module_headers}")
-    message(STATUS "YES YES")
+    
     add_custom_command(
         OUTPUT "${GENERATED_CPP_PATH}"
         COMMAND ${ONYX_CODEGEN} "--project"

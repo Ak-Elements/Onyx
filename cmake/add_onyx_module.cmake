@@ -34,7 +34,7 @@ function(onyx_add_target arg_TARGET_NAME)
             set(arg_PUBLIC_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
         endif()
         
-        set(arg_PUBLIC_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/public/${module_ns_path}")
+        set(arg_PUBLIC_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/public/${target_ns_path}")
     endif()
 
     if (NOT arg_PRIVATE_SOURCES_DIR)
@@ -44,7 +44,7 @@ function(onyx_add_target arg_TARGET_NAME)
             set(arg_PRIVATE_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
         endif()
         
-        set(arg_PRIVATE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/private/${module_ns_path}")
+        set(arg_PRIVATE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/private/${target_ns_path}")
     endif()
 
     if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
@@ -101,8 +101,8 @@ function(onyx_add_target arg_TARGET_NAME)
     # Store module name in a global property
     set_property(GLOBAL APPEND PROPERTY onyx_targets "${arg_NAMESPACE}")
 
-    set(GENERATED_HEADER_PATH "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.h")
-    set(GENERATED_CPP_PATH "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.cpp")
+    set(GENERATED_HEADER_PATH "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.gen.h")
+    set(GENERATED_CPP_PATH "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.gen.cpp")
 
     if(arg_PUBLIC_SOURCES)
         target_sources(${arg_TARGET_NAME} PUBLIC
