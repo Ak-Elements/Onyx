@@ -42,7 +42,7 @@ set(ONYX_PROJECT_DATA_DIR "${CMAKE_SOURCE_DIR}/data" CACHE STRING "Path to the p
 set(ONYX_PROJECT_TMP_DIR "${CMAKE_SOURCE_DIR}/tmp" CACHE STRING "Path to the projects tmp directory")
 set(ONYX_TARGETS_FOLDER "modules" CACHE STRING "Folder for all onyx targets")
 
-set(_ONYX_CODEGEN "${onyx_SOURCE_DIR}/tools/codegeneration/out/onyx-codegen")
+set(_ONYX_CODEGEN "${CMAKE_SOURCE_DIR}/tools/codegeneration/out/onyx-codegen")
 if(WIN32)
     set(_ONYX_CODEGEN "${_ONYX_CODEGEN}.exe")
 endif()
@@ -172,6 +172,15 @@ include(onyx_generate_project_init)
 include(GNUInstallDirs)
 
 set_property(GLOBAL PROPERTY onyx_generated_module_headers "")
+
+# Get code-generation tool
+CPMAddPackage(
+    NAME Onyx-CodeGen
+    GITHUB_REPOSITORY Ak-Elements/Onyx-CodeGeneration
+    GIT_TAG main
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration
+    DOWNLOAD_ONLY YES
+)
 
 add_subdirectory(libs)
 add_subdirectory(onyx)
