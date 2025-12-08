@@ -178,7 +178,7 @@ CPMAddPackage(
     NAME Onyx-CodeGen
     GITHUB_REPOSITORY Ak-Elements/Onyx-CodeGeneration
     GIT_TAG main
-	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration/core
     DOWNLOAD_ONLY YES
 )
 
