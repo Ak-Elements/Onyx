@@ -4,7 +4,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1in3out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     static constexpr onyxU8 CLUSTER_X = 16;
     static constexpr onyxU8 CLUSTER_Y = 9;

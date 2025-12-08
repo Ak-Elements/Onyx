@@ -64,10 +64,6 @@ namespace Onyx::GameCore
 
     GameCoreSystem::GameCoreSystem()
     {
-        Graphics::RenderGraphNodeFactory::RegisterNode<DepthPrePassRenderGraphNode>();
-        Graphics::RenderGraphNodeFactory::RegisterNode<StaticMeshRenderGraphNode>();
-        Graphics::RenderGraphNodeFactory::RegisterNode<MSDFFontRenderPass>();
-
         Entity::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };
         GameCoreInit::RegisterComponents(ecsBuilder);
         GameCoreInit::RegisterEntitySystems(ecsBuilder);

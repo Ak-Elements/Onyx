@@ -13,8 +13,6 @@ function(onyx_generate_project_init ONYX_PROJECT_NAME)
                 "${GENERATED_CPP_PATH}"
                 "${onyx_BINARY_DIR}"
                 "${CMAKE_CURRENT_BINARY_DIR}"
-                "${CMAKE_CURRENT_BINARY_DIR}/generatedmoduleheaders"
-                "${CMAKE_CURRENT_BINARY_DIR}/includedirectories"
         DEPENDS
             ${onyx_generated_module_headers} 
             "${ONYX_CODEGEN}"  # generator changed

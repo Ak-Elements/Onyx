@@ -1,8 +1,9 @@
 function(onyx_add_target arg_TARGET_NAME)
-    set(options "")  # No boolean options
+    set(options "DISABLE_CODEGEN")  # No boolean options
     set(oneValueArgs NAMESPACE PRECOMPILED_HEADER TARGET_TYPE FOLDER ALIAS)
     set(multiValueArgs PUBLIC_SOURCES PRIVATE_SOURCES PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
 
+    set(arg_ENABLE_CODEGEN true)
     cmake_parse_arguments(
         arg
         "${options}"
@@ -10,6 +11,10 @@ function(onyx_add_target arg_TARGET_NAME)
         "${multiValueArgs}"
         ${ARGN}
     )
+
+    if (arg_DISABLE_CODEGEN)
+        set(arg_ENABLE_CODEGEN false)
+    endif()
     
     if (NOT arg_NAMESPACE)
         set(arg_NAMESPACE "${arg_TARGET_NAME}")
@@ -101,25 +106,21 @@ function(onyx_add_target arg_TARGET_NAME)
     # Store module name in a global property
     set_property(GLOBAL APPEND PROPERTY onyx_targets "${arg_NAMESPACE}")
 
-    set(GENERATED_HEADER_PATH "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.gen.h")
-    set(GENERATED_CPP_PATH "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.gen.cpp")
-
     if(arg_PUBLIC_SOURCES)
         target_sources(${arg_TARGET_NAME} PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS "${arg_PUBLIC_BASE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
-            FILES ${arg_PUBLIC_SOURCES} ${GENERATED_HEADER_PATH}
+            BASE_DIRS "${arg_PUBLIC_BASE_DIR}"
+            FILES ${arg_PUBLIC_SOURCES}
         )
-        
+
         source_group(TREE ${arg_PUBLIC_SOURCES_DIR} FILES ${arg_PUBLIC_SOURCES})
-        source_group(TREE ${arg_PUBLIC_BINARY_DIR} FILES ${GENERATED_HEADER_PATH})
     endif()
 
     if(arg_PRIVATE_SOURCES)
-        target_sources(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_SOURCES} ${GENERATED_CPP_PATH})
-
+        target_sources(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_SOURCES})
         source_group(TREE ${arg_PRIVATE_SOURCES_DIR} FILES ${arg_PRIVATE_SOURCES})
-        source_group(TREE "${arg_PRIVATE_BINARY_DIR}" FILES ${GENERATED_CPP_PATH})
+
+        
     endif()
     
     #### Target Properties ####
@@ -177,17 +178,32 @@ function(onyx_add_target arg_TARGET_NAME)
         target_link_libraries(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_DEPENDENCIES})
     endif()
     
-    #### Module Code Generation Target ####
-    onyx_add_code_gen_target(${arg_TARGET_NAME}
-        ${arg_NAMESPACE}
-        ${arg_PUBLIC_BINARY_DIR}
-        ${arg_PRIVATE_BINARY_DIR}
-        ${GENERATED_HEADER_PATH}
-        ${GENERATED_CPP_PATH}
-        "${arg_PUBLIC_SOURCES}"
-        "${arg_PUBLIC_DEPENDENCIES}"
-        "${arg_PRIVATE_DEPENDENCIES}"
-    )
+    if (arg_ENABLE_CODEGEN)
+        set(GENERATED_HEADER_PATH "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.gen.h")
+        set(GENERATED_CPP_PATH "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.gen.cpp")
+
+        target_sources(${arg_TARGET_NAME} PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
+            FILES ${GENERATED_HEADER_PATH}
+        )
+        target_sources(${arg_TARGET_NAME} PRIVATE ${GENERATED_CPP_PATH})
+        
+        source_group(TREE ${arg_PUBLIC_BINARY_DIR} FILES ${GENERATED_HEADER_PATH})
+        source_group(TREE "${arg_PRIVATE_BINARY_DIR}" FILES ${GENERATED_CPP_PATH})
+        
+        #### Module Code Generation Target ####
+        onyx_add_code_gen_target(${arg_TARGET_NAME}
+            ${arg_NAMESPACE}
+            ${arg_PUBLIC_BINARY_DIR}
+            ${arg_PRIVATE_BINARY_DIR}
+            ${GENERATED_HEADER_PATH}
+            ${GENERATED_CPP_PATH}
+            "${arg_PUBLIC_SOURCES}"
+            "${arg_PUBLIC_DEPENDENCIES}"
+            "${arg_PRIVATE_DEPENDENCIES}"
+        )
+    endif()
  
 if (ONYX_ENABLE_INSTALL)
     #### Install ####

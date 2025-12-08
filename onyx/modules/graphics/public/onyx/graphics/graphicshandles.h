@@ -42,6 +42,9 @@ namespace Onyx::Graphics
 
     struct BufferHandle
     {
+        static constexpr StringId32 TypeId = "Onyx::Graphics::BufferHandle";
+        StringId32 GetTypeId() const { return TypeId; }
+
         Reference<Buffer> Buffer;
         onyxS8 Alias = INVALID_INDEX_8;
 

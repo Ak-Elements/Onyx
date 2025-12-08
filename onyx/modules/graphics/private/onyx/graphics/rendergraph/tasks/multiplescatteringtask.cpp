@@ -4,7 +4,7 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     void ComputeMultipleScatteringRenderGraphNode::OnBeginFrame(const RenderGraphContext& context)
     {

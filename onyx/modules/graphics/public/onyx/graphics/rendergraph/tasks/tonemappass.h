@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     class ToneMapPass : public NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>
     {

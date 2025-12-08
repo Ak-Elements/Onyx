@@ -3,7 +3,7 @@
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     void GetViewConstantsNode::Init(GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache)
     {

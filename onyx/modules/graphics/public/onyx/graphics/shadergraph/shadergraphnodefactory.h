@@ -15,9 +15,9 @@ namespace Onyx::Graphics
     public:
         //TODO: Node concept to enforce node
         template <typename T> requires std::is_base_of_v<ShaderGraphNode, T>
-        static void RegisterNode()
+        static void Register()
         {
-            TypedNodeFactory::RegisterNode<T>();
+            TypedNodeFactory::Register<T>();
         }
     };
 }

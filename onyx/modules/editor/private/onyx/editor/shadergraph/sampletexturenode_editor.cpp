@@ -9,7 +9,7 @@
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
     bool SampleTextureNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {

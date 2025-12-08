@@ -3,7 +3,7 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
     void GetWorldPositionNode::DoGenerateShader(const NodeGraph::ExecutionContext& /*context*/, ShaderGenerator& generator) const
     {

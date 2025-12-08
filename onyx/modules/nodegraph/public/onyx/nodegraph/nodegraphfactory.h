@@ -80,7 +80,7 @@ namespace Onyx::NodeGraph
         }
 
         template <Details::IsNodeGraphNode NodeT>
-        void RegisterNode()
+        void Register()
         {
             static HashMap<onyxU32, String> s_RegisteredNodesToName;
 
@@ -143,9 +143,9 @@ namespace Onyx::NodeGraph
         using NodeTypeT = NodeType;
 
         template <Details::IsNodeGraphNode T>
-        static void RegisterNode()
+        static void Register()
         {
-            ms_NodeRegistry.template RegisterNode<T>();
+            ms_NodeRegistry.template Register<T>();
         }
 
         UniquePtr<Node> CreateNode(StringId32 typeHash) const override
@@ -175,9 +175,9 @@ namespace Onyx::NodeGraph
     public:
         //TODO: Node concept to enforce node
         template <typename T>
-        static void RegisterNode()
+        static void Register()
         {
-            TypedNodeFactory::RegisterNode<T>();
+            TypedNodeFactory::Register<T>();
         }
     };
 }

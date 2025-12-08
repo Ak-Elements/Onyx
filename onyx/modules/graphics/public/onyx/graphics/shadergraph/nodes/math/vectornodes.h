@@ -566,3 +566,86 @@ namespace Onyx::NodeGraph
 #endif
     };
 }
+
+namespace Onyx::Graphics::ShaderGraphNodes
+{
+    using GetVector2f32Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::GetVector2f32Components">;
+    using GetVector2f64Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::GetVector2f64Components">;
+    using GetVector2s32Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::GetVector2s32Components">;
+    using GetVector2s64Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::GetVector2s64Components">;
+
+    using CreateVector2f32 = NodeGraph::CreateVector2<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::CreateVector2f32">;
+    using CreateVector2f64 = NodeGraph::CreateVector2<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::CreateVector2f64">;
+    using CreateVector2s32 = NodeGraph::CreateVector2<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::CreateVector2s32">;
+    using CreateVector2s64 = NodeGraph::CreateVector2<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::CreateVector2s64">;
+
+    using Swizzle2DVector2f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector2f32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2f32">;
+    using Swizzle2DVector3f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector2f32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3f32">;
+    using Swizzle2DVector4f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector2f32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4f32">;
+
+    using Swizzle2DVector2f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector2f64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2f64">;
+    using Swizzle2DVector3f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector2f64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3f64">;
+    using Swizzle2DVector4f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector2f64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4f64">;
+
+    using Swizzle2DVector2s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s32">;
+    using Swizzle2DVector3s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s32">;
+    using XSwizzle2DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s32">;
+
+    using Swizzle2DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s64">;
+    using Swizzle2DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s64">;
+    using Swizzle2DVector4s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s64">;
+
+    // Vector 3
+    using GetVector3f32Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::GetVector3f32Components">;
+    using GetVector3f64Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::GetVector3f64Components">;
+    using GetVector3s32Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::GetVector3s32Components">;
+    using GetVector3s64Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::GetVector3s64Components">;
+
+    using CreateVector3f32 = NodeGraph::CreateVector3<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::CreateVector3f32">;
+    using CreateVector3f64 = NodeGraph::CreateVector3<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::CreateVector3f64">;
+    using CreateVector3s32 = NodeGraph::CreateVector3<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::CreateVector3s32">;
+    using CreateVector3s64 = NodeGraph::CreateVector3<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::CreateVector3s64">;
+
+    using Swizzle3DVector2f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector3f32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2f32">;
+    using Swizzle3DVector3f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector3f32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3f32">;
+    using Swizzle3DVector4f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector3f32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4f32">;
+
+    using Swizzle3DVector2f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector3f64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2f64">;
+    using Swizzle3DVector3f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector3f64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3f64">;
+    using Swizzle3DVector4f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector3f64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4f64">;
+
+    using Swizzle3DVector2s32  = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector3s32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2s32">;
+    using Swizzle3DVector3s32  = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector3s32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3s32">;
+    using Swizzle3DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector3s32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4s32">;
+
+    using Swizzle3DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector3s64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2s64">;
+    using Swizzle3DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector3s64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3s64">;
+    using Swizzle3DVector4s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector3s64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4s64">;
+
+    // Vector 4
+    using GetVector4f32Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::GetVector4f32Components">;
+    using GetVector4f64Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::GetVector4f64Components">;
+    using GetVector4s32Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::GetVector4s32Components">;
+    using GetVector4s64Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::GetVector4s64Components">;
+
+    using CreateVector4f32 = NodeGraph::CreateVector4<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::CreateVector4f32">;
+    using CreateVector4f64 = NodeGraph::CreateVector4<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::CreateVector4f64">;
+    using CreateVector4s32 = NodeGraph::CreateVector4<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::CreateVector4s32">;
+    using CreateVector4s64 = NodeGraph::CreateVector4<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::CreateVector4s64">;
+
+    using Swizzle4DVector2f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector4f32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2f32">;
+    using Swizzle4DVector3f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector4f32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3f32">;
+    using Swizzle4DVector4f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector4f32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4f32">;
+
+    using Swizzle4DVector2f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector4f64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2f64">;
+    using Swizzle4DVector3f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector4f64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3f64">;
+    using Swizzle4DVector4f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector4f64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4f64">;
+
+    using Swizzle4DVector2s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector4s32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2s32">;
+    using Swizzle4DVector3s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector4s32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3s32">;
+    using Swizzle4DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector4s32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s32">;
+
+    using Swizzle4DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector4s64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2s64">;
+    using Swizzle4DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector4s64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3s64">;
+    using Swizzle4DVector4s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector4s64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s64">;
+}

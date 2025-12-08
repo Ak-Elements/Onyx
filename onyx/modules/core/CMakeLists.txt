@@ -5,4 +5,5 @@ endif()
 onyx_add_target(onyx-core
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx"
+    DISABLE_CODEGEN
 )

@@ -5,14 +5,14 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx
+namespace Onyx::Graphics::RenderGraphNodes
 {
-    Graphics::ToneMapPass::ToneMapPass()
+    ToneMapPass::ToneMapPass()
     {
         m_PipelineProperties.Shader = "engine:/shaders/post/tonemap.oshader";
     }
 
-    void Graphics::ToneMapPass::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void ToneMapPass::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 

@@ -2,7 +2,7 @@
 
 #include <onyx/graphics/commandbuffer.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     void CreateTransmittanceRenderGraphNode::OnRender(RenderGraphContext& /*context*/, CommandBuffer& commandBuffer)
     {

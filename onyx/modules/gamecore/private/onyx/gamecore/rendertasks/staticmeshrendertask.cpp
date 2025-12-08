@@ -150,19 +150,19 @@ namespace Onyx::GameCore
         const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
         generalConstants.LightClusterGridSize =
         {
-            Graphics::CLUSTER_X,
-            Graphics::CLUSTER_Y,
-            Graphics::CLUSTER_Z
+            Graphics::RenderGraphNodes::CLUSTER_X,
+            Graphics::RenderGraphNodes::CLUSTER_Y,
+            Graphics::RenderGraphNodes::CLUSTER_Z
         };
 
         generalConstants.LightClusterSize = {
-            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::CLUSTER_X)),
-            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / Graphics::CLUSTER_Y))
+            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::RenderGraphNodes::CLUSTER_X)),
+            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / Graphics::RenderGraphNodes::CLUSTER_Y))
         };
 
         const onyxF32 nearFarLog = log2(viewConstants.Far / viewConstants.Near);
-        generalConstants.LightClusterScale = Graphics::CLUSTER_Z / nearFarLog;
-        generalConstants.LightClusterBias = -(Graphics::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
+        generalConstants.LightClusterScale = Graphics::RenderGraphNodes::CLUSTER_Z / nearFarLog;
+        generalConstants.LightClusterBias = -(Graphics::RenderGraphNodes::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
         generalConstants.Debug = 0;
         commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64, generalConstants);
         if (textureIndices.empty() == false)

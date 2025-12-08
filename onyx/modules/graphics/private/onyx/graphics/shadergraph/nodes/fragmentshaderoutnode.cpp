@@ -3,7 +3,7 @@
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
     void FragmentShaderOutNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
     {

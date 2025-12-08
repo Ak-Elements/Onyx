@@ -11,7 +11,7 @@
 
 #define BATCHED 1
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     void CreateLightClusters::OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {

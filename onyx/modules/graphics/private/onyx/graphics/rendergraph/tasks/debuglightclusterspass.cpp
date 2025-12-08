@@ -4,7 +4,7 @@
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     DebugLightClustersRenderPass::DebugLightClustersRenderPass()
     {

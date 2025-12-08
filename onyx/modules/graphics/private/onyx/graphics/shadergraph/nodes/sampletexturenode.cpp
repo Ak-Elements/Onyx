@@ -9,7 +9,7 @@
 #include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
     SampleTextureNode::SampleTextureNode()
     {

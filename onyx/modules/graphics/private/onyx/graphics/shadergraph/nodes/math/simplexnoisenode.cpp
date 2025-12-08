@@ -4,14 +4,14 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
-    void SimplexNoise2DShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
+    void SimplexNoise2DNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
     {
 
     }
 
-    void SimplexNoise2DShaderGraphNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
+    void SimplexNoise2DNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
     {
         if (generator.GetStage() != ShaderStage::Fragment)
             return;
@@ -34,7 +34,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView SimplexNoise2DShaderGraphNode::GetPinName(StringId32 pinId) const
+    StringView SimplexNoise2DNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {
@@ -48,12 +48,12 @@ namespace Onyx::Graphics
     }
 #endif
 
-    void SimplexNoise3DShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
+    void SimplexNoise3DNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
     {
 
     }
 
-    void SimplexNoise3DShaderGraphNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
+    void SimplexNoise3DNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
     {
         if (generator.GetStage() != ShaderStage::Fragment)
             return;
@@ -76,7 +76,7 @@ namespace Onyx::Graphics
     }
 
 #if ONYX_IS_EDITOR
-    StringView SimplexNoise3DShaderGraphNode::GetPinName(StringId32 pinId) const
+    StringView SimplexNoise3DNode::GetPinName(StringId32 pinId) const
     {
         switch (pinId)
         {

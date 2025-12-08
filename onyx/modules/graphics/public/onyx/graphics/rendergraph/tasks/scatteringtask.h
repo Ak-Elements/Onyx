@@ -2,7 +2,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     class CreateTransmittanceRenderGraphNode : public NodeGraph::FixedPinNode_1_Out<RenderGraphFixedShaderNode, TextureHandle>
     {

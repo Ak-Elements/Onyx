@@ -11,6 +11,8 @@
 #include <onyx/graphics/framecontext.h>
 #include <onyx/graphics/graphicsettings.h>
 
+#include "shadergraph/nodes/math/arithmeticnodes.h"
+
 namespace Onyx::Assets
 {
     class AssetSystem;
@@ -18,6 +20,7 @@ namespace Onyx::Assets
 
 namespace Onyx::Graphics
 {
+    class ShaderGraphNode;
     enum class ApiType : onyxU8;
     enum class Context : onyxU8;
 

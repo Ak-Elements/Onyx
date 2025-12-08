@@ -2,6 +2,7 @@
 
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/pins/pinmeta.hpp>
+#include <onyx/nodegraph/nodegraphtyperegistry.h>
 
 namespace Onyx::NodeGraph
 {
@@ -12,15 +13,31 @@ namespace Onyx::NodeGraph
         using DataType = DataT;
         static constexpr StringId32 LocalId { PinId };
         static constexpr PinTypeId DataTypeId = static_cast<PinTypeId>(TypeHash<DataT>());
-
+       
         Pin()
             : PinBase(Guid64Generator::GetGuid())
         {
+            if constexpr (HasTypeId<DataT>)
+            {
+                NodeGraphTypeRegistry::Register<DataT>();
+            }
+           else
+           {
+               PinMetaObject<DataT>::Register();
+           }
         }
 
         Pin(Guid64 globalPinId)
             : PinBase(globalPinId)
         {
+            if constexpr (HasTypeId<DataT>)
+            {
+                NodeGraphTypeRegistry::Register<DataT>();
+            }
+            else
+            {
+                PinMetaObject<DataT>::Register();
+            }
         }
 
         std::any CreateDefault() const override { return DataT(); }

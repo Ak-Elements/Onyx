@@ -3,11 +3,11 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
-    class GetViewConstantsNode : public NodeGraph::FixedPinNode_1_Out<Graphics::IRenderGraphNode, Graphics::BufferHandle>
+    class GetViewConstantsNode : public NodeGraph::FixedPinNode_1_Out<IRenderGraphNode, BufferHandle>
     {
-        using Super = NodeGraph::FixedPinNode_1_Out<Graphics::IRenderGraphNode, Graphics::BufferHandle>;
+        using Super = NodeGraph::FixedPinNode_1_Out<IRenderGraphNode, BufferHandle>;
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::GetViewConstants";
        StringId32 GetTypeId() const override { return TypeId; }

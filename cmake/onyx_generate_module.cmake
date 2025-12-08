@@ -25,10 +25,9 @@ function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_PUBLIC_PATH 
                 "${TARGET}"
                 "${TARGET_NAMESPACE}"
                 "${CMAKE_CURRENT_SOURCE_DIR}"
+                "${CMAKE_CURRENT_BINARY_DIR}"
                 "${GENERATED_PUBLIC_PATH}"
                 "${GENERATED_PRIVATE_PATH}"
-                "${SRC_LIST_FILE}"
-                "${INC_LIST_FILE}"
         DEPENDS
             ${PUBLIC_SOURCES}           # If source changes, regenerate
             "${INC_LIST_FILE}"          # If include dirs change, regenerate
@@ -75,8 +74,14 @@ function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
         endif()
     endforeach()
 
-    # Remove empties
+    # remove empty paths
     list(FILTER all_raw EXCLUDE REGEX "^$")
+    
+    # remove include directories outside of the engine / project 
+    #message(STATUS "regex: ${onyx_regex_source_dir}")
+    #string(REPLACE "/" "\/" regex_pattern ${CMAKE_BINARY_DIR})
+    #message(STATUS ${regex_pattern})
+    #list(FILTER all_raw EXCLUDE REGEX "^${regex_pattern}.*")
 
     # Deduplicate
     list(REMOVE_DUPLICATES all_raw)
@@ -120,14 +125,6 @@ function(collect_recursive_deps RESULT TARGETS)
             endforeach()
         endif()
 
-        #get_target_property(priv "${current}" LINK_LIBRARIES)
-        #if(priv)
-        #    foreach(lib IN LISTS priv)
-        #        if(TARGET "${lib}" AND NOT lib IN_LIST visited)
-        #            list(APPEND queue "${lib}")
-        #        endif()
-        #    endforeach()
-        #endif()
     endwhile()
 
     # Remove original target from result

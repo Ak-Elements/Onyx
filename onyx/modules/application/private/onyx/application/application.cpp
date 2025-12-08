@@ -87,7 +87,6 @@ namespace Onyx::Application
 
         // init node graph module
         NodeGraph::Init();
-
         
         bool hasLoadedModules = configDeserializer.ReadForEach<"modules">([&](const Deserializer& scopedDeserializer)
         {
@@ -130,12 +129,6 @@ namespace Onyx::Application
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
         {
-            //const IEngineModuleMeta& meta = EngineModuleFactory::GetMeta(engineModule->GetTypeId());
-            //if (meta.IsShutdownable())
-            //{
-            //    meta.Shutdown(*this, *engineModule);
-            //}
-
             engineModule.reset();
         }
 

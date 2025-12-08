@@ -9,46 +9,49 @@ namespace Onyx::Graphics
     struct TextureHandle;
     class TextureAsset;
 
-    class SampleTextureNode : public NodeGraph::FlexiblePinsNode<ShaderGraphNode>
+    namespace ShaderGraphNodes
     {
-    private:
-        using Super = NodeGraph::FlexiblePinsNode<ShaderGraphNode>;
+        class SampleTextureNode : public NodeGraph::FlexiblePinsNode<ShaderGraphNode>
+        {
+        private:
+            using Super = NodeGraph::FlexiblePinsNode<ShaderGraphNode>;
 
-        using TextureInPin = NodeGraph::Pin<TextureHandle, "Texture">;
-        using UVInPin = NodeGraph::Pin<Vector2f32, "UV">;
-        using RGBOutPin = NodeGraph::Pin<Vector3f32, "RGB">;
-        using RGBAOutPin = NodeGraph::Pin<Vector4f32, "RGBA">;
-        using RedOutPin = NodeGraph::Pin<onyxF32, "R">;
-        using GreenOutPin = NodeGraph::Pin<onyxF32, "G">;
-        using BlueOutPin = NodeGraph::Pin<onyxF32, "B">;
-        using AlphaOutPin = NodeGraph::Pin<onyxF32, "A">;
+            using TextureInPin = NodeGraph::Pin<TextureHandle, "Texture">;
+            using UVInPin = NodeGraph::Pin<Vector2f32, "UV">;
+            using RGBOutPin = NodeGraph::Pin<Vector3f32, "RGB">;
+            using RGBAOutPin = NodeGraph::Pin<Vector4f32, "RGBA">;
+            using RedOutPin = NodeGraph::Pin<onyxF32, "R">;
+            using GreenOutPin = NodeGraph::Pin<onyxF32, "G">;
+            using BlueOutPin = NodeGraph::Pin<onyxF32, "B">;
+            using AlphaOutPin = NodeGraph::Pin<onyxF32, "A">;
 
-    public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::SampleTexture";
-       StringId32 GetTypeId() const override { return TypeId; }
+        public:
+            static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::SampleTexture";
+            StringId32 GetTypeId() const override { return TypeId; }
 
-        SampleTextureNode();
-        ~SampleTextureNode() override;
+            SampleTextureNode();
+            ~SampleTextureNode() override;
 
-        void OnUpdate(NodeGraph::ExecutionContext& context) const override;
+            void OnUpdate(NodeGraph::ExecutionContext& context) const override;
 
-    private:
-        bool OnSerialize(Serializer& serializer) const override;
-        bool OnDeserialize(const Deserializer& deserializer) override;
+        private:
+            bool OnSerialize(Serializer& serializer) const override;
+            bool OnDeserialize(const Deserializer& deserializer) override;
 
-        void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
-        void OnChanged(Assets::AssetSystem& assetSystem) override;
+            void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
+            void OnChanged(Assets::AssetSystem& assetSystem) override;
 
 #if ONYX_IS_EDITOR
-    protected:
-        bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
-        void OnUIDrawNode() override;
-        StringView GetPinName(StringId32 pinId) const override;
-        NodeGraph::PinVisibility DoGetPinVisibility(StringId32 localPinId) const override;
+        protected:
+            bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
+            void OnUIDrawNode() override;
+            StringView GetPinName(StringId32 pinId) const override;
+            NodeGraph::PinVisibility DoGetPinVisibility(StringId32 localPinId) const override;
 #endif
-    private:
-        // Texture asset id to use if input pin for texture handle is not connected
-        Assets::AssetId TextureId;
-        Reference<TextureAsset> Texture;
-    };
+        private:
+            // Texture asset id to use if input pin for texture handle is not connected
+            Assets::AssetId TextureId;
+            Reference<TextureAsset> Texture;
+        };
+    }
 }

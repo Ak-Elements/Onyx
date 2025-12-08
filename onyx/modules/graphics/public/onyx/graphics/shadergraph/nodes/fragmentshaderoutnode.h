@@ -5,7 +5,7 @@
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 #include <onyx/nodegraph/pins/pin.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
     class FragmentShaderOutNode : public NodeGraph::FixedPinNode_1_In<ShaderGraphNode, Vector4f32>
     {

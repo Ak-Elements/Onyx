@@ -4,7 +4,7 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/graphics/scattering/scattering.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     class AtmosphericSkyRenderGraphNode : public NodeGraph::FixedPinNode_3_In_1_Out<RenderGraphFixedShaderNode, BufferHandle, TextureHandle, TextureHandle, TextureHandle>
     {

@@ -5,14 +5,10 @@
 #include <onyx/editor/modules/sceneeditor.h>
 #include <onyx/editor/nodegraph/rendergrapheditorcontext.h>
 
-#include <onyx/editor/rendertasks/compositetask.h>
-#include <onyx/editor/rendertasks/gridtask.h>
-#include <onyx/editor/rendertasks/guitask.h>
-
 #include <onyx/editor/windows/editormainwindow.h>
 #include <onyx/editor/windows/startupwindow.h>
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
-#include <onyx/graphics/graphicssystem.h>
+
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/assets/gettextlocalizationdatabase.h>
 #include <onyx/ui/imguisystem.h>
@@ -27,10 +23,6 @@ namespace Onyx::Editor
         Input::InputActionSystem& inputActionSystem,
         Localization::LocalizationModule& localizationModule)
     {
-        Graphics::RenderGraphNodeFactory::RegisterNode<UIRenderGraphNode>();
-        Graphics::RenderGraphNodeFactory::RegisterNode<CompositeRenderGraphNode>();
-        Graphics::RenderGraphNodeFactory::RegisterNode<GridRenderGraphNode>();
-
         Localization::Editor::InitLocalization(localizationModule);
 
         Reference<Localization::GetTextLocalizationDatabase> secondaryDb;

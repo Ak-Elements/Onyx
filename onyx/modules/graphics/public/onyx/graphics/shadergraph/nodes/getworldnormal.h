@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::ShaderGraphNodes
 {
     class GetWorldNormalNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f32>
     {

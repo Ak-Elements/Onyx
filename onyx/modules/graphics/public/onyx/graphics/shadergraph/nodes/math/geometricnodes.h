@@ -57,3 +57,21 @@ namespace Onyx::NodeGraph
 #endif
     };
 }
+
+namespace Onyx::Graphics::ShaderGraphNodes
+{
+    using ScaleNodeVector2f32 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector2, onyxF32, "Onyx::Graphics::ShaderGraph::ScaleVector2f32" >;
+    using ScaleNodeVector2f64 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector2, onyxF64, "Onyx::Graphics::ShaderGraph::ScaleVector2f64" >;
+    using ScaleNodeVector2s32 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector2, onyxS32, "Onyx::Graphics::ShaderGraph::ScaleVector2s32" >;
+    using ScaleNodeVector2s64 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector2, onyxS64, "Onyx::Graphics::ShaderGraph::ScaleVector2s64">;
+
+    using ScaleNodeVector3f32 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector3, onyxF32, "Onyx::Graphics::ShaderGraph::ScaleVector3f32">;
+    using ScaleNodeVector3f64 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector3, onyxF64, "Onyx::Graphics::ShaderGraph::ScaleVector3f64">;
+    using ScaleNodeVector3s32 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector3, onyxS32, "Onyx::Graphics::ShaderGraph::ScaleVector3s32">;
+    using ScaleNodeVector3s64 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector3, onyxS64, "Onyx::Graphics::ShaderGraph::ScaleVector3s64">;
+
+    using ScaleNodeVector4f32 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector4, onyxF32, "Onyx::Graphics::ShaderGraph::ScaleVector4f32">;
+    using ScaleNodeVector4f64 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector4, onyxF64, "Onyx::Graphics::ShaderGraph::ScaleVector4f64">;
+    using ScaleNodeVector4s32 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector4, onyxS32, "Onyx::Graphics::ShaderGraph::ScaleVector4s32">;
+    using ScaleNodeVector4s64 = NodeGraph::ScaleVectorNode<ShaderGraphNode, Vector4, onyxS64, "Onyx::Graphics::ShaderGraph::ScaleVector4s64">;
+}

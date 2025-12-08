@@ -11,19 +11,23 @@ namespace Onyx::NodeGraph
     public:
         using DataType = DataT;
 
+        static UniquePtr<DynamicPin> Create(Guid64 globalId, StringId32 localId)
+        {
+            return MakeUnique<DynamicPin>(globalId, localId);
+        }
+
         DynamicPin(StringId32 localId)
             : PinBase(Guid64Generator::GetGuid())
             , LocalId(localId)
         {
+            // TODO Pin type should be registered here
         }
 
         DynamicPin(Guid64 globalPinId, const StringId32 localId)
             : PinBase(globalPinId)
             , LocalId(localId)
         {
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-            // output warning
-#endif
+            // TODO Pin type should be registered here
         }
 
         StringId32 LocalId = 0;

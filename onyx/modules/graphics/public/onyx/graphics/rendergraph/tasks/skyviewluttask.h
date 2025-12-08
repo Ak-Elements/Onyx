@@ -4,7 +4,7 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/graphics/scattering/scattering.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     class SkyViewLutRenderGraphNode : public NodeGraph::FixedPinNode_2_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle, TextureHandle>
     {

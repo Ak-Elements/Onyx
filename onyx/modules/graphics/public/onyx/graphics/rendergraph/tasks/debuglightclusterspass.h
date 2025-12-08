@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace Onyx::Graphics::RenderGraphNodes
 {
     class DebugLightClustersRenderPass : public NodeGraph::FixedPinNode_3_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, BufferHandle, BufferHandle, TextureHandle>
     {

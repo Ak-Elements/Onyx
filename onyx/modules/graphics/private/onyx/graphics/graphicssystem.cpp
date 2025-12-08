@@ -91,34 +91,6 @@ namespace Onyx::Graphics
         , m_Window(&windowSystem.GetMainWindow())
         , m_Settings(settings)
     {
-        RenderGraphNodeFactory::RegisterNode<GetViewConstantsNode>();
-        RenderGraphNodeFactory::RegisterNode<CreateLightClusters>();
-        RenderGraphNodeFactory::RegisterNode<UpdateLightClustersRenderGraphNode>();
-        RenderGraphNodeFactory::RegisterNode<CreateTransmittanceRenderGraphNode>();
-        RenderGraphNodeFactory::RegisterNode<ComputeMultipleScatteringRenderGraphNode>();
-        RenderGraphNodeFactory::RegisterNode<SkyViewLutRenderGraphNode>();
-        RenderGraphNodeFactory::RegisterNode<AtmosphericSkyRenderGraphNode>();
-        RenderGraphNodeFactory::RegisterNode<ToneMapPass>();
-        RenderGraphNodeFactory::RegisterNode<DebugLightClustersRenderPass>();
-
-        NodeGraph::NodeGraphTypeRegistry::RegisterType<TextureHandle>();
-        NodeGraph::NodeGraphTypeRegistry::RegisterType<BufferHandle, "Onyx::Graphics::BufferHandle">();
-
-        NodeGraph::RegisterArithmeticNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
-        NodeGraph::RegisterGeometricNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
-        NodeGraph::RegisterVectorNodes<ShaderGraphNodeFactory, "Onyx::Graphics::ShaderGraph">();
-
-        ShaderGraphNodeFactory::RegisterNode<FragmentShaderOutNode>();
-        ShaderGraphNodeFactory::RegisterNode<PBRMaterialShaderOutNode>();
-
-        ShaderGraphNodeFactory::RegisterNode<SampleTextureNode>();
-
-        ShaderGraphNodeFactory::RegisterNode<GetWorldPositionNode>();
-        ShaderGraphNodeFactory::RegisterNode<GetWorldNormalNode>();
-
-        ShaderGraphNodeFactory::RegisterNode<SimplexNoise2DShaderGraphNode>();
-        ShaderGraphNodeFactory::RegisterNode<SimplexNoise3DShaderGraphNode>();
-
         constexpr StringId32 defaultBlendStateId("default");
         constexpr StringId32 noBlendStateId("noblend");
         BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];

@@ -48,7 +48,6 @@ namespace Onyx::NodeGraph
                 const T& value = std::any_cast<const T&>(dataAny);
                 return serializer.Write(value);
             }
-            
         }
 
         bool Deserialize(const Deserializer& deserializer, std::any& outDataAny) const override
