@@ -8,17 +8,6 @@
 
 namespace Onyx::Localization
 {
-   // void LocalizationModule::Init(Assets::AssetSystem& assetSystem)
-   // {
-   //     Assets::AssetSystem::Register<GetTextLocalizationDatabase>();
-   //     Assets::AssetSystem::Register<PortableObjectSerializer>(assetSystem);
-   //
-   //     m_LocalizationBackend = MakeUnique<GetTextLocalizationBackend>();
-   //     m_LocalizationBackend->Init(assetSystem, m_Settings);
-   //
-   //     InitLocalization(*this);
-   // }
-
     LocalizationModule::LocalizationModule(const LocalizationSettings& settings, Assets::AssetSystem& assetSystem)
         : m_Settings(settings)
     {
