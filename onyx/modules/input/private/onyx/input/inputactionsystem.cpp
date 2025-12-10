@@ -6,19 +6,8 @@
 #include <onyx/input/inputactionsasset.h>
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputactionsmap.h>
-#include <onyx/input/inputactionsserializer.h>
 #include <onyx/input/bindings/inputbinding.h>
 
-#include <onyx/input/bindings/inputbindingaxis1d.h>
-#include <onyx/input/bindings/inputbindingaxis1dcomposite.h>
-#include <onyx/input/bindings/inputbindingaxis2d.h>
-#include <onyx/input/bindings/inputbindingaxis2dcomposite.h>
-#include <onyx/input/bindings/inputbindingaxis3d.h>
-#include <onyx/input/bindings/inputbindingaxis3dcomposite.h>
-#include <onyx/input/bindings/inputbindingbool.h>
-#include <onyx/input/bindings/inputbindingsfactory.h>
-#include <onyx/input/triggers/dependantactiontrigger.h>
-#include <onyx/input/triggers/inputtriggersfactory.h>
 #include <onyx/serialize/deserializer.h>
 
 namespace Onyx::Input
@@ -26,22 +15,6 @@ namespace Onyx::Input
     InputActionSystem::InputActionSystem(const InputActionSystemSettings& settings, InputSystem& inputSystem, Assets::AssetSystem& assetSystem)
         : m_InputSystem(&inputSystem)
     {
-       // Assets::AssetSystem::Register<InputActionsAsset>();
-       // Assets::AssetSystem::Register<InputActionsSerializer>(assetSystem);
-
-        InputBindingsFactory::Register<InputBindingBool>();
-        InputBindingsFactory::Register<InputBindingAxis1D>();
-        InputBindingsFactory::Register<InputBindingAxis1DComposite>();
-        InputBindingsFactory::Register<InputBindingAxis2D>();
-        InputBindingsFactory::Register<InputBindingAxis2DComposite>();
-        InputBindingsFactory::Register<InputBindingAxis3D>();
-        InputBindingsFactory::Register<InputBindingAxis3DComposite>();
-
-        InputTriggersFactory::Register<DependantActionInputTrigger>();
-
-        //m_ModifiersRegistry.Register<NegateInputModifier>();
-        //m_ModifiersRegistry.Register<SwizzleInputModifier>();
-
         Reference<InputActionsAsset> defaultInputActionsMap;
         assetSystem.GetAsset(settings.InputActionId, defaultInputActionsMap);
         defaultInputActionsMap->GetOnLoadedEvent().Connect<&InputActionSystem::SetActionsMapAsset>(this);
