@@ -2,8 +2,8 @@
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/gamecore/components/camera.gen.h>
 #include <onyx/gamecore/components/cameracomponent.h>
-
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
 #include <onyx/gamecore/components/graphics/materialcomponent.h>

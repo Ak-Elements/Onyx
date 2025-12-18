@@ -8,7 +8,7 @@ namespace Onyx::GameCore
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
 
-    bool MaterialComponent::DrawImGuiEditor()
+    bool MaterialComponent::DrawProperties(bool /*showHidden*/)
     {
         if (Ui::PropertyGrid::DrawAssetSelector("Material", MaterialId, static_cast<Assets::AssetType>(Graphics::MaterialShaderGraph::TypeId.GetId())))
         {

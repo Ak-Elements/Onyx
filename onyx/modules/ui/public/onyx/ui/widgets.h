@@ -71,7 +71,7 @@ namespace Onyx::Ui
     bool DrawCloseButton(ImDrawList* draw_list, ImVec2 pos, onyxF32 size, onyxU32 color);
     void DrawFolderIcon(ImDrawList* draw_list, ImVec2 offset, onyxF32 size, onyxF32 rounding, onyxU32 color_folder, onyxU32 color_folder_lid);
 
-    template <typename ScalarT>
+    template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
     bool DrawScalarInput(StringView label, ImGuiDataType data_type, ScalarT& data, const void* p_step = nullptr, const void* p_step_fast = nullptr, const char* format = nullptr, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None)
     {
         ::ImGuiWindow* window = ImGui::GetCurrentWindow();

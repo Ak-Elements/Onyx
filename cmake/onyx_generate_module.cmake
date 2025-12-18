@@ -1,42 +1,128 @@
-function(onyx_add_code_gen_target TARGET TARGET_NAMESPACE GENERATED_PUBLIC_PATH GENERATED_PRIVATE_PATH GENERATED_HEADER_PATH GENERATED_CPP_PATH PUBLIC_SOURCES PUBLIC_DEPS PRIVATE_DEPS)
-    file(MAKE_DIRECTORY "${GENERATED_OUTPUT_PATH}")
+function(onyx_add_code_gen_target)
+    set(options)
+    set(oneValueArgs
+        TARGET
+        NAMESPACE
+        PUBLIC_BINARY_DIR
+        PRIVATE_BINARY_DIR
+        EDITOR_PRIVATE_BINARY_DIR
+        OUT_PUBLIC_SOURCES
+        OUT_PRIVATE_SOURCES
+    )
+    set(multiValueArgs
+        PUBLIC_SOURCES
+        PRIVATE_SOURCES
+        PUBLIC_DEPENDENCIES
+        PRIVATE_DEPENDENCIES
+    )
+
+    cmake_parse_arguments(
+        func_arg
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
+    )
+
+    set(generated_public_sources)
+    set(generated_private_sources)
 
     # Temporary input lists for the code generator
     set(SRC_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/sourcefiles")
     set(INC_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/includedirectories")
 
-    write_all_sources("${SRC_LIST_FILE}" "${PUBLIC_SOURCES}")
+    write_all_sources("${SRC_LIST_FILE}" "${func_arg_PUBLIC_SOURCES}")
     write_all_includes_for_target(
-        ${TARGET}
+        ${func_arg_TARGET}
         "${INC_LIST_FILE}"
-        "${PUBLIC_DEPS}"
-        "${PRIVATE_DEPS}"
+        "${func_arg_PUBLIC_DEPENDENCIES}"
+        "${func_arg_PRIVATE_DEPENDENCIES}"
     )
 
-    file(MAKE_DIRECTORY ${GENERATED_PUBLIC_PATH})
-    file(MAKE_DIRECTORY ${GENERATED_PRIVATE_PATH})
+    set(code_gen_args
+        module
+        --target "${func_arg_TARGET}"
+        --namespace "${func_arg_NAMESPACE}"
+        --source-dir "${CMAKE_CURRENT_SOURCE_DIR}"
+        --binary-dir "${CMAKE_CURRENT_BINARY_DIR}"
+        --public-dir "${func_arg_PUBLIC_BINARY_DIR}"
+        --private-dir "${func_arg_PRIVATE_BINARY_DIR}"
+    )
 
-    file(TOUCH ${GENERATED_HEADER_PATH})
-    file(TOUCH ${GENERATED_CPP_PATH})
+    cmake_path(IS_PREFIX onyx_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} is_onyx_module)
+    if (is_onyx_module)
+        list(APPEND code_gen_args
+            --editor-dir "${func_arg_EDITOR_PRIVATE_BINARY_DIR}"
+        )
+    endif()
+
+    # make generated source folders
+    file(MAKE_DIRECTORY ${func_arg_PUBLIC_DIR})
+    file(MAKE_DIRECTORY ${func_arg_PRIVATE_DIR})
+
+    set(odslFiles ${func_arg_PUBLIC_SOURCES})
+    list(FILTER odslFiles INCLUDE REGEX ".*\.${ONYX_COMPONENT_DEFINITION_FILE_EXTENSION}")
+    foreach(odslFilePath IN LISTS odslFiles)
+
+        cmake_path(RELATIVE_PATH odslFilePath BASE_DIRECTORY ${arg_PUBLIC_SOURCES_DIR} OUTPUT_VARIABLE outRelativeOdslPath)
+        
+        cmake_path(APPEND arg_PUBLIC_BINARY_DIR "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedPublicPath)
+        cmake_path(APPEND arg_PRIVATE_BINARY_DIR "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedPrivatePath)
+               
+        cmake_path(REPLACE_EXTENSION odslGeneratedPublicPath ".gen.h")
+        cmake_path(REPLACE_EXTENSION odslGeneratedPrivatePath ".gen.cpp")
+        
+        cmake_path(GET odslGeneratedPublicPath PARENT_PATH public_path_parent_directory)
+        cmake_path(GET odslGeneratedPrivatePath PARENT_PATH private_path_parent_directory)
+
+        file(MAKE_DIRECTORY ${public_path_parent_directory})
+        file(MAKE_DIRECTORY ${private_path_parent_directory})
+
+        file(TOUCH ${odslGeneratedPublicPath})
+        file(TOUCH ${odslGeneratedPrivatePath})
+
+        list(APPEND generated_public_sources ${odslGeneratedPublicPath})
+        list(APPEND generated_private_sources ${odslGeneratedPrivatePath})
+        
+        # add editor
+        if (is_onyx_module)
+            cmake_path(APPEND func_arg_EDITOR_PRIVATE_BINARY_DIR "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedEditorPrivatePath)
+            cmake_path(GET odslGeneratedEditorPrivatePath PARENT_PATH editor_private_path_parent_directory)
+            cmake_path(GET odslGeneratedEditorPrivatePath STEM out_file_name)
+            cmake_path(APPEND editor_private_path_parent_directory "${out_file_name}_editor.gen.cpp" OUTPUT_VARIABLE editorGeneratedFilePath)
+            
+            file(MAKE_DIRECTORY ${editor_private_path_parent_directory})
+            file(TOUCH ${editorGeneratedFilePath})
+       
+            get_property(editor_implementations GLOBAL PROPERTY onyx_generated_editor_implementations)
+            list(APPEND editor_implementations "${editorGeneratedFilePath}")
+            set_property(GLOBAL PROPERTY onyx_generated_editor_implementations "${editor_implementations}")
+
+        endif()
+
+    endforeach()
+
+    set(generated_module_header "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.gen.h")
+    set_property(GLOBAL APPEND PROPERTY onyx_generated_module_headers "${generated_module_header}")
+
+    list(APPEND generated_public_sources ${generated_module_header})
+    list(APPEND generated_private_sources "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.gen.cpp")
 
     add_custom_command(
-        OUTPUT "${GENERATED_HEADER_PATH}" "${GENERATED_CPP_PATH}"
-        COMMAND ${ONYX_CODEGEN} "--module"
-                "${TARGET}"
-                "${TARGET_NAMESPACE}"
-                "${CMAKE_CURRENT_SOURCE_DIR}"
-                "${CMAKE_CURRENT_BINARY_DIR}"
-                "${GENERATED_PUBLIC_PATH}"
-                "${GENERATED_PRIVATE_PATH}"
+        OUTPUT ${generated_public_sources} ${generated_private_sources}
+        COMMAND ${ONYX_CODEGEN} ${code_gen_args}
         DEPENDS
-            ${PUBLIC_SOURCES}           # If source changes, regenerate
-            "${INC_LIST_FILE}"          # If include dirs change, regenerate
-            "${ONYX_CODEGEN}"  # generator changed
-        COMMENT "Running Onyx code generation for ${TARGET}"
+            ${func_arg_PUBLIC_SOURCES}      # If source changes, regenerate
+            "${ONYX_CODEGEN}"               # generator changed
+            "${INC_LIST_FILE}"              # includes changed
+        COMMENT "Running Onyx code generation for ${func_arg_TARGET}"
         VERBATIM
     )
-    
-    set_property(GLOBAL APPEND PROPERTY onyx_generated_module_headers "${GENERATED_HEADER_PATH}")
+
+
+
+    set(${func_arg_OUT_PUBLIC_SOURCES} ${generated_public_sources} PARENT_SCOPE)
+    set(${func_arg_OUT_PRIVATE_SOURCES} ${generated_private_sources} PARENT_SCOPE)
 endfunction()
 
 function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
@@ -74,14 +160,9 @@ function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
         endif()
     endforeach()
 
-    # remove empty paths
-    list(FILTER all_raw EXCLUDE REGEX "^$")
-    
     # remove include directories outside of the engine / project 
-    #message(STATUS "regex: ${onyx_regex_source_dir}")
-    #string(REPLACE "/" "\/" regex_pattern ${CMAKE_BINARY_DIR})
-    #message(STATUS ${regex_pattern})
-    #list(FILTER all_raw EXCLUDE REGEX "^${regex_pattern}.*")
+    string(REPLACE "/" "\/" regex_pattern "${CPM_FETCHCONTENT_BASE_DIR}")
+    list(FILTER all_raw EXCLUDE REGEX "${regex_pattern}.*")
 
     # Deduplicate
     list(REMOVE_DUPLICATES all_raw)

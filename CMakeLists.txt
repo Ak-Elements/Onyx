@@ -41,6 +41,7 @@ set(ONYX_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/onyx-${ONYX_VERSION_SUFF
 set(ONYX_PROJECT_DATA_DIR "${CMAKE_SOURCE_DIR}/data" CACHE STRING "Path to the projects data directory")
 set(ONYX_PROJECT_TMP_DIR "${CMAKE_SOURCE_DIR}/tmp" CACHE STRING "Path to the projects tmp directory")
 set(ONYX_TARGETS_FOLDER "modules" CACHE STRING "Folder for all onyx targets")
+set(ONYX_COMPONENT_DEFINITION_FILE_EXTENSION "ocd" CACHE STRING "File extension used for ECS component definitions" FORCE)
 
 set(_ONYX_CODEGEN "${CMAKE_SOURCE_DIR}/tools/codegeneration/out/onyx-codegen")
 if(WIN32)

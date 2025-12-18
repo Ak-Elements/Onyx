@@ -5,19 +5,20 @@
 namespace Onyx::GameCore
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    bool TransformComponent::DrawImGuiEditor()
+    bool TransformComponent::DrawProperties(bool /*showHidden*/)
     {
         bool hasModified = false;
-        hasModified = Ui::PropertyGrid::DrawVectorProperty("Translation", m_Translation);
+        hasModified = Ui::PropertyGrid::DrawProperty("Translation", m_Translation);
 
+        Ui::PropertyGrid::SetNextPropertyTooltip("Rotation in degrees");
         Vector3f32 rotationInDegrees = ToDegrees(m_RotationEuler);
-        if (Ui::PropertyGrid::DrawVectorProperty("Rotation", rotationInDegrees))
+        if (Ui::PropertyGrid::DrawProperty("Rotation", rotationInDegrees))
         {
             hasModified = true;
             SetRotation(ToRadians(rotationInDegrees));
         }
 
-        hasModified |= Ui::PropertyGrid::DrawVectorProperty("Scale", m_Scale);
+        hasModified |= Ui::PropertyGrid::DrawProperty("Scale", m_Scale);
 
         return hasModified;
     }

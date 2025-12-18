@@ -387,10 +387,7 @@ namespace Onyx::Editor
 
         Ui::PropertyGrid::DrawProperty("Action Id", selectedAction.GetId().GetString());
 
-
-        //Localization::LocalizationId localizationId{ Enums::ToString(actionType) };
-        //Localization::LocalizedString selectedActionLocalized = m_LocalizationModule->GetLocalized(localizationId);
-        if (Ui::PropertyGrid::DrawEnumProperty<Input::ActionType, Input::ActionType::Invalid, Input::ActionType::Count>("Value Type", actionType))
+        if (Ui::PropertyGrid::DrawProperty<Input::ActionType, Input::ActionType::Invalid, Input::ActionType::Count>("Value Type", actionType))
         {
             selectedAction.GetBindings().clear();
             selectedAction.SetType(actionType);

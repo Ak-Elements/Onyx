@@ -4,6 +4,7 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entity.h>
 #include <onyx/gamecore/components/cameracomponent.h>
+#include <onyx/gamecore/components/camera.gen.h>
 #include <onyx/gamecore/components/freecameracomponent.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/components/transientcomponent.h>
@@ -25,6 +26,7 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
+
 
 namespace Onyx::Editor
 {

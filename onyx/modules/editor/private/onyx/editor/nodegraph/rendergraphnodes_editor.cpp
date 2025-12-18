@@ -31,7 +31,7 @@ namespace Onyx::Graphics
             if (inputPin->IsConnected())
             {
                 bool isAttachment = info.Type == RenderGraphResourceType::Attachment;
-                if (Ui::PropertyGrid::DrawBoolProperty("Attachment", isAttachment))
+                if (Ui::PropertyGrid::DrawProperty("Attachment", isAttachment))
                 {
                     info.Type = isAttachment ? RenderGraphResourceType::Attachment : RenderGraphResourceType::Texture;
                 }
@@ -87,8 +87,8 @@ namespace Onyx::Graphics
                 String rgba;
                 Vector3f32 size;
 
-                Ui::PropertyGrid::DrawStringProperty("Format", rgba);
-                Ui::PropertyGrid::DrawVectorProperty("Size", size);
+                Ui::PropertyGrid::DrawProperty("Format", rgba);
+                Ui::PropertyGrid::DrawProperty("Size", size);
 
 
 
@@ -98,8 +98,8 @@ namespace Onyx::Graphics
                 String rgba;
                 String type = "Uniform";
 
-                Ui::PropertyGrid::DrawStringProperty("Format", rgba);
-                Ui::PropertyGrid::DrawStringProperty("Type", type);
+                Ui::PropertyGrid::DrawProperty("Format", rgba);
+                Ui::PropertyGrid::DrawProperty("Type", type);
             }
         }
 
@@ -127,14 +127,14 @@ namespace Onyx::Graphics
                     RenderGraphTextureResourceInfo& info = m_OutputAttachmentInfos[i];
 
                     bool isReference = info.Type == RenderGraphResourceType::Reference;
-                    if (Ui::PropertyGrid::DrawBoolProperty("Reference", isReference))
+                    if (Ui::PropertyGrid::DrawProperty("Reference", isReference))
                     {
                         info.Type = isReference ? RenderGraphResourceType::Reference : RenderGraphResourceType::Attachment;
                     }
 
                     if (isReference == false)
                     {
-                        Ui::PropertyGrid::DrawBoolProperty("External", info.IsExternal);
+                        Ui::PropertyGrid::DrawProperty("External", info.IsExternal);
 
                         //if (info.IsExternal)
                         //{
@@ -142,10 +142,10 @@ namespace Onyx::Graphics
                         //}
                         //else
                         {
-                            Ui::PropertyGrid::DrawEnumProperty("Format", info.Format);
+                            Ui::PropertyGrid::DrawProperty("Format", info.Format);
 
                             bool shouldClear = (info.LoadOp == RenderPassSettings::LoadOp::Clear);
-                            if (Ui::PropertyGrid::DrawBoolProperty("Clear", shouldClear))
+                            if (Ui::PropertyGrid::DrawProperty("Clear", shouldClear))
                             {
                                 info.LoadOp = shouldClear ? RenderPassSettings::LoadOp::Clear : RenderPassSettings::LoadOp::DontCare;
                             }
@@ -156,16 +156,16 @@ namespace Onyx::Graphics
                             }
 
                             bool shouldLoad = (info.LoadOp == RenderPassSettings::LoadOp::Load);
-                            if (Ui::PropertyGrid::DrawBoolProperty("Load", shouldLoad))
+                            if (Ui::PropertyGrid::DrawProperty("Load", shouldLoad))
                             {
                                 info.LoadOp = shouldLoad ? RenderPassSettings::LoadOp::Load : RenderPassSettings::LoadOp::DontCare;
                             }
 
-                            Ui::PropertyGrid::DrawBoolProperty("Explicit Size", info.HasSize);
+                            Ui::PropertyGrid::DrawProperty("Explicit Size", info.HasSize);
 
                             if (info.HasSize)
                             {
-                                Ui::PropertyGrid::DrawVectorProperty("Size", info.Size);
+                                Ui::PropertyGrid::DrawProperty("Size", info.Size);
                             }
                         }
                     }
@@ -175,8 +175,8 @@ namespace Onyx::Graphics
                     String rgba;
                     String type = "Uniform";
 
-                    Ui::PropertyGrid::DrawStringProperty("Format", rgba);
-                    Ui::PropertyGrid::DrawStringProperty("Type", type);
+                    Ui::PropertyGrid::DrawProperty("Format", rgba);
+                    Ui::PropertyGrid::DrawProperty("Type", type);
                 }
 
                 Ui::PropertyGrid::EndPropertyGroup();
@@ -233,23 +233,23 @@ namespace Onyx::Graphics
 
                 if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup(Format::Format("{}", i), ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    Ui::PropertyGrid::DrawBoolProperty("Enabled", blendState.IsBlendEnabled);
-                    Ui::PropertyGrid::DrawEnumProperty("Color Mask", blendState.ColorWriteMask);
+                    Ui::PropertyGrid::DrawProperty("Enabled", blendState.IsBlendEnabled);
+                    Ui::PropertyGrid::DrawProperty("Color Mask", blendState.ColorWriteMask);
 
                     if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Color"))
                     {
-                        Ui::PropertyGrid::DrawEnumProperty("Source", blendState.SourceColor);
-                        Ui::PropertyGrid::DrawEnumProperty("Destination", blendState.DestinationColor);
-                        Ui::PropertyGrid::DrawEnumProperty("Operation", blendState.ColorOperation);
+                        Ui::PropertyGrid::DrawProperty("Source", blendState.SourceColor);
+                        Ui::PropertyGrid::DrawProperty("Destination", blendState.DestinationColor);
+                        Ui::PropertyGrid::DrawProperty("Operation", blendState.ColorOperation);
 
                         Ui::PropertyGrid::EndPropertyGroup();
                     }
 
                     if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Alpha"))
                     {
-                        Ui::PropertyGrid::DrawEnumProperty("Source", blendState.SourceAlpha);
-                        Ui::PropertyGrid::DrawEnumProperty("Destination", blendState.DestinationAlpha);
-                        Ui::PropertyGrid::DrawEnumProperty("Operation", blendState.AlphaOperation);
+                        Ui::PropertyGrid::DrawProperty("Source", blendState.SourceAlpha);
+                        Ui::PropertyGrid::DrawProperty("Destination", blendState.DestinationAlpha);
+                        Ui::PropertyGrid::DrawProperty("Operation", blendState.AlphaOperation);
 
                         Ui::PropertyGrid::EndPropertyGroup();
                     }
@@ -264,9 +264,9 @@ namespace Onyx::Graphics
 
         if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Rasterization"))
         {
-            Ui::PropertyGrid::DrawBoolProperty("Front facing", m_PipelineProperties.Rasterization.IsFrontFacing);
-            Ui::PropertyGrid::DrawEnumProperty("Fill Mode", m_PipelineProperties.Rasterization.FillMode);
-            Ui::PropertyGrid::DrawEnumProperty("Cull Mode", m_PipelineProperties.Rasterization.CullMode);
+            Ui::PropertyGrid::DrawProperty("Front facing", m_PipelineProperties.Rasterization.IsFrontFacing);
+            Ui::PropertyGrid::DrawProperty("Fill Mode", m_PipelineProperties.Rasterization.FillMode);
+            Ui::PropertyGrid::DrawProperty("Cull Mode", m_PipelineProperties.Rasterization.CullMode);
 
             Ui::PropertyGrid::EndPropertyGroup();
         }
@@ -274,18 +274,18 @@ namespace Onyx::Graphics
         if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Depth Stencil"))
         {
             bool isDepthEnabled = m_PipelineProperties.DepthStencil.IsDepthEnabled;
-            Ui::PropertyGrid::DrawBoolProperty("Enabled", isDepthEnabled);
+            Ui::PropertyGrid::DrawProperty("Enabled", isDepthEnabled);
             m_PipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
 
             bool isDepthWriteEnabled = m_PipelineProperties.DepthStencil.IsDepthWriteEnabled;
-            Ui::PropertyGrid::DrawBoolProperty("Write", isDepthWriteEnabled);
+            Ui::PropertyGrid::DrawProperty("Write", isDepthWriteEnabled);
             m_PipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
 
             bool isStencilEnabled = m_PipelineProperties.DepthStencil.IsStencilEnabled;
-            Ui::PropertyGrid::DrawBoolProperty("Stencil", isStencilEnabled);
+            Ui::PropertyGrid::DrawProperty("Stencil", isStencilEnabled);
             m_PipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
 
-            Ui::PropertyGrid::DrawEnumProperty("Compare", m_PipelineProperties.DepthStencil.Compare);
+            Ui::PropertyGrid::DrawProperty("Compare", m_PipelineProperties.DepthStencil.Compare);
 
             //if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Front Operation"))
             //{

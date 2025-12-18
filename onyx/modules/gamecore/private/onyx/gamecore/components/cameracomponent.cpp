@@ -1,6 +1,7 @@
 #include <onyx/gamecore/components/cameracomponent.h>
 
 #include <onyx/entity/entitycomponentsystem.h>
+#include <onyx/gamecore/components/camera.gen.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 
 #include <onyx/serialize/serializer.h>
@@ -27,17 +28,6 @@ namespace GameCore
             cameraComponent.Camera.LookAt(transform.GetTranslation(), transform.GetTranslation() + forwardDirection, upDirection);
         }
     }
-}
-
-
-bool Serialization<GameCore::CameraComponent>::Serialize(Serializer& serializer, const GameCore::CameraComponent& camera)
-{
-    return serializer.Write<"Primary">(camera.IsPrimary);
-}
-
-bool Serialization<GameCore::CameraComponent>::Deserialize(const Deserializer& deserializer, GameCore::CameraComponent& outCamera)
-{
-    return deserializer.Read<"Primary">(outCamera.IsPrimary);
 }
 
 }

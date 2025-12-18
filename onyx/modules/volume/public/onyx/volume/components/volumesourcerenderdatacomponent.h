@@ -21,7 +21,7 @@ namespace Onyx::Volume
         bool DrawImGuiEditor()
         {
             Ui::ScopedImGuiDisabled disable;
-            Ui::PropertyGrid::DrawScalarProperty("SSBO Index", Offset);
+            Ui::PropertyGrid::DrawProperty("SSBO Index", Offset);
             return true;
         }
 #endif

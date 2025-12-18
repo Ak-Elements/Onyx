@@ -641,8 +641,8 @@ namespace Onyx::Editor
 
         Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
 
-        Ui::PropertyGrid::DrawScalarProperty("Brush Size", m_BrushSize.X);
-        Ui::PropertyGrid::DrawScalarProperty("Smoothness", m_Smoothness);
+        Ui::PropertyGrid::DrawProperty("Brush Size", m_BrushSize.X);
+        Ui::PropertyGrid::DrawProperty("Smoothness", m_Smoothness);
 
         Ui::PropertyGrid::EndPropertyGrid();
         ImGui::EndChild();

@@ -31,25 +31,34 @@ function(onyx_add_target arg_TARGET_NAME)
         endif()
     endif()
 
+    set(public_sources_dir_suffix "")
     if (NOT arg_PUBLIC_SOURCES_DIR)
-
-        if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/public/${target_ns_path}")
-            set(arg_PUBLIC_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/public/${target_ns_path}")
+        
+        cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR "public/${target_ns_path}" OUTPUT_VARIABLE public_sources_dir)
+        if (EXISTS "${public_sources_dir}")
+            set(arg_PUBLIC_SOURCES_DIR ${public_sources_dir})
+            set(public_sources_dir_suffix "public/${target_ns_path}")
         else()
             set(arg_PUBLIC_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+            set(public_sources_dir_suffix "")
         endif()
         
-        set(arg_PUBLIC_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/public/${target_ns_path}")
+        cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "generated/${public_sources_dir_suffix}" OUTPUT_VARIABLE arg_PUBLIC_BINARY_DIR)
+        #set(arg_PUBLIC_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/public/${target_ns_path}")
     endif()
 
+    set(private_sources_dir_suffix "")
     if (NOT arg_PRIVATE_SOURCES_DIR)
-        if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/private/${target_ns_path}")
-            set(arg_PRIVATE_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/private/${target_ns_path}")
+    
+        cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR "private/${target_ns_path}" OUTPUT_VARIABLE private_sources_dir)
+        if (EXISTS "${private_sources_dir}")
+            set(arg_PRIVATE_SOURCES_DIR ${private_sources_dir})
+            set(private_sources_dir_suffix "private/${target_ns_path}")
         else()
             set(arg_PRIVATE_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
         endif()
         
-        set(arg_PRIVATE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/private/${target_ns_path}")
+        cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "generated/${private_sources_dir_suffix}" OUTPUT_VARIABLE arg_PRIVATE_BINARY_DIR)
     endif()
 
     if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
@@ -109,7 +118,7 @@ function(onyx_add_target arg_TARGET_NAME)
     if(arg_PUBLIC_SOURCES)
         target_sources(${arg_TARGET_NAME} PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS "${arg_PUBLIC_BASE_DIR}"
+            BASE_DIRS "${arg_PUBLIC_BASE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
             FILES ${arg_PUBLIC_SOURCES}
         )
 
@@ -179,30 +188,31 @@ function(onyx_add_target arg_TARGET_NAME)
     endif()
     
     if (arg_ENABLE_CODEGEN)
-        set(GENERATED_HEADER_PATH "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.gen.h")
-        set(GENERATED_CPP_PATH "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.gen.cpp")
+    
+        #### Module Code Generation Target ####
+        onyx_add_code_gen_target(
+            TARGET ${arg_TARGET_NAME}
+            NAMESPACE ${arg_NAMESPACE}
+            PUBLIC_BINARY_DIR  ${public_sources_dir_suffix}
+            PRIVATE_BINARY_DIR ${private_sources_dir_suffix}
+            PUBLIC_SOURCES ${arg_PUBLIC_SOURCES}
+            PUBLIC_DEPENDENCIES ${arg_PUBLIC_DEPENDENCIES}
+            PRIVATE_DEPENDENCIES ${arg_PRIVATE_DEPENDENCIES}
+            EDITOR_PRIVATE_BINARY_DIR ${onyx_EDITOR_PRIVATE_BINARY_DIR}
+            OUT_PUBLIC_SOURCES generated_public_sources
+            OUT_PRIVATE_SOURCES generated_private_sources
+        )
 
         target_sources(${arg_TARGET_NAME} PUBLIC
             FILE_SET HEADERS
             BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
-            FILES ${GENERATED_HEADER_PATH}
+            FILES ${generated_public_sources}
         )
-        target_sources(${arg_TARGET_NAME} PRIVATE ${GENERATED_CPP_PATH})
+        target_sources(${arg_TARGET_NAME} PRIVATE ${generated_private_sources})
         
-        source_group(TREE ${arg_PUBLIC_BINARY_DIR} FILES ${GENERATED_HEADER_PATH})
-        source_group(TREE "${arg_PRIVATE_BINARY_DIR}" FILES ${GENERATED_CPP_PATH})
+        source_group(TREE ${arg_PUBLIC_BINARY_DIR} FILES ${generated_public_sources})
+        source_group(TREE ${arg_PRIVATE_BINARY_DIR} FILES ${generated_private_sources})
         
-        #### Module Code Generation Target ####
-        onyx_add_code_gen_target(${arg_TARGET_NAME}
-            ${arg_NAMESPACE}
-            ${arg_PUBLIC_BINARY_DIR}
-            ${arg_PRIVATE_BINARY_DIR}
-            ${GENERATED_HEADER_PATH}
-            ${GENERATED_CPP_PATH}
-            "${arg_PUBLIC_SOURCES}"
-            "${arg_PUBLIC_DEPENDENCIES}"
-            "${arg_PRIVATE_DEPENDENCIES}"
-        )
     endif()
  
 if (ONYX_ENABLE_INSTALL)

@@ -13,9 +13,9 @@ namespace Onyx::Entity
         concept IsTransient = requires(T obj) { T::IsTransient; };
 
         template <typename T>
-        concept HasDrawImGuiEditor = requires(T& component)
+        concept HasDrawProperties = requires(T& component, bool showHidden)
         {
-            { component.DrawImGuiEditor() } -> std::same_as<bool>;
+            { component.DrawProperties(showHidden) } -> std::same_as<bool>;
         };
 
 
@@ -55,7 +55,7 @@ namespace Onyx::Entity
     {
     public:
         static_assert(Details::IsTransient<T> || Details::IsFlagComponent<T> || (Serializable<T> && Deserializable<T>), "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities.");
-        static_assert(Details::HasHideInEditor<T> || Details::HasDrawImGuiEditor<T> || Details::IsFlagComponent<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
+        static_assert(Details::HasHideInEditor<T> || Details::HasDrawProperties<T> || Details::IsFlagComponent<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
 
         ComponentMeta() = default;
         ComponentMeta(ComponentFactoryFunction<T> factory)
@@ -211,10 +211,10 @@ namespace Onyx::Entity
 
         bool DrawPropertyGridEditor(void* componentAny) const override
         {
-            if constexpr (Details::HasDrawImGuiEditor<T>)
+            if constexpr (Details::HasDrawProperties<T>)
             {
                 T* component = static_cast<T*>(componentAny);
-                return component->DrawImGuiEditor();
+                return component->DrawProperties(false);
             }
             else
             {

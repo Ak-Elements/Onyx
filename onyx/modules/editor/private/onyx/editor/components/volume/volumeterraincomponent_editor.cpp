@@ -6,16 +6,16 @@
 namespace Onyx::Volume
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    bool TerrainSettingsComponent::DrawImGuiEditor()
+    bool TerrainSettingsComponent::DrawProperties(bool /*showHidden*/)
     {
         bool isModified = false;
 
-        isModified |= Ui::PropertyGrid::DrawScalarProperty("Size", Size, Ui::ScalarInputFlag::PowerOf2);
+        isModified |= Ui::PropertyGrid::DrawProperty("Size", Size, Ui::ScalarInputFlag::PowerOf2);
 
         if (Ui::PropertyGrid::BeginPropertyGroup("Chunk"))
         {
-            isModified |= Ui::PropertyGrid::DrawScalarProperty("Size", ChunkSize, Ui::ScalarInputFlag::PowerOf2);
-            isModified |= Ui::PropertyGrid::DrawScalarProperty("Resolution", Resolution, Ui::ScalarInputFlag::PowerOf2);
+            isModified |= Ui::PropertyGrid::DrawProperty("Size", ChunkSize, Ui::ScalarInputFlag::PowerOf2);
+            isModified |= Ui::PropertyGrid::DrawProperty("Resolution", Resolution, Ui::ScalarInputFlag::PowerOf2);
             Ui::PropertyGrid::EndPropertyGroup();
         }
 

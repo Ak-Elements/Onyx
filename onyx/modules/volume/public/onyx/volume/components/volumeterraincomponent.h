@@ -17,7 +17,7 @@ namespace Volume
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
-        bool DrawImGuiEditor();
+        bool DrawProperties(bool showHidden);
 #endif
 
         onyxS32 Size =  1 << 14; // world size of the terrain

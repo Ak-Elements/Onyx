@@ -155,17 +155,17 @@ namespace Onyx::Editor
         {
         case Primitives::Sphere:
         {
-            Ui::PropertyGrid::DrawScalarProperty("Radius", m_BrushSize.X);
+            Ui::PropertyGrid::DrawProperty("Radius", m_BrushSize.X);
             break;
         }
         case Primitives::Cube:
         {
-            Ui::PropertyGrid::DrawVectorProperty("Size", m_BrushSize);
+            Ui::PropertyGrid::DrawProperty("Size", m_BrushSize);
             break;
         }
         case Primitives::Ellipsoid:
         {
-            Ui::PropertyGrid::DrawVectorProperty("Radii", m_BrushSize);
+            Ui::PropertyGrid::DrawProperty("Radii", m_BrushSize);
             break;
         }
         }

@@ -9,7 +9,7 @@ namespace Onyx::Volume
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         // this is implemented in the editor module as we do not have ImGui linked directly
-        bool DrawImGuiEditor();
+        bool DrawProperties(bool showHidden);
 #endif
 
         onyxF32 Radius = 1.0f;

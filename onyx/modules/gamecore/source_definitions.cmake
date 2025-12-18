@@ -1,6 +1,7 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     gamecore.h
     components/cameracomponent.h
+    components/camera.ocd
     components/idcomponent.h
     components/namecomponent.h
     components/transformcomponent.h

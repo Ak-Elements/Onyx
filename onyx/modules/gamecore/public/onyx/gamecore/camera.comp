@@ -1,5 +1,0 @@
-CameraComponent
-{
-    bool IsPrimary
-    Camera Camera
-}

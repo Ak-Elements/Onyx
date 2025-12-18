@@ -7,6 +7,11 @@ include(onyx_generate_module)
 
 option(ONYX_BUILD_EDITOR "Build editor" OFF)
 
+if (ONYX_BUILD_EDITOR)
+    set_property(GLOBAL PROPERTY onyx_generated_editor_implementations "")
+    set(onyx_EDITOR_PRIVATE_BINARY_DIR "${onyx_BINARY_DIR}/onyx/modules/editor/generated/private/onyx/editor")
+endif()
+
 list(APPEND ONYX_PUBLIC_DEFINES
     $<IF:$<BOOL:${ONYX_BUILD_EDITOR}>,ONYX_IS_EDITOR=1,ONYX_IS_EDITOR=0>
 )

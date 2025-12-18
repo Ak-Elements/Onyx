@@ -9,10 +9,9 @@ function(onyx_generate_project_init ONYX_PROJECT_NAME)
     
     add_custom_command(
         OUTPUT "${GENERATED_CPP_PATH}"
-        COMMAND ${ONYX_CODEGEN} "--project"
-                "${GENERATED_CPP_PATH}"
-                "${onyx_BINARY_DIR}"
-                "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${ONYX_CODEGEN} project
+                --out-dir "${GENERATED_CPP_PATH}"
+                --binary-dir "${CMAKE_CURRENT_BINARY_DIR}"
         DEPENDS
             ${onyx_generated_module_headers} 
             "${ONYX_CODEGEN}"  # generator changed

@@ -20,6 +20,7 @@ namespace Onyx::Ui::PropertyGrid
     namespace
     {
         Stack<ImGuiID> loc_PropertyGridIdStack;
+        String loc_PropertyGridTooltip;
 
         constexpr onyxU32 BACKGROUND_CHANNEL = 0;
         constexpr onyxU32 FOREGROUND_CHANNEL = 1;
@@ -115,11 +116,6 @@ namespace Onyx::Ui::PropertyGrid
 
     void DrawPropertyName(StringView propertyName)
     {
-        DrawPropertyName(propertyName, "");
-    }
-
-    void DrawPropertyName(StringView propertyName, StringView tooltip)
-    {
         ImGuiID propertyGridID = loc_PropertyGridIdStack.top();
 
         ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
@@ -165,7 +161,7 @@ namespace Onyx::Ui::PropertyGrid
         ImGui::PopFont();
 
         // move into name group
-        const bool hasTooltip = tooltip.empty() == false;
+        const bool hasTooltip = loc_PropertyGridTooltip.empty() == false;
         if (hasTooltip)
         {
             auto cursorPos = ImGui::GetCursorPos();
@@ -179,9 +175,11 @@ namespace Onyx::Ui::PropertyGrid
 
         if (hasTooltip && ImGui::BeginItemTooltip())
         {
-            ImGui::TextEx(tooltip.data());
+            ImGui::TextEx(loc_PropertyGridTooltip.c_str());
             ImGui::EndTooltip();
         }
+
+        loc_PropertyGridTooltip.clear();
     }
 
     void DrawPropertyValue(const InplaceFunction<void(), 64>& functor)
@@ -255,6 +253,11 @@ namespace Onyx::Ui::PropertyGrid
         ImGui::PopID();
     }
 
+    void SetNextPropertyTooltip(const String& tooltip)
+    {
+        loc_PropertyGridTooltip = tooltip;
+    }
+
     bool DrawProperty(StringView propertyName, StringView readOnlyValue)
     {
         DrawPropertyName(propertyName);
@@ -271,12 +274,12 @@ namespace Onyx::Ui::PropertyGrid
         return hasModified;
     }
 
-    bool DrawStringProperty(StringView propertyName, String& value)
+    bool DrawProperty(StringView propertyName, String& value)
     {
-        return DrawStringProperty(propertyName, value, ImGuiInputTextFlags_None);
+        return DrawProperty(propertyName, value, ImGuiInputTextFlags_None);
     }
 
-    bool DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags)
+    bool DrawProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags)
     {
         DrawPropertyName(propertyName);
 
@@ -302,7 +305,7 @@ namespace Onyx::Ui::PropertyGrid
         return hasModified;
     }
 
-    bool DrawBoolProperty(StringView propertyName, bool& value)
+    bool DrawProperty(StringView propertyName, bool& value)
     {
         DrawPropertyName(propertyName);
 

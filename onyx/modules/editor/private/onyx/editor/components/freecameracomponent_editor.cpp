@@ -4,14 +4,14 @@
 
 namespace Onyx::GameCore
 {
-    bool FreeCameraControllerComponent::DrawImGuiEditor()
+    bool FreeCameraControllerComponent::DrawProperties(bool /*showHidden*/)
     {
-        bool isModified = Ui::PropertyGrid::DrawScalarProperty("Base Velocity", BaseVelocity);
-        isModified |= Ui::PropertyGrid::DrawScalarProperty("Min Velocity", MinVelocity);
-        isModified |= Ui::PropertyGrid::DrawScalarProperty("Max Velocity", MaxVelocity);
+        bool isModified = Ui::PropertyGrid::DrawProperty("Base Velocity", BaseVelocity);
+        isModified |= Ui::PropertyGrid::DrawProperty("Min Velocity", MinVelocity);
+        isModified |= Ui::PropertyGrid::DrawProperty("Max Velocity", MaxVelocity);
 
-        isModified |= Ui::PropertyGrid::DrawScalarProperty("Rotation Velocity", RotationVelocity);
-        isModified |= Ui::PropertyGrid::DrawScalarProperty("Velocity Increment", VelocityIncrementFactor);
+        isModified |= Ui::PropertyGrid::DrawProperty("Rotation Velocity", RotationVelocity);
+        isModified |= Ui::PropertyGrid::DrawProperty("Velocity Increment", VelocityIncrementFactor);
 
         return isModified;
     }

@@ -6,9 +6,9 @@
 namespace Onyx::Volume
 {
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    bool SphereComponent::DrawImGuiEditor()
+    bool SphereComponent::DrawProperties(bool /*showHidden*/)
     {
-        return Ui::PropertyGrid::DrawScalarProperty("Radius", Radius);
+        return Ui::PropertyGrid::DrawProperty("Radius", Radius);
     }
 #endif
 }

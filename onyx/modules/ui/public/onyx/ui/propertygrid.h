@@ -20,6 +20,15 @@ namespace Onyx::Ui
         PowerOf2,
     };
 
+    template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+    struct ScalarOptions
+    {
+        ScalarT Min = std::numeric_limits<ScalarT>::lowest();
+        ScalarT Max = std::numeric_limits<ScalarT>::max();
+
+        bool IsSlider = false;
+    };
+
     namespace PropertyGrid
     {
         void SetAssetSystem(Assets::AssetSystem& assetSystem);
@@ -28,7 +37,6 @@ namespace Onyx::Ui
         void EndPropertyGrid();
 
         void DrawPropertyName(StringView propertyName);
-        void DrawPropertyName(StringView propertyName, StringView tooltip);
         void DrawPropertyValue(const InplaceFunction<void(), 64>& functor);
 
         bool BeginPropertyGroup(StringView propertyName);
@@ -37,22 +45,34 @@ namespace Onyx::Ui
 
         void EndPropertyGroup();
 
+        void SetNextPropertyTooltip(const String& tooltip);
+
+        
         bool DrawProperty(StringView propertyName, StringView readOnlyValue);
-        bool DrawStringProperty(StringView propertyName, String& value);
-        bool DrawStringProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
+        bool DrawProperty(StringView propertyName, String& value);
+        bool DrawProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
 
         bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType);
 
         /* returns true if the value was modified */
-        bool DrawBoolProperty(StringView propertyName, bool& value);
+        bool DrawProperty(StringView propertyName, bool& value);
 
         /* returns true if the value was modified */
         bool DrawColorProperty(StringView propertyName, Vector3f32& color);
         bool DrawColorProperty(StringView propertyName, Vector4f32& inOutColor);
         bool DrawColorProperty(StringView propertyName, Vector4u8& inOutColor);
 
-        template <typename ScalarT>
-        bool DrawScalarProperty(StringView propertyName, ScalarT& value, ScalarInputFlag flags)
+        template <typename T> requires std::is_class_v<T>
+        bool DrawProperty(StringView propertyName, T&)
+        {
+            DrawPropertyName(propertyName);
+            ImGui::Text("Missing property grid visualizer");
+            ImGui::EndHorizontal();
+            return false;
+        }
+
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, ScalarT& value, ScalarInputFlag flags, ScalarOptions<ScalarT> options)
         {
             DrawPropertyName(propertyName);
 
@@ -63,7 +83,44 @@ namespace Onyx::Ui
             ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
             if (flags == ScalarInputFlag::None)
             {
-                hasModified = DrawScalarInput("##inoutScalar", dataType, value);
+                bool hasMin = (options.Min != std::numeric_limits<ScalarT>::lowest());
+                bool hasMax = (options.Max != std::numeric_limits<ScalarT>::max());
+                if (hasMin || hasMax)
+                {
+                    ScalarT beforeValue = value;
+                    if (DrawScalarInput("##inoutScalar", dataType, value, nullptr, nullptr, nullptr, ImGuiInputTextFlags_CharsDecimal))
+                    {
+                        value = std::clamp(value, options.Min, options.Max);
+                        hasModified = IsEqual(beforeValue, value) == false;
+                    }
+
+                    String tooltip;
+                    if (hasMin && hasMax)
+                    {
+                        tooltip = Format::Format("[ {} .. {} ]", options.Min, options.Max);
+                    }
+                    else if (hasMin)
+                    {
+                        tooltip = Format::Format("[ {} .. ]", options.Min);
+                    }
+                    else
+                    {
+                        tooltip = Format::Format("[ .. {} ]", options.Max);
+                    }
+                    ImGui::SetItemTooltip(tooltip.c_str());
+                }
+                else
+                {
+                    if (options.IsSlider)
+                    {
+                        hasModified = ImGui::DragScalar("##inoutScalar", dataType, &value, 10, &options.Min, &options.Max, nullptr, ImGuiSliderFlags_None);
+                    }
+                    else
+                    {
+                        hasModified = DrawScalarInput("##inoutScalar", dataType, value, nullptr, nullptr, nullptr, ImGuiInputTextFlags_CharsDecimal);
+                    }
+                    
+                }
             }
             else if (flags == ScalarInputFlag::PowerOf2)
             {
@@ -86,14 +143,27 @@ namespace Onyx::Ui
             return hasModified;
         }
 
-        template <typename ScalarT>
-        bool DrawScalarProperty(StringView propertyName, ScalarT& value)
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, ScalarT& value, ScalarOptions<ScalarT> options)
         {
-            return DrawScalarProperty(propertyName, value, ScalarInputFlag::None);
+            return DrawProperty(propertyName, value, ScalarInputFlag::None, options);
         }
 
-        template <typename ScalarT>
-        bool DrawVectorProperty(StringView propertyName, Vector2<ScalarT>& vector)
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, ScalarT& value, ScalarInputFlag flags)
+        {
+            return DrawProperty(propertyName, value, flags, ScalarOptions<ScalarT>{});
+        }
+
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT> 
+        bool DrawProperty(StringView propertyName, ScalarT& value)
+        {
+            return DrawProperty(propertyName, value, ScalarInputFlag::None);
+        }
+
+
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, Vector2<ScalarT>& vector)
         {
             DrawPropertyName(propertyName);
 
@@ -107,10 +177,10 @@ namespace Onyx::Ui
             return hasModified;
         }
 
-        template <typename ScalarT>
-        bool DrawVectorProperty(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, Vector3<ScalarT>& outVector, const Vector3<ScalarT>& minValue)
         {
-            DrawPropertyName(propertyName, tooltip);
+            DrawPropertyName(propertyName);
 
             // Draw Value
             ImGui::PushID(propertyName.data());
@@ -123,21 +193,15 @@ namespace Onyx::Ui
             return hasModified;
         }
 
-        template <typename ScalarT>
-        bool DrawVectorProperty(StringView propertyName, StringView tooltip, Vector3<ScalarT>& outVector)
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, Vector3<ScalarT>& outVector)
         {
             constexpr Vector3<ScalarT> min{ std::numeric_limits<ScalarT>::lowest() };
-            return DrawVectorProperty(propertyName, tooltip, outVector, min);
+            return DrawProperty(propertyName, outVector, min);
         }
 
-        template <typename ScalarT>
-        bool DrawVectorProperty(StringView propertyName, Vector3<ScalarT>& outVector)
-        {
-            return DrawVectorProperty(propertyName, "", outVector);
-        }
-
-        template <typename ScalarT>
-        bool DrawVectorProperty(StringView propertyName, Vector4<ScalarT>& vector)
+        template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
+        bool DrawProperty(StringView propertyName, Vector4<ScalarT>& vector)
         {
             DrawPropertyName(propertyName);
 
@@ -152,7 +216,7 @@ namespace Onyx::Ui
         }
 
         template <typename EnumT, EnumT... ExcludeEnumTs> requires std::is_enum_v<EnumT>
-        bool DrawEnumProperty(StringView propertyName, EnumT& currentValue)
+        bool DrawProperty(StringView propertyName, EnumT& currentValue)
         {
             DrawPropertyName(propertyName);
 
