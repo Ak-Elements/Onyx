@@ -65,47 +65,8 @@ namespace Onyx
     using Rect2s16 = Rect2<onyxS16>;
     using Rect2f32 = Rect2<onyxF32>;
 
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr Vector2<T> ToRadians(Vector2<T> degrees)
-    {
-        constexpr onyxF64 toRadians = std::numbers::pi_v<onyxF64> / 180;
-        return { static_cast<T>(degrees[0] * toRadians), static_cast<T>(degrees[1] * toRadians) };
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr Vector3<T> ToRadians(Vector3<T> degrees)
-    {
-        constexpr onyxF64 toRadians = std::numbers::pi_v<onyxF64> / 180;
-        return { static_cast<T>(degrees[0] * toRadians), static_cast<T>(degrees[1] * toRadians), static_cast<T>(degrees[2] * toRadians) };
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr Vector3<T> ToRadians(Vector4<T> degrees)
-    {
-        constexpr onyxF64 toRadians = std::numbers::pi_v<onyxF64> / 180;
-        return { static_cast<T>(degrees[0] * toRadians), static_cast<T>(degrees[1] * toRadians), static_cast<T>(degrees[2] * toRadians), static_cast<T>(degrees[3] * toRadians) };
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr Vector2<T> ToDegrees(Vector2<T> radians)
-    {
-        constexpr onyxF64 toDegrees = (180 / std::numbers::pi_v<onyxF64>);
-        return { static_cast<T>(radians[0] * toDegrees), static_cast<T>(radians[1] * toDegrees) };
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr Vector3<T> ToDegrees(Vector3<T> radians)
-    {
-        constexpr onyxF64 toDegrees = (180 / std::numbers::pi_v<onyxF64>);
-        return { static_cast<T>(radians[0] * toDegrees), static_cast<T>(radians[1] * toDegrees), static_cast<T>(radians[2] * toDegrees) };
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr Vector3<T> ToDegrees(Vector4<T> radians)
-    {
-        constexpr onyxF64 toDegrees = (180 / std::numbers::pi_v<onyxF64>);
-        return { static_cast<T>(radians[0] * toDegrees), static_cast<T>(radians[1] * toDegrees), static_cast<T>(radians[2] * toDegrees), static_cast<T>(radians[3] * toDegrees) };
-    }
+    template <typename T>
+    concept IsVector = IsVector2<T> || IsVector3<T> || IsVector4<T>;
 
     constexpr Vector4u8 ConvertMaskToVector(SwizzleMask mask)
     {

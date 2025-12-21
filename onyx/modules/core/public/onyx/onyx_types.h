@@ -132,29 +132,6 @@ namespace Onyx
     template<typename Type, typename = std::allocator<void>>
     class Signal;
 
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr T ToRadians(T deg)
-    {
-       return static_cast<T>(deg * (std::numbers::pi_v<T> / T(180)));
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-    constexpr T ToDegrees(T radians)
-    {
-        return static_cast<T>(radians * (T(180)/ std::numbers::pi_v<T>));
-    }
-
-    // Converts degrees to radians
-    constexpr onyxF64 operator""_deg(long double deg)
-    {
-        return ToRadians(deg);
-    }
-
-    constexpr onyxF64 operator""_rad(long double radians)
-    {
-        return static_cast<onyxF64>(radians);
-    }
-
     template<template <typename...> class Primary, typename T>
     struct is_specialization_of : std::false_type {};
 

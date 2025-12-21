@@ -78,6 +78,9 @@ set(onyx_TARGET_PUBLIC_SOURCES
     thread/threadpool/threadpool.h
     thread/threadpool/threadpooloptions.h
     thread/threadpool/worker.h
+    units/quantity.h
+    units/ratio.h
+    units/units.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
