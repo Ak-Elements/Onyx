@@ -38,11 +38,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     editor_localization.cpp
     camera/freecamera.cpp
     assets/importer/textureimporter.cpp
-    components/cameracomponent.cpp
-    components/freecameracomponent_editor.cpp
-    components/idcomponent.cpp
-    components/namecomponent.cpp
-    components/transformcomponent.cpp
     components/graphics/lightcomponents.cpp
     components/graphics/materialcomponent.cpp
     components/graphics/textcomponent_editor.cpp

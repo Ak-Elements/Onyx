@@ -2,8 +2,7 @@
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entityregistry.h>
-#include <onyx/gamecore/components/camera.gen.h>
-#include <onyx/gamecore/components/cameracomponent.h>
+#include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
@@ -11,14 +10,15 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/systems/lightingsystem.h>
-#include <onyx/gamecore/components/freecameracomponent.h>
-#include <onyx/gamecore/components/idcomponent.h>
-#include <onyx/gamecore/components/namecomponent.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/systems/camerasystem.h>
+#include <onyx/gamecore/components/idcomponent.gen.h>
+#include <onyx/gamecore/components/namecomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 #include <onyx/gamecore/rendertasks/staticmeshrendertask.h>
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
+#include <onyx/gamecore/systems/freecamerasystem.h>
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
@@ -28,7 +28,6 @@ namespace Onyx::GameCore
     {
         void RegisterComponents(Entity::EcsBuilder& ecsBuilder)
         {
-
             ecsBuilder.RegisterComponent<IdComponent>();
             ecsBuilder.RegisterComponent<TransformComponent>();
 
@@ -56,7 +55,7 @@ namespace Onyx::GameCore
         void RegisterEntitySystems(Entity::EcsBuilder& ecsBuilder)
         {
             FreeCamera::registerSystems(ecsBuilder);
-            ecsBuilder.RegisterSystem(Camera::system);
+            Camera::registerSystems(ecsBuilder);
 
             Lighting::registerSystems(ecsBuilder);
         }

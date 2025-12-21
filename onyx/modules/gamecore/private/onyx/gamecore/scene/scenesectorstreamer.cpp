@@ -3,7 +3,7 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/scene/scenesector.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/filesystem/onyxfile.h>
 
 #include <entt/entity/entity.hpp>
@@ -60,7 +60,7 @@ namespace Onyx::GameCore
 
         SectorEntity newSectorEntity;
         newSectorEntity.Entity = entity;
-        newSectorEntity.Position = transformComponent.GetTranslation();
+        newSectorEntity.Position = transformComponent.Translation;
         newSectorEntity.BoundsRadius = 1;
         newSectorEntity.BoundsRadiusSquared = 1;
         m_Sectors[0].Entities.push_back(newSectorEntity);

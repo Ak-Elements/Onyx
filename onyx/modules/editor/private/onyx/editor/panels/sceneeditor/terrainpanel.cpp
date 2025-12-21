@@ -8,8 +8,6 @@
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 #include <onyx/gamecore/gamecore.h>
-#include <onyx/gamecore/components/namecomponent.h>
-#include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/ui/scopedcolor.h>
 
 #include <onyx/editor/panels/sceneeditor/terraintools/primitivesterraintool.h>

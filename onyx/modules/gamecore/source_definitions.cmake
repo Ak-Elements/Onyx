@@ -1,11 +1,12 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     gamecore.h
-    components/cameracomponent.h
-    components/camera.ocd
-    components/idcomponent.h
-    components/namecomponent.h
+    components/cameracomponent.ocd
+    components/freecameracomponent.ocd
+    components/idcomponent.ocd
+    components/namecomponent.ocd
     components/transformcomponent.h
-    components/transientcomponent.h
+    components/transformcomponent.ocd
+    components/transientcomponent.ocd
     components/graphics/lightcomponents.h
     components/graphics/materialcomponent.h
     components/graphics/textcomponent.h
@@ -17,15 +18,13 @@ set(onyx_TARGET_PUBLIC_SOURCES
     scene/scenesector.h
     scene/scenesectorstreamer.h
     serialize/sceneserializer.h
+    systems/camerasystem.h
+    systems/freecamerasystem.h
     systems/lightingsystem.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
     gamecore.cpp
-    components/cameracomponent.cpp
-    components/freecameracomponent.cpp
-    components/idcomponent.cpp
-    components/namecomponent.cpp
     components/transformcomponent.cpp
     components/graphics/lightcomponents.cpp
     components/graphics/materialcomponent.cpp
@@ -37,5 +36,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     scene/scene.cpp
     scene/scenesectorstreamer.cpp
     serialize/sceneserializer.cpp
+    systems/camerasystem.cpp
+    systems/freecamerasystem.cpp
     systems/lightingsystem.cpp
 )

@@ -1,4 +1,5 @@
 #include <onyx/graphics/camera.h>
+#include <onyx/units/units.h>
 
 namespace Onyx::Graphics
 {
@@ -79,7 +80,7 @@ namespace Onyx::Graphics
             ONYX_ASSERT(height > 0.0f);
             ONYX_ASSERT(perspectiveFOV > 0.0f);
 
-            const onyxF64 fovInRadians = ToRadians(perspectiveFOV);
+            const onyxF64 fovInRadians = QuantityCast<Units::Radians, Units::Degrees>(perspectiveFOV);
             const onyxF64 h = std::cos(0.5 * fovInRadians) / std::sin(0.5 * fovInRadians);
             const onyxF64 w = h * height / width;
 

@@ -2,9 +2,9 @@
 
 #include <onyx/entity/componentfactory.h>
 #include <onyx/entity/entityregistry.h>
-#include <onyx/gamecore/components/idcomponent.h>
-#include <onyx/gamecore/components/namecomponent.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/components/idcomponent.gen.h>
+#include <onyx/gamecore/components/namecomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/graphicssystem.h>

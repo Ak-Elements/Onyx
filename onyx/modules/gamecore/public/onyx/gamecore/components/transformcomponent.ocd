@@ -1,0 +1,12 @@
+TransformComponent
+{
+    Vector3f32 Translation
+    
+    [Name(Rotation), Unit(Unit = Radians, DisplayUnit = Degrees)]
+    Vector3f32 RotationEuler
+    
+    Vector3f32 Scale = { 1.0, 1.0, 1.0 }
+
+    [RuntimeOnly]
+    Rotor3f32 Rotation
+};

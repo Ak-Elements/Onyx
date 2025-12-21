@@ -1,0 +1,6 @@
+[EditorOnly, Hidden]
+NameComponent
+{
+    [ReadOnly]
+    String Name
+};

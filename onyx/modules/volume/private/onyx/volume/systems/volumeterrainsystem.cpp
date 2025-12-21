@@ -4,8 +4,8 @@
 #include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/gamecore.h>
-#include <onyx/gamecore/components/freecameracomponent.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/components/freecameracomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/graphics/commandbuffer.h>
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
@@ -441,7 +441,7 @@ namespace Onyx::Volume::Terrain
            
             ResetBuffers(computeCommandBuffer, generationComponent, IsoSurfaceRequestsBuffer, terrainRuntime.IndirectDrawBuffer, IndirectDispatchBuffer0, SplitRequestQueueBuffer0);
             onyxF32 farPlane = graphicsSystem.GetViewContsants().Far;
-            BuildWorldOctree(computeCommandBuffer, terrainSettings, generationComponent, terrainWorldOctree, cameraTransform.GetTranslation(), farPlane);
+            BuildWorldOctree(computeCommandBuffer, terrainSettings, generationComponent, terrainWorldOctree, cameraTransform.Translation, farPlane);
             ExtractIsoSurface(computeCommandBuffer, generationComponent, terrainWorldOctree, terrainRuntime);
 
             entityCommandBuffer.RemoveComponent<InitTerrainFlag>(terrainEntity.GetId());
@@ -458,10 +458,10 @@ namespace Onyx::Volume::Terrain
             Entity::EntityId cameraEntity = cameraQuery.GetView().front();
             const GameCore::TransformComponent& cameraTransform = cameraQuery.GetView().get<const GameCore::TransformComponent>(cameraEntity);
 
-            static Vector3f32 lastPosition = cameraTransform.GetTranslation();
-            if ((lastPosition - cameraTransform.GetTranslation()).LengthSquared() > (50 * 50))
+            static Vector3f32 lastPosition = cameraTransform.Translation;
+            if ((lastPosition - cameraTransform.Translation).LengthSquared() > (50 * 50))
             {
-                lastPosition = cameraTransform.GetTranslation();
+                lastPosition = cameraTransform.Translation;
                 Entity::EntityId terrainEntityId = terrainEntity.GetId();
                 entityCommandBuffer.AddComponent<InitTerrainFlag>(terrainEntityId);
             }

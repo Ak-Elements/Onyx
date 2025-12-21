@@ -1,11 +1,11 @@
-#include <onyx/gamecore/components/freecameracomponent.h>
+#include <onyx/gamecore/components/freecameracomponent.gen.h>
 
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycomponentsystem.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
@@ -29,8 +29,8 @@ namespace Onyx::GameCore
             if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 #endif
             {
-                Vector3f32 worldPosition = transformComponent.GetTranslation();
-                Rotor3f32 worldRotation = transformComponent.GetRotation();
+                Vector3f32 worldPosition = transformComponent.Translation;
+                Rotor3f32 worldRotation = transformComponent.Rotation;
 
                 Vector3f32 forwardDirection = worldRotation.rotate(-Vector3f32::Z_Unit());
                 Vector3f32 rightDirection = worldRotation.rotate(Vector3f32::X_Unit());
@@ -48,7 +48,7 @@ namespace Onyx::GameCore
                 worldPosition += globalUp * freeCameraRuntime.InputDirection[1] * dt * freeCameraRuntime.Velocity;
                 worldPosition += forwardDirection * freeCameraRuntime.InputDirection[2] * dt * freeCameraRuntime.Velocity;
 
-                transformComponent.SetTranslation(worldPosition);
+                transformComponent.Translation = worldPosition;
 
                 freeCameraRuntime.YawDelta += std::clamp(yawSign * freeCameraRuntime.InputRotation[0] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
                 freeCameraRuntime.PitchDelta += std::clamp(freeCameraRuntime.InputRotation[1] * freeCameraController.RotationVelocity, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
@@ -67,7 +67,7 @@ namespace Onyx::GameCore
                 Rotor3f32 yawRotor(-freeCameraRuntime.Yaw, Bivector3f32::ZX_Unit());
 
                 Rotor3f32 newRotation = (yawRotor * pitchRotor).Normalized();
-                transformComponent.SetRotation(newRotation);
+                transformComponent.Rotation = newRotation;
             }
         }
 
@@ -87,26 +87,5 @@ namespace Onyx::GameCore
             ecsBuilder.RegisterComponent<FreeCameraControllerComponent>(FreeCamera::factory);
             ecsBuilder.RegisterComponent<FreeCameraRuntimeComponent>();
         }
-    }
-}
-
-namespace Onyx
-{
-    bool Serialization<GameCore::FreeCameraControllerComponent>::Serialize(Serializer& serializer, const GameCore::FreeCameraControllerComponent& freeCameraController)
-    {
-        return serializer.Write<"baseVelocity">(freeCameraController.BaseVelocity) &&
-            serializer.Write<"minVelocity">(freeCameraController.MinVelocity) &&
-            serializer.Write<"maxVelocity">(freeCameraController.MaxVelocity) &&
-            serializer.Write<"rotationVelocity">(freeCameraController.RotationVelocity) &&
-            serializer.Write<"velocityIncrementFactor">(freeCameraController.VelocityIncrementFactor);
-    }
-
-    bool Serialization<GameCore::FreeCameraControllerComponent>::Deserialize(const Deserializer& deserializer, GameCore::FreeCameraControllerComponent& outFreeCameraController)
-    {
-        return deserializer.Read<"baseVelocity">(outFreeCameraController.BaseVelocity) &&
-            deserializer.Read<"minVelocity">(outFreeCameraController.MinVelocity) &&
-            deserializer.Read<"maxVelocity">(outFreeCameraController.MaxVelocity) &&
-            deserializer.Read<"rotationVelocity">(outFreeCameraController.RotationVelocity) &&
-            deserializer.Read<"velocityIncrementFactor">(outFreeCameraController.VelocityIncrementFactor);
     }
 }

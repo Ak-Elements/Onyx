@@ -1,11 +1,8 @@
 #include <onyx/gamecore/scene/scene.h>
 
-#include <onyx/entity/entity.h>
-#include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/gamecore/components/freecameracomponent.h>
-#include <onyx/gamecore/components/namecomponent.h>
-#include <onyx/gamecore/components/transientcomponent.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
+#include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/scene/scenesector.h>
 
 namespace Onyx::GameCore

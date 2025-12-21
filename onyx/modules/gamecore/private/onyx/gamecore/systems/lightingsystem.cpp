@@ -4,7 +4,7 @@
 #include <onyx/entity/entitycomponentsystem.h>
 
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
-#include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
 
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/framecontext.h>
@@ -26,7 +26,7 @@ namespace Onyx::GameCore::Lighting
                 auto&& [lightComponent, transformComponent] = tuple;
                 Graphics::DirectionalLight& light = frameContext.Lighting.DirectionalLights[directionalLightIndex++];
                 light = lightComponent.Light;
-                light.Direction = transformComponent.GetRotationMatrix() * -Vector3f32::Z_Unit();
+                light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
             }
 
             frameContext.Lighting.DirectionalLightsCount = directionalLightIndex;
@@ -47,7 +47,7 @@ namespace Onyx::GameCore::Lighting
 
                 Graphics::PointLight& light = frameContext.Lighting.PointLights[pointLightIndex++];
                 light = lightComponent.Light;
-                light.Position = transformComponent.GetTranslation();
+                light.Position = transformComponent.Translation;
 
                 auto viewSpacePos = frameContext.ViewConstants.ViewMatrix * Vector4f32(light.Position, 1.0f);
                 auto distance = (Vector3f32(viewSpacePos) - frameContext.ViewConstants.CameraPosition).Length();
@@ -75,8 +75,8 @@ namespace Onyx::GameCore::Lighting
 
                     Graphics::SpotLight& light = frameContext.Lighting.SpotLights[spotLightIndex++];
                     light = lightComponent.Light;
-                    light.Position = transformComponent.GetTranslation();
-                    light.Direction = transformComponent.GetRotationMatrix() * -Vector3f32::Z_Unit();
+                    light.Position = transformComponent.Translation;
+                    light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
                 }
 
                 frameContext.Lighting.SpotLightsCount = spotLightIndex;

@@ -1,0 +1,8 @@
+[Hidden]
+CameraComponent
+{
+    [ReadOnly]
+    bool IsPrimary
+    [RuntimeOnly, Hidden]
+    Camera Camera
+};

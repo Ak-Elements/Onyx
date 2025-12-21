@@ -2,16 +2,16 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-msgid "Onyx::GameCore::Components::TransformComponent"
+msgid "Onyx::GameCore::TransformComponent"
 msgstr "General/Transform"
 
-msgid "Onyx::GameCore::Components::IdComponent"
+msgid "Onyx::GameCore::IdComponent"
 msgstr "General/Id"
 
-msgid "Onyx::GameCore::Components::NameComponent"
+msgid "Onyx::GameCore::NameComponent"
 msgstr "General/Editor Name"
 
-msgid "Onyx::GameCore::Components::CameraComponent"
+msgid "Onyx::GameCore::CameraComponent"
 msgstr "Camera/Camera Settings"
 
 msgid "Onyx::GameCore::Components::DirectionalLightComponent"
@@ -41,5 +41,5 @@ msgstr "Volume/Geometry/Sphere"
 msgid "Onyx::Volume::Components::TerrainSettingsComponent"
 msgstr "Volume/Terrain Settings"
 
-msgid "Onyx::GameCore::Components::FreeCameraControllerComponent"
+msgid "Onyx::GameCore::FreeCameraControllerComponent"
 msgstr "Camera/Free Camera Controller"

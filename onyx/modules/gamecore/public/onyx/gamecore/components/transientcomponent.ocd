@@ -1,0 +1,4 @@
+[RuntimeOnly, Hidden]
+TransientComponent
+{
+};

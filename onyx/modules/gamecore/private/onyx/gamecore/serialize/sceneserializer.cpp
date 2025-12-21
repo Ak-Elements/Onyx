@@ -6,7 +6,7 @@
 #include <onyx/filesystem/jsonserializer.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/gamecore/components/transientcomponent.h>
+#include <onyx/gamecore/components/transientcomponent.gen.h>
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>

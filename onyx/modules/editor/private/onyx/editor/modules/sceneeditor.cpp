@@ -3,11 +3,10 @@
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entity.h>
-#include <onyx/gamecore/components/cameracomponent.h>
-#include <onyx/gamecore/components/camera.gen.h>
-#include <onyx/gamecore/components/freecameracomponent.h>
-#include <onyx/gamecore/components/transformcomponent.h>
-#include <onyx/gamecore/components/transientcomponent.h>
+#include <onyx/gamecore/components/cameracomponent.gen.h>
+#include <onyx/gamecore/components/freecameracomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
+#include <onyx/gamecore/components/transientcomponent.gen.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/commandbuffer.h>
@@ -26,6 +25,7 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
+#include <onyx/gamecore/components/transformcomponent.h>
 
 
 namespace Onyx::Editor
@@ -292,7 +292,7 @@ namespace Onyx::Editor
                 const Matrix4<onyxF32>& projectionMatrix = editorCamera.Camera.GetProjectionMatrix();
                 const Matrix4<onyxF32>& viewMatrix = editorCamera.Camera.GetViewMatrix();
 
-                Matrix4<onyxF32> transformMatrix = transformComponent.GetTransform();
+                Matrix4<onyxF32> transformMatrix = GameCore::WorldTransform::GetTransform(transformComponent);
 
                 ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
                 if (m_CurrentGizmo == GizmoType::Rotate)
@@ -310,14 +310,14 @@ namespace Onyx::Editor
                     {
                         case GizmoType::Translate:
                         {
-                            transformComponent.SetTranslation(translation);
+                            transformComponent.Translation = translation;
                             break;
                         }
                         case GizmoType::Rotate:
                         {
                             constexpr onyxF32 PI = std::numbers::pi_v<onyxF32>;
                             constexpr onyxF32 TWO_PI = 2.0f * PI;
-                            Vector3f32 originalRotation = transformComponent.GetRotationEuler();
+                            Vector3f32 originalRotation = transformComponent.RotationEuler;
 
                             originalRotation[0] = std::fmod(originalRotation[0] + PI, TWO_PI) - PI;
                             originalRotation[1] = std::fmod(originalRotation[1] + PI, TWO_PI) - PI;
@@ -331,13 +331,13 @@ namespace Onyx::Editor
                                 deltaRotation[1] = 0.0f;
                             if (IsZero(deltaRotation[2], 0.001f))
                                 deltaRotation[2] = 0.0f;
-
-                            transformComponent.Rotate(deltaRotation);
+                            
+                            GameCore::WorldTransform::Rotate(transformComponent, deltaRotation);
                             break;
                         }
                         case GizmoType::Scale:
                         {
-                            transformComponent.SetScale(scale);
+                            transformComponent.Scale = scale;
                             break;
                         }
                     }
@@ -439,8 +439,8 @@ namespace Onyx::Editor
 
         registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
-        transform.SetTranslation(Vector3f32{ 0.0f, 100.0f, 1000.0f });
-        transform.SetRotation(Vector3f32(0, 0, 0));
+        transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
+        transform.RotationEuler = Vector3f32(0, 0, 0);
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 65536);
