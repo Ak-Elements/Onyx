@@ -1,0 +1,1125 @@
+{
+    "graph": [
+        {
+            "id": "ba4fcc11a401001",
+            "typeId": {
+                "id": "3e6650b",
+                "string": "Onyx::Graphics::RenderGraph::CreateLightClusters"
+            },
+            "outputs": [
+                {
+                    "id": "ba4fcc11a401002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    }
+                }
+            ],
+            "shader": 5373523573287014078,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Invalid",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "DontCare",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba68ae7a0001001",
+            "typeId": {
+                "id": "38c6fe1b",
+                "string": "Onyx::Graphics::RenderGraph::CreateTransmittance"
+            },
+            "outputs": [
+                {
+                    "id": "ba68ae7a0001002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 2074633969490962320,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": true,
+                    "size": [
+                        256,
+                        64,
+                        1
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba2926a5c001001",
+            "typeId": {
+                "id": "d47b8af2",
+                "string": "Onyx::Graphics::RenderGraph::GetViewConstants"
+            },
+            "outputs": [
+                {
+                    "id": "ba2926a5c001002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "d87a8320e001000",
+            "typeId": {
+                "id": "da4f5cf2",
+                "string": "Onyx::Graphics::RenderGraph::ParticleSystemUpdate"
+            },
+            "outputs": [
+                {
+                    "id": "d87a8320e001001",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "a01e3d98",
+                        "string": "execute"
+                    },
+                    "linkedPin": "d87a82bb6001001"
+                }
+            ]
+        },
+        {
+            "id": "ba4fcc713c01000",
+            "typeId": {
+                "id": "d492e080",
+                "string": "Onyx::Graphics::RenderGraph::UpdateLightClusters"
+            },
+            "inputs": [
+                {
+                    "id": "ba4fcc713c01001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba4fcc11a401002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba4fcc713c01002",
+                    "localId": {
+                        "id": "ae455c92",
+                        "string": "OutPin0"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    }
+                },
+                {
+                    "id": "ba4fcc713c01003",
+                    "localId": {
+                        "id": "af455e25",
+                        "string": "OutPin1"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    }
+                },
+                {
+                    "id": "b8e0fdab7c01102",
+                    "localId": {
+                        "id": "ac45596c",
+                        "string": "OutPin2"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    }
+                }
+            ],
+            "shader": 7482517078221597225,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Invalid",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "DontCare",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "type": "Invalid",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "DontCare",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "type": "Invalid",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "DontCare",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba68af0af801000",
+            "typeId": {
+                "id": "592cecf",
+                "string": "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
+            },
+            "inputs": [
+                {
+                    "id": "ba68af0af801001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68ae7a0001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba68af0af801002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 16262060667485085528,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": true,
+                    "size": [
+                        32,
+                        32,
+                        1
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "b8e0fd536001001",
+            "typeId": {
+                "id": "5ef77bb6",
+                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+            },
+            "inputs": [
+                {
+                    "id": "b8e0fd536001002",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "b8e0fd536001003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 15047719215064251041,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba6717196401001",
+            "typeId": {
+                "id": "d457a11b",
+                "string": "Onyx::GameCore::RenderGraph::DepthPrePass"
+            },
+            "inputs": [
+                {
+                    "id": "ba6717196401102",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba6717196401002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 4496357552810980483,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": true,
+                    "write": true,
+                    "stencil": false,
+                    "compare": "LessOrEqual"
+                },
+                "rasterization": {
+                    "cull": "Back",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": true,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba8c92356401001",
+            "typeId": {
+                "id": "6fadc1fa",
+                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
+            },
+            "inputs": [
+                {
+                    "id": "ba8c92356401002",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba8c92356401003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 10298114563030381622,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba68b013b801000",
+            "typeId": {
+                "id": "1093842c",
+                "string": "Onyx::Graphics::RenderGraph::ComputeSkyViewLut"
+            },
+            "inputs": [
+                {
+                    "id": "ba68b013b801001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68ae7a0001002"
+                },
+                {
+                    "id": "ba68b013b801002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68af0af801002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba68b013b801003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 18092391199644248616,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": true,
+                    "size": [
+                        200,
+                        200,
+                        1
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba68b0d91801000",
+            "typeId": {
+                "id": "108706ef",
+                "string": "Onyx::Graphics::RenderGraph::AtmosphericSkyPass"
+            },
+            "inputs": [
+                {
+                    "id": "ba68b0d91801001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                },
+                {
+                    "id": "ba68b0d91801002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68ae7a0001002"
+                },
+                {
+                    "id": "ba68b0d91801003",
+                    "localId": {
+                        "id": "eb644785",
+                        "string": "InPin2"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68b013b801003"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba68b0d91801004",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 7220062510751122814,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba5010b28801001",
+            "typeId": {
+                "id": "bfb6a6f6",
+                "string": "Onyx::GameCore::RenderGraph::StaticMeshPass"
+            },
+            "inputs": [
+                {
+                    "id": "ba5010b28801002",
+                    "localId": {
+                        "id": "61ad764d",
+                        "string": "View Constants"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                },
+                {
+                    "id": "ba5010b28803002",
+                    "localId": {
+                        "id": "cb1b9329",
+                        "string": "GBuffer RenderTarget"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68b0d91801004"
+                },
+                {
+                    "id": "ba5010b28801042",
+                    "localId": {
+                        "id": "6a4b1181",
+                        "string": "Depth Texture"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba6717196401002"
+                },
+                {
+                    "id": "ba5010b28801003",
+                    "localId": {
+                        "id": "d3b7f5b9",
+                        "string": "Light Grid"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba4fcc713c01002"
+                },
+                {
+                    "id": "ba5010b28801004",
+                    "localId": {
+                        "id": "3581e18a",
+                        "string": "Light Indices"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba4fcc713c01003"
+                },
+                {
+                    "id": "ba5010b28801005",
+                    "localId": {
+                        "id": "461d8ff4",
+                        "string": "Lights"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "b8e0fdab7c01102"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba5010b28801006",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "output_attachments": [
+                {
+                    "type": "Reference"
+                }
+            ]
+        },
+        {
+            "id": "d87a82bb6001000",
+            "typeId": {
+                "id": "344231f0",
+                "string": "Onyx::Graphics::RenderGraph::ParticleSystemsRender"
+            },
+            "inputs": [
+                {
+                    "id": "d87a82bb6001001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "a01e3d98",
+                        "string": "execute"
+                    }
+                },
+                {
+                    "id": "d87a82bb6001002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba5010b28801006"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "d87a82bb6001003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            }
+        },
+        {
+            "id": "b8e0fd752001000",
+            "typeId": {
+                "id": "3cee5b8d",
+                "string": "CompositePass"
+            },
+            "inputs": [
+                {
+                    "id": "b8e0fd9f7001000",
+                    "localId": {
+                        "id": "9df4125",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "b8e0fd536001003"
+                },
+                {
+                    "id": "b8e0fdab7c01002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "d87a82bb6001003"
+                },
+                {
+                    "id": "b8e0fdab7c01062",
+                    "localId": {
+                        "id": "eb644785",
+                        "string": "InPin2"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba8c92356401003"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "b8e0fdab7c01000",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 1119060020704942316,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "baa254787001000",
+            "typeId": {
+                "id": "bd96e437",
+                "string": "Onyx::Graphics::RenderGraph::ToneMapPass"
+            },
+            "inputs": [
+                {
+                    "id": "baa254787001001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "b8e0fdab7c01000"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "baa254787001002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 16033659302307191598,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "baa254c1e401000",
+            "typeId": {
+                "id": "c9a6c13a",
+                "string": "Onyx::Ui::RenderGraph::UIPass"
+            },
+            "inputs": [
+                {
+                    "id": "baa254c1e401001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "baa254787001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "baa254c1e401002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": 4555856910398568522,
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                },
+                "blend": [
+                    {
+                        "enabled": true,
+                        "colormask": "RGBA",
+                        "srccolor": "SrcAlpha",
+                        "dstcolor": "OneMinusSrcAlpha",
+                        "colorop": "Add",
+                        "srcalpha": "Invalid",
+                        "dstalpha": "Invalid",
+                        "alphaop": "Add"
+                    }
+                ]
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": true,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        }
+    ],
+    "data": {
+        "b8e0fdab7c01000": null,
+        "baa254c1e401002": null,
+        "baa254787001002": null
+    }
+}

@@ -30,12 +30,15 @@ set(onyx_TARGET_PUBLIC_SOURCES
     windowsystem.h
     font/sdffont.h
     lighting/lighting.h
+    particles/particlesystem.h
     rendergraph/rendergraph.h
     rendergraph/rendergraphnodefactory.h
     rendergraph/rendergraphtask.h
     rendergraph/tasks/atmosphericskytask.h
     rendergraph/tasks/debuglightclusterspass.h
     rendergraph/tasks/multiplescatteringtask.h
+    rendergraph/tasks/particlesystemsrender.h
+    rendergraph/tasks/particlesystemsupdate.h
     rendergraph/tasks/updatelightclusterstask.h
     rendergraph/tasks/updateviewconstantstask.h
     rendergraph/tasks/scatteringtask.h
@@ -43,6 +46,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     rendergraph/tasks/tonemappass.h
     scattering/scattering.h
     serialize/materialshadergraphserializer.h
+    serialize/particlesystemserializer.h
     serialize/rendergraphserializer.h
     serialize/sdffontserializer.h
     serialize/shadergraphserializer.h
@@ -57,17 +61,22 @@ set(onyx_TARGET_PUBLIC_SOURCES
     shader/shaderpass.h
     shader/shaderpreprocessor.h
     shader/generators/shadergenerator.h
+    shader/generators/particlesystemshadergenerator.h
     shadergraph/shadergraph.h
     shadergraph/materialshadergraph.h
     shadergraph/postprocessshadergraph.h
     shadergraph/shadergraphnode.h
     shadergraph/shadergraphnodefactory.h
     shadergraph/nodes/fragmentshaderoutnode.h
+    shadergraph/nodes/getparticlevariable.h
+    shadergraph/nodes/getdeltatime.h
     shadergraph/nodes/getworldnormal.h
     shadergraph/nodes/getworldposition.h
+    shadergraph/nodes/particlesystemoutnode.h
     shadergraph/nodes/sampletexturenode.h
     shadergraph/nodes/math/arithmeticnodes.h
     shadergraph/nodes/math/geometricnodes.h
+    shadergraph/nodes/math/randomnode.h
     shadergraph/nodes/math/simplexnoisenode.h
     shadergraph/nodes/math/vectornodes.h
     vulkan/buffer.h
@@ -121,12 +130,15 @@ set(onyx_TARGET_PRIVATE_SOURCES
     rendergraph/tasks/atmosphericskytask.cpp
     rendergraph/tasks/debuglightclusterspass.cpp
     rendergraph/tasks/multiplescatteringtask.cpp
+    rendergraph/tasks/particlesystemsrender.cpp
+    rendergraph/tasks/particlesystemsupdate.cpp
     rendergraph/tasks/updatelightclusterstask.cpp
     rendergraph/tasks/updateviewconstantstask.cpp
     rendergraph/tasks/scatteringtask.cpp
     rendergraph/tasks/skyviewluttask.cpp
     rendergraph/tasks/tonemappass.cpp
     serialize/materialshadergraphserializer.cpp
+    serialize/particlesystemserializer.cpp
     serialize/rendergraphserializer.cpp
     serialize/sdffontserializer.cpp
     serialize/shadergraphserializer.cpp
@@ -140,11 +152,14 @@ set(onyx_TARGET_PRIVATE_SOURCES
     shader/shaderincluder.cpp
     shader/shaderpreprocessor.cpp
     shader/generators/shadergenerator.cpp
+    shader/generators/particlesystemshadergenerator.cpp
     shadergraph/shadergraph.cpp
     shadergraph/shadergraphnodefactory.cpp
     shadergraph/nodes/fragmentshaderoutnode.cpp
+    shadergraph/nodes/getdeltatime.cpp
     shadergraph/nodes/getworldnormal.cpp
     shadergraph/nodes/getworldposition.cpp
+    shadergraph/nodes/particlesystemoutnode.cpp
     shadergraph/nodes/sampletexturenode.cpp
     shadergraph/nodes/shadergraphnodes.cpp
     shadergraph/nodes/math/simplexnoisenode.cpp

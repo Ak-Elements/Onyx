@@ -1,7 +1,7 @@
 #include <onyx/editor/nodegraph/shadergrapheditorcontext.h>
 
 #include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
+#include <onyx/graphics/shader/generators/particlesystemshadergenerator.h>
 #include <onyx/graphics/shader/shadercompiler.h>
 
 #include <onyx/graphics/shadergraph/shadergraph.h>
@@ -19,9 +19,9 @@ namespace Onyx::Editor
     {
         ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
-        Graphics::PBRShaderGenerator generator;
+        Graphics::ParticleSystemShaderGenerator generator;
         bool hasGenerated = Graph->GenerateShader(generator);
-        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
+        return hasGenerated&& Graphics::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
     }
 
     void ShaderGraphEditorContext::OnNodeChanged(const Node& newNode)

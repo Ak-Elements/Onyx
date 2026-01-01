@@ -248,7 +248,7 @@ namespace Onyx::Localization
         }
     }
 
-    bool PortableObjectSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
+    bool PortableObjectSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, IEngine& /*engine*/) const
     {
         // we can't save po files as they are created in a localization editor
         return false;

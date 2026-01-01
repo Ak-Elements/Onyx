@@ -43,7 +43,7 @@ namespace Onyx::Assets
         void Start(Threading::ThreadPool& loaderPool);
         void Cancel();
 
-        const IEngine* Engine = nullptr;
+        IEngine* Engine = nullptr;
         AssetMetaData MetaData;
         Reference<AssetInterface> Handle;
         const IAssetSerializer* Serializer = nullptr;

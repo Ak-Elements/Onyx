@@ -100,5 +100,7 @@ namespace Onyx::Entity
     private:
         HashMap<StringId32, UniquePtr<IComponentMeta>> m_ComponentMeta;
         HashMap<entt::id_type, StringId32> m_RuntimeIdToStaticId;
+    public:
+        inline static HashMap<StringId32, bool(*)(void*, bool)> s_Editor;
     };
 }

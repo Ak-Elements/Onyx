@@ -78,7 +78,18 @@ namespace Onyx::Editor::SceneEditor
 
                             Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
                             void* componentPtr = componentStorage.value(selectedEntity);
-                            if (componentMeta->DrawPropertyGridEditor(componentPtr))
+
+                            bool hasModified = false;
+                            if (Entity::ComponentFactory::s_Editor.contains(componentTypeId))
+                            {
+                                hasModified = Entity::ComponentFactory::s_Editor[componentTypeId](componentPtr, false);
+                            }
+                            else
+                            {
+                                hasModified = componentMeta->DrawPropertyGridEditor(componentPtr);
+                            }
+
+                            if (hasModified)
                             {
                                 // we only need to copy and replace the component if there is a factory associated
                                 // else the component is just default constructed without special logic

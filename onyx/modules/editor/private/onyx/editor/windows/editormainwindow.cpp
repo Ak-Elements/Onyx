@@ -14,6 +14,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <onyx/editor/nodegraph/materialshadergrapheditorcontext.h>
 #include <onyx/localization/localization.h>
 
 namespace Onyx::Editor
@@ -81,6 +82,15 @@ namespace Onyx::Editor
 
                 NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
+            }
+
+            if (ImGui::MenuItem(Localization::Editor::Windows::MaterialShaderGraphEditorTitle.Get().data()))
+            {
+                ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
+                ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
+
+                NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
+                window.SetContext(MakeUnique<MaterialShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             }
 
             if (ImGui::MenuItem(Localization::Editor::Windows::RenderGraphEditorTitle.Get().data()))

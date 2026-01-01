@@ -5,7 +5,7 @@
 
 namespace Onyx::Graphics
 {
-    bool ShaderSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
+    bool ShaderSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, IEngine& /*engine*/) const
     {
         ONYX_ASSERT(false, "Shaders are not saved from the engine.");
         return false;

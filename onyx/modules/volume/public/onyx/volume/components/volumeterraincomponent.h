@@ -1,6 +1,7 @@
 #pragma once
 #include <onyx/assets/asset.h>
 
+#include <onyx/entity/componentmeta.h>
 #include <onyx/graphics/graphicshandles.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
@@ -14,11 +15,6 @@ namespace Volume
     {
         static constexpr StringId32 TypeId = "Onyx::Volume::Components::TerrainSettingsComponent";
         StringId32 GetTypeId() const { return TypeId; }
-
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        // this is implemented in the editor module as we do not have ImGui linked in onyx_entity 
-        bool DrawProperties(bool showHidden);
-#endif
 
         onyxS32 Size =  1 << 14; // world size of the terrain
 
@@ -64,7 +60,7 @@ namespace Volume
         bool HasLoadedShaders = false;
     };
 }
-
+    
 template <>
 struct Serialization<Volume::TerrainSettingsComponent>
 {

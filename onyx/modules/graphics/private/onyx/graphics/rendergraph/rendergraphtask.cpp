@@ -552,18 +552,18 @@ namespace Onyx::Graphics
 
     void RenderGraphFixedShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
-        //assetSystem.GetAsset(Assets::AssetId(StringView(m_ShaderPath)), m_Shader);
-        //m_Shader->GetOnLoadedEvent().Connect<&RenderGraphFixedShaderNode::OnShaderLoaded>(this);
         RenderGraphShaderNode::Init(api, resourceCache);
-
     }
 
     void RenderGraphFixedShaderNode::Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         RenderGraphShaderNode::Compile(api, resourceCache);
 
-        m_PipelineProperties.RenderPass = m_RenderPass;
-        m_ShaderInstance = api.CreateShaderInstance(m_PipelineProperties.Shader, m_PipelineProperties);
+        if (m_PipelineProperties.Shader.IsValid())
+        {
+            m_PipelineProperties.RenderPass = m_RenderPass;
+            m_ShaderInstance = api.CreateShaderInstance(m_PipelineProperties.Shader, m_PipelineProperties);
+        }
     }
 
     void RenderGraphFixedShaderNode::BeginFrame(const RenderGraphContext& context)
@@ -608,9 +608,9 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        String shaderPath;
-        if (deserializer.ReadOptional<"shader">(shaderPath))
-            m_PipelineProperties.Shader = shaderPath.c_str();
+        Assets::AssetId shaderAssetId;
+        if (deserializer.ReadOptional<"shader">(shaderAssetId))
+            m_PipelineProperties.Shader = shaderAssetId;
 
         return
             deserializer.ReadOptional<"pipeline">(m_PipelineProperties) &&

@@ -11,10 +11,10 @@
 
 namespace Onyx::Graphics
 {
-    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, IEngine& /*engine*/) const
     {
         const MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
-        if (ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
+        if (ShaderGraphSerializerUtil::Serialize(shaderGraph, serializer) == false)
             return false;
 
         // save shader to file
@@ -32,7 +32,7 @@ namespace Onyx::Graphics
 
         MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
 
-        if (ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
+        if (ShaderGraphSerializerUtil::Deserialize(shaderGraph, deserializer) == false)
             return false;
 
         const FileSystem::Filepath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");

@@ -30,7 +30,7 @@ namespace Onyx::Assets
         }
 
 #if ONYX_IS_EDITOR
-        void RequestSave(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, const IEngine* engine)
+        void RequestSave(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, IEngine* engine)
         {
             if (m_SaveRequests.contains(metaData.Id))
                 return;

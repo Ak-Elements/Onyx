@@ -1,9 +1,13 @@
 #pragma once
-
 #include <onyx/engine/enginesystem.h>
 
 namespace Onyx
 {
+    namespace Volume
+    {
+        struct TerrainSettingsComponent;
+    }
+
     namespace Localization
     {
         class LocalizationModule;

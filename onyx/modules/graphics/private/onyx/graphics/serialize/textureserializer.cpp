@@ -9,7 +9,7 @@
 namespace Onyx::Graphics
 {
 
-    bool TextureSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool TextureSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, IEngine& /*engine*/) const
     {
         ONYX_UNUSED(asset);
         ONYX_UNUSED(meta);

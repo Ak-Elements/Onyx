@@ -13,7 +13,8 @@ namespace Onyx::FileSystem
     template<typename T>
     bool JsonDeserializer::DoGenericRead(T& outValue) const
     {
-        outValue = GetCurrent().get<T>();
+        auto& current = GetCurrent();
+        outValue = current.get<T>();
         return true;
     }
 

@@ -111,7 +111,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    bool SDFFontSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool SDFFontSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, IEngine& /*engine*/) const
     {
         const SDFFont& font = asset.As<SDFFont>();
 

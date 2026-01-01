@@ -15,7 +15,7 @@ namespace Onyx::Assets
     {
         virtual ~IAssetSerializer() = default;
 
-        virtual bool Serialize(const Reference<AssetInterface>& asset, const AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const = 0;
+        virtual bool Serialize(const Reference<AssetInterface>& asset, const AssetMetaData& meta, Serializer& serializer, IEngine& engine) const = 0;
         virtual bool Deserialize(Reference<AssetInterface>& asset, const AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const = 0;
     };
 

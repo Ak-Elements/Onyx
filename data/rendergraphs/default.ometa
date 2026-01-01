@@ -41,11 +41,11 @@
             ]
         },
         {
-            "id": "b8e0fd536001001",
-            "name": "Editor Scene Grid",
+            "id": "ba8c92356401001",
+            "name": "3D MSDF Font Pass",
             "position": [
-                510.0,
-                84.0
+                467.0,
+                436.0
             ]
         },
         {
@@ -57,11 +57,11 @@
             ]
         },
         {
-            "id": "ba8c92356401001",
-            "name": "3D MSDF Font Pass",
+            "id": "b8e0fd536001001",
+            "name": "Editor Scene Grid",
             "position": [
-                467.0,
-                436.0
+                510.0,
+                84.0
             ]
         },
         {
@@ -119,6 +119,14 @@
             "tooutputpin": "ba2926a5c001002"
         },
         {
+            "frominputpin": "ba6717196401102",
+            "tooutputpin": "ba2926a5c001002"
+        },
+        {
+            "frominputpin": "b8e0fd536001002",
+            "tooutputpin": "ba2926a5c001002"
+        },
+        {
             "frominputpin": "ba68b013b801001",
             "tooutputpin": "ba68ae7a0001002"
         },
@@ -133,14 +141,6 @@
         {
             "frominputpin": "ba5010b28801002",
             "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba6717196401102",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "b8e0fd536001002",
-            "tooutputpin": "ba2926a5c001002"
         }
     ],
     "reroutenodes": [
@@ -148,8 +148,6 @@
             "id": "bb20c9977801000",
             "inputpin": "bb20c9977801001",
             "outputpin": "bb20c9977801002",
-            "pintype": 1082623486,
-            "color": 4290019910,
             "position": [
                 -518.0,
                 48.0
@@ -159,8 +157,6 @@
             "id": "bb20cf21fc01000",
             "inputpin": "bb20cf21fc01001",
             "outputpin": "bb20cf21fc01002",
-            "pintype": 1743743821,
-            "color": 4284243149,
             "position": [
                 26.0,
                 224.0
@@ -170,8 +166,6 @@
             "id": "bb20d245ec01000",
             "inputpin": "bb20d245ec01001",
             "outputpin": "bb20d245ec01002",
-            "pintype": 1743743821,
-            "color": 4284243149,
             "position": [
                 346.0,
                 224.0
@@ -182,72 +176,52 @@
         {
             "id": "bb20c9977801004",
             "frominputpin": "bb20c9977801001",
-            "tooutputpin": "ba68ae7a0001002",
-            "pintype": 1082623486,
-            "color": 4290019910
+            "tooutputpin": "ba68ae7a0001002"
         },
         {
             "id": "bb20c9977801005",
             "frominputpin": "ba68b0d91801002",
-            "tooutputpin": "bb20c9977801002",
-            "pintype": 1082623486,
-            "color": 4290019910
+            "tooutputpin": "bb20c9977801002"
         },
         {
             "id": "bb20ca173001001",
             "frominputpin": "ba68b013b801001",
-            "tooutputpin": "bb20c9977801002",
-            "pintype": 1082623486,
-            "color": 4290019910
+            "tooutputpin": "bb20c9977801002"
         },
         {
             "id": "bb20ce177c01001",
             "frominputpin": "ba68b0d91801001",
-            "tooutputpin": "ba2926a5c001002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "ba2926a5c001002"
         },
         {
             "id": "bb20cf21fc01004",
             "frominputpin": "bb20cf21fc01001",
-            "tooutputpin": "ba2926a5c001002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "ba2926a5c001002"
         },
         {
             "id": "bb20d245ec01004",
             "frominputpin": "bb20d245ec01001",
-            "tooutputpin": "bb20cf21fc01002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "bb20cf21fc01002"
         },
         {
             "id": "bb20d245ec01005",
             "frominputpin": "ba5010b28801002",
-            "tooutputpin": "bb20d245ec01002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "bb20d245ec01002"
         },
         {
             "id": "bb20d2995c01001",
             "frominputpin": "ba8c92356401002",
-            "tooutputpin": "bb20d245ec01002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "bb20d245ec01002"
         },
         {
             "id": "bb20fce35801000",
             "frominputpin": "ba6717196401102",
-            "tooutputpin": "bb20cf21fc01002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "bb20cf21fc01002"
         },
         {
             "id": "bb20fed74c01000",
             "frominputpin": "b8e0fd536001002",
-            "tooutputpin": "bb20d245ec01002",
-            "pintype": 1743743821,
-            "color": 4284243149
+            "tooutputpin": "bb20d245ec01002"
         }
     ]
 }

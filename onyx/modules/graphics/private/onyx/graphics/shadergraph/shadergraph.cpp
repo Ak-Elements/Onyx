@@ -106,7 +106,13 @@ namespace Onyx::Graphics
 
             generator.SetStage(ShaderStage::Fragment); //TODO: Add support for other stages
 
-            generator.AppendCode(Format::Format("// {} 0x{:x} \n", node.GetName(), node.GetId().Get()));
+            StringView nodeName = node.GetName();
+            if (nodeName.empty())
+            {
+                nodeName = node.GetTypeId().GetString();
+            }
+
+            generator.AppendCode(Format::Format("// {} 0x{:x} \n", nodeName, node.GetId().Get()));
             node.GenerateShader(executionContext, generator);
         }
 

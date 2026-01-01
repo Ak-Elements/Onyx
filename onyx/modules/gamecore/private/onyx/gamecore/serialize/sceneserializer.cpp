@@ -13,7 +13,19 @@
 
 namespace Onyx::GameCore
 {
-    bool SceneSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const
+    bool SceneSerializer::SerializeSectorsToJson(const Entity::EntityRegistry& registry, const Entity::ComponentFactory& componentFactory, const DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const
+    {
+        bool hasSucceeded = true;
+
+        for (const SceneSector& sceneSector : sectors)
+        {
+            hasSucceeded &= SerializeSectorToJson(registry, componentFactory, sceneSector, sectorDirectoryPath);
+        }
+
+        return hasSucceeded;
+    }
+
+    bool SceneSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, IEngine& engine) const
     {
         const Scene& scene = asset.As<Scene>();
 
@@ -28,18 +40,6 @@ namespace Onyx::GameCore
         const Entity::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
 
         bool hasSucceeded = SerializeSectorsToJson(scene.m_Registry, componentFactory, sectors, FileSystem::Path::GetFullPath(meta.Path).parent_path());
-
-        return hasSucceeded;
-    }
-
-    bool SceneSerializer::SerializeSectorsToJson(const Entity::EntityRegistry& registry, const Entity::ComponentFactory& componentFactory, const DynamicArray<SceneSector>& sectors, const FileSystem::Filepath& sectorDirectoryPath) const
-    {
-        bool hasSucceeded = true;
-
-        for (const SceneSector& sceneSector : sectors)
-        {
-            hasSucceeded &= SerializeSectorToJson(registry, componentFactory, sceneSector, sectorDirectoryPath);
-        }
 
         return hasSucceeded;
     }

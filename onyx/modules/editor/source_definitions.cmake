@@ -7,6 +7,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     nodegraph/grapheditorcontext.h
     nodegraph/nodegrapheditorcontext.h
     nodegraph/rendergrapheditorcontext.h
+    nodegraph/materialshadergrapheditorcontext.h
     nodegraph/shadergrapheditorcontext.h
     nodegraph/typenodegrapheditorcontext.h
     nodegraph/volumeshadergrapheditorcontext.h
@@ -28,7 +29,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     rendertasks/gridtask.h
     rendertasks/guitask.h
     windows/editorwindow.h
-    windows/editormainwindow.h	
+    windows/editormainwindow.h
     windows/startupwindow.h
     windows/settings/inputactionsettingswindow.h
 )
@@ -50,6 +51,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     nodegraph/pin.cpp
     nodegraph/rendergrapheditorcontext.cpp
     nodegraph/rendergraphnodes_editor.cpp
+    nodegraph/materialshadergrapheditorcontext.cpp
     nodegraph/shadergrapheditorcontext.cpp
     nodegraph/volumeshadergrapheditorcontext.cpp
     modules/nodeeditor.cpp

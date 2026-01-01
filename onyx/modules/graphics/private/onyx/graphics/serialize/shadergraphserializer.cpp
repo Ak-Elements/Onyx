@@ -1,3 +1,4 @@
+#include <onyx/filesystem/onyxfile.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 
 #include <onyx/graphics/shadergraph/shadergraph.h>
@@ -22,7 +23,7 @@ namespace Onyx
     };
 }
 
-namespace Onyx::Graphics::ShaderGraphSerializer
+namespace Onyx::Graphics::ShaderGraphSerializerUtil
 {
     bool Serialize(const ShaderGraph& graph, Serializer& serializer)
     {
@@ -36,6 +37,23 @@ namespace Onyx::Graphics::ShaderGraphSerializer
 
     }
 
+#if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
+    bool Serialize(const ShaderGraph& graph, Serializer& serializer, const FileSystem::Filepath& shaderPath)
+    {
+        bool success = serializer.Write(graph);
+        if (success == false)
+        {
+            return false;
+        }
+
+        FileSystem::OnyxFile shaderOutFile(FileSystem::Path::GetFullPath(shaderPath));
+        FileSystem::FileStream shaderOutStream = shaderOutFile.OpenStream(FileSystem::OpenMode::Write | FileSystem::OpenMode::Text);
+        shaderOutStream.WriteRaw(graph.GetShaderCode().data(), graph.GetShaderCode().size());
+
+        return true;
+    }
+#endif
+
     bool Deserialize(ShaderGraph& graph, const Deserializer& deserializer)
     {
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
@@ -45,5 +63,32 @@ namespace Onyx::Graphics::ShaderGraphSerializer
         ONYX_UNUSED(deserializer);
         return true;
 #endif
+    }
+}
+
+namespace Onyx::Graphics
+{
+    bool ShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, IEngine& /*engine*/) const
+    {
+        const ShaderGraph& shaderGraph = asset.As<ShaderGraph>();
+        FileSystem::Filepath shaderFilePath = FileSystem::Path::GetFullPath(FileSystem::Path::ReplaceExtension(meta.Path, "oshader"));
+        if (ShaderGraphSerializerUtil::Serialize(shaderGraph, serializer, shaderFilePath) == false)
+            return false;
+
+        return true;
+    }
+
+    bool ShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
+    {
+        //GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
+        //Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
+
+        ShaderGraph& shaderGraph = asset.As<ShaderGraph>();
+
+        if (ShaderGraphSerializerUtil::Deserialize(shaderGraph, deserializer) == false)
+            return false;
+
+        //TODO: load the actual shader
+        return true;
     }
 }

@@ -11,7 +11,7 @@ namespace Onyx::Graphics
 
 namespace Onyx::Editor
 {
-    class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::MaterialShaderGraph, Graphics::ShaderGraphNodeFactory>
+    class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::ShaderGraph, Graphics::ShaderGraphNodeFactory>
     {
     public:
         ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem);

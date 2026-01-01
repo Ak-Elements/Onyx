@@ -45,6 +45,9 @@ namespace Onyx::Graphics
     class ShaderGraph : public Assets::Asset<ShaderGraph>
     {
     public:
+        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::ShaderGraph" };
+        StringId32 GetTypeId() const { return TypeId; }
+
         NodeGraph::NodeGraph& GetNodeGraph() { return Graph; }
         const NodeGraph::NodeGraph& GetNodeGraph() const { return Graph; }
 

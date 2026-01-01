@@ -14,6 +14,7 @@ namespace Onyx::Graphics
     bool RenderGraphShaderNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
         onyxU32 inputPinCount = GetInputPinCount();
+        onyxU32 inputAttachmentIndex = 0;
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
             NodeGraph::PinBase* inputPin = GetInputPin(i);
@@ -23,10 +24,10 @@ namespace Onyx::Graphics
 
             Ui::ScopedImGuiId id(inputPin->GetLocalIdString());
 
-            if (i >= m_InputAttachmentInfos.size())
+            if (inputAttachmentIndex >= m_InputAttachmentInfos.size())
                 m_InputAttachmentInfos.emplace_back();
 
-            RenderGraphTextureResourceInfo& info = m_InputAttachmentInfos[i];
+            RenderGraphTextureResourceInfo& info = m_InputAttachmentInfos[inputAttachmentIndex++];
 
             if (inputPin->IsConnected())
             {

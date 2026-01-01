@@ -36,10 +36,10 @@ namespace Onyx::Volume
         }
     }
 
-    bool VolumeShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool VolumeShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, IEngine& /*engine*/) const
     {
         const VolumeShaderGraph& shaderGraph = asset.As<VolumeShaderGraph>();
-        if (Graphics::ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
+        if (Graphics::ShaderGraphSerializerUtil::Serialize(shaderGraph, serializer) == false)
             return false;
 
         FileSystem::Filepath volumeShaderPath= FileSystem::Path::ReplaceExtension(meta.Path, "h");
@@ -62,7 +62,7 @@ namespace Onyx::Volume
     bool VolumeShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
         VolumeShaderGraph& shaderGraph = asset.As<VolumeShaderGraph>();
-        if (Graphics::ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
+        if (Graphics::ShaderGraphSerializerUtil::Deserialize(shaderGraph, deserializer) == false)
             return false;
 
         FileSystem::Filepath directoryPath = FileSystem::Path::ConvertToMountPath(meta.Path).parent_path();
