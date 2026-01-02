@@ -184,6 +184,16 @@ CPMAddPackage(
     DOWNLOAD_ONLY YES
 )
 
+execute_process(
+    COMMAND dotnet build ./core/Onyx.CodeGen.CLI/Onyx.CodeGen.CLI.csproj -c Release -o out
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/codegeneration
+    RESULT_VARIABLE process_result
+)
+
+if (process_result)
+    message(FATAL_ERROR "Failed building code generation tool.")
+endif()
+
 add_subdirectory(libs)
 add_subdirectory(onyx)
 
