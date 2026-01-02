@@ -7,9 +7,7 @@ if (NOT ONYX_BUILD_EDITOR)
 endif()
 
 onyx_add_target(onyx-editor
+    NO_EDITOR_TARGET
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx::Editor"
 )
-get_property(editor_implementations GLOBAL PROPERTY onyx_generated_editor_implementations)
-target_sources(onyx-editor PRIVATE ${editor_implementations})
-source_group(TREE ${CMAKE_CURRENT_BINARY_DIR}/generated/private/onyx/editor FILES ${editor_implementations})

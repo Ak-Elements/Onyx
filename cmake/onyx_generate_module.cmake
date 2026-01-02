@@ -2,13 +2,18 @@ function(onyx_add_code_gen_target)
     set(options)
     set(oneValueArgs
         TARGET
+        EDITOR_TARGET
+        TARGET_TYPE
         NAMESPACE
-        PUBLIC_BINARY_DIR
-        PRIVATE_BINARY_DIR
-        EDITOR_PRIVATE_BINARY_DIR
+        PUBLIC_DIR_SUFFIX
+        PRIVATE_DIR_SUFFIX
+        GENERATED_DIR_SUFFIX
         OUT_PUBLIC_SOURCES
         OUT_PRIVATE_SOURCES
+        OUT_PUBLIC_EDITOR_SOURCES
+        OUT_PRIVATE_EDITOR_SOURCES
     )
+
     set(multiValueArgs
         PUBLIC_SOURCES
         PRIVATE_SOURCES
@@ -24,50 +29,31 @@ function(onyx_add_code_gen_target)
         ${ARGN}
     )
 
-    set(generated_public_sources)
-    set(generated_private_sources)
-
-    # Temporary input lists for the code generator
-    set(SRC_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/sourcefiles")
-    set(INC_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/includedirectories")
-
-    write_all_sources("${SRC_LIST_FILE}" "${func_arg_PUBLIC_SOURCES}")
-    write_all_includes_for_target(
-        ${func_arg_TARGET}
-        "${INC_LIST_FILE}"
-        "${func_arg_PUBLIC_DEPENDENCIES}"
-        "${func_arg_PRIVATE_DEPENDENCIES}"
-    )
-
-    set(code_gen_args
-        module
-        --target "${func_arg_TARGET}"
-        --namespace "${func_arg_NAMESPACE}"
-        --source-dir "${CMAKE_CURRENT_SOURCE_DIR}"
-        --binary-dir "${CMAKE_CURRENT_BINARY_DIR}"
-        --public-dir "${func_arg_PUBLIC_BINARY_DIR}"
-        --private-dir "${func_arg_PRIVATE_BINARY_DIR}"
-    )
-
-    cmake_path(IS_PREFIX onyx_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} is_onyx_module)
-    if (is_onyx_module)
-        list(APPEND code_gen_args
-            --editor-dir "${func_arg_EDITOR_PRIVATE_BINARY_DIR}"
-        )
+    set(has_editor_target False)
+    if (TARGET ${func_arg_EDITOR_TARGET})
+        set(has_editor_target True)
     endif()
 
-    # make generated source folders
-    file(MAKE_DIRECTORY ${func_arg_PUBLIC_DIR})
-    file(MAKE_DIRECTORY ${func_arg_PRIVATE_DIR})
+    set(is_executable False)
+    if(func_arg_TARGET_TYPE STREQUAL "EXECUTABLE")
+        set(is_executable True)
+    endif()
+
+    set(generated_public_sources)
+    set(generated_private_sources)
+    set(generated_public_editor_sources)
+    set(generated_private_editor_sources)
+
+    cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR ${func_arg_PUBLIC_DIR_SUFFIX} OUTPUT_VARIABLE target_base_include_directory)
 
     set(odslFiles ${func_arg_PUBLIC_SOURCES})
     list(FILTER odslFiles INCLUDE REGEX ".*\.${ONYX_COMPONENT_DEFINITION_FILE_EXTENSION}")
     foreach(odslFilePath IN LISTS odslFiles)
 
-        cmake_path(RELATIVE_PATH odslFilePath BASE_DIRECTORY ${arg_PUBLIC_SOURCES_DIR} OUTPUT_VARIABLE outRelativeOdslPath)
+        cmake_path(RELATIVE_PATH odslFilePath BASE_DIRECTORY ${target_base_include_directory} OUTPUT_VARIABLE outRelativeOdslPath)
         
-        cmake_path(APPEND arg_PUBLIC_BINARY_DIR "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedPublicPath)
-        cmake_path(APPEND arg_PRIVATE_BINARY_DIR "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedPrivatePath)
+        cmake_path(APPEND target_public_binary_dir "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedPublicPath)
+        cmake_path(APPEND target_private_binary_dir "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedPrivatePath)
                
         cmake_path(REPLACE_EXTENSION odslGeneratedPublicPath ".gen.h")
         cmake_path(REPLACE_EXTENSION odslGeneratedPrivatePath ".gen.cpp")
@@ -85,57 +71,111 @@ function(onyx_add_code_gen_target)
         list(APPEND generated_private_sources ${odslGeneratedPrivatePath})
         
         # add editor
-        if (is_onyx_module)
-            cmake_path(APPEND func_arg_EDITOR_PRIVATE_BINARY_DIR "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedEditorPrivatePath)
+        if (has_editor_target)
+
+            cmake_path(APPEND target_editor_private_binary_dir "${outRelativeOdslPath}" OUTPUT_VARIABLE odslGeneratedEditorPrivatePath)
             cmake_path(GET odslGeneratedEditorPrivatePath PARENT_PATH editor_private_path_parent_directory)
             cmake_path(GET odslGeneratedEditorPrivatePath STEM out_file_name)
             cmake_path(APPEND editor_private_path_parent_directory "${out_file_name}_editor.gen.cpp" OUTPUT_VARIABLE editorGeneratedFilePath)
             
             file(MAKE_DIRECTORY ${editor_private_path_parent_directory})
             file(TOUCH ${editorGeneratedFilePath})
-       
-            get_property(editor_implementations GLOBAL PROPERTY onyx_generated_editor_implementations)
-            list(APPEND editor_implementations "${editorGeneratedFilePath}")
-            set_property(GLOBAL PROPERTY onyx_generated_editor_implementations "${editor_implementations}")
+
+            list(APPEND generated_private_editor_sources "${editorGeneratedFilePath}")
 
         endif()
 
     endforeach()
 
-    set(generated_module_header "${arg_PUBLIC_BINARY_DIR}/${arg_TARGET_NAME}.gen.h")
+    set(generated_module_header "${target_public_binary_dir}/${arg_TARGET_NAME}.gen.h")
     set_property(GLOBAL APPEND PROPERTY onyx_generated_module_headers "${generated_module_header}")
 
+    if (is_executable)
+        set(generated_init_path "${target_private_binary_dir}/init.gen.cpp")
+        file(TOUCH ${generated_init_path})
+        list(APPEND generated_private_sources ${generated_init_path}) 
+    endif()
+
     list(APPEND generated_public_sources ${generated_module_header})
-    list(APPEND generated_private_sources "${arg_PRIVATE_BINARY_DIR}/${arg_TARGET_NAME}.gen.cpp")
+    list(APPEND generated_private_sources "${target_private_binary_dir}/${arg_TARGET_NAME}.gen.cpp")
+
+    build_include_list_for_target(include_directories "${func_arg_TARGET}" "${func_arg_PUBLIC_DEPENDENCIES}" "${func_arg_PRIVATE_DEPENDENCIES}")
+    generate_codegen_config()
 
     add_custom_command(
         OUTPUT ${generated_public_sources} ${generated_private_sources}
-        COMMAND ${ONYX_CODEGEN} ${code_gen_args}
+        COMMAND ${ONYX_CODEGEN} "${CMAKE_CURRENT_BINARY_DIR}/codegen-config.toml"
         DEPENDS
             ${func_arg_PUBLIC_SOURCES}      # If source changes, regenerate
             "${ONYX_CODEGEN}"               # generator changed
-            "${INC_LIST_FILE}"              # includes changed
+            "${CMAKE_CURRENT_BINARY_DIR}/codegen-config.toml" # generator config changed
         COMMENT "Running Onyx code generation for ${func_arg_TARGET}"
         VERBATIM
     )
 
-
-
     set(${func_arg_OUT_PUBLIC_SOURCES} ${generated_public_sources} PARENT_SCOPE)
     set(${func_arg_OUT_PRIVATE_SOURCES} ${generated_private_sources} PARENT_SCOPE)
+    set(${func_arg_OUT_PUBLIC_EDITOR_SOURCES} ${generated_public_editor_sources} PARENT_SCOPE)
+    set(${func_arg_OUT_PRIVATE_EDITOR_SOURCES} ${generated_private_editor_sources} PARENT_SCOPE)
+
 endfunction()
 
-function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
-    # This function writes includes of:
-    # - TARGET
-    # - PUBLIC_DEPS list
-    # - PRIVATE_DEPS list
-    # into FILE
+function(generate_codegen_config)
 
-    # Work in a temporary file list
-    set(all_raw "")
+    toml_quote_list(public_sources_string ${func_arg_PUBLIC_SOURCES})
+    toml_quote_list(include_directories_string ${include_directories}) # from write_all_includes_for_target logic
 
-    # Collect all deps including recursive ones
+    set(toml_lines
+        "[target]"
+        "name = \"${func_arg_TARGET}\""
+        "namespace = \"${func_arg_NAMESPACE}\""
+        "is_executable = $<BOOL:${is_executable}>"
+        "has_editor_target = $<TARGET_EXISTS:${func_arg_EDITOR_TARGET}>"
+        "source_files = [${public_sources_string}]"
+        "include_directories = [${include_directories_string}]"
+        ""
+    )
+
+    if (is_executable)
+        get_property(onyx_generated_module_headers GLOBAL PROPERTY onyx_generated_module_headers)
+        toml_quote_list(generated_module_headers_string ${onyx_generated_module_headers})
+
+        list(APPEND toml_lines
+        "generated_module_headers = [${generated_module_headers_string}]"
+        )
+    endif()
+
+    list(APPEND toml_lines
+        "[paths]"
+        "project_dir = \"${CMAKE_SOURCE_DIR}\""
+        "source_dir = \"${CMAKE_CURRENT_SOURCE_DIR}\""
+        "binary_dir = \"${CMAKE_CURRENT_BINARY_DIR}\""
+        "dependencies_dir = \"$<IF:$<BOOL:${CPM_FETCHCONTENT_BASE_DIR}>,${CPM_FETCHCONTENT_BASE_DIR},${CMAKE_BINARY_DIR}/_deps>\""
+    )
+
+    if(TARGET ${func_arg_EDITOR_TARGET})
+        list(APPEND toml_lines
+            "editor_binary_dir = \"${CMAKE_CURRENT_BINARY_DIR}/editor\""
+        )
+    endif()
+
+    list(APPEND toml_lines
+        "generated_dir_suffix = \"${func_arg_GENERATED_DIR_SUFFIX}\""
+        "public_dir_suffix = \"${func_arg_PUBLIC_DIR_SUFFIX}\""
+        "private_dir_suffix = \"${func_arg_PRIVATE_DIR_SUFFIX}\""
+        ""
+    )
+    string(JOIN "\n" toml_content ${toml_lines})
+
+    file(GENERATE
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/codegen-config.toml"
+        CONTENT "${toml_content}"
+    )
+
+endfunction()
+
+function(build_include_list_for_target OUT_INCLUDES TARGET PUBLIC_DEPS PRIVATE_DEPS)
+    # Collect all deps (public + private + recursive)
     set(all_deps "${PUBLIC_DEPS};${PRIVATE_DEPS}")
 
     set(_deps ${PUBLIC_DEPS})
@@ -143,10 +183,10 @@ function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
     collect_recursive_deps(recursed "${_deps}")
     list(APPEND all_deps ${recursed})
     list(REMOVE_DUPLICATES all_deps)
-    
-    # Add the target itself at the front
+
+    # Add the target itself first
     set(all_targets "${TARGET};${all_deps}")
-   
+
     set(all_raw "")
 
     foreach(tgt IN LISTS all_targets)
@@ -160,30 +200,23 @@ function(write_all_includes_for_target TARGET FILE PUBLIC_DEPS PRIVATE_DEPS)
         endif()
     endforeach()
 
-    # remove include directories outside of the engine / project 
-    string(REPLACE "/" "\/" regex_pattern "${CPM_FETCHCONTENT_BASE_DIR}")
-    list(FILTER all_raw EXCLUDE REGEX "${regex_pattern}.*")
-
-    # Deduplicate
     list(REMOVE_DUPLICATES all_raw)
 
-    # Join with newlines for file(GENERATE)
-    string(REPLACE ";" "\n" merged "${all_raw}")
-
-    file(GENERATE
-        OUTPUT "${FILE}"
-        CONTENT "${merged}"
-    )
-
+    # Return result
+    set(${OUT_INCLUDES} "${all_raw}" PARENT_SCOPE)
 endfunction()
 
-function(write_all_sources FILE PUBLIC_SOURCES)
-    # Convert to newline-separated output
-    string(REPLACE ";" "\n" text "${PUBLIC_SOURCES}")
-    file(WRITE "${FILE}" "${text}")
+function(toml_quote_list out_var)
+    set(result "")
+    foreach(item IN LISTS ARGN)
+        string(REPLACE "\\" "\\\\" item "${item}")
+        string(REPLACE "\"" "\\\"" item "${item}")
+        list(APPEND result "\"${item}\"")
+    endforeach()
+    list(JOIN result , result_string)
+    set(${out_var} ${result_string} PARENT_SCOPE)
 endfunction()
 
-# Collect all recursive linked targets of a target
 function(collect_recursive_deps RESULT TARGETS)
     set(visited "")
     set(queue "${TARGETS}")
