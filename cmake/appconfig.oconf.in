@@ -6,13 +6,82 @@
         { "name":"project", "path":"${ONYX_PROJECT_DATA_DIR_RELATIVE}" },
         { "name":"tmp", "path":"${ONYX_PROJECT_TMP_DIR_RELATIVE}" }
     ],
-    "graphics":
-    {
-        "api":"Vulkan"
-    },
-    "window":
-    {
-        "size":[1600,900],
-        "mode":"Windowed"
-    }
+    "modules":
+    [
+        {
+            "typeId": {
+                "id": "8c9ea120",
+                "string": "Onyx::Assets::AssetModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "d6c1b5f5",
+                "string": "Onyx::Graphics::WindowSystem"
+            },
+            "settings": {
+                "size":[1600,900],
+                "mode":"Windowed"
+            }
+        },
+        {
+            "typeId": {
+                "id": "1484e8d4",
+                "string": "Onyx::Graphics::GraphicsSystem"
+            },
+            "settings": {
+                "api":"Vulkan",
+                "isdebugenabled": true,
+                "isshaderdebugenabled": true
+            }
+        },
+        {
+            "typeId": {
+                "id": "1ee5fbc5",
+                "string": "Onyx::Input::InputModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "34bcbf03",
+                "string": "Onyx::Input::InputActionModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "6f1591f9",
+                "string": "Onyx::Localization::LocalizationModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "1bc77835",
+                "string": "Onyx::Ui::UiModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "127bbd68",
+                "string": "Onyx::Ui::ImGuiModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "17cd4be9",
+                "string": "Onyx::GameCore::GameCoreModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "1d6bbb55",
+                "string": "Onyx::Volume::VolumeModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "163ef7a9",
+                "string": "Editor::EditorModule"
+            }
+        }
+    ]
 }
