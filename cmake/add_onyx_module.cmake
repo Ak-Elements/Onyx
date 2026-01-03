@@ -11,6 +11,9 @@ function(onyx_add_target arg_TARGET_NAME)
         "${multiValueArgs}"
         ${ARGN}
     )
+    
+    # force this to off for now to avoid wrong build dependencies
+    set(arg_NO_EDITOR_TARGET true)
 
     if (arg_NO_CODEGEN)
         set(arg_ENABLE_CODEGEN false)
@@ -164,14 +167,14 @@ function(_onyx_add_target)
             add_executable("${target_alias}" ALIAS ${target_name})
         endif()
     else()
-        if (TARGET ${target_name} AND NOT ${target_name} STREQUAL onyx-editor)
-            message(FATAL_ERROR "Target already defined")
-            return()
-        endif()
+        #if (TARGET ${target_name} AND NOT ${target_name} STREQUAL onyx-editor)
+        #    message(FATAL_ERROR "Target already defined")
+        #    return()
+        #endif()
 
-        if (NOT ${target_name} STREQUAL onyx-editor)
-            add_library(${target_name} STATIC)
-        endif()
+        #if (NOT ${target_name} STREQUAL onyx-editor)
+        add_library(${target_name} STATIC)
+        #endif()
         
         set(is_executable False)
         if (target_alias)

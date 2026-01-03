@@ -10,9 +10,9 @@ option(ONYX_BUILD_EDITOR "Build editor" OFF)
 list(APPEND ONYX_PUBLIC_DEFINES
     $<IF:$<BOOL:${ONYX_BUILD_EDITOR}>,ONYX_IS_EDITOR=1,ONYX_IS_EDITOR=0>
 )
-if (ONYX_BUILD_EDITOR)
-    add_library(onyx-editor STATIC)
-endif()
+#if (ONYX_BUILD_EDITOR)
+#   add_library(onyx-editor STATIC)
+#endif()
 set(ONYX_PUBLIC_DEFINES ${ONYX_PUBLIC_DEFINES} PARENT_SCOPE)
 
 # modules
