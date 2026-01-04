@@ -3,9 +3,7 @@
 #if ONYX_USE_IMGUI
 
 #include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/windowsystem.h>
 #include <onyx/graphics/textureasset.h>
-#include <onyx/graphics/window.h>
 
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputevent.h>
@@ -16,9 +14,12 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/filesystem/filedialog.h>
 
+#include <onyx/platform/platformsystem.h>
+
 #include <ImGuizmo.h>
 #include <implot.h>
 #include <implot3d.h>
+
 
 #if ONYX_IS_WINDOWS
 #include <windows.h>
@@ -385,7 +386,7 @@ namespace Onyx::Ui
 			colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.345f, 0.357f, 0.439f, 1.00f);
 			colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.498f, 0.518f, 0.611f, 1.00f);
 
-			// Accent = Periwinkle (Blue-shifted Mauve, HSV [220°, 0.32, 0.969])
+			// Accent = Periwinkle (Blue-shifted Mauve, HSV [220ï¿½, 0.32, 0.969])
 			ImVec4 periwinkle = ImVec4(0.667f, 0.710f, 0.969f, 1.00f); // approx RGB from HSV
 
 			colors[ImGuiCol_CheckMark] = periwinkle;
@@ -551,8 +552,8 @@ namespace Onyx::Ui
 	}
 
 	
-    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem)
-        : m_Window(&windowSystem.GetMainWindow())
+    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Platform::PlatformSystem& platformSystem)
+        : m_PlatformSystem(&platformSystem)
         , m_InputSystem(&inputSystem)
     {
 		ImGui::CreateContext();
@@ -566,7 +567,7 @@ namespace Onyx::Ui
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		Internal::SetCatppuccinMochaGraphite();// ImGui::StyleColorsDark();
 
-		FileSystem::Filepath settingsPath = FileSystem::Path::GetFullPath("tmp:imgui.ini");
+		FilePath settingsPath = FileSystem::Path::GetFullPath("tmp:imgui.ini");
 		if (FileSystem::Path::Exists(settingsPath) == false)
 		{
 			settingsPath = FileSystem::Path::GetFullPath("engine:/layouts/default.ini");
@@ -578,54 +579,43 @@ namespace Onyx::Ui
 		fontConfig.FontDataOwnedByAtlas = false;
 		constexpr StringId64 fontHash("fonts/Roboto-Regular.ttf");
 
-		FileSystem::Filepath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
+		FilePath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
 		auto [it, _] = m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
 		m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
 
 		io.FontDefault = it->second;
 
-		m_Window->AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		OnWindowResize(m_Window->GetWidth(), m_Window->GetHeight());
-
-		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
+		inputSystem.OnMouseAxisChange().Connect<&ImGuiSystem::OnMouseAxisChange>(this);
+		inputSystem.OnMouseButton().Connect<&ImGuiSystem::OnMouseButton>(this);
+		inputSystem.OnMousePositionChange().Connect<&ImGuiSystem::OnMousePositionChange>(this);
+		inputSystem.OnKey().Connect<&ImGuiSystem::OnKey>(this);
 
 		g_UiContext.AssetSystem = &assetSystem;
-		g_UiContext.MainWindow = m_Window;
 		g_UiContext.InputSystem = &inputSystem;
     }
 
 	ImGuiSystem::~ImGuiSystem()
 	{
-		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
+		const FilePath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
 		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
 
-		m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		m_InputSystem->RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
-
+		//m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		m_InputSystem->OnMouseAxisChange().Disconnect(this);
+		m_InputSystem->OnMouseButton().Disconnect(this);
+		m_InputSystem->OnMousePositionChange().Disconnect(this);
+		m_InputSystem->OnKey().Disconnect(this);
+		
 		ImPlot::DestroyContext();
 		ImPlot3D::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
     void ImGuiSystem::Update(Graphics::GraphicsSystem& system, DeltaGameTime deltaTime)
-    {
-#if ONYX_IS_WINDOWS
+	{
+		ImGuiIO& io = ImGui::GetIO();	
 
 		g_UiContext.GraphicsSystem = &system;
-
-		ImGuiIO& io = ImGui::GetIO();
-	
-		// TODO: Add single producer single consumer queue that supports popping the entire queue at once
-		InplaceFunction<void(ImGuiIO&)> eventFunctor;
-		while (m_QueuedInputs.Pop(eventFunctor))
-		{
-			eventFunctor(io);
-		}
-
 		io.DeltaTime = std::max(numeric_cast<onyxF32>(deltaTime.DeltaMilliseconds) * 0.001f, 0.001f);
-#endif
-
-
 
 		//// this is an index based loop on purpose as windows might be added during rendering by other windows
 		const onyxU32 windowsCount = numeric_cast<onyxU32>(m_Windows.size());
@@ -640,17 +630,25 @@ namespace Onyx::Ui
 
     void ImGuiSystem::OnBeginFrame(Graphics::FrameContext&)
     {
+		ImGuiIO& io = ImGui::GetIO();	
+		// TODO: Fix
+		auto& mainWindow = m_PlatformSystem->GetMainWindow();
+		auto framebufferSize = mainWindow.GetFrameBufferSize();
+		io.DisplaySize = ImVec2(static_cast<onyxF32>(framebufferSize.X), static_cast<onyxF32>(framebufferSize.Y));
+
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
 		if (Internal::loc_ReloadLayout)
 		{
 			Internal::loc_ReloadLayout = false;
-			/*FileSystem::Filepath settingsPath = FileSystem::Path::GetDataDirectory() / "layouts/default_2.ini";
+			/*FilePath settingsPath = FileSystem::Path::GetDataDirectory() / "layouts/default_2.ini";
 			ImGui::LoadIniSettingsFromDisk(settingsPath.string().data());*/
 		}
-
+		
 		if (Internal::loc_SaveLayout)
 		{
 			Internal::loc_SaveLayout = false;
-			FileSystem::Filepath savePath;
+			FilePath savePath;
 			FileSystem::FileDialog saveDialog;
 			DynamicArray<StringView> extensions{ "ini" };
 			if (saveDialog.SaveFileDialog(savePath, "Ini File", extensions))
@@ -670,28 +668,30 @@ namespace Onyx::Ui
 
     void ImGuiSystem::OnEndFrame()
     {
-#if ONYX_IS_WINDOWS
+		
+		#if ONYX_IS_WINDOWS
 		if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
 		{
 			LPTSTR win32Cursor = IDC_ARROW;
-
+			
 			switch (ImGui::GetMouseCursor())
 			{
-			case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
-			case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
-			case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
-			case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
-			case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
-			case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
-			case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
-			case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
+				case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
+				case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
+				case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
+				case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
+				case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
+				case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
+				case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
+				case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
 			}
-
+			
 			m_Window->SetCursor(::LoadCursor(NULL, win32Cursor));
 		}
-#endif
-
+		#endif
+		
 		ImGuiIO& io = ImGui::GetIO();
+
 		// Update and Render additional Platform Windows
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -717,92 +717,84 @@ namespace Onyx::Ui
         return it->get();
     }
 
-	void ImGuiSystem::OnWindowResize(onyxU32 width, onyxU32 height)
+	void ImGuiSystem::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(static_cast<onyxF32>(width), static_cast<onyxF32>(height));
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
 	}
 
-    void ImGuiSystem::OnInputEvent(const Input::InputEvent* event)
-    {
-		if (event->IsMouseEvent())
+	void ImGuiSystem::OnMouseAxisChange(const Input::MouseAxisEvent& event)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMouseWheelEvent(0, event.Value);
+	}
+
+	void ImGuiSystem::OnMouseButton(const Input::MouseButtonEvent& event)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMouseButtonEvent(static_cast<onyxS32>(event.Button) - 1, event.Id == Input::InputEventType::MouseButtonDown);
+	}
+
+	void ImGuiSystem::OnMousePositionChange(const Input::MousePositionEvent& event)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMousePosEvent(event.Position[0], event.Position[1]);
+	}
+
+	void ImGuiSystem::OnKey(const Input::KeyboardEvent& keyboardEvent)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		if ((keyboardEvent.Id == Input::InputEventType::KeyUp) || (keyboardEvent.Id == Input::InputEventType::KeyDown))
 		{
-			const Input::MouseEvent* mouseEvent = static_cast<const Input::MouseEvent*>(event);
-
-			InplaceFunction<void(ImGuiIO&)> queuedInputEvent = [event = *mouseEvent](ImGuiIO& io)
-				{
-					if ((event.m_Id == Input::InputEventType::MouseButtonUp) || (event.m_Id == Input::InputEventType::MouseButtonDown))
-						io.AddMouseButtonEvent(static_cast<onyxS32>(event.m_Button) - 1, event.m_Id == Input::InputEventType::MouseButtonDown);
-					else if (event.m_Id == Input::InputEventType::MousePositionChanged)
-						io.AddMousePosEvent(event.m_Position[0], event.m_Position[1]);
-					else if (event.m_Id == Input::InputEventType::MouseWheel)
-						io.AddMouseWheelEvent(0, event.m_Scroll);
-				};
-
-			m_QueuedInputs.Push(std::move(queuedInputEvent));
-			
-			//return io.WantCaptureMouse; TODO 
-		}
-		else if (event->IsKeyboardEvent())
-		{
-			const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(event);
-
-			InplaceFunction<void(ImGuiIO&)> queuedInputEvent = [event = *keyboardEvent](ImGuiIO& io)
+			bool isDown = keyboardEvent.Id == Input::InputEventType::KeyDown;
+			if (IsModifierKey(keyboardEvent.Key))
 			{
-				if ((event.m_Id == Input::InputEventType::KeyUp) || (event.m_Id == Input::InputEventType::KeyDown))
+				switch (keyboardEvent.Key)
 				{
-					bool isDown = event.m_Id == Input::InputEventType::KeyDown;
-					if (IsModifierKey(event.m_Key))
+					case Input::Key::Left_Ctrl:
+					case Input::Key::Right_Ctrl:
 					{
-						switch (event.m_Key)
-						{
-						    case Input::Key::Left_Ctrl:
-						    case Input::Key::Right_Ctrl:
-						    {
-								io.AddKeyEvent(ImGuiKey_ModCtrl, isDown);
-								break;
-						    }
-							case Input::Key::Left_Shift:
-							case Input::Key::Right_Shift:
-							{
-								io.AddKeyEvent(ImGuiKey_ModShift, isDown);
-								break;
-							}
-							case Input::Key::Left_Alt:
-							case Input::Key::Right_Alt:
-							{
-								io.AddKeyEvent(ImGuiKey_ModAlt, isDown);
-								break;
-							}
-							case Input::Key::Left_System:
-							case Input::Key::Right_System:
-							{
-								io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
-								break;
-							}
-                            default:
-                                ONYX_ASSERT(false, "Invalid modifier key");
-                                break;
-						}
+						io.AddKeyEvent(ImGuiKey_ModCtrl, isDown);
+						break;
 					}
-					
-					io.AddKeyEvent(Internal::ConvertToImGuiKey(event.m_Key), isDown);
-					
+					case Input::Key::Left_Shift:
+					case Input::Key::Right_Shift:
+					{
+						io.AddKeyEvent(ImGuiKey_ModShift, isDown);
+						break;
+					}
+					case Input::Key::Left_Alt:
+					case Input::Key::Right_Alt:
+					{
+						io.AddKeyEvent(ImGuiKey_ModAlt, isDown);
+						break;
+					}
+					case Input::Key::Left_System:
+					case Input::Key::Right_System:
+					{
+						io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
+						break;
+					}
+					default:
+						ONYX_ASSERT(false, "Invalid modifier key");
+						break;
 				}
-				else if (event.m_Id == Input::InputEventType::KeyCharacter)
-					io.AddInputCharacterUTF16(event.m_Char);
-			};
-
-			m_QueuedInputs.Push(std::move(queuedInputEvent));
+			}
+			
+			io.AddKeyEvent(Internal::ConvertToImGuiKey(keyboardEvent.Key), isDown);
+			
+			if (isDown && (keyboardEvent.Char != 0))
+				io.AddInputCharacterUTF16(keyboardEvent.Char);
 		}
-		else if (event->IsGamepadButtonEvent())
-		{
-		    // TODO
-		}
+	}
 
-		//return false; TODO
-    }
+	void ImGuiSystem::OnControllerAxisChange(const Input::GameControllerAxisEvent& /*event*/)
+	{
+	}
+
+	void ImGuiSystem::OnControllerButton(const Input::GameControllerButtonEvent& /*event*/)
+	{
+
+	}
 }
 
 #endif

@@ -9,8 +9,8 @@ namespace Onyx::Graphics
 {
     ShaderInstance::ShaderInstance(const GraphicsSystem& api, const PipelineHandle& pipeline, const ShaderHandle& shader)
         : m_Api(&api)
-        , m_Pipeline(pipeline)
         , m_Shader(shader)
+        , m_Pipeline(pipeline)
     {
         m_Shader->GetOnLoadedEvent().Connect<&ShaderInstance::OnShaderLoaded>(*this);
         if (m_Shader->IsLoaded())

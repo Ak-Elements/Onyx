@@ -25,7 +25,7 @@ namespace Onyx::Assets
         {
         }
 
-        explicit AssetId(const FileSystem::Filepath& path)
+        explicit AssetId(const FilePath& path)
             : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path.generic_string()))
         {
         }

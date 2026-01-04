@@ -2,6 +2,7 @@
 
 #include <onyx/noncopyable.h>
 #include <onyx/graphics/vulkan/vulkan.h>
+#include <onyx/platform/window.h>
 
 namespace Onyx
 {
@@ -21,10 +22,8 @@ namespace Onyx::Graphics::Vulkan
 	public:
 		static constexpr onyxU32 VULKAN_API_VERSION = VK_API_VERSION_1_3;
 
-		Instance(const GraphicSettings& settings, const Window& window, const std::vector<const char*>& validationLayers);
+		Instance(const GraphicSettings& settings, const Platform::Window& window, const std::vector<const char*>& validationLayers);
 		~Instance();
-
-		const Window* GetWindow() const { return m_Window; }
 
 		const DynamicArray<VkExtensionProperties>& GetExtensions() const { return m_Extensions; }
 		const DynamicArray<VkLayerProperties>& GetLayers() const { return m_Layers; }
@@ -41,8 +40,7 @@ namespace Onyx::Graphics::Vulkan
 		static bool CheckVulkanValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
 		bool m_EnableValidations = true;
-
-		const Window* m_Window = nullptr;
+		
 		VULKAN_HANDLE(VkInstance, Instance, nullptr);
 
 		DynamicArray<const char*> m_ValidationLayers;

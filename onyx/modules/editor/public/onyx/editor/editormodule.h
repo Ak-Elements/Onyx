@@ -22,6 +22,10 @@ namespace Onyx
     namespace Input
     {
         class InputSystem;
+    }
+
+    namespace InputActions
+    {
         class InputActionSystem;
     }
 
@@ -49,7 +53,7 @@ namespace Onyx::Editor
             Assets::AssetSystem& assetSystem,
             Graphics::GraphicsSystem& graphicsSystem,
             Input::InputSystem& inputSystem,
-            Input::InputActionSystem& inputActionSystem,
+            InputActions::InputActionSystem& inputActionSystem,
             Localization::LocalizationModule& localizationModule);
 
         ~EditorSystem() override;

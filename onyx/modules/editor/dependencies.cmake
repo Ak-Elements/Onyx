@@ -1,6 +1,7 @@
 set(onyx_TARGET_PUBLIC_DEPENDENCIES
     onyx-gamecore
     onyx-input
+    onyx-inputactions
     onyx-localization
     onyx-volume
     ImGui

@@ -22,7 +22,7 @@
 #include <onyx/graphics/vulkan/sampler.h>
 #include <onyx/graphics/vulkan/texture.h>
 #include <onyx/graphics/vulkan/texturestorage.h>
-#include <onyx/graphics/window/windows/nativewindow.h>
+#include <onyx/platform/window.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::Graphics::Vulkan
@@ -31,7 +31,7 @@ namespace Onyx::Graphics::Vulkan
     VulkanGraphicsApi::VulkanGraphicsApi() = default;
     VulkanGraphicsApi::~VulkanGraphicsApi() = default;
 
-    void VulkanGraphicsApi::Init(const GraphicSettings& settings, const Window& window)
+    void VulkanGraphicsApi::Init(const GraphicSettings& settings, const Platform::Window& window)
     {
         // TODO: Add time query support for GPU profiling
         m_Window = &window;

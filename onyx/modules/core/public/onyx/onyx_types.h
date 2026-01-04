@@ -65,6 +65,8 @@ namespace Onyx
     using String_U32 = std::u32string;
     using StringView_U32 = std::u32string_view;
 
+    using FilePath = std::filesystem::path;
+
     template <typename T>
     using Atomic = std::atomic<T>;
 

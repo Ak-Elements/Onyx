@@ -2,7 +2,7 @@
 
 #include <onyx/editor/windows/editorwindow.h>
 
-#include <onyx/input/inputactionsasset.h>
+#include <onyx/inputactions/inputactionsasset.h>
 #include <onyx/input/inputevent.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/localization/localizedstring.h>
@@ -45,24 +45,24 @@ namespace Onyx::Editor
 
         void OnInputEvent(const Input::InputEvent* inputEvent);
 
-        void RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps);
+        void RenderActionMaps(HashMap<StringId32, InputActions::InputActionsMap>& actionMaps);
         void RenderInputActions();
         
-        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<Input::InputBinding>>& bindings);
-        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, Input::InputBinding& binding);
+        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings);
+        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, InputActions::InputBinding& binding);
 
         void RenderActionProperties();
         void RenderSelectedBindingProperties();
 
         void MarkAsDirty() { m_IsDirty = true; }
 
-        void OnInputAssetLoaded(Reference<Input::InputActionsAsset>& inputActionsAsset);
+        void OnInputAssetLoaded(Reference<InputActions::InputActionsAsset>& inputActionsAsset);
 
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
 
         // Copy of InputActionAsset to edit until save
-        Reference<Input::InputActionsAsset> m_EditableCopy;
+        Reference<InputActions::InputActionsAsset> m_EditableCopy;
       
         DynamicArray<bool> m_MapsSelectedStates;
         DynamicArray<bool> m_ActionsSelectedStates;

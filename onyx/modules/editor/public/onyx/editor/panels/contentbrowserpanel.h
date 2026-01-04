@@ -8,7 +8,7 @@ namespace Onyx::Editor
     struct DirectoryInfo
     {
         onyxU64 Id; // hashed path
-        FileSystem::Filepath Path;
+        FilePath Path;
         DynamicArray<DirectoryInfo> Items;
     };
 
@@ -20,7 +20,7 @@ namespace Onyx::Editor
         void Render();
 
     private:
-        void BuildContentDirectoryTree(const FileSystem::Filepath& path, DirectoryInfo& parentDirectoryInfo);
+        void BuildContentDirectoryTree(const FilePath& path, DirectoryInfo& parentDirectoryInfo);
         void DrawContentDirectoryItem(const DirectoryInfo& directoryItem);
 
         void DrawSelectedDirectoryContent();

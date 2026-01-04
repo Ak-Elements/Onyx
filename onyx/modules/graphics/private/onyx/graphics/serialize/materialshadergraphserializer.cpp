@@ -35,7 +35,7 @@ namespace Onyx::Graphics
         if (ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
             return false;
 
-        const FileSystem::Filepath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");
+        const FilePath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");
         //ShaderHandle shader = graphicsApi.CreateShader();
         //graphicsApi.GetShaderCache().GetOrLoadShader(shaderPath, shader);
 

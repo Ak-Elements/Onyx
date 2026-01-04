@@ -12,7 +12,7 @@ namespace Onyx::FileSystem
         public:
             void handleFileAction(efsw::WatchID /*watchid*/, const std::string& dir, const std::string& filename, efsw::Action action, std::string /*oldFilename*/) override
             {
-                Filepath fullpath(dir);
+                FilePath fullpath(dir);
                 fullpath.append(filename);
                 fullpath = fullpath.lexically_normal();
                 FileWatcher::FileAction fileAction = FileWatcher::FileAction::Invalid;
@@ -28,7 +28,7 @@ namespace Onyx::FileSystem
                     OnFileChanged(fullpath, fileAction);
             }
 
-            Callback<void(const Filepath&, FileWatcher::FileAction)> OnFileChanged;
+            Callback<void(const FilePath&, FileWatcher::FileAction)> OnFileChanged;
 
         };
     }
@@ -42,13 +42,13 @@ namespace Onyx::FileSystem
         m_Watcher->watch();
     }
 
-    FileWatcher::FileWatcher(const Filepath& path, bool recursive)
+    FileWatcher::FileWatcher(const FilePath& path, bool recursive)
         : FileWatcher()
     {
         m_Watcher->addWatch(path.string(), &listener, recursive);
     }
 
-    FileWatcher::FileWatcher(const Filepath& path)
+    FileWatcher::FileWatcher(const FilePath& path)
         : FileWatcher(path, false)
     {
     }
@@ -58,12 +58,12 @@ namespace Onyx::FileSystem
         listener.OnFileChanged.Reset();
     }
 
-    void FileWatcher::AddPath(const Filepath& path, bool recursive)
+    void FileWatcher::AddPath(const FilePath& path, bool recursive)
     {
         m_Watcher->addWatch(path.string(), &listener, recursive);
     }
 
-    void FileWatcher::OnFileAction(const Filepath& path, FileAction action)
+    void FileWatcher::OnFileAction(const FilePath& path, FileAction action)
     {
         if (OnFileChanged)
             OnFileChanged(path, action);

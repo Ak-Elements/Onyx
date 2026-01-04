@@ -106,7 +106,7 @@ namespace Onyx::Localization
             PluralRule{ "nplurals=6;plural=n==0?0:n==1?1:n==2?2:n%100>=3&&n%100<=10?3:n%100>=11?4:5", [](onyxS32 n) { return (n == 0) ? 0 : (n == 1) ? 1 : (n == 2) ? 2 : ((n % 100) >= 3) && ((n % 100) <= 10) ? 3 : ((n % 100) >= 11) ? 4 : 5; } }
         };
 
-        bool ParsePoFile(const FileSystem::Filepath& path, GetTextLocalizationDatabase& outLocalizationMap)
+        bool ParsePoFile(const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap)
         {
             String fileContent;
             bool hasSucceeded = FileSystem::OnyxFile::ReadAll(path, fileContent);

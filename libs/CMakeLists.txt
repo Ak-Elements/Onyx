@@ -15,6 +15,10 @@ if (ONYX_USE_IMGUI)
 	include(imgui.cmake)
 endif()
 
+if (UNIX)
+    add_subdirectory(wayland)
+endif()
+
 add_subdirectory(vulkanmemoryallocator)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)

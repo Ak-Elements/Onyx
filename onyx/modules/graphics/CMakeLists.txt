@@ -2,7 +2,7 @@
     message(FATAL_ERROR "Please build using the outermost CMakeLists.txt file.")
 endif()
 
-set (private_defines
+set(private_defines
     ONYX_USE_VULKAN
     $<$<BOOL:${USE_SDL2}>:ONYX_USE_SDL2>
     $<$<CXX_COMPILER_ID:Clang>:>
@@ -12,6 +12,8 @@ set (private_defines
 
 if (WIN32)
     list(APPEND private_defines VK_USE_PLATFORM_WIN32_KHR)
+elseif(UNIX)
+    list(APPEND private_defines VK_USE_PLATFORM_WAYLAND_KHR)
 endif()
 
 onyx_add_target(onyx-graphics

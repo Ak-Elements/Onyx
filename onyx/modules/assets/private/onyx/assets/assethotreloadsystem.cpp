@@ -11,12 +11,12 @@ namespace Onyx::Assets
         m_DirectoryWatcher.OnFileChanged.Connect<&AssetHotReloadSystem::OnFileChanged>(this);
     }
 
-    void AssetHotReloadSystem::MonitorDirectory(const FileSystem::Filepath& path)
+    void AssetHotReloadSystem::MonitorDirectory(const FilePath& path)
     {
         m_DirectoryWatcher.AddPath(path, true);
     }
 
-    void AssetHotReloadSystem::OnFileChanged(const FileSystem::Filepath& path, FileSystem::FileWatcher::FileAction action)
+    void AssetHotReloadSystem::OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction action)
     {
         AssetId assetId(path);
 

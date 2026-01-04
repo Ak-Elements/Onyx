@@ -2,6 +2,15 @@
 
 #include <onyx/entity/entityregistry.h>
 
+namespace Onyx::Editor
+{
+    template <typename T>
+    struct ComponentEditor
+    {
+        static bool DrawProperties(T& /*component*/, bool /*showHidden*/) { return false; }
+    };
+}
+
 namespace Onyx::Entity
 {
     namespace Details
@@ -39,8 +48,6 @@ namespace Onyx::Entity
         virtual bool Serialize(const void* componentAny, Serializer&) const = 0;
         virtual bool Deserialize(void* componentAny, const Deserializer&) const = 0;
 
-        virtual bool DrawPropertyGridEditor(void* componentAny) const = 0;
-
         virtual constexpr bool ShowInEditor() const = 0;
         virtual constexpr bool IsTransient() const = 0;
         virtual constexpr bool IsFlag() const = 0;
@@ -54,8 +61,8 @@ namespace Onyx::Entity
     struct ComponentMeta : public IComponentMeta
     {
     public:
-        static_assert(Details::IsTransient<T> || Details::IsFlagComponent<T> || (Serializable<T> && Deserializable<T>), "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities.");
-        static_assert(Details::HasHideInEditor<T> || Details::HasDrawProperties<T> || Details::IsFlagComponent<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
+        //static_assert(Details::IsTransient<T> || Details::IsFlagComponent<T> || (Serializable<T> && Deserializable<T>), "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities.");
+        //static_assert(Details::HasHideInEditor<T> || Details::HasDrawProperties<T> || Details::IsFlagComponent<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
 
         ComponentMeta() = default;
         ComponentMeta(ComponentFactoryFunction<T> factory)
@@ -205,20 +212,6 @@ namespace Onyx::Entity
             else
             {
                 ONYX_ASSERT(false, "Not supported for component");
-                return false;
-            }
-        }
-
-        bool DrawPropertyGridEditor(void* componentAny) const override
-        {
-            if constexpr (Details::HasDrawProperties<T>)
-            {
-                T* component = static_cast<T*>(componentAny);
-                return component->DrawProperties(false);
-            }
-            else
-            {
-                ONYX_UNUSED(componentAny);
                 return false;
             }
         }

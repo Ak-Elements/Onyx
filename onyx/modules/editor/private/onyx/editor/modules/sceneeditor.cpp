@@ -35,7 +35,7 @@ namespace Onyx::Editor
         onyxU32 local_WindowId = 0;
     }
 
-    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, Input::InputActionSystem& inputActionSystem)
+    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, InputActions::InputActionSystem& inputActionSystem)
         : m_GameCore(gameCore)
         , m_GraphicsSystem(graphicsSystem)
         , m_InputActionSystem(inputActionSystem)
@@ -184,7 +184,7 @@ namespace Onyx::Editor
                     m_InputActionSystem.Disconnect(this);
                 }
 
-                FileSystem::Filepath path;
+                FilePath path;
                 if (FileSystem::FileDialog::OpenFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
                 {
                     LoadScene(Assets::AssetId(path));
@@ -198,7 +198,7 @@ namespace Onyx::Editor
 
             if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
             {
-                FileSystem::Filepath path;
+                FilePath path;
                 if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
                 {
                     m_AssetSystem->SaveAssetAs(path, m_Scene);
@@ -346,7 +346,7 @@ namespace Onyx::Editor
         }
     }
 
-    void SceneEditorWindow::OnGizmoModeAction(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnGizmoModeAction(const InputActions::InputActionEvent& inputActionContext)
     {
         if (m_HasSelectedEntity == false)
             return;
@@ -368,7 +368,7 @@ namespace Onyx::Editor
         m_CurrentGizmo = GizmoType::Scale;
     }
 
-    void SceneEditorWindow::OnCameraMoveInput(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraMoveInput(const InputActions::InputActionEvent& inputActionContext)
     {
         const Vector3f32& direction = inputActionContext.GetData<Vector3f32>();
         
@@ -377,7 +377,7 @@ namespace Onyx::Editor
         cameraRuntimeComponent.InputDirection = direction;
     }
 
-    void SceneEditorWindow::OnCameraRotationInput(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraRotationInput(const InputActions::InputActionEvent& inputActionContext)
     {
         const Vector2f32& rotationDelta = inputActionContext.GetData<Vector2f32>();
 
@@ -386,7 +386,7 @@ namespace Onyx::Editor
         cameraRuntimeComponent.InputRotation = { rotationDelta[0] * 0.003f, rotationDelta[1] * 0.003f, 0.0f };
     }
 
-    void SceneEditorWindow::OnCameraSpeedInput(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraSpeedInput(const InputActions::InputActionEvent& inputActionContext)
     {
         onyxF32 speedValue = inputActionContext.GetData<onyxF32>();
 
@@ -397,7 +397,7 @@ namespace Onyx::Editor
         cameraRuntimeComponent.Velocity += speedValue * cameraControllerComponent.VelocityIncrementFactor * cameraControllerComponent.BaseVelocity;
     }
 
-    void SceneEditorWindow::OnCameraSpeedUp(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraSpeedUp(const InputActions::InputActionEvent& inputActionContext)
     {
         bool isSpeedUp = inputActionContext.GetData<bool>();
 
@@ -410,7 +410,7 @@ namespace Onyx::Editor
             cameraRuntimeComponent.Velocity *= 0.1f;
     }
 
-    void SceneEditorWindow::OnCameraSlowDown(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraSlowDown(const InputActions::InputActionEvent& inputActionContext)
     {
         bool isSlowdown = inputActionContext.GetData<bool>();
 

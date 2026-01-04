@@ -176,9 +176,6 @@ namespace Onyx::Ui
     // move to a UI base class
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags)
     {
-        // Calculate header area including spacing
-        ImGuiStyle& currentStyle = ImGui::GetStyle();
-
         // Fill the background of the header (including gaps)
         //const ImU32 bgColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
         //ImGui::GetWindowDrawList()->AddRectFilled(headerAreaMin, headerAreaMax, bgColor);
@@ -194,11 +191,7 @@ namespace Onyx::Ui
         if (isOpen)
         {
             ImGuiWindow* window = ImGui::GetCurrentWindow();
-            const bool display_frame = (flags & ImGuiTreeNodeFlags_Framed) != 0;
-            const ImVec2 padding = (display_frame || (flags & ImGuiTreeNodeFlags_FramePadding))
-                ? currentStyle.FramePadding
-                : ImVec2(currentStyle.FramePadding.x, ImMin(window->DC.CurrLineTextBaseOffset, currentStyle.FramePadding.y));
-
+            
             //// Use bounding box of the last drawn item (the collapsing header)
             const ImVec2 header_min = ImGui::GetItemRectMin(); // Top-left of the header
             const ImVec2 header_max = ImGui::GetItemRectMax(); // Bottom-right of the header

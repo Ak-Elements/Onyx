@@ -27,15 +27,15 @@ namespace Onyx::Graphics
         return nullptr;
     }
 
-    DynamicArray<FileSystem::Filepath> GetShaderDirectories()
+    DynamicArray<FilePath> GetShaderDirectories()
     {
-        DynamicArray<FileSystem::Filepath> shaderDirectories;
+        DynamicArray<FilePath> shaderDirectories;
         for (const FileSystem::MountPoint& mountPoint : (FileSystem::Path::GetMountPoints() | std::views::values))
         {
             if (mountPoint.Prefix == FileSystem::Path::TMP_MOUNT_POINT_ID.GetString())
                 continue;
 
-            const FileSystem::Filepath shaderIncludePath = mountPoint.Path / "shaders/";
+            const FilePath shaderIncludePath = mountPoint.Path / "shaders/";
             if (FileSystem::Path::Exists(shaderIncludePath))
             {
                 shaderDirectories.emplace_back(shaderIncludePath);

@@ -3,7 +3,6 @@
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #include <onyx/graphics/vulkan/swapchain.h>
-#include <onyx/graphics/window/windows/nativewindow.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::Graphics

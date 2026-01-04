@@ -26,8 +26,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     presentthread.h
     vertex.h
     viewconstants.h
-    window.h
-    windowsystem.h
     font/sdffont.h
     lighting/lighting.h
     rendergraph/rendergraph.h
@@ -97,9 +95,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     vulkan/texture.h
     vulkan/texturestorage.h
     vulkan/vulkan.h
-    window/sdlwindow.h
-    window/windows/nativewindow.h
-    window/linux/nativewindow.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -114,7 +109,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     renderpasscache.cpp
     pipeline.cpp
     presentthread.cpp
-    windowsystem.cpp
     rendergraph/rendergraph.cpp
     rendergraph/rendergraphtask.cpp
     rendergraph/rendergraphnodefactory.cpp
@@ -174,6 +168,4 @@ set(onyx_TARGET_PRIVATE_SOURCES
     vulkan/swapchain.cpp
     vulkan/texture.cpp
     vulkan/texturestorage.cpp
-    window/sdlwindow.cpp
-    window/windows/nativewindow.cpp	
 )

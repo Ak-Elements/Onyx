@@ -288,7 +288,7 @@ namespace Onyx::Editor
         OnDrawNodeBackground(node);
     }
 
-    void GraphEditorContext::Load(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path)
+    void GraphEditorContext::Load(Assets::AssetSystem& assetSystem, const FilePath& path)
     {
         m_IsLoading = true;
         OnLoad(assetSystem, path);

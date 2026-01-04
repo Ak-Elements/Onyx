@@ -13,7 +13,7 @@ namespace Onyx::FileSystem
         NFD_Quit();
     }
 
-    bool FileDialog::OpenFileDialog(Filepath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions)
+    bool FileDialog::OpenFileDialog(FilePath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions)
     {
         nfdu8char_t* path;
         nfdopendialogu8args_t args{ nullptr, 0, nullptr, { 0, nullptr } };
@@ -40,7 +40,7 @@ namespace Onyx::FileSystem
         return true;
     }
 
-    bool FileDialog::SaveFileDialog(Filepath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions)
+    bool FileDialog::SaveFileDialog(FilePath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions)
     {
         nfdu8char_t* path;
         nfdsavedialogu8args_t args{ nullptr, 0, nullptr, "", { 0, nullptr } };

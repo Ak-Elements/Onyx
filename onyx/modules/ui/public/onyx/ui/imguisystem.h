@@ -23,8 +23,13 @@ namespace Onyx
 {
     namespace Input
     {
-        struct InputEvent;
         class InputSystem;
+        struct MouseAxisEvent;
+        struct MouseButtonEvent;
+        struct MousePositionEvent;
+        struct KeyboardEvent;
+        struct GameControllerAxisEvent;
+        struct GameControllerButtonEvent;
     }
 
     namespace Assets
@@ -40,6 +45,11 @@ namespace Onyx
         class GraphicsSystem;
         class Window;
         class WindowSystem;
+    }
+
+    namespace Platform
+    {
+        class PlatformSystem;
     }
 
     namespace Ui
@@ -58,7 +68,6 @@ namespace Onyx
         {
             Assets::AssetSystem* AssetSystem = nullptr;
             Graphics::GraphicsSystem* GraphicsSystem = nullptr;
-            Graphics::Window* MainWindow = nullptr;
             Input::InputSystem* InputSystem = nullptr;
         };
 
@@ -75,7 +84,7 @@ namespace Onyx
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
 
-            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem);
+            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Platform::PlatformSystem& platformSystem);
             ~ImGuiSystem() override;
 
             
@@ -202,15 +211,23 @@ namespace Onyx
           
         private:
             void OnWindowResize(onyxU32 width, onyxU32 height);
-            void OnInputEvent(const Input::InputEvent* event);
+            
+            void OnMouseAxisChange(const Input::MouseAxisEvent& event);
+            void OnMouseButton(const Input::MouseButtonEvent& event);
+            void OnMousePositionChange(const Input::MousePositionEvent& event);
+
+            void OnKey(const Input::KeyboardEvent& event);
+
+            void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
+            void OnControllerButton(const Input::GameControllerButtonEvent& event);
 
         private:
-            LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> m_QueuedInputs;
+            //LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> m_QueuedInputs;
             HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> m_WindowFactory;
             HashMap<StringId64, ImFont*> m_Fonts;
             std::mutex m_Mutex;
             DynamicArray<UniquePtr<ImGuiWindow>> m_Windows;
-            Graphics::Window* m_Window;
+            Platform::PlatformSystem* m_PlatformSystem;
             Input::InputSystem* m_InputSystem;
         };
     }

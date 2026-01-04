@@ -10,50 +10,56 @@
 #endif
 
 #include <onyx/input/inputevent.h>
-#include <onyx/graphics/window.h>
-#include <onyx/graphics/windowsystem.h>
 #include <onyx/input/inputid.h>
 #include <onyx/log/logger.h>
 
 namespace Onyx::Input
 {
-    InputSystem::InputSystem(Graphics::WindowSystem& windowSystem)
-        : m_MainWindow(&windowSystem.GetMainWindow())
-    {
-#if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
-        m_MainWindow->SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
-#endif
-
-#if ONYX_USE_GAMEINPUT
-        m_Input.SetControllerConnectedHandler({ this, &InputSystem::HandleGamepadConnected });
-        m_Input.SetControllerDisconnectedHandler({ this, &InputSystem::HandleGamepadDisconnected });
-
-        m_Input.SetControllerButtonHandler({ this, &InputSystem::HandleGameControllerButtonMessage });
-        m_Input.SetControllerStickHandler({ this, &InputSystem::HandleGameControllerAxisMessage });
-#endif
-
-#if ONYX_USE_SDL2
-        SDL_AddEventWatch([](void* userData, SDL_Event* event)
-        {
-            InputSystem* inputSys = static_cast<InputSystem*>(userData);
-
-            //TODO: move this to a sdl class
-            bool isQuit = event->type == SDL_QUIT;
-
-            //TODO: Maybe return int?
-            return inputSys->HandleInput(isQuit ? InputAction::Quit : InputAction::None) ? 0 : 1;
-        }, this);
-#endif
-        
-    }
-
-    InputSystem::~InputSystem()
-    {
-        m_MainWindow->ClearWindowMessageHandler();
-    }
+//    InputSystem::InputSystem()
+//    {
+//#if ONYX_IS_WINDOWS && !ONYX_USE_SDL2
+//        m_MainWindow->SetWindowMessageHandler([this](onyxU32 messageType, onyxU64 wParam, onyxU64 lParam) { return HandleNativeInput(messageType, wParam, lParam); });
+//#endif
+//
+//#if ONYX_USE_GAMEINPUT
+//        m_Input.SetControllerConnectedHandler({ this, &InputSystem::HandleGamepadConnected });
+//        m_Input.SetControllerDisconnectedHandler({ this, &InputSystem::HandleGamepadDisconnected });
+//
+//        m_Input.SetControllerButtonHandler({ this, &InputSystem::HandleGameControllerButtonMessage });
+//        m_Input.SetControllerStickHandler({ this, &InputSystem::HandleGameControllerAxisMessage });
+//#endif
+//
+//#if ONYX_USE_SDL2
+//        SDL_AddEventWatch([](void* userData, SDL_Event* event)
+//        {
+//            InputSystem* inputSys = static_cast<InputSystem*>(userData);
+//
+//            //TODO: move this to a sdl class
+//            bool isQuit = event->type == SDL_QUIT;
+//
+//            //TODO: Maybe return int?
+//            return inputSys->HandleInput(isQuit ? InputAction::Quit : InputAction::None) ? 0 : 1;
+//        }, this);
+//#endif
+//        
+//    }
+//
+//    InputSystem::~InputSystem()
+//    {
+//        //m_MainWindow->ClearWindowMessageHandler();
+//    }
 
     void InputSystem::Update()
     {
+        onyxU8 queueIndex = m_CurrentQueueIndex;
+        m_CurrentQueueIndex = (m_CurrentQueueIndex + 1) % INPUT_QUEUE_COUNT;
+
+        // process input queues
+        UpdateMouse(queueIndex);
+        UpdateKeyboard(queueIndex);
+        UpdateGameControllers(queueIndex);
+        
+
         m_MouseDelta = m_MousePosition - m_LastMousePosition;
         m_LastMousePosition = m_MousePosition;
 
@@ -110,9 +116,9 @@ namespace Onyx::Input
         switch (id.ID)
         {
             case Enums::ToIntegral(MouseAxis::XY):
-                return m_MousePosition;
+                return Vector2s16(numeric_cast<onyxS16>(m_MousePosition.X), numeric_cast<onyxS16>(m_MousePosition.Y));
             case Enums::ToIntegral(MouseAxis::DeltaXY):
-                return m_MouseDelta;
+                return Vector2s16(numeric_cast<onyxS16>(m_MouseDelta.X), numeric_cast<onyxS16>(m_MouseDelta.Y));
             case Enums::ToIntegral(GameControllerAxis::LeftStick_XY):
                 return { GetControllerAxisValue(deviceIndex, GameControllerAxis::LeftStick_X), GetControllerAxisValue(deviceIndex, GameControllerAxis::LeftStick_Y) };
             case Enums::ToIntegral(GameControllerAxis::RightStick_XY):
@@ -143,24 +149,12 @@ namespace Onyx::Input
 
     bool InputSystem::IsButtonDown(MouseButton button) const
     {
-        constexpr onyxU16 first = Enums::ToIntegral(MouseAxis::First);
-        constexpr onyxU16 last = Enums::ToIntegral(MouseAxis::Last);
-        ONYX_ASSERT(Enums::ToIntegral(button) > first);
-        ONYX_ASSERT(Enums::ToIntegral(button) < last);
-
-        onyxU16 index = Enums::ToIntegral(button) - first;
-        return m_MouseButtonStates[index];
+        return m_MouseButtonStates[ToIndex(button)];
     }
 
     bool InputSystem::IsButtonDown(Key key) const
     {
-        constexpr onyxU16 first = Enums::ToIntegral(Key::First);
-        constexpr onyxU16 last = Enums::ToIntegral(Key::Last);
-        ONYX_ASSERT(Enums::ToIntegral(key) > first);
-        ONYX_ASSERT(Enums::ToIntegral(key) < last);
-
-        onyxU16 index = Enums::ToIntegral(key) - first;
-        return m_KeyState[index];
+        return m_KeyState[ToIndex(key)];
     }
 
     bool InputSystem::IsButtonDown(GameControllerButton button, onyxU8 deviceIndex) const
@@ -174,19 +168,19 @@ namespace Onyx::Input
         ONYX_ASSERT(Enums::ToIntegral(button) < last);
 
         onyxU16 bitmaskIndex = Enums::ToIntegral(button) - first;
-        return m_Gamepads[deviceIndex].m_ButtonStates & (1 << bitmaskIndex);
+        return m_Gamepads[deviceIndex].ButtonStates & (1 << bitmaskIndex);
     }
 
-    void InputSystem::SetMousePosition(const Vector2s16& mousePos)
+    void InputSystem::SetMousePosition(const Vector2s32& mousePos)
     {
         if (m_MousePosition != mousePos)
         {
             m_MousePosition = mousePos;
 
-            MouseEvent event;
-            event.m_Id = InputEventType::MousePositionChanged;
-            event.m_Position = mousePos;
-            m_OnInput(&event);
+            //MouseEvent event;
+            //event.m_Id = InputEventType::MousePositionChanged;
+            //event.m_Position = mousePos;
+            //m_OnInput(&event);
         }
     }
 
@@ -197,8 +191,8 @@ namespace Onyx::Input
             return 0;
 
         ONYX_ASSERT(controllerIndex < m_Gamepads.size());
-        const Gamepad& gamepad = m_Gamepads[controllerIndex];
-        ONYX_ASSERT(gamepad.m_IsConnected);
+        const GameController& gamepad = m_Gamepads[controllerIndex];
+        ONYX_ASSERT(gamepad.IsConnected);
 
         constexpr onyxU16 offset = Enums::ToIntegral(GameControllerButton::First);
         onyxU8 index = static_cast<onyxU8>(Enums::ToIntegral(axis) - offset);
@@ -207,7 +201,74 @@ namespace Onyx::Input
 
     void InputSystem::EnableSystemMouseCapture(bool enable)
     {
-        m_MainWindow->EnableSystemMouseCapture(enable);
+        // TODO: Fix
+        //m_MainWindow->EnableSystemMouseCapture(enable);
+    }
+
+    void InputSystem::UpdateMouse(onyxU8 queueIndex)
+    {
+        if (m_MouseAxisInputQueue[queueIndex].has_value())
+        {
+            MouseAxisEvent event = m_MouseAxisInputQueue[queueIndex].value();
+            m_MouseScroll = event.Value;
+            m_MouseAxisSignal.Dispatch(event);
+            m_MouseAxisInputQueue[queueIndex].reset();
+        }
+        
+        for (const MouseButtonEvent& event : m_MouseButtonInputQueue[queueIndex])
+        {
+            m_MouseButtonStates[ToIndex(event.Button)] = event.IsPressed;
+            m_MouseButtonSignal.Dispatch(event);
+        }
+         m_MouseButtonInputQueue[queueIndex].clear();
+
+        if (m_MousePositionInputQueue[queueIndex].has_value())
+        {
+            MousePositionEvent event = m_MousePositionInputQueue[queueIndex].value();
+            m_MousePosition = event.Position;
+            m_MousePositionSignal.Dispatch(event);
+            m_MousePositionInputQueue[queueIndex].reset();
+        }
+    }
+
+    void InputSystem::UpdateKeyboard(onyxU8 queueIndex)
+    {
+        for (const KeyboardEvent& event : m_KeyboardInputQueue[queueIndex])
+        {
+            m_KeyState[ToIndex(event.Key)] = event.State;
+            m_KeySignal.Dispatch(event);
+        }
+        m_KeyboardInputQueue[queueIndex].clear();
+    }
+
+    void InputSystem::UpdateGameControllers(onyxU8 queueIndex)
+    {
+        for (const GameControllerAxisEvent& event : m_ControllerAxisInputQueue[queueIndex])
+        {
+            GameController& controller = m_Gamepads[event.ControllerIndex];
+            controller.m_AxisValues[ToIndex((event.Axis))] = event.Value;
+            m_ControllerAxisSignal.Dispatch(event);
+        }
+        m_ControllerAxisInputQueue[queueIndex].clear();
+
+        for (const GameControllerButtonEvent& event : m_ControllerButtonInputQueue[queueIndex])
+        {
+            GameController& controller = m_Gamepads[event.ControllerIndex];
+
+            onyxU32 buttonMask = 1 << ToIndex(event.Button);
+            if (event.IsPressed)
+            {
+                controller.ButtonStates |= buttonMask;
+            }
+            else
+            {
+                controller.ButtonStates &= ~buttonMask;
+            }
+
+            m_ControllerButtonSignal.Dispatch(event);
+        }
+
+        m_ControllerButtonInputQueue[queueIndex].clear();
     }
 
 #if ONYX_IS_WINDOWS && !ONYX_USE_SDL2

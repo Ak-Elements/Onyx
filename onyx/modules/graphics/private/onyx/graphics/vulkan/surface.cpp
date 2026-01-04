@@ -1,14 +1,13 @@
 #include <onyx/graphics/vulkan/surface.h>
 #include <onyx/graphics/vulkan/instance.h>
-#include <onyx/graphics/window.h>
 
-#if ONYX_USE_SDL2
-#include <SDL_vulkan.h>
+#if ONYX_IS_UNIX && ONYX_USE_WAYLAND
+#include <onyx/platform/platformcontext.h>
 #endif
 
 namespace Onyx::Graphics::Vulkan
 {
-    Surface::Surface(const Instance& instance, const Window& window)
+    Surface::Surface(const Instance& instance, const Platform::Window& window)
         : m_Instance(instance)
     {
 #if ONYX_USE_SDL2
@@ -22,7 +21,15 @@ namespace Onyx::Graphics::Vulkan
         surfaceCreateInfo.hinstance = ::GetModuleHandle(nullptr);
         surfaceCreateInfo.hwnd = window.GetWindowHandle();
         VK_CHECK_RESULT(vkCreateWin32SurfaceKHR(instance.GetHandle(), &surfaceCreateInfo, nullptr, &m_Surface));
-#else
+#elif ONYX_IS_UNIX && ONYX_USE_WAYLAND
+        VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo = {};
+    	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+	    surfaceCreateInfo.display = window.GetContext()->GetDisplayHandle();
+	    surfaceCreateInfo.surface = window.GetSurfaceHandle();
+	    VK_CHECK_RESULT(vkCreateWaylandSurfaceKHR(instance.GetHandle(), &surfaceCreateInfo, nullptr, &m_Surface));
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+
+
         static_assert("Unhandled window for surface creation.");
 #endif
     }

@@ -26,7 +26,7 @@ namespace Onyx::Editor
 
     private:
         const NodeGraph::INodeFactory& GetNodeFactory() const override { return NodeFactory; }
-        void OnLoad(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path) override
+        void OnLoad(Assets::AssetSystem& assetSystem, const FilePath& path) override
         {
             const Assets::AssetId assetId(path);
             // want to queue meta data loading

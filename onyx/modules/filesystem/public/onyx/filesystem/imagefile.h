@@ -17,7 +17,7 @@ namespace Onyx::FileSystem
             Png
         };
 
-        ImageFile(const Filepath& filePath);
+        ImageFile(const FilePath& filePath);
         ~ImageFile();
 
         const Vector2s32& GetSize() const { return m_Size; }
@@ -25,7 +25,7 @@ namespace Onyx::FileSystem
         Span<onyxU8>& GetData() { return m_ImageData; }
         const Span<onyxU8>& GetData() const { return m_ImageData; }
     private:
-        Filepath m_FilePath;
+        FilePath m_FilePath;
 
         Vector2s32 m_Size;
         Span<onyxU8> m_ImageData;

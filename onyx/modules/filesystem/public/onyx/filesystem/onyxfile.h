@@ -171,19 +171,19 @@ namespace Onyx::FileSystem
         };
 
         OnyxFile(StringView mountPath);
-        OnyxFile(const Filepath& filePath);
+        OnyxFile(const FilePath& filePath);
 
-        ONYX_NO_DISCARD static bool ReadAll(const Filepath& filePath, String& outFileContent);
-        ONYX_NO_DISCARD static bool ReadAll(const Filepath& filePath, String& outFileContent, bool shouldSkipBOM);
+        ONYX_NO_DISCARD static bool ReadAll(const FilePath& filePath, String& outFileContent);
+        ONYX_NO_DISCARD static bool ReadAll(const FilePath& filePath, String& outFileContent, bool shouldSkipBOM);
         ONYX_NO_DISCARD FileStream OpenStream(OpenMode mode) const; // todo make base stream class?
 
-        ONYX_NO_DISCARD const Filepath& GetPath() const { return m_FilePath; }
+        ONYX_NO_DISCARD const FilePath& GetPath() const { return m_FilePath; }
         
         JsonValue LoadJson() const;
         void WriteJson(const JsonValue& json) const;
 
     private:
-        Filepath m_FilePath;
+        FilePath m_FilePath;
         onyxU64 m_FileId; // file id get created from the path and has to be unique
     };
 }

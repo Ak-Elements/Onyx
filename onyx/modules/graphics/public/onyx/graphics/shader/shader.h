@@ -323,5 +323,5 @@ namespace Onyx::Graphics
 		virtual bool HasDescriptorSetLayout() const = 0;
     };
 
-	DynamicArray<FileSystem::Filepath> GetShaderDirectories();
+	DynamicArray<FilePath> GetShaderDirectories();
 }

@@ -19,7 +19,7 @@ class FileStream : public Stream
 {
 public:
     FileStream(std::iostream* stream, OpenMode mode);
-    FileStream(const Filepath& path, OpenMode openMode);
+    FileStream(const FilePath& path, OpenMode openMode);
     ~FileStream() override;
 
     bool IsValid() const override { return m_Stream->good(); }

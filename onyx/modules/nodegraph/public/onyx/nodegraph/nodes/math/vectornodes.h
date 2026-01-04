@@ -67,12 +67,12 @@ namespace Onyx::NodeGraph
         {
             bool hasModified = Super::OnDrawInPropertyGrid(constantPinData);
 
-            Optional<Vector4u8> swizzle = Editor::EditorSwizzleVectorControl<OutVectorT, InVectorT>::Draw(Mask);
-            if (swizzle.has_value())
-            {
-                hasModified = true;
-                OutIndexMapping = swizzle.value();
-            }
+            //Optional<Vector4u8> swizzle = Editor::EditorSwizzleVectorControl<OutVectorT, InVectorT>::Draw(Mask);
+            //if (swizzle.has_value())
+            //{
+            //    hasModified = true;
+            //    OutIndexMapping = swizzle.value();
+            //}
 
             return hasModified;
         }

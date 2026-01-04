@@ -11,11 +11,17 @@
 #include <onyx/graphics/framecontext.h>
 #include <onyx/graphics/graphicsettings.h>
 
-#include "shadergraph/nodes/math/arithmeticnodes.h"
+// REMOVE
+#include <onyx/platform/window.h>
 
 namespace Onyx::Assets
 {
     class AssetSystem;
+}
+
+namespace Onyx::Platform
+{
+    class PlatformSystem;
 }
 
 namespace Onyx::Graphics
@@ -41,8 +47,6 @@ namespace Onyx::Graphics
     class ShaderCache;
     class Texture;
     class TextureStorage;
-    class Window;
-    class WindowSystem;
 
     class GraphicsSystem : public IEngineSystem
     {
@@ -53,7 +57,7 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId = "Onyx::Graphics::GraphicsSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, WindowSystem& window);
+        GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, Platform::PlatformSystem& platformSystem);
         ~GraphicsSystem() override;
 
         bool BeginFrame();
@@ -68,8 +72,6 @@ namespace Onyx::Graphics
         T& GetApi() { return *static_cast<T*>(m_GraphicsSystem.get()); }
         template <typename T>
         const T& GetApi() const { return *static_cast<const T*>(m_GraphicsSystem.get()); }
-
-        const Window& GetWindow() const { ONYX_ASSERT(m_Window != nullptr); return *m_Window; }
 
         onyxU16 GetRefreshRate() const;
 
@@ -135,7 +137,7 @@ namespace Onyx::Graphics
     private:
         void OnRenderGraphLoaded(Reference<RenderGraph>& loadedGraph);
         void OnShaderLoaded(Assets::AssetSystem* assetSystem, Reference<Shader>& loadedGraph);
-        void CreateDepthImages();
+        void CreateDepthImages(Vector2s32 extents);
         void CreateViewConstantBuffers();
 
         RenderPassHandle CreateRenderPass(const RenderPassSettings& settings);
@@ -144,7 +146,7 @@ namespace Onyx::Graphics
     private:
         std::mutex m_Mutex;
         Assets::AssetSystem* m_AssetSystem = nullptr;
-        Window* m_Window = nullptr;
+        Platform::PlatformSystem* m_PlatformSystem = nullptr;
 
         GraphicSettings m_Settings;
 

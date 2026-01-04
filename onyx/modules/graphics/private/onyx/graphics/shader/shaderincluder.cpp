@@ -79,15 +79,15 @@ namespace Onyx::Graphics
 		using namespace FileSystem;
 		const bool isRelativePath = type == shaderc_include_type_relative;
 
-		Filepath requestedFilePath;
+		FilePath requestedFilePath;
 		if (isRelativePath)
 		{
-			Filepath requestingPathDirectory = requestingPath;
+			FilePath requestingPathDirectory = requestingPath;
 			requestedFilePath = Path::GetFullPath(requestingPathDirectory.parent_path() / requestedPath);
 			StringView requestedPathString(requestedPath);
 			if (Path::Exists(requestedFilePath) == false)
 			{
-				for (const Filepath& includeDirectoryPath : m_IncludeDirectories)
+				for (const FilePath& includeDirectoryPath : m_IncludeDirectories)
 				{
 					String includeDirectory = includeDirectoryPath.generic_string();
 					if (IgnoreCaseStartsWith(requestedPathString, includeDirectory))

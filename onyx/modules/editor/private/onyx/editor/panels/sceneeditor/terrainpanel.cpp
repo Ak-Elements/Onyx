@@ -15,6 +15,8 @@
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
+#include <onyx/inputactions/inputactionsystem.h>
+
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
@@ -667,7 +669,7 @@ namespace
 
 namespace Onyx::Editor::SceneEditor
 {
-    TerrainPanel::TerrainPanel(Input::InputActionSystem& actionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore)
+    TerrainPanel::TerrainPanel(InputActions::InputActionSystem& actionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore)
         : m_GraphicsSystem(graphicsSystem)
         , m_GameCore(gameCore)
     {
@@ -952,7 +954,7 @@ namespace Onyx::Editor::SceneEditor
         ONYX_UNUSED(terrainOctree);
     }
 
-    void TerrainPanel::OnTerrainPanelBrushSizeInput(const Input::InputActionEvent& inputEvent)
+    void TerrainPanel::OnTerrainPanelBrushSizeInput(const InputActions::InputActionEvent& inputEvent)
     {
         onyxF32 inputValue = inputEvent.GetData<onyxF32>();
         m_Tools[m_SelectedTab]->OnBrushSizeInput(inputValue);

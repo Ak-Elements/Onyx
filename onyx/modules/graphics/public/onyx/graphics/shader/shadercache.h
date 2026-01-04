@@ -36,7 +36,7 @@ namespace Onyx::Graphics
 
     struct ShaderIncludeCacheEntry
     {
-        FileSystem::Filepath Path;
+        FilePath Path;
         onyxU64 ShaderHash;
 
         bool operator==(const ShaderIncludeCacheEntry& other) const noexcept
@@ -52,15 +52,15 @@ namespace Onyx::Graphics
         static constexpr StringView SHADER_CACHE_PATH = "tmp:/shaders/cache";
 
         ShaderCache(GraphicsSystem& graphicsSystem);
-        bool GetOrLoadShader(const FileSystem::Filepath& shaderPath, Reference<Shader>& outShader);
+        bool GetOrLoadShader(const FilePath& shaderPath, Reference<Shader>& outShader);
         void Clear();
 
         //TODO: add logic to switch api type?
     private:
-        bool LoadCacheFromDisk(const FileSystem::Filepath& diskShaderCachePath, ShaderCacheEntry& outEntry);
-        void SaveCacheToDisk(const ShaderCacheEntry& entry, const FileSystem::Filepath& diskShaderCachePath, const ShaderReflectionInfo& reflectionInfo);
+        bool LoadCacheFromDisk(const FilePath& diskShaderCachePath, ShaderCacheEntry& outEntry);
+        void SaveCacheToDisk(const ShaderCacheEntry& entry, const FilePath& diskShaderCachePath, const ShaderReflectionInfo& reflectionInfo);
 
-        void OnFileChanged(const FileSystem::Filepath& path, FileSystem::FileWatcher::FileAction action);
+        void OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction action);
 
         bool IsEntryUpToDate(const ShaderCacheEntry& entry, onyxU64 shaderHash) const;
         bool AreIncludesUpToDate(const HashMap<onyxU64, onyxU64>& includeHashes) const;

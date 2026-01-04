@@ -21,8 +21,8 @@ namespace Onyx::Graphics
 
     namespace ShaderCompiler
     {
-        bool Preprocess(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes);
-        bool Compile(const GraphicsSystem& api, const FileSystem::Filepath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode);
+        bool Preprocess(const GraphicsSystem& api, const FilePath& sourcePath, const String& code, ShaderLanguage language, ShaderStage stage, String& outPreprocessedCode, HashSet<String>& outIncludes);
+        bool Compile(const GraphicsSystem& api, const FilePath& sourcePath, const String& preprocessedCode, ShaderLanguage language, ShaderStage stage, DynamicArray<onyxU32>& outByteCode);
         bool Reflect(ShaderStage stage, const PreprocessedShader& preprocessedShader, const DynamicArray<onyxU32>& shaderByteCode, ShaderReflectionInfo& outReflectionInfo);
 
         bool IsReservedDescriptorSet(onyxU8 set);

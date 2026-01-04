@@ -1,4 +1,4 @@
-#pragma 
+#pragma once
 
 #include <onyx/graphics/graphicstypes.h>
 

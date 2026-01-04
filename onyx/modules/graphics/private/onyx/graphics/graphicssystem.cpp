@@ -4,9 +4,7 @@
 
 #include <onyx/graphics/graphicsapiinterface.h>
 
-#include <onyx/graphics/window.h>
 #include <onyx/graphics/textureasset.h>
-#include <onyx/graphics/windowsystem.h>
 #include <onyx/graphics/font/sdffont.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
@@ -39,6 +37,9 @@
 #include <onyx/graphics/vulkan/shader.h>
 #include <onyx/nodegraph/nodegraphtyperegistry.h>
 
+#include <onyx/platform/platformsystem.h>
+#include <onyx/platform/window.h>
+
 #if ONYX_USE_VULKAN
 #include <onyx/graphics/vulkan/graphicsapi.h>
 #endif
@@ -67,7 +68,7 @@ namespace Onyx
         StringView path;
         if (deserializer.Read<"rendergraph">(path))
         {
-            outSettings.DefaultRenderGraph = Assets::AssetId(FileSystem::Filepath(path));
+            outSettings.DefaultRenderGraph = Assets::AssetId(FilePath(path));
         }
 
         deserializer.Read<"api">(outSettings.Api);
@@ -86,37 +87,38 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    GraphicsSystem::GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, WindowSystem& windowSystem)
+    GraphicsSystem::GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, Platform::PlatformSystem& platformSystem)
         : m_AssetSystem(&assetSystem)
-        , m_Window(&windowSystem.GetMainWindow())
+        , m_PlatformSystem(&platformSystem)
         , m_Settings(settings)
     {
-        constexpr StringId32 defaultBlendStateId("default");
-        constexpr StringId32 noBlendStateId("noblend");
-        BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
-        defaultBlendState.IsBlendEnabled = true;
-        defaultBlendState.SourceColor = Blend::SrcAlpha;
-        defaultBlendState.DestinationColor = Blend::OneMinusSrcAlpha;
+       constexpr StringId32 defaultBlendStateId("default");
+       constexpr StringId32 noBlendStateId("noblend");
+       BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
+       defaultBlendState.IsBlendEnabled = true;
+       defaultBlendState.SourceColor = Blend::SrcAlpha;
+       defaultBlendState.DestinationColor = Blend::OneMinusSrcAlpha;
 
-        BlendState& noBlendState = m_BlendStates[noBlendStateId];
-        noBlendState.IsBlendEnabled = false;
+       BlendState& noBlendState = m_BlendStates[noBlendStateId];
+       noBlendState.IsBlendEnabled = false;
 
-        for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-        {
-            m_FrameContext[i].Api = this;
-        }
+       for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+       {
+           m_FrameContext[i].Api = this;
+       }
 
-        m_GraphicsSystem = MakeUnique<Vulkan::VulkanGraphicsApi>();
-        m_GraphicsSystem->Init(m_Settings, *m_Window);
+       const Platform::Window& mainWindow = platformSystem.GetMainWindow();
+       m_GraphicsSystem = MakeUnique<Vulkan::VulkanGraphicsApi>();
+       m_GraphicsSystem->Init(m_Settings, mainWindow);
 
-        m_DepthTextureFormat = TextureFormat::DEPTH_FLOAT32;
-        CreateDepthImages();
-        CreateViewConstantBuffers();
+       m_DepthTextureFormat = TextureFormat::DEPTH_FLOAT32;
+       CreateDepthImages(mainWindow.GetFrameBufferSize());
+       CreateViewConstantBuffers();
 
-        m_PresentThread.Start();
+       m_PresentThread.Start();
 
-        // load default rendergraph
-        assetSystem.GetAsset(m_Settings.DefaultRenderGraph, m_RenderGraph);
+       // load default rendergraph
+       assetSystem.GetAsset(m_Settings.DefaultRenderGraph, m_RenderGraph);
     }
 
     GraphicsSystem::~GraphicsSystem()
@@ -141,16 +143,14 @@ namespace Onyx::Graphics
         m_GraphicsSystem->Shutdown();
     }
 
-    void GraphicsSystem::CreateDepthImages()
+    void GraphicsSystem::CreateDepthImages(Vector2s32 extents)
     {
-        const Vector2s32& windowExtent = m_Window->GetFrameBufferSize();
-
-        if (windowExtent == m_DepthTextureExtent)
+        if (extents == m_DepthTextureExtent)
         {
             return;
         }
 
-        m_DepthTextureExtent = windowExtent;
+        m_DepthTextureExtent = extents;
 
         TextureStorageProperties depthTargetStorageProperties;
         depthTargetStorageProperties.m_Size = Vector3s32{ m_DepthTextureExtent, 1 };
@@ -188,8 +188,8 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE(Graphics);
         ONYX_PROFILE_FUNCTION;
-
-        if (m_Window->IsMinimized())
+        Platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
+        if (mainWindow.IsMinimized())
             return false;
 
         if (m_RenderGraph.IsValid() == false || m_RenderGraph->IsLoaded() == false)
@@ -207,7 +207,7 @@ namespace Onyx::Graphics
             m_HasWindowResized = false;
             m_PresentThread.ClearQueue();
             m_FramebufferCache.Clear();
-            CreateDepthImages();
+            CreateDepthImages(mainWindow.GetFrameBufferSize());
             m_RenderGraph->OnSwapChainResized(*this);
             return false;
         }
@@ -436,12 +436,12 @@ namespace Onyx::Graphics
 
     void GraphicsSystem::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
     {
-        if (m_Window->IsMinimized())
-        {
-            return;
-        }
+        //if (m_Window->IsMinimized())
+        //{
+        //    return;
+        //}
 
-        m_HasWindowResized = true;
+        //m_HasWindowResized = true;
     }
 
     void GraphicsSystem::LoadSettings()

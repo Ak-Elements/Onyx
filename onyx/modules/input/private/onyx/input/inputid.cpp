@@ -1,9 +1,9 @@
 #include <onyx/input/inputid.h>
 
 #include <onyx/input/gamecontroller.h>
-#include <onyx/input/inputtypes.h>
-#include <onyx/input/keycodes.h>
 #include <onyx/input/mouse.h>
+#include <onyx/input/keycodes.h>
+#include <onyx/input/inputtypes.h>
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 

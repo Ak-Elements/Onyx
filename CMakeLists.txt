@@ -16,7 +16,7 @@ set(ONYX_VERSION_SUFFIX "${MAJOR_VERSION}.${MINOR_VERSION}")
 project (
     onyx
     VERSION ${ONYX_VERSION}
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 if (NOT onyx_SOURCE_DIR)
@@ -73,13 +73,13 @@ if (CMAKE_COMPILER_IS_GNUCXX OR ((${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") AND 
     set( ONYX_COMPILE_OPTIONS
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti -Wno-comment>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>: >
-    $<$<CXX_COMPILER_ID:GNU>: -Wno-changes-meaning>)
+    $<$<CXX_COMPILER_ID:GNU>: -Wno-changes-meaning> CACHE STRING "Onyx target compile options")
     set( ONYX_LINK_OPTIONS
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >)
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: > CACHE STRING "Onyx target link options")
 
 elseif (MSVC)
-    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- )
-    set( ONYX_LINK_OPTIONS /ignore:4099 )
+    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- CACHE STRING "Onyx target compile options")
+    set( ONYX_LINK_OPTIONS /ignore:4099 CACHE STRING "Onyx target link options")
 endif()
 
 set( ONYX_PUBLIC_DEFINES 

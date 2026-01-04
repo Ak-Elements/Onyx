@@ -4,7 +4,7 @@
 
 namespace Onyx::Application
 {
-    MeshSourceAsset::MeshSourceAsset(const FileSystem::Filepath& path)
+    MeshSourceAsset::MeshSourceAsset(const FilePath& path)
     {
         FileSystem::OnyxFile meshSource(path);
         FileSystem::FileStream stream = meshSource.OpenStream(FileSystem::OpenMode::Text | FileSystem::OpenMode::Read);

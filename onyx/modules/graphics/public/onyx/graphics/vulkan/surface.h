@@ -2,6 +2,7 @@
 
 #include <onyx/noncopyable.h>
 #include <onyx/graphics/vulkan/vulkan.h>
+#include <onyx/platform/window.h>
 
 namespace Onyx::Graphics
 {
@@ -14,7 +15,7 @@ namespace Onyx::Graphics::Vulkan
 	class Surface : public NonCopyable
 	{
 	public:
-		Surface(const Instance& instance, const Window& window);
+		Surface(const Instance& instance, const Platform::Window& window);
 		~Surface();
 
 	private:

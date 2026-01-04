@@ -1,0 +1,15 @@
+[target]
+name = \"${target_name}\"
+namespace = \"${target_namespace}\"
+
+[paths]
+source_dir  = \"${CMAKE_CURRENT_SOURCE_DIR}\"
+binary_dir  = \"${CMAKE_CURRENT_BINARY_DIR}\"
+public_dir_suffix  = \"${public_dir_suffix}\"
+private_dir_suffix = \"${private_dir_suffix}\"
+
+[sources]
+public = [${public_sources_string}]
+
+[includes]
+directories = [${include_directories_string}]

@@ -6,7 +6,7 @@
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 #include <onyx/editor/panels/sceneeditor/terrainpanel.h>
-#include <onyx/input/inputactionsystem.h>
+#include <onyx/inputactions/inputactionsystem.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/ui/imguiwindow.h>
@@ -25,7 +25,6 @@ namespace Onyx
     {
         class AssetSystem;
     }
-
 }
 
 namespace Onyx::Editor
@@ -39,7 +38,7 @@ namespace Onyx::Editor
     public:
         static constexpr StringView WindowId = "SceneEditor";
 
-        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, Input::InputActionSystem& inputActionSystem);
+        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, InputActions::InputActionSystem& inputActionSystem);
         ~SceneEditorWindow() override;
 
         Reference<GameCore::Scene>& GetScene() { return m_Scene; }
@@ -64,12 +63,12 @@ namespace Onyx::Editor
 
         void RenderMenuBar();
 
-        void OnGizmoModeAction(const Input::InputActionEvent& inputActionContext);
-        void OnCameraMoveInput(const Input::InputActionEvent& inputActionContext);
-        void OnCameraRotationInput(const Input::InputActionEvent& inputActionContext);
-        void OnCameraSpeedInput(const Input::InputActionEvent& inputActionContext);
-        void OnCameraSpeedUp(const Input::InputActionEvent& inputActionContext);
-        void OnCameraSlowDown(const Input::InputActionEvent& inputActionContext);
+        void OnGizmoModeAction(const InputActions::InputActionEvent& inputActionContext);
+        void OnCameraMoveInput(const InputActions::InputActionEvent& inputActionContext);
+        void OnCameraRotationInput(const InputActions::InputActionEvent& inputActionContext);
+        void OnCameraSpeedInput(const InputActions::InputActionEvent& inputActionContext);
+        void OnCameraSpeedUp(const InputActions::InputActionEvent& inputActionContext);
+        void OnCameraSlowDown(const InputActions::InputActionEvent& inputActionContext);
 
         void LoadScene(Assets::AssetId sceneAssetId);
         void OnSceneLoaded(const Reference<GameCore::Scene>& sceneAsset);
@@ -86,7 +85,7 @@ namespace Onyx::Editor
 
         GameCore::GameCoreSystem& m_GameCore;
         Graphics::GraphicsSystem& m_GraphicsSystem;
-        Input::InputActionSystem& m_InputActionSystem;
+        InputActions::InputActionSystem& m_InputActionSystem;
         Assets::AssetSystem* m_AssetSystem;
         ImGuiWindowClass* m_WindowClass;
 
@@ -97,7 +96,7 @@ namespace Onyx::Editor
         SceneEditor::ComponentsPanel m_ComponentsPanel;
         SceneEditor::TerrainPanel m_TerrainPanel;
 
-        Reference<Input::InputActionsAsset> m_LevelEditorActions;
+        Reference<InputActions::InputActionsAsset> m_LevelEditorActions;
         Entity::EntityId m_EditorCameraEntity = Entity::EntityId(0);
 
         bool m_HasSelectedEntity = false;

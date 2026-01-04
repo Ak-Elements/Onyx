@@ -27,40 +27,54 @@ namespace Onyx::Input
     {
         virtual ~InputEvent() = default;
 
-        bool IsMouseEvent() const { return (m_Id == InputEventType::MouseButtonUp) || (m_Id == InputEventType::MouseButtonDown) || (m_Id == InputEventType::MousePositionChanged) || (m_Id == InputEventType::MouseWheel); }
-        bool IsKeyboardEvent() const { return (m_Id == InputEventType::KeyUp) || (m_Id == InputEventType::KeyDown) || (m_Id == InputEventType::KeyRepeat) || (m_Id == InputEventType::KeyCharacter); }
+        bool IsMouseEvent() const { return IsMouseAxisEvent() || IsMouseButtonEvent() || IsMousePositionEvent(); }
+        bool IsMouseAxisEvent() const { return (Id == InputEventType::MouseWheel); }
+        bool IsMouseButtonEvent() const { return (Id == InputEventType::MouseButtonUp) || (Id == InputEventType::MouseButtonDown); }
+        bool IsMousePositionEvent() const { return (Id == InputEventType::MousePositionChanged); }
+        bool IsKeyboardEvent() const { return (Id == InputEventType::KeyUp) || (Id == InputEventType::KeyDown) || (Id == InputEventType::KeyRepeat) || (Id == InputEventType::KeyCharacter); }
 
-        bool IsGamepadButtonEvent() const { return (m_Id == InputEventType::GameControllerButtonDown) || (m_Id == InputEventType::GameControllerButtonUp) || (m_Id == InputEventType::GameControllerButtonRepeat); }
-        bool IsGamepadAxisEvent() const { return (m_Id == InputEventType::GameControllerAxis); }
+        bool IsGamepadButtonEvent() const { return (Id == InputEventType::GameControllerButtonDown) || (Id == InputEventType::GameControllerButtonUp) || (Id == InputEventType::GameControllerButtonRepeat); }
+        bool IsGamepadAxisEvent() const { return (Id == InputEventType::GameControllerAxis); }
 
-        InputEventType m_Id = InputEventType::Invalid;
+        InputEventType Id = InputEventType::Invalid;
     };
 
     struct KeyboardEvent : public InputEvent
     {
         //Key
-        onyxU16 m_Char = 0;
-        Key m_Key;
+        onyxU16 Char;
+        Key Key;
+        bool State;
     };
 
-    struct MouseEvent : public InputEvent
+    struct MouseButtonEvent : public InputEvent
     {
         // TODO split into seperate events?
-        MouseButton m_Button;
-        Vector2s16 m_Position;
-        onyxS16 m_Scroll;
+        MouseButton Button;
+        bool IsPressed;
+    };
+
+    struct MousePositionEvent : public InputEvent
+    {
+        Vector2s32 Position;
+    };
+
+    struct MouseAxisEvent : public InputEvent
+    {
+        onyxS16 Value;
     };
 
     struct GameControllerButtonEvent : public InputEvent
     {
-        onyxU32 m_ControllerIndex;
-        GameControllerButton m_Button;
+        onyxU32 ControllerIndex;
+        GameControllerButton Button;
+        bool IsPressed;
     };
 
     struct GameControllerAxisEvent : public InputEvent
     {
-        onyxU32 m_ControllerIndex;
-        GameControllerAxis m_Axis;
-        onyxS16 m_Value;
+        onyxU32 ControllerIndex;
+        GameControllerAxis Axis;
+        onyxS16 Value;
     };
 }

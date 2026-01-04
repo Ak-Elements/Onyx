@@ -48,7 +48,7 @@ namespace Onyx::Graphics
 		HashSet<String> GetIncludes() const;
 
     private:
-		HashSet<FileSystem::Filepath> m_IncludeDirectories;
+		HashSet<FilePath> m_IncludeDirectories;
 		HashSet<ShaderInclude> m_Includes;
 		HashSet<String> m_ParsedSpecialMacros;
 	};

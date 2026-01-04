@@ -3,12 +3,10 @@
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/graphics/vulkan/debugutilsmessenger.h>
 #include <onyx/graphics/vulkan/vulkan.h>
-#include <onyx/graphics/window.h>
 
 namespace Onyx::Graphics::Vulkan
 {
-    Instance::Instance(const GraphicSettings& settings, const Window& window, const DynamicArray<const char*>& validationLayers)
-        : m_Window(&window)
+    Instance::Instance(const GraphicSettings& settings, const Platform::Window& window, const DynamicArray<const char*>& validationLayers)
     {
 		// Application
 		VkApplicationInfo appInfo{};
@@ -20,7 +18,9 @@ namespace Onyx::Graphics::Vulkan
 		appInfo.apiVersion = VULKAN_API_VERSION;
 		appInfo.pNext = nullptr;
         
+		// TODO: should this come from the platform context?
 		std::vector<const char*> requiredExtensions;
+		requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 		window.GetRequiredExtensions(requiredExtensions);
 
         if (m_EnableValidations)

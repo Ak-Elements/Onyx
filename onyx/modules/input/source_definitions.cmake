@@ -1,54 +1,14 @@
 set(onyx_TARGET_PUBLIC_SOURCES
-    gamecontroller.h
-    inputaction.h
-    inputactionsasset.h
-    inputactionsmap.h
-    inputactionsserializer.h
-    inputactionsystem.h
+    gamecontroller.h    
+    inputevent.h
     inputid.h
     inputsystem.h
     inputtypes.h
     keycodes.h
     mouse.h
-    bindings/inputbinding.h
-    bindings/inputbindingaxis1d.h
-    bindings/inputbindingaxis1dcomposite.h
-    bindings/inputbindingaxis2d.h
-    bindings/inputbindingaxis2dcomposite.h
-    bindings/inputbindingaxis3d.h
-    bindings/inputbindingaxis3dcomposite.h
-    bindings/inputbindingbool.h
-    bindings/inputbindingsfactory.h
-    modifiers/inputmodifier.h
-    modifiers/inputmodifiersfactory.h
-    triggers/inputtrigger.h
-    triggers/inputtriggersfactory.h
-    platform/windows/windows_gamecontroller.h
-    platform/windows/windows_keycodes.h
-    triggers/dependantactiontrigger.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
-    inputaction.cpp
-    inputactionsasset.cpp
-    inputactionsmap.cpp
-    inputactionsserializer.cpp
-    inputactionsystem.cpp
     inputid.cpp
     inputsystem.cpp
-    bindings/inputbinding.cpp
-    bindings/inputbindingaxis1d.cpp
-    bindings/inputbindingaxis1dcomposite.cpp
-    bindings/inputbindingaxis2d.cpp
-    bindings/inputbindingaxis2dcomposite.cpp
-    bindings/inputbindingaxis3d.cpp
-    bindings/inputbindingaxis3dcomposite.cpp
-    bindings/inputbindingbool.cpp
-    bindings/inputbindingsfactory.cpp
-    modifiers/inputmodifier.cpp
-    modifiers/inputmodifiersfactory.cpp
-    platform/windows/windows_gamecontroller.cpp
-    triggers/dependantactiontrigger.cpp
-    triggers/inputtrigger.cpp
-    triggers/inputtriggersfactory.cpp
 )

@@ -3,7 +3,6 @@
 #include <onyx/graphics/vulkan/device.h>
 #include <onyx/graphics/vulkan/surface.h>
 
-#include <onyx/graphics/window.h>
 #include <onyx/graphics/vulkan/commandbuffer.h>
 #include <onyx/graphics/vulkan/commandpool.h>
 #include <onyx/graphics/vulkan/fence.h>
@@ -106,7 +105,7 @@ bool SwapChain::Present(onyxU8 frameIndex, onyxU32 imageIndex)
 
 void SwapChain::Init()
 {
-	const Window& window = m_GraphicsApi.GetWindow();
+	const Platform::Window& window = m_GraphicsApi.GetWindow();
 	if (window.IsMinimized())
 		return;
 

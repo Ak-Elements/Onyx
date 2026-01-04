@@ -37,7 +37,7 @@ namespace Onyx::Graphics
             VulkanGraphicsApi();
             ~VulkanGraphicsApi() override;
 
-            void Init(const GraphicSettings& settings, const Window& window) override;
+            void Init(const GraphicSettings& settings, const Platform::Window& window) override;
             void Shutdown() override;
 
             bool BeginFrame(const FrameContext& context) override;
@@ -54,7 +54,7 @@ namespace Onyx::Graphics
             MemoryAllocator& GetAllocator() { return *m_Allocator; }
             const MemoryAllocator& GetAllocator() const { return *m_Allocator; }
             
-            const Window& GetWindow() const { return *m_Window; }
+            const Platform::Window& GetWindow() const { return *m_Window; }
 
             // TODO: turn into own settings object instead of storing on device
             bool IsBindless() const override { return m_IsBindlessEnabled; }
@@ -107,7 +107,7 @@ namespace Onyx::Graphics
 
         private:
             std::mutex m_GraphicsMutex;
-            const Window* m_Window = nullptr;
+            const Platform::Window* m_Window = nullptr;
 
             UniquePtr<Instance> m_Instance;
             UniquePtr<PhysicalDevice> m_PhysicalDevice;

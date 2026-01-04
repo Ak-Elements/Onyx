@@ -135,7 +135,7 @@ namespace Onyx::Editor
 
         virtual bool Compile() = 0;
 
-        void Load(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path);
+        void Load(Assets::AssetSystem& assetSystem, const FilePath& path);
         void Save(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& assetMeta);
         bool IsLoading() const { return m_IsLoading; };
 
@@ -147,8 +147,8 @@ namespace Onyx::Editor
         Callback<void(const Link&)> OnLinkCreated;
         Callback<void(const Link&)> OnLinkDeleted;
 
-        Callback<void(const FileSystem::Filepath&)> LoadEditorMetaDataFunctor;
-        Callback<void(const FileSystem::Filepath&)> SaveEditorMetaDataFunctor;
+        Callback<void(const FilePath&)> LoadEditorMetaDataFunctor;
+        Callback<void(const FilePath&)> SaveEditorMetaDataFunctor;
 
     protected:
         virtual const NodeGraph::INodeFactory& GetNodeFactory() const = 0;
@@ -156,7 +156,7 @@ namespace Onyx::Editor
 
     private:
         virtual void OnSave(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& assetMeta) = 0;
-        virtual void OnLoad(Assets::AssetSystem& assetSystem, const FileSystem::Filepath& path) = 0;
+        virtual void OnLoad(Assets::AssetSystem& assetSystem, const FilePath& path) = 0;
 
         virtual void OnDrawNode(const Node& node) = 0;
         virtual void OnDrawNodeBackground(const Node& node) = 0;

@@ -557,10 +557,9 @@ namespace Onyx::Editor
 
     void SculptTerrainTool::Render()
     {
-        bool focusSceneView;
         onyxF32 iconSize = 64;
 
-        ImGui::BeginHorizontal("WTF", ImVec2(0, 0));
+        ImGui::BeginHorizontal("##group", ImVec2(0, 0));
         {
             Ui::ScopedImGuiStyle style
             {
@@ -573,8 +572,8 @@ namespace Onyx::Editor
                 {ImGuiCol_ButtonHovered, 0xFFBB9977},
                 {ImGuiCol_ButtonActive, 0xFFEEAA77}
             };
-            focusSceneView |= RenderBrushToolbarButton(SculptType::Raise, iconSize);
-            focusSceneView |= RenderBrushToolbarButton(SculptType::Lower, iconSize);
+            RenderBrushToolbarButton(SculptType::Raise, iconSize);
+            RenderBrushToolbarButton(SculptType::Lower, iconSize);
 
             // not implemented yet
             //focusSceneView |= RenderBrushToolbarButton(SculptType::Smooth, iconSize);
@@ -680,6 +679,8 @@ namespace Onyx::Editor
             break;
         case SculptType::Stamp:
             DrawStampIcon(cursorPos, buttonSize, color);
+            break;
+        case SculptType::None:
             break;
         }
 

@@ -16,7 +16,7 @@ namespace Onyx::Volume
         constexpr StringView GENERATE_VOLUME_MESH_SHADER_FILENAME = "generate_volume.oshader";
         constexpr StringView RAYTRACE_TERRAIN_SHADER_FILENAME = "raytrace_terrain.oshader";
 
-        bool WriteFile(const FileSystem::Filepath& path, StringView content)
+        bool WriteFile(const FilePath& path, StringView content)
         {
             FileSystem::FileStream outFileStream(path, FileSystem::OpenMode::Write | FileSystem::OpenMode::Text);
 
@@ -27,7 +27,7 @@ namespace Onyx::Volume
             return true;
         }
 
-        bool WriteTemplateFile(const FileSystem::Filepath& path, StringView templateCode, FileSystem::Filepath volumeHeaderFileName)
+        bool WriteTemplateFile(const FilePath& path, StringView templateCode, FilePath volumeHeaderFileName)
         {
             String shaderCode = Replace(templateCode, "@VERSION@", "1");
             shaderCode = Replace(shaderCode, "@BASE_TERRAIN_SDF_SHADER@", volumeHeaderFileName.generic_string());
@@ -42,14 +42,14 @@ namespace Onyx::Volume
         if (Graphics::ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
             return false;
 
-        FileSystem::Filepath volumeShaderPath= FileSystem::Path::ReplaceExtension(meta.Path, "h");
-        FileSystem::Filepath volumeShaderGraphHeaderPath = FileSystem::Path::GetFullPath(volumeShaderPath);
+        FilePath volumeShaderPath= FileSystem::Path::ReplaceExtension(meta.Path, "h");
+        FilePath volumeShaderGraphHeaderPath = FileSystem::Path::GetFullPath(volumeShaderPath);
 
         // write out header
         WriteFile(volumeShaderGraphHeaderPath, shaderGraph.GetShaderCode());
 
-        FileSystem::Filepath directoryPath = volumeShaderGraphHeaderPath.parent_path();
-        FileSystem::Filepath volumeHeaderFileName = volumeShaderPath.filename();
+        FilePath directoryPath = volumeShaderGraphHeaderPath.parent_path();
+        FilePath volumeHeaderFileName = volumeShaderPath.filename();
 
         WriteTemplateFile(directoryPath / BUILD_OCTREE_SHADER_FILENAME, BUILD_OCTREE_SHADER, volumeHeaderFileName);
         WriteTemplateFile(directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME, FIND_OCTREE_NODE_SHADER, volumeHeaderFileName);
@@ -65,7 +65,7 @@ namespace Onyx::Volume
         if (Graphics::ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
             return false;
 
-        FileSystem::Filepath directoryPath = FileSystem::Path::ConvertToMountPath(meta.Path).parent_path();
+        FilePath directoryPath = FileSystem::Path::ConvertToMountPath(meta.Path).parent_path();
         shaderGraph.m_BuildOctreeShader = Assets::AssetId(directoryPath / BUILD_OCTREE_SHADER_FILENAME);
         shaderGraph.m_FindOctreeNodeShader = Assets::AssetId(directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME);
         shaderGraph.m_GenerateVolumeMeshShader = Assets::AssetId(directoryPath / GENERATE_VOLUME_MESH_SHADER_FILENAME);

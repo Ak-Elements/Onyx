@@ -138,7 +138,7 @@ namespace Onyx::Assets
         bool SaveAsset(const Reference<T>& asset);
 
         template <typename T>
-        bool SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset);
+        bool SaveAssetAs(const FilePath& newPath, const Reference<T>& asset);
 #endif
 
         template <typename AssetT> requires std::is_base_of_v<AssetInterface, AssetT >
@@ -320,7 +320,7 @@ namespace Onyx::Assets
     }
 
     template <typename T>
-    bool AssetSystem::SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset)
+    bool AssetSystem::SaveAssetAs(const FilePath& newPath, const Reference<T>& asset)
     {
         constexpr StringId32 assetTypeHash = T::TypeId;
         AssetId newAssetId(newPath);

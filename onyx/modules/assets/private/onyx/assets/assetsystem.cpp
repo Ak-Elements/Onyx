@@ -41,7 +41,7 @@ namespace Onyx::Assets
                         ToLower(assetPath);
 
                         assetPath = mountPoint.Prefix + assetPath;
-                        metaData.Id = AssetId(FileSystem::Filepath(assetPath));
+                        metaData.Id = AssetId(FilePath(assetPath));
                         metaData.Path = assetPath;
 
                         metaData.Version = version;

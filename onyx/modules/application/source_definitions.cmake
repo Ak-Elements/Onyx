@@ -12,13 +12,13 @@ set(onyx_TARGET_PUBLIC_SOURCES
 
 set(onyx_TARGET_PRIVATE_SOURCES
     application.cpp
+    main.cpp
     debug/gui/statusbaroverlay.cpp
     debug/gui/keyboardoverlay.cpp
     debug/gui/notificationloggersink.cpp
     debug/gui/fpsstatusbaritem.cpp
     graphics/meshsourceasset.cpp
     log/logsinkfile.cpp
-    platform/windows/main.cpp
     taskgraph/taskgraph.cpp
     taskgraph/taskgraphtask.cpp
 )

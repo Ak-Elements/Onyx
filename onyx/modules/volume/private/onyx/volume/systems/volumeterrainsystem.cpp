@@ -1,5 +1,5 @@
-#include <onyx/assets/assetsystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
+#include <onyx/assets/assetsystem.h>
 
 #include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycomponentsystem.h>

@@ -1,5 +1,5 @@
 function(onyx_add_target arg_TARGET_NAME)
-    set(options "DISABLE_CODEGEN")  # No boolean options
+    set(options NO_CODEGEN NO_EDITOR_TARGET)  # No boolean options
     set(oneValueArgs NAMESPACE PRECOMPILED_HEADER TARGET_TYPE FOLDER ALIAS)
     set(multiValueArgs PUBLIC_SOURCES PRIVATE_SOURCES PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
 
@@ -11,8 +11,24 @@ function(onyx_add_target arg_TARGET_NAME)
         "${multiValueArgs}"
         ${ARGN}
     )
+    
+    #### Target ####
+    set(targets ${arg_TARGET_NAME})
+    if (arg_TARGET_TYPE AND arg_TARGET_TYPE STREQUAL "EXECUTABLE")
+        add_executable(${arg_TARGET_NAME})
+        set(is_executable True)
+        if (arg_ALIAS)
+            add_executable("${arg_ALIAS}" ALIAS ${arg_TARGET_NAME})
+        endif()
+    else()
+        add_library(${arg_TARGET_NAME} STATIC)
+        set(is_executable False)
+        if (arg_ALIAS)
+            add_library("${arg_ALIAS}" ALIAS ${arg_TARGET_NAME})
+        endif()
+    endif()
 
-    if (arg_DISABLE_CODEGEN)
+    if (arg_NO_CODEGEN)
         set(arg_ENABLE_CODEGEN false)
     endif()
     
@@ -97,28 +113,13 @@ function(onyx_add_target arg_TARGET_NAME)
     list(REMOVE_DUPLICATES arg_PUBLIC_DEPENDENCIES)
     list(REMOVE_DUPLICATES arg_PRIVATE_DEPENDENCIES)
 
-    #### Target ####
-    if (arg_TARGET_TYPE AND arg_TARGET_TYPE STREQUAL "EXECUTABLE")
-        add_executable(${arg_TARGET_NAME})
-
-        if (arg_ALIAS)
-            add_executable("${arg_ALIAS}" ALIAS ${arg_TARGET_NAME})
-        endif()
-    else()
-        add_library(${arg_TARGET_NAME} STATIC)
-
-        if (arg_ALIAS)
-            add_library("${arg_ALIAS}" ALIAS ${arg_TARGET_NAME})
-        endif()
-    endif()
-    
     # Store module name in a global property
     set_property(GLOBAL APPEND PROPERTY onyx_targets "${arg_NAMESPACE}")
 
     if(arg_PUBLIC_SOURCES)
         target_sources(${arg_TARGET_NAME} PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS "${arg_PUBLIC_BASE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
+            BASE_DIRS "${arg_PUBLIC_BASE_DIR}"
             FILES ${arg_PUBLIC_SOURCES}
         )
 
@@ -128,12 +129,10 @@ function(onyx_add_target arg_TARGET_NAME)
     if(arg_PRIVATE_SOURCES)
         target_sources(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_SOURCES})
         source_group(TREE ${arg_PRIVATE_SOURCES_DIR} FILES ${arg_PRIVATE_SOURCES})
-
-        
     endif()
     
     #### Target Properties ####
-    set_target_properties(${arg_TARGET_NAME}
+    set_target_properties(${targets}
         PROPERTIES
             CXX_STANDARD 23
             CXX_STANDARD_REQUIRED YES
@@ -145,7 +144,7 @@ function(onyx_add_target arg_TARGET_NAME)
     )
 
     if (arg_NAMESPACE)
-        set_target_properties(${arg_TARGET_NAME} PROPERTIES EXPORT_NAME "${arg_NAMESPACE}")
+        set_target_properties(${targets} PROPERTIES EXPORT_NAME "${arg_NAMESPACE}")
     endif()
 
     if (arg_FOLDER)
@@ -158,20 +157,20 @@ function(onyx_add_target arg_TARGET_NAME)
     endif()
 
     #### Compiler Defines ####
-    target_compile_definitions(${arg_TARGET_NAME} PUBLIC ${ONYX_PUBLIC_DEFINES})
-    target_compile_definitions(${arg_TARGET_NAME} PRIVATE ${ONYX_PRIVATE_DEFINES})
+    target_compile_definitions(${targets} PUBLIC ${ONYX_PUBLIC_DEFINES})
+    target_compile_definitions(${targets} PRIVATE ${ONYX_PRIVATE_DEFINES})
 
-    if (DEFINED arg_PUBLIC_DEFINES)
-        target_compile_definitions(${arg_TARGET_NAME} PUBLIC ${arg_PUBLIC_DEFINES})
+    if (arg_PUBLIC_DEFINES)
+        target_compile_definitions(${targets} PUBLIC ${arg_PUBLIC_DEFINES})
     endif()
 
-     if (DEFINED arg_PRIVATE_DEFINES)
-        target_compile_definitions(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_DEFINES})
+     if (arg_PRIVATE_DEFINES)
+        target_compile_definitions(${targets} PRIVATE ${arg_PRIVATE_DEFINES})
     endif()
 
     #### Compiler & Link Options ####
-    target_compile_options(${arg_TARGET_NAME} PRIVATE ${ONYX_COMPILE_OPTIONS})
-    target_link_options(${arg_TARGET_NAME} PRIVATE ${ONYX_LINK_OPTIONS})
+    target_compile_options(${targets} PRIVATE ${ONYX_COMPILE_OPTIONS})
+    target_link_options(${targets} PRIVATE ${ONYX_LINK_OPTIONS})
 
     target_include_directories(${arg_TARGET_NAME} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>
@@ -188,13 +187,21 @@ function(onyx_add_target arg_TARGET_NAME)
     endif()
     
     if (arg_ENABLE_CODEGEN)
-    
+
+        # add the generated sources folder to the include directories for the generator to be able generate correct includes
+        target_sources(${arg_TARGET_NAME} PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
+        )
+
         #### Module Code Generation Target ####
         onyx_add_code_gen_target(
             TARGET ${arg_TARGET_NAME}
+            TARGET_TYPE ${arg_TARGET_TYPE}
             NAMESPACE ${arg_NAMESPACE}
-            PUBLIC_BINARY_DIR  ${public_sources_dir_suffix}
-            PRIVATE_BINARY_DIR ${private_sources_dir_suffix}
+            PUBLIC_BINARY_DIR_SUFFIX  ${public_sources_dir_suffix}
+            PRIVATE_BINARY_DIR_SUFFIX ${private_sources_dir_suffix}
+            GENERATED_DIR_SUFFIX  "generated"
             PUBLIC_SOURCES ${arg_PUBLIC_SOURCES}
             PUBLIC_DEPENDENCIES ${arg_PUBLIC_DEPENDENCIES}
             PRIVATE_DEPENDENCIES ${arg_PRIVATE_DEPENDENCIES}

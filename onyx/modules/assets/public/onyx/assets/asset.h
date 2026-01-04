@@ -27,7 +27,7 @@ namespace Onyx::Assets
 
     struct AssetMetaData
     {
-        FileSystem::Filepath Path;
+        FilePath Path;
         AssetId Id = AssetId::Invalid;
         AssetType Type = AssetType::Invalid;
         AssetFormat Format = AssetFormat::Json;

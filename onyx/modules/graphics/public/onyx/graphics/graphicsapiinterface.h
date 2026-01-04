@@ -2,6 +2,7 @@
 
 #include <onyx/noncopyable.h>
 #include <onyx/graphics/graphicshandles.h>
+#include <onyx/platform/window.h>
 
 namespace Onyx
 {
@@ -15,7 +16,7 @@ namespace Onyx
     namespace Graphics
     {
         class GraphicsSystem;
-        class Window;
+   
 
         struct FrameContext;
         struct GraphicSettings;
@@ -27,7 +28,7 @@ namespace Onyx
         public:
             virtual ~GraphicsApiInterface() = default;
 
-            virtual void Init(const GraphicSettings& settings, const Window& window) = 0;
+            virtual void Init(const GraphicSettings& settings, const Platform::Window& window) = 0;
             virtual void Shutdown() = 0;
 
             virtual bool BeginFrame(const FrameContext&) = 0;

@@ -107,7 +107,8 @@ namespace Onyx::Ui
                     {
                         tooltip = Format::Format("[ .. {} ]", options.Max);
                     }
-                    ImGui::SetItemTooltip(tooltip.c_str());
+                    
+                    ImGui::SetItemTooltip("%s", tooltip.c_str());
                 }
                 else
                 {

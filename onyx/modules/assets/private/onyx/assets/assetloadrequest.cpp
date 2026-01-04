@@ -40,7 +40,7 @@ namespace Onyx::Assets
         // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
         ONYX_ASSERT(Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not load assets on the main thread");
 
-        FileSystem::Filepath path = FileSystem::Path::GetFullPath(MetaData.Path);
+        FilePath path = FileSystem::Path::GetFullPath(MetaData.Path);
         String assetName = MetaData.Path.string();
         
         //tracy_scope_AssetSystem.NameFmt("%s", assetName.c_str());
@@ -96,7 +96,7 @@ namespace Onyx::Assets
         // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
         ONYX_ASSERT(Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not save assets on the main thread");
 
-        //FileSystem::Filepath relativePath = Path.lexically_relative(FileSystem::Path::GetDataDirectory());
+        //FilePath relativePath = Path.lexically_relative(FileSystem::Path::GetDataDirectory());
         //String assetName = relativePath.string();
         //ZoneText(assetName.c_str(), assetName.length());
 
