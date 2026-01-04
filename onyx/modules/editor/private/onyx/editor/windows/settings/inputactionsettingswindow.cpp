@@ -32,12 +32,25 @@ namespace Onyx::Editor
 {
     InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem)
         : m_AssetSystem(&assetSystem)
+        , m_InputSystem(&inputSystem)
     {
-        inputSystem.AddOnInputHandler(this, &InputActionSettingsWindow::OnInputEvent);
+        inputSystem.OnMouseAxisChange().Connect<&InputActionSettingsWindow::OnMouseAxisChange>(this);
+        inputSystem.OnMouseButton().Connect<&InputActionSettingsWindow::OnMouseButton>(this);
+        inputSystem.OnMousePositionChange().Connect<&InputActionSettingsWindow::OnMousePositionChange>(this);
+        inputSystem.OnKey().Connect<&InputActionSettingsWindow::OnKey>(this);
+        inputSystem.OnControllerAxisChange().Connect<&InputActionSettingsWindow::OnControllerAxisChange>(this);
+        inputSystem.OnControllerButton().Connect<&InputActionSettingsWindow::OnControllerButton>(this);
+
     }
 
     InputActionSettingsWindow::~InputActionSettingsWindow()
     {
+        m_InputSystem->OnMouseAxisChange().Disconnect(this);
+        m_InputSystem->OnMouseButton().Disconnect(this);
+        m_InputSystem->OnMousePositionChange().Disconnect(this);
+        m_InputSystem->OnKey().Disconnect(this);
+        m_InputSystem->OnControllerAxisChange().Disconnect(this);
+        m_InputSystem->OnControllerButton().Disconnect(this);
     }
 
     void InputActionSettingsWindow::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
@@ -135,7 +148,11 @@ namespace Onyx::Editor
         ImGui::End();
     }
 
-    void InputActionSettingsWindow::OnInputEvent(const Input::InputEvent* inputEvent)
+    void InputActionSettingsWindow::OnMouseAxisChange(const Input::MouseAxisEvent& /*event*/)
+    {
+    }
+
+    void InputActionSettingsWindow::OnMouseButton(const Input::MouseButtonEvent& event)
     {
         if (m_IsListeningOnInput == false)
             return;
@@ -146,36 +163,59 @@ namespace Onyx::Editor
             return;
         }
 
-        if (inputEvent->Id == Input::InputEventType::MousePositionChanged)
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Button) });
+    }
+
+    void InputActionSettingsWindow::OnMousePositionChange(const Input::MousePositionEvent& /*event*/)
+    {
+    }
+
+    void InputActionSettingsWindow::OnKey(const Input::KeyboardEvent& event)
+    {
+        if (m_IsListeningOnInput == false)
             return;
 
-        InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
-        DynamicArray<InputActions::InputAction>& availableActions = selectedMap.GetActions();
-        InputActions::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
-        DynamicArray<UniquePtr<InputActions::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
-        InputActions::InputBinding& selectedInputBinding = *selectedActionBindings[m_SelectedBindingIndex];
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
+        {
+            m_IsListeningOnInput = false;
+            return;
+        }
 
-        if (inputEvent->IsMouseButtonEvent())
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Key) });
+        m_IsListeningOnInput = false;
+    }
+
+    void InputActionSettingsWindow::OnControllerAxisChange(const Input::GameControllerAxisEvent& event)
+    {
+        if (m_IsListeningOnInput == false)
+            return;
+
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
         {
-            const Input::MouseButtonEvent* mouseEvent = static_cast<const Input::MouseButtonEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(mouseEvent->Button) });
+            m_IsListeningOnInput = false;
+            return;
         }
-        else if (inputEvent->IsKeyboardEvent())
+
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Axis) });
+        m_IsListeningOnInput = false;
+    }
+
+    void InputActionSettingsWindow::OnControllerButton(const Input::GameControllerButtonEvent& event)
+    {
+        if (m_IsListeningOnInput == false)
+            return;
+
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
         {
-            const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(keyboardEvent->Key) });
-            }
-        else if (inputEvent->IsGamepadButtonEvent())
-        {
-            const Input::GameControllerButtonEvent* gamepadButtonEvent = static_cast<const Input::GameControllerButtonEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(gamepadButtonEvent->Button) });
-            }
-        else if (inputEvent->IsGamepadAxisEvent())
-        {
-            const Input::GameControllerAxisEvent* gamepadAxisEvent = static_cast<const Input::GameControllerAxisEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(gamepadAxisEvent->Axis) });
+            m_IsListeningOnInput = false;
+            return;
         }
-        
+
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Button) });
         m_IsListeningOnInput = false;
     }
 
@@ -410,6 +450,17 @@ namespace Onyx::Editor
         m_SelectedActionIndex = INVALID_INDEX_32;
         m_SelectedBindingIndex = INVALID_INDEX_32;
         m_SelectedBindingSlotIndex = INVALID_INDEX_32;
+    }
+
+
+    InputActions::InputBinding& InputActionSettingsWindow::GetSelectedInputBinding()
+    {
+        InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+        DynamicArray<InputActions::InputAction>& availableActions = selectedMap.GetActions();
+        InputActions::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
+        DynamicArray<UniquePtr<InputActions::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
+        InputActions::InputBinding& selectedInputBinding = *selectedActionBindings[m_SelectedBindingIndex];
+        return selectedInputBinding;
     }
 
     void InputActionSettingsWindow::RenderSelectedBindingProperties()

@@ -31,78 +31,82 @@ namespace Onyx::Input
 namespace Onyx::Platform
 {
     class PlatformSystem;
-    class WaylandInput;
 
-    struct Xkb
+    namespace Wayland
     {
-        xkb_context* Context = nullptr;
-        xkb_compose_state* ComposeState = nullptr;
+        class Input;
 
-        onyxU32 ControlIndex = 0;
-        onyxU32 AltIndex = 0;
-        onyxU32 ShiftIndex = 0;
-        onyxU32 SuperIndex = 0;
-        onyxU32 CapsLockIndex = 0;
-        onyxU32 NumLockIndex = 0;
+        struct Xkb
+        {
+            xkb_context* Context = nullptr;
+            xkb_compose_state* ComposeState = nullptr;
 
-        void SetState(xkb_state *state);
-        xkb_state* GetState() { return m_State; }
-        const xkb_state* GetState() const { return m_State; }
+            onyxU32 ControlIndex = 0;
+            onyxU32 AltIndex = 0;
+            onyxU32 ShiftIndex = 0;
+            onyxU32 SuperIndex = 0;
+            onyxU32 CapsLockIndex = 0;
+            onyxU32 NumLockIndex = 0;
 
-        void SetKeymap(xkb_keymap *keymap);
-        xkb_keymap* GetKeymap() { return m_Keymap; }
-        const xkb_keymap* GetKeymap() const { return m_Keymap; }
+            void SetState(xkb_state* state);
+            xkb_state* GetState() { return m_State; }
+            const xkb_state* GetState() const { return m_State; }
 
-    private:
-        xkb_keymap* m_Keymap = nullptr;
-        xkb_state* m_State = nullptr;
-    };
+            void SetKeymap(xkb_keymap* keymap);
+            xkb_keymap* GetKeymap() { return m_Keymap; }
+            const xkb_keymap* GetKeymap() const { return m_Keymap; }
 
-    class WaylandPlatformContext : public Thread
-    {
-    public:
-        WaylandPlatformContext(PlatformSystem& platformSystem);
-        ~WaylandPlatformContext();
+        private:
+            xkb_keymap* m_Keymap = nullptr;
+            xkb_state* m_State = nullptr;
+        };
 
-        wl_display* GetDisplayHandle() { return m_Display; }
-        wl_registry* GetRegistryHandle() { return m_Registry; }
-        wl_compositor* GetCompositiorHandle() { return m_Compositor; }
-        wl_seat* GetSeatHandle() { return m_Seat; }
-        wl_shm* GetSharedMemory() { return m_SharedMemory; }
-        
-        Xkb& GetXkb() { return m_Xkb; }
+        class PlatformContext : public Thread
+        {
+        public:
+            PlatformContext(PlatformSystem& platformSystem);
+            ~PlatformContext();
 
-        xdg_wm_base* GetShellHandle() { return m_Shell; }
+            wl_display* GetDisplayHandle() { return m_Display; }
+            wl_registry* GetRegistryHandle() { return m_Registry; }
+            wl_compositor* GetCompositiorHandle() { return m_Compositor; }
+            wl_seat* GetSeatHandle() { return m_Seat; }
+            wl_shm* GetSharedMemory() { return m_SharedMemory; }
 
-        zxdg_decoration_manager_v1* GetDecorationManager() { return m_ZxdgDecorationManager; }
-        zxdg_toplevel_decoration_v1* GetDecoration() { return m_ZxdgToplevelDecoration; }
-        
-        Input::InputSystem& GetInputSystem();
+            Xkb& GetXkb() { return m_Xkb; }
 
-    private:
-        static void RegisterCallback(void* data, wl_registry* registry, onyxU32 name, const char* interface, onyxU32 version);
-        static void UnregisterCallback(void* data, wl_registry* registry, onyxU32 name);
+            xdg_wm_base* GetShellHandle() { return m_Shell; }
 
-        void OnUpdate() override;
+            zxdg_decoration_manager_v1* GetDecorationManager() { return m_ZxdgDecorationManager; }
+            zxdg_toplevel_decoration_v1* GetDecoration() { return m_ZxdgToplevelDecoration; }
 
-    private:
-        Atomic<bool> m_IsInitialized = false;
-        PlatformSystem* m_PlatformSystem = nullptr;
+            Input::InputSystem& GetInputSystem();
 
-        wl_display* m_Display = nullptr;
-        wl_registry* m_Registry = nullptr;
-        wl_compositor* m_Compositor = nullptr;
-        xdg_wm_base* m_Shell = nullptr;
-        wl_seat* m_Seat = nullptr;
-        wl_shm* m_SharedMemory = nullptr;
+        private:
+            static void RegisterCallback(void* data, wl_registry* registry, onyxU32 name, const char* interface, onyxU32 version);
+            static void UnregisterCallback(void* data, wl_registry* registry, onyxU32 name);
 
-        Xkb m_Xkb;
+            void OnUpdate() override;
 
-        zxdg_decoration_manager_v1* m_ZxdgDecorationManager = nullptr;
-        zxdg_toplevel_decoration_v1* m_ZxdgToplevelDecoration = nullptr;
+        private:
+            Atomic<bool> m_IsInitialized = false;
+            PlatformSystem* m_PlatformSystem = nullptr;
 
-        UniquePtr<WaylandInput> m_Input;
-    };
+            wl_display* m_Display = nullptr;
+            wl_registry* m_Registry = nullptr;
+            wl_compositor* m_Compositor = nullptr;
+            xdg_wm_base* m_Shell = nullptr;
+            wl_seat* m_Seat = nullptr;
+            wl_shm* m_SharedMemory = nullptr;
+
+            Xkb m_Xkb;
+
+            zxdg_decoration_manager_v1* m_ZxdgDecorationManager = nullptr;
+            zxdg_toplevel_decoration_v1* m_ZxdgToplevelDecoration = nullptr;
+
+            UniquePtr<Input> m_Input;
+        };
+    }
 }
 
 #endif

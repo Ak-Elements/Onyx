@@ -1,19 +1,19 @@
 #pragma once
 
-#include <onyx/input/mouse.h>
+#if ONYX_IS_LINUX && ONYX_USE_WAYLAND
 
 struct wl_pointer;
 struct wl_surface;
 
-namespace Onyx::Platform
+namespace Onyx::Platform::Wayland
 {
-	class WaylandInput;
+	class Input;
 
-    class WaylandPointer
+    class Pointer
     {
 	public:
-		WaylandPointer(WaylandInput& input, wl_pointer* pointer);
-		~WaylandPointer();
+        Pointer(Input& input, wl_pointer* pointer);
+		~Pointer();
 
     private:
         static void OnEnterSurface(void* instance, wl_pointer* pointer, onyxU32 serial, wl_surface* surface, onyxS32 x, onyxS32 y);
@@ -23,7 +23,9 @@ namespace Onyx::Platform
         static void OnAxis(void* instance, wl_pointer* pointer, onyxU32 time, onyxU32 axis, onyxS32 value);
 
     private:
-        WaylandInput* m_Input = nullptr;
+        Input* m_Input = nullptr;
         wl_pointer* m_Pointer = nullptr;
     };
 }
+
+#endif

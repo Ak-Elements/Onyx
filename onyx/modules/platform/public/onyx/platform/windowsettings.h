@@ -2,6 +2,10 @@
 
 namespace Onyx::Platform
 {
+    using ResizeSignalT = Signal<void(Vector2s32)>;
+    using FocusSignalT = Signal<void(bool)>;
+    using CloseSignalT = Signal<void()>;
+
     enum class WindowMode : onyxU8
     {
         Windowed,

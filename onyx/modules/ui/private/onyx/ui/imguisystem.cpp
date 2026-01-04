@@ -669,26 +669,26 @@ namespace Onyx::Ui
     void ImGuiSystem::OnEndFrame()
     {
 		
-		#if ONYX_IS_WINDOWS
-		if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
-		{
-			LPTSTR win32Cursor = IDC_ARROW;
-			
-			switch (ImGui::GetMouseCursor())
-			{
-				case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
-				case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
-				case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
-				case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
-				case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
-				case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
-				case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
-				case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
-			}
-			
-			m_Window->SetCursor(::LoadCursor(NULL, win32Cursor));
-		}
-		#endif
+#if ONYX_IS_WINDOWS
+		//if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
+		//{
+		//	LPTSTR win32Cursor = IDC_ARROW;
+		//	
+		//	switch (ImGui::GetMouseCursor())
+		//	{
+		//		case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
+		//		case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
+		//		case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
+		//		case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
+		//		case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
+		//		case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
+		//		case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
+		//		case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
+		//	}
+		//	
+		//	m_Window->SetCursor(::LoadCursor(NULL, win32Cursor));
+		//}
+#endif
 		
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -731,60 +731,59 @@ namespace Onyx::Ui
 	void ImGuiSystem::OnMouseButton(const Input::MouseButtonEvent& event)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.AddMouseButtonEvent(static_cast<onyxS32>(event.Button) - 1, event.Id == Input::InputEventType::MouseButtonDown);
+		io.AddMouseButtonEvent(static_cast<onyxS32>(event.Button) - 1, event.State == Input::ButtonState::Down);
 	}
 
 	void ImGuiSystem::OnMousePositionChange(const Input::MousePositionEvent& event)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.AddMousePosEvent(event.Position[0], event.Position[1]);
+		io.AddMousePosEvent(numeric_cast<onyxF32>(event.Position[0]), numeric_cast<onyxF32>(event.Position[1]));
 	}
 
 	void ImGuiSystem::OnKey(const Input::KeyboardEvent& keyboardEvent)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		if ((keyboardEvent.Id == Input::InputEventType::KeyUp) || (keyboardEvent.Id == Input::InputEventType::KeyDown))
+		
+		bool isDown = keyboardEvent.State == Input::ButtonState::Down;
+		if (IsModifierKey(keyboardEvent.Key))
 		{
-			bool isDown = keyboardEvent.Id == Input::InputEventType::KeyDown;
-			if (IsModifierKey(keyboardEvent.Key))
+			switch (keyboardEvent.Key)
 			{
-				switch (keyboardEvent.Key)
-				{
-					case Input::Key::Left_Ctrl:
-					case Input::Key::Right_Ctrl:
-					{
-						io.AddKeyEvent(ImGuiKey_ModCtrl, isDown);
-						break;
-					}
-					case Input::Key::Left_Shift:
-					case Input::Key::Right_Shift:
-					{
-						io.AddKeyEvent(ImGuiKey_ModShift, isDown);
-						break;
-					}
-					case Input::Key::Left_Alt:
-					case Input::Key::Right_Alt:
-					{
-						io.AddKeyEvent(ImGuiKey_ModAlt, isDown);
-						break;
-					}
-					case Input::Key::Left_System:
-					case Input::Key::Right_System:
-					{
-						io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
-						break;
-					}
-					default:
-						ONYX_ASSERT(false, "Invalid modifier key");
-						break;
-				}
+			    case Input::Key::Left_Ctrl:
+			    case Input::Key::Right_Ctrl:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModCtrl, isDown);
+				    break;
+			    }
+			    case Input::Key::Left_Shift:
+			    case Input::Key::Right_Shift:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModShift, isDown);
+				    break;
+			    }
+			    case Input::Key::Left_Alt:
+			    case Input::Key::Right_Alt:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModAlt, isDown);
+				    break;
+			    }
+			    case Input::Key::Left_System:
+			    case Input::Key::Right_System:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
+				    break;
+			    }
+			    default:
+				    ONYX_ASSERT(false, "Invalid modifier key");
+				    break;
 			}
-			
-			io.AddKeyEvent(Internal::ConvertToImGuiKey(keyboardEvent.Key), isDown);
-			
-			if (isDown && (keyboardEvent.Char != 0))
-				io.AddInputCharacterUTF16(keyboardEvent.Char);
 		}
+		
+		io.AddKeyEvent(Internal::ConvertToImGuiKey(keyboardEvent.Key), isDown);
+		
+		if (isDown && (keyboardEvent.Char != 0))
+			io.AddInputCharacterUTF16(keyboardEvent.Char);
+		
 	}
 
 	void ImGuiSystem::OnControllerAxisChange(const Input::GameControllerAxisEvent& /*event*/)

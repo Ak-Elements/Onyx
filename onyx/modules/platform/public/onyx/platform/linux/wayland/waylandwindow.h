@@ -13,24 +13,18 @@ struct wl_array;
 struct zxdg_toplevel_decoration_v1;
 struct zxdg_toplevel_decoration_v1;
 
-namespace Onyx::Platform
+namespace Onyx::Platform::Wayland
 {
-    class WaylandPlatformContext;
+    class PlatformContext;
 
-    class WaylandWindow
+    class Window
     {
-        //using WindowMessageHandler = InplaceFunction<bool(onyxU32, onyxU64, onyxU64)>;
-
     public:
-        WaylandWindow(WaylandPlatformContext& platformContext, const WindowSettings& setting);
-        ~WaylandWindow();
-
-        //void Create();
+        Window(PlatformContext& platformContext, const WindowSettings& setting);
+        ~Window();
 
         void Show();
         void Hide();
-
-        void Update();
 
         void Minimize();
         void Maximize();
@@ -60,20 +54,18 @@ namespace Onyx::Platform
         onyxS32 GetWidth() const { return m_Settings.Size.X; }
         onyxS32 GetHeight() const { return m_Settings.Size.Y; }
 
-        //void SetWindowMessageHandler(const WindowMessageHandler& handler) { m_WindowMessageHandler = handler; }
-        void ClearWindowMessageHandler() { /*m_WindowMessageHandler = nullptr;*/ }
         void SetCursor(void* /*cursor*/) { }
 
         void EnableSystemMouseCapture(bool enable) { ONYX_UNUSED(enable); }
-        WaylandPlatformContext* GetContext() const { return m_Context; }
+        PlatformContext* GetContext() const { return m_Context; }
         wl_surface* GetSurfaceHandle() const { return m_Surface; }
 
         WindowSettings& GetSettings() { return m_Settings; }
         const WindowSettings& GetSettings() const { return m_Settings; }
 
-        ONYX_EVENT(OnFocus, bool);
-        ONYX_EVENT(OnResize, onyxU32, onyxU32);
-        ONYX_EVENT(OnClose);
+        Sink<ResizeSignalT> OnResize() { return Sink(m_ResizeSignal); }
+        Sink<FocusSignalT> OnFocus() { return Sink(m_FocusSignal); }
+        Sink<CloseSignalT> OnClose() { return Sink(m_CloseSignal); }
 
     private:
         static void HandleSurfaceConfigure(void* data, xdg_surface* surface, onyxU32 serial);
@@ -84,8 +76,6 @@ namespace Onyx::Platform
         static void HandleSurfaceEnter(void* data, wl_surface* surface, wl_output* output);
         static void HandleSurfaceLeave(void* data, wl_surface* surface, wl_output* output);
 
-        bool HandleWindowMessages(onyxU32, onyxU64, onyxS64) { return false; }
-
         void CreateNativeWindow();
         void FitToMonitor() {}
         void CaptureCursor() {}
@@ -95,20 +85,21 @@ namespace Onyx::Platform
         onyxS32 GetExtendedStyle() { return 0; }
 
     private:
+        WindowSettings m_Settings;
+
+        ResizeSignalT m_ResizeSignal;
+        FocusSignalT m_FocusSignal;
+        CloseSignalT m_CloseSignal;
+
         Atomic<bool> m_IsInitialized = false;
         WindowState m_State = WindowState::None;
     
-        WindowSettings m_Settings;
-        WaylandPlatformContext* m_Context = nullptr;
-        //void* m_Cursor = nullptr;
-        //void* m_NativeHandle = nullptr;
+        PlatformContext* m_Context = nullptr;
 
         wl_surface* m_Surface = nullptr;
         xdg_surface* m_XdgSurface = nullptr;;
         xdg_toplevel* m_XdgToplevel = nullptr;
         zxdg_toplevel_decoration_v1* m_XdgTopLevelDecoration = nullptr;
-
-        //WindowMessageHandler m_WindowMessageHandler;
     };
 }
 #endif

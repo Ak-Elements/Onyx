@@ -8,7 +8,7 @@ namespace Onyx::InputActions
 {
     bool InputBindingAxis1D::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
-        outInputValue.X = inputSystem.GetAxisValue1D(0, m_Axis);
+        outInputValue.X = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_Axis));
         return IsZero(outInputValue.X) == false;
     }
 

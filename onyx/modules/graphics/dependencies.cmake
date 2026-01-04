@@ -2,7 +2,6 @@ set(CMAKE_FOLDER_PREV, ${CMAKE_FOLDER})
 
 find_package(Vulkan REQUIRED COMPONENTS shaderc_combined)
 
-
 if (WIN32 AND NOT Vulkan_shaderc_combined_DEBUG_LIBRARY)
     message(WARNING " Vulkan shaderc debug library not found. Debug build will not be working. Consider installing it for shader compilation support.")
 endif()
@@ -29,19 +28,19 @@ set(onyx_TARGET_PRIVATE_DEPENDENCIES
     Vulkan::shaderc_combined
     spirv-cross-core
     spirv-cross-glsl
-    glslang
-    SPIRV-Tools
-    SPIRV-Tools-opt
+
 )
 
-#TODO Remove
-#if (UNIX)
-#    find_package(Wayland REQUIRED COMPONENTS Client Cursor)
-#    if (Wayland_FOUND)
-#        list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES ${Wayland_LIBRARIES} wayland-xdg)
-#    endif()
-#endif()
+if (TARGET glslang)
+    list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES glslang)
+endif()
 
-#target_compile_definitions(onyx-graphics PUBLIC $<IF:$<BOOL:${Wayland_FOUND}>,ONYX_USE_WAYLAND=1,ONYX_USE_WAYLAND=0>)
+if (TARGET SPIRV-Tools)
+    list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES SPIRV-Tools)
+endif()
+
+if (TARGET SPIRV-Tools-opt)
+    list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES SPIRV-Tools-opt)
+endif()
 
 set(CMAKE_FOLDER ${CMAKE_FOLDER_PREV})

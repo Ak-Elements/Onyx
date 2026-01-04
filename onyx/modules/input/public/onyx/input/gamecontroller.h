@@ -70,7 +70,7 @@ namespace Onyx::Input
 
     struct GameController
     {
-        InplaceArray<onyxS16, GameControllerAxis_Count> m_AxisValues;
+        onyxS32 m_AxisValues[GameControllerAxis_Count];
         onyxU32 Index = 0;
         onyxU32 ButtonStates = 0;
         bool IsConnected = false;

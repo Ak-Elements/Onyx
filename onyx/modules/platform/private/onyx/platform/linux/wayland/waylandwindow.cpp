@@ -17,7 +17,7 @@
 #include <unistd.h>
 ///
 
-namespace Onyx::Platform
+namespace Onyx::Platform::Wayland
 {
     // TODO: Remove
 namespace
@@ -69,35 +69,35 @@ allocate_shm_file(size_t size)
 }
 }
 
-    WaylandWindow::WaylandWindow(WaylandPlatformContext& context, const WindowSettings& settings)
+    Window::Window(WaylandPlatformContext& context, const WindowSettings& settings)
         : m_Settings(settings)
         , m_Context(&context)
     {
         CreateNativeWindow();
     }
 
-    WaylandWindow::~WaylandWindow()
+    Window::~Window()
     {
     }
 
-    void WaylandWindow::Show()
+    void Window::Show()
     {
     }
 
-    void WaylandWindow::Hide()
+    void Window::Hide()
     {
     }
 
-    void WaylandWindow::Minimize()
+    void Window::Minimize()
     {
     }
 
-    void WaylandWindow::Maximize()
+    void Window::Maximize()
     {
     }
 
 
-    void WaylandWindow::CreateNativeWindow()
+    void Window::CreateNativeWindow()
     {
         static const struct xdg_toplevel_listener xdg_toplevel_listener = {
             HandleToplevelConfigure,
@@ -161,12 +161,8 @@ allocate_shm_file(size_t size)
         wl_surface_damage(m_Surface, 0, 0, UINT32_MAX, UINT32_MAX);
         wl_surface_commit(m_Surface);
     }
-    
-    void WaylandWindow::Update()
-    {
-    }
 
-    void WaylandWindow::SetSize(onyxS32 width, onyxS32 height)
+    void Window::SetSize(onyxS32 width, onyxS32 height)
     {
         if ((width != m_Settings.Size[0]) || (height != m_Settings.Size[1]))
         {
@@ -177,7 +173,7 @@ allocate_shm_file(size_t size)
         }
     }
 
-    void WaylandWindow::SetMinimumSize(const Vector2s32& minSize)
+    void Window::SetMinimumSize(const Vector2s32& minSize)
     {
         if (m_Settings.MinSize != minSize)
         {
@@ -187,7 +183,7 @@ allocate_shm_file(size_t size)
         }
     }
 
-    void WaylandWindow::SetMaximumSize(const Vector2s32& maxSize)
+    void Window::SetMaximumSize(const Vector2s32& maxSize)
     {
         if (m_Settings.MaxSize != maxSize)
         {
@@ -197,7 +193,7 @@ allocate_shm_file(size_t size)
         }
     }
 
-    void WaylandWindow::SetWindowMode(WindowMode mode)
+    void Window::SetWindowMode(WindowMode mode)
     {
         //if (m_Settings.m_Mode == mode)
         //    return;
@@ -205,7 +201,7 @@ allocate_shm_file(size_t size)
         m_Settings.Mode = mode;
     }
 
-    void WaylandWindow::SetState(WindowState state)
+    void Window::SetState(WindowState state)
     {
         if (m_State != state)
         {
@@ -243,16 +239,15 @@ allocate_shm_file(size_t size)
         }
     }
 
-    bool WaylandWindow::GetRequiredExtensions(std::vector<const char*>& outExtensions) const
+    bool Window::GetRequiredExtensions(std::vector<const char*>& outExtensions) const
     {
-        //VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
         outExtensions.push_back("VK_KHR_wayland_surface");
         return true;
     }
 
-    /*static*/ void WaylandWindow::HandleSurfaceConfigure(void* data, xdg_surface* surface, onyxU32 serial)
+    /*static*/ void Window::HandleSurfaceConfigure(void* data, xdg_surface* surface, onyxU32 serial)
     {
-        WaylandWindow& windowInstance = *static_cast<WaylandWindow*>(data);
+        Window& windowInstance = *static_cast<Window*>(data);
         xdg_surface_ack_configure(surface, serial);
 
         if (windowInstance.m_IsInitialized)
@@ -265,34 +260,34 @@ allocate_shm_file(size_t size)
         windowInstance.m_IsInitialized.notify_one();
     }
 
-    /*static*/ void WaylandWindow::HandleToplevelConfigure(void* data, xdg_toplevel* toplevel, onyxS32 width, onyxS32 height, wl_array* states)
+    /*static*/ void Window::HandleToplevelConfigure(void* data, xdg_toplevel* toplevel, onyxS32 width, onyxS32 height, wl_array* states)
     {
-        WaylandWindow& windowInstance = *static_cast<WaylandWindow*>(data);
+        Window& windowInstance = *static_cast<Window*>(data);
         windowInstance.SetSize(width, height);
     }
 
-    /*static*/ void WaylandWindow::HandleToplevelClose(void* data, xdg_toplevel* xdg_toplevel)
+    /*static*/ void Window::HandleToplevelClose(void* data, xdg_toplevel* xdg_toplevel)
     {
         // do not hide, destroy window instead
-        WaylandWindow& windowInstance = *static_cast<WaylandWindow*>(data);
+        Window& windowInstance = *static_cast<Window*>(data);
         windowInstance.Hide();
     }
 
-    /*static*/ void WaylandWindow::HandleTopLevelDecorationConfigure(void *data, zxdg_toplevel_decoration_v1* zxdg_toplevel_decoration_v1, onyxU32 mode)
+    /*static*/ void Window::HandleTopLevelDecorationConfigure(void *data, zxdg_toplevel_decoration_v1* zxdg_toplevel_decoration_v1, onyxU32 mode)
     {
         ONYX_UNUSED(data);
         ONYX_UNUSED(zxdg_toplevel_decoration_v1);
         ONYX_UNUSED(mode);
     }
 
-    /*static*/ void WaylandWindow::HandleSurfaceEnter(void* data, wl_surface* surface, wl_output* output)
+    /*static*/ void Window::HandleSurfaceEnter(void* data, wl_surface* surface, wl_output* output)
     {
         ONYX_UNUSED(data);
         ONYX_UNUSED(surface);
         ONYX_UNUSED(output);
     }
 
-    /*static*/ void WaylandWindow::HandleSurfaceLeave(void* data, wl_surface* surface, wl_output* output)
+    /*static*/ void Window::HandleSurfaceLeave(void* data, wl_surface* surface, wl_output* output)
     {
         ONYX_UNUSED(data);
         ONYX_UNUSED(surface);

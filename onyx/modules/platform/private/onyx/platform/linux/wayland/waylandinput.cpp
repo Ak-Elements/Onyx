@@ -1,13 +1,15 @@
 #include <onyx/platform/linux/wayland/waylandinput.h>
 
+#if ONYX_IS_LINUX && ONYX_USE_WAYLAND
+
 #include <onyx/platform/linux/wayland/waylandpointer.h>
 #include <onyx/platform/linux/wayland/waylandkeyboard.h>
 
 #include <wayland-client.h>
 
-namespace Onyx::Platform
+namespace Onyx::Platform::Wayland
 {
-    WaylandInput::WaylandInput(WaylandPlatformContext& context, wl_seat* seat)
+    Input::Input(PlatformContext& context, wl_seat* seat)
         : m_Context(&context)
         , m_Seat(seat)
     {
@@ -15,30 +17,32 @@ namespace Onyx::Platform
         wl_seat_add_listener(m_Seat, &seat_listener, this);
     }
 
-    WaylandInput::~WaylandInput() = default;
+    Input::~Input() = default;
 
-    void WaylandInput::CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities)
+    void Input::CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities)
     {
-        WaylandInput& waylandInput = *(static_cast<WaylandInput*>(instance));
+        Input& input = *(static_cast<Input*>(instance));
 
-        if ((capabilities & WL_SEAT_CAPABILITY_POINTER) && (waylandInput.m_Pointer == nullptr) )
+        if ((capabilities & WL_SEAT_CAPABILITY_POINTER) && (input.m_Pointer == nullptr) )
         {
             wl_pointer* pointer  = wl_seat_get_pointer(seat);
-            waylandInput.m_Pointer = MakeUnique<WaylandPointer>(waylandInput, pointer);
+            input.m_Pointer = MakeUnique<Pointer>(input, pointer);
         }
-        else if (!(capabilities & WL_SEAT_CAPABILITY_POINTER) && waylandInput.m_Pointer)
+        else if (!(capabilities & WL_SEAT_CAPABILITY_POINTER) && input.m_Pointer)
         {
-            waylandInput.m_Pointer.reset();
+            input.m_Pointer.reset();
         }
         
-        if ((capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && !waylandInput.m_Keyboard)
+        if ((capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && !input.m_Keyboard)
         {
             wl_keyboard* keyboard = wl_seat_get_keyboard(seat);
-            waylandInput.m_Keyboard = MakeUnique<WaylandKeyboard>(waylandInput, keyboard);
+            input.m_Keyboard = MakeUnique<Keyboard>(input, keyboard);
         }
-        else if (!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && waylandInput.m_Keyboard)
+        else if (!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && input.m_Keyboard)
         {
-            waylandInput.m_Keyboard.reset();
+            input.m_Keyboard.reset();
         }
     }
 }
+
+#endif

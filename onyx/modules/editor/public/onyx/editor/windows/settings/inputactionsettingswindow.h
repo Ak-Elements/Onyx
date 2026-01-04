@@ -43,7 +43,14 @@ namespace Onyx::Editor
     private:
         void OnRender(Ui::ImGuiSystem& system) override;
 
-        void OnInputEvent(const Input::InputEvent* inputEvent);
+        void OnMouseAxisChange(const Input::MouseAxisEvent& event);
+        void OnMouseButton(const Input::MouseButtonEvent& event);
+        void OnMousePositionChange(const Input::MousePositionEvent& event);
+
+        void OnKey(const Input::KeyboardEvent& event);
+
+        void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
+        void OnControllerButton(const Input::GameControllerButtonEvent& event);
 
         void RenderActionMaps(HashMap<StringId32, InputActions::InputActionsMap>& actionMaps);
         void RenderInputActions();
@@ -58,8 +65,11 @@ namespace Onyx::Editor
 
         void OnInputAssetLoaded(Reference<InputActions::InputActionsAsset>& inputActionsAsset);
 
+        InputActions::InputBinding& GetSelectedInputBinding();
+
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
+        Input::InputSystem* m_InputSystem = nullptr;
 
         // Copy of InputActionAsset to edit until save
         Reference<InputActions::InputActionsAsset> m_EditableCopy;

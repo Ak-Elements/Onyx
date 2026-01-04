@@ -8,9 +8,10 @@ set(onyx_TARGET_PUBLIC_SOURCES
     linux/wayland/waylandinput.h
     linux/wayland/waylandpointer.h
     linux/wayland/waylandkeyboard.h
+    windows/gameinputcontroller.h
+    windows/windowskeycodes.h
     windows/windowsplatformcontext.h
     windows/windowswindow.h
-
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -20,6 +21,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     linux/wayland/waylandinput.cpp
     linux/wayland/waylandpointer.cpp
     linux/wayland/waylandkeyboard.cpp
+    windows/gameinputcontroller.cpp
     windows/windowsplatformcontext.cpp
     windows/windowswindow.cpp
 )

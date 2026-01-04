@@ -14,10 +14,10 @@
 namespace Onyx::Platform
 {
 #if ONYX_IS_WINDOWS
-using Window = Onyx::Platform::WindowsWindow;
+using Window = Windows::Window;
 #elif ONYX_IS_LINUX
 #if ONYX_USE_WAYLAND
-using Window = Onyx::Platform::WaylandWindow;
+using Window = Wayland::Window;
 #endif
 #else
 //static_assert(false, "Unsupported window library.");

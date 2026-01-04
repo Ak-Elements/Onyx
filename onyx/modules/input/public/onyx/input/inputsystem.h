@@ -10,10 +10,6 @@
 #include <onyx/eventhandler.h>
 #include <onyx/input/inputevent.h>
 
-#if ONYX_IS_WINDOWS
-#include <onyx/input/platform/windows/windows_gamecontroller.h>
-#endif
-
 namespace Onyx
 {
     class Engine;
@@ -68,8 +64,8 @@ namespace Onyx::Input
         void AddEvent(GameControllerAxisEvent event) { m_ControllerAxisInputQueue[m_CurrentQueueIndex].emplace_back(event); }
         void AddEvent(GameControllerButtonEvent event) { m_ControllerButtonInputQueue[m_CurrentQueueIndex].emplace_back(event); }
 
-        onyxS16 GetAxisValue1D(onyxU32 deviceIndex, InputID id) const;
-        Vector2s16 GetAxisValue2D(onyxU32 deviceIndex, InputID id) const;
+        onyxS32 GetAxisValue1D(onyxU32 deviceIndex, InputID id) const;
+        Vector2s32 GetAxisValue2D(onyxU32 deviceIndex, InputID id) const;
         bool IsButtonDown(InputID id) const;
         bool IsButtonDown(MouseButton button) const;
         bool IsButtonDown(Key key) const;
@@ -78,14 +74,12 @@ namespace Onyx::Input
         const Vector2s32& GetMousePosition() const { return m_MousePosition; }
         void SetMousePosition(const Vector2s32& mousePos);
 
-        Vector2s16 GetMouseDelta() const { return Vector2s16(m_MouseDelta.X, m_MouseDelta.Y); }
-        onyxS16 GetMouseWheelDelta() const { return m_MouseWheelDelta; }
+        Vector2s32 GetMouseDelta() const { return m_MouseDelta; }
+        onyxS32 GetMouseWheelDelta() const { return m_MouseWheelDelta; }
 
-        onyxS16 GetControllerAxisValue(onyxU32 controllerIndex, GameControllerAxis axis) const;
+        onyxS32 GetControllerAxisValue(onyxU32 controllerIndex, GameControllerAxis axis) const;
 
         void EnableSystemMouseCapture(bool enable);
-
-        ONYX_EVENT(OnInput, const InputEvent*);
 
     private:
         void UpdateMouse(onyxU8 queueIndex);

@@ -13,10 +13,10 @@
 namespace Onyx::Platform
 {
 #if ONYX_IS_WINDOWS
-using PlatformContext = Onyx::Platform::WindowsPlatformContext;
+using PlatformContext = Windows::PlatformContext;
 #elif ONYX_IS_LINUX
 #if ONYX_USE_WAYLAND
-using PlatformContext = Onyx::Platform::WaylandPlatformContext;
+using PlatformContext = Wayland::PlatformContext;
 #endif
 #else
 //static_assert(false, "Unsupported window library.");

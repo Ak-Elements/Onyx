@@ -8,8 +8,8 @@ namespace Onyx::InputActions
 {
     bool InputBindingAxis2D::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
-        outInputValue.X = inputSystem.GetAxisValue1D(0, m_AxisX);
-        outInputValue.Y = inputSystem.GetAxisValue1D(0, m_AxisY);
+        outInputValue.X = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_AxisX));
+        outInputValue.Y = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_AxisY));
         return IsZero(outInputValue.X) == false || IsZero(outInputValue.Y) == false;
     }
 

@@ -1,5 +1,7 @@
 #pragma once 
 
+#if ONYX_IS_LINUX && ONYX_USE_WAYLAND
+
 namespace Onyx::Input
 {
     enum class MouseButton : onyxU16;
@@ -13,27 +15,33 @@ struct wl_surface;
 namespace Onyx::Platform
 {
     class PlatformSystem;
-    class WaylandPointer;
-    class WaylandKeyboard;
-    class WaylandPlatformContext;
 
-    class WaylandInput
+    namespace Wayland
     {
-    public:
-        WaylandInput(WaylandPlatformContext& platformContext, wl_seat* seat);
-        ~WaylandInput();
+        class Pointer;
+        class Keyboard;
+        class PlatformContext;
 
-        WaylandPlatformContext& GetContext() { ONYX_ASSERT(m_Context != nullptr); return *m_Context; }
+        class Input
+        {
+        public:
+            Input(PlatformContext& platformContext, wl_seat* seat);
+            ~nput();
 
-    private:
-        static void CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities);
-    private:
-        WaylandPlatformContext* m_Context = nullptr;
-    
-        wl_seat* m_Seat = nullptr;
+            PlatformContext& GetContext() { ONYX_ASSERT(m_Context != nullptr); return *m_Context; }
 
-        UniquePtr<WaylandPointer> m_Pointer;
-        UniquePtr<WaylandKeyboard> m_Keyboard;
+        private:
+            static void CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities);
+        private:
+            PlatformContext* m_Context = nullptr;
 
-    };
+            wl_seat* m_Seat = nullptr;
+
+            UniquePtr<Pointer> m_Pointer;
+            UniquePtr<Keyboard> m_Keyboard;
+
+        };
+    }
 }
+
+#endif

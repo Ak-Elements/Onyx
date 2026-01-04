@@ -1,41 +1,14 @@
-#include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/camera.h>
 #include <onyx/graphics/graphicssystem.h>
 
+#include <onyx/assets/assetsystem.h>
+
+#include <onyx/graphics/camera.h>
 #include <onyx/graphics/graphicsapiinterface.h>
-
-#include <onyx/graphics/textureasset.h>
-#include <onyx/graphics/font/sdffont.h>
-#include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
-#include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
-#include <onyx/graphics/rendergraph/tasks/debuglightclusterspass.h>
-#include <onyx/graphics/rendergraph/tasks/multiplescatteringtask.h>
-#include <onyx/graphics/rendergraph/tasks/scatteringtask.h>
-#include <onyx/graphics/rendergraph/tasks/skyviewluttask.h>
-#include <onyx/graphics/rendergraph/tasks/tonemappass.h>
-#include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
-#include <onyx/graphics/rendergraph/tasks/updateviewconstantstask.h>
-#include <onyx/graphics/serialize/materialshadergraphserializer.h>
-#include <onyx/graphics/serialize/rendergraphserializer.h>
-#include <onyx/graphics/serialize/sdffontserializer.h>
-#include <onyx/graphics/serialize/textureserializer.h>
-#include <onyx/graphics/shadergraph/materialshadergraph.h>
-
-#include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
-
 #include <onyx/graphics/rendergraph/rendergraph.h> // need this for texturehandle pin meta data - FIX
-#include <onyx/graphics/serialize/shaderserializer.h>
-
-#include <onyx/graphics/shadergraph/nodes/fragmentshaderoutnode.h>
-#include <onyx/graphics/shadergraph/nodes/getworldnormal.h>
-#include <onyx/graphics/shadergraph/nodes/getworldposition.h>
-#include <onyx/graphics/shadergraph/nodes/math/arithmeticnodes.h>
-#include <onyx/graphics/shadergraph/nodes/math/geometricnodes.h>
-#include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
-#include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
-#include <onyx/graphics/shadergraph/nodes/math/simplexnoisenode.h>
 #include <onyx/graphics/vulkan/shader.h>
-#include <onyx/nodegraph/nodegraphtyperegistry.h>
+
+#include <onyx/serialize/serializer.h>
+#include <onyx/serialize/deserializer.h>
 
 #include <onyx/platform/platformsystem.h>
 #include <onyx/platform/window.h>

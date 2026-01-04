@@ -2,14 +2,24 @@
 
 #if ONYX_IS_WINDOWS
 
-namespace Onyx::Platform
+#include <onyx/platform/platformsystem.h>
+
+#include <Windows.h>
+
+namespace Onyx::Platform::Windows
 {
-    WindowsPlatformContext::WindowsPlatformContext()
-        : m_Instance(::GetModuleHandle(nullptr))
+    PlatformContext::PlatformContext(PlatformSystem& platformSystem)
+        : m_PlatformSystem(&platformSystem)
+        , m_Instance(::GetModuleHandle(nullptr))
     {
 
     }
 
+    Input::InputSystem& PlatformContext::GetInputSystem()
+    {
+        ONYX_ASSERT(m_PlatformSystem != nullptr);
+        return m_PlatformSystem->GetInputSystem();
+    }
 }
 
 #endif

@@ -7,10 +7,10 @@ namespace Onyx::Platform
         , m_Context(*this)
     {
         WindowSettings defaultSettings;
-        CreateWindow(defaultSettings);
+        CreateNewWindow(defaultSettings);
     }
 
-    void PlatformSystem::CreateWindow(WindowSettings settings)
+    void PlatformSystem::CreateNewWindow(WindowSettings settings)
     {
         m_Windows.emplace_back(MakeUnique<Window>(m_Context, settings));
     }

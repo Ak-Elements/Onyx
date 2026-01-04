@@ -25,7 +25,7 @@ namespace Onyx::Platform
 
         Input::InputSystem& GetInputSystem() { ONYX_ASSERT(m_InputSystem != nullptr); return *m_InputSystem; }
 
-        void CreateWindow(WindowSettings settings);
+        void CreateNewWindow(WindowSettings settings);
         Window& GetMainWindow();
         const Window& GetMainWindow() const;
         

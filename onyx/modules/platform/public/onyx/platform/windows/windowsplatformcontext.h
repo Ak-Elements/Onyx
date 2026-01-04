@@ -2,22 +2,32 @@
 
 #if ONYX_IS_WINDOWS
 
-#include <onyx/platform/platformsystem.h>
+struct HINSTANCE__;
+typedef HINSTANCE__* HINSTANCE;
 
-struct HWND__;
-typedef HWND__* HWND;
+namespace Onyx::Input
+{
+    class InputSystem;
+}
 
 namespace Onyx::Platform
 {
-    struct WindowsPlatformContext : public IPlatformContext
+    class PlatformSystem;
+    namespace Windows
     {
-    public:
-        WindowsPlatformContext();
+        class PlatformContext
+        {
+        public:
+            PlatformContext(PlatformSystem& platformSystem);
 
-    private:
-        HWND m_Instance = nullptr;
+            Input::InputSystem& GetInputSystem();
+            HINSTANCE GetInstanceHandle() const { return m_Instance; }
 
-    };
+        private:
+            PlatformSystem* m_PlatformSystem = nullptr;
+            HINSTANCE m_Instance = nullptr;
+        };
+    }
 }
 
 #endif
