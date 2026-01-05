@@ -6,7 +6,6 @@
 #include <onyx/serialize/serializer.h>
 
 #include <nlohmann/json.hpp>
-#include <filesystem>
 
 namespace Onyx::FileSystem
 {

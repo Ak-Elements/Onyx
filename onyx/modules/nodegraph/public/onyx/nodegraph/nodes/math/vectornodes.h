@@ -3,6 +3,7 @@
 #include <onyx/geometry/vector.h>
 
 #include <onyx/nodegraph/executioncontext.h>
+#include <onyx/nodegraph/nodes/node.h>
 #include <onyx/nodegraph/nodes/math/vectornodes_editor.h>
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 #include <onyx/nodegraph/nodes/fixedpinnode1in2out.h>
@@ -11,6 +12,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
 #include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
 #include <onyx/nodegraph/nodes/fixedpinnode4in1out.h>
+
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
@@ -341,90 +343,88 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename FactoryType, CompileTimeString SerializedNameSpaceId>
-    void RegisterVectorNodes()
+    namespace Nodes
     {
-        using FactoryNodeTypeT = typename FactoryType::NodeTypeT;
+        using GetVector2f32Components = GetVector2Components<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::GetVector2f32Components">;
+        using GetVector2f64Components = GetVector2Components<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::GetVector2f64Components">;
+        using GetVector2s32Components = GetVector2Components<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::GetVector2s32Components">;
+        using GetVector2s64Components = GetVector2Components<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::GetVector2s64Components">;
 
-        // Vector 2
-        FactoryType::template Register<GetVector2Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector2f32Components">>();
-        FactoryType::template Register<GetVector2Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector2f64Components">>();
-        FactoryType::template Register<GetVector2Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector2s32Components">>();
-        FactoryType::template Register<GetVector2Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector2s64Components">>();
+        using CreateVector2f32 = CreateVector2<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::CreateVector2f32">;
+        using CreateVector2f64 = CreateVector2<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::CreateVector2f64">;
+        using CreateVector2s32 = CreateVector2<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::CreateVector2s32">;
+        using CreateVector2s64 = CreateVector2<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::CreateVector2s64">;
 
-        FactoryType::template Register<CreateVector2<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector2f32">>();
-        FactoryType::template Register<CreateVector2<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector2f64">>();
-        FactoryType::template Register<CreateVector2<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector2s32">>();
-        FactoryType::template Register<CreateVector2<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector2s64">>();
+        using Swizzle2DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector2f32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2f32">;
+        using Swizzle2DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector2f32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3f32">;
+        using Swizzle2DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector2f32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4f32">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector2f32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector3f32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector2f32, SerializedNameSpaceId + "::Swizzle2DVector4f32">>();
+        using Swizzle2DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector2f64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2f64">;
+        using Swizzle2DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector2f64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3f64">;
+        using Swizzle2DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector2f64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4f64">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector2f64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector3f64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector2f64, SerializedNameSpaceId + "::Swizzle2DVector4f64">>();
+        using Swizzle2DVector2s32 = SwizzleVectorComponentsNode<Node, Vector2s32, Vector2s32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2s32">;
+        using Swizzle2DVector3s32 = SwizzleVectorComponentsNode<Node, Vector3s32, Vector2s32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3s32">;
+        using XSwizzle2DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector2s32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4s32">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector2s32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector3s32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector2s32, SerializedNameSpaceId + "::Swizzle2DVector4s32">>();
-
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector2s64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector3s64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector2s64, SerializedNameSpaceId + "::Swizzle2DVector4s64">>();
+        using Swizzle2DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector2s64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2s64">;
+        using Swizzle2DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector2s64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3s64">;
+        using Swizzle2DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector2s64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4s64">;
 
         // Vector 3
-        FactoryType::template Register<GetVector3Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector3f32Components">>();
-        FactoryType::template Register<GetVector3Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector3f64Components">>();
-        FactoryType::template Register<GetVector3Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector3s32Components">>();
-        FactoryType::template Register<GetVector3Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector3s64Components">>();
+        using GetVector3f32Components = GetVector3Components<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::GetVector3f32Components">;
+        using GetVector3f64Components = GetVector3Components<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::GetVector3f64Components">;
+        using GetVector3s32Components = GetVector3Components<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::GetVector3s32Components">;
+        using GetVector3s64Components = GetVector3Components<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::GetVector3s64Components">;
 
-        FactoryType::template Register<CreateVector3<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector3f32">>();
-        FactoryType::template Register<CreateVector3<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector3f64">>();
-        FactoryType::template Register<CreateVector3<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector3s32">>();
-        FactoryType::template Register<CreateVector3<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector3s64">>();
+        using CreateVector3f32 = CreateVector3<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::CreateVector3f32">;
+        using CreateVector3f64 = CreateVector3<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::CreateVector3f64">;
+        using CreateVector3s32 = CreateVector3<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::CreateVector3s32">;
+        using CreateVector3s64 = CreateVector3<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::CreateVector3s64">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector2f32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector3f32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector3f32, SerializedNameSpaceId + "::Swizzle3DVector4f32">>();
+        using Swizzle3DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector3f32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2f32">;
+        using Swizzle3DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector3f32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3f32">;
+        using Swizzle3DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector3f32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4f32">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector2f64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector3f64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector3f64, SerializedNameSpaceId + "::Swizzle3DVector4f64">>();
+        using Swizzle3DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector3f64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2f64">;
+        using Swizzle3DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector3f64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3f64">;
+        using Swizzle3DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector3f64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4f64">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector2s32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector3s32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector3s32, SerializedNameSpaceId + "::Swizzle3DVector4s32">>();
+        using Swizzle3DVector2s32  = SwizzleVectorComponentsNode<Node, Vector2s32, Vector3s32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2s32">;
+        using Swizzle3DVector3s32  = SwizzleVectorComponentsNode<Node, Vector3s32, Vector3s32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3s32">;
+        using Swizzle3DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector3s32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4s32">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector2s64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector3s64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector3s64, SerializedNameSpaceId + "::Swizzle3DVector4s64">>();
+        using Swizzle3DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector3s64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2s64">;
+        using Swizzle3DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector3s64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3s64">;
+        using Swizzle3DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector3s64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4s64">;
 
         // Vector 4
-        FactoryType::template Register<GetVector4Components<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::GetVector4f32Components">>();
-        FactoryType::template Register<GetVector4Components<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::GetVector4f64Components">>();
-        FactoryType::template Register<GetVector4Components<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::GetVector4s32Components">>();
-        FactoryType::template Register<GetVector4Components<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::GetVector4s64Components">>();
+        using GetVector4f32Components = GetVector4Components<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::GetVector4f32Components">;
+        using GetVector4f64Components = GetVector4Components<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::GetVector4f64Components">;
+        using GetVector4s32Components = GetVector4Components<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::GetVector4s32Components">;
+        using GetVector4s64Components = GetVector4Components<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::GetVector4s64Components">;
 
-        FactoryType::template Register<CreateVector4<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::CreateVector4f32">>();
-        FactoryType::template Register<CreateVector4<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::CreateVector4f64">>();
-        FactoryType::template Register<CreateVector4<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::CreateVector4s32">>();
-        FactoryType::template Register<CreateVector4<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::CreateVector4s64">>();
+        using CreateVector4f32 = CreateVector4<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::CreateVector4f32">;
+        using CreateVector4f64 = CreateVector4<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::CreateVector4f64">;
+        using CreateVector4s32 = CreateVector4<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::CreateVector4s32">;
+        using CreateVector4s64 = CreateVector4<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::CreateVector4s64">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector2f32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector3f32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f32, Vector4f32, SerializedNameSpaceId + "::Swizzle4DVector4f32">>();
+        using Swizzle4DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector4f32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2f32">;
+        using Swizzle4DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector4f32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3f32">;
+        using Swizzle4DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector4f32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4f32">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector2f64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector3f64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4f64, Vector4f64, SerializedNameSpaceId + "::Swizzle4DVector4f64">>();
+        using Swizzle4DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector4f64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2f64">;
+        using Swizzle4DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector4f64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3f64">;
+        using Swizzle4DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector4f64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4f64">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector2s32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector3s32">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s32, Vector4s32, SerializedNameSpaceId + "::Swizzle4DVector4s32">>();
+        using Swizzle4DVector2s32 = SwizzleVectorComponentsNode<Node, Vector2s32, Vector4s32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2s32">;
+        using Swizzle4DVector3s32 = SwizzleVectorComponentsNode<Node, Vector3s32, Vector4s32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3s32">;
+        using Swizzle4DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector4s32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4s32">;
 
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector2s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector2s64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector3s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector3s64">>();
-        FactoryType::template Register<SwizzleVectorComponentsNode<FactoryNodeTypeT, Vector4s64, Vector4s64, SerializedNameSpaceId + "::Swizzle4DVector4s64">>();
+        using Swizzle4DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector4s64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2s64">;
+        using Swizzle4DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector4s64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3s64">;
+        using Swizzle4DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector4s64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4s64">;
     }
+
 }
+

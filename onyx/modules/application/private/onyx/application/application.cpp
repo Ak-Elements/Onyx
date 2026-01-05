@@ -15,7 +15,6 @@
 
 #include <onyx/graphics/graphicssystem.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/nodegraph/nodegraphmodule.h>
 #include <onyx/profiler/profiler.h>
 
 #include <onyx/serialize/deserializer.h>
@@ -89,9 +88,6 @@ namespace Onyx::Application
         m_Logger->SetSeverity(LogLevel::Trace);
         m_Logger->Init();
 
-        // init node graph module
-        //NodeGraph::Init();
-        
         bool hasLoadedModules = configDeserializer.ReadForEach<"modules">([&](const Deserializer& scopedDeserializer)
         {
             StringId32 moduleId;

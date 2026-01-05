@@ -3,7 +3,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     graph.h
     graphrunner.h
     nodegraphfactory.h
-    nodegraphmodule.h
     nodegraphserializer.h
     nodegraphtypemeta.h
     nodegraphtyperegistry.h
@@ -38,7 +37,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     graph.cpp
     graphrunner.cpp
     nodegraphfactory.cpp
-    nodegraphmodule.cpp
     nodegraphserializer.cpp
     nodes/node.cpp
     pins/dynamicpin.cpp
