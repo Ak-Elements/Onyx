@@ -38,6 +38,7 @@ namespace Onyx::Graphics::Vulkan
         bool HasAlias(onyxS8 aliasIndex) { return aliasIndex < m_Aliases.size(); }
         VkImage GetAliasHandle(onyxS8 aliasIndex) const { ONYX_ASSERT(aliasIndex < m_Aliases.size()); return m_Aliases[aliasIndex]; }
 
+        void TransitionPresent(VulkanCommandBuffer& commandBuffer);
         void TransitionLayout(VulkanCommandBuffer& commandBuffer, Context newContext, VkImageLayout newLayout, VkAccessFlags2 newAccess, onyxU32 mipLevel, onyxU32 mipCount);
 
     private:

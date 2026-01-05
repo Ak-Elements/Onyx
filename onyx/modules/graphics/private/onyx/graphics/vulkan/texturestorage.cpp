@@ -293,6 +293,44 @@ namespace Onyx::Graphics::Vulkan
 	    return aliasIndex;
     }
 
+    void VulkanTextureStorage::TransitionPresent(VulkanCommandBuffer& commandBuffer)
+    {
+        VkImageMemoryBarrier2KHR barrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR,
+            .srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT,
+
+            .dstStageMask = VK_PIPELINE_STAGE_2_NONE,
+            .dstAccessMask = 0,
+
+            .oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+
+            .image = m_Image,
+            .subresourceRange = {
+                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                .baseMipLevel = 0,
+                .levelCount = 1,
+                .baseArrayLayer = 0,
+                .layerCount = 1
+            }
+        };
+
+        VkDependencyInfoKHR dependencyInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &barrier
+        };
+
+        vkCmdPipelineBarrier2(commandBuffer.GetHandle(), &dependencyInfo);
+
+        m_Layout = static_cast<onyxU32>(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		m_Access = static_cast<onyxU32>(0);
+    }
+
     void VulkanTextureStorage::TransitionLayout(VulkanCommandBuffer& commandBuffer, Context newContext, VkImageLayout newLayout, VkAccessFlags2 newAccess, onyxU32 mipLevel, onyxU32 mipCount)
     {
 		VkImageMemoryBarrier2KHR barrier{};
@@ -323,30 +361,6 @@ namespace Onyx::Graphics::Vulkan
 
 		m_Layout = static_cast<onyxU32>(newLayout);
 		m_Access = static_cast<onyxU32>(newAccess);
-
-        /*
-	    VkImageMemoryBarrier barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-	    barrier.image = m_Image;
-	    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	    barrier.subresourceRange.aspectMask = Utils::IsDepthFormat(m_Properties.m_Format) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-	    barrier.subresourceRange.baseArrayLayer = 0;
-	    barrier.subresourceRange.layerCount = 1;
-	    barrier.subresourceRange.levelCount = mipCount;
-
-	    barrier.subresourceRange.baseMipLevel = mipLevel;
-	    barrier.oldLayout = static_cast<VkImageLayout>(m_Layout);
-	    barrier.newLayout = newLayout;
-	    barrier.srcAccessMask = static_cast<VkAccessFlags>(m_Access);
-	    barrier.dstAccessMask = newAccess;
-
-	    const VkPipelineStageFlags sourceStage = GetPipelineFlags(barrier.srcAccessMask, Context::Graphics);
-	    const VkPipelineStageFlags destinationStage = GetPipelineFlags(barrier.dstAccessMask, Context::Graphics);
-
-	    vkCmdPipelineBarrier(commandBuffer.GetHandle(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-
-	    m_Layout = static_cast<onyxU32>(newLayout);
-	    m_Access = static_cast<onyxU32>(newAccess);*/
     }
 
     VkImageUsageFlags VulkanTextureStorage::GetUsageFlags(const TextureStorageProperties& properties)

@@ -233,7 +233,7 @@ namespace Onyx::Graphics
 
         CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
         Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
-        storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_ACCESS_2_NONE, 0, 1);
+        storage.TransitionPresent(cmdBuffer);
     }
 
     bool RenderGraph::HasResource(RenderGraphResourceId id) const

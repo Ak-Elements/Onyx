@@ -156,19 +156,23 @@ namespace Onyx::Graphics
                 continue;
 
             RenderGraphResource& input = context.Graph.GetResource(inputPin->GetLinkedPinGlobalId());
-
+            
             if (input.IsExternal)
             {
                 continue;
             }
-
-            //if (inputInfo.Type == RenderGraphResourceType::Texture)
+            
+            TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
+            Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
+            
+            const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
+            if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
             {
-                TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
-                Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
-
+                storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
+            }
+            else
+            {
                 storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
-                //util_add_image_barrier(gpu_commands->gpu_device, gpu_commands->vk_command_buffer, texture, RESOURCE_STATE_PIXEL_SHADER_RESOURCE, 0, 1, TextureFormat::has_depth(texture->vk_format));
             }
         }
 
@@ -176,8 +180,6 @@ namespace Onyx::Graphics
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
             RenderGraphResource& output = context.Graph.GetResource(GetOutputPin(i)->GetGlobalId());
-            //RenderGraphResource& output = context.Graph.GetResource(outputInfo.Id);
-
             if (output.Info.Type == RenderGraphResourceType::Attachment)
             {
                 TextureHandle& textureHandle = std::get<TextureHandle>(output.Handle);
