@@ -37,7 +37,7 @@ namespace Onyx::Platform::Wayland
         m_Keymap = keymap;
     }
 
-    PlatformContext::PlatformContext(PlatformSystem& platformSystem)
+    WaylandPlatformContext::WaylandPlatformContext(PlatformSystem& platformSystem)
         : m_PlatformSystem(&platformSystem)
     {
         m_Display = wl_display_connect(NULL);
@@ -65,13 +65,13 @@ namespace Onyx::Platform::Wayland
         Start();
     }
 
-    PlatformContext::~PlatformContext()
+    WaylandPlatformContext::~WaylandPlatformContext()
     {
     }
 
-    void PlatformContext::RegisterCallback(void* data, wl_registry* registry, onyxU32 name, const char* interface, onyxU32 version)
+    void WaylandPlatformContext::RegisterCallback(void* data, wl_registry* registry, onyxU32 name, const char* interface, onyxU32 version)
     {
-        PlatformContext& platformContext = *(static_cast<PlatformContext*>(data));
+        WaylandPlatformContext& platformContext = *(static_cast<WaylandPlatformContext*>(data));
 
         if (std::strcmp(interface, wl_compositor_interface.name) == 0)
         {
@@ -89,7 +89,7 @@ namespace Onyx::Platform::Wayland
         else if (std::strcmp(interface, wl_seat_interface.name) == 0)
         {
             wl_seat* seat = static_cast<wl_seat*>(wl_registry_bind(registry, name, &wl_seat_interface, 1));
-            platformContext.m_Input= MakeUnique<Input>(platformContext, seat);
+            platformContext.m_Input= MakeUnique<WaylandInput>(platformContext, seat);
             
         }
         else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
@@ -103,17 +103,17 @@ namespace Onyx::Platform::Wayland
 
     }
 
-    void PlatformContext::UnregisterCallback(void* /*data*/, wl_registry* /*registry*/, onyxU32 /*name*/)
+    void WaylandPlatformContext::UnregisterCallback(void* /*data*/, wl_registry* /*registry*/, onyxU32 /*name*/)
     {
     }
 
-    Input::InputSystem& PlatformContext::GetInputSystem()
+    Onyx::Input::InputSystem& WaylandPlatformContext::GetInputSystem()
     {
         ONYX_ASSERT(m_PlatformSystem != nullptr);
         return m_PlatformSystem->GetInputSystem();
     }
 
-    void PlatformContext::OnUpdate()
+    void WaylandPlatformContext::OnUpdate()
     {
         while (IsRunning())
         {            

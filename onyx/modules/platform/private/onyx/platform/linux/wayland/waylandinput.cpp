@@ -9,7 +9,7 @@
 
 namespace Onyx::Platform::Wayland
 {
-    Input::Input(PlatformContext& context, wl_seat* seat)
+    WaylandInput::WaylandInput(WaylandPlatformContext& context, wl_seat* seat)
         : m_Context(&context)
         , m_Seat(seat)
     {
@@ -17,16 +17,16 @@ namespace Onyx::Platform::Wayland
         wl_seat_add_listener(m_Seat, &seat_listener, this);
     }
 
-    Input::~Input() = default;
+    WaylandInput::~WaylandInput() = default;
 
-    void Input::CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities)
+    void WaylandInput::CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities)
     {
-        Input& input = *(static_cast<Input*>(instance));
+        WaylandInput& input = *(static_cast<WaylandInput*>(instance));
 
         if ((capabilities & WL_SEAT_CAPABILITY_POINTER) && (input.m_Pointer == nullptr) )
         {
             wl_pointer* pointer  = wl_seat_get_pointer(seat);
-            input.m_Pointer = MakeUnique<Pointer>(input, pointer);
+            input.m_Pointer = MakeUnique<WaylandPointer>(input, pointer);
         }
         else if (!(capabilities & WL_SEAT_CAPABILITY_POINTER) && input.m_Pointer)
         {
@@ -36,7 +36,7 @@ namespace Onyx::Platform::Wayland
         if ((capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && !input.m_Keyboard)
         {
             wl_keyboard* keyboard = wl_seat_get_keyboard(seat);
-            input.m_Keyboard = MakeUnique<Keyboard>(input, keyboard);
+            input.m_Keyboard = MakeUnique<WaylandKeyboard>(input, keyboard);
         }
         else if (!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && input.m_Keyboard)
         {

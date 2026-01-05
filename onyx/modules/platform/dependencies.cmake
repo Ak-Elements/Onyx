@@ -5,6 +5,7 @@ set(onyx_TARGET_PUBLIC_DEPENDENCIES
 )
 
 set(onyx_TARGET_PRIVATE_DEPENDENCIES
+    onyx-filesystem
 )
 
 if (UNIX)

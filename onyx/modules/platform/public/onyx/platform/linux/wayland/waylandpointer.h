@@ -7,13 +7,13 @@ struct wl_surface;
 
 namespace Onyx::Platform::Wayland
 {
-	class Input;
+	class WaylandInput;
 
-    class Pointer
+    class WaylandPointer
     {
 	public:
-        Pointer(Input& input, wl_pointer* pointer);
-		~Pointer();
+        WaylandPointer(WaylandInput& input, wl_pointer* pointer);
+		~WaylandPointer();
 
     private:
         static void OnEnterSurface(void* instance, wl_pointer* pointer, onyxU32 serial, wl_surface* surface, onyxS32 x, onyxS32 y);
@@ -23,7 +23,7 @@ namespace Onyx::Platform::Wayland
         static void OnAxis(void* instance, wl_pointer* pointer, onyxU32 time, onyxU32 axis, onyxS32 value);
 
     private:
-        Input* m_Input = nullptr;
+        WaylandInput* m_Input = nullptr;
         wl_pointer* m_Pointer = nullptr;
     };
 }

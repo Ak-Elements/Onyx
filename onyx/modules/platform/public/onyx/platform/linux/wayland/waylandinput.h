@@ -18,27 +18,27 @@ namespace Onyx::Platform
 
     namespace Wayland
     {
-        class Pointer;
-        class Keyboard;
-        class PlatformContext;
+        class WaylandPointer;
+        class WaylandKeyboard;
+        class WaylandPlatformContext;
 
-        class Input
+        class WaylandInput
         {
         public:
-            Input(PlatformContext& platformContext, wl_seat* seat);
-            ~nput();
+            WaylandInput(WaylandPlatformContext& platformContext, wl_seat* seat);
+            ~WaylandInput();
 
-            PlatformContext& GetContext() { ONYX_ASSERT(m_Context != nullptr); return *m_Context; }
+            WaylandPlatformContext& GetContext() { ONYX_ASSERT(m_Context != nullptr); return *m_Context; }
 
         private:
             static void CapabilitiesCallback(void* instance, wl_seat* seat, onyxU32 capabilities);
         private:
-            PlatformContext* m_Context = nullptr;
+            WaylandPlatformContext* m_Context = nullptr;
 
             wl_seat* m_Seat = nullptr;
 
-            UniquePtr<Pointer> m_Pointer;
-            UniquePtr<Keyboard> m_Keyboard;
+            UniquePtr<WaylandPointer> m_Pointer;
+            UniquePtr<WaylandKeyboard> m_Keyboard;
 
         };
     }

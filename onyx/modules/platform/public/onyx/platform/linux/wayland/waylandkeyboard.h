@@ -9,13 +9,13 @@ struct wl_array;
 
 namespace Onyx::Platform::Wayland
 {
-	class Input;
+	class WaylandInput;
 
-    class Keyboard
+    class WaylandKeyboard
     {
 	public:
-		Keyboard(Input& input, wl_keyboard* keyboard);
-        ~Keyboard();
+		WaylandKeyboard(WaylandInput& input, wl_keyboard* keyboard);
+        ~WaylandKeyboard();
     
     private:
         static void OnKeyMap(void* inputInstance, wl_keyboard* keyboard, onyxU32 format, onyxS32 fd, onyxU32 size);
@@ -25,7 +25,7 @@ namespace Onyx::Platform::Wayland
         static void OnModifierChange(void* inputInstance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 mods_depressed, onyxU32 mods_latched, onyxU32 mods_locked, onyxU32 group);
 
     private:
-        Input* m_Input = nullptr;
+        WaylandInput* m_Input = nullptr;
         wl_keyboard* m_Keyboard = nullptr;
     };
 }

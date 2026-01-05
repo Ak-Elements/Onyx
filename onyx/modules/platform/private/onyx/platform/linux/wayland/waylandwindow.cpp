@@ -169,7 +169,7 @@ allocate_shm_file(size_t size)
             m_Settings.Size[0] = width;
             m_Settings.Size[1] = height;
 
-            m_OnResize(width, height);
+            m_ResizeSignal.Dispatch(m_Settings.Size);
         }
     }
 

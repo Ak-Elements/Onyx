@@ -16,24 +16,21 @@ namespace Onyx::Platform::Wayland
 {
     namespace 
     {
-        Input::MouseButton WaylandToMouseButton(onyxU32 button)
+        Onyx::Input::MouseButton WaylandToMouseButton(onyxU32 button)
         {
-            switch (button)
-            {
-                case BTN_LEFT: return Input::MouseButton::Button_1;
-                case BTN_RIGHT: return Input::MouseButton::Button_2;
-                case BTN_MIDDLE: return Input::MouseButton::Button_3;
-                case BTN_SIDE: return Input::MouseButton::Button_4;
-                case BTN_EXTRA: return Input::MouseButton::Button_5;
-                case BTN_FORWARD: return Input::MouseButton::Button_6;
-                case BTN_BACK: return Input::MouseButton::Button_7;
-                case BTN_TASK: return Input::MouseButton::Button_8;
-            }
-            return Input::MouseButton::Invalid;
+            constexpr onyxU16 leftMouseButton = Enums::ToIntegral(Input::MouseButton::Button_1);
+            constexpr onyxU16 first = Enums::ToIntegral(Onyx::Input::MouseButton::First);
+            constexpr onyxU16 last = Enums::ToIntegral(Onyx::Input::MouseButton::Last);
+            onyxU16 mouseButton = button - BTN_LEFT + leftMouseButton;
+            ONYX_ASSERT(mouseButton > first);
+            ONYX_ASSERT(mouseButton < last);
+
+            // offset so we start from left mouse button
+            return static_cast<Onyx::Input::MouseButton>(mouseButton);
         }
     
     }
-    Pointer::Pointer(Input& input, wl_pointer* pointer)
+    WaylandPointer::WaylandPointer(WaylandInput& input, wl_pointer* pointer)
         : m_Input(&input)
         , m_Pointer(pointer)
     {
@@ -42,7 +39,7 @@ namespace Onyx::Platform::Wayland
         wl_pointer_add_listener(m_Pointer, &pointer_listener, this);
     }
 
-    Pointer::~Pointer()
+    WaylandPointer::~WaylandPointer()
     {
         if (m_Pointer != nullptr)
         {
@@ -50,7 +47,7 @@ namespace Onyx::Platform::Wayland
         }
     }
 
-    /*static*/ void Pointer::OnEnterSurface(void* instance, wl_pointer* pointer, onyxU32 serial, wl_surface* surface, wl_fixed_t x, wl_fixed_t y)
+    /*static*/ void WaylandPointer::OnEnterSurface(void* instance, wl_pointer* pointer, onyxU32 serial, wl_surface* surface, wl_fixed_t x, wl_fixed_t y)
     {
         ONYX_UNUSED(instance);
         ONYX_UNUSED(pointer);
@@ -59,7 +56,7 @@ namespace Onyx::Platform::Wayland
         ONYX_UNUSED(y);
     }
 
-    /*static*/ void Pointer::OnLeaveSurface(void* instance, wl_pointer* pointer, onyxU32 serial, wl_surface* surface)
+    /*static*/ void WaylandPointer::OnLeaveSurface(void* instance, wl_pointer* pointer, onyxU32 serial, wl_surface* surface)
     {
         ONYX_UNUSED(instance);
         ONYX_UNUSED(pointer);
@@ -70,28 +67,27 @@ namespace Onyx::Platform::Wayland
 
     /*static*/ void WaylandPointer::OnMove(void* instance, wl_pointer* pointer, onyxU32 time, wl_fixed_t x, wl_fixed_t y)
     {
-        Pointer& pointerInstance = *reinterpret_cast<Pointer*>(instance);
+        WaylandPointer& pointerInstance = *reinterpret_cast<WaylandPointer*>(instance);
         ONYX_ASSERT(pointerInstance.m_Input != nullptr);
 
-        Input& waylandInput = *pointerInstance.m_Input;
-        PlatformContext& context = waylandInput.GetContext();
+        WaylandInput& waylandInput = *pointerInstance.m_Input;
+        WaylandPlatformContext& context = waylandInput.GetContext();
         Input::InputSystem& inputSystem = context.GetInputSystem();
 
         Input::MousePositionEvent event;
-        event.Id = Input::InputEventType::MousePositionChanged;
         event.Position.X =  wl_fixed_to_int(x);
         event.Position.Y =  wl_fixed_to_int(y);
 
         inputSystem.AddEvent(event);
     }
 
-    /*static*/ void Pointer::OnButton(void* instance, wl_pointer* /*pointer*/, onyxU32 /*serial*/, onyxU32 /*time*/, onyxU32 button, onyxU32 state)
+    /*static*/ void WaylandPointer::OnButton(void* instance, wl_pointer* /*pointer*/, onyxU32 /*serial*/, onyxU32 /*time*/, onyxU32 button, onyxU32 state)
     {
-        Pointer& pointerInstance = *reinterpret_cast<Pointer*>(instance);
+        WaylandPointer& pointerInstance = *reinterpret_cast<WaylandPointer*>(instance);
         ONYX_ASSERT(pointerInstance.m_Input != nullptr);
 
-        Input& waylandInput = *pointerInstance.m_Input;
-        PlatformContext& context = waylandInput.GetContext();
+        WaylandInput& waylandInput = *pointerInstance.m_Input;
+        WaylandPlatformContext& context = waylandInput.GetContext();
         Input::InputSystem& inputSystem = context.GetInputSystem();
 
         Input::MouseButtonEvent event;
@@ -102,17 +98,16 @@ namespace Onyx::Platform::Wayland
 
     }
 
-    /*static*/ void Pointer::OnAxis(void* instance, wl_pointer* pointer, onyxU32 time, onyxU32 axis, wl_fixed_t value)
+    /*static*/ void WaylandPointer::OnAxis(void* instance, wl_pointer* pointer, onyxU32 time, onyxU32 axis, wl_fixed_t value)
     {
-        Pointer& pointerInstance = *reinterpret_cast<Pointer*>(instance);
+        WaylandPointer& pointerInstance = *reinterpret_cast<WaylandPointer*>(instance);
         ONYX_ASSERT(pointerInstance.m_Input != nullptr);
 
-        Input& waylandInput = *pointerInstance.m_Input;
-        PlatformContext& context = waylandInput.GetContext();
+        WaylandInput& waylandInput = *pointerInstance.m_Input;
+        WaylandPlatformContext& context = waylandInput.GetContext();
         Input::InputSystem& inputSystem = context.GetInputSystem();
 
         Input::MouseAxisEvent event;
-        event.Id = Input::InputEventType::MouseWheel;    
         // NOTE: 10 units of motion per mouse wheel step seems to be a common ratio
         event.Value = -wl_fixed_to_double(value) / 10.0f;
         inputSystem.AddEvent(event);

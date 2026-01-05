@@ -15,12 +15,12 @@ struct zxdg_toplevel_decoration_v1;
 
 namespace Onyx::Platform::Wayland
 {
-    class PlatformContext;
+    class WaylandPlatformContext;
 
     class Window
     {
     public:
-        Window(PlatformContext& platformContext, const WindowSettings& setting);
+        Window(WaylandPlatformContext& platformContext, const WindowSettings& setting);
         ~Window();
 
         void Show();
@@ -57,7 +57,7 @@ namespace Onyx::Platform::Wayland
         void SetCursor(void* /*cursor*/) { }
 
         void EnableSystemMouseCapture(bool enable) { ONYX_UNUSED(enable); }
-        PlatformContext* GetContext() const { return m_Context; }
+        WaylandPlatformContext* GetContext() const { return m_Context; }
         wl_surface* GetSurfaceHandle() const { return m_Surface; }
 
         WindowSettings& GetSettings() { return m_Settings; }
@@ -94,7 +94,7 @@ namespace Onyx::Platform::Wayland
         Atomic<bool> m_IsInitialized = false;
         WindowState m_State = WindowState::None;
     
-        PlatformContext* m_Context = nullptr;
+        WaylandPlatformContext* m_Context = nullptr;
 
         wl_surface* m_Surface = nullptr;
         xdg_surface* m_XdgSurface = nullptr;;

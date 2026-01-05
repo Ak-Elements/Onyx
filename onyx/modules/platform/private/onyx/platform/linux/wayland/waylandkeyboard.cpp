@@ -2,6 +2,7 @@
 
 #if ONYX_IS_LINUX && ONYX_USE_WAYLAND
 
+#include <onyx/platform/linux/wayland/waylandplatformcontext.h>
 #include <onyx/platform/linux/wayland/waylandinput.h>
 #include <onyx/platform/linux/wayland/waylandkeycodes.h>
 #include <onyx/input/inputsystem.h>
@@ -61,7 +62,7 @@ namespace Onyx::Platform::Wayland
         }
     }
 
-    Keyboard::Keyboard(Input& input, wl_keyboard* keyboard)
+    WaylandKeyboard::WaylandKeyboard(WaylandInput& input, wl_keyboard* keyboard)
         : m_Input(&input)
         , m_Keyboard(keyboard)
     {
@@ -70,7 +71,7 @@ namespace Onyx::Platform::Wayland
         wl_keyboard_add_listener(m_Keyboard, &keyboard_listener, this);
     }
 
-    Keyboard::~Keyboard()
+    WaylandKeyboard::~WaylandKeyboard()
     {
         if (m_Keyboard != nullptr)
         {
@@ -78,13 +79,13 @@ namespace Onyx::Platform::Wayland
         }
     }
 
-    /*static*/ void Keyboard::OnKeyMap(void* instance, wl_keyboard* keyboard, onyxU32 format, onyxS32 fd, onyxU32 size)
+    /*static*/ void WaylandKeyboard::OnKeyMap(void* instance, wl_keyboard* keyboard, onyxU32 format, onyxS32 fd, onyxU32 size)
     {
-        Keyboard& keyboardInstance = *reinterpret_cast<Keyboard*>(instance);
+        WaylandKeyboard& keyboardInstance = *reinterpret_cast<WaylandKeyboard*>(instance);
         ONYX_ASSERT(keyboardInstance.m_Input != nullptr);
 
-        Input& input = *keyboardInstance.m_Input;
-        & context = input.GetContext();
+        WaylandInput& input = *keyboardInstance.m_Input;
+        WaylandPlatformContext& context = input.GetContext();
         Xkb& xkb = context.GetXkb();
 
         // inspired by glfw
@@ -159,7 +160,7 @@ namespace Onyx::Platform::Wayland
         xkb.NumLockIndex  = ::xkb_keymap_mod_get_index(keymap, "Mod2");
     }
 
-    /*static*/ void Keyboard::OnEnterSurface(void* instance, wl_keyboard* keyboard, onyxU32 serial, wl_surface* surface, wl_array* /*keys*/)
+    /*static*/ void WaylandKeyboard::OnEnterSurface(void* instance, wl_keyboard* keyboard, onyxU32 serial, wl_surface* surface, wl_array* /*keys*/)
     {
         ONYX_UNUSED(instance);
         ONYX_UNUSED(keyboard);
@@ -167,7 +168,7 @@ namespace Onyx::Platform::Wayland
         ONYX_UNUSED(surface);
     }
 
-    /*static*/ void Keyboard::OnLeaveSurface(void* instance, wl_keyboard* keyboard, onyxU32 serial, wl_surface* surface)
+    /*static*/ void WaylandKeyboard::OnLeaveSurface(void* instance, wl_keyboard* keyboard, onyxU32 serial, wl_surface* surface)
     {
         ONYX_UNUSED(instance);
         ONYX_UNUSED(keyboard);
@@ -175,24 +176,24 @@ namespace Onyx::Platform::Wayland
         ONYX_UNUSED(surface);
     }
 
-    /*static*/ void Keyboard::OnKeyChange(void* instance, wl_keyboard* keyboard, onyxU32 /*serial*/, onyxU32 /*time*/, onyxU32 wayland_key, onyxU32 state)
+    /*static*/ void WaylandKeyboard::OnKeyChange(void* instance, wl_keyboard* keyboard, onyxU32 /*serial*/, onyxU32 /*time*/, onyxU32 wayland_key, onyxU32 state)
     {
-        Keyboard& keyboardInstance = *reinterpret_cast<Keyboard*>(instance);
+        WaylandKeyboard& keyboardInstance = *reinterpret_cast<WaylandKeyboard*>(instance);
         ONYX_ASSERT(keyboardInstance.m_Input != nullptr);
 
-        Input& input = *keyboardInstance.m_Input;
-        PlatformContext& context = input.GetContext();
-        Input::InputSystem& inputSystem = context.GetInputSystem();
+        WaylandInput& input = *keyboardInstance.m_Input;
+        WaylandPlatformContext& context = input.GetContext();
+        Onyx::Input::InputSystem& inputSystem = context.GetInputSystem();
 
         Input::KeyboardEvent keyboardEvent;
         keyboardEvent.State = state == 0 ? Input::ButtonState::Up : Input::ButtonState::Down;
-        keyboardEvent.Key = WaylandKeyToKey(wayland_key);
+        keyboardEvent.Key = ConvertWaylandKey(wayland_key);
         keyboardEvent.Char = GetInputChar(context.GetXkb(), wayland_key);
 
         inputSystem.AddEvent(keyboardEvent);
     }
 
-    /*static*/ void Keyboard::OnModifierChange(void* instance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 mods_depressed, onyxU32 mods_latched, onyxU32 mods_locked, onyxU32 group)
+    /*static*/ void WaylandKeyboard::OnModifierChange(void* instance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 mods_depressed, onyxU32 mods_latched, onyxU32 mods_locked, onyxU32 group)
     {
         ONYX_UNUSED(instance);
         ONYX_UNUSED(keyboard);

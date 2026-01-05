@@ -31,10 +31,12 @@ set(onyx_TARGET_PRIVATE_DEPENDENCIES
 
 )
 
-if (TARGET glslang)
-    list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES glslang)
+find_package(glslang CONFIG)
+if (TARGET glslang::glslang)
+    list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES glslang::glslang)
 endif()
 
+find_package(SPIRV-Tools)
 if (TARGET SPIRV-Tools)
     list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES SPIRV-Tools)
 endif()

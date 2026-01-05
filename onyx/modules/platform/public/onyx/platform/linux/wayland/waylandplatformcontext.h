@@ -34,7 +34,7 @@ namespace Onyx::Platform
 
     namespace Wayland
     {
-        class Input;
+        class WaylandInput;
 
         struct Xkb
         {
@@ -61,11 +61,11 @@ namespace Onyx::Platform
             xkb_state* m_State = nullptr;
         };
 
-        class PlatformContext : public Thread
+        class WaylandPlatformContext : public Thread
         {
         public:
-            PlatformContext(PlatformSystem& platformSystem);
-            ~PlatformContext();
+            WaylandPlatformContext(PlatformSystem& platformSystem);
+            ~WaylandPlatformContext();
 
             wl_display* GetDisplayHandle() { return m_Display; }
             wl_registry* GetRegistryHandle() { return m_Registry; }
@@ -80,7 +80,7 @@ namespace Onyx::Platform
             zxdg_decoration_manager_v1* GetDecorationManager() { return m_ZxdgDecorationManager; }
             zxdg_toplevel_decoration_v1* GetDecoration() { return m_ZxdgToplevelDecoration; }
 
-            Input::InputSystem& GetInputSystem();
+            Onyx::Input::InputSystem& GetInputSystem();
 
         private:
             static void RegisterCallback(void* data, wl_registry* registry, onyxU32 name, const char* interface, onyxU32 version);
@@ -104,7 +104,7 @@ namespace Onyx::Platform
             zxdg_decoration_manager_v1* m_ZxdgDecorationManager = nullptr;
             zxdg_toplevel_decoration_v1* m_ZxdgToplevelDecoration = nullptr;
 
-            UniquePtr<Input> m_Input;
+            UniquePtr<WaylandInput> m_Input;
         };
     }
 }

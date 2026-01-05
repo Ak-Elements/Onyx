@@ -2,16 +2,17 @@
 
 #if ONYX_IS_LINUX && ONYX_USE_WAYLAND
 
+#include <onyx/input/keycodes.h>
 #include <linux/input-event-codes.h>
 
 namespace Onyx::Platform::Wayland
 {
-    Input::Key ConvertWaylandKey(onyxU32 wl_key)
+    Onyx::Input::Key ConvertWaylandKey(onyxU32 wl_key)
     {
         switch (wl_key)
         {
-            using enum Input::Key;
-            // Letters
+            using enum Onyx::Input::Key;
+            
             case KEY_A: return A;
             case KEY_B: return B;
             case KEY_C: return C;
@@ -38,8 +39,6 @@ namespace Onyx::Platform::Wayland
             case KEY_X: return X;
             case KEY_Y: return Y;
             case KEY_Z: return Z;
-
-                // Numbers (top row)
             case KEY_1: return Key1;
             case KEY_2: return Key2;
             case KEY_3: return Key3;
@@ -50,15 +49,11 @@ namespace Onyx::Platform::Wayland
             case KEY_8: return Key8;
             case KEY_9: return Key9;
             case KEY_0: return Key0;
-
-                // Basic keys
             case KEY_ENTER:     return Enter;
             case KEY_ESC:       return Escape;
             case KEY_BACKSPACE: return Backspace;
             case KEY_TAB:       return Tab;
             case KEY_SPACE:     return Space;
-
-                // Symbols
             case KEY_MINUS:        return Minus;
             case KEY_EQUAL:        return Equals;
             case KEY_LEFTBRACE:    return LeftBracket;
@@ -70,10 +65,7 @@ namespace Onyx::Platform::Wayland
             case KEY_COMMA:        return Comma;
             case KEY_DOT:          return Period;
             case KEY_SLASH:        return Slash;
-
             case KEY_CAPSLOCK: return CapsLock;
-
-                // Function keys
             case KEY_F1:  return F1;
             case KEY_F2:  return F2;
             case KEY_F3:  return F3;
@@ -86,28 +78,22 @@ namespace Onyx::Platform::Wayland
             case KEY_F10: return F10;
             case KEY_F11: return F11;
             case KEY_F12: return F12;
-
-                // Navigation
             case KEY_INSERT:   return Insert;
             case KEY_DELETE:   return Delete;
             case KEY_HOME:     return Home;
             case KEY_END:      return End;
             case KEY_PAGEUP:   return PageUp;
             case KEY_PAGEDOWN: return PageDown;
-
             case KEY_RIGHT: return Right;
             case KEY_LEFT:  return Left;
             case KEY_DOWN:  return Down;
             case KEY_UP:    return Up;
-
-                // Numpad
             case KEY_NUMLOCK:   return NumPad_Lock_Clear;
             case KEY_KPSLASH:   return NumPad_Divide;
             case KEY_KPASTERISK:return NumPad_Multiply;
             case KEY_KPMINUS:   return NumPad_Minus;
             case KEY_KPPLUS:    return NumPad_Plus;
             case KEY_KPENTER:   return NumPad_Enter;
-
             case KEY_KP1: return NumPad_1;
             case KEY_KP2: return NumPad_2;
             case KEY_KP3: return NumPad_3;
@@ -119,13 +105,10 @@ namespace Onyx::Platform::Wayland
             case KEY_KP9: return NumPad_9;
             case KEY_KP0: return NumPad_0;
             case KEY_KPDOT: return NumPad_Period;
-
-                // Modifiers
             case KEY_LEFTCTRL:   return Left_Ctrl;
             case KEY_LEFTSHIFT:  return Left_Shift;
             case KEY_LEFTALT:    return Left_Alt;
             case KEY_LEFTMETA:   return Left_System;
-
             case KEY_RIGHTCTRL:  return Right_Ctrl;
             case KEY_RIGHTSHIFT: return Right_Shift;
             case KEY_RIGHTALT:   return Right_Alt;
