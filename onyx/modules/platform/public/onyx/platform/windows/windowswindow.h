@@ -48,7 +48,7 @@ namespace Onyx::Platform::Windows
         HWND GetWindowHandle() const { return m_WindowHandle; }
 
         void SetTitle(StringView m_title);
-        void SetIcon(Span<onyxU8> imageData, Vector2s32 imageSize);
+        void SetIcon(const FilePath& path);
 
         Vector2s32 GetFrameBufferSize() const { return m_Settings.Size; }
         onyxU16 GetRefreshRate() const { return m_Settings.MonitorRefreshRate; }

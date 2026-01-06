@@ -1,3 +1,4 @@
+#include <onyx/filesystem/imagefile.h>
 #include <onyx/platform/windows/windowswindow.h>
 
 #if ONYX_IS_WINDOWS
@@ -887,9 +888,10 @@ namespace Onyx::Platform::Windows
         }
     }
 
-    void Window::SetIcon(Span<onyxU8> imageData, Vector2s32 imageSize)
+    void Window::SetIcon(const FilePath& path)
     {
-        HICON icon = CreateIconFromBitmap(imageData, imageSize);
+        FileSystem::ImageFile image(path);
+        HICON icon = CreateIconFromBitmap(image.GetData(), image.GetSize());
         
         SendMessage(m_WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)icon);
         SendMessage(m_WindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)icon);

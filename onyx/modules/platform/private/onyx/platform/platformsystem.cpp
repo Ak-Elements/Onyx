@@ -1,3 +1,4 @@
+#include <onyx/filesystem/path.h>
 #include <onyx/platform/platformsystem.h>
 
 namespace Onyx::Platform
