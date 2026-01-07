@@ -5,4 +5,5 @@ endif()
 onyx_add_target(onyx-assets
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx::Assets"
+    NO_EDITOR_TARGET
 )

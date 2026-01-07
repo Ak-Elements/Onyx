@@ -1,12 +1,11 @@
 #include <onyx/gamecore/rendertasks/textrendertask.h>
-#include <onyx/graphics/textureasset.h>
 
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
+#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/graphicscore/vertex.h>
 
 #include <onyx/gamecore/scene/sceneframedata.h>
-#include <onyx/graphics/vertex.h>
-#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::GameCore

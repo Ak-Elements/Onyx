@@ -1,12 +1,12 @@
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
+#include <onyx/graphicscore/lighting/lighting.h>
 
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/framecontext.h>
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/viewconstants.h>
+#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/graphicscore/framecontext.h>
+#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/graphicscore/viewconstants.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphics/vulkan/buffer.h>
-#include <onyx/graphics/vulkan/commandbuffer.h>
+
 #include <onyx/profiler/profiler.h>
 
 #define BATCHED 1
@@ -58,12 +58,13 @@ namespace Onyx::Graphics::RenderGraphNodes
         constants.zFar = viewConstants.Far;
         constants.Viewport = viewConstants.Viewport;
 
-        commandBuffer.GlobalBarrier(0, VK_ACCESS_SHADER_WRITE_BIT);
+        //TODO: Fix barrier
+        commandBuffer.GlobalBarrier(0, 0x00000040);
 
         commandBuffer.BindPushConstants(ShaderStage::Compute, 0, constants);
         commandBuffer.Dispatch(CLUSTER_X, CLUSTER_Y, CLUSTER_Z);
 
-        commandBuffer.GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
+        commandBuffer.GlobalBarrier(0x00000040, 0x00000020 | 0x00000040);
     }
 
     void UpdateLightClustersRenderGraphNode::OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
@@ -148,7 +149,8 @@ namespace Onyx::Graphics::RenderGraphNodes
             Matrix4<onyxF32> ViewMatrix;
         };
 
-        commandBuffer.GlobalBarrier(0, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
+        //TODO: Fix barrier
+        commandBuffer.GlobalBarrier(0, 0x00000020 | 0x00000040);
 
         PushConstants constants{ context.FrameContext.ViewConstants.ViewMatrix };
 
@@ -161,6 +163,7 @@ namespace Onyx::Graphics::RenderGraphNodes
 #else
         commandBuffer.Dispatch(CLUSTER_X, CLUSTER_Y, CLUSTER_Z);
 #endif
-        commandBuffer.GlobalBarrier(VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT);
+        //TODO: Fix barrier
+        commandBuffer.GlobalBarrier(0x00000040, 0x00000020);
     }
 }

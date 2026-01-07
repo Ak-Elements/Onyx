@@ -1,6 +1,6 @@
 #pragma once
 #include <onyx/graphics/font/sdffont.h>
-#include <onyx/graphics/vertex.h>
+#include <onyx/graphicscore/vertex.h>
 
 namespace Onyx
 {

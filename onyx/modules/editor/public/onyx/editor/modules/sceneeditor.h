@@ -3,8 +3,6 @@
 #include <onyx/editor/camera/freecamera.h>
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 #include <onyx/editor/panels/sceneeditor/componentspanel.h>
-#include <onyx/editor/panels/sceneeditor/entitiespanel.h>
-#include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 #include <onyx/editor/panels/sceneeditor/terrainpanel.h>
 #include <onyx/inputactions/inputactionsystem.h>
 #include <onyx/gamecore/scene/scene.h>

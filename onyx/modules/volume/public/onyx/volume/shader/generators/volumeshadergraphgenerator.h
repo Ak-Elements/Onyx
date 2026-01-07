@@ -1,6 +1,6 @@
 #pragma once
 
-#include <onyx/graphics/shader/generators/shadergenerator.h>
+#include <onyx/graphicscore/shader/generators/shadergenerator.h>
 
 namespace Onyx::Volume
 {

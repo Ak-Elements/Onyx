@@ -2,9 +2,10 @@
 
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/graphicscore/pipeline.h>
+#include <onyx/graphicscore/shader/generators/shadergenerator.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>

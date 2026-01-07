@@ -3,7 +3,7 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/gamecore/components/cameracomponent.gen.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
 #include <onyx/gamecore/components/graphics/materialcomponent.h>
 #include <onyx/gamecore/components/graphics/textcomponent.h>
@@ -19,7 +19,7 @@
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/gamecore/systems/freecamerasystem.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
 namespace Onyx::GameCore

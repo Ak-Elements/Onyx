@@ -1,16 +1,15 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphics/framecontext.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/framecontext.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
-#include <onyx/graphics/texture.h>
-#include <onyx/graphics/texturestorage.h>
-#include <onyx/graphics/vulkan/texturestorage.h>
+#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/graphicscore/graphicstypes.h>
+#include <onyx/graphicscore/texturestorage.h>
 #include <onyx/log/logger.h>
 #include <onyx/thread/threadpool/threadpool.h>
-
-#include <onyx/graphics/vulkan/commandbuffer.h>
 
 ONYX_PROFILE_CREATE_TAG(RenderGraph, 0x3ed694);
 
@@ -229,11 +228,12 @@ namespace Onyx::Graphics
         // Transition image to present
         RenderGraphResource& swapchainResource = m_ResourceCache[SWAPCHAIN_RESOURCE_ID];
         TextureHandle& swapchainTarget = std::get<TextureHandle>(swapchainResource.Handle);
-        Vulkan::VulkanTextureStorage& storage = swapchainTarget.Storage.As<Vulkan::VulkanTextureStorage>();
+        //Vulkan::VulkanTextureStorage& storage = swapchainTarget.Storage.As<Vulkan::VulkanTextureStorage>();
 
         CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
-        Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
-        storage.TransitionPresent(cmdBuffer);
+        //Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
+        commandBuffer.TransitionLayout(swapchainTarget, Context::Graphics, Access::None, 1000001002);
+       // storage.TransitionPresent(cmdBuffer);
     }
 
     bool RenderGraph::HasResource(RenderGraphResourceId id) const

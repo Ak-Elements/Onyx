@@ -40,7 +40,6 @@ namespace Onyx
         template <typename T> requires std::is_base_of_v<IEngineSystem, T>
         static bool Register()
         {
-           // s_SystemMeta[T::TypeId] = new EngineModuleMeta<T, Args...>();
             s_CreateFunctions[T::TypeId] = &EngineSystemMeta<T>::Create;
 
             if constexpr (Updatable<T>)
@@ -65,7 +64,6 @@ namespace Onyx
 
             return it->second;
         }
-        //static const IEngineModuleMeta& GetMeta(StringId32 moduleId) { return *s_SystemMeta.at(moduleId); }
 
     private:
         static inline HashMap<StringId32, CreateFunction> s_CreateFunctions;

@@ -1,6 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/updateviewconstantstask.h>
 
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 namespace Onyx::Graphics::RenderGraphNodes

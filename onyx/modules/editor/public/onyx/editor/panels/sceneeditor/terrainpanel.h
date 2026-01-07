@@ -1,5 +1,5 @@
 #pragma once
-#include <onyx/graphics/graphicshandles.h>
+#include <onyx/graphicscore/graphicshandles.h>
 
 namespace Onyx::Editor
 {

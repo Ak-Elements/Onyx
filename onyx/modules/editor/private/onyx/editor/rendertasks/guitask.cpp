@@ -1,16 +1,17 @@
 #include <onyx/editor/rendertasks/guitask.h>
 
-#include <onyx/graphics/bufferproperties.h>
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/textureproperties.h>
-#include <onyx/graphics/texturestorageproperties.h>
+#include <onyx/graphicscore/bufferproperties.h>
+#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/graphicscore/textureproperties.h>
+#include <onyx/graphicscore/texturestorageproperties.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/geometry/rect2.h>
 #include <onyx/profiler/profiler.h>
 
 #include <imgui.h>
-#include <onyx/graphics/graphicssystem.h>
+
 
 namespace Onyx
 {

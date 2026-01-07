@@ -1,6 +1,6 @@
 #pragma once
 #include <onyx/filesystem/path.h>
-#include <onyx/graphics/vertex.h>
+#include <onyx/graphicscore/vertex.h>
 
 namespace Onyx::Application
 {

@@ -1,8 +1,8 @@
 #pragma once
 #include <onyx/nodegraph/nodes/math/geometricnodes.h>
 
+#include <onyx/graphicscore/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
 
 namespace Onyx::NodeGraph
 {

@@ -1,7 +1,7 @@
 function(onyx_add_target arg_TARGET_NAME)
     set(options NO_CODEGEN NO_EDITOR_TARGET)  # No boolean options
-    set(oneValueArgs NAMESPACE PRECOMPILED_HEADER TARGET_TYPE FOLDER ALIAS)
-    set(multiValueArgs PUBLIC_SOURCES PRIVATE_SOURCES PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
+    set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER ALIAS)
+    set(multiValueArgs PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
 
     set(arg_ENABLE_CODEGEN true)
     cmake_parse_arguments(
@@ -12,22 +12,6 @@ function(onyx_add_target arg_TARGET_NAME)
         ${ARGN}
     )
     
-    #### Target ####
-    set(targets ${arg_TARGET_NAME})
-    if (arg_TARGET_TYPE AND arg_TARGET_TYPE STREQUAL "EXECUTABLE")
-        add_executable(${arg_TARGET_NAME})
-        set(is_executable True)
-        if (arg_ALIAS)
-            add_executable("${arg_ALIAS}" ALIAS ${arg_TARGET_NAME})
-        endif()
-    else()
-        add_library(${arg_TARGET_NAME} STATIC)
-        set(is_executable False)
-        if (arg_ALIAS)
-            add_library("${arg_ALIAS}" ALIAS ${arg_TARGET_NAME})
-        endif()
-    endif()
-
     if (arg_NO_CODEGEN)
         set(arg_ENABLE_CODEGEN false)
     endif()
@@ -38,101 +22,179 @@ function(onyx_add_target arg_TARGET_NAME)
 
     string(REPLACE "::" "/" target_ns_path "${arg_NAMESPACE}")
     string(TOLOWER "${target_ns_path}" target_ns_path)
+
+    _onyx_add_target(
+        name ${arg_TARGET_NAME}
+        namespace ${arg_TARGET_NAMESPACE}
+        type ${arg_TARGET_TYPE}
+        alias ${arg_ALIAS}
+        folder ${arg_FOLDER}
+        base_source_dir ${CMAKE_CURRENT_SOURCE_DIR}
+        base_binary_dir ${CMAKE_CURRENT_BINARY_DIR}
+        public_sources ${onyx_TARGET_PUBLIC_SOURCES}
+        private_sources ${onyx_TARGET_PRIVATE_SOURCES}
+        public_dependencies ${onyx_TARGET_PUBLIC_DEPENDENCIES}
+        private_dependencies ${onyx_TARGET_PRIVATE_DEPENDENCIES}
+        public_defines ${arg_PUBLIC_DEFINES}
+        private_defines ${arg_PRIVATE_DEFINES}
+        out_public_sources target_public_sources
+        out_public_dependencies target_public_dependencies
+        out_private_dependencies target_private_dependencies
+    )
+
+    set(has_editor_target False)
+    if (NOT arg_NO_EDITOR_TARGET)
+        set(has_editor_target True)
+        
+        if (arg_ALIAS)
+            set(editor_alias ${arg_ALIAS}-editor)
+        endif()
+        _onyx_add_target(
+            name ${arg_TARGET_NAME}-editor
+            type ${arg_TARGET_TYPE}
+            namespace ${arg_TARGET_NAMESPACE}
+            alias ${editor_alias}
+            folder editor
+            base_source_dir ${CMAKE_CURRENT_SOURCE_DIR}/editor
+            base_binary_dir ${CMAKE_CURRENT_BINARY_DIR}/editor
+            public_defines ${arg_PUBLIC_DEFINES}
+            private_defines ${arg_PRIVATE_DEFINES}
+        )
+
+        target_link_libraries(${arg_TARGET_NAME}-editor PUBLIC ${arg_TARGET_NAME})
+        if (TARGET onyx-editor)
+            target_link_libraries(${arg_TARGET_NAME}-editor PRIVATE onyx-editor)
+        else()
+            set_property(GLOBAL APPEND PROPERTY onyx_EDITOR_TARGETS ${arg_TARGET_NAME}-editor)
+        endif()
+    endif()
+
+    _onyx_target_codegeneration()
+    _onyx_target_install()
+endfunction()
+
+function(_onyx_add_target)
+
+    set(oneValueArgs
+        name
+        namespace
+        type
+        folder
+        alias
+        base_source_dir
+        base_binary_dir
+        out_public_sources
+        out_public_dependencies
+        out_private_dependencies
+    )
+
+    set(multiValueArgs
+        public_sources
+        private_sources
+        public_dependencies
+        private_dependencies
+        public_defines
+        private_defines
+        
+    )
+
+    set(arg_ENABLE_CODEGEN true)
+    cmake_parse_arguments(
+        "target"
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
+    )
+
+    #### Target ####
+    if (target_type AND target_type STREQUAL "EXECUTABLE")
+        add_executable(${target_name})
+        set(is_executable True)
+        if (target_alias)
+            add_executable("${target_alias}" ALIAS ${target_name})
+        endif()
+    else()
+        add_library(${target_name} STATIC)
+        
+        set(is_executable False)
+        if (target_alias)
+            add_library("${target_alias}" ALIAS ${target_name})
+        endif()
+    endif()
+
+    set(target_public_sources_dir_suffix "")
+    cmake_path(APPEND target_base_source_dir "public/${target_ns_path}" OUTPUT_VARIABLE target_public_sources_dir)
+    if (EXISTS "${target_public_sources_dir}")
+        set(target_public_include_dir "${target_base_source_dir}/public")
+        set(target_public_sources_dir_suffix "public/${target_ns_path}")
+    else()
+        set(target_public_sources_dir ${target_base_source_dir})
+        set(target_public_include_dir ${target_base_source_dir})
+        set(target_public_sources_dir_suffix "")
+    endif()
     
-    if (NOT arg_PUBLIC_BASE_DIR)
-        if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/public")
-            set(arg_PUBLIC_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/public")
-        else()
-            set(arg_PUBLIC_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-        endif()
-    endif()
+    cmake_path(APPEND target_binary_dir "generated/public/${target_ns_path}" OUTPUT_VARIABLE target_public_binary_dir)
 
-    set(public_sources_dir_suffix "")
-    if (NOT arg_PUBLIC_SOURCES_DIR)
-        
-        cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR "public/${target_ns_path}" OUTPUT_VARIABLE public_sources_dir)
-        if (EXISTS "${public_sources_dir}")
-            set(arg_PUBLIC_SOURCES_DIR ${public_sources_dir})
-            set(public_sources_dir_suffix "public/${target_ns_path}")
-        else()
-            set(arg_PUBLIC_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-            set(public_sources_dir_suffix "")
-        endif()
-        
-        cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "generated/${public_sources_dir_suffix}" OUTPUT_VARIABLE arg_PUBLIC_BINARY_DIR)
-        #set(arg_PUBLIC_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated/public/${target_ns_path}")
+    set(target_private_sources_dir_suffix "")
+    cmake_path(APPEND target_base_source_dir "private/${target_ns_path}" OUTPUT_VARIABLE target_private_sources_dir)
+    if (EXISTS "${target_private_sources_dir}")
+        set(target_private_sources_dir_suffix "private/${target_ns_path}")
+    else()
+        set(target_target_private_sources_dir ${target_base_source_dir})
     endif()
-
-    set(private_sources_dir_suffix "")
-    if (NOT arg_PRIVATE_SOURCES_DIR)
     
-        cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR "private/${target_ns_path}" OUTPUT_VARIABLE private_sources_dir)
-        if (EXISTS "${private_sources_dir}")
-            set(arg_PRIVATE_SOURCES_DIR ${private_sources_dir})
-            set(private_sources_dir_suffix "private/${target_ns_path}")
-        else()
-            set(arg_PRIVATE_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-        endif()
-        
-        cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "generated/${private_sources_dir_suffix}" OUTPUT_VARIABLE arg_PRIVATE_BINARY_DIR)
-    endif()
+    cmake_path(APPEND target_binary_dir "generated/private/${target_ns_path}" OUTPUT_VARIABLE target_private_binary_dir)
 
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
-        include(${CMAKE_CURRENT_SOURCE_DIR}/source_definitions.cmake)
-        list(APPEND arg_PUBLIC_SOURCES ${onyx_TARGET_PUBLIC_SOURCES})
-        list(APPEND arg_PRIVATE_SOURCES ${onyx_TARGET_PRIVATE_SOURCES})
+    if (EXISTS ${target_base_source_dir}/source_definitions.cmake)
+        include(${target_base_source_dir}/source_definitions.cmake)
+        list(APPEND target_public_sources ${onyx_TARGET_PUBLIC_SOURCES})
+        list(APPEND target_private_sources ${onyx_TARGET_PRIVATE_SOURCES})
 
-        if (arg_PRECOMPILED_HEADER)
-            if (ONYX_TARGET_PCH)
-                message(WARNING "Module ${arg_TARGET_NAME} has a precompiled header passed as argument and defined in the sources list. Ignoring the PCH from the sources ")
-            endif()
-        else()
-            if (onyx_TARGET_PCH)
-                if(IS_ABSOLUTE "${onyx_TARGET_PCH}")
-                    set(arg_PRECOMPILED_HEADER "${onyx_TARGET_PCH}")
-                else()
-                    cmake_path(APPEND arg_PUBLIC_SOURCES_DIR ${onyx_TARGET_PCH} OUTPUT_VARIABLE arg_PRECOMPILED_HEADER)
-                endif()
+        if (onyx_TARGET_PCH)
+            if(IS_ABSOLUTE "${onyx_TARGET_PCH}")
+                set(target_precompiled_header "${onyx_TARGET_PCH}")
+            else()
+                cmake_path(APPEND target_public_sources_dir ${onyx_TARGET_PCH} OUTPUT_VARIABLE target_precompiled_header)
             endif()
         endif()
-
     endif()
 
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies.cmake)
-        message(STATUS "[${arg_TARGET_NAME}] Getting dependencies.")
-        include(${CMAKE_CURRENT_SOURCE_DIR}/dependencies.cmake)
-        message(STATUS "[${arg_TARGET_NAME}] Finished getting dependencies.")
+    if (EXISTS ${target_base_source_dir}/dependencies.cmake)
+        message(STATUS "[${target_name}] Getting dependencies.")
+        include(${target_base_source_dir}/dependencies.cmake)
+        message(STATUS "[${target_name}] Finished getting dependencies.")
 
-        list(APPEND arg_PUBLIC_DEPENDENCIES ${onyx_TARGET_PUBLIC_DEPENDENCIES})
-        list(APPEND arg_PRIVATE_DEPENDENCIES ${onyx_TARGET_PRIVATE_DEPENDENCIES})
+        list(APPEND target_public_dependencies ${onyx_TARGET_PUBLIC_DEPENDENCIES})
+        list(APPEND target_private_dependencies ${onyx_TARGET_PRIVATE_DEPENDENCIES})
     endif()
 
-    _onyx_normalize_source_list(arg_PUBLIC_SOURCES "${arg_PUBLIC_SOURCES_DIR}")
-    _onyx_normalize_source_list(arg_PRIVATE_SOURCES "${arg_PRIVATE_SOURCES_DIR}")
+    _onyx_normalize_source_list(target_public_sources "${target_public_sources_dir}")
+    _onyx_normalize_source_list(target_private_sources "${target_private_sources_dir}")
 
-    list(REMOVE_DUPLICATES arg_PUBLIC_DEPENDENCIES)
-    list(REMOVE_DUPLICATES arg_PRIVATE_DEPENDENCIES)
-
+    list(REMOVE_DUPLICATES target_public_dependencies)
+    list(REMOVE_DUPLICATES target_private_dependencies)
+    
     # Store module name in a global property
     set_property(GLOBAL APPEND PROPERTY onyx_targets "${arg_NAMESPACE}")
 
-    if(arg_PUBLIC_SOURCES)
-        target_sources(${arg_TARGET_NAME} PUBLIC
+    if(target_public_sources)
+        target_sources(${target_name} PUBLIC
             FILE_SET HEADERS
-            BASE_DIRS "${arg_PUBLIC_BASE_DIR}"
-            FILES ${arg_PUBLIC_SOURCES}
+            BASE_DIRS "${target_public_include_dir}"
+            FILES ${target_public_sources}
         )
 
-        source_group(TREE ${arg_PUBLIC_SOURCES_DIR} FILES ${arg_PUBLIC_SOURCES})
+        source_group(TREE ${target_public_sources_dir} FILES ${target_public_sources})
     endif()
 
-    if(arg_PRIVATE_SOURCES)
-        target_sources(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_SOURCES})
-        source_group(TREE ${arg_PRIVATE_SOURCES_DIR} FILES ${arg_PRIVATE_SOURCES})
+    if(target_private_sources)
+        target_sources(${target_name} PRIVATE ${target_private_sources})
+        source_group(TREE ${target_private_sources_dir} FILES ${target_private_sources})
     endif()
     
     #### Target Properties ####
-    set_target_properties(${targets}
+    set_target_properties(${target_name}
         PROPERTIES
             CXX_STANDARD 23
             CXX_STANDARD_REQUIRED YES
@@ -143,89 +205,86 @@ function(onyx_add_target arg_TARGET_NAME)
             VERSION ${PROJECT_VERSION}
     )
 
-    if (arg_NAMESPACE)
-        set_target_properties(${targets} PROPERTIES EXPORT_NAME "${arg_NAMESPACE}")
+    if (target_namespace)
+        set_target_properties(${target_name} PROPERTIES EXPORT_NAME "${target_namespace}")
     endif()
 
-    if (arg_FOLDER)
-        set_target_properties(${arg_TARGET_NAME} PROPERTIES FOLDER "${arg_FOLDER}")
+    if (target_folder)
+        set_target_properties(${target_name} PROPERTIES FOLDER "${target_folder}")
     endif()
     
     #### Precompiled Header ####
-    if (arg_PRECOMPILED_HEADER)
-        target_precompile_headers(${arg_TARGET_NAME} PUBLIC ${arg_PRECOMPILED_HEADER})
+    if (target_precompiled_header)
+        target_precompile_headers(${target_name} PUBLIC ${target_precompiled_header})
     endif()
 
     #### Compiler Defines ####
-    target_compile_definitions(${targets} PUBLIC ${ONYX_PUBLIC_DEFINES})
-    target_compile_definitions(${targets} PRIVATE ${ONYX_PRIVATE_DEFINES})
+    target_compile_definitions(${target_name} PUBLIC ${ONYX_PUBLIC_DEFINES})
+    target_compile_definitions(${target_name} PRIVATE ${ONYX_PRIVATE_DEFINES})
 
-    if (arg_PUBLIC_DEFINES)
-        target_compile_definitions(${targets} PUBLIC ${arg_PUBLIC_DEFINES})
+    if (target_public_defines)
+        target_compile_definitions(${target_name} PUBLIC ${target_public_defines})
     endif()
 
-     if (arg_PRIVATE_DEFINES)
-        target_compile_definitions(${targets} PRIVATE ${arg_PRIVATE_DEFINES})
+     if (target_private_defines)
+        target_compile_definitions(${target_name} PRIVATE ${target_private_defines})
     endif()
 
     #### Compiler & Link Options ####
-    target_compile_options(${targets} PRIVATE ${ONYX_COMPILE_OPTIONS})
-    target_link_options(${targets} PRIVATE ${ONYX_LINK_OPTIONS})
+    target_compile_options(${target_name} PRIVATE ${ONYX_COMPILE_OPTIONS})
+    target_link_options(${target_name} PRIVATE ${ONYX_LINK_OPTIONS})
 
-    target_include_directories(${arg_TARGET_NAME} PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/private>
+    target_include_directories(${target_name} PRIVATE
+        $<BUILD_INTERFACE:${target_base_source_dir}/private>
         $<INSTALL_INTERFACE:source>
     )
 
     #### Dependencies ####
-    if(arg_PUBLIC_DEPENDENCIES)
-        target_link_libraries(${arg_TARGET_NAME} PUBLIC ${arg_PUBLIC_DEPENDENCIES})
+    if(target_public_dependencies)
+        target_link_libraries(${target_name} PUBLIC ${target_public_dependencies})
     endif()
 
-    if(arg_PRIVATE_DEPENDENCIES)
-        target_link_libraries(${arg_TARGET_NAME} PRIVATE ${arg_PRIVATE_DEPENDENCIES})
+    if(target_private_dependencies)
+        target_link_libraries(${target_name} PRIVATE ${target_private_dependencies})
+    endif() 
+
+    set(${target_out_public_sources} ${target_public_sources} PARENT_SCOPE)
+    set(${target_out_public_dependencies} ${target_public_dependencies} PARENT_SCOPE)
+    set(${target_out_private_dependencies} ${target_private_dependencies} PARENT_SCOPE)
+endfunction()
+
+function(_onyx_normalize_source_list list_var base_dir)
+    # Expand into local variable
+    set(_list "${${list_var}}")
+
+    # Remove duplicates
+    list(REMOVE_DUPLICATES _list)
+
+    set(_out_list "")
+    foreach(entry IN LISTS _list)
+    if(NOT IS_ABSOLUTE "${entry}")
+        cmake_path(APPEND base_dir ${entry} OUTPUT_VARIABLE path)
+        list(APPEND _out_list "${path}")
+    else()
+        list(APPEND _out_list "${entry}")
     endif()
-    
-    if (arg_ENABLE_CODEGEN)
+endforeach()
 
-        # add the generated sources folder to the include directories for the generator to be able generate correct includes
-        target_sources(${arg_TARGET_NAME} PUBLIC
-            FILE_SET HEADERS
-            BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
-        )
+    set(${list_var} "${_out_list}" PARENT_SCOPE)
+endfunction()
 
-        #### Module Code Generation Target ####
-        onyx_add_code_gen_target(
-            TARGET ${arg_TARGET_NAME}
-            TARGET_TYPE ${arg_TARGET_TYPE}
-            NAMESPACE ${arg_NAMESPACE}
-            PUBLIC_BINARY_DIR_SUFFIX  ${public_sources_dir_suffix}
-            PRIVATE_BINARY_DIR_SUFFIX ${private_sources_dir_suffix}
-            GENERATED_DIR_SUFFIX  "generated"
-            PUBLIC_SOURCES ${arg_PUBLIC_SOURCES}
-            PUBLIC_DEPENDENCIES ${arg_PUBLIC_DEPENDENCIES}
-            PRIVATE_DEPENDENCIES ${arg_PRIVATE_DEPENDENCIES}
-            EDITOR_PRIVATE_BINARY_DIR ${onyx_EDITOR_PRIVATE_BINARY_DIR}
-            OUT_PUBLIC_SOURCES generated_public_sources
-            OUT_PRIVATE_SOURCES generated_private_sources
-        )
-
-        target_sources(${arg_TARGET_NAME} PUBLIC
-            FILE_SET HEADERS
-            BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
-            FILES ${generated_public_sources}
-        )
-        target_sources(${arg_TARGET_NAME} PRIVATE ${generated_private_sources})
-        
-        source_group(TREE ${arg_PUBLIC_BINARY_DIR} FILES ${generated_public_sources})
-        source_group(TREE ${arg_PRIVATE_BINARY_DIR} FILES ${generated_private_sources})
-        
+function(_onyx_target_install)
+    if (NOT ONYX_ENABLE_INSTALL)
+        return()
     endif()
- 
-if (ONYX_ENABLE_INSTALL)
+
+    set(installtargets ${arg_TARGET_NAME})
+    if (has_editor_target)
+        list(APPEND installtargets ${arg_TARGET_NAME}-editor)
+    endif()
     #### Install ####
     include(GNUInstallDirs)
-    install(TARGETS ${arg_TARGET_NAME}
+    install(TARGETS ${installtargets}
         EXPORT ${arg_TARGET_NAME}-targets
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILE_SET HEADERS
@@ -256,26 +315,67 @@ if (ONYX_ENABLE_INSTALL)
         FILE ${arg_TARGET_NAME}-targets.cmake
         COMPONENT ${PROJECT_NAME}_Development
     )
-endif()
-
 endfunction()
 
-function(_onyx_normalize_source_list list_var base_dir)
-    # Expand into local variable
-    set(_list "${${list_var}}")
-
-    # Remove duplicates
-    list(REMOVE_DUPLICATES _list)
-
-    set(_out_list "")
-    foreach(entry IN LISTS _list)
-    if(NOT IS_ABSOLUTE "${entry}")
-        cmake_path(APPEND base_dir ${entry} OUTPUT_VARIABLE path)
-        list(APPEND _out_list "${path}")
-    else()
-        list(APPEND _out_list "${entry}")
+function(_onyx_target_codegeneration)
+    if (NOT arg_ENABLE_CODEGEN)
+        return()
     endif()
-endforeach()
+    # add the generated sources folder to the include directories for the generator to be able generate correct includes
+    target_sources(${arg_TARGET_NAME} PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
+    )
 
-    set(${list_var} "${_out_list}" PARENT_SCOPE)
+    set(target_public_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/generated/public/${target_ns_path}")
+    set(target_private_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/generated/private/${target_ns_path}")
+    set(target_editor_public_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/editor/generated/private/${target_ns_path}")
+    set(target_editor_private_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/editor/generated/private/${target_ns_path}")
+
+    # make generated source folders
+    file(MAKE_DIRECTORY ${target_public_binary_dir})
+    file(MAKE_DIRECTORY ${target_private_binary_dir})
+    file(MAKE_DIRECTORY ${target_editor_public_binary_dir})
+    file(MAKE_DIRECTORY ${target_editor_private_binary_dir})
+
+    #### Module Code Generation Target ####
+    onyx_add_code_gen_target(
+        TARGET ${arg_TARGET_NAME}
+        EDITOR_TARGET ${arg_TARGET_NAME}-editor
+        TARGET_TYPE ${arg_TARGET_TYPE}
+        NAMESPACE ${arg_NAMESPACE}
+        PUBLIC_SOURCES ${target_public_sources}
+        PUBLIC_DEPENDENCIES ${target_public_dependencies}
+        PRIVATE_DEPENDENCIES ${target_private_dependencies}
+        PUBLIC_DIR_SUFFIX  "public/${target_ns_path}"
+        PRIVATE_DIR_SUFFIX "private/${target_ns_path}"
+        GENERATED_DIR_SUFFIX  "generated"
+        OUT_PUBLIC_SOURCES generated_public_sources
+        OUT_PRIVATE_SOURCES generated_private_sources
+        OUT_PUBLIC_EDITOR_SOURCES generated_public_editor_sources
+        OUT_PRIVATE_EDITOR_SOURCES generated_private_editor_sources
+    )
+
+    target_sources(${arg_TARGET_NAME} PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated/public"
+        FILES ${generated_public_sources}
+    )
+    target_sources(${arg_TARGET_NAME} PRIVATE ${generated_private_sources})
+
+    source_group(TREE ${target_public_binary_dir} FILES ${generated_public_sources})
+    source_group(TREE ${target_private_binary_dir} FILES ${generated_private_sources})
+
+    if (has_editor_target)
+        ## EDITOR
+        target_sources(${arg_TARGET_NAME}-editor PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/editor/generated/public"
+            FILES ${generated_public_editor_sources}
+        )
+        target_sources(${arg_TARGET_NAME}-editor PRIVATE ${generated_private_editor_sources})
+        
+        source_group(TREE ${target_editor_public_binary_dir} FILES ${generated_public_editor_sources})
+        source_group(TREE ${target_editor_private_binary_dir} FILES ${generated_private_editor_sources})
+    endif()
 endfunction()

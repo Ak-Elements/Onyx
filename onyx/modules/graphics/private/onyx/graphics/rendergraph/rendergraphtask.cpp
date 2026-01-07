@@ -1,20 +1,17 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/vulkan/commandbuffer.h>
-#include <onyx/graphics/framebuffer.h>
-#include <onyx/graphics/framecontext.h>
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/pipeline.h>
-#include <onyx/graphics/renderpass.h>
-#include <onyx/graphics/texture.h>
+#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/graphicscore/framebuffer.h>
+#include <onyx/graphicscore/framecontext.h>
+#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/graphicscore/pipeline.h>
+#include <onyx/graphicscore/renderpass.h>
+#include <onyx/graphicscore/texture.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphics/shader/shaderinstance.h>
-#include <onyx/graphics/vulkan/buffer.h>
+#include <onyx/graphicscore/shader/shaderinstance.h>
 #include <onyx/log/logger.h>
 
-#include <onyx/graphics/vulkan/texturestorage.h>
 #include <onyx/profiler/profiler.h>
 
 #include <onyx/serialize/serializer.h>
@@ -144,7 +141,7 @@ namespace Onyx::Graphics
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         commandBuffer.BeginDebugLabel(GetTypeId().GetString(), Vector4f32{ 1.0f });
 #endif
-        Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
+        //Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
@@ -163,16 +160,17 @@ namespace Onyx::Graphics
             }
             
             TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
-            Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
             
-            const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
-            if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
+            // TODO: Fix barriers
+           // const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
+           // if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
+           // {
+           //     storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
+           // }
+          //  else
             {
-                storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
-            }
-            else
-            {
-                storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
+                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead, 5);
+                //storage.TransitionLayout(cmdBuffer, Context::Graphics, 5/*VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL*/, 0x00000020ULL/*VK_ACCESS_2_SHADER_READ_BIT_KHR*/, 0, 1);
             }
         }
 
@@ -183,16 +181,17 @@ namespace Onyx::Graphics
             if (output.Info.Type == RenderGraphResourceType::Attachment)
             {
                 TextureHandle& textureHandle = std::get<TextureHandle>(output.Handle);
-                Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
+                //Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
 
-                const TextureStorageProperties& properties = storage.GetProperties();
+                // TODO: Fix barriers
+                const TextureStorageProperties& properties = textureHandle.Storage->GetProperties();
                 if (Utils::IsDepthFormat(properties.m_Format))
                 {
-                    storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT_KHR | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT_KHR, 0, 1);
+                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::DepthStencilWrite | Access::DepthStencilRead, 3/*VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL*/);
                 }
                 else
                 {
-                    storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR, VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT_KHR | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT_KHR, 0, 1);
+                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead | Access::ColorAttachmentWrite, 1000314001);
                 }
             }
         }

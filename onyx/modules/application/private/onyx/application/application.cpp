@@ -8,13 +8,13 @@
 #include <onyx/application/debug/gui/notificationloggersink.h>
 
 #include <onyx/ui/imguisystem.h>
-#include <onyx/application/taskgraph/taskgraph.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/filesystem/jsondeserializer.h>
 #include <onyx/filesystem/onyxfile.h>
 
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/assets/assetsystem.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
 #include <onyx/serialize/deserializer.h>
@@ -24,6 +24,8 @@
 namespace
 {
     const char* const sl_CPU_Frame = "CPU";
+
+    Onyx::Reference<Onyx::Graphics::RenderGraph> m_MainRenderGraph;
 }
 
 namespace Onyx::Application
@@ -113,6 +115,9 @@ namespace Onyx::Application
         }
 
         OnApplicationCreated(*this);
+
+        Assets::AssetSystem& assetSystem = GetSystem<Assets::AssetSystem>();
+        assetSystem.GetAsset("engine:/rendergraphs/default.orendergraph", m_MainRenderGraph);
     }
 
     void Application::Shutdown()
@@ -156,12 +161,21 @@ namespace Onyx::Application
         {
             const onyxU64 currentFrameTime = Time::GetCurrentMilliseconds();
             const onyxU64 deltaFrameTime = currentFrameTime - lastFrameTime;
+            const bool hasRenderGraph = m_MainRenderGraph.IsValid() && m_MainRenderGraph->IsLoaded();
+
+            if (hasRenderGraph == false)
+                continue;
+
             const bool hasBegunFrame = graphicsSystem.BeginFrame();
+
 
             if (hasBegunFrame == false)
                 continue;
 
+
             Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
+            //m_MainRenderGraph->OnSwapChainResized(graphicsSystem);
+            m_MainRenderGraph->BeginFrame(frameContext);
             //ONYX_UNUSED(frameContext);
 #if ONYX_USE_IMGUI
             if (hasImGuiSystem)
@@ -184,6 +198,7 @@ namespace Onyx::Application
             if (hasBegunFrame)
             {
                graphicsSystem.Render();
+               m_MainRenderGraph->Render(frameContext);
 
 #if ONYX_USE_IMGUI
                 if (hasImGuiSystem)
@@ -192,6 +207,7 @@ namespace Onyx::Application
                     imGuiSystem.OnEndFrame();
                 }
 #endif
+                m_MainRenderGraph->EndFrame(frameContext);
                 graphicsSystem.EndFrame();
             }
 

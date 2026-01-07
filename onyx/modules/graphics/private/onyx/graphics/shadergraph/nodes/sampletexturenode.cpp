@@ -4,9 +4,8 @@
 
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphics/graphicshandles.h>
+#include <onyx/graphicscore/shader/generators/shadergenerator.h>
 #include <onyx/graphics/textureasset.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
 namespace Onyx::Graphics::ShaderGraphNodes

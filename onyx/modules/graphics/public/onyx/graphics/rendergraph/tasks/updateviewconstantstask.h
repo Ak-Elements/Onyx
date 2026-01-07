@@ -2,6 +2,9 @@
 
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/graphics/rendergraph/rendergraph.h> //TODO: Only needed for pin serialize of texture / buffer handle
+#include <onyx/graphicscore/graphicstypes.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
@@ -21,8 +24,8 @@ namespace Onyx::Graphics::RenderGraphNodes
     private:
         StringView GetPinName(StringId32 pinId) const override
         {
-            switch (pinId)
             {
+            switch (pinId)
             case Super::OutPin::LocalId: return "ViewConstants";
             }
 

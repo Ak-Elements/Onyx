@@ -2,7 +2,7 @@
 #include <onyx/assets/asset.h>
 
 #include <onyx/entity/componentmeta.h>
-#include <onyx/graphics/graphicshandles.h>
+#include <onyx/graphicscore/graphicshandles.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
 

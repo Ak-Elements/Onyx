@@ -1,6 +1,6 @@
 ﻿#include <onyx/editor/panels/sceneeditor/terrainpanel.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphicscore/commandbuffer.h>
 
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/geometry/rect2.h>
@@ -12,7 +12,7 @@
 
 #include <onyx/editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
 #include <onyx/editor/panels/sceneeditor/terraintools/sculptterraintool.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 #include <onyx/inputactions/inputactionsystem.h>
@@ -726,7 +726,10 @@ namespace Onyx::Editor::SceneEditor
         bool isUsingAnyGizmo = ImGuizmo::IsUsingAny();
         bool isHoveringGizmo = ImGuizmo::IsOver();
 
-        Reference<Graphics::RenderGraph>& renderGraph = m_GraphicsSystem.GetRenderGraph();
+        Reference<Graphics::RenderGraph> renderGraph;//TODO: = m_GraphicsSystem.GetRenderGraph();
+        if (renderGraph.IsValid() == false)
+            return;
+
         Graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
 
         if (isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo)

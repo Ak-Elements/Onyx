@@ -2,14 +2,8 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/ui/imguiwindow.h>
-
 #include <onyx/engine/enginesystem.h>
-
-#include <onyx/thread/container/lockfreempscboundedqueue.h>
-
-
-#include <mutex>
+#include <onyx/ui/imguiwindow.h>
 
 namespace Onyx::Localization
 {

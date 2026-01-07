@@ -1,6 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/scatteringtask.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphicscore/commandbuffer.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {

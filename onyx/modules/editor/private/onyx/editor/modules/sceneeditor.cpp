@@ -6,11 +6,12 @@
 #include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/components/transientcomponent.gen.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/graphicscore/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/localization/localization.h>
 #include <onyx/ui/imguisystem.h>
@@ -25,8 +26,6 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
-#include <onyx/gamecore/components/transformcomponent.h>
-
 
 namespace Onyx::Editor
 {
@@ -214,7 +213,11 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderSceneViewport()
     {
         // TODO TEMP: expose final pin to the outside
-        const Graphics::TextureHandle& finalSceneTexture  = m_GraphicsSystem.GetRenderGraph()->GetFinalTexture();
+        const Graphics::TextureHandle finalSceneTexture;// = m_GraphicsSystem.GetRenderGraph()->GetFinalTexture();
+        if (finalSceneTexture.IsValid() == false)
+        {
+            return;
+        }
 
         const Graphics::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
         ImVec2 sceneTextureExtents = { static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1]) };

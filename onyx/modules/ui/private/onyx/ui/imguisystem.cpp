@@ -2,8 +2,7 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/textureasset.h>
+#include <onyx/graphicscore/graphicssystem.h>
 
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputevent.h>
@@ -28,11 +27,6 @@
 namespace Onyx::Ui
 {
 	ImGuiContext g_UiContext;
-
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderClosedAsset = {};
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderOpenAsset = {};
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderSelectedClosedAsset = {};
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderSelectedOpenAsset = {};
 
 	namespace Internal
 	{
@@ -584,6 +578,11 @@ namespace Onyx::Ui
 		m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
 
 		io.FontDefault = it->second;
+
+		////TODO: Font creation should not be in the ui render task but should be handled here
+		unsigned char* fontData;
+		int texWidth, texHeight;
+		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 
 		inputSystem.OnMouseAxisChange().Connect<&ImGuiSystem::OnMouseAxisChange>(this);
 		inputSystem.OnMouseButton().Connect<&ImGuiSystem::OnMouseButton>(this);

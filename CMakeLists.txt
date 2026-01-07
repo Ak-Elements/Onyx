@@ -85,6 +85,7 @@ endif()
 set( ONYX_PUBLIC_DEFINES 
     $<IF:$<CONFIG:Debug>,ONYX_IS_DEBUG=1,ONYX_IS_DEBUG=0>
     $<IF:$<CONFIG:Release>,ONYX_IS_RELEASE=1,ONYX_IS_RELEASE=0>
+    $<IF:$<CONFIG:Retail>,ONYX_IS_RETAIL=1,ONYX_IS_RETAIL=0>
     $<IF:$<CXX_COMPILER_ID:MSVC>,ONYX_IS_MSVC=1,ONYX_IS_MSVC=0>
     $<IF:$<CXX_COMPILER_ID:Clang>,ONYX_IS_CLANG=1,ONYX_IS_CLANG=0>
     $<IF:$<CXX_COMPILER_ID:GNU>,ONYX_IS_GCC=1,ONYX_IS_GCC=0>
@@ -168,7 +169,6 @@ endif()
 
 include(FetchContent)
 include(cmakepackagemanager)
-include(onyx_generate_project_init)
 
 include(GNUInstallDirs)
 

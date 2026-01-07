@@ -1,13 +1,13 @@
 #include <onyx/gamecore/systems/lightingsystem.h>
 
-#include <onyx/gamecore/gamecore.h>
-#include <onyx/entity/entitycomponentsystem.h>
 
+#include <onyx/entity/entitycomponentsystem.h>
+#include <onyx/graphicscore/framecontext.h>
+#include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/framecontext.h>
 
 namespace Onyx::GameCore::Lighting
 {

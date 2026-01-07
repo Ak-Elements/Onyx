@@ -1,6 +1,6 @@
 #include <onyx/volume/graphics/previewterrainedit.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/graphicscore/commandbuffer.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/profiler/profiler.h>

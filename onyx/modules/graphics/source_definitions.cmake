@@ -1,33 +1,5 @@
 set(onyx_TARGET_PUBLIC_SOURCES
-    buffer.h
-    bufferproperties.h
-    camera.h
-    commandbuffer.h
-    descriptorset.h
-    framebuffer.h
-    framebuffercache.h
-    framecontext.h
-    graphicsapiinterface.h
-    graphicsettings.h
-    graphicsresourcepool.h
-    graphicstypes.h
-    graphicssystem.h
-    memoryaccess.h
-    pipeline.h
-    pipelinelayout.h
-    renderpass.h
-    renderpasscache.h
-    sampler.h
-    texture.h
-    textureasset.h
-    textureproperties.h
-    texturestorage.h
-    texturestorageproperties.h
-    presentthread.h
-    vertex.h
-    viewconstants.h
     font/sdffont.h
-    lighting/lighting.h
     rendergraph/rendergraph.h
     rendergraph/rendergraphnodefactory.h
     rendergraph/rendergraphtask.h
@@ -46,15 +18,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     serialize/shadergraphserializer.h
     serialize/shaderserializer.h
     serialize/textureserializer.h
-    shader/psocache.h
-    shader/shadercache.h	
-    shader/shadercompiler.h
-    shader/shaderinstance.h
-    shader/shaderincluder.h
-    shader/shader.h
-    shader/shaderpass.h
-    shader/shaderpreprocessor.h
-    shader/generators/shadergenerator.h
     shadergraph/shadergraph.h
     shadergraph/materialshadergraph.h
     shadergraph/postprocessshadergraph.h
@@ -68,47 +31,10 @@ set(onyx_TARGET_PUBLIC_SOURCES
     shadergraph/nodes/math/geometricnodes.h
     shadergraph/nodes/math/simplexnoisenode.h
     shadergraph/nodes/math/vectornodes.h
-    vulkan/buffer.h
-    vulkan/commandbuffer.h
-    vulkan/commandbuffermanager.h
-    vulkan/commandpool.h
-    vulkan/debugutilsmessenger.h
-    vulkan/descriptorpool.h
-    vulkan/descriptorsetlayout.h
-    vulkan/descriptorset.h
-    vulkan/device.h
-    vulkan/devicememory.h
-    vulkan/fence.h
-    vulkan/framebuffer.h
-    vulkan/graphicsapi.h
-    vulkan/instance.h
-    vulkan/memoryallocator.h
-    vulkan/physicaldevice.h
-    vulkan/pipeline.h
-    vulkan/pipelinelayout.h
-    vulkan/renderpass.h
-    vulkan/sampler.h
-    vulkan/semaphore.h
-    vulkan/shader.h
-    vulkan/surface.h
-    vulkan/swapchain.h
-    vulkan/texture.h
-    vulkan/texturestorage.h
-    vulkan/vulkan.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
-    buffer.cpp
-    camera.cpp
-    framebuffer.cpp
-    framebuffercache.cpp
-    graphicssystem.cpp
-    texture.cpp
     textureasset.cpp
-    texturestorage.cpp
-    renderpasscache.cpp
-    pipeline.cpp
-    presentthread.cpp
     rendergraph/rendergraph.cpp
     rendergraph/rendergraphtask.cpp
     rendergraph/rendergraphnodefactory.cpp
@@ -126,14 +52,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     serialize/shadergraphserializer.cpp
     serialize/shaderserializer.cpp
     serialize/textureserializer.cpp
-    shader/psocache.cpp
-    shader/shader.cpp
-    shader/shadercache.cpp
-    shader/shadercompiler.cpp
-    shader/shaderinstance.cpp
-    shader/shaderincluder.cpp
-    shader/shaderpreprocessor.cpp
-    shader/generators/shadergenerator.cpp
     shadergraph/shadergraph.cpp
     shadergraph/shadergraphnodefactory.cpp
     shadergraph/nodes/fragmentshaderoutnode.cpp
@@ -142,30 +60,4 @@ set(onyx_TARGET_PRIVATE_SOURCES
     shadergraph/nodes/sampletexturenode.cpp
     shadergraph/nodes/shadergraphnodes.cpp
     shadergraph/nodes/math/simplexnoisenode.cpp
-    vulkan/buffer.cpp
-    vulkan/commandbuffer.cpp
-    vulkan/commandbuffermanager.cpp
-    vulkan/commandpool.cpp
-    vulkan/debugutilsmessenger.cpp
-    vulkan/descriptorpool.cpp
-    vulkan/descriptorsetlayout.cpp
-    vulkan/descriptorset.cpp
-    vulkan/device.cpp
-    vulkan/devicememory.cpp
-    vulkan/fence.cpp
-    vulkan/framebuffer.cpp
-    vulkan/graphicsapi.cpp
-    vulkan/instance.cpp
-    vulkan/memoryallocator.cpp
-    vulkan/physicaldevice.cpp
-    vulkan/pipeline.cpp
-    vulkan/pipelinelayout.cpp
-    vulkan/renderpass.cpp
-    vulkan/sampler.cpp
-    vulkan/semaphore.cpp
-    vulkan/shader.cpp
-    vulkan/surface.cpp
-    vulkan/swapchain.cpp
-    vulkan/texture.cpp
-    vulkan/texturestorage.cpp
 )

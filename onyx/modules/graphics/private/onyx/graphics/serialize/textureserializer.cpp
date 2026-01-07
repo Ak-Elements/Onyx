@@ -1,14 +1,17 @@
 #include <onyx/graphics/serialize/textureserializer.h>
+
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/graphicssystem.h>
+
+#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/graphicscore/memoryaccess.h>
+#include <onyx/graphicscore/textureproperties.h>
+#include <onyx/graphicscore/texturestorageproperties.h>
 
 #include <onyx/graphics/textureasset.h>
-#include <onyx/graphics/textureproperties.h>
 #include <onyx/filesystem/imagefile.h>
 
 namespace Onyx::Graphics
 {
-
     bool TextureSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         ONYX_UNUSED(asset);
@@ -24,19 +27,19 @@ namespace Onyx::Graphics
 
         FileSystem::ImageFile file(FileSystem::Path::ReplaceExtension(meta.Path, "png"));
 
-        Graphics::TextureStorageProperties storageProps;
-        storageProps.m_Format = /*(file.GetChannelCount() == 4) ? */Graphics::TextureFormat::RGBA_UNORM8;// : Graphics::TextureFormat::RGB_UNORM8;
-        storageProps.m_Type = Graphics::TextureType::Texture2D;
+        TextureStorageProperties storageProps;
+        storageProps.m_Format = /*(file.GetChannelCount() == 4) ? */TextureFormat::RGBA_UNORM8;// : Graphics::TextureFormat::RGB_UNORM8;
+        storageProps.m_Type = TextureType::Texture2D;
         storageProps.m_Size = { file.GetSize()[0], file.GetSize()[1], 1 };
         storageProps.m_MaxMipLevel = 1;
         storageProps.m_ArraySize = 0;
         storageProps.m_MSAAProperties = { 1, 1 }; // samples /quality 
-        storageProps.m_CpuAccess = Graphics::CPUAccess::None;
-        storageProps.m_GpuAccess = Graphics::GPUAccess::Read;
+        storageProps.m_CpuAccess = CPUAccess::None;
+        storageProps.m_GpuAccess = GPUAccess::Read;
         storageProps.m_IsTexture = true;
         storageProps.m_DebugName = Format::Format("{} Texture Storage", meta.GetName());
 
-        Graphics::TextureProperties textureProps;
+        TextureProperties textureProps;
         textureProps.m_Format = storageProps.m_Format;
         textureProps.m_DebugName = Format::Format("{} Texture", meta.GetName());
         const Span<onyxU8>& imageData = file.GetData();

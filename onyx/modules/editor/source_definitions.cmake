@@ -28,7 +28,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     rendertasks/gridtask.h
     rendertasks/guitask.h
     windows/editorwindow.h
-    windows/editormainwindow.h	
+    windows/editormainwindow.h
     windows/startupwindow.h
     windows/settings/inputactionsettingswindow.h
 )

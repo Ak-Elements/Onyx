@@ -1,5 +1,5 @@
 #pragma once
-#include <onyx/graphics/lighting/lighting.h>
+#include <onyx/graphicscore/lighting/lighting.h>
 
 namespace Onyx
 {
