@@ -131,13 +131,13 @@ namespace Onyx::Graphics::Vulkan
         vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &deviceFeatures);*/
 
 
-        VkPhysicalDeviceMeshShaderFeaturesNV meshShaderExtension;
+        VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderExtension;
         
-        if (m_PhysicalDevice->IsExtensionSupported(VK_NV_MESH_SHADER_EXTENSION_NAME))
+        if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
         {
-            deviceExtensions.push_back(VK_NV_MESH_SHADER_EXTENSION_NAME);
+            deviceExtensions.push_back(VK_EXT_MESH_SHADER_EXTENSION_NAME);
 
-            meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV;
+            meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
             meshShaderExtension.taskShader = true;
             meshShaderExtension.meshShader = true;
 
@@ -152,9 +152,9 @@ namespace Onyx::Graphics::Vulkan
 
         m_Device = MakeUnique<Device>(*m_PhysicalDevice, deviceExtensions, physicalFeatures, VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
 
-        vkCmdDrawMeshTasksNV = (PFN_vkCmdDrawMeshTasksNV)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdDrawMeshTasksNV");
-        vkCmdDrawMeshTasksIndirectNV = (PFN_vkCmdDrawMeshTasksIndirectNV)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdDrawMeshTasksIndirectNV");
-        vkCmdDrawMeshTasksIndirectCountNV = (PFN_vkCmdDrawMeshTasksIndirectCountNV)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdDrawMeshTasksIndirectCountNV");
+        vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdDrawMeshTasksEXT");
+        vkCmdDrawMeshTasksIndirectEXT = (PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdDrawMeshTasksIndirectEXT");
+        vkCmdDrawMeshTasksIndirectCountEXT = (PFN_vkCmdDrawMeshTasksIndirectCountEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdDrawMeshTasksIndirectCountEXT");
         vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkSetDebugUtilsObjectNameEXT");
         vkCmdBeginDebugUtilsLabelEXT = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdBeginDebugUtilsLabelEXT");
         vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device->GetHandle(), "vkCmdEndDebugUtilsLabelEXT");

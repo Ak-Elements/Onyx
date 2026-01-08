@@ -179,8 +179,8 @@ set_property(GLOBAL PROPERTY onyx_generated_module_headers "")
 CPMAddPackage(
     NAME Onyx-CodeGen
     GITHUB_REPOSITORY Ak-Elements/Onyx-CodeGeneration
-    GIT_TAG main
-	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration/core
+    GIT_TAG 71a82592b870e3e978fc36f75aef098c2e9b2961
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration/core
     DOWNLOAD_ONLY YES
 )
 
