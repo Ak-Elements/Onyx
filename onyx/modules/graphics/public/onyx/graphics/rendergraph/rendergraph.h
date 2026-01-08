@@ -6,7 +6,7 @@
 
 // TODO: move?
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
-#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/rhi/graphicshandles.h>
 #include <onyx/nodegraph/graph.h>
 #include <onyx/nodegraph/pins/pinmeta.h>
 

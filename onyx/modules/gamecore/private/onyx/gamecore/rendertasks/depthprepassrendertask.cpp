@@ -1,7 +1,7 @@
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/profiler/profiler.h>

@@ -4,7 +4,7 @@
 
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphicscore/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/graphics/textureasset.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 

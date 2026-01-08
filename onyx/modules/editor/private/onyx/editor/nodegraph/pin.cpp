@@ -1,5 +1,5 @@
 #include <onyx/nodegraph/pins/pinmeta.hpp>
-#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/rhi/graphicshandles.h>
 #include <onyx/nodegraph/nodegraphtyperegistry.h>
 
 #include <onyx/ui/propertygrid.h>

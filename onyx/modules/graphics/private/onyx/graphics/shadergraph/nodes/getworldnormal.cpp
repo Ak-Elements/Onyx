@@ -1,7 +1,7 @@
 #include <onyx/graphics/shadergraph/nodes/getworldnormal.h>
 
 #include <onyx/graphics/shadergraph/shadergraph.h>
-#include <onyx/graphicscore/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace Onyx::Graphics::ShaderGraphNodes
 {

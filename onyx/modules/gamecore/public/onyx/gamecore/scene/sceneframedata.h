@@ -1,7 +1,7 @@
 #pragma once
 
-#include <onyx/graphicscore/framecontext.h>
-#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Graphics
 {

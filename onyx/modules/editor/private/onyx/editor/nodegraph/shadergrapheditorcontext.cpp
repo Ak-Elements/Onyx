@@ -1,8 +1,8 @@
 #include <onyx/editor/nodegraph/shadergrapheditorcontext.h>
 
-#include <onyx/graphicscore/graphicssystem.h>
-#include <onyx/graphicscore/shader/generators/shadergenerator.h>
-#include <onyx/graphicscore/shader/shadercompiler.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/shadercompiler.h>
 
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>

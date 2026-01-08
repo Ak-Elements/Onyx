@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/graphics/rendergraph/rendergraph.h> //TODO: Only needed for pin serialize of texture / buffer handle
-#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {

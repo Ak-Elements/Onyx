@@ -6,8 +6,8 @@
 #include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/volume/components/volumeterraincomponent.h>

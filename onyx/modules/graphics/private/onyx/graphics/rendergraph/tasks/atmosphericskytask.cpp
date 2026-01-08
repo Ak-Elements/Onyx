@@ -1,7 +1,7 @@
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
 
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/framecontext.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/framecontext.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 

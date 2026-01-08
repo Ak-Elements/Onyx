@@ -1,7 +1,7 @@
 #include <onyx/graphics/serialize/shaderserializer.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 
 namespace Onyx::Graphics
 {

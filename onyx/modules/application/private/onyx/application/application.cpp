@@ -12,7 +12,7 @@
 #include <onyx/filesystem/jsondeserializer.h>
 #include <onyx/filesystem/onyxfile.h>
 
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>

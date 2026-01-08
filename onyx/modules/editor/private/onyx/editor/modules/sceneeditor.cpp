@@ -10,8 +10,8 @@
 #include <onyx/gamecore/components/transientcomponent.gen.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/localization/localization.h>
 #include <onyx/ui/imguisystem.h>

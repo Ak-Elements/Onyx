@@ -2,7 +2,7 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputevent.h>

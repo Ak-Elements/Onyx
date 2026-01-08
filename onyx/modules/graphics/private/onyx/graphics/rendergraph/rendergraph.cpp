@@ -1,13 +1,13 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphicscore/framecontext.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicshandles.h>
-#include <onyx/graphicscore/graphicstypes.h>
-#include <onyx/graphicscore/texturestorage.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/graphicstypes.h>
+#include <onyx/rhi/texturestorage.h>
 #include <onyx/log/logger.h>
 #include <onyx/thread/threadpool/threadpool.h>
 

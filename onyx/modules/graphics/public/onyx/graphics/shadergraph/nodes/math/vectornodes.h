@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/nodegraph/nodes/math/vectornodes.h>
 
-#include <onyx/graphicscore/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
 namespace Onyx::NodeGraph

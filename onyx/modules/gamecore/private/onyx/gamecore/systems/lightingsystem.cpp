@@ -2,7 +2,7 @@
 
 
 #include <onyx/entity/entitycomponentsystem.h>
-#include <onyx/graphicscore/framecontext.h>
+#include <onyx/rhi/framecontext.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/components/graphics/lightcomponents.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>

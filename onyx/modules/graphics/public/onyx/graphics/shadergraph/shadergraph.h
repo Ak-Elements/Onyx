@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/assets/asset.h>
 #include <onyx/nodegraph/graph.h>
-#include <onyx/graphicscore/graphicshandles.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Graphics
 {

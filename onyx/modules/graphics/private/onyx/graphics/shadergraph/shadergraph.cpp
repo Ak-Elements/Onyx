@@ -1,7 +1,7 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/shader/generators/shadergenerator.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/graphrunner.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 #include <onyx/nodegraph/nodegraphserializer.h>

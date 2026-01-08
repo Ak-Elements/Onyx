@@ -1,7 +1,7 @@
 #include <onyx/editor/panels/sceneeditor/terraintools/sculptterraintool.h>
 
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/graphics/previewterrainedit.h>

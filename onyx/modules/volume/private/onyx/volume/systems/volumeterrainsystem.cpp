@@ -6,8 +6,8 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/volume/components/volumeterraincomponent.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>

@@ -1,10 +1,10 @@
 #include <onyx/editor/rendertasks/guitask.h>
 
-#include <onyx/graphicscore/bufferproperties.h>
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/graphicssystem.h>
-#include <onyx/graphicscore/textureproperties.h>
-#include <onyx/graphicscore/texturestorageproperties.h>
+#include <onyx/rhi/bufferproperties.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/textureproperties.h>
+#include <onyx/rhi/texturestorageproperties.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/geometry/rect2.h>

@@ -1,6 +1,6 @@
 ﻿#include <onyx/editor/panels/sceneeditor/terrainpanel.h>
 
-#include <onyx/graphicscore/commandbuffer.h>
+#include <onyx/rhi/commandbuffer.h>
 
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/geometry/rect2.h>
@@ -12,7 +12,7 @@
 
 #include <onyx/editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
 #include <onyx/editor/panels/sceneeditor/terraintools/sculptterraintool.h>
-#include <onyx/graphicscore/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 #include <onyx/inputactions/inputactionsystem.h>

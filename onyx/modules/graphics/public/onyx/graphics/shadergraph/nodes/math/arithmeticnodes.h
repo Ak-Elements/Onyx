@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/nodegraph/nodes/math/arithmeticnodes.h>
 
-#include <onyx/graphicscore/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace Onyx::Graphics
 {

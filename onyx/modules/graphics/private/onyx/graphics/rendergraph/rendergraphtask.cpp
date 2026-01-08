@@ -1,15 +1,15 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/framebuffer.h>
-#include <onyx/graphicscore/framecontext.h>
-#include <onyx/graphicscore/graphicssystem.h>
-#include <onyx/graphicscore/pipeline.h>
-#include <onyx/graphicscore/renderpass.h>
-#include <onyx/graphicscore/texture.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/framebuffer.h>
+#include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/pipeline.h>
+#include <onyx/rhi/renderpass.h>
+#include <onyx/rhi/texture.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphicscore/shader/shaderinstance.h>
+#include <onyx/rhi/shader/shaderinstance.h>
 #include <onyx/log/logger.h>
 
 #include <onyx/profiler/profiler.h>

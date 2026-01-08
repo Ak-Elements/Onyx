@@ -1,7 +1,7 @@
 #include <onyx/graphics/rendergraph/tasks/debuglightclusterspass.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphicscore/graphicstypes.h>
+#include <onyx/rhi/graphicstypes.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::Graphics::RenderGraphNodes

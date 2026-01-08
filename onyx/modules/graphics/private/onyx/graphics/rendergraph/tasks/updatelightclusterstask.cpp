@@ -1,10 +1,10 @@
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
-#include <onyx/graphicscore/lighting/lighting.h>
+#include <onyx/rhi/lighting/lighting.h>
 
-#include <onyx/graphicscore/commandbuffer.h>
-#include <onyx/graphicscore/framecontext.h>
-#include <onyx/graphicscore/graphicssystem.h>
-#include <onyx/graphicscore/viewconstants.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/viewconstants.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/profiler/profiler.h>

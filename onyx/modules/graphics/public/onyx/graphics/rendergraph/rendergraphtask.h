@@ -1,11 +1,11 @@
 #pragma once
 
-#include <onyx/graphicscore/graphicstypes.h>
-#include <onyx/graphicscore/renderpass.h>
-#include <onyx/graphicscore/buffer.h>
-#include <onyx/graphicscore/graphicshandles.h>
-#include <onyx/graphicscore/pipeline.h>
-#include <onyx/graphicscore/texturestorage.h>
+#include <onyx/rhi/graphicstypes.h>
+#include <onyx/rhi/renderpass.h>
+#include <onyx/rhi/buffer.h>
+#include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/pipeline.h>
+#include <onyx/rhi/texturestorage.h>
 #include <onyx/nodegraph/nodes/node.h>
 
 namespace Onyx::Graphics

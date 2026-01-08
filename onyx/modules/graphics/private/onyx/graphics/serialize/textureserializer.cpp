@@ -2,10 +2,10 @@
 
 #include <onyx/assets/assetsystem.h>
 
-#include <onyx/graphicscore/graphicssystem.h>
-#include <onyx/graphicscore/memoryaccess.h>
-#include <onyx/graphicscore/textureproperties.h>
-#include <onyx/graphicscore/texturestorageproperties.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/memoryaccess.h>
+#include <onyx/rhi/textureproperties.h>
+#include <onyx/rhi/texturestorageproperties.h>
 
 #include <onyx/graphics/textureasset.h>
 #include <onyx/filesystem/imagefile.h>
