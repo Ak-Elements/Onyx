@@ -38,9 +38,9 @@ namespace Onyx::Graphics::Vulkan
         onyxU32 GetMinImageCount() const { return m_MinImageCount; }
         onyxU32 GetImageCount() const { return m_ImageCount; }
 
-        const UniquePtr<Semaphore>& GetBackbufferAcquiredSemaphore(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_ImageAcquired;  }
-        const UniquePtr<Semaphore>& GetRenderCompleteSemaphore(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_RenderComplete; }
-        const UniquePtr<Fence>& GetRenderCompleteFence(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_RenderCompleteFence; }
+        const UniquePtr<Semaphore>& GetBackbufferAcquiredSemaphore(onyxU8 frameIndex) const { return m_ImageAcquired[frameIndex];  }
+        const UniquePtr<Semaphore>& GetRenderCompleteSemaphore() const { return m_RenderCompleteSemaphore[m_CurrentImageIndex]; }
+        const UniquePtr<Fence>& GetRenderCompleteFence(onyxU8 frameIndex) const { return m_RenderCompleteFence[frameIndex]; }
 
         const Vector2s32& GetExtent() const { return m_Extent; }
         TextureFormat GetFormat() const { return m_ColorFormat; }
@@ -80,16 +80,11 @@ namespace Onyx::Graphics::Vulkan
 		VkColorSpaceKHR m_ColorSpace;
         Vector2s32 m_Extent;
 
-        struct SyncObject
-        {
-            UniquePtr<Semaphore> m_ImageAcquired;
-            UniquePtr<Semaphore> m_RenderComplete;
+        InplaceArray<UniquePtr<Semaphore>, MAX_FRAMES_IN_FLIGHT> m_ImageAcquired; //per image in flight
+        InplaceArray<UniquePtr<Fence>, MAX_FRAMES_IN_FLIGHT> m_RenderCompleteFence; //per image in flight
 
-            // unused if timeline semaphores are used
-            UniquePtr<Fence> m_RenderCompleteFence;
-        };
+        DynamicArray<UniquePtr<Semaphore>> m_RenderCompleteSemaphore; //per image
 
-        InplaceArray<SyncObject, MAX_FRAMES_IN_FLIGHT> m_FrameSyncObjects;
         DynamicArray<TextureHandle> m_SwapchainBuffers;
 
         onyxU32 m_CurrentImageIndex = onyxMax_U32;

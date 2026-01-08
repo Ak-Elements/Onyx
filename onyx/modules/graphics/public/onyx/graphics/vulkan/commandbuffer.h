@@ -54,7 +54,7 @@ namespace Onyx::Graphics::Vulkan
         void DrawIndirectCount(const BufferHandle& argumentBuffer, onyxU32 argumentOffset, const BufferHandle& countBuffer, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride) override;
         void DrawIndexedIndirect(const BufferHandle& buffer, onyxU32 drawCount, onyxU32 offset, onyxU32 stride) override;
 
-        void DrawMeshTask(onyxU32 taskCount, onyxU32 firstTask) override;
+        void DrawMeshTask(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ) override;
         void DrawMeshTaskIndirect(const BufferHandle& argumentBuffer, onyxU32 argumentOffset, const BufferHandle& countBuffer, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride) override;
 
         void Dispatch(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ) override;

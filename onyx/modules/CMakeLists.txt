@@ -16,7 +16,7 @@ list(APPEND ONYX_PUBLIC_DEFINES
 set(ONYX_PUBLIC_DEFINES ${ONYX_PUBLIC_DEFINES} PARENT_SCOPE)
 
 # modules
-#add_subdirectory(profiler)
+add_subdirectory(profiler)
 add_subdirectory(core)
 add_subdirectory(filesystem)
 add_subdirectory(assets)

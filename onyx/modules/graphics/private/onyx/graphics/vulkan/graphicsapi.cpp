@@ -353,7 +353,7 @@ namespace Onyx::Graphics::Vulkan
 
     bool VulkanGraphicsApi::BeginFrame(const FrameContext& context)
     {
-        if (IsTimelineSemaphoreEnabled() && context.AbsoluteFrame > MAX_FRAMES_IN_FLIGHT)
+        if (false)//IsTimelineSemaphoreEnabled() && context.AbsoluteFrame > MAX_FRAMES_IN_FLIGHT)
         {
             ONYX_PROFILE_SECTION(SemaphoreWait);
 
@@ -444,10 +444,10 @@ namespace Onyx::Graphics::Vulkan
             m_BindlessTexturesToUpdate.clear();
         }
 
-        const UniquePtr<Semaphore>& renderCompleteSemaphore = m_SwapChain->GetRenderCompleteSemaphore(context.FrameIndex);
+        const UniquePtr<Semaphore>& renderCompleteSemaphore = m_SwapChain->GetRenderCompleteSemaphore();
         const UniquePtr<Semaphore>& backbufferAcquiredSemaphore = m_SwapChain->GetBackbufferAcquiredSemaphore(context.FrameIndex);
         // Submit
-        if (IsTimelineSemaphoreEnabled())
+        if (false)// IsTimelineSemaphoreEnabled())
         {
             const bool shouldWaitForCompute = (context.ComputeFrame > 0) && (computeCommandBufferCount > 0);
             const bool shouldWaitForGraphics = context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT;

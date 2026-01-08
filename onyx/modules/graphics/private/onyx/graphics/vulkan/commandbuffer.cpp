@@ -491,24 +491,24 @@ namespace Onyx::Graphics::Vulkan
         vkCmdDrawIndexedIndirect(m_CommandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride);
     }
 
-    void VulkanCommandBuffer::DrawMeshTask(onyxU32 taskCount, onyxU32 firstTask)
+    void VulkanCommandBuffer::DrawMeshTask(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ)
     {
         PreDraw();
 
-        ONYX_ASSERT(vkCmdDrawMeshTasksNV != nullptr, "Mesh shader extension is not initialized.");
-        vkCmdDrawMeshTasksNV(m_CommandBuffer, taskCount, firstTask);
+        ONYX_ASSERT(vkCmdDrawMeshTasksEXT != nullptr, "Mesh shader extension is not initialized.");
+        vkCmdDrawMeshTasksEXT(m_CommandBuffer, groupX, groupY, groupZ);
     }
 
     void VulkanCommandBuffer::DrawMeshTaskIndirect(const BufferHandle& argumentBufferHandle, onyxU32 argumentOffset, const BufferHandle& countBufferHandle, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride)
     {
         PreDraw();
 
-        ONYX_ASSERT(vkCmdDrawMeshTasksIndirectCountNV != nullptr, "Mesh shader extension is not initialized.");
+        ONYX_ASSERT(vkCmdDrawMeshTasksIndirectCountEXT != nullptr, "Mesh shader extension is not initialized.");
 
         const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.Buffer.As<VulkanBuffer>();
         const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.As<VulkanBuffer>();
 
-        vkCmdDrawMeshTasksIndirectCountNV(m_CommandBuffer, vkArgumentBuffer.GetHandle(), argumentOffset, vkCountBuffer.GetHandle(), countOffset, maxDraws, stride);
+        vkCmdDrawMeshTasksIndirectCountEXT(m_CommandBuffer, vkArgumentBuffer.GetHandle(), argumentOffset, vkCountBuffer.GetHandle(), countOffset, maxDraws, stride);
     }
 
     void VulkanCommandBuffer::Dispatch(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ)

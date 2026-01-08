@@ -32,7 +32,9 @@ SwapChain::SwapChain(VulkanGraphicsApi& api)
 
 SwapChain::~SwapChain()
 {
-    m_FrameSyncObjects.Clear();
+	m_ImageAcquired.Clear();
+	m_RenderCompleteFence.Clear();
+	m_RenderCompleteSemaphore.clear();
     m_SwapchainBuffers.clear();
 
     vkDestroySwapchainKHR(m_Device.GetHandle(), m_SwapChain, nullptr);
@@ -44,18 +46,18 @@ bool SwapChain::BeginFrame(onyxU8 frameIndex)
 
 	const VkDevice device = m_Device.GetHandle();
 
-	SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
-	if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-	{
-		const VkFence waitFence = syncObject.m_RenderCompleteFence->GetHandle();
+	//if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
+	//{
+		const VkFence waitFence = m_RenderCompleteFence[frameIndex]->GetHandle();
 		VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFence, VK_TRUE, onyxMax_U64));
-	}
+		VK_CHECK_RESULT(vkResetFences(device, 1, &waitFence));
+	//}
 
 	VkResult result;
 	{
         std::lock_guard lock(mutex);
         ONYX_PROFILE_SECTION("WaitAcquire Image")
-        result = vkAcquireNextImageKHR(device, m_SwapChain, UINT64_MAX, syncObject.m_ImageAcquired->GetHandle(), VK_NULL_HANDLE, &m_CurrentImageIndex);
+        result = vkAcquireNextImageKHR(device, m_SwapChain, UINT64_MAX, m_ImageAcquired[frameIndex]->GetHandle(), VK_NULL_HANDLE, &m_CurrentImageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			vkDeviceWaitIdle(device);
@@ -67,8 +69,6 @@ bool SwapChain::BeginFrame(onyxU8 frameIndex)
 	}
 
 	ONYX_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
-	if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-		VK_CHECK_RESULT(vkResetFences(device, 1, syncObject.m_RenderCompleteFence->GetHandlePtr()));
 
 	return true;
 }
@@ -78,14 +78,14 @@ bool SwapChain::Present(onyxU8 frameIndex, onyxU32 imageIndex)
 	if (imageIndex == onyxMax_U32)
 		return true;
 
-	SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
+	//SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
 
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	presentInfo.pNext = nullptr;
     presentInfo.pSwapchains = &m_SwapChain;
     presentInfo.swapchainCount = 1;
-    presentInfo.pWaitSemaphores = syncObject.m_RenderComplete->GetHandlePtr();
+    presentInfo.pWaitSemaphores = m_RenderCompleteSemaphore[frameIndex]->GetHandlePtr();
     presentInfo.waitSemaphoreCount = 1;
 	
 	presentInfo.pImageIndices = &imageIndex;
@@ -184,6 +184,7 @@ void SwapChain::Init()
 	vkGetSwapchainImagesKHR(m_Device.GetHandle(), m_SwapChain, &m_ImageCount, images.data());
 
 	m_SwapchainBuffers.resize(m_ImageCount);
+	m_RenderCompleteSemaphore.resize(m_ImageCount);
 
 	TextureProperties textureProps;
 	textureProps.m_Format = TextureFormat::BGRA_UNORM8;
@@ -198,18 +199,17 @@ void SwapChain::Init()
 		textureProps.m_DebugName = Format::Format("Swapchain ImageView {}", i);
 
 		texture.Texture = Reference<VulkanTexture, TextureDeleter>::Create(m_GraphicsApi, textureProps, textureStorage.Raw());
+		m_RenderCompleteSemaphore[i] = MakeUnique<Semaphore>(m_Device);
 	}
 
 	for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
 	{
-		SyncObject& syncObj = m_FrameSyncObjects[i];
-		syncObj.m_ImageAcquired = MakeUnique<Semaphore>(m_Device);
-		syncObj.m_RenderComplete = MakeUnique<Semaphore>(m_Device);
+		m_ImageAcquired[i] = MakeUnique<Semaphore>(m_Device);
 
-		if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-		{
-			syncObj.m_RenderCompleteFence = MakeUnique<Fence>(m_Device, true);
-		}
+		//if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
+		//{
+			m_RenderCompleteFence[i] = MakeUnique<Fence>(m_Device, true);
+		//}
 	}
 }
 

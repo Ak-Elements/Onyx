@@ -12,6 +12,23 @@
 
 namespace Onyx::Graphics::ShaderCompiler
 {
+	constexpr shaderc_shader_kind GetShadercShaderKind(ShaderStage stage) {
+		switch (stage)
+		{
+			case ShaderStage::Vertex: return shaderc_vertex_shader; break;
+			case ShaderStage::Fragment: return shaderc_fragment_shader; break;
+			case ShaderStage::Compute: return shaderc_compute_shader; break;
+			case ShaderStage::Task: return shaderc_task_shader; break;
+			case ShaderStage::Mesh: return shaderc_mesh_shader; break;
+			case ShaderStage::Invalid:
+			case ShaderStage::Count:
+			case ShaderStage::All:
+			default:
+				ONYX_ASSERT(false, "Not implemented");
+				return shaderc_glsl_default_vertex_shader;
+		}
+	}
+
 	// TODO: Move this to a vulkan shader compiler implementation
 	namespace
 	{
@@ -157,6 +174,10 @@ namespace Onyx::Graphics::ShaderCompiler
 				return "frag";
             case ShaderStage::Compute:
 				return "comp";
+			case ShaderStage::Task:
+				return "task";
+			case ShaderStage::Mesh:
+				return "mesh";
 			case ShaderStage::Invalid:
             case ShaderStage::All:
 		    case ShaderStage::Count:
@@ -209,16 +230,8 @@ namespace Onyx::Graphics::ShaderCompiler
 			ShaderIncluder* shaderIncluder = shaderIncluderPtr.get();
 			shaderCOptions.SetIncluder(std::move(shaderIncluderPtr));
 
-			shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
-			switch (stage)
-			{
-			case ShaderStage::Vertex: shaderKind = shaderc_vertex_shader; break;
-			case ShaderStage::Fragment: shaderKind = shaderc_fragment_shader; break;
-			case ShaderStage::Compute: shaderKind = shaderc_compute_shader; break;
-			case ShaderStage::Invalid:
-			case ShaderStage::Count:
-			case ShaderStage::All:
-				ONYX_ASSERT(false, "Not implemented");
+			shaderc_shader_kind shaderKind = GetShadercShaderKind(stage);
+			if (shaderKind == shaderc_glsl_default_vertex_shader) {
 				return false;
 			}
 
@@ -248,17 +261,9 @@ namespace Onyx::Graphics::ShaderCompiler
 			//ShaderIncluder* shaderIncluder = shaderIncluderPtr.get();
 			//shaderCOptions.SetIncluder(std::move(shaderIncluderPtr));
 
-			shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
-			switch (stage)
-			{
-			    case ShaderStage::Vertex: shaderKind = shaderc_vertex_shader; break;
-			    case ShaderStage::Fragment: shaderKind = shaderc_fragment_shader; break;
-			    case ShaderStage::Compute: shaderKind = shaderc_compute_shader; break;
-			    case ShaderStage::Invalid:
-			    case ShaderStage::Count:
-			    case ShaderStage::All:
-				    ONYX_ASSERT(false, "Not implemented");
-				    return false;
+			shaderc_shader_kind shaderKind = GetShadercShaderKind(stage);
+			if (shaderKind == shaderc_glsl_default_vertex_shader) {
+				return false;
 			}
 
 			//const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderKind, sourcePath.string().c_str(), shaderCOptions);
@@ -368,6 +373,18 @@ namespace Onyx::Graphics::ShaderCompiler
 
 		Compiler compiler(shaderByteCode);
 		const ShaderResources& resources = compiler.get_shader_resources();
+
+
+		//task can send a payload to mesh, which is a stage output from task and stage input in mesh
+		//but afaik we don't care about that CPU side
+		//also, we can use constant specialization for group sizes, but we'll follow the lead on compute for that, which I'm not seeing
+		//IF workgroup size specialization constants are added, add them to mesh and task
+		//if (shaderStage == ShaderStage::Task) {
+
+		//}
+		//if (shaderStage == ShaderStage::Mesh) {
+
+		//}
 
 		if (shaderStage == ShaderStage::Vertex)
 		{

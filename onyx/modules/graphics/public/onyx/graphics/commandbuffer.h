@@ -65,7 +65,7 @@ namespace Onyx::Graphics
         virtual void DrawIndirectCount(const BufferHandle& argumentBuffer, onyxU32 argumentOffset, const BufferHandle& countBuffer, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride) = 0;
         virtual void DrawIndexedIndirect(const BufferHandle& buffer, onyxU32 drawCount, onyxU32 offset, onyxU32 stride) = 0;
 
-        virtual void DrawMeshTask(onyxU32 taskCount, onyxU32 firstTask) = 0;
+        virtual void DrawMeshTask(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ) = 0;
         virtual void DrawMeshTaskIndirect(const BufferHandle& argumentBuffer, onyxU32 argumentOffset, const BufferHandle& countBuffer, onyxU32 countOffset, onyxU32 maxDraws, onyxU32 stride) = 0;
 
         virtual void Dispatch(onyxU32 groupX, onyxU32 groupY, onyxU32 groupZ) = 0;

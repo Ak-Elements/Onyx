@@ -9,9 +9,6 @@ namespace Onyx::Graphics
 
     inline constexpr onyxU8 MAX_DESCRIPTOR_SET_LAYOUTS = 8;
 
-    // keep in sync with ShaderStage enum in Graphics::ShaderModule
-    inline constexpr onyxU8 MAX_SHADER_STAGES = 5;
-
     inline constexpr onyxU8 BINDLESS_SET = 0;
     inline constexpr onyxU32 MAX_BINDLESS_RESOURCES = 1024;
 
@@ -219,9 +216,15 @@ namespace Onyx::Graphics
         Vertex,
         Fragment,
         Compute,
+        Task,
+        Mesh,
+        //RayTracing
         All,
         Count
     };
+
+    // keep in sync with ShaderStage enum in Graphics::ShaderModule
+    inline constexpr onyxU8 MAX_SHADER_STAGES = static_cast<onyxU8>(ShaderStage::Count);
 
     enum class ShaderDataType : onyxU8
     {
