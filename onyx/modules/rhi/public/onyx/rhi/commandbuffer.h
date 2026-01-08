@@ -78,7 +78,8 @@ namespace Onyx::Graphics
 
         // DEBUG
         virtual void GlobalBarrier(onyxU64 srcAccess, onyxU64 dstAccess) = 0;
-        
+        virtual void GlobalBarrier(onyxU64 srcAccess, onyxU64 srcStage, onyxU64 dstAccess, onyxU64 dstStage) = 0;
+
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         virtual void BeginDebugLabel(StringView label, const Vector4f32& color) = 0;
         virtual void EndDebugLabel() = 0;

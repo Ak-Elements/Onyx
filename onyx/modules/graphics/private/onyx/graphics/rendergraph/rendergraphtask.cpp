@@ -162,12 +162,12 @@ namespace Onyx::Graphics
             TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
             
             // TODO: Fix barriers
-           // const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
-           // if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
-           // {
-           //     storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
-           // }
-          //  else
+            const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
+            if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
+            {
+                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::InputAttachmentRead, 1000314000);
+            }
+            else
             {
                 commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead, 5);
                 //storage.TransitionLayout(cmdBuffer, Context::Graphics, 5/*VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL*/, 0x00000020ULL/*VK_ACCESS_2_SHADER_READ_BIT_KHR*/, 0, 1);
@@ -609,9 +609,9 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        String shaderPath;
-        if (deserializer.ReadOptional<"shader">(shaderPath))
-            m_PipelineProperties.Shader = shaderPath.c_str();
+        Assets::AssetId shaderAssetId;
+        if (deserializer.ReadOptional<"shader">(shaderAssetId))
+            m_PipelineProperties.Shader = shaderAssetId;
 
         return
             deserializer.ReadOptional<"pipeline">(m_PipelineProperties) &&

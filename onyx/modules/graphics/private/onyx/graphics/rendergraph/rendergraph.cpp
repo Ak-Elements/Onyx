@@ -49,7 +49,7 @@ namespace Onyx::Graphics
 
         for (const LocalNodeId nodeId : topologicalOrder)
         {
-            const bool isLastNode = nodeId == topologicalOrder[(topologicalOrder.size() - 2)];
+            const bool isLastNode = nodeId == topologicalOrder[(topologicalOrder.size() - 1)];
 
             IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
             // remove resource cache
@@ -131,13 +131,17 @@ namespace Onyx::Graphics
             graphNode.Compile(graphicsSystem, m_ResourceCache);
         }
 
+        graphicsSystem.OnBeginFrame().Connect<&RenderGraph::OnBeginFrame>(this);
+        graphicsSystem.OnRenderFrame().Connect<&RenderGraph::OnRenderFrame>(this);
+        graphicsSystem.OnEndFrame().Connect<&RenderGraph::OnEndFrame>(this);
+
+        m_IsInitialized = true;
     }
 
     void RenderGraph::Shutdown(GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
-
 
         for (const LocalNodeId nodeId : m_Graph.GetTopologicalOrder())
         {
@@ -147,9 +151,15 @@ namespace Onyx::Graphics
 
         m_ResourceCache.clear();
         m_Graph.Clear();
+
+        graphicsSystem.OnBeginFrame().Disconnect(this);
+        graphicsSystem.OnRenderFrame().Disconnect(this);
+        graphicsSystem.OnEndFrame().Disconnect(this);
+
+        m_IsInitialized = false;
     }
 
-    void RenderGraph::BeginFrame(const FrameContext& frameContext)
+    void RenderGraph::OnBeginFrame(const FrameContext& frameContext)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -181,7 +191,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraph::Render(const FrameContext& context)
+    void RenderGraph::OnRenderFrame(const FrameContext& context)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -205,7 +215,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraph::EndFrame(const FrameContext& frameContext)
+    void RenderGraph::OnEndFrame(const FrameContext& frameContext)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -225,15 +235,8 @@ namespace Onyx::Graphics
             node.EndFrame(graphContext);
         }
 
-        // Transition image to present
-        RenderGraphResource& swapchainResource = m_ResourceCache[SWAPCHAIN_RESOURCE_ID];
-        TextureHandle& swapchainTarget = std::get<TextureHandle>(swapchainResource.Handle);
-        //Vulkan::VulkanTextureStorage& storage = swapchainTarget.Storage.As<Vulkan::VulkanTextureStorage>();
-
-        CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
-        //Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
-        commandBuffer.TransitionLayout(swapchainTarget, Context::Graphics, Access::None, 1000001002);
-       // storage.TransitionPresent(cmdBuffer);
+        auto& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
+        commandBuffer.TransitionLayout(std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle), Context::Graphics, Access::ShaderRead, 5);
     }
 
     bool RenderGraph::HasResource(RenderGraphResourceId id) const

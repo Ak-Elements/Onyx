@@ -26,7 +26,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     panels/sceneeditor/terraintools/primitivesterraintool.h
     rendertasks/compositetask.h
     rendertasks/gridtask.h
-    rendertasks/guitask.h
     windows/editorwindow.h
     windows/editormainwindow.h
     windows/startupwindow.h
@@ -68,7 +67,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     panels/sceneeditor/terraintools/primitivesterraintool.cpp
     rendertasks/compositetask.cpp
     rendertasks/gridtask.cpp
-    rendertasks/guitask.cpp
     shadergraph/sampletexturenode_editor.cpp
     windows/editorwindow.cpp
     windows/editormainwindow.cpp

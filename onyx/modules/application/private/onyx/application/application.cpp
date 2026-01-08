@@ -24,8 +24,6 @@
 namespace
 {
     const char* const sl_CPU_Frame = "CPU";
-
-    Onyx::Reference<Onyx::Graphics::RenderGraph> m_MainRenderGraph;
 }
 
 namespace Onyx::Application
@@ -115,9 +113,6 @@ namespace Onyx::Application
         }
 
         OnApplicationCreated(*this);
-
-        Assets::AssetSystem& assetSystem = GetSystem<Assets::AssetSystem>();
-        assetSystem.GetAsset("engine:/rendergraphs/default.orendergraph", m_MainRenderGraph);
     }
 
     void Application::Shutdown()
@@ -161,22 +156,13 @@ namespace Onyx::Application
         {
             const onyxU64 currentFrameTime = Time::GetCurrentMilliseconds();
             const onyxU64 deltaFrameTime = currentFrameTime - lastFrameTime;
-            const bool hasRenderGraph = m_MainRenderGraph.IsValid() && m_MainRenderGraph->IsLoaded();
-
-            if (hasRenderGraph == false)
-                continue;
 
             const bool hasBegunFrame = graphicsSystem.BeginFrame();
-
 
             if (hasBegunFrame == false)
                 continue;
 
-
             Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
-            //m_MainRenderGraph->OnSwapChainResized(graphicsSystem);
-            m_MainRenderGraph->BeginFrame(frameContext);
-            //ONYX_UNUSED(frameContext);
 #if ONYX_USE_IMGUI
             if (hasImGuiSystem)
             {
@@ -198,16 +184,15 @@ namespace Onyx::Application
             if (hasBegunFrame)
             {
                graphicsSystem.Render();
-               m_MainRenderGraph->Render(frameContext);
-
+              
 #if ONYX_USE_IMGUI
                 if (hasImGuiSystem)
                 {
                     Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
-                    imGuiSystem.OnEndFrame();
+                    imGuiSystem.OnRenderFrame(frameContext);
+                    imGuiSystem.OnEndFrame(frameContext);
                 }
 #endif
-                m_MainRenderGraph->EndFrame(frameContext);
                 graphicsSystem.EndFrame();
             }
 

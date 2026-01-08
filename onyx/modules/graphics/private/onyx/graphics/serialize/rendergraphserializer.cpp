@@ -46,10 +46,8 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& engine) const
+    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
-        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
-
         RenderGraph& renderGraph = asset.As<RenderGraph>();
 
         RenderGraphNodeFactory factory;
@@ -59,7 +57,6 @@ namespace Onyx::Graphics
             return false;
         }
 
-        renderGraph.Init(graphicsSystem);
         return true;
     }
 }

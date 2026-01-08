@@ -11,6 +11,7 @@
 
 #include <onyx/platform/platformsystem.h>
 #include <onyx/platform/window.h>
+#include <onyx/rhi/commandbuffer.h>
 
 #if ONYX_USE_VULKAN
 #include <onyx/rhi/vulkan/graphicsapi.h>
@@ -161,9 +162,6 @@ namespace Onyx::Graphics
         if (mainWindow.IsMinimized())
             return false;
 
-        //if (m_RenderGraph.IsValid() == false || m_RenderGraph->IsLoaded() == false)
-        //    return false;
-
         if (m_Camera != m_QueuedCamera)
             m_Camera = m_QueuedCamera;
 
@@ -201,7 +199,7 @@ namespace Onyx::Graphics
 
         m_ViewConstantsUniformBuffers[m_FrameIndex].Buffer->SetData(0, &currentFrameContext.ViewConstants, sizeof(ViewConstants));
 
-        //m_RenderGraph->BeginFrame(currentFrameContext);
+        m_BeginFrameSignal.Dispatch(currentFrameContext);
 
         return true;
     }
@@ -211,8 +209,7 @@ namespace Onyx::Graphics
         ONYX_PROFILE(Graphics);
         ONYX_PROFILE_FUNCTION;
 
-        //if (m_RenderGraph)
-        //    m_RenderGraph->Render(GetFrameContext());
+        m_RenderFrameSignal.Dispatch(GetFrameContext());
     }
 
     void GraphicsSystem::EndFrame()
@@ -222,11 +219,16 @@ namespace Onyx::Graphics
 
         FrameContext& currentFrameContext = m_FrameContext[m_FrameIndex];
 
-      //  if (m_RenderGraph)
-      //      m_RenderGraph->EndFrame(currentFrameContext);
+        m_EndFrameSignal.Dispatch(currentFrameContext);
+
+        // Transition image to present
+        TextureHandle& swapchainTarget = m_GraphicsSystem->GetAcquiredSwapChainImage();
+        CommandBuffer& commandBuffer = GetCommandBuffer(m_FrameIndex, true);
+        commandBuffer.TransitionLayout(swapchainTarget, Context::Graphics, Access::None, 1000001002);
+        //commandBuffer.End();
 
         m_GraphicsSystem->EndFrame(currentFrameContext);
-
+        
         m_PresentThread.QueuePresent(m_FrameIndex, m_GraphicsSystem->GetAcquiredBackbufferIndex());
 
         /*if (hasSucceeded == false)
@@ -253,21 +255,9 @@ namespace Onyx::Graphics
         return m_Settings.RefreshRate;
     }
 
-   // void GraphicsSystem::SetRenderGraph(Reference<RenderGraph>& renderGraph)
-   // {
-   //     if (renderGraph->IsLoaded())
-   //     {
-   //         OnRenderGraphLoaded(renderGraph);
-   //     }
-   //     else
-   //     {
-   //         renderGraph->GetOnLoadedEvent().Connect<&GraphicsSystem::OnRenderGraphLoaded>(this);
-   //     }
-   // }
-
     const TextureHandle& GraphicsSystem::GetAcquiredSwapChainImage() const
     {
-        return m_GraphicsSystem->GetAcquiredSwapChainImage(m_FrameIndex);
+        return m_GraphicsSystem->GetAcquiredSwapChainImage();
     }
 
     TextureFormat GraphicsSystem::GetSwapchainTextureFormat() const

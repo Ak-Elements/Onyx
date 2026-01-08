@@ -85,6 +85,7 @@ namespace Onyx::Editor
             if (startupLevel.empty())
             {
                 m_Scene = m_AssetSystem->Create<GameCore::Scene>();
+                m_AssetSystem->GetAsset("engine:/rendergraphs/default.orendergraph", m_Scene->GetRenderGraphRef());
                 OnSceneLoaded(m_Scene);
             }
             else
@@ -213,11 +214,14 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderSceneViewport()
     {
         // TODO TEMP: expose final pin to the outside
-        const Graphics::TextureHandle finalSceneTexture;// = m_GraphicsSystem.GetRenderGraph()->GetFinalTexture();
-        if (finalSceneTexture.IsValid() == false)
-        {
+        if (m_Scene->HasRenderGraph() == false)
             return;
-        }
+
+        const Graphics::TextureHandle finalSceneTexture = m_Scene->GetRenderGraph().GetFinalTexture();
+        //if (finalSceneTexture.IsValid() == false)
+        //{
+        //    return;
+        //}
 
         const Graphics::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
         ImVec2 sceneTextureExtents = { static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1]) };

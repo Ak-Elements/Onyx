@@ -48,7 +48,9 @@ namespace Onyx::Graphics::Vulkan
 
         void OnWindowResize(onyxU32 width, onyxU32 height);
         void Init();
-        const TextureHandle& GetAcquiredBackbuffer(onyxU8 i) const;
+
+        TextureHandle& GetAcquiredBackbuffer();
+        const TextureHandle& GetAcquiredBackbuffer() const;
         onyxU32 GetAcquiredBackbufferIndex() const { return m_CurrentImageIndex; }
 
     private:

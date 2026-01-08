@@ -50,6 +50,11 @@ namespace Onyx::Graphics
         friend class RenderPassCache;
         friend class FramebufferCache;
         friend class ShaderCache;
+
+        using BeginFrameSignalT = Signal<void(const FrameContext&)>;
+        using RenderFrameSignalT = Signal<void(const FrameContext&)>;
+        using EndFrameSignalT = Signal<void(const FrameContext&)>;
+
     public:
         static constexpr StringId32 TypeId = "Onyx::Graphics::GraphicsSystem";
         StringId32 GetTypeId() const override { return TypeId; }
@@ -71,8 +76,6 @@ namespace Onyx::Graphics
         const T& GetApi() const { return *static_cast<const T*>(m_GraphicsSystem.get()); }
 
         onyxU16 GetRefreshRate() const;
-
-        //void SetRenderGraph(Reference<RenderGraph>& renderGraph);
 
         void SetCamera(const Camera& camera) { m_QueuedCamera = &camera; }
         void ResetCamera() { m_QueuedCamera = nullptr; }
@@ -123,11 +126,14 @@ namespace Onyx::Graphics
 
         void OnWindowResize(onyxU32 width, onyxU32 height);
 
+        Sink<BeginFrameSignalT> OnBeginFrame() { return Sink{ m_BeginFrameSignal }; }
+        Sink<BeginFrameSignalT> OnRenderFrame() { return Sink{ m_RenderFrameSignal }; }
+        Sink<BeginFrameSignalT> OnEndFrame() { return Sink{ m_EndFrameSignal }; }
+
     protected:
         void LoadSettings();
 
     private:
-        void OnShaderLoaded(Assets::AssetSystem* assetSystem, Reference<Shader>& loadedGraph);
         void CreateDepthImages(Vector2s32 extents);
         void CreateViewConstantBuffers();
 
@@ -163,6 +169,10 @@ namespace Onyx::Graphics
         FramebufferCache m_FramebufferCache{ *this };
 
         HashMap<StringId32, BlendState> m_BlendStates;
+
+        BeginFrameSignalT m_BeginFrameSignal;
+        RenderFrameSignalT m_RenderFrameSignal;
+        EndFrameSignalT m_EndFrameSignal;
 
         bool m_HasComputeWork = false;
         bool m_HasWindowResized = false;

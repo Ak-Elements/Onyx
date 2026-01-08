@@ -580,6 +580,25 @@ namespace Onyx::Graphics::Vulkan
         vkCmdPipelineBarrier2(m_CommandBuffer, &dependency_info);
     }
 
+    void VulkanCommandBuffer::GlobalBarrier(VkAccessFlagBits2 srcAccess, VkPipelineStageFlags2 srcStage, VkAccessFlagBits2 dstAccess, VkPipelineStageFlags2 dstStage)
+    {
+        VkMemoryBarrier2 barrier{};
+        barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+        barrier.srcStageMask = srcStage;
+        barrier.srcAccessMask = srcAccess;
+        barrier.dstStageMask = dstStage;
+        barrier.dstAccessMask = dstAccess;
+        barrier.pNext = nullptr;
+
+        VkDependencyInfoKHR dependency_info{};
+        dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+        dependency_info.memoryBarrierCount = 1;
+        dependency_info.pMemoryBarriers = &barrier;
+        dependency_info.pNext = nullptr;
+
+        vkCmdPipelineBarrier2(m_CommandBuffer, &dependency_info);
+    }
+
     void VulkanCommandBuffer::PreDraw()
     {
         m_CurrentShaderEffect->PreDraw(m_FrameIndex);

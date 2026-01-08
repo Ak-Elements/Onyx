@@ -814,9 +814,14 @@ namespace Onyx::Graphics::Vulkan
         }
     }
 
-    const TextureHandle& VulkanGraphicsApi::GetAcquiredSwapChainImage(onyxU8 i) const
+    TextureHandle& VulkanGraphicsApi::GetAcquiredSwapChainImage()
     {
-        return m_SwapChain->GetAcquiredBackbuffer(i);
+        return m_SwapChain->GetAcquiredBackbuffer();
+    }
+
+    const TextureHandle& VulkanGraphicsApi::GetAcquiredSwapChainImage() const
+    {
+        return m_SwapChain->GetAcquiredBackbuffer();
     }
 
     onyxU32 VulkanGraphicsApi::GetAcquiredBackbufferIndex() const

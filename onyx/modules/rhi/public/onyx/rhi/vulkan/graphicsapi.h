@@ -84,7 +84,8 @@ namespace Onyx::Graphics
             void WaitIdle() const override;
             void OnWindowResize(onyxU32 width, onyxU32 height) override;
 
-            const TextureHandle& GetAcquiredSwapChainImage(onyxU8 i) const override;
+            TextureHandle& GetAcquiredSwapChainImage() override;
+            const TextureHandle& GetAcquiredSwapChainImage() const override;
             onyxU32 GetAcquiredBackbufferIndex() const override;
 
             TextureFormat GetSwapchainTextureFormat() const override;

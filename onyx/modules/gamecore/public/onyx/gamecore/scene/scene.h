@@ -3,6 +3,13 @@
 #include <onyx/gamecore/scene/scenesectorstreamer.h>
 #include <onyx/entity/entityregistry.h>
 
+#include <onyx/graphics/rendergraph/rendergraph.h>
+
+namespace Onyx::Graphics
+{
+    class RenderGraph;
+}
+
 namespace Onyx::GameCore
 {
     class Scene : public Assets::Asset<Scene>
@@ -28,6 +35,12 @@ namespace Onyx::GameCore
 
         void Update(onyxU64 deltaTime);
 
+        bool HasRenderGraph() { return m_SceneRenderGraph.IsValid() && m_SceneRenderGraph->IsInitialized(); }
+
+        Reference<Graphics::RenderGraph>& GetRenderGraphRef() { return m_SceneRenderGraph; }
+        Graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
+        const Graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
+
 #if ONYX_IS_EDITOR
         String GetUniqueEntityName(const String& preferredName);
 #endif
@@ -42,5 +55,7 @@ namespace Onyx::GameCore
 
         SceneSectorStreamer m_SectorStreamer { *this };
         Entity::EntityRegistry m_Registry;
+
+        Reference<Graphics::RenderGraph> m_SceneRenderGraph;
     };
 }

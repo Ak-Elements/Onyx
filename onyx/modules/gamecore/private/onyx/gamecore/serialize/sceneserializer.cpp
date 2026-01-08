@@ -1,3 +1,4 @@
+#include <onyx/assets/assetsystem.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 
 #include <onyx/entity/entity.h>
@@ -7,6 +8,7 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/components/transientcomponent.gen.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
@@ -17,8 +19,7 @@ namespace Onyx::GameCore
     {
         const Scene& scene = asset.As<Scene>();
 
-        // serialize scene generic settings (e.g.: Terrain/Environment and other settings)
-        ONYX_UNUSED(serializer);
+        serializer.Write<"renderGraph">(scene.m_SceneRenderGraph->GetId());
 
         // Serialize each sector
         const SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
@@ -77,12 +78,15 @@ namespace Onyx::GameCore
 
     bool SceneSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
+        Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
+
         Scene& scene = asset.As<Scene>();
         Entity::EntityRegistry& registry = scene.GetRegistry();
         registry.Clear();
 
-        // serialize scene generic settings (e.g.: Terrain/Environment and other settings)
-        ONYX_UNUSED(deserializer);
+        Assets::AssetId renderGraphAssetId = "engine:/rendergraphs/default.orendergraph";
+        deserializer.Read<"renderGraph">(renderGraphAssetId);
+        assetSystem.GetAsset(renderGraphAssetId, scene.m_SceneRenderGraph);
 
         FilePath sceneDirectoryPath = FileSystem::Path::GetFullPath(meta.Path.parent_path());
         SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;

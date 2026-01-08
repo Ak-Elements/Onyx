@@ -47,7 +47,8 @@ namespace Onyx
         private:
             virtual void WaitIdle() const = 0;
 
-            virtual const TextureHandle& GetAcquiredSwapChainImage(onyxU8 i) const = 0;
+            virtual TextureHandle& GetAcquiredSwapChainImage() = 0;
+            virtual const TextureHandle& GetAcquiredSwapChainImage() const = 0;
             virtual onyxU32 GetAcquiredBackbufferIndex() const = 0;
 
             virtual TextureFormat GetSwapchainTextureFormat() const = 0;

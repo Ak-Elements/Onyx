@@ -4,6 +4,7 @@
 
 #include <onyx/engine/enginesystem.h>
 #include <onyx/ui/imguiwindow.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Localization
 {
@@ -78,15 +79,14 @@ namespace Onyx
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
 
-            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Platform::PlatformSystem& platformSystem);
+            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem);
             ~ImGuiSystem() override;
 
-            
             void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
 
-            void OnBeginFrame(Graphics::FrameContext& context);
-            
-            void OnEndFrame();
+            void OnBeginFrame(const Graphics::FrameContext& frameContext);
+            void OnRenderFrame(const Graphics::FrameContext& frameContext);
+            void OnEndFrame(const Graphics::FrameContext& frameContext);
 
             template <IsImGuiWindow T, typename... Args>
             void RegisterWindow(Args&&... args)
@@ -204,6 +204,9 @@ namespace Onyx
             Optional<ImGuiWindow*> GetWindow(StringView windowName);
           
         private:
+            void InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem);
+            void UpdateDrawBuffers(const Graphics::FrameContext& frameContext);
+
             void OnWindowResize(onyxU32 width, onyxU32 height);
             
             void OnMouseAxisChange(const Input::MouseAxisEvent& event);
@@ -216,7 +219,15 @@ namespace Onyx
             void OnControllerButton(const Input::GameControllerButtonEvent& event);
 
         private:
-            //LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> m_QueuedInputs;
+            Reference<Graphics::ShaderInstance> m_ImguiShader;
+
+            InplaceArray<Graphics::BufferHandle, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexBuffers;
+            InplaceArray<Graphics::BufferHandle, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexBuffers;
+            Graphics::TextureHandle m_FontImage;
+
+            InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexCounts;
+            InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexCounts;
+
             HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> m_WindowFactory;
             HashMap<StringId64, ImFont*> m_Fonts;
             std::mutex m_Mutex;

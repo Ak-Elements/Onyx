@@ -66,6 +66,7 @@ namespace Onyx::Graphics::Vulkan
 
         // DEBUG
         void GlobalBarrier(VkAccessFlagBits2 srcAccess, VkAccessFlagBits2 dstAccess) override;
+        void GlobalBarrier(VkAccessFlagBits2 srcAccess, VkPipelineStageFlags2 srcStage, VkAccessFlagBits2 dstAccess, VkPipelineStageFlags2 dstStage) override;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         void BeginDebugLabel(StringView label, const Vector4f32& color) override;

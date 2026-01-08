@@ -2,6 +2,7 @@
 
 #if ONYX_USE_IMGUI
 
+#include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
 
 #include <onyx/input/inputsystem.h>
@@ -546,7 +547,7 @@ namespace Onyx::Ui
 	}
 
 	
-    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Platform::PlatformSystem& platformSystem)
+    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem)
         : m_PlatformSystem(&platformSystem)
         , m_InputSystem(&inputSystem)
     {
@@ -578,11 +579,7 @@ namespace Onyx::Ui
 		m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
 
 		io.FontDefault = it->second;
-
-		////TODO: Font creation should not be in the ui render task but should be handled here
-		unsigned char* fontData;
-		int texWidth, texHeight;
-		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+		InitRenderBuffers(graphicsSystem);
 
 		inputSystem.OnMouseAxisChange().Connect<&ImGuiSystem::OnMouseAxisChange>(this);
 		inputSystem.OnMouseButton().Connect<&ImGuiSystem::OnMouseButton>(this);
@@ -591,6 +588,35 @@ namespace Onyx::Ui
 
 		g_UiContext.AssetSystem = &assetSystem;
 		g_UiContext.InputSystem = &inputSystem;
+
+		Graphics::PipelineProperties pipelineProperties;
+		pipelineProperties.Shader = Assets::AssetId("engine:/shaders/imgui.oshader");
+		pipelineProperties.BlendStates.Emplace(
+			Graphics::BlendState
+			{
+				.SourceColor = Graphics::Blend::SrcAlpha,
+				.DestinationColor = Graphics::Blend::OneMinusSrcAlpha,
+				.ColorOperation = Graphics::BlendOperation::Add,
+				.SourceAlpha = Graphics::Blend::Invalid,
+				.DestinationAlpha = Graphics::Blend::Invalid,
+				.AlphaOperation = Graphics::BlendOperation::Add,
+				.IsBlendEnabled = true
+			}
+		);
+
+        Graphics::RenderPassSettings renderPassSettings;
+        Graphics::RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
+        Graphics::RenderPassSettings::Attachment attachment{};
+
+		attachment.m_Format = Enums::ToIntegral(Graphics::TextureFormat::BGRA_UNORM8);
+		attachment.m_LoadOp = Enums::ToIntegral(Graphics::RenderPassSettings::LoadOp::DontCare);
+		renderPassSettings.m_Attachments.Add(attachment);
+
+		subpass.m_AttachmentAccesses.Emplace(Graphics::RenderPassSettings::AttachmentAccess::RenderTarget);
+		pipelineProperties.RenderPass = graphicsSystem.GetOrCreateRenderPass(renderPassSettings);
+
+		m_ImguiShader = graphicsSystem.CreateShaderInstance(pipelineProperties.Shader, pipelineProperties);
+		
     }
 
 	ImGuiSystem::~ImGuiSystem()
@@ -627,7 +653,7 @@ namespace Onyx::Ui
 		g_UiContext.GraphicsSystem = nullptr;
     }
 
-    void ImGuiSystem::OnBeginFrame(Graphics::FrameContext&)
+    void ImGuiSystem::OnBeginFrame(const Graphics::FrameContext& /*frameContext*/)
     {
 		ImGuiIO& io = ImGui::GetIO();	
 		// TODO: Fix
@@ -665,9 +691,136 @@ namespace Onyx::Ui
 		ImGuizmo::BeginFrame();
     }
 
-    void ImGuiSystem::OnEndFrame()
+	void ImGuiSystem::OnRenderFrame(const Graphics::FrameContext& frameContext)
     {
-		
+		if (m_ImguiShader.IsValid() == false)
+			return;
+
+		ImGui::Render();
+
+		UpdateDrawBuffers(frameContext);
+        
+        Graphics::CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
+
+		const Reference<Graphics::Pipeline>& pipeline = m_ImguiShader->GetPipeline();
+		const Graphics::PipelineProperties& properties = pipeline->GetProperties();
+
+        Graphics::FramebufferSettings framebufferSettings; 
+		framebufferSettings.m_RenderPass = properties.RenderPass;
+
+		const Vector2s32& swapchainExtent = frameContext.Api->GetSwapchainExtent();
+		framebufferSettings.m_Width = swapchainExtent.X;
+		framebufferSettings.m_Height = swapchainExtent.Y;
+
+		const Graphics::TextureHandle& swapchainImage = frameContext.Api->GetAcquiredSwapChainImage();
+		framebufferSettings.m_ColorTargets.Add(swapchainImage.Texture);
+
+		Graphics::FramebufferHandle frameBuffer = frameContext.Api->GetOrCreateFramebuffer(framebufferSettings);
+
+		// TODO: Do a proper barrier here for the rendergraph to be finished and the imgui pass to start
+		commandBuffer.GlobalBarrier(0, 0x00000100ULL);
+		commandBuffer.BeginRenderPass(properties.RenderPass, frameBuffer);
+		commandBuffer.SetViewport();
+		commandBuffer.BindShaderEffect(m_ImguiShader);
+
+		ImDrawData* imDrawData = ImGui::GetDrawData();
+
+		onyxS32 fb_width = numeric_cast<onyxS32>(imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x);
+		onyxS32 fb_height = numeric_cast<onyxS32>(imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+		if ((!imDrawData) || (imDrawData->CmdListsCount == 0))
+		{
+			return;
+		}
+
+		onyxS32 vertexOffset = 0;
+		onyxS32 indexOffset = 0;
+
+		const onyxU8 frameIndex = frameContext.FrameIndex;
+		const Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
+		const Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
+		commandBuffer.BindVertexBuffer(vertexBuffer, 0, 0);
+		commandBuffer.BindIndexBuffer(indexBuffer, 0, Graphics::IndexType::uint16);
+
+		struct PushConstants
+		{
+			Vector2f32 scale;
+			Vector2f32 translate;
+		} constants;
+
+		constants.scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
+		constants.translate = { -1.0f - imDrawData->DisplayPos.x * constants.scale[0], 1.0f - imDrawData->DisplayPos.y * constants.scale[1] };
+		commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, constants);
+
+		// Will project scissor/clipping rectangles into framebuffer space
+		ImVec2 clip_off = imDrawData->DisplayPos; // (0,0) unless using multi-viewports
+		ImVec2 clip_scale = imDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
+
+		for (onyxS32 i = 0; i < imDrawData->CmdListsCount; i++)
+		{
+			const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+			for (onyxS32 j = 0; j < cmd_list->CmdBuffer.Size; j++)
+			{
+				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+				if (pcmd->UserCallback != nullptr)
+				{
+					// User callback, registered via ImDrawList::AddCallback()
+					// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+					//if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+					//    commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(PushConstants), &constants);
+					//else
+					pcmd->UserCallback(cmd_list, pcmd);
+				}
+				else
+				{
+					ImTextureID textureId = pcmd->TextureId;
+
+					ImVec4 clip_rect;
+					clip_rect.x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
+					clip_rect.y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
+					clip_rect.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
+					clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
+
+					if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f)
+					{
+						// Negative offsets are illegal for vkCmdSetScissor
+						if (clip_rect.x < 0.0f)
+							clip_rect.x = 0.0f;
+						if (clip_rect.y < 0.0f)
+							clip_rect.y = 0.0f;
+
+						// Apply scissor/clipping rectangle
+						Rect2s16 scissor;
+						scissor.Position[0] = (onyxS16)(clip_rect.x);
+						scissor.Position[1] = (onyxS16)(clip_rect.y);
+						scissor.Extents[0] = (onyxS16)(std::abs(clip_rect.z - clip_rect.x));
+						scissor.Extents[1] = (onyxS16)(std::abs(clip_rect.w - clip_rect.y));
+						//vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+
+						commandBuffer.SetScissor(scissor);
+						commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, pcmd->ElemCount, 1,
+							pcmd->IdxOffset + indexOffset, pcmd->VtxOffset + vertexOffset, numeric_cast<onyxU32>(textureId));
+					}
+				}
+			}
+
+			vertexOffset += cmd_list->VtxBuffer.Size;
+			indexOffset += cmd_list->IdxBuffer.Size;
+
+			Rect2s16 scissor;
+			scissor.Position = { 0, 0 };
+			scissor.Extents = { (onyxS16)fb_width, (onyxS16)fb_height };
+			commandBuffer.SetScissor(scissor);
+		}
+
+		commandBuffer.EndRenderPass();
+    }
+
+
+    void ImGuiSystem::OnEndFrame(const Graphics::FrameContext& /*frameContext*/)
+    {
 #if ONYX_IS_WINDOWS
 		//if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
 		//{
@@ -716,7 +869,130 @@ namespace Onyx::Ui
         return it->get();
     }
 
-	void ImGuiSystem::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
+    void ImGuiSystem::InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem)
+    {
+		ImGuiIO& io = ImGui::GetIO();
+
+		//// Create font texture
+		unsigned char* fontData;
+		int texWidth, texHeight;
+
+		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+		onyxU32 uploadSize = texWidth * texHeight * 4 * sizeof(char);
+
+		//// Create target image for copy
+		Graphics::TextureStorageProperties storageProps;
+		storageProps.m_Format = Graphics::TextureFormat::RGBA_UNORM8;
+		storageProps.m_Type = Graphics::TextureType::Texture2D;
+		storageProps.m_Size = { texWidth, texHeight, 1 };
+		storageProps.m_MaxMipLevel = 1;
+		storageProps.m_ArraySize = 0;
+		storageProps.m_MSAAProperties = { 1, 1 }; // samples /quality 
+		storageProps.m_CpuAccess = Graphics::CPUAccess::None;
+		storageProps.m_GpuAccess = Graphics::GPUAccess::Read;
+		storageProps.m_IsTexture = true;
+		storageProps.m_DebugName = "ImGui Font Texture Storage";
+
+		Graphics::TextureProperties textureProps;
+		textureProps.m_Format = Graphics::TextureFormat::RGBA_UNORM8;
+		textureProps.m_AllowCubeMapLoads = false;
+		textureProps.m_DebugName = "ImGui Font Texture";
+
+		Span<onyxU8> fontTexData{ fontData, uploadSize };
+
+		graphicsSystem.CreateTexture(m_FontImage, storageProps, textureProps, fontTexData);
+		io.Fonts->TexID = m_FontImage.Texture->GetIndex();
+
+		Graphics::BufferProperties vertexBufferProps;
+		vertexBufferProps.m_Size = 400000 * sizeof(ImDrawVert);
+		vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
+		vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+		vertexBufferProps.m_DebugName = "ImGui Vertices";
+
+		Graphics::BufferProperties indexBufferProps;
+		indexBufferProps.m_Size = 200000 * sizeof(ImDrawIdx);
+		indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
+		indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+		indexBufferProps.m_DebugName = "ImGui Indices";
+
+		for (onyxU8 i = 0; i < Graphics::MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[i];
+			graphicsSystem.CreateBuffer(vertexBuffer, vertexBufferProps);
+			m_VertexCounts.Add(400000);
+
+			Graphics::BufferHandle& indexBuffer = m_IndexBuffers[i];
+			graphicsSystem.CreateBuffer(indexBuffer, indexBufferProps);
+			m_IndexCounts.Add(200000);
+		}
+    }
+
+	void ImGuiSystem::UpdateDrawBuffers(const Graphics::FrameContext& frameContext)
+    {
+		
+		ImDrawData* imDrawData = ImGui::GetDrawData();
+
+		if ((!imDrawData) || (imDrawData->CmdListsCount == 0))
+		{
+			return;
+		}
+
+		onyxS32 fb_width = numeric_cast<onyxS32>(imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x);
+		onyxS32 fb_height = numeric_cast<onyxS32>(imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+		// Note: Alignment is done inside buffer creation
+		onyxU32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+		onyxU32 indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+		// Update buffers only if vertex or index count has been changed compared to current buffer size
+		if ((vertexBufferSize == 0) || (indexBufferSize == 0))
+		{
+			return /*false*/;
+		}
+
+		// Vertex buffer
+		const onyxU8 frameIndex = frameContext.FrameIndex;
+		Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
+		if ((vertexBuffer.Buffer.IsValid() == false) || (vertexBuffer.Buffer->IsMapped() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
+		{
+			Graphics::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
+			vertexBufferProps.m_Size = vertexBufferSize;
+
+			frameContext.Api->CreateBuffer(vertexBuffer, vertexBufferProps);
+			m_VertexCounts[frameIndex] = imDrawData->TotalVtxCount;
+		}
+
+		// Index buffer
+		Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
+		if ((indexBuffer.Buffer.IsValid() == false) || (indexBuffer.Buffer->IsMapped() == false) || (m_IndexCounts[frameIndex] < imDrawData->TotalIdxCount))
+		{
+			Graphics::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
+			indexBufferProps.m_Size = indexBufferSize;
+
+			frameContext.Api->CreateBuffer(indexBuffer, indexBufferProps);
+			m_IndexCounts[frameIndex] = imDrawData->TotalIdxCount;
+		}
+
+		// Upload data
+		onyxS32 vertexCopyOffset = 0;
+		onyxS32 indexCopyOffset = 0;
+
+		for (int n = 0; n < imDrawData->CmdListsCount; n++)
+		{
+			const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+			vertexBuffer.Buffer->SetData(vertexCopyOffset, cmd_list->VtxBuffer.Data,
+				cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+			indexBuffer.Buffer->SetData(indexCopyOffset, cmd_list->IdxBuffer.Data,
+				cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+
+			vertexCopyOffset += cmd_list->VtxBuffer.Size * sizeof(ImDrawVert);
+			indexCopyOffset += cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx);
+		}
+    }
+
+    void ImGuiSystem::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
 	{
 
 	}

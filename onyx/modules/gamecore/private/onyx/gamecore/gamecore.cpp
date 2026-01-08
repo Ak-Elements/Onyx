@@ -75,6 +75,15 @@ namespace Onyx::GameCore
             return;
         }
 
+        if (m_Scene->GetRenderGraphRef().IsValid())
+        {
+            Graphics::RenderGraph& sceneRenderGraph = m_Scene->GetRenderGraph();
+            if (sceneRenderGraph.IsLoaded() && sceneRenderGraph.IsInitialized() == false)
+            {
+                sceneRenderGraph.Init(graphicsSystem);
+            }
+        }
+
         // TODO: Can we find a cleaner / better solution for this?
         Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
         if (frameContext.FrameData == nullptr)
