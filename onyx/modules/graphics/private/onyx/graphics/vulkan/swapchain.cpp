@@ -27,6 +27,19 @@ SwapChain::SwapChain(VulkanGraphicsApi& api)
     : m_GraphicsApi(api)
 	, m_Device(api.GetDevice())
 {
+
+	//moving the creation of these here because they don't need to be remade every time the swapchain is remade
+	for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+	{
+		m_ImageAcquired[i] = MakeUnique<Semaphore>(m_Device);
+
+		//if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
+		//{
+		m_RenderCompleteFence[i] = MakeUnique<Fence>(m_Device, true);
+	//}
+	}
+	
+	//recreate
 	Init();
 }
 
@@ -184,6 +197,15 @@ void SwapChain::Init()
 	vkGetSwapchainImagesKHR(m_Device.GetHandle(), m_SwapChain, &m_ImageCount, images.data());
 
 	m_SwapchainBuffers.resize(m_ImageCount);
+
+	//before potentially deconstructing semaphores, we're going to wait on the fences
+	std::vector<VkFence> fences{ m_RenderCompleteFence.size() };
+	for (onyxU8 i = 0; i < m_RenderCompleteFence.size(); i++) {
+		fences[i] = m_RenderCompleteFence[i]->GetHandle();
+	}
+	VK_CHECK_RESULT(vkWaitForFences(m_Device.GetHandle(), static_cast<uint32_t>(fences.size()), fences.data(), VK_TRUE, onyxMax_U64));
+	//we're not going to reset the fences, cause we still want them signaled (we wait on them BEFORE signaling)
+
 	m_RenderCompleteSemaphore.resize(m_ImageCount);
 
 	TextureProperties textureProps;
@@ -200,16 +222,6 @@ void SwapChain::Init()
 
 		texture.Texture = Reference<VulkanTexture, TextureDeleter>::Create(m_GraphicsApi, textureProps, textureStorage.Raw());
 		m_RenderCompleteSemaphore[i] = MakeUnique<Semaphore>(m_Device);
-	}
-
-	for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-	{
-		m_ImageAcquired[i] = MakeUnique<Semaphore>(m_Device);
-
-		//if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-		//{
-			m_RenderCompleteFence[i] = MakeUnique<Fence>(m_Device, true);
-		//}
 	}
 }
 

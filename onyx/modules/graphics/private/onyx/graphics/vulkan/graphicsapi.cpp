@@ -25,6 +25,26 @@
 #include <onyx/graphics/window/windows/nativewindow.h>
 #include <onyx/profiler/profiler.h>
 
+//this works because every other member is uniformly a vkbool32. 
+//if they were a float or some such, we wouldn't be able to do this pseudo-reflection
+//we can trust it to index into VkPhysicalDeviceFeatures (1.0)
+//WORKS ON MY MACHINE (disclaimer)
+template <typename T>
+void SetFeature_RequestedToAvailable(T& requested, T const& available) noexcept {
+    // skip sType and pNext (the first two pointers)
+    constexpr std::size_t header_size = sizeof(VkBaseInStructure);
+    const std::size_t requested_addr = reinterpret_cast<std::size_t>(&requested) + header_size;
+    const std::size_t available_addr = reinterpret_cast<std::size_t>(&available) + header_size;
+    VkBool32* requested_bool = reinterpret_cast<VkBool32*>(requested_addr);
+    VkBool32 const* available_bool = reinterpret_cast<VkBool32 const*>(available_addr);
+
+    const std::size_t count = (sizeof(T) - header_size) / sizeof(VkBool32);
+
+    for (size_t i = 0; i < count; i++) {
+        requested_bool[i] = requested_bool[i] && available_bool[i];
+    }
+}
+
 namespace Onyx::Graphics::Vulkan
 {
     // needed for UniquePtr forward declarations
@@ -56,20 +76,35 @@ namespace Onyx::Graphics::Vulkan
         // TODO: can this be moved somehow into Logiccal Device=
         DynamicArray<const char*> deviceExtensions;
 
-        VkPhysicalDeviceVulkan11Features vulkan_11_features;
+
+        VkPhysicalDeviceFeatures2 physicalFeatures{};
+        physicalFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+
+        VkPhysicalDeviceVulkan11Features vulkan_11_features{}; //0 initializing is important
         vulkan_11_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
         vulkan_11_features.pNext = nullptr;
 
         void* current_pnext = &vulkan_11_features;
 
-        VkPhysicalDeviceVulkan12Features vulkan_12_features;
+        VkPhysicalDeviceVulkan12Features vulkan_12_features{};
         vulkan_12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
         vulkan_12_features.pNext = current_pnext;
+        //bindless went core in 1.2
+        vulkan_12_features.descriptorBindingPartiallyBound = VK_TRUE;
+        vulkan_12_features.runtimeDescriptorArray = VK_TRUE;
+        vulkan_12_features.timelineSemaphore = VK_TRUE;
+
+        //debugging feature, for renderdoc i believe. havent used it yet personally
+        //vulkan_12_features.bufferDeviceAddressCaptureReplay = VK_TRUE;
+
         current_pnext = &vulkan_12_features;
 
-        VkPhysicalDeviceVulkan13Features vulkan_13_features;
+        VkPhysicalDeviceVulkan13Features vulkan_13_features{};
         vulkan_13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
-        vulkan_13_features.maintenance4 = true;
+        //sync2 and dynamic rendering went core in 1.3, they're no longer an extension
+        vulkan_13_features.synchronization2 = VK_TRUE;
+        vulkan_13_features.maintenance4 = VK_TRUE;
+        vulkan_13_features.dynamicRendering = VK_TRUE;
         vulkan_13_features.pNext = current_pnext;
         current_pnext = &vulkan_13_features;
 
@@ -83,22 +118,57 @@ namespace Onyx::Graphics::Vulkan
         deviceExtensions.push_back(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
         //
 
-        if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME))
-        {
-            m_IsTimelineSemaphoreEnabled = true;
-        }
+        VkPhysicalDeviceVulkan13Features availability_features13{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
+            .pNext = nullptr,
+            //the rest odnt matter, we're checking availability here
+        };
+        VkPhysicalDeviceVulkan12Features availability_features12{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+            .pNext = &availability_features13,
+            //the rest odnt matter, we're checking availability here
+        };
+        VkPhysicalDeviceVulkan11Features availability_features11{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES,
+            .pNext = &availability_features12,
+            //the rest odnt matter, we're checking availability here
+        };
+        VkPhysicalDeviceFeatures2 availability_featuresBase{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &availability_features11,
+            //the rest odnt matter, we're checking availability here
+        };
 
-        if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME))
-        {
-            m_IsSynchronization2Enabled = true;
-        }
+        //heres a list of features, them being enabled is being taken for granted 
+        //(im enabling them as I get the validation error)
+        //no fruther checks after this point
+        vulkan_12_features.bufferDeviceAddress = VK_TRUE;
+        physicalFeatures.features.imageCubeArray = VK_TRUE;
+        //to be fair the following are probably hand in hand with indexing that is checked
+        vulkan_12_features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+        vulkan_12_features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+        vulkan_12_features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+        vulkan_12_features.descriptorBindingStorageImageUpdateAfterBind = VK_TRUE;
+        vulkan_12_features.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
 
-        if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
-        {
-            m_IsDynamicRenderingEnabled = true;
-        }
+        //check availability
+        vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &availability_featuresBase);
 
-        if (m_IsDynamicRenderingEnabled == false)
+        SetFeature_RequestedToAvailable(physicalFeatures, availability_featuresBase);
+        SetFeature_RequestedToAvailable(vulkan_11_features, availability_features11);
+        SetFeature_RequestedToAvailable(vulkan_12_features, availability_features12);
+        SetFeature_RequestedToAvailable(vulkan_13_features, availability_features13);
+        //if theyre required, assert theyre available here
+        //ONYX_ASSERT(vulkan_13_features.synchronization2);
+
+
+        m_IsSynchronization2Enabled = vulkan_13_features.synchronization2; //now its enabled both on request and availability
+        m_IsDynamicRenderingEnabled = vulkan_13_features.dynamicRendering;
+
+        m_IsBindlessEnabled = vulkan_12_features.descriptorBindingPartiallyBound && vulkan_12_features.runtimeDescriptorArray;
+        m_IsTimelineSemaphoreEnabled = vulkan_12_features.timelineSemaphore;
+
+        if (m_IsDynamicRenderingEnabled == false) 
         {
             if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
             {
@@ -107,46 +177,23 @@ namespace Onyx::Graphics::Vulkan
             }
         }
 
-        VkPhysicalDeviceDescriptorIndexingFeatures bindlessExtenstion;
-        if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME))
-        {
-            bindlessExtenstion.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-            bindlessExtenstion.pNext = nullptr;
-
-            VkPhysicalDeviceFeatures2 deviceFeatures{};
-            deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-            deviceFeatures.pNext = &bindlessExtenstion;
-            vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &deviceFeatures);
-
-            m_IsBindlessEnabled = bindlessExtenstion.descriptorBindingPartiallyBound && bindlessExtenstion.runtimeDescriptorArray;
-        }
-
-      /*  VkPhysicalDevice16BitStorageFeatures bitStorageFeatures;
-        bitStorageFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES;
-        bitStorageFeatures.pNext = nullptr;
-
-        VkPhysicalDeviceFeatures2 deviceFeatures{};
-        deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-        deviceFeatures.pNext = &bitStorageFeatures;
-        vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &deviceFeatures);*/
-
-
-        VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderExtension;
-        
+        VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderExtension{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT,
+            .pNext = nullptr,
+            .taskShader = VK_TRUE,
+            .meshShader = VK_TRUE,
+            .multiviewMeshShader = VK_FALSE,
+            .primitiveFragmentShadingRateMeshShader = VK_FALSE,
+            .meshShaderQueries = VK_FALSE
+        };
         if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
         {
             deviceExtensions.push_back(VK_EXT_MESH_SHADER_EXTENSION_NAME);
-
-            meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
-            meshShaderExtension.taskShader = true;
-            meshShaderExtension.meshShader = true;
 
             meshShaderExtension.pNext = current_pnext;
             current_pnext = &meshShaderExtension;
         }
 
-        VkPhysicalDeviceFeatures2 physicalFeatures;
-        physicalFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
         physicalFeatures.pNext = current_pnext;
         // End device extensions
 
@@ -798,16 +845,17 @@ namespace Onyx::Graphics::Vulkan
         }
         else
         {
-            VkSubmitInfo submitInfo{};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = vulkanCmdBuffer.GetHandlePtr();
-            submitInfo.pNext = nullptr;
+            VkSubmitInfo submitInfo{
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                .pNext = nullptr,
+                .commandBufferCount = 1,
+                .pCommandBuffers = vulkanCmdBuffer.GetHandlePtr()
+            };
 
             VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, fence))
         }
 
-        vkWaitForFences(m_Device->GetHandle(), 1, &fence, true, 9999999);
+        VK_CHECK_RESULT(vkWaitForFences(m_Device->GetHandle(), 1, &fence, VK_TRUE, onyxMax_U64)); //is this supposed to be UINT64MAX?
         vkResetFences(m_Device->GetHandle(), 1, &fence);
 
         if (context == Context::Graphics)

@@ -36,9 +36,6 @@ namespace Onyx::Graphics::Vulkan
 			queueCreateInfos.push_back(queueCreateInfo);
 		}
 
-		// Enable all features: just pass the physical features 2 struct.
-		vkGetPhysicalDeviceFeatures2(physicalDevice.GetHandle(), &physicalFeatures);
-
 		/*VkPhysicalDeviceFeatures enabledFeatures = {};
 		enabledFeatures.samplerAnisotropy = true;
 		enabledFeatures.wideLines = true;
@@ -79,6 +76,12 @@ namespace Onyx::Graphics::Vulkan
 		}
 
 		VK_CHECK_RESULT(vkCreateDevice(physicalDevice.GetHandle(), &deviceCreateInfo, nullptr, &m_Device))
+
+
+		//set features to availability. still not great
+		//ideally, set requested features to required and optional
+		//check whats available, and respond accordingly
+		vkGetPhysicalDeviceFeatures2(physicalDevice.GetHandle(), &physicalFeatures);
 
 		vkGetDeviceQueue(m_Device, queueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
 		vkGetDeviceQueue(m_Device, queueFamilyIndices.Compute, 0, &m_ComputeQueue);
