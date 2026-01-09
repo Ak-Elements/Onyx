@@ -377,6 +377,7 @@ namespace Onyx::Graphics::Vulkan
         }
 
         bool hasAcquiredImage = m_SwapChain->BeginFrame(context.FrameIndex);
+        printf("began frame - %d:%u:%zu", static_cast<int>(context.FrameIndex), m_SwapChain->GetAcquiredBackbufferIndex(), context.AbsoluteFrame);
 
         m_CommandBufferManager->Reset(*m_Device, context.FrameIndex);
         m_ComputeCommandBufferManager->Reset(*m_Device, context.FrameIndex);
@@ -567,15 +568,17 @@ namespace Onyx::Graphics::Vulkan
                     { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, renderCompleteSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, 0 }
                 };
 
-                VkSubmitInfo2 submitInfo;
-                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
-                submitInfo.waitSemaphoreInfoCount = wait_semaphores.size();
-                submitInfo.pWaitSemaphoreInfos = wait_semaphores.data();
-                submitInfo.commandBufferInfoCount = commandBufferCount;
-                submitInfo.pCommandBufferInfos = commandBufferInfo.data();
-                submitInfo.signalSemaphoreInfoCount = 1;
-                submitInfo.pSignalSemaphoreInfos = signalSemaphores.data();
-                submitInfo.pNext = nullptr;
+                VkSubmitInfo2 submitInfo{
+                    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+                    .pNext = nullptr,
+                    .flags = 0,
+                    .waitSemaphoreInfoCount = wait_semaphores.size(),
+                    .pWaitSemaphoreInfos = wait_semaphores.data(),
+                    .commandBufferInfoCount = commandBufferCount,
+                    .pCommandBufferInfos = commandBufferInfo.data(),
+                    .signalSemaphoreInfoCount = 1,
+                    .pSignalSemaphoreInfos = signalSemaphores.data()
+                };
 
                 std::lock_guard lock(m_GraphicsMutex);
                 VK_CHECK_RESULT(vkQueueSubmit2(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));

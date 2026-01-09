@@ -152,6 +152,10 @@ namespace Onyx::Graphics::Vulkan
         }
 
         const char* errorMessage = Format::Format("{} {}", messageTypeString, pCallbackData->pMessage);
+        if (logLevel >= LogLevel::Error) {
+            //i want an error message NOW, and I want a breakpoint with it
+            printf("vulkan validation : %s:%s\n", messageTypeString.data(), pCallbackData->pMessage);
+        }
         Logger::s_DefaultLogger->Log(logLevel, errorMessage);
 
         const char* objectInfoMessage;
