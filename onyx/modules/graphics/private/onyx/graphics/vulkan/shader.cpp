@@ -44,8 +44,7 @@ namespace Onyx::Graphics::Vulkan
         const bool mesh_pipeline_type = HasStage(ShaderStage::Mesh) || HasStage(ShaderStage::Task);
         //const bool raytracing_pipeline_type = HasStage(ShaderStage::ANY_RAY_TRACING);
 
-        //is this correct? or <= 1?
-        ONYX_ASSERT((compute_pipeline_type + vertex_pipeline_type + mesh_pipeline_type == 1), "invalid shader combination - compute[%d] : vertex[%d] : mesh[%d]");
+        ONYX_ASSERT((compute_pipeline_type + vertex_pipeline_type + mesh_pipeline_type <= 1), "invalid shader combination - compute[%d] : vertex[%d] : mesh[%d]");
         if (stage == ShaderStage::Fragment) {
             ONYX_ASSERT(IsComputeShader() == false, "invalid shader combination, fragment and compute");
         }

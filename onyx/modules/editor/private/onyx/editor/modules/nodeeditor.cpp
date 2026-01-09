@@ -203,7 +203,13 @@ namespace Onyx::Editor
         {
             if (ImGui::MenuItem(Format::Format("{}###Open", Localization::Generic::Open)))
             {
-                Load();
+                try {
+                    Load();
+                }
+                catch (const std::exception& e) {
+                    
+                    printf("failed to load - %s\n", e.what());
+                }
             }
 
             if (ImGui::MenuItem(Format::Format("{}###Save", Localization::Generic::Save)))
