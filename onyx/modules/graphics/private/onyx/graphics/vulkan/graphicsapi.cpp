@@ -377,7 +377,7 @@ namespace Onyx::Graphics::Vulkan
         }
 
         bool hasAcquiredImage = m_SwapChain->BeginFrame(context.FrameIndex);
-        printf("began frame - %d:%u:%zu", static_cast<int>(context.FrameIndex), m_SwapChain->GetAcquiredBackbufferIndex(), context.AbsoluteFrame);
+        printf("began frame - %d:%u:%zu\n", static_cast<int>(context.FrameIndex), m_SwapChain->GetAcquiredBackbufferIndex(), context.AbsoluteFrame);
 
         m_CommandBufferManager->Reset(*m_Device, context.FrameIndex);
         m_ComputeCommandBufferManager->Reset(*m_Device, context.FrameIndex);

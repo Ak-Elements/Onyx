@@ -57,7 +57,7 @@ namespace Onyx::Graphics::Vulkan
             {
                 case Blend::Zero:
                     return VK_BLEND_FACTOR_ZERO;
-                case Blend::One: 
+                case Blend::One:
                     return VK_BLEND_FACTOR_ONE;
                 case Blend::SrcColor:
                     return VK_BLEND_FACTOR_SRC_COLOR;
@@ -69,11 +69,11 @@ namespace Onyx::Graphics::Vulkan
                     return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
                 case Blend::SrcAlpha:
                     return VK_BLEND_FACTOR_SRC_ALPHA;
-                case Blend::OneMinusSrcAlpha: 
+                case Blend::OneMinusSrcAlpha:
                     return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
                 case Blend::DstAlpha:
                     return VK_BLEND_FACTOR_DST_ALPHA;
-                case Blend::OneMinusDstAlpha: 
+                case Blend::OneMinusDstAlpha:
                     return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
                 case Blend::ConstantColor:
                     return VK_BLEND_FACTOR_CONSTANT_COLOR;
@@ -81,7 +81,7 @@ namespace Onyx::Graphics::Vulkan
                     return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
                 case Blend::ConstantAlpha:
                     return VK_BLEND_FACTOR_CONSTANT_ALPHA;
-                case Blend::OneMinusConstantAlpha: 
+                case Blend::OneMinusConstantAlpha:
                     return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
                 case Blend::SrcAlphaSaturate:
                     return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
@@ -89,7 +89,7 @@ namespace Onyx::Graphics::Vulkan
                     return VK_BLEND_FACTOR_SRC1_COLOR;
                 case Blend::OneMinusSrc1Color:
                     return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
-                case Blend::Src1Alpha: 
+                case Blend::Src1Alpha:
                     return VK_BLEND_FACTOR_SRC1_ALPHA;
                 case Blend::OneMinusSrc1Alpha:
                     return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
@@ -129,19 +129,19 @@ namespace Onyx::Graphics::Vulkan
                     return VK_COMPARE_OP_NEVER;
                 case CompareOperation::Less:
                     return VK_COMPARE_OP_LESS;
-                case CompareOperation::Equal: 
+                case CompareOperation::Equal:
                     return VK_COMPARE_OP_EQUAL;
-                case CompareOperation::LessOrEqual: 
+                case CompareOperation::LessOrEqual:
                     return VK_COMPARE_OP_LESS_OR_EQUAL;
-                case CompareOperation::Greater: 
+                case CompareOperation::Greater:
                     return VK_COMPARE_OP_GREATER;
-                case CompareOperation::NotEqual: 
+                case CompareOperation::NotEqual:
                     return VK_COMPARE_OP_NOT_EQUAL;
-                case CompareOperation::GreaterOrEqual: 
+                case CompareOperation::GreaterOrEqual:
                     return VK_COMPARE_OP_GREATER_OR_EQUAL;
-                case CompareOperation::Always: 
+                case CompareOperation::Always:
                     return VK_COMPARE_OP_ALWAYS;
-                default: 
+                default:
                     ONYX_ASSERT(false, "Unhandeld compare operation %s", Enums::ToString(operation).data());
                     return VK_COMPARE_OP_MAX_ENUM;
             }
@@ -151,26 +151,26 @@ namespace Onyx::Graphics::Vulkan
         {
             switch (operation)
             {
-            case StencilOperation::Keep: 
-                return VK_STENCIL_OP_KEEP;
-            case StencilOperation::Zero: 
-                return VK_STENCIL_OP_ZERO;
-            case StencilOperation::Replace: 
-                return VK_STENCIL_OP_REPLACE;
-            case StencilOperation::IncrementClamp: 
-                return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
-            case StencilOperation::DecrementClamp: 
-                return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
-            case StencilOperation::Invert: 
-                return VK_STENCIL_OP_INVERT;
-            case StencilOperation::IncrementWrap: 
-                return VK_STENCIL_OP_INCREMENT_AND_WRAP;
-            case StencilOperation::DecrementWrap: 
-                return VK_STENCIL_OP_DECREMENT_AND_WRAP;
-            default:
-                ONYX_ASSERT(false, "Unhandeld stencil operation %s", Enums::ToString(operation).data());
-                return VK_STENCIL_OP_MAX_ENUM;
-            
+                case StencilOperation::Keep:
+                    return VK_STENCIL_OP_KEEP;
+                case StencilOperation::Zero:
+                    return VK_STENCIL_OP_ZERO;
+                case StencilOperation::Replace:
+                    return VK_STENCIL_OP_REPLACE;
+                case StencilOperation::IncrementClamp:
+                    return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+                case StencilOperation::DecrementClamp:
+                    return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+                case StencilOperation::Invert:
+                    return VK_STENCIL_OP_INVERT;
+                case StencilOperation::IncrementWrap:
+                    return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+                case StencilOperation::DecrementWrap:
+                    return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+                default:
+                    ONYX_ASSERT(false, "Unhandeld stencil operation %s", Enums::ToString(operation).data());
+                    return VK_STENCIL_OP_MAX_ENUM;
+
             }
         }
 
@@ -195,7 +195,7 @@ namespace Onyx::Graphics::Vulkan
                     return VK_CULL_MODE_NONE;
                 case CullMode::Front:
                     return VK_CULL_MODE_FRONT_BIT;
-                case CullMode::Back: 
+                case CullMode::Back:
                     return VK_CULL_MODE_BACK_BIT;
             }
 
@@ -210,13 +210,13 @@ namespace Onyx::Graphics::Vulkan
         {
             switch (mode)
             {
-                case FillMode::Wireframe: 
+                case FillMode::Wireframe:
                     return VK_POLYGON_MODE_LINE;
-                case FillMode::Solid: 
+                case FillMode::Solid:
                     return VK_POLYGON_MODE_FILL;
-                case FillMode::Point: 
+                case FillMode::Point:
                     return VK_POLYGON_MODE_POINT;
-                default: 
+                default:
                     ONYX_ASSERT(false, "Unhandeled fill mode {}", Enums::ToString(mode).data());
                     return VK_POLYGON_MODE_MAX_ENUM;
             }
@@ -302,55 +302,6 @@ namespace Onyx::Graphics::Vulkan
 
             //// PipelineLayout
             pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
-
-            //// Vertex layout
-            const Set<VertexInput>& vertexInputs = shader.GetVertexInputs();
-
-            VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-            vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-            vertexInputInfo.flags = 0;
-            vertexInputInfo.pNext = nullptr;
-
-            const onyxU32 vertexAttributesCount = static_cast<onyxU32>(vertexInputs.size());
-            // TODO: Support more than 1 stream
-
-            DynamicArray<VkVertexInputBindingDescription> vertexBindingDescriptions;
-            DynamicArray<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
-
-            if (vertexAttributesCount != 0)
-            {
-                vertexAttributeDescriptions.reserve(vertexAttributesCount);
-
-                onyxU32 stride = 0;
-                onyxU32 offset = 0;
-                for (const VertexInput& input : vertexInputs)
-                {
-                    vertexAttributeDescriptions.emplace_back(input.Location, 0, VulkanTextureStorage::GetFormat(input.Format), offset);
-
-                    onyxU32 size = GetShaderTypeByteSize(input.Format);
-                    offset += size;
-                    stride += size;
-                }
-
-                vertexBindingDescriptions.emplace_back(0, stride, ToVulkanInputRate(VertexStreamInputRate::Vertex));
-            }
-
-            vertexInputInfo.pVertexBindingDescriptions = static_cast<onyxU32>(vertexBindingDescriptions.size()) == 0 ? nullptr : vertexBindingDescriptions.data();
-            vertexInputInfo.vertexBindingDescriptionCount = static_cast<onyxU32>(vertexBindingDescriptions.size());
-
-            vertexInputInfo.pVertexAttributeDescriptions = vertexAttributesCount == 0 ? nullptr : vertexAttributeDescriptions.data();
-            vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributesCount;
-
-            pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
-
-            //// Input Assembly
-            VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-            inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-            inputAssembly.topology = ToVulkanTopology(properties.Topology);
-            inputAssembly.primitiveRestartEnable = VK_FALSE;
-            inputAssembly.pNext = nullptr;
-
-            pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
 
             //// Color Blending
             InplaceArray<VkPipelineColorBlendAttachmentState, 8> colorBlendAttachment;
@@ -509,7 +460,7 @@ namespace Onyx::Graphics::Vulkan
             }
 
             //// Dynamic states
-            InplaceArray<VkDynamicState, 3> dynamicStates({ VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR });
+            InplaceArray<VkDynamicState, 2> dynamicStates({ VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR });
 
             VkPipelineDynamicStateCreateInfo dynamicStatesInfo{};
             dynamicStatesInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -524,9 +475,63 @@ namespace Onyx::Graphics::Vulkan
             pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
             VK_CHECK_RESULT(vkCreatePipelineCache(deviceHandle, &pipelineCacheCreateInfo, nullptr, &pipelineCache));
 
-            VK_CHECK_RESULT(vkCreateGraphicsPipelines(deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
+            if (shader.IsMeshShader()) {
 
-                m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+                VK_CHECK_RESULT(vkCreateGraphicsPipelines(deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
+            }
+            else {
+
+
+                //// Vertex layout
+                const Set<VertexInput>& vertexInputs = shader.GetVertexInputs();
+
+                VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+                vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+                vertexInputInfo.flags = 0;
+                vertexInputInfo.pNext = nullptr;
+
+                const onyxU32 vertexAttributesCount = static_cast<onyxU32>(vertexInputs.size());
+                // TODO: Support more than 1 stream
+
+                DynamicArray<VkVertexInputBindingDescription> vertexBindingDescriptions;
+                DynamicArray<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+
+                if (vertexAttributesCount != 0)
+                {
+                    vertexAttributeDescriptions.reserve(vertexAttributesCount);
+
+                    onyxU32 stride = 0;
+                    onyxU32 offset = 0;
+                    for (const VertexInput& input : vertexInputs)
+                    {
+                        vertexAttributeDescriptions.emplace_back(input.Location, 0, VulkanTextureStorage::GetFormat(input.Format), offset);
+
+                        onyxU32 size = GetShaderTypeByteSize(input.Format);
+                        offset += size;
+                        stride += size;
+                    }
+
+                    vertexBindingDescriptions.emplace_back(0, stride, ToVulkanInputRate(VertexStreamInputRate::Vertex));
+                }
+
+                vertexInputInfo.pVertexBindingDescriptions = static_cast<onyxU32>(vertexBindingDescriptions.size()) == 0 ? nullptr : vertexBindingDescriptions.data();
+                vertexInputInfo.vertexBindingDescriptionCount = static_cast<onyxU32>(vertexBindingDescriptions.size());
+
+                vertexInputInfo.pVertexAttributeDescriptions = vertexAttributesCount == 0 ? nullptr : vertexAttributeDescriptions.data();
+                vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributesCount;
+
+                pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+
+                //// Input Assembly
+                VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+                inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+                inputAssembly.topology = ToVulkanTopology(properties.Topology);
+                inputAssembly.primitiveRestartEnable = VK_FALSE;
+                inputAssembly.pNext = nullptr;
+
+                pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+                VK_CHECK_RESULT(vkCreateGraphicsPipelines(deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline))
+            }
 
             vkDestroyPipelineCache(deviceHandle, pipelineCache, nullptr);
         }

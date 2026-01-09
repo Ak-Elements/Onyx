@@ -6,7 +6,7 @@
 
 namespace Onyx::Graphics
 {
-    struct ShaderCacheEntry;
+	struct ShaderCacheEntry;
 }
 
 namespace Onyx::Graphics::Vulkan
@@ -14,14 +14,14 @@ namespace Onyx::Graphics::Vulkan
 	class VulkanGraphicsApi;
 
 	class ShaderModule
-    {
+	{
 	public:
 		ShaderModule(VulkanGraphicsApi& api, DynamicArray<onyxU32> byteCode);
 		~ShaderModule();
 
 	private:
 		VulkanGraphicsApi& m_Api;
-        DynamicArray<onyxU32> m_ByteCode;
+		DynamicArray<onyxU32> m_ByteCode;
 		VULKAN_HANDLE(VkShaderModule, Module, nullptr);
 	};
 
@@ -45,6 +45,8 @@ namespace Onyx::Graphics::Vulkan
 		const DynamicArray<PushConstantRange>& GetPushConstantRanges() const { return m_ReflectionInfo.pushConstantRanges; }
 
 		bool IsComputeShader() const override { return HasStage(ShaderStage::Compute); }
+		bool IsMeshShader() const override { return HasStage(ShaderStage::Mesh); }
+
 		bool HasStage(ShaderStage stage) const { return m_Stages[Enums::ToIntegral(stage)] != nullptr; }
 		bool HasDescriptorSetLayout() const override { return m_DescriptorSetLayouts.empty() == false; }
 
@@ -52,7 +54,7 @@ namespace Onyx::Graphics::Vulkan
 	private:
 		onyxU64 m_ShaderHash = 0;
 
-	    DynamicArray<VkPipelineShaderStageCreateInfo> m_PipelineShaderStageCreateInfos;
+		DynamicArray<VkPipelineShaderStageCreateInfo> m_PipelineShaderStageCreateInfos;
 		InplaceArray<UniquePtr<ShaderModule>, MAX_SHADER_STAGES> m_Stages;
 
 		ShaderReflectionInfo m_ReflectionInfo;

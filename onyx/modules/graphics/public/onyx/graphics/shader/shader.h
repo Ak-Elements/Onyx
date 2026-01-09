@@ -320,6 +320,8 @@ namespace Onyx::Graphics
 		virtual void SetShaderHash(onyxU64 hash) = 0;
 
 		virtual bool IsComputeShader() const = 0;
+		virtual bool IsMeshShader() const = 0;
+
 		virtual bool HasDescriptorSetLayout() const = 0;
     };
 

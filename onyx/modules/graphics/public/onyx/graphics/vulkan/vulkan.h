@@ -75,17 +75,21 @@ namespace Onyx::Graphics::Vulkan
 	{
 		switch (stage)
 		{
-		case VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT:
-			return ShaderStage::Vertex;
-		case VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT:
-			return ShaderStage::Fragment;
-		case VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT:
-			return ShaderStage::Compute;
-		case VkShaderStageFlagBits::VK_SHADER_STAGE_ALL:
-			return ShaderStage::All;
-		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
-			return ShaderStage::Invalid;
+			case VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT:
+				return ShaderStage::Vertex;
+			case VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT:
+				return ShaderStage::Fragment;
+			case VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT:
+				return ShaderStage::Compute;
+			case VkShaderStageFlagBits::VK_SHADER_STAGE_TASK_BIT_EXT:
+				return ShaderStage::Task;
+			case VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT:
+				return ShaderStage::Mesh;
+			case VkShaderStageFlagBits::VK_SHADER_STAGE_ALL:
+				return ShaderStage::All;
+			default:
+				ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
+				return ShaderStage::Invalid;
 		}
 	}
 
@@ -93,17 +97,21 @@ namespace Onyx::Graphics::Vulkan
 	{
 		switch (stage)
 		{
-		case ShaderStage::Vertex:
-			return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
-		case ShaderStage::Fragment:
-			return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
-		case ShaderStage::Compute:
-			return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;
-		case ShaderStage::All:
-			return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
-		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
-			return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+			case ShaderStage::Vertex:
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+			case ShaderStage::Fragment:
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+			case ShaderStage::Compute:
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;
+			case ShaderStage::Task:
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_TASK_BIT_EXT;
+			case ShaderStage::Mesh:
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT;
+			case ShaderStage::All:
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
+			default:
+				ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 		}
 	}
 
