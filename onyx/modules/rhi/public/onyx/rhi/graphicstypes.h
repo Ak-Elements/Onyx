@@ -32,11 +32,10 @@ namespace Onyx::Graphics
         InputAttachmentRead = 1 << 4,
         ShaderRead = 1 << 5,
         ShaderWrite = 1 << 6,
-        ConditionalRead = 0x00100000,
-
-        DepthStencilWrite = 0x00000400ULL,
-        DepthStencilRead = 0x00000200ULL,
-        ColorAttachmentWrite = 0x00000100ULL,
+        ColorAttachmentWrite = 1 << 8,
+        DepthStencilRead = 1 << 9,
+        DepthStencilWrite = 1 << 10,
+        ConditionalRead = 1 << 20,
     };
 
     enum class CullMode : onyxU8

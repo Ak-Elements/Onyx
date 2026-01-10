@@ -391,7 +391,7 @@ namespace Onyx::Graphics::Vulkan
         ONYX_PROFILE_FUNCTION;
 
         const onyxU8 commandBufferCount = m_QueuedCommandBuffer.size();
-        InplaceArray<VkCommandBuffer, 4> enqueuedCommandBuffers;
+        InplaceArray<VkCommandBuffer, COMMAND_BUFFER_COUNT> enqueuedCommandBuffers;
         for (onyxU8 i = 0; i < commandBufferCount; ++i)
         {
             VulkanCommandBuffer* cmdBuffer = static_cast<VulkanCommandBuffer*>(m_QueuedCommandBuffer[i]);
@@ -401,7 +401,7 @@ namespace Onyx::Graphics::Vulkan
         }
 
         const onyxU8 computeCommandBufferCount = m_QueuedComputeCommandBuffer.size();
-        InplaceArray<VkCommandBuffer, 4> enqueuedComputeCommandBuffers;
+        InplaceArray<VkCommandBuffer, COMMAND_BUFFER_COUNT> enqueuedComputeCommandBuffers;
         for (onyxU8 i = 0; i < computeCommandBufferCount; ++i)
         {
             VulkanCommandBuffer* cmdBuffer = static_cast<VulkanCommandBuffer*>(m_QueuedComputeCommandBuffer[i]);
@@ -457,7 +457,7 @@ namespace Onyx::Graphics::Vulkan
 
             if (IsSynchronization2Enabled())
             {
-                VkCommandBufferSubmitInfo commandBufferInfo[4]{};
+                VkCommandBufferSubmitInfo commandBufferInfo[COMMAND_BUFFER_COUNT]{};
                 for (onyxU8 i = 0; i < commandBufferCount; ++i)
                 {
                     commandBufferInfo[i].sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;

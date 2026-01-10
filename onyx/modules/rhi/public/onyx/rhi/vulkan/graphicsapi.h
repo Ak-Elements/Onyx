@@ -33,6 +33,7 @@ namespace Onyx::Graphics
 
         class VulkanGraphicsApi : public GraphicsApiInterface
         {
+            static constexpr onyxU8 COMMAND_BUFFER_COUNT = 8;
         public:
             VulkanGraphicsApi();
             ~VulkanGraphicsApi() override;
@@ -141,8 +142,8 @@ namespace Onyx::Graphics
             HashMap<onyxU32, Reference<Graphics::Sampler>> m_Samplers;
 
             // TODO Move to command buffer manager
-            InplaceArray<CommandBuffer*, 4> m_QueuedCommandBuffer;
-            InplaceArray<CommandBuffer*, 4> m_QueuedComputeCommandBuffer;
+            InplaceArray<CommandBuffer*, COMMAND_BUFFER_COUNT> m_QueuedCommandBuffer;
+            InplaceArray<CommandBuffer*, COMMAND_BUFFER_COUNT> m_QueuedComputeCommandBuffer;
 
             bool m_IsBindlessEnabled = false;
             bool m_IsDynamicRenderingEnabled = false;

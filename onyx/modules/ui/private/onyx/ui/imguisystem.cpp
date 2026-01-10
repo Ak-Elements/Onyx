@@ -718,7 +718,7 @@ namespace Onyx::Ui
 		Graphics::FramebufferHandle frameBuffer = frameContext.Api->GetOrCreateFramebuffer(framebufferSettings);
 
 		// TODO: Do a proper barrier here for the rendergraph to be finished and the imgui pass to start
-		commandBuffer.GlobalBarrier(0, 0x00000100ULL);
+		commandBuffer.GlobalBarrier(Enums::ToIntegral(Graphics::Access::ColorAttachmentWrite), 0x00000400ULL, Enums::ToIntegral(Graphics::Access::None), 0x00000001ULL);
 		commandBuffer.BeginRenderPass(properties.RenderPass, frameBuffer);
 		commandBuffer.SetViewport();
 		commandBuffer.BindShaderEffect(m_ImguiShader);
@@ -817,7 +817,6 @@ namespace Onyx::Ui
 
 		commandBuffer.EndRenderPass();
     }
-
 
     void ImGuiSystem::OnEndFrame(const Graphics::FrameContext& /*frameContext*/)
     {
