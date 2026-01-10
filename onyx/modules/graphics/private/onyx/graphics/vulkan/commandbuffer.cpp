@@ -22,11 +22,13 @@ namespace Onyx::Graphics::Vulkan
         : m_Api(api)
         , m_FrameIndex(frameIndex)
     {
-        VkCommandBufferAllocateInfo allocInfo = {};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPool.GetHandle();
-        allocInfo.level = bufferLevel;
-        allocInfo.commandBufferCount = 1;
+        VkCommandBufferAllocateInfo allocInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .pNext = nullptr,
+            .commandPool = commandPool.GetHandle(),
+            .level = bufferLevel,
+            .commandBufferCount = 1
+        };
 
         VK_CHECK_RESULT(vkAllocateCommandBuffers(api.GetDevice().GetHandle(), &allocInfo, &m_CommandBuffer))
         SetResourceName(api.GetDevice().GetHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (onyxU64)m_CommandBuffer, debugName);
@@ -53,11 +55,12 @@ namespace Onyx::Graphics::Vulkan
     {
         ONYX_ASSERT(m_IsRecording == false, "CommandBuffer is already recording");
 
-        VkCommandBufferBeginInfo beginInfo;
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-        beginInfo.pInheritanceInfo = nullptr; // Optional
-        beginInfo.pNext = nullptr;
+        VkCommandBufferBeginInfo beginInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .pNext = nullptr,
+            .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+            .pInheritanceInfo = nullptr // Optional
+        };
 
         VK_CHECK_RESULT(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo))
         m_IsRecording = true;
@@ -67,11 +70,12 @@ namespace Onyx::Graphics::Vulkan
     {
         ONYX_ASSERT(m_IsRecording == false, "CommandBuffer is already recording");
 
-        VkCommandBufferBeginInfo beginInfo;
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        beginInfo.pInheritanceInfo = nullptr; // Optional
-        beginInfo.pNext = nullptr;
+        VkCommandBufferBeginInfo beginInfo{
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .pNext = nullptr,
+            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+            .pInheritanceInfo = nullptr // Optional
+        };
 
         VK_CHECK_RESULT(vkBeginCommandBuffer(m_CommandBuffer, &beginInfo))
         m_IsRecording = true;

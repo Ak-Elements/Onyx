@@ -29,6 +29,7 @@
 //if they were a float or some such, we wouldn't be able to do this pseudo-reflection
 //we can trust it to index into VkPhysicalDeviceFeatures (1.0)
 //WORKS ON MY MACHINE (disclaimer)
+//COULD return a third copy, that would be REAL_USAGE, as opposed to requested and available. but might as well use requested again.
 template <typename T>
 void SetFeature_RequestedToAvailable(T& requested, T const& available) noexcept {
     // skip sType and pNext (the first two pointers)
@@ -76,7 +77,7 @@ namespace Onyx::Graphics::Vulkan
         // TODO: can this be moved somehow into Logiccal Device=
         DynamicArray<const char*> deviceExtensions;
 
-
+        //these are requested
         VkPhysicalDeviceFeatures2 physicalFeatures{};
         physicalFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 
@@ -142,8 +143,12 @@ namespace Onyx::Graphics::Vulkan
         //heres a list of features, them being enabled is being taken for granted 
         //(im enabling them as I get the validation error)
         //no fruther checks after this point
-        vulkan_12_features.bufferDeviceAddress = VK_TRUE;
         physicalFeatures.features.imageCubeArray = VK_TRUE;
+        physicalFeatures.features.fragmentStoresAndAtomics = VK_TRUE;
+        physicalFeatures.features.shaderInt16 = VK_TRUE;
+        physicalFeatures.features.shaderInt64 = VK_TRUE; //i think this is necessary for device address, haven't ran into a validaiton error for it tho
+        vulkan_11_features.storageBuffer16BitAccess = VK_TRUE;
+        vulkan_12_features.bufferDeviceAddress = VK_TRUE;
         //to be fair the following are probably hand in hand with indexing that is checked
         vulkan_12_features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
         vulkan_12_features.descriptorBindingVariableDescriptorCount = VK_TRUE;
