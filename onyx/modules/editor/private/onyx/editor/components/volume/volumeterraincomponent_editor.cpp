@@ -1,11 +1,12 @@
 #include <onyx/volume/components/volumeterraincomponent.h>
 
+#include <onyx/ui/propertyinspector.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 
-namespace Onyx::Entity
+namespace Onyx::Ui
 {
-    bool ComponentInspector<Volume::TerrainSettingsComponent>::Draw(Volume::TerrainSettingsComponent& component, bool /*showHidden*/)
+    bool PropertyInspector<Volume::TerrainSettingsComponent>::Draw(Volume::TerrainSettingsComponent& component, bool /*showHidden*/)
     {
         bool isModified = false;
 

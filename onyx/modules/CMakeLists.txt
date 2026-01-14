@@ -14,7 +14,6 @@ list(APPEND ONYX_PUBLIC_DEFINES
 set(ONYX_PUBLIC_DEFINES ${ONYX_PUBLIC_DEFINES} PARENT_SCOPE)
 set_property(GLOBAL PROPERTY onyx_EDITOR_TARGETS "")
 
-
 # modules
 add_subdirectory(profiler)
 add_subdirectory(core)

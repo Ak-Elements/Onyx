@@ -13,12 +13,6 @@ namespace Onyx::Editor
 
 namespace Onyx::Entity
 {
-    template <typename T>
-    struct ComponentInspector
-    {
-        static bool Draw(T& /*component*/, bool /*showHidden*/) { return false; }
-    };
-
     namespace Details
     {
         template<typename T>
@@ -26,19 +20,6 @@ namespace Onyx::Entity
 
         template<typename T>
         concept IsTransient = requires(T obj) { T::IsTransient; };
-
-        template <typename T>
-        concept HasDrawProperties = requires(T & component, bool showHidden)
-        {
-            { component.DrawProperties(showHidden) } -> std::same_as<bool>;
-        };
-
-        template <typename T>
-        concept HasComponentInspector = requires(T & component, bool showHidden)
-        {
-            { ComponentInspector<T>::Draw(component, showHidden) } -> std::same_as<bool>;
-        };
-
 
         template <typename T>
         concept IsFlagComponent = std::is_empty_v<T>;
@@ -61,12 +42,13 @@ namespace Onyx::Entity
         virtual bool Deserialize(void* componentAny, const Deserializer&) const = 0;
 
 #if !ONYX_IS_RETAIL
-        virtual bool DrawPropertyGridEditor(void* componentAny) const = 0;
+        //virtual bool DrawPropertyGridEditor(void* componentAny) const = 0;
 #endif
         virtual constexpr bool ShowInEditor() const = 0;
         virtual constexpr bool IsTransient() const = 0;
         virtual constexpr bool IsFlag() const = 0;
         virtual constexpr StringId32 GetTypeId() const = 0;
+        virtual constexpr onyxU32 GetRuntimeTypeId() const = 0;
     };
 
     template <typename T>
@@ -80,8 +62,7 @@ namespace Onyx::Entity
 
     public:
         static_assert(Details::IsTransient<T> || Details::IsFlagComponent<T> || (Serializable<T> && Deserializable<T>), "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities.");
-        static_assert(Details::HasHideInEditor<T> || Details::HasDrawProperties<T> || Details::HasComponentInspector<T> || Details::IsFlagComponent<T>, "Component needs to be either marked as hidden or have a PropertyGrid::Draw specialization.");
-
+        
         ComponentMeta() = default;
         ComponentMeta(ComponentFactoryFunction<T> factory)
             : m_Factory(factory)
@@ -103,6 +84,11 @@ namespace Onyx::Entity
                 ONYX_ASSERT(false, "Calling get typeid on a component that has no type id defined");
                 return {};
             }
+        }
+
+        constexpr onyxU32 GetRuntimeTypeId() const override
+        {
+            return TypeHash<T>();
         }
 
         void Create(EntityRegistry& registry, EntityId entity) const override
@@ -234,30 +220,6 @@ namespace Onyx::Entity
             }
         }
 
-#if !ONYX_IS_RETAIL
-        bool DrawPropertyGridEditor(void* componentAny) const override
-        {
-            if constexpr ( Details::HasHideInEditor<T> || Details::IsFlagComponent<T> )
-            {
-                return false;
-            }
-            else if constexpr (Details::HasDrawProperties<T>)
-            {
-                T* component = static_cast<T*>(componentAny);
-                return component->DrawProperties(false);
-            }
-            else if constexpr (Details::HasComponentInspector<T>)
-            {
-                T* component = static_cast<T*>(componentAny);
-                return ComponentInspector<T>::Draw(*component, false);
-            }
-            else
-            {
-                ONYX_ASSERT(false);
-                return false;
-            }
-        }
-#endif
     private:
         StringId32 m_TypeId;
         InplaceFunction<void(EntityRegistry&, EntityId, T&&)> m_Factory;

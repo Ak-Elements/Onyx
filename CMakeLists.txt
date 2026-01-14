@@ -172,13 +172,11 @@ include(cmakepackagemanager)
 
 include(GNUInstallDirs)
 
-set_property(GLOBAL PROPERTY onyx_generated_module_headers "")
-
 # Get code-generation tool
 CPMAddPackage(
     NAME Onyx-CodeGen
     GITHUB_REPOSITORY Ak-Elements/Onyx-CodeGeneration
-    GIT_TAG main
+    GIT_TAG dev
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration/core
     DOWNLOAD_ONLY YES
 )

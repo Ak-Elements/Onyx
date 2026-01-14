@@ -15,6 +15,7 @@
 
 #include <imgui_internal.h>
 #include <onyx/localization/localization.h>
+#include <onyx/ui/propertyinspector.h>
 #include <onyx/ui/controls/treeview.h>
 
 namespace Onyx::Editor::SceneEditor
@@ -80,7 +81,7 @@ namespace Onyx::Editor::SceneEditor
 
                             void* componentPtr = componentStorage.value(selectedEntity);
 
-                            bool hasModified = componentMeta->DrawPropertyGridEditor(componentPtr);
+                            bool hasModified = Ui::PropertyInspectors::Draw(componentMeta->GetRuntimeTypeId(), componentPtr, m_ShowAll);
                             if (hasModified)
                             {
                                 // we only need to copy and replace the component if there is a factory associated
@@ -110,8 +111,6 @@ namespace Onyx::Editor::SceneEditor
                 }
             }
         }
-
-
     }
 
     void ComponentsPanel::DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
