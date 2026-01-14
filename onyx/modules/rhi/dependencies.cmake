@@ -29,12 +29,12 @@ set(onyx_TARGET_PRIVATE_DEPENDENCIES
     spirv-cross-glsl
 )
 
-find_package(glslang CONFIG)
+find_package(glslang CONFIG QUIET)
 if (TARGET glslang::glslang)
     list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES glslang::glslang)
 endif()
 
-find_package(SPIRV-Tools)
+find_package(SPIRV-Tools QUIET)
 if (TARGET SPIRV-Tools)
     list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES SPIRV-Tools)
 endif()
