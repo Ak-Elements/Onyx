@@ -4,3 +4,4 @@ out/
 tmp/
 .vs/
 .vscode/
+.cache/
