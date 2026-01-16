@@ -172,11 +172,29 @@ include(cmakepackagemanager)
 
 include(GNUInstallDirs)
 
+execute_process(
+    COMMAND git branch --show-current
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE onyx_git_branch
+)
+string(STRIP "${onyx_git_branch}" onyx_git_branch)
+
+set(config_path "${CMAKE_CURRENT_SOURCE_DIR}/config/${onyx_git_branch}.cmake")
+if(NOT ${onyx_branch} STREQUAL "main")
+    if (EXISTS "${config_path}")
+        include("${config_path}")
+    else()
+        include("config/dev.cmake")
+    endif()
+else()
+    include("config/main.cmake")
+endif()
+
 # Get code-generation tool
 CPMAddPackage(
     NAME Onyx-CodeGen
     GITHUB_REPOSITORY Ak-Elements/Onyx-CodeGeneration
-    GIT_TAG dev
+    GIT_TAG ${ONYX_CODE_GEN_VERSION}
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration/core
     DOWNLOAD_ONLY YES
 )
