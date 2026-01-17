@@ -34,6 +34,9 @@ function(onyx_add_codegen_for_target)
     set(generated_public_sources "")
     set(generated_private_sources "")
 
+    cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "editor" "${arg_GENERATED_DIR_SUFFIX}" "public" "${target_ns_path}" OUTPUT_VARIABLE editor_gen_public_dir)
+    cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "editor" "${arg_GENERATED_DIR_SUFFIX}" "private" "${target_ns_path}" OUTPUT_VARIABLE editor_gen_private_dir)
+
     foreach(ocd_file IN LISTS target_ocd_files)
         cmake_path(RELATIVE_PATH ocd_file
             BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/public/${target_ns_path}"
@@ -60,17 +63,17 @@ function(onyx_add_codegen_for_target)
 
         if (TARGET ${arg_TARGET}-editor)
             cmake_path(GET relative_file_path  PARENT_PATH relative_file_path_dir)
-            cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "editor" "${arg_GENERATED_DIR_SUFFIX}" "public" "${target_ns_path}" "${relative_file_path_dir}" OUTPUT_VARIABLE editor_gen_public_dir)
-            cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "editor" "${arg_GENERATED_DIR_SUFFIX}" "private" "${target_ns_path}" "${relative_file_path_dir}" OUTPUT_VARIABLE editor_gen_private_dir)
+           
+            cmake_path(APPEND editor_gen_public_dir "${relative_file_path_dir}" OUTPUT_VARIABLE editor_gen_file_public_dir)
+            cmake_path(APPEND editor_gen_private_dir "${relative_file_path_dir}" OUTPUT_VARIABLE editor_gen_file_private_dir)
 
-            #cmake_path(GET odslGeneratedEditorPrivatePath PARENT_PATH editor_private_path_parent_directory)
             cmake_path(GET ocd_file STEM out_file_name)
             
-            cmake_path(APPEND editor_gen_public_dir "${out_file_name}inspector.gen.h" OUTPUT_VARIABLE editor_gen_h)
-            cmake_path(APPEND editor_gen_private_dir "${out_file_name}inspector.gen.cpp" OUTPUT_VARIABLE editor_gen_cpp)
+            cmake_path(APPEND editor_gen_file_public_dir "${out_file_name}inspector.gen.h" OUTPUT_VARIABLE editor_gen_h)
+            cmake_path(APPEND editor_gen_file_private_dir "${out_file_name}inspector.gen.cpp" OUTPUT_VARIABLE editor_gen_cpp)
 
-            file(MAKE_DIRECTORY ${editor_gen_public_dir})
-            file(MAKE_DIRECTORY ${editor_gen_private_dir})
+            file(MAKE_DIRECTORY ${editor_gen_file_public_dir})
+            file(MAKE_DIRECTORY ${editor_gen_file_private_dir})
             
             file(TOUCH ${editor_gen_h})
             file(TOUCH ${editor_gen_cpp})
@@ -80,8 +83,11 @@ function(onyx_add_codegen_for_target)
                 BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/editor/${arg_GENERATED_DIR_SUFFIX}/public"
                 FILES ${editor_gen_h}
             )
+            source_group(TREE ${editor_gen_public_dir} FILES ${editor_gen_h})
 
             target_sources(${arg_TARGET}-editor PRIVATE ${editor_gen_cpp})
+            source_group(TREE ${editor_gen_private_dir} FILES ${editor_gen_cpp})
+
         endif()
     endforeach()
 
@@ -107,7 +113,10 @@ function(onyx_add_codegen_for_target)
         BASE_DIRS "${gen_root}/public"
         FILES ${generated_public_sources}
     )
+    source_group(TREE ${public_gen_dir} FILES ${generated_public_sources})
+
     target_sources(${arg_TARGET} PRIVATE ${generated_private_sources})
+    source_group(TREE ${private_gen_dir} FILES ${generated_private_sources})
 
     #### Codegen config ####
     build_include_list_for_target(

@@ -152,13 +152,15 @@ function(onyx_create_target)
             BASE_DIRS "${arg_BASE_SOURCE_DIR}/public"
             FILES ${arg_PUBLIC_SOURCES}
         )
+        source_group(TREE ${public_dir} FILES ${arg_PUBLIC_SOURCES})
     endif()
 
     if (arg_PRIVATE_SOURCES)
         target_sources(${arg_TARGET} PRIVATE ${arg_PRIVATE_SOURCES})
+        source_group(TREE ${private_dir} FILES ${arg_PRIVATE_SOURCES})
     endif()
 
-    #### Precompiled Header ####
+    #### Precompiled Header ####    
     if (target_precompiled_header)
         target_precompile_headers(${arg_TARGET} PUBLIC ${target_precompiled_header})
     endif()
