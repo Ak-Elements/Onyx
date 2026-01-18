@@ -1,10 +1,10 @@
 #pragma once
 
 #include <array>
-#include <cctype>
 
 namespace Onyx {
 
+    // TODO: Can be fully replaced by std::array or std::inplace_vector (c++26)
     template <typename T, onyxU8 Size>
     struct InplaceArray
     {
