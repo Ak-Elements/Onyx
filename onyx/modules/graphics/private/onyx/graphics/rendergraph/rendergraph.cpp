@@ -204,7 +204,7 @@ namespace Onyx::Graphics
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
-            if (node.IsEnabled() == false)
+            if (node.HasBegunFrame() == false)
             {
                 continue;
             }
@@ -227,7 +227,7 @@ namespace Onyx::Graphics
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
-            if (node.IsEnabled() == false)
+            if (node.HasBegunFrame() == false)
             {
                 continue;
             }

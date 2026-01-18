@@ -109,6 +109,8 @@ namespace Onyx::Graphics
              */
             UpdateFramebuffer(*context.FrameContext.Api, context.Graph.GetResourceCache());
         }
+
+        m_HasBegunFrame = true;
     }
 
     void RenderGraphShaderNode::Shutdown(GraphicsSystem& api)
@@ -212,8 +214,6 @@ namespace Onyx::Graphics
             commandBuffer.SetScissor();
         }
 
-        //commandBuffer.BindShaderEffect(m_ShaderEffect);
-
         OnRender(context, commandBuffer);
 
         if (isCompute == false)
@@ -236,6 +236,8 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE_FUNCTION;
         OnEndFrame(context);
+
+        m_HasBegunFrame = false;
     }
 
     bool RenderGraphShaderNode::OnSerialize(Serializer& serializer) const
