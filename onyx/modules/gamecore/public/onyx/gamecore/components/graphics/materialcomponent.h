@@ -23,7 +23,7 @@ namespace Onyx
             StringId32 GetTypeId() const { return TypeId; }
 
             Assets::AssetId MaterialId = "engine:/materials/default/default_material.omaterial";
-            Reference<Graphics::MaterialShaderGraph> Material;
+            Assets::AssetHandle<Graphics::MaterialShaderGraph> Material;
 
             void LoadMaterial(Assets::AssetSystem& assetSystem);
     #if ONYX_IS_DEBUG || ONYX_IS_EDITOR

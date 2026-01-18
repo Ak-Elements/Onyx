@@ -55,7 +55,7 @@ namespace Volume
         Graphics::ShaderInstanceHandle RayTraceTerrainShader;
         Graphics::ShaderInstanceHandle FindRayTracedOctreeNodeShader;
 
-        Reference<VolumeShaderGraph> VolumeShaderGraph;
+        Assets::AssetHandle<VolumeShaderGraph> VolumeShaderGraph;
 
         bool HasLoadedShaders = false;
     };

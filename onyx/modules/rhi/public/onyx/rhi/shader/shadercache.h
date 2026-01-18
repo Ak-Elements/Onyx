@@ -4,6 +4,12 @@
 #include <onyx/rhi/graphicstypes.h>
 #include <onyx/filesystem/path.h>
 
+namespace Onyx::Assets
+{
+    template <typename T>
+    class AssetHandle;
+}
+
 namespace Onyx::Graphics
 {
     class GraphicsSystem;

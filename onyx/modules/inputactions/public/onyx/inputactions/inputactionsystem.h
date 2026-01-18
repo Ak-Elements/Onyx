@@ -1,6 +1,7 @@
 #pragma once
 
 #include <onyx/engine/enginesystem.h>
+#include <onyx/assets/assethandle.h>
 
 #include <onyx/inputactions/inputactionsasset.h>
 #include <onyx/inputactions/inputactionsmap.h>
@@ -86,7 +87,7 @@ namespace Onyx::InputActions
 
         void Update();
 
-        void SetActionsMapAsset(Reference<InputActionsAsset>& inputAsset);
+        void SetActionsMapAsset(Assets::AssetHandle<InputActionsAsset> inputAsset);
         void SetCurrentInputActionMap(StringId32 id);
 
         Optional<InputActionState*> GetActionState(StringId64 actionId);
@@ -118,7 +119,7 @@ namespace Onyx::InputActions
     private:
         Input::InputSystem* m_InputSystem = nullptr;
 
-        Reference<InputActionsAsset> m_InputActionsAsset;
+        Assets::AssetHandle<InputActionsAsset> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
         HashMap<StringId64, InputActionSignalT> m_InputActionSignals;
 

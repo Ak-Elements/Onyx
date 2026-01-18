@@ -32,7 +32,7 @@ namespace Onyx::GameCore
 
         // TODO: Change this to a struct / StaticMesh class
         // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
-        Reference<Graphics::MaterialShaderGraph> Material;
+        Assets::AssetHandle<Graphics::MaterialShaderGraph> Material;
         Graphics::BufferHandle VertexData;
         Graphics::BufferHandle DrawCommandBuffer;
 
@@ -45,7 +45,7 @@ namespace Onyx::GameCore
 
         // TODO: Change this to a struct / StaticMesh class
         // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
-        Reference<Graphics::MaterialShaderGraph> Material;
+        Assets::AssetHandle<Graphics::MaterialShaderGraph> Material;
         Graphics::BufferHandle VertexData;
         Graphics::BufferHandle Indices;
         Graphics::BufferHandle DrawCommandBuffer;

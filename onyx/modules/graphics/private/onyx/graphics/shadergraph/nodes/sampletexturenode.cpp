@@ -37,10 +37,10 @@ namespace Onyx::Graphics::ShaderGraphNodes
 
     bool SampleTextureNode::OnSerialize(Serializer& serializer) const
     {
-        if (TextureId.IsValid())
+        if (Texture.HasAssetId())
         {
             // TODO: Add asset id serializer
-            serializer.Write<"sampleTextureId">(TextureId.Get());
+            serializer.Write<"sampleTextureId">(Texture.GetId().Get());
         }
         
         return FlexiblePinsNode::OnSerialize(serializer);
@@ -51,7 +51,7 @@ namespace Onyx::Graphics::ShaderGraphNodes
         onyxU64 assetId;
         if (deserializer.Read<"sampleTextureId">(assetId))
         {
-            TextureId = Assets::AssetId(assetId);
+            Texture.SetId(assetId);
         }
 
         return FlexiblePinsNode::OnDeserialize(deserializer);
@@ -74,7 +74,7 @@ namespace Onyx::Graphics::ShaderGraphNodes
         {
             // TODO: we need to get the texture from the asset here to store it similar to OnUpdate and avoid adding duplicates
             //shaderGraphTextures.GetTextureEntryIndex
-            textureIndex = generator.AddTexture(TextureId.Get());
+            textureIndex = generator.AddTexture(Texture.GetId().Get());
         }
 
         if (textureIndex == INVALID_INDEX_32)
@@ -146,12 +146,11 @@ namespace Onyx::Graphics::ShaderGraphNodes
 
     void SampleTextureNode::OnChanged(Assets::AssetSystem& assetSystem)
     {
-        if (TextureId.IsValid())
+        if (Texture.HasAssetId())
         {
-            if ((Texture.IsValid() == false) || (TextureId != Texture->GetId()))
+            if (Texture.IsValid() == false)
             {
-                Texture.Reset();
-                assetSystem.GetAsset(TextureId, Texture);
+                assetSystem.GetAsset(Texture.GetId(), Texture);
             }
         }
         else

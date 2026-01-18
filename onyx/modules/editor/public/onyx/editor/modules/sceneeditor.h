@@ -39,10 +39,10 @@ namespace Onyx::Editor
         SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, InputActions::InputActionSystem& inputActionSystem);
         ~SceneEditorWindow() override;
 
-        Reference<GameCore::Scene>& GetScene() { return m_Scene; }
-        const Reference<GameCore::Scene>& GetScene() const { return m_Scene; }
+        Assets::AssetHandle<GameCore::Scene>& GetScene() { return m_Scene; }
+        const Assets::AssetHandle<GameCore::Scene>& GetScene() const { return m_Scene; }
 
-        bool IsLoading() const { return (m_Scene.IsValid() == false) || m_Scene->IsLoading(); }
+        bool IsLoading() const { return m_Scene->IsLoading(); }
 
         StringView GetWindowId() override { return WindowId; }
         ImGuiWindowClass* GetWindowClass() const { return m_WindowClass; }
@@ -69,7 +69,7 @@ namespace Onyx::Editor
         void OnCameraSlowDown(const InputActions::InputActionEvent& inputActionContext);
 
         void LoadScene(Assets::AssetId sceneAssetId);
-        void OnSceneLoaded(const Reference<GameCore::Scene>& sceneAsset);
+        void OnSceneLoaded(const Assets::AssetHandle<GameCore::Scene>& sceneAsset);
 
     private:
         enum class GizmoType
@@ -87,14 +87,14 @@ namespace Onyx::Editor
         Assets::AssetSystem* m_AssetSystem;
         ImGuiWindowClass* m_WindowClass;
 
-        Reference<GameCore::Scene> m_Scene;
+        Assets::AssetHandle<GameCore::Scene> m_Scene;
 
         Ui::Dockspace m_Dockspace;
         SceneEditor::EntitiesPanel m_EntitiesPanel;
         SceneEditor::ComponentsPanel m_ComponentsPanel;
         SceneEditor::TerrainPanel m_TerrainPanel;
 
-        Reference<InputActions::InputActionsAsset> m_LevelEditorActions;
+        Assets::AssetHandle<InputActions::InputActionsAsset> m_LevelEditorActions;
         Entity::EntityId m_EditorCameraEntity = Entity::EntityId(0);
 
         bool m_HasSelectedEntity = false;

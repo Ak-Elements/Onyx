@@ -37,7 +37,7 @@ namespace Onyx::GameCore
 
         bool HasRenderGraph() { return m_SceneRenderGraph.IsValid() && m_SceneRenderGraph->IsInitialized(); }
 
-        Reference<Graphics::RenderGraph>& GetRenderGraphRef() { return m_SceneRenderGraph; }
+        Assets::AssetHandle<Graphics::RenderGraph>& GetRenderGraphRef() { return m_SceneRenderGraph; }
         Graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
         const Graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
 
@@ -56,6 +56,6 @@ namespace Onyx::GameCore
         SceneSectorStreamer m_SectorStreamer { *this };
         Entity::EntityRegistry m_Registry;
 
-        Reference<Graphics::RenderGraph> m_SceneRenderGraph;
+        Assets::AssetHandle<Graphics::RenderGraph> m_SceneRenderGraph;
     };
 }

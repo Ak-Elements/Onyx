@@ -41,11 +41,8 @@ namespace Onyx::Graphics
         static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::SDFFont" };
         StringId32 GetTypeId() const { return TypeId; }
 
-        void SetTextureId(const Assets::AssetId& textureId) { m_FontTextureId = textureId; }
-        Assets::AssetId GetTextureId() const { return m_FontTextureId; }
-
-        void SetTexture(const Reference<TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
-        const Reference<TextureAsset>& GetTexture() const { return m_FontTexture; }
+        void SetTexture(const Assets::AssetHandle<TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
+        const Assets::AssetHandle<TextureAsset>& GetTexture() const { return m_FontTexture; }
 
         SDFFontMetrics& GetMetrics() { return m_Metrics; }
         const SDFFontMetrics& GetMetrics() const { return m_Metrics; }
@@ -57,7 +54,6 @@ namespace Onyx::Graphics
         HashMap<onyxU32, SDFFontGlyphData> m_Glyphs;
         SDFFontMetrics m_Metrics;
 
-        Assets::AssetId m_FontTextureId;
-        Reference<TextureAsset> m_FontTexture;
+        Assets::AssetHandle<TextureAsset> m_FontTexture;
     };
 }

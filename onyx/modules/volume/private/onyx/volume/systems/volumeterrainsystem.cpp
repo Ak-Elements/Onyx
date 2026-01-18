@@ -182,7 +182,7 @@ namespace Onyx::Volume::Terrain
             if (terrainSettings.VolumeGraphAssetId.IsValid())
             {
                 bool isAssetAvailable = true;
-                if ((generationComponent.VolumeShaderGraph.IsValid() == false) || (generationComponent.VolumeShaderGraph->GetId() != terrainSettings.VolumeGraphAssetId))
+                if ((generationComponent.VolumeShaderGraph.IsValid() == false))
                 {
                     generationComponent.HasLoadedShaders = false;
                     isAssetAvailable = assetSystem.GetAsset(terrainSettings.VolumeGraphAssetId, generationComponent.VolumeShaderGraph);
@@ -205,7 +205,21 @@ namespace Onyx::Volume::Terrain
             properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/init_volume.oshader");
             generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
-            if (generationComponent.VolumeShaderGraph == nullptr)
+            if (generationComponent.VolumeShaderGraph.HasAssetId())
+            {
+                properties.Shader = generationComponent.VolumeShaderGraph->GetBuildOctreeShader();
+                generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
+
+                properties.Shader = generationComponent.VolumeShaderGraph->GetFindOctreeNodeShader();
+                generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
+
+                properties.Shader = generationComponent.VolumeShaderGraph->GetGenerateVolumeMeshShader();
+                generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
+
+                properties.Shader = generationComponent.VolumeShaderGraph->GetRaytraceTerrainShader();
+                generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
+            }
+            else
             {
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/build_world_octree.oshader");
                 generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
@@ -218,20 +232,6 @@ namespace Onyx::Volume::Terrain
 
                 properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/ray_trace_terrain.oshader");
                 generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-            }
-            else
-            {
-               properties.Shader = generationComponent.VolumeShaderGraph->GetBuildOctreeShader();
-               generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-           
-               properties.Shader = generationComponent.VolumeShaderGraph->GetFindOctreeNodeShader();
-               generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-           
-               properties.Shader = generationComponent.VolumeShaderGraph->GetGenerateVolumeMeshShader();
-               generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
-           
-               properties.Shader = generationComponent.VolumeShaderGraph->GetRaytraceTerrainShader();
-               generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
             }
 
             generationComponent.HasLoadedShaders = true;

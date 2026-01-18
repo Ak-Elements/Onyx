@@ -12,7 +12,7 @@
 
 namespace Onyx::Graphics
 {
-    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool MaterialShaderGraphSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
         if (ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
@@ -26,7 +26,7 @@ namespace Onyx::Graphics
         return true;
     }
 
-    bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
+    bool MaterialShaderGraphSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
         GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
         Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/assets/assethandle.h>
 #include <onyx/nodegraph/nodes/flexiblepinsnode.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 #include <onyx/assets/assetid.h>
@@ -50,8 +51,7 @@ namespace Onyx::Graphics
 #endif
         private:
             // Texture asset id to use if input pin for texture handle is not connected
-            Assets::AssetId TextureId;
-            Reference<TextureAsset> Texture;
+            Assets::AssetHandle<TextureAsset> Texture;
         };
     }
 }

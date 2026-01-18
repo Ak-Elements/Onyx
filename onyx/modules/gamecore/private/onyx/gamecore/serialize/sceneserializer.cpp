@@ -15,11 +15,11 @@
 
 namespace Onyx::GameCore
 {
-    bool SceneSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const
+    bool SceneSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const
     {
         const Scene& scene = asset.As<Scene>();
 
-        serializer.Write<"renderGraph">(scene.m_SceneRenderGraph->GetId());
+        serializer.Write<"renderGraph">(scene.m_SceneRenderGraph.GetId());
 
         // Serialize each sector
         const SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
@@ -76,7 +76,7 @@ namespace Onyx::GameCore
     }
 
 
-    bool SceneSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
+    bool SceneSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
         Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
 

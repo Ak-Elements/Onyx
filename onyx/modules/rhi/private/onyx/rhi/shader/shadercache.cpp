@@ -54,7 +54,7 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool ShaderCache::GetOrLoadShader(const FilePath& shaderPath, ShaderHandle& outShader)
+    bool ShaderCache::GetOrLoadShader(const FilePath& shaderPath, Reference<Shader>& outShader)
     {
         // TODO: Hash should be hash of properties not just the path
         onyxU64 fileHash = Hash::FNV1aHash<onyxU64>(shaderPath.generic_string());

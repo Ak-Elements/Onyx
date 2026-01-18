@@ -37,8 +37,8 @@ namespace Onyx::Localization
         Optional<StringView> TryGetLocalized(LocalizationId id) const;
 
 #if !ONYX_IS_RETAIL
-        virtual void AddSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database);
-        virtual void RemoveSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database);
+        virtual void AddSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database);
+        virtual void RemoveSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database);
 #endif
 
     private:

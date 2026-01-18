@@ -5,6 +5,8 @@
 #include <onyx/thread/async/future.h>
 #include <onyx/thread/threadpool/threadpool.h>
 
+#include <onyx/assets/assethandle.h>
+
 namespace Onyx
 {
     class IEngine;
@@ -25,10 +27,10 @@ namespace Onyx::Assets
 
         IEngine* Engine = nullptr;
         AssetMetaData MetaData;
-        Reference<AssetInterface> Handle;
+        AssetHandle<AssetInterface> Asset;
         const IAssetSerializer* Serializer = nullptr;
 
-        Callback<void(Reference<AssetInterface>&)> OnLoadFinished;
+        Callback<void(AssetHandle<AssetInterface>&)> OnLoadFinished;
     private:
         void Load();
 
@@ -45,10 +47,10 @@ namespace Onyx::Assets
 
         const IEngine* Engine = nullptr;
         AssetMetaData MetaData;
-        Reference<AssetInterface> Handle;
+        AssetHandle<AssetInterface> Asset;
         const IAssetSerializer* Serializer = nullptr;
 
-        Callback<void(const Reference<AssetInterface>&)> OnSaveFinished;
+        Callback<void(const AssetHandle<AssetInterface>&)> OnSaveFinished;
     private:
         void Save();
 

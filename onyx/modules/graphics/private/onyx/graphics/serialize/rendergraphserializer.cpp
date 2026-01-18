@@ -34,7 +34,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    bool RenderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool RenderGraphSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
         const RenderGraph& renderGraph = asset.As<RenderGraph>();
@@ -46,7 +46,7 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
+    bool RenderGraphSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
         RenderGraph& renderGraph = asset.As<RenderGraph>();
 

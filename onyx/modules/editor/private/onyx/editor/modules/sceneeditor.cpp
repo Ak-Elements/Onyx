@@ -432,12 +432,12 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::LoadScene(Assets::AssetId sceneAssetId)
     {
-        Reference<GameCore::Scene> newScene;
+        Assets::AssetHandle<GameCore::Scene> newScene;
         m_AssetSystem->GetAssetUnmanaged(sceneAssetId, newScene);
         newScene->GetOnLoadedEvent().Connect<&SceneEditorWindow::OnSceneLoaded>(this);
     }
 
-    void SceneEditorWindow::OnSceneLoaded(const Reference<GameCore::Scene>& sceneAsset)
+    void SceneEditorWindow::OnSceneLoaded(const Assets::AssetHandle<GameCore::Scene>& sceneAsset)
     {
         m_Scene = sceneAsset;
         

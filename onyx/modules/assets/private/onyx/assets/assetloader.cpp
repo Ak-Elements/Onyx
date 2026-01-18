@@ -2,15 +2,15 @@
 
 namespace Onyx::Assets
 {
-    void AssetIOHandler::OnAssetLoadFinished(Reference<AssetInterface>& handle)
+    void AssetIOHandler::OnAssetLoadFinished(AssetHandle<AssetInterface>& handle)
     {
-        m_LoadRequests.erase(handle->GetId());
+        m_LoadRequests.erase(handle.GetId());
     }
 
 #if ONYX_IS_EDITOR
-    void AssetIOHandler::OnAssetSaveFinished(const Reference<AssetInterface>& handle)
+    void AssetIOHandler::OnAssetSaveFinished(const AssetHandle<AssetInterface>& handle)
     {
-        m_SaveRequests.erase(handle->GetId());
+        m_SaveRequests.erase(handle.GetId());
     }
 #endif
 }

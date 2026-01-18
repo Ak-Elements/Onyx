@@ -154,7 +154,7 @@ namespace Onyx
 
 namespace Onyx::InputActions
 {
-    bool InputActionsSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool InputActionsSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
         const InputActionsAsset& inputActionsAsset = asset.As<InputActionsAsset>();
@@ -172,7 +172,7 @@ namespace Onyx::InputActions
         return true;
     }
 
-    bool InputActionsSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
+    bool InputActionsSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
         InputActionsAsset& inputAsset = asset.As<InputActionsAsset>();
 

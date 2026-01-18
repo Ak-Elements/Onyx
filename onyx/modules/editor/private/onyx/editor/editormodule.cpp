@@ -25,7 +25,7 @@ namespace Onyx::Editor
     {
         Localization::Editor::InitLocalization(localizationModule);
 
-        Reference<Localization::GetTextLocalizationDatabase> secondaryDb;
+        Assets::AssetHandle<Localization::GetTextLocalizationDatabase> secondaryDb;
 
         // TODO: Move to app config?
         assetSystem.GetAsset("engine:/localization/assets.po", secondaryDb);

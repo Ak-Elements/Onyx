@@ -90,7 +90,7 @@ namespace Onyx::Assets
         const AssetMetaData& metaData = assetIt->second;
         if (metaData.Handle != INVALID_INDEX_64)
         {
-            Reference<AssetInterface>& reloadAsset = m_LoadedAssets[metaData.Handle];
+            AssetHandle<AssetInterface>& reloadAsset = m_LoadedAssets[metaData.Handle];
             reloadAsset->SetState(AssetState::Loading);
             {
                 std::lock_guard lock(m_Mutex);

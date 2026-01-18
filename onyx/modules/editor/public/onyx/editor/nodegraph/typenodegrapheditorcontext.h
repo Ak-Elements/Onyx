@@ -14,7 +14,7 @@ namespace Onyx::Editor
     public:
         TypedNodeGraphEditorContext()
         {
-            Graph = Reference<GraphAssetT>::Create();
+            //Graph = Assets::AssetSystem::Create<GraphAssetT>();
         }
 
         DynamicArray<StringView> GetExtensions() const override { return Assets::AssetSystem::GetExtensions<GraphAssetT>(); }
@@ -32,11 +32,11 @@ namespace Onyx::Editor
             // want to queue meta data loading
             m_CurrentAssetMetaData = assetSystem.GetAssetMeta(assetId);
 
-            Reference<GraphAssetT> graphAsset;
+            Assets::AssetHandle<GraphAssetT> graphAsset;
             assetSystem.GetAssetUnmanaged(assetId, graphAsset);
             if (graphAsset.IsValid() && graphAsset->IsLoaded())
             {
-                Reference<typename GraphAssetT::AssetT> baseAsset(graphAsset);
+                Assets::AssetHandle<typename GraphAssetT::AssetT> baseAsset(graphAsset);
                 OnAssetLoaded(baseAsset);
             }
             else
@@ -50,7 +50,7 @@ namespace Onyx::Editor
             assetSystem.SaveAssetAs(metaData.Path, Graph);
         }
 
-        void OnAssetLoaded(Reference<typename GraphAssetT::AssetT>& loadedGraph)
+        void OnAssetLoaded(Assets::AssetHandle<typename GraphAssetT::AssetT> loadedGraph)
         {
             Clear();
             Graph = loadedGraph;
@@ -80,7 +80,7 @@ namespace Onyx::Editor
         }
 
     protected:
-        Reference<GraphAssetT> Graph;
+        Assets::AssetHandle<GraphAssetT> Graph;
         NodeFactoryT NodeFactory;
         // TODO: Not ideal to save asset meta data here
         Assets::AssetMetaData m_CurrentAssetMetaData;

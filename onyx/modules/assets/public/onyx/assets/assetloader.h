@@ -5,6 +5,8 @@
 #include <onyx/thread/async/asynctask.h>
 #include <onyx/thread/threadpool/threadpool.h>
 
+#include <onyx/assets/assethandle.h>
+
 namespace Onyx::Assets
 {
     struct AssetMetaData;
@@ -13,7 +15,7 @@ namespace Onyx::Assets
     class AssetIOHandler
     {
     public:
-        void RequestLoad(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, IEngine* engine)
+        void RequestLoad(const AssetMetaData& metaData, const AssetHandle<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, IEngine* engine)
         {
             if (m_LoadRequests.contains(metaData.Id))
                 return;
@@ -21,7 +23,7 @@ namespace Onyx::Assets
             UniquePtr<AssetLoadRequest> loadRequest = MakeUnique<AssetLoadRequest>();
             loadRequest->Engine = engine;
             loadRequest->MetaData = metaData;
-            loadRequest->Handle = assetHandle;
+            loadRequest->Asset = assetHandle;
             loadRequest->Serializer = serializer.get();
             loadRequest->OnLoadFinished.Connect<&AssetIOHandler::OnAssetLoadFinished>(this);
             loadRequest->Start(m_LoaderThreadPool);
@@ -30,7 +32,7 @@ namespace Onyx::Assets
         }
 
 #if ONYX_IS_EDITOR
-        void RequestSave(const AssetMetaData& metaData, const Reference<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, const IEngine* engine)
+        void RequestSave(const AssetMetaData& metaData, const AssetHandle<AssetInterface>& assetHandle, const UniquePtr<IAssetSerializer>& serializer, const IEngine* engine)
         {
             if (m_SaveRequests.contains(metaData.Id))
                 return;
@@ -38,7 +40,7 @@ namespace Onyx::Assets
             UniquePtr<AssetSaveRequest> saveRequest = MakeUnique<AssetSaveRequest>();
             saveRequest->Engine = engine;
             saveRequest->MetaData = metaData;
-            saveRequest->Handle = assetHandle;
+            saveRequest->Asset = assetHandle;
             saveRequest->Serializer = serializer.get();
             saveRequest->OnSaveFinished.Connect<&AssetIOHandler::OnAssetSaveFinished>(this);
             saveRequest->Start(m_LoaderThreadPool);
@@ -48,9 +50,9 @@ namespace Onyx::Assets
 #endif
 
     private:
-        void OnAssetLoadFinished(Reference<AssetInterface>& handle);
+        void OnAssetLoadFinished(AssetHandle<AssetInterface>& handle);
 #if ONYX_IS_EDITOR
-        void OnAssetSaveFinished(const Reference<AssetInterface>& handle);
+        void OnAssetSaveFinished(const AssetHandle<AssetInterface>& handle);
 #endif
     private:
         // default initalize to the amount of logical cores available

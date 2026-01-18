@@ -4,6 +4,12 @@
 
 #include <onyx/ui/controls/vectorcontrol.h>
 #include <onyx/assets/assetid.h>
+#include <onyx/assets/assethandle.h>
+
+namespace Onyx::Assets
+{
+    class AssetInterface;
+}
 
 namespace Onyx::Assets
 {
@@ -53,6 +59,19 @@ namespace Onyx::Ui
         bool DrawProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
 
         bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType);
+
+        template <typename T> requires std::is_base_of_v<Assets::AssetInterface, T>
+        bool DrawProperty(StringView propertyName, Assets::AssetHandle<T>& outAsset)
+        {
+            Assets::AssetId assetId = outAsset.GetId();
+            if( DrawAssetSelector(propertyName, assetId, static_cast<Assets::AssetType>(T::TypeId.GetId())) )
+            {
+                outAsset.SetId(assetId);
+                return true;
+            }
+
+            return false;
+        }
 
         /* returns true if the value was modified */
         bool DrawProperty(StringView propertyName, bool& value);

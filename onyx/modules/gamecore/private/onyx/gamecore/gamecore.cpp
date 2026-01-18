@@ -70,12 +70,12 @@ namespace Onyx::GameCore
 
     void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine)
     {
-        if ((m_Scene.IsValid() == false) || m_Scene->IsLoading())
+        if (m_Scene.IsLoaded() == false)
         {
             return;
         }
 
-        if (m_Scene->GetRenderGraphRef().IsValid())
+        if (m_Scene->GetRenderGraphRef().HasAssetId())
         {
             Graphics::RenderGraph& sceneRenderGraph = m_Scene->GetRenderGraph();
             if (sceneRenderGraph.IsLoaded() && sceneRenderGraph.IsInitialized() == false)

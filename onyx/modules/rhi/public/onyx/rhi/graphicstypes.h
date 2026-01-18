@@ -2,7 +2,7 @@
 
 namespace Onyx::Graphics
 {
-    inline constexpr onyxU8 MAX_FRAMES_IN_FLIGHT = 3;
+    inline constexpr onyxU8 MAX_FRAMES_IN_FLIGHT = 2;
 
     inline constexpr onyxU8 MAX_RENDERPASS_ATTACHMENTS = 8;
     inline constexpr onyxU8 MAX_SUBPASSES = 8;

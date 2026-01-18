@@ -435,7 +435,7 @@ namespace Onyx::Editor
     }
 
 
-    void InputActionSettingsWindow::OnInputAssetLoaded(Reference<InputActions::InputActionsAsset>& inputActionsAsset)
+    void InputActionSettingsWindow::OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsAsset> inputActionsAsset)
     {
         m_IsDirty = false;
         //m_CurrentActionMapAsset = &actionMapAsset;

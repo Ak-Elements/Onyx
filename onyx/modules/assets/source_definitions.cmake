@@ -1,6 +1,7 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     asset.h
     assetformat.h
+    assethandle.h
     assethotreloadsystem.h
     assetid.h
     assetloader.h

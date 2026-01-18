@@ -34,7 +34,7 @@ namespace Onyx::Graphics
 
     bool ShaderInstance::IsCompute() const
     {
-        return m_Shader && m_Shader->IsComputeShader();
+        return m_Shader.IsValid() && m_Shader->IsComputeShader();
     }
 
     bool ShaderInstance::IsValid() const
@@ -82,7 +82,7 @@ namespace Onyx::Graphics
         return descriptorSets[descriptorSetIndex];
     }
 
-    void ShaderInstance::OnShaderLoaded(Reference<Shader>& /*shader*/)
+    void ShaderInstance::OnShaderLoaded(Assets::AssetHandle<Shader> /*shader*/)
     {
         if (m_Shader->HasDescriptorSetLayout())
         {

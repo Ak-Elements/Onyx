@@ -71,12 +71,12 @@ namespace Onyx::Graphics::Vulkan
 	    return true;
     }
 
-    bool SwapChain::Present(onyxU8 frameIndex, onyxU32 imageIndex)
+    bool SwapChain::Present(onyxU8 /*frameIndex*/, onyxU32 imageIndex)
     {
 	    if (imageIndex == onyxMax_U32)
 		    return true;
 
-	    SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
+	    SyncObject& syncObject = m_FrameSyncObjects[static_cast<onyxU8>(imageIndex)];
 
 	    VkPresentInfoKHR presentInfo{};
 	    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -198,7 +198,7 @@ namespace Onyx::Graphics::Vulkan
 		    texture.Texture = Reference<VulkanTexture, TextureDeleter>::Create(m_GraphicsApi, textureProps, textureStorage.Raw());
 	    }
 
-	    for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+	    for (onyxU8 i = 0; i < m_ImageCount; ++i)
 	    {
 		    SyncObject& syncObj = m_FrameSyncObjects[i];
 		    syncObj.m_ImageAcquired = MakeUnique<Semaphore>(m_Device);

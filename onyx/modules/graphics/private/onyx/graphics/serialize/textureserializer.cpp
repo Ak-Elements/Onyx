@@ -12,7 +12,7 @@
 
 namespace Onyx::Graphics
 {
-    bool TextureSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool TextureSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         ONYX_UNUSED(asset);
         ONYX_UNUSED(meta);
@@ -20,7 +20,7 @@ namespace Onyx::Graphics
         return false;
     }
 
-    bool TextureSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& engine) const
+    bool TextureSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& engine) const
     {
         GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
         TextureAsset& textureAsset = asset.As<TextureAsset>();

@@ -10,7 +10,7 @@ namespace Onyx::GameCore
 
     bool MaterialComponent::DrawProperties(bool /*showHidden*/)
     {
-        if (Ui::PropertyGrid::DrawAssetSelector("Material", MaterialId, static_cast<Assets::AssetType>(Graphics::MaterialShaderGraph::TypeId.GetId())))
+        if (Ui::PropertyGrid::DrawProperty("Material", Material))
         {
             Material.Reset();
             return true;

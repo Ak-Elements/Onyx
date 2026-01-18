@@ -63,7 +63,7 @@ namespace Onyx::Editor
 
         void MarkAsDirty() { m_IsDirty = true; }
 
-        void OnInputAssetLoaded(Reference<InputActions::InputActionsAsset>& inputActionsAsset);
+        void OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsAsset> inputActionsAsset);
 
         InputActions::InputBinding& GetSelectedInputBinding();
 
@@ -72,7 +72,7 @@ namespace Onyx::Editor
         Input::InputSystem* m_InputSystem = nullptr;
 
         // Copy of InputActionAsset to edit until save
-        Reference<InputActions::InputActionsAsset> m_EditableCopy;
+        Assets::AssetHandle<InputActions::InputActionsAsset> m_EditableCopy;
       
         DynamicArray<bool> m_MapsSelectedStates;
         DynamicArray<bool> m_ActionsSelectedStates;

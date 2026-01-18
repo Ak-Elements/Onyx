@@ -91,7 +91,7 @@ namespace Onyx::Graphics::Vulkan
             UniquePtr<Fence> m_RenderCompleteFence;
         };
 
-        InplaceArray<SyncObject, MAX_FRAMES_IN_FLIGHT> m_FrameSyncObjects;
+        InplaceArray<SyncObject, 3> m_FrameSyncObjects;
         DynamicArray<TextureHandle> m_SwapchainBuffers;
 
         onyxU32 m_CurrentImageIndex = onyxMax_U32;

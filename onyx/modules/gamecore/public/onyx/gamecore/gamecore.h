@@ -58,15 +58,14 @@ namespace Onyx::GameCore
         
         void Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine);
 
-        void SetScene(Reference<Scene>& scene) { m_Scene = scene; }
+        void SetScene(Assets::AssetHandle<Scene>& scene) { m_Scene = scene; }
 
         const Entity::ComponentFactory& GetComponentFactory() const { return m_ComponentFactory; }
 
         Entity::EcsBuilder GetEcsBuilder() { return { m_ComponentFactory, m_ECSGraph }; }
 
     private:
-        
-        Reference<Scene> m_Scene;
+        Assets::AssetHandle<Scene> m_Scene;
         Entity::ComponentFactory m_ComponentFactory;
         Entity::EntityComponentSystemsGraph m_ECSGraph;
     };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/assets/assethandle.h>
 #include <onyx/rhi/texture.h>
 #include <onyx/rhi/buffer.h>
 #include <onyx/rhi/shader/shader.h>
@@ -31,7 +32,7 @@ namespace Onyx::Graphics
     //using BufferHandle = Reference<Buffer>;
     using TextureViewHandle = Reference<Texture, TextureDeleter>;
     using TextureStorageHandle = Reference<TextureStorage>;
-    using ShaderHandle = Reference<Shader>;
+    using ShaderHandle = Assets::AssetHandle<Shader>;
     using ShaderInstanceHandle = Reference<ShaderInstance>;
     using RenderPassHandle = Reference<RenderPass>;
     using FramebufferHandle = Reference<Framebuffer>;

@@ -32,10 +32,10 @@ namespace Onyx::Editor
         
         FileSystem::FileWatcher m_ContentDirectoryWatcher;
 
-        Reference<Graphics::TextureAsset> m_FolderClosedAsset;
-        Reference<Graphics::TextureAsset> m_FolderOpenAsset;
-        Reference<Graphics::TextureAsset> m_FolderSelectedClosedAsset;
-        Reference<Graphics::TextureAsset> m_FolderSelectedOpenAsset;
+        Assets::AssetHandle<Graphics::TextureAsset> m_FolderClosedAsset;
+        Assets::AssetHandle<Graphics::TextureAsset> m_FolderOpenAsset;
+        Assets::AssetHandle<Graphics::TextureAsset> m_FolderSelectedClosedAsset;
+        Assets::AssetHandle<Graphics::TextureAsset> m_FolderSelectedOpenAsset;
 
         bool m_IsOpen = false;
     };
