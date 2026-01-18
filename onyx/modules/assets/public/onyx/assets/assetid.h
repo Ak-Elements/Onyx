@@ -43,6 +43,16 @@ namespace Onyx::Assets
     };
 }
 
+namespace Onyx
+{
+    template <>
+    struct Serialization<Assets::AssetId>
+    {
+        static bool Serialize(Serializer& serializer, const Assets::AssetId& assetId);
+        static bool Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId);
+    };
+}
+
 template<>
 struct std::hash<Onyx::Assets::AssetId>
 {
@@ -53,12 +63,11 @@ struct std::hash<Onyx::Assets::AssetId>
     }
 };
 
-namespace Onyx
+template <>
+struct std::formatter<Onyx::Assets::AssetId> : std::formatter<std::string>
 {
-    template <>
-    struct Serialization<Assets::AssetId>
+    auto format(Onyx::Assets::AssetId id, std::format_context& ctx) const
     {
-        static bool Serialize(Serializer& serializer, const Assets::AssetId& assetId);
-        static bool Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId);
-    };
-}
+        return std::format_to(ctx.out(), "{:x}", id.Get());
+    }
+};

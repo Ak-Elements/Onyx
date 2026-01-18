@@ -2,6 +2,9 @@
 
 #include <onyx/assets/assetid.h>
 
+#include <onyx/serialize/deserializer.h>
+#include<onyx/serialize/serializer.h>
+
 namespace Onyx::Assets
 {
     template <typename T>
@@ -118,4 +121,28 @@ namespace Onyx::Assets
         AssetId Id;
         Reference<T> Handle;
     };
+}
+
+namespace Onyx
+{
+    template <typename U>
+    struct Serialization<Assets::AssetHandle<U>>
+    {
+        static bool Serialize(Serializer& serializer, const Assets::AssetHandle<U>& assetHandle)
+        {
+            return serializer.Write<"assetId">(assetHandle.GetId());
+        }
+        static bool Deserialize(const Deserializer& deserializer, Assets::AssetHandle<U>& outAssetHandle)
+        {
+            Assets::AssetId assetId;
+            if (deserializer.Read<"assetId">(assetId))
+            {
+                outAssetHandle.SetId(assetId);
+                return true;
+            }
+
+            return false;
+        }
+    };
+
 }
