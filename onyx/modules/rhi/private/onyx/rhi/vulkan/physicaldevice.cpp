@@ -4,13 +4,13 @@
 
 namespace Onyx::Graphics::Vulkan
 {
-	PhysicalDevice::PhysicalDevice(const Instance& instance, const Surface& surface)
+	PhysicalDevice::PhysicalDevice(const Instance& instance)
     {
 		SelectPhysicalDevice(instance);
 
         RetrieveSupportedExtensions();
         RetrieveQueueFamilyProperties();
-        RetrieveQueueFamilyIndices(surface);
+        RetrieveQueueFamilyIndices();
 
         m_DepthFormat = GetSupportedDepthFormat(true);
         m_MultiSamplingLevel = GetMaxUsableSampleCount();
@@ -29,6 +29,18 @@ namespace Onyx::Graphics::Vulkan
         m_QueueFamilyProperties.resize(queueFamilyCount);
 
         vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, m_QueueFamilyProperties.data());
+    }
+
+    onyxS32 PhysicalDevice::GetPresentQueueIndex(const Surface& surface) const
+    {
+		VkBool32 supportsPresent = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, m_QueueFamilyIndices.Graphics, surface.GetHandle(), &supportsPresent);
+		if (supportsPresent)
+		{
+			return m_QueueFamilyIndices.Graphics;
+		}
+
+		return -1;
     }
 
 	void PhysicalDevice::SelectPhysicalDevice(const Instance& instance)
@@ -95,14 +107,12 @@ namespace Onyx::Graphics::Vulkan
 		return onyxMax_U32;
 	}
 
-	void PhysicalDevice::RetrieveQueueFamilyIndices(const Surface& surface)
+	void PhysicalDevice::RetrieveQueueFamilyIndices()
 	{
 		onyxS32 GraphicsFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
 		onyxS32 ComputeFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
 		onyxS32 TransferFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
-		onyxS32 PresentFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
 
-		VkBool32 supportsPresenting = false;
 		for (onyxS32 i = 0; i < static_cast<onyxS32>(m_QueueFamilyProperties.size()); ++i)
 		{
 			const VkQueueFamilyProperties& queueFamily = m_QueueFamilyProperties[i];
@@ -112,13 +122,6 @@ namespace Onyx::Graphics::Vulkan
 			const onyxS32 bitCount = std::popcount(queueFamily.queueFlags);
 			if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
 		    {
-				vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, surface.GetHandle(), &supportsPresenting);
-				if (supportsPresenting && (bitCount < PresentFlagsCount))
-				{
-					PresentFlagsCount = bitCount;
-					m_QueueFamilyIndices.Present = i;
-				}
-
 				if (bitCount < GraphicsFlagsCount)
 				{
 					GraphicsFlagsCount = bitCount;
@@ -144,9 +147,6 @@ namespace Onyx::Graphics::Vulkan
 				}
 			}
 		}
-
-		//TODO verify we found all queues that were requested
-		//ONYX_ASSERT()
 	}
 
 	bool PhysicalDevice::IsExtensionSupported(StringView extension) const

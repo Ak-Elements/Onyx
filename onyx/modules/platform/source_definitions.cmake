@@ -1,5 +1,6 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     platformcontext.h
+    platformfwd.h
     platformsystem.h
     window.h
     windowsettings.h
@@ -16,6 +17,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
 
 set(onyx_TARGET_PRIVATE_SOURCES
     platformsystem.cpp
+    windowsettings.cpp
     linux/wayland/waylandplatformcontext.cpp
     linux/wayland/waylandwindow.cpp
     linux/wayland/waylandinput.cpp

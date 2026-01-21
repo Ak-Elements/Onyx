@@ -64,31 +64,35 @@ namespace Onyx::Graphics
         : m_AssetSystem(&assetSystem)
         , m_PlatformSystem(&platformSystem)
         , m_Settings(settings)
+        , m_DepthTextureFormat(TextureFormat::DEPTH_FLOAT32)
     {
-       constexpr StringId32 defaultBlendStateId("default");
-       constexpr StringId32 noBlendStateId("noblend");
-       BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
-       defaultBlendState.IsBlendEnabled = true;
-       defaultBlendState.SourceColor = Blend::SrcAlpha;
-       defaultBlendState.DestinationColor = Blend::OneMinusSrcAlpha;
+        constexpr StringId32 defaultBlendStateId("default");
+        constexpr StringId32 noBlendStateId("noblend");
+        BlendState& defaultBlendState = m_BlendStates[defaultBlendStateId];
+        defaultBlendState.IsBlendEnabled = true;
+        defaultBlendState.SourceColor = Blend::SrcAlpha;
+        defaultBlendState.DestinationColor = Blend::OneMinusSrcAlpha;
 
-       BlendState& noBlendState = m_BlendStates[noBlendStateId];
-       noBlendState.IsBlendEnabled = false;
+        BlendState& noBlendState = m_BlendStates[noBlendStateId];
+        noBlendState.IsBlendEnabled = false;
 
-       for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-       {
+        for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
            m_FrameContext[i].Api = this;
-       }
+        }
 
-       const Platform::Window& mainWindow = platformSystem.GetMainWindow();
-       m_GraphicsSystem = MakeUnique<Vulkan::VulkanGraphicsApi>();
-       m_GraphicsSystem->Init(m_Settings, mainWindow);
+        m_PlatformSystem->OnWindowCreate<&GraphicsSystem::OnWindowCreate>(this);
+        m_PlatformSystem->OnWindowDestroy<&GraphicsSystem::OnWindowDestroy>(this);
 
-       m_DepthTextureFormat = TextureFormat::DEPTH_FLOAT32;
-       CreateDepthImages(mainWindow.GetFrameBufferSize());
-       CreateViewConstantBuffers();
+        m_GraphicsSystem = MakeUnique<Vulkan::VulkanGraphicsApi>();
+        m_GraphicsSystem->Init(m_Settings);
 
-       m_PresentThread.Start();
+        for (const UniquePtr<Platform::Window>& window : m_PlatformSystem->GetWindows())
+        {
+            OnWindowCreate(*window);
+        }
+
+        m_PresentThread.Start();
     }
 
     GraphicsSystem::~GraphicsSystem()
@@ -105,12 +109,12 @@ namespace Onyx::Graphics
         m_PsoCache.Clear();
         m_ShaderCache.Clear();
 
-        //m_RenderGraph->Shutdown(*this);
-
         m_DepthImages.Clear();
         m_ViewConstantsUniformBuffers.Clear();
 
         m_GraphicsSystem->Shutdown();
+
+        m_PlatformSystem->DisconnectSignals(this);
     }
 
     void GraphicsSystem::CreateDepthImages(Vector2s32 extents)
@@ -388,7 +392,7 @@ namespace Onyx::Graphics
         m_GraphicsSystem->WaitIdle();
     }
 
-    void GraphicsSystem::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
+    void GraphicsSystem::OnWindowResize(Vector2s32 /*extents*/)
     {
         //if (m_Window->IsMinimized())
         //{
@@ -396,10 +400,28 @@ namespace Onyx::Graphics
         //}
 
         //m_HasWindowResized = true;
+        m_PresentThread.ClearQueue();
     }
 
     void GraphicsSystem::LoadSettings()
     {
+    }
+
+    void GraphicsSystem::OnWindowCreate(const Platform::Window& window)
+    {
+        //TODO: Add support for multiple windows
+
+        window.OnResize().Connect<&GraphicsSystem::OnWindowResize>(this);
+        m_GraphicsSystem->CreateSwapchain(window);
+
+        // TODO: Remove depth images from graphics system -> move into render graph
+        CreateDepthImages(window.GetFrameBufferSize());
+        CreateViewConstantBuffers();
+    }
+
+    void GraphicsSystem::OnWindowDestroy(const Platform::Window& /*window*/)
+    {
+        // TODO: For multiple windows we need to destroy the swapchain / surface here
     }
 
     RenderPassHandle GraphicsSystem::CreateRenderPass(const RenderPassSettings& settings)

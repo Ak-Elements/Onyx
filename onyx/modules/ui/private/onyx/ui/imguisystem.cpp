@@ -928,8 +928,7 @@ namespace Onyx::Ui
     }
 
 	void ImGuiSystem::UpdateDrawBuffers(const Graphics::FrameContext& frameContext)
-    {
-		
+    {	
 		ImDrawData* imDrawData = ImGui::GetDrawData();
 
 		if ((!imDrawData) || (imDrawData->CmdListsCount == 0))

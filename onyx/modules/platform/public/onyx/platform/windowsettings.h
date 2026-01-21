@@ -62,3 +62,13 @@ namespace Onyx::Platform
         bool UseVsync = true;
     };
 }
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Platform::WindowSettings>
+    {
+        static bool Serialize(Serializer& serializer, const Platform::WindowSettings& settings);
+        static bool Deserialize(const Deserializer& deserializer, Platform::WindowSettings& outSettings);
+    };
+}

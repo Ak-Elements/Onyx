@@ -75,7 +75,7 @@ namespace Onyx::Graphics::Vulkan
         VK_CHECK_RESULT(vmaAllocateMemoryForBuffer(m_Allocator, buffer, &allocCreateInfo, &allocation, &allocInfo))
 
         // TODO: Tracking
-        ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating memory for buffer; size = {}", m_Tag, allocInfo.size);
+        //ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating memory for buffer; size = {}", m_Tag, allocInfo.size);
         return allocation;
     }
 
@@ -97,7 +97,7 @@ namespace Onyx::Graphics::Vulkan
         VK_CHECK_RESULT(vmaAllocateMemoryForImage(m_Allocator, image, &allocCreateInfo, &allocation, &allocInfo))
 
         // TODO: Tracking
-        ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating image; size = {}", m_Tag, allocInfo.size);
+        //ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating image; size = {}", m_Tag, allocInfo.size);
         return allocation;
     }
 

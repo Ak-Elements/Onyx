@@ -3,17 +3,17 @@
 
 namespace Onyx::Platform
 {
-    PlatformSystem::PlatformSystem(Input::InputSystem& inputSystem)
+    PlatformSystem::PlatformSystem(WindowSettings windowSettings, Input::InputSystem& inputSystem)
         : m_InputSystem(&inputSystem) 
         , m_Context(*this)
     {
-        WindowSettings defaultSettings;
-        CreateNewWindow(defaultSettings);
+        CreateNewWindow(windowSettings);
     }
 
     void PlatformSystem::CreateNewWindow(WindowSettings settings)
     {
-        m_Windows.emplace_back(MakeUnique<Window>(m_Context, settings));
+        UniquePtr<Window>& newWindow = m_Windows.emplace_back(MakeUnique<Window>(m_Context, settings));
+        m_WindowCreatedSignal.Dispatch(*newWindow);
     }
 
     Window& PlatformSystem::GetMainWindow()

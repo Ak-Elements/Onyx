@@ -719,7 +719,7 @@ namespace Onyx::Platform::Windows
                     onyxU32 width = lParam & 0xFFFF;
                     onyxU32 height = (lParam >> 16) & 0xFFFF;
                     SetState(WindowState::Default);
-                    SetSize(width, height);
+                    SetSize(numeric_cast<onyxS32>(width), numeric_cast<onyxS32>(height));
                 }
 
                 break;

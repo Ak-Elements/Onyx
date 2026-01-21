@@ -31,26 +31,21 @@ namespace Onyx::Graphics::Vulkan
     VulkanGraphicsApi::VulkanGraphicsApi() = default;
     VulkanGraphicsApi::~VulkanGraphicsApi() = default;
 
-    void VulkanGraphicsApi::Init(const GraphicSettings& settings, const Platform::Window& window)
+    void VulkanGraphicsApi::Init(const GraphicSettings& settings)
     {
-        // TODO: Add time query support for GPU profiling
-        m_Window = &window;
-
         DynamicArray<const char*> validationLayers =
         {
             "VK_LAYER_KHRONOS_validation"
         };
 
-        m_Instance = MakeUnique<Instance>(settings, window, validationLayers);
+        m_Instance = MakeUnique<Instance>(settings, validationLayers);
 
         if (settings.IsDebugEnabled)
         {
             m_DebugUtilsMessenger = MakeUnique<DebugUtilsMessenger>(*m_Instance, static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT));
         }
 
-        m_Surface = MakeUnique<Surface>(*m_Instance, window);
-
-        m_PhysicalDevice = MakeUnique<PhysicalDevice>(*m_Instance, *m_Surface);
+        m_PhysicalDevice = MakeUnique<PhysicalDevice>(*m_Instance);
 
         // Device Extensions
         // TODO: can this be moved somehow into Logiccal Device=
@@ -265,15 +260,13 @@ namespace Onyx::Graphics::Vulkan
             CreateBuffer(m_RingBuffer[i], tempFrameBuffer);
         }
 
-        m_SwapChain = MakeUnique<SwapChain>(*this);
-
         // TODO: Add proper thread count
         m_CommandBufferManager = MakeUnique<CommandBufferManager>();
         m_CommandBufferManager->Init(*this, m_PhysicalDevice->GetGraphicsQueueIndex(), 4);
-        
+
         m_ComputeCommandBufferManager = MakeUnique<CommandBufferManager>();
         m_ComputeCommandBufferManager->Init(*this, m_PhysicalDevice->GetComputeQueueIndex(), 4);
-
+        
         m_GraphicsSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
         m_ComputeSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
         m_PresentSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
@@ -353,6 +346,9 @@ namespace Onyx::Graphics::Vulkan
 
     bool VulkanGraphicsApi::BeginFrame(const FrameContext& context)
     {
+        if (m_SwapChain == nullptr)
+            return false;
+
         if (IsTimelineSemaphoreEnabled() && context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT)
         {
             ONYX_PROFILE_SECTION(SemaphoreWait);
@@ -361,14 +357,14 @@ namespace Onyx::Graphics::Vulkan
             onyxU64 graphics_timeline_value = context.AbsoluteFrame - (MAX_FRAMES_IN_FLIGHT - 1);
             onyxU64 compute_timeline_value = context.ComputeFrame;
 
-            onyxU64 wait_values[]{ graphics_timeline_value, graphics_timeline_value, compute_timeline_value };
+            onyxU64 wait_values[]{ graphics_timeline_value, compute_timeline_value };
             const bool hasAsyncWork = false;
 
-            VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(), m_PresentSemaphore->GetHandle(), m_ComputeSemaphore->GetHandle() };
+            VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(),  m_ComputeSemaphore->GetHandle() };
             
             VkSemaphoreWaitInfo semaphore_wait_info{};
             semaphore_wait_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-            semaphore_wait_info.semaphoreCount = hasAsyncWork ? 3 : 2;
+            semaphore_wait_info.semaphoreCount = hasAsyncWork ? 2 : 1;
             semaphore_wait_info.pSemaphores = semaphores;
             semaphore_wait_info.pValues = wait_values;
             semaphore_wait_info.pNext = nullptr;
@@ -409,8 +405,6 @@ namespace Onyx::Graphics::Vulkan
             enqueuedComputeCommandBuffers.Add(cmdBuffer->GetHandle());
             cmdBuffer->End();
         }
-
-        
 
         // update bindless textures or should update them at the start of the frame?
         onyxU32 currentIndex = 0;
@@ -696,22 +690,21 @@ namespace Onyx::Graphics::Vulkan
         });
     }
 
-    void VulkanGraphicsApi::SignalPresent(onyxU32 presentIndex)
-    {
-        VkSemaphoreSignalInfo signalInfo;
-        signalInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO;
-        signalInfo.semaphore = m_PresentSemaphore->GetHandle();
-        signalInfo.value = presentIndex;
-        signalInfo.pNext = nullptr;
-
-        //// Signal that the presented image is now free
-        vkSignalSemaphore(m_Device->GetHandle(), &signalInfo);
-    }
-
     void VulkanGraphicsApi::WaitIdle() const
     {
         vkDeviceWaitIdle(m_Device->GetHandle());
         vkQueueWaitIdle(m_Device->GetGraphicsQueue());
+    }
+
+    void VulkanGraphicsApi::CreateSwapchain(const Platform::Window& window)
+    {
+        m_Surface = MakeUnique<Surface>(*m_Instance, window);
+
+        //m_PhysicalDevice->RetrieveQueueFamilyIndices(*m_Surface);
+
+        m_SwapChain = MakeUnique<SwapChain>(*this, *m_Surface, window);
+
+
     }
 
     void VulkanGraphicsApi::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
@@ -947,7 +940,7 @@ namespace Onyx::Graphics::Vulkan
 
         handle.Texture = texture;
 
-        ONYX_LOG_INFO("Allocated texture on index {} with name {}", index, properties.m_DebugName);
+        //ONYX_LOG_INFO("Allocated texture on index {} with name {}", index, properties.m_DebugName);
         m_BindlessTexturesToUpdate.push_back({ index, texture });
     }
 

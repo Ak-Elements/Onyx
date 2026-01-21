@@ -4,10 +4,7 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics
-{
-    class Window;
-}
+#include <onyx/platform/platformfwd.h>
 
 namespace Onyx::Graphics::Vulkan
 {
@@ -28,8 +25,8 @@ namespace Onyx::Graphics::Vulkan
     class SwapChain : public NonCopyable
 	{
 	public:
-        SwapChain(VulkanGraphicsApi& graphicsApi);
-        ~SwapChain();
+        SwapChain(VulkanGraphicsApi& graphicsApi, const Surface& surface, const Platform::Window& window);
+        ~SwapChain() override;
 
         bool BeginFrame(onyxU8 frameIndex);
         bool Present(onyxU8 frameIndex, onyxU32 imageIndex);
@@ -46,8 +43,7 @@ namespace Onyx::Graphics::Vulkan
         TextureFormat GetFormat() const { return m_ColorFormat; }
         VkPresentModeKHR GetPresentMode() const { return m_PresentMode; }
 
-        void OnWindowResize(onyxU32 width, onyxU32 height);
-        void Init();
+        void OnWindowResize(Vector2s32 windowExtents);
 
         TextureHandle& GetAcquiredBackbuffer();
         const TextureHandle& GetAcquiredBackbuffer() const;
@@ -61,6 +57,8 @@ namespace Onyx::Graphics::Vulkan
             DynamicArray<VkPresentModeKHR> PresentModes;
 		};
 
+        void Init();
+
         SupportDetails QuerySwapChainSupport(const PhysicalDevice& physicalDevice, const Surface& surface) const;
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const DynamicArray<VkSurfaceFormatKHR>& formats) const;
         VkPresentModeKHR ChooseSwapPresentMode(const DynamicArray<VkPresentModeKHR>& presentModes, bool isVSyncEnabled) const;
@@ -71,6 +69,8 @@ namespace Onyx::Graphics::Vulkan
     private:
         std::mutex mutex;
         VulkanGraphicsApi& m_GraphicsApi;
+        const Platform::Window* m_Window = nullptr;
+        const Surface& m_Surface;
         const Device& m_Device;
 
 		VULKAN_HANDLE(VkSwapchainKHR, SwapChain, nullptr);
@@ -81,6 +81,8 @@ namespace Onyx::Graphics::Vulkan
 		TextureFormat m_ColorFormat;
 		VkColorSpaceKHR m_ColorSpace;
         Vector2s32 m_Extent;
+
+        bool m_ShouldResize = false;
 
         struct SyncObject
         {

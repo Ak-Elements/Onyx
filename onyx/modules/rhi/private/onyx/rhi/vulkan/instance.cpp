@@ -6,22 +6,26 @@
 
 namespace Onyx::Graphics::Vulkan
 {
-    Instance::Instance(const GraphicSettings& settings, const Platform::Window& window, const DynamicArray<const char*>& validationLayers)
+    Instance::Instance(const GraphicSettings& settings, const DynamicArray<const char*>& validationLayers)
     {
 		// Application
-		VkApplicationInfo appInfo{};
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Onyx Samples";
-		appInfo.pEngineName = "Onyx";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 2, 0);
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.apiVersion = VULKAN_API_VERSION;
-		appInfo.pNext = nullptr;
+		VkApplicationInfo appInfo
+        {
+		    .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+			.pNext = nullptr,
+	        .pApplicationName = "Onyx Samples",
+			.applicationVersion = VK_MAKE_VERSION(1, 2, 0),
+		    .pEngineName = "Onyx",
+		    .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+		    .apiVersion = VULKAN_API_VERSION,
+		};
         
 		// TODO: should this come from the platform context?
 		std::vector<const char*> requiredExtensions;
 		requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-		window.GetRequiredExtensions(requiredExtensions);
+
+		// TODO : FIX!!!
+		requiredExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 
         if (m_EnableValidations)
 			requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -32,12 +36,16 @@ namespace Onyx::Graphics::Vulkan
 			return;
 		}
 
-		VkInstanceCreateInfo instanceCreateInfo{};
-		instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		instanceCreateInfo.pNext = nullptr;
-		instanceCreateInfo.pApplicationInfo = &appInfo;
-		instanceCreateInfo.enabledExtensionCount = static_cast<onyxU32>(requiredExtensions.size());
-		instanceCreateInfo.ppEnabledExtensionNames = requiredExtensions.data();
+		VkInstanceCreateInfo instanceCreateInfo{
+		    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		    .pNext = nullptr,
+			.flags = 0,
+		    .pApplicationInfo = &appInfo,
+			.enabledLayerCount = 0,
+			.ppEnabledLayerNames = nullptr,
+		    .enabledExtensionCount = static_cast<onyxU32>(requiredExtensions.size()),
+			.ppEnabledExtensionNames = requiredExtensions.data(),
+		};
 
 		VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo{};
 		VkValidationFeaturesEXT  validationFeaturesExtensionInfo{};

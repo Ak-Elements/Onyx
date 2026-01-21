@@ -13,7 +13,6 @@ namespace Onyx::Graphics::Vulkan
         onyxS32 Graphics = -1;
         onyxS32 Compute = -1;
         onyxS32 Transfer = -1;
-        onyxS32 Present = -1;
     };
 
     enum class MemoryType : onyxU8
@@ -28,7 +27,7 @@ namespace Onyx::Graphics::Vulkan
     class PhysicalDevice : public NonCopyable
     {
     public:
-        explicit PhysicalDevice(const Instance& instance, const Surface& surface);
+        explicit PhysicalDevice(const Instance& instance);
         ~PhysicalDevice();
 
         onyxU32 GetMemoryType(onyxU32 typeBits, VkMemoryPropertyFlags properties, VkMemoryPropertyFlags preferredPropertyFlags) const;
@@ -39,7 +38,6 @@ namespace Onyx::Graphics::Vulkan
 
         onyxS32 GetGraphicsQueueIndex() const { return m_QueueFamilyIndices.Graphics; }
         onyxS32 GetComputeQueueIndex() const { return m_QueueFamilyIndices.Compute; }
-        onyxS32 GetPresentQueueIndex() const { return m_QueueFamilyIndices.Present; }
 
         VkFormat GetDepthFormat() const { return m_DepthFormat; }
 
@@ -49,11 +47,13 @@ namespace Onyx::Graphics::Vulkan
             vkGetPhysicalDeviceFeatures2(m_PhysicalDevice, &outFeature);
         }
 
+        onyxS32 GetPresentQueueIndex(const Surface& surface) const;
+
     private:
         void SelectPhysicalDevice(const Instance& instance);
         void RetrieveSupportedExtensions();
         void RetrieveQueueFamilyProperties();
-        void RetrieveQueueFamilyIndices(const Surface& surface);
+        void RetrieveQueueFamilyIndices();
 
         VkFormat GetSupportedDepthFormat(bool checkSamplingSupport) const;
         VkSampleCountFlagBits GetMaxUsableSampleCount() const;

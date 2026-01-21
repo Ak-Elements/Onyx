@@ -7,9 +7,10 @@
 #include <onyx/rhi/renderpasscache.h>
 #include <onyx/rhi/shader/psocache.h>
 #include <onyx/rhi/shader/shadercache.h>
-
 #include <onyx/rhi/framecontext.h>
 #include <onyx/rhi/graphicsettings.h>
+
+#include <onyx/platform/platformfwd.h>
 
 namespace Onyx::Assets
 {
@@ -124,7 +125,8 @@ namespace Onyx::Graphics
 #endif
         void WaitIdle();
 
-        void OnWindowResize(onyxU32 width, onyxU32 height);
+        void OnWindowResize(Vector2s32 /*extents*/);
+        
 
         Sink<BeginFrameSignalT> OnBeginFrame() { return Sink{ m_BeginFrameSignal }; }
         Sink<BeginFrameSignalT> OnRenderFrame() { return Sink{ m_RenderFrameSignal }; }
@@ -134,6 +136,9 @@ namespace Onyx::Graphics
         void LoadSettings();
 
     private:
+        void OnWindowCreate(const Platform::Window& window);
+        void OnWindowDestroy(const Platform::Window& window);
+
         void CreateDepthImages(Vector2s32 extents);
         void CreateViewConstantBuffers();
 

@@ -83,7 +83,6 @@ namespace Onyx::Graphics::Vulkan
 		vkGetDeviceQueue(m_Device, queueFamilyIndices.Graphics, 0, &m_GraphicsQueue);
 		vkGetDeviceQueue(m_Device, queueFamilyIndices.Compute, 0, &m_ComputeQueue);
 		vkGetDeviceQueue(m_Device, queueFamilyIndices.Transfer, 0, &m_TransferQueue);
-		vkGetDeviceQueue(m_Device, queueFamilyIndices.Present, 0, &m_PresentQueue);
 	}
 
 	Device::~Device()

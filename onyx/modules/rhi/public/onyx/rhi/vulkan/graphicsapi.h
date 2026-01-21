@@ -38,7 +38,7 @@ namespace Onyx::Graphics
             VulkanGraphicsApi();
             ~VulkanGraphicsApi() override;
 
-            void Init(const GraphicSettings& settings, const Platform::Window& window) override;
+            void Init(const GraphicSettings& settings) override;
             void Shutdown() override;
 
             bool BeginFrame(const FrameContext& context) override;
@@ -47,15 +47,12 @@ namespace Onyx::Graphics
             const Instance& GetInstance() const { return *m_Instance; }
             const PhysicalDevice& GetPhysicalDevice() const { return *m_PhysicalDevice; }
             const Device& GetDevice() const { return *m_Device; }
-            const Surface& GetSurface() const { return *m_Surface; }
 
             SwapChain& GetSwapChain() { return *m_SwapChain; }
             const SwapChain& GetSwapChain() const { return *m_SwapChain; }
 
             MemoryAllocator& GetAllocator() { return *m_Allocator; }
             const MemoryAllocator& GetAllocator() const { return *m_Allocator; }
-            
-            const Platform::Window& GetWindow() const { return *m_Window; }
 
             // TODO: turn into own settings object instead of storing on device
             bool IsBindless() const override { return m_IsBindlessEnabled; }
@@ -79,10 +76,10 @@ namespace Onyx::Graphics
             void ReleaseTexture(const VulkanTexture& texture);
             std::lock_guard<std::mutex> LockGraphicsQueue();
 
-            void SignalPresent(onyxU32 presentIndex);
-
         private:
             void WaitIdle() const override;
+            void CreateSwapchain(const Platform::Window& window) override;
+
             void OnWindowResize(onyxU32 width, onyxU32 height) override;
 
             TextureHandle& GetAcquiredSwapChainImage() override;
@@ -109,7 +106,6 @@ namespace Onyx::Graphics
 
         private:
             std::mutex m_GraphicsMutex;
-            const Platform::Window* m_Window = nullptr;
 
             UniquePtr<Instance> m_Instance;
             UniquePtr<PhysicalDevice> m_PhysicalDevice;

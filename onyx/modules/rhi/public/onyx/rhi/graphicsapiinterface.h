@@ -2,7 +2,7 @@
 
 #include <onyx/noncopyable.h>
 #include <onyx/rhi/graphicshandles.h>
-#include <onyx/platform/window.h>
+#include <onyx/platform/platformfwd.h>
 
 namespace Onyx
 {
@@ -28,7 +28,7 @@ namespace Onyx
         public:
             virtual ~GraphicsApiInterface() = default;
 
-            virtual void Init(const GraphicSettings& settings, const Platform::Window& window) = 0;
+            virtual void Init(const GraphicSettings& settings) = 0;
             virtual void Shutdown() = 0;
 
             virtual bool BeginFrame(const FrameContext&) = 0;
@@ -46,6 +46,7 @@ namespace Onyx
 
         private:
             virtual void WaitIdle() const = 0;
+            virtual void CreateSwapchain(const Platform::Window& window) = 0;
 
             virtual TextureHandle& GetAcquiredSwapChainImage() = 0;
             virtual const TextureHandle& GetAcquiredSwapChainImage() const = 0;

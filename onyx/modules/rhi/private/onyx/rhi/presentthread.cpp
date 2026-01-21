@@ -58,8 +58,6 @@ namespace Onyx::Graphics
     void PresentThread::OnUpdate()
     {
         Vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->GetApi<Vulkan::VulkanGraphicsApi>();
-        Vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
-
         SetRefreshRate(m_GraphicsSystem->GetRefreshRate());
 
         while (IsRunning())
@@ -82,17 +80,16 @@ namespace Onyx::Graphics
 
             {
                 ONYX_PROFILE_SECTION(Present);
+                Vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
                 bool hasPresented = swapChain.Present(presentInfo.FrameIndex, presentInfo.BackbufferImageIndex);
                 if (hasPresented == false)
                 {
                     ClearQueue();
-                    m_GraphicsSystem->OnWindowResize(swapChain.GetExtent()[0], swapChain.GetExtent()[1]);
+                    //m_GraphicsSystem->OnWindowResize(swapChain.GetExtent()[0], swapChain.GetExtent()[1]);
                 }
             }
 
-
             ++m_PresentCount;
-            vulkan.SignalPresent( m_PresentCount );
 
             onyxU64 presentDuration = Time::GetCurrentNanoseconds() - presentStart;
             if (presentDuration < m_TargetFrameTime)

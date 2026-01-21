@@ -21,11 +21,15 @@
 
 namespace Onyx::Graphics::Vulkan
 {
-    SwapChain::SwapChain(VulkanGraphicsApi& api)
+    SwapChain::SwapChain(VulkanGraphicsApi& api, const Surface& surface, const Platform::Window& window)
         : m_GraphicsApi(api)
-	    , m_Device(api.GetDevice())
+		, m_Window(&window)
+        , m_Surface(surface)
+        , m_Device(api.GetDevice())
     {
 	    Init();
+
+		m_Window->OnResize().Connect<&SwapChain::OnWindowResize>(this);
     }
 
     SwapChain::~SwapChain()
@@ -39,6 +43,11 @@ namespace Onyx::Graphics::Vulkan
     bool SwapChain::BeginFrame(onyxU8 frameIndex)
     {
 	    ONYX_PROFILE_FUNCTION;
+
+		if (m_ShouldResize)
+		{
+			Init();
+		}
 
 	    const VkDevice device = m_Device.GetHandle();
 
@@ -56,10 +65,7 @@ namespace Onyx::Graphics::Vulkan
             result = vkAcquireNextImageKHR(device, m_SwapChain, UINT64_MAX, syncObject.m_ImageAcquired->GetHandle(), VK_NULL_HANDLE, &m_CurrentImageIndex);
 		    if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		    {
-			    vkDeviceWaitIdle(device);
-			    Init();
-			    vkDeviceWaitIdle(device);
-			    m_CurrentImageIndex = onyxMax_U32;
+				m_ShouldResize = true;
 			    return false;
 		    }
 	    }
@@ -92,9 +98,9 @@ namespace Onyx::Graphics::Vulkan
 		    std::lock_guard lock(mutex);
 		    std::lock_guard queueLock = m_GraphicsApi.LockGraphicsQueue();
 		    VkResult result = vkQueuePresentKHR(m_Device.GetGraphicsQueue(), &presentInfo);
-		    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR))
+		    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || m_ShouldResize)
 		    {
-			    Init();
+				m_ShouldResize = true;
 			    return false;
 		    }
 	    }
@@ -104,26 +110,26 @@ namespace Onyx::Graphics::Vulkan
 
     void SwapChain::Init()
     {
-	    const Platform::Window& window = m_GraphicsApi.GetWindow();
-	    if (window.IsMinimized())
-		    return;
+		vkDeviceWaitIdle(m_Device.GetHandle());
 
-	    const bool isVSyncEnabled = window.IsVSyncEnabled();
+		m_ShouldResize = false;
+		bool hasSwapchain = m_SwapChain != nullptr;
+
 	    const PhysicalDevice& physicalDevice = m_GraphicsApi.GetPhysicalDevice();
 
-	    const SupportDetails details = QuerySwapChainSupport(physicalDevice, m_GraphicsApi.GetSurface());
+	    const SupportDetails details = QuerySwapChainSupport(physicalDevice, m_Surface);
 	    ONYX_ASSERT(!details.Formats.empty(), "empty swap chain support");
 	    ONYX_ASSERT(!details.PresentModes.empty(), "empty swap chain support");
 
 	    const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(details.Formats);
-	    const VkPresentModeKHR actualPresentMode = ChooseSwapPresentMode(details.PresentModes, isVSyncEnabled);
-	    const VkExtent2D extent = ChooseSwapExtent(window.GetFrameBufferSize(), details.Capabilities);
+	    const VkPresentModeKHR actualPresentMode = ChooseSwapPresentMode(details.PresentModes, m_Window->IsVSyncEnabled());
+	    const VkExtent2D extent = ChooseSwapExtent(m_Window->GetFrameBufferSize(), details.Capabilities);
 	    const onyxU32 imageCount = ChooseImageCount(details.Capabilities);
 	    const VkSurfaceTransformFlagBitsKHR preTransform = ChoosePreTransform(details.Capabilities);
 
 	    VkSwapchainCreateInfoKHR createInfo = {};
 	    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	    createInfo.surface = m_GraphicsApi.GetSurface().GetHandle();
+	    createInfo.surface = m_Surface.GetHandle();
 	    createInfo.minImageCount = imageCount;
 	    createInfo.imageFormat = surfaceFormat.format;
 	    createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -148,14 +154,14 @@ namespace Onyx::Graphics::Vulkan
 		    createInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	    }
 
-	    onyxU32 queueFamilyIndices[] = { static_cast<onyxU32>(physicalDevice.GetGraphicsQueueIndex()), static_cast<onyxU32>(physicalDevice.GetPresentQueueIndex()) };
-	    if (physicalDevice.GetGraphicsQueueIndex() != physicalDevice.GetPresentQueueIndex())
-	    {
-		    createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		    createInfo.queueFamilyIndexCount = 2;
-		    createInfo.pQueueFamilyIndices = queueFamilyIndices;
-	    }
-	    else
+	    //onyxU32 queueFamilyIndices[] = { static_cast<onyxU32>(physicalDevice.GetGraphicsQueueIndex()), static_cast<onyxU32>(physicalDevice.GetPresentQueueIndex()) };
+	    //if (physicalDevice.GetGraphicsQueueIndex() != physicalDevice.GetPresentQueueIndex())
+	    //{
+		 //   createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		 //   createInfo.queueFamilyIndexCount = 2;
+		 //   createInfo.pQueueFamilyIndices = queueFamilyIndices;
+	    //}
+	    //else
 	    {
 		    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		    createInfo.queueFamilyIndexCount = 0; // Optional
@@ -171,8 +177,8 @@ namespace Onyx::Graphics::Vulkan
 	    m_MinImageCount = (std::max)(2u, details.Capabilities.minImageCount);
 	    m_PresentMode = actualPresentMode;
 	    m_ColorFormat = VulkanTextureStorage::GetFormat(surfaceFormat.format);
-	    m_Extent[0] = extent.width;
-        m_Extent[1] = extent.height;
+		m_Extent[0] = numeric_cast<onyxS32>(extent.width);
+        m_Extent[1] = numeric_cast<onyxS32>(extent.height);
 
 	    m_ImageCount = 0;
 	    vkGetSwapchainImagesKHR(m_Device.GetHandle(), m_SwapChain, &m_ImageCount, nullptr);
@@ -198,17 +204,26 @@ namespace Onyx::Graphics::Vulkan
 		    texture.Texture = Reference<VulkanTexture, TextureDeleter>::Create(m_GraphicsApi, textureProps, textureStorage.Raw());
 	    }
 
-	    for (onyxU8 i = 0; i < m_ImageCount; ++i)
-	    {
-		    SyncObject& syncObj = m_FrameSyncObjects[i];
-		    syncObj.m_ImageAcquired = MakeUnique<Semaphore>(m_Device);
-		    syncObj.m_RenderComplete = MakeUnique<Semaphore>(m_Device);
+		if (hasSwapchain == false)
+		{
+			for (onyxU8 i = 0; i < m_ImageCount; ++i)
+			{
+				SyncObject& syncObj = m_FrameSyncObjects[i];
+				syncObj.m_ImageAcquired = MakeUnique<Semaphore>(m_Device);
+				syncObj.m_RenderComplete = MakeUnique<Semaphore>(m_Device);
 
-		    if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-		    {
-			    syncObj.m_RenderCompleteFence = MakeUnique<Fence>(m_Device, true);
-		    }
-	    }
+				if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
+				{
+					syncObj.m_RenderCompleteFence = MakeUnique<Fence>(m_Device, true);
+				}
+			}
+		}
+		vkDeviceWaitIdle(m_Device.GetHandle());
+    }
+
+    void SwapChain::OnWindowResize(Vector2s32 /*windowExtents*/)
+    {
+		m_ShouldResize = true;
     }
 
     TextureHandle& SwapChain::GetAcquiredBackbuffer()
@@ -301,10 +316,9 @@ namespace Onyx::Graphics::Vulkan
 		    return capabilities.currentExtent;
 	    }
 
-	    VkExtent2D actualExtent{};
-	    actualExtent.width = std::max(static_cast<onyxU32>(windowSize.X), std::min(capabilities.maxImageExtent.width, actualExtent.width));
-	    actualExtent.height = std::max(static_cast<onyxU32>(windowSize.Y), std::min(capabilities.maxImageExtent.height, actualExtent.height));
-
+	    VkExtent2D actualExtent{ static_cast<onyxU32>(windowSize.X), static_cast<onyxU32>(windowSize.Y) };
+	    actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+		actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
 	    return actualExtent;
     }
 
