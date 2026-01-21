@@ -63,7 +63,7 @@ namespace Onyx::Platform::Wayland
         WindowSettings& GetSettings() { return m_Settings; }
         const WindowSettings& GetSettings() const { return m_Settings; }
 
-        Sink<ResizeSignalT> OnResize() { return Sink(m_ResizeSignal); }
+        Sink<ResizeSignalT> OnResize() const { return Sink(m_ResizeSignal); }
         Sink<FocusSignalT> OnFocus() { return Sink(m_FocusSignal); }
         Sink<CloseSignalT> OnClose() { return Sink(m_CloseSignal); }
 
@@ -87,7 +87,7 @@ namespace Onyx::Platform::Wayland
     private:
         WindowSettings m_Settings;
 
-        ResizeSignalT m_ResizeSignal;
+        mutable ResizeSignalT m_ResizeSignal;
         FocusSignalT m_FocusSignal;
         CloseSignalT m_CloseSignal;
 

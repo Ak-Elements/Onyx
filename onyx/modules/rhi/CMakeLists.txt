@@ -11,9 +11,9 @@ set(private_defines
 )
 
 if (WIN32)
-    list(APPEND private_defines VK_USE_PLATFORM_WIN32_KHR)
+    list(APPEND private_defines VK_USE_PLATFORM_WIN32_KHR "ONYX_VK_SURFACE_EXTENSION_NAME=VK_KHR_WIN32_SURFACE_EXTENSION_NAME")
 elseif(UNIX)
-    list(APPEND private_defines VK_USE_PLATFORM_WAYLAND_KHR)
+    list(APPEND private_defines VK_USE_PLATFORM_WAYLAND_KHR "ONYX_VK_SURFACE_EXTENSION_NAME=VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME")
 endif()
 
 onyx_add_target(onyx-rhi

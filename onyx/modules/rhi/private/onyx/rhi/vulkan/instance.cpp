@@ -23,9 +23,8 @@ namespace Onyx::Graphics::Vulkan
 		// TODO: should this come from the platform context?
 		std::vector<const char*> requiredExtensions;
 		requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-
-		// TODO : FIX!!!
-		requiredExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        
+		requiredExtensions.push_back(ONYX_VK_SURFACE_EXTENSION_NAME);
 
         if (m_EnableValidations)
 			requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
