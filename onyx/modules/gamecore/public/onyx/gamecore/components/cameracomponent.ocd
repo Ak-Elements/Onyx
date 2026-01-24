@@ -3,6 +3,6 @@ CameraComponent
 {
     [ReadOnly]
     bool IsPrimary
-    [RuntimeOnly, Hidden]
+    [Transient, Hidden]
     Camera Camera
 };

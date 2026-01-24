@@ -43,6 +43,18 @@ namespace Onyx::Ui
             return it->second(instance, forceShow);
         }
 
+        template <typename T>
+        static bool IsTypeRegistered()
+        {
+            constexpr onyxU32 typeId = TypeHash<T>();
+            return IsTypeRegistered(typeId);
+        }
+
+        static bool IsTypeRegistered(onyxU32 runtimeTypeId)
+        {
+            return s_PropertyInspectors.contains(runtimeTypeId);
+        }
+
     private:
         static inline HashMap<onyxU32, bool(*)(void*, bool)> s_PropertyInspectors;
     };

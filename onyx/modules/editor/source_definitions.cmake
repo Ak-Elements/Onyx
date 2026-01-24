@@ -37,11 +37,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     editor_localization.cpp
     camera/freecamera.cpp
     assets/importer/textureimporter.cpp
-    components/graphics/lightcomponents.cpp
-    components/graphics/materialcomponent.cpp
-    components/graphics/textcomponent_editor.cpp
-    components/volume/csg/spherecomponent_editor.cpp
-    components/volume/volumeterraincomponent_editor.cpp
     nodegraph/arithmeticnodes_editor.cpp
     nodegraph/vectornodes_editor.cpp
     nodegraph/grapheditorcontext.cpp

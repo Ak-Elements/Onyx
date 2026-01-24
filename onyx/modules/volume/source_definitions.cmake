@@ -3,11 +3,10 @@ set(onyx_TARGET_PUBLIC_SOURCES
     chunk/volumechunk.h
     chunk/volumechunkloader.h
     chunk/volumechunkloadrequest.h
-    components/volumesourcerenderdatacomponent.h
-    components/volumeterraincomponent.h
-    components/csg/cubecomponent.h
-    components/csg/planecomponent.h
-    components/csg/spherecomponent.h
+    components/volumeterraincomponent.ocd
+    components/csg/cubecomponent.ocd
+    components/csg/planecomponent.ocd
+    components/csg/spherecomponent.ocd
     cubicalmarchingsquares/cmsoctreesplitpolicy.h
     cubicalmarchingsquares/linesegment.h
     cubicalmarchingsquares/vertex.h
@@ -87,10 +86,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     chunk/volumechunk.cpp
     chunk/volumechunkloader.cpp
     chunk/volumechunkloadrequest.cpp
-    components/volumeterraincomponent.cpp
-    components/csg/cubecomponent.cpp
-    components/csg/planecomponent.cpp
-    components/csg/spherecomponent.cpp
     graphics/previewterrainedit.cpp
     isosurface/isosurface.cpp
     isosurface/marchingcubessurface.cpp

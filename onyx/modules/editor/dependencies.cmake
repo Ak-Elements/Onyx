@@ -4,6 +4,7 @@ set(onyx_TARGET_PUBLIC_DEPENDENCIES
     onyx-inputactions
     onyx-localization
     onyx-volume
+    onyx-ui
     ImGui
     ImGuiNodeEditor
     ImGuiPlot2D

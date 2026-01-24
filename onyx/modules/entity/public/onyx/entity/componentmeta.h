@@ -16,10 +16,10 @@ namespace Onyx::Entity
     namespace Details
     {
         template<typename T>
-        concept HasHideInEditor = requires(T obj) { T::HideInEditor; };
+        concept IsTransient = requires(T obj) { T::IsTransient; };
 
         template<typename T>
-        concept IsTransient = requires(T obj) { T::IsTransient; };
+        concept IsRuntimeOnly = requires(T obj) { T::IsRuntimeOnly; };
 
         template <typename T>
         concept IsFlagComponent = std::is_empty_v<T>;
@@ -44,8 +44,8 @@ namespace Onyx::Entity
 #if !ONYX_IS_RETAIL
         //virtual bool DrawPropertyGridEditor(void* componentAny) const = 0;
 #endif
-        virtual constexpr bool ShowInEditor() const = 0;
         virtual constexpr bool IsTransient() const = 0;
+        virtual constexpr bool IsRuntimeOnly() const = 0;
         virtual constexpr bool IsFlag() const = 0;
         virtual constexpr StringId32 GetTypeId() const = 0;
         virtual constexpr onyxU32 GetRuntimeTypeId() const = 0;
@@ -70,7 +70,7 @@ namespace Onyx::Entity
         }
 
         constexpr bool IsTransient() const override { return Details::IsTransient<T>; }
-        constexpr bool ShowInEditor() const override { return Details::HasHideInEditor<T> == false; }
+        constexpr bool IsRuntimeOnly() const override { return Details::IsRuntimeOnly<T>; }
         constexpr bool IsFlag() const override { return Details::IsFlagComponent<T>; }
 
         constexpr StringId32 GetTypeId() const override

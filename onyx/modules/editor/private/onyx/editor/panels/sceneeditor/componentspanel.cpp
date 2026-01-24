@@ -54,7 +54,7 @@ namespace Onyx::Editor::SceneEditor
                 {
                     if (const Entity::IComponentMeta* componentMeta = componentFactory.GetComponentMeta(componentStorageIt.first).value_or(nullptr))
                     {
-                        if ((m_ShowAll == false) && (componentMeta->ShowInEditor() == false))
+                        if (Ui::PropertyInspectors::IsTypeRegistered(componentMeta->GetRuntimeTypeId()) == false)
                         {
                             continue;
                         }
@@ -68,6 +68,7 @@ namespace Onyx::Editor::SceneEditor
                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
                         };
 
+                        
                         Onyx::Localization::LocalizationId localizationId(componentTypeId);
                         Localization::LocalizedString componentName = m_LocalizationModule->GetLocalized(localizationId);
                         if (Ui::ContextMenuHeader(componentName, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
@@ -152,7 +153,7 @@ namespace Onyx::Editor::SceneEditor
         Ui::TreeItem root;
         for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
         {
-            if (componentMeta->IsTransient() || (componentMeta->ShowInEditor() == false))
+            if ( componentMeta->IsTransient() || (componentMeta->IsRuntimeOnly() ) )
             {
                 continue;
             }

@@ -8,7 +8,7 @@
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
-#include <onyx/volume/components/volumeterraincomponent.h>
+#include <onyx/volume/components/volumeterraincomponent.gen.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
 
@@ -179,18 +179,18 @@ namespace Onyx::Volume::Terrain
             if (generationComponent.UpdateWorldOctreeShader != nullptr)
                 return;
 
-            if (terrainSettings.VolumeGraphAssetId.IsValid())
+            if (terrainSettings.VolumeGraph.HasAssetId())
             {
                 bool isAssetAvailable = true;
-                if ((generationComponent.VolumeShaderGraph.IsValid() == false))
+                if ((generationComponent.VolumeGraph.IsValid() == false))
                 {
                     generationComponent.HasLoadedShaders = false;
-                    isAssetAvailable = assetSystem.GetAsset(terrainSettings.VolumeGraphAssetId, generationComponent.VolumeShaderGraph);
+                    isAssetAvailable = assetSystem.GetAsset(terrainSettings.VolumeGraph.GetId(), generationComponent.VolumeGraph);
                 }
 
                 if (isAssetAvailable)
                 {
-                    if ((generationComponent.VolumeShaderGraph.IsValid() == false) || generationComponent.VolumeShaderGraph->IsLoading())
+                    if ((generationComponent.VolumeGraph.IsValid() == false) || generationComponent.VolumeGraph->IsLoading())
                         return;
                 }
                 
@@ -205,18 +205,18 @@ namespace Onyx::Volume::Terrain
             properties.Shader = Assets::AssetId("engine:/shaders/compute/volume/init_volume.oshader");
             generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
-            if (generationComponent.VolumeShaderGraph.HasAssetId())
+            if (generationComponent.VolumeGraph.HasAssetId())
             {
-                properties.Shader = generationComponent.VolumeShaderGraph->GetBuildOctreeShader();
+                properties.Shader = generationComponent.VolumeGraph->GetBuildOctreeShader();
                 generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
-                properties.Shader = generationComponent.VolumeShaderGraph->GetFindOctreeNodeShader();
+                properties.Shader = generationComponent.VolumeGraph->GetFindOctreeNodeShader();
                 generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
-                properties.Shader = generationComponent.VolumeShaderGraph->GetGenerateVolumeMeshShader();
+                properties.Shader = generationComponent.VolumeGraph->GetGenerateVolumeMeshShader();
                 generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
 
-                properties.Shader = generationComponent.VolumeShaderGraph->GetRaytraceTerrainShader();
+                properties.Shader = generationComponent.VolumeGraph->GetRaytraceTerrainShader();
                 generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
             }
             else
@@ -234,7 +234,7 @@ namespace Onyx::Volume::Terrain
                 generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance(properties.Shader, properties);
             }
 
-            generationComponent.HasLoadedShaders = true;
+            //generationComponent.HasLoadedShaders = true;
         }
 
         void ResetBuffers(Graphics::CommandBuffer& computeCommandBuffer, const VolumeGenerationComponent& volumeGeneration, Graphics::BufferHandle& surfaceRequests, Graphics::BufferHandle& indirectDraw, Graphics::BufferHandle& indirectDispatch, Graphics::BufferHandle& splitRequests)

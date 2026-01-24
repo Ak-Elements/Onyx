@@ -1,5 +1,10 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     gamecore.h
+    components/graphics/directionallightcomponent.ocd
+    components/graphics/materialcomponent.ocd
+    components/graphics/pointlightcomponent.ocd
+    components/graphics/spotlightcomponent.ocd
+    components/graphics/textcomponent.ocd
     components/cameracomponent.ocd
     components/freecameracomponent.ocd
     components/idcomponent.ocd
@@ -7,9 +12,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     components/transformcomponent.h
     components/transformcomponent.ocd
     components/transientcomponent.ocd
-    components/graphics/lightcomponents.h
-    components/graphics/materialcomponent.h
-    components/graphics/textcomponent.h
     rendertasks/depthprepassrendertask.h
     rendertasks/staticmeshrendertask.h
     rendertasks/textrendertask.h
@@ -26,9 +28,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
 set(onyx_TARGET_PRIVATE_SOURCES
     gamecore.cpp
     components/transformcomponent.cpp
-    components/graphics/lightcomponents.cpp
-    components/graphics/materialcomponent.cpp
-    components/graphics/textcomponent.cpp
     rendertasks/depthprepassrendertask.cpp
     rendertasks/staticmeshrendertask.cpp
     rendertasks/textrendertask.cpp

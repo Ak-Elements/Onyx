@@ -1,0 +1,10 @@
+PointLightComponent
+{
+    onyxF32 Intensity = 1.0f
+
+    Vector3f32 Color = { 1.0f, 1.0f, 1.0f }
+    onyxF32 Radius
+
+    bool IsEnabled = true
+    bool IsShadowCasting = true
+};

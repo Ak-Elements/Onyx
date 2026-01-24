@@ -4,7 +4,7 @@
 
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/geometry/rect2.h>
-#include <onyx/volume/components/volumeterraincomponent.h>
+#include <onyx/volume/components/volumeterraincomponent.gen.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 #include <onyx/gamecore/gamecore.h>

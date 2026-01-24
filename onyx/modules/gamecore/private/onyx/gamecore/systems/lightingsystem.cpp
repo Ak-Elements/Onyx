@@ -4,7 +4,9 @@
 #include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/rhi/framecontext.h>
 #include <onyx/gamecore/gamecore.h>
-#include <onyx/gamecore/components/graphics/lightcomponents.h>
+#include <onyx/gamecore/components/graphics/directionallightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/pointlightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/spotlightcomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 
 #include <onyx/gamecore/scene/scene.h>
@@ -25,7 +27,10 @@ namespace Onyx::GameCore::Lighting
                 auto tuple = lightEntities.get<const DirectionalLightComponent, const TransformComponent>(lightEntity);
                 auto&& [lightComponent, transformComponent] = tuple;
                 Graphics::DirectionalLight& light = frameContext.Lighting.DirectionalLights[directionalLightIndex++];
-                light = lightComponent.Light;
+                light.Color = lightComponent.Color;
+                light.Intensity = lightComponent.Intensity;
+                light.ShadowAmount = lightComponent.ShadowAmount;
+                light.IsShadowCasting = lightComponent.IsShadowCasting;
                 light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
             }
 
@@ -46,8 +51,12 @@ namespace Onyx::GameCore::Lighting
                 const PointLightComponent& lightComponent = pointLightEntities.get<PointLightComponent>(lightEntity);
 
                 Graphics::PointLight& light = frameContext.Lighting.PointLights[pointLightIndex++];
-                light = lightComponent.Light;
                 light.Position = transformComponent.Translation;
+                light.Color = lightComponent.Color;
+                light.Intensity = lightComponent.Intensity;
+                light.Radius = lightComponent.Radius;
+                light.IsEnabled = lightComponent.IsEnabled;
+                light.IsShadowCasting = lightComponent.IsShadowCasting;
 
                 auto viewSpacePos = frameContext.ViewConstants.ViewMatrix * Vector4f32(light.Position, 1.0f);
                 auto distance = (Vector3f32(viewSpacePos) - frameContext.ViewConstants.CameraPosition).Length();
@@ -74,9 +83,15 @@ namespace Onyx::GameCore::Lighting
                     const SpotLightComponent& lightComponent = spotLightEntities.get<SpotLightComponent>(lightEntity);
 
                     Graphics::SpotLight& light = frameContext.Lighting.SpotLights[spotLightIndex++];
-                    light = lightComponent.Light;
                     light.Position = transformComponent.Translation;
                     light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
+                    light.Color = lightComponent.Color;
+                    light.Intensity = lightComponent.Intensity;
+                    light.Falloff = lightComponent.Falloff;
+                    light.Angle = lightComponent.Angle;
+                    light.AngleAttenuation = lightComponent.AngleAttenuation;
+                    light.Range = lightComponent.Range;
+                    light.IsShadowCasting = lightComponent.IsShadowCasting;
                 }
 
                 frameContext.Lighting.SpotLightsCount = spotLightIndex;

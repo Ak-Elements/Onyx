@@ -2,11 +2,14 @@
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entityregistry.h>
-#include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/rhi/graphicssystem.h>
-#include <onyx/gamecore/components/graphics/lightcomponents.h>
-#include <onyx/gamecore/components/graphics/materialcomponent.h>
-#include <onyx/gamecore/components/graphics/textcomponent.h>
+#include <onyx/gamecore/components/cameracomponent.gen.h>
+#include <onyx/gamecore/components/graphics/directionallightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/pointlightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/spotlightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/materialcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/textcomponent.gen.h>
+#include <onyx/graphics/font/sdffont.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/systems/lightingsystem.h>
@@ -44,7 +47,7 @@ namespace Onyx::GameCore
             {
                 Reference<Graphics::SDFFont> fontAsset;
                 //loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
-                textComponent.SetFont(fontAsset);
+                //textComponent.SetFont(fontAsset);
 
                 registry.AddComponent<TextComponent>(entity, std::move(textComponent));
             });

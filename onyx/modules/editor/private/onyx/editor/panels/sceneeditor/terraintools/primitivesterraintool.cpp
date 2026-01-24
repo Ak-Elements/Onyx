@@ -10,9 +10,9 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
-#include <onyx/volume/components/volumeterraincomponent.h>
-#include <onyx/volume/components/csg/cubecomponent.h>
-#include <onyx/volume/components/csg/spherecomponent.h>
+#include <onyx/volume/components/volumeterraincomponent.gen.h>
+#include <onyx/volume/components/csg/cubecomponent.gen.h>
+#include <onyx/volume/components/csg/spherecomponent.gen.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 
 #include <imgui.h>

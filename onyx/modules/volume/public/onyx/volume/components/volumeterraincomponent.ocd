@@ -1,0 +1,44 @@
+TerrainSettingsComponent
+{
+    onyxS32 Size = 16384
+
+    onyxU32 ChunkSize = 64
+    onyxU32 Resolution = 512
+
+    onyxF32 MaxGeometricError = 0.1
+    onyxF32 ComplexSurfaceThreshold = 0.9
+
+    AssetHandle<VolumeShaderGraph> VolumeGraph
+}
+
+[Hidden, Transient]
+TerrainWorldOctreeComponent
+{
+    DynamicArray<WorldChunksOctreeNode> Octree
+
+    BufferHandle OctreeGpuBuffer
+    BufferHandle OctreeChunksBuffer
+
+    onyxU32 VolumeObjectsCount = 0
+    BufferHandle VolumeObjects
+    BufferHandle VolumeObjectsData
+
+    onyxF32 RootSize = 1.0f
+    onyxU8 MaxDepth = 0
+    onyxU8 ChunkMaxDepth = 0
+}
+
+[Hidden, Transient]
+VolumeGenerationComponent
+{
+    ShaderInstanceHandle ResetBuffersShader
+    ShaderInstanceHandle UpdateWorldOctreeShader
+    ShaderInstanceHandle SetupDispatchGenerateMeshShader
+    ShaderInstanceHandle GenerateMeshShader
+    ShaderInstanceHandle RayTraceTerrainShader
+    ShaderInstanceHandle FindRayTracedOctreeNodeShader
+
+    Assets::AssetHandle<VolumeShaderGraph> VolumeGraph
+    
+    bool HasLoadedShaders = false
+}

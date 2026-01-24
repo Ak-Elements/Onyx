@@ -1,4 +1,4 @@
-[RuntimeOnly, Hidden]
+[Transient, Hidden]
 TransientComponent
 {
 };
