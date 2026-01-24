@@ -48,6 +48,10 @@ function(onyx_add_target TARGET_NAME)
         # adjust namespace after the create target to not change namespace folder path
         set_target_properties(${TARGET_NAME}-editor PROPERTIES ONYX_NAMESPACE "${arg_NAMESPACE}::Editor")
 
+        get_property(editorTargets GLOBAL PROPERTY onyx_EDITOR_TARGETS)
+        list(APPEND editorTargets ${TARGET_NAME}-editor)
+        set_property(GLOBAL PROPERTY onyx_EDITOR_TARGETS ${editorTargets})
+
     endif()
 
     if (NOT arg_NO_CODEGEN)

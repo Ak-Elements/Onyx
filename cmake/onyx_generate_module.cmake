@@ -145,7 +145,7 @@ function(onyx_add_codegen_for_target)
         OUTPUT ${generated_public_sources} ${generated_private_sources}
         COMMAND ${ONYX_CODEGEN} "${config}"
         DEPENDS
-            ${target_public_sources}
+            "${target_public_sources}"
             "${ONYX_CODEGEN}"
             "${config}"
         COMMENT "Running Onyx codegen for ${arg_TARGET}"
