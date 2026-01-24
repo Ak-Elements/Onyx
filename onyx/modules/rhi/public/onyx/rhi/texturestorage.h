@@ -16,7 +16,7 @@ namespace Onyx::Graphics
 
 		const TextureStorageProperties& GetProperties() const { return m_Properties; }
 
-        virtual void TransitionLayout(CommandBuffer& commandBuffer, Context context, Access access, onyxU32 newLayout) = 0;
+        virtual void TransitionLayout(CommandBuffer& commandBuffer, Context context, Access access, ImageLayout newLayout) = 0;
 
     protected:
 		TextureStorageProperties m_Properties;

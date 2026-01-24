@@ -76,6 +76,9 @@ namespace Onyx::Graphics
 {
     void RenderGraphShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
+        // TODO: Cleanup render graph resources from transition to node graph
+        // Resource and output info's both store the type (Reference / Attachment etc.)
+        // This is very confusing and should be cleaned up and sanitized
         ONYX_PROFILE_FUNCTION;
 
         const onyxU32 outputPinCount = GetOutputPinCount();
@@ -90,6 +93,11 @@ namespace Onyx::Graphics
             resource.Info.Name = GetPinName(outputPin->GetLocalId());
 #endif
             resource.IsExternal = outputInfo.IsExternal || (outputInfo.Type == RenderGraphResourceType::Reference);
+
+            if( resource.IsExternal == false )
+            {
+                resource.Info.Type = outputInfo.Type;
+            }
         }
 
         OnInit(api, resourceCache);
@@ -167,11 +175,11 @@ namespace Onyx::Graphics
             const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
             if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
             {
-                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::InputAttachmentRead, 1000314000);
+                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::InputAttachmentRead, ImageLayout::AttachmentOptimal);
             }
             else
             {
-                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead, 5);
+                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
                 //storage.TransitionLayout(cmdBuffer, Context::Graphics, 5/*VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL*/, 0x00000020ULL/*VK_ACCESS_2_SHADER_READ_BIT_KHR*/, 0, 1);
             }
         }
@@ -180,6 +188,7 @@ namespace Onyx::Graphics
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
             RenderGraphResource& output = context.Graph.GetResource(GetOutputPin(i)->GetGlobalId());
+
             if (output.Info.Type == RenderGraphResourceType::Attachment)
             {
                 TextureHandle& textureHandle = std::get<TextureHandle>(output.Handle);
@@ -189,11 +198,11 @@ namespace Onyx::Graphics
                 const TextureStorageProperties& properties = textureHandle.Storage->GetProperties();
                 if (Utils::IsDepthFormat(properties.m_Format))
                 {
-                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::DepthStencilWrite | Access::DepthStencilRead, 3/*VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL*/);
+                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::DepthStencilWrite | Access::DepthStencilRead, ImageLayout::AttachmentOptimal);
                 }
                 else
                 {
-                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead | Access::ColorAttachmentWrite, 1000314001);
+                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead | Access::ColorAttachmentWrite, ImageLayout::AttachmentOptimal);
                 }
             }
         }
@@ -469,11 +478,6 @@ namespace Onyx::Graphics
             }
 
             TextureHandle texture = std::get<TextureHandle>(inputResource.Handle);
-            if (texture.Texture.IsValid() == false)
-            {
-                ONYX_LOG_INFO("here");
-            }
-
             if (Utils::IsDepthFormat(properties.Format))
                 framebufferSettings.m_DepthTarget = texture.Texture;
             else

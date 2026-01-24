@@ -316,7 +316,7 @@ namespace Onyx::Graphics::Vulkan
         buffer.Buffer->Barrier(*this, newContext, newAccess, buffer.Alias);
     }
 
-    void VulkanCommandBuffer::TransitionLayout(TextureHandle& texture, Context newContext, Access newAccess, onyxU32 newLayout)
+    void VulkanCommandBuffer::TransitionLayout(TextureHandle& texture, Context newContext, Access newAccess, ImageLayout newLayout)
     {
         texture.Storage->TransitionLayout(*this, newContext, newAccess, newLayout);
     }

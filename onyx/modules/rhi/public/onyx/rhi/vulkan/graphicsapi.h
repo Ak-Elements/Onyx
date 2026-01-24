@@ -60,7 +60,8 @@ namespace Onyx::Graphics
             bool IsSynchronization2Enabled() const { return m_IsSynchronization2Enabled; }
             bool IsTimelineSemaphoreEnabled() const { return m_IsTimelineSemaphoreEnabled; }
             bool IsRenderPass2ExtensionEnabled() const { return m_IsRenderPass2ExtensionEnabled; }
-
+            bool IsUnifiedImageLayoutSupported() const { return m_IsUnifiedImageLayoutSupported; }
+            
             CommandBuffer& GetCommandBuffer(onyxU8 frameIndex) override;
             CommandBuffer& GetCommandBuffer(onyxU8 frameIndex, bool shouldBegin) override;
             CommandBuffer& GetComputeCommandBuffer(onyxU8 frameIndex) override;
@@ -143,6 +144,7 @@ namespace Onyx::Graphics
             bool m_IsSynchronization2Enabled = false;
             bool m_IsTimelineSemaphoreEnabled = false;
             bool m_IsRenderPass2ExtensionEnabled = false;
+            bool m_IsUnifiedImageLayoutSupported = false;
 
             struct TextureUpdate
             {

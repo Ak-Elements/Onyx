@@ -270,10 +270,27 @@ namespace Onyx::Graphics::Vulkan
 		static_assert(Enums::ToIntegral(Access::DepthStencilWrite) == VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
 		static_assert(Enums::ToIntegral(Access::DepthStencilRead) == VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
 		static_assert(Enums::ToIntegral(Access::ColorAttachmentWrite) == VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
-		
+		static_assert(Enums::ToIntegral(Access::TransferRead) == VK_ACCESS_TRANSFER_READ_BIT);
+        static_assert(Enums::ToIntegral(Access::TransferWrite) == VK_ACCESS_TRANSFER_WRITE_BIT);
+
 		VkAccessFlags2 returnFlags = static_cast<VkAccessFlags2>(access);
 		return returnFlags;
 	}
+
+    inline constexpr VkImageLayout ToImageLayout(ImageLayout layout)
+    {
+        switch (layout)
+        {
+            using enum ImageLayout;
+            case None: return VK_IMAGE_LAYOUT_UNDEFINED;
+            case General: return VK_IMAGE_LAYOUT_GENERAL;
+            case ReadOptimal: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            case AttachmentOptimal: return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+            case Present: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            case TransferSource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            case TransferDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        }
+    }
 }
 
 // Custom define for better code readability

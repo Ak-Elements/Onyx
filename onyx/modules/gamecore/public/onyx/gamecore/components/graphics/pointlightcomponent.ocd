@@ -2,6 +2,7 @@ PointLightComponent
 {
     onyxF32 Intensity = 1.0f
 
+    [Editor(Color)]
     Vector3f32 Color = { 1.0f, 1.0f, 1.0f }
     onyxF32 Radius
 

@@ -22,6 +22,9 @@ namespace Onyx::Graphics::RenderGraphNodes
 
         m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
         m_SkyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
+
+        RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+        transmittanceInfo.Type = RenderGraphResourceType::Attachment;
     }
 
     void AtmosphericSkyRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)

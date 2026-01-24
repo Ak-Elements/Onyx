@@ -228,7 +228,7 @@ namespace Onyx::Graphics
         // Transition image to present
         TextureHandle& swapchainTarget = m_GraphicsSystem->GetAcquiredSwapChainImage();
         CommandBuffer& commandBuffer = GetCommandBuffer(m_FrameIndex, true);
-        commandBuffer.TransitionLayout(swapchainTarget, Context::Graphics, Access::None, 1000001002);
+        commandBuffer.TransitionLayout(swapchainTarget, Context::Graphics, Access::None, ImageLayout::Present);
         //commandBuffer.End();
 
         m_GraphicsSystem->EndFrame(currentFrameContext);

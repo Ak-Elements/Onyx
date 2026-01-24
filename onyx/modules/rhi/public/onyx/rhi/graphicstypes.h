@@ -35,7 +35,20 @@ namespace Onyx::Graphics
         ColorAttachmentWrite = 1 << 8,
         DepthStencilRead = 1 << 9,
         DepthStencilWrite = 1 << 10,
+        TransferRead = 1 << 11,
+        TransferWrite = 1 << 12,
         ConditionalRead = 1 << 20,
+    };
+
+    enum class ImageLayout : onyxU32
+    {
+        None,
+        General,
+        ReadOptimal,
+        AttachmentOptimal,
+        Present,
+        TransferDestination,
+        TransferSource,
     };
 
     enum class CullMode : onyxU8

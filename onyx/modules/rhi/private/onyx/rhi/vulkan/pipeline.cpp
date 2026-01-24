@@ -231,6 +231,9 @@ namespace Onyx::Graphics::Vulkan
         if (shader->IsLoaded())
         {
             CreatePipeline(shader.As<Shader>());
+#if ONYX_IS_DEBUG
+            SetResourceName(m_Api->GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (onyxU64)m_Pipeline, shader.GetId().GetPath());
+#endif
         }
     }
 
@@ -535,6 +538,9 @@ namespace Onyx::Graphics::Vulkan
     void Pipeline::OnShaderLoaded(const ShaderHandle& shader)
     {
         CreatePipeline(shader.As<Shader>());
+#if ONYX_IS_DEBUG
+            SetResourceName(m_Api->GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (onyxU64)m_Pipeline, shader.GetId().GetPath());
+#endif
     }
 
 }

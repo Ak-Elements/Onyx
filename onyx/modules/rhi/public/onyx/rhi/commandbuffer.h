@@ -51,7 +51,7 @@ namespace Onyx::Graphics
         virtual void Bind(const BufferHandle& buffer, const String& bindingName) = 0;
 
         virtual void Barrier(BufferHandle& buffer, Context newContext, Access newAccess) = 0;
-        virtual void TransitionLayout(TextureHandle& texture, Context newContext, Access newAccess, onyxU32 newLayout) = 0;
+        virtual void TransitionLayout(TextureHandle& texture, Context newContext, Access newAccess, ImageLayout newLayout) = 0;
 
         virtual void SetViewport() = 0;
         virtual void SetViewport(const Viewport& viewport) = 0;

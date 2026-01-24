@@ -720,7 +720,7 @@ namespace Onyx::Ui
 		Graphics::FramebufferHandle frameBuffer = frameContext.Api->GetOrCreateFramebuffer(framebufferSettings);
 
 		// TODO: Do a proper barrier here for the rendergraph to be finished and the imgui pass to start
-		commandBuffer.TransitionLayout(swapchainImage, Graphics::Context::Graphics, Graphics::Access::ColorAttachmentWrite, 1000314001);
+		commandBuffer.TransitionLayout(swapchainImage, Graphics::Context::Graphics, Graphics::Access::ColorAttachmentWrite, Graphics::ImageLayout::AttachmentOptimal);
 		commandBuffer.GlobalBarrier(Enums::ToIntegral(Graphics::Access::ColorAttachmentWrite), 0x00000400ULL, Enums::ToIntegral(Graphics::Access::None), 0x00000001ULL);
 		commandBuffer.BeginRenderPass(properties.RenderPass, frameBuffer);
 		commandBuffer.SetViewport();

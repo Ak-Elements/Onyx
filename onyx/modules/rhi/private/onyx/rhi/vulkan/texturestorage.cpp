@@ -216,21 +216,21 @@ namespace Onyx::Graphics::Vulkan
 			bufferCopyRegion.imageOffset = { 0, 0, 0 };
 			bufferCopyRegion.imageExtent = { static_cast<onyxU32>(m_Properties.m_Size[0]), static_cast<onyxU32>(m_Properties.m_Size[1]), static_cast<onyxU32>(m_Properties.m_Size[2]) };
 
-			TransitionLayout(vulkanCmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_ACCESS_2_TRANSFER_WRITE_BIT, 0, 1);
+			TransitionLayout(vulkanCmdBuffer, Context::Graphics, Access::TransferWrite, ImageLayout::TransferDestination);
 
 		    //commandBuffer.
 			vkCmdCopyBufferToImage(vulkanCmdBuffer.GetHandle(), stagingBuffer.GetHandle(), m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &bufferCopyRegion);
 
 		    // prepare first mip
 			if (m_Properties.m_MaxMipLevel > 1)
-				TransitionLayout(vulkanCmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_ACCESS_2_TRANSFER_READ_BIT, 0, 1);
+				TransitionLayout(vulkanCmdBuffer, Context::Graphics, Access::TransferRead, ImageLayout::TransferDestination);
 
 			onyxS32 width = m_Properties.m_Size[0];
 			onyxS32 height = m_Properties.m_Size[1];
 
 			for (onyxU32 mipIndex = 1; mipIndex < m_Properties.m_MaxMipLevel; ++mipIndex)
 			{
-				TransitionLayout(vulkanCmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_ACCESS_2_TRANSFER_WRITE_BIT, 0, 1);
+                TransitionLayout(vulkanCmdBuffer, Context::Graphics, Access::TransferWrite, ImageLayout::TransferDestination);
 
 				VkImageBlit blitRegion{};
 				blitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -256,7 +256,7 @@ namespace Onyx::Graphics::Vulkan
 
 			}
 
-			TransitionLayout(vulkanCmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT, 0, 1);
+            TransitionLayout(vulkanCmdBuffer, Context::Graphics, Access::ShaderRead, ImageLayout::General);
 	    });
 
 		stagingBuffer.Destroy();
@@ -327,43 +327,11 @@ namespace Onyx::Graphics::Vulkan
 
         vkCmdPipelineBarrier2(commandBuffer.GetHandle(), &dependencyInfo);
 
-        m_Layout = static_cast<onyxU32>(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        m_Layout = ImageLayout::Present;
 		m_Access = Access::None;
     }
 
-    void VulkanTextureStorage::TransitionLayout(VulkanCommandBuffer& commandBuffer, Context newContext, VkImageLayout newLayout, VkAccessFlags2 newAccess, onyxU32 mipLevel, onyxU32 mipCount)
-    {
-		VkImageMemoryBarrier2KHR barrier{};
-        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
-		barrier.srcAccessMask = static_cast<VkAccessFlags2>(m_Access);
-		barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, newContext);
-		barrier.dstAccessMask = newAccess;
-		barrier.dstStageMask = GetPipelineFlags(barrier.dstAccessMask, newContext);
-		barrier.oldLayout = static_cast<VkImageLayout>(m_Layout);
-		barrier.newLayout = newLayout;
-		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.image = m_Image;
-		barrier.subresourceRange.aspectMask = Utils::IsDepthFormat(m_Properties.m_Format) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
-		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = 1;
-		barrier.subresourceRange.baseMipLevel = mipLevel;
-		barrier.subresourceRange.levelCount = mipCount;
-		barrier.pNext = nullptr;
-
-		VkDependencyInfoKHR dependency_info{};
-        dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
-		dependency_info.imageMemoryBarrierCount = 1;
-		dependency_info.pImageMemoryBarriers = &barrier;
-		dependency_info.pNext = nullptr;
-
-		vkCmdPipelineBarrier2(commandBuffer.GetHandle(), &dependency_info);
-
-		m_Layout = static_cast<onyxU32>(newLayout);
-		m_Access = static_cast<Access>(newAccess);
-    }
-
-    void VulkanTextureStorage::TransitionLayout(CommandBuffer& commandBuffer, Context context, Access newAccess, onyxU32 newLayout)
+    void VulkanTextureStorage::TransitionLayout(CommandBuffer& commandBuffer, Context context, Access newAccess, ImageLayout newLayout)
     {
 		VkImageMemoryBarrier2KHR barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
@@ -371,12 +339,30 @@ namespace Onyx::Graphics::Vulkan
 		barrier.srcStageMask = GetPipelineFlags(barrier.srcAccessMask, context);
 		barrier.dstAccessMask = ToAccessFlag(newAccess);
 		barrier.dstStageMask = GetPipelineFlags(barrier.dstAccessMask, context);
-		barrier.oldLayout = static_cast<VkImageLayout>(m_Layout);
-		barrier.newLayout = static_cast<VkImageLayout>(newLayout);
+
+        bool isDepthFormat = Utils::IsDepthFormat(m_Properties.m_Format);
+        VkImageLayout vkOldLayout = ToImageLayout(m_Layout);
+        VkImageLayout vkNewLayout = ToImageLayout(newLayout);
+ 
+        if (isDepthFormat)
+        {
+            if (vkOldLayout == VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL)
+            {
+                vkOldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
+            
+            if (vkNewLayout == VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL)
+            {
+                vkNewLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
+        }
+
+		barrier.oldLayout = vkOldLayout;
+		barrier.newLayout = vkNewLayout;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.image = m_Image;
-		barrier.subresourceRange.aspectMask = Utils::IsDepthFormat(m_Properties.m_Format) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.aspectMask = isDepthFormat ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 		// TODO: Fix mips

@@ -39,9 +39,8 @@ namespace Onyx::Graphics::Vulkan
         VkImage GetAliasHandle(onyxS8 aliasIndex) const { ONYX_ASSERT(aliasIndex < m_Aliases.size()); return m_Aliases[aliasIndex]; }
 
         void TransitionPresent(VulkanCommandBuffer& commandBuffer);
-        void TransitionLayout(VulkanCommandBuffer& commandBuffer, Context newContext, VkImageLayout newLayout, VkAccessFlags2 newAccess, onyxU32 mipLevel, onyxU32 mipCount);
 
-        void TransitionLayout(CommandBuffer& commandBuffer, Context newContext, Access newAccess, onyxU32 newLayout) override;
+        void TransitionLayout(CommandBuffer& commandBuffer, Context newContext, Access newAccess, ImageLayout newLayout) override;
 
     private:
         static VkImageType GetType(TextureType type);
@@ -54,7 +53,7 @@ namespace Onyx::Graphics::Vulkan
 
         InplaceArray<VkImage, 8> m_Aliases; // max 8 aliases?
 
-        onyxU32 m_Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        ImageLayout m_Layout = ImageLayout::None;
         Access m_Access = Access::None;
     };
 }

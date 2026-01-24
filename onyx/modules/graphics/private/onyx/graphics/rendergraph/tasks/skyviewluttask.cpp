@@ -24,6 +24,9 @@ namespace Onyx::Graphics::RenderGraphNodes
 
         m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
         m_MultipleScatteringTextureIndex = multipleScatteringTextureHandle.Texture->GetIndex();
+
+        RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+        transmittanceInfo.Type = RenderGraphResourceType::Attachment;
     }
 
     void SkyViewLutRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)

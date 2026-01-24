@@ -39,7 +39,7 @@ namespace Onyx::Graphics::Vulkan
         void Bind(const BufferHandle& buffer, const String& bindingName) override;
 
         void Barrier(BufferHandle& buffer, Context newContext, Access newAccess) override;
-        void TransitionLayout(TextureHandle& texture, Context newContext, Access newAccess, onyxU32 newLayout) override;
+        void TransitionLayout(TextureHandle& texture, Context newContext, Access newAccess, ImageLayout newLayout) override;
 
         void SetViewport() override;
         void SetViewport(const Viewport& viewport) override;

@@ -110,15 +110,15 @@ namespace Onyx::Graphics
                 {
                     //deallocations.
                     // Track deallocations?
-                    if ((input.Info.Type == RenderGraphResourceType::Attachment) || (input.Info.Type == RenderGraphResourceType::Texture))
-                    {
-                        const TextureHandle textureHandle = std::get<TextureHandle>(input.Handle);
-                        ONYX_ASSERT(textureHandle, "Adding invalid graphics handle to free list.");
-                        freeList.push_back(input.Info.Id);
-
-                        // TODO: Add debug info to nodes
-                        ONYX_LOG_INFO("Deallocated resource in node.");
-                    }
+                    //if ((input.Info.Type == RenderGraphResourceType::Attachment) || (input.Info.Type == RenderGraphResourceType::Texture))
+                    //{
+                    //    const TextureHandle textureHandle = std::get<TextureHandle>(input.Handle);
+                    //    ONYX_ASSERT(textureHandle, "Adding invalid graphics handle to free list.");
+                    //    freeList.push_back(input.Info.Id);
+//
+                    //    // TODO: Add debug info to nodes
+                    //    ONYX_LOG_INFO("Deallocated resource in node.");
+                    //}
 
                 }
             }
@@ -236,7 +236,7 @@ namespace Onyx::Graphics
         }
 
         auto& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
-        commandBuffer.TransitionLayout(std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle), Context::Graphics, Access::ShaderRead, 5);
+        commandBuffer.TransitionLayout(std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle), Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
     }
 
     bool RenderGraph::HasResource(RenderGraphResourceId id) const
