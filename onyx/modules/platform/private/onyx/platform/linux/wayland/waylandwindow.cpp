@@ -96,7 +96,6 @@ allocate_shm_file(size_t size)
     {
     }
 
-
     void Window::CreateNativeWindow()
     {
         static const struct xdg_toplevel_listener xdg_toplevel_listener = {

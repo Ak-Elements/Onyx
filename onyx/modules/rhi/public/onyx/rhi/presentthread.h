@@ -30,7 +30,7 @@ namespace Onyx::Graphics
     private:
         struct PresentInfo
         {
-            onyxU32 BackbufferImageIndex;
+            onyxU8 BackbufferImageIndex;
             onyxU8 FrameIndex;
         };
 

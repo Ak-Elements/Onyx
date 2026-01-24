@@ -27,14 +27,14 @@ namespace Onyx::Graphics::Vulkan
         , m_Surface(surface)
         , m_Device(api.GetDevice())
     {
-	    Init();
-
-		m_Window->OnResize().Connect<&SwapChain::OnWindowResize>(this);
+        Init();
+        m_Window->OnResize().Connect<&SwapChain::OnWindowResize>(this);
     }
 
     SwapChain::~SwapChain()
     {
-        m_FrameSyncObjects.Clear();
+        m_RenderCompleteSemaphores.clear();
+        m_ImageAcquiredSemaphores.Clear();
         m_SwapchainBuffers.clear();
 
         vkDestroySwapchainKHR(m_Device.GetHandle(), m_SwapChain, nullptr);
@@ -44,52 +44,51 @@ namespace Onyx::Graphics::Vulkan
     {
 	    ONYX_PROFILE_FUNCTION;
 
-		if (m_ShouldResize)
+		if (m_ShouldRecreateSwapchain)
 		{
 			Init();
 		}
 
 	    const VkDevice device = m_Device.GetHandle();
 
-	    SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
-	    if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-	    {
-		    const VkFence waitFence = syncObject.m_RenderCompleteFence->GetHandle();
-		    VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFence, VK_TRUE, onyxMax_U64));
-	    }
+	    //SyncObject& syncObject = m_FrameSyncObjects[frameIndex];
+	    //if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
+	    //{
+		//    const VkFence waitFence = syncObject.m_RenderCompleteFence->GetHandle();
+		//    VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFence, VK_TRUE, onyxMax_U64));
+	    //}
 
 	    VkResult result;
 	    {
             std::lock_guard lock(mutex);
             ONYX_PROFILE_SECTION("WaitAcquire Image")
-            result = vkAcquireNextImageKHR(device, m_SwapChain, UINT64_MAX, syncObject.m_ImageAcquired->GetHandle(), VK_NULL_HANDLE, &m_CurrentImageIndex);
+            result = vkAcquireNextImageKHR(device, m_SwapChain, UINT64_MAX, m_ImageAcquiredSemaphores[frameIndex]->GetHandle(), VK_NULL_HANDLE, &m_CurrentImageIndex);
 		    if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		    {
-				m_ShouldResize = true;
+			    m_ShouldRecreateSwapchain = true;
+			    m_CurrentImageIndex = onyxMax_U32;
 			    return false;
 		    }
 	    }
 
-	    ONYX_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
-	    if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-		    VK_CHECK_RESULT(vkResetFences(device, 1, syncObject.m_RenderCompleteFence->GetHandlePtr()));
+	    //ONYX_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
+	    //if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
+		//    VK_CHECK_RESULT(vkResetFences(device, 1, syncObject.m_RenderCompleteFence->GetHandlePtr()));
 
 	    return true;
     }
 
-    bool SwapChain::Present(onyxU8 /*frameIndex*/, onyxU32 imageIndex)
+    bool SwapChain::Present(onyxU32 imageIndex)
     {
 	    if (imageIndex == onyxMax_U32)
 		    return true;
-
-	    SyncObject& syncObject = m_FrameSyncObjects[static_cast<onyxU8>(imageIndex)];
 
 	    VkPresentInfoKHR presentInfo{};
 	    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	    presentInfo.pNext = nullptr;
         presentInfo.pSwapchains = &m_SwapChain;
         presentInfo.swapchainCount = 1;
-        presentInfo.pWaitSemaphores = syncObject.m_RenderComplete->GetHandlePtr();
+        presentInfo.pWaitSemaphores = m_RenderCompleteSemaphores[imageIndex]->GetHandlePtr();
         presentInfo.waitSemaphoreCount = 1;
 	    
 	    presentInfo.pImageIndices = &imageIndex;
@@ -98,9 +97,9 @@ namespace Onyx::Graphics::Vulkan
 		    std::lock_guard lock(mutex);
 		    std::lock_guard queueLock = m_GraphicsApi.LockGraphicsQueue();
 		    VkResult result = vkQueuePresentKHR(m_Device.GetGraphicsQueue(), &presentInfo);
-		    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || m_ShouldResize)
+		    if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		    {
-				m_ShouldResize = true;
+				m_ShouldRecreateSwapchain = true;
 			    return false;
 		    }
 	    }
@@ -112,7 +111,7 @@ namespace Onyx::Graphics::Vulkan
     {
 		vkDeviceWaitIdle(m_Device.GetHandle());
 
-		m_ShouldResize = false;
+		m_ShouldRecreateSwapchain = false;
 		bool hasSwapchain = m_SwapChain != nullptr;
 
 	    const PhysicalDevice& physicalDevice = m_GraphicsApi.GetPhysicalDevice();
@@ -208,22 +207,16 @@ namespace Onyx::Graphics::Vulkan
 		{
 			for (onyxU8 i = 0; i < m_ImageCount; ++i)
 			{
-				SyncObject& syncObj = m_FrameSyncObjects[i];
-				syncObj.m_ImageAcquired = MakeUnique<Semaphore>(m_Device);
-				syncObj.m_RenderComplete = MakeUnique<Semaphore>(m_Device);
+				m_RenderCompleteSemaphores.emplace_back(MakeUnique<Semaphore>(m_Device));
+			}
 
-				if (m_GraphicsApi.IsTimelineSemaphoreEnabled() == false)
-				{
-					syncObj.m_RenderCompleteFence = MakeUnique<Fence>(m_Device, true);
-				}
+            for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+			{				
+				m_ImageAcquiredSemaphores.Emplace(MakeUnique<Semaphore>(m_Device));
 			}
 		}
+        
 		vkDeviceWaitIdle(m_Device.GetHandle());
-    }
-
-    void SwapChain::OnWindowResize(Vector2s32 /*windowExtents*/)
-    {
-		m_ShouldResize = true;
     }
 
     TextureHandle& SwapChain::GetAcquiredBackbuffer()
@@ -344,4 +337,13 @@ namespace Onyx::Graphics::Vulkan
 	    return capabilities.currentTransform;
     }
 
+    void SwapChain::OnWindowResize(Vector2s32 size)
+    {
+        if (m_Extent != size)
+        {
+            m_Extent = size;
+            m_ShouldRecreateSwapchain = true;
+        }
+    }
+    
 }

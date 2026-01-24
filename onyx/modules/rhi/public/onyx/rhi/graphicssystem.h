@@ -125,14 +125,11 @@ namespace Onyx::Graphics
 #endif
         void WaitIdle();
 
-        void OnWindowResize(Vector2s32 /*extents*/);
-        
-
         Sink<BeginFrameSignalT> OnBeginFrame() { return Sink{ m_BeginFrameSignal }; }
         Sink<BeginFrameSignalT> OnRenderFrame() { return Sink{ m_RenderFrameSignal }; }
         Sink<BeginFrameSignalT> OnEndFrame() { return Sink{ m_EndFrameSignal }; }
-
-    protected:
+        
+        protected:
         void LoadSettings();
 
     private:
@@ -141,6 +138,8 @@ namespace Onyx::Graphics
 
         void CreateDepthImages(Vector2s32 extents);
         void CreateViewConstantBuffers();
+        
+        void OnWindowResize(Vector2s32 extents);
 
         RenderPassHandle CreateRenderPass(const RenderPassSettings& settings);
         FramebufferHandle CreateFramebuffer(const FramebufferSettings& settings);

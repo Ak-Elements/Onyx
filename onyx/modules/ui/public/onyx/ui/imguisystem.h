@@ -38,8 +38,6 @@ namespace Onyx
         struct FrameContext;
 
         class GraphicsSystem;
-        class Window;
-        class WindowSystem;
     }
 
     namespace Platform
@@ -207,7 +205,7 @@ namespace Onyx
             void InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem);
             void UpdateDrawBuffers(const Graphics::FrameContext& frameContext);
 
-            void OnWindowResize(onyxU32 width, onyxU32 height);
+            void OnWindowResize(Vector2s32 size);
             
             void OnMouseAxisChange(const Input::MouseAxisEvent& event);
             void OnMouseButton(const Input::MouseButtonEvent& event);

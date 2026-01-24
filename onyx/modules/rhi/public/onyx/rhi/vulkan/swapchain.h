@@ -29,21 +29,19 @@ namespace Onyx::Graphics::Vulkan
         ~SwapChain() override;
 
         bool BeginFrame(onyxU8 frameIndex);
-        bool Present(onyxU8 frameIndex, onyxU32 imageIndex);
+        bool Present(onyxU32 imageIndex);
 
         bool HasValidBackBuffer() const { return (m_CurrentImageIndex != onyxMax_U32); }
         onyxU32 GetMinImageCount() const { return m_MinImageCount; }
         onyxU32 GetImageCount() const { return m_ImageCount; }
 
-        const UniquePtr<Semaphore>& GetBackbufferAcquiredSemaphore(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_ImageAcquired;  }
-        const UniquePtr<Semaphore>& GetRenderCompleteSemaphore(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_RenderComplete; }
-        const UniquePtr<Fence>& GetRenderCompleteFence(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_RenderCompleteFence; }
+        const UniquePtr<Semaphore>& GetBackbufferAcquiredSemaphore(onyxU8 frameIndex) const { return m_ImageAcquiredSemaphores[frameIndex];  }
+        const UniquePtr<Semaphore>& GetRenderCompleteSemaphore(onyxU8 imageIndex) const { return m_RenderCompleteSemaphores[imageIndex]; }
+        //const UniquePtr<Fence>& GetRenderCompleteFence(onyxU8 frameIndex) const { return m_FrameSyncObjects[frameIndex].m_RenderCompleteFence; }
 
         const Vector2s32& GetExtent() const { return m_Extent; }
         TextureFormat GetFormat() const { return m_ColorFormat; }
         VkPresentModeKHR GetPresentMode() const { return m_PresentMode; }
-
-        void OnWindowResize(Vector2s32 windowExtents);
 
         TextureHandle& GetAcquiredBackbuffer();
         const TextureHandle& GetAcquiredBackbuffer() const;
@@ -66,6 +64,8 @@ namespace Onyx::Graphics::Vulkan
         onyxU32 ChooseImageCount(const VkSurfaceCapabilitiesKHR& capabilities) const;
         VkSurfaceTransformFlagBitsKHR ChoosePreTransform(const VkSurfaceCapabilitiesKHR& capabilities) const;
 
+        void OnWindowResize(Vector2s32 size);
+
     private:
         std::mutex mutex;
         VulkanGraphicsApi& m_GraphicsApi;
@@ -79,23 +79,17 @@ namespace Onyx::Graphics::Vulkan
 		onyxU32 m_MinImageCount;
 		VkPresentModeKHR m_PresentMode;
 		TextureFormat m_ColorFormat;
-		VkColorSpaceKHR m_ColorSpace;
+		//VkColorSpaceKHR m_ColorSpace;
         Vector2s32 m_Extent;
 
-        bool m_ShouldResize = false;
+        // 1 semaphore per swapchain image
+        DynamicArray<UniquePtr<Semaphore>> m_RenderCompleteSemaphores;
+        InplaceArray<UniquePtr<Semaphore>, MAX_FRAMES_IN_FLIGHT> m_ImageAcquiredSemaphores;
 
-        struct SyncObject
-        {
-            UniquePtr<Semaphore> m_ImageAcquired;
-            UniquePtr<Semaphore> m_RenderComplete;
-
-            // unused if timeline semaphores are used
-            UniquePtr<Fence> m_RenderCompleteFence;
-        };
-
-        InplaceArray<SyncObject, 3> m_FrameSyncObjects;
+        //InplaceArray<SyncObject, MAX_FRAMES_IN_FLIGHT> m_FrameSyncObjects;
         DynamicArray<TextureHandle> m_SwapchainBuffers;
 
         onyxU32 m_CurrentImageIndex = onyxMax_U32;
+        bool m_ShouldRecreateSwapchain = false;
 	};
 }

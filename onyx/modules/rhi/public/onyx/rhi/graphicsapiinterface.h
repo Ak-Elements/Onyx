@@ -34,8 +34,6 @@ namespace Onyx
             virtual bool BeginFrame(const FrameContext&) = 0;
             virtual bool EndFrame(const FrameContext&) = 0;
             
-            virtual void OnWindowResize(onyxU32 width, onyxU32 height) = 0;
-
             virtual bool IsBindless() const = 0;
 
             virtual CommandBuffer& GetCommandBuffer(onyxU8 frameIndex) = 0;

@@ -401,6 +401,7 @@ namespace Onyx::Graphics
 
         //m_HasWindowResized = true;
         m_PresentThread.ClearQueue();
+        m_HasWindowResized = true;
     }
 
     void GraphicsSystem::LoadSettings()

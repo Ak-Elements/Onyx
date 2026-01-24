@@ -79,9 +79,7 @@ namespace Onyx::Graphics
         private:
             void WaitIdle() const override;
             void CreateSwapchain(const Platform::Window& window) override;
-
-            void OnWindowResize(onyxU32 width, onyxU32 height) override;
-
+            
             TextureHandle& GetAcquiredSwapChainImage() override;
             const TextureHandle& GetAcquiredSwapChainImage() const override;
             onyxU32 GetAcquiredBackbufferIndex() const override;
@@ -130,7 +128,6 @@ namespace Onyx::Graphics
 
             UniquePtr<Semaphore> m_GraphicsSemaphore;
             UniquePtr<Semaphore> m_ComputeSemaphore;
-        	UniquePtr<Semaphore> m_PresentSemaphore;
             
             UniquePtr<Fence> m_GraphicsSingleSubmitFence;
             UniquePtr<Fence> m_ComputeSingleSubmitFence;

@@ -81,16 +81,15 @@ namespace Onyx::Graphics
             {
                 ONYX_PROFILE_SECTION(Present);
                 Vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
-                bool hasPresented = swapChain.Present(presentInfo.FrameIndex, presentInfo.BackbufferImageIndex);
+                bool hasPresented = swapChain.Present(presentInfo.BackbufferImageIndex);
                 if (hasPresented == false)
                 {
                     ClearQueue();
-                    //m_GraphicsSystem->OnWindowResize(swapChain.GetExtent()[0], swapChain.GetExtent()[1]);
                 }
             }
 
             ++m_PresentCount;
-
+            
             onyxU64 presentDuration = Time::GetCurrentNanoseconds() - presentStart;
             if (presentDuration < m_TargetFrameTime)
             {

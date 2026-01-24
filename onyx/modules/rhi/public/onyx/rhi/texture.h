@@ -64,7 +64,9 @@ namespace Onyx::Graphics
 				}
 				else
 				{
-					texture->Release();
+                    texture->Release();
+                    // TODO: this should not be done and is only done to remove a validation error currently when resizing with the depth texture
+                    texture->SetIndex(onyxMax_U32);
 				}
 			}
 		};

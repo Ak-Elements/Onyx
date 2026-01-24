@@ -617,6 +617,8 @@ namespace Onyx::Ui
 
 		m_ImguiShader = graphicsSystem.CreateShaderInstance(pipelineProperties.Shader, pipelineProperties);
 		
+        Platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
+        mainWindow.OnResize().Connect<&ImGuiSystem::OnWindowResize>(this);
     }
 
 	ImGuiSystem::~ImGuiSystem()
@@ -991,9 +993,11 @@ namespace Onyx::Ui
 		}
     }
 
-    void ImGuiSystem::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
+    void ImGuiSystem::OnWindowResize(Vector2s32 size)
 	{
-
+        ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(numeric_cast<onyxF32>(size.X), numeric_cast<onyxF32>(size.Y));
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 	}
 
 	void ImGuiSystem::OnMouseAxisChange(const Input::MouseAxisEvent& event)

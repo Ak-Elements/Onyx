@@ -42,7 +42,7 @@ namespace Onyx::Graphics::Vulkan
 
         if (settings.IsDebugEnabled)
         {
-            m_DebugUtilsMessenger = MakeUnique<DebugUtilsMessenger>(*m_Instance, static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT));
+            m_DebugUtilsMessenger = MakeUnique<DebugUtilsMessenger>(*m_Instance, static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT));
         }
 
         m_PhysicalDevice = MakeUnique<PhysicalDevice>(*m_Instance);
@@ -269,8 +269,7 @@ namespace Onyx::Graphics::Vulkan
         
         m_GraphicsSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
         m_ComputeSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
-        m_PresentSemaphore = MakeUnique<Semaphore>(*m_Device, IsTimelineSemaphoreEnabled());
-
+        
         m_GraphicsSingleSubmitFence = MakeUnique<Fence>(*m_Device, false);
         m_ComputeSingleSubmitFence = MakeUnique<Fence>(*m_Device, false);
 
@@ -315,8 +314,6 @@ namespace Onyx::Graphics::Vulkan
 
         m_GraphicsSemaphore.reset();
         m_ComputeSemaphore.reset();
-		m_PresentSemaphore.reset();
-
         m_ComputeSingleSubmitFence.reset();
         m_GraphicsSingleSubmitFence.reset();
 
@@ -353,7 +350,6 @@ namespace Onyx::Graphics::Vulkan
         {
             ONYX_PROFILE_SECTION(SemaphoreWait);
 
-            // present and graphics values should be aligned
             onyxU64 graphics_timeline_value = context.AbsoluteFrame - (MAX_FRAMES_IN_FLIGHT - 1);
             onyxU64 compute_timeline_value = context.ComputeFrame;
 
@@ -369,7 +365,7 @@ namespace Onyx::Graphics::Vulkan
             semaphore_wait_info.pValues = wait_values;
             semaphore_wait_info.pNext = nullptr;
 
-            vkWaitSemaphores(m_Device->GetHandle(), &semaphore_wait_info, ~0ull);
+            vkWaitSemaphores(m_Device->GetHandle(), &semaphore_wait_info, onyxMax_U64);
         }
 
         bool hasAcquiredImage = m_SwapChain->BeginFrame(context.FrameIndex);
@@ -417,8 +413,10 @@ namespace Onyx::Graphics::Vulkan
             for (onyxS32 i = 0; i < count; ++i)
             {
                 TextureUpdate& textureUpdate = m_BindlessTexturesToUpdate[i];
-                //if (textureUpdate.Texture->GetIndex() == false)
-                //    continue;
+                // TODO: This is probably not the best way to handle textures that get allocated and dealloacted in the same frame
+                // TextureDeleter clears the index which is a bit hacky just to ensure resizing of the depth texture
+                if (textureUpdate.Texture->GetIndex() == onyxMax_U32)
+                    continue;
 
                 VkWriteDescriptorSet& descriptor_write = bindlessDescriptorWrites.emplace_back();
                 descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -438,7 +436,8 @@ namespace Onyx::Graphics::Vulkan
             m_BindlessTexturesToUpdate.clear();
         }
 
-        const UniquePtr<Semaphore>& renderCompleteSemaphore = m_SwapChain->GetRenderCompleteSemaphore(static_cast<onyxU8>(m_SwapChain->GetAcquiredBackbufferIndex()));
+        onyxU8 backBufferIndex = numeric_cast<onyxU8>(m_SwapChain->GetAcquiredBackbufferIndex());
+        const UniquePtr<Semaphore>& renderCompleteSemaphore = m_SwapChain->GetRenderCompleteSemaphore(backBufferIndex);
         const UniquePtr<Semaphore>& backbufferAcquiredSemaphore = m_SwapChain->GetBackbufferAcquiredSemaphore(context.FrameIndex);
         // Submit
         if (IsTimelineSemaphoreEnabled())
@@ -538,73 +537,73 @@ namespace Onyx::Graphics::Vulkan
         }
         else
         {
-            const UniquePtr<Fence>& renderCompleteFence = m_SwapChain->GetRenderCompleteFence(context.FrameIndex);
-
-            if (IsSynchronization2Enabled())
-            {
-                InplaceArray<VkCommandBufferSubmitInfoKHR, 4> commandBufferInfo;
-                for (onyxU8 i = 0; i < commandBufferCount; ++i)
-                {
-                    commandBufferInfo[i].sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
-                    commandBufferInfo[i].commandBuffer = enqueuedCommandBuffers[i];
-                }
-
-                InplaceArray<VkSemaphoreSubmitInfoKHR, 4> wait_semaphores;
-                wait_semaphores.Emplace(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, backbufferAcquiredSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, 0);
-                wait_semaphores.Emplace(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, m_ComputeSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT_KHR, 0);
-
-                //if (has_pending_sparse_bindings)
-                //  wait_semaphores.Emplace(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, vulkan_bind_semaphore, 0, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR, 0);
-
-                InplaceArray<VkSemaphoreSubmitInfoKHR, 1> signalSemaphores
-                {
-                    { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, renderCompleteSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, 0 }
-                };
-
-                VkSubmitInfo2 submitInfo;
-                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
-                submitInfo.waitSemaphoreInfoCount = wait_semaphores.size();
-                submitInfo.pWaitSemaphoreInfos = wait_semaphores.data();
-                submitInfo.commandBufferInfoCount = commandBufferCount;
-                submitInfo.pCommandBufferInfos = commandBufferInfo.data();
-                submitInfo.signalSemaphoreInfoCount = 1;
-                submitInfo.pSignalSemaphoreInfos = signalSemaphores.data();
-                submitInfo.pNext = nullptr;
-
-                std::lock_guard lock(m_GraphicsMutex);
-                VK_CHECK_RESULT(vkQueueSubmit2(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));
-            }
-            else
-            {
-                InplaceArray<VkSemaphore, 4> waitSemaphores;
-                InplaceArray<VkPipelineStageFlags, 4> waitStages;
-
-                waitSemaphores.Add(backbufferAcquiredSemaphore->GetHandle());
-                waitStages.Add(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-
-                waitSemaphores.Add(m_ComputeSemaphore->GetHandle());
-                waitStages.Add(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
-
-                /*if (has_pending_sparse_bindings)
-                {
-                    wait_semaphores.push(vulkan_bind_semaphore);
-                    wait_stages.push(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-                }*/
-
-                VkSubmitInfo submitInfo;
-                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-                submitInfo.waitSemaphoreCount = waitSemaphores.size();
-                submitInfo.pWaitSemaphores = waitSemaphores.data();
-                submitInfo.pWaitDstStageMask = waitStages.data();
-                submitInfo.commandBufferCount = commandBufferCount;
-                submitInfo.pCommandBuffers = enqueuedCommandBuffers.data();
-                submitInfo.signalSemaphoreCount = 1;
-                submitInfo.pSignalSemaphores = renderCompleteSemaphore->GetHandlePtr();
-                submitInfo.pNext = nullptr;
-
-                std::lock_guard lock(m_GraphicsMutex);
-                VK_CHECK_RESULT(vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));
-            }
+        //    const UniquePtr<Fence>& renderCompleteFence = m_SwapChain->GetRenderCompleteFence(context.FrameIndex);
+//
+        //    if (IsSynchronization2Enabled())
+        //    {
+        //        InplaceArray<VkCommandBufferSubmitInfoKHR, 4> commandBufferInfo;
+        //        for (onyxU8 i = 0; i < commandBufferCount; ++i)
+        //        {
+        //            commandBufferInfo[i].sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
+        //            commandBufferInfo[i].commandBuffer = enqueuedCommandBuffers[i];
+        //        }
+//
+        //        InplaceArray<VkSemaphoreSubmitInfoKHR, 4> wait_semaphores;
+        //        wait_semaphores.Emplace(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, backbufferAcquiredSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, 0);
+        //        wait_semaphores.Emplace(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, m_ComputeSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT_KHR, 0);
+//
+        //        //if (has_pending_sparse_bindings)
+        //        //  wait_semaphores.Emplace(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, vulkan_bind_semaphore, 0, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR, 0);
+//
+        //        InplaceArray<VkSemaphoreSubmitInfoKHR, 1> signalSemaphores
+        //        {
+        //            { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR, nullptr, renderCompleteSemaphore->GetHandle(), 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR, 0 }
+        //        };
+//
+        //        VkSubmitInfo2 submitInfo;
+        //        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+        //        submitInfo.waitSemaphoreInfoCount = wait_semaphores.size();
+        //        submitInfo.pWaitSemaphoreInfos = wait_semaphores.data();
+        //        submitInfo.commandBufferInfoCount = commandBufferCount;
+        //        submitInfo.pCommandBufferInfos = commandBufferInfo.data();
+        //        submitInfo.signalSemaphoreInfoCount = 1;
+        //        submitInfo.pSignalSemaphoreInfos = signalSemaphores.data();
+        //        submitInfo.pNext = nullptr;
+//
+        //        std::lock_guard lock(m_GraphicsMutex);
+        //        VK_CHECK_RESULT(vkQueueSubmit2(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));
+        //    }
+        //    else
+        //    {
+        //        InplaceArray<VkSemaphore, 4> waitSemaphores;
+        //        InplaceArray<VkPipelineStageFlags, 4> waitStages;
+//
+        //        waitSemaphores.Add(backbufferAcquiredSemaphore->GetHandle());
+        //        waitStages.Add(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+//
+        //        waitSemaphores.Add(m_ComputeSemaphore->GetHandle());
+        //        waitStages.Add(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
+//
+        //        /*if (has_pending_sparse_bindings)
+        //        {
+        //            wait_semaphores.push(vulkan_bind_semaphore);
+        //            wait_stages.push(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        //        }*/
+//
+        //        VkSubmitInfo submitInfo;
+        //        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        //        submitInfo.waitSemaphoreCount = waitSemaphores.size();
+        //        submitInfo.pWaitSemaphores = waitSemaphores.data();
+        //        submitInfo.pWaitDstStageMask = waitStages.data();
+        //        submitInfo.commandBufferCount = commandBufferCount;
+        //        submitInfo.pCommandBuffers = enqueuedCommandBuffers.data();
+        //        submitInfo.signalSemaphoreCount = 1;
+        //        submitInfo.pSignalSemaphores = renderCompleteSemaphore->GetHandlePtr();
+        //        submitInfo.pNext = nullptr;
+//
+        //        std::lock_guard lock(m_GraphicsMutex);
+        //        VK_CHECK_RESULT(vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, renderCompleteFence->GetHandle()));
+        //    }
         }
 
         // submit compute buffers
@@ -658,8 +657,7 @@ namespace Onyx::Graphics::Vulkan
                 ++it;
             }
         }
-        //m_DeletionQueue.clear();
-
+        
         return true;
     }
 
@@ -703,14 +701,8 @@ namespace Onyx::Graphics::Vulkan
         //m_PhysicalDevice->RetrieveQueueFamilyIndices(*m_Surface);
 
         m_SwapChain = MakeUnique<SwapChain>(*this, *m_Surface, window);
-
-
     }
-
-    void VulkanGraphicsApi::OnWindowResize(onyxU32 /*width*/, onyxU32 /*height*/)
-    {
-    }
-
+    
     CommandBuffer& VulkanGraphicsApi::GetCommandBuffer(onyxU8 frameIndex)
     {
         return GetCommandBuffer(frameIndex, false);
@@ -878,7 +870,6 @@ namespace Onyx::Graphics::Vulkan
 
         std::swap(outTexture.Storage, handle.Storage);
         std::swap(outTexture.Texture, handle.Texture);
-        //std::swap(outTexture., handle.Index);
 
         /*if (handle)
         {
