@@ -180,7 +180,7 @@ execute_process(
 string(STRIP "${onyx_git_branch}" onyx_git_branch)
 
 set(config_path "${CMAKE_CURRENT_SOURCE_DIR}/config/${onyx_git_branch}.cmake")
-if(NOT ${onyx_branch} STREQUAL "main")
+if(NOT ${onyx_git_branch} STREQUAL "main")
     if (EXISTS "${config_path}")
         include("${config_path}")
     else()
