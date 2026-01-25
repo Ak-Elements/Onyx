@@ -2,11 +2,14 @@
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/gamecore/components/cameracomponent.gen.h>
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/gamecore/components/graphics/lightcomponents.h>
-#include <onyx/gamecore/components/graphics/materialcomponent.h>
-#include <onyx/gamecore/components/graphics/textcomponent.h>
+#include <onyx/gamecore/components/graphics/directionallightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/pointlightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/spotlightcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/materialcomponent.gen.h>
+#include <onyx/gamecore/components/graphics/textcomponent.gen.h>
+#include <onyx/graphics/font/sdffont.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/systems/lightingsystem.h>
@@ -19,7 +22,7 @@
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/gamecore/systems/freecamerasystem.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
 namespace Onyx::GameCore
@@ -44,7 +47,7 @@ namespace Onyx::GameCore
             {
                 Reference<Graphics::SDFFont> fontAsset;
                 //loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
-                textComponent.SetFont(fontAsset);
+                //textComponent.SetFont(fontAsset);
 
                 registry.AddComponent<TextComponent>(entity, std::move(textComponent));
             });
@@ -70,9 +73,18 @@ namespace Onyx::GameCore
 
     void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine)
     {
-        if ((m_Scene.IsValid() == false) || m_Scene->IsLoading())
+        if (m_Scene.IsLoaded() == false)
         {
             return;
+        }
+
+        if (m_Scene->GetRenderGraphRef().HasAssetId())
+        {
+            Graphics::RenderGraph& sceneRenderGraph = m_Scene->GetRenderGraph();
+            if (sceneRenderGraph.IsLoaded() && sceneRenderGraph.IsInitialized() == false)
+            {
+                sceneRenderGraph.Init(graphicsSystem);
+            }
         }
 
         // TODO: Can we find a cleaner / better solution for this?

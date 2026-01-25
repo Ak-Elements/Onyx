@@ -106,7 +106,7 @@ namespace Onyx::Localization
             PluralRule{ "nplurals=6;plural=n==0?0:n==1?1:n==2?2:n%100>=3&&n%100<=10?3:n%100>=11?4:5", [](onyxS32 n) { return (n == 0) ? 0 : (n == 1) ? 1 : (n == 2) ? 2 : ((n % 100) >= 3) && ((n % 100) <= 10) ? 3 : ((n % 100) >= 11) ? 4 : 5; } }
         };
 
-        bool ParsePoFile(const FileSystem::Filepath& path, GetTextLocalizationDatabase& outLocalizationMap)
+        bool ParsePoFile(const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap)
         {
             String fileContent;
             bool hasSucceeded = FileSystem::OnyxFile::ReadAll(path, fileContent);
@@ -248,13 +248,13 @@ namespace Onyx::Localization
         }
     }
 
-    bool PortableObjectSerializer::Serialize(const Reference<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
+    bool PortableObjectSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
     {
         // we can't save po files as they are created in a localization editor
         return false;
     }
 
-    bool PortableObjectSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& /*engine*/) const
+    bool PortableObjectSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& /*engine*/) const
     {
         // po files are not json or yaml so we do not use the provided serializer and instead read the file as raw text
         GetTextLocalizationDatabase& localizationDatabase = asset.As<GetTextLocalizationDatabase>();

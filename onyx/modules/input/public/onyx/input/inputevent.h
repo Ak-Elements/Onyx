@@ -6,61 +6,48 @@
 
 namespace Onyx::Input
 {
-    enum class InputEventType : onyxU8
+    enum class ButtonState : onyxU8
     {
-        Invalid,
-        MouseButtonUp,
-        MouseButtonDown,
-        MousePositionChanged,
-        MouseWheel,
-        KeyUp,
-        KeyDown,
-        KeyRepeat,
-        KeyCharacter,
-        GameControllerButtonDown,
-        GameControllerButtonUp,
-        GameControllerButtonRepeat,
-        GameControllerAxis
+        Down,
+        Up,
+        Repeat
     };
 
-    struct InputEvent
-    {
-        virtual ~InputEvent() = default;
-
-        bool IsMouseEvent() const { return (m_Id == InputEventType::MouseButtonUp) || (m_Id == InputEventType::MouseButtonDown) || (m_Id == InputEventType::MousePositionChanged) || (m_Id == InputEventType::MouseWheel); }
-        bool IsKeyboardEvent() const { return (m_Id == InputEventType::KeyUp) || (m_Id == InputEventType::KeyDown) || (m_Id == InputEventType::KeyRepeat) || (m_Id == InputEventType::KeyCharacter); }
-
-        bool IsGamepadButtonEvent() const { return (m_Id == InputEventType::GameControllerButtonDown) || (m_Id == InputEventType::GameControllerButtonUp) || (m_Id == InputEventType::GameControllerButtonRepeat); }
-        bool IsGamepadAxisEvent() const { return (m_Id == InputEventType::GameControllerAxis); }
-
-        InputEventType m_Id = InputEventType::Invalid;
-    };
-
-    struct KeyboardEvent : public InputEvent
+    struct KeyboardEvent
     {
         //Key
-        onyxU16 m_Char = 0;
-        Key m_Key;
+        onyxU16 Char;
+        Key Key;
+        ButtonState State;
     };
 
-    struct MouseEvent : public InputEvent
+    struct MouseButtonEvent
     {
-        // TODO split into seperate events?
-        MouseButton m_Button;
-        Vector2s16 m_Position;
-        onyxS16 m_Scroll;
+        MouseButton Button;
+        ButtonState State;
     };
 
-    struct GameControllerButtonEvent : public InputEvent
+    struct MousePositionEvent
     {
-        onyxU32 m_ControllerIndex;
-        GameControllerButton m_Button;
+        Vector2s32 Position;
     };
 
-    struct GameControllerAxisEvent : public InputEvent
+    struct MouseAxisEvent
     {
-        onyxU32 m_ControllerIndex;
-        GameControllerAxis m_Axis;
-        onyxS16 m_Value;
+        onyxS16 Value;
+    };
+
+    struct GameControllerButtonEvent
+    {
+        onyxU32 ControllerIndex;
+        GameControllerButton Button;
+        ButtonState State;
+    };
+
+    struct GameControllerAxisEvent
+    {
+        onyxU32 ControllerIndex;
+        GameControllerAxis Axis;
+        onyxS16 Value;
     };
 }

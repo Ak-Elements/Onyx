@@ -8,7 +8,7 @@
 namespace Onyx::FileSystem
 {
 
-    ImageFile::ImageFile(const Filepath& filePath)
+    ImageFile::ImageFile(const FilePath& filePath)
     {
         const String& pathStr = Path::GetFullPath(filePath).string();
         int channels;

@@ -7,21 +7,19 @@
 #include <onyx/application/log/logsinkfile.h>
 #include <onyx/application/debug/gui/notificationloggersink.h>
 
-#include <onyx/graphics/windowsystem.h>
-#include <onyx/graphics/window.h>
-
 #include <onyx/ui/imguisystem.h>
-#include <onyx/application/taskgraph/taskgraph.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/filesystem/jsondeserializer.h>
 #include <onyx/filesystem/onyxfile.h>
 
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/nodegraph/nodegraphmodule.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
 #include <onyx/serialize/deserializer.h>
+
+#include <onyx/platform/platformsystem.h>
 
 namespace
 {
@@ -40,8 +38,13 @@ namespace Onyx::Application
         m_Logger = MakeUnique<Logger>();
         Logger::s_DefaultLogger = m_Logger.get();
 
-        const FileSystem::Filepath appConfigPath = FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf";
+        auto typeId = Platform::PlatformSystem::TypeId;
+        ONYX_UNUSED(typeId);
 
+        auto workingDir = FileSystem::Path::GetWorkingDirectory().string();
+        const FilePath appConfigPath = FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf";
+        ONYX_UNUSED(workingDir);
+        
         FileSystem::OnyxFile appSettings(appConfigPath);
         FileSystem::JsonValue appConfigJson = appSettings.LoadJson();
 
@@ -58,13 +61,13 @@ namespace Onyx::Application
             }
             return false;
         });
-
+        
         FileSystem::Path::SetMountPoints(mountPoints);
 
         FileSystem::FileDialog::Init();
 
         constexpr StringView lastSessionLogPath = "tmp:/logs/last_session.log";
-        FileSystem::Filepath logDirectory = FileSystem::Path::GetFullPath(lastSessionLogPath).parent_path();
+        FilePath logDirectory = FileSystem::Path::GetFullPath(lastSessionLogPath).parent_path();
         if (FileSystem::Path::Exists(logDirectory) == false)
         {
             FileSystem::Path::CreateDirectory(logDirectory);
@@ -85,9 +88,6 @@ namespace Onyx::Application
         m_Logger->SetSeverity(LogLevel::Trace);
         m_Logger->Init();
 
-        // init node graph module
-        NodeGraph::Init();
-        
         bool hasLoadedModules = configDeserializer.ReadForEach<"modules">([&](const Deserializer& scopedDeserializer)
         {
             StringId32 moduleId;
@@ -124,7 +124,8 @@ namespace Onyx::Application
         // Remove asset system first so we release all loaded resource references
         RemoveModule<Assets::AssetSystem>();
 
-        GetSystem<Graphics::WindowSystem>().GetMainWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
+        // TODO: Fix
+        //GetSystem<Graphics::WindowSystem>().GetMainWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
 
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
@@ -144,8 +145,9 @@ namespace Onyx::Application
 #endif
 
         Graphics::GraphicsSystem& graphicsSystem = GetSystem<Graphics::GraphicsSystem>();
-        Graphics::WindowSystem& windowSystem = GetSystem<Graphics::WindowSystem>();
-        windowSystem.GetMainWindow().AddOnCloseHandler(this, &Application::OnWindowClose);
+        // TODO: Fix
+        // Graphics::WindowSystem& windowSystem = GetSystem<Graphics::WindowSystem>();
+       // windowSystem.GetMainWindow().AddOnCloseHandler(this, &Application::OnWindowClose);
 
         //onyxU64 lastFixedUpdateFrameTime = 0;
         onyxU64 lastFrameTime = Time::GetCurrentMilliseconds();
@@ -154,13 +156,13 @@ namespace Onyx::Application
         {
             const onyxU64 currentFrameTime = Time::GetCurrentMilliseconds();
             const onyxU64 deltaFrameTime = currentFrameTime - lastFrameTime;
+
             const bool hasBegunFrame = graphicsSystem.BeginFrame();
 
             if (hasBegunFrame == false)
                 continue;
 
             Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
-            ONYX_UNUSED(frameContext);
 #if ONYX_USE_IMGUI
             if (hasImGuiSystem)
             {
@@ -181,13 +183,14 @@ namespace Onyx::Application
 
             if (hasBegunFrame)
             {
-                graphicsSystem.Render();
-
+               graphicsSystem.Render();
+              
 #if ONYX_USE_IMGUI
                 if (hasImGuiSystem)
                 {
                     Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
-                    imGuiSystem.OnEndFrame();
+                    imGuiSystem.OnRenderFrame(frameContext);
+                    imGuiSystem.OnEndFrame(frameContext);
                 }
 #endif
                 graphicsSystem.EndFrame();

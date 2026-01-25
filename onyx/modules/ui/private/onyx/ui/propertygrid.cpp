@@ -6,7 +6,6 @@
 #if ONYX_IS_EDITOR
 
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/textureasset.h>
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/ui/controls/assetselector.h>

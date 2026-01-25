@@ -1,11 +1,11 @@
 #pragma once
 
-#include <onyx/graphics/graphicstypes.h>
-#include <onyx/graphics/renderpass.h>
-#include <onyx/graphics/buffer.h>
-#include <onyx/graphics/graphicshandles.h>
-#include <onyx/graphics/pipeline.h>
-#include <onyx/graphics/texturestorage.h>
+#include <onyx/rhi/graphicstypes.h>
+#include <onyx/rhi/renderpass.h>
+#include <onyx/rhi/buffer.h>
+#include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/pipeline.h>
+#include <onyx/rhi/texturestorage.h>
 #include <onyx/nodegraph/nodes/node.h>
 
 namespace Onyx::Graphics
@@ -126,7 +126,10 @@ namespace Onyx::Graphics
 
         virtual void EndFrame(const RenderGraphContext& context) = 0;
 
+        // TODO: Find better names for both. IsEnabled -> should this node be started this frame
+        // HasBegunFrame - Has this node started this frame
         virtual bool IsEnabled() = 0;
+        virtual bool HasBegunFrame() = 0;
 
         virtual void OnSwapChainResized(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) = 0;
     };
@@ -144,6 +147,7 @@ namespace Onyx::Graphics
         void EndFrame(const RenderGraphContext& /*context*/) override { }
 
         bool IsEnabled() override { return false; }
+        bool HasBegunFrame() override { return false; }
 
         void OnSwapChainResized(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override {}
     };
@@ -173,6 +177,8 @@ namespace Onyx::Graphics
         void OnSwapChainResized(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override;
 
         virtual bool IsComputeTask() const { return false; }
+
+        bool HasBegunFrame() override { return m_HasBegunFrame; }
 
     protected:
 #if ONYX_IS_EDITOR
@@ -204,6 +210,8 @@ namespace Onyx::Graphics
 
         DynamicArray<RenderGraphTextureResourceInfo> m_OutputAttachmentInfos;
         DynamicArray<RenderGraphBufferResourceInfo> m_OutputBufferInfos;
+
+        bool m_HasBegunFrame = false;
     };
 
     class RenderGraphFixedShaderNode : public RenderGraphShaderNode
@@ -218,6 +226,7 @@ namespace Onyx::Graphics
 
         bool IsComputeTask() const override { ONYX_ASSERT(m_ShaderInstance.IsValid()); return m_ShaderInstance->IsCompute(); }
         bool IsEnabled() override { return m_ShaderInstance.IsValid(); }
+        
 
         bool OnSerialize(Serializer& serializer) const override;
         bool OnDeserialize(const Deserializer& deserializer) override;

@@ -14,9 +14,9 @@ namespace Onyx::Assets
     {
     public:
         AssetHotReloadSystem(AssetSystem& assetSystem);
-        void MonitorDirectory(const FileSystem::Filepath& path);
+        void MonitorDirectory(const FilePath& path);
 
-        void OnFileChanged(const FileSystem::Filepath& path, FileSystem::FileWatcher::FileAction action);
+        void OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction action);
 
     private:
         AssetSystem* m_AssetSystem = nullptr;

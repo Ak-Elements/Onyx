@@ -6,4 +6,6 @@ onyx_add_target(onyx-filesystem
     NO_EDITOR_TARGET
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx::Filesystem"
+    NO_CODEGEN
+    NO_EDITOR_TARGET
 )

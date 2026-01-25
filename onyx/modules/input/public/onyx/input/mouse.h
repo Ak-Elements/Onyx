@@ -1,13 +1,11 @@
 #pragma once
 
-#include <onyx/input/inputid.h>
-
 namespace Onyx::Input
 {
     enum class MouseButton : onyxU16
     {
-        Button_1 = 1,
-        First = 1, // first is after Button_1 for the magic enum to return Button_1
+        First = 0, // first is after Button_1 for the magic enum to return Button_1
+        Button_1,
         Button_2,
         Button_3,
         Button_4,
@@ -17,7 +15,7 @@ namespace Onyx::Input
         Button_8,
 
         Last,
-        Invalid = InputID::Invalid
+        Invalid = 0
     };
 
     static constexpr onyxU16 MouseButton_Count = Enums::ToIntegral(MouseButton::Last) - Enums::ToIntegral(MouseButton::First);
@@ -36,8 +34,19 @@ namespace Onyx::Input
         DeltaXY,
 
         Last,
-        Invalid = InputID::Invalid
+        Invalid = 0
     };
 
     static constexpr onyxU16 MouseAxis_Count = Enums::ToIntegral(MouseAxis::Last) - Enums::ToIntegral(MouseAxis::First);
+
+    constexpr onyxU16 ToIndex(MouseButton button)
+    {
+        constexpr onyxU16 first = Enums::ToIntegral(MouseButton::First);
+        constexpr onyxU16 last = Enums::ToIntegral(MouseButton::Last);
+        ONYX_ASSERT(Enums::ToIntegral(button) > first);
+        ONYX_ASSERT(Enums::ToIntegral(button) < last);
+
+        onyxU16 index = Enums::ToIntegral(button) - 1; // mouse buttons first is set to 0
+        return index;
+    }
 }

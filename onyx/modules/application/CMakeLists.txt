@@ -5,4 +5,6 @@ endif()
 onyx_add_target(onyx-application
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx::Application"
+    NO_CODEGEN
+    NO_EDITOR_TARGET
 )

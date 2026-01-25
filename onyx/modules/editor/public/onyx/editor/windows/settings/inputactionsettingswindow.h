@@ -2,7 +2,7 @@
 
 #include <onyx/editor/windows/editorwindow.h>
 
-#include <onyx/input/inputactionsasset.h>
+#include <onyx/inputactions/inputactionsasset.h>
 #include <onyx/input/inputevent.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/localization/localizedstring.h>
@@ -43,26 +43,36 @@ namespace Onyx::Editor
     private:
         void OnRender(Ui::ImGuiSystem& system) override;
 
-        void OnInputEvent(const Input::InputEvent* inputEvent);
+        void OnMouseAxisChange(const Input::MouseAxisEvent& event);
+        void OnMouseButton(const Input::MouseButtonEvent& event);
+        void OnMousePositionChange(const Input::MousePositionEvent& event);
 
-        void RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps);
+        void OnKey(const Input::KeyboardEvent& event);
+
+        void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
+        void OnControllerButton(const Input::GameControllerButtonEvent& event);
+
+        void RenderActionMaps(HashMap<StringId32, InputActions::InputActionsMap>& actionMaps);
         void RenderInputActions();
         
-        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<Input::InputBinding>>& bindings);
-        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, Input::InputBinding& binding);
+        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings);
+        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, InputActions::InputBinding& binding);
 
         void RenderActionProperties();
         void RenderSelectedBindingProperties();
 
         void MarkAsDirty() { m_IsDirty = true; }
 
-        void OnInputAssetLoaded(Reference<Input::InputActionsAsset>& inputActionsAsset);
+        void OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsAsset> inputActionsAsset);
+
+        InputActions::InputBinding& GetSelectedInputBinding();
 
     private:
         Assets::AssetSystem* m_AssetSystem = nullptr;
+        Input::InputSystem* m_InputSystem = nullptr;
 
         // Copy of InputActionAsset to edit until save
-        Reference<Input::InputActionsAsset> m_EditableCopy;
+        Assets::AssetHandle<InputActions::InputActionsAsset> m_EditableCopy;
       
         DynamicArray<bool> m_MapsSelectedStates;
         DynamicArray<bool> m_ActionsSelectedStates;

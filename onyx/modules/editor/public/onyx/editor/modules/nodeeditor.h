@@ -2,7 +2,6 @@
 
 #include <onyx/ui/imguiwindow.h>
 
-#include <onyx/input/inputactionsystem.h>
 #include <onyx/editor/nodegraph/grapheditorcontext.h>
 #include <onyx/ui/controls/dockspace.h>
 
@@ -16,6 +15,12 @@ namespace Onyx::Localization
     class LocalizationModule;
 }
 
+namespace Onyx::InputActions
+{
+    class InputActionSystem;
+    struct InputActionEvent;
+}
+
 namespace Onyx::Editor
 {
     struct BlueprintNodeBuilder;
@@ -24,7 +29,7 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringView WindowId = "NodeGraphEditor";
-        NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, const Localization::LocalizationModule& localizationModule, Input::InputActionSystem& inputActionSystem);
+        NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, const Localization::LocalizationModule& localizationModule, InputActions::InputActionSystem& inputActionSystem);
         ~NodeGraphEditorWindow() override;
 
         StringView GetWindowId() override { return WindowId; }
@@ -105,16 +110,16 @@ namespace Onyx::Editor
         void FilterNodeListContextMenu(StringView searchString);
 
         void Save();
-        void SaveEditorMetaData(const FileSystem::Filepath& path);
+        void SaveEditorMetaData(const FilePath& path);
         void Load();
-        void LoadEditorMetaData(const FileSystem::Filepath& path);
+        void LoadEditorMetaData(const FilePath& path);
 
         void OnGraphLoaded();
         void OnGraphSaved();
 
-        void OnCopyAction(const Input::InputActionEvent& inputActionContext);
-        void OnPasteAction(const Input::InputActionEvent& inputActionContext);
-        void OnDeleteAction(const Input::InputActionEvent& inputActionContext);
+        void OnCopyAction(const InputActions::InputActionEvent& inputActionContext);
+        void OnPasteAction(const InputActions::InputActionEvent& inputActionContext);
+        void OnDeleteAction(const InputActions::InputActionEvent& inputActionContext);
 
         void OnNodeCreated(const GraphEditorContext::Node& node);
 
@@ -135,7 +140,7 @@ namespace Onyx::Editor
         CreateNewNodeData m_CreateNodeData;
         
         Assets::AssetSystem* m_AssetSystem;
-        Input::InputActionSystem* m_InputActionSystem;
+        InputActions::InputActionSystem* m_InputActionSystem;
         const Localization::LocalizationModule* m_LocalizationModule = nullptr;
 
         ax::NodeEditor::EditorContext* m_Context = nullptr;

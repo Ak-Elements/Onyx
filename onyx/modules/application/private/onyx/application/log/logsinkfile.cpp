@@ -20,7 +20,7 @@ namespace Onyx::Application
             return;
         }
 
-		FileSystem::Filepath relativeFilePath = FileSystem::Path::ConvertToMountPath(message.m_FileName);
+		FilePath relativeFilePath = FileSystem::Path::ConvertToMountPath(message.m_FileName);
 
         StringView formattedMessage;
         if( message.m_FileName == nullptr )

@@ -6,7 +6,6 @@
                 "id": "3e6650b",
                 "string": "Onyx::Graphics::RenderGraph::CreateLightClusters"
             },
-            "type": "class Onyx::Graphics::CreateLightClusters",
             "outputs": [
                 {
                     "id": "ba4fcc11a401002",
@@ -20,7 +19,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/compute/createlightclusters.oshader",
+            "shader": 5373523573287014078,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -41,7 +40,6 @@
                 "id": "38c6fe1b",
                 "string": "Onyx::Graphics::RenderGraph::CreateTransmittance"
             },
-            "type": "class Onyx::Graphics::CreateTransmittanceRenderGraphNode",
             "outputs": [
                 {
                     "id": "ba68ae7a0001002",
@@ -55,7 +53,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/scattering/computetransmittance.oshader",
+            "shader": 2074633969490962320,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -96,7 +94,6 @@
                 "id": "d47b8af2",
                 "string": "Onyx::Graphics::RenderGraph::GetViewConstants"
             },
-            "type": "class Onyx::Graphics::GetViewConstantsNode",
             "outputs": [
                 {
                     "id": "ba2926a5c001002",
@@ -117,7 +114,6 @@
                 "id": "d492e080",
                 "string": "Onyx::Graphics::RenderGraph::UpdateLightClusters"
             },
-            "type": "class Onyx::Graphics::UpdateLightClustersRenderGraphNode",
             "inputs": [
                 {
                     "id": "ba4fcc713c01001",
@@ -167,7 +163,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/compute/updatelightclusters.oshader",
+            "shader": 7482517078221597225,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -188,7 +184,6 @@
                 "id": "592cecf",
                 "string": "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
             },
-            "type": "class Onyx::Graphics::ComputeMultipleScatteringRenderGraphNode",
             "inputs": [
                 {
                     "id": "ba68af0af801001",
@@ -216,7 +211,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/scattering/computemultiscattering.oshader",
+            "shader": 16262060667485085528,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -252,15 +247,14 @@
             ]
         },
         {
-            "id": "ba8c92356401001",
+            "id": "b8e0fd536001001",
             "typeId": {
-                "id": "6fadc1fa",
-                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
+                "id": "5ef77bb6",
+                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
             },
-            "type": "class Onyx::GameCore::MSDFFontRenderPass",
             "inputs": [
                 {
-                    "id": "ba8c92356401002",
+                    "id": "b8e0fd536001002",
                     "localId": {
                         "id": "46c2a1b5",
                         "string": "InPin"
@@ -274,7 +268,7 @@
             ],
             "outputs": [
                 {
-                    "id": "ba8c92356401003",
+                    "id": "b8e0fd536001003",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
@@ -285,7 +279,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/font/msdffont.oshader",
+            "shader": 15047719215064251041,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -326,7 +320,6 @@
                 "id": "d457a11b",
                 "string": "Onyx::GameCore::RenderGraph::DepthPrePass"
             },
-            "type": "class Onyx::GameCore::DepthPrePassRenderGraphNode",
             "inputs": [
                 {
                     "id": "ba6717196401102",
@@ -354,7 +347,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/predepth.oshader",
+            "shader": 4496357552810980483,
             "pipeline": {
                 "depthstencil": {
                     "enabled": true,
@@ -390,15 +383,14 @@
             ]
         },
         {
-            "id": "b8e0fd536001001",
+            "id": "ba8c92356401001",
             "typeId": {
-                "id": "5ef77bb6",
-                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+                "id": "6fadc1fa",
+                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
             },
-            "type": "class Onyx::GridRenderGraphNode",
             "inputs": [
                 {
-                    "id": "b8e0fd536001002",
+                    "id": "ba8c92356401002",
                     "localId": {
                         "id": "46c2a1b5",
                         "string": "InPin"
@@ -412,7 +404,7 @@
             ],
             "outputs": [
                 {
-                    "id": "b8e0fd536001003",
+                    "id": "ba8c92356401003",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
@@ -423,7 +415,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/grid.oshader",
+            "shader": 10298114563030381622,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -464,7 +456,6 @@
                 "id": "1093842c",
                 "string": "Onyx::Graphics::RenderGraph::ComputeSkyViewLut"
             },
-            "type": "class Onyx::Graphics::SkyViewLutRenderGraphNode",
             "inputs": [
                 {
                     "id": "ba68b013b801001",
@@ -504,7 +495,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/scattering/computeskyviewlut.oshader",
+            "shader": 18092391199644248616,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -545,7 +536,6 @@
                 "id": "108706ef",
                 "string": "Onyx::Graphics::RenderGraph::AtmosphericSkyPass"
             },
-            "type": "class Onyx::Graphics::AtmosphericSkyRenderGraphNode",
             "inputs": [
                 {
                     "id": "ba68b0d91801001",
@@ -597,7 +587,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/sky.oshader",
+            "shader": 7220062510751122814,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -638,7 +628,6 @@
                 "id": "bfb6a6f6",
                 "string": "Onyx::GameCore::RenderGraph::StaticMeshPass"
             },
-            "type": "class Onyx::GameCore::StaticMeshRenderGraphNode",
             "inputs": [
                 {
                     "id": "ba5010b28801002",
@@ -738,7 +727,6 @@
                 "id": "3cee5b8d",
                 "string": "CompositePass"
             },
-            "type": "class Onyx::CompositeRenderGraphNode",
             "inputs": [
                 {
                     "id": "b8e0fd9f7001000",
@@ -790,7 +778,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/composite.oshader",
+            "shader": 1119060020704942316,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -831,7 +819,6 @@
                 "id": "bd96e437",
                 "string": "Onyx::Graphics::RenderGraph::ToneMapPass"
             },
-            "type": "class Onyx::Graphics::ToneMapPass",
             "inputs": [
                 {
                     "id": "baa254787001001",
@@ -859,7 +846,7 @@
                     }
                 }
             ],
-            "shader": "engine:/shaders/post/tonemap.oshader",
+            "shader": 16033659302307191598,
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -878,87 +865,6 @@
                     "type": "Attachment",
                     "external": false,
                     "format": "RGBA_FLOAT32",
-                    "loadOp": "Clear",
-                    "hassize": false,
-                    "size": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "baa254c1e401000",
-            "typeId": {
-                "id": "c9a6c13a",
-                "string": "Onyx::Ui::RenderGraph::UIPass"
-            },
-            "type": "class Onyx::UIRenderGraphNode",
-            "inputs": [
-                {
-                    "id": "baa254c1e401001",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    },
-                    "linkedPin": "baa254787001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "baa254c1e401002",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    }
-                }
-            ],
-            "shader": "engine:/shaders/imgui.oshader",
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                },
-                "blend": [
-                    {
-                        "enabled": true,
-                        "colormask": "RGBA",
-                        "srccolor": "SrcAlpha",
-                        "dstcolor": "OneMinusSrcAlpha",
-                        "colorop": "Add",
-                        "srcalpha": "Invalid",
-                        "dstalpha": "Invalid",
-                        "alphaop": "Add"
-                    }
-                ]
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": true,
-                    "format": "BGRA_UNORM8",
                     "loadOp": "Clear",
                     "hassize": false,
                     "size": [

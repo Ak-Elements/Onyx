@@ -5,4 +5,6 @@ endif()
 onyx_add_target(onyx-entity
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx::Entity"
+    NO_CODEGEN
+    NO_EDITOR_TARGET
 )

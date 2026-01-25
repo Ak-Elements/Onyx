@@ -26,7 +26,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     panels/sceneeditor/terraintools/primitivesterraintool.h
     rendertasks/compositetask.h
     rendertasks/gridtask.h
-    rendertasks/guitask.h
     windows/editorwindow.h
     windows/editormainwindow.h
     windows/startupwindow.h
@@ -38,17 +37,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     editor_localization.cpp
     camera/freecamera.cpp
     assets/importer/textureimporter.cpp
-    components/cameracomponent_editor.gen.cpp
-    components/freecameracomponent_editor.gen.cpp
-    components/idcomponent_editor.gen.cpp
-    components/namecomponent_editor.gen.cpp
-    components/transformcomponent_editor.gen.cpp
-    components/transientcomponent_editor.gen.cpp
-    components/graphics/lightcomponents.cpp
-    components/graphics/materialcomponent.cpp
-    components/graphics/textcomponent_editor.cpp
-    components/volume/csg/spherecomponent_editor.cpp
-    components/volume/volumeterraincomponent_editor.cpp
     nodegraph/arithmeticnodes_editor.cpp
     nodegraph/vectornodes_editor.cpp
     nodegraph/grapheditorcontext.cpp
@@ -74,7 +62,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     panels/sceneeditor/terraintools/primitivesterraintool.cpp
     rendertasks/compositetask.cpp
     rendertasks/gridtask.cpp
-    rendertasks/guitask.cpp
     shadergraph/sampletexturenode_editor.cpp
     windows/editorwindow.cpp
     windows/editormainwindow.cpp

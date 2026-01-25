@@ -1,6 +1,6 @@
 #include <onyx/gamecore/rendertasks/staticmeshrendertask.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/rhi/commandbuffer.h>
 
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>

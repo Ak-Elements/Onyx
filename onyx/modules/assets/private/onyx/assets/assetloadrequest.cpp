@@ -19,7 +19,7 @@ namespace Onyx::Assets
         m_Future.Then([this]()
         {
             if (OnLoadFinished)
-                OnLoadFinished(Handle);
+                OnLoadFinished(Asset);
         });
 
         loaderPool.Post(std::move(loadingTask));
@@ -40,7 +40,7 @@ namespace Onyx::Assets
         // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
         ONYX_ASSERT(Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not load assets on the main thread");
 
-        FileSystem::Filepath path = FileSystem::Path::GetFullPath(MetaData.Path);
+        FilePath path = FileSystem::Path::GetFullPath(MetaData.Path);
         String assetName = MetaData.Path.string();
         
         //tracy_scope_AssetSystem.NameFmt("%s", assetName.c_str());
@@ -57,15 +57,14 @@ namespace Onyx::Assets
             {
                 const FileSystem::JsonValue& inputConfigData = assetFile.LoadJson();
                 FileSystem::JsonDeserializer serializer(inputConfigData.Json);
-                succeeded = Serializer->Deserialize(Handle, MetaData, serializer, *Engine);
+                succeeded = Serializer->Deserialize(Asset, MetaData, serializer, *Engine);
                 break;
             }
         }
 
         // first trigger loaded callbacks, than set the asset to be valid / loaded
         AssetState state = succeeded ? AssetState::Loaded : AssetState::Invalid;
-        Handle->OnLoadFinished(state);
-        Handle->SetState(state);
+        Asset->OnLoadFinished(Asset.GetId(), state);
     }
 
 #if ONYX_IS_EDITOR
@@ -78,7 +77,7 @@ namespace Onyx::Assets
         m_Future.Then([this]()
             {
                 if (OnSaveFinished)
-                    OnSaveFinished(Handle);
+                    OnSaveFinished(Asset);
             });
 
         loaderPool.Post(saveTask);
@@ -96,12 +95,12 @@ namespace Onyx::Assets
         // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
         ONYX_ASSERT(Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not save assets on the main thread");
 
-        //FileSystem::Filepath relativePath = Path.lexically_relative(FileSystem::Path::GetDataDirectory());
+        //FilePath relativePath = Path.lexically_relative(FileSystem::Path::GetDataDirectory());
         //String assetName = relativePath.string();
         //ZoneText(assetName.c_str(), assetName.length());
 
         FileSystem::JsonSerializer serializer;
-        bool succeeded = Serializer->Serialize(Handle, MetaData, serializer, *Engine);
+        bool succeeded = Serializer->Serialize(Asset, MetaData, serializer, *Engine);
 
         const String& jsonString = serializer.JsonRoot.dump(4);
         using namespace FileSystem;
@@ -109,7 +108,7 @@ namespace Onyx::Assets
         FileStream stream = inputConfigFile.OpenStream(OpenMode::Write | OpenMode::Text);
         stream.WriteRaw(jsonString.data(), jsonString.size());
 
-        Handle->OnSaveFinished(succeeded);
+        Asset->OnSaveFinished(Asset.GetId(), succeeded);
     }
 #endif
 }

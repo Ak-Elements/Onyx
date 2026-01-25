@@ -18,15 +18,19 @@ namespace Onyx::Assets
         constexpr AssetId(const char* path)
             : AssetId(StringView(path))
         {
+            m_Path = path;
         }
 
         constexpr AssetId(StringView path)
             : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
+            , m_Path(path)
         {
+            
         }
 
-        explicit AssetId(const FileSystem::Filepath& path)
+        explicit AssetId(const FilePath& path)
             : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path.generic_string()))
+            , m_Path(path)
         {
         }
 
@@ -38,8 +42,25 @@ namespace Onyx::Assets
 
         bool IsValid() const { return m_Id != Invalid; }
 
+#if ONYX_IS_DEBUG
+        StringView GetPath() const { return StringView(m_Path); }
+#endif
+
     private:
         onyxU64 m_Id = Invalid;
+#if ONYX_IS_DEBUG
+        String m_Path;
+#endif
+    };
+}
+
+namespace Onyx
+{
+    template <>
+    struct Serialization<Assets::AssetId>
+    {
+        static bool Serialize(Serializer& serializer, const Assets::AssetId& assetId);
+        static bool Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId);
     };
 }
 
@@ -53,12 +74,11 @@ struct std::hash<Onyx::Assets::AssetId>
     }
 };
 
-namespace Onyx
+template <>
+struct std::formatter<Onyx::Assets::AssetId> : std::formatter<std::string>
 {
-    template <>
-    struct Serialization<Assets::AssetId>
+    auto format(Onyx::Assets::AssetId id, std::format_context& ctx) const
     {
-        static bool Serialize(Serializer& serializer, const Assets::AssetId& assetId);
-        static bool Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId);
-    };
-}
+        return std::format_to(ctx.out(), "{:x}", id.Get());
+    }
+};

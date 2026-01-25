@@ -1,6 +1,5 @@
 #pragma once
 #include <onyx/input/mouse.h>
-#include <onyx/input/inputid.h>
 
 namespace Onyx::Input
 {
@@ -266,7 +265,7 @@ namespace Onyx::Input
         EndCall,
 
         Last,
-        Invalid = InputID::Invalid
+        Invalid = 0
     };
 
     static constexpr onyxU16 Key_Count = Enums::ToIntegral(Key::Last) - Enums::ToIntegral(Key::First);
@@ -282,6 +281,17 @@ namespace Onyx::Input
             (key == Key::Left_Shift) || (key == Key::Right_Shift) ||
             (key == Key::Left_Alt) || (key == Key::Right_Alt) ||
             (key == Key::Left_System) || (key == Key::Right_System);
+    }
+
+    constexpr auto ToIndex(Key key) -> std::underlying_type_t<Key>
+    {
+        constexpr onyxU16 first = Enums::ToIntegral(Key::First);
+        constexpr onyxU16 last = Enums::ToIntegral(Key::Last);
+        ONYX_ASSERT(Enums::ToIntegral(key) > first);
+        ONYX_ASSERT(Enums::ToIntegral(key) < last);
+
+        onyxU16 index = Enums::ToIntegral(key) - first;
+        return index;
     }
     
 }

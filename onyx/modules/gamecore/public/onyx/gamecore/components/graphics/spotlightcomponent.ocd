@@ -1,0 +1,13 @@
+SpotLightComponent
+{
+    onyxF32 Intensity = 1.0f
+    onyxF32 AngleAttenuation = 1.0f
+
+    [Editor(Color)]
+    Vector3f32 Color = { 1.0f, 1.0f, 1.0f }
+    onyxF32 Range = 0.0f
+
+    onyxF32 Angle = 0.0f
+    onyxF32 Falloff 0.1f
+    bool IsShadowCasting = true
+};

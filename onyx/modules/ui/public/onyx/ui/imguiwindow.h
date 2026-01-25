@@ -1,8 +1,5 @@
 #pragma once
 
-#if ONYX_USE_IMGUI
-
-
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
@@ -63,5 +60,3 @@ namespace Onyx::Ui
         bool m_IsCollapsed = false;
     };
 }
-
-#endif

@@ -18,7 +18,7 @@ namespace Onyx::Editor
     public:
         virtual ~AssetImporter() = default;
 
-        void Import(const FileSystem::Filepath& path, Assets::AssetMetaData& outAssetMeta)
+        void Import(const FilePath& path, Assets::AssetMetaData& outAssetMeta)
         {
             AssetImportResult result = DoImport(path, outAssetMeta);
             if (OnImportFinished)
@@ -29,6 +29,6 @@ namespace Onyx::Editor
         Callback<void(Assets::AssetId, AssetImportResult)> OnImportFinished;
 
     private:
-        virtual AssetImportResult DoImport(const FileSystem::Filepath& path, Assets::AssetMetaData& outAssetMeta) = 0;
+        virtual AssetImportResult DoImport(const FilePath& path, Assets::AssetMetaData& outAssetMeta) = 0;
     };
 }

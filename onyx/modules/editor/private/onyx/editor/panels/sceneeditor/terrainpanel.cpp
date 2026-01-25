@@ -1,10 +1,10 @@
 ﻿#include <onyx/editor/panels/sceneeditor/terrainpanel.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/rhi/commandbuffer.h>
 
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/geometry/rect2.h>
-#include <onyx/volume/components/volumeterraincomponent.h>
+#include <onyx/volume/components/volumeterraincomponent.gen.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 #include <onyx/gamecore/gamecore.h>
@@ -12,9 +12,11 @@
 
 #include <onyx/editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
 #include <onyx/editor/panels/sceneeditor/terraintools/sculptterraintool.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
+#include <onyx/inputactions/inputactionsystem.h>
+
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
@@ -667,7 +669,7 @@ namespace
 
 namespace Onyx::Editor::SceneEditor
 {
-    TerrainPanel::TerrainPanel(Input::InputActionSystem& actionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore)
+    TerrainPanel::TerrainPanel(InputActions::InputActionSystem& actionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore)
         : m_GraphicsSystem(graphicsSystem)
         , m_GameCore(gameCore)
     {
@@ -724,7 +726,10 @@ namespace Onyx::Editor::SceneEditor
         bool isUsingAnyGizmo = ImGuizmo::IsUsingAny();
         bool isHoveringGizmo = ImGuizmo::IsOver();
 
-        Reference<Graphics::RenderGraph>& renderGraph = m_GraphicsSystem.GetRenderGraph();
+        Reference<Graphics::RenderGraph> renderGraph;//TODO: = m_GraphicsSystem.GetRenderGraph();
+        if (renderGraph.IsValid() == false)
+            return;
+
         Graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
 
         if (isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo)
@@ -952,7 +957,7 @@ namespace Onyx::Editor::SceneEditor
         ONYX_UNUSED(terrainOctree);
     }
 
-    void TerrainPanel::OnTerrainPanelBrushSizeInput(const Input::InputActionEvent& inputEvent)
+    void TerrainPanel::OnTerrainPanelBrushSizeInput(const InputActions::InputActionEvent& inputEvent)
     {
         onyxF32 inputValue = inputEvent.GetData<onyxF32>();
         m_Tools[m_SelectedTab]->OnBrushSizeInput(inputValue);

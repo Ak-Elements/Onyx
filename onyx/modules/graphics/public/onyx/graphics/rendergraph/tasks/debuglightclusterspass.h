@@ -1,7 +1,8 @@
 #pragma once
 
-#include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {

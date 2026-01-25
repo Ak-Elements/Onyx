@@ -2,14 +2,9 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/ui/imguiwindow.h>
-
 #include <onyx/engine/enginesystem.h>
-
-#include <onyx/thread/container/lockfreempscboundedqueue.h>
-
-
-#include <mutex>
+#include <onyx/ui/imguiwindow.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Localization
 {
@@ -23,8 +18,13 @@ namespace Onyx
 {
     namespace Input
     {
-        struct InputEvent;
         class InputSystem;
+        struct MouseAxisEvent;
+        struct MouseButtonEvent;
+        struct MousePositionEvent;
+        struct KeyboardEvent;
+        struct GameControllerAxisEvent;
+        struct GameControllerButtonEvent;
     }
 
     namespace Assets
@@ -38,8 +38,11 @@ namespace Onyx
         struct FrameContext;
 
         class GraphicsSystem;
-        class Window;
-        class WindowSystem;
+    }
+
+    namespace Platform
+    {
+        class PlatformSystem;
     }
 
     namespace Ui
@@ -58,7 +61,6 @@ namespace Onyx
         {
             Assets::AssetSystem* AssetSystem = nullptr;
             Graphics::GraphicsSystem* GraphicsSystem = nullptr;
-            Graphics::Window* MainWindow = nullptr;
             Input::InputSystem* InputSystem = nullptr;
         };
 
@@ -75,15 +77,14 @@ namespace Onyx
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
 
-            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem);
+            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem);
             ~ImGuiSystem() override;
 
-            
             void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
 
-            void OnBeginFrame(Graphics::FrameContext& context);
-            
-            void OnEndFrame();
+            void OnBeginFrame(const Graphics::FrameContext& frameContext);
+            void OnRenderFrame(const Graphics::FrameContext& frameContext);
+            void OnEndFrame(const Graphics::FrameContext& frameContext);
 
             template <IsImGuiWindow T, typename... Args>
             void RegisterWindow(Args&&... args)
@@ -201,16 +202,35 @@ namespace Onyx
             Optional<ImGuiWindow*> GetWindow(StringView windowName);
           
         private:
-            void OnWindowResize(onyxU32 width, onyxU32 height);
-            void OnInputEvent(const Input::InputEvent* event);
+            void InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem);
+            void UpdateDrawBuffers(const Graphics::FrameContext& frameContext);
+
+            void OnWindowResize(Vector2s32 size);
+            
+            void OnMouseAxisChange(const Input::MouseAxisEvent& event);
+            void OnMouseButton(const Input::MouseButtonEvent& event);
+            void OnMousePositionChange(const Input::MousePositionEvent& event);
+
+            void OnKey(const Input::KeyboardEvent& event);
+
+            void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
+            void OnControllerButton(const Input::GameControllerButtonEvent& event);
 
         private:
-            LockFreeMPSCBoundedQueue<InplaceFunction<void(ImGuiIO&)>, 64> m_QueuedInputs;
+            Reference<Graphics::ShaderInstance> m_ImguiShader;
+
+            InplaceArray<Graphics::BufferHandle, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexBuffers;
+            InplaceArray<Graphics::BufferHandle, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexBuffers;
+            Graphics::TextureHandle m_FontImage;
+
+            InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexCounts;
+            InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexCounts;
+
             HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> m_WindowFactory;
             HashMap<StringId64, ImFont*> m_Fonts;
             std::mutex m_Mutex;
             DynamicArray<UniquePtr<ImGuiWindow>> m_Windows;
-            Graphics::Window* m_Window;
+            Platform::PlatformSystem* m_PlatformSystem;
             Input::InputSystem* m_InputSystem;
         };
     }

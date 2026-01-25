@@ -1,6 +1,6 @@
 #include <onyx/volume/shadergraph/nodes/primitives/sdfspherevolumeshadergraphnode.h>
 
-#include <onyx/graphics/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/executioncontext.h>
 

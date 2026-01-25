@@ -14,31 +14,31 @@ msgstr "General/Editor Name"
 msgid "Onyx::GameCore::CameraComponent"
 msgstr "Camera/Camera Settings"
 
-msgid "Onyx::GameCore::Components::DirectionalLightComponent"
+msgid "Onyx::GameCore::DirectionalLightComponent"
 msgstr "Lights/Directional Light"
 
-msgid "Onyx::GameCore::Components::PointLightComponent"
+msgid "Onyx::GameCore::PointLightComponent"
 msgstr "Lights/Point Light"
 
-msgid "Onyx::GameCore::Components::SpotLightComponent"
+msgid "Onyx::GameCore::SpotLightComponent"
 msgstr "Lights/Spot Light"
 
-msgid "Onyx::GameCore::Components::TextComponent"
+msgid "Onyx::GameCore::TextComponent"
 msgstr "Rendering/3D Text"
 
-msgid "Onyx::GameCore::Components::MaterialComponent"
+msgid "Onyx::GameCore::MaterialComponent"
 msgstr "Rendering/Material"
 
-msgid "Onyx::Volume::Components::CubeComponent"
+msgid "Onyx::Volume::CubeComponent"
 msgstr "Volume/Geometry/Cube"
 
-msgid "Onyx::Volume::Components::PlaneComponent"
+msgid "Onyx::Volume::PlaneComponent"
 msgstr "Volume/Geometry/Plane"
 
-msgid "Onyx::Volume::Components::SphereComponent"
+msgid "Onyx::Volume::SphereComponent"
 msgstr "Volume/Geometry/Sphere"
 
-msgid "Onyx::Volume::Components::TerrainSettingsComponent"
+msgid "Onyx::Volume::TerrainSettingsComponent"
 msgstr "Volume/Terrain Settings"
 
 msgid "Onyx::GameCore::FreeCameraControllerComponent"

@@ -11,7 +11,6 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <onyx/graphics/window/windows/nativewindow.h>
 
 namespace Onyx::Ui
 {

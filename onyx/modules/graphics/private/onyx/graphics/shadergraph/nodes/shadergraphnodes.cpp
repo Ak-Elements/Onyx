@@ -5,6 +5,4 @@ namespace Onyx::Graphics
     {
        
     }
-
-    
 }

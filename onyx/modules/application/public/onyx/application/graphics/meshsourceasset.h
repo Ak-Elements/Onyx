@@ -1,6 +1,6 @@
 #pragma once
 #include <onyx/filesystem/path.h>
-#include <onyx/graphics/vertex.h>
+#include <onyx/rhi/vertex.h>
 
 namespace Onyx::Application
 {
@@ -8,7 +8,7 @@ namespace Onyx::Application
     {
     public:
         MeshSourceAsset() = default;
-        MeshSourceAsset(const FileSystem::Filepath& path);
+        MeshSourceAsset(const FilePath& path);
 
         const DynamicArray<Graphics::Vertex>& GetVertices() const { return m_Vertices; }
         const DynamicArray<onyxU32>& GetIndices() const { return m_Indices; }

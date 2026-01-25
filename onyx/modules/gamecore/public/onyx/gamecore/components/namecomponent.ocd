@@ -1,4 +1,4 @@
-[EditorOnly, Hidden]
+[RuntimeOnly, EditorOnly, Hidden]
 NameComponent
 {
     [ReadOnly]

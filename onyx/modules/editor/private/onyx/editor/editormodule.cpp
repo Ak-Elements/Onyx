@@ -20,12 +20,12 @@ namespace Onyx::Editor
         Assets::AssetSystem& assetSystem,
         Graphics::GraphicsSystem& graphicsSystem,
         Input::InputSystem& inputSystem,
-        Input::InputActionSystem& inputActionSystem,
+        InputActions::InputActionSystem& inputActionSystem,
         Localization::LocalizationModule& localizationModule)
     {
         Localization::Editor::InitLocalization(localizationModule);
 
-        Reference<Localization::GetTextLocalizationDatabase> secondaryDb;
+        Assets::AssetHandle<Localization::GetTextLocalizationDatabase> secondaryDb;
 
         // TODO: Move to app config?
         assetSystem.GetAsset("engine:/localization/assets.po", secondaryDb);
@@ -51,7 +51,6 @@ namespace Onyx::Editor
 
         imguiSystem.OpenWindow<EditorMainWindow>();
         imguiSystem.OpenWindow<StartupWindow>();
-
         imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore, assetSystem, localizationModule, graphicsSystem, inputActionSystem);
         imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, localizationModule, inputActionSystem);
         imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, inputSystem);

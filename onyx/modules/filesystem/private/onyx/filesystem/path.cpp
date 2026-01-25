@@ -39,18 +39,18 @@ namespace Onyx::FileSystem::Path
         }
     }
 
-    Filepath GetWorkingDirectory()
+    FilePath GetWorkingDirectory()
     {
         using namespace std::filesystem;
         return current_path();
     }
 
-    Filepath GetTempDirectory()
+    FilePath GetTempDirectory()
     {
         return MountPoints.at(TMP_MOUNT_POINT_ID).Path;
     }
 
-    String GetFileName(const Filepath& path)
+    String GetFileName(const FilePath& path)
     {
         using namespace std::filesystem;
         return path.stem().generic_string();
@@ -61,12 +61,12 @@ namespace Onyx::FileSystem::Path
         return MountPoints;
     }
 
-    Filepath GetFullPath(const Filepath& path)
+    FilePath GetFullPath(const FilePath& path)
     {
         return GetFullPath(path, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const Filepath& path, StringView /*newExtension*/)
+    FilePath GetFullPath(const FilePath& path, StringView /*newExtension*/)
     {
         Optional<MountPoint> mountPoint = GetMountPointFromPrefixPath(path.string());
         if (mountPoint.has_value())
@@ -77,45 +77,45 @@ namespace Onyx::FileSystem::Path
         return path;
     }
 
-    Filepath GetFullPath(const String& pathStr)
+    FilePath GetFullPath(const String& pathStr)
     {
         return GetFullPath(pathStr, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const String& pathStr, StringView newExtension)
+    FilePath GetFullPath(const String& pathStr, StringView newExtension)
     {
-        return GetFullPath(Filepath(pathStr), newExtension);
+        return GetFullPath(FilePath(pathStr), newExtension);
     }
 
-    Filepath GetFullPath(StringView pathStr)
+    FilePath GetFullPath(StringView pathStr)
     {
         return GetFullPath(pathStr, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(StringView pathStr, StringView newExtension)
+    FilePath GetFullPath(StringView pathStr, StringView newExtension)
     {
-        return GetFullPath(Filepath(pathStr), newExtension);
+        return GetFullPath(FilePath(pathStr), newExtension);
     }
 
-    Filepath GetFullPath(const char* path)
+    FilePath GetFullPath(const char* path)
     {
         return GetFullPath(path, DEFAULT_FILE_EXTENSION);
     }
 
-    Filepath GetFullPath(const char* path, StringView newExtension)
+    FilePath GetFullPath(const char* path, StringView newExtension)
     {
         return GetFullPath(StringView(path), newExtension);
     }
 
-    Filepath ReplaceExtension(const Filepath& path, StringView newExtension)
+    FilePath ReplaceExtension(const FilePath& path, StringView newExtension)
     {
-        Filepath returnPath(path);
+        FilePath returnPath(path);
         return returnPath.replace_extension(newExtension);
     }
 
-    Filepath ConvertToMountPath(const Filepath& absolutePath)
+    FilePath ConvertToMountPath(const FilePath& absolutePath)
     {
-        Filepath relativePath = absolutePath;
+        FilePath relativePath = absolutePath;
         if (absolutePath.is_absolute())
         {
             relativePath = absolutePath.lexically_relative(GetWorkingDirectory());
@@ -132,13 +132,13 @@ namespace Onyx::FileSystem::Path
         return relativePath;
     }
 
-    bool Exists(const Filepath& path)
+    bool Exists(const FilePath& path)
     {
         using namespace std::filesystem;
         return exists(path);
     }
 
-    bool TempFileExists(const Filepath& path)
+    bool TempFileExists(const FilePath& path)
     {
         using namespace std::filesystem;
         return exists(GetTempDirectory().append(path.generic_string()));
@@ -170,7 +170,7 @@ namespace Onyx::FileSystem::Path
         }
     }
 
-    bool CreateDirectory(const Filepath& directoryPath)
+    bool CreateDirectory(const FilePath& directoryPath)
     {
         if (Exists(directoryPath))
             return true;
@@ -188,7 +188,7 @@ namespace Onyx::FileSystem::Path
         return true;
     }
 
-    void EnumerateFiles(const Filepath& directoryPath, InplaceFunction<bool(const Filepath&)> forEach)
+    void EnumerateFiles(const FilePath& directoryPath, InplaceFunction<bool(const FilePath&)> forEach)
     {
         for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(directoryPath))
         {
@@ -203,12 +203,12 @@ namespace Onyx::FileSystem::Path
 
 namespace Onyx
 {
-    bool Serialization<std::filesystem::path>::Serialize(Serializer& serializer, const FileSystem::Filepath& path)
+    bool Serialization<FilePath>::Serialize(Serializer& serializer, const FilePath& path)
     {
         return serializer.Write(path.generic_string());
     }
 
-    bool Serialization<std::filesystem::path>::Deserialize(const Deserializer& deserializer, FileSystem::Filepath& outPath)
+    bool Serialization<FilePath>::Deserialize(const Deserializer& deserializer, FilePath& outPath)
     {
         StringView path;
         if (deserializer.Read(path))

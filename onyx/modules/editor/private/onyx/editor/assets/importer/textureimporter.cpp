@@ -5,7 +5,7 @@
 
 namespace Onyx::Editor
 {
-    AssetImportResult TextureImporter::DoImport(const FileSystem::Filepath& path, Assets::AssetMetaData& outAssetMeta)
+    AssetImportResult TextureImporter::DoImport(const FilePath& path, Assets::AssetMetaData& outAssetMeta)
     {
         if (FileSystem::Path::Exists(path) == false)
             return AssetImportResult::FileNotFound;
@@ -17,7 +17,7 @@ namespace Onyx::Editor
 
         FileSystem::ImageFile file(path);
         
-        FileSystem::Filepath importedTexturePath = FileSystem::Path::ReplaceExtension(path, "otex");
+        FilePath importedTexturePath = FileSystem::Path::ReplaceExtension(path, "otex");
 
         StringId32 texturePathHashed(importedTexturePath.string());
         outAssetMeta.Id = static_cast<Assets::AssetId>(texturePathHashed.GetId());

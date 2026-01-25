@@ -3,6 +3,7 @@
 #include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 
+#include <onyx/nodegraph/nodes/node.h>
 #include <onyx/nodegraph/executioncontext.h>
 
 namespace Onyx::NodeGraph
@@ -215,74 +216,71 @@ namespace Onyx::NodeGraph
 #endif
     };
 
-    template <typename FactoryType, CompileTimeString SerializedNameSpaceId> 
-    void RegisterArithmeticNodes()
+    namespace Nodes
     {
-        using FactoryNodeTypeT = typename FactoryType::NodeTypeT;
-
         // Addition
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::AdditionF32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::AdditionF64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::AdditionS32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::AdditionS64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector2f32, SerializedNameSpaceId + "::AdditionVector2f32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector2f64, SerializedNameSpaceId + "::AdditionVector2f64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector2s32, SerializedNameSpaceId + "::AdditionVector2s32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector2s64, SerializedNameSpaceId + "::AdditionVector2s64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector3f32, SerializedNameSpaceId + "::AdditionVector3f32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector3f64, SerializedNameSpaceId + "::AdditionVector3f64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector3s32, SerializedNameSpaceId + "::AdditionVector3s32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector3s64, SerializedNameSpaceId + "::AdditionVector3s64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector4f32, SerializedNameSpaceId + "::AdditionVector4f32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector4f64, SerializedNameSpaceId + "::AdditionVector4f64">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector4s32, SerializedNameSpaceId + "::AdditionVector4s32">>();
-        FactoryType::template Register<AddNode<FactoryNodeTypeT, Vector4s64, SerializedNameSpaceId + "::AdditionVector4s64">>();
+        using AddNodeF32 = AddNode<Node, onyxF32, "Onyx::NodeGraph::Nodes::AdditionF32">;
+        using AddNodeF64 = AddNode<Node, onyxF64, "Onyx::NodeGraph::Nodes::AdditionF64">;
+        using AddNodeS32 = AddNode<Node, onyxS32, "Onyx::NodeGraph::Nodes::AdditionS32">;
+        using AddNodeS64 = AddNode<Node, onyxS64, "Onyx::NodeGraph::Nodes::AdditionS64">;
+        using AddNodeVector2f32 = AddNode<Node, Vector2f32, "Onyx::NodeGraph::Nodes::AdditionVector2f32">;
+        using AddNodeVector2f64 = AddNode<Node, Vector2f64, "Onyx::NodeGraph::Nodes::AdditionVector2f64">;
+        using AddNodeVector2s32 = AddNode<Node, Vector2s32, "Onyx::NodeGraph::Nodes::AdditionVector2s32">;
+        using AddNodeVector2s64 = AddNode<Node, Vector2s64, "Onyx::NodeGraph::Nodes::AdditionVector2s64">;
+        using AddNodeVector3f32 = AddNode<Node, Vector3f32, "Onyx::NodeGraph::Nodes::AdditionVector3f32">;
+        using AddNodeVector3f64 = AddNode<Node, Vector3f64, "Onyx::NodeGraph::Nodes::AdditionVector3f64">;
+        using AddNodeVector3s32 = AddNode<Node, Vector3s32, "Onyx::NodeGraph::Nodes::AdditionVector3s32">;
+        using AddNodeVector3s64 = AddNode<Node, Vector3s64, "Onyx::NodeGraph::Nodes::AdditionVector3s64">;
+        using AddNodeVector4f32 = AddNode<Node, Vector4f32, "Onyx::NodeGraph::Nodes::AdditionVector4f32">;
+        using AddNodeVector4f64 = AddNode<Node, Vector4f64, "Onyx::NodeGraph::Nodes::AdditionVector4f64">;
+        using AddNodeVector4s32 = AddNode<Node, Vector4s32, "Onyx::NodeGraph::Nodes::AdditionVector4s32">;
+        using AddNodeVector4s64 = AddNode<Node, Vector4s64, "Onyx::NodeGraph::Nodes::AdditionVector4s64">;
 
-        // Subtraction
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::SubtractF32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::SubtractF64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::SubtractS32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::SubtractS64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector2f32, SerializedNameSpaceId + "::SubtractVector2f32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector2f64, SerializedNameSpaceId + "::SubtractVector2f64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector2s32, SerializedNameSpaceId + "::SubtractVector2s32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector2s64, SerializedNameSpaceId + "::SubtractVector2s64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector3f32, SerializedNameSpaceId + "::SubtractVector3f32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector3f64, SerializedNameSpaceId + "::SubtractVector3f64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector3s32, SerializedNameSpaceId + "::SubtractVector3s32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector3s64, SerializedNameSpaceId + "::SubtractVector3s64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector4f32, SerializedNameSpaceId + "::SubtractVector4f32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector4f64, SerializedNameSpaceId + "::SubtractVector4f64">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector4s32, SerializedNameSpaceId + "::SubtractVector4s32">>();
-        FactoryType::template Register<SubtractNode<FactoryNodeTypeT, Vector4s64, SerializedNameSpaceId + "::SubtractVector4s64">>();
+        //// Subtraction
+        using SubtractNodeF32 = SubtractNode<Node, onyxF32, "Onyx::NodeGraph::Nodes::SubtractF32">;
+        using SubtractNodeF64 = SubtractNode<Node, onyxF64, "Onyx::NodeGraph::Nodes::SubtractF64">;
+        using SubtractNodeS32 = SubtractNode<Node, onyxS32, "Onyx::NodeGraph::Nodes::SubtractS32">;
+        using SubtractNodeS64 = SubtractNode<Node, onyxS64, "Onyx::NodeGraph::Nodes::SubtractS64">;
+        using SubtractNodeVector2f32 = SubtractNode<Node, Vector2f32, "Onyx::NodeGraph::Nodes::SubtractVector2f32">;
+        using SubtractNodeVector2f64 = SubtractNode<Node, Vector2f64, "Onyx::NodeGraph::Nodes::SubtractVector2f64">;
+        using SubtractNodeVector2s32 = SubtractNode<Node, Vector2s32, "Onyx::NodeGraph::Nodes::SubtractVector2s32">;
+        using SubtractNodeVector2s64 = SubtractNode<Node, Vector2s64, "Onyx::NodeGraph::Nodes::SubtractVector2s64">;
+        using SubtractNodeVector3f32 = SubtractNode<Node, Vector3f32, "Onyx::NodeGraph::Nodes::SubtractVector3f32">;
+        using SubtractNodeVector3f64 = SubtractNode<Node, Vector3f64, "Onyx::NodeGraph::Nodes::SubtractVector3f64">;
+        using SubtractNodeVector3s32 = SubtractNode<Node, Vector3s32, "Onyx::NodeGraph::Nodes::SubtractVector3s32">;
+        using SubtractNodeVector3s64 = SubtractNode<Node, Vector3s64, "Onyx::NodeGraph::Nodes::SubtractVector3s64">;
+        using SubtractNodeVector4f32 = SubtractNode<Node, Vector4f32, "Onyx::NodeGraph::Nodes::SubtractVector4f32">;
+        using SubtractNodeVector4f64 = SubtractNode<Node, Vector4f64, "Onyx::NodeGraph::Nodes::SubtractVector4f64">;
+        using SubtractNodeVector4s32 = SubtractNode<Node, Vector4s32, "Onyx::NodeGraph::Nodes::SubtractVector4s32">;
+        using SubtractNodeVector4s64 = SubtractNode<Node, Vector4s64, "Onyx::NodeGraph::Nodes::SubtractVector4s64">;
 
-        // Multiplication
-        FactoryType::template Register<MultiplyNode<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::MultiplyF32">>();
-        FactoryType::template Register<MultiplyNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::MultiplyF64">>();
-        FactoryType::template Register<MultiplyNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::MultiplyS32">>();
-        FactoryType::template Register<MultiplyNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::MultiplyS64">>();
+        //// Multiplication
+        using MultiplyNodeF32 = MultiplyNode<Node, onyxF32, "Onyx::NodeGraph::Nodes::MultiplyF32">;
+        using MultiplyNodeF64 = MultiplyNode<Node, onyxF64, "Onyx::NodeGraph::Nodes::MultiplyF64">;
+        using MultiplyNodeS32 = MultiplyNode<Node, onyxS32, "Onyx::NodeGraph::Nodes::MultiplyS32">;
+        using MultiplyNodeS64 = MultiplyNode<Node, onyxS64, "Onyx::NodeGraph::Nodes::MultiplyS64">;
 
-        // Division 
-        FactoryType::template Register<DivisionNode<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::DivideF32">>();
-        FactoryType::template Register<DivisionNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::DivideF64">>();
-        FactoryType::template Register<DivisionNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::DivideS32">>();
-        FactoryType::template Register<DivisionNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::DivideS64">>();
+        //// Division 
+        using DivisionNodeF32 = DivisionNode<Node, onyxF32, "Onyx::NodeGraph::Nodes::DivideF32">;
+        using DivisionNodeF64 = DivisionNode<Node, onyxF64, "Onyx::NodeGraph::Nodes::DivideF64">;
+        using DivisionNodeS32 = DivisionNode<Node, onyxS32, "Onyx::NodeGraph::Nodes::DivideS32">;
+        using DivisionNodeS64 = DivisionNode<Node, onyxS64, "Onyx::NodeGraph::Nodes::DivideS64">;
 
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, onyxF32, SerializedNameSpaceId + "::AbsoluteF32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, onyxF64, SerializedNameSpaceId + "::AbsoluteF64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, onyxS32, SerializedNameSpaceId + "::AbsoluteS32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, onyxS64, SerializedNameSpaceId + "::AbsoluteS64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector2f32, SerializedNameSpaceId + "::AbsoluteVector2f32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector2f64, SerializedNameSpaceId + "::AbsoluteVector2f64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector2s32, SerializedNameSpaceId + "::AbsoluteVector2s32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector2s64, SerializedNameSpaceId + "::AbsoluteVector2s64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector3f32, SerializedNameSpaceId + "::AbsoluteVector3f32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector3f64, SerializedNameSpaceId + "::AbsoluteVector3f64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector3s32, SerializedNameSpaceId + "::AbsoluteVector3s32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector3s64, SerializedNameSpaceId + "::AbsoluteVector3s64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector4f32, SerializedNameSpaceId + "::AbsoluteVector4f32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector4f64, SerializedNameSpaceId + "::AbsoluteVector4f64">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector4s32, SerializedNameSpaceId + "::AbsoluteVector4s32">>();
-        FactoryType::template Register<AbsoluteNode<FactoryNodeTypeT, Vector4s64, SerializedNameSpaceId + "::AbsoluteVector4s64">>();
+        using AbsoluteNodeF32 = AbsoluteNode<Node, onyxF32, "Onyx::NodeGraph::Nodes::AbsoluteF32">;
+        using AbsoluteNodeF64 = AbsoluteNode<Node, onyxF64, "Onyx::NodeGraph::Nodes::AbsoluteF64">;
+        using AbsoluteNodeS32 = AbsoluteNode<Node, onyxS32, "Onyx::NodeGraph::Nodes::AbsoluteS32">;
+        using AbsoluteNodeS64 = AbsoluteNode<Node, onyxS64, "Onyx::NodeGraph::Nodes::AbsoluteS64">;
+        using AbsoluteNodeVector2f32 = AbsoluteNode<Node, Vector2f32, "Onyx::NodeGraph::Nodes::AbsoluteVector2f32">;
+        using AbsoluteNodeVector2f64 = AbsoluteNode<Node, Vector2f64, "Onyx::NodeGraph::Nodes::AbsoluteVector2f64">;
+        using AbsoluteNodeVector2s32 = AbsoluteNode<Node, Vector2s32, "Onyx::NodeGraph::Nodes::AbsoluteVector2s32">;
+        using AbsoluteNodeVector2s64 = AbsoluteNode<Node, Vector2s64, "Onyx::NodeGraph::Nodes::AbsoluteVector2s64">;
+        using AbsoluteNodeVector3f32 = AbsoluteNode<Node, Vector3f32, "Onyx::NodeGraph::Nodes::AbsoluteVector3f32">;
+        using AbsoluteNodeVector3f64 = AbsoluteNode<Node, Vector3f64, "Onyx::NodeGraph::Nodes::AbsoluteVector3f64">;
+        using AbsoluteNodeVector3s32 = AbsoluteNode<Node, Vector3s32, "Onyx::NodeGraph::Nodes::AbsoluteVector3s32">;
+        using AbsoluteNodeVector3s64 = AbsoluteNode<Node, Vector3s64, "Onyx::NodeGraph::Nodes::AbsoluteVector3s64">;
+        using AbsoluteNodeVector4f32 = AbsoluteNode<Node, Vector4f32, "Onyx::NodeGraph::Nodes::AbsoluteVector4f32">;
+        using AbsoluteNodeVector4f64 = AbsoluteNode<Node, Vector4f64, "Onyx::NodeGraph::Nodes::AbsoluteVector4f64">;
+        using AbsoluteNodeVector4s32 = AbsoluteNode<Node, Vector4s32, "Onyx::NodeGraph::Nodes::AbsoluteVector4s32">;
+        using AbsoluteNodeVector4s64 = AbsoluteNode<Node, Vector4s64, "Onyx::NodeGraph::Nodes::AbsoluteVector4s64">;
     }
 }

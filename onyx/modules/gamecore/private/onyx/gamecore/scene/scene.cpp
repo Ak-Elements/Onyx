@@ -3,6 +3,7 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/components/namecomponent.gen.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/gamecore/scene/scenesector.h>
 
 namespace Onyx::GameCore

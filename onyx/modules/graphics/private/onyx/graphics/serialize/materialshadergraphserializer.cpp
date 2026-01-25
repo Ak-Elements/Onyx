@@ -2,16 +2,17 @@
 
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/pipeline.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
 namespace Onyx::Graphics
 {
-    bool MaterialShaderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool MaterialShaderGraphSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
         if (ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
@@ -25,7 +26,7 @@ namespace Onyx::Graphics
         return true;
     }
 
-    bool MaterialShaderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
+    bool MaterialShaderGraphSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
         GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
         Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
@@ -35,7 +36,7 @@ namespace Onyx::Graphics
         if (ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
             return false;
 
-        const FileSystem::Filepath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");
+        const FilePath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");
         //ShaderHandle shader = graphicsApi.CreateShader();
         //graphicsApi.GetShaderCache().GetOrLoadShader(shaderPath, shader);
 

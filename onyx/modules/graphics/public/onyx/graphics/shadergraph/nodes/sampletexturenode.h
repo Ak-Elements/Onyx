@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/assets/assethandle.h>
 #include <onyx/nodegraph/nodes/flexiblepinsnode.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 #include <onyx/assets/assetid.h>
@@ -43,15 +44,14 @@ namespace Onyx::Graphics
 
 #if ONYX_IS_EDITOR
         protected:
-            bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
-            void OnUIDrawNode() override;
+            //bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
+            //void OnUIDrawNode() override;
             StringView GetPinName(StringId32 pinId) const override;
             NodeGraph::PinVisibility DoGetPinVisibility(StringId32 localPinId) const override;
 #endif
         private:
             // Texture asset id to use if input pin for texture handle is not connected
-            Assets::AssetId TextureId;
-            Reference<TextureAsset> Texture;
+            Assets::AssetHandle<TextureAsset> Texture;
         };
     }
 }

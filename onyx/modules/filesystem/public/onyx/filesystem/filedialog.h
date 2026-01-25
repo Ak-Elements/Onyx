@@ -12,7 +12,7 @@ namespace Onyx::FileSystem
         static void Shutdown();
 
         template <typename T>
-        static bool OpenFileDialog(Filepath& outPath, StringView extensionName, const T& extensions)
+        static bool OpenFileDialog(FilePath& outPath, StringView extensionName, const T& extensions)
         {
             DynamicArray<StringView> extensionsList;
             for (StringView extension : extensions)
@@ -24,7 +24,7 @@ namespace Onyx::FileSystem
         }
 
         template <typename T>
-        static bool SaveFileDialog(Filepath& outPath, StringView extensionName, const T& extensions)
+        static bool SaveFileDialog(FilePath& outPath, StringView extensionName, const T& extensions)
         {
             DynamicArray<StringView> extensionsList;
             for (StringView extension : extensions)
@@ -34,7 +34,7 @@ namespace Onyx::FileSystem
             return SaveFileDialog(outPath, extensionName, extensionsList);
         }
 
-        static bool OpenFileDialog(Filepath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions);
-        static bool SaveFileDialog(Filepath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions);
+        static bool OpenFileDialog(FilePath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions);
+        static bool SaveFileDialog(FilePath& outPath, StringView extensionName, const DynamicArray<StringView>& extensions);
     };
 }

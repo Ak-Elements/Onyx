@@ -2,7 +2,7 @@ set(onyx_TARGET_PUBLIC_DEPENDENCIES
     onyx-core
     onyx-assets
     onyx-filesystem
-    onyx-graphics
+    onyx-rhi
     onyx-input
     onyx-localization
     onyx-profiler

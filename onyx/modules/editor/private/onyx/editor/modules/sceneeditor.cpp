@@ -6,11 +6,12 @@
 #include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/components/transientcomponent.gen.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/localization/localization.h>
 #include <onyx/ui/imguisystem.h>
@@ -25,8 +26,6 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>
-#include <onyx/gamecore/components/transformcomponent.h>
-
 
 namespace Onyx::Editor
 {
@@ -35,7 +34,7 @@ namespace Onyx::Editor
         onyxU32 local_WindowId = 0;
     }
 
-    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, Input::InputActionSystem& inputActionSystem)
+    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, InputActions::InputActionSystem& inputActionSystem)
         : m_GameCore(gameCore)
         , m_GraphicsSystem(graphicsSystem)
         , m_InputActionSystem(inputActionSystem)
@@ -86,6 +85,7 @@ namespace Onyx::Editor
             if (startupLevel.empty())
             {
                 m_Scene = m_AssetSystem->Create<GameCore::Scene>();
+                m_AssetSystem->GetAsset("engine:/rendergraphs/default.orendergraph", m_Scene->GetRenderGraphRef());
                 OnSceneLoaded(m_Scene);
             }
             else
@@ -184,7 +184,7 @@ namespace Onyx::Editor
                     m_InputActionSystem.Disconnect(this);
                 }
 
-                FileSystem::Filepath path;
+                FilePath path;
                 if (FileSystem::FileDialog::OpenFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
                 {
                     LoadScene(Assets::AssetId(path));
@@ -198,7 +198,7 @@ namespace Onyx::Editor
 
             if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
             {
-                FileSystem::Filepath path;
+                FilePath path;
                 if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
                 {
                     m_AssetSystem->SaveAssetAs(path, m_Scene);
@@ -214,7 +214,14 @@ namespace Onyx::Editor
     void SceneEditorWindow::RenderSceneViewport()
     {
         // TODO TEMP: expose final pin to the outside
-        const Graphics::TextureHandle& finalSceneTexture  = m_GraphicsSystem.GetRenderGraph()->GetFinalTexture();
+        if (m_Scene->HasRenderGraph() == false)
+            return;
+
+        const Graphics::TextureHandle finalSceneTexture = m_Scene->GetRenderGraph().GetFinalTexture();
+        //if (finalSceneTexture.IsValid() == false)
+        //{
+        //    return;
+        //}
 
         const Graphics::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
         ImVec2 sceneTextureExtents = { static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1]) };
@@ -346,7 +353,7 @@ namespace Onyx::Editor
         }
     }
 
-    void SceneEditorWindow::OnGizmoModeAction(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnGizmoModeAction(const InputActions::InputActionEvent& inputActionContext)
     {
         if (m_HasSelectedEntity == false)
             return;
@@ -368,7 +375,7 @@ namespace Onyx::Editor
         m_CurrentGizmo = GizmoType::Scale;
     }
 
-    void SceneEditorWindow::OnCameraMoveInput(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraMoveInput(const InputActions::InputActionEvent& inputActionContext)
     {
         const Vector3f32& direction = inputActionContext.GetData<Vector3f32>();
         
@@ -377,7 +384,7 @@ namespace Onyx::Editor
         cameraRuntimeComponent.InputDirection = direction;
     }
 
-    void SceneEditorWindow::OnCameraRotationInput(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraRotationInput(const InputActions::InputActionEvent& inputActionContext)
     {
         const Vector2f32& rotationDelta = inputActionContext.GetData<Vector2f32>();
 
@@ -386,7 +393,7 @@ namespace Onyx::Editor
         cameraRuntimeComponent.InputRotation = { rotationDelta[0] * 0.003f, rotationDelta[1] * 0.003f, 0.0f };
     }
 
-    void SceneEditorWindow::OnCameraSpeedInput(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraSpeedInput(const InputActions::InputActionEvent& inputActionContext)
     {
         onyxF32 speedValue = inputActionContext.GetData<onyxF32>();
 
@@ -397,7 +404,7 @@ namespace Onyx::Editor
         cameraRuntimeComponent.Velocity += speedValue * cameraControllerComponent.VelocityIncrementFactor * cameraControllerComponent.BaseVelocity;
     }
 
-    void SceneEditorWindow::OnCameraSpeedUp(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraSpeedUp(const InputActions::InputActionEvent& inputActionContext)
     {
         bool isSpeedUp = inputActionContext.GetData<bool>();
 
@@ -410,7 +417,7 @@ namespace Onyx::Editor
             cameraRuntimeComponent.Velocity *= 0.1f;
     }
 
-    void SceneEditorWindow::OnCameraSlowDown(const Input::InputActionEvent& inputActionContext)
+    void SceneEditorWindow::OnCameraSlowDown(const InputActions::InputActionEvent& inputActionContext)
     {
         bool isSlowdown = inputActionContext.GetData<bool>();
 
@@ -425,12 +432,12 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::LoadScene(Assets::AssetId sceneAssetId)
     {
-        Reference<GameCore::Scene> newScene;
+        Assets::AssetHandle<GameCore::Scene> newScene;
         m_AssetSystem->GetAssetUnmanaged(sceneAssetId, newScene);
         newScene->GetOnLoadedEvent().Connect<&SceneEditorWindow::OnSceneLoaded>(this);
     }
 
-    void SceneEditorWindow::OnSceneLoaded(const Reference<GameCore::Scene>& sceneAsset)
+    void SceneEditorWindow::OnSceneLoaded(const Assets::AssetHandle<GameCore::Scene>& sceneAsset)
     {
         m_Scene = sceneAsset;
         

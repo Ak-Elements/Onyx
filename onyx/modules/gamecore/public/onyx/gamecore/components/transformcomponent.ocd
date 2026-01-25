@@ -7,6 +7,6 @@ TransformComponent
     
     Vector3f32 Scale = { 1.0, 1.0, 1.0 }
 
-    [RuntimeOnly]
+    [Name(Rotation(Rotor)), Transient, RuntimeOnly]
     Rotor3f32 Rotation
 };

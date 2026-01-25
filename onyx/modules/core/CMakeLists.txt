@@ -3,8 +3,8 @@
 endif()
 
 onyx_add_target(onyx-core
-    NO_EDITOR_TARGET
-    FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx"
+    FOLDER ${ONYX_TARGETS_FOLDER}
     NO_CODEGEN
+    NO_EDITOR_TARGET
 )

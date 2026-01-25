@@ -1,7 +1,7 @@
 #include <onyx/volume/shadergraph/nodes/volumeshadergraphoutnode.h>
 
 #include <onyx/nodegraph/executioncontext.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace Onyx::Volume
 {

@@ -6,6 +6,7 @@
 
 // TODO: move?
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/rhi/graphicshandles.h>
 #include <onyx/nodegraph/graph.h>
 
 namespace Onyx::Graphics
@@ -29,10 +30,6 @@ namespace Onyx::Graphics
         void Init(GraphicsSystem& graphicsSystem);
         void Shutdown(GraphicsSystem& graphicsSystem);
 
-        void BeginFrame(const FrameContext& frameContext);
-        void Render(const FrameContext& context);
-        void EndFrame(const FrameContext& frameContext);
-
         bool HasResource(RenderGraphResourceId id) const;
         RenderGraphResource& GetResource(RenderGraphResourceId id);
         const RenderGraphResource& GetResource(RenderGraphResourceId id) const;
@@ -47,11 +44,19 @@ namespace Onyx::Graphics
         NodeGraph::NodeGraph& GetNodeGraph() { return m_Graph; }
         const NodeGraph::NodeGraph& GetNodeGraph() const { return m_Graph; }
 
+        bool IsInitialized() const { return m_IsInitialized; }
+
     private:
+        void OnBeginFrame(const FrameContext& frameContext);
+        void OnRenderFrame(const FrameContext& context);
+        void OnEndFrame(const FrameContext& frameContext);
+
         bool CreateAttachment(GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
         //bool CreateBuffer(GraphicsSystem& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource);
 
     private:
+        bool m_IsInitialized = false;
+
         NodeGraph::NodeGraph m_Graph;
         RenderGraphResourceCache m_ResourceCache;
 

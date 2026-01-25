@@ -28,12 +28,12 @@ namespace Onyx::Localization
     }
 
 #if !ONYX_IS_RETAIL
-    void LocalizationModule::AddSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database)
+    void LocalizationModule::AddSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database)
     {
         m_LocalizationBackend->AddSecondaryDatabase(database);
     }
 
-    void LocalizationModule::RemoveSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database)
+    void LocalizationModule::RemoveSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database)
     {
         m_LocalizationBackend->RemoveSecondaryDatabase(database);
     }

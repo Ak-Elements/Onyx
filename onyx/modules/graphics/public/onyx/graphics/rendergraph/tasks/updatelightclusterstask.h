@@ -3,6 +3,8 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/nodegraph/nodes/fixedpinnode1in3out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/graphicstypes.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {

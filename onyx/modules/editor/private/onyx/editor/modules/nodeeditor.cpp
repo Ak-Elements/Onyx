@@ -26,6 +26,8 @@
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 
+#include <onyx/inputactions/inputactionsystem.h>
+
 namespace Onyx::Editor
 {
     namespace
@@ -67,7 +69,7 @@ namespace Onyx::Editor
 
     
 
-    NodeGraphEditorWindow::NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, const Localization::LocalizationModule& localizationModule, Input::InputActionSystem& inputActionSystem)
+    NodeGraphEditorWindow::NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, const Localization::LocalizationModule& localizationModule, InputActions::InputActionSystem& inputActionSystem)
         : m_AssetSystem(&assetSystem)
         , m_InputActionSystem(&inputActionSystem)
         , m_LocalizationModule(&localizationModule)
@@ -790,7 +792,7 @@ namespace Onyx::Editor
 
     void NodeGraphEditorWindow::Save()
     {
-        FileSystem::Filepath path;
+        FilePath path;
         if (FileSystem::FileDialog::SaveFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
             Assets::AssetMetaData dummyAsset;
@@ -809,7 +811,7 @@ namespace Onyx::Editor
 
     void NodeGraphEditorWindow::Load()
     {
-        FileSystem::Filepath path;
+        FilePath path;
         if (FileSystem::FileDialog::OpenFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
             ONYX_ASSERT(m_AssetSystem != nullptr);
@@ -817,7 +819,7 @@ namespace Onyx::Editor
         }
     }
 
-    void NodeGraphEditorWindow::SaveEditorMetaData(const FileSystem::Filepath& path)
+    void NodeGraphEditorWindow::SaveEditorMetaData(const FilePath& path)
     {
         using namespace FileSystem;
         JsonValue jsonRoot;
@@ -891,7 +893,7 @@ namespace Onyx::Editor
             jsonRoot.Set("reroutelinks", rerouteLinksJsonArray);
         }
 
-        Filepath metaFilePath = Path::ReplaceExtension(path, "ometa");
+        FilePath metaFilePath = Path::ReplaceExtension(path, "ometa");
         OnyxFile metaDataFile(Path::GetFullPath(metaFilePath));
         FileStream stream = metaDataFile.OpenStream(OpenMode::Write | OpenMode::Text);
 
@@ -899,14 +901,14 @@ namespace Onyx::Editor
         stream.WriteRaw(jsonString.data(), jsonString.size());
     }
 
-    void NodeGraphEditorWindow::LoadEditorMetaData(const FileSystem::Filepath& path)
+    void NodeGraphEditorWindow::LoadEditorMetaData(const FilePath& path)
     {
         // clear reroute nodes
         m_RerouteNodes.clear();
         m_RerouteLinks.clear();
 
         using namespace FileSystem;
-        Filepath metaFilePath = FileSystem::Path::ReplaceExtension(path, "ometa");
+        FilePath metaFilePath = FileSystem::Path::ReplaceExtension(path, "ometa");
         OnyxFile metaDataJsonFile(FileSystem::Path::GetFullPath(metaFilePath));
 
         const JsonValue& metaDataJsonRoot = metaDataJsonFile.LoadJson();
@@ -1064,17 +1066,17 @@ namespace Onyx::Editor
         
     }
 
-    void NodeGraphEditorWindow::OnCopyAction(const Input::InputActionEvent& inputActionContext)
+    void NodeGraphEditorWindow::OnCopyAction(const InputActions::InputActionEvent& inputActionContext)
     {
         ONYX_UNUSED(inputActionContext);
     }
 
-    void NodeGraphEditorWindow::OnPasteAction(const Input::InputActionEvent& inputActionContext)
+    void NodeGraphEditorWindow::OnPasteAction(const InputActions::InputActionEvent& inputActionContext)
     {
         ONYX_UNUSED(inputActionContext);
     }
 
-    void NodeGraphEditorWindow::OnDeleteAction(const Input::InputActionEvent& /*inputActionContext*/)
+    void NodeGraphEditorWindow::OnDeleteAction(const InputActions::InputActionEvent& /*inputActionContext*/)
     {
         ax::NodeEditor::SetCurrentEditor(m_Context);
         DynamicArray<ax::NodeEditor::NodeId> selectedNodes;

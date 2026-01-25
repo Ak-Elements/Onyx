@@ -1,20 +1,17 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
 #include <onyx/assets/assetsystem.h>
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/vulkan/commandbuffer.h>
-#include <onyx/graphics/framebuffer.h>
-#include <onyx/graphics/framecontext.h>
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/pipeline.h>
-#include <onyx/graphics/renderpass.h>
-#include <onyx/graphics/texture.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/framebuffer.h>
+#include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicssystem.h>
+#include <onyx/rhi/pipeline.h>
+#include <onyx/rhi/renderpass.h>
+#include <onyx/rhi/texture.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/graphics/shader/shaderinstance.h>
-#include <onyx/graphics/vulkan/buffer.h>
+#include <onyx/rhi/shader/shaderinstance.h>
 #include <onyx/log/logger.h>
 
-#include <onyx/graphics/vulkan/texturestorage.h>
 #include <onyx/profiler/profiler.h>
 
 #include <onyx/serialize/serializer.h>
@@ -79,6 +76,9 @@ namespace Onyx::Graphics
 {
     void RenderGraphShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
+        // TODO: Cleanup render graph resources from transition to node graph
+        // Resource and output info's both store the type (Reference / Attachment etc.)
+        // This is very confusing and should be cleaned up and sanitized
         ONYX_PROFILE_FUNCTION;
 
         const onyxU32 outputPinCount = GetOutputPinCount();
@@ -93,6 +93,11 @@ namespace Onyx::Graphics
             resource.Info.Name = GetPinName(outputPin->GetLocalId());
 #endif
             resource.IsExternal = outputInfo.IsExternal || (outputInfo.Type == RenderGraphResourceType::Reference);
+
+            if( resource.IsExternal == false )
+            {
+                resource.Info.Type = outputInfo.Type;
+            }
         }
 
         OnInit(api, resourceCache);
@@ -112,6 +117,8 @@ namespace Onyx::Graphics
              */
             UpdateFramebuffer(*context.FrameContext.Api, context.Graph.GetResourceCache());
         }
+
+        m_HasBegunFrame = true;
     }
 
     void RenderGraphShaderNode::Shutdown(GraphicsSystem& api)
@@ -144,7 +151,7 @@ namespace Onyx::Graphics
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         commandBuffer.BeginDebugLabel(GetTypeId().GetString(), Vector4f32{ 1.0f });
 #endif
-        Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
+        //Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
@@ -156,19 +163,24 @@ namespace Onyx::Graphics
                 continue;
 
             RenderGraphResource& input = context.Graph.GetResource(inputPin->GetLinkedPinGlobalId());
-
+            
             if (input.IsExternal)
             {
                 continue;
             }
-
-            //if (inputInfo.Type == RenderGraphResourceType::Texture)
+            
+            TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
+            
+            // TODO: Fix barriers
+            const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
+            if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
             {
-                TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
-                Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
-
-                storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_2_SHADER_READ_BIT_KHR, 0, 1);
-                //util_add_image_barrier(gpu_commands->gpu_device, gpu_commands->vk_command_buffer, texture, RESOURCE_STATE_PIXEL_SHADER_RESOURCE, 0, 1, TextureFormat::has_depth(texture->vk_format));
+                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::InputAttachmentRead, ImageLayout::AttachmentOptimal);
+            }
+            else
+            {
+                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
+                //storage.TransitionLayout(cmdBuffer, Context::Graphics, 5/*VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL*/, 0x00000020ULL/*VK_ACCESS_2_SHADER_READ_BIT_KHR*/, 0, 1);
             }
         }
 
@@ -176,21 +188,21 @@ namespace Onyx::Graphics
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
             RenderGraphResource& output = context.Graph.GetResource(GetOutputPin(i)->GetGlobalId());
-            //RenderGraphResource& output = context.Graph.GetResource(outputInfo.Id);
 
             if (output.Info.Type == RenderGraphResourceType::Attachment)
             {
                 TextureHandle& textureHandle = std::get<TextureHandle>(output.Handle);
-                Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
+                //Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
 
-                const TextureStorageProperties& properties = storage.GetProperties();
+                // TODO: Fix barriers
+                const TextureStorageProperties& properties = textureHandle.Storage->GetProperties();
                 if (Utils::IsDepthFormat(properties.m_Format))
                 {
-                    storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT_KHR | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT_KHR, 0, 1);
+                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::DepthStencilWrite | Access::DepthStencilRead, ImageLayout::AttachmentOptimal);
                 }
                 else
                 {
-                    storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR, VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT_KHR | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT_KHR, 0, 1);
+                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead | Access::ColorAttachmentWrite, ImageLayout::AttachmentOptimal);
                 }
             }
         }
@@ -210,8 +222,6 @@ namespace Onyx::Graphics
             commandBuffer.SetViewport();
             commandBuffer.SetScissor();
         }
-
-        //commandBuffer.BindShaderEffect(m_ShaderEffect);
 
         OnRender(context, commandBuffer);
 
@@ -235,6 +245,8 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE_FUNCTION;
         OnEndFrame(context);
+
+        m_HasBegunFrame = false;
     }
 
     bool RenderGraphShaderNode::OnSerialize(Serializer& serializer) const
@@ -466,11 +478,6 @@ namespace Onyx::Graphics
             }
 
             TextureHandle texture = std::get<TextureHandle>(inputResource.Handle);
-            if (texture.Texture.IsValid() == false)
-            {
-                ONYX_LOG_INFO("here");
-            }
-
             if (Utils::IsDepthFormat(properties.Format))
                 framebufferSettings.m_DepthTarget = texture.Texture;
             else
@@ -608,9 +615,9 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        String shaderPath;
-        if (deserializer.ReadOptional<"shader">(shaderPath))
-            m_PipelineProperties.Shader = shaderPath.c_str();
+        Assets::AssetId shaderAssetId;
+        if (deserializer.ReadOptional<"shader">(shaderAssetId))
+            m_PipelineProperties.Shader = shaderAssetId;
 
         return
             deserializer.ReadOptional<"pipeline">(m_PipelineProperties) &&

@@ -6,13 +6,13 @@
 #include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
-#include <onyx/volume/components/volumeterraincomponent.h>
-#include <onyx/volume/components/csg/cubecomponent.h>
-#include <onyx/volume/components/csg/spherecomponent.h>
+#include <onyx/volume/components/volumeterraincomponent.gen.h>
+#include <onyx/volume/components/csg/cubecomponent.gen.h>
+#include <onyx/volume/components/csg/spherecomponent.gen.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 
 #include <imgui.h>

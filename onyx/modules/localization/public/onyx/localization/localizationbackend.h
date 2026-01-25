@@ -1,5 +1,8 @@
 #pragma once
+
+#include <onyx/assets/assethandle.h>
 #include <onyx/localization/localizedstring.h>
+#include <onyx/localization/assets/gettextlocalizationdatabase.h>
 
 namespace Onyx::Assets
 {
@@ -8,7 +11,6 @@ namespace Onyx::Assets
 
 namespace Onyx::Localization
 {
-    class GetTextLocalizationDatabase;
     struct LocalizationSettings;
 
     class ILocalizationBackend
@@ -26,8 +28,8 @@ namespace Onyx::Localization
         virtual Optional<StringView> GetLocalized(LocalizationId id, onyxS32 count) const = 0;
 
 #if !ONYX_IS_RETAIL
-        virtual void AddSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database) = 0;
-        virtual void RemoveSecondaryDatabase(const Reference<GetTextLocalizationDatabase>& database) = 0;
+        virtual void AddSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database) = 0;
+        virtual void RemoveSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database) = 0;
 #endif
 
         Sink<LocalizationChangedSignalT> GetOnLocalizationChanged() { return Sink(m_OnLocalizationChanged); }

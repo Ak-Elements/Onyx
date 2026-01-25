@@ -1,9 +1,9 @@
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/gamecore/scene/sceneframedata.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
+#include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/profiler/profiler.h>
 
 namespace Onyx::GameCore

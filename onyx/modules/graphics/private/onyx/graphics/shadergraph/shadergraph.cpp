@@ -1,9 +1,9 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/graphrunner.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
-#include <onyx/graphics/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
 
 #include <onyx/graphics/shadergraph/shadergraphnode.h>

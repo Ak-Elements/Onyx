@@ -11,57 +11,55 @@ struct std::formatter<std::filesystem::path> : std::formatter<std::string> {
 
 namespace Onyx::FileSystem
 {
-    using Filepath = std::filesystem::path;
-
     struct MountPoint
     {
         String Prefix;
-        Filepath Path;
+        FilePath Path;
     };
 
     namespace Path
     {
         static constexpr StringId32 TMP_MOUNT_POINT_ID { "tmp:/" };
 
-        Filepath GetWorkingDirectory();
-        Filepath GetTempDirectory();
-        String GetFileName(const Filepath& path);
+        FilePath GetWorkingDirectory();
+        FilePath GetTempDirectory();
+        String GetFileName(const FilePath& path);
 
         const HashMap<StringId32, MountPoint>& GetMountPoints();
 
         // Get an absolute path to a file in the current working directory
         // If the path is already absolute this function is a no-op
-        Filepath GetFullPath(const Filepath& path);
-        Filepath GetFullPath(const Filepath& path, StringView newExtension);
-        Filepath GetFullPath(const String& path);
-        Filepath GetFullPath(const String& path, StringView newExtension);
-        Filepath GetFullPath(StringView path);
-        Filepath GetFullPath(StringView path, StringView newExtension);
-        Filepath GetFullPath(const char* path);
-        Filepath GetFullPath(const char* path, StringView newExtension);
+        FilePath GetFullPath(const FilePath& path);
+        FilePath GetFullPath(const FilePath& path, StringView newExtension);
+        FilePath GetFullPath(const String& path);
+        FilePath GetFullPath(const String& path, StringView newExtension);
+        FilePath GetFullPath(StringView path);
+        FilePath GetFullPath(StringView path, StringView newExtension);
+        FilePath GetFullPath(const char* path);
+        FilePath GetFullPath(const char* path, StringView newExtension);
 
-        Filepath ReplaceExtension(const Filepath& path, StringView newExtension);
+        FilePath ReplaceExtension(const FilePath& path, StringView newExtension);
 
-        Filepath ConvertToMountPath(const Filepath& absolutePath);
+        FilePath ConvertToMountPath(const FilePath& absolutePath);
 
-        bool Exists(const Filepath& path);
-        bool TempFileExists(const Filepath& path);
+        bool Exists(const FilePath& path);
+        bool TempFileExists(const FilePath& path);
 
         void SetMountPoints(const HashMap<StringId32, MountPoint>& mountPoints);
         
-        bool CreateDirectory(const Filepath& directoryPath);
+        bool CreateDirectory(const FilePath& directoryPath);
 
-        void EnumerateFiles(const Filepath& directoryPath, InplaceFunction<bool(const Filepath&)> fileFunctor);
+        void EnumerateFiles(const FilePath& directoryPath, InplaceFunction<bool(const FilePath&)> fileFunctor);
     };
 }
 
 namespace Onyx
 {
     template <>
-    struct Serialization<FileSystem::Filepath>
+    struct Serialization<FilePath>
     {
-        static bool Serialize(Serializer& serializer, const FileSystem::Filepath& path);
-        static bool Deserialize(const Deserializer& deserializer, FileSystem::Filepath& outPath);
+        static bool Serialize(Serializer& serializer, const FilePath& path);
+        static bool Deserialize(const Deserializer& deserializer, FilePath& outPath);
     };
 
     template <>

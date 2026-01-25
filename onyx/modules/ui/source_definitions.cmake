@@ -6,6 +6,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     imguiwindow.h
     notificationsystem.h
     propertygrid.h
+    propertyinspector.h
     scopedcolor.h
     scopeddisable.h
     scopedid.h

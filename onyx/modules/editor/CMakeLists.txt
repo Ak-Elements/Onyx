@@ -7,7 +7,7 @@ if (NOT ONYX_BUILD_EDITOR)
 endif()
 
 onyx_add_target(onyx-editor
-    NO_EDITOR_TARGET
-    FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "Onyx::Editor"
+    FOLDER ${ONYX_TARGETS_FOLDER}
+    NO_EDITOR_TARGET
 )

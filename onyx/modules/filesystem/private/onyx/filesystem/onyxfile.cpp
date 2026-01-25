@@ -6,7 +6,7 @@
 
 namespace Onyx::FileSystem
 {
-    OnyxFile::OnyxFile(const std::filesystem::path& filePath)
+    OnyxFile::OnyxFile(const FilePath& filePath)
         : m_FilePath(filePath)
         , m_FileId(Hash::FNV1aHash<onyxU64>(filePath.string()))
     {
@@ -18,12 +18,12 @@ namespace Onyx::FileSystem
     {
     }
 
-    bool OnyxFile::ReadAll(const FileSystem::Filepath& filePath, String& outFileContent)
+    bool OnyxFile::ReadAll(const FilePath& filePath, String& outFileContent)
     {
         return ReadAll(filePath, outFileContent, false);
     }
 
-    bool OnyxFile::ReadAll(const Filepath& filePath, String& outFileContent, bool shouldSkipBOM)
+    bool OnyxFile::ReadAll(const FilePath& filePath, String& outFileContent, bool shouldSkipBOM)
     {
         FileStream fileStream(filePath, OpenMode::Read);
         if (fileStream.IsValid() == false)

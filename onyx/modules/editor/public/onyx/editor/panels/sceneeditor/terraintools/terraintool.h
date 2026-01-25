@@ -1,6 +1,6 @@
 #pragma once
 
-#include <onyx/graphics/graphicshandles.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Volume
 {

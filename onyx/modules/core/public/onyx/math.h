@@ -41,7 +41,7 @@ namespace Onyx
     template <typename ToT, typename FromT>
     constexpr ToT numeric_cast(FromT value)
     {
-        ONYX_ASSERT(value >= std::numeric_limits<ToT>::lowest() && value <= std::numeric_limits<ToT>::max());
+        ONYX_ASSERT(static_cast<ToT>(value) >= std::numeric_limits<ToT>::lowest() && static_cast<ToT>(value) <= std::numeric_limits<ToT>::max());
         return static_cast<ToT>(value);
     }
 

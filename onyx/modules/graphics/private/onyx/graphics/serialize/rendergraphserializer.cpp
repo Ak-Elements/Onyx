@@ -1,6 +1,6 @@
 #include <onyx/graphics/serialize/rendergraphserializer.h>
 
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/nodegraph/nodegraphserializer.h>
@@ -34,7 +34,7 @@ namespace Onyx
 
 namespace Onyx::Graphics
 {
-    bool RenderGraphSerializer::Serialize(const Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool RenderGraphSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
         const RenderGraph& renderGraph = asset.As<RenderGraph>();
@@ -46,10 +46,8 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool RenderGraphSerializer::Deserialize(Reference<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& engine) const
+    bool RenderGraphSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
-        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
-
         RenderGraph& renderGraph = asset.As<RenderGraph>();
 
         RenderGraphNodeFactory factory;
@@ -59,7 +57,6 @@ namespace Onyx::Graphics
             return false;
         }
 
-        renderGraph.Init(graphicsSystem);
         return true;
     }
 }

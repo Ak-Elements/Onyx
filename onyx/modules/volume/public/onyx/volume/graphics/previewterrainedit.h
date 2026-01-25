@@ -1,6 +1,7 @@
 #pragma once
 
 #include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
+#include <onyx/graphics/rendergraph/rendergraph.h> // TODO: REMOVE
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
 namespace Onyx::Volume

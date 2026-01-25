@@ -1,11 +1,12 @@
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 
-#include <onyx/input/inputactionsmap.h>
 #include <onyx/input/inputid.h>
 #include <onyx/input/inputsystem.h>
-#include <onyx/input/inputactionsserializer.h>
+#include <onyx/inputactions/inputactionsmap.h>
+#include <onyx/inputactions/inputactionsserializer.h>
+#include <onyx/inputactions/inputaction.h>
+#include <onyx/inputactions/bindings/inputbindingsfactory.h>
 #include <onyx/assets/assetsystem.h>
-#include <onyx/input/inputaction.h>
 
 #include <onyx/filesystem/filedialog.h>
 
@@ -19,7 +20,6 @@
 
 #include <onyx/editor/editor_localization.h>
 
-#include <onyx/input/bindings/inputbindingsfactory.h>
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/ui/propertygrid.h>
@@ -32,12 +32,25 @@ namespace Onyx::Editor
 {
     InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem)
         : m_AssetSystem(&assetSystem)
+        , m_InputSystem(&inputSystem)
     {
-        inputSystem.AddOnInputHandler(this, &InputActionSettingsWindow::OnInputEvent);
+        inputSystem.OnMouseAxisChange().Connect<&InputActionSettingsWindow::OnMouseAxisChange>(this);
+        inputSystem.OnMouseButton().Connect<&InputActionSettingsWindow::OnMouseButton>(this);
+        inputSystem.OnMousePositionChange().Connect<&InputActionSettingsWindow::OnMousePositionChange>(this);
+        inputSystem.OnKey().Connect<&InputActionSettingsWindow::OnKey>(this);
+        inputSystem.OnControllerAxisChange().Connect<&InputActionSettingsWindow::OnControllerAxisChange>(this);
+        inputSystem.OnControllerButton().Connect<&InputActionSettingsWindow::OnControllerButton>(this);
+
     }
 
     InputActionSettingsWindow::~InputActionSettingsWindow()
     {
+        m_InputSystem->OnMouseAxisChange().Disconnect(this);
+        m_InputSystem->OnMouseButton().Disconnect(this);
+        m_InputSystem->OnMousePositionChange().Disconnect(this);
+        m_InputSystem->OnKey().Disconnect(this);
+        m_InputSystem->OnControllerAxisChange().Disconnect(this);
+        m_InputSystem->OnControllerButton().Disconnect(this);
     }
 
     void InputActionSettingsWindow::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
@@ -62,8 +75,8 @@ namespace Onyx::Editor
                 {
                     if (ImGui::MenuItem(Localization::Generic::Open.Get().data()))
                     {
-                        FileSystem::Filepath path;
-                        if (FileSystem::FileDialog::OpenFileDialog(path, "Input actions asset", Input::InputActionsSerializer::Extensions))
+                        FilePath path;
+                        if (FileSystem::FileDialog::OpenFileDialog(path, "Input actions asset", InputActions::InputActionsSerializer::Extensions))
                         {
                             Assets::AssetId assetId(path);
                             m_AssetSystem->GetAssetUnmanaged(assetId, m_EditableCopy);
@@ -78,8 +91,8 @@ namespace Onyx::Editor
 
                     if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
                     {
-                        FileSystem::Filepath path;
-                        if (FileSystem::FileDialog::SaveFileDialog(path, "Input actions asset", Input::InputActionsSerializer::Extensions))
+                        FilePath path;
+                        if (FileSystem::FileDialog::SaveFileDialog(path, "Input actions asset", InputActions::InputActionsSerializer::Extensions))
                         {
                             m_AssetSystem->SaveAssetAs(path, m_EditableCopy);
                         }
@@ -93,7 +106,7 @@ namespace Onyx::Editor
 
             if (m_EditableCopy.IsValid() && m_EditableCopy->IsLoaded())
             {
-                HashMap<StringId32, Input::InputActionsMap>& actionMaps = m_EditableCopy->GetMaps();
+                HashMap<StringId32, InputActions::InputActionsMap>& actionMaps = m_EditableCopy->GetMaps();
 
                 Ui::ScopedImGuiStyle style(ImGuiStyleVar_CellPadding, ImVec2(4, 4));
                 if (ImGui::BeginTable("InputActions", 3, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable))
@@ -135,7 +148,11 @@ namespace Onyx::Editor
         ImGui::End();
     }
 
-    void InputActionSettingsWindow::OnInputEvent(const Input::InputEvent* inputEvent)
+    void InputActionSettingsWindow::OnMouseAxisChange(const Input::MouseAxisEvent& /*event*/)
+    {
+    }
+
+    void InputActionSettingsWindow::OnMouseButton(const Input::MouseButtonEvent& event)
     {
         if (m_IsListeningOnInput == false)
             return;
@@ -146,40 +163,63 @@ namespace Onyx::Editor
             return;
         }
 
-        if (inputEvent->m_Id == Input::InputEventType::MousePositionChanged)
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Button) });
+    }
+
+    void InputActionSettingsWindow::OnMousePositionChange(const Input::MousePositionEvent& /*event*/)
+    {
+    }
+
+    void InputActionSettingsWindow::OnKey(const Input::KeyboardEvent& event)
+    {
+        if (m_IsListeningOnInput == false)
             return;
 
-        Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
-        DynamicArray<Input::InputAction>& availableActions = selectedMap.GetActions();
-        Input::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
-        DynamicArray<UniquePtr<Input::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
-        Input::InputBinding& selectedInputBinding = *selectedActionBindings[m_SelectedBindingIndex];
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
+        {
+            m_IsListeningOnInput = false;
+            return;
+        }
 
-        if (inputEvent->IsMouseEvent())
-        {
-            const Input::MouseEvent* mouseEvent = static_cast<const Input::MouseEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(mouseEvent->m_Button) });
-        }
-        else if (inputEvent->IsKeyboardEvent())
-        {
-            const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(keyboardEvent->m_Key) });
-            }
-        else if (inputEvent->IsGamepadButtonEvent())
-        {
-            const Input::GameControllerButtonEvent* gamepadButtonEvent = static_cast<const Input::GameControllerButtonEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(gamepadButtonEvent->m_Button) });
-            }
-        else if (inputEvent->IsGamepadAxisEvent())
-        {
-            const Input::GameControllerAxisEvent* gamepadAxisEvent = static_cast<const Input::GameControllerAxisEvent*>(inputEvent);
-            selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(gamepadAxisEvent->m_Axis) });
-        }
-        
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Key) });
         m_IsListeningOnInput = false;
     }
 
-    void InputActionSettingsWindow::RenderActionMaps(HashMap<StringId32, Input::InputActionsMap>& actionMaps)
+    void InputActionSettingsWindow::OnControllerAxisChange(const Input::GameControllerAxisEvent& event)
+    {
+        if (m_IsListeningOnInput == false)
+            return;
+
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
+        {
+            m_IsListeningOnInput = false;
+            return;
+        }
+
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Axis) });
+        m_IsListeningOnInput = false;
+    }
+
+    void InputActionSettingsWindow::OnControllerButton(const Input::GameControllerButtonEvent& event)
+    {
+        if (m_IsListeningOnInput == false)
+            return;
+
+        if (m_SelectedBindingIndex == INVALID_INDEX_32)
+        {
+            m_IsListeningOnInput = false;
+            return;
+        }
+
+        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
+        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Button) });
+        m_IsListeningOnInput = false;
+    }
+
+    void InputActionSettingsWindow::RenderActionMaps(HashMap<StringId32, InputActions::InputActionsMap>& actionMaps)
     {
         // all action maps of the project
         ImGui::BeginListBox("###InputActionMaps", ImGui::GetContentRegionAvail());
@@ -209,20 +249,20 @@ namespace Onyx::Editor
         if (m_SelectedActionMapId.IsValid())
         {
             onyxS32 i = 0;
-            Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+            InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
 
             if (ImGui::BeginPopupContextItem("###CreateInputAction", ImGuiPopupFlags_MouseButtonRight))
             {
                 if (Ui::Button(Localization::Generic::Add))
                 {
-                    Input::InputAction& newAction = selectedMap.GetActions().emplace_back("New Action");
-                    newAction.SetType(Input::ActionType::Bool);
+                    InputActions::InputAction& newAction = selectedMap.GetActions().emplace_back("New Action");
+                    newAction.SetType(InputActions::ActionType::Bool);
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
             }
 
-            for (Input::InputAction& action : selectedMap.GetActions())
+            for (InputActions::InputAction& action : selectedMap.GetActions())
             {
                 ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
 
@@ -271,7 +311,7 @@ namespace Onyx::Editor
                 {
                     ImGui::Indent();
 
-                    DynamicArray<UniquePtr<Input::InputBinding>>& bindings = action.GetBindings();
+                    DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings = action.GetBindings();
                     RenderBindings(isSelected, bindings);
 
                     bool hasSelectedChildChanged = isSelected && (wasSelected == false);
@@ -304,18 +344,18 @@ namespace Onyx::Editor
         }
     }
 
-    void InputActionSettingsWindow::RenderBindings(bool& isSelected, DynamicArray<UniquePtr<Input::InputBinding>>& bindings)
+    void InputActionSettingsWindow::RenderBindings(bool& isSelected, DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings)
     {
         onyxS32 bindingsCount = static_cast<onyxS32>(bindings.size());
         for (onyxS32 bindingIndex = 0; bindingIndex < bindingsCount; ++bindingIndex)
         {
             bool isBindingSelected = isSelected && (m_SelectedBindingIndex == bindingIndex);
-            Input::InputBinding& binding = *bindings[bindingIndex];
+            InputActions::InputBinding& binding = *bindings[bindingIndex];
             RenderBinding(isBindingSelected, bindingIndex, binding);
         }
     }
 
-    void InputActionSettingsWindow::RenderBinding(bool& isSelected, onyxS32 bindingIndex, Input::InputBinding& binding)
+    void InputActionSettingsWindow::RenderBinding(bool& isSelected, onyxS32 bindingIndex, InputActions::InputBinding& binding)
     {
         bool isBindingSelected = isSelected && (m_SelectedBindingIndex == bindingIndex);
 
@@ -379,15 +419,15 @@ namespace Onyx::Editor
 
     void InputActionSettingsWindow::RenderActionProperties()
     {
-        Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
-        DynamicArray<Input::InputAction>& selectedActions = selectedMap.GetActions();
-        Input::InputAction& selectedAction = selectedActions[m_SelectedActionIndex];
+        InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+        DynamicArray<InputActions::InputAction>& selectedActions = selectedMap.GetActions();
+        InputActions::InputAction& selectedAction = selectedActions[m_SelectedActionIndex];
 
-        Input::ActionType actionType = selectedAction.GetType();
+        InputActions::ActionType actionType = selectedAction.GetType();
 
         Ui::PropertyGrid::DrawProperty("Action Id", selectedAction.GetId().GetString());
 
-        if (Ui::PropertyGrid::DrawProperty<Input::ActionType, Input::ActionType::Invalid, Input::ActionType::Count>("Value Type", actionType))
+        if (Ui::PropertyGrid::DrawProperty<InputActions::ActionType, InputActions::ActionType::Invalid, InputActions::ActionType::Count>("Value Type", actionType))
         {
             selectedAction.GetBindings().clear();
             selectedAction.SetType(actionType);
@@ -395,7 +435,7 @@ namespace Onyx::Editor
     }
 
 
-    void InputActionSettingsWindow::OnInputAssetLoaded(Reference<Input::InputActionsAsset>& inputActionsAsset)
+    void InputActionSettingsWindow::OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsAsset> inputActionsAsset)
     {
         m_IsDirty = false;
         //m_CurrentActionMapAsset = &actionMapAsset;
@@ -410,6 +450,17 @@ namespace Onyx::Editor
         m_SelectedActionIndex = INVALID_INDEX_32;
         m_SelectedBindingIndex = INVALID_INDEX_32;
         m_SelectedBindingSlotIndex = INVALID_INDEX_32;
+    }
+
+
+    InputActions::InputBinding& InputActionSettingsWindow::GetSelectedInputBinding()
+    {
+        InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+        DynamicArray<InputActions::InputAction>& availableActions = selectedMap.GetActions();
+        InputActions::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
+        DynamicArray<UniquePtr<InputActions::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
+        InputActions::InputBinding& selectedInputBinding = *selectedActionBindings[m_SelectedBindingIndex];
+        return selectedInputBinding;
     }
 
     void InputActionSettingsWindow::RenderSelectedBindingProperties()

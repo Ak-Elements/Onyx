@@ -81,7 +81,7 @@ namespace Onyx::Editor
         ImGui::End();
     }
 
-    void ContentBrowserPanel::BuildContentDirectoryTree(const FileSystem::Filepath& path, DirectoryInfo& parentDirectoryInfo)
+    void ContentBrowserPanel::BuildContentDirectoryTree(const FilePath& path, DirectoryInfo& parentDirectoryInfo)
     {
         using directory_iterator = std::filesystem::directory_iterator;
 

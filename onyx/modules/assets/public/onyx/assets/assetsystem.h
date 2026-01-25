@@ -29,12 +29,11 @@ namespace Onyx::Assets
         ~AssetSystem() override;
 
         template <typename T>
-        Reference<T> Create()
+        AssetHandle<T> Create()
         {
             const InplaceFunction<Reference<AssetInterface>(IEngine&)>& createFunctor = s_RegisteredAssets.at(T::TypeId);
-            Reference<T> newAsset = createFunctor(*m_Engine);
+            AssetHandle<T> newAsset(AssetId::Invalid, createFunctor(*m_Engine));
             newAsset->SetState(AssetState::Loaded);
-
             return newAsset;
         }
 
@@ -111,34 +110,34 @@ namespace Onyx::Assets
         }
 
         template <typename T, onyxU64 N>
-        constexpr bool GetAsset(const CompileTimeString<N>& path, Reference<T>& outAsset)
+        constexpr bool GetAsset(const CompileTimeString<N>& path, AssetHandle<T>& outAsset)
         {
             AssetId id = static_cast<AssetId>(Hash::FNV1aHash(path, 0));
             return GetAsset(id, outAsset, false);
         }
 
         template <typename T>
-        bool GetAsset(AssetId id, Reference<T>& outAsset)
+        bool GetAsset(AssetId id, AssetHandle<T>& outAsset)
         {
             return GetAsset(id, outAsset, false);
         }
 
         template <typename T>
-        bool GetAsset(AssetId id, Reference<T>& outAsset, bool forceLoad);
+        bool GetAsset(AssetId id, AssetHandle<T>& outAsset, bool forceLoad);
 
         template <typename T>
-        bool GetAsset(AssetId id, Reference<T>& outAssetReference) const;
+        bool GetAsset(AssetId id, AssetHandle<T>& outAssetReference) const;
 
 #if ONYX_IS_EDITOR
         // Used to load copies of assets for working copies in editors (e.g.: Scene / Nodegraph)
         template <typename T>
-        bool GetAssetUnmanaged(AssetId id, Reference<T>& outAssetReference);
+        bool GetAssetUnmanaged(AssetId id, AssetHandle<T>& outAssetReference);
 
         template <typename T>
-        bool SaveAsset(const Reference<T>& asset);
+        bool SaveAsset(const AssetHandle<T>& asset);
 
         template <typename T>
-        bool SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset);
+        bool SaveAssetAs(const FilePath& newPath, const AssetHandle<T>& asset);
 #endif
 
         template <typename AssetT> requires std::is_base_of_v<AssetInterface, AssetT >
@@ -179,7 +178,7 @@ namespace Onyx::Assets
         AssetIOHandler m_IOHandler;
 
         HashMap<AssetId, AssetMetaData> m_AssetsMetaData;
-        DynamicArray<Reference<AssetInterface>> m_LoadedAssets;
+        DynamicArray<AssetHandle<AssetInterface>> m_LoadedAssets;
 
         static HashMap<StringId32, InplaceFunction<Reference<AssetInterface>(IEngine&)>> s_RegisteredAssets;
         static HashMap<StringId32, UniquePtr<IAssetSerializer>> s_RegisteredSerializer;
@@ -189,7 +188,7 @@ namespace Onyx::Assets
     };
 
     template <typename T>
-    bool AssetSystem::GetAsset(AssetId id, Reference<T>& outAsset, bool forceLoad)
+    bool AssetSystem::GetAsset(AssetId id, AssetHandle<T>& outAsset, bool forceLoad)
     {
         auto assetIt = m_AssetsMetaData.find(id);
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -215,12 +214,13 @@ namespace Onyx::Assets
         
         if ((metaData.Handle != INVALID_INDEX_64) && forceLoad)
         {
-            Reference<AssetInterface>& reloadAsset = m_LoadedAssets[metaData.Handle];
+            AssetHandle<AssetInterface>& reloadAsset = m_LoadedAssets[metaData.Handle];
             {
                 std::lock_guard lock(m_Mutex);
                 const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
                 m_IOHandler.RequestLoad(metaData, reloadAsset, serializer, m_Engine);
             }
+
             outAsset = reloadAsset;
             return true;
         }
@@ -229,25 +229,26 @@ namespace Onyx::Assets
         const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
 
         Reference<AssetInterface> newAsset = createFunctor(*m_Engine);
-        newAsset->SetId(id);
         newAsset->SetState(AssetState::Loading);
+
+        AssetHandle<AssetInterface> newAssetHandle = { id, newAsset };
+        outAsset = newAssetHandle;
 
         {
             std::lock_guard lock(m_Mutex);
             if (metaData.Handle == INVALID_INDEX_64)
             {
                 metaData.Handle = static_cast<onyxS64>(m_LoadedAssets.size());
-                newAsset = m_LoadedAssets.emplace_back(std::move(newAsset));
-                m_IOHandler.RequestLoad(metaData, newAsset, serializer, m_Engine);
+                m_LoadedAssets.emplace_back( id,std::move(newAsset));
+                m_IOHandler.RequestLoad(metaData, newAssetHandle, serializer, m_Engine);
             }
         }
 
-        outAsset = newAsset;
         return true;
     }
 
     template <typename T>
-    bool AssetSystem::GetAsset(AssetId id, Reference<T>& outAssetReference) const
+    bool AssetSystem::GetAsset(AssetId id, AssetHandle<T>& outAssetReference) const
     {
         const auto assetIt = m_AssetsMetaData.find(id);
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -270,7 +271,7 @@ namespace Onyx::Assets
 
 #if ONYX_IS_EDITOR
     template <typename T>
-    bool AssetSystem::GetAssetUnmanaged(AssetId id, Reference<T>& outAssetReference)
+    bool AssetSystem::GetAssetUnmanaged(AssetId id, AssetHandle<T>& outAssetReference)
     {
         const auto assetIt = m_AssetsMetaData.find(id);
 
@@ -287,18 +288,20 @@ namespace Onyx::Assets
         const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at(assetTypeHash);
 
         Reference<AssetInterface> assetCopy = createFunctor(*m_Engine);
-        assetCopy->SetId(id);
         assetCopy->SetState(AssetState::Loading);
-        m_IOHandler.RequestLoad(metaData, assetCopy, serializer, m_Engine);
 
-        outAssetReference = assetCopy;
+        Assets::AssetHandle newAssetHandle = { id, assetCopy };
+        outAssetReference = newAssetHandle;
+
+        m_IOHandler.RequestLoad(metaData, newAssetHandle, serializer, m_Engine);
+
         return true;
     }
 
     template <typename T>
-    bool AssetSystem::SaveAsset(const Reference<T>& asset)
+    bool AssetSystem::SaveAsset(const AssetHandle<T>& asset)
     {
-        AssetId assetId = asset->GetId();
+        AssetId assetId = asset.GetId();
         const auto assetIt = m_AssetsMetaData.find(assetId);
 
         if (assetIt == m_AssetsMetaData.end())
@@ -315,12 +318,13 @@ namespace Onyx::Assets
 
         constexpr StringId32 assetTypeHash = T::TypeId;
         const UniquePtr<IAssetSerializer>& serializer = s_RegisteredSerializer.at((onyxU32)assetTypeHash);
-        m_IOHandler.RequestSave(metaData, asset, serializer, m_Engine);
+        const AssetHandle<AssetInterface> assetToSave = asset;
+        m_IOHandler.RequestSave(metaData, assetToSave, serializer, m_Engine);
         return true;
     }
 
     template <typename T>
-    bool AssetSystem::SaveAssetAs(const FileSystem::Filepath& newPath, const Reference<T>& asset)
+    bool AssetSystem::SaveAssetAs(const FilePath& newPath, const AssetHandle<T>& asset)
     {
         constexpr StringId32 assetTypeHash = T::TypeId;
         AssetId newAssetId(newPath);
@@ -329,7 +333,8 @@ namespace Onyx::Assets
 
         //TODO: should only add it IF we finish saving
         m_AssetsMetaData.try_emplace(newAssetId, metaData);
-        
+
+        const AssetHandle<AssetInterface> assetToSave = asset;
         m_IOHandler.RequestSave(metaData, asset, serializer, m_Engine);
         return true;
     }

@@ -2,10 +2,8 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/graphics/graphicssystem.h>
-#include <onyx/graphics/windowsystem.h>
-#include <onyx/graphics/textureasset.h>
-#include <onyx/graphics/window.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 
 #include <onyx/input/inputsystem.h>
 #include <onyx/input/inputevent.h>
@@ -16,9 +14,12 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/filesystem/filedialog.h>
 
+#include <onyx/platform/platformsystem.h>
+
 #include <ImGuizmo.h>
 #include <implot.h>
 #include <implot3d.h>
+
 
 #if ONYX_IS_WINDOWS
 #include <windows.h>
@@ -27,11 +28,6 @@
 namespace Onyx::Ui
 {
 	ImGuiContext g_UiContext;
-
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderClosedAsset = {};
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderOpenAsset = {};
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderSelectedClosedAsset = {};
-	Reference<Graphics::TextureAsset> ImGuiSystem::FolderSelectedOpenAsset = {};
 
 	namespace Internal
 	{
@@ -385,7 +381,7 @@ namespace Onyx::Ui
 			colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.345f, 0.357f, 0.439f, 1.00f);
 			colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.498f, 0.518f, 0.611f, 1.00f);
 
-			// Accent = Periwinkle (Blue-shifted Mauve, HSV [220°, 0.32, 0.969])
+			// Accent = Periwinkle (Blue-shifted Mauve, HSV [220ï¿½, 0.32, 0.969])
 			ImVec4 periwinkle = ImVec4(0.667f, 0.710f, 0.969f, 1.00f); // approx RGB from HSV
 
 			colors[ImGuiCol_CheckMark] = periwinkle;
@@ -551,8 +547,8 @@ namespace Onyx::Ui
 	}
 
 	
-    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::WindowSystem& windowSystem)
-        : m_Window(&windowSystem.GetMainWindow())
+    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem)
+        : m_PlatformSystem(&platformSystem)
         , m_InputSystem(&inputSystem)
     {
 		ImGui::CreateContext();
@@ -566,7 +562,7 @@ namespace Onyx::Ui
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		Internal::SetCatppuccinMochaGraphite();// ImGui::StyleColorsDark();
 
-		FileSystem::Filepath settingsPath = FileSystem::Path::GetFullPath("tmp:imgui.ini");
+		FilePath settingsPath = FileSystem::Path::GetFullPath("tmp:imgui.ini");
 		if (FileSystem::Path::Exists(settingsPath) == false)
 		{
 			settingsPath = FileSystem::Path::GetFullPath("engine:/layouts/default.ini");
@@ -578,54 +574,75 @@ namespace Onyx::Ui
 		fontConfig.FontDataOwnedByAtlas = false;
 		constexpr StringId64 fontHash("fonts/Roboto-Regular.ttf");
 
-		FileSystem::Filepath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
+		FilePath fontPath = FileSystem::Path::GetFullPath("engine:/fonts/Roboto-Regular.ttf");
 		auto [it, _] = m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 16.0f, &fontConfig));
 		m_Fonts.emplace(fontHash, io.Fonts->AddFontFromFileTTF(fontPath.string().data(), 36.0f, &fontConfig));
 
 		io.FontDefault = it->second;
+		InitRenderBuffers(graphicsSystem);
 
-		m_Window->AddOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		OnWindowResize(m_Window->GetWidth(), m_Window->GetHeight());
-
-		inputSystem.AddOnInputHandler(this, &ImGuiSystem::OnInputEvent);
+		inputSystem.OnMouseAxisChange().Connect<&ImGuiSystem::OnMouseAxisChange>(this);
+		inputSystem.OnMouseButton().Connect<&ImGuiSystem::OnMouseButton>(this);
+		inputSystem.OnMousePositionChange().Connect<&ImGuiSystem::OnMousePositionChange>(this);
+		inputSystem.OnKey().Connect<&ImGuiSystem::OnKey>(this);
 
 		g_UiContext.AssetSystem = &assetSystem;
-		g_UiContext.MainWindow = m_Window;
 		g_UiContext.InputSystem = &inputSystem;
+
+		Graphics::PipelineProperties pipelineProperties;
+		pipelineProperties.Shader = Assets::AssetId("engine:/shaders/imgui.oshader");
+		pipelineProperties.BlendStates.Emplace(
+			Graphics::BlendState
+			{
+				.SourceColor = Graphics::Blend::SrcAlpha,
+				.DestinationColor = Graphics::Blend::OneMinusSrcAlpha,
+				.ColorOperation = Graphics::BlendOperation::Add,
+				.SourceAlpha = Graphics::Blend::Invalid,
+				.DestinationAlpha = Graphics::Blend::Invalid,
+				.AlphaOperation = Graphics::BlendOperation::Add,
+				.IsBlendEnabled = true
+			}
+		);
+
+        Graphics::RenderPassSettings renderPassSettings;
+        Graphics::RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
+        Graphics::RenderPassSettings::Attachment attachment{};
+
+		attachment.m_Format = Enums::ToIntegral(Graphics::TextureFormat::BGRA_UNORM8);
+		attachment.m_LoadOp = Enums::ToIntegral(Graphics::RenderPassSettings::LoadOp::DontCare);
+		renderPassSettings.m_Attachments.Add(attachment);
+
+		subpass.m_AttachmentAccesses.Emplace(Graphics::RenderPassSettings::AttachmentAccess::RenderTarget);
+		pipelineProperties.RenderPass = graphicsSystem.GetOrCreateRenderPass(renderPassSettings);
+
+		m_ImguiShader = graphicsSystem.CreateShaderInstance(pipelineProperties.Shader, pipelineProperties);
+		
+        Platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
+        mainWindow.OnResize().Connect<&ImGuiSystem::OnWindowResize>(this);
     }
 
 	ImGuiSystem::~ImGuiSystem()
 	{
-		const FileSystem::Filepath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
+		const FilePath settingsPath = FileSystem::Path::GetTempDirectory() / "imgui.ini";
 		ImGui::SaveIniSettingsToDisk(settingsPath.string().data());
 
-		m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-		m_InputSystem->RemoveOnInputHandler(this, &ImGuiSystem::OnInputEvent);
-
+		//m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
+		m_InputSystem->OnMouseAxisChange().Disconnect(this);
+		m_InputSystem->OnMouseButton().Disconnect(this);
+		m_InputSystem->OnMousePositionChange().Disconnect(this);
+		m_InputSystem->OnKey().Disconnect(this);
+		
 		ImPlot::DestroyContext();
 		ImPlot3D::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
     void ImGuiSystem::Update(Graphics::GraphicsSystem& system, DeltaGameTime deltaTime)
-    {
-#if ONYX_IS_WINDOWS
+	{
+		ImGuiIO& io = ImGui::GetIO();	
 
 		g_UiContext.GraphicsSystem = &system;
-
-		ImGuiIO& io = ImGui::GetIO();
-	
-		// TODO: Add single producer single consumer queue that supports popping the entire queue at once
-		InplaceFunction<void(ImGuiIO&)> eventFunctor;
-		while (m_QueuedInputs.Pop(eventFunctor))
-		{
-			eventFunctor(io);
-		}
-
 		io.DeltaTime = std::max(numeric_cast<onyxF32>(deltaTime.DeltaMilliseconds) * 0.001f, 0.001f);
-#endif
-
-
 
 		//// this is an index based loop on purpose as windows might be added during rendering by other windows
 		const onyxU32 windowsCount = numeric_cast<onyxU32>(m_Windows.size());
@@ -638,19 +655,27 @@ namespace Onyx::Ui
 		g_UiContext.GraphicsSystem = nullptr;
     }
 
-    void ImGuiSystem::OnBeginFrame(Graphics::FrameContext&)
+    void ImGuiSystem::OnBeginFrame(const Graphics::FrameContext& /*frameContext*/)
     {
+		ImGuiIO& io = ImGui::GetIO();	
+		// TODO: Fix
+		auto& mainWindow = m_PlatformSystem->GetMainWindow();
+		auto framebufferSize = mainWindow.GetFrameBufferSize();
+		io.DisplaySize = ImVec2(static_cast<onyxF32>(framebufferSize.X), static_cast<onyxF32>(framebufferSize.Y));
+
+		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
 		if (Internal::loc_ReloadLayout)
 		{
 			Internal::loc_ReloadLayout = false;
-			/*FileSystem::Filepath settingsPath = FileSystem::Path::GetDataDirectory() / "layouts/default_2.ini";
+			/*FilePath settingsPath = FileSystem::Path::GetDataDirectory() / "layouts/default_2.ini";
 			ImGui::LoadIniSettingsFromDisk(settingsPath.string().data());*/
 		}
-
+		
 		if (Internal::loc_SaveLayout)
 		{
 			Internal::loc_SaveLayout = false;
-			FileSystem::Filepath savePath;
+			FilePath savePath;
 			FileSystem::FileDialog saveDialog;
 			DynamicArray<StringView> extensions{ "ini" };
 			if (saveDialog.SaveFileDialog(savePath, "Ini File", extensions))
@@ -668,30 +693,159 @@ namespace Onyx::Ui
 		ImGuizmo::BeginFrame();
     }
 
-    void ImGuiSystem::OnEndFrame()
+	void ImGuiSystem::OnRenderFrame(const Graphics::FrameContext& frameContext)
     {
-#if ONYX_IS_WINDOWS
-		if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
-		{
-			LPTSTR win32Cursor = IDC_ARROW;
+		if (m_ImguiShader.IsValid() == false)
+			return;
 
-			switch (ImGui::GetMouseCursor())
+		ImGui::Render();
+
+		UpdateDrawBuffers(frameContext);
+        
+        Graphics::CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
+
+		const Reference<Graphics::Pipeline>& pipeline = m_ImguiShader->GetPipeline();
+		const Graphics::PipelineProperties& properties = pipeline->GetProperties();
+
+        Graphics::FramebufferSettings framebufferSettings; 
+		framebufferSettings.m_RenderPass = properties.RenderPass;
+
+		const Vector2s32& swapchainExtent = frameContext.Api->GetSwapchainExtent();
+		framebufferSettings.m_Width = swapchainExtent.X;
+		framebufferSettings.m_Height = swapchainExtent.Y;
+
+		Graphics::TextureHandle swapchainImage = frameContext.Api->GetAcquiredSwapChainImage();
+		framebufferSettings.m_ColorTargets.Add(swapchainImage.Texture);
+
+		Graphics::FramebufferHandle frameBuffer = frameContext.Api->GetOrCreateFramebuffer(framebufferSettings);
+
+		// TODO: Do a proper barrier here for the rendergraph to be finished and the imgui pass to start
+		commandBuffer.TransitionLayout(swapchainImage, Graphics::Context::Graphics, Graphics::Access::ColorAttachmentWrite, Graphics::ImageLayout::AttachmentOptimal);
+		commandBuffer.GlobalBarrier(Enums::ToIntegral(Graphics::Access::ColorAttachmentWrite), 0x00000400ULL, Enums::ToIntegral(Graphics::Access::None), 0x00000001ULL);
+		commandBuffer.BeginRenderPass(properties.RenderPass, frameBuffer);
+		commandBuffer.SetViewport();
+		commandBuffer.BindShaderEffect(m_ImguiShader);
+
+		ImDrawData* imDrawData = ImGui::GetDrawData();
+
+		onyxS32 fb_width = numeric_cast<onyxS32>(imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x);
+		onyxS32 fb_height = numeric_cast<onyxS32>(imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+		if ((!imDrawData) || (imDrawData->CmdListsCount == 0))
+		{
+			return;
+		}
+
+		onyxS32 vertexOffset = 0;
+		onyxS32 indexOffset = 0;
+
+		const onyxU8 frameIndex = frameContext.FrameIndex;
+		const Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
+		const Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
+		commandBuffer.BindVertexBuffer(vertexBuffer, 0, 0);
+		commandBuffer.BindIndexBuffer(indexBuffer, 0, Graphics::IndexType::uint16);
+
+		struct PushConstants
+		{
+			Vector2f32 scale;
+			Vector2f32 translate;
+		} constants;
+
+		constants.scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
+		constants.translate = { -1.0f - imDrawData->DisplayPos.x * constants.scale[0], 1.0f - imDrawData->DisplayPos.y * constants.scale[1] };
+		commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, constants);
+
+		// Will project scissor/clipping rectangles into framebuffer space
+		ImVec2 clip_off = imDrawData->DisplayPos; // (0,0) unless using multi-viewports
+		ImVec2 clip_scale = imDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
+
+		for (onyxS32 i = 0; i < imDrawData->CmdListsCount; i++)
+		{
+			const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+			for (onyxS32 j = 0; j < cmd_list->CmdBuffer.Size; j++)
 			{
-			case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
-			case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
-			case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
-			case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
-			case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
-			case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
-			case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
-			case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
+				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+				if (pcmd->UserCallback != nullptr)
+				{
+					// User callback, registered via ImDrawList::AddCallback()
+					// (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+					//if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+					//    commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(PushConstants), &constants);
+					//else
+					pcmd->UserCallback(cmd_list, pcmd);
+				}
+				else
+				{
+					ImTextureID textureId = pcmd->TextureId;
+
+					ImVec4 clip_rect;
+					clip_rect.x = (pcmd->ClipRect.x - clip_off.x) * clip_scale.x;
+					clip_rect.y = (pcmd->ClipRect.y - clip_off.y) * clip_scale.y;
+					clip_rect.z = (pcmd->ClipRect.z - clip_off.x) * clip_scale.x;
+					clip_rect.w = (pcmd->ClipRect.w - clip_off.y) * clip_scale.y;
+
+					if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f)
+					{
+						// Negative offsets are illegal for vkCmdSetScissor
+						if (clip_rect.x < 0.0f)
+							clip_rect.x = 0.0f;
+						if (clip_rect.y < 0.0f)
+							clip_rect.y = 0.0f;
+
+						// Apply scissor/clipping rectangle
+						Rect2s16 scissor;
+						scissor.Position[0] = (onyxS16)(clip_rect.x);
+						scissor.Position[1] = (onyxS16)(clip_rect.y);
+						scissor.Extents[0] = (onyxS16)(std::abs(clip_rect.z - clip_rect.x));
+						scissor.Extents[1] = (onyxS16)(std::abs(clip_rect.w - clip_rect.y));
+						//vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+
+						commandBuffer.SetScissor(scissor);
+						commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, pcmd->ElemCount, 1,
+							pcmd->IdxOffset + indexOffset, pcmd->VtxOffset + vertexOffset, numeric_cast<onyxU32>(textureId));
+					}
+				}
 			}
 
-			m_Window->SetCursor(::LoadCursor(NULL, win32Cursor));
-		}
-#endif
+			vertexOffset += cmd_list->VtxBuffer.Size;
+			indexOffset += cmd_list->IdxBuffer.Size;
 
+			Rect2s16 scissor;
+			scissor.Position = { 0, 0 };
+			scissor.Extents = { (onyxS16)fb_width, (onyxS16)fb_height };
+			commandBuffer.SetScissor(scissor);
+		}
+
+		commandBuffer.EndRenderPass();
+    }
+
+    void ImGuiSystem::OnEndFrame(const Graphics::FrameContext& /*frameContext*/)
+    {
+#if ONYX_IS_WINDOWS
+		//if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
+		//{
+		//	LPTSTR win32Cursor = IDC_ARROW;
+		//	
+		//	switch (ImGui::GetMouseCursor())
+		//	{
+		//		case ImGuiMouseCursor_Arrow:        win32Cursor = IDC_ARROW; break;
+		//		case ImGuiMouseCursor_TextInput:    win32Cursor = IDC_IBEAM; break;
+		//		case ImGuiMouseCursor_ResizeAll:    win32Cursor = IDC_SIZEALL; break;
+		//		case ImGuiMouseCursor_ResizeEW:     win32Cursor = IDC_SIZEWE; break;
+		//		case ImGuiMouseCursor_ResizeNS:     win32Cursor = IDC_SIZENS; break;
+		//		case ImGuiMouseCursor_ResizeNESW:   win32Cursor = IDC_SIZENESW; break;
+		//		case ImGuiMouseCursor_ResizeNWSE:   win32Cursor = IDC_SIZENWSE; break;
+		//		case ImGuiMouseCursor_Hand:         win32Cursor = IDC_HAND; break;
+		//	}
+		//	
+		//	m_Window->SetCursor(::LoadCursor(NULL, win32Cursor));
+		//}
+#endif
+		
 		ImGuiIO& io = ImGui::GetIO();
+
 		// Update and Render additional Platform Windows
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -717,92 +871,207 @@ namespace Onyx::Ui
         return it->get();
     }
 
-	void ImGuiSystem::OnWindowResize(onyxU32 width, onyxU32 height)
-	{
+    void ImGuiSystem::InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem)
+    {
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(static_cast<onyxF32>(width), static_cast<onyxF32>(height));
+
+		//// Create font texture
+		unsigned char* fontData;
+		int texWidth, texHeight;
+
+		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+		onyxU32 uploadSize = texWidth * texHeight * 4 * sizeof(char);
+
+		//// Create target image for copy
+		Graphics::TextureStorageProperties storageProps;
+		storageProps.m_Format = Graphics::TextureFormat::RGBA_UNORM8;
+		storageProps.m_Type = Graphics::TextureType::Texture2D;
+		storageProps.m_Size = { texWidth, texHeight, 1 };
+		storageProps.m_MaxMipLevel = 1;
+		storageProps.m_ArraySize = 0;
+		storageProps.m_MSAAProperties = { 1, 1 }; // samples /quality 
+		storageProps.m_CpuAccess = Graphics::CPUAccess::None;
+		storageProps.m_GpuAccess = Graphics::GPUAccess::Read;
+		storageProps.m_IsTexture = true;
+		storageProps.m_DebugName = "ImGui Font Texture Storage";
+
+		Graphics::TextureProperties textureProps;
+		textureProps.m_Format = Graphics::TextureFormat::RGBA_UNORM8;
+		textureProps.m_AllowCubeMapLoads = false;
+		textureProps.m_DebugName = "ImGui Font Texture";
+
+		Span<onyxU8> fontTexData{ fontData, uploadSize };
+
+		graphicsSystem.CreateTexture(m_FontImage, storageProps, textureProps, fontTexData);
+		io.Fonts->TexID = m_FontImage.Texture->GetIndex();
+
+		Graphics::BufferProperties vertexBufferProps;
+		vertexBufferProps.m_Size = 400000 * sizeof(ImDrawVert);
+		vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
+		vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+		vertexBufferProps.m_DebugName = "ImGui Vertices";
+
+		Graphics::BufferProperties indexBufferProps;
+		indexBufferProps.m_Size = 200000 * sizeof(ImDrawIdx);
+		indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
+		indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+		indexBufferProps.m_DebugName = "ImGui Indices";
+
+		for (onyxU8 i = 0; i < Graphics::MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[i];
+			graphicsSystem.CreateBuffer(vertexBuffer, vertexBufferProps);
+			m_VertexCounts.Add(400000);
+
+			Graphics::BufferHandle& indexBuffer = m_IndexBuffers[i];
+			graphicsSystem.CreateBuffer(indexBuffer, indexBufferProps);
+			m_IndexCounts.Add(200000);
+		}
+    }
+
+	void ImGuiSystem::UpdateDrawBuffers(const Graphics::FrameContext& frameContext)
+    {	
+		ImDrawData* imDrawData = ImGui::GetDrawData();
+
+		if ((!imDrawData) || (imDrawData->CmdListsCount == 0))
+		{
+			return;
+		}
+
+		onyxS32 fb_width = numeric_cast<onyxS32>(imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x);
+		onyxS32 fb_height = numeric_cast<onyxS32>(imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+		// Note: Alignment is done inside buffer creation
+		onyxU32 vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+		onyxU32 indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+		// Update buffers only if vertex or index count has been changed compared to current buffer size
+		if ((vertexBufferSize == 0) || (indexBufferSize == 0))
+		{
+			return /*false*/;
+		}
+
+		// Vertex buffer
+		const onyxU8 frameIndex = frameContext.FrameIndex;
+		Graphics::BufferHandle& vertexBuffer = m_VertexBuffers[frameIndex];
+		if ((vertexBuffer.Buffer.IsValid() == false) || (vertexBuffer.Buffer->IsMapped() == false) || (m_VertexCounts[frameIndex] < imDrawData->TotalVtxCount))
+		{
+			Graphics::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
+			vertexBufferProps.m_Size = vertexBufferSize;
+
+			frameContext.Api->CreateBuffer(vertexBuffer, vertexBufferProps);
+			m_VertexCounts[frameIndex] = imDrawData->TotalVtxCount;
+		}
+
+		// Index buffer
+		Graphics::BufferHandle& indexBuffer = m_IndexBuffers[frameIndex];
+		if ((indexBuffer.Buffer.IsValid() == false) || (indexBuffer.Buffer->IsMapped() == false) || (m_IndexCounts[frameIndex] < imDrawData->TotalIdxCount))
+		{
+			Graphics::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
+			indexBufferProps.m_Size = indexBufferSize;
+
+			frameContext.Api->CreateBuffer(indexBuffer, indexBufferProps);
+			m_IndexCounts[frameIndex] = imDrawData->TotalIdxCount;
+		}
+
+		// Upload data
+		onyxS32 vertexCopyOffset = 0;
+		onyxS32 indexCopyOffset = 0;
+
+		for (int n = 0; n < imDrawData->CmdListsCount; n++)
+		{
+			const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+			vertexBuffer.Buffer->SetData(vertexCopyOffset, cmd_list->VtxBuffer.Data,
+				cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+			indexBuffer.Buffer->SetData(indexCopyOffset, cmd_list->IdxBuffer.Data,
+				cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+
+			vertexCopyOffset += cmd_list->VtxBuffer.Size * sizeof(ImDrawVert);
+			indexCopyOffset += cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx);
+		}
+    }
+
+    void ImGuiSystem::OnWindowResize(Vector2s32 size)
+	{
+        ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(numeric_cast<onyxF32>(size.X), numeric_cast<onyxF32>(size.Y));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 	}
 
-    void ImGuiSystem::OnInputEvent(const Input::InputEvent* event)
-    {
-		if (event->IsMouseEvent())
+	void ImGuiSystem::OnMouseAxisChange(const Input::MouseAxisEvent& event)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMouseWheelEvent(0, event.Value);
+	}
+
+	void ImGuiSystem::OnMouseButton(const Input::MouseButtonEvent& event)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMouseButtonEvent(static_cast<onyxS32>(event.Button) - 1, event.State == Input::ButtonState::Down);
+	}
+
+	void ImGuiSystem::OnMousePositionChange(const Input::MousePositionEvent& event)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMousePosEvent(numeric_cast<onyxF32>(event.Position[0]), numeric_cast<onyxF32>(event.Position[1]));
+	}
+
+	void ImGuiSystem::OnKey(const Input::KeyboardEvent& keyboardEvent)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		
+		bool isDown = keyboardEvent.State == Input::ButtonState::Down;
+		if (IsModifierKey(keyboardEvent.Key))
 		{
-			const Input::MouseEvent* mouseEvent = static_cast<const Input::MouseEvent*>(event);
-
-			InplaceFunction<void(ImGuiIO&)> queuedInputEvent = [event = *mouseEvent](ImGuiIO& io)
-				{
-					if ((event.m_Id == Input::InputEventType::MouseButtonUp) || (event.m_Id == Input::InputEventType::MouseButtonDown))
-						io.AddMouseButtonEvent(static_cast<onyxS32>(event.m_Button) - 1, event.m_Id == Input::InputEventType::MouseButtonDown);
-					else if (event.m_Id == Input::InputEventType::MousePositionChanged)
-						io.AddMousePosEvent(event.m_Position[0], event.m_Position[1]);
-					else if (event.m_Id == Input::InputEventType::MouseWheel)
-						io.AddMouseWheelEvent(0, event.m_Scroll);
-				};
-
-			m_QueuedInputs.Push(std::move(queuedInputEvent));
-			
-			//return io.WantCaptureMouse; TODO 
-		}
-		else if (event->IsKeyboardEvent())
-		{
-			const Input::KeyboardEvent* keyboardEvent = static_cast<const Input::KeyboardEvent*>(event);
-
-			InplaceFunction<void(ImGuiIO&)> queuedInputEvent = [event = *keyboardEvent](ImGuiIO& io)
+			switch (keyboardEvent.Key)
 			{
-				if ((event.m_Id == Input::InputEventType::KeyUp) || (event.m_Id == Input::InputEventType::KeyDown))
-				{
-					bool isDown = event.m_Id == Input::InputEventType::KeyDown;
-					if (IsModifierKey(event.m_Key))
-					{
-						switch (event.m_Key)
-						{
-						    case Input::Key::Left_Ctrl:
-						    case Input::Key::Right_Ctrl:
-						    {
-								io.AddKeyEvent(ImGuiKey_ModCtrl, isDown);
-								break;
-						    }
-							case Input::Key::Left_Shift:
-							case Input::Key::Right_Shift:
-							{
-								io.AddKeyEvent(ImGuiKey_ModShift, isDown);
-								break;
-							}
-							case Input::Key::Left_Alt:
-							case Input::Key::Right_Alt:
-							{
-								io.AddKeyEvent(ImGuiKey_ModAlt, isDown);
-								break;
-							}
-							case Input::Key::Left_System:
-							case Input::Key::Right_System:
-							{
-								io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
-								break;
-							}
-                            default:
-                                ONYX_ASSERT(false, "Invalid modifier key");
-                                break;
-						}
-					}
-					
-					io.AddKeyEvent(Internal::ConvertToImGuiKey(event.m_Key), isDown);
-					
-				}
-				else if (event.m_Id == Input::InputEventType::KeyCharacter)
-					io.AddInputCharacterUTF16(event.m_Char);
-			};
-
-			m_QueuedInputs.Push(std::move(queuedInputEvent));
+			    case Input::Key::Left_Ctrl:
+			    case Input::Key::Right_Ctrl:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModCtrl, isDown);
+				    break;
+			    }
+			    case Input::Key::Left_Shift:
+			    case Input::Key::Right_Shift:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModShift, isDown);
+				    break;
+			    }
+			    case Input::Key::Left_Alt:
+			    case Input::Key::Right_Alt:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModAlt, isDown);
+				    break;
+			    }
+			    case Input::Key::Left_System:
+			    case Input::Key::Right_System:
+			    {
+				    io.AddKeyEvent(ImGuiKey_ModSuper, isDown);
+				    break;
+			    }
+			    default:
+				    ONYX_ASSERT(false, "Invalid modifier key");
+				    break;
+			}
 		}
-		else if (event->IsGamepadButtonEvent())
-		{
-		    // TODO
-		}
+		
+		io.AddKeyEvent(Internal::ConvertToImGuiKey(keyboardEvent.Key), isDown);
+		
+		if (isDown && (keyboardEvent.Char != 0))
+			io.AddInputCharacterUTF16(keyboardEvent.Char);
+		
+	}
 
-		//return false; TODO
-    }
+	void ImGuiSystem::OnControllerAxisChange(const Input::GameControllerAxisEvent& /*event*/)
+	{
+	}
+
+	void ImGuiSystem::OnControllerButton(const Input::GameControllerButtonEvent& /*event*/)
+	{
+
+	}
 }
 
 #endif

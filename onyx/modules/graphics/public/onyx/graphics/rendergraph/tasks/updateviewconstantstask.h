@@ -2,6 +2,8 @@
 
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/graphicstypes.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
@@ -21,8 +23,8 @@ namespace Onyx::Graphics::RenderGraphNodes
     private:
         StringView GetPinName(StringId32 pinId) const override
         {
-            switch (pinId)
             {
+            switch (pinId)
             case Super::OutPin::LocalId: return "ViewConstants";
             }
 

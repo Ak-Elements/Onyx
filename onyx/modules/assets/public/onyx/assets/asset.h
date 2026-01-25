@@ -5,6 +5,7 @@
 
 #include <onyx/assets/assetid.h>
 #include <onyx/assets/assetformat.h>
+#include <onyx/assets/assethandle.h>
 
 namespace Onyx::Assets
 {
@@ -27,7 +28,7 @@ namespace Onyx::Assets
 
     struct AssetMetaData
     {
-        FileSystem::Filepath Path;
+        FilePath Path;
         AssetId Id = AssetId::Invalid;
         AssetType Type = AssetType::Invalid;
         AssetFormat Format = AssetFormat::Json;
@@ -68,24 +69,18 @@ namespace Onyx::Assets
         friend struct AssetSaveRequest;
 #endif
     public:
-        bool operator==(const AssetInterface& other) const { return m_Id == other.m_Id; }
-        bool operator!=(const AssetInterface& other) const { return m_Id != other.m_Id; }
-
-        AssetId GetId() const { return m_Id; }
-        void SetId(const AssetId& id) { m_Id = id; }
         void SetState(AssetState state) { m_State = state; }
 
         bool IsLoading() const { return m_State == AssetState::Loading; }
         bool IsLoaded() const { return m_State == AssetState::Loaded; }
 
     private:
-        virtual void OnLoadFinished(AssetState state) = 0;
+        virtual void OnLoadFinished(AssetId id, AssetState state) = 0;
 #if ONYX_IS_EDITOR
-        virtual void OnSaveFinished(bool success) const = 0;
+        virtual void OnSaveFinished(AssetId id, bool success) const = 0;
 #endif
 
     protected:
-        AssetId m_Id = AssetId::Invalid;
         Atomic<AssetState> m_State = AssetState::Invalid;
     };
 
@@ -95,9 +90,9 @@ namespace Onyx::Assets
     public:
         using AssetT = T;
 
-        using LoadedSignalT = Signal<void(Reference<AssetT>&)>;
+        using LoadedSignalT = Signal<void(AssetHandle<AssetT>)>;
 #if ONYX_IS_EDITOR
-        using SavedSignalT = Signal<void(const Reference<AssetT>&, bool)>;
+        using SavedSignalT = Signal<void(AssetHandle<AssetT>, bool)>;
 #endif
 
     public:
@@ -107,24 +102,21 @@ namespace Onyx::Assets
 #endif
 
     private:
-        void OnLoadFinished(AssetState state) override
+        void OnLoadFinished(AssetId id, AssetState state) override
         {
+            SetState(state);
             if (state == AssetState::Loaded)
             {
                 Reference<AssetT> ref(this);
-                m_LoadedSignal.Dispatch(ref);
-            }
-            else
-            {
-                ONYX_LOG_WARNING("Failed loading asset {}", GetId().Get());
+                m_LoadedSignal.Dispatch(AssetHandle<AssetT>( id, ref ));
             }
         }
 
 #if ONYX_IS_EDITOR
-        void OnSaveFinished(bool success) const override
+        void OnSaveFinished(AssetId /*id*/, bool /*success*/) const override
         {
-            const Reference<AssetT> ref(this);
-            m_SavedSignal.Dispatch(ref, success);
+           // Reference<AssetT> ref(this);
+          //  m_SavedSignal.Dispatch({ .Id = id, .Handle = ref }, success);
         }
 #endif
 

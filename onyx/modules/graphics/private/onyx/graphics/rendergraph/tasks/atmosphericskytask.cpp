@@ -1,7 +1,7 @@
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
 
-#include <onyx/graphics/commandbuffer.h>
-#include <onyx/graphics/framecontext.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/framecontext.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
@@ -22,6 +22,9 @@ namespace Onyx::Graphics::RenderGraphNodes
 
         m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
         m_SkyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
+
+        RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+        transmittanceInfo.Type = RenderGraphResourceType::Attachment;
     }
 
     void AtmosphericSkyRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)

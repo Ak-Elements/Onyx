@@ -8,7 +8,7 @@ FreeCameraControllerComponent
     onyxF32 VelocityIncrementFactor = 0.3
 }
 
-[RuntimeOnly, Hidden]
+[Transient, Hidden]
 FreeCameraRuntimeComponent
 {
     Vector3f32 InputDirection

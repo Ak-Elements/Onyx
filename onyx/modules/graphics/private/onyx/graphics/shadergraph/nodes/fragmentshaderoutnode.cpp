@@ -1,6 +1,6 @@
 #include <onyx/graphics/shadergraph/nodes/fragmentshaderoutnode.h>
 
-#include <onyx/graphics/shader/generators/shadergenerator.h>
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/executioncontext.h>
 
 namespace Onyx::Graphics::ShaderGraphNodes

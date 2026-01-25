@@ -1,8 +1,7 @@
 #pragma once
 #include <onyx/nodegraph/nodes/math/arithmeticnodes.h>
 
-#include <onyx/graphics/shader/generators/shadergenerator.h>
-
+#include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace Onyx::Graphics
 {
@@ -11,12 +10,6 @@ namespace Onyx::Graphics
 
 namespace Onyx::NodeGraph
 {
-    void DrawPlusIconBackground(Guid64);
-    void DrawMinusIconBackground(Guid64);
-    void DrawMultiplyIconBackground(Guid64);
-    void DrawDivisionIconBackground(Guid64);
-    void DrawAbsoluteIconBackground(Guid64);
-
     template <typename ScalarT, CompileTimeString TypeIdString>
     class AddNode<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT>
     {
@@ -57,7 +50,7 @@ namespace Onyx::NodeGraph
 
         void OnUIDrawNodeBackground() override
         {
-            DrawPlusIconBackground(Super::GetId());
+           // DrawPlusIconBackground(Super::GetId());
         }
 
         StringView GetPinName(StringId32 /*pinId*/) const override
@@ -107,7 +100,7 @@ namespace Onyx::NodeGraph
 
         void OnUIDrawNodeBackground() override
         {
-            DrawMinusIconBackground(Super::GetId());
+           // DrawMinusIconBackground(Super::GetId());
         }
 
         StringView GetPinName(StringId32 /*pinId*/) const override
@@ -157,7 +150,7 @@ namespace Onyx::NodeGraph
 
         void OnUIDrawNodeBackground() override
         {
-            DrawMultiplyIconBackground(Super::GetId());
+            //DrawMultiplyIconBackground(Super::GetId());
         }
 
         StringView GetPinName(StringId32 /*pinId*/) const override
@@ -207,7 +200,7 @@ namespace Onyx::NodeGraph
 
         void OnUIDrawNodeBackground() override
         {
-            DrawDivisionIconBackground(Super::GetId());
+            //DrawDivisionIconBackground(Super::GetId());
         }
 
         StringView GetPinName(StringId32 /*pinId*/) const override
@@ -268,7 +261,7 @@ namespace Onyx::NodeGraph
 
         void OnUIDrawNodeBackground() override
         {
-            DrawAbsoluteIconBackground(Super::GetId());
+           // DrawAbsoluteIconBackground(Super::GetId());
         }
 
         StringView GetPinName(StringId32 /*pinId*/) const override

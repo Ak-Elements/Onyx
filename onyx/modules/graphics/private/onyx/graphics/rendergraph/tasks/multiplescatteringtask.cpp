@@ -1,6 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/multiplescatteringtask.h>
 
-#include <onyx/graphics/commandbuffer.h>
+#include <onyx/rhi/commandbuffer.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
@@ -13,6 +13,9 @@ namespace Onyx::Graphics::RenderGraphNodes
         RenderGraphResource& transmittanceResource = context.Graph.GetResource(GetInputPin().GetLinkedPinGlobalId());
         const TextureHandle& transmittanceTextureHandle = std::get<TextureHandle>(transmittanceResource.Handle);
         m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
+
+        RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+        transmittanceInfo.Type = RenderGraphResourceType::Attachment;
     }
 
     void ComputeMultipleScatteringRenderGraphNode::OnRender(RenderGraphContext& /*context*/, CommandBuffer& commandBuffer)

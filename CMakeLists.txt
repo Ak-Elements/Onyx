@@ -16,7 +16,7 @@ set(ONYX_VERSION_SUFFIX "${MAJOR_VERSION}.${MINOR_VERSION}")
 project (
     onyx
     VERSION ${ONYX_VERSION}
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 if (NOT onyx_SOURCE_DIR)
@@ -73,13 +73,13 @@ if (CMAKE_COMPILER_IS_GNUCXX OR ((${CMAKE_CXX_COMPILER_ID} MATCHES "Clang") AND 
     set( ONYX_COMPILE_OPTIONS
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: -Wall -fno-rtti -Wno-comment>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>: >
-    $<$<CXX_COMPILER_ID:GNU>: -Wno-changes-meaning>)
+    $<$<CXX_COMPILER_ID:GNU>: -Wno-changes-meaning> CACHE STRING "Onyx target compile options")
     set( ONYX_LINK_OPTIONS
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: >)
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>: > CACHE STRING "Onyx target link options")
 
 elseif (MSVC)
-    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- )
-    set( ONYX_LINK_OPTIONS /ignore:4099 )
+    set( ONYX_COMPILE_OPTIONS /W4 /WX /Zc:__cplusplus /Zi /GR- CACHE STRING "Onyx target compile options")
+    set( ONYX_LINK_OPTIONS /ignore:4099 CACHE STRING "Onyx target link options")
 endif()
 
 set( ONYX_PUBLIC_DEFINES 
@@ -169,17 +169,32 @@ endif()
 
 include(FetchContent)
 include(cmakepackagemanager)
-include(onyx_generate_project_init)
 
 include(GNUInstallDirs)
 
-set_property(GLOBAL PROPERTY onyx_generated_module_headers "")
+execute_process(
+    COMMAND git branch --show-current
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE onyx_git_branch
+)
+string(STRIP "${onyx_git_branch}" onyx_git_branch)
+
+set(config_path "${CMAKE_CURRENT_SOURCE_DIR}/config/${onyx_git_branch}.cmake")
+if(NOT ${onyx_git_branch} STREQUAL "main")
+    if (EXISTS "${config_path}")
+        include("${config_path}")
+    else()
+        include("config/dev.cmake")
+    endif()
+else()
+    include("config/main.cmake")
+endif()
 
 # Get code-generation tool
 CPMAddPackage(
     NAME Onyx-CodeGen
     GITHUB_REPOSITORY Ak-Elements/Onyx-CodeGeneration
-    GIT_TAG main
+    GIT_TAG ${ONYX_CODE_GEN_VERSION}
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/codegeneration/core
     DOWNLOAD_ONLY YES
 )

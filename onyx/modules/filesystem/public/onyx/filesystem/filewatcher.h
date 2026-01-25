@@ -22,16 +22,16 @@ namespace Onyx::FileSystem
         };
 
         FileWatcher();
-        FileWatcher(const Filepath& path, bool recursive);
-        FileWatcher(const Filepath& path);
+        FileWatcher(const FilePath& path, bool recursive);
+        FileWatcher(const FilePath& path);
         ~FileWatcher();
 
-        void AddPath(const Filepath& path, bool recursive);
+        void AddPath(const FilePath& path, bool recursive);
 
-        Callback<void(const Filepath&, FileAction)> OnFileChanged;
+        Callback<void(const FilePath&, FileAction)> OnFileChanged;
 
     private:
-        void OnFileAction(const Filepath& path, FileAction action);
+        void OnFileAction(const FilePath& path, FileAction action);
 
     private:
         UniquePtr<efsw::FileWatcher> m_Watcher;

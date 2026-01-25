@@ -1,6 +1,5 @@
 #pragma once
-#include <onyx/graphics/graphicshandles.h>
-#include <onyx/input/inputactionsystem.h>
+#include <onyx/rhi/graphicshandles.h>
 
 namespace Onyx::Editor
 {
@@ -27,6 +26,12 @@ namespace Onyx::GameCore
     class Scene;
 }
 
+namespace Onyx::InputActions
+{
+    class InputActionSystem;
+    struct InputActionEvent;
+}
+
 namespace Onyx::Editor::SceneEditor
 {
     class SceneEditorWindow;
@@ -36,7 +41,7 @@ namespace Onyx::Editor::SceneEditor
     public:
         static constexpr StringId64 HIT_BUFFER_RESOURCE_ID = "hit buffer";
 
-        TerrainPanel(Input::InputActionSystem& inputActionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore);
+        TerrainPanel(InputActions::InputActionSystem& inputActionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore);
         ~TerrainPanel();
 
         void SetSceneViewPanelId(onyxU32 panelId)
@@ -58,7 +63,7 @@ namespace Onyx::Editor::SceneEditor
         void FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent);
         void UpdateTerrainMesh(const Graphics::CommandBuffer& command_buffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree);
 
-        void OnTerrainPanelBrushSizeInput(const Input::InputActionEvent& inputEvent);
+        void OnTerrainPanelBrushSizeInput(const InputActions::InputActionEvent& inputEvent);
 
     private:
         Graphics::GraphicsSystem& m_GraphicsSystem;

@@ -1,16 +1,15 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/graphics/framecontext.h>
-#include <onyx/graphics/graphicssystem.h>
+#include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
-#include <onyx/graphics/texture.h>
-#include <onyx/graphics/texturestorage.h>
-#include <onyx/graphics/vulkan/texturestorage.h>
+#include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/graphicstypes.h>
+#include <onyx/rhi/texturestorage.h>
 #include <onyx/log/logger.h>
 #include <onyx/thread/threadpool/threadpool.h>
-
-#include <onyx/graphics/vulkan/commandbuffer.h>
 
 ONYX_PROFILE_CREATE_TAG(RenderGraph, 0x3ed694);
 
@@ -50,7 +49,7 @@ namespace Onyx::Graphics
 
         for (const LocalNodeId nodeId : topologicalOrder)
         {
-            const bool isLastNode = nodeId == topologicalOrder[(topologicalOrder.size() - 2)];
+            const bool isLastNode = nodeId == topologicalOrder[(topologicalOrder.size() - 1)];
 
             IRenderGraphNode& graphNode = m_Graph.GetNode<IRenderGraphNode>(nodeId);
             // remove resource cache
@@ -111,15 +110,15 @@ namespace Onyx::Graphics
                 {
                     //deallocations.
                     // Track deallocations?
-                    if ((input.Info.Type == RenderGraphResourceType::Attachment) || (input.Info.Type == RenderGraphResourceType::Texture))
-                    {
-                        const TextureHandle textureHandle = std::get<TextureHandle>(input.Handle);
-                        ONYX_ASSERT(textureHandle, "Adding invalid graphics handle to free list.");
-                        freeList.push_back(input.Info.Id);
-
-                        // TODO: Add debug info to nodes
-                        ONYX_LOG_INFO("Deallocated resource in node.");
-                    }
+                    //if ((input.Info.Type == RenderGraphResourceType::Attachment) || (input.Info.Type == RenderGraphResourceType::Texture))
+                    //{
+                    //    const TextureHandle textureHandle = std::get<TextureHandle>(input.Handle);
+                    //    ONYX_ASSERT(textureHandle, "Adding invalid graphics handle to free list.");
+                    //    freeList.push_back(input.Info.Id);
+//
+                    //    // TODO: Add debug info to nodes
+                    //    ONYX_LOG_INFO("Deallocated resource in node.");
+                    //}
 
                 }
             }
@@ -132,13 +131,17 @@ namespace Onyx::Graphics
             graphNode.Compile(graphicsSystem, m_ResourceCache);
         }
 
+        graphicsSystem.OnBeginFrame().Connect<&RenderGraph::OnBeginFrame>(this);
+        graphicsSystem.OnRenderFrame().Connect<&RenderGraph::OnRenderFrame>(this);
+        graphicsSystem.OnEndFrame().Connect<&RenderGraph::OnEndFrame>(this);
+
+        m_IsInitialized = true;
     }
 
     void RenderGraph::Shutdown(GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
-
 
         for (const LocalNodeId nodeId : m_Graph.GetTopologicalOrder())
         {
@@ -148,9 +151,15 @@ namespace Onyx::Graphics
 
         m_ResourceCache.clear();
         m_Graph.Clear();
+
+        graphicsSystem.OnBeginFrame().Disconnect(this);
+        graphicsSystem.OnRenderFrame().Disconnect(this);
+        graphicsSystem.OnEndFrame().Disconnect(this);
+
+        m_IsInitialized = false;
     }
 
-    void RenderGraph::BeginFrame(const FrameContext& frameContext)
+    void RenderGraph::OnBeginFrame(const FrameContext& frameContext)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -182,7 +191,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraph::Render(const FrameContext& context)
+    void RenderGraph::OnRenderFrame(const FrameContext& context)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -195,7 +204,7 @@ namespace Onyx::Graphics
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
-            if (node.IsEnabled() == false)
+            if (node.HasBegunFrame() == false)
             {
                 continue;
             }
@@ -206,7 +215,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraph::EndFrame(const FrameContext& frameContext)
+    void RenderGraph::OnEndFrame(const FrameContext& frameContext)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -218,7 +227,7 @@ namespace Onyx::Graphics
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
 
-            if (node.IsEnabled() == false)
+            if (node.HasBegunFrame() == false)
             {
                 continue;
             }
@@ -226,14 +235,8 @@ namespace Onyx::Graphics
             node.EndFrame(graphContext);
         }
 
-        // Transition image to present
-        RenderGraphResource& swapchainResource = m_ResourceCache[SWAPCHAIN_RESOURCE_ID];
-        TextureHandle& swapchainTarget = std::get<TextureHandle>(swapchainResource.Handle);
-        Vulkan::VulkanTextureStorage& storage = swapchainTarget.Storage.As<Vulkan::VulkanTextureStorage>();
-
-        CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
-        Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
-        storage.TransitionLayout(cmdBuffer, Context::Graphics, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_ACCESS_2_NONE, 0, 1);
+        auto& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
+        commandBuffer.TransitionLayout(std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle), Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
     }
 
     bool RenderGraph::HasResource(RenderGraphResourceId id) const
