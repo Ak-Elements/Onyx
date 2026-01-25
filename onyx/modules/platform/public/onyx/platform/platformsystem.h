@@ -38,14 +38,14 @@ namespace Onyx::Platform
         void OnWindowCreate(Type* instance)
         {
             Sink sink(m_WindowCreatedSignal);
-            sink.Connect<Candidate>(instance);
+            sink.template Connect<Candidate>(instance);
         }
 
         template<auto Candidate, typename Type>
         void OnWindowDestroy(Type* instance)
         {
             Sink sink(m_WindowDestroySignal);
-            sink.Connect<Candidate>(instance);
+            sink.template Connect<Candidate>(instance);
         }
 
         template <typename Type>
