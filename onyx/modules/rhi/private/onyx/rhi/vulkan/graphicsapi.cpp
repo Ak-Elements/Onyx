@@ -72,8 +72,10 @@ namespace Onyx::Graphics::Vulkan
         deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         deviceExtensions.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
         deviceExtensions.push_back(VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME);
+
+#if VK_KHR_unified_image_layouts
         deviceExtensions.push_back(VK_KHR_UNIFIED_IMAGE_LAYOUTS_EXTENSION_NAME);
-        //deviceExtensions.push_back(VK_KHR_16BIT_STORAGE_EXTENSION_NAME );
+#endif
 
         // Tracy gpu query extensions
         deviceExtensions.push_back(VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
@@ -95,10 +97,12 @@ namespace Onyx::Graphics::Vulkan
             m_IsDynamicRenderingEnabled = true;
         }
 
+#if VK_KHR_unified_image_layouts
         if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_UNIFIED_IMAGE_LAYOUTS_EXTENSION_NAME))
         {
             m_IsUnifiedImageLayoutSupported = true;
         }
+#endif
 
         if (m_IsDynamicRenderingEnabled == false)
         {
