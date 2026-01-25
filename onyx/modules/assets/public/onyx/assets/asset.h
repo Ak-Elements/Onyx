@@ -104,12 +104,14 @@ namespace Onyx::Assets
     private:
         void OnLoadFinished(AssetId id, AssetState state) override
         {
-            SetState(state);
             if (state == AssetState::Loaded)
             {
                 Reference<AssetT> ref(this);
                 m_LoadedSignal.Dispatch(AssetHandle<AssetT>( id, ref ));
             }
+            
+            // set to loaded after callbacks to not trigger code that depends on those callback early
+            SetState(state);
         }
 
 #if ONYX_IS_EDITOR
