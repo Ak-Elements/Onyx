@@ -1,10 +1,15 @@
 #pragma once
 
-namespace Onyx::Ui::Gui
+#include <onyx/engine/enginesystem.h>
+
+namespace Onyx::Ui
 {
-    class NotificationSystem
+    class NotificationSystem : public IEngineSystem
     {
     public:
-        void OnUpdate(onyxU64);
+        static constexpr StringId32 TypeId = "Onyx::Ui::NotificationSystem";
+        StringId32 GetTypeId() const override { return TypeId; }
+
+        void Update();
     };
 }
