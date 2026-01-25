@@ -41,12 +41,14 @@ namespace Onyx::Input
 
     constexpr onyxU16 ToIndex(MouseButton button)
     {
+#if ONYX_ASSERTS_ENABLED
         constexpr onyxU16 first = Enums::ToIntegral(MouseButton::First);
         constexpr onyxU16 last = Enums::ToIntegral(MouseButton::Last);
         ONYX_ASSERT(Enums::ToIntegral(button) > first);
         ONYX_ASSERT(Enums::ToIntegral(button) < last);
-
+#endif
         onyxU16 index = Enums::ToIntegral(button) - 1; // mouse buttons first is set to 0
         return index;
+
     }
 }

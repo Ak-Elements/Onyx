@@ -79,20 +79,22 @@ namespace Onyx::Input
     constexpr onyxU16 ToIndex(GameControllerButton button)
     {
         constexpr onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
+ #if ONYX_ASSERTS_ENABLED 
         constexpr onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
         ONYX_ASSERT(Enums::ToIntegral(button) > first);
         ONYX_ASSERT(Enums::ToIntegral(button) < last);
-
+#endif
         return Enums::ToIntegral(button) - first;
     }
 
     constexpr onyxU16 ToIndex(GameControllerAxis axis)
     {
         constexpr onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
+#if ONYX_ASSERTS_ENABLED
         constexpr onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
         ONYX_ASSERT(Enums::ToIntegral(axis) > first);
         ONYX_ASSERT(Enums::ToIntegral(axis) < last);
-
+#endif
         return Enums::ToIntegral(axis) - first;
     }
 }

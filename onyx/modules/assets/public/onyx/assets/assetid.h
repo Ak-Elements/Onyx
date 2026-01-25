@@ -18,19 +18,25 @@ namespace Onyx::Assets
         constexpr AssetId(const char* path)
             : AssetId(StringView(path))
         {
+#if ONYX_IS_DEBUG
             m_Path = path;
+#endif
         }
 
         constexpr AssetId(StringView path)
             : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
+#if ONYX_IS_DEBUG
             , m_Path(path)
+#endif
         {
             
         }
 
         explicit AssetId(const FilePath& path)
             : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path.generic_string()))
+#if ONYX_IS_DEBUG
             , m_Path(path)
+#endif
         {
         }
 

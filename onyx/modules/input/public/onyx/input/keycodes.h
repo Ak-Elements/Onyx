@@ -286,9 +286,11 @@ namespace Onyx::Input
     constexpr auto ToIndex(Key key) -> std::underlying_type_t<Key>
     {
         constexpr onyxU16 first = Enums::ToIntegral(Key::First);
+#if ONYX_ASSERTS_ENABLED 
         constexpr onyxU16 last = Enums::ToIntegral(Key::Last);
         ONYX_ASSERT(Enums::ToIntegral(key) > first);
         ONYX_ASSERT(Enums::ToIntegral(key) < last);
+#endif
 
         onyxU16 index = Enums::ToIntegral(key) - first;
         return index;
