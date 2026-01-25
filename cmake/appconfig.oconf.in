@@ -16,8 +16,14 @@
         },
         {
             "typeId": {
-                "id": "d6c1b5f5",
-                "string": "Onyx::Graphics::WindowSystem"
+                "id": "1ee5fbc5",
+                "string": "Onyx::Input::InputModule"
+            }
+        },
+        {
+            "typeId": {
+                "id": "edd9e218",
+                "string": "Onyx::Platform::PlatformSystem"
             },
             "settings": {
                 "size":[1600,900],
@@ -37,14 +43,8 @@
         },
         {
             "typeId": {
-                "id": "1ee5fbc5",
-                "string": "Onyx::Input::InputModule"
-            }
-        },
-        {
-            "typeId": {
-                "id": "34bcbf03",
-                "string": "Onyx::Input::InputActionModule"
+                "id": "871a9079",
+                "string": "Onyx::InputActions::InputActionSystem"
             }
         },
         {
