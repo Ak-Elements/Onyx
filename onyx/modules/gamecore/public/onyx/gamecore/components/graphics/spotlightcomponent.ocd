@@ -1,13 +1,13 @@
 SpotLightComponent
 {
-    onyxF32 Intensity = 1.0f
-    onyxF32 AngleAttenuation = 1.0f
+    onyxF32 Intensity = 1.0
+    onyxF32 AngleAttenuation = 1.0
 
     [Editor(Color)]
-    Vector3f32 Color = { 1.0f, 1.0f, 1.0f }
-    onyxF32 Range = 0.0f
+    Vector3f32 Color = { 1.0, 1.0, 1.0 }
+    onyxF32 Range = 0.0
 
-    onyxF32 Angle = 0.0f
-    onyxF32 Falloff 0.1f
+    onyxF32 Angle = 0.0
+    onyxF32 Falloff 0.1
     bool IsShadowCasting = true
 };
