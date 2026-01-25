@@ -290,6 +290,9 @@ namespace Onyx::Graphics::Vulkan
             case TransferSource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             case TransferDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         }
+
+		ONYX_ASSERT(false, "Unhandled Layout.");
+		return VK_IMAGE_LAYOUT_UNDEFINED;
     }
 }
 

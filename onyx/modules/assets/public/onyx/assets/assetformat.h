@@ -10,8 +10,5 @@ namespace Onyx::Assets
    };
 
     template <typename T>
-    concept HasAssetFormat = requires
-    {
-        std::same_as<decltype(T::Format), AssetFormat>;
-    };
+    concept HasAssetFormat = std::same_as<decltype(T::Format), AssetFormat>;
 }
