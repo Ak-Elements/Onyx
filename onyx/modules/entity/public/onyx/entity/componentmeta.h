@@ -23,7 +23,6 @@ namespace Onyx::Entity
 
         template <typename T>
         concept IsFlagComponent = std::is_empty_v<T>;
-
     }
 
     class EntityRegistry;
