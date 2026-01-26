@@ -153,7 +153,7 @@ namespace Onyx::Editor::SceneEditor
         Ui::TreeItem root;
         for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
         {
-            if ( componentMeta->IsTransient() || (componentMeta->IsRuntimeOnly() ) )
+            if ( componentMeta->IsTransient() || (componentMeta->IsCodeOnly() ) )
             {
                 continue;
             }
