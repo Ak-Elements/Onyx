@@ -30,10 +30,10 @@
 
 namespace Onyx::Editor
 {
-    InputActionSettingsWindow::InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem)
-        : m_AssetSystem(&assetSystem)
-        , m_InputSystem(&inputSystem)
+    void InputActionSettingsWindow::OnOpen()
     {
+        Input::InputSystem& inputSystem = GetEngineSystem<Input::InputSystem>();
+
         inputSystem.OnMouseAxisChange().Connect<&InputActionSettingsWindow::OnMouseAxisChange>(this);
         inputSystem.OnMouseButton().Connect<&InputActionSettingsWindow::OnMouseButton>(this);
         inputSystem.OnMousePositionChange().Connect<&InputActionSettingsWindow::OnMousePositionChange>(this);
@@ -43,14 +43,16 @@ namespace Onyx::Editor
 
     }
 
-    InputActionSettingsWindow::~InputActionSettingsWindow()
+    void InputActionSettingsWindow::OnClose()
     {
-        m_InputSystem->OnMouseAxisChange().Disconnect(this);
-        m_InputSystem->OnMouseButton().Disconnect(this);
-        m_InputSystem->OnMousePositionChange().Disconnect(this);
-        m_InputSystem->OnKey().Disconnect(this);
-        m_InputSystem->OnControllerAxisChange().Disconnect(this);
-        m_InputSystem->OnControllerButton().Disconnect(this);
+        Input::InputSystem& inputSystem = GetEngineSystem<Input::InputSystem>();
+
+        inputSystem.OnMouseAxisChange().Disconnect(this);
+        inputSystem.OnMouseButton().Disconnect(this);
+        inputSystem.OnMousePositionChange().Disconnect(this);
+        inputSystem.OnKey().Disconnect(this);
+        inputSystem.OnControllerAxisChange().Disconnect(this);
+        inputSystem.OnControllerButton().Disconnect(this);
     }
 
     void InputActionSettingsWindow::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
@@ -71,6 +73,7 @@ namespace Onyx::Editor
         {
             if (BeginMenuBar())
             {
+                Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
                 if (ImGui::BeginMenu(Localization::Generic::File.Get().data()))
                 {
                     if (ImGui::MenuItem(Localization::Generic::Open.Get().data()))
@@ -79,14 +82,14 @@ namespace Onyx::Editor
                         if (FileSystem::FileDialog::OpenFileDialog(path, "Input actions asset", InputActions::InputActionsSerializer::Extensions))
                         {
                             Assets::AssetId assetId(path);
-                            m_AssetSystem->GetAssetUnmanaged(assetId, m_EditableCopy);
+                            assetSystem.GetAssetUnmanaged(assetId, m_EditableCopy);
                             m_EditableCopy->GetOnLoadedEvent().Connect<&InputActionSettingsWindow::OnInputAssetLoaded>(this);
                         }
                     }
 
                     if (ImGui::MenuItem(Localization::Generic::Save.Get().data()))
                     {
-                        m_AssetSystem->SaveAsset(m_EditableCopy);
+                        assetSystem.SaveAsset(m_EditableCopy);
                     }
 
                     if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
@@ -94,7 +97,7 @@ namespace Onyx::Editor
                         FilePath path;
                         if (FileSystem::FileDialog::SaveFileDialog(path, "Input actions asset", InputActions::InputActionsSerializer::Extensions))
                         {
-                            m_AssetSystem->SaveAssetAs(path, m_EditableCopy);
+                            assetSystem.SaveAssetAs(path, m_EditableCopy);
                         }
                     }
 

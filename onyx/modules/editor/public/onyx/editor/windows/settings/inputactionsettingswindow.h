@@ -32,16 +32,14 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringView WindowId = "InputActionSettings";
-
-        InputActionSettingsWindow(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem);
-        ~InputActionSettingsWindow() override;
-
+        static constexpr StringView WindowCategory = "Input";
+        
         StringView GetWindowId() override { return WindowId; }
 
-        // TODO: Replace with an asset handle
-        //void SetInputActionsFile(Reference<Application::InputActionsAsset>& actionMapAsset);
     private:
-        void OnRender(Ui::ImGuiSystem& system) override;
+        void OnOpen() override;
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnClose() override;
 
         void OnMouseAxisChange(const Input::MouseAxisEvent& event);
         void OnMouseButton(const Input::MouseButtonEvent& event);
@@ -68,9 +66,6 @@ namespace Onyx::Editor
         InputActions::InputBinding& GetSelectedInputBinding();
 
     private:
-        Assets::AssetSystem* m_AssetSystem = nullptr;
-        Input::InputSystem* m_InputSystem = nullptr;
-
         // Copy of InputActionAsset to edit until save
         Assets::AssetHandle<InputActions::InputActionsAsset> m_EditableCopy;
       

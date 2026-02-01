@@ -26,7 +26,7 @@ namespace Onyx::Application::Debug
             return static_cast<T&>(*Items.emplace_back(MakeUnique<T>(std::forward<_Types>(args)...)));
         }
     private:
-        void OnRender(Ui::ImGuiSystem& system) override;
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
     private:
         DynamicArray<UniquePtr<StatusBarOverlayItem>> Items;
         Vector2u32 Position;

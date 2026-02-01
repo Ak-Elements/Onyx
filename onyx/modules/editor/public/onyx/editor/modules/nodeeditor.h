@@ -29,7 +29,9 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringView WindowId = "NodeGraphEditor";
-        NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, const Localization::LocalizationModule& localizationModule, InputActions::InputActionSystem& inputActionSystem);
+        static constexpr StringView WindowCategory = "Window";
+
+        NodeGraphEditorWindow();
         ~NodeGraphEditorWindow() override;
 
         StringView GetWindowId() override { return WindowId; }
@@ -38,7 +40,7 @@ namespace Onyx::Editor
         void SetContext(T&& context)
         {
             m_EditorContext = std::forward<T>(context);
-            m_EditorContext->SetLocalizationModule(*m_LocalizationModule);
+            m_EditorContext->SetLocalizationModule(GetEngineSystem<Localization::LocalizationModule>());
             m_EditorContext->OnLoaded.Connect<&NodeGraphEditorWindow::OnGraphLoaded>(this);
             m_EditorContext->OnSaved.Connect<&NodeGraphEditorWindow::OnGraphSaved>(this);
             m_EditorContext->LoadEditorMetaDataFunctor.Connect<&NodeGraphEditorWindow::LoadEditorMetaData>(this);
@@ -52,7 +54,7 @@ namespace Onyx::Editor
         void OnOpen() override;
         void OnClose() override;
 
-        void OnRender(Ui::ImGuiSystem& system) override;
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
         void RenderMenuBar();
 
     private:
@@ -138,10 +140,6 @@ namespace Onyx::Editor
         };
 
         CreateNewNodeData m_CreateNodeData;
-        
-        Assets::AssetSystem* m_AssetSystem;
-        InputActions::InputActionSystem* m_InputActionSystem;
-        const Localization::LocalizationModule* m_LocalizationModule = nullptr;
 
         ax::NodeEditor::EditorContext* m_Context = nullptr;
         UniquePtr<GraphEditorContext> m_EditorContext;

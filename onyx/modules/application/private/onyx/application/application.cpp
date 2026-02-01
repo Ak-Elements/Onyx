@@ -21,6 +21,8 @@
 
 #include <onyx/platform/platformsystem.h>
 
+#include <onyx/application/debug/gui/keyboardoverlay.h>
+
 namespace
 {
     const char* const sl_CPU_Frame = "CPU";
@@ -124,9 +126,6 @@ namespace Onyx::Application
         // Remove asset system first so we release all loaded resource references
         RemoveModule<Assets::AssetSystem>();
 
-        // TODO: Fix
-        //GetSystem<Graphics::WindowSystem>().GetMainWindow().RemoveOnCloseHandler(this, &Application::OnWindowClose);
-
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
         {
@@ -168,8 +167,7 @@ namespace Onyx::Application
             {
                 Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
                 imGuiSystem.OnBeginFrame(frameContext);
-            }
-            
+            }      
 #endif
 
             {

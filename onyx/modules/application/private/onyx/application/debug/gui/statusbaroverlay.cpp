@@ -12,7 +12,7 @@
 
 namespace Onyx::Application::Debug
 {
-    void StatusBarOverlay::OnRender(Ui::ImGuiSystem& /*system*/)
+    void StatusBarOverlay::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
     {
         ::ImGuiWindow* window = ImGui::FindWindowByName("SceneView");
         if (window != nullptr)

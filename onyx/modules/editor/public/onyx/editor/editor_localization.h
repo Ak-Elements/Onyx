@@ -35,6 +35,11 @@ namespace Onyx::Localization
             {
                 inline LocalizedString Label;
             }
+
+            namespace Debug
+            {
+                inline LocalizedString Label;
+            }
         }
 
         // Scene Editor

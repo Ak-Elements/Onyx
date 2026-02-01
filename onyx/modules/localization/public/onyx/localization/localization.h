@@ -34,6 +34,5 @@ namespace Onyx::Localization
 #endif
     }
 
-
     void InitLocalization(const LocalizationModule& localizationModule);
 }

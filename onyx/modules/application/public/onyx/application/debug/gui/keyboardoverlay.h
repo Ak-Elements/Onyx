@@ -2,19 +2,34 @@
 
 #if ONYX_UI_MODULE && ONYX_USE_IMGUI
 
+#include <onyx/ui/imguiwindow.h>
+
 namespace Onyx::Input
 {
     enum class Key : onyxU16;
-    class InputSystem;
+}
+
+namespace Onyx::Ui
+{
+    class ImGuiSystem;
 }
 
 namespace Onyx::Application::Debug
 {
-    class KeyboardOverlay
+    class KeyboardOverlay : public Ui::ImGuiWindow
     {
     public:
+        static constexpr StringView WindowId = "KeyboardOverlay";
+        static constexpr StringView WindowCategory = "Debug";
+
+        StringView GetWindowId() override { return WindowId; }
+
         KeyboardOverlay();
-        void DrawImGui(const Input::InputSystem& inputSystem);
+
+    private:
+        void OnOpen() override;
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        
     private:
         struct KeyData
         {

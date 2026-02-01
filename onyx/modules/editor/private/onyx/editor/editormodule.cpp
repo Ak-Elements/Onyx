@@ -51,9 +51,9 @@ namespace Onyx::Editor
 
         imguiSystem.OpenWindow<EditorMainWindow>();
         imguiSystem.OpenWindow<StartupWindow>();
-        imguiSystem.RegisterWindow<SceneEditorWindow>(gameCore, assetSystem, localizationModule, graphicsSystem, inputActionSystem);
-        imguiSystem.RegisterWindow<NodeGraphEditorWindow>(assetSystem, localizationModule, inputActionSystem);
-        imguiSystem.RegisterWindow<InputActionSettingsWindow>(assetSystem, inputSystem);
+        imguiSystem.RegisterWindow<SceneEditorWindow>();
+        imguiSystem.RegisterWindow<NodeGraphEditorWindow>();
+        imguiSystem.RegisterWindow<InputActionSettingsWindow>();
     }
 
     EditorSystem::~EditorSystem() = default;

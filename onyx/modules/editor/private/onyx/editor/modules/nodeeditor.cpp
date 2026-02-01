@@ -69,11 +69,8 @@ namespace Onyx::Editor
 
     
 
-    NodeGraphEditorWindow::NodeGraphEditorWindow(Assets::AssetSystem& assetSystem, const Localization::LocalizationModule& localizationModule, InputActions::InputActionSystem& inputActionSystem)
-        : m_AssetSystem(&assetSystem)
-        , m_InputActionSystem(&inputActionSystem)
-        , m_LocalizationModule(&localizationModule)
-        , m_WindowId(local_WindowId++)
+    NodeGraphEditorWindow::NodeGraphEditorWindow()
+        : m_WindowId(local_WindowId++)
     {
     }
 
@@ -106,9 +103,10 @@ namespace Onyx::Editor
 
         m_Context = ax::NodeEditor::CreateEditor(&config);
 
-        m_InputActionSystem->OnInput<&NodeGraphEditorWindow::OnCopyAction>("Copy"_id64, this);
-        m_InputActionSystem->OnInput<&NodeGraphEditorWindow::OnPasteAction>("Paste"_id64, this);
-        m_InputActionSystem->OnInput<&NodeGraphEditorWindow::OnDeleteAction>("Delete"_id64, this);
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>("Copy"_id64, this);
+        inputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>("Paste"_id64, this);
+        inputActionSystem.OnInput<&NodeGraphEditorWindow::OnDeleteAction>("Delete"_id64, this);
     }
 
     void NodeGraphEditorWindow::OnClose()
@@ -120,10 +118,11 @@ namespace Onyx::Editor
         m_RerouteNodes.clear();
         m_RerouteLinks.clear();
 
-        m_InputActionSystem->Disconnect(this);
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.Disconnect(this);
     }
 
-    void NodeGraphEditorWindow::OnRender(Ui::ImGuiSystem& system)
+    void NodeGraphEditorWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
     {
         if ((m_Context == nullptr) || (m_EditorContext == nullptr))
         {
@@ -141,7 +140,7 @@ namespace Onyx::Editor
             SetWindowFlags(ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar);
         }
 
-        Optional<EditorMainWindow*> mainWindowOptional = system.GetWindow<EditorMainWindow>();
+        Optional<EditorMainWindow*> mainWindowOptional = imguiSystem.GetWindow<EditorMainWindow>();
         if (mainWindowOptional.has_value())
         {
             EditorMainWindow& mainWindow = *mainWindowOptional.value();
@@ -668,8 +667,9 @@ namespace Onyx::Editor
                 }
 
                 // look for any aliases
+                Localization::LocalizationModule& localizationSystem = GetEngineSystem<Localization::LocalizationModule>();
                 Localization::LocalizationId aliasLocalizationId("alias", nodeMetaData.TypeId);
-                Optional<StringView> localizedAliasesOptional = m_LocalizationModule->TryGetLocalized(aliasLocalizationId);
+                Optional<StringView> localizedAliasesOptional = localizationSystem.TryGetLocalized(aliasLocalizationId);
                 if (localizedAliasesOptional.has_value())
                 {
                     StringView localizedAliases = *localizedAliasesOptional;
@@ -804,8 +804,8 @@ namespace Onyx::Editor
                 return;
             }
 
-            ONYX_ASSERT(m_AssetSystem != nullptr);
-            m_EditorContext->Save(*m_AssetSystem, dummyAsset);
+            Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+            m_EditorContext->Save(assetSystem, dummyAsset);
         }
     }
 
@@ -814,8 +814,8 @@ namespace Onyx::Editor
         FilePath path;
         if (FileSystem::FileDialog::OpenFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
-            ONYX_ASSERT(m_AssetSystem != nullptr);
-            m_EditorContext->Load(*m_AssetSystem, path);
+            Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+            m_EditorContext->Load(assetSystem, path);
         }
     }
 

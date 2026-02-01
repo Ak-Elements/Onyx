@@ -1,5 +1,6 @@
 #pragma once
 #include <onyx/rhi/graphicshandles.h>
+#include <onyx/ui/imguiwindow.h>
 
 namespace Onyx::Editor
 {
@@ -10,8 +11,6 @@ namespace Onyx::Entity
 {
     class ComponentFactory;
 }
-
-struct ImGuiWindow;
 
 namespace Onyx::Volume
 {
@@ -32,30 +31,38 @@ namespace Onyx::InputActions
     struct InputActionEvent;
 }
 
+struct ImGuiWindow;
+
 namespace Onyx::Editor::SceneEditor
 {
     class SceneEditorWindow;
 
-    class TerrainPanel
+    class TerrainPanel : public Ui::ImGuiWindow
     {
     public:
+        static constexpr StringView WindowId = "TerrainPanel";
+        static constexpr StringView WindowCategory = "Panel";
+
         static constexpr StringId64 HIT_BUFFER_RESOURCE_ID = "hit buffer";
 
-        TerrainPanel(InputActions::InputActionSystem& inputActionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore);
-        ~TerrainPanel();
+        StringView GetWindowId() override { return WindowId; }
 
         void SetSceneViewPanelId(onyxU32 panelId)
         {
             m_SceneViewPanelId = panelId;
             m_SceneViewPanelId = 0;
         }
+ 
+    private:
+        void OnOpen() override;
+        void OnClose() override;
 
-        void Render(GameCore::Scene& scene);
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        
         void RenderPropertiesPanel();
         void RenderTabs();
 
-    private:
-        void RenderToolbar(ImGuiWindow* sceneViewWindow);
+        void RenderToolbar(::ImGuiWindow* sceneViewWindow);
         void RenderSelectedTabOperations();
 
         void TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewPort);
@@ -66,9 +73,7 @@ namespace Onyx::Editor::SceneEditor
         void OnTerrainPanelBrushSizeInput(const InputActions::InputActionEvent& inputEvent);
 
     private:
-        Graphics::GraphicsSystem& m_GraphicsSystem;
-        GameCore::GameCoreSystem& m_GameCore;
-
+        GameCore::Scene* m_CurrentScene = nullptr;
         onyxU32 m_SceneViewPanelId = 0;
 
         // should be a frame/transient buffer

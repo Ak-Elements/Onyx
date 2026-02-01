@@ -547,8 +547,9 @@ namespace Onyx::Ui
 	}
 
 	
-    ImGuiSystem::ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem)
-        : m_PlatformSystem(&platformSystem)
+    ImGuiSystem::ImGuiSystem(IEngine& engine, Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem)
+        : m_Engine(&engine)
+        , m_PlatformSystem(&platformSystem)
         , m_InputSystem(&inputSystem)
     {
 		ImGui::CreateContext();
@@ -856,11 +857,11 @@ namespace Onyx::Ui
 		ImGui::EndFrame();
     }
 
-    Optional<ImGuiWindow*> ImGuiSystem::GetWindow(StringView windowName)
+    Optional<ImGuiWindow*> ImGuiSystem::GetWindow(StringId32 windowId)
     {
         auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
         {
-            return window->GetWindowId() == windowName;
+            return StringId32(window->GetWindowId()) == windowId;
         });
 
         if (it == m_Windows.end())

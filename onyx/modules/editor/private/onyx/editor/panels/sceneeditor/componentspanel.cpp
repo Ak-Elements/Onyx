@@ -20,26 +20,21 @@
 
 namespace Onyx::Editor::SceneEditor
 {
-    ComponentsPanel::ComponentsPanel(Localization::LocalizationModule& localizationModule)
-        : m_LocalizationModule(&localizationModule)
-    {
-    }
-
-    void ComponentsPanel::Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
+    void ComponentsPanel::Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, Localization::LocalizationModule& localizationModule)
     {
         ImGui::Checkbox(Localization::Editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll);
 
-        DrawSelectedEntityComponents(componentFactory, scene);
+        DrawSelectedEntityComponents(componentFactory, scene, localizationModule);
 
         Entity::EntityRegistry& registry = scene.GetRegistry();
         auto selectedEntities = registry.GetView<SelectedComponent>();
         if (selectedEntities.empty() == false)
         {
-            DrawCreateComponentContextMenu(componentFactory, scene);
+            DrawCreateComponentContextMenu(componentFactory, scene, localizationModule);
         }
     }
 
-    void ComponentsPanel::DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
+    void ComponentsPanel::DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule)
     {
         Entity::EntityRegistry& registry = scene.GetRegistry();
 
@@ -70,7 +65,7 @@ namespace Onyx::Editor::SceneEditor
 
                         
                         Onyx::Localization::LocalizationId localizationId(componentTypeId);
-                        Localization::LocalizedString componentName = m_LocalizationModule->GetLocalized(localizationId);
+                        Localization::LocalizedString componentName = localizationModule.GetLocalized(localizationId);
                         if (Ui::ContextMenuHeader(componentName, ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen))
                         {
                             ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY );
@@ -114,7 +109,7 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    void ComponentsPanel::DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene)
+    void ComponentsPanel::DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule)
     {
         if (ImGui::BeginPopupContextWindow("AddComponentModal", ImGuiPopupFlags_MouseButtonRight))
         {
@@ -134,7 +129,7 @@ namespace Onyx::Editor::SceneEditor
             if (ImGui::BeginChild("##ScrollList", ImVec2(350.0f, 350.0f)))
             {
                 Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
-                Ui::TreeItem root = BuildComponentTree(componentFactory, scene, s_SearchString);
+                Ui::TreeItem root = BuildComponentTree(componentFactory, scene, localizationModule, s_SearchString);
                 //bool hasNoMenuItem = root.Children.empty();
                 Ui::RenderTreeView("componentMenu", root, flags);
 
@@ -148,7 +143,7 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    Ui::TreeItem ComponentsPanel::BuildComponentTree(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, StringView searchString) const
+    Ui::TreeItem ComponentsPanel::BuildComponentTree(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule, StringView searchString) const
     {
         Ui::TreeItem root;
         for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
@@ -159,7 +154,7 @@ namespace Onyx::Editor::SceneEditor
             }
 
             Localization::LocalizationId localizationId(componentTypeId);
-            Localization::LocalizedString localizedString = m_LocalizationModule->GetLocalized(localizationId);
+            Localization::LocalizedString localizedString = localizationModule.GetLocalized(localizationId);
             StringView componentName = localizedString.Get();
             if (IgnoreCaseFind(componentName, searchString) == StringView::npos)
             {

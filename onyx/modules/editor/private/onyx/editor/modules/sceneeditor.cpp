@@ -14,6 +14,7 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/localization/localization.h>
+#include <onyx/localization/localizationmodule.h>
 #include <onyx/ui/imguisystem.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
@@ -34,14 +35,8 @@ namespace Onyx::Editor
         onyxU32 local_WindowId = 0;
     }
 
-    SceneEditorWindow::SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, InputActions::InputActionSystem& inputActionSystem)
-        : m_GameCore(gameCore)
-        , m_GraphicsSystem(graphicsSystem)
-        , m_InputActionSystem(inputActionSystem)
-        , m_AssetSystem(&assetSystem)
-        , m_ComponentsPanel(localizationModule)
-        , m_TerrainPanel(inputActionSystem, graphicsSystem, gameCore)
-        , m_WindowId(local_WindowId++)
+    SceneEditorWindow::SceneEditorWindow()
+        : m_WindowId(local_WindowId++)
     {
         m_WindowClass = new ImGuiWindowClass();
         m_WindowClass->DockingAllowUnclassed = false;
@@ -76,7 +71,8 @@ namespace Onyx::Editor
         m_Dockspace.SetId(dockspaceID);
         m_Dockspace.SetWindowClass(*m_WindowClass);
 
-        m_InputActionSystem.SetCurrentInputActionMap(StringId32("sceneeditor"));
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.SetCurrentInputActionMap(StringId32("sceneeditor"));
 
         if (m_Scene.IsValid() == false)
         {
@@ -84,8 +80,9 @@ namespace Onyx::Editor
 
             if (startupLevel.empty())
             {
-                m_Scene = m_AssetSystem->Create<GameCore::Scene>();
-                m_AssetSystem->GetAsset("engine:/rendergraphs/default.orendergraph", m_Scene->GetRenderGraphRef());
+                Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+                m_Scene = assetSystem.Create<GameCore::Scene>();
+                assetSystem.GetAsset("engine:/rendergraphs/default.orendergraph", m_Scene->GetRenderGraphRef());
                 OnSceneLoaded(m_Scene);
             }
             else
@@ -93,15 +90,15 @@ namespace Onyx::Editor
                 LoadScene(startupLevel);
             }
         }
-
     }
 
     void SceneEditorWindow::OnClose()
     {
-        m_InputActionSystem.Disconnect(this);
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.Disconnect(this);
     }
 
-    void SceneEditorWindow::OnRender(Ui::ImGuiSystem& system)
+    void SceneEditorWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
     {
         if (IsLoading())
             return;
@@ -115,9 +112,11 @@ namespace Onyx::Editor
             SetWindowFlags(ImGuiWindowFlags_MenuBar);
         }
 
-        m_GameCore.SetScene(m_Scene);
+        // TODO: Is this needed?
+        GameCore::GameCoreSystem& gameCore = GetEngineSystem<GameCore::GameCoreSystem>();
+        gameCore.SetScene(m_Scene);
 
-        Optional<EditorMainWindow*> mainWindowOptional = system.GetWindow<EditorMainWindow>();
+        Optional<EditorMainWindow*> mainWindowOptional = imguiSystem.GetWindow<EditorMainWindow>();
         if (mainWindowOptional.has_value())
         {
             EditorMainWindow& mainWindow = *mainWindowOptional.value();
@@ -139,6 +138,8 @@ namespace Onyx::Editor
                 return;
 
             RenderSceneViewport();
+          
+            
             RenderEntitiesPanel();
             RenderComponentsPanel();
         }
@@ -175,13 +176,17 @@ namespace Onyx::Editor
     
         if (ImGui::BeginMenu(Format::Format("{}###File", Localization::Generic::File)))
         {
+            Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+
             if (ImGui::MenuItem(Localization::Generic::Open.Get().data()))
             {
                 m_IsLoading = true;
                 if (m_Scene.IsValid())
                 {
                     m_Scene->GetOnLoadedEvent().Disconnect(this);
-                    m_InputActionSystem.Disconnect(this);
+
+                    InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+                    inputActionSystem.Disconnect(this);
                 }
 
                 FilePath path;
@@ -193,7 +198,7 @@ namespace Onyx::Editor
 
             if (ImGui::MenuItem(Localization::Generic::Save.Get().data()))
             {
-                m_AssetSystem->SaveAsset(m_Scene);
+                assetSystem.SaveAsset(m_Scene);
             }
 
             if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
@@ -201,7 +206,7 @@ namespace Onyx::Editor
                 FilePath path;
                 if (FileSystem::FileDialog::SaveFileDialog(path, "Scene", GameCore::SceneSerializer::Extensions))
                 {
-                    m_AssetSystem->SaveAssetAs(path, m_Scene);
+                    assetSystem.SaveAssetAs(path, m_Scene);
                 }
             }
             
@@ -228,7 +233,6 @@ namespace Onyx::Editor
 
         ImGui::SetNextWindowClass(m_WindowClass);
         //ImGui::SetNextWindowDockID(dockspace);
-        m_TerrainPanel.SetSceneViewPanelId(ImGui::GetID(m_SceneViewPanelId.c_str()));
         if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::SceneEditor::SceneViewport, m_SceneViewPanelId)))
         {
             m_ViewportBounds.Position = { static_cast<onyxS16>(ImGui::GetCursorPos().x), static_cast<onyxS16>(ImGui::GetCursorPos().y) };
@@ -239,9 +243,7 @@ namespace Onyx::Editor
 
             RenderImGuizmo(Vector2f32(static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1])));
         }
-
-        RenderTerrainPanel();
-
+        
         ImGui::End();
     }
 
@@ -261,14 +263,10 @@ namespace Onyx::Editor
         ImGui::SetNextWindowClass(m_WindowClass);
         if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::ComponentsPanel::Title, m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
         {
-            m_ComponentsPanel.Render(m_GameCore.GetComponentFactory(), *m_Scene);
+            GameCore::GameCoreSystem& gameCoreSystem = GetEngineSystem<GameCore::GameCoreSystem>();
+            m_ComponentsPanel.Render(gameCoreSystem.GetComponentFactory(), *m_Scene, GetEngineSystem<Localization::LocalizationModule>());
         }
         ImGui::End();
-    }
-
-    void SceneEditorWindow::RenderTerrainPanel()
-    {
-        m_TerrainPanel.Render(*m_Scene);
     }
 
     void SceneEditorWindow::RenderImGuizmo(const Vector2f32& viewportExtents)
@@ -432,8 +430,10 @@ namespace Onyx::Editor
 
     void SceneEditorWindow::LoadScene(Assets::AssetId sceneAssetId)
     {
+        Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+
         Assets::AssetHandle<GameCore::Scene> newScene;
-        m_AssetSystem->GetAssetUnmanaged(sceneAssetId, newScene);
+        assetSystem.GetAssetUnmanaged(sceneAssetId, newScene);
         newScene->GetOnLoadedEvent().Connect<&SceneEditorWindow::OnSceneLoaded>(this);
     }
 
@@ -451,21 +451,25 @@ namespace Onyx::Editor
         GameCore::CameraComponent& camera = registry.AddComponent<GameCore::CameraComponent>(m_EditorCameraEntity);
 
         camera.Camera.SetPerspective(45.0f, 0.1f, 65536);
-        camera.Camera.SetViewportExtents(m_GraphicsSystem.GetSwapchainExtent());
+
+        // TODO: Should be viewport extents
+        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
+        camera.Camera.SetViewportExtents(graphicsSystem.GetSwapchainExtent());
         const GameCore::FreeCameraControllerComponent& freeCameraController = registry.AddComponent<GameCore::FreeCameraControllerComponent>(m_EditorCameraEntity);
         GameCore::FreeCameraRuntimeComponent& runtimeComponent = registry.AddComponent<GameCore::FreeCameraRuntimeComponent>(m_EditorCameraEntity);
         runtimeComponent.Velocity = freeCameraController.BaseVelocity;
 
-        m_GraphicsSystem.SetCamera(camera.Camera);
+        graphicsSystem.SetCamera(camera.Camera);
 
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedInput>("CameraSpeed"_id64, this);
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraSlowDown>("CameraSlowDown"_id64, this);
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnCameraSpeedUp>("CameraSpeedUp"_id64, this);
+        InputActions::InputActionSystem& inputActionsSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraSpeedInput>("CameraSpeed"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraSlowDown>("CameraSlowDown"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraSpeedUp>("CameraSpeedUp"_id64, this);
 
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoTranslate"_id64, this);
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoRotate"_id64, this);
-        m_InputActionSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoTranslate"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoRotate"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);
     }
 }

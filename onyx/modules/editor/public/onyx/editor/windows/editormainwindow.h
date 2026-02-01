@@ -7,14 +7,15 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringView WindowId = "MainWindow";
+        static constexpr StringView WindowCategory = "Window";
 
         StringView GetWindowId() override { return WindowId; }
 
         onyxU32 GetCenterDockId() const { return m_CenterDockId; }
 
     private:
-        void OnRender(Ui::ImGuiSystem& system) override;
-        void RenderMenuBar(Ui::ImGuiSystem& system);
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void RenderMenuBar(Ui::ImGuiSystem& imguiSystem);
 
     private:
         onyxU32 m_CenterDockId = 0;

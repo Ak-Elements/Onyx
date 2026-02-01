@@ -669,11 +669,12 @@ namespace
 
 namespace Onyx::Editor::SceneEditor
 {
-    TerrainPanel::TerrainPanel(InputActions::InputActionSystem& actionSystem, Graphics::GraphicsSystem& graphicsSystem, GameCore::GameCoreSystem& gameCore)
-        : m_GraphicsSystem(graphicsSystem)
-        , m_GameCore(gameCore)
+    void TerrainPanel::OnOpen()
     {
-        actionSystem.OnInput<&TerrainPanel::OnTerrainPanelBrushSizeInput>("TerrainBrushScale"_id64, this);
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
+
+        inputActionSystem.OnInput<&TerrainPanel::OnTerrainPanelBrushSizeInput>("TerrainBrushScale"_id64, this);
 
         // Should be transient buffers
         Graphics::BufferProperties ssboBufferProps;
@@ -706,15 +707,24 @@ namespace Onyx::Editor::SceneEditor
         ssboBufferProps.m_IsWritable = true;
         graphicsSystem.CreateBuffer(m_CollapseRequestsBuffer, ssboBufferProps);
 
-        m_Tools.push_back(MakeUnique<SculptTerrainTool>(graphicsSystem));
-        m_Tools.push_back(MakeUnique<PrimitivesTerrainTool>(graphicsSystem));
+        if (m_Tools.empty())
+        {
+            m_Tools.push_back(MakeUnique<SculptTerrainTool>(graphicsSystem));
+            m_Tools.push_back(MakeUnique<PrimitivesTerrainTool>(graphicsSystem));
+        }
     }
 
-    TerrainPanel::~TerrainPanel() = default;
-
-    void TerrainPanel::Render(GameCore::Scene& scene)
+    void TerrainPanel::OnClose()
     {
-        ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName("Scene###SceneViewPanel0");
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.Disconnect(this);
+    }
+
+    void TerrainPanel::OnRender(Ui::ImGuiSystem& imguiSystem)
+    {
+        ONYX_ASSERT(m_CurrentScene != nullptr);
+        
+        ::ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName("Scene###SceneViewPanel0");
         if (sceneViewWindow == nullptr)
         {
             return;
@@ -738,7 +748,7 @@ namespace Onyx::Editor::SceneEditor
             return;
         }
 
-        Entity::EntityRegistry& registry = scene.GetRegistry();
+        Entity::EntityRegistry& registry = m_CurrentScene->GetRegistry();
         auto runtimeComponentsView = registry.GetView<Volume::TerrainSettingsComponent, Volume::TerrainWorldOctreeComponent, const Volume::VolumeGenerationComponent>();
 
         if (runtimeComponentsView.begin() == runtimeComponentsView.end())
@@ -763,7 +773,8 @@ namespace Onyx::Editor::SceneEditor
 
         Rect2f32 sceneViewport{ sceneViewWindow->Pos.x, sceneViewWindow->Pos.y, sceneViewWindow->Viewport->Size.x,sceneViewWindow->Viewport->Size.y };
 
-        Graphics::CommandBuffer& computeCommandBuffer = m_GraphicsSystem.GetCommandBuffer(m_GraphicsSystem.GetFrameIndex(), true);
+        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
+        Graphics::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer(graphicsSystem.GetFrameIndex(), true);
         TraceTerrain(computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport);
 
         bool hasClickedLeft = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
@@ -794,7 +805,8 @@ namespace Onyx::Editor::SceneEditor
             if (hitData->HasHit)
             {
                 hitData->HasHit = false;
-                m_Tools[m_SelectedTab]->OnHitPositionReadback(scene, m_GameCore.GetComponentFactory(), hitData->HitPositon);
+                const GameCore::GameCoreSystem& gameCoreSystem = GetEngineSystem<GameCore::GameCoreSystem>();
+                m_Tools[m_SelectedTab]->OnHitPositionReadback(*m_CurrentScene, gameCoreSystem.GetComponentFactory(), hitData->HitPositon);
                 registry.AddComponent<Volume::Terrain::InitTerrainFlag>(runtimeComponentsView.front());
             }
 
@@ -819,7 +831,7 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    void TerrainPanel::RenderToolbar(ImGuiWindow* sceneViewWindow)
+    void TerrainPanel::RenderToolbar(::ImGuiWindow* sceneViewWindow)
     {
         ImGuiWindowFlags flags =
             ImGuiWindowFlags_NoResize;
@@ -880,10 +892,11 @@ namespace Onyx::Editor::SceneEditor
 
         ImVec2 mousePos = ImGui::GetMousePos();
         RayTraceTerrainPushConstants constants;
-
+        
+        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
         constants.MousePosition[0] = ((mousePos.x - sceneViewport.Position[0]) / sceneViewport.Extents[0]) * 2.0f - 1.0f;
         constants.MousePosition[1] = (((mousePos.y - sceneViewport.Position[1]) / sceneViewport.Extents[1]) * -2.0f + 1.0f);
-        constants.ViewConstantsAddress = m_GraphicsSystem.GetViewConstantsBuffer().GetGpuAddress();
+        constants.ViewConstantsAddress = graphicsSystem.GetViewConstantsBuffer().GetGpuAddress();
         constants.HitBufferAddress = m_HitBuffer.GetGpuAddress();
         constants.VolumeSourcesList = terrainOctree.VolumeObjects.GetGpuAddress();
         constants.VolumeSourcesData = terrainOctree.VolumeObjectsData.GetGpuAddress();

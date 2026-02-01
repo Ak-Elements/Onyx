@@ -13,6 +13,7 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringView WindowId = "Startup";
+        static constexpr StringView WindowCategory = "Window";
 
         StringView GetWindowId() override { return WindowId; }
 

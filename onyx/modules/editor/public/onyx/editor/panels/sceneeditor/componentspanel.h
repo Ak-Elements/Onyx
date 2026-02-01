@@ -23,19 +23,15 @@ namespace Onyx::Editor::SceneEditor
     class ComponentsPanel
     {
     public:
-        ComponentsPanel(Localization::LocalizationModule& localizationModule);
-
-        void Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene);
+        void Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, Localization::LocalizationModule& localizationModule);
 
     private:
-        void DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene);
-        void DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene);
+        void DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule);
+        void DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule);
 
-        Ui::TreeItem BuildComponentTree(const Entity::ComponentFactory& componentFactor, GameCore::Scene& scene, StringView searchString) const;
+        Ui::TreeItem BuildComponentTree(const Entity::ComponentFactory& componentFactor, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule, StringView searchString) const;
 
     private:
-        Localization::LocalizationModule* m_LocalizationModule = nullptr;
-
         Ui::TreeItem m_ContextMenuTreeRoot;
         bool m_ShowAll = false;
     };

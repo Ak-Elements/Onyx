@@ -18,7 +18,7 @@
 
 namespace Onyx::Editor
 {
-    void EditorMainWindow::OnRender(Ui::ImGuiSystem& system)
+    void EditorMainWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
     {
         ImGui::SetNextWindowPos(ImVec2{ 0, 0 }, ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
@@ -35,7 +35,7 @@ namespace Onyx::Editor
 
         ImGui::PopStyleVar(3);
 
-        RenderMenuBar(system);
+        RenderMenuBar(imguiSystem);
         
         ImVec2 menubarSize = ImGui::GetItemRectSize();
 
@@ -48,7 +48,7 @@ namespace Onyx::Editor
         End();
     }
 
-    void EditorMainWindow::RenderMenuBar(Ui::ImGuiSystem& system)
+    void EditorMainWindow::RenderMenuBar(Ui::ImGuiSystem& imguiSystem)
     {
         BeginMenuBar();
 
@@ -61,12 +61,12 @@ namespace Onyx::Editor
         {
             if (ImGui::MenuItem(Localization::Editor::Windows::StartupTitle.Get().data()))
             {
-                system.OpenWindow<StartupWindow>();
+                imguiSystem.OpenWindow<StartupWindow>();
             }
 
             if (ImGui::MenuItem(Localization::Editor::SceneEditor::Title.Get().data()))
             {
-                system.OpenWindow<SceneEditorWindow>();
+                imguiSystem.OpenWindow<SceneEditorWindow>();
             }
 
             if (ImGui::MenuItem(Localization::Editor::Windows::NodeEditorTitle.Get().data()))
@@ -79,13 +79,13 @@ namespace Onyx::Editor
                 ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
                 ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
 
-                NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
+                NodeGraphEditorWindow& window = imguiSystem.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             }
 
             if (ImGui::MenuItem(Localization::Editor::Windows::RenderGraphEditorTitle.Get().data()))
             {
-                NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
+                NodeGraphEditorWindow& window = imguiSystem.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<RenderGraphEditorContext>());
             }
 
@@ -94,7 +94,7 @@ namespace Onyx::Editor
                 ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
                 ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
 
-                NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
+                NodeGraphEditorWindow& window = imguiSystem.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
             }
 
@@ -121,11 +121,40 @@ namespace Onyx::Editor
         {
             if (ImGui::MenuItem(Localization::Editor::InputActionSettings::Title.Get().data()))
             {
-                system.OpenUniqueWindow<InputActionSettingsWindow>();
+                imguiSystem.OpenUniqueWindow<InputActionSettingsWindow>();
                 //UniquePtr<EditorWindow>& window = m_ActiveWindows.emplace_back(MakeUnique<InputActionSettingsWindow>(m_Application.GetAssetSystem(), m_Application.GetModule<Application::InputSystem>()));
                 //window->Open();
             }
 
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu(Format::Format("{}###Debug", Localization::Editor::MainMenubar::Debug::Label)))
+        {
+            const HashSet<StringId32>& debugWindows = imguiSystem.GetRegisteredWindows("Debug");
+            for (StringId32 windowId : debugWindows)
+            {
+                // TODO: Translate window name
+                StringView windowName = windowId.GetString();
+                ImGuiWindow* window = imguiSystem.GetWindow(windowId).value_or(nullptr);
+                bool isOpen = window != nullptr && window->IsOpen();
+                if (ImGui::Checkbox(windowName.data(), &isOpen))
+                {
+                    if (isOpen)
+                    {
+                        imguiSystem.OpenWindow(windowId);
+                    }
+                    else
+                    {
+                        imguiSystem.CloseWindow(windowId);
+                    }
+                    
+                    //UniquePtr<EditorWindow>& window = m_ActiveWindows.emplace_back(MakeUnique<InputActionSettingsWindow>(m_Application.GetAssetSystem(), m_Application.GetModule<Application::InputSystem>()));
+                    //window->Open();
+                }
+            }
+  
+            
             ImGui::EndMenu();
         }
 

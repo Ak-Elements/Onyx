@@ -35,8 +35,9 @@ namespace Onyx::Editor
     {
     public:
         static constexpr StringView WindowId = "SceneEditor";
+        static constexpr StringView WindowCategory = "Window";
 
-        SceneEditorWindow(GameCore::GameCoreSystem& gameCore, Assets::AssetSystem& assetSystem, Localization::LocalizationModule& localizationModule, Graphics::GraphicsSystem& graphicsSystem, InputActions::InputActionSystem& inputActionSystem);
+        SceneEditorWindow();
         ~SceneEditorWindow() override;
 
         Assets::AssetHandle<GameCore::Scene>& GetScene() { return m_Scene; }
@@ -51,7 +52,7 @@ namespace Onyx::Editor
         void OnOpen() override;
         void OnClose() override;
 
-        void OnRender(Ui::ImGuiSystem& system) override;
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
 
         void RenderSceneViewport();
         void RenderEntitiesPanel();
@@ -81,10 +82,6 @@ namespace Onyx::Editor
 
         Atomic<bool> m_IsLoading = false;
 
-        GameCore::GameCoreSystem& m_GameCore;
-        Graphics::GraphicsSystem& m_GraphicsSystem;
-        InputActions::InputActionSystem& m_InputActionSystem;
-        Assets::AssetSystem* m_AssetSystem;
         ImGuiWindowClass* m_WindowClass;
 
         Assets::AssetHandle<GameCore::Scene> m_Scene;
@@ -92,7 +89,6 @@ namespace Onyx::Editor
         Ui::Dockspace m_Dockspace;
         SceneEditor::EntitiesPanel m_EntitiesPanel;
         SceneEditor::ComponentsPanel m_ComponentsPanel;
-        SceneEditor::TerrainPanel m_TerrainPanel;
 
         Assets::AssetHandle<InputActions::InputActionsAsset> m_LevelEditorActions;
         Entity::EntityId m_EditorCameraEntity = Entity::EntityId(0);

@@ -1,15 +1,27 @@
 #pragma once
 
+#include <onyx/engine/enginesystem.h>
+
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 
 namespace Onyx::Ui
 {
     class ImGuiSystem;
-}
 
-namespace Onyx::Ui
-{
+    enum class WindowPosition
+    {
+        TopLeft,
+        TopCenter,
+        TopRight,
+        CenterLeft,
+        Center,
+        CenterRight,
+        BottomLeft,
+        BottomCenter,
+        BottomRight
+    };
+
     class ImGuiWindow
     {
     public:
@@ -18,9 +30,11 @@ namespace Onyx::Ui
         void Open();
         void Close();
 
-        void Render(ImGuiSystem& system);
+        void Render(ImGuiSystem& imguiSystem);
 
         virtual StringView GetWindowId() = 0;
+        virtual constexpr StringId32 GetWindowCategory() { return "Default"; }
+
         void SetName(const String& newName) { m_Name = newName; }
 
         bool IsOpen() const { return m_IsOpen; }
@@ -29,6 +43,8 @@ namespace Onyx::Ui
         bool IsDocked() const { return m_IsDocked; }
 
         void BringToFront();
+
+        void SetEngine(IEngine& engine) { m_Engine = &engine; }
 
     protected:
         bool Begin();
@@ -40,12 +56,24 @@ namespace Onyx::Ui
         void SetWindowFlags(ImGuiWindowFlags newFlags) { m_Flags = newFlags; }
         ImGuiWindowFlags GetWindowFlags() const { return m_Flags; }
 
+        void SetPosition(Vector2s32 position);
+        void SetPosition(Vector2s32 position, Vector2f32 pivot);
+
+        void SetDefaultPosition(Vector2s32 position);
+        void SetDefaultPosition(Vector2s32 position, Vector2f32 pivot);
+        void SetDefaultPosition(WindowPosition position);
+
         const ImGuiWindowClass& GetWindowClass() const { return m_WindowClass; }
 
+        template <typename T>
+        T& GetEngineSystem() { return m_Engine->GetSystem<T>(); }
+
+        template <typename T>
+        const T& GetEngineSystem() const { return m_Engine->GetSystem<T>(); }
+
     private:
-        virtual void OnRender(ImGuiSystem& system) = 0;
-        
         virtual void OnOpen();
+        virtual void OnRender(ImGuiSystem& imguiSystem) = 0;
         virtual void OnClose();
 
         virtual void OnRenderMainMenuBar();
@@ -54,6 +82,8 @@ namespace Onyx::Ui
         String m_Name;
         ImGuiWindowClass m_WindowClass;
         ImGuiWindowFlags m_Flags;
+
+        IEngine* m_Engine = nullptr;
 
         bool m_IsDocked = false;
         bool m_IsOpen = false;

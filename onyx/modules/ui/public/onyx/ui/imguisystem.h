@@ -54,6 +54,7 @@ namespace Onyx
         {
             //std::is_base_of_v<ImGuiWindow, T>;
             { T::WindowId };
+            { T::WindowCategory };
             { window.Open() } -> std::same_as<void>;
         };
 
@@ -77,7 +78,7 @@ namespace Onyx
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
 
-            ImGuiSystem(Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem);
+            ImGuiSystem(IEngine& engine, Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem);
             ~ImGuiSystem() override;
 
             void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
@@ -86,19 +87,20 @@ namespace Onyx
             void OnRenderFrame(const Graphics::FrameContext& frameContext);
             void OnEndFrame(const Graphics::FrameContext& frameContext);
 
-            template <IsImGuiWindow T, typename... Args>
-            void RegisterWindow(Args&&... args)
+            template <IsImGuiWindow T>
+            void RegisterWindow()
             {
-                constexpr onyxU32 windowTypeId = TypeHash<T>();
+                constexpr StringId32 windowTypeId(T::WindowId);
                 ONYX_ASSERT(m_WindowFactory.contains(windowTypeId) == false);
-                m_WindowFactory[windowTypeId] = [&]()
-                {
-                    return MakeUnique<T>(std::forward<Args>(args)...);
-                };
+                m_WindowFactory[windowTypeId] = []() { return MakeUnique<T>(); };
+
+                constexpr StringId32 windowCategory(T::WindowCategory);
+                HashSet<StringId32>& windowsInCategory = m_WindowsPerCategory[windowCategory];
+                windowsInCategory.emplace(windowTypeId);
             }
 
-            template <IsImGuiWindow T, typename... Args>
-            T& OpenWindow(Args&&... args)
+            template <IsImGuiWindow T>
+            T& OpenWindow()
             {
                 // find first non open window matching the id and reuse
                 auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
@@ -113,26 +115,20 @@ namespace Onyx
                     return static_cast<T&>(*imguiWindow);
                 }
 
-                constexpr onyxU32 windowTypeId = TypeHash<T>();
+                constexpr StringId32 windowTypeId(T::WindowId);
                 auto factoryIt = m_WindowFactory.find(windowTypeId);
                 UniquePtr<ImGuiWindow> newWindow;
                 if (factoryIt == m_WindowFactory.end())
                 {
-                    if constexpr (std::is_constructible<T, Args...>())
-                    {
-                        RegisterWindow<T>(std::forward<Args>(args)...);
-                        newWindow = MakeUnique<T>(std::forward<Args>(args)...);
-                    }
-                    else
-                    {
-                        ONYX_ASSERT(false, "Window is not registered and not constructible with the given arguments");
-                    }
+                    RegisterWindow<T>();
+                    newWindow = MakeUnique<T>();
                 }
                 else
                 {
                     newWindow = factoryIt->second();
                 }
 
+                newWindow->SetEngine(*m_Engine);
                 newWindow->SetName(String(newWindow->GetWindowId()));
                 newWindow->Open();
                 T& newWindowRef = static_cast<T&>(*newWindow);
@@ -140,8 +136,8 @@ namespace Onyx
                 return newWindowRef;
             }
 
-            template <IsImGuiWindow T, typename... Args>
-            T& OpenUniqueWindow(Args&&... args)
+            template <IsImGuiWindow T>
+            T& OpenUniqueWindow()
             {
                 // check if the window is already opened if it is, bring it to the front
                 auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
@@ -157,20 +153,13 @@ namespace Onyx
                 }
 
                 // create window as its not opened yet
-                constexpr onyxU32 windowTypeId = TypeHash<T>();
+                constexpr StringId32 windowTypeId(T::WindowId);
                 auto factoryIt = m_WindowFactory.find(windowTypeId);
                 UniquePtr<ImGuiWindow> newWindow;
                 if (factoryIt == m_WindowFactory.end())
-                {
-                    if constexpr (std::is_constructible<T, Args...>())
-                    {
-                        RegisterWindow<T>(std::forward<Args>(args)...);
-                        newWindow = MakeUnique<T>(std::forward<Args>(args)...);
-                    }
-                    else
-                    {
-                        ONYX_ASSERT(false, "Window is not registered and not constructible with the given arguments");
-                    }
+                { 
+                    RegisterWindow<T>();
+                    newWindow = MakeUnique<T>();
                 }
                 else
                 {
@@ -182,6 +171,39 @@ namespace Onyx
                 T& newWindowRef = static_cast<T&>(*newWindow);
                 m_Windows.push_back(std::move(newWindow));
                 return newWindowRef;
+            }
+
+            void OpenWindow(StringId32 windowId)
+            {
+                // find first non open window matching the id and reuse
+                auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
+                    {
+                        return (window->IsOpen() == false) && (StringId32(window->GetWindowId()) == windowId);
+                    });
+
+                if (it != m_Windows.end())
+                {
+                    UniquePtr<ImGuiWindow>& imguiWindow = *it;
+                    imguiWindow->Open();
+                    return;
+                }
+
+                auto factoryIt = m_WindowFactory.find(windowId);
+                if (factoryIt != m_WindowFactory.end())
+                {
+                    UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
+                    newWindow->SetName(String(newWindow->GetWindowId()));
+                    newWindow->Open();
+                }
+            }
+
+            void CloseWindow(StringId32 windowId)
+            {
+                ImGuiWindow* window = GetWindow(windowId).value_or(nullptr);
+                if (window)
+                {
+                    window->Close();
+                }
             }
 
             template <IsImGuiWindow T>
@@ -199,8 +221,11 @@ namespace Onyx
 
             //void ShowWindow(StringView windowName);
             //void CloseWindow(StringView windowName);
-            Optional<ImGuiWindow*> GetWindow(StringView windowName);
+            Optional<ImGuiWindow*> GetWindow(StringId32 windowName);
           
+            const HashSet<StringId32>& GetRegisteredWindows(StringId32 category) { return m_WindowsPerCategory.at(category); }
+            const HashSet<StringId32>& GetRegisteredWindows(StringId32 category) const { return m_WindowsPerCategory.at(category); }
+
         private:
             void InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem);
             void UpdateDrawBuffers(const Graphics::FrameContext& frameContext);
@@ -226,12 +251,15 @@ namespace Onyx
             InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexCounts;
             InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexCounts;
 
-            HashMap<onyxU32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> m_WindowFactory;
             HashMap<StringId64, ImFont*> m_Fonts;
-            std::mutex m_Mutex;
+            
+            HashMap<StringId32, InplaceFunction<UniquePtr<ImGuiWindow>(), 64>> m_WindowFactory;
             DynamicArray<UniquePtr<ImGuiWindow>> m_Windows;
-            Platform::PlatformSystem* m_PlatformSystem;
-            Input::InputSystem* m_InputSystem;
+            HashMap<StringId32, HashSet<StringId32>> m_WindowsPerCategory;
+            
+            IEngine* m_Engine = nullptr;
+            Platform::PlatformSystem* m_PlatformSystem = nullptr;
+            Input::InputSystem* m_InputSystem = nullptr;
         };
     }
 }

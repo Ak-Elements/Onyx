@@ -15,6 +15,7 @@ namespace Onyx::Localization::Editor
         // Main Menubar
         MainMenubar::View::Label = localizationModule.GetLocalized("editor.mainmenubar.view");
         MainMenubar::Project::Label = localizationModule.GetLocalized("editor.mainmenubar.project");
+        MainMenubar::Debug::Label = localizationModule.GetLocalized("editor.mainmenubar.debug");
 
         MainMenubar::View::Layouts::Label = localizationModule.GetLocalized("editor.mainmenubar.view.layouts");
 

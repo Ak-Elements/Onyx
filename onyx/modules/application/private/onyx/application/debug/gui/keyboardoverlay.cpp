@@ -2,8 +2,9 @@
 
 #if ONYX_UI_MODULE && ONYX_USE_IMGUI
 
-#include <onyx/input/inputsystem.h>
 #include <onyx/filesystem/onyxfile.h>
+#include <onyx/input/inputsystem.h>
+#include <onyx/ui/imguisystem.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
@@ -74,13 +75,22 @@ namespace Onyx::Application::Debug
         }
     }
 
-    void KeyboardOverlay::DrawImGui(const Input::InputSystem& inputSystem)
+    void KeyboardOverlay::OnOpen()
     {
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking;
+
+    }
+
+    void KeyboardOverlay::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
+    {
+        if (Ui::g_UiContext.InputSystem == nullptr)
+            return;
+
+        const Input::InputSystem& inputSystem = *Ui::g_UiContext.InputSystem;
+        SetWindowFlags(ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking);
 
         // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
-        ImGui::SetNextWindowPos(ImVec2{ 300, 800 }, ImGuiCond_FirstUseEver);
-
+        SetDefaultPosition( Ui::WindowPosition::BottomLeft );
+        
         onyxF32 aspectRatio = 23.0f / static_cast<onyxF32>(m_KeyboardLayout.size() + 1);
         auto aspect_ratio_constraint = [](ImGuiSizeCallbackData* data)
         {
@@ -88,8 +98,9 @@ namespace Onyx::Application::Debug
             data->DesiredSize.y = (float)(int)(data->DesiredSize.x / aspectRatio);
         };
 
-        ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(FLT_MAX, FLT_MAX), aspect_ratio_constraint, &aspectRatio);   // Aspect ratio
-        ImGui::Begin("Keyboard", nullptr, windowFlags);
+        ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(200, 300), ImVec2(FLT_MAX, FLT_MAX), aspect_ratio_constraint, &aspectRatio);   // Aspect ratio
+        Begin();
         ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
 
         static const ImVec4 defaultColor{ 0.7f, 0.7f, 0.7f, 1.0f };
@@ -138,7 +149,7 @@ namespace Onyx::Application::Debug
 
        // ImVec2 windowSize = ImVec2(initialPosition.x + renderSize, cursorPos[1]) - initialPosition;
         //ImGui::Dummy(windowSize);
-        ImGui::End();
+        End();
     }
 }
 #endif
