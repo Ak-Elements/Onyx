@@ -31,6 +31,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     container/typelist.h
     engine/enginesystem.h
     engine/enginesystemfactory.h
+    engine/enginevariable.h
     engine/gametime.h
     function/callback.h
     function/signal.h
@@ -89,6 +90,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     guid.cpp
     hash.cpp
     stringid.cpp
+    engine/enginevariable.cpp
     geometry/rectserialization.cpp
     geometry/vectorserialization.cpp
     log/logger.cpp

@@ -36,6 +36,7 @@ namespace Onyx::Ui
         virtual constexpr StringId32 GetWindowCategory() { return "Default"; }
 
         void SetName(const String& newName) { m_Name = newName; }
+        void SetEngine(IEngine& engine) { m_Engine = &engine; }
 
         bool IsOpen() const { return m_IsOpen; }
         bool IsCollapsed() const { return m_IsCollapsed; }
@@ -43,8 +44,6 @@ namespace Onyx::Ui
         bool IsDocked() const { return m_IsDocked; }
 
         void BringToFront();
-
-        void SetEngine(IEngine& engine) { m_Engine = &engine; }
 
     protected:
         bool Begin();

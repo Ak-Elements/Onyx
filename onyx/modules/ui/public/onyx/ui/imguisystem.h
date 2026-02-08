@@ -63,6 +63,7 @@ namespace Onyx
             Assets::AssetSystem* AssetSystem = nullptr;
             Graphics::GraphicsSystem* GraphicsSystem = nullptr;
             Input::InputSystem* InputSystem = nullptr;
+            Localization::LocalizationModule* LocalizationSystem = nullptr;
         };
 
         extern ImGuiContext g_UiContext;
@@ -78,7 +79,14 @@ namespace Onyx
             static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
             static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
 
-            ImGuiSystem(IEngine& engine, Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem);
+            ImGuiSystem(IEngine& engine,
+                Assets::AssetSystem& assetSystem,
+                Input::InputSystem& inputSystem,
+                Localization::LocalizationModule& localizationSystem,
+                Graphics::GraphicsSystem& graphicsSystem,
+                Platform::PlatformSystem& platformSystem
+            );
+
             ~ImGuiSystem() override;
 
             void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
@@ -92,7 +100,13 @@ namespace Onyx
             {
                 constexpr StringId32 windowTypeId(T::WindowId);
                 ONYX_ASSERT(m_WindowFactory.contains(windowTypeId) == false);
-                m_WindowFactory[windowTypeId] = []() { return MakeUnique<T>(); };
+                m_WindowFactory[windowTypeId] = [&]() 
+                {
+                    auto newWindow = MakeUnique<T>();
+                    newWindow->SetEngine(*m_Engine);
+                    newWindow->SetName(String(newWindow->GetWindowId()));
+                    return newWindow;
+                };
 
                 constexpr StringId32 windowCategory(T::WindowCategory);
                 HashSet<StringId32>& windowsInCategory = m_WindowsPerCategory[windowCategory];
@@ -121,15 +135,10 @@ namespace Onyx
                 if (factoryIt == m_WindowFactory.end())
                 {
                     RegisterWindow<T>();
-                    newWindow = MakeUnique<T>();
+                    factoryIt = m_WindowFactory.find(windowTypeId);
                 }
-                else
-                {
-                    newWindow = factoryIt->second();
-                }
-
-                newWindow->SetEngine(*m_Engine);
-                newWindow->SetName(String(newWindow->GetWindowId()));
+                
+                newWindow = factoryIt->second();
                 newWindow->Open();
                 T& newWindowRef = static_cast<T&>(*newWindow);
                 m_Windows.push_back(std::move(newWindow));
@@ -157,16 +166,12 @@ namespace Onyx
                 auto factoryIt = m_WindowFactory.find(windowTypeId);
                 UniquePtr<ImGuiWindow> newWindow;
                 if (factoryIt == m_WindowFactory.end())
-                { 
-                    RegisterWindow<T>();
-                    newWindow = MakeUnique<T>();
-                }
-                else
                 {
-                    newWindow = factoryIt->second();
+                    RegisterWindow<T>();
+                    factoryIt = m_WindowFactory.find(windowTypeId);
                 }
 
-                newWindow->SetName(String(newWindow->GetWindowId()));
+                newWindow = factoryIt->second();
                 newWindow->Open();
                 T& newWindowRef = static_cast<T&>(*newWindow);
                 m_Windows.push_back(std::move(newWindow));
@@ -192,7 +197,6 @@ namespace Onyx
                 if (factoryIt != m_WindowFactory.end())
                 {
                     UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
-                    newWindow->SetName(String(newWindow->GetWindowId()));
                     newWindow->Open();
                 }
             }

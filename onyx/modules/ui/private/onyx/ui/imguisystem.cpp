@@ -13,13 +13,14 @@
 #include <onyx/ui/propertygrid.h>
 #include <onyx/assets/assetsystem.h>
 #include <onyx/filesystem/filedialog.h>
-
+#include <onyx/ui/windows/enginevariableswindow.h>
+#include <onyx/ui/propertyinspector.h>
+#include <onyx/ui/propertygrid/inspectors/enginevariableinspector.h>
 #include <onyx/platform/platformsystem.h>
 
 #include <ImGuizmo.h>
 #include <implot.h>
 #include <implot3d.h>
-
 
 #if ONYX_IS_WINDOWS
 #include <windows.h>
@@ -547,7 +548,13 @@ namespace Onyx::Ui
 	}
 
 	
-    ImGuiSystem::ImGuiSystem(IEngine& engine, Assets::AssetSystem& assetSystem, Input::InputSystem& inputSystem, Graphics::GraphicsSystem& graphicsSystem, Platform::PlatformSystem& platformSystem)
+    ImGuiSystem::ImGuiSystem(IEngine& engine,
+        Assets::AssetSystem& assetSystem,
+        Input::InputSystem& inputSystem,
+        Localization::LocalizationModule& localizationSystem,
+        Graphics::GraphicsSystem& graphicsSystem,
+        Platform::PlatformSystem& platformSystem
+    )
         : m_Engine(&engine)
         , m_PlatformSystem(&platformSystem)
         , m_InputSystem(&inputSystem)
@@ -589,6 +596,7 @@ namespace Onyx::Ui
 
 		g_UiContext.AssetSystem = &assetSystem;
 		g_UiContext.InputSystem = &inputSystem;
+        g_UiContext.LocalizationSystem = &localizationSystem;
 
 		Graphics::PipelineProperties pipelineProperties;
 		pipelineProperties.Shader = Assets::AssetId("engine:/shaders/imgui.oshader");
@@ -620,6 +628,8 @@ namespace Onyx::Ui
 		
         Platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
         mainWindow.OnResize().Connect<&ImGuiSystem::OnWindowResize>(this);
+        
+        RegisterWindow<EngineVariablesWindow>();
     }
 
 	ImGuiSystem::~ImGuiSystem()

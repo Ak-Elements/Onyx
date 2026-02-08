@@ -257,6 +257,16 @@ namespace Onyx::Ui::PropertyGrid
         loc_PropertyGridTooltip = tooltip;
     }
 
+    bool DrawButton(StringView propertyName)
+    {
+        DrawPropertyName(Format::Format("##{}", propertyName));
+
+        bool isPressed = ImGui::Button(propertyName.data());
+        ImGui::EndHorizontal();
+
+        return isPressed;
+    }
+
     bool DrawProperty(StringView propertyName, StringView readOnlyValue)
     {
         DrawPropertyName(propertyName);

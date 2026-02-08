@@ -18,6 +18,15 @@ namespace Onyx::Localization
         {
             assetSystem.GetAsset(localizationSettings.Database, m_MainDatabase);
         }
+
+#if !ONYX_IS_RETAIL
+        for (const Assets::AssetId& secondaryDatabaseId : localizationSettings.SecondaryDatabases)
+        {
+            Assets::AssetHandle<GetTextLocalizationDatabase> secondaryDb;
+            assetSystem.GetAsset(secondaryDatabaseId, secondaryDb);
+            AddSecondaryDatabase(secondaryDb);
+        }
+#endif
     }
 
     Optional<StringView> GetTextLocalizationBackend::GetLocalized(LocalizationId id) const

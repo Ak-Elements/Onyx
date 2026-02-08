@@ -2,6 +2,7 @@
 
 #include <onyx/noncopyable.h>
 #include <onyx/serialize/deserializer.h>
+#include <onyx/engine/enginevariablesregistry.h>
 
 namespace Onyx
 {
@@ -17,7 +18,6 @@ namespace Onyx
     class IEngine : public NonCopyable
     {
     public:
-
         template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
         ONYX_NO_DISCARD bool HasSystem() const
         {
@@ -41,6 +41,21 @@ namespace Onyx
         virtual bool HasSystem(StringId32 systemId) const = 0;
         virtual IEngineSystem& GetSystem(StringId32 systemId) = 0;
         virtual const IEngineSystem& GetSystem(StringId32 systemId) const = 0;
+
+        static const EngineVariablesRegistry& GetVariablesRegistry() { return s_EngineVariables; }
+
+        static void Register(IEngineVariable& variable)
+        {
+            s_EngineVariables.Register(variable);
+        } 
+
+        static void Unregister(IEngineVariable& variable)
+        {
+            s_EngineVariables.Unregister(variable);
+        }
+
+    private:
+        static inline EngineVariablesRegistry s_EngineVariables; 
     };
 
     struct EngineSystemCreateContext

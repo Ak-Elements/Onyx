@@ -21,6 +21,10 @@ namespace Onyx::Localization
         onyxS32 Locale;
         // probably a flag indicating the backend to use
         Assets::AssetId Database;
+
+#if !ONYX_IS_RETAIL
+        DynamicArray<Assets::AssetId> SecondaryDatabases;
+#endif
     };
 
     class LocalizationModule : public IEngineSystem

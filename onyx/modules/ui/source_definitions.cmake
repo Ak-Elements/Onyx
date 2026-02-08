@@ -21,6 +21,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     controls/treeview.h
     controls/vectorcontrol.h
     layout/imguilayout.h
+    windows/enginevariableswindow.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -44,4 +45,5 @@ set(onyx_TARGET_PRIVATE_SOURCES
     controls/treeview.cpp
     controls/vectorcontrol.cpp
     layout/imguilayout.cpp
+    windows/enginevariableswindow.cpp
 )

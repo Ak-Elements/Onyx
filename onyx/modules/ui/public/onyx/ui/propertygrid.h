@@ -29,8 +29,8 @@ namespace Onyx::Ui
     template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
     struct ScalarOptions
     {
-        ScalarT Min = std::numeric_limits<ScalarT>::lowest();
-        ScalarT Max = std::numeric_limits<ScalarT>::max();
+        Optional<ScalarT> Min;
+        Optional<ScalarT> Max;
 
         bool IsSlider = false;
     };
@@ -53,7 +53,8 @@ namespace Onyx::Ui
 
         void SetNextPropertyTooltip(const String& tooltip);
 
-        
+        bool DrawButton(StringView propertyName);
+
         bool DrawProperty(StringView propertyName, StringView readOnlyValue);
         bool DrawProperty(StringView propertyName, String& value);
         bool DrawProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
@@ -102,29 +103,32 @@ namespace Onyx::Ui
             ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
             if (flags == ScalarInputFlag::None)
             {
-                bool hasMin = (options.Min != std::numeric_limits<ScalarT>::lowest());
-                bool hasMax = (options.Max != std::numeric_limits<ScalarT>::max());
+                bool hasMin = options.Min.has_value();
+                bool hasMax = options.Max.has_value();
                 if (hasMin || hasMax)
                 {
+                    ScalarT minValue = options.Min.value_or(std::numeric_limits<ScalarT>::lowest());
+                    ScalarT maxValue = options.Max.value_or(std::numeric_limits<ScalarT>::max());
+
                     ScalarT beforeValue = value;
                     if (DrawScalarInput("##inoutScalar", dataType, value, nullptr, nullptr, nullptr, ImGuiInputTextFlags_CharsDecimal))
                     {
-                        value = std::clamp(value, options.Min, options.Max);
+                        value = std::clamp(value, minValue, maxValue);
                         hasModified = IsEqual(beforeValue, value) == false;
                     }
 
                     String tooltip;
                     if (hasMin && hasMax)
                     {
-                        tooltip = Format::Format("[ {} .. {} ]", options.Min, options.Max);
+                        tooltip = Format::Format("[ {} .. {} ]", minValue, maxValue);
                     }
                     else if (hasMin)
                     {
-                        tooltip = Format::Format("[ {} .. ]", options.Min);
+                        tooltip = Format::Format("[ {} .. ]", minValue);
                     }
                     else
                     {
-                        tooltip = Format::Format("[ .. {} ]", options.Max);
+                        tooltip = Format::Format("[ .. {} ]", maxValue);
                     }
                     
                     ImGui::SetItemTooltip("%s", tooltip.c_str());

@@ -142,4 +142,13 @@ namespace Onyx
 
     template <template<typename...> class Primary, typename T>
     constexpr bool is_specialization_of_v = is_specialization_of<Primary, T>::value;
+
+    template<typename T>
+    concept Numeric = std::is_arithmetic_v<T>;
+
+    template<typename Fn, typename... Args>
+    concept Invokable = std::is_invocable_v<Fn, Args...>;
+
+    template<typename T>
+    concept ScopedEnum = std::is_scoped_enum_v<T>;
 }

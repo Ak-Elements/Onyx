@@ -4,9 +4,6 @@
 namespace Onyx
 {
     template<typename T>
-    concept Numeric = std::is_arithmetic_v<T>;
-
-    template<typename T>
     concept StorageQuantity = requires(const T & obj)
     {
         typename T::RepresentType;

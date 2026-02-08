@@ -6,6 +6,16 @@
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
+    enum class Tonemapper
+    {
+        Off,
+        JodieReinhard,
+        Aces,
+        Agx,
+        AgxGolden,
+        AgxPunchy
+    };
+
     class ToneMapPass : public NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>
     {
     public:

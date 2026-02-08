@@ -45,13 +45,15 @@ namespace Onyx
     bool Serialization<Localization::LocalizationSettings>::Serialize(Serializer& serializer, const Localization::LocalizationSettings& localizationSettings)
     {
         return serializer.Write<"locale">(localizationSettings.Locale) &&
-            serializer.Write<"database">(localizationSettings.Database);
+            serializer.Write<"database">(localizationSettings.Database) &&
+            serializer.Write<"secondarydatabases">(localizationSettings.SecondaryDatabases);
 
     }
 
     bool Serialization<Localization::LocalizationSettings>::Deserialize(const Deserializer& deserializer, Localization::LocalizationSettings& outLocalizationSettings)
     {
-        return deserializer.Read<"locale">(outLocalizationSettings.Locale) &&
-            deserializer.Read<"database">(outLocalizationSettings.Database);
+        return deserializer.ReadOptional<"locale">(outLocalizationSettings.Locale) &&
+            deserializer.ReadOptional<"database">(outLocalizationSettings.Database) &&
+            deserializer.ReadOptional<"secondarydatabases">(outLocalizationSettings.SecondaryDatabases);
     }
 }
