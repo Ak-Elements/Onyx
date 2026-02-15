@@ -28,6 +28,19 @@ namespace Onyx::Entity
         if (componentMeta != nullptr)
         {
             componentMeta->Copy(registry, entityId, fromComponentPtr);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ComponentFactory::TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, Span<onyxU32> componentData) const
+    {
+        const IComponentMeta* componentMeta = GetComponentMeta(componentTypeId).value_or(nullptr);
+        if (componentMeta != nullptr)
+        {
+            componentMeta->Create(registry, entityId, componentData);
+            return true;
         }
 
         return false;

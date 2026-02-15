@@ -10,6 +10,11 @@ namespace Onyx::Graphics
     class RenderGraph;
 }
 
+namespace Onyx::Entity
+{
+    class ComponentFactory;
+}
+
 namespace Onyx::GameCore
 {
     class Scene : public Assets::Asset<Scene>
@@ -18,7 +23,9 @@ namespace Onyx::GameCore
     public:
         static constexpr StringId32 TypeId{ "Onyx::GameCore::Assets::Scene" };
         
-        Scene();
+        static Reference<Scene> Create(IEngine& engine);
+
+        Scene(Entity::ComponentFactory& factory);
 
         StringId32 GetTypeId() const { return TypeId; }
 

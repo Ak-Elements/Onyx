@@ -1,6 +1,7 @@
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 
 #include <onyx/gamecore/scene/scene.h>
+#include <onyx/gamecore/gamecore.h>
 
 #include <onyx/entity/entityregistry.h>
 #include <onyx/gamecore/components/idcomponent.gen.h>
@@ -9,6 +10,12 @@
 
 #include <onyx/editor/modules/sceneeditor.h>
 #include <onyx/editor/editor_localization.h>
+
+#include <onyx/editor/commands/commandgraph.h>
+#include <onyx/editor/commands/scene/createentitycommand.h>
+#include <onyx/editor/commands/scene/deleteentitycommand.h>
+#include <onyx/editor/commands/scene/renameentitycommand.h>
+#include <onyx/editor/modules/sceneeditor.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
@@ -22,14 +29,33 @@
 
 namespace Onyx::Editor::SceneEditor
 {
-    void EntitiesPanel::Render(GameCore::Scene& scene)
+    void EntitiesPanel::OnOpen()
     {
-        if ((selectedEntity != entt::null) &&
-            ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
-        {
-            DeleteEntity(scene, selectedEntity);
-        }
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        //inputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>("Copy"_id64, this);
+        //inputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>("Paste"_id64, this);
+        inputActionSystem.OnInput<&EntitiesPanel::OnDeleteAction>("Delete"_id64, this);
+    }
 
+    void EntitiesPanel::OnClose()
+    {
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.Disconnect(this);
+    }
+
+    void EntitiesPanel::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
+    {
+        ONYX_ASSERT(m_CommandGraph != nullptr);
+
+        SceneEditorWindow& parent = *(GetParent<SceneEditorWindow>().value());
+
+        if (parent.IsLoading())
+            return;
+
+        SetName(String(GetWindowId()));
+        Begin();
+        {
+        //GameCore::GameCoreSystem& gameCoreSystem, Assets::AssetId sceneId, GameCore::Scene& scene, ICommandGraph& commandStack
         Ui::ScopedImGuiColor styleColor
         {
             { ImGuiCol_TableRowBg, 0x0 },
@@ -49,7 +75,8 @@ namespace Onyx::Editor::SceneEditor
 
             ImGui::TableSetColumnIndex(1);
             ImGui::TableHeader(Localization::Generic::Visibility.Get().data());
-            Entity::EntityRegistry& registry = scene.GetRegistry();
+
+            Entity::EntityRegistry& registry = parent.GetScene().GetRegistry();
 
             // TODO: sorting
             /*registry.GetRegistry().sort<Entity::IdComponent>([](const Entity::EntityId lhs, const Entity::EntityId rhs) {
@@ -61,7 +88,12 @@ namespace Onyx::Editor::SceneEditor
 
             for (Entity::EntityId entity : entitiesView)
             {
-                bool isSelected = selectedEntity == entity;
+                bool isSelected = m_SelectedEntity == entity;
+
+                if ( isSelected && registry.HasComponents<SelectedComponent>( m_SelectedEntity ) == false)
+                {
+                    registry.AddComponent<SelectedComponent>( m_SelectedEntity );
+                }
 
                 ImGui::TableNextRow(ImGuiTableRowFlags_None, rowHeight);
                 ImGui::TableNextColumn();
@@ -69,7 +101,6 @@ namespace Onyx::Editor::SceneEditor
                 const ImVec2 rowAreaMin = ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), 0).Min;
                 const ImVec2 rowAreaMax = { ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), ImGui::TableGetColumnCount() - 1).Max.x,
                                             rowAreaMin.y + rowHeight };
-
 
                 Ui::ScopedImGuiId scopedId(Format::Format("Entity {}", static_cast<onyxU64>(entity)));
 
@@ -100,9 +131,10 @@ namespace Onyx::Editor::SceneEditor
                     };
 
                     ImGui::SetNextItemAllowOverlap();
+                    String previousName = entityName;
                     if (Ui::DrawRenameInput("name", entityName, ImVec2(-1, 0), isSelected))
                     {
-                        registry.AddComponent<GameCore::NameComponent>(selectedEntity, entityName);
+                        m_CommandGraph->Push(RenameEntityCommand(m_SelectedEntity, entityName, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>())); 
                     }
 
                     isRowClicked |= isSelected;
@@ -114,7 +146,7 @@ namespace Onyx::Editor::SceneEditor
                 {
                     if (ImGui::MenuItem(Localization::Generic::Delete.Get().data()))
                     {
-                        DeleteEntity(scene, entity);
+                        DeleteEntity(entity);
                         ImGui::CloseCurrentPopup();
                     }
 
@@ -132,7 +164,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (isRowClicked || isRowFocused)
                 {
-                    SetSelectedEntity(scene, entity);
+                    SetSelectedEntity(entity);
                 }
 
                 onyxU32 cellBackgroundColor = isRowHovered ? ImGui::GetColorU32(ImGuiCol_HeaderHovered) : (isSelected ? ImGui::GetColorU32(ImGuiCol_HeaderActive) : ImGui::GetColorU32(ImGuiTableBgTarget_CellBg));
@@ -146,16 +178,11 @@ namespace Onyx::Editor::SceneEditor
             {
                 if (ImGui::MenuItem(Localization::Generic::Create.Get().data()))
                 {
-                    Entity::EntityId createdEntity = registry.CreateEntity();
-                    registry.AddComponent<GameCore::IdComponent>(createdEntity);
-                    registry.AddComponent<GameCore::NameComponent>(createdEntity, GetNewEntityName());
-                    registry.AddComponent<GameCore::TransformComponent>(createdEntity);
-                    SetSelectedEntity(scene, createdEntity);
-
+                    m_CommandGraph->Push(CreateEntityCommand{ parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>() });
                     ImGui::CloseCurrentPopup();
                 }
 
-                if (selectedEntity != entt::null)
+                if (m_SelectedEntity != Entity::EntityId::Invalid)
                 {
                     if (ImGui::MenuItem(Localization::Generic::Duplicate.Get().data()))
                     {
@@ -169,8 +196,9 @@ namespace Onyx::Editor::SceneEditor
 
             ImGui::EndTable();
         }
+        }
+        End();
     }
-
 
     String EntitiesPanel::GetNewEntityName() const
     {
@@ -179,27 +207,46 @@ namespace Onyx::Editor::SceneEditor
         return entityName;
     }
 
-    void EntitiesPanel::DeleteEntity(GameCore::Scene& scene, Entity::EntityId entity)
+    void EntitiesPanel::OnDeleteAction(const InputActions::InputActionEvent& deleteAction)
     {
-        if (entity == selectedEntity)
-        {
-            SetSelectedEntity(scene, entt::null);
-        }
+        if (IsFocused() == false)
+            return;
 
-        scene.GetRegistry().DeleteEntity(entity);
+        if (m_SelectedEntity == Entity::EntityId::Invalid)
+            return;
+        
+        if (deleteAction.GetData<bool>() == false)
+            return;
+
+        DeleteEntity(m_SelectedEntity);
     }
 
-    void EntitiesPanel::SetSelectedEntity(GameCore::Scene& scene, Entity::EntityId entity)
+    void EntitiesPanel::DeleteEntity(Entity::EntityId entity)
     {
-        if (selectedEntity != entity)
+        if (entity == m_SelectedEntity)
         {
-            Entity::EntityRegistry& registry = scene.GetRegistry();
-            if (selectedEntity != entt::null)
-                registry.RemoveComponent<SelectedComponent>(selectedEntity);
+            SetSelectedEntity(Entity::EntityId::Invalid);
+        }
 
-            selectedEntity = entity;
+        SceneEditorWindow& parent = *(GetParent<SceneEditorWindow>().value());
+        m_CommandGraph->Push(DeleteEntityCommand(entity, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>()));
+    }
 
-            registry.AddComponent<SelectedComponent>(selectedEntity);
+    void EntitiesPanel::SetSelectedEntity(Entity::EntityId entity)
+    {
+        if (m_SelectedEntity != entity)
+        {
+            SceneEditorWindow& parent = *GetParent<SceneEditorWindow>().value();
+            
+            Entity::EntityRegistry& registry = parent.GetScene().GetRegistry();
+            if (m_SelectedEntity != Entity::EntityId::Invalid)
+                registry.RemoveComponent<SelectedComponent>(m_SelectedEntity);
+
+            m_SelectedEntity = entity;
+            if (m_SelectedEntity != Entity::EntityId::Invalid)
+            {
+                registry.AddComponent<SelectedComponent>(m_SelectedEntity);
+            }
         }
     }
 }

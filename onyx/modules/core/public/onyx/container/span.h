@@ -28,6 +28,13 @@ namespace Onyx
         {
         }
 
+        template <typename U>
+        constexpr Span(U& container)
+            : m_Data{ container.data() }
+            , m_Size{ container.size() }
+        {
+        }
+
         constexpr T& operator[](size_t n) const
         {
             return m_Data[n];

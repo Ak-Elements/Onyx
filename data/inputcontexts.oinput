@@ -34,6 +34,62 @@
         },
         {
             "id": {
+                "id": "8f4be9f086eb530f",
+                "string": "Undo"
+            },
+            "type": "Bool",
+            "bindings": [
+                {
+                    "typeId": {
+                        "id": "e2271d64",
+                        "string": "Onyx::InputBinding::Bool"
+                    },
+                    "triggers":[
+                        {
+                            "typeId": {
+                                "id": "501bda48",
+                                "string": "Onyx::Input::DependantActionInputTrigger"
+                            },
+                            "actionId": {
+                                "id": "ff56003c8610b583",
+                                "string": "CameraSlowDown"
+                            }
+                        }
+                    ],
+                    "input": 43
+                }
+            ]
+        },
+        {
+            "id": {
+                "id": "7417792bbe720149",
+                "string": "Redo"
+            },
+            "type": "Bool",
+            "bindings": [
+                {
+                    "typeId": {
+                        "id": "e2271d64",
+                        "string": "Onyx::InputBinding::Bool"
+                    },
+                    "triggers":[
+                        {
+                            "typeId": {
+                                "id": "501bda48",
+                                "string": "Onyx::Input::DependantActionInputTrigger"
+                            },
+                            "actionId": {
+                                "id": "ff56003c8610b583",
+                                "string": "CameraSlowDown"
+                            }
+                        }
+                    ],
+                    "input": 42
+                }
+            ]
+        },
+        {
+            "id": {
                 "id": "92e9f69eb1215c05",
                 "string": "GizmoTranslate"
             },

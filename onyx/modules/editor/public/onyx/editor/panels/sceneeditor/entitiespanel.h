@@ -1,38 +1,65 @@
 #pragma once
 
-#include <onyx/entity/entityregistry.h>
-#include <onyx/localization/localizedstring.h>
+#include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Localization
+#include <onyx/assets/assethandle.h>
+#include <onyx/entity/entity.h>
+
+namespace Onyx::Assets
 {
-    class LocalizationModule;
+    struct AssetId;
+
+}
+
+namespace Onyx::InputActions
+{
+    struct InputActionEvent;
 }
 
 namespace Onyx::GameCore
 {
     class Scene;
+    class GameCoreSystem;
 }
 
 namespace Onyx::Entity
 {
+    class EntityRegistry;
     enum class EntityId : onyxU32;
+}
+
+namespace Onyx::Editor
+{
+    class ICommandGraph;
 }
 
 namespace Onyx::Editor::SceneEditor
 {
-    class SceneEditorWindow;
-
-    class EntitiesPanel
+    class EntitiesPanel : public Ui::ImGuiWindow
     {
     public:
-        void Render(GameCore::Scene& scene);
+        static constexpr StringView WindowId = "EntitiesPanel";
+        static constexpr StringView WindowCategory = "Panel";
+
+        void SetCommandGraph(ICommandGraph& commandGraph) { m_CommandGraph = &commandGraph; }
+
+    private:
+        void OnOpen() override;
+        void OnClose() override;
+
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+
+        void OnDeleteAction(const InputActions::InputActionEvent& deleteAction);
 
     private:
         String GetNewEntityName() const;
 
-        void DeleteEntity(GameCore::Scene& scene, Entity::EntityId entity);
-        void SetSelectedEntity(GameCore::Scene& scene, Entity::EntityId entity);
+        void DeleteEntity(Entity::EntityId entity);
+        void SetSelectedEntity(Entity::EntityId entity);
 
-        Entity::EntityId selectedEntity;
+    private:
+        Entity::EntityId m_SelectedEntity = Entity::EntityId::Invalid;
+
+        ICommandGraph* m_CommandGraph = nullptr;
     };
 }

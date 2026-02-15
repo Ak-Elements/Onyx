@@ -6,50 +6,69 @@
 
 namespace Onyx::Entity
 {
+    class ComponentFactory;
+    
     class EntityRegistry
     {
     public:
         using EntityRegistryT = entt::basic_registry<EntityId>;
 
-        EntityId CreateEntity();
+        // Both of those should be removed as we only need them because of the component factory dependency
+        EntityRegistry() = default;
+        EntityRegistry(ComponentFactory& componentFactory);
 
-        void DeleteEntity(EntityId entityId);
+        EntityRegistry(const EntityRegistry& other);
+        EntityRegistry(EntityRegistry&& other);
+        
+        EntityRegistry& operator=(const EntityRegistry& other);
+        EntityRegistry& operator=(EntityRegistry&& other);
+        
+        //bool IsEmpty() const { return m_Registry.storage() }
+        EntityId CreateEntity();
+        EntityId CreateEntity(EntityId entity);
+        void DeleteEntity(EntityId entity);
 
         EntityId CopyEntity(EntityId entity);
 
         template <typename T, typename... Args> requires (std::is_empty_v<T>)
         void AddComponent(EntityId entity)
         {
+            ONYX_ASSERT(entity != EntityId::Invalid);
             m_Registry.emplace_or_replace<T>(entity);
         }
 
         template <typename T, typename... Args> requires (std::is_empty_v<T> == false)
         T& AddComponent(EntityId entity, Args&&... args)
         {
+            ONYX_ASSERT(entity != EntityId::Invalid);
             return m_Registry.emplace_or_replace<T>(entity, std::forward<Args>(args)...);
         }
 
         template <typename T>
         void RemoveComponent(EntityId entity)
         {
+            ONYX_ASSERT(entity != EntityId::Invalid);
             m_Registry.remove<T>(entity);
         }
 
         template <typename... Args>
         bool HasComponents(EntityId entity) const
         {
+            ONYX_ASSERT(entity != EntityId::Invalid);
             return m_Registry.all_of<Args...>(entity);
         }
 
         template <typename T>
         T& GetComponent(EntityId entity)
         {
+            ONYX_ASSERT(entity != EntityId::Invalid);
             return m_Registry.get<T>(entity);
         }
-
+        
         template <typename T>
         const T& GetComponent(EntityId entity) const
         {
+            ONYX_ASSERT(entity != EntityId::Invalid);
             return m_Registry.get<T>(entity);
         }
 
@@ -77,15 +96,23 @@ namespace Onyx::Entity
             return m_Registry.group<Type, Other...>(std::forward<Includes>(includes)...);
         }*/
 
+
         ONYX_NO_DISCARD EntityRegistryT::iterable GetStorage();
         ONYX_NO_DISCARD EntityRegistryT::const_iterable GetStorage() const;
+        ONYX_NO_DISCARD EntityRegistryT::common_type* GetStorage(entt::id_type runtimeTypeId);
 
         EntityRegistryT& GetRegistry();
         const EntityRegistryT& GetRegistry() const;
 
+        void Copy(EntityRegistry& toRegistry) const;
+
         void Clear();
 
     private:
+        bool HasEntity(EntityId id) { return m_Registry.valid(id); }
+
+    private:
         EntityRegistryT m_Registry;
+        ComponentFactory* m_ComponentFactory = nullptr;
     };
 }

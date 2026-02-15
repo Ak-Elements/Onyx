@@ -33,7 +33,10 @@ namespace Onyx::Entity
 
         virtual void Create(EntityRegistry& registry, EntityId entity) const = 0;
         virtual void Create(EntityRegistry& registry, EntityId entity, const Deserializer& deserializer) const = 0;
-        virtual void Copy(EntityRegistry& registry, EntityId entity, void* componentPtr) const = 0;
+        virtual void Create(EntityRegistry& registry, EntityId entity, Span<onyxU32> buffer) const = 0;
+
+        virtual void Copy(EntityRegistry& registry, EntityId entity, const void* componentPtr) const = 0;
+        virtual void Copy(void* componentPtr, DynamicArray<onyxU32>& outBuffer) const = 0;
 
         virtual bool HasFactory() const = 0;
 
@@ -119,7 +122,7 @@ namespace Onyx::Entity
         {
             if constexpr (Details::IsFlagComponent<T>)
             {
-                registry.AddComponent<T>(entity, std::forward<Args>(args)...);
+                registry.AddComponent<T>(entity);
             }
             else if constexpr (Deserializable<T>)
             {
@@ -136,8 +139,7 @@ namespace Onyx::Entity
             else
             {
                 ONYX_ASSERT(false, "Not supported for component");
-            }
-            
+            }   
         }
 
         void Create(EntityRegistry& registry, EntityId entity, const Deserializer& deserializer) const override
@@ -166,7 +168,14 @@ namespace Onyx::Entity
             }
         }
 
-        void Copy(EntityRegistry& registry, EntityId entity, void* componentPtr) const override
+        void Create(EntityRegistry& registry, EntityId entity, Span<onyxU32> buffer) const override
+        {
+            T component;
+            std::memcpy(std::bit_cast<void*>(&component), buffer.data(), buffer.size());
+            Create(registry, entity, component);
+        }
+
+        void Copy(EntityRegistry& registry, EntityId entity, const void* componentPtr) const override
         {
             if constexpr (Details::IsFlagComponent<T>)
             {
@@ -185,6 +194,12 @@ namespace Onyx::Entity
                     registry.AddComponent<T>(entity, *component);
                 }
             }
+        }
+
+        void Copy(void* componentPtr, DynamicArray<onyxU32>& outBuffer) const override
+        {
+            outBuffer.resize(sizeof(T));
+            std::memcpy(outBuffer.data(), componentPtr, outBuffer.size());
         }
 
         bool HasFactory() const override { return m_Factory != nullptr;  }

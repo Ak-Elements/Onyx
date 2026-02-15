@@ -19,6 +19,9 @@ namespace Onyx::Assets
 
     struct AssetId;
 
+    template<typename T>
+    concept HasStaticCreate = requires(T obj, IEngine& engine) { T::Create(engine); };
+
     class AssetSystem : public IEngineSystem
     {
     public:
@@ -145,7 +148,7 @@ namespace Onyx::Assets
         {
             constexpr StringId32 typeId(AssetT::TypeId);
             ONYX_ASSERT(s_RegisteredAssets.contains(typeId) == false, "Asset with that type is already registered.");
-            if constexpr (std::is_abstract_v<AssetT>)
+            if constexpr ((std::is_abstract_v<AssetT>) || HasStaticCreate<AssetT>)
             {
                 s_RegisteredAssets[typeId] = [](IEngine& engine) -> Reference<AssetInterface> { return AssetT::Create(engine); };
             }

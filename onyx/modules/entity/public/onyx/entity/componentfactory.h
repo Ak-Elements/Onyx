@@ -95,7 +95,10 @@ namespace Onyx::Entity
 
         bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId) const;
         bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, const Deserializer& deserializer) const;
+        bool TryCreateComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, Span<onyxU32> componentData) const;
+
         bool TryCopyComponent(EntityRegistry& registry, EntityId entityId, StringId32 componentTypeId, void* fromComponentPtr) const;
+
 
     private:
         HashMap<StringId32, UniquePtr<IComponentMeta>> m_ComponentMeta;

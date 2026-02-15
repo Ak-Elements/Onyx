@@ -44,7 +44,6 @@ namespace Onyx::Ui
 
         ::ImGuiWindow* window = ImGui::FindWindowByName(m_Name.c_str());
         m_IsDocked = (window != nullptr) && (window->DockId != 0);
-
         OnRender(imguiSystem);
 
         if (m_IsOpen && (wasOpen == false))
@@ -62,7 +61,7 @@ namespace Onyx::Ui
     void ImGuiWindow::BringToFront()
     {
         ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(m_Name.c_str());
-        ImGui::BringWindowToDisplayFront(imguiWindow);
+        ::ImGui::BringWindowToDisplayFront(imguiWindow);
     }
 
     void ImGuiWindow::SetIsCollapsed(bool _isCollapsed)
@@ -71,14 +70,18 @@ namespace Onyx::Ui
         {
             m_IsCollapsed = _isCollapsed;
             ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName(m_Name.c_str());
-            ImGui::SetWindowCollapsed(imguiWindow, m_IsCollapsed, ImGuiCond_Always);
+            ::ImGui::SetWindowCollapsed(imguiWindow, m_IsCollapsed, ImGuiCond_Always);
         }
     }
 
     bool ImGuiWindow::Begin()
     {
-        bool hasBegun = ImGui::Begin(m_Name.c_str(), &m_IsOpen, m_Flags);
-        m_IsCollapsed = ImGui::IsWindowCollapsed();
+        if (m_WindowClass != nullptr)
+            ::ImGui::SetNextWindowClass(m_WindowClass);
+
+        bool hasBegun = ::ImGui::Begin(m_Name.c_str(), &m_IsOpen, m_Flags);
+        m_IsCollapsed = ::ImGui::IsWindowCollapsed();
+        m_IsFocused = ::ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy);
         return hasBegun;
     }
 

@@ -1,8 +1,13 @@
 #pragma once
+
+#include <onyx/ui/imguiwindow.h>
+
+#include <onyx/assets/assetid.h>
 #include <onyx/ui/controls/treeview.h>
 
 namespace Onyx::Entity
 {
+    class EntityRegistry;
     class ComponentFactory;
 }
 
@@ -14,25 +19,46 @@ namespace Onyx::Localization
 namespace Onyx::GameCore
 {
     class Scene;
+    class GameCoreSystem;
+}
+
+namespace Onyx::Editor
+{
+    class ICommandGraph;
 }
 
 namespace Onyx::Editor::SceneEditor
 {
-    class SceneEditorWindow;
-
-    class ComponentsPanel
+    class ComponentsPanel : public Ui::ImGuiWindow
     {
     public:
-        void Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, Localization::LocalizationModule& localizationModule);
+        static constexpr StringView WindowId = "ComponentsPanel";
+        static constexpr StringView WindowCategory = "Panel";
 
+        void SetCommandGraph(ICommandGraph& commandGraph) { m_CommandGraph = &commandGraph; }
+        
     private:
-        void DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule);
-        void DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule);
+        void OnOpen() override;
+        void OnClose() override;
 
-        Ui::TreeItem BuildComponentTree(const Entity::ComponentFactory& componentFactor, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule, StringView searchString) const;
+        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        
+        void DrawSelectedEntityComponents(Entity::EntityRegistry& registry,
+            Assets::AssetId sceneId, 
+            GameCore::GameCoreSystem& gameCoreSystem,
+            const Localization::LocalizationModule& localizationModule);
+
+        void DrawCreateComponentContextMenu(Entity::EntityRegistry& registry,
+            Assets::AssetId sceneId,
+            GameCore::GameCoreSystem& gameCoreSystem, 
+            const Localization::LocalizationModule& localizationModule);
+
+        Ui::TreeItem BuildComponentTree(StringView searchString, Entity::EntityRegistry& registry, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem, const Localization::LocalizationModule& localizationModule) const;
 
     private:
         Ui::TreeItem m_ContextMenuTreeRoot;
+        ICommandGraph* m_CommandGraph = nullptr;
+
         bool m_ShowAll = false;
     };
 }

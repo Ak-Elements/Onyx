@@ -114,13 +114,45 @@ namespace Onyx
             }
 
             template <IsImGuiWindow T>
+            T& OpenWindow(ImGuiWindow& parent)
+            {
+                // find first non open window matching the id and reuse
+                auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
+                {
+                    return (window->IsOpen() == false) && (window->GetWindowId() == T::WindowId);
+                });
+
+                if (it != m_Windows.end())
+                {
+                    UniquePtr<ImGuiWindow>& imguiWindow = *it;
+                    imguiWindow->SetParent(parent);
+                    imguiWindow->Open();
+                    return static_cast<T&>(*imguiWindow);
+                }
+
+                constexpr StringId32 windowTypeId(T::WindowId);
+                auto factoryIt = m_WindowFactory.find(windowTypeId);
+                
+                if (factoryIt == m_WindowFactory.end())
+                {
+                    RegisterWindow<T>();
+                    factoryIt = m_WindowFactory.find(windowTypeId);
+                }
+                
+                UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
+                newWindow->SetParent(parent);
+                newWindow->Open();
+                return static_cast<T&>(*newWindow);
+            }
+
+            template <IsImGuiWindow T>
             T& OpenWindow()
             {
                 // find first non open window matching the id and reuse
                 auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
-                    {
-                        return (window->IsOpen() == false) && (window->GetWindowId() == T::WindowId);
-                    });
+                {
+                    return (window->IsOpen() == false) && (window->GetWindowId() == T::WindowId);
+                });
 
                 if (it != m_Windows.end())
                 {
@@ -131,18 +163,16 @@ namespace Onyx
 
                 constexpr StringId32 windowTypeId(T::WindowId);
                 auto factoryIt = m_WindowFactory.find(windowTypeId);
-                UniquePtr<ImGuiWindow> newWindow;
                 if (factoryIt == m_WindowFactory.end())
                 {
                     RegisterWindow<T>();
                     factoryIt = m_WindowFactory.find(windowTypeId);
                 }
                 
-                newWindow = factoryIt->second();
+                onyxU32 index = m_Windows.size();
+                UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
                 newWindow->Open();
-                T& newWindowRef = static_cast<T&>(*newWindow);
-                m_Windows.push_back(std::move(newWindow));
-                return newWindowRef;
+                return static_cast<T&>(*m_Windows[index]);
             }
 
             template <IsImGuiWindow T>
@@ -164,18 +194,15 @@ namespace Onyx
                 // create window as its not opened yet
                 constexpr StringId32 windowTypeId(T::WindowId);
                 auto factoryIt = m_WindowFactory.find(windowTypeId);
-                UniquePtr<ImGuiWindow> newWindow;
                 if (factoryIt == m_WindowFactory.end())
                 {
                     RegisterWindow<T>();
                     factoryIt = m_WindowFactory.find(windowTypeId);
                 }
 
-                newWindow = factoryIt->second();
+                UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
                 newWindow->Open();
-                T& newWindowRef = static_cast<T&>(*newWindow);
-                m_Windows.push_back(std::move(newWindow));
-                return newWindowRef;
+                return static_cast<T&>(*newWindow);
             }
 
             void OpenWindow(StringId32 windowId)
@@ -197,6 +224,31 @@ namespace Onyx
                 if (factoryIt != m_WindowFactory.end())
                 {
                     UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
+                    newWindow->Open();
+                }
+            }
+
+            void OpenWindow(ImGuiWindow& parent, StringId32 windowId)
+            {
+                                // find first non open window matching the id and reuse
+                auto it = std::ranges::find_if(m_Windows, [&](const UniquePtr<ImGuiWindow>& window)
+                {
+                    return (window->IsOpen() == false) && (StringId32(window->GetWindowId()) == windowId);
+                });
+
+                if (it != m_Windows.end())
+                {
+                    UniquePtr<ImGuiWindow>& imguiWindow = *it;
+                    imguiWindow->SetParent(parent);
+                    imguiWindow->Open();
+                    return;
+                }
+
+                auto factoryIt = m_WindowFactory.find(windowId);
+                if (factoryIt != m_WindowFactory.end())
+                {
+                    UniquePtr<ImGuiWindow>& newWindow = m_Windows.emplace_back(factoryIt->second());
+                    newWindow->SetParent(parent);
                     newWindow->Open();
                 }
             }
@@ -223,8 +275,6 @@ namespace Onyx
                 return imguiWindow;
             }
 
-            //void ShowWindow(StringView windowName);
-            //void CloseWindow(StringView windowName);
             Optional<ImGuiWindow*> GetWindow(StringId32 windowName);
           
             const HashSet<StringId32>& GetRegisteredWindows(StringId32 category) { return m_WindowsPerCategory.at(category); }

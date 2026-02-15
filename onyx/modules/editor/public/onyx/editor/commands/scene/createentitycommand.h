@@ -1,0 +1,18 @@
+#pragma once
+
+#include <onyx/editor/commands/scene/scenecommand.h>
+#include <onyx/entity/entity.h>
+
+namespace Onyx::Editor
+{
+    struct CreateEntityCommand : public SceneCommand
+    {
+    public:
+        CreateEntityCommand(Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem);
+            
+        void Execute() override;
+
+    private:
+        Entity::EntityId m_EntityId = Entity::EntityId::Invalid;
+    };
+}

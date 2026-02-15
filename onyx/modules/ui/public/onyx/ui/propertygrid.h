@@ -185,7 +185,6 @@ namespace Onyx::Ui
             return DrawProperty(propertyName, value, ScalarInputFlag::None);
         }
 
-
         template <typename ScalarT> requires std::is_arithmetic_v<ScalarT>
         bool DrawProperty(StringView propertyName, Vector2<ScalarT>& vector)
         {

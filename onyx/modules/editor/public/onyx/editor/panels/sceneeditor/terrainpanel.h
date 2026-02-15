@@ -35,8 +35,6 @@ struct ImGuiWindow;
 
 namespace Onyx::Editor::SceneEditor
 {
-    class SceneEditorWindow;
-
     class TerrainPanel : public Ui::ImGuiWindow
     {
     public:

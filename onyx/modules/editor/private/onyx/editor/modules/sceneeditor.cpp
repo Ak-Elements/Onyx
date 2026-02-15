@@ -23,6 +23,7 @@
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 #include <onyx/editor/windows/editormainwindow.h>
 #include <onyx/editor/editor_localization.h>
+#include <onyx/editor/windows/commandhistorywindow.h>
 
 #include <imgui.h>
 #include <ImGuizmo.h>
@@ -90,12 +91,29 @@ namespace Onyx::Editor
                 LoadScene(startupLevel);
             }
         }
+
+        Ui::ImGuiSystem& imguiSystem = GetEngineSystem<Ui::ImGuiSystem>();
+        SceneEditor::EntitiesPanel& entitiesPanel = imguiSystem.OpenWindow<SceneEditor::EntitiesPanel>(*this);
+        entitiesPanel.SetWindowId(m_EntitiesPanelId);
+        entitiesPanel.SetWindowClass(m_WindowClass);
+        entitiesPanel.SetCommandGraph(m_CommandStack);
+
+        SceneEditor::ComponentsPanel& componentsPanel = imguiSystem.OpenWindow<SceneEditor::ComponentsPanel>(*this);
+        componentsPanel.SetWindowId(m_ComponentsPanelId);
+        componentsPanel.SetWindowClass(m_WindowClass);
+        componentsPanel.SetCommandGraph(m_CommandStack);
+
+        CommandHistoryWindow& history = imguiSystem.OpenWindow<CommandHistoryWindow>(*this);
+        history.SetWindowClass(m_WindowClass);
+        history.SetCommandQueue(m_CommandStack);
     }
 
     void SceneEditorWindow::OnClose()
     {
         InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
         inputActionSystem.Disconnect(this);
+
+        //m_CommandStack.Disable(inputActionSystem);
     }
 
     void SceneEditorWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
@@ -115,7 +133,7 @@ namespace Onyx::Editor
         // TODO: Is this needed?
         GameCore::GameCoreSystem& gameCore = GetEngineSystem<GameCore::GameCoreSystem>();
         gameCore.SetScene(m_Scene);
-
+        
         Optional<EditorMainWindow*> mainWindowOptional = imguiSystem.GetWindow<EditorMainWindow>();
         if (mainWindowOptional.has_value())
         {
@@ -138,10 +156,6 @@ namespace Onyx::Editor
                 return;
 
             RenderSceneViewport();
-          
-            
-            RenderEntitiesPanel();
-            RenderComponentsPanel();
         }
         else
         {
@@ -244,28 +258,6 @@ namespace Onyx::Editor
             RenderImGuizmo(Vector2f32(static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1])));
         }
         
-        ImGui::End();
-    }
-
-    void SceneEditorWindow::RenderEntitiesPanel()
-    {
-        ImGui::SetNextWindowClass(m_WindowClass);
-        if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::EntitiesPanel::Title, m_EntitiesPanelId)))
-        {
-            m_EntitiesPanel.Render(*m_Scene);
-        }
-
-        ImGui::End();
-    }
-
-    void SceneEditorWindow::RenderComponentsPanel()
-    {
-        ImGui::SetNextWindowClass(m_WindowClass);
-        if (ImGui::Begin(Format::Format("{}{}", Localization::Editor::ComponentsPanel::Title, m_ComponentsPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
-        {
-            GameCore::GameCoreSystem& gameCoreSystem = GetEngineSystem<GameCore::GameCoreSystem>();
-            m_ComponentsPanel.Render(gameCoreSystem.GetComponentFactory(), *m_Scene, GetEngineSystem<Localization::LocalizationModule>());
-        }
         ImGui::End();
     }
 
@@ -444,6 +436,10 @@ namespace Onyx::Editor
         Entity::EntityRegistry& registry = m_Scene->GetRegistry();
         m_EditorCameraEntity = registry.CreateEntity();
 
+        GameCore::GameCoreSystem& gameCoreSystem = GetEngineSystem<GameCore::GameCoreSystem>();
+        Entity::EcsBuilder ecsBuilder = gameCoreSystem.GetEcsBuilder();
+        ecsBuilder.RegisterComponent<GameCore::TransientComponent>();
+
         registry.AddComponent<GameCore::TransientComponent>(m_EditorCameraEntity);
         GameCore::TransformComponent& transform = registry.AddComponent<GameCore::TransformComponent>(m_EditorCameraEntity);
         transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
@@ -461,6 +457,10 @@ namespace Onyx::Editor
 
         graphicsSystem.SetCamera(camera.Camera);
 
+        Entity::EntityRegistry baseRegistry = registry;
+        m_CommandStack.SetBase(std::move(baseRegistry));
+        m_CommandStack.SetHead(registry);
+
         InputActions::InputActionSystem& inputActionsSystem = GetEngineSystem<InputActions::InputActionSystem>();
         inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraMoveInput>("CameraMovement"_id64, this);
         inputActionsSystem.OnInput<&SceneEditorWindow::OnCameraRotationInput>("CameraRotation"_id64, this);
@@ -470,6 +470,6 @@ namespace Onyx::Editor
 
         inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoTranslate"_id64, this);
         inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoRotate"_id64, this);
-        inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);
+        inputActionsSystem.OnInput<&SceneEditorWindow::OnGizmoModeAction>("GizmoScale"_id64, this);   
     }
 }

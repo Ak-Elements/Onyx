@@ -2,6 +2,11 @@
 
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/modules/sceneeditor.h>
+#include <onyx/editor/commands/commandgraph.h>
+#include <onyx/editor/commands/scene/addcomponentcommand.h>
+#include <onyx/editor/commands/scene/modifycomponentcommand.h>
+
+#include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/entity/componentfactory.h>
@@ -18,26 +23,46 @@
 #include <onyx/ui/propertyinspector.h>
 #include <onyx/ui/controls/treeview.h>
 
+
 namespace Onyx::Editor::SceneEditor
 {
-    void ComponentsPanel::Render(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, Localization::LocalizationModule& localizationModule)
+    void ComponentsPanel::OnOpen()
     {
+    }
+
+    void ComponentsPanel::OnClose()
+    {
+    }
+
+    void ComponentsPanel::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
+    {
+        SetName(String(GetWindowId()));
+        Begin();
+        
         ImGui::Checkbox(Localization::Editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll);
 
-        DrawSelectedEntityComponents(componentFactory, scene, localizationModule);
+        GameCore::GameCoreSystem& gameCoreSystem = GetEngineSystem<GameCore::GameCoreSystem>();
+        const Localization::LocalizationModule& localizationModule = GetEngineSystem<Localization::LocalizationModule>();        
+        
+        SceneEditorWindow& parent = *GetParent<SceneEditorWindow>().value();
+        GameCore::Scene& scene = parent.GetScene();
 
         Entity::EntityRegistry& registry = scene.GetRegistry();
+
+        DrawSelectedEntityComponents(registry,parent.GetSceneId(), gameCoreSystem, localizationModule);
+
         auto selectedEntities = registry.GetView<SelectedComponent>();
         if (selectedEntities.empty() == false)
         {
-            DrawCreateComponentContextMenu(componentFactory, scene, localizationModule);
+            DrawCreateComponentContextMenu(registry, parent.GetSceneId(), gameCoreSystem, localizationModule);
         }
+
+        End();
     }
 
-    void ComponentsPanel::DrawSelectedEntityComponents(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule)
+    void ComponentsPanel::DrawSelectedEntityComponents(Entity::EntityRegistry& registry, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem, const Localization::LocalizationModule& localizationModule)
     {
-        Entity::EntityRegistry& registry = scene.GetRegistry();
-
+        const Entity::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
         auto selectedEntities = registry.GetView<SelectedComponent>();
 
         for (Entity::EntityId selectedEntity : selectedEntities)
@@ -77,19 +102,15 @@ namespace Onyx::Editor::SceneEditor
 
                             void* componentPtr = componentStorage.value(selectedEntity);
 
+                            Ui::PropertyGrid::SetEditActive(false);
+
                             bool hasModified = Ui::PropertyInspectors::Draw(componentMeta->GetRuntimeTypeId(), componentPtr, m_ShowAll);
+                            
                             if (hasModified)
                             {
-                                // we only need to copy and replace the component if there is a factory associated
-                                // else the component is just default constructed without special logic
-                                if (componentMeta->HasFactory())
-                                {
-                                    bool hasCopied = componentFactory.TryCopyComponent(registry, selectedEntity, componentTypeId, componentPtr);
-                                    if (hasCopied)
-                                    {
-                                        ONYX_LOG_WARNING("Failed updating component({}) after edit in property grid on entity {}", componentName, static_cast<onyxU32>(selectedEntity));
-                                    }
-                                }
+                                DynamicArray<onyxU32> componentData;
+                                componentMeta->Copy(componentPtr, componentData);
+                                m_CommandGraph->Push(ModifyComponentCommand(selectedEntity, componentTypeId, std::move(componentData), sceneId, gameCoreSystem));
                             }
 
                             //TODO: Needed for now to not auto extend if component is empty
@@ -109,7 +130,7 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    void ComponentsPanel::DrawCreateComponentContextMenu(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule)
+    void ComponentsPanel::DrawCreateComponentContextMenu(Entity::EntityRegistry& registry, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem, const Localization::LocalizationModule& localizationModule)
     {
         if (ImGui::BeginPopupContextWindow("AddComponentModal", ImGuiPopupFlags_MouseButtonRight))
         {
@@ -129,12 +150,8 @@ namespace Onyx::Editor::SceneEditor
             if (ImGui::BeginChild("##ScrollList", ImVec2(350.0f, 350.0f)))
             {
                 Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
-                Ui::TreeItem root = BuildComponentTree(componentFactory, scene, localizationModule, s_SearchString);
-                //bool hasNoMenuItem = root.Children.empty();
+                Ui::TreeItem root = BuildComponentTree(s_SearchString, registry, sceneId, gameCoreSystem, localizationModule);
                 Ui::RenderTreeView("componentMenu", root, flags);
-
-                //if (hasNoMenuItem)
-                //    ImGui::Dummy(ImVec2(100, 10));
             }
 
             ImGui::EndChild();
@@ -143,9 +160,10 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    Ui::TreeItem ComponentsPanel::BuildComponentTree(const Entity::ComponentFactory& componentFactory, GameCore::Scene& scene, const Localization::LocalizationModule& localizationModule, StringView searchString) const
+    Ui::TreeItem ComponentsPanel::BuildComponentTree(StringView searchString, Entity::EntityRegistry& registry, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem, const Localization::LocalizationModule& localizationModule) const
     {
         Ui::TreeItem root;
+        const Entity::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
         for (auto&& [componentTypeId, componentMeta] : componentFactory.GetComponentMeta())
         {
             if ( componentMeta->IsTransient() || (componentMeta->IsCodeOnly() ) )
@@ -172,13 +190,14 @@ namespace Onyx::Editor::SceneEditor
                 {
                     Ui::TreeItem& menuItem = currentParent->Children[currentToken];
                     menuItem.Label = currentToken;
-                    menuItem.OnSelected = [&]()
+                    menuItem.OnSelected = [&]() 
                         {
-                            Entity::EntityRegistry& registry = scene.GetRegistry();
                             auto selectedEntities = registry.GetView<SelectedComponent>();
+                            auto size = selectedEntities.size();
+                            ONYX_UNUSED(size);
                             for (Entity::EntityId selectedEntity : selectedEntities)
                             {
-                                componentFactory.TryCreateComponent(registry, selectedEntity, componentTypeId);
+                                m_CommandGraph->Push(AddComponentCommand(selectedEntity, componentTypeId, sceneId, gameCoreSystem));
                             }
 
                             ImGui::CloseCurrentPopup();

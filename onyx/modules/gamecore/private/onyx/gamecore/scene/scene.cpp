@@ -6,9 +6,20 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/gamecore/scene/scenesector.h>
 
+#include <onyx/gamecore/gamecore.h>
+#include <onyx/entity/componentfactory.h>
+#include <onyx/engine/enginesystem.h>
+
 namespace Onyx::GameCore
 {
-    Scene::Scene()
+    Reference<Scene> Scene::Create(IEngine& engine)
+    {
+        GameCoreSystem& gameCoreSystem = engine.GetSystem<GameCoreSystem>();
+        return Reference<Scene>::Create(gameCoreSystem.GetComponentFactory());
+    }
+
+    Scene::Scene(Entity::ComponentFactory& factory)
+        : m_Registry(factory)
     {
         m_Registry.GetRegistry().on_construct<TransformComponent>().connect<&Scene::OnTransformComponentConstructed>(this);
         m_Registry.GetRegistry().on_destroy<TransformComponent>().connect<&Scene::OnTransformComponentDestroyed>(this);

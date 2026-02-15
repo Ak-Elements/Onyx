@@ -2,6 +2,14 @@ set(onyx_TARGET_PUBLIC_SOURCES
     editormodule.h
     editor_localization.h
     camera/freecamera.h
+    commands/command.h
+    commands/commandgraph.h
+    commands/scene/addcomponentcommand.h
+    commands/scene/createentitycommand.h
+    commands/scene/deleteentitycommand.h
+    commands/scene/modifycomponentcommand.h
+    commands/scene/renameentitycommand.h
+    commands/scene/scenecommand.h
     assets/importer/assetimporter.h
     assets/importer/textureimporter.h
     nodegraph/grapheditorcontext.h
@@ -26,6 +34,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     panels/sceneeditor/terraintools/primitivesterraintool.h
     rendertasks/compositetask.h
     rendertasks/gridtask.h
+    windows/commandhistorywindow.h
     windows/editorwindow.h
     windows/editormainwindow.h
     windows/startupwindow.h
@@ -36,6 +45,12 @@ set(onyx_TARGET_PRIVATE_SOURCES
     editormodule.cpp
     editor_localization.cpp
     camera/freecamera.cpp
+    commands/scene/addcomponentcommand.cpp
+    commands/scene/createentitycommand.cpp
+    commands/scene/deleteentitycommand.cpp
+    commands/scene/modifycomponentcommand.cpp
+    commands/scene/renameentitycommand.cpp
+    commands/scene/scenecommand.cpp
     assets/importer/textureimporter.cpp
     nodegraph/arithmeticnodes_editor.cpp
     nodegraph/vectornodes_editor.cpp
@@ -63,6 +78,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     rendertasks/compositetask.cpp
     rendertasks/gridtask.cpp
     shadergraph/sampletexturenode_editor.cpp
+    windows/commandhistorywindow.cpp
     windows/editorwindow.cpp
     windows/editormainwindow.cpp
     windows/startupwindow.cpp
