@@ -1,4 +1,4 @@
-#include <onyx/editor/modules/nodeeditor.h>
+#include <onyx/nodegraph/nodes/math/arithmeticnodes.h>
 
 #include <onyx/ui/widgets.h>
 #include <imgui_node_editor.h>

@@ -1,10 +1,10 @@
 #include <onyx/editor/panels/sceneeditor/componentspanel.h>
 
 #include <onyx/editor/editor_localization.h>
-#include <onyx/editor/modules/sceneeditor.h>
 #include <onyx/editor/commands/commandgraph.h>
 #include <onyx/editor/commands/scene/addcomponentcommand.h>
 #include <onyx/editor/commands/scene/modifycomponentcommand.h>
+#include <onyx/editor/windows/sceneeditor.h>
 
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
@@ -101,9 +101,7 @@ namespace Onyx::Editor::SceneEditor
                             Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
 
                             void* componentPtr = componentStorage.value(selectedEntity);
-
-                            Ui::PropertyGrid::SetEditActive(false);
-
+                            
                             bool hasModified = Ui::PropertyInspectors::Draw(componentMeta->GetRuntimeTypeId(), componentPtr, m_ShowAll);
                             
                             if (hasModified)

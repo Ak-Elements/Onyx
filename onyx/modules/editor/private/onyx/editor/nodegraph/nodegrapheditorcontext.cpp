@@ -1,6 +1,6 @@
 #include <onyx/editor/nodegraph/nodegrapheditorcontext.h>
 
-#include <onyx/editor/modules/nodeeditor.h>
+#include <onyx/editor/windows/nodegrapheditor.h>
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/localizedstring.h>
 

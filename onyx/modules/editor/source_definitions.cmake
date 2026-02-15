@@ -18,8 +18,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     nodegraph/shadergrapheditorcontext.h
     nodegraph/typenodegrapheditorcontext.h
     nodegraph/volumeshadergrapheditorcontext.h
-    modules/nodeeditor.h
-    modules/sceneeditor.h
     panels/contentbrowserpanel.h
     panels/nodeeditor/canvaspanel.h
     panels/nodeeditor/propertiespanel.h
@@ -37,6 +35,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     windows/commandhistorywindow.h
     windows/editorwindow.h
     windows/editormainwindow.h
+    windows/nodegrapheditor.h
+    windows/sceneeditor.h
     windows/startupwindow.h
     windows/settings/inputactionsettingswindow.h
 )
@@ -61,8 +61,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     nodegraph/rendergraphnodes_editor.cpp
     nodegraph/shadergrapheditorcontext.cpp
     nodegraph/volumeshadergrapheditorcontext.cpp
-    modules/nodeeditor.cpp
-    modules/sceneeditor.cpp
     panels/contentbrowserpanel.cpp
     panels/nodeeditor/canvaspanel.cpp
     panels/nodeeditor/propertiespanel.cpp
@@ -81,6 +79,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     windows/commandhistorywindow.cpp
     windows/editorwindow.cpp
     windows/editormainwindow.cpp
+    windows/nodegrapheditor.cpp
+    windows/sceneeditor.cpp
     windows/startupwindow.cpp
     windows/settings/inputactionsettingswindow.cpp
 )

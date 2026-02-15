@@ -8,14 +8,13 @@
 #include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 
-#include <onyx/editor/modules/sceneeditor.h>
+#include <onyx/editor/windows/sceneeditor.h>
 #include <onyx/editor/editor_localization.h>
 
 #include <onyx/editor/commands/commandgraph.h>
 #include <onyx/editor/commands/scene/createentitycommand.h>
 #include <onyx/editor/commands/scene/deleteentitycommand.h>
 #include <onyx/editor/commands/scene/renameentitycommand.h>
-#include <onyx/editor/modules/sceneeditor.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 

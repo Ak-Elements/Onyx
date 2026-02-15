@@ -1,4 +1,3 @@
-#include <onyx/editor/modules/nodeeditor.h>
 #include <onyx/graphics/shadergraph/nodes/sampletexturenode.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>

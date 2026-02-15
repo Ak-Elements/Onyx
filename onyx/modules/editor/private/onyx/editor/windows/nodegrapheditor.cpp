@@ -1,4 +1,4 @@
-#include <onyx/editor/modules/nodeeditor.h>
+#include <onyx/editor/windows/nodegrapheditor.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 

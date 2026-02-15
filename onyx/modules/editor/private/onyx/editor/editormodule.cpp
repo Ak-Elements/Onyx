@@ -1,11 +1,10 @@
 #include <onyx/editor/editormodule.h>
 #include <onyx/editor/editor_localization.h>
 
-#include <onyx/editor/modules/nodeeditor.h>
-#include <onyx/editor/modules/sceneeditor.h>
 #include <onyx/editor/nodegraph/rendergrapheditorcontext.h>
-
 #include <onyx/editor/windows/editormainwindow.h>
+#include <onyx/editor/windows/nodegrapheditor.h>
+#include <onyx/editor/windows/sceneeditor.h>
 #include <onyx/editor/windows/startupwindow.h>
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 

@@ -1,4 +1,4 @@
-#include <onyx/editor/modules/sceneeditor.h>
+#include <onyx/editor/windows/sceneeditor.h>
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetsystem.h>
