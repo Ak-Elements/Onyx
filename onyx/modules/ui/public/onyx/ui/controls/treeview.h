@@ -12,7 +12,7 @@ namespace Onyx::Ui
     struct TreeItem
     {
         String Label;
-        InplaceFunction<void()> OnSelected;
+        std::function<void()> OnSelected;
 
         HashMap<String, TreeItem> Children;
     };
