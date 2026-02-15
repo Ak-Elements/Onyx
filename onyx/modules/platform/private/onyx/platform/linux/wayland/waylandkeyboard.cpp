@@ -193,15 +193,25 @@ namespace Onyx::Platform::Wayland
         inputSystem.AddEvent(keyboardEvent);
     }
 
-    /*static*/ void WaylandKeyboard::OnModifierChange(void* instance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 mods_depressed, onyxU32 mods_latched, onyxU32 mods_locked, onyxU32 group)
+    /*static*/ void WaylandKeyboard::OnModifierChange(void* instance, wl_keyboard* /*keyboard*/, onyxU32 /*serial*/, onyxU32 modsDepressed, onyxU32 modsLatched, onyxU32 modsLocked, onyxU32 group)
     {
-        ONYX_UNUSED(instance);
-        ONYX_UNUSED(keyboard);
-        ONYX_UNUSED(serial);
-        ONYX_UNUSED(mods_depressed);
-        ONYX_UNUSED(mods_latched);
-        ONYX_UNUSED(mods_locked);
-        ONYX_UNUSED(group);
+        WaylandKeyboard& keyboardInstance = *reinterpret_cast<WaylandKeyboard*>(instance);
+        ONYX_ASSERT(keyboardInstance.m_Input != nullptr);
+
+        WaylandInput& input = *keyboardInstance.m_Input;
+        WaylandPlatformContext& context = input.GetContext();
+        
+        Xkb& xkb = context.GetXkb();
+        ::xkb_state* xkbState = xkb.GetState();
+
+        ::xkb_state_update_mask(xkbState,
+                          modsDepressed,
+                          modsLatched,
+                          modsLocked,
+                          0,
+                          0,
+                          group);
+
     }
 }
 

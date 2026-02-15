@@ -22,7 +22,7 @@ namespace Onyx::Platform::Wayland
         static void OnEnterSurface(void* inputInstance, wl_keyboard* keyboard, onyxU32 serial, wl_surface* surface, wl_array* keys);
         static void OnLeaveSurface(void* inputInstance, wl_keyboard* keyboard, onyxU32 serial, wl_surface* surface);
         static void OnKeyChange(void* inputInstance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 time, onyxU32 key, onyxU32 state);
-        static void OnModifierChange(void* inputInstance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 mods_depressed, onyxU32 mods_latched, onyxU32 mods_locked, onyxU32 group);
+        static void OnModifierChange(void* inputInstance, wl_keyboard* keyboard, onyxU32 serial, onyxU32 modsDepressed, onyxU32 modsLatched, onyxU32 modsLocked, onyxU32 group);
 
     private:
         WaylandInput* m_Input = nullptr;
