@@ -55,13 +55,7 @@ namespace Onyx::Platform::Wayland
 
         ONYX_ASSERT(m_Compositor != nullptr, "Could not bind wayland protocols. Missing Compositior");
         ONYX_ASSERT(m_Shell != nullptr, "Could not bind wayland protocols. Missing Shell");
-
-#if !ONYX_IS_RETAIL
-        if (m_Seat == nullptr)
-        {
-            ONYX_LOG_WARNING("Input handling not available");
-        }
-#endif
+        
         Start();
     }
 

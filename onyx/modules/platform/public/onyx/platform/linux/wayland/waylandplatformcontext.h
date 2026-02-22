@@ -70,7 +70,6 @@ namespace Onyx::Platform
             wl_display* GetDisplayHandle() { return m_Display; }
             wl_registry* GetRegistryHandle() { return m_Registry; }
             wl_compositor* GetCompositiorHandle() { return m_Compositor; }
-            wl_seat* GetSeatHandle() { return m_Seat; }
             wl_shm* GetSharedMemory() { return m_SharedMemory; }
 
             Xkb& GetXkb() { return m_Xkb; }
@@ -96,7 +95,6 @@ namespace Onyx::Platform
             wl_registry* m_Registry = nullptr;
             wl_compositor* m_Compositor = nullptr;
             xdg_wm_base* m_Shell = nullptr;
-            wl_seat* m_Seat = nullptr;
             wl_shm* m_SharedMemory = nullptr;
 
             Xkb m_Xkb;
