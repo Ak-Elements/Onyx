@@ -15,7 +15,7 @@ namespace Onyx::InputActions
     InputActionSystem::InputActionSystem(const InputActionSystemSettings& settings, Input::InputSystem& inputSystem, Assets::AssetSystem& assetSystem)
         : m_InputSystem(&inputSystem)
     {
-        Assets::AssetHandle<InputActionsAsset> defaultInputActionsMap;
+        Assets::AssetHandle<InputActionsContext> defaultInputActionsMap;
         assetSystem.GetAsset(settings.InputActionId, defaultInputActionsMap);
         defaultInputActionsMap->GetOnLoadedEvent().Connect<&InputActionSystem::SetActionsMapAsset>(this);
         if (defaultInputActionsMap.IsValid() && defaultInputActionsMap.IsLoaded())
@@ -34,7 +34,7 @@ namespace Onyx::InputActions
         UpdateContext(m_InputActionsAsset->GetContext(m_ContextId));
     }
 
-    void InputActionSystem::SetActionsMapAsset(Assets::AssetHandle<InputActionsAsset> inputAsset)
+    void InputActionSystem::SetActionsMapAsset(Assets::AssetHandle<InputActionsContext> inputAsset)
     {
         inputAsset->GetOnLoadedEvent().Disconnect(this);
 

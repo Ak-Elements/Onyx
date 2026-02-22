@@ -20,8 +20,6 @@ namespace Onyx::InputActions
 {
     struct InputBindingContext;
     struct InputActionsMap;
-    class InputActionsAsset;
-    struct InputActionsContext;
     struct InputAction;
 
     struct InputActionEvent
@@ -87,7 +85,7 @@ namespace Onyx::InputActions
 
         void Update();
 
-        void SetActionsMapAsset(Assets::AssetHandle<InputActionsAsset> inputAsset);
+        void SetActionsMapAsset(Assets::AssetHandle<InputActionsContext> inputAsset);
         void SetCurrentInputActionMap(StringId32 id);
 
         Optional<InputActionState*> GetActionState(StringId64 actionId);
@@ -119,7 +117,7 @@ namespace Onyx::InputActions
     private:
         Input::InputSystem* m_InputSystem = nullptr;
 
-        Assets::AssetHandle<InputActionsAsset> m_InputActionsAsset;
+        Assets::AssetHandle<InputActionsContext> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
         HashMap<StringId64, InputActionSignalT> m_InputActionSignals;
 

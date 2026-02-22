@@ -5,10 +5,10 @@
 
 namespace Onyx::InputActions
 {
-    class InputActionsAsset : public Assets::Asset<InputActionsAsset>
+    class InputActionsContext : public Assets::Asset<InputActionsContext>
     {
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Input::Assets::TextureAsset" };
+        static constexpr StringId32 TypeId{ "Onyx::InputActions::InputActionsContext" };
         StringId32 GetTypeId() const { return TypeId; }
 
         HashMap<StringId32, InputActionsMap>& GetMaps() { return m_Contexts; }

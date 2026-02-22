@@ -2,11 +2,32 @@
 
 #include <onyx/input/inputid.h>
 #include <onyx/input/inputsystem.h>
+#include <onyx/inputactions/inputactionsystem.h>
 #include <onyx/inputactions/inputactionsmap.h>
 #include <onyx/inputactions/inputactionsserializer.h>
 #include <onyx/inputactions/inputaction.h>
 #include <onyx/inputactions/bindings/inputbindingsfactory.h>
+#include <onyx/inputactions/modifiers/inputmodifier.h>
+#include <onyx/inputactions/modifiers/inputmodifiersfactory.h>
+#include <onyx/inputactions/triggers/inputtrigger.h>
+#include <onyx/inputactions/triggers/inputtriggersfactory.h>
+
 #include <onyx/assets/assetsystem.h>
+
+#include <onyx/ui/imguisystem.h>
+#include <onyx/editor/windows/commandhistorywindow.h>
+
+#include <onyx/editor/commands/inputactions/addinputactioncommand.h>
+#include <onyx/editor/commands/inputactions/addinputbindingcommand.h>
+#include <onyx/editor/commands/inputactions/addinputmodifiercommand.h>
+#include <onyx/editor/commands/inputactions/addinputtriggercommand.h>
+#include <onyx/editor/commands/inputactions/bindinputbindingslotcommand.h>
+#include <onyx/editor/commands/inputactions/deleteinputactioncommand.h>
+#include <onyx/editor/commands/inputactions/deleteinputbindingcommand.h>
+#include <onyx/editor/commands/inputactions/deleteinputmodifiercommand.h>
+#include <onyx/editor/commands/inputactions/deleteinputtriggercommand.h>
+#include <onyx/editor/commands/inputactions/modifyinputactioncommand.h>
+#include <onyx/editor/commands/inputactions/renameinputactioncommand.h>
 
 #include <onyx/filesystem/filedialog.h>
 
@@ -16,6 +37,7 @@
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/scopedindent.h>
 #include <onyx/ui/scopedstyle.h>
+#include <onyx/ui/propertyinspector.h>
 #include <onyx/ui/widgets.h>
 
 #include <onyx/editor/editor_localization.h>
@@ -30,6 +52,58 @@
 
 namespace Onyx::Editor
 {
+    namespace
+    {
+        template <typename FactoryT, typename CommandT>
+        bool RenderCreatePopup(InputActionSettingsWindow& inputSettingsWindow, ICommandGraph& commandsHistory, const Localization::LocalizationModule& localizationSystem)
+        {
+            if (ImGui::BeginPopupEx(ImGui::GetItemID(), ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings))
+            {
+                // TODO: Filter bindings that are shown to the user to avoid adding unnecessarily comlex options
+                const HashMap<StringId32, typename FactoryT::MetaData>& registeredBindings = FactoryT::GetTypes();
+                for (auto&& [typeId, bindingMetaData] : registeredBindings)
+                {
+                    StringView buttonLabel = Format::Format("{} {}", Localization::Generic::Add, localizationSystem.GetLocalized(typeId));
+                    if (ImGui::MenuItem(buttonLabel.data()))
+                    {
+                        commandsHistory.Push<CommandT>(typeId, inputSettingsWindow);
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+
+                ImGui::EndPopup();
+                return true;
+            }
+
+            return false;
+        }
+
+        template <typename FactoryT, typename AddCommandT>
+        bool RenderAddHeader(InputActionSettingsWindow& inputSettingsWindow, ICommandGraph& commandsHistory, const Localization::LocalizationModule& localizationSystem)
+        {
+            Ui::ScopedImGuiStyle style
+            {
+                 { ImGuiStyleVar_FrameBorderSize, 0.0f },
+            };
+            Ui::ScopedImGuiColor color
+            {
+                { ImGuiCol_Button, 0x30000000 },
+            };
+        
+            bool shouldOpen = false;
+            ImGui::Spring();
+        
+            if (Ui::Button("+"))
+            {
+                ImGui::OpenPopupEx(ImGui::GetItemID(), ImGuiWindowFlags_NoTitleBar);
+            }
+
+            shouldOpen = RenderCreatePopup<FactoryT, AddCommandT>(inputSettingsWindow, commandsHistory, localizationSystem);
+        
+            return shouldOpen;
+        }
+    }
+
     void InputActionSettingsWindow::OnOpen()
     {
         Input::InputSystem& inputSystem = GetEngineSystem<Input::InputSystem>();
@@ -40,6 +114,14 @@ namespace Onyx::Editor
         inputSystem.OnKey().Connect<&InputActionSettingsWindow::OnKey>(this);
         inputSystem.OnControllerAxisChange().Connect<&InputActionSettingsWindow::OnControllerAxisChange>(this);
         inputSystem.OnControllerButton().Connect<&InputActionSettingsWindow::OnControllerButton>(this);
+
+        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        inputActionSystem.OnInput<&InputActionSettingsWindow::OnDeleteAction>("Delete"_id64, this);
+
+        Ui::ImGuiSystem& imguiSystem = GetEngineSystem<Ui::ImGuiSystem>();
+        CommandHistoryWindow& history = imguiSystem.OpenWindow<CommandHistoryWindow>(*this);
+        //history.SetWindowClass(m_WindowClass);
+        history.SetCommandQueue(m_CommandsHistory);
 
     }
 
@@ -60,7 +142,7 @@ namespace Onyx::Editor
         if (IsOpen() == false)
             return;
 
-        const String& assetName = m_EditableCopy.IsValid() ? m_EditableCopy->GetName() : "None";
+        const String& assetName = "None";
 
         SetWindowFlags(ImGuiWindowFlags_MenuBar);
 
@@ -81,15 +163,16 @@ namespace Onyx::Editor
                         FilePath path;
                         if (FileSystem::FileDialog::OpenFileDialog(path, "Input actions asset", InputActions::InputActionsSerializer::Extensions))
                         {
+                            Assets::AssetHandle<InputActions::InputActionsContext> asset;
                             Assets::AssetId assetId(path);
-                            assetSystem.GetAssetUnmanaged(assetId, m_EditableCopy);
-                            m_EditableCopy->GetOnLoadedEvent().Connect<&InputActionSettingsWindow::OnInputAssetLoaded>(this);
+                            assetSystem.GetAssetUnmanaged(assetId, asset);
+                            asset->GetOnLoadedEvent().Connect<&InputActionSettingsWindow::OnInputAssetLoaded>(this);
                         }
                     }
 
                     if (ImGui::MenuItem(Localization::Generic::Save.Get().data()))
                     {
-                        assetSystem.SaveAsset(m_EditableCopy);
+                        //assetSystem.SaveAsset(m_EditableCopy);
                     }
 
                     if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
@@ -97,7 +180,7 @@ namespace Onyx::Editor
                         FilePath path;
                         if (FileSystem::FileDialog::SaveFileDialog(path, "Input actions asset", InputActions::InputActionsSerializer::Extensions))
                         {
-                            assetSystem.SaveAssetAs(path, m_EditableCopy);
+                           // assetSystem.SaveAssetAs(path, m_EditableCopy);
                         }
                     }
 
@@ -107,35 +190,30 @@ namespace Onyx::Editor
                 EndMenuBar();
             }
 
-            if (m_EditableCopy.IsValid() && m_EditableCopy->IsLoaded())
+            if (m_OpenInputContext.GetActions().empty() == false)
             {
-                HashMap<StringId32, InputActions::InputActionsMap>& actionMaps = m_EditableCopy->GetMaps();
+                HashMap<StringId32, InputActions::InputActionsMap> actionMaps { { "t", m_OpenInputContext } };
 
                 Ui::ScopedImGuiStyle style(ImGuiStyleVar_CellPadding, ImVec2(4, 4));
-                if (ImGui::BeginTable("InputActions", 3, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable))
+                if (ImGui::BeginTable("InputActions", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable))
                 {
-                    ImGui::TableSetupColumn("input_action_map_column", 0, 0.2f);
                     ImGui::TableSetupColumn("input_action_column", ImGuiTableColumnFlags_None, 0.4f);
-                    ImGui::TableSetupColumn("input_action_data_column", ImGuiTableColumnFlags_None, 0.4f);
+                    ImGui::TableSetupColumn("input_action_data_column", ImGuiTableColumnFlags_None, 0.6f);
                     
                     ImGui::TableNextRow();
                     
                     // left panel
                     ImGui::TableSetColumnIndex(0);
-                    RenderActionMaps(actionMaps);
-
-                    // middle panel
-                    ImGui::TableSetColumnIndex(1);
                     RenderInputActions();
 
                     // right panel
-                    ImGui::TableSetColumnIndex(2);
+                    ImGui::TableSetColumnIndex(1);
                     //ImGui::BeginVertical("###InputActionMap::InputAction::Data", ImGui::GetContentRegionAvail());
 
 
                     Ui::PropertyGrid::BeginPropertyGrid("InputActionProps", 80.0f);
 
-                    if (m_SelectedActionMapId.IsValid() && (m_SelectedActionIndex != INVALID_INDEX_32))
+                    if (m_SelectedActionIndex != INVALID_INDEX_32)
                         RenderActionProperties();
 
                     if (m_SelectedBindingIndex != INVALID_INDEX_32)
@@ -166,8 +244,8 @@ namespace Onyx::Editor
             return;
         }
 
-        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
-        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Button) });
+        m_CommandsHistory.Push<BindInputBindingSlotCommand>(m_SelectedActionId, m_SelectedBindingIndex, m_SelectedBindingSlotIndex, event.Button, *this);
+        m_IsListeningOnInput = false;
     }
 
     void InputActionSettingsWindow::OnMousePositionChange(const Input::MousePositionEvent& /*event*/)
@@ -185,8 +263,7 @@ namespace Onyx::Editor
             return;
         }
 
-        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
-        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Key) });
+        m_CommandsHistory.Push<BindInputBindingSlotCommand>(m_SelectedActionId, m_SelectedBindingIndex, m_SelectedBindingSlotIndex, event.Key, *this);
         m_IsListeningOnInput = false;
     }
 
@@ -201,8 +278,7 @@ namespace Onyx::Editor
             return;
         }
 
-        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
-        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Axis) });
+        m_CommandsHistory.Push<BindInputBindingSlotCommand>(m_SelectedActionId, m_SelectedBindingIndex, m_SelectedBindingSlotIndex, event.Axis, *this);
         m_IsListeningOnInput = false;
     }
 
@@ -217,49 +293,24 @@ namespace Onyx::Editor
             return;
         }
 
-        InputActions::InputBinding& selectedInputBinding = GetSelectedInputBinding();
-        selectedInputBinding.SetInputBindingSlot(m_SelectedBindingSlotIndex, Input::InputID{ .ID = Enums::ToIntegral(event.Button) });
+        m_CommandsHistory.Push<BindInputBindingSlotCommand>(m_SelectedActionId, m_SelectedBindingIndex, m_SelectedBindingSlotIndex, event.Button, *this);
         m_IsListeningOnInput = false;
-    }
-
-    void InputActionSettingsWindow::RenderActionMaps(HashMap<StringId32, InputActions::InputActionsMap>& actionMaps)
-    {
-        // all action maps of the project
-        ImGui::BeginListBox("###InputActionMaps", ImGui::GetContentRegionAvail());
-
-        onyxU32 i = 0;
-        for (auto&& [key, actionMap] : actionMaps)
-        {
-            if (Ui::Selectable(actionMap.GetName(), m_MapsSelectedStates[i++], false, ImGuiSelectableFlags_SelectOnClick | ImGuiSelectableFlags_SpanAvailWidth))
-            {
-                if (m_SelectedActionMapId != key)
-                {
-                    m_SelectedActionMapId = key;
-
-                    m_ActionsSelectedStates.clear();
-                    m_ActionsSelectedStates.resize(m_EditableCopy->GetContext(m_SelectedActionMapId).GetActions().size());
-                }
-            }
-        }
-
-        ImGui::EndListBox();
     }
 
     void InputActionSettingsWindow::RenderInputActions()
     {
         // actions in the selected map
         Ui::ScopedImGuiId id("###InputActionMap::InputActions");
-        if (m_SelectedActionMapId.IsValid())
+        //if (m_SelectedActionMapId.IsValid())
         {
             onyxS32 i = 0;
-            InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+            InputActions::InputActionsMap& selectedMap = m_OpenInputContext;
 
             if (ImGui::BeginPopupContextItem("###CreateInputAction", ImGuiPopupFlags_MouseButtonRight))
             {
                 if (Ui::Button(Localization::Generic::Add))
                 {
-                    InputActions::InputAction& newAction = selectedMap.GetActions().emplace_back("New Action");
-                    newAction.SetType(InputActions::ActionType::Bool);
+                    m_CommandsHistory.Push<AddInputActionCommand>(*this);
                     ImGui::CloseCurrentPopup();
                 }
                 ImGui::EndPopup();
@@ -283,28 +334,10 @@ namespace Onyx::Editor
                     String name(action.GetId().GetString());
                     if (Ui::DrawRenameInput(itemIdString, name, ImVec2(-1,0), isSelected))
                     {
-                        action.SetName(name);
+                        m_CommandsHistory.Push<RenameInputActionCommand>(action.GetId(), StringId64(name), *this);
                     }
 
-                    if (ImGui::BeginPopupEx(ImGui::GetItemID(), ImGuiWindowFlags_None))
-                    {
-                        //const HashMap<StringId32, InplaceFunction<UniquePtr<Input::InputBinding>()>>& registeredBindings = Input::InputBindingsRegistry::GetRegisteredBindings();
-                        //for (auto&& [typeId, createFunctor] : registeredBindings)
-                        //{
-                        //    StringView buttonLabel = Format::Format("{} {}", Localization::Generic::Add, m_LocalizationModule->GetLocalized(typeId));
-                        //    if (ImGui::MenuItem(buttonLabel.data()))
-                        //    {
-                        //        action.GetBindings().emplace_back(createFunctor());
-                        //        ImGui::CloseCurrentPopup();
-                        //    }
-                        //}
-
-                        ImGui::EndPopup();
-
-                        return true;
-                    }
-
-                    return false;
+                    return RenderCreatePopup<InputActions::InputBindingsFactory, AddInputBindingCommand>(*this, m_CommandsHistory, GetEngineSystem<Localization::LocalizationModule>());
                 };
 
                 Ui::ScopedImGuiColor color(ImGuiCol_FrameBg, 0x0);
@@ -320,6 +353,7 @@ namespace Onyx::Editor
                     bool hasSelectedChildChanged = isSelected && (wasSelected == false);
                     if  (hasSelectedChildChanged  || (wasOpen == false))
                     {
+                        m_SelectedActionId = action.GetId();
                         m_SelectedActionIndex = i;
                         if (hasSelectedChildChanged == false)
                         {
@@ -336,6 +370,7 @@ namespace Onyx::Editor
                 {
                     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left, ImGuiInputFlags_None))
                     {
+                        m_SelectedActionId = action.GetId();
                         m_SelectedActionIndex = i;
                         m_SelectedBindingIndex = INVALID_INDEX_32;
                         m_SelectedBindingSlotIndex = INVALID_INDEX_32;
@@ -397,8 +432,8 @@ namespace Onyx::Editor
 
             StringView boundInputLabel;
             Input::InputID boundInputValue = binding.GetBoundInputForSlot(slotIndex);
-            StringView bindingInputTypeLabel = Enums::ToString(Input::GetInputType(boundInputValue));
-
+            StringView bindingInputTypeLabel = Input::GetInputTypeString(boundInputValue);
+            
             if (boundInputValue == Input::InputID::Invalid)
             {
                 boundInputLabel = Localization::Editor::InputActionSettings::Bindings::Unbound.Get();
@@ -408,7 +443,7 @@ namespace Onyx::Editor
                 boundInputLabel = Input::ToString(boundInputValue);
             }
 
-            StringView inputBindingSlotLabel = Format::Format("{} [{}]", boundInputLabel, bindingInputTypeLabel);
+            StringView inputBindingSlotLabel = Format::Format("{} [ {} ]", boundInputLabel, bindingInputTypeLabel);
             
             if (Ui::Selectable(inputBindingSlotLabel, isBindingSlotSelected))
             {
@@ -417,12 +452,11 @@ namespace Onyx::Editor
                 m_SelectedBindingSlotIndex = slotIndex;
             }
         }
-        
     }
 
     void InputActionSettingsWindow::RenderActionProperties()
     {
-        InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
+        InputActions::InputActionsMap& selectedMap = m_OpenInputContext;
         DynamicArray<InputActions::InputAction>& selectedActions = selectedMap.GetActions();
         InputActions::InputAction& selectedAction = selectedActions[m_SelectedActionIndex];
 
@@ -432,38 +466,27 @@ namespace Onyx::Editor
 
         if (Ui::PropertyGrid::DrawProperty<InputActions::ActionType, InputActions::ActionType::Invalid, InputActions::ActionType::Count>("Value Type", actionType))
         {
-            selectedAction.GetBindings().clear();
-            selectedAction.SetType(actionType);
+            m_CommandsHistory.Push<ModifyInputActionCommand>(m_SelectedActionId, actionType, *this);
         }
     }
 
-
-    void InputActionSettingsWindow::OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsAsset> inputActionsAsset)
+    void InputActionSettingsWindow::OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsContext> inputActionsAsset)
     {
         m_IsDirty = false;
-        //m_CurrentActionMapAsset = &actionMapAsset;
 
-        m_EditableCopy = inputActionsAsset;
+        m_OpenInputContext = inputActionsAsset->GetMaps().begin()->second;
+
+        m_CommandsHistory.SetBase(m_OpenInputContext);
+        m_CommandsHistory.SetHead(m_OpenInputContext);
 
         m_MapsSelectedStates.clear();
-        m_MapsSelectedStates.resize(m_EditableCopy->GetMaps().size(), false);
+        m_MapsSelectedStates.resize(1, false);
 
         m_ActionsSelectedStates.clear();
-        m_SelectedActionMapId = 0;
         m_SelectedActionIndex = INVALID_INDEX_32;
+        m_SelectedActionId = StringId32::Invalid;
         m_SelectedBindingIndex = INVALID_INDEX_32;
         m_SelectedBindingSlotIndex = INVALID_INDEX_32;
-    }
-
-
-    InputActions::InputBinding& InputActionSettingsWindow::GetSelectedInputBinding()
-    {
-        InputActions::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
-        DynamicArray<InputActions::InputAction>& availableActions = selectedMap.GetActions();
-        InputActions::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
-        DynamicArray<UniquePtr<InputActions::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
-        InputActions::InputBinding& selectedInputBinding = *selectedActionBindings[m_SelectedBindingIndex];
-        return selectedInputBinding;
     }
 
     void InputActionSettingsWindow::RenderSelectedBindingProperties()
@@ -471,61 +494,91 @@ namespace Onyx::Editor
         if (m_SelectedBindingIndex == INVALID_INDEX_32)
             return;
 
-        //Input::InputActionsMap& selectedMap = m_EditableCopy->GetContext(m_SelectedActionMapId);
-        //DynamicArray<Input::InputAction>& availableActions = selectedMap.GetActions();
-        //Input::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
-        //DynamicArray<Input::InputBinding>& selectedActionBindings = selectedAction.GetBindings();
-        //Input::InputBinding& selectedInputBinding = selectedActionBindings[m_SelectedBindingIndex];
+        Optional<InputActions::InputAction*> selectedActionOptional = m_OpenInputContext.GetAction(m_SelectedActionId);
+        ONYX_ASSERT(selectedActionOptional.has_value());
+        InputActions::InputAction& selectedAction = *selectedActionOptional.value_or(nullptr);
 
-        //ImGui::BeginVertical("props");
+        DynamicArray<UniquePtr<InputActions::InputBinding>>& selectedActionBindings = selectedAction.GetBindings();
+        InputActions::InputBinding& selectedBinding = *selectedActionBindings[m_SelectedBindingIndex];
 
+        DynamicArray<UniquePtr<InputActions::InputModifier>>& modifiers = selectedBinding.GetModifiers();
+        const onyxU32 modifiersCount = static_cast<onyxU32>(modifiers.size());
+        
+        const auto AddModifierFunctor = [&]()
+        {
+            return RenderAddHeader<InputActions::InputModifiersFactory, AddInputModifierCommand>(*this, m_CommandsHistory, GetEngineSystem<Localization::LocalizationModule>());
+        };
+        
+        const auto AddTriggerFunctor = [&]()
+        {
+            return RenderAddHeader<InputActions::InputTriggersFactory, AddInputTriggerCommand>(*this, m_CommandsHistory, GetEngineSystem<Localization::LocalizationModule>());
+        };
 
-        //DynamicArray<Input::InputModifier>& modifiers = selectedInputBinding->GetModifiers();
-        //const onyxU32 modifiersCount = static_cast<onyxU32>(modifiers.size());
-        //
-        //auto AddModifierFunctor = [&]()
-        //{
-        //    Ui::ScopedImGuiStyle style
-        //    {
-        //         { ImGuiStyleVar_FrameBorderSize, 0.0f },
-        //    };
-        //    Ui::ScopedImGuiColor color
-        //    {
-        //        { ImGuiCol_Button, 0x30000000 },
-        //    };
-        //
-        //    bool shouldOpen = false;
-        //    ImGui::Spring();
-        //
-        //    if (Ui::Button("+"))
-        //    {
-        //        modifiers.emplace_back(0, selectedInputBinding->GetInputType());
-        //        shouldOpen = true;
-        //    }
-        //
-        //    return shouldOpen;
-        //};
-        //
-        //if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Modifiers", AddModifierFunctor))
-        //{
-        //    for (onyxU32 i = 0; i < modifiersCount; ++i)
-        //    {
-        //        Input::InputModifier& modifier = modifiers[i];
-        //        String input = Format::Format("{}", modifier.Input);
-        //        Ui::PropertyGrid::DrawPropertyName("Input");
-        //        Ui::PropertyGrid::DrawPropertyValue([&]()
-        //        {
-        //            ImGui::Text(input.data());
-        //            if (Ui::Button(Localization::Editor::InputActionSettings::Bindings::Listen))
-        //            {
-        //                m_IsListeningOnInput = true;
-        //            }
-        //        } );
-        //    }
-        //
-        //    Ui::PropertyGrid::EndPropertyGroup();
-        //}
-        //
+        if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Modifiers", AddModifierFunctor))
+        {
+            for (onyxU32 i = 0; i < modifiersCount; ++i)
+            {
+                InputActions::InputModifier& modifier = *modifiers[i];
+                String key = Format::Format("Modifier {}", i);
+                String input = Format::Format("{}", modifier.GetTypeId().GetString());
+
+                const auto RemoveFunctor = [&, index = i]()
+                {
+                    ImGui::Spring();
+                
+                    if (Ui::Button("-"))
+                    {
+                        m_CommandsHistory.Push<DeleteInputModifierCommand>(m_SelectedActionId, m_SelectedBindingIndex, index, *this);
+                        return false;
+                    }
+
+                    return true;
+                };
+
+                if (Ui::PropertyGrid::BeginPropertyGroup(key, RemoveFunctor))
+                {
+                    Ui::PropertyGrid::DrawProperty("##test", input);
+                    Ui::PropertyGrid::EndPropertyGroup();
+                }
+            }
+    
+            Ui::PropertyGrid::EndPropertyGroup();
+        }
+
+        DynamicArray<UniquePtr<InputActions::InputTrigger>>& triggers = selectedBinding.GetTriggers();
+        const onyxU32 triggersCount = static_cast<onyxU32>(triggers.size());
+        if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Triggers", AddTriggerFunctor))
+        {
+            for (onyxU32 i = 0; i < triggersCount; ++i)
+            {
+                InputActions::InputTrigger& trigger = *triggers[i];
+                String key = Format::Format("Trigger {}", i);
+                String input = Format::Format("{}", trigger.GetTypeId().GetString());
+
+                const auto RemoveFunctor = [&, index = i]()
+                {
+                    ImGui::Spring();
+                
+                    if (Ui::Button("-"))
+                    {
+                        m_CommandsHistory.Push<DeleteInputTriggerCommand>(m_SelectedActionId, m_SelectedBindingIndex, index, *this);
+                        return false;
+                    }
+
+                    return true;
+                };
+
+                if( Ui::PropertyGrid::BeginPropertyGroup(key, RemoveFunctor) )
+                {
+                    const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetMetaData(trigger.GetTypeId());
+
+                    Ui::PropertyInspectors::Draw(metaData.RuntimeTypeId, &trigger, false);
+                    Ui::PropertyGrid::EndPropertyGroup();
+                }                
+            }
+    
+            Ui::PropertyGrid::EndPropertyGroup();
+        }
 
         if (Ui::Button(Localization::Editor::InputActionSettings::Bindings::Listen))
         {
@@ -533,5 +586,45 @@ namespace Onyx::Editor
         }
         
         //ImGui::EndVertical();
+    }
+
+    void InputActionSettingsWindow::OnDeleteAction(const InputActions::InputActionEvent& deleteAction)
+    {
+        if ( m_IsListeningOnInput )
+        {
+            return;
+        }
+
+        if (deleteAction.GetData<bool>() == false)
+        {
+            return;
+        }
+
+        if (IsFocused() == false)
+            return;
+
+        if( m_SelectedBindingIndex != INVALID_INDEX_32 )
+        {
+            InputActions::InputActionsMap& selectedMap = m_OpenInputContext;
+            DynamicArray<InputActions::InputAction>& availableActions = selectedMap.GetActions();
+            InputActions::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
+
+            m_CommandsHistory.Push<DeleteInputBindingCommand>(selectedAction.GetId(), m_SelectedBindingIndex, *this);
+            
+            m_SelectedBindingIndex = INVALID_INDEX_32;
+            m_SelectedBindingSlotIndex = INVALID_INDEX_32;
+        }
+        else if( m_SelectedActionIndex != INVALID_INDEX_32 )
+        {
+            InputActions::InputActionsMap& selectedMap = m_OpenInputContext;
+            DynamicArray<InputActions::InputAction>& availableActions = selectedMap.GetActions();
+            InputActions::InputAction& selectedAction = availableActions[m_SelectedActionIndex];
+
+            m_CommandsHistory.Push<DeleteInputActionCommand>(selectedAction.GetId(), *this);
+            
+            m_SelectedActionIndex = INVALID_INDEX_32;
+            m_SelectedActionId = StringId32::Invalid;
+        }
+        
     }
 }

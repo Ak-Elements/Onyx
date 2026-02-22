@@ -4,6 +4,18 @@ set(onyx_TARGET_PUBLIC_SOURCES
     camera/freecamera.h
     commands/command.h
     commands/commandgraph.h
+    commands/inputactions/addinputactioncommand.h
+    commands/inputactions/addinputbindingcommand.h
+    commands/inputactions/addinputmodifiercommand.h
+    commands/inputactions/addinputtriggercommand.h
+    commands/inputactions/bindinputbindingslotcommand.h
+    commands/inputactions/deleteinputactioncommand.h
+    commands/inputactions/deleteinputbindingcommand.h
+    commands/inputactions/deleteinputmodifiercommand.h
+    commands/inputactions/deleteinputtriggercommand.h
+    commands/inputactions/inputactioncommand.h
+    commands/inputactions/modifyinputactioncommand.h
+    commands/inputactions/renameinputactioncommand.h
     commands/scene/addcomponentcommand.h
     commands/scene/createentitycommand.h
     commands/scene/deleteentitycommand.h
@@ -45,6 +57,18 @@ set(onyx_TARGET_PRIVATE_SOURCES
     editormodule.cpp
     editor_localization.cpp
     camera/freecamera.cpp
+    commands/inputactions/addinputactioncommand.cpp
+    commands/inputactions/addinputbindingcommand.cpp
+    commands/inputactions/addinputmodifiercommand.cpp
+    commands/inputactions/addinputtriggercommand.cpp
+    commands/inputactions/bindinputbindingslotcommand.cpp
+    commands/inputactions/deleteinputactioncommand.cpp
+    commands/inputactions/deleteinputbindingcommand.cpp
+    commands/inputactions/deleteinputmodifiercommand.cpp
+    commands/inputactions/deleteinputtriggercommand.cpp
+    commands/inputactions/inputactioncommand.cpp
+    commands/inputactions/modifyinputactioncommand.cpp
+    commands/inputactions/renameinputactioncommand.cpp
     commands/scene/addcomponentcommand.cpp
     commands/scene/createentitycommand.cpp
     commands/scene/deleteentitycommand.cpp

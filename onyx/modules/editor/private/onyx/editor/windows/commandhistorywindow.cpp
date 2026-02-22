@@ -55,7 +55,7 @@ namespace Onyx::Editor
 
         if (undoAction.GetData<bool>() == false)
             return;
-
+        
         m_CommandStack->MoveBack();
     }
 

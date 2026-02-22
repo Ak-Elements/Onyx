@@ -23,7 +23,6 @@ namespace Onyx::Input
 
 namespace Onyx::InputActions
 {
-
     struct InputActionsMap
     {
         friend struct Serialization<InputActionsMap>;
@@ -34,6 +33,8 @@ namespace Onyx::InputActions
         const DynamicArray<InputAction>& GetActions() const { return m_Actions; }
 
         //StringId32 GetId() const { return m_Id; }
+        Optional<InputAction*> GetAction(StringId64 actionId);
+        void RemoveAction(StringId64 actionId);
 
     private:
         bool HasInputAction(StringId64 actionId) const;

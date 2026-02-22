@@ -31,8 +31,6 @@ namespace Onyx::Editor::SceneEditor
     void EntitiesPanel::OnOpen()
     {
         InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
-        //inputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>("Copy"_id64, this);
-        //inputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>("Paste"_id64, this);
         inputActionSystem.OnInput<&EntitiesPanel::OnDeleteAction>("Delete"_id64, this);
     }
 
@@ -133,7 +131,7 @@ namespace Onyx::Editor::SceneEditor
                     String previousName = entityName;
                     if (Ui::DrawRenameInput("name", entityName, ImVec2(-1, 0), isSelected))
                     {
-                        m_CommandGraph->Push(RenameEntityCommand(m_SelectedEntity, entityName, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>())); 
+                        m_CommandGraph->Push<RenameEntityCommand>(m_SelectedEntity, entityName, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>()); 
                     }
 
                     isRowClicked |= isSelected;
@@ -177,7 +175,7 @@ namespace Onyx::Editor::SceneEditor
             {
                 if (ImGui::MenuItem(Localization::Generic::Create.Get().data()))
                 {
-                    m_CommandGraph->Push(CreateEntityCommand{ parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>() });
+                    m_CommandGraph->Push<CreateEntityCommand>( parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>() );
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -228,7 +226,7 @@ namespace Onyx::Editor::SceneEditor
         }
 
         SceneEditorWindow& parent = *(GetParent<SceneEditorWindow>().value());
-        m_CommandGraph->Push(DeleteEntityCommand(entity, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>()));
+        m_CommandGraph->Push<DeleteEntityCommand>(entity, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>());
     }
 
     void EntitiesPanel::SetSelectedEntity(Entity::EntityId entity)

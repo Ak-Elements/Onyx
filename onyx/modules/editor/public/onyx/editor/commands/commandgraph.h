@@ -12,10 +12,10 @@ namespace Onyx::Editor
         virtual void MoveBack() = 0;
         virtual void Reset(const ICommand& command) = 0;
 
-        template <typename U> requires std::is_base_of_v<ICommand, U>
-        void Push(U&& command)
+        template <typename U, typename... Args> requires std::is_base_of_v<ICommand, U>
+        void Push(Args&&... args)
         {
-            DoPush(MakeUnique<U>(std::forward<U>(command)));
+            DoPush(MakeUnique<U>(std::forward<Args>(args)...));
         }
 
         virtual const DynamicArray<UniquePtr<ICommand>>& GetCommands() const = 0;
@@ -95,22 +95,25 @@ namespace Onyx::Editor
 
         void MoveForward() override
         {
+            ONYX_ASSERT(m_Head != nullptr);
             m_Current.MoveForward(1);
         }
 
         void MoveBack() override
         {
+            ONYX_ASSERT(m_Head != nullptr);
             m_Current.MoveBack(1, m_Base, *m_Head);
         }
 
         void Reset(const ICommand& command) override
         {
+            ONYX_ASSERT(m_Head != nullptr);
             m_Current.Reset(command, m_Base, *m_Head);
         }
 
         const DynamicArray<UniquePtr<ICommand>>& GetCommands() const override { return m_Current.m_Commands; }
 
-        void SetBase(T&& base) { m_Base = std::move(base); }
+        void SetBase(const T& base) { m_Base = base; }
         void SetHead(T& head) { m_Head = &head; }
 
     private:

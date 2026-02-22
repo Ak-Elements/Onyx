@@ -200,6 +200,27 @@ namespace Onyx::Ui::PropertyGrid
         return true;
     }
 
+    bool BeginPropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader)
+    {
+        ImGui::PushID(propertyName.data());
+
+        DrawPropertyName(propertyName);
+        bool showGroup = customHeader();
+        ImGui::EndHorizontal();
+
+        if (showGroup)
+        {
+            ImGui::Indent();
+            ImGui::BeginGroup();
+        }
+        else
+        {
+            ImGui::PopID();
+        }
+        
+        return showGroup;
+    }
+
     bool BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags)
     {
         ImGui::PushID(propertyName.data());

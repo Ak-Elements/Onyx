@@ -108,7 +108,7 @@ namespace Onyx::Editor::SceneEditor
                             {
                                 DynamicArray<onyxU32> componentData;
                                 componentMeta->Copy(componentPtr, componentData);
-                                m_CommandGraph->Push(ModifyComponentCommand(selectedEntity, componentTypeId, std::move(componentData), sceneId, gameCoreSystem));
+                                m_CommandGraph->Push<ModifyComponentCommand>(selectedEntity, componentTypeId, std::move(componentData), sceneId, gameCoreSystem);
                             }
 
                             //TODO: Needed for now to not auto extend if component is empty
@@ -195,7 +195,7 @@ namespace Onyx::Editor::SceneEditor
                             ONYX_UNUSED(size);
                             for (Entity::EntityId selectedEntity : selectedEntities)
                             {
-                                m_CommandGraph->Push(AddComponentCommand(selectedEntity, componentTypeId, sceneId, gameCoreSystem));
+                                m_CommandGraph->Push<AddComponentCommand>(selectedEntity, componentTypeId, sceneId, gameCoreSystem);
                             }
 
                             ImGui::CloseCurrentPopup();

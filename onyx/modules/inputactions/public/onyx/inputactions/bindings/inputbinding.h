@@ -18,9 +18,12 @@ namespace Onyx::InputActions
         InputBinding();
         virtual ~InputBinding();
 
+        InputBinding(const InputBinding& other);
+        InputBinding& operator=(const InputBinding& other);
+        
         virtual void Reset() = 0;
         bool Update(const Input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem, Vector3f32& outInputValue);
-
+        
         virtual StringId32 GetTypeId() const = 0;
 
         virtual onyxS32 GetInputBindingSlotsCount() const = 0;
@@ -35,6 +38,14 @@ namespace Onyx::InputActions
 
         DynamicArray<UniquePtr<InputModifier>>& GetModifiers() { return m_Modifiers; }
         const DynamicArray<UniquePtr<InputModifier>>& GetModifiers() const { return m_Modifiers; }
+
+#if !ONYX_IS_RETAIL
+        void AddTrigger(UniquePtr<InputTrigger> trigger);
+        void RemoveTrigger(onyxS32 index);
+
+        void AddModifier(UniquePtr<InputModifier> modifier);
+        void RemoveModifier(onyxS32 index);
+#endif
 
     private:
         virtual bool DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue) = 0;

@@ -457,8 +457,7 @@ namespace Onyx::Editor
 
         graphicsSystem.SetCamera(camera.Camera);
 
-        Entity::EntityRegistry baseRegistry = registry;
-        m_CommandStack.SetBase(std::move(baseRegistry));
+        m_CommandStack.SetBase(registry);
         m_CommandStack.SetHead(registry);
 
         InputActions::InputActionSystem& inputActionsSystem = GetEngineSystem<InputActions::InputActionSystem>();

@@ -3,9 +3,9 @@
 
 namespace Onyx::InputActions
 {
-    class InputActionsAsset;
+    class InputActionsContext;
     class InputActionSystem;
-    struct InputActionsSerializer : public Assets::AssetSerializer<InputActionsAsset>
+    struct InputActionsSerializer : public Assets::AssetSerializer<InputActionsContext>
     {
         static constexpr Array<StringView, 1> Extensions { "oinput" };
 

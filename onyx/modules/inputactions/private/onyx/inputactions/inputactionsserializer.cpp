@@ -80,7 +80,7 @@ namespace Onyx
                 return false;
             }
 
-            const InputActions::InputBindingsFactory::MetaData& metaData = InputActions::InputBindingsFactory::GetBindingMeta(binding->GetTypeId());
+            const InputActions::InputBindingsFactory::MetaData& metaData = InputActions::InputBindingsFactory::GetMetaData(binding->GetTypeId());
             return metaData.SerializeFunctor(serializer, binding);
         }
 
@@ -89,7 +89,7 @@ namespace Onyx
             StringId32 typeId;
             deserializer.Read<"typeId">(typeId);
 
-            const InputActions::InputBindingsFactory::MetaData& metaData = InputActions::InputBindingsFactory::GetBindingMeta(typeId);
+            const InputActions::InputBindingsFactory::MetaData& metaData = InputActions::InputBindingsFactory::GetMetaData(typeId);
             outBinding = metaData.CreateFunctor();
 
             if (deserializer.ReadOptional<"triggers">(outBinding->GetTriggers()) == false)
@@ -112,7 +112,7 @@ namespace Onyx
         static bool Serialize(Serializer& serializer, const UniquePtr<InputActions::InputTrigger>& modifier)
         {
             serializer.Write<"typeId">(modifier->GetTypeId());
-            const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetBindingMeta(modifier->GetTypeId());
+            const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetMetaData(modifier->GetTypeId());
             return metaData.SerializeFunctor(serializer, modifier);
         }
 
@@ -121,7 +121,7 @@ namespace Onyx
             StringId32 typeId;
             deserializer.Read<"typeId">(typeId);
 
-            const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetBindingMeta(typeId);
+            const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetMetaData(typeId);
             outModifier = metaData.CreateFunctor();
 
             return metaData.DeserializeFunctor(deserializer, outModifier);
@@ -134,7 +134,7 @@ namespace Onyx
         static bool Serialize(Serializer& serializer, const UniquePtr<InputActions::InputModifier>& modifier)
         {
             serializer.Write<"typeId">(modifier->GetTypeId());
-            const InputActions::InputModifiersFactory::MetaData& metaData = InputActions::InputModifiersFactory::GetBindingMeta(modifier->GetTypeId());
+            const InputActions::InputModifiersFactory::MetaData& metaData = InputActions::InputModifiersFactory::GetMetaData(modifier->GetTypeId());
 
             return metaData.SerializeFunctor(serializer, modifier);
         }
@@ -144,7 +144,7 @@ namespace Onyx
             StringId32 typeId;
             deserializer.Read<"typeId">(typeId);
 
-            const InputActions::InputModifiersFactory::MetaData& metaData = InputActions::InputModifiersFactory::GetBindingMeta(typeId);
+            const InputActions::InputModifiersFactory::MetaData& metaData = InputActions::InputModifiersFactory::GetMetaData(typeId);
             outModifier = metaData.CreateFunctor();
 
             return metaData.DeserializeFunctor(deserializer, outModifier);
@@ -157,7 +157,7 @@ namespace Onyx::InputActions
     bool InputActionsSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
-        const InputActionsAsset& inputActionsAsset = asset.As<InputActionsAsset>();
+        const InputActionsContext& inputActionsAsset = asset.As<InputActionsContext>();
         const HashMap<StringId32, InputActionsMap>& contexts = inputActionsAsset.GetMaps();
 
         bool success = serializer.Write(contexts);
@@ -174,7 +174,7 @@ namespace Onyx::InputActions
 
     bool InputActionsSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
-        InputActionsAsset& inputAsset = asset.As<InputActionsAsset>();
+        InputActionsContext& inputAsset = asset.As<InputActionsContext>();
 
         HashMap<StringId32, InputActionsMap>& contexts = inputAsset.GetMaps();
 

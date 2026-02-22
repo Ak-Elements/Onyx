@@ -81,7 +81,6 @@ namespace Onyx::Editor
             Scale
         };
 
-        // TODO: Command History, should this be somehow combined / encapsulated
         CommandGraph<Entity::EntityRegistry> m_CommandStack;
 
         Atomic<bool> m_IsLoading = false;
@@ -92,7 +91,7 @@ namespace Onyx::Editor
         
         Ui::Dockspace m_Dockspace;
 
-        Assets::AssetHandle<InputActions::InputActionsAsset> m_LevelEditorActions;
+        Assets::AssetHandle<InputActions::InputActionsContext> m_LevelEditorActions;
         Entity::EntityId m_EditorCameraEntity = Entity::EntityId(0);
 
         bool m_HasSelectedEntity = false;

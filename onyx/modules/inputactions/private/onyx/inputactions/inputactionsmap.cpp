@@ -5,6 +5,25 @@
 
 namespace Onyx::InputActions
 {
+    Optional<InputAction*> InputActionsMap::GetAction(StringId64 actionId)
+    {
+        for (InputAction& action : m_Actions)
+        {
+            if (action.GetId() == actionId)
+                return &action;
+        }
+
+        return std::nullopt;
+    }
+
+    void InputActionsMap::RemoveAction(StringId64 actionId)
+    {
+        std::erase_if(m_Actions, [&](const InputAction& action)
+        {
+            return action.GetId() == actionId;
+        });
+    }
+
     bool InputActionsMap::HasInputAction(StringId64 actionId) const
     {
         for (const InputAction& action : m_Actions)

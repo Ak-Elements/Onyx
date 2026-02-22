@@ -4,6 +4,7 @@
 
 #include <onyx/inputactions/inputactionsasset.h>
 #include <onyx/input/inputevent.h>
+#include <onyx/editor/commands/commandgraph.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
@@ -26,16 +27,24 @@ namespace Onyx::Input
     struct InputActionContext;
 }
 
+namespace Onyx::InputActions
+{
+    struct InputActionEvent;
+}
+
 namespace Onyx::Editor
 {
     class InputActionSettingsWindow : public Ui::ImGuiWindow
     {
+        friend struct InputActionCommand;
     public:
         static constexpr StringView WindowId = "InputActionSettings";
         static constexpr StringView WindowCategory = "Input";
         
         StringView GetWindowId() override { return WindowId; }
 
+        StringId64 GetSelectedActionId() const { return m_SelectedActionId; }
+        StringId64 GetSelectedBindingIndex() const { return m_SelectedBindingIndex; }
     private:
         void OnOpen() override;
         void OnRender(Ui::ImGuiSystem& imguiSystem) override;
@@ -50,7 +59,6 @@ namespace Onyx::Editor
         void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
         void OnControllerButton(const Input::GameControllerButtonEvent& event);
 
-        void RenderActionMaps(HashMap<StringId32, InputActions::InputActionsMap>& actionMaps);
         void RenderInputActions();
         
         void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings);
@@ -61,18 +69,26 @@ namespace Onyx::Editor
 
         void MarkAsDirty() { m_IsDirty = true; }
 
-        void OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsAsset> inputActionsAsset);
+        void OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsContext> inputActionsAsset);
 
-        InputActions::InputBinding& GetSelectedInputBinding();
+        Assets::AssetId GetOpenAssetId() const { return m_InputContextAssetId; }
+        void BindInputBindingSlot(Input::InputID inputId);
+
+        InputActions::InputActionsMap& GetOpenActionsContext() { return m_OpenInputContext; }
+
+        void OnDeleteAction(const InputActions::InputActionEvent& deleteAction);
 
     private:
+        CommandGraph<InputActions::InputActionsMap> m_CommandsHistory;
+
         // Copy of InputActionAsset to edit until save
-        Assets::AssetHandle<InputActions::InputActionsAsset> m_EditableCopy;
+        Assets::AssetId m_InputContextAssetId;
+        InputActions::InputActionsMap m_OpenInputContext;
       
         DynamicArray<bool> m_MapsSelectedStates;
         DynamicArray<bool> m_ActionsSelectedStates;
 
-        StringId32 m_SelectedActionMapId = 0;
+        StringId64 m_SelectedActionId = StringId64::Invalid;
         onyxS32 m_SelectedActionIndex = INVALID_INDEX_32;
 
         onyxS32 m_SelectedBindingIndex = INVALID_INDEX_32;

@@ -46,6 +46,8 @@ namespace Onyx::Ui
         void DrawPropertyValue(const InplaceFunction<void(), 64>& functor);
 
         bool BeginPropertyGroup(StringView propertyName);
+        bool BeginPropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader);
+        
         bool BeginCollapsiblePropertyGroup(StringView propertyName, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);
         bool BeginCollapsiblePropertyGroup(StringView propertyName, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None);
 

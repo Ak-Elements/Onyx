@@ -18,8 +18,14 @@ namespace Onyx::InputActions
     {
         friend struct Serialization<InputAction>;
     public:
+
+
+
         InputAction();
         InputAction(StringId64 actionId);
+
+        InputAction(const InputAction& other);
+        InputAction& operator=(const InputAction& other);
 
         constexpr bool operator==(StringId64 actionId) const { return m_Id == actionId; }
         
@@ -30,8 +36,11 @@ namespace Onyx::InputActions
         const DynamicArray<UniquePtr<InputBinding>>& GetBindings() const { return m_Bindings; }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-        void SetName(StringView name);
-        void SetType(ActionType type) { m_Type = type; }
+        void AddBinding(UniquePtr<InputBinding> binding) { m_Bindings.emplace_back(std::move(binding)); }
+        void RemoveBinding(onyxU32 index);
+
+        void SetId(StringId64 id) { m_Id = id; }
+        void SetType(ActionType type);
 #endif
 
     private:

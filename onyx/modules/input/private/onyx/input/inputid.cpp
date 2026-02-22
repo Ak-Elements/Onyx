@@ -95,6 +95,11 @@ namespace Onyx::Input
         return "Unknown";
     }
 
+    StringView GetInputTypeString(InputID id)
+    {      
+        return Enums::ToString(GetInputType(id));
+    }
+
     InputType GetInputType(InputID id)
     {
         if (IsMouseButton(id) || IsMouseAxis2D(id) || IsMouseAxis1D(id))

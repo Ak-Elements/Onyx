@@ -73,8 +73,6 @@ namespace Onyx::Editor
         }
 
         Node& editorNode = *it;
-
-        
         OnNodeDelete(editorNode);
 
         if (OnNodeDeleted)
@@ -302,6 +300,8 @@ namespace Onyx::Editor
         {
             SaveEditorMetaDataFunctor(assetMeta.Path);
         }
+
+        OnSaved();
     }
 
     void GraphEditorContext::FinishLoading(const Assets::AssetMetaData& assetMeta)
@@ -312,6 +312,7 @@ namespace Onyx::Editor
         }
 
         m_IsLoading = false;
+        OnLoaded();
     }
 
     void GraphEditorContext::OnNodeChanged(const Node& /*newNode*/)

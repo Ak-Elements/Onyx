@@ -3,6 +3,18 @@
 namespace Onyx::Input
 {
     enum class InputType : onyxU8;
+    enum class MouseButton : onyxU16;
+    enum class MouseAxis : onyxU16;
+    enum class Key : onyxU16;
+    enum class GameControllerAxis : onyxU16;
+    enum class GameControllerButton : onyxU16;
+    
+    template <typename T>
+    concept InputEnum = std::is_same_v<T, MouseButton> ||
+        std::is_same_v<T, MouseAxis> ||
+        std::is_same_v<T, Key> ||
+        std::is_same_v<T, GameControllerAxis> ||
+        std::is_same_v<T, GameControllerButton>;
 
     static constexpr onyxU16 InvalidInputID = 0;
 
@@ -11,9 +23,17 @@ namespace Onyx::Input
         static constexpr onyxU16 Invalid = 0;
         onyxU16 ID = Invalid;
 
+        InputID() = default;
+        
+        template <InputEnum T>
+        InputID(T inputValue)
+            : ID(Enums::ToIntegral(inputValue))
+        {
+        }
+        
         void operator=(onyxU16 other) { ID = other; }
         void operator=(InputID other) { ID = other.ID; }
-
+        
         bool operator==(onyxU16 other) const { return ID == other; }
         bool operator!=(onyxU16 other) const { return ID != other; }
     };
@@ -29,7 +49,7 @@ namespace Onyx::Input
     bool IsGameControllerAxis2D(InputID id);
 
     StringView ToString(InputID id);
-
+    StringView GetInputTypeString(InputID id);
     InputType GetInputType(InputID id);
 }
 

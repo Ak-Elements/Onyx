@@ -20,6 +20,9 @@ namespace Onyx::InputActions
 
         bool IsTriggered(const Input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem) const override;
 
+        StringId64& GetActionId() { return m_ActionId; }
+        void SetActionId(StringId64 id) { m_ActionId = id; }
+
     private:
         StringId64 m_ActionId;
     };
