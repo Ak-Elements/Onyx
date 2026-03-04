@@ -40,13 +40,7 @@ namespace Onyx::Application
         m_Logger = MakeUnique<Logger>();
         Logger::s_DefaultLogger = m_Logger.get();
 
-        auto typeId = Platform::PlatformSystem::TypeId;
-        ONYX_UNUSED(typeId);
-
-        auto workingDir = FileSystem::Path::GetWorkingDirectory().string();
         const FilePath appConfigPath = FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf";
-        ONYX_UNUSED(workingDir);
-        
         FileSystem::OnyxFile appSettings(appConfigPath);
         FileSystem::JsonValue appConfigJson = appSettings.LoadJson();
 
@@ -63,7 +57,7 @@ namespace Onyx::Application
             }
             return false;
         });
-        
+
         FileSystem::Path::SetMountPoints(mountPoints);
 
         FileSystem::FileDialog::Init();
@@ -97,7 +91,7 @@ namespace Onyx::Application
                 return false;
 
             onyxU32 systemIndex = numeric_cast<onyxU32>(m_Modules.size());
-            
+
             EngineSystemCreateContext context{ *this, scopedDeserializer };
             m_Modules.emplace_back(EngineSystemFactory::Create(moduleId, context));
             Optional<EngineSystemFactory::UpdateFunction> updateFunction = EngineSystemFactory::GetUpdate(moduleId);
@@ -167,7 +161,7 @@ namespace Onyx::Application
             {
                 Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
                 imGuiSystem.OnBeginFrame(frameContext);
-            }      
+            }
 #endif
 
             {
@@ -182,7 +176,7 @@ namespace Onyx::Application
             if (hasBegunFrame)
             {
                graphicsSystem.Render();
-              
+
 #if ONYX_USE_IMGUI
                 if (hasImGuiSystem)
                 {

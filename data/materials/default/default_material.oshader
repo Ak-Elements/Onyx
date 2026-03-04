@@ -16,14 +16,15 @@ vec3 WorldNormal;
 };
 layout( push_constant ) uniform PushConstants 
 { 
-mat4 Model;
-}; 
+mat4 ModelMatrix;
+} Constants; 
 layout(location = 0) out OutStruct Output;
 void main() 
 { 
  Output.WorldPosition = InPosition;
 Output.WorldNormal = InNormal;
-gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(InPosition, 1.0); 
+
+gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * Constants.ModelMatrix * vec4(InPosition, 1.0); 
 }
 
 } 

@@ -48,7 +48,6 @@ namespace Onyx::GameCore
         Assets::AssetHandle<Graphics::MaterialShaderGraph> Material;
         Graphics::BufferHandle VertexData;
         Graphics::BufferHandle Indices;
-        Graphics::BufferHandle DrawCommandBuffer;
 
         DynamicArray<Matrix4<onyxF32>> Transforms;
     };

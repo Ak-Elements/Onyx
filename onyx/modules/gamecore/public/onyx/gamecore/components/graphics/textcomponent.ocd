@@ -1,6 +1,6 @@
-TextComponent
+component TextComponent
 {
     String Text
     AssetHandle<SDFFont> Font
     onyxF32 Size = 50.0
-} 
+}

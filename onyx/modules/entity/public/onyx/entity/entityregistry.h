@@ -72,6 +72,20 @@ namespace Onyx::Entity
             return m_Registry.get<T>(entity);
         }
 
+        template <typename T>
+        T* TryGetComponent(EntityId entity)
+        {
+            ONYX_ASSERT(entity != EntityId::Invalid);
+            return m_Registry.try_get<T>(entity);
+        }
+        
+        template <typename T>
+        const T* TryGetComponent(EntityId entity) const
+        {
+            ONYX_ASSERT(entity != EntityId::Invalid);
+            return m_Registry.try_get<T>(entity);
+        }
+
         template <typename Type, typename... Other, typename... Excludes>
         ONYX_NO_DISCARD auto GetView(Excludes&&... excludes)
         {

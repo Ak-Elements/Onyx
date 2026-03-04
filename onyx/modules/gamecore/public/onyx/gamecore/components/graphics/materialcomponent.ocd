@@ -1,4 +1,4 @@
-MaterialComponent
+component MaterialComponent
 {
     AssetHandle<MaterialShaderGraph> Material
 };

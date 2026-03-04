@@ -1,4 +1,4 @@
-DirectionalLightComponent
+component DirectionalLightComponent
 {
     onyxF32 Intensity = 1.0f
 

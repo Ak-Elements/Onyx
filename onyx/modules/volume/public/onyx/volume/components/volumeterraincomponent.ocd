@@ -1,4 +1,4 @@
-TerrainSettingsComponent
+component TerrainSettingsComponent
 {
     onyxS32 Size = 16384
 
@@ -12,7 +12,7 @@ TerrainSettingsComponent
 }
 
 [Hidden, Transient]
-TerrainWorldOctreeComponent
+component TerrainWorldOctreeComponent
 {
     DynamicArray<WorldChunksOctreeNode> Octree
 
@@ -29,7 +29,7 @@ TerrainWorldOctreeComponent
 }
 
 [Hidden, Transient]
-VolumeGenerationComponent
+component VolumeGenerationComponent
 {
     ShaderInstanceHandle ResetBuffersShader
     ShaderInstanceHandle UpdateWorldOctreeShader
@@ -39,6 +39,6 @@ VolumeGenerationComponent
     ShaderInstanceHandle FindRayTracedOctreeNodeShader
 
     Assets::AssetHandle<VolumeShaderGraph> VolumeGraph
-    
+
     bool HasLoadedShaders = false
 }

@@ -43,3 +43,9 @@ msgstr "Volume/Terrain Settings"
 
 msgid "Onyx::GameCore::FreeCameraControllerComponent"
 msgstr "Camera/Free Camera Controller"
+
+msgid "Onyx::GameCore::BoxColliderComponent"
+msgstr "Collision/Box Collider"
+
+msgid "Onyx::GameCore::SphereColliderComponent"
+msgstr "Collision/Sphere Collider"

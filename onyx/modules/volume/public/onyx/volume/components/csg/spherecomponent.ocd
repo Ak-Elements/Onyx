@@ -1,5 +1,5 @@
 [RuntimeOnly]
-SphereComponent
+component SphereComponent
 {
     onyxF32 Radius = 1.0
 }

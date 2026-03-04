@@ -1,11 +1,7 @@
 #pragma once
 
 #include <onyx/entity/entityregistry.h>
-
-namespace Onyx
-{
-    class IEngine;
-}
+#include <onyx/engine/enginesystem.h>
 
 namespace Onyx::Entity
 {
@@ -28,6 +24,7 @@ namespace Onyx::Entity
 
         EntityQuery(EntityRegistry& registry)
             : m_View(registry.GetView<T, Other...>())
+            , m_EntityRegistry(&registry)
         {
         }
 
@@ -37,6 +34,12 @@ namespace Onyx::Entity
             return m_View;
         }
 
+       //template <typename U>
+       //U* TryGetComponent(EntityId id)
+       //{
+       //    return m_EntityRegistry->TryGetComponent<U>(id);
+       //}
+        EntityRegistry* GetRegistry() { return m_EntityRegistry; }
     private:
         ViewT m_View;
         EntityRegistry* m_EntityRegistry = nullptr;
@@ -50,11 +53,17 @@ namespace Onyx::Entity
             : m_Query(query)
             , m_EntityId(entityId)
         {
-            
         }
+        
         decltype(auto) Get() { return m_Query.GetView().template get<Types...>(m_EntityId); }
 
         EntityId GetId() const { return m_EntityId; }
+
+       template <typename U>
+       U* TryGetComponent()
+       {
+           return m_Query.GetRegistry()->template TryGetComponent<U>(m_EntityId);
+       }
 
     private:
         EntityQuery<Types...>& m_Query;
@@ -100,10 +109,38 @@ namespace Onyx::Entity
             });
         }
 
+        template <typename T, typename... Args>
+        void AddComponent(EntityId entityId, Args&&... args)
+        {
+            m_QueuedCommands.push_back([registry = m_Registry, entityId, ... args = std::forward<Args>(args)]() mutable
+            {
+                registry->AddComponent<T>(entityId, std::forward<Args>(args)...);
+            });
+        }
+
+        template <typename T,  typename EntityAccessT, typename... Args> requires is_specialization_of_v<Entity, EntityAccessT>
+        void AddComponent(EntityAccessT entity, Args&&... args)
+        {
+            m_QueuedCommands.push_back([registry = m_Registry, entityId = entity.GetId(), ... args = std::forward<Args>(args)]() mutable
+            {
+                registry->AddComponent<T>(entityId, std::forward<Args>(args)...);
+            });
+        }
+
+
         template <typename T>
         void RemoveComponent(EntityId entityId)
         {
             m_QueuedCommands.push_back([registry = m_Registry, entityId]()
+            {
+                registry->RemoveComponent<T>(entityId);
+            });
+        }
+
+        template <typename T, typename EntityAccessT> requires is_specialization_of_v<Entity, EntityAccessT>
+        void RemoveComponent(EntityAccessT entity)
+        {
+            m_QueuedCommands.push_back([registry = m_Registry, entityId = entity.GetId()]()
             {
                 registry->RemoveComponent<T>(entityId);
             });
@@ -118,7 +155,17 @@ namespace Onyx::Entity
     class DependentFunctionArg : public IDependentFunctionArg
     {
     public:
-        static T Get(const ECSExecutionContext& /*context*/) { return T{}; }
+        static decltype(auto) Get(const ECSExecutionContext& context)
+        {
+            if constexpr (std::is_base_of_v<IEngineSystem, std::remove_reference_t<T>>)
+            {
+                return context.Engine.GetSystem<std::remove_reference_t<T>>();
+            }
+            else
+            {
+                return T{};
+            }
+        }
     };
 
     template <typename T, typename... Others>
@@ -221,6 +268,19 @@ namespace Onyx::Entity
                 }
             };
         }
+
+        template <typename System, typename... Args>
+        static auto BuildSystemCall(void(*callable)(Args...))
+        {
+            return [=](const ECSExecutionContext& context)
+            {
+                InvokeWithTypeList(TypeList<Args...>{}, [&]<typename... FunctionArg>()
+                {
+                    callable(DependentFunctionArg<FunctionArg>::Get(context)...);
+                });
+            };
+        }
+
 
     private:
 

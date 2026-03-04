@@ -1,4 +1,4 @@
-PointLightComponent
+component PointLightComponent
 {
     onyxF32 Intensity = 1.0f
 

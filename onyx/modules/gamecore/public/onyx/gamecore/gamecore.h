@@ -44,6 +44,15 @@ namespace Onyx::Entity
 
         static Graphics::FrameContext& Get(const ECSExecutionContext& context);
     };
+    
+    template <>
+    class DependentFunctionArg<Physics::PhysicsWorld&> : public IDependentFunctionArg
+    {
+    public:
+        ~DependentFunctionArg() override = default;
+
+        static Physics::PhysicsWorld& Get(const ECSExecutionContext& context);
+    };
 }
 
 namespace Onyx::GameCore

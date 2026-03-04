@@ -25,6 +25,8 @@
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/windows/commandhistorywindow.h>
 
+#include <onyx/graphics/assets/meshasset.h>
+
 #include <imgui.h>
 #include <ImGuizmo.h>
 #include <imgui_internal.h>

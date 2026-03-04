@@ -1,4 +1,4 @@
 [RuntimeOnly]
-CubeComponent
+component CubeComponent
 {
 }

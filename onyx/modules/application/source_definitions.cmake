@@ -4,7 +4,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     debug/gui/keyboardoverlay.h
     debug/gui/notificationloggersink.h
     debug/gui/fpsstatusbaritem.h
-    graphics/meshsourceasset.h
     log/logsinkfile.h
     taskgraph/taskgraph.h
     taskgraph/taskgraphtask.h
@@ -17,7 +16,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     debug/gui/keyboardoverlay.cpp
     debug/gui/notificationloggersink.cpp
     debug/gui/fpsstatusbaritem.cpp
-    graphics/meshsourceasset.cpp
     log/logsinkfile.cpp
     taskgraph/taskgraph.cpp
     taskgraph/taskgraphtask.cpp

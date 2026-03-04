@@ -1,15 +1,15 @@
-FreeCameraControllerComponent
+component FreeCameraControllerComponent
 {
     onyxF32 BaseVelocity = 0.15
     onyxF32 MinVelocity = 0.001
     onyxF32 MaxVelocity = 0.5
-    
+
     onyxF32 RotationVelocity = 0.3
     onyxF32 VelocityIncrementFactor = 0.3
 }
 
 [Transient, Hidden]
-FreeCameraRuntimeComponent
+component FreeCameraRuntimeComponent
 {
     Vector3f32 InputDirection
     Vector3f32 InputRotation

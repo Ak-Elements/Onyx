@@ -1,5 +1,5 @@
 [Hidden]
-CameraComponent
+component CameraComponent
 {
     [ReadOnly]
     bool IsPrimary

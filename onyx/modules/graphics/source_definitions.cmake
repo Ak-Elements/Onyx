@@ -1,4 +1,5 @@
 set(onyx_TARGET_PUBLIC_SOURCES
+    assets/meshasset.h
     font/sdffont.h
     rendergraph/rendergraph.h
     rendergraph/rendergraphnodefactory.h
@@ -13,6 +14,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     rendergraph/tasks/tonemappass.h
     scattering/scattering.h
     serialize/materialshadergraphserializer.h
+    serialize/meshserializer.h
     serialize/rendergraphserializer.h
     serialize/sdffontserializer.h
     serialize/shadergraphserializer.h
@@ -34,6 +36,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
+    assets/meshasset.cpp
     textureasset.cpp
     rendergraph/rendergraph.cpp
     rendergraph/rendergraphtask.cpp
@@ -47,6 +50,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     rendergraph/tasks/skyviewluttask.cpp
     rendergraph/tasks/tonemappass.cpp
     serialize/materialshadergraphserializer.cpp
+    serialize/meshserializer.cpp 
     serialize/rendergraphserializer.cpp
     serialize/sdffontserializer.cpp
     serialize/shadergraphserializer.cpp

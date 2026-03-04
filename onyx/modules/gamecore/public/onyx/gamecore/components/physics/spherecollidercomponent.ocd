@@ -1,0 +1,7 @@
+component SphereColliderComponent
+{
+    CollisionLayer Layer
+    MotionType MotionType
+
+    onyxF32 Radius = 1.0
+}

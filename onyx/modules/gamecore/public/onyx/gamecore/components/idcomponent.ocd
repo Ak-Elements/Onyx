@@ -1,6 +1,6 @@
 [Hidden, RuntimeOnly]
-IdComponent
+component IdComponent
 {
     [ReadOnly]
     onyxU64 Id;
-};  
+};

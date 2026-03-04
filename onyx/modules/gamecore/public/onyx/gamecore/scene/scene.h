@@ -4,6 +4,7 @@
 #include <onyx/entity/entityregistry.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
+#include <onyx/physics/physicssystem.h>
 
 namespace Onyx::Graphics
 {
@@ -48,6 +49,8 @@ namespace Onyx::GameCore
         Graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
         const Graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
 
+        Onyx::Physics::PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
+
 #if ONYX_IS_EDITOR
         String GetUniqueEntityName(const String& preferredName);
 #endif
@@ -62,6 +65,7 @@ namespace Onyx::GameCore
 
         SceneSectorStreamer m_SectorStreamer { *this };
         Entity::EntityRegistry m_Registry;
+        Onyx::Physics::PhysicsWorld m_PhysicsWorld;
 
         Assets::AssetHandle<Graphics::RenderGraph> m_SceneRenderGraph;
     };

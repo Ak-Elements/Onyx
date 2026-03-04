@@ -1,4 +1,4 @@
 [RuntimeOnly]
-PlaneComponent
+component PlaneComponent
 {
 }

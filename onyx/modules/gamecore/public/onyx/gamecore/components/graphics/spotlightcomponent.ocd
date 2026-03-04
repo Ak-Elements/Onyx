@@ -1,4 +1,4 @@
-SpotLightComponent
+component SpotLightComponent
 {
     onyxF32 Intensity = 1.0
     onyxF32 AngleAttenuation = 1.0

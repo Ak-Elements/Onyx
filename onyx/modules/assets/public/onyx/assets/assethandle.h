@@ -85,6 +85,9 @@ namespace Onyx::Assets
 
         bool HasAssetId() const { return Id != AssetId::Invalid; }
         bool IsValid() const { return Handle.IsValid(); }
+        bool HasHandle() const { return Handle != Reference<T>::Invalid(); }
+
+        bool IsLoading() const { return IsValid() && Handle->IsLoading(); }
         bool IsLoaded() const { return IsValid() && Handle->IsLoaded(); }
 
         void Reset()

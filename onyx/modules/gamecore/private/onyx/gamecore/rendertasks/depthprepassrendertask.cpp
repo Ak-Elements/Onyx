@@ -51,7 +51,7 @@ namespace Onyx::GameCore
             commandBuffer.BindIndexBuffer(drawCall.Indices, 0, Graphics::IndexType::uint32);
 
             Matrix4<onyxF32> transformMatrix;
-            //for (Matrix4<onyxF32> transformMatrix : drawCall.m_Transforms)
+            for (Matrix4<onyxF32> transformMatrix : drawCall.Transforms)
             {
                 commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
                 commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);

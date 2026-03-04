@@ -4,9 +4,14 @@ namespace Onyx::Graphics
 {
     struct Vertex
     {
-        Vector3f32 Position;
-        Vector3f32 Normal;
-        Vector2f32 UV;
+        onyxF32 PositionX;
+        onyxF32 PositionY;
+        onyxF32 PositionZ;
+        onyxF32 U;
+        onyxF32 NormalX;
+        onyxF32 NormalY;
+        onyxF32 NormalZ;
+        onyxF32 V;
     };
 
     struct FontVertex

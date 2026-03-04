@@ -1,0 +1,4 @@
+component StaticMeshComponent
+{
+    AssetHandle<MeshAsset> Mesh
+}

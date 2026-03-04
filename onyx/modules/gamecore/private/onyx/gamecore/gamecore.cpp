@@ -14,6 +14,8 @@
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/systems/lightingsystem.h>
 #include <onyx/gamecore/systems/camerasystem.h>
+#include <onyx/gamecore/systems/physicssystem.h>
+#include <onyx/gamecore/systems/staticmeshentitysystem.h>
 #include <onyx/gamecore/components/idcomponent.gen.h>
 #include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
@@ -24,7 +26,6 @@
 #include <onyx/gamecore/systems/freecamerasystem.h>
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
-
 namespace Onyx::GameCore
 {
     namespace GameCoreInit
@@ -61,6 +62,10 @@ namespace Onyx::GameCore
             Camera::registerSystems(ecsBuilder);
 
             Lighting::registerSystems(ecsBuilder);
+
+            StaticMeshEntitySystem::registerSystems(ecsBuilder);
+
+            Physics::registerSystems(ecsBuilder);
         }
     }
 
@@ -110,6 +115,12 @@ Onyx::Graphics::GraphicsSystem& Onyx::Entity::DependentFunctionArg<Onyx::Graphic
 Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& context)
 {
     return context.Engine.GetSystem<Assets::AssetSystem>();
+}
+
+Onyx::Physics::PhysicsWorld& Onyx::Entity::DependentFunctionArg<Onyx::Physics::PhysicsWorld&>::Get(const ECSExecutionContext& context)
+{
+    GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
+    return gameCoreSystem.GetScene()->GetPhysicsWorld();
 }
 
 Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext&>::Get(const ECSExecutionContext& context)

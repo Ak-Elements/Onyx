@@ -4,7 +4,10 @@ set(onyx_TARGET_PUBLIC_SOURCES
     components/graphics/materialcomponent.ocd
     components/graphics/pointlightcomponent.ocd
     components/graphics/spotlightcomponent.ocd
+    components/graphics/staticmeshcomponent.ocd
     components/graphics/textcomponent.ocd
+    components/physics/boxcollidercomponent.ocd
+    components/physics/spherecollidercomponent.ocd
     components/cameracomponent.ocd
     components/freecameracomponent.ocd
     components/idcomponent.ocd
@@ -23,6 +26,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     systems/camerasystem.h
     systems/freecamerasystem.h
     systems/lightingsystem.h
+    systems/physicssystem.h
+    systems/staticmeshentitysystem.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -38,4 +43,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     systems/camerasystem.cpp
     systems/freecamerasystem.cpp
     systems/lightingsystem.cpp
+    systems/physicssystem.cpp
+    systems/staticmeshentitysystem.cpp
 )

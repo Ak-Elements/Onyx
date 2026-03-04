@@ -11,11 +11,11 @@ vertex
     layout( push_constant ) uniform PushConstants 
     { 
         mat4 ModelMatrix;
-    }; 
+    } Constants; 
 
     void main()
     {
-        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(inPosition.xyz, 1.0);
+        gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * Constants.ModelMatrix * vec4(inPosition.xyz, 1.0);
     }
 }
 

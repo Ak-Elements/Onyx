@@ -589,7 +589,7 @@ namespace Onyx::Graphics::ShaderGraphNodes
 
     using Swizzle2DVector2s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s32">;
     using Swizzle2DVector3s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s32">;
-    using XSwizzle2DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s32">;
+    using Swizzle2DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s32">;
 
     using Swizzle2DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s64">;
     using Swizzle2DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s64">;
