@@ -5,6 +5,7 @@
 #include <onyx/entity/ecsbuilder.h>
 
 #include <onyx/gamecore/scene/scene.h>
+#include <onyx/graphics/debug/debugdrawqueue.h>
 
 namespace Onyx::Graphics
 {
@@ -53,6 +54,15 @@ namespace Onyx::Entity
 
         static Physics::PhysicsWorld& Get(const ECSExecutionContext& context);
     };
+
+    template <>
+    class DependentFunctionArg<Graphics::DebugDrawQueue> : public IDependentFunctionArg
+    {
+    public:
+        ~DependentFunctionArg() override = default;
+
+        static Graphics::DebugDrawQueue Get(const ECSExecutionContext& context);
+    };
 }
 
 namespace Onyx::GameCore
@@ -68,7 +78,7 @@ namespace Onyx::GameCore
         void Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine);
 
         void SetScene(Assets::AssetHandle<Scene>& scene) { m_Scene = scene; }
-        Assets::AssetHandle<Scene> GetScene() { return m_Scene; }
+        Assets::AssetHandle<Scene>& GetScene() { return m_Scene; }
         const Assets::AssetHandle<Scene>& GetScene() const { return m_Scene; }
 
         Entity::ComponentFactory& GetComponentFactory() { return m_ComponentFactory; }

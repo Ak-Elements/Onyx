@@ -1,0 +1,131 @@
+
+#version 460 core
+
+#include "includes/common.h"
+
+vertex
+{
+	layout (location = 0) out flat uint instanceCount;
+    void main()
+    {
+        vec2 texCoord = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(texCoord * 2.0f + -1.0f, 0.0f, 1.0f);
+	    gl_Position.y = -gl_Position.y;
+        instanceCount = gl_InstanceIndex;
+    }
+}
+
+fragment
+{
+    const uint COLOR_32_RED_CHANNEL = 0;
+    const uint COLOR_32_GREEN_CHANNEL = 8;
+    const uint COLOR_32_BLUE_CHANNEL = 16;
+    const uint COLOR_32_ALPHA_CHANNEL = 24;
+
+    struct DebugSphere
+    {
+        vec3 Position;
+        float Radius;
+        
+        uint Color;
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) buffer DebugSphereList
+    {
+        DebugSphere Spheres[];
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer ViewConstants
+    {
+        mat4 ProjectionMatrix;
+        mat4 InverseProjectionMatrix;
+        mat4 ViewMatrix;
+        mat4 InverseViewMatrix;
+        mat4 ViewProjectionMatrix;
+        mat4 InverseViewProjectionMatrix;
+
+        vec2 Viewport;
+        float Near;
+        float Far;
+
+        vec3 CameraPosition;
+        float Padding;
+
+        vec3 CameraDirection;
+        float Padding2;
+    };
+
+    layout(push_constant) uniform Constants
+    {
+        ViewConstants ViewConstantsBuffer; 
+        DebugSphereList Instances;
+
+    } u_Constants;
+    
+    layout(location = 0) in flat uint instanceCount;
+
+    layout(location = 0) out vec4 OutColor;
+
+    bool RayIntersect(vec3 rayOrigin, vec3 rayDirection, DebugSphere sphere, out float t)
+    {
+        vec3 rayToSphere = rayOrigin - sphere.Position;
+        float b = dot(rayToSphere, rayDirection);
+        float c = dot(rayToSphere, rayToSphere) - sphere.Radius * sphere.Radius;
+
+        float h = b * b - c;
+
+        if (h < 0.0f)
+            return false;
+
+        h = sqrt(h);
+        t = -b - h;
+        if( t < 0.0f )
+            t = -b + h;
+       
+        return t >= 0.0f;
+    }
+
+    vec4 GetColor(uint color)
+    {
+        float s = 1.0f / 255.0f;
+        return vec4(
+            ((color >> COLOR_32_RED_CHANNEL) & 0xff) * s,
+            ((color >> COLOR_32_GREEN_CHANNEL) & 0xff) * s,
+            ((color >> COLOR_32_BLUE_CHANNEL) & 0xff) * s,
+            ((color >> COLOR_32_ALPHA_CHANNEL) & 0xff) * s);
+    }
+
+    void main()
+    {
+        vec2 ndc = vec2(
+            ( gl_FragCoord.x / u_Constants.ViewConstantsBuffer.Viewport.x) * 2.0f - 1.0f,
+            ( gl_FragCoord.y / u_Constants.ViewConstantsBuffer.Viewport.y) * -2.0f + 1.0f);
+
+        vec4 clipPos = vec4(ndc, 0.0f, 1.0f); 
+        vec4 ray = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix * clipPos;
+        ray /= ray.w;
+        ray = u_Constants.ViewConstantsBuffer.InverseViewMatrix * ray;
+
+        vec3 rayOrigin = u_Constants.ViewConstantsBuffer.CameraPosition;
+        vec3 rayDirection = normalize(ray.xyz - rayOrigin);
+
+        float closestT = 100;
+        int closestIndex = -1;
+        for(int i = 0; i < instanceCount; ++i)
+        {
+            DebugSphere sphere = u_Constants.Instances.Spheres[i];
+
+            float t = 0.0f;
+            if( RayIntersect( rayOrigin, rayDirection, sphere, t ) )
+            {
+                closestT = t;
+                closestIndex = i; 
+            }
+        }
+        
+        if(closestIndex == -1)
+            discard;
+
+        OutColor = GetColor(u_Constants.Instances.Spheres[closestIndex].Color);
+    }
+}

@@ -35,7 +35,7 @@ namespace Onyx::GameCore
         bool IsEnabled() override;
 
     private:
-        void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
+        void OnBeginFrame(Graphics::RenderGraphContext& context) override;
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
 
         void PrepareShaderGraph(Graphics::CommandBuffer& commandBuffer, const Graphics::FrameContext& frameContext, const Graphics::ShaderGraph& shaderGraph);

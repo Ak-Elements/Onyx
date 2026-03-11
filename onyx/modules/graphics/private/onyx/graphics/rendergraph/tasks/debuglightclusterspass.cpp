@@ -16,7 +16,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         m_PipelineProperties.Topology = PrimitiveTopology::LineStrip;
     }
 
-    void DebugLightClustersRenderPass::OnBeginFrame(const RenderGraphContext& context)
+    void DebugLightClustersRenderPass::OnBeginFrame(RenderGraphContext& context)
     {
         Onyx::onyxU64 outputGlobalId = m_Output.GetGlobalId();
 

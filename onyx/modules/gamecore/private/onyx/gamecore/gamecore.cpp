@@ -128,3 +128,13 @@ Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics:
     Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
     return graphicsSystem.GetFrameContext();
 }
+
+Onyx::Graphics::DebugDrawQueue Onyx::Entity::DependentFunctionArg<Onyx::Graphics::DebugDrawQueue>::Get(const ECSExecutionContext& context)
+{
+    GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
+    Assets::AssetHandle<GameCore::Scene>& activeScene = gameCoreSystem.GetScene();
+    Graphics::RenderGraph& renderGraph = activeScene->GetRenderGraph();
+    DynamicArray<Graphics::DebugSphere>& queue = renderGraph.GetInput<DynamicArray<Graphics::DebugSphere>>();
+    return Graphics::DebugDrawQueue(queue);
+}
+

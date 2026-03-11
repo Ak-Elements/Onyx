@@ -19,7 +19,6 @@ namespace Onyx::GameCore::Physics
             Onyx::Physics::PhysicsBodyId BodyId;
         };
     }
-    
-    void registerSystems(Entity::EcsBuilder& ecsBuilder);
 
+    void registerSystems(Entity::EcsBuilder& ecsBuilder);
 }

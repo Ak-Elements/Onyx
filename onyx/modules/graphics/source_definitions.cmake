@@ -1,8 +1,11 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     assets/meshasset.h
     font/sdffont.h
+    debug/debugdrawqueue.h
+    debug/debugshapes.h
     rendergraph/rendergraph.h
     rendergraph/rendergraphnodefactory.h
+    rendergraph/rendergraphresource.h
     rendergraph/rendergraphtask.h
     rendergraph/tasks/atmosphericskytask.h
     rendergraph/tasks/debuglightclusterspass.h
@@ -12,6 +15,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     rendergraph/tasks/scatteringtask.h
     rendergraph/tasks/skyviewluttask.h
     rendergraph/tasks/tonemappass.h
+    rendergraph/tasks/debug/debugdrawtask.h
     scattering/scattering.h
     serialize/materialshadergraphserializer.h
     serialize/meshserializer.h
@@ -38,6 +42,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
 set(onyx_TARGET_PRIVATE_SOURCES
     assets/meshasset.cpp
     textureasset.cpp
+    debug/debugdrawqueue.cpp
     rendergraph/rendergraph.cpp
     rendergraph/rendergraphtask.cpp
     rendergraph/rendergraphnodefactory.cpp
@@ -49,6 +54,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     rendergraph/tasks/scatteringtask.cpp
     rendergraph/tasks/skyviewluttask.cpp
     rendergraph/tasks/tonemappass.cpp
+    rendergraph/tasks/debug/debugdrawtask.cpp
     serialize/materialshadergraphserializer.cpp
     serialize/meshserializer.cpp 
     serialize/rendergraphserializer.cpp

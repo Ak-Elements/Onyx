@@ -6,7 +6,7 @@
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
-    void ComputeMultipleScatteringRenderGraphNode::OnBeginFrame(const RenderGraphContext& context)
+    void ComputeMultipleScatteringRenderGraphNode::OnBeginFrame(RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 

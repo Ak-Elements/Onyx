@@ -15,7 +15,7 @@ namespace Onyx::GameCore
     private:
         void OnInit(Graphics::GraphicsSystem& api, HashMap<Graphics::RenderGraphResourceId, Graphics::RenderGraphResource>& resourceCache) override;
 
-        void OnBeginFrame(const Graphics::RenderGraphContext& context) override;
+        void OnBeginFrame(Graphics::RenderGraphContext& context) override;
 
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
     };

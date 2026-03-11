@@ -12,9 +12,8 @@ namespace Onyx
 
     bool Serialization<Assets::AssetId>::Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId)
     {
-        // we want to save it as hex?
         onyxU64 id;
-        bool success = deserializer.Read(id);
+        bool success = deserializer.Read(id, 16);
         outAssetId = id;
         return success;
     }

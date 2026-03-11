@@ -259,6 +259,7 @@ namespace Onyx::Graphics::Vulkan
         tempFrameBuffer.m_DebugName = "TransientBuffer-0";
         tempFrameBuffer.m_Size = 1ull << 28ull;// 8mb
         tempFrameBuffer.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Storage | BufferUsage::Indirect | BufferUsage::DeviceAddress );
+        tempFrameBuffer.m_CpuAccess = CPUAccess::Write;
         tempFrameBuffer.m_GpuAccess = GPUAccess::Write;
         //tempFrameBuffer.m_IsWritable = true;
 

@@ -31,8 +31,8 @@ namespace Onyx::Graphics
         return textureEntryIndex;
     }
 
-    //void ShaderGraph::Render(const FrameContext& /*context*/, CommandBuffer& commandBuffer) const
-    //{
+    // void ShaderGraph::Render(const FrameContext& /*context*/, CommandBuffer& commandBuffer) const
+    // {
     //    NodeGraph::GraphRunner runner(Graph);
     //    runner.Prepare();
     //    runner.Update(0);
@@ -49,7 +49,7 @@ namespace Onyx::Graphics
     //    std::copy_n(textureIndices.data(), textureIndices.size(), constants.Textures);
 
     //    commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
-    //}
+    // }
 
     bool ShaderGraph::Serialize(Serializer& serializer) const
     {

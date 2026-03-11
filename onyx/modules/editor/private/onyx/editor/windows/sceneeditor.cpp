@@ -53,8 +53,8 @@ namespace Onyx::Editor
         m_WindowClass->ClassId = ImGui::GetID("scene");
 
         m_SceneViewPanelId = Format::Format("###SceneViewPanel{}", m_WindowId);
-        m_EntitiesPanelId = Format::Format("###EntitiesPanel{}", m_WindowId);
-        m_ComponentsPanelId = Format::Format("###ComponentsPanel{}", m_WindowId);
+        m_EntitiesPanelId = Format::Format("Entities###EntitiesPanel{}", m_WindowId);
+        m_ComponentsPanelId = Format::Format("Components###ComponentsPanel{}", m_WindowId);
 
         ImGuiID dockspaceID = ImGui::GetID(Format::Format("SceneEditorDockspace{}", m_WindowId));
 
@@ -62,15 +62,16 @@ namespace Onyx::Editor
         float windowWidth = ImGui::GetMainViewport()->Size.x;
         float compPanelRatio = 512.0f / windowWidth;
         float entitiesPanelRatio = 256.0f / windowWidth;
-        
-        m_Dockspace = Ui::Dockspace::Create({
-          {
+
+        m_Dockspace = Ui::Dockspace::Create(
+        {
+            {
               Ui::DockSplitDirection::Right, 1.0f - entitiesPanelRatio, "", m_EntitiesPanelId
-          },
-          {
+            },
+            {
               Ui::DockSplitDirection::Right, compPanelRatio, m_ComponentsPanelId, m_SceneViewPanelId
-          }
-            });
+            }
+        });
         m_Dockspace.SetId(dockspaceID);
         m_Dockspace.SetWindowClass(*m_WindowClass);
 
@@ -239,10 +240,10 @@ namespace Onyx::Editor
             return;
 
         const Graphics::TextureHandle finalSceneTexture = m_Scene->GetRenderGraph().GetFinalTexture();
-        //if (finalSceneTexture.IsValid() == false)
-        //{
-        //    return;
-        //}
+        if (finalSceneTexture.IsValid() == false)
+        {
+           return;
+        }
 
         const Graphics::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
         ImVec2 sceneTextureExtents = { static_cast<onyxF32>(sceneTextureProperties.m_Size[0]), static_cast<onyxF32>(sceneTextureProperties.m_Size[1]) };

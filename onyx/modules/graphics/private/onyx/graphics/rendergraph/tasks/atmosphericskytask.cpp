@@ -7,7 +7,7 @@
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
-    void AtmosphericSkyRenderGraphNode::OnBeginFrame(const RenderGraphContext& context)
+    void AtmosphericSkyRenderGraphNode::OnBeginFrame(RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 

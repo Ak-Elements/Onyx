@@ -27,7 +27,7 @@ namespace Onyx::Volume
 
     }
 
-    void PreviewTerrainEditPass::OnBeginFrame(const Graphics::RenderGraphContext& context)
+    void PreviewTerrainEditPass::OnBeginFrame(Graphics::RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -45,7 +45,7 @@ namespace Onyx::Volume
     void PreviewTerrainEditPass::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
-        
+
         if (context.Graph.HasResource(HIT_BUFFER_RESOURCE_ID) == false)
         {
             return;

@@ -35,7 +35,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         resourceCache[globalId].Handle = m_LightClustersStorageBuffers[0];
     }
 
-    void CreateLightClusters::OnBeginFrame(const RenderGraphContext& context)
+    void CreateLightClusters::OnBeginFrame(RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -123,7 +123,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         resourceCache[globalId].Handle = m_LightsStorageBuffers[0];
     }
 
-    void UpdateLightClustersRenderGraphNode::OnBeginFrame(const RenderGraphContext& context)
+    void UpdateLightClustersRenderGraphNode::OnBeginFrame(RenderGraphContext& context)
     {
         const onyxU8 frameIndex = context.FrameContext.FrameIndex;
         onyxU64 globalId = GetOutputPin0().GetGlobalId();

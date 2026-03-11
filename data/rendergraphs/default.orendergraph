@@ -1,14 +1,14 @@
 {
     "graph": [
         {
-            "id": "ba4fcc11a401001",
+            "id": "ba2926a5c001001",
             "typeId": {
-                "id": "3e6650b",
-                "string": "Onyx::Graphics::RenderGraph::CreateLightClusters"
+                "id": "d47b8af2",
+                "string": "Onyx::Graphics::RenderGraph::GetViewConstants"
             },
             "outputs": [
                 {
-                    "id": "ba4fcc11a401002",
+                    "id": "ba2926a5c001002",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
@@ -18,21 +18,7 @@
                         "string": "Onyx::Graphics::BufferHandle"
                     }
                 }
-            ],
-            "shader": 5373523573287014078,
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            }
+            ]
         },
         {
             "id": "ba68ae7a0001001",
@@ -53,7 +39,7 @@
                     }
                 }
             ],
-            "shader": 2074633969490962320,
+            "shader": "1cca949a7677a790",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -89,14 +75,14 @@
             ]
         },
         {
-            "id": "ba2926a5c001001",
+            "id": "ba4fcc11a401001",
             "typeId": {
-                "id": "d47b8af2",
-                "string": "Onyx::Graphics::RenderGraph::GetViewConstants"
+                "id": "3e6650b",
+                "string": "Onyx::Graphics::RenderGraph::CreateLightClusters"
             },
             "outputs": [
                 {
-                    "id": "ba2926a5c001002",
+                    "id": "ba4fcc11a401002",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
@@ -105,6 +91,292 @@
                         "id": "2cc37a24",
                         "string": "Onyx::Graphics::BufferHandle"
                     }
+                }
+            ],
+            "shader": "4a92973841f5cebe",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            }
+        },
+        {
+            "id": "ba6717196401001",
+            "typeId": {
+                "id": "d457a11b",
+                "string": "Onyx::GameCore::RenderGraph::DepthPrePass"
+            },
+            "inputs": [
+                {
+                    "id": "ba6717196401102",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba6717196401002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "3e66455f1e717483",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": true,
+                    "write": true,
+                    "stencil": false,
+                    "compare": "LessOrEqual"
+                },
+                "rasterization": {
+                    "cull": "Back",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": true,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "b8e0fd536001001",
+            "typeId": {
+                "id": "5ef77bb6",
+                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+            },
+            "inputs": [
+                {
+                    "id": "b8e0fd536001002",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "b8e0fd536001003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "d0d43ce65db97aa1",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba8c92356401001",
+            "typeId": {
+                "id": "6fadc1fa",
+                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
+            },
+            "inputs": [
+                {
+                    "id": "ba8c92356401002",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "2cc37a24",
+                        "string": "Onyx::Graphics::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba8c92356401003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "8eea40a221b3f436",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "BGRA_UNORM8",
+                    "loadOp": "Clear",
+                    "hassize": false,
+                    "size": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ba68af0af801000",
+            "typeId": {
+                "id": "592cecf",
+                "string": "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
+            },
+            "inputs": [
+                {
+                    "id": "ba68af0af801001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "ba68ae7a0001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba68af0af801002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "e1ae7204594cdf58",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": true,
+                    "size": [
+                        32,
+                        32,
+                        1
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
                 }
             ]
         },
@@ -163,7 +435,7 @@
                     }
                 }
             ],
-            "shader": 7482517078221597225,
+            "shader": "67d73da379312a29",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -177,278 +449,6 @@
                     "frontfacing": false
                 }
             }
-        },
-        {
-            "id": "ba68af0af801000",
-            "typeId": {
-                "id": "592cecf",
-                "string": "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
-            },
-            "inputs": [
-                {
-                    "id": "ba68af0af801001",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    },
-                    "linkedPin": "ba68ae7a0001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "ba68af0af801002",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    }
-                }
-            ],
-            "shader": 16262060667485085528,
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": false,
-                    "format": "RGBA_FLOAT32",
-                    "loadOp": "Clear",
-                    "hassize": true,
-                    "size": [
-                        32,
-                        32,
-                        1
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "b8e0fd536001001",
-            "typeId": {
-                "id": "5ef77bb6",
-                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
-            },
-            "inputs": [
-                {
-                    "id": "b8e0fd536001002",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    },
-                    "linkedPin": "ba2926a5c001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "b8e0fd536001003",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    }
-                }
-            ],
-            "shader": 15047719215064251041,
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": false,
-                    "format": "BGRA_UNORM8",
-                    "loadOp": "Clear",
-                    "hassize": false,
-                    "size": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "ba6717196401001",
-            "typeId": {
-                "id": "d457a11b",
-                "string": "Onyx::GameCore::RenderGraph::DepthPrePass"
-            },
-            "inputs": [
-                {
-                    "id": "ba6717196401102",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    },
-                    "linkedPin": "ba2926a5c001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "ba6717196401002",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    }
-                }
-            ],
-            "shader": 4496357552810980483,
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": true,
-                    "write": true,
-                    "stencil": false,
-                    "compare": "LessOrEqual"
-                },
-                "rasterization": {
-                    "cull": "Back",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": true,
-                    "format": "BGRA_UNORM8",
-                    "loadOp": "Clear",
-                    "hassize": false,
-                    "size": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "ba8c92356401001",
-            "typeId": {
-                "id": "6fadc1fa",
-                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
-            },
-            "inputs": [
-                {
-                    "id": "ba8c92356401002",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    },
-                    "linkedPin": "ba2926a5c001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "ba8c92356401003",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    }
-                }
-            ],
-            "shader": 10298114563030381622,
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": false,
-                    "format": "BGRA_UNORM8",
-                    "loadOp": "Clear",
-                    "hassize": false,
-                    "size": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
         },
         {
             "id": "ba68b013b801000",
@@ -495,7 +495,7 @@
                     }
                 }
             ],
-            "shader": 18092391199644248616,
+            "shader": "fb1515f04032ea28",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -587,7 +587,7 @@
                     }
                 }
             ],
-            "shader": 7220062510751122814,
+            "shader": "6432d099996f857e",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -778,7 +778,7 @@
                     }
                 }
             ],
-            "shader": 1119060020704942316,
+            "shader": "f87b328e87598ec",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -846,7 +846,7 @@
                     }
                 }
             ],
-            "shader": 16033659302307191598,
+            "shader": "de83002f7ba85b2e",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -878,6 +878,59 @@
                         0,
                         0
                     ]
+                }
+            ]
+        },
+        {
+            "id": "ddca9d6cfc01000",
+            "typeId": {
+                "id": "caf1e79c",
+                "string": "Onyx::Graphics::RenderGraph::DebugDrawTask"
+            },
+            "inputs": [
+                {
+                    "id": "ddca9d6cfc01001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    },
+                    "linkedPin": "baa254787001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ddca9d6cfc01002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "99ce94ed",
+                        "string": "Onyx::Graphics::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "e99db84746802acf",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Reference"
                 }
             ]
         }

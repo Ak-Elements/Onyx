@@ -7,6 +7,8 @@
 #include <onyx/rhi/pipeline.h>
 #include <onyx/rhi/texturestorage.h>
 #include <onyx/nodegraph/nodes/node.h>
+#include <onyx/graphics/rendergraph/rendergraphresource.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 
 namespace Onyx::Graphics
 {
@@ -14,99 +16,6 @@ namespace Onyx::Graphics
     class CommandBuffer;
     class RenderGraph;
     struct FrameContext;
-
-    struct RenderGraphContext
-    {
-        const FrameContext& FrameContext;
-        RenderGraph& Graph;
-
-        template <typename T>
-        T GetPinData(onyxU32 /*localPinId*/)
-        {
-            return T();
-            //return Graph.GetResource(localPinId);
-        }
-
-    };
-
-    using RenderGraphResourceId = onyxU64;
-
-    constexpr RenderGraphResourceId INVALID_RESOURCE_ID = 0;
-    constexpr RenderGraphResourceId SWAPCHAIN_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("swapchain");
-    constexpr RenderGraphResourceId DEPTH_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("depth");
-    constexpr RenderGraphResourceId VIEW_CONSTANTS_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("u_viewconstants");
-
-    enum class RenderGraphResourceType
-    {
-        Invalid,
-        Buffer,
-        Texture,
-        Attachment,
-        Reference,
-    };
-
-    struct RenderGraphTextureResourceInfo
-    {
-        RenderGraphResourceType Type;
-
-        Vector3s32 Size;
-        TextureFormat Format = TextureFormat::BGRA_UNORM8;
-
-        RenderPassSettings::LoadOp LoadOp = RenderPassSettings::LoadOp::DontCare;
-        Vector4u8 ClearColor;
-
-        bool IsExternal;
-        bool HasSize;
-    };
-
-    struct RenderGraphBufferResourceInfo
-    {
-        BufferProperties BufferProperties;
-    };
-
-    struct RenderGraphResourceInfo
-    {
-        RenderGraphResourceType Type = RenderGraphResourceType::Invalid;
-        RenderGraphResourceId Id = INVALID_RESOURCE_ID;
-
-//#if ONYX_IS_DEBUG TODO: should be a hash in Release
-        String Name;
-//#endif
-    };
-
-    struct RenderGraphTexture
-    {
-        Vector3s32 Size;
-        TextureFormat Format;
-
-        RenderPassSettings::LoadOp LoadOp;
-        Vector4u8 ClearColor;
-    };
-
-    struct RenderGraphBuffer
-    {
-        BufferProperties BufferProperties;
-    };
-
-    struct RenderGraphResource
-    {
-        RenderGraphResourceInfo Info;
-
-        bool IsExternal = false;
-
-        Variant<TextureHandle, BufferHandle> Handle;
-        Variant<RenderGraphTextureResourceInfo, RenderGraphBufferResourceInfo> Properties;
-
-        bool DrawPinInPropertyGrid(StringView name, RenderGraphResource& value)
-        {
-            ONYX_UNUSED(name);
-            ONYX_UNUSED(value);
-            return true;
-        }
-
-        constexpr bool operator==(RenderGraphResource& other) { return (Info.Id == other.Info.Id) /*&& (Handle == other.Handle)*/; }
-        constexpr bool operator!=(RenderGraphResource& other) { return !(*this == other); }
-    };
 
     // rename to render graph task
     struct RenderGraphPolicy
@@ -118,13 +27,13 @@ namespace Onyx::Graphics
 
         virtual void Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) = 0;
 
-        virtual void BeginFrame(const RenderGraphContext& context) = 0;
+        virtual void BeginFrame(RenderGraphContext& context) = 0;
 
         virtual void PreRender(RenderGraphContext& context, CommandBuffer& commandBuffer) = 0;
         virtual void Render(RenderGraphContext& context, CommandBuffer& commandBuffer) = 0;
         virtual void PostRender(RenderGraphContext& context, CommandBuffer& commandBuffer) = 0;
 
-        virtual void EndFrame(const RenderGraphContext& context) = 0;
+        virtual void EndFrame(RenderGraphContext& context) = 0;
 
         // TODO: Find better names for both. IsEnabled -> should this node be started this frame
         // HasBegunFrame - Has this node started this frame
@@ -140,16 +49,35 @@ namespace Onyx::Graphics
         void Init(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override { }
         void Shutdown(GraphicsSystem& /*api*/) override { }
         void Compile(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override { }
-        void BeginFrame(const RenderGraphContext& /*context*/) override { }
+        void BeginFrame(RenderGraphContext& /*context*/) override { }
         void PreRender(RenderGraphContext& /*context*/, CommandBuffer& /*commandBuffer*/) override { }
         void Render(RenderGraphContext& /*context*/, CommandBuffer& /*commandBuffer*/) override { }
         void PostRender(RenderGraphContext& /*context*/, CommandBuffer& /*commandBuffer*/) override { }
-        void EndFrame(const RenderGraphContext& /*context*/) override { }
+        void EndFrame(RenderGraphContext& /*context*/) override { }
 
         bool IsEnabled() override { return false; }
         bool HasBegunFrame() override { return false; }
 
         void OnSwapChainResized(GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/) override {}
+    protected:
+
+        template <typename T>
+        T& GetGraphInput(RenderGraph& renderGraph)
+        {
+            return renderGraph.GetInput<T>();
+        }
+
+        template <typename T>
+        const T& GetGraphInput(RenderGraph& renderGraph) const
+        {
+            return renderGraph.GetInput<T>();
+        }
+
+        template <typename T>
+        void AddGraphInput(RenderGraph& renderGraph)
+        {
+            renderGraph.AddInput<T>();
+        }
     };
 
     class RenderGraphShaderNode : public IRenderGraphNode 
@@ -160,13 +88,13 @@ namespace Onyx::Graphics
 
         void Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
-        void BeginFrame(const RenderGraphContext& context) override;
+        void BeginFrame(RenderGraphContext& context) override;
 
         void PreRender(RenderGraphContext& context, CommandBuffer& commandBuffer) final;
         void Render(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
         void PostRender(RenderGraphContext& context, CommandBuffer& commandBuffer) final;
 
-        void EndFrame(const RenderGraphContext& context) final;
+        void EndFrame(RenderGraphContext& context) final;
 
         bool OnSerialize(Serializer& serializer) const override;
         bool OnDeserialize(const Deserializer& deserializer) override;
@@ -191,13 +119,13 @@ namespace Onyx::Graphics
         virtual void OnInit(GraphicsSystem&, RenderGraphResourceCache&) {}
         virtual void OnShutdown(GraphicsSystem&) {}
 
-        virtual void OnBeginFrame(const RenderGraphContext&) {}
+        virtual void OnBeginFrame(RenderGraphContext&) {}
 
         virtual void OnPreRender(RenderGraphContext&, CommandBuffer&) {}
         virtual void OnRender(RenderGraphContext&, CommandBuffer&) {}
         virtual void OnPostRender(RenderGraphContext&, CommandBuffer&) {}
 
-        virtual void OnEndFrame(const RenderGraphContext&) {}
+        virtual void OnEndFrame(RenderGraphContext&) {}
 
         void CreateRenderPass(GraphicsSystem& api, RenderGraphResourceCache& resourceCache);
         void UpdateFramebuffer(GraphicsSystem& api, RenderGraphResourceCache& resourceCache);
@@ -221,12 +149,11 @@ namespace Onyx::Graphics
 
         void Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
-        void BeginFrame(const RenderGraphContext& context) final;
+        void BeginFrame(RenderGraphContext& context) final;
         void Render(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
         bool IsComputeTask() const override { ONYX_ASSERT(m_ShaderInstance.IsValid()); return m_ShaderInstance->IsCompute(); }
         bool IsEnabled() override { return m_ShaderInstance.IsValid(); }
-        
 
         bool OnSerialize(Serializer& serializer) const override;
         bool OnDeserialize(const Deserializer& deserializer) override;

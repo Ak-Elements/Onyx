@@ -7,7 +7,7 @@
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
-    void SkyViewLutRenderGraphNode::OnBeginFrame(const RenderGraphContext& context)
+    void SkyViewLutRenderGraphNode::OnBeginFrame(RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 

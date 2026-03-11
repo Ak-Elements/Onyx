@@ -22,7 +22,7 @@ namespace Onyx::Graphics::RenderGraphNodes
     private:
         void OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
-        void OnBeginFrame(const RenderGraphContext& context) override;
+        void OnBeginFrame(RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
     private:
@@ -52,7 +52,7 @@ namespace Onyx::Graphics::RenderGraphNodes
 
         void OnInit(GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache) override;
 
-        void OnBeginFrame(const RenderGraphContext& context) override;
+        void OnBeginFrame(RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR

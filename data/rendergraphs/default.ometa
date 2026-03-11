@@ -1,6 +1,86 @@
 {
     "nodes": [
         {
+            "id": "baa254787001000",
+            "name": "Tonemap",
+            "position": [
+                1176.0,
+                148.0
+            ]
+        },
+        {
+            "id": "b8e0fd752001000",
+            "name": "Composite",
+            "position": [
+                888.0,
+                148.0
+            ]
+        },
+        {
+            "id": "ba5010b28801001",
+            "name": "Static Mesh Pass",
+            "position": [
+                504.0,
+                180.0
+            ]
+        },
+        {
+            "id": "ba68b0d91801000",
+            "name": "Atmospheric Sky",
+            "position": [
+                148.0,
+                -28.0
+            ]
+        },
+        {
+            "id": "ba68b013b801000",
+            "name": "Compute SkyViewLut",
+            "position": [
+                -431.0,
+                116.0
+            ]
+        },
+        {
+            "id": "ba4fcc713c01000",
+            "name": "Update Light Pass",
+            "position": [
+                56.0,
+                356.0
+            ]
+        },
+        {
+            "id": "ba68af0af801000",
+            "name": "Compute MultipleScattering",
+            "position": [
+                -826.0,
+                148.0
+            ]
+        },
+        {
+            "id": "b8e0fd536001001",
+            "name": "Editor Scene Grid",
+            "position": [
+                510.0,
+                84.0
+            ]
+        },
+        {
+            "id": "ba8c92356401001",
+            "name": "3D MSDF Font Pass",
+            "position": [
+                467.0,
+                436.0
+            ]
+        },
+        {
+            "id": "ba6717196401001",
+            "name": "Depth Pre Pass",
+            "position": [
+                152.0,
+                260.0
+            ]
+        },
+        {
             "id": "ba4fcc11a401001",
             "name": "Create Light Clusters",
             "position": [
@@ -25,102 +105,18 @@
             ]
         },
         {
-            "id": "ba4fcc713c01000",
-            "name": "Update Light Pass",
+            "id": "ddca9d6cfc01000",
+            "name": "!!!Onyx::Graphics::RenderGraph::DebugDrawTask:3404851100",
             "position": [
-                56.0,
-                356.0
-            ]
-        },
-        {
-            "id": "ba68af0af801000",
-            "name": "Compute MultipleScattering",
-            "position": [
-                -826.0,
-                148.0
-            ]
-        },
-        {
-            "id": "ba8c92356401001",
-            "name": "3D MSDF Font Pass",
-            "position": [
-                467.0,
-                436.0
-            ]
-        },
-        {
-            "id": "ba6717196401001",
-            "name": "Depth Pre Pass",
-            "position": [
-                152.0,
-                260.0
-            ]
-        },
-        {
-            "id": "b8e0fd536001001",
-            "name": "Editor Scene Grid",
-            "position": [
-                510.0,
-                84.0
-            ]
-        },
-        {
-            "id": "ba68b013b801000",
-            "name": "Compute SkyViewLut",
-            "position": [
-                -431.0,
-                116.0
-            ]
-        },
-        {
-            "id": "ba68b0d91801000",
-            "name": "Atmospheric Sky",
-            "position": [
-                148.0,
-                -28.0
-            ]
-        },
-        {
-            "id": "ba5010b28801001",
-            "name": "Static Mesh Pass",
-            "position": [
-                504.0,
-                180.0
-            ]
-        },
-        {
-            "id": "b8e0fd752001000",
-            "name": "Composite",
-            "position": [
-                888.0,
-                148.0
-            ]
-        },
-        {
-            "id": "baa254787001000",
-            "name": "Tonemap",
-            "position": [
-                1176.0,
+                1546.0,
                 148.0
             ]
         }
     ],
     "hiddenlinks": [
         {
-            "frominputpin": "ba8c92356401002",
+            "frominputpin": "ba5010b28801002",
             "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba6717196401102",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "b8e0fd536001002",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba68b013b801001",
-            "tooutputpin": "ba68ae7a0001002"
         },
         {
             "frominputpin": "ba68b0d91801001",
@@ -131,7 +127,19 @@
             "tooutputpin": "ba68ae7a0001002"
         },
         {
-            "frominputpin": "ba5010b28801002",
+            "frominputpin": "ba68b013b801001",
+            "tooutputpin": "ba68ae7a0001002"
+        },
+        {
+            "frominputpin": "b8e0fd536001002",
+            "tooutputpin": "ba2926a5c001002"
+        },
+        {
+            "frominputpin": "ba8c92356401002",
+            "tooutputpin": "ba2926a5c001002"
+        },
+        {
+            "frominputpin": "ba6717196401102",
             "tooutputpin": "ba2926a5c001002"
         }
     ],

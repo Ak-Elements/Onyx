@@ -228,20 +228,16 @@ namespace Onyx::Graphics
         // Transition image to present
         TextureHandle& swapchainTarget = m_GraphicsSystem->GetAcquiredSwapChainImage();
         CommandBuffer& commandBuffer = GetCommandBuffer(m_FrameIndex, true);
+
+// If not in editor 
+// blit the final image on the swapchain 
+//
+
         commandBuffer.TransitionLayout(swapchainTarget, Context::Graphics, Access::None, ImageLayout::Present);
-        //commandBuffer.End();
 
         m_GraphicsSystem->EndFrame(currentFrameContext);
-        
+ 
         m_PresentThread.QueuePresent(m_FrameIndex, m_GraphicsSystem->GetAcquiredBackbufferIndex());
-
-        /*if (hasSucceeded == false)
-        {
-            m_FramebufferCache.Clear();
-            CreateDepthImages();
-            if (m_RenderGraph)
-                m_RenderGraph->OnSwapChainResized(*this);
-        }*/
 
         ONYX_PROFILE_MARK_FRAME_END(GPU_FRAME_NAME);
 
@@ -249,7 +245,6 @@ namespace Onyx::Graphics
         FrameContext& nextFrameContext = m_FrameContext[m_FrameIndex];
         nextFrameContext.FrameIndex = m_FrameIndex;
         nextFrameContext.AbsoluteFrame = currentFrameContext.AbsoluteFrame + 1;
-
         if (m_HasComputeWork)
             nextFrameContext.ComputeFrame = currentFrameContext.ComputeFrame + 1;
     }

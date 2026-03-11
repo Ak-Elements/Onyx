@@ -22,7 +22,7 @@ namespace Onyx::Volume
     private:
         using Super = NodeGraph::FixedPinNode_2_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle, Graphics::TextureHandle>;
 
-        void OnBeginFrame(const Graphics::RenderGraphContext&) override;
+        void OnBeginFrame(Graphics::RenderGraphContext&) override;
         void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR

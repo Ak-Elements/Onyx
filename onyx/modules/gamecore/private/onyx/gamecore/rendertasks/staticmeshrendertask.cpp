@@ -34,7 +34,7 @@ namespace Onyx::GameCore
         depthtextureInfo.Type = Graphics::RenderGraphResourceType::Attachment;
     }
 
-    void StaticMeshRenderGraphNode::OnBeginFrame(const Graphics::RenderGraphContext& context)
+    void StaticMeshRenderGraphNode::OnBeginFrame(Graphics::RenderGraphContext& context)
     {
         hasBegun = false;
         ONYX_PROFILE_FUNCTION;

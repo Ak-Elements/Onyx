@@ -16,7 +16,7 @@ namespace Onyx::Graphics::RenderGraphNodes
 
     private:
 
-        void OnBeginFrame(const RenderGraphContext&) override;
+        void OnBeginFrame(RenderGraphContext&) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR

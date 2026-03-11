@@ -5,18 +5,21 @@
 #include <onyx/container/directedacyclicgraph.h>
 
 // TODO: move?
-#include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/graphics/rendergraph/rendergraphresource.h>
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/nodegraph/graph.h>
 
 namespace Onyx::Graphics
 {
     struct FrameContext;
+    class IRenderGraphNode;
 
     using RenderGraphResourceCache = HashMap<RenderGraphResourceId, RenderGraphResource>;
 
     class RenderGraph : public Assets::Asset<RenderGraph>
     {
+        friend class IRenderGraphNode;
+
         using DirectedGraph = DirectedAcyclicGraph<UniquePtr<IRenderGraphNode>>;
         using LocalNodeId = DirectedGraph::NodeId;
 
@@ -44,6 +47,18 @@ namespace Onyx::Graphics
         NodeGraph::NodeGraph& GetNodeGraph() { return m_Graph; }
         const NodeGraph::NodeGraph& GetNodeGraph() const { return m_Graph; }
 
+        template <typename T>
+        T& GetInput()
+        {
+            constexpr onyxU32 id = TypeHash<T>();
+            //ONYX_ASSERT(m_Inputs.contains(id), "Input is not registered");
+            if (m_Inputs.contains(id) == false)
+            {
+                m_Inputs[id] = T();
+            }
+            return std::any_cast<T&>(m_Inputs.at(id));
+        }
+
         bool IsInitialized() const { return m_IsInitialized; }
 
     private:
@@ -52,13 +67,20 @@ namespace Onyx::Graphics
         void OnEndFrame(const FrameContext& frameContext);
 
         bool CreateAttachment(GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
-        //bool CreateBuffer(GraphicsSystem& graphicsApi, RenderGraphNode& node, RenderGraphResource& resource);
+
+        template <typename T>
+        void AddInput()
+        {
+            constexpr onyxU32 id = TypeHash<T>();
+            m_Inputs.try_emplace(id, T());
+        }
 
     private:
         bool m_IsInitialized = false;
 
         NodeGraph::NodeGraph m_Graph;
         RenderGraphResourceCache m_ResourceCache;
+        HashMap<onyxU32, std::any> m_Inputs;
 
         RenderGraphResourceId m_FinalTextureId;
     };

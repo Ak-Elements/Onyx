@@ -103,7 +103,7 @@ namespace Onyx::Graphics
         OnInit(api, resourceCache);
     }
 
-    void RenderGraphShaderNode::BeginFrame(const RenderGraphContext& context)
+    void RenderGraphShaderNode::BeginFrame(RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -241,7 +241,7 @@ namespace Onyx::Graphics
 #endif
     }
 
-    void RenderGraphShaderNode::EndFrame(const RenderGraphContext& context)
+    void RenderGraphShaderNode::EndFrame(RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
         OnEndFrame(context);
@@ -573,7 +573,7 @@ namespace Onyx::Graphics
         m_ShaderInstance = api.CreateShaderInstance(m_PipelineProperties.Shader, m_PipelineProperties);
     }
 
-    void RenderGraphFixedShaderNode::BeginFrame(const RenderGraphContext& context)
+    void RenderGraphFixedShaderNode::BeginFrame(RenderGraphContext& context)
     {
         RenderGraphShaderNode::BeginFrame(context);
         BindResources(m_ShaderInstance, context.Graph.GetResourceCache(), context.FrameContext);

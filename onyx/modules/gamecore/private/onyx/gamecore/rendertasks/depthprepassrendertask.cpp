@@ -19,7 +19,7 @@ namespace Onyx::GameCore
         resourceCache[GetOutputPin().GetGlobalId()].Handle = api.GetDepthImage();
     }
 
-    void DepthPrePassRenderGraphNode::OnBeginFrame(const Graphics::RenderGraphContext& context)
+    void DepthPrePassRenderGraphNode::OnBeginFrame(Graphics::RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 

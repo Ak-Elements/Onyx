@@ -45,5 +45,7 @@ namespace Onyx::Graphics::Vulkan
 		DynamicArray<const char*> m_ValidationLayers;
 		DynamicArray<VkExtensionProperties> m_Extensions;
 		DynamicArray<VkLayerProperties> m_Layers;
+        
+        VkResult result = VkResult::VK_ERROR_UNKNOWN;
 	};
 }

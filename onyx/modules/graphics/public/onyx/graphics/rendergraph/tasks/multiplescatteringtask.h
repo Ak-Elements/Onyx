@@ -13,7 +13,7 @@ namespace Onyx::Graphics::RenderGraphNodes
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnBeginFrame(const RenderGraphContext& context) override;
+        void OnBeginFrame(RenderGraphContext& context) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR

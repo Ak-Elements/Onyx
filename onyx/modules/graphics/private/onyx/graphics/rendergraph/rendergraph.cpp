@@ -177,7 +177,6 @@ namespace Onyx::Graphics
         resourceInfo.Size = Vector3s32(frameContext.Api->GetSwapchainExtent(), 0);
 
         RenderGraphContext graphContext{ frameContext, *this };
-
         for (onyxS8 nodeId : m_Graph.GetTopologicalOrder())
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
@@ -222,7 +221,6 @@ namespace Onyx::Graphics
 
         // wait for tasks
         RenderGraphContext graphContext{ frameContext, *this };
-
         for (onyxS8 nodeId : m_Graph.GetTopologicalOrder())
         {
             IRenderGraphNode& node = m_Graph.GetNode<IRenderGraphNode>(nodeId);
@@ -235,8 +233,12 @@ namespace Onyx::Graphics
             node.EndFrame(graphContext);
         }
 
-        auto& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
-        commandBuffer.TransitionLayout(std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle), Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
+        TextureHandle finalTexture = std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle);
+        if( finalTexture.IsValid())
+        {
+            auto& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
+            commandBuffer.TransitionLayout(finalTexture, Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
+        }
     }
 
     bool RenderGraph::HasResource(RenderGraphResourceId id) const

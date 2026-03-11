@@ -14,7 +14,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         resource.IsExternal = true;
     }
 
-    void GetViewConstantsNode::BeginFrame(const RenderGraphContext& context)
+    void GetViewConstantsNode::BeginFrame(RenderGraphContext& context)
     {
         const FrameContext& frameContext = context.FrameContext;
         

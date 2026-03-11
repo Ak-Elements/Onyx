@@ -15,7 +15,7 @@ namespace Onyx::Graphics::RenderGraphNodes
        StringId32 GetTypeId() const override { return TypeId; }
 
         void Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
-        void BeginFrame(const RenderGraphContext& context) override;
+        void BeginFrame(RenderGraphContext& context) override;
 
         bool IsEnabled() override { return true; }
 
