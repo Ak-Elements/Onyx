@@ -1,8 +1,5 @@
 #pragma once
 
-#include <filesystem>
-
-#include <onyx/container/span.h>
 #include <onyx/filesystem/path.h>
 
 namespace Onyx::FileSystem

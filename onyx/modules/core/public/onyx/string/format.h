@@ -1,7 +1,6 @@
 #pragma once
 
 #include <onyx/container/memorybuffer.h>
-#include <onyx/container/span.h>
 #include <onyx/string/inplacestring.h>
 
 #include <format>

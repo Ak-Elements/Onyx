@@ -14,6 +14,7 @@
 #include <numbers>
 #include <queue>
 #include <ranges>
+#include <span>
 #include <set>
 #include <stack>
 #include <string>

@@ -88,6 +88,9 @@ namespace Onyx
     template <typename... _Types>
     using Tuple = std::tuple<_Types...>;
 
+    template <typename T>
+    using Span = std::span<T>;
+    
     template<typename T, typename Tuple>
     constexpr UniquePtr<T> MakeUniqueFromTuple(Tuple&& t)
     {

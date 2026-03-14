@@ -1,7 +1,6 @@
 #pragma once
 
 #include <onyx/onyx_types.h>
-#include <onyx/container/span.h>
 
 namespace Onyx
 {
