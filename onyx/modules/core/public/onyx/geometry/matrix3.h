@@ -7,10 +7,10 @@ namespace Onyx
     {
     public:
         //constexpr Matrix3<Scalar> ZERO = Matrix3<Scalar>(0, 0, 0, 0, 0, 0, 0, 0, 0);
-        //constexpr Matrix3<Scalar> IDENDITY = Matrix3<Scalar>(1, 0, 0, 0, 1, 0, 0, 0, 1);
+        //static constexpr Matrix3 Identity;
         //constexpr Matrix3<Scalar> INVERSE = Matrix3<Scalar>(-1, -1, -1, -1, -1, -1, -1, -1, -1);
 
-        Matrix3()
+        constexpr Matrix3()
             :m_Columns
             {
                 Vector3<Scalar>(1,0,0),

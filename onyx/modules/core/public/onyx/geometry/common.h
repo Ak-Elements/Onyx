@@ -59,6 +59,9 @@ namespace Onyx
     using Bivector3f32 = Bivector3<onyxF32>;
     using Bivector3f64 = Bivector3<onyxF64>;
 
+    using Matrix3x3f32 = Matrix3<onyxF32>;
+    using Matrix4x4f32 = Matrix4<onyxF32>;
+
     template <typename ScalarT>
     struct Rect2;
 
