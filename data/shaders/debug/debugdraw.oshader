@@ -228,7 +228,7 @@ fragment
         vec3 hitNormalBoxSpaceEntry;
         vec3 hitNormalBoxSpaceExit;
         vec2 hits = RayIntersect( rayOriginBoxSpace, rayDirectionBoxSpace, box, hitNormalBoxSpaceEntry, hitNormalBoxSpaceExit);
-        if( hits.x < 0.0f )
+        if( hits.y < 0.0f )
         {
             return false;
         }
@@ -248,12 +248,12 @@ fragment
                 wireThickness = GetWireThickness( box, rayOriginBoxSpace, rayDirectionBoxSpace, hitT, hitNormalBoxSpaceExit );
             }
         }
-        // else 
-        // {
-        //     // check exit hit
-        //     hitT = hits.y; 
-        //     wireThickness = GetWireThickness( box, rayOrigin, rayDirection, hitT, hitNormal );
-        // }
+        else 
+        {
+            // check exit hit
+            hitT = hits.y; 
+            wireThickness = GetWireThickness( box, rayOriginBoxSpace, rayDirectionBoxSpace, hitT, hitNormalBoxSpaceExit );
+        }
 
         if ( ( hitT < closestT ) && wireThickness > EPSILON)
         {

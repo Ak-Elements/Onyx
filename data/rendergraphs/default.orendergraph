@@ -914,7 +914,6 @@
                     }
                 }
             ],
-            "shader": "e99db84746802acf",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
