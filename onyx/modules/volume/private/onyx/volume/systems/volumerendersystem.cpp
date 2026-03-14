@@ -13,12 +13,17 @@
 namespace Onyx::Volume::Rendering
 {
     // TODO: Material component should be read access
-    using VolumeEntityAccess = Entity::Entity<const TerrainSettingsComponent, const Terrain::TerrainRuntimeComponent, GameCore::MaterialComponent>;
-    void System(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSystem)
+    using Access = Entity::Access
+        ::Read<TerrainSettingsComponent, Terrain::TerrainRuntimeComponent>
+        ::Write<GameCore::MaterialComponent>;
+
+    using TerrainEntity = Access::AsEntity;
+
+    void System(TerrainEntity entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSystem)
     {
         GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
 
-        auto&& [volumeTerrainSettings, volumeTerrain, materialComponent] = entity.Get();
+        auto&& [volumeTerrainSettings, volumeTerrain, materialComponent] = entity;
 
         if (volumeTerrain.MeshVertices == false)
             return;

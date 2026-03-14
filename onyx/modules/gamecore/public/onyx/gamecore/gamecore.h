@@ -20,25 +20,7 @@ namespace Onyx::Assets
 namespace Onyx::Entity
 {
     template <>
-    class DependentFunctionArg<Graphics::GraphicsSystem&> : public IDependentFunctionArg
-    {
-    public:
-        ~DependentFunctionArg() override = default;
-
-        static Graphics::GraphicsSystem& Get(const ECSExecutionContext& context);
-    };
-
-    template <>
-    class DependentFunctionArg<Assets::AssetSystem&> : public IDependentFunctionArg
-    {
-    public:
-        ~DependentFunctionArg() override = default;
-
-        static Assets::AssetSystem& Get(const ECSExecutionContext& context);
-    };
-
-    template <>
-    class DependentFunctionArg<Graphics::FrameContext&> : public IDependentFunctionArg
+    class DependentFunctionArg<Graphics::FrameContext> : public IDependentFunctionArg
     {
     public:
         ~DependentFunctionArg() override = default;
@@ -47,7 +29,7 @@ namespace Onyx::Entity
     };
     
     template <>
-    class DependentFunctionArg<Physics::PhysicsWorld&> : public IDependentFunctionArg
+    class DependentFunctionArg<Physics::PhysicsWorld> : public IDependentFunctionArg
     {
     public:
         ~DependentFunctionArg() override = default;
@@ -56,7 +38,7 @@ namespace Onyx::Entity
     };
 
     template <>
-    class DependentFunctionArg<Graphics::DebugDrawQueue&> : public IDependentFunctionArg
+    class DependentFunctionArg<Graphics::DebugDrawQueue> : public IDependentFunctionArg
     {
     public:
         ~DependentFunctionArg() override = default;

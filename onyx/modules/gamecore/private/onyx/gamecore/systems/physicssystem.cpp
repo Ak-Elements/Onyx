@@ -34,19 +34,24 @@ namespace Onyx::GameCore::Physics
     
     namespace StreamIn
     {
-        using EntityAccess = Entity::Entity<const TransformComponent, InitPhysics>;
-        void system(EntityAccess entity, Onyx::Physics::PhysicsWorld& physicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
+        using Access = Entity::Access
+            ::Read<TransformComponent>
+            ::ReadIfExists<SphereColliderComponent, BoxColliderComponent>
+            ::With<InitPhysics>;
+        using PhysiscsEntity = Access::AsEntity;
+
+        void system(PhysiscsEntity entity, Onyx::Physics::PhysicsWorld& physicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
         {
-            auto&& [transform] = entity.Get();
+            auto&& [transform] = entity;
 
             Onyx::Physics::PhysicsBodyId bodyId;
             Onyx::Physics::MotionType motionType = Onyx::Physics::MotionType::Static;
-            if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<const BoxColliderComponent>() )
+            if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<BoxColliderComponent>() )
             {
                 motionType = boxCollider->MotionType;
                 bodyId = physicsSystem.CreateBoxCollider(transform.Translation, transform.Rotation, boxCollider->HalfExtents, boxCollider->MotionType, boxCollider->Layer);
             }
-            else if( const SphereColliderComponent* sphereCollider = entity.TryGetComponent<const SphereColliderComponent>() )
+            else if( const SphereColliderComponent* sphereCollider = entity.TryGetComponent<SphereColliderComponent>() )
             {
                 motionType = sphereCollider->MotionType;
                 bodyId = physicsSystem.CreateSphereCollider(transform.Translation, transform.Rotation, sphereCollider->Radius, sphereCollider->MotionType, sphereCollider->Layer);
@@ -57,10 +62,6 @@ namespace Onyx::GameCore::Physics
             {
                 entityCommandBuffer.AddComponent<DynamicBody>(entity);
             }
-            //else
-            //{
-            //    entityCommandBuffer.RemoveComponent<DynamicBody>(entity);
-            //}
 
             entityCommandBuffer.RemoveComponent<InitPhysics>(entity);
         }
@@ -68,7 +69,6 @@ namespace Onyx::GameCore::Physics
 
     namespace Simulate
     {
-        //using EntityAccess = Entity::Entity<const BoxColliderComponent, const TransformComponent, InitPhysics>;
         void system(Onyx::Physics::PhysicsWorld& physicsSystem)
         {
             physicsSystem.Update();
@@ -77,25 +77,38 @@ namespace Onyx::GameCore::Physics
 
     namespace PostPhysics
     {
-        using EntityAccess = Entity::Entity<const Components::PhysicsBodyId, TransformComponent, const DynamicBody>;
-        void system(EntityAccess entity, Onyx::Physics::PhysicsWorld& physicsSystem)
+        using Access = Entity::Access
+            ::Read<Components::PhysicsBodyId>
+            ::Write<TransformComponent>
+            ::With<DynamicBody>;
+
+        using PhysiscsEntity = Access::AsEntity;
+
+        void system(PhysiscsEntity entity, Onyx::Physics::PhysicsWorld& physicsSystem)
         {
-            auto&& [physicsBody, transform] = entity.Get();
+            auto&& [physicsBody, transform] = entity;
             transform.Translation = physicsSystem.GetPosition(physicsBody.BodyId);
         }
     }
 
     namespace DebugDraw
     {
-        using EntityAccess = Entity::Entity< const Components::PhysicsBodyId, const TransformComponent >;
-        void system(EntityAccess entity, Onyx::Graphics::DebugDrawQueue& debugDraw)
+        using Access = Entity::Access
+            ::Read<TransformComponent>
+            ::ReadIfExists<SphereColliderComponent, BoxColliderComponent>
+            ::With<Components::PhysicsBodyId>;
+
+        using ColliderEntity = Access::AsEntity;
+
+        void system(ColliderEntity entity, Onyx::Graphics::DebugDrawQueue& debugDraw)
         {
-            auto&& [_, transform] = entity.Get();
-            if( const SphereColliderComponent* sphereCollider = entity.TryGetComponent<const SphereColliderComponent>() )
+            auto&& [ transform ] = entity;
+
+            if( const SphereColliderComponent* sphereCollider = entity.TryGetComponent<SphereColliderComponent>() )
             {
                 debugDraw.addWireframeSphere(transform.Translation, sphereCollider->Radius, 0xFF0000FF);
             }
-            if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<const BoxColliderComponent>() )
+            if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<BoxColliderComponent>() )
             {
                 debugDraw.addWireframeBox(transform.Translation, boxCollider->HalfExtents, transform.Rotation.ToMatrix3(), 0xFF0000FF);
             }

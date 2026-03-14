@@ -15,17 +15,17 @@ namespace Onyx::GameCore::Lighting
 {
     namespace DirectionalLights
     {
-        using EntityQuery = Entity::EntityQuery<const DirectionalLightComponent, const TransformComponent>;
+        using LightAccess = Entity::Access::Read<DirectionalLightComponent, TransformComponent>;
+        using LightsQuery = LightAccess::AsQuery;
 
-        void system(EntityQuery entities, Graphics::FrameContext& frameContext)
+        void system(LightsQuery lightEntities, Graphics::FrameContext& frameContext)
         {
             // Directional lights
             onyxU32 directionalLightIndex = 0;
-            auto lightEntities = entities.GetView();
-            for (Entity::EntityId lightEntity : lightEntities)
+            for (auto lightEntity : lightEntities) 
             {
-                auto tuple = lightEntities.get<const DirectionalLightComponent, const TransformComponent>(lightEntity);
-                auto&& [lightComponent, transformComponent] = tuple;
+                auto&& [lightComponent, transformComponent] = LightAccess::AsEntity(lightEntities, lightEntity);
+
                 Graphics::DirectionalLight& light = frameContext.Lighting.DirectionalLights[directionalLightIndex++];
                 light.Color = lightComponent.Color;
                 light.Intensity = lightComponent.Intensity;
@@ -40,15 +40,15 @@ namespace Onyx::GameCore::Lighting
 
     namespace PointLights
     {
-        using EntityQuery = Entity::EntityQuery<const PointLightComponent, const TransformComponent>;
-        void system(EntityQuery entities, Graphics::FrameContext& frameContext)
+        using LightAccess = Entity::Access::Read<PointLightComponent, TransformComponent>;
+        using LightsQuery = LightAccess::AsQuery;
+
+        void system(LightsQuery lightEntities, Graphics::FrameContext& frameContext)
         {
             onyxU32 pointLightIndex = 0;
-            auto pointLightEntities = entities.GetView(/*entt::get<TransformComponent>*/);
-            for (Entity::EntityId lightEntity : pointLightEntities)
+            for (Entity::EntityId lightEntity : lightEntities)
             {
-                const TransformComponent& transformComponent = pointLightEntities.get<TransformComponent>(lightEntity);
-                const PointLightComponent& lightComponent = pointLightEntities.get<PointLightComponent>(lightEntity);
+                auto&& [lightComponent, transformComponent] = LightAccess::AsEntity(lightEntities, lightEntity);
 
                 Graphics::PointLight& light = frameContext.Lighting.PointLights[pointLightIndex++];
                 light.Position = transformComponent.Translation;
@@ -71,28 +71,26 @@ namespace Onyx::GameCore::Lighting
 
     namespace SpotLights
     {
-        using EntityQuery = Entity::EntityQuery<const SpotLightComponent, const TransformComponent>;
-        void system(EntityQuery entities, Graphics::FrameContext& frameContext)
-        {
-            {
-                onyxU32 spotLightIndex = 0;
-                auto spotLightEntities = entities.GetView();
-                for (Entity::EntityId lightEntity : spotLightEntities)
-                {
-                    const TransformComponent& transformComponent = spotLightEntities.get<TransformComponent>(lightEntity);
-                    const SpotLightComponent& lightComponent = spotLightEntities.get<SpotLightComponent>(lightEntity);
+        using LightAccess = Entity::Access::Read<SpotLightComponent, TransformComponent>;
+        using LightsQuery = LightAccess::AsQuery;
 
-                    Graphics::SpotLight& light = frameContext.Lighting.SpotLights[spotLightIndex++];
-                    light.Position = transformComponent.Translation;
-                    light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
-                    light.Color = lightComponent.Color;
-                    light.Intensity = lightComponent.Intensity;
-                    light.Falloff = lightComponent.Falloff;
-                    light.Angle = lightComponent.Angle;
-                    light.AngleAttenuation = lightComponent.AngleAttenuation;
-                    light.Range = lightComponent.Range;
-                    light.IsShadowCasting = lightComponent.IsShadowCasting;
-                }
+        void system(LightsQuery lightEntities, Graphics::FrameContext& frameContext)
+        {
+            onyxU32 spotLightIndex = 0;
+            for (Entity::EntityId lightEntity : lightEntities)
+            {
+                auto&& [lightComponent, transformComponent] = LightAccess::AsEntity(lightEntities, lightEntity);
+
+                Graphics::SpotLight& light = frameContext.Lighting.SpotLights[spotLightIndex++];
+                light.Position = transformComponent.Translation;
+                light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
+                light.Color = lightComponent.Color;
+                light.Intensity = lightComponent.Intensity;
+                light.Falloff = lightComponent.Falloff;
+                light.Angle = lightComponent.Angle;
+                light.AngleAttenuation = lightComponent.AngleAttenuation;
+                light.Range = lightComponent.Range;
+                light.IsShadowCasting = lightComponent.IsShadowCasting;
 
                 frameContext.Lighting.SpotLightsCount = spotLightIndex;
             }

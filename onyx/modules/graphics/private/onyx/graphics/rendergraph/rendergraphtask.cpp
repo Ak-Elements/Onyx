@@ -559,10 +559,7 @@ namespace Onyx::Graphics
 
     void RenderGraphFixedShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
-        //assetSystem.GetAsset(Assets::AssetId(StringView(m_ShaderPath)), m_Shader);
-        //m_Shader->GetOnLoadedEvent().Connect<&RenderGraphFixedShaderNode::OnShaderLoaded>(this);
         RenderGraphShaderNode::Init(api, resourceCache);
-
     }
 
     void RenderGraphFixedShaderNode::Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
@@ -615,7 +612,7 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        Assets::AssetId shaderAssetId;
+        Assets::AssetId shaderAssetId( m_PipelineProperties.Shader );
         if (deserializer.ReadOptional<"shader">(shaderAssetId))
             m_PipelineProperties.Shader = shaderAssetId;
 

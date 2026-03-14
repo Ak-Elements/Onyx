@@ -17,11 +17,15 @@ namespace Onyx::GameCore
 {
     namespace FreeCamera
     {
-        using CameraEntityAccess = Entity::Entity<const FreeCameraControllerComponent, TransformComponent, FreeCameraRuntimeComponent>;
+        using CameraAccess = Entity::Access
+            ::Read<FreeCameraControllerComponent>
+            ::Write<TransformComponent, FreeCameraRuntimeComponent>;
 
-        void system(CameraEntityAccess cameraEntity, DeltaGameTime deltaTime)
+        using CameraEntity = CameraAccess::AsEntity;
+
+        void system(CameraEntity cameraEntity, DeltaGameTime deltaTime)
         {
-            auto&& [ freeCameraController, transformComponent, freeCameraRuntime ] = cameraEntity.Get();
+            auto&& [ freeCameraController, transformComponent, freeCameraRuntime ] = cameraEntity;
             freeCameraRuntime.Velocity = std::clamp(freeCameraRuntime.Velocity, freeCameraController.MinVelocity, freeCameraController.MaxVelocity);
 
 #if ONYX_USE_IMGUI

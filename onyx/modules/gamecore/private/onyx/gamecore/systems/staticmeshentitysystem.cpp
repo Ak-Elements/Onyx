@@ -28,26 +28,34 @@ namespace Onyx::GameCore::StaticMeshEntitySystem
     
     namespace StreamIn
     {
-        using EntityAccess = Entity::Entity<StaticMeshComponent, LoadMesh>;
-        void system(EntityAccess entity, Onyx::Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
+        using Access = Entity::Access
+            ::Write<StaticMeshComponent>
+            ::With<LoadMesh>;
+
+        using MeshEntity = Access::AsEntity;
+
+        void system(MeshEntity entity, Onyx::Assets::AssetSystem& assetSystem, Entity::EntityCommandBuffer entityCommandBuffer)
         {
-            auto&& [staticMesh] = entity.Get();
+            auto&& [staticMesh] = entity;
 
             assetSystem.GetAsset(staticMesh.Mesh.GetId(), staticMesh.Mesh);
-            //Onyx::Physics::PhysicsBodyId bodyId = physicsSystem.CreateBoxCollider(transform.Translation, transform.Rotation, boxCollider.HalfExtents, boxCollider.MotionType, boxCollider.Layer);
-            //entityCommandBuffer.AddComponent<Components::PhysicsBodyId>(entity, bodyId);
             entityCommandBuffer.RemoveComponent<LoadMesh>(entity);
         }
     }
 
     namespace QueueRender
     {
-        using VolumeEntityAccess = Entity::Entity<const StaticMeshComponent, const TransformComponent, GameCore::MaterialComponent>;
-        void system(VolumeEntityAccess entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSystem)
+        using Access = Entity::Access
+            ::Read<StaticMeshComponent, TransformComponent>
+            ::Write<MaterialComponent>;
+
+        using MeshEntity = Access::AsEntity;
+
+        void system(MeshEntity entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSystem)
         {
             GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
 
-            auto&& [staticMesh, transform, materialComponent] = entity.Get();
+            auto&& [staticMesh, transform, materialComponent] = entity;
 
             if( !staticMesh.Mesh.IsLoaded() )
                 return;

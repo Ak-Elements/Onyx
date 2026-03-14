@@ -111,29 +111,19 @@ namespace Onyx::GameCore
     }
 }
 
-Onyx::Graphics::GraphicsSystem& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::GraphicsSystem&>::Get(const ECSExecutionContext& context)
-{
-    return context.Engine.GetSystem<Graphics::GraphicsSystem>();
-}
-
-Onyx::Assets::AssetSystem& Onyx::Entity::DependentFunctionArg<Onyx::Assets::AssetSystem&>::Get(const ECSExecutionContext& context)
-{
-    return context.Engine.GetSystem<Assets::AssetSystem>();
-}
-
-Onyx::Physics::PhysicsWorld& Onyx::Entity::DependentFunctionArg<Onyx::Physics::PhysicsWorld&>::Get(const ECSExecutionContext& context)
+Onyx::Physics::PhysicsWorld& Onyx::Entity::DependentFunctionArg<Onyx::Physics::PhysicsWorld>::Get(const ECSExecutionContext& context)
 {
     GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
     return gameCoreSystem.GetScene()->GetPhysicsWorld();
 }
 
-Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext&>::Get(const ECSExecutionContext& context)
+Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::FrameContext>::Get(const ECSExecutionContext& context)
 {
     Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
     return graphicsSystem.GetFrameContext();
 }
 
-Onyx::Graphics::DebugDrawQueue& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::DebugDrawQueue&>::Get(const ECSExecutionContext& context)
+Onyx::Graphics::DebugDrawQueue& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::DebugDrawQueue>::Get(const ECSExecutionContext& context)
 {
     GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
     Assets::AssetHandle<GameCore::Scene>& activeScene = gameCoreSystem.GetScene();

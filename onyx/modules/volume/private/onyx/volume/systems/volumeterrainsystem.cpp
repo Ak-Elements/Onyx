@@ -415,11 +415,19 @@ namespace Onyx::Volume::Terrain
             commandBuffer.Barrier(terrainMesh.IndirectDrawBuffer, Graphics::Context::Graphics, Graphics::Access::IndirectRead);
         }
 
-        using CameraEntityQuery = Entity::EntityQuery<const GameCore::TransformComponent, const GameCore::FreeCameraRuntimeComponent>;
-        using TerrainEntity = Entity::Entity<const TerrainSettingsComponent, VolumeGenerationComponent, TerrainWorldOctreeComponent, TerrainRuntimeComponent, InitTerrainFlag>;
-        void System(TerrainEntity terrainEntity, CameraEntityQuery cameraQuery, Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
+        using TerrainAccess = Entity::Access
+            ::Read<TerrainSettingsComponent>
+            ::Write<VolumeGenerationComponent, TerrainWorldOctreeComponent, TerrainRuntimeComponent>
+            ::With<InitTerrainFlag>;
+            
+        using TerrainEntity = TerrainAccess::AsEntity;
+
+        using CameraAccess = Entity::Access::Read<GameCore::TransformComponent, GameCore::FreeCameraRuntimeComponent>;
+        using CameraQuery = CameraAccess::AsQuery;
+        
+        void System(TerrainEntity terrainEntity, const CameraQuery& cameraQuery, Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
         {
-            auto&& [terrainSettings, generationComponent, terrainWorldOctree, terrainRuntime] = terrainEntity.Get();
+            auto&& [terrainSettings, generationComponent, terrainWorldOctree, terrainRuntime] = terrainEntity;
 
             LoadShaders(assetSystem, graphicsSystem, terrainSettings, generationComponent);
 
@@ -450,9 +458,14 @@ namespace Onyx::Volume::Terrain
 
     namespace Streaming
     {
-        using CameraEntityAccess = Entity::EntityQuery<const GameCore::TransformComponent, const GameCore::FreeCameraRuntimeComponent>;
-            using TerrainEntity = Entity::Entity<TerrainWorldOctreeComponent, TerrainRuntimeComponent>;
-            void System(TerrainEntity terrainEntity, CameraEntityAccess cameraQuery, Entity::EntityCommandBuffer entityCommandBuffer)
+        using TerrainAccess = Entity::Access
+            ::Write<TerrainWorldOctreeComponent, TerrainRuntimeComponent>; 
+        using TerrainEntity = TerrainAccess::AsEntity;
+
+        using CameraAccess = Entity::Access::Read<GameCore::TransformComponent, GameCore::FreeCameraRuntimeComponent>;
+        using CameraQuery = CameraAccess::AsQuery;
+
+        void System(TerrainEntity terrainEntity, const CameraQuery& cameraQuery, Entity::EntityCommandBuffer entityCommandBuffer)
         {
             // TODO: make smarter instead of updates every 50 meters of movement
             Entity::EntityId cameraEntity = cameraQuery.GetView().front();

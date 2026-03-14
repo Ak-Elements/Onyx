@@ -13,23 +13,20 @@ namespace Onyx
 
 namespace GameCore
 {
-    using EntityQuery = Entity::EntityQuery<const TransformComponent, CameraComponent>;
+    using CameraAccess = Entity::Access::Read<TransformComponent>::Write<CameraComponent>;
+    using CameraEntity = CameraAccess::AsEntity;
 
     namespace UpdatePositions
     {
-        void system(EntityQuery query)
+        void system(CameraEntity entity)
         {
-            auto cameraEntitiesView = query.GetView();
-            for (Entity::EntityId entity : cameraEntitiesView)
-            {
-                auto&& [transform, cameraComponent] = cameraEntitiesView.get<TransformComponent, CameraComponent>(entity);
+            auto&& [transform, cameraComponent] = entity;
 
-                const Rotor3f32& worldRotation = transform.Rotation;
-                Vector3f32 forwardDirection = worldRotation.rotate(-Vector3f32::Z_Unit());
-                Vector3f32 upDirection = worldRotation.rotate(Vector3f32::Y_Unit());
+            const Rotor3f32& worldRotation = transform.Rotation;
+            Vector3f32 forwardDirection = worldRotation.rotate(-Vector3f32::Z_Unit());
+            Vector3f32 upDirection = worldRotation.rotate(Vector3f32::Y_Unit());
 
-                cameraComponent.Camera.LookAt(transform.Translation, transform.Translation + forwardDirection, upDirection);
-            }
+            cameraComponent.Camera.LookAt(transform.Translation, transform.Translation + forwardDirection, upDirection);
         }
     }
 
