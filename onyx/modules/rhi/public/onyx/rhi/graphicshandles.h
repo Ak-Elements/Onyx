@@ -56,6 +56,18 @@ namespace Onyx::Graphics
         onyxU64 GetOffset() const { return Alias == INVALID_INDEX_8 ? 0 : Buffer->GetAliasOffset(Alias); }
         onyxU64 GetSize() const { return Buffer->GetAliasSize(Alias); }
 
+        template <typename T>
+        void SetData(const T& data)
+        {
+            Buffer->SetData(GetOffset(), &data, sizeof(T));            
+        }
+
+        template <typename T>
+        void SetData(Span<T> span)
+        {
+            Buffer->SetData(GetOffset(), span.data(), span.size() * sizeof(T));            
+        }
+
         friend bool operator==(const BufferHandle& lhs, const BufferHandle& rhs)
         {
             return lhs.Buffer == rhs.Buffer && lhs.Alias == rhs.Alias;

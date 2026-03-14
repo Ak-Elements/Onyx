@@ -88,12 +88,16 @@ namespace Onyx::GameCore::Physics
     namespace DebugDraw
     {
         using EntityAccess = Entity::Entity< const Components::PhysicsBodyId, const TransformComponent >;
-        void system(EntityAccess entity, Onyx::Graphics::DebugDrawQueue debugDraw)
+        void system(EntityAccess entity, Onyx::Graphics::DebugDrawQueue& debugDraw)
         {
             auto&& [_, transform] = entity.Get();
             if( const SphereColliderComponent* sphereCollider = entity.TryGetComponent<const SphereColliderComponent>() )
             {
-                debugDraw.DrawSphere(transform.Translation, sphereCollider->Radius, 0xFF000077);
+                debugDraw.addWireframeSphere(transform.Translation, sphereCollider->Radius, 0xFF0000FF);
+            }
+            if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<const BoxColliderComponent>() )
+            {
+                debugDraw.addWireframeBox(transform.Translation, boxCollider->HalfExtents, transform.Rotation.ToMatrix3(), 0xFF0000FF);
             }
         }
     }

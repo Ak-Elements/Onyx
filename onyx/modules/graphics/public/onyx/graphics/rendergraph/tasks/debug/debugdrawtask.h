@@ -15,9 +15,6 @@ namespace Onyx::Graphics::RenderGraphNodes
         DebugDrawTask();
 
     private:
-        void DrawBox(Vector3f32 position, Vector3f32 halfExtents);
-        void DrawSphere(Vector3f32 position, onyxF32 radius);
-        
         void OnBeginFrame(RenderGraphContext& context) override;
         void OnPreRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
         void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
@@ -37,7 +34,10 @@ namespace Onyx::Graphics::RenderGraphNodes
         }
 #endif
     private:
-        BufferHandle m_InstanceBuffer;
-        onyxU32 m_InstanceCount = 0;
+        BufferHandle m_WireframeSpheresBuffer;
+        BufferHandle m_WireframeBoxesBuffer;
+
+        onyxU32 m_WireframeSpheresCount = 0;
+        onyxU32 m_WireframeBoxesCount = 0;
     };
 }

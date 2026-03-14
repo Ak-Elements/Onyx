@@ -1,0 +1,312 @@
+
+#version 460 core
+
+#include "includes/common.h"
+
+vertex
+{
+    void main()
+    {
+        vec2 texCoord = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(texCoord * 2.0f + -1.0f, 0.0f, 1.0f);
+	    gl_Position.y = -gl_Position.y;
+    }
+}
+
+fragment
+{
+    const uint COLOR_32_RED_CHANNEL = 0;
+    const uint COLOR_32_GREEN_CHANNEL = 8;
+    const uint COLOR_32_BLUE_CHANNEL = 16;
+    const uint COLOR_32_ALPHA_CHANNEL = 24;
+
+    const float WIRE_THICKNESS = 0.02f;
+    const uint GRID_SIZE = 8;
+    #define PI 3.14159265
+    const float EPSILON = 0.001f;
+
+    struct DebugSphere
+    {
+        vec3 Position;
+        float Radius;
+        
+        uint Color;
+    };
+
+    struct DebugBox
+    {
+        vec3 Position;
+        uint Color;
+
+        mat3 Rotation;
+        vec3 HalfExtents;
+    };
+
+    layout(scalar, buffer_reference, buffer_reference_align = 8) buffer SphereList
+    {
+        DebugSphere Spheres[];
+    };
+
+    layout(scalar, buffer_reference, buffer_reference_align = 8) buffer BoxList
+    {
+        DebugBox Boxes[];
+    };
+
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer ViewConstants
+    {
+        mat4 ProjectionMatrix;
+        mat4 InverseProjectionMatrix;
+        mat4 ViewMatrix;
+        mat4 InverseViewMatrix;
+        mat4 ViewProjectionMatrix;
+        mat4 InverseViewProjectionMatrix;
+
+        vec2 Viewport;
+        float Near;
+        float Far;
+
+        vec3 CameraPosition;
+        float Padding;
+
+        vec3 CameraDirection;
+        float Padding2;
+    };
+
+    layout(push_constant) uniform Constants
+    {
+        ViewConstants ViewConstantsBuffer; 
+
+        SphereList WireframeSpheres;
+        BoxList WireframeBoxes;
+
+        uint WireframeSpheresCount;
+        uint WireframeBoxesCount;
+    } u_Constants;
+    
+    layout(location = 0) out vec4 OutColor;
+
+    bool RayIntersect( in vec3 rayOrigin, in vec3 rayDirection, in DebugSphere sphere, out vec2 hitT )
+    {
+        vec3 originToCenter = rayOrigin - sphere.Position;
+        float b = dot( originToCenter, rayDirection );
+        vec3 qc = originToCenter - b * rayDirection;
+        float h = sphere.Radius * sphere.Radius - dot( qc, qc );
+        if( h<0.0 ) return false; // no intersection
+
+        h = sqrt( h );
+        hitT = vec2( -b-h, -b+h );
+        return hitT.y >= 0.0f; 
+    }
+
+    vec2 RayIntersect( in vec3 rayOrigin, in vec3 rayDirection, in DebugBox box, out vec3 hitNormalEntry, out vec3 hitNormalExit )
+    {
+        vec3 m = 1.0 / rayDirection; // can precompute if traversing a set of aligned boxes
+        vec3 n = m * rayOrigin;   // can precompute if traversing a set of aligned boxes
+        vec3 k = abs(m) * box.HalfExtents;
+        vec3 t1 = -n - k;
+        vec3 t2 = -n + k;
+
+        float tN = max( max( t1.x, t1.y ), t1.z );
+        float tF = min( min( t2.x, t2.y ), t2.z );
+        if( tN>tF || tF<0.0)
+        {
+            return vec2(-1.0f); // no intersection
+        }
+
+        vec3 raySign = -sign(rayDirection);
+        hitNormalEntry = step(vec3(tN),t1) * raySign; 
+        hitNormalExit =  step(t2,vec3(tF)) * raySign;
+
+        return vec2(tN, tF);
+    }
+
+    float GetWirteThicknessSilhouette( vec3 hitNormal, vec3 rayDirection )
+    {
+        return smoothstep(WIRE_THICKNESS * 2.0f, 0.0, abs(dot(hitNormal, rayDirection)) );
+    }
+
+    float GetWireThickness( in DebugSphere sphere, in vec3 rayOrigin, in vec3 rayDirection, in float hitT )
+    {
+        vec3 hitPos = rayOrigin + rayDirection * hitT;
+        vec3 hitNormal = normalize(hitPos - sphere.Position);
+
+        float phi = atan(hitNormal.z, hitNormal.x);
+        float theta = asin(clamp(hitNormal.y, -1.0f, 1.0f));
+        
+        float latitude = (phi / ( 2.0f * PI) ) * GRID_SIZE;
+        float longitude = ( ( theta /  PI ) + 0.5f ) * GRID_SIZE;
+
+        float latitudeWeight = abs( fract( latitude + 0.5 ) - 0.5f );
+        float longitudeWeight = abs( fract( longitude + 0.5 ) - 0.5f );
+        float wireThickness = smoothstep( WIRE_THICKNESS , 0.0f, min( latitudeWeight, longitudeWeight) ); 
+        return max(GetWirteThicknessSilhouette( hitNormal, rayDirection ), wireThickness);
+    }
+
+    float GetWireThickness( in DebugBox box, in vec3 rayOrigin, in vec3 rayDirection, in float hitT, in vec3 hitNormal )
+    {
+        vec3 hitPos = rayOrigin + rayDirection * hitT;
+        vec3 uv = hitPos / box.HalfExtents; 
+
+        vec2 faceUV;
+        if( abs( hitNormal.x ) > 0.5f )
+        {
+            faceUV = uv.yz;
+        }
+        else if( abs( hitNormal.y ) > 0.5f )
+        {
+            faceUV = uv.xz;
+        }
+        else
+        {
+            faceUV = uv.xy;
+        }
+
+        vec2 edgeDistance = abs(abs( faceUV ) - 1.0f);
+        float edge = min(edgeDistance.x, edgeDistance.y);    
+
+        float wireThickness = smoothstep( WIRE_THICKNESS, 0.0f, edge); 
+        return max(GetWirteThicknessSilhouette( hitNormal, rayDirection ), wireThickness);
+    }
+
+    vec4 GetColor(uint color)
+    {
+        float s = 1.0f / 255.0f;
+        return vec4(
+            ((color >> COLOR_32_RED_CHANNEL) & 0xff) * s,
+            ((color >> COLOR_32_GREEN_CHANNEL) & 0xff) * s,
+            ((color >> COLOR_32_BLUE_CHANNEL) & 0xff) * s,
+            ((color >> COLOR_32_ALPHA_CHANNEL) & 0xff) * s);
+    }
+    
+    bool Intersect(in vec3 rayOrigin, in vec3 rayDirection, in DebugSphere sphere, inout float closestT, inout vec4 finalColor )
+    {
+        vec2 hits;
+        bool hasHit = RayIntersect( rayOrigin, rayDirection, sphere, hits );
+        if( hasHit == false )
+            return false;
+        
+        float wireThickness = 0.0f;
+        float hitT = -1.0f;
+
+        if ( hits.x >= 0.0f ) 
+        { 
+            // check entry hit
+            hitT = hits.x;
+            wireThickness = GetWireThickness( sphere, rayOrigin, rayDirection, hitT );
+            if (wireThickness < EPSILON)
+            {
+                // check exit hit
+                hitT = hits.y;
+                wireThickness = GetWireThickness( sphere, rayOrigin, rayDirection, hitT );
+            }
+        }
+        else 
+        {
+            // check exit hit
+            hitT = hits.y; 
+            wireThickness = GetWireThickness( sphere, rayOrigin, rayDirection, hitT );
+        }
+
+        if ( ( hitT < closestT ) && wireThickness > EPSILON)
+        {
+            closestT = hitT;
+            vec4 shapeColor = GetColor( sphere.Color );
+            finalColor = mix( finalColor, shapeColor, wireThickness );
+            return true;
+        }
+
+        return false; 
+    }
+
+    bool Intersect(in vec3 rayOrigin, in vec3 rayDirection, in DebugBox box, inout float closestT, inout vec4 finalColor )
+    {
+        mat3 worldToBoxSpace = transpose(box.Rotation);
+
+        vec3 rayOriginBoxSpace = worldToBoxSpace * (rayOrigin - box.Position); 
+        vec3 rayDirectionBoxSpace = worldToBoxSpace * rayDirection; 
+
+        vec3 hitNormalBoxSpaceEntry;
+        vec3 hitNormalBoxSpaceExit;
+        vec2 hits = RayIntersect( rayOriginBoxSpace, rayDirectionBoxSpace, box, hitNormalBoxSpaceEntry, hitNormalBoxSpaceExit);
+        if( hits.x < 0.0f )
+        {
+            return false;
+        }
+        
+        float wireThickness = 0.0f;
+        float hitT = -1.0f;
+
+        if ( hits.x >= 0.0f ) 
+        { 
+            // check entry hit
+            hitT = hits.x;
+            wireThickness = GetWireThickness( box, rayOriginBoxSpace, rayDirectionBoxSpace, hitT, hitNormalBoxSpaceEntry );
+            if (wireThickness < EPSILON)
+            {
+                // check exit hit
+                hitT = hits.y;
+                wireThickness = GetWireThickness( box, rayOriginBoxSpace, rayDirectionBoxSpace, hitT, hitNormalBoxSpaceExit );
+            }
+        }
+        // else 
+        // {
+        //     // check exit hit
+        //     hitT = hits.y; 
+        //     wireThickness = GetWireThickness( box, rayOrigin, rayDirection, hitT, hitNormal );
+        // }
+
+        if ( ( hitT < closestT ) && wireThickness > EPSILON)
+        {
+            closestT = hitT;
+            vec4 shapeColor = GetColor( box.Color );
+            finalColor = mix( finalColor, shapeColor, wireThickness );
+            return true;
+        }
+
+        return false; 
+    }
+
+    void main()
+    {
+        vec2 ndc = vec2(
+            ( gl_FragCoord.x / u_Constants.ViewConstantsBuffer.Viewport.x) * 2.0f - 1.0f,
+            ( gl_FragCoord.y / u_Constants.ViewConstantsBuffer.Viewport.y) * -2.0f + 1.0f);
+
+        vec4 clipPos = vec4(ndc, 0.0f, 1.0f); 
+        vec4 ray = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix * clipPos;
+        ray /= ray.w;
+        ray = u_Constants.ViewConstantsBuffer.InverseViewMatrix * ray;
+
+        vec3 rayOrigin = u_Constants.ViewConstantsBuffer.CameraPosition;
+        vec3 rayDirection = normalize(ray.xyz - rayOrigin);
+
+        bool hasHit = false;
+        float closestT = 1e9;
+        vec4 finalColor = vec4(0.0f);
+
+        for(int i = 0; i < u_Constants.WireframeSpheresCount; ++i)
+        {
+            DebugSphere sphere = u_Constants.WireframeSpheres.Spheres[i];
+            bool hit = Intersect(rayOrigin, rayDirection, sphere, closestT, finalColor );
+            if (hit)
+            {
+                hasHit = true;
+            } 
+        }
+        
+        for(int i = 0; i < u_Constants.WireframeBoxesCount; ++i)
+        {
+            DebugBox box = u_Constants.WireframeBoxes.Boxes[i];
+            bool hit = Intersect(rayOrigin, rayDirection, box, closestT, finalColor );
+            if (hit)
+            {
+                hasHit = true;
+            } 
+        }
+
+        if( hasHit == false)
+            discard;
+
+        OutColor = finalColor;
+    }
+}

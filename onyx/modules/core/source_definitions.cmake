@@ -27,7 +27,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     container/inplacearray.h
     container/memorybuffer.h
     container/staticarray.h
-    container/span.h
     container/typelist.h
     engine/enginesystem.h
     engine/enginesystemfactory.h

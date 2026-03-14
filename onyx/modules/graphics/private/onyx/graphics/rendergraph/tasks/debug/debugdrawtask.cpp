@@ -6,12 +6,13 @@
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/debug/debugshapes.h>
+#include <onyx/graphics/debug/debugdrawqueue.h>
 
 namespace Onyx::Graphics::RenderGraphNodes
 {
     DebugDrawTask::DebugDrawTask()
     {
-        m_PipelineProperties.Shader = "engine:/shaders/debug/debugdrawsphere.oshader";
+        m_PipelineProperties.Shader = "engine:/shaders/debug/debugdraw.oshader";
 
         Graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
         gbufferInfo.Type = Graphics::RenderGraphResourceType::Attachment;
@@ -30,8 +31,11 @@ namespace Onyx::Graphics::RenderGraphNodes
             outResource.Handle = inputResource.Handle;
         }
 
-        DynamicArray<DebugSphere>& debugSpheres = GetGraphInput<DynamicArray<DebugSphere>>(context.Graph);
-        debugSpheres.clear();
+        DebugDrawQueue& debugQueue = GetGraphInput<DebugDrawQueue>(context.Graph);
+        debugQueue.clear();
+
+        m_WireframeSpheresCount = 0;
+        m_WireframeBoxesCount = 0;
     }
 
     void DebugDrawTask::OnPreRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
@@ -43,13 +47,28 @@ namespace Onyx::Graphics::RenderGraphNodes
         ssboInstanceBuffer.m_CpuAccess = Graphics::CPUAccess::Write;
         ssboInstanceBuffer.m_GpuAccess = Graphics::GPUAccess::Read;
 
-        m_InstanceBuffer = context.FrameContext.Api->GetTransientBuffer(ssboInstanceBuffer);
-        DynamicArray<DebugSphere>& debugSpheres = GetGraphInput<DynamicArray<DebugSphere>>(context.Graph);
-        if (debugSpheres.empty())
-            return;
+        m_WireframeSpheresBuffer = context.FrameContext.Api->GetTransientBuffer(ssboInstanceBuffer);
 
-        m_InstanceCount = static_cast<onyxU32>(debugSpheres.size());
-        m_InstanceBuffer.Buffer->SetData(0, debugSpheres.data(), m_InstanceCount * sizeof(DebugSphere));
+        ssboInstanceBuffer.m_DebugName = "TMP DebugBoxes";
+        ssboInstanceBuffer.m_Size = sizeof(DebugBox) * 16; // This should match the size of queued spheres
+
+        m_WireframeBoxesBuffer = context.FrameContext.Api->GetTransientBuffer(ssboInstanceBuffer);
+        
+        const DebugDrawQueue& debugQueue = GetGraphInput<DebugDrawQueue>(context.Graph);
+        const Span<const DebugSphere> wireframeSpheres = debugQueue.GetWireframeSpheres();
+        const Span<const DebugBox> wireframeBoxes = debugQueue.GetWireframeBoxes();
+
+        if (wireframeSpheres.empty() == false)
+        {
+            m_WireframeSpheresCount = static_cast<onyxU32>(wireframeSpheres.size());
+            m_WireframeSpheresBuffer.SetData(wireframeSpheres);
+        }
+
+        if (wireframeBoxes.empty() == false)
+        {
+            m_WireframeBoxesCount = static_cast<onyxU32>(wireframeBoxes.size());
+            m_WireframeBoxesBuffer.SetData(wireframeBoxes);
+        }
     }
 
     void DebugDrawTask::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
@@ -59,14 +78,21 @@ namespace Onyx::Graphics::RenderGraphNodes
         struct PushConstants
         {
             onyxU64 ViewConstants;
-            onyxU64 InstanceBuffer;
+            onyxU64 WireFrameSpheres;
+            onyxU64 WireFrameBoxes;
+
+            onyxU32 WireFrameSpheresCount;
+            onyxU32 WireFrameBoxesCount;
         };
 
         PushConstants constants;
         constants.ViewConstants = context.FrameContext.Api->GetViewConstantsBuffer().GetGpuAddress();
-        constants.InstanceBuffer = m_InstanceBuffer.GetGpuAddress();
+        constants.WireFrameSpheres = m_WireframeSpheresBuffer.GetGpuAddress();
+        constants.WireFrameBoxes = m_WireframeBoxesBuffer.GetGpuAddress();
+        constants.WireFrameSpheresCount = m_WireframeSpheresCount;
+        constants.WireFrameBoxesCount = m_WireframeBoxesCount;
 
         commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
-        commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, m_InstanceCount, 1);
+        commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 }

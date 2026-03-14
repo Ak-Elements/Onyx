@@ -26,6 +26,7 @@
 #include <onyx/gamecore/systems/freecamerasystem.h>
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
+#include <onyx/gamecore/components/transformcomponent.h>
 namespace Onyx::GameCore
 {
     namespace GameCoreInit
@@ -33,7 +34,11 @@ namespace Onyx::GameCore
         void RegisterComponents(Entity::EcsBuilder& ecsBuilder)
         {
             ecsBuilder.RegisterComponent<IdComponent>();
-            ecsBuilder.RegisterComponent<TransformComponent>();
+            ecsBuilder.RegisterComponent<TransformComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TransformComponent&& transform)
+            {
+                transform.Rotation = Rotor3f32::FromEulerAngles(transform.RotationEuler);
+                registry.AddComponent<TransformComponent>(entity, std::move(transform));
+            });
 
 #if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
             ecsBuilder.RegisterComponent<NameComponent>();
@@ -44,7 +49,6 @@ namespace Onyx::GameCore
             ecsBuilder.RegisterComponent<SpotLightComponent>();
             ecsBuilder.RegisterComponent<MaterialComponent>();
             ecsBuilder.RegisterComponent<TextComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TextComponent&& textComponent)
-                
             {
                 Reference<Graphics::SDFFont> fontAsset;
                 //loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
@@ -129,12 +133,12 @@ Onyx::Graphics::FrameContext& Onyx::Entity::DependentFunctionArg<Onyx::Graphics:
     return graphicsSystem.GetFrameContext();
 }
 
-Onyx::Graphics::DebugDrawQueue Onyx::Entity::DependentFunctionArg<Onyx::Graphics::DebugDrawQueue>::Get(const ECSExecutionContext& context)
+Onyx::Graphics::DebugDrawQueue& Onyx::Entity::DependentFunctionArg<Onyx::Graphics::DebugDrawQueue&>::Get(const ECSExecutionContext& context)
 {
     GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
     Assets::AssetHandle<GameCore::Scene>& activeScene = gameCoreSystem.GetScene();
     Graphics::RenderGraph& renderGraph = activeScene->GetRenderGraph();
-    DynamicArray<Graphics::DebugSphere>& queue = renderGraph.GetInput<DynamicArray<Graphics::DebugSphere>>();
-    return Graphics::DebugDrawQueue(queue);
+    Graphics::DebugDrawQueue& debugQueue = renderGraph.GetInput<Graphics::DebugDrawQueue>();
+    return debugQueue; 
 }
 

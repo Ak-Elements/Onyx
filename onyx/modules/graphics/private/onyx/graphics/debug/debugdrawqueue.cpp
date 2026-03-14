@@ -2,13 +2,24 @@
 
 namespace Onyx::Graphics
 {
-    DebugDrawQueue::DebugDrawQueue(DynamicArray<DebugSphere>& sphereQueue)
-        : m_DebugSpheres(sphereQueue)
+    void DebugDrawQueue::addWireframeSphere(Vector3f32 position, onyxF32 radius, onyxU32 color)
     {
+        m_WireframeSpheres.emplace_back(position, radius, color);
     }
 
-    void DebugDrawQueue::DrawSphere(Vector3f32 position, onyxF32 radius, onyxU32 color)
+    void DebugDrawQueue::addWireframeBox(Vector3f32 position, Vector3f32 halfExtents, onyxU32 color)
     {
-        m_DebugSpheres.emplace_back(position, radius, color);
+        m_WireframeBoxes.emplace_back(position, color, Matrix3x3f32(), halfExtents);
+    }
+
+    void DebugDrawQueue::addWireframeBox(Vector3f32 position, Vector3f32 halfExtents, Matrix3x3f32 rotation, onyxU32 color)
+    {
+        m_WireframeBoxes.emplace_back(position, color, rotation, halfExtents);
+    }
+
+    void DebugDrawQueue::clear()
+    {
+        m_WireframeBoxes.clear();
+        m_WireframeSpheres.clear();
     }
 }

@@ -13,8 +13,9 @@ namespace Onyx::Graphics
     struct DebugBox
     {
         Vector3f32 Position;
-        Vector3f32 HalfExtents;
-
         onyxU32 Color;
+
+        Matrix3x3f32 Rotation;
+        Vector3f32 HalfExtents;
     };
 }

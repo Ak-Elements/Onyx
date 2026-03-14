@@ -177,14 +177,14 @@
             ]
         },
         {
-            "id": "b8e0fd536001001",
+            "id": "ba8c92356401001",
             "typeId": {
-                "id": "5ef77bb6",
-                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+                "id": "6fadc1fa",
+                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
             },
             "inputs": [
                 {
-                    "id": "b8e0fd536001002",
+                    "id": "ba8c92356401002",
                     "localId": {
                         "id": "46c2a1b5",
                         "string": "InPin"
@@ -198,7 +198,7 @@
             ],
             "outputs": [
                 {
-                    "id": "b8e0fd536001003",
+                    "id": "ba8c92356401003",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
@@ -209,7 +209,7 @@
                     }
                 }
             ],
-            "shader": "d0d43ce65db97aa1",
+            "shader": "8eea40a221b3f436",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -245,14 +245,14 @@
             ]
         },
         {
-            "id": "ba8c92356401001",
+            "id": "b8e0fd536001001",
             "typeId": {
-                "id": "6fadc1fa",
-                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
+                "id": "5ef77bb6",
+                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
             },
             "inputs": [
                 {
-                    "id": "ba8c92356401002",
+                    "id": "b8e0fd536001002",
                     "localId": {
                         "id": "46c2a1b5",
                         "string": "InPin"
@@ -266,7 +266,7 @@
             ],
             "outputs": [
                 {
-                    "id": "ba8c92356401003",
+                    "id": "b8e0fd536001003",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
@@ -277,7 +277,7 @@
                     }
                 }
             ],
-            "shader": "8eea40a221b3f436",
+            "shader": "d0d43ce65db97aa1",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -926,7 +926,19 @@
                     "cull": "None",
                     "fill": "Solid",
                     "frontfacing": false
-                }
+                },
+                "blend": [
+                    {
+                        "enabled": true,
+                        "colormask": "RGBA",
+                        "srccolor": "One",
+                        "dstcolor": "OneMinusSrcAlpha",
+                        "colorop": "Add",
+                        "srcalpha": "One",
+                        "dstalpha": "OneMinusSrcAlpha",
+                        "alphaop": "Add"
+                    }
+                ]
             },
             "output_attachments": [
                 {
@@ -934,5 +946,8 @@
                 }
             ]
         }
-    ]
+    ],
+    "data": {
+        "ddca9d6cfc01002": null
+    }
 }

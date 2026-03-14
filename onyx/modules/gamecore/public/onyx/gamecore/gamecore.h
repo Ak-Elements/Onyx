@@ -56,12 +56,12 @@ namespace Onyx::Entity
     };
 
     template <>
-    class DependentFunctionArg<Graphics::DebugDrawQueue> : public IDependentFunctionArg
+    class DependentFunctionArg<Graphics::DebugDrawQueue&> : public IDependentFunctionArg
     {
     public:
         ~DependentFunctionArg() override = default;
 
-        static Graphics::DebugDrawQueue Get(const ECSExecutionContext& context);
+        static Graphics::DebugDrawQueue& Get(const ECSExecutionContext& context);
     };
 }
 

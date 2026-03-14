@@ -1,59 +1,43 @@
 {
     "nodes": [
         {
-            "id": "baa254787001000",
-            "name": "Tonemap",
+            "id": "ddca9d6cfc01000",
+            "name": "DebugDrawTask",
             "position": [
-                1176.0,
+                1546.0,
                 148.0
             ]
         },
         {
-            "id": "b8e0fd752001000",
-            "name": "Composite",
+            "id": "ba2926a5c001001",
+            "name": "Get View Constants",
             "position": [
-                888.0,
-                148.0
-            ]
-        },
-        {
-            "id": "ba5010b28801001",
-            "name": "Static Mesh Pass",
-            "position": [
-                504.0,
-                180.0
-            ]
-        },
-        {
-            "id": "ba68b0d91801000",
-            "name": "Atmospheric Sky",
-            "position": [
-                148.0,
+                -199.0,
                 -28.0
             ]
         },
         {
-            "id": "ba68b013b801000",
-            "name": "Compute SkyViewLut",
+            "id": "ba68ae7a0001001",
+            "name": "Create Transmittance",
             "position": [
-                -431.0,
-                116.0
+                -1076.0,
+                4.0
             ]
         },
         {
-            "id": "ba4fcc713c01000",
-            "name": "Update Light Pass",
+            "id": "ba4fcc11a401001",
+            "name": "Create Light Clusters",
             "position": [
-                56.0,
+                -176.0,
                 356.0
             ]
         },
         {
-            "id": "ba68af0af801000",
-            "name": "Compute MultipleScattering",
+            "id": "ba6717196401001",
+            "name": "Depth Pre Pass",
             "position": [
-                -826.0,
-                148.0
+                152.0,
+                260.0
             ]
         },
         {
@@ -73,62 +57,66 @@
             ]
         },
         {
-            "id": "ba6717196401001",
-            "name": "Depth Pre Pass",
+            "id": "ba68af0af801000",
+            "name": "Compute MultipleScattering",
             "position": [
-                152.0,
-                260.0
+                -826.0,
+                148.0
             ]
         },
         {
-            "id": "ba4fcc11a401001",
-            "name": "Create Light Clusters",
+            "id": "ba4fcc713c01000",
+            "name": "Update Light Pass",
             "position": [
-                -176.0,
+                56.0,
                 356.0
             ]
         },
         {
-            "id": "ba68ae7a0001001",
-            "name": "Create Transmittance",
+            "id": "ba68b013b801000",
+            "name": "Compute SkyViewLut",
             "position": [
-                -1076.0,
-                4.0
+                -431.0,
+                116.0
             ]
         },
         {
-            "id": "ba2926a5c001001",
-            "name": "Get View Constants",
+            "id": "ba68b0d91801000",
+            "name": "Atmospheric Sky",
             "position": [
-                -199.0,
+                148.0,
                 -28.0
             ]
         },
         {
-            "id": "ddca9d6cfc01000",
-            "name": "!!!Onyx::Graphics::RenderGraph::DebugDrawTask:3404851100",
+            "id": "ba5010b28801001",
+            "name": "Static Mesh Pass",
             "position": [
-                1546.0,
+                504.0,
+                180.0
+            ]
+        },
+        {
+            "id": "b8e0fd752001000",
+            "name": "Composite",
+            "position": [
+                888.0,
+                148.0
+            ]
+        },
+        {
+            "id": "baa254787001000",
+            "name": "Tonemap",
+            "position": [
+                1176.0,
                 148.0
             ]
         }
     ],
     "hiddenlinks": [
         {
-            "frominputpin": "ba5010b28801002",
+            "frominputpin": "ba6717196401102",
             "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba68b0d91801001",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba68b0d91801002",
-            "tooutputpin": "ba68ae7a0001002"
-        },
-        {
-            "frominputpin": "ba68b013b801001",
-            "tooutputpin": "ba68ae7a0001002"
         },
         {
             "frominputpin": "b8e0fd536001002",
@@ -139,7 +127,19 @@
             "tooutputpin": "ba2926a5c001002"
         },
         {
-            "frominputpin": "ba6717196401102",
+            "frominputpin": "ba68b013b801001",
+            "tooutputpin": "ba68ae7a0001002"
+        },
+        {
+            "frominputpin": "ba68b0d91801001",
+            "tooutputpin": "ba2926a5c001002"
+        },
+        {
+            "frominputpin": "ba68b0d91801002",
+            "tooutputpin": "ba68ae7a0001002"
+        },
+        {
+            "frominputpin": "ba5010b28801002",
             "tooutputpin": "ba2926a5c001002"
         }
     ],
