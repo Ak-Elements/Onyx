@@ -65,9 +65,7 @@ namespace Onyx::Entity
         {
             return [=](const ECSExecutionContext& context)
             {
-                auto args = std::forward_as_tuple(
-                    DependantFunctionArg<std::remove_cvref_t<Args>>::Get(context)...
-                );
+                auto args = std::tuple<Args...>( DependantFunctionArg<std::remove_cvref_t<Args>>::Get(context)... );
 
                 EntityQuery<EntityAccessT...> query(context.Registry);
                 const auto& entitiesView = query.GetView();
