@@ -9,6 +9,7 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/assets/assetsystem.h>
+#include <onyx/entity/entitycommandbuffer.h>
 
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/scene/sceneframedata.h>

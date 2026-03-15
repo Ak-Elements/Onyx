@@ -2,6 +2,7 @@
 
 #include <onyx/graphics/debug/debugdrawqueue.h>
 #include <onyx/entity/entitycomponentsystem.h>
+#include <onyx/entity/entitycommandbuffer.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/components/physics/boxcollidercomponent.gen.h>

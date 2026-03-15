@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/entity/dependantfunctionargument.h>
 #include <onyx/entity/entity.h>
 
 #include <entt/entity/registry.hpp>
@@ -7,7 +8,8 @@
 namespace Onyx::Entity
 {
     class ComponentFactory;
-    
+    struct ECSExecutionContext;
+
     class EntityRegistry
     {
     public:
@@ -128,5 +130,12 @@ namespace Onyx::Entity
     private:
         EntityRegistryT m_Registry;
         ComponentFactory* m_ComponentFactory = nullptr;
+    };
+
+    template <>
+    class DependantFunctionArg<EntityRegistry>
+    {
+    public:
+        static const EntityRegistry& Get(const ECSExecutionContext& context);
     };
 }

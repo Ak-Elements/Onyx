@@ -1,6 +1,7 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 #include <onyx/entity/entitycomponentsystem.h>
+#include <onyx/entity/dependantfunctionargument.h>
 #include <onyx/entity/componentfactory.h>
 #include <onyx/entity/ecsbuilder.h>
 
@@ -20,29 +21,23 @@ namespace Onyx::Assets
 namespace Onyx::Entity
 {
     template <>
-    class DependentFunctionArg<Graphics::FrameContext> : public IDependentFunctionArg
+    class DependantFunctionArg<Graphics::FrameContext>
     {
     public:
-        ~DependentFunctionArg() override = default;
-
         static Graphics::FrameContext& Get(const ECSExecutionContext& context);
     };
     
     template <>
-    class DependentFunctionArg<Physics::PhysicsWorld> : public IDependentFunctionArg
+    class DependantFunctionArg<Physics::PhysicsWorld>
     {
     public:
-        ~DependentFunctionArg() override = default;
-
         static Physics::PhysicsWorld& Get(const ECSExecutionContext& context);
     };
 
     template <>
-    class DependentFunctionArg<Graphics::DebugDrawQueue> : public IDependentFunctionArg
+    class DependantFunctionArg<Graphics::DebugDrawQueue>
     {
     public:
-        ~DependentFunctionArg() override = default;
-
         static Graphics::DebugDrawQueue& Get(const ECSExecutionContext& context);
     };
 }

@@ -1,6 +1,7 @@
 #include <onyx/entity/entityregistry.h>
 
 #include <onyx/entity/componentfactory.h>
+#include <onyx/entity/ecsexecutioncontext.h>
 
 namespace Onyx::Entity
 {
@@ -133,5 +134,10 @@ namespace Onyx::Entity
     void EntityRegistry::Clear()
     {
         m_Registry.clear();
+    }
+
+    const EntityRegistry& DependantFunctionArg<EntityRegistry>::Get(const ECSExecutionContext& context)
+    {
+        return context.Registry;
     }
 }

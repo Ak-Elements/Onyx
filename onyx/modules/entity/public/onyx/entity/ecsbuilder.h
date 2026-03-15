@@ -2,6 +2,7 @@
 
 #include <onyx/noncopyable.h>
 #include <onyx/entity/componentfactory.h>
+#include <onyx/entity/entityaccess.h>
 #include <onyx/entity/entitycomponentsystem.h>
 
 namespace Onyx::Entity

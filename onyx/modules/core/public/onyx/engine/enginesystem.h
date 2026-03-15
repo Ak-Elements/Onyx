@@ -15,6 +15,9 @@ namespace Onyx
         virtual StringId32 GetTypeId() const = 0;
     };
 
+    template <typename T>
+    concept EngineSystem = std::is_base_of_v<IEngineSystem, T>;
+
     class IEngine : public NonCopyable
     {
     public:
