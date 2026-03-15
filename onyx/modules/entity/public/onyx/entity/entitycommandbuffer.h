@@ -2,6 +2,7 @@
 
 #include <onyx/entity/dependantfunctionargument.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/entity/ecsexecutioncontext.h>
 
 namespace Onyx::Entity
 {
