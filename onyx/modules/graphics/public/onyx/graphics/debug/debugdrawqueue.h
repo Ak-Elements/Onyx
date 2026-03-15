@@ -14,8 +14,8 @@ namespace Onyx::Graphics
 
         void clear();
 
-        Span<const DebugBox> GetWireframeBoxes() const { return Span(m_WireframeBoxes); }
-        Span<const DebugSphere> GetWireframeSpheres() const { return Span(m_WireframeSpheres); }
+        Span<const DebugBox> GetWireframeBoxes() const { return Span<const DebugBox>(m_WireframeBoxes); }
+        Span<const DebugSphere> GetWireframeSpheres() const { return Span<const DebugSphere>(m_WireframeSpheres); }
 
     private:
         DynamicArray<DebugBox> m_WireframeBoxes;
