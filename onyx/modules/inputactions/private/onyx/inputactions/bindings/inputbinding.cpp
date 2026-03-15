@@ -70,7 +70,7 @@ namespace Onyx::InputActions
 
     void InputBinding::RemoveTrigger(onyxS32 index)
     {
-        ONYX_ASSERT(index < m_Triggers.size());
+        ONYX_ASSERT(index < numeric_cast<onyxS32>(m_Triggers.size()));
         m_Triggers.erase(m_Triggers.begin() + index);
     }
 
@@ -81,7 +81,7 @@ namespace Onyx::InputActions
 
     void InputBinding::RemoveModifier(onyxS32 index)
     {
-        ONYX_ASSERT(index < m_Modifiers.size());
+        ONYX_ASSERT(index < numeric_cast<onyxS32>(m_Modifiers.size()));
         m_Modifiers.erase(m_Modifiers.begin() + index);
     }
 #endif
