@@ -45,7 +45,7 @@ namespace Onyx::GameCore::Physics
         {
             auto&& [transform] = entity;
 
-            Onyx::Physics::PhysicsBodyId bodyId;
+            Onyx::Physics::PhysicsBodyId bodyId = Onyx::Physics::PhysicsBodyId::Invalid;
             Onyx::Physics::MotionType motionType = Onyx::Physics::MotionType::Static;
             if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<BoxColliderComponent>() )
             {
