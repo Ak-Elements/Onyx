@@ -1,10 +1,9 @@
 #pragma once
 
-#include <onyx/ui/imguisystem.h>
-
+#include <onyx/ui/propertyinspector.h>
 #include <onyx/localization/localizationmodule.h>
 
-#include <onyx/ui/propertyinspector.h>
+#include <onyx/ui/imguisystem.h>
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/windows/enginevariableswindow.h>
 
