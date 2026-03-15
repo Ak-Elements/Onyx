@@ -7,8 +7,8 @@ jobs:
     strategy:
       matrix:
         compiler:
-          - { pkg: g++, exe: 'g++', version: 15 }
-          - { pkg: clang, exe: 'clang++', version: 21 }
+          #- { pkg: g++, exe: 'g++', version: 14 }
+          - { pkg: clang, exe: 'clang++', version: 18 }
         configuration: ["Debug", "Release"]
           
     timeout-minutes: 15
