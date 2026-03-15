@@ -31,8 +31,8 @@ namespace Onyx::NodeGraph
 
         return true;
 #else
-        ONYX_UNUSED(graph);
-        ONYX_UNUSED(json);
+        ONYX_UNUSED(serializer);
+        ONYX_UNUSED(nodeGraph);
         return false;
 #endif
     }

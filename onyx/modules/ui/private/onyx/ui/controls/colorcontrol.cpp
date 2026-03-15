@@ -4,6 +4,7 @@
 
 #include <onyx/platforms/windows/platform.h>
 #include <onyx/ui/scopedid.h>
+#include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/controls/vectorcontrol.h>
 
 #include <onyx/input/inputsystem.h>
