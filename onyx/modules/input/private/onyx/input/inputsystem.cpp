@@ -132,7 +132,7 @@ namespace Onyx::Input
         const GameController& gamepad = m_Gamepads[controllerIndex];
         ONYX_ASSERT(gamepad.IsConnected);
 
-        constexpr onyxU16 offset = Enums::ToIntegral(GameControllerButton::First);
+        constexpr onyxU16 offset = Enums::ToIntegral(GameControllerAxis::First);
         onyxU8 index = static_cast<onyxU8>(Enums::ToIntegral(axis) - offset);
         return gamepad.m_AxisValues[index];
     }
