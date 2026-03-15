@@ -102,9 +102,8 @@ namespace Onyx::Input
             return false;
 
         constexpr onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
-        constexpr onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
         ONYX_ASSERT(Enums::ToIntegral(button) > first);
-        ONYX_ASSERT(Enums::ToIntegral(button) < last);
+        ONYX_ASSERT(Enums::ToIntegral(button) < Enums::ToIntegral(GameControllerButton::Last));
 
         onyxU16 bitmaskIndex = Enums::ToIntegral(button) - first;
         return m_Gamepads[deviceIndex].ButtonStates & (1 << bitmaskIndex);
