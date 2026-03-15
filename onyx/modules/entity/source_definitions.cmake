@@ -2,9 +2,12 @@ set(onyx_TARGET_PUBLIC_SOURCES
     componentfactory.h
     componentmeta.h
     componentmeta.hpp
-    entity.h
-    entity.hpp
+    dependantfunctionargument.h
     ecsbuilder.h
+    ecsexecutioncontext.h
+    entity.h
+    entityaccess.h
+    entitycommandbuffer.h
     entitycomponentsystem.h
     entityregistry.h
     prefab.h

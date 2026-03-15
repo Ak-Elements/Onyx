@@ -121,7 +121,7 @@ namespace Onyx::Entity
             {
                 if ( toRegistry.HasEntity( entityId ) == false)
                 {
-                    EntityId newEntityId = toRegistry.CreateEntity( entityId );
+                    [[maybe_unused]] EntityId newEntityId = toRegistry.CreateEntity( entityId );
                     ONYX_ASSERT(newEntityId == entityId);
                 }
                 
