@@ -99,6 +99,16 @@ namespace Onyx::Entity
     template <typename... ComponentAccessDefinitions>
     struct EntityQuery
     {
+    private:
+        template<typename... Included, typename... Excluded>
+        static consteval auto MakeViewType(std::tuple<Included...>, std::tuple<Excluded...>)
+        {
+            return entt::basic_view<entt::get_t<EntityRegistry::EntityRegistryT::storage_for_type<
+                std::conditional_t<Included::Access == Access::MemoryAccess::Write, typename Included::Type, const typename Included::Type>>...>,
+                entt::exclude_t<typename Excluded::Type...>>();
+        }
+
+    public:
         using IncludedComponents = decltype(std::tuple_cat(
             std::conditional_t< ( ComponentAccessDefinitions::Filter == Access::Filter::Include ),
                 std::tuple<ComponentAccessDefinitions>, std::tuple<>>{}...));
@@ -106,14 +116,6 @@ namespace Onyx::Entity
         using ExcludedComponents = decltype(std::tuple_cat(
             std::conditional_t< ( ComponentAccessDefinitions::Filter == Access::Filter::Exclude ),
                 std::tuple<ComponentAccessDefinitions>, std::tuple<>>{}...));
-
-        template<typename... Included, typename... Excluded>
-        constexpr static auto MakeViewType(std::tuple<Included...>, std::tuple<Excluded...>)
-        {
-            return entt::basic_view<entt::get_t<EntityRegistry::EntityRegistryT::storage_for_type<
-                std::conditional_t<Included::Access == Access::MemoryAccess::Write, typename Included::Type, const typename Included::Type>>...>,
-                entt::exclude_t<typename Excluded::Type...>>();
-        }
 
         using ViewT = decltype(MakeViewType(IncludedComponents{}, ExcludedComponents{}));
 
@@ -141,7 +143,7 @@ namespace Onyx::Entity
                 std::conditional_t<
                     Included::Access == Access::MemoryAccess::Write, // Condition 
                     typename Included::Type, const typename Included::Type>...> // Type
-                ();
+                (entt::exclude_t<typename Excluded::Type...>{});
         }
         
     private:
