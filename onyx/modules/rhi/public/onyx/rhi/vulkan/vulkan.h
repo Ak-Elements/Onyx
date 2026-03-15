@@ -315,7 +315,7 @@ namespace Onyx::Graphics::Vulkan
 #else
 #define VK_CHECK_RESULT(f)						\
 {												\
-	VkResult res = (f);							\
+	[[maybe_unused]] VkResult res = (f);		\
     ONYX_ASSERT(res == VK_SUCCESS, "VkResult is {}", Onyx::Graphics::Vulkan::errorString(res)); \
 }
 
