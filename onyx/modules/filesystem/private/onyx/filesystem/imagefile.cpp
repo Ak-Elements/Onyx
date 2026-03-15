@@ -20,7 +20,7 @@ namespace Onyx::FileSystem
         else
         {
             onyxU8* imageData = stbi_load(pathStr.data(), &m_Size[0], &m_Size[1], &channels, 4);
-            m_ImageData = Span(imageData, static_cast<onyxU64>(m_Size[0] * m_Size[1] * 4));
+            m_ImageData = Span<onyxU8>(imageData, static_cast<onyxU64>(m_Size[0] * m_Size[1] * 4));
             m_NumChannels = numeric_cast<onyxU8>(channels);
         }
     }
@@ -28,6 +28,6 @@ namespace Onyx::FileSystem
     ImageFile::~ImageFile()
     {
         // leak for now
-        //stbi_image_free(m_ImageData.data());
+        stbi_image_free(m_ImageData.data());
     }
 }
