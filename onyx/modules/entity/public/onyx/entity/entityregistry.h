@@ -106,13 +106,6 @@ namespace Onyx::Entity
             return m_Registry.group<Owned...>(std::forward<entt::get_t<Get...>>(observed), std::forward<entt::exclude_t<Exclude...>>(excludes));
         }
 
-        /*template<typename... Owned, typename... Get, typename... Exclude>
-        ONYX_NO_DISCARD auto GetGroup(Includes&&... includes) const
-        {
-            return m_Registry.group<Type, Other...>(std::forward<Includes>(includes)...);
-        }*/
-
-
         ONYX_NO_DISCARD EntityRegistryT::iterable GetStorage();
         ONYX_NO_DISCARD EntityRegistryT::const_iterable GetStorage() const;
         ONYX_NO_DISCARD EntityRegistryT::common_type* GetStorage(entt::id_type runtimeTypeId);
