@@ -20,7 +20,7 @@ namespace Onyx::Editor
         
         InputActions::InputAction* action = *actionOptional;
         DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings = action->GetBindings();
-        ONYX_ASSERT(m_BindingSlotIndex < bindings.size());
+        ONYX_ASSERT(m_BindingSlotIndex < numeric_cast<onyxS32>(bindings.size()));
 
         UniquePtr<InputActions::InputBinding>& binding = bindings[m_BindingIndex];
         binding->SetInputBindingSlot(m_BindingSlotIndex, m_InputId);
