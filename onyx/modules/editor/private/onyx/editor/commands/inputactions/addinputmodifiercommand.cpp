@@ -5,7 +5,7 @@
 
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     AddInputModifierCommand::AddInputModifierCommand(StringId32 modifierTypeId, InputActionSettingsWindow& inputSettingsWindow)
         : InputActionCommand("AddInputModifier", inputSettingsWindow)
@@ -16,12 +16,12 @@ namespace Onyx::Editor
     
     void AddInputModifierCommand::Execute()
     {
-        InputActions::InputActionsMap& context = GetInputActionsContext();
-        if( InputActions::InputAction* action = context.GetAction(m_ActionId).value_or(nullptr) )
+        input_actions::InputActionsMap& context = GetInputActionsContext();
+        if( input_actions::InputAction* action = context.GetAction(m_ActionId).value_or(nullptr) )
         {
-            DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings = action->GetBindings();
-            InputActions::InputBinding& binding = *bindings[m_BindingIndex];
-            binding.AddModifier(InputActions::InputModifiersFactory::Create(m_ModifierTypeId));
+            DynamicArray<UniquePtr<input_actions::InputBinding>>& bindings = action->GetBindings();
+            input_actions::InputBinding& binding = *bindings[m_BindingIndex];
+            binding.AddModifier(input_actions::InputModifiersFactory::Create(m_ModifierTypeId));
         }
     }
 }

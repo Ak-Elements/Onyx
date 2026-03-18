@@ -8,33 +8,33 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     class UIRenderGraphNode;
 
     template <>
-    struct Serialization<Graphics::RenderGraph>
+    struct Serialization<graphics::RenderGraph>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::RenderGraph& renderGraph)
+        static bool Serialize(Serializer& serializer, const graphics::RenderGraph& renderGraph)
         {
-            const NodeGraph::NodeGraph& nodeGraph = renderGraph.GetNodeGraph();
-            NodeGraph::Serialize(serializer, nodeGraph);
+            const node_graph::NodeGraph& nodeGraph = renderGraph.GetNodeGraph();
+            node_graph::Serialize(serializer, nodeGraph);
             return true;
         }
 
-        static bool Deserialize(const Deserializer& deserializer, Graphics::RenderGraph& outRenderGraph)
+        static bool Deserialize(const Deserializer& deserializer, graphics::RenderGraph& outRenderGraph)
         {
-            Graphics::RenderGraphNodeFactory factory;
-            NodeGraph::NodeGraph& outGraph = outRenderGraph.GetNodeGraph();
-            NodeGraph::Deserialize(deserializer, outGraph, factory);
+            graphics::RenderGraphNodeFactory factory;
+            node_graph::NodeGraph& outGraph = outRenderGraph.GetNodeGraph();
+            node_graph::Deserialize(deserializer, outGraph, factory);
             return true;
         }
     };
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    bool RenderGraphSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool RenderGraphSerializer::Serialize(const assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
         const RenderGraph& renderGraph = asset.As<RenderGraph>();
@@ -46,13 +46,13 @@ namespace Onyx::Graphics
 #endif
     }
 
-    bool RenderGraphSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
+    bool RenderGraphSerializer::Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& /*meta*/, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
         RenderGraph& renderGraph = asset.As<RenderGraph>();
 
         RenderGraphNodeFactory factory;
-        NodeGraph::NodeGraph& outGraph = renderGraph.GetNodeGraph();
-        if (NodeGraph::Deserialize(deserializer, outGraph, factory) == false)
+        node_graph::NodeGraph& outGraph = renderGraph.GetNodeGraph();
+        if (node_graph::Deserialize(deserializer, outGraph, factory) == false)
         {
             return false;
         }

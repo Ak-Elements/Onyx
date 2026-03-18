@@ -2,14 +2,14 @@
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetsystem.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    void GraphEditorContext::SetLocalizationModule(const Localization::LocalizationModule& localizationModule)
+    void GraphEditorContext::SetLocalizationModule(const localization::LocalizationModule& localizationModule)
     {
         m_LocalizationModule = &localizationModule;
     }
 
-    const Localization::LocalizationModule& GraphEditorContext::GetLocalizationModule() const
+    const localization::LocalizationModule& GraphEditorContext::GetLocalizationModule() const
     {
         ONYX_ASSERT(m_LocalizationModule != nullptr);
         return *m_LocalizationModule;
@@ -286,13 +286,13 @@ namespace Onyx::Editor
         OnDrawNodeBackground(node);
     }
 
-    void GraphEditorContext::Load(Assets::AssetSystem& assetSystem, const FilePath& path)
+    void GraphEditorContext::Load(assets::AssetSystem& assetSystem, const FilePath& path)
     {
         m_IsLoading = true;
         OnLoad(assetSystem, path);
     }
 
-    void GraphEditorContext::Save(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& assetMeta)
+    void GraphEditorContext::Save(assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta)
     {
         OnSave(assetSystem, assetMeta);
 
@@ -304,7 +304,7 @@ namespace Onyx::Editor
         OnSaved();
     }
 
-    void GraphEditorContext::FinishLoading(const Assets::AssetMetaData& assetMeta)
+    void GraphEditorContext::FinishLoading(const assets::AssetMetaData& assetMeta)
     {
         if (LoadEditorMetaDataFunctor)
         {

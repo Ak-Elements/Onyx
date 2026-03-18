@@ -4,7 +4,7 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/physicaldevice.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     void CommandBufferManager::Init(VulkanGraphicsApi& api, onyxU32 queueIndex, onyxU32 threadCount)
     {
@@ -23,10 +23,10 @@ namespace Onyx::Graphics::Vulkan
 
             onyxU8 frameIndex = (commandPoolIndex % MAX_FRAMES_IN_FLIGHT);
             for (onyxU32 i = 0; i < COMMAND_BUFFERS_PER_THREAD; ++i)    
-                m_PrimaryBuffers.emplace_back(api, commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, frameIndex, Format::Format("CommandBuffer {} {}", commandPoolIndex, i));
+                m_PrimaryBuffers.emplace_back(api, commandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, frameIndex, format::Format("CommandBuffer {} {}", commandPoolIndex, i));
 
             for (onyxU32 i = 0; i < SECONDARY_COMMAND_BUFFERS_PER_THREAD; ++i)
-                m_SecondaryBuffers.emplace_back(api, commandPool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, frameIndex, Format::Format("SecondaryCommandBuffer {} {}", commandPoolIndex, i));
+                m_SecondaryBuffers.emplace_back(api, commandPool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, frameIndex, format::Format("SecondaryCommandBuffer {} {}", commandPoolIndex, i));
         }
 
         m_UsedBuffers.resize(totalPoolCount, 0);
@@ -87,7 +87,7 @@ namespace Onyx::Graphics::Vulkan
     UniquePtr<CommandBuffer> CommandBufferManager::CreateSingleSubmitCommandBuffer(VulkanGraphicsApi& api, onyxU32 frameIndex, onyxU32 threadIndex)
     {
         const onyxU32 commandPoolIndex = (frameIndex * m_ThreadCount) + threadIndex;
-        UniquePtr<CommandBuffer> cmdBuffer = MakeUnique<VulkanCommandBuffer>(api, m_CommandPools[commandPoolIndex], VK_COMMAND_BUFFER_LEVEL_PRIMARY, frameIndex, Format::Format("Single Submit {} {}", commandPoolIndex, frameIndex));
+        UniquePtr<CommandBuffer> cmdBuffer = MakeUnique<VulkanCommandBuffer>(api, m_CommandPools[commandPoolIndex], VK_COMMAND_BUFFER_LEVEL_PRIMARY, frameIndex, format::Format("Single Submit {} {}", commandPoolIndex, frameIndex));
         return cmdBuffer;
     }
 }

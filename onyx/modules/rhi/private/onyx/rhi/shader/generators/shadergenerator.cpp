@@ -1,11 +1,11 @@
 #include <onyx/rhi/graphicstypes.h>
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     namespace
     {
-        #if ONYX_ASSERTS_ENABLED
+        #if ONYX_ASSERT_ENABLED
         constexpr onyxU8 MAX_TEXTURES = 8;
         #endif
     }
@@ -29,7 +29,7 @@ namespace Onyx::Graphics
         onyxU32 locationIndex = 0;
         for (const ShaderVariable& vertexInput : m_VertexInputs)
         {
-            vertexShaderCode += Format::Format("layout (location = {}) in {} {};\n", locationIndex++, vertexInput.Type, vertexInput.Name);
+            vertexShaderCode += format::Format("layout (location = {}) in {} {};\n", locationIndex++, vertexInput.Type, vertexInput.Name);
         }
 
         if (m_VertexOutputs.empty() == false)
@@ -38,7 +38,7 @@ namespace Onyx::Graphics
 
             for (const ShaderVariable& vertexOutput : m_VertexOutputs)
             {
-                vertexShaderCode += Format::Format("{} {};\n", vertexOutput.Type, vertexOutput.Name);
+                vertexShaderCode += format::Format("{} {};\n", vertexOutput.Type, vertexOutput.Name);
             }
 
             vertexShaderCode += "};\n";
@@ -51,17 +51,17 @@ namespace Onyx::Graphics
             "Output.WorldNormal = InNormal;\n"
             "gl_Position = u_ViewConstants.ProjectionMatrix * u_ViewConstants.ViewMatrix * vec4(InPosition, 1.0);";
 
-        vertexShaderCode += Format::Format("void main() \n{{ \n {} \n}}\n", body);
+        vertexShaderCode += format::Format("void main() \n{{ \n {} \n}}\n", body);
 
         // TODO: add custom vertex code if there was one
-        //vertexShaderCode += Format::Format("{}\n", shaderStagesCode[Enums::ToIntegral(ShaderStage::Vertex)]);
+        //vertexShaderCode += format::Format("{}\n", shaderStagesCode[enums::ToIntegral(ShaderStage::Vertex)]);
 
-        m_ShaderStagesCode[Enums::ToIntegral(ShaderStage::Vertex)] = vertexShaderCode;
+        m_ShaderStagesCode[enums::ToIntegral(ShaderStage::Vertex)] = vertexShaderCode;
     }
 
     void ShaderGenerator::AppendCode(StringView code)
     {
-        String& shaderCode = m_ShaderStagesCode[Enums::ToIntegral(m_CurrentStage)];
+        String& shaderCode = m_ShaderStagesCode[enums::ToIntegral(m_CurrentStage)];
         shaderCode.append(code);
     }
 
@@ -72,7 +72,7 @@ namespace Onyx::Graphics
 
     bool ShaderGenerator::HasPushConstant(ShaderStage stage, StringView name) const
     {
-        return std::ranges::any_of(m_PushConstants[Enums::ToIntegral(stage)], [&](const ShaderVariable& variable) { return variable.Name == name; });
+        return std::ranges::any_of(m_PushConstants[enums::ToIntegral(stage)], [&](const ShaderVariable& variable) { return variable.Name == name; });
     }
 
     void ShaderGenerator::AddPushConstant(StringView name, ShaderDataType type)
@@ -87,7 +87,7 @@ namespace Onyx::Graphics
 
     void ShaderGenerator::AddPushConstant(ShaderStage stage, StringView name, ShaderDataType type, onyxU32 offset)
     {
-        DynamicArray<ShaderVariable>& stagePushConstants = m_PushConstants[Enums::ToIntegral(stage)];
+        DynamicArray<ShaderVariable>& stagePushConstants = m_PushConstants[enums::ToIntegral(stage)];
         ONYX_ASSERT(HasPushConstant(stage, name) == false, "Push constant with that name already exists.");
 
         stagePushConstants.emplace_back(String(name), type, offset);
@@ -100,14 +100,14 @@ namespace Onyx::Graphics
 
     void ShaderGenerator::AddInclude(ShaderStage stage, String include)
     {
-        m_ShaderStagesIncludes[Enums::ToIntegral(stage)].emplace(include);
+        m_ShaderStagesIncludes[enums::ToIntegral(stage)].emplace(include);
     }
 
     void ShaderGenerator::GeneratePushConstants(String& stageCode)
     {
         // TODO: Probably need to add padding
 
-        const DynamicArray<ShaderVariable>& stagePushConstants = m_PushConstants[Enums::ToIntegral(m_CurrentStage)];
+        const DynamicArray<ShaderVariable>& stagePushConstants = m_PushConstants[enums::ToIntegral(m_CurrentStage)];
         if (((m_CurrentStage == ShaderStage::Vertex) && stagePushConstants.empty()) ||
             ((m_CurrentStage == ShaderStage::Fragment) && stagePushConstants.empty() && m_Textures.empty()))
         {
@@ -121,11 +121,11 @@ namespace Onyx::Graphics
         {
             if (variable.Offset == 0)
             {
-                stageCode += Format::Format("{} {};\n", variable.Type, variable.Name);
+                stageCode += format::Format("{} {};\n", variable.Type, variable.Name);
             }
             else
             {
-                stageCode += Format::Format("layout(offset = {}) {} {};\n", variable.Offset, variable.Type, variable.Name);
+                stageCode += format::Format("layout(offset = {}) {} {};\n", variable.Offset, variable.Type, variable.Name);
             }
         }
 
@@ -141,9 +141,9 @@ namespace Onyx::Graphics
 
     void ShaderGenerator::GenerateIncludes(String& stageCode)
     {
-        for (const String& include : m_ShaderStagesIncludes[Enums::ToIntegral(m_CurrentStage)])
+        for (const String& include : m_ShaderStagesIncludes[enums::ToIntegral(m_CurrentStage)])
         {
-            stageCode += Format::Format("#include \"{}\"\n", include);
+            stageCode += format::Format("#include \"{}\"\n", include);
         }
 
         stageCode += "\n";
@@ -164,7 +164,7 @@ namespace Onyx::Graphics
             for (const ShaderVariable& vertexOutput : m_VertexOutputs)
             {
                 String typeAsString = vertexOutput.Type == ShaderDataType::Float3 ? "vec3" : "vec2";
-                fragmentShaderCode += Format::Format("{} {};\n", typeAsString, vertexOutput.Name);
+                fragmentShaderCode += format::Format("{} {};\n", typeAsString, vertexOutput.Name);
             }
 
             fragmentShaderCode += "};\n";
@@ -175,9 +175,9 @@ namespace Onyx::Graphics
         GeneratePushConstants(fragmentShaderCode);
 
         DoGenerateFragmentMain();
-        fragmentShaderCode += Format::Format("void main() \n{{ \n {} \n}}\n", m_ShaderStagesCode[Enums::ToIntegral(ShaderStage::Fragment)]);
+        fragmentShaderCode += format::Format("void main() \n{{ \n {} \n}}\n", m_ShaderStagesCode[enums::ToIntegral(ShaderStage::Fragment)]);
 
-        m_ShaderStagesCode[Enums::ToIntegral(ShaderStage::Fragment)] = fragmentShaderCode;
+        m_ShaderStagesCode[enums::ToIntegral(ShaderStage::Fragment)] = fragmentShaderCode;
     }
 
     String ShaderGenerator::GenerateShader()
@@ -186,12 +186,12 @@ namespace Onyx::Graphics
         GenerateFragmentShader();
 
         String commonIncludes;
-        for (const String& include : m_ShaderStagesIncludes[Enums::ToIntegral(ShaderStage::All)])
+        for (const String& include : m_ShaderStagesIncludes[enums::ToIntegral(ShaderStage::All)])
         {
-            commonIncludes += Format::Format("#include \"{}\"\n", include);
+            commonIncludes += format::Format("#include \"{}\"\n", include);
         }
 
-        return Format::Format("#version 460 core\n{}\nvertex\n{{\n{}\n}} \nfragment\n{{\n{}\n}}", commonIncludes, m_ShaderStagesCode[Enums::ToIntegral(ShaderStage::Vertex)], m_ShaderStagesCode[Enums::ToIntegral(ShaderStage::Fragment)]);
+        return format::Format("#version 460 core\n{}\nvertex\n{{\n{}\n}} \nfragment\n{{\n{}\n}}", commonIncludes, m_ShaderStagesCode[enums::ToIntegral(ShaderStage::Vertex)], m_ShaderStagesCode[enums::ToIntegral(ShaderStage::Fragment)]);
     }
 
     PBRShaderGenerator::PBRShaderGenerator()

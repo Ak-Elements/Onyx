@@ -7,17 +7,17 @@
 #include <onyx/rhi/vulkan/texture.h>
 #include <onyx/rhi/vulkan/buffer.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     DescriptorSet::DescriptorSet(const Device& device, onyxU8 set, VkDescriptorSetAllocateInfo allocateInfo)
-        : Graphics::DescriptorSet(set)
+        : rhi::DescriptorSet(set)
         , m_Device(device)
     {
 		VK_CHECK_RESULT(vkAllocateDescriptorSets(m_Device.GetHandle(), &allocateInfo, &m_DescriptorSet))
     }
 
     DescriptorSet::DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout)
-        : Graphics::DescriptorSet(descriptorSetLayout.GetSet())
+        : rhi::DescriptorSet(descriptorSetLayout.GetSet())
         , m_Device(device)
     {
         m_WriteDescriptorSets.insert(descriptorSetLayout.GetWriteDescriptors().begin(), descriptorSetLayout.GetWriteDescriptors().end());

@@ -1,8 +1,8 @@
 #include <onyx/graphics/textureasset.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    void TextureAsset::SetTexture(const TextureHandle& handle)
+    void TextureAsset::SetTexture(const rhi::TextureHandle& handle)
     {
         m_Texture = handle;
     }

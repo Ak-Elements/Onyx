@@ -5,7 +5,8 @@ endif()
 onyx_add_target(onyx-filesystem
     NO_EDITOR_TARGET
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Filesystem"
+    NAMESPACE "onyx::file_system"
+    NAMESPACE_PATH "onyx/filesystem"
     NO_CODEGEN
     NO_EDITOR_TARGET
 )

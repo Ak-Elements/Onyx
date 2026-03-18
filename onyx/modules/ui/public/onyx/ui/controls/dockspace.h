@@ -3,7 +3,7 @@
 
 struct ImGuiWindowClass;
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     enum DockSplitDirection
     {

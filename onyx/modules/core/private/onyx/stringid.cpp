@@ -3,7 +3,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     bool Serialization<StringId<onyxU32>>::Serialize(Serializer& serializer, const StringId32& id)
     {

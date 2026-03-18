@@ -1,6 +1,6 @@
 #include <onyx/assets/assetloader.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     void AssetIOHandler::OnAssetLoadFinished(AssetHandle<AssetInterface>& handle)
     {

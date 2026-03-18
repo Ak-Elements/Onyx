@@ -8,7 +8,7 @@
 
 #include <GameInput.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     namespace
     {
@@ -49,7 +49,7 @@ namespace Onyx::Input
         }
     }
 
-    GameInput::GameInput()
+    Gameinput::GameInput()
     {
         HRESULT result = GameInputCreate(&m_GameInput);
         if (FAILED(result))
@@ -63,7 +63,7 @@ namespace Onyx::Input
             GameInputDeviceConnected,
             GameInputBlockingEnumeration,
             this,
-            &GameInput::OnDeviceCallback,
+            &Gameinput::OnDeviceCallback,
             &m_CallbackToken);
 
         if (FAILED(result))
@@ -73,18 +73,18 @@ namespace Onyx::Input
         }
     }
 
-    GameInput::~GameInput()
+    Gameinput::~GameInput()
     {
         m_GameInput->UnregisterCallback(m_CallbackToken, TIMEOUT_IN_MICROSECONDS);
     }
 
-    bool GameInput::OnDeviceChange()
+    bool Gameinput::OnDeviceChange()
     {
         // Detect new device
         return false;
     }
 
-    void GameInput::Update()
+    void Gameinput::Update()
     {
         GameInputGamepadState gameControllerState;
         IGameInputReading* reading = nullptr;
@@ -158,7 +158,7 @@ namespace Onyx::Input
         }
     }
 
-    bool GameInput::AddInputDevice(IGameInputDevice& device)
+    bool Gameinput::AddInputDevice(IGameInputDevice& device)
     {
         ConnectionType connection;
 
@@ -210,7 +210,7 @@ namespace Onyx::Input
 
     }
 
-    void GameInput::RemoveInputDevice(IGameInputDevice& device)
+    void Gameinput::RemoveInputDevice(IGameInputDevice& device)
     {
         m_ActiveInputDevices.erase(std::remove_if(m_ActiveInputDevices.begin(), m_ActiveInputDevices.end(), [&](GameInputDevice& inputDevice)
         {
@@ -230,7 +230,7 @@ namespace Onyx::Input
         }), m_ActiveInputDevices.end());
     }
 
-    bool GameInput::TryRestoreInputDevice(onyxU32 deviceId, onyxU32& outRestoredDeviceIndex)
+    bool Gameinput::TryRestoreInputDevice(onyxU32 deviceId, onyxU32& outRestoredDeviceIndex)
     {
         auto beginIt = m_InactiveInputDevices.begin();
         auto endIt = m_InactiveInputDevices.end();
@@ -280,7 +280,7 @@ namespace Onyx::Input
 
     }
 
-    bool GameInput::HasInputDevice(IGameInputDevice& device) const
+    bool Gameinput::HasInputDevice(IGameInputDevice& device) const
     {
         for (const GameInputDevice& gamepad : m_ActiveInputDevices)
         {
@@ -291,7 +291,7 @@ namespace Onyx::Input
         return false;
     }
 
-    void GameInput::OnDeviceCallback(GameInputCallbackToken, void* context, IGameInputDevice* device, onyxU64 timestamp, GameInputDeviceStatus currentStatus, GameInputDeviceStatus previousStatus)
+    void Gameinput::OnDeviceCallback(GameInputCallbackToken, void* context, IGameInputDevice* device, onyxU64 timestamp, GameInputDeviceStatus currentStatus, GameInputDeviceStatus previousStatus)
     {
         ONYX_UNUSED(timestamp);
         ONYX_UNUSED(previousStatus);

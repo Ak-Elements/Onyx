@@ -3,7 +3,7 @@
 
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     template <typename T>
     concept IsMemberFunctionPointer = std::is_member_function_pointer_v<T>;

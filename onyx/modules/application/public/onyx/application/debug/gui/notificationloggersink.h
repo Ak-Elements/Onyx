@@ -4,7 +4,7 @@
 
 #include <onyx/log/backends/loggerbackend.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     class GuiNotificationLoggerSink : public LoggerBackend
     {

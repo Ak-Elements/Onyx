@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     ScopedImGuiIndent::ScopedImGuiIndent()
     {

@@ -4,7 +4,7 @@
 
 #include <deque>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     template <typename TreeT>
@@ -57,6 +57,6 @@ namespace Onyx::Volume
         std::deque<IteratorT> m_IteratorStates;
     };
 
-} // namespace Onyx
+} // namespace onyx
 
 #include <onyx/volume/tree/treebreadthfirstiterator.hpp>

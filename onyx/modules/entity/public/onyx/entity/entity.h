@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     enum class EntityId : onyxU32
     {

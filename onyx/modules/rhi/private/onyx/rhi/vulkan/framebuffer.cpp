@@ -7,7 +7,7 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     void VulkanFramebuffer::Init(const VulkanGraphicsApi& api, const FramebufferSettings& settings)
     {

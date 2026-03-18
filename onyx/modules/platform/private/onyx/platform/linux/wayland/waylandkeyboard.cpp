@@ -16,7 +16,7 @@
 
 #include <sys/mman.h>
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
     namespace
     {
@@ -183,10 +183,10 @@ namespace Onyx::Platform::Wayland
 
         WaylandInput& input = *keyboardInstance.m_Input;
         WaylandPlatformContext& context = input.GetContext();
-        Onyx::Input::InputSystem& inputSystem = context.GetInputSystem();
+        onyx::input::InputSystem& inputSystem = context.GetInputSystem();
 
-        Input::KeyboardEvent keyboardEvent;
-        keyboardEvent.State = state == 0 ? Input::ButtonState::Up : Input::ButtonState::Down;
+        input::KeyboardEvent keyboardEvent;
+        keyboardEvent.State = state == 0 ? input::ButtonState::Up : input::ButtonState::Down;
         keyboardEvent.Key = ConvertWaylandKey(wayland_key);
         keyboardEvent.Char = GetInputChar(context.GetXkb(), wayland_key);
 

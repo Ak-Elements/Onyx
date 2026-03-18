@@ -2,7 +2,7 @@
 
 #include <onyx/editor/panels/sceneeditor/terraintools/terraintool.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class SculptTerrainTool: public TerrainTool
     {
@@ -18,13 +18,13 @@ namespace Onyx::Editor
         };
 
     public:
-        SculptTerrainTool(Graphics::GraphicsSystem& graphicsSystem);
+        SculptTerrainTool(rhi::GraphicsSystem& graphicsSystem);
 
         StringView GetTitle() override;
         void Render() override;
 
-        void ApplyOperation(Graphics::CommandBuffer& commandBuffer, const Graphics::BufferHandle& hitBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree) override;
-        void OnHitPositionReadback(GameCore::Scene& scene, const Entity::ComponentFactory& componentFactory, const Vector3f32& hitPosition) override;
+        void ApplyOperation(rhi::CommandBuffer& commandBuffer, const rhi::BufferHandle& hitBuffer, volume::TerrainWorldOctreeComponent& terrainOctree) override;
+        void OnHitPositionReadback(game_core::Scene& scene, const ecs::ComponentFactory& componentFactory, const Vector3f32& hitPosition) override;
 
         onyxF32 GetBounds() override { return m_BrushSize.Length(); }
         void OnBrushSizeInput(onyxF32 value) override;
@@ -37,6 +37,6 @@ namespace Onyx::Editor
         onyxF32 m_Smoothness{ 1.0f };
         SculptType m_Type = SculptType::Raise;
 
-        Graphics::ShaderInstanceHandle m_CreateVolumeSourceShader;
+        rhi::ShaderInstanceHandle m_CreateVolumeSourceShader;
     };
 }

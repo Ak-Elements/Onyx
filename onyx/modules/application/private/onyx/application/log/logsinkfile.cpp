@@ -1,10 +1,10 @@
 #include <onyx/application/log/logsinkfile.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     LogSinkFile::LogSinkFile(StringView mountPath)
         : m_LogFile(mountPath)
-        , m_LogFileStream(m_LogFile.OpenStream(FileSystem::OpenMode::Text | FileSystem::OpenMode::Write))
+        , m_LogFileStream(m_LogFile.OpenStream(file_system::OpenMode::Text | file_system::OpenMode::Write))
     {
     }
 
@@ -20,16 +20,16 @@ namespace Onyx::Application
             return;
         }
 
-		FilePath relativeFilePath = FileSystem::Path::ConvertToMountPath(message.m_FileName);
+		FilePath relativeFilePath = file_system::Path::ConvertToMountPath(message.m_FileName);
 
         StringView formattedMessage;
         if( message.m_FileName == nullptr )
         {
-            formattedMessage = Format::Format( "{}: {}\n", GetLogLevelName( message.m_LogLevel ).data(), message.m_Message.data() );
+            formattedMessage = format::Format( "{}: {}\n", GetLogLevelName( message.m_LogLevel ).data(), message.m_Message.data() );
         }
         else
         {
-            formattedMessage = Format::Format( "{}:{}:{}: {}\n", relativeFilePath, message.m_LineNumber, GetLogLevelName( message.m_LogLevel ).data(), message.m_Message.data() );
+            formattedMessage = format::Format( "{}:{}:{}: {}\n", relativeFilePath.generic_string(), message.m_LineNumber, GetLogLevelName( message.m_LogLevel ).data(), message.m_Message.data() );
         }
 
         m_LogFileStream.WriteRaw(formattedMessage.data(), formattedMessage.size());

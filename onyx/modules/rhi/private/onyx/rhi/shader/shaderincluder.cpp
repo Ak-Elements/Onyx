@@ -53,7 +53,7 @@ namespace
 	}
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
 	ShaderIncluder::ShaderIncluder()
 	{
@@ -76,7 +76,7 @@ namespace Onyx::Graphics
 	shaderc_include_result* ShaderIncluder::GetInclude(const char* requestedPath, shaderc_include_type type, const char* requestingPath, size_t /*includeDepth*/)
 	{
 		(void)requestingPath;
-		using namespace FileSystem;
+		using namespace file_system;
 		const bool isRelativePath = type == shaderc_include_type_relative;
 
 		FilePath requestedFilePath;

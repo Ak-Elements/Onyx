@@ -5,9 +5,9 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
-    bool InputBindingBool::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
+    bool InputBindingBool::DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
         bool newValue = inputSystem.IsButtonDown(m_Input);
         outInputValue.X = newValue ? 1.0f : 0.0f;
@@ -15,14 +15,14 @@ namespace Onyx::InputActions
     }
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<InputActions::InputBindingBool>::Serialize(Serializer& serializer, const InputActions::InputBindingBool& binding)
+    bool Serialization<input_actions::InputBindingBool>::Serialize(Serializer& serializer, const input_actions::InputBindingBool& binding)
     {
         return serializer.Write<"input">(binding.m_Input);
     }
 
-    bool Serialization<InputActions::InputBindingBool>::Deserialize(const Deserializer& deserializer, InputActions::InputBindingBool& outBinding)
+    bool Serialization<input_actions::InputBindingBool>::Deserialize(const Deserializer& deserializer, input_actions::InputBindingBool& outBinding)
     {
         return deserializer.Read<"input">(outBinding.m_Input);
     }

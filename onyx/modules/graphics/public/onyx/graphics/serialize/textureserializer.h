@@ -2,16 +2,15 @@
 
 #include <onyx/assets/assetserializer.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class TextureAsset;
-    class GraphicsSystem;
-
-    struct TextureSerializer : public Assets::AssetSerializer<TextureAsset>
+    
+    struct TextureSerializer : public assets::AssetSerializer<TextureAsset>
     {
         static constexpr Array<StringView, 2> Extensions { "png", "jpg" };
 
-        bool Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const override;
-        bool Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const override;
+        bool Serialize(const assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const override;
+        bool Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const override;
     };
 }

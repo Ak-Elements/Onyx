@@ -4,7 +4,7 @@
 #include <onyx/rhi/shader/shader.h>
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class Buffer;
     class Pipeline;
@@ -21,7 +21,7 @@ namespace Onyx::Graphics
     {
     public:
         ShaderInstance() = default;
-        ShaderInstance(const GraphicsSystem& api, const Reference<Pipeline>& pipeline, const Assets::AssetHandle<Shader>& shader);
+        ShaderInstance(const GraphicsSystem& api, const Reference<Pipeline>& pipeline, const assets::AssetHandle<Shader>& shader);
 
         const Reference<Pipeline>& GetPipeline() const { return m_Pipeline; }
         DynamicArray<Reference<DescriptorSet>>& GetDescriptorSets(onyxU8 frameIndex);
@@ -41,12 +41,12 @@ namespace Onyx::Graphics
         Reference<DescriptorSet>& GetDescriptorSet(onyxU8 frameIndex, onyxU8 descriptorSetIndex);
         const Reference<DescriptorSet>& GetDescriptorSet(onyxU8 frameIndex, onyxU8 descriptorSetIndex) const;
 
-        void OnShaderLoaded(Assets::AssetHandle<Shader> shader);
+        void OnShaderLoaded(assets::AssetHandle<Shader> shader);
 
     private:
         const GraphicsSystem* m_Api = nullptr;
 
-        Assets::AssetHandle<Shader> m_Shader;
+        assets::AssetHandle<Shader> m_Shader;
         Reference<Pipeline> m_Pipeline;
                                     // node can rebind descriptor bindings
         InplaceArray<DynamicArray<Reference<DescriptorSet>>, MAX_FRAMES_IN_FLIGHT> m_DescriptorSets; // per frame

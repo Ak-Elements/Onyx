@@ -3,14 +3,14 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<Assets::AssetId>::Serialize(Serializer& serializer, const Assets::AssetId& assetId)
+    bool Serialization<assets::AssetId>::Serialize(Serializer& serializer, const assets::AssetId& assetId)
     {
         return serializer.Write(assetId.Get(), 16);
     }
 
-    bool Serialization<Assets::AssetId>::Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId)
+    bool Serialization<assets::AssetId>::Deserialize(const Deserializer& deserializer, assets::AssetId& outAssetId)
     {
         onyxU64 id;
         bool success = deserializer.Read(id, 16);

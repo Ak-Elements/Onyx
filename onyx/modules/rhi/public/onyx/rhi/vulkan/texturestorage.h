@@ -4,7 +4,7 @@
 #include <onyx/rhi/vulkan/devicememory.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class PhysicalDevice;
     class CommandPool;

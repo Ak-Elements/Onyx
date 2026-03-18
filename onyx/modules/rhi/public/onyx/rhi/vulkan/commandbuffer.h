@@ -5,7 +5,7 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class VulkanFramebuffer;
     class CommandPool;

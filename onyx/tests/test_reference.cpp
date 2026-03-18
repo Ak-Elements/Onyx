@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <onyx/reference.h>
 
-class TestObject : public Onyx::RefCounted
+class TestObject : public onyx::RefCounted
 {
 public:
     explicit TestObject(int value) : m_Value(value) {}
@@ -15,7 +15,7 @@ TEST_CASE("Reference class functionality", "[Reference]")
 {
     SECTION("Reference initialization")
     {
-        auto ref = Onyx::Reference<TestObject>::Create(42);
+        auto ref = onyx::Reference<TestObject>::Create(42);
         REQUIRE(ref.IsValid());
         REQUIRE(ref->GetValue() == 42);
         REQUIRE(ref->GetRefCount() == 1);
@@ -23,7 +23,7 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Copy constructor increases reference count")
     {
-        auto ref1 = Onyx::Reference<TestObject>::Create(10);
+        auto ref1 = onyx::Reference<TestObject>::Create(10);
         REQUIRE(ref1->GetRefCount() == 1);
 
         auto ref2 = ref1;
@@ -33,7 +33,7 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Move constructor transfers ownership")
     {
-        auto ref1 = Onyx::Reference<TestObject>::Create(20);
+        auto ref1 = onyx::Reference<TestObject>::Create(20);
         REQUIRE(ref1->GetRefCount() == 1);
 
         auto ref2 = std::move(ref1);
@@ -44,10 +44,10 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Assignment operator works correctly")
     {
-        auto ref1 = Onyx::Reference<TestObject>::Create(15);
+        auto ref1 = onyx::Reference<TestObject>::Create(15);
         REQUIRE(ref1->GetRefCount() == 1);
 
-        auto ref2 = Onyx::Reference<TestObject>::Create(30);
+        auto ref2 = onyx::Reference<TestObject>::Create(30);
         REQUIRE(ref2->GetRefCount() == 1);
 
         ref1 = ref2;
@@ -58,10 +58,10 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Move assignment transfers ownership")
     {
-        auto ref1 = Onyx::Reference<TestObject>::Create(25);
+        auto ref1 = onyx::Reference<TestObject>::Create(25);
         REQUIRE(ref1->GetRefCount() == 1);
 
-        auto ref2 = Onyx::Reference<TestObject>::Create(50);
+        auto ref2 = onyx::Reference<TestObject>::Create(50);
         REQUIRE(ref2->GetRefCount() == 1);
 
         ref1 = std::move(ref2);
@@ -73,7 +73,7 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Reset releases previous reference")
     {
-        auto ref = Onyx::Reference<TestObject>::Create(5);
+        auto ref = onyx::Reference<TestObject>::Create(5);
         REQUIRE(ref->GetRefCount() == 1);
 
         ref.Reset();
@@ -82,7 +82,7 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Release returns raw pointer and invalidates reference")
     {
-        auto ref = Onyx::Reference<TestObject>::Create(60);
+        auto ref = onyx::Reference<TestObject>::Create(60);
         REQUIRE(ref->GetRefCount() == 1);
 
         TestObject* rawPtr = ref.Release();
@@ -95,14 +95,14 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
     SECTION("Invalid reference behaves as expected")
     {
-        auto invalidRef = Onyx::Reference<TestObject>::Invalid();
+        auto invalidRef = onyx::Reference<TestObject>::Invalid();
         REQUIRE_FALSE(invalidRef.IsValid());
     }
 
     SECTION("Reference comparison operators")
     {
-        auto ref1 = Onyx::Reference<TestObject>::Create(100);
-        auto ref2 = Onyx::Reference<TestObject>::Create(200);
+        auto ref1 = onyx::Reference<TestObject>::Create(100);
+        auto ref2 = onyx::Reference<TestObject>::Create(200);
         auto ref3 = ref1;
 
         REQUIRE(ref1 == ref3);
@@ -117,8 +117,8 @@ TEST_CASE("Reference class functionality", "[Reference]")
             explicit DerivedObject(int value) : TestObject(value) {}
         };
 
-        auto derivedRef = Onyx::Reference<DerivedObject>::Create(80);
-        Onyx::Reference<TestObject> baseRef = derivedRef;
+        auto derivedRef = onyx::Reference<DerivedObject>::Create(80);
+        onyx::Reference<TestObject> baseRef = derivedRef;
 
         REQUIRE(baseRef.IsValid());
         REQUIRE(baseRef->GetValue() == 80);
@@ -130,7 +130,7 @@ TEST_CASE("Reference class functionality", "[Reference]")
 
 TEST_CASE("Double-delete prevention", "[Reference]")
 {
-    struct TestObjectWithDestructor : public Onyx::RefCounted
+    struct TestObjectWithDestructor : public onyx::RefCounted
     {
         TestObjectWithDestructor(bool& val) : destroyed(&val) {}
         ~TestObjectWithDestructor() { *destroyed = true; }
@@ -141,7 +141,7 @@ TEST_CASE("Double-delete prevention", "[Reference]")
     SECTION("No double delete with multiple references")
     {
         bool destroyed = false;
-        auto ref1 = Onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
+        auto ref1 = onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
         REQUIRE(ref1.IsValid());
         REQUIRE_FALSE(destroyed);
 
@@ -161,7 +161,7 @@ TEST_CASE("Double-delete prevention", "[Reference]")
     SECTION("No double delete with move semantics")
     {
         bool destroyed = false;
-        auto ref1 = Onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
+        auto ref1 = onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
         REQUIRE(ref1.IsValid());
         REQUIRE_FALSE(destroyed);
 
@@ -178,7 +178,7 @@ TEST_CASE("Double-delete prevention", "[Reference]")
     SECTION("No double delete with release")
     {
         bool destroyed = false;
-        auto ref = Onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
+        auto ref = onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
         REQUIRE(ref.IsValid());
         REQUIRE_FALSE(destroyed);
 
@@ -200,11 +200,11 @@ TEST_CASE("Double-delete prevention", "[Reference]")
 
         };
 
-        auto derivedRef = Onyx::Reference<DerivedObject>::Create(destroyed);
+        auto derivedRef = onyx::Reference<DerivedObject>::Create(destroyed);
         REQUIRE(derivedRef.IsValid());
         REQUIRE_FALSE(destroyed);
 
-        Onyx::Reference<TestObjectWithDestructor> baseRef = derivedRef; // Polymorphic assignment
+        onyx::Reference<TestObjectWithDestructor> baseRef = derivedRef; // Polymorphic assignment
         REQUIRE(baseRef.IsValid());
         REQUIRE(derivedRef->GetRefCount() == 2);
 
@@ -221,7 +221,7 @@ TEST_CASE("Double-delete prevention", "[Reference]")
     {
         bool destroyed = false;
 
-        auto ref = Onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
+        auto ref = onyx::Reference<TestObjectWithDestructor>::Create(destroyed);
         REQUIRE(ref.IsValid());
         REQUIRE_FALSE(destroyed);
 
@@ -245,7 +245,7 @@ TEST_CASE("Double-delete prevention", "[Reference]")
         TestObjectWithDestructor* rawPtr = new TestObjectWithDestructor(destroyed);
         REQUIRE_FALSE(destroyed);
 
-        Onyx::Reference<TestObjectWithDestructor> ref(rawPtr);
+        onyx::Reference<TestObjectWithDestructor> ref(rawPtr);
         REQUIRE(ref.IsValid());
         REQUIRE(ref->GetRefCount() == 1);
 
@@ -260,12 +260,12 @@ TEST_CASE("Double-delete prevention", "[Reference]")
         TestObjectWithDestructor* rawPtr = new TestObjectWithDestructor(destroyed);
         REQUIRE_FALSE(destroyed);
 
-        Onyx::Reference<TestObjectWithDestructor> ref1(rawPtr);
+        onyx::Reference<TestObjectWithDestructor> ref1(rawPtr);
         REQUIRE(ref1.IsValid());
         REQUIRE(ref1->GetRefCount() == 1);
 
         {
-            Onyx::Reference<TestObjectWithDestructor> ref2(ref1); // Shared ownership
+            onyx::Reference<TestObjectWithDestructor> ref2(ref1); // Shared ownership
             REQUIRE(ref1->GetRefCount() == 2);
             REQUIRE(ref2->GetRefCount() == 2);
             REQUIRE_FALSE(destroyed);
@@ -285,7 +285,7 @@ TEST_CASE("Double-delete prevention", "[Reference]")
         TestObjectWithDestructor* rawPtr = new TestObjectWithDestructor(destroyed);
         REQUIRE_FALSE(destroyed);
 
-        Onyx::Reference<TestObjectWithDestructor> ref(std::move(Onyx::Reference<TestObjectWithDestructor>(rawPtr)));
+        onyx::Reference<TestObjectWithDestructor> ref(std::move(onyx::Reference<TestObjectWithDestructor>(rawPtr)));
         REQUIRE(ref.IsValid());
         REQUIRE(ref->GetRefCount() == 1);
 
@@ -300,12 +300,12 @@ TEST_CASE("Double-delete prevention", "[Reference]")
         TestObjectWithDestructor* rawPtr = new TestObjectWithDestructor(destroyed);
         REQUIRE_FALSE(destroyed);
 
-        Onyx::Reference<TestObjectWithDestructor> ref1(rawPtr);
+        onyx::Reference<TestObjectWithDestructor> ref1(rawPtr);
         REQUIRE(ref1.IsValid());
         REQUIRE(ref1->GetRefCount() == 1);
 
         // Attempting to wrap the raw pointer again in a new Reference
-       Onyx::Reference<TestObjectWithDestructor> ref2(rawPtr);
+       onyx::Reference<TestObjectWithDestructor> ref2(rawPtr);
        REQUIRE(ref2.IsValid());
        REQUIRE(ref1->GetRefCount() == 2);
        REQUIRE(ref2->GetRefCount() == 2);

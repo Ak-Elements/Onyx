@@ -10,7 +10,7 @@
 
 #define REQUIRES(...) typename std::enable_if<(__VA_ARGS__)>::type* = nullptr
 
-namespace Onyx::Threading
+namespace onyx::threading
 {
 
 template<typename Signature, size_t Capacity>
@@ -328,6 +328,6 @@ public:
 private:
     SharedPtr<details::future_shared_state<T>> m_FutureState;
 };
-} // namespace Onyx::Threading
+} // namespace onyx::threading
 
 #undef REQUIRES

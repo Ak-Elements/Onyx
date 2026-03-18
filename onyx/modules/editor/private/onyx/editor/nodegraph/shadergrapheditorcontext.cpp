@@ -7,11 +7,11 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    ShaderGraphEditorContext::ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem)
+    ShaderGraphEditorContext::ShaderGraphEditorContext(assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem)
         : m_AssetSystem(&assetSystem)
-        , m_GraphicsSystem(&graphicsSystem)
+        , m_graphicsSystem(&graphicsSystem)
     {
     }
 
@@ -19,14 +19,14 @@ namespace Onyx::Editor
     {
         ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
-        Graphics::PBRShaderGenerator generator;
+        rhi::PBRShaderGenerator generator;
         bool hasGenerated = Graph->GenerateShader(generator);
-        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
+        return hasGenerated && rhi::ShaderCompiler::ValidateCode(*m_graphicsSystem, Graph->GetShaderCode());
     }
 
     void ShaderGraphEditorContext::OnNodeChanged(const Node& newNode)
     {
-        Graphics::ShaderGraphNode& node = GetNodeGraph().GetNode<Graphics::ShaderGraphNode>(newNode.LocalId);
+        graphics::ShaderGraphNode& node = GetNodeGraph().GetNode<graphics::ShaderGraphNode>(newNode.LocalId);
         node.OnNodeChanged(*m_AssetSystem);
     }
 }

@@ -1,11 +1,11 @@
 #pragma once
 
-namespace Onyx::Input
+namespace onyx::input
 {
     class InputSystem;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     class InputActionSystem;
 
@@ -14,6 +14,6 @@ namespace Onyx::InputActions
     public:
         virtual ~InputTrigger() = default;
         virtual StringId32 GetTypeId() const = 0;
-        virtual bool IsTriggered(const Input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem) const = 0;
+        virtual bool IsTriggered(const input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem) const = 0;
     };
 }

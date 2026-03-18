@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/vulkan/device.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     Semaphore::Semaphore(const Device& device)
         : Semaphore(device, false)

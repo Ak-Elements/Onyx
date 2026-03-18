@@ -4,17 +4,17 @@
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::MaterialShaderGraph, Graphics::ShaderGraphNodeFactory>
+    class ShaderGraphEditorContext : public TypedNodeGraphEditorContext<graphics::MaterialShaderGraph, graphics::ShaderGraphNodeFactory>
     {
     public:
-        ShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem);
+        ShaderGraphEditorContext(assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem);
 
         bool Compile() override;
 
@@ -24,8 +24,8 @@ namespace Onyx::Editor
         void OnNodeChanged(const Node& newNode) override;
 
     private:
-        Assets::AssetSystem* m_AssetSystem = nullptr;
-        Graphics::GraphicsSystem* m_GraphicsSystem = nullptr;
+        assets::AssetSystem* m_AssetSystem = nullptr;
+        rhi::GraphicsSystem* m_graphicsSystem = nullptr;
     };
 
 }

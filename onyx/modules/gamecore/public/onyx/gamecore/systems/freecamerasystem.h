@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     namespace Entity
     {
@@ -8,11 +8,11 @@ namespace Onyx
     };
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     namespace FreeCamera
     {
-        void registerSystems(Entity::EcsBuilder& ecsBuilder);
+        void registerSystems(ecs::EcsBuilder& ecsBuilder);
     }
 
 }

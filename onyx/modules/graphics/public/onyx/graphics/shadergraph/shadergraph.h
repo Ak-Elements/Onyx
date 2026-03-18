@@ -3,17 +3,17 @@
 #include <onyx/nodegraph/graph.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class ShaderGenerator;
 }
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     class FileStream;
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class TextureAsset;
     class ShaderGraphNode;
@@ -36,23 +36,23 @@ namespace Onyx::Graphics
     class ShaderGraphTextures
     {
     public:
-        onyxU32 AddTexture(const TextureHandle& texture);
+        onyxU32 AddTexture(const rhi::TextureHandle& texture);
         const DynamicArray<onyxU32>& GetTextures() const { return Textures; }
     private:
         DynamicArray<onyxU32> Textures;
     };
 
-    class ShaderGraph : public Assets::Asset<ShaderGraph>
+    class ShaderGraph : public assets::Asset<ShaderGraph>
     {
     public:
-        NodeGraph::NodeGraph& GetNodeGraph() { return Graph; }
-        const NodeGraph::NodeGraph& GetNodeGraph() const { return Graph; }
+        node_graph::NodeGraph& GetNodeGraph() { return Graph; }
+        const node_graph::NodeGraph& GetNodeGraph() const { return Graph; }
 
       //  void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         const String& GetShaderCode() const { return ShaderCode; }
-        bool GenerateShader(ShaderGenerator& generator);
+        bool GenerateShader(rhi::ShaderGenerator& generator);
 #endif
 
         bool Serialize(Serializer& serializer) const;
@@ -67,6 +67,6 @@ namespace Onyx::Graphics
         String ShaderCode;
 #endif
 
-        NodeGraph::NodeGraph Graph;
+        node_graph::NodeGraph Graph;
     };
 }

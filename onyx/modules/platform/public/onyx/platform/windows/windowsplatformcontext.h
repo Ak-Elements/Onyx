@@ -5,22 +5,22 @@
 struct HINSTANCE__;
 typedef HINSTANCE__* HINSTANCE;
 
-namespace Onyx::Input
+namespace onyx::input
 {
     class InputSystem;
 }
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     class PlatformSystem;
-    namespace Windows
+    namespace windows
     {
         class PlatformContext
         {
         public:
             PlatformContext(PlatformSystem& platformSystem);
 
-            Input::InputSystem& GetInputSystem();
+            input::InputSystem& GetInputSystem();
             HINSTANCE GetInstanceHandle() const { return m_Instance; }
 
         private:

@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/pins/pinmeta.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename T>
     struct PinMetaObject

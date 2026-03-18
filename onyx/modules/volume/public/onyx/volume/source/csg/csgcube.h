@@ -6,7 +6,7 @@
 #include <onyx/geometry/vector4.h>
 #include <algorithm>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class CSGCube : public VolumeBase
     {

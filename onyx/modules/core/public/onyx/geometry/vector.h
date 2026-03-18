@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     enum class VectorComponentMask : onyxU8
     {

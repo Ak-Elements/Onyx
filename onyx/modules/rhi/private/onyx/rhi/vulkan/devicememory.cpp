@@ -6,7 +6,7 @@
 
 #include <vulkanmemoryallocator.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     DeviceMemory::DeviceMemory(MemoryAllocator& allocator)
         : m_Allocator(&allocator)
@@ -23,7 +23,7 @@ namespace Onyx::Graphics::Vulkan
     {
 	    ONYX_ASSERT(m_MappedPtr == nullptr, "DeviceMemory::Map: Already mapped.");
 	    m_MappedPtr = m_Allocator->Map(m_Memory, (mapMode == MapMode::Read) && m_IsNonCoherent);
-	    m_IsWrite = Enums::HasAllFlags(mapMode, MapMode::Write);
+	    m_IsWrite = enums::HasAllFlags(mapMode, MapMode::Write);
 	    return m_MappedPtr;
     }
 

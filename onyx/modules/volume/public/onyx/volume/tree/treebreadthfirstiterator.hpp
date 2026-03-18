@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     //////////////////////////////////////////////////////////////////////////////////////////////
     template<typename TreeT>
@@ -75,4 +75,4 @@ namespace Onyx::Volume
         return (*this);
     }
 
-} // namespace Onyx
+} // namespace onyx

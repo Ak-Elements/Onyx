@@ -9,12 +9,12 @@
 
 #include <regex>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     bool ShaderPreprocessor::PreprocessShader(const String& shaderCode)
     {
         // split the shader file into stages and preprocess defines/macros and includes
-        using namespace FileSystem;
+        using namespace file_system;
         StringStream reader(shaderCode);
 
         m_ShaderCode.clear();
@@ -36,7 +36,7 @@ namespace Onyx::Graphics
                     {
                         for (const String& additionalInclude : properties.AdditionalIncludes)
                         {
-                            m_ShaderCode.append(Format::Format("#include \"{}\"\n", additionalInclude));
+                            m_ShaderCode.append(format::Format("#include \"{}\"\n", additionalInclude));
                         }
 
                         hasAddedAdditionalIncludes = true;
@@ -61,7 +61,7 @@ namespace Onyx::Graphics
             {
                 if (ParseStageCode(reader, shaderStage, m_PreprocessedShaderStages[static_cast<onyxU8>(shaderStage)]) == false)
                 {
-                    ONYX_LOG_ERROR("Failed parsing shader stage ({}) for shader", Enums::ToString(shaderStage));
+                    ONYX_LOG_ERROR("Failed parsing shader stage ({}) for shader", enums::ToString(shaderStage));
                     return false;
                 }
 
@@ -97,7 +97,7 @@ namespace Onyx::Graphics
         for (onyxU8 i = static_cast<onyxU8>(ShaderStage::Vertex); i < static_cast<onyxU8>(ShaderStage::Count); ++i)
         {
             outStage = static_cast<ShaderStage>(i);
-            if (reader.ReadConditional(Enums::ToString(outStage)))
+            if (reader.ReadConditional(enums::ToString(outStage)))
             {
                 return true;
             }
@@ -126,7 +126,7 @@ namespace Onyx::Graphics
 
                 if (currentLine[firstCharIndex] != '{')
                 {
-                    ONYX_LOG_ERROR("Expected {{ got {} in shader stage {}.", currentLine[firstCharIndex], Enums::ToString(stage));
+                    ONYX_LOG_ERROR("Expected {{ got {} in shader stage {}.", currentLine[firstCharIndex], enums::ToString(stage));
                     return false;
                 }
 
@@ -139,7 +139,7 @@ namespace Onyx::Graphics
             bracesCount -= static_cast<onyxS32>(std::ranges::count(currentLine, '}'));
             if (bracesCount < 0)
             {
-                ONYX_LOG_ERROR("Missing '{{' or '}}' bracket in shader stage {}.", Enums::ToString(stage));
+                ONYX_LOG_ERROR("Missing '{{' or '}}' bracket in shader stage {}.", enums::ToString(stage));
                 return false;
             }
 
@@ -151,20 +151,20 @@ namespace Onyx::Graphics
                 if (((customFormatStart != StringView::npos) && (customFormatEnd == StringView::npos)) ||
                     ((customFormatStart == StringView::npos) && (customFormatEnd != StringView::npos)))
                 {
-                    ONYX_LOG_ERROR("Missing '{{}}' bracket in shader stage {}.", (customFormatStart == StringView::npos) ? '<' : '>', Enums::ToString(stage));
+                    ONYX_LOG_ERROR("Missing '{{}}' bracket in shader stage {}.", (customFormatStart == StringView::npos) ? '<' : '>', enums::ToString(stage));
                     return false;
                 }
 
                 if ((customFormatStart != StringView::npos) && (customFormatEnd != StringView::npos))
                 {
-                    TextureFormat attachmentFormat = Enums::FromString<TextureFormat>(currentLine.substr(customFormatStart + 1, (customFormatEnd - customFormatStart) - 1));
+                    TextureFormat attachmentFormat = enums::FromString<TextureFormat>(currentLine.substr(customFormatStart + 1, (customFormatEnd - customFormatStart) - 1));
 
                     StringView::size_type attachmentNameStart = currentLine.find_first_not_of(" \n\r\t\f\v", customFormatEnd + 1);
                     StringView::size_type attachmentNameEnd = currentLine.find_first_of(';', customFormatEnd + 1);
 
                     if (attachmentNameEnd == StringView::npos)
                     {
-                        ONYX_LOG_ERROR("Missing ';' in shader stage {}.", Enums::ToString(stage));
+                        ONYX_LOG_ERROR("Missing ';' in shader stage {}.", enums::ToString(stage));
                         return false;
                     }
 

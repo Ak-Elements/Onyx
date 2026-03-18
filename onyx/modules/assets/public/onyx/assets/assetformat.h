@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     enum class AssetFormat
     {

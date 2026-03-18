@@ -3,7 +3,7 @@
 
 #include <onyx/container/directedacyclicgraph.h>
 
-namespace Onyx
+namespace onyx
 {
     SCENARIO("Directed Acyclic Graph Operations", "[dag]")
     {

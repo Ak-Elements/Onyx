@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Volume::Terrain
+namespace onyx::volume::terrain
 {
     struct WorldChunksOctreeNode
     {

@@ -2,7 +2,7 @@
 /* sdnoise1234, Simplex noise with true analytic
  * derivative in 1D to 4D.
  *
- * Copyright © 2003-2012, Stefan Gustavson
+ * Copyright ï¿½ 2003-2012, Stefan Gustavson
  *
  * Contact: stefan.gustavson@gmail.com
  *
@@ -30,7 +30,7 @@
   *
   */
 
-namespace Onyx::Volume
+namespace onyx::volume
 {   
  
 	namespace SimplexNoiseD

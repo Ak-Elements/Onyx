@@ -5,9 +5,9 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    AddComponentCommand::AddComponentCommand(Entity::EntityId entity, StringId32 componentTypeId, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem)
+    AddComponentCommand::AddComponentCommand(ecs::EntityId entity, StringId32 componentTypeId, assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem)
         : SceneCommand("AddComponent", sceneId, gameCoreSystem)
         , m_EntityId(entity)
         , m_ComponentTypeId(componentTypeId)
@@ -16,8 +16,8 @@ namespace Onyx::Editor
     
     void AddComponentCommand::Execute()
     {
-        const Entity::ComponentFactory& componentFactory = GetComponentFactory();
-        Entity::EntityRegistry& registry = GetScene().GetRegistry();
+        const ecs::ComponentFactory& componentFactory = GetComponentFactory();
+        ecs::EntityRegistry& registry = GetScene().GetRegistry();
         componentFactory.TryCreateComponent(registry, m_EntityId, m_ComponentTypeId);
     }
 }

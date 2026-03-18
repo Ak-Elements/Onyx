@@ -7,12 +7,12 @@
 
 #include <onyx/assets/assethandle.h>
 
-namespace Onyx
+namespace onyx
 {
     class IEngine;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct IAssetSerializer;
     class AssetLoader;
@@ -22,7 +22,7 @@ namespace Onyx::Assets
     struct AssetLoadRequest
     {
     public:
-        void Start(Threading::ThreadPool& loaderPool);
+        void Start(threading::ThreadPool& loaderPool);
         void Cancel();
 
         IEngine* Engine = nullptr;
@@ -35,14 +35,14 @@ namespace Onyx::Assets
         void Load();
 
     private:
-        Threading::Future<void> m_Future;
+        threading::Future<void> m_Future;
     };
 
 #if ONYX_IS_EDITOR
     struct AssetSaveRequest
     {
     public:
-        void Start(Threading::ThreadPool& loaderPool);
+        void Start(threading::ThreadPool& loaderPool);
         void Cancel();
 
         const IEngine* Engine = nullptr;
@@ -55,7 +55,7 @@ namespace Onyx::Assets
         void Save();
 
     private:
-        Threading::Future<void> m_Future;
+        threading::Future<void> m_Future;
     };
 #endif
 

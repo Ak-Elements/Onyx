@@ -2,7 +2,7 @@
 
 #include <onyx/eventhandler.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
 class VolumeBase;

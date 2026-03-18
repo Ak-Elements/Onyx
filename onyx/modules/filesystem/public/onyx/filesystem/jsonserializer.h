@@ -3,7 +3,7 @@
 #include <onyx/serialize/serializer.h>
 #include <nlohmann/json.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     class JsonSerializer : public Serializer
     {

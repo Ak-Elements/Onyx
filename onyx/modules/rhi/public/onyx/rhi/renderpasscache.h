@@ -3,7 +3,7 @@
 #include <onyx/rhi/renderpass.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
 

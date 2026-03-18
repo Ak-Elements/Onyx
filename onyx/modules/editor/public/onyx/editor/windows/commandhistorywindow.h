@@ -2,16 +2,16 @@
 
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     struct InputActionEvent;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class ICommandGraph;
 
-    class CommandHistoryWindow : public Ui::ImGuiWindow
+    class CommandHistoryWindow : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "CommandHistory";
@@ -24,11 +24,11 @@ namespace Onyx::Editor
     private:
         void OnOpen() override;
         void OnClose() override;
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
 
     private:
-        void OnUndo(const InputActions::InputActionEvent& undoAction);
-        void OnRedo(const InputActions::InputActionEvent& redoAction);
+        void OnUndo(const input_actions::InputActionEvent& undoAction);
+        void OnRedo(const input_actions::InputActionEvent& redoAction);
 
     private:
         ICommandGraph* m_CommandStack = nullptr;

@@ -1,12 +1,12 @@
 #include <onyx/application/taskgraph/taskgraph.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     TaskGraph::TaskGraph()
     {
     }
 
-    void TaskGraph::Update(onyxU64 deltaTime, Graphics::FrameContext& context)
+    void TaskGraph::Update(onyxU64 deltaTime, rhi::FrameContext& context)
     {
         if (m_Tasks.GetCount() == 0)
             return;

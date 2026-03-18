@@ -9,8 +9,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 55
                 }
@@ -25,8 +25,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 90
                 }
@@ -41,14 +41,14 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "triggers":[
                         {
                             "typeId": {
-                                "id": "501bda48",
-                                "string": "Onyx::Input::DependantActionInputTrigger"
+                                "id": "d8add048",
+                                "string": "onyx::input::DependantActionInputTrigger"
                             },
                             "actionId": {
                                 "id": "ff56003c8610b583",
@@ -69,14 +69,14 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "triggers":[
                         {
                             "typeId": {
-                                "id": "501bda48",
-                                "string": "Onyx::Input::DependantActionInputTrigger"
+                                "id": "d8add048",
+                                "string": "onyx::input::DependantActionInputTrigger"
                             },
                             "actionId": {
                                 "id": "ff56003c8610b583",
@@ -97,8 +97,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 37
                 }
@@ -113,8 +113,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 35
                 }
@@ -129,8 +129,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 38
                 }
@@ -145,14 +145,14 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "635ea0d0",
-                        "string": "Onyx::InputBinding::Axis1D"
+                        "id": "261b39da",
+                        "string": "onyx::input_bindings::Axis1D"
                     },
                     "triggers":[
                         {
                             "typeId": {
-                                "id": "501bda48",
-                                "string": "Onyx::Input::DependantActionInputTrigger"
+                                "id": "d8add048",
+                                "string": "onyx::input::DependantActionInputTrigger"
                             },
                             "actionId": {
                                 "id": "ff56003c8610b583",
@@ -173,8 +173,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2001451",
-                        "string": "Onyx::InputBinding::Axis3DComposite"
+                        "id": "dd005243",
+                        "string": "onyx::input_bindings::Axis3DComposite"
                     },
                     "up": 34,
                     "down": 22,
@@ -185,8 +185,8 @@
                 },
                 {
                     "typeId": {
-                        "id": "e2001451",
-                        "string": "Onyx::InputBinding::Axis3DComposite"
+                        "id": "dd005243",
+                        "string": "onyx::input_bindings::Axis3DComposite"
                     },
                     "up": 266,
                     "down": 267,
@@ -206,16 +206,16 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "5565468b",
-                        "string": "Onyx::InputBinding::Axis2D"
+                        "id": "f818b2d9",
+                        "string": "onyx::input_bindings::Axis2D"
                     },
                     "axisX": 12,
                     "axisY": 13
                 },
                 {
                     "typeId": {
-                        "id": "5565468b",
-                        "string": "Onyx::InputBinding::Axis2D"
+                        "id": "f818b2d9",
+                        "string": "onyx::input_bindings::Axis2D"
                     },
                     "axisX": 286,
                     "axisY": 287
@@ -231,8 +231,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "635ea0d0",
-                        "string": "Onyx::InputBinding::Axis1D"
+                        "id": "261b39da",
+                        "string": "onyx::input_bindings::Axis1D"
                     },
                     "axis": 14
                 }
@@ -247,8 +247,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 222
                 }
@@ -263,8 +263,8 @@
             "bindings": [
                 {
                     "typeId": {
-                        "id": "e2271d64",
-                        "string": "Onyx::InputBinding::Bool"
+                        "id": "894d32c6",
+                        "string": "onyx::input_bindings::Bool"
                     },
                     "input": 223
                 }

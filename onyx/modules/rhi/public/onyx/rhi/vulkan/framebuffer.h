@@ -3,12 +3,12 @@
 #include <onyx/rhi/framebuffer.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class VulkanGraphicsApi;
     class Device;
 	
-	class VulkanFramebuffer : public Graphics::Framebuffer
+	class VulkanFramebuffer : public rhi::Framebuffer
 	{
 	public:
 	    ~VulkanFramebuffer() override;

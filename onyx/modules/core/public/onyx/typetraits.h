@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
 	namespace Internal
     {
@@ -61,14 +61,14 @@ namespace Onyx
 	constexpr onyxU32 TypeHash()
 	{
 		constexpr auto value = Internal::type_name_holder<T>::value;
-		return Hash::FNV1aHash<onyxU32>(value);
+		return hash::FNV1aHash<onyxU32>(value);
 	}
 
 	template <typename T>
 	constexpr onyxU64 TypeHash64()
 	{
 		constexpr auto value = Internal::type_name_holder<T>::value;
-		return Hash::FNV1aHash<onyxU64>(value);
+		return hash::FNV1aHash<onyxU64>(value);
 	}
 
 	template<typename Type>

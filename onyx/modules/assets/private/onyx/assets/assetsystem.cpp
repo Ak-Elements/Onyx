@@ -4,7 +4,7 @@
 
 #include <onyx/assets/assetserializer.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     HashMap <StringId32, InplaceFunction<Reference<AssetInterface>(IEngine&)>> AssetSystem::s_RegisteredAssets = {};
     HashMap <StringId32, UniquePtr<IAssetSerializer>> AssetSystem::s_RegisteredSerializer = {};
@@ -17,9 +17,9 @@ namespace Onyx::Assets
             // async creation of asset meta data
             using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
-            for (auto& [mountIdentifier, mountPoint] : FileSystem::Path::GetMountPoints())
+            for (auto& [mountIdentifier, mountPoint] : file_system::Path::GetMountPoints())
             {
-                if (mountIdentifier == FileSystem::Path::TMP_MOUNT_POINT_ID)
+                if (mountIdentifier == file_system::Path::TMP_MOUNT_POINT_ID)
                     continue;
 
                 for (const std::filesystem::directory_entry& entry : recursive_directory_iterator(mountPoint.Path))

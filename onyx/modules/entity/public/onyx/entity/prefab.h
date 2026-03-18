@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class Prefab
     {

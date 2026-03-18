@@ -8,26 +8,26 @@
 #include <onyx/graphics/debug/debugshapes.h>
 #include <onyx/graphics/debug/debugdrawqueue.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
     DebugDrawTask::DebugDrawTask()
     {
         m_PipelineProperties.Shader = "engine:/shaders/debug/debugdraw.oshader";
 
-        Graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
-        gbufferInfo.Type = Graphics::RenderGraphResourceType::Attachment;
-        gbufferInfo.Format = Graphics::TextureFormat::RGBA_FLOAT32;
+        graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+        gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
+        gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
     }
 
     void DebugDrawTask::OnBeginFrame(RenderGraphContext& context)
     {
         onyxU64 outputGlobalId = GetOutputPin().GetGlobalId();
 
-        const NodeGraph::PinBase& gbufferRenderTargetPin = GetInputPin();
+        const node_graph::PinBase& gbufferRenderTargetPin = GetInputPin();
         if (gbufferRenderTargetPin.IsConnected())
         {
-            const Graphics::RenderGraphResource& inputResource = context.Graph.GetResource(gbufferRenderTargetPin.GetLinkedPinGlobalId());
-            Graphics::RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
+            const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(gbufferRenderTargetPin.GetLinkedPinGlobalId());
+            graphics::RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
             outResource.Handle = inputResource.Handle;
         }
 
@@ -38,14 +38,14 @@ namespace Onyx::Graphics::RenderGraphNodes
         m_WireframeBoxesCount = 0;
     }
 
-    void DebugDrawTask::OnPreRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void DebugDrawTask::OnPreRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
-        Graphics::BufferProperties ssboInstanceBuffer;
+        rhi::BufferProperties ssboInstanceBuffer;
         ssboInstanceBuffer.m_DebugName = "TMP DebugSpheres";
         ssboInstanceBuffer.m_Size = sizeof(DebugSphere) * 16; // This should match the size of queued spheres
-        ssboInstanceBuffer.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
-        ssboInstanceBuffer.m_CpuAccess = Graphics::CPUAccess::Write;
-        ssboInstanceBuffer.m_GpuAccess = Graphics::GPUAccess::Read;
+        ssboInstanceBuffer.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage | rhi::BufferUsage::DeviceAddress);
+        ssboInstanceBuffer.m_CpuAccess = rhi::CPUAccess::Write;
+        ssboInstanceBuffer.m_GpuAccess = rhi::GPUAccess::Read;
 
         m_WireframeSpheresBuffer = context.FrameContext.Api->GetTransientBuffer(ssboInstanceBuffer);
 
@@ -71,7 +71,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         }
     }
 
-    void DebugDrawTask::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void DebugDrawTask::OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -92,7 +92,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         constants.WireFrameSpheresCount = m_WireframeSpheresCount;
         constants.WireFrameBoxesCount = m_WireframeBoxesCount;
 
-        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, constants);
-        commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, 0, 1);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, 0, constants);
+        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 }

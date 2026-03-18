@@ -10,13 +10,13 @@
 //static_assert(false, "Unsupported window library.");
 #endif
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
 #if ONYX_IS_WINDOWS
-using PlatformContext = Windows::PlatformContext;
+using PlatformContext = windows::PlatformContext;
 #elif ONYX_IS_LINUX
 #if ONYX_USE_WAYLAND
-using PlatformContext = Wayland::WaylandPlatformContext;
+using PlatformContext = wayland::WaylandPlatformContext;
 #endif
 #else
 //static_assert(false, "Unsupported window library.");

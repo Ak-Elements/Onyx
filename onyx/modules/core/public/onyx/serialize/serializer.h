@@ -6,7 +6,7 @@
 #include <onyx/geometry/vectorserialization.h>
 #include <onyx/geometry/rectserialization.h>
 
-namespace Onyx
+namespace onyx
 {
     class Serializer
     {
@@ -59,7 +59,7 @@ namespace Onyx
             }
             else if constexpr (std::is_enum_v<T>)
             {
-                bool success = DoWrite(Enums::ToString<T>(outValue));
+                bool success = DoWrite(enums::ToString<T>(outValue));
                 return success;
             }
             else
@@ -91,7 +91,7 @@ namespace Onyx
             }
             else if constexpr (std::is_enum_v<T>)
             {
-                bool success = DoWrite(Enums::ToString<T>(outValue));
+                bool success = DoWrite(enums::ToString<T>(outValue));
                 EndScope();
                 return success;
             }
@@ -122,7 +122,7 @@ namespace Onyx
             }
             else if constexpr (std::is_enum_v<T>)
             {
-                bool success = DoWrite(name, Enums::ToString<T>(outValue));
+                bool success = DoWrite(name, enums::ToString<T>(outValue));
                 return success;
             }
             else
@@ -505,15 +505,15 @@ namespace Onyx
         {
             if constexpr (IsStringId<T>)
             {
-                return Format::Format("{:x}", key.GetId());
+                return format::Format("{:x}", key.GetId());
             }
             else if constexpr (IsGuid64<T>)
             {
-                return Format::Format("{:x}", key.Get());
+                return format::Format("{:x}", key.Get());
             }
             else
             {
-                return Format::Format("{}", key);
+                return format::Format("{}", key);
             }
         }
     };

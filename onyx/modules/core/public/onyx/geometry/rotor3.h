@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     template <typename ScalarT>
     struct Matrix4;

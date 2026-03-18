@@ -4,12 +4,12 @@
 #include <onyx/graphics/textureasset.h>
 #include <onyx/geometry/rect2.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class Key : onyxU16;
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     struct SDFFontMetrics
     {
@@ -35,14 +35,14 @@ namespace Onyx::Graphics
         Rect2f32 AtlasBounds; // converted already to UV space
     };
 
-    class SDFFont : public Assets::Asset<SDFFont>
+    class SDFFont : public assets::Asset<SDFFont>
     {
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::SDFFont" };
+        static constexpr StringId32 TypeId{ "onyx::graphics::assets::SDFFont" };
         StringId32 GetTypeId() const { return TypeId; }
 
-        void SetTexture(const Assets::AssetHandle<TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
-        const Assets::AssetHandle<TextureAsset>& GetTexture() const { return m_FontTexture; }
+        void SetTexture(const assets::AssetHandle<TextureAsset>& fontTexture) { m_FontTexture = fontTexture; }
+        const assets::AssetHandle<TextureAsset>& GetTexture() const { return m_FontTexture; }
 
         SDFFontMetrics& GetMetrics() { return m_Metrics; }
         const SDFFontMetrics& GetMetrics() const { return m_Metrics; }
@@ -54,6 +54,6 @@ namespace Onyx::Graphics
         HashMap<onyxU32, SDFFontGlyphData> m_Glyphs;
         SDFFontMetrics m_Metrics;
 
-        Assets::AssetHandle<TextureAsset> m_FontTexture;
+        assets::AssetHandle<TextureAsset> m_FontTexture;
     };
 }

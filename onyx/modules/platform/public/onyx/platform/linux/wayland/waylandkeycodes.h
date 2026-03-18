@@ -5,13 +5,13 @@
 #include <onyx/input/keycodes.h>
 #include <linux/input-event-codes.h>
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
-    Onyx::Input::Key ConvertWaylandKey(onyxU32 wl_key)
+    onyx::input::Key ConvertWaylandKey(onyxU32 wl_key)
     {
         switch (wl_key)
         {
-            using enum Onyx::Input::Key;
+            using enum onyx::input::Key;
             
             case KEY_A: return A;
             case KEY_B: return B;
@@ -115,7 +115,7 @@ namespace Onyx::Platform::Wayland
             case KEY_RIGHTMETA:  return Right_System;
         }
 
-        return Input::Key::Invalid;
+        return input::Key::Invalid;
     }
 }
 

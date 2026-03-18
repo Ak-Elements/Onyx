@@ -3,11 +3,11 @@
 #include <onyx/rhi/sampler.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class Device;
 
-    class Sampler : public Graphics::Sampler
+    class Sampler : public rhi::Sampler
     {
     public:
         Sampler(const Device& device, const SamplerProperties& properties);

@@ -2,7 +2,7 @@
 
 #include <charconv>
 
-namespace Onyx
+namespace onyx
 {
     template <typename Scalar>
     struct Vector4

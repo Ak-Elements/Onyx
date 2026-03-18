@@ -3,7 +3,7 @@
 #include <onyx/ui/widgets.h>
 #include <imgui_node_editor.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     namespace
     {
@@ -17,7 +17,7 @@ namespace Onyx::NodeGraph
         if (drawlist)
         {
             ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2(position.x + size.x * 0.5f, position.y + size.y * 0.5f);
-            Ui::DrawPlusIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
+            ui::DrawPlusIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
         } 
     }
 
@@ -29,7 +29,7 @@ namespace Onyx::NodeGraph
         if (drawlist)
         {
             ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2(position.x + size.x * 0.5f, position.y + size.y * 0.5f);
-            Ui::DrawMinusIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
+            ui::DrawMinusIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
         }
     }
 
@@ -41,7 +41,7 @@ namespace Onyx::NodeGraph
         if (drawlist)
         {
             ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2(position.x + size.x * 0.5f, position.y + size.y * 0.5f);
-            Ui::DrawXIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
+            ui::DrawXIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
         }
     }
 
@@ -53,7 +53,7 @@ namespace Onyx::NodeGraph
         if (drawlist)
         {
             ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2(position.x + size.x * 0.5f, position.y + size.y * 0.5f);
-            Ui::DrawDivisionIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
+            ui::DrawDivisionIcon(drawlist, offset, ICON_SIZE, 0x33FFFFFF);
         }
     }
 
@@ -73,7 +73,7 @@ namespace Onyx::NodeGraph
             ImVec2 max = center - ImVec2(iconHalfSize - thickness, iconHalfSize * 0.85f);
 
             drawlist->AddRectFilled(min, max, 0x33FFFFFF);
-            Ui::DrawXIcon(drawlist, ImGui::GetCursorScreenPos() - center, iconHalfSize, 0x33FFFFFF);
+            ui::DrawXIcon(drawlist, ImGui::GetCursorScreenPos() - center, iconHalfSize, 0x33FFFFFF);
 
             min = center + ImVec2(iconHalfSize - thickness, -iconHalfSize * 0.85f);
             max = center + ImVec2(iconHalfSize, iconHalfSize * 0.85f);

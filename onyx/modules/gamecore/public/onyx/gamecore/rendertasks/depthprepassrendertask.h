@@ -4,19 +4,17 @@
 #include <onyx/graphics/rendergraph/rendergraph.h> //TODO: Only needed for pin serialize of texture / buffer handle
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
-    class DepthPrePassRenderGraphNode : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>
+    class DepthPrePassRenderGraphNode : public node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::GameCore::RenderGraph::DepthPrePass";
+        static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::DepthPrePass";
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnInit(Graphics::GraphicsSystem& api, HashMap<Graphics::RenderGraphResourceId, Graphics::RenderGraphResource>& resourceCache) override;
-
-        void OnBeginFrame(Graphics::RenderGraphContext& context) override;
-
-        void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
+        void OnInit(rhi::GraphicsSystem& api, HashMap<graphics::RenderGraphResourceId, graphics::RenderGraphResource>& resourceCache) override;
+        void OnBeginFrame(graphics::RenderGraphContext& context) override;
+        void OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
     };
 }

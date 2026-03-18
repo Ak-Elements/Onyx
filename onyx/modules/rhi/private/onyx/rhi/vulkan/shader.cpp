@@ -5,7 +5,7 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/device.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     ShaderModule::ShaderModule(VulkanGraphicsApi& api, Shader::ByteCode byteCode)
         : m_Api(api)
@@ -37,12 +37,12 @@ namespace Onyx::Graphics::Vulkan
     {
         VulkanGraphicsApi& vulkanApi = graphicsSystem.GetApi<VulkanGraphicsApi>();
 
-		const onyxU8 stageIndex = Enums::ToIntegral(stage);
-#if ONYX_ASSERTS_ENABLED
+		const onyxU8 stageIndex = enums::ToIntegral(stage);
+#if ONYX_ASSERT_ENABLED
 		if (stage == ShaderStage::Compute)
 			ONYX_ASSERT((HasStage(ShaderStage::Vertex) == false) && (HasStage(ShaderStage::Fragment) == false), "Vertex/Fragment shader does not support compute stage.");
 		else
-			ONYX_ASSERT(IsComputeShader() == false, "Compute shader does not support %s shader stage", Enums::ToString(stage).data());
+			ONYX_ASSERT(IsComputeShader() == false, "Compute shader does not support %s shader stage", enums::ToString(stage).data());
 #endif
 		UniquePtr<ShaderModule> module = MakeUnique<ShaderModule>(vulkanApi, byteCode);
 
@@ -64,7 +64,7 @@ namespace Onyx::Graphics::Vulkan
 
     void Shader::RemoveStage(ShaderStage stage)
     {
-        m_Stages[Enums::ToIntegral(stage)].reset();
+        m_Stages[enums::ToIntegral(stage)].reset();
     }
 
     bool Shader::UpdateReflectionData(GraphicsSystem& graphicsSystem, ShaderReflectionInfo& reflectionInfo)

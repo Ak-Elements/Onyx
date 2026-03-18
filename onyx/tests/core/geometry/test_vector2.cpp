@@ -6,7 +6,7 @@
 
 #include <randomnumbertuplegenerator.h>
 
-namespace Onyx::Geometry
+namespace onyx::Geometry
 {
     TEMPLATE_TEST_CASE("Vector2 Constructor", "[Vector2][Constructor][template]", Vector2f, Vector2d, Vector2s8, Vector2s16, Vector2s32, Vector2s64, Vector2u8, Vector2u16, Vector2u32, Vector2u64)
     {
@@ -478,13 +478,13 @@ namespace Onyx::Geometry
         {
             TestType a{ static_cast<TestType::ScalarT>(3), static_cast<TestType::ScalarT>(5) };
             RotatedVectorT expected{ static_cast<RotatedVectorScalarT>(a[0]), static_cast<RotatedVectorScalarT>(a[1]) };
-            //30°
+            //30ï¿½
             {
-                WHEN(Format::Format("rotated by {} degrees", i))
+                WHEN(format::Format("rotated by {} degrees", i))
                 {
                     expected = expected * rotationMatrix;
                     const RotatedVectorT& rotated = a.Rotated(angleRadians);
-                    THEN(Format::Format("a' is ~[{}, {}]", expected[0], expected[1]))
+                    THEN(format::Format("a' is ~[{}, {}]", expected[0], expected[1]))
                     {
                         REQUIRE(rotated.IsEqual(expected, epsilon));
                     }
@@ -533,17 +533,17 @@ namespace Onyx::Geometry
         const ScalarT toX = values[2];
         const ScalarT toY = values[3];
 
-        GIVEN(Format::Format("a vector [{}, {}]", (double)fromX, (double)fromY))
+        GIVEN(format::Format("a vector [{}, {}]", (double)fromX, (double)fromY))
         {
             TestType a{ fromX, fromY };
             TestType to{ toX, toY };
 
-            WHEN(Format::Format("rotated to [{}, {}]", (double)toX, (double)toY))
+            WHEN(format::Format("rotated to [{}, {}]", (double)toX, (double)toY))
             {
                 const RotatedVectorT& rotated = a.RotatedTo(to);
                 const RotatedVectorT& normalizedTo = to.Normalized();
                 const RotatedVectorT& expected = normalizedTo * a.Length();
-                THEN(Format::Format("a . a' is ~1.0"))
+                THEN(format::Format("a . a' is ~1.0"))
                 {
                     RotatedVectorDotT dot = rotated.Normalized().Dot(normalizedTo);
                     REQUIRE(IsEqual<RotatedVectorDotT>(dot, RotatedVectorDotT(1), epsilon));

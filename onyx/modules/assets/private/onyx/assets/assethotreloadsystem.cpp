@@ -3,7 +3,7 @@
 #include <onyx/assets/assetid.h>
 #include <onyx/assets/assetsystem.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     AssetHotReloadSystem::AssetHotReloadSystem(AssetSystem& assetSystem)
         : m_AssetSystem(&assetSystem)
@@ -16,22 +16,22 @@ namespace Onyx::Assets
         m_DirectoryWatcher.AddPath(path, true);
     }
 
-    void AssetHotReloadSystem::OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction action)
+    void AssetHotReloadSystem::OnFileChanged(const FilePath& path, file_system::FileWatcher::FileAction action)
     {
         AssetId assetId(path);
 
         switch (action)
         {
-        case FileSystem::FileWatcher::FileAction::Add:
+        case file_system::FileWatcher::FileAction::Add:
             break;
-        case FileSystem::FileWatcher::FileAction::Delete:
+        case file_system::FileWatcher::FileAction::Delete:
             break;
-        case FileSystem::FileWatcher::FileAction::Modified:
+        case file_system::FileWatcher::FileAction::Modified:
             m_AssetSystem->ReloadAsset(assetId);
             break;
-        case FileSystem::FileWatcher::FileAction::Moved:
+        case file_system::FileWatcher::FileAction::Moved:
             break;
-        case FileSystem::FileWatcher::FileAction::Invalid:
+        case file_system::FileWatcher::FileAction::Invalid:
             break;
         }
         

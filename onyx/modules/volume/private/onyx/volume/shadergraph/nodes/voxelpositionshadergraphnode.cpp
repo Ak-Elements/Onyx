@@ -4,26 +4,26 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     GetVoxelPositionShaderGraphNode::GetVoxelPositionShaderGraphNode()
     {
         m_DebugName = "Voxel Position";
     }
 
-    void GetVoxelPositionShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
+    void GetVoxelPositionShaderGraphNode::OnUpdate(node_graph::ExecutionContext& /*context*/) const
     {
     }
 
-    void GetVoxelPositionShaderGraphNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const
+    void GetVoxelPositionShaderGraphNode::DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const
     {
-        if (generator.GetStage() != Graphics::ShaderStage::Fragment)
+        if (generator.GetStage() != rhi::ShaderStage::Fragment)
             return;
 
         if ((context.IsPinConnected<OutPin>() == false))
             return;
 
-        generator.AppendCode(Format::Format("vec3 pin_{:x} = voxelPosition;\n", m_Output.GetGlobalId().Get()));
+        generator.AppendCode(format::Format("vec3 pin_{:x} = voxelPosition;\n", m_Output.GetGlobalId().Get()));
     }
 
 #if ONYX_IS_EDITOR

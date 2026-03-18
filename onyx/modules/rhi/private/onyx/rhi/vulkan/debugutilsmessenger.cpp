@@ -3,7 +3,7 @@
 #include <onyx/rhi/vulkan/instance.h>
 #include <vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     namespace
     {
@@ -151,8 +151,8 @@ namespace Onyx::Graphics::Vulkan
             messageTypeString = "UNKNOWN: ";
         }
 
-        const char* errorMessage = Format::Format("{} {}", messageTypeString, pCallbackData->pMessage);
-        Logger::s_DefaultLogger->Log(logLevel, errorMessage);
+        const char* errorMessage = format::Format("{} {}", messageTypeString, pCallbackData->pMessage);
+        Logger::s_defaultLogger->Log(logLevel, errorMessage);
 
         const char* objectInfoMessage;
         constexpr std::string_view fmtString = " - Object [ {} ]: \n Type: {} \n Handle: {} \n Name: {} \n ";
@@ -161,8 +161,8 @@ namespace Onyx::Graphics::Vulkan
             for (onyxU32 i = 0; i != pCallbackData->objectCount; ++i)
             {
                 const auto object = pCallbackData->pObjects[i];
-                objectInfoMessage = Format::Format(fmtString.data(), i, ObjectTypeToString(object.objectType), object.objectHandle, (object.pObjectName ? object.pObjectName : ""));
-                Logger::s_DefaultLogger->LogSimple(logLevel, objectInfoMessage);
+                objectInfoMessage = format::Format(fmtString.data(), i, ObjectTypeToString(object.objectType), object.objectHandle, (object.pObjectName ? object.pObjectName : ""));
+                Logger::s_defaultLogger->LogSimple(logLevel, objectInfoMessage);
             }
         }
 

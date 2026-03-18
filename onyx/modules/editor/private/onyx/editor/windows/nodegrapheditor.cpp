@@ -28,19 +28,19 @@
 
 #include <onyx/inputactions/inputactionsystem.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     namespace
     {
         constexpr onyxF32 PIN_ICON_SIZE = 24.0f;
 
-        void DrawPinIcon(onyxU32 color, NodeGraph::PinTypeId typeId, bool connected, bool showTriangleTip, ImVec2 hitbox, int alpha)
+        void DrawPinIcon(onyxU32 color, node_graph::PinTypeId typeId, bool connected, bool showTriangleTip, ImVec2 hitbox, int alpha)
         {
             IconType iconType = IconType::Circle;
             ImColor imColor = color;
             imColor.Value.w = alpha / 255.0f;
 
-            if (typeId == NodeGraph::PinTypeId::Execute)
+            if (typeId == node_graph::PinTypeId::Execute)
                 iconType = IconType::Flow;
 
             Icon(ImVec2(PIN_ICON_SIZE, PIN_ICON_SIZE), hitbox, iconType, connected, showTriangleTip,imColor, ImColor(32, 32, 32, alpha));
@@ -78,19 +78,19 @@ namespace Onyx::Editor
 
     void NodeGraphEditorWindow::OnOpen()
     {
-        SetName(Format::Format("Node Editor###NodeEditor{}", Localization::Editor::NodeEditor::Title, m_WindowId));
-        m_CanvasPanelId = Format::Format("###CanvasPanel{}", m_WindowId);
-        m_PropertiesPanelId = Format::Format("###PropertiesPanel{}", m_WindowId);
+        SetName(format::Format("Node Editor###NodeEditor{}", localization::editor::NodeEditor::Title, m_WindowId));
+        m_CanvasPanelId = format::Format("###CanvasPanel{}", m_WindowId);
+        m_PropertiesPanelId = format::Format("###PropertiesPanel{}", m_WindowId);
 
-        ImGuiID dockspaceID = ImGui::GetID(Format::Format("NodeEditor{}", m_WindowId));\
+        ImGuiID dockspaceID = ImGui::GetID(format::Format("NodeEditor{}", m_WindowId));\
 
         // TODO: should those be somewhere defined as default sizes?
         float windowWidth = ImGui::GetMainViewport()->Size.x;
         float propertiesPanelRatio = ( 400.0f / windowWidth );
 
-        m_Dockspace = Ui::Dockspace::Create({
+        m_Dockspace = ui::Dockspace::Create({
             {
-                Ui::DockSplitDirection::Right, propertiesPanelRatio, m_PropertiesPanelId, m_CanvasPanelId
+                ui::DockSplitDirection::Right, propertiesPanelRatio, m_PropertiesPanelId, m_CanvasPanelId
             }
             });
         m_Dockspace.SetId(dockspaceID);
@@ -103,7 +103,7 @@ namespace Onyx::Editor
 
         m_Context = ax::NodeEditor::CreateEditor(&config);
 
-        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionSystem = GetEngineSystem<input_actions::InputActionSystem>();
         inputActionSystem.OnInput<&NodeGraphEditorWindow::OnCopyAction>("Copy"_id64, this);
         inputActionSystem.OnInput<&NodeGraphEditorWindow::OnPasteAction>("Paste"_id64, this);
         inputActionSystem.OnInput<&NodeGraphEditorWindow::OnDeleteAction>("Delete"_id64, this);
@@ -118,11 +118,11 @@ namespace Onyx::Editor
         m_RerouteNodes.clear();
         m_RerouteLinks.clear();
 
-        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionSystem = GetEngineSystem<input_actions::InputActionSystem>();
         inputActionSystem.Disconnect(this);
     }
 
-    void NodeGraphEditorWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
+    void NodeGraphEditorWindow::OnRender(ui::ImGuiSystem& imguiSystem)
     {
         if ((m_Context == nullptr) || (m_EditorContext == nullptr))
         {
@@ -159,7 +159,7 @@ namespace Onyx::Editor
 
             m_Dockspace.Render();
 
-            ImGui::Begin(Format::Format("{}{}", Localization::Editor::NodeEditor::UnnamedGraph, m_CanvasPanelId));
+            ImGui::Begin(format::Format("{}{}", localization::editor::NodeEditor::UnnamedGraph, m_CanvasPanelId));
 
             NodeEditor::SetCurrentEditor(m_Context);
             NodeEditor::PushStyleColor(NodeEditor::StyleColor_Bg, ImGui::ColorConvertU32ToFloat4(m_EditorContext->GetCanvasBackgroundColor()));
@@ -200,21 +200,21 @@ namespace Onyx::Editor
     {
         BeginMenuBar();
 
-        if (ImGui::BeginMenu(Format::Format("{}###File", Localization::Generic::File)))
+        if (ImGui::BeginMenu(format::Format("{}###File", localization::generic::File)))
         {
-            if (ImGui::MenuItem(Format::Format("{}###Open", Localization::Generic::Open)))
+            if (ImGui::MenuItem(format::Format("{}###Open", localization::generic::Open)))
             {
                 Load();
             }
 
-            if (ImGui::MenuItem(Format::Format("{}###Save", Localization::Generic::Save)))
+            if (ImGui::MenuItem(format::Format("{}###Save", localization::generic::Save)))
             {
                 ax::NodeEditor::SetCurrentEditor(m_Context);
                 Save();
                 ax::NodeEditor::SetCurrentEditor(nullptr);
             }
 
-            if (ImGui::MenuItem(Format::Format("{}###SaveAs", Localization::Generic::SaveAs)))
+            if (ImGui::MenuItem(format::Format("{}###SaveAs", localization::generic::SaveAs)))
             {
                 ax::NodeEditor::SetCurrentEditor(m_Context);
                 Save();
@@ -225,9 +225,9 @@ namespace Onyx::Editor
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(Format::Format("{}###Debug", Localization::Editor::NodeEditor::MainMenubar::Debug::Label)))
+        if (ImGui::BeginMenu(format::Format("{}###Debug", localization::editor::NodeEditor::MainMenubar::Debug::Label)))
         {
-            if (ImGui::MenuItem(Format::Format("{}###ShowLinkDirections", Localization::Editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections), 0, m_ShowLinkDirections))
+            if (ImGui::MenuItem(format::Format("{}###ShowLinkDirections", localization::editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections), 0, m_ShowLinkDirections))
             {
                 m_ShowLinkDirections = !m_ShowLinkDirections;
             }
@@ -238,7 +238,7 @@ namespace Onyx::Editor
         EndMenuBar();
     }
 
-    NodeGraphEditorWindow::RerouteNode::RerouteNode(NodeGraph::PinTypeId pinTypeId, onyxU32 pinTypeColor)
+    NodeGraphEditorWindow::RerouteNode::RerouteNode(node_graph::PinTypeId pinTypeId, onyxU32 pinTypeColor)
     {
         Id = Guid64Generator::GetGuid();
         InputPinId = Guid64Generator::GetGuid();
@@ -290,7 +290,7 @@ namespace Onyx::Editor
                 hasChanged = true;
             }
 
-            hasChanged |= Ui::DrawSearchBar(s_SearchString, Localization::Generic::Search.Get(), s_HasFocus);
+            hasChanged |= ui::DrawSearchBar(s_SearchString, localization::generic::Search.Get(), s_HasFocus);
             if (hasChanged)
             {
                 if (s_SearchString.empty() && (m_CreateNodeData.PinId.IsValid() == false))
@@ -302,9 +302,9 @@ namespace Onyx::Editor
             if (ImGui::BeginChild("##NodesScrollList", ImVec2(350.0f, 350.0f), ImGuiChildFlags_AlwaysUseWindowPadding))
             {
                 // TODO: Currently is we have a pin filter we force open all the time - we should fix thaxt to only force open once
-                const Ui::TreeItem& nodeListMenuRoot = m_EditorContext->GetNodeListContextMenuRoot();
-                Ui::TreeViewFlags flags = isAppearing ? Ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? Ui::TreeViewFlags::None : Ui::TreeViewFlags::ForceOpenAll);
-                bool hasClickedItem = Ui::RenderTreeView("CreateNodeMenu", nodeListMenuRoot, flags);
+                const ui::TreeItem& nodeListMenuRoot = m_EditorContext->GetNodeListContextMenuRoot();
+                ui::TreeViewFlags flags = isAppearing ? ui::TreeViewFlags::ForceCloseAll : (s_SearchString.empty() ? ui::TreeViewFlags::None : ui::TreeViewFlags::ForceOpenAll);
+                bool hasClickedItem = ui::RenderTreeView("CreateNodeMenu", nodeListMenuRoot, flags);
                 if (hasClickedItem)
                 {
                     ImGui::CloseCurrentPopup();
@@ -318,7 +318,7 @@ namespace Onyx::Editor
         else
         {
             m_CreateNodeData.PinId.Reset();
-            m_CreateNodeData.PinTypeId = NodeGraph::PinTypeId::Invalid;
+            m_CreateNodeData.PinTypeId = node_graph::PinTypeId::Invalid;
 
             local_IsCreatingNode = false;
         }
@@ -333,7 +333,7 @@ namespace Onyx::Editor
         Guid64 fromPinId;
         Guid64 toPinId;
         
-        NodeGraph::PinTypeId pinTypeId = NodeGraph::PinTypeId::Invalid;
+        node_graph::PinTypeId pinTypeId = node_graph::PinTypeId::Invalid;
         onyxU32 pinTypeColor = 0;
 
         auto rerouteLinkIt = std::ranges::find_if(m_RerouteLinks, [&](RerouteLink& link)
@@ -594,14 +594,14 @@ namespace Onyx::Editor
         using namespace ax;
 
         {
-            Ui::ScopedImGuiStyle dockspaceStyle
+            ui::ScopedImGuiStyle dockspaceStyle
             {
                 { ImGuiStyleVar_FrameBorderSize, 0.0f },
                 { ImGuiStyleVar_ItemSpacing, ImVec2(0.0, 0.0f) },
                 { ImGuiStyleVar_ItemInnerSpacing, ImVec2(0.0, 0.0f) }
             };
 
-            ImGui::Begin(Format::Format("Properties{}", m_PropertiesPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGui::Begin(format::Format("Properties{}", m_PropertiesPanelId), nullptr, ImGuiWindowFlags_HorizontalScrollbar);
         }
 
         DynamicArray<NodeEditor::NodeId> selectedNodes;
@@ -627,7 +627,7 @@ namespace Onyx::Editor
             ImGui::PushID(nodeId.AsPointer<uintptr_t>());
 
             {
-                Ui::ScopedImGuiStyle nodePanelStyle
+                ui::ScopedImGuiStyle nodePanelStyle
                 {
                     { ImGuiStyleVar_FramePadding, ImVec2(8.0f, 8.0f) }
                 };
@@ -635,14 +635,14 @@ namespace Onyx::Editor
             }
 
             {
-                Ui::ScopedImGuiStyle propGridStyle
+                ui::ScopedImGuiStyle propGridStyle
                 {
                     { ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 4.0f) }
                 };
 
-                Ui::PropertyGrid::BeginPropertyGrid("##propertyGrid", 120.0f);
+                ui::property_grid::BeginPropertyGrid("##propertyGrid", 120.0f);
                 m_EditorContext->DrawNodeInPropertyPanel(globalNodeId);
-                Ui::PropertyGrid::EndPropertyGrid();
+                ui::property_grid::EndPropertyGrid();
             }
 
             ImGui::EndChild();
@@ -657,7 +657,7 @@ namespace Onyx::Editor
 
     void NodeGraphEditorWindow::FilterNodeListContextMenu(StringView searchString)
     {
-        m_EditorContext->FilterNodeListContextMenu([&](StringView localizedFullyQualifiedNodeName ,const NodeGraph::NodeEditorMetaData& nodeMetaData)
+        m_EditorContext->FilterNodeListContextMenu([&](StringView localizedFullyQualifiedNodeName ,const node_graph::NodeEditorMetaData& nodeMetaData)
         {
             if (IgnoreCaseFind(localizedFullyQualifiedNodeName, searchString) == StringView::npos)
             {
@@ -667,8 +667,8 @@ namespace Onyx::Editor
                 }
 
                 // look for any aliases
-                Localization::LocalizationModule& localizationSystem = GetEngineSystem<Localization::LocalizationModule>();
-                Localization::LocalizationId aliasLocalizationId("alias", nodeMetaData.TypeId);
+                localization::LocalizationModule& localizationSystem = GetEngineSystem<localization::LocalizationModule>();
+                localization::LocalizationId aliasLocalizationId("alias", nodeMetaData.TypeId);
                 Optional<StringView> localizedAliasesOptional = localizationSystem.TryGetLocalized(aliasLocalizationId);
                 if (localizedAliasesOptional.has_value())
                 {
@@ -685,11 +685,11 @@ namespace Onyx::Editor
                 }
             }
 
-            if (m_CreateNodeData.PinTypeId != NodeGraph::PinTypeId::Invalid)
+            if (m_CreateNodeData.PinTypeId != node_graph::PinTypeId::Invalid)
             {
                 if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input)
                 {
-                    for (const NodeGraph::PinTypeId& outputType : nodeMetaData.OutputPins)
+                    for (const node_graph::PinTypeId& outputType : nodeMetaData.OutputPins)
                     {
                         if (outputType == m_CreateNodeData.PinTypeId)
                             return true;
@@ -699,7 +699,7 @@ namespace Onyx::Editor
                 }
                 else if (m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output)
                 {
-                    for (const NodeGraph::PinTypeId& inputType : nodeMetaData.InputPins)
+                    for (const node_graph::PinTypeId& inputType : nodeMetaData.InputPins)
                     {
                         if (inputType == m_CreateNodeData.PinTypeId)
                             return true;
@@ -747,7 +747,7 @@ namespace Onyx::Editor
                 }
             }
 
-            if (m_CreateNodeData.PinTypeId == NodeGraph::PinTypeId::Execute)
+            if (m_CreateNodeData.PinTypeId == node_graph::PinTypeId::Execute)
             {
                 std::swap(fromPin, toPin);
             }
@@ -793,18 +793,18 @@ namespace Onyx::Editor
     void NodeGraphEditorWindow::Save()
     {
         FilePath path;
-        if (FileSystem::FileDialog::SaveFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
+        if (file_system::FileDialog::SaveFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
-            Assets::AssetMetaData dummyAsset;
+            assets::AssetMetaData dummyAsset;
             dummyAsset.Path = path;
-            dummyAsset.Id = Assets::AssetId(dummyAsset.Path);
+            dummyAsset.Id = assets::AssetId(dummyAsset.Path);
 
             if (m_EditorContext->Compile() == false)
             {
                 return;
             }
 
-            Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+            assets::AssetSystem& assetSystem = GetEngineSystem<assets::AssetSystem>();
             m_EditorContext->Save(assetSystem, dummyAsset);
         }
     }
@@ -812,16 +812,16 @@ namespace Onyx::Editor
     void NodeGraphEditorWindow::Load()
     {
         FilePath path;
-        if (FileSystem::FileDialog::OpenFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
+        if (file_system::FileDialog::OpenFileDialog(path, m_EditorContext->GetLocalizedAssetTypeName(), m_EditorContext->GetExtensions()))
         {
-            Assets::AssetSystem& assetSystem = GetEngineSystem<Assets::AssetSystem>();
+            assets::AssetSystem& assetSystem = GetEngineSystem<assets::AssetSystem>();
             m_EditorContext->Load(assetSystem, path);
         }
     }
 
     void NodeGraphEditorWindow::SaveEditorMetaData(const FilePath& path)
     {
-        using namespace FileSystem;
+        using namespace file_system;
         JsonValue jsonRoot;
 
         JsonValue nodesJsonArray;
@@ -907,9 +907,9 @@ namespace Onyx::Editor
         m_RerouteNodes.clear();
         m_RerouteLinks.clear();
 
-        using namespace FileSystem;
-        FilePath metaFilePath = FileSystem::Path::ReplaceExtension(path, "ometa");
-        OnyxFile metaDataJsonFile(FileSystem::Path::GetFullPath(metaFilePath));
+        using namespace file_system;
+        FilePath metaFilePath = file_system::Path::ReplaceExtension(path, "ometa");
+        OnyxFile metaDataJsonFile(file_system::Path::GetFullPath(metaFilePath));
 
         const JsonValue& metaDataJsonRoot = metaDataJsonFile.LoadJson();
 
@@ -1001,7 +1001,7 @@ namespace Onyx::Editor
 
                 //onyxU32 pinTypeId;
                 //rerouteLinkMetaJsonObj.Get("pintype", pinTypeId);
-                //newLink.PinTypeId = Enums::ToEnum<NodeGraph::PinTypeId>(pinTypeId);
+                //newLink.PinTypeId = enums::ToEnum<NodeGraph::PinTypeId>(pinTypeId);
 
                 rerouteLinkMetaJsonObj.Get("color", newLink.Color);
             }
@@ -1066,17 +1066,17 @@ namespace Onyx::Editor
         
     }
 
-    void NodeGraphEditorWindow::OnCopyAction(const InputActions::InputActionEvent& inputActionContext)
+    void NodeGraphEditorWindow::OnCopyAction(const input_actions::InputActionEvent& inputActionContext)
     {
         ONYX_UNUSED(inputActionContext);
     }
 
-    void NodeGraphEditorWindow::OnPasteAction(const InputActions::InputActionEvent& inputActionContext)
+    void NodeGraphEditorWindow::OnPasteAction(const input_actions::InputActionEvent& inputActionContext)
     {
         ONYX_UNUSED(inputActionContext);
     }
 
-    void NodeGraphEditorWindow::OnDeleteAction(const InputActions::InputActionEvent& /*inputActionContext*/)
+    void NodeGraphEditorWindow::OnDeleteAction(const input_actions::InputActionEvent& /*inputActionContext*/)
     {
         ax::NodeEditor::SetCurrentEditor(m_Context);
         DynamicArray<ax::NodeEditor::NodeId> selectedNodes;
@@ -1218,7 +1218,7 @@ namespace Onyx::Editor
 
                if (startPinGlobalId == endPinGlobalId)
                {
-                   showLabel(Format::Format("x {}", Localization::Editor::NodeEditor::Error::ConnectSamePin), ImColor(45, 32, 32, 180));
+                   showLabel(format::Format("x {}", localization::editor::NodeEditor::Error::ConnectSamePin), ImColor(45, 32, 32, 180));
                    NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                    NodeEditor::EndCreate();
                    return;
@@ -1243,7 +1243,7 @@ namespace Onyx::Editor
 
                if (isStartPinReroute && isEndPinReroute && (startRerouteNode->Id == endRerouteNode->Id))
                {
-                   showLabel(Format::Format("x {}", Localization::Editor::NodeEditor::Error::ConnectSelf), ImColor(45, 32, 32, 180));
+                   showLabel(format::Format("x {}", localization::editor::NodeEditor::Error::ConnectSelf), ImColor(45, 32, 32, 180));
                    NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                    NodeEditor::EndCreate();
                    return;
@@ -1257,8 +1257,8 @@ namespace Onyx::Editor
                if (isEndPinReroute == false)
                    endPin = &m_EditorContext->GetPin(endPinGlobalId);
 
-               const NodeGraph::PinTypeId startPinTypeId = isStartPinReroute ? startRerouteNode->PinTypeId : startPin->PinTypeId;
-               const NodeGraph::PinTypeId endPinTypeId = isEndPinReroute ? endRerouteNode->PinTypeId : endPin->PinTypeId;
+               const node_graph::PinTypeId startPinTypeId = isStartPinReroute ? startRerouteNode->PinTypeId : startPin->PinTypeId;
+               const node_graph::PinTypeId endPinTypeId = isEndPinReroute ? endRerouteNode->PinTypeId : endPin->PinTypeId;
 
                onyxU32 pinTypeColor = 0xFFFFFFFF;
                if (isStartPinReroute)
@@ -1272,7 +1272,7 @@ namespace Onyx::Editor
 
                if (m_EditorContext->ArePinTypesCompatible(startPinTypeId, endPinTypeId) == false)
                {
-                   showLabel(Format::Format("x {}", Localization::Editor::NodeEditor::Error::IncompatiblePinType), ImColor(45, 32, 32, 180));
+                   showLabel(format::Format("x {}", localization::editor::NodeEditor::Error::IncompatiblePinType), ImColor(45, 32, 32, 180));
                    NodeEditor::RejectNewItem(ImColor(255, 128, 128), 1.0f);
                    NodeEditor::EndCreate();
                    return;
@@ -1297,7 +1297,7 @@ namespace Onyx::Editor
 
                if (isStartPinInput && isEndPinInput)
                {
-                   showLabel(Format::Format("x {}", Localization::Editor::NodeEditor::Error::TwoInputPins), ImColor(45, 32, 32, 180));
+                   showLabel(format::Format("x {}", localization::editor::NodeEditor::Error::TwoInputPins), ImColor(45, 32, 32, 180));
                    NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                    NodeEditor::EndCreate();
                    return;
@@ -1305,13 +1305,13 @@ namespace Onyx::Editor
 
                if ((isStartPinInput == false) && (isEndPinInput == false))
                {
-                   showLabel(Format::Format("x {}", Localization::Editor::NodeEditor::Error::TwoOutputPins), ImColor(45, 32, 32, 180));
+                   showLabel(format::Format("x {}", localization::editor::NodeEditor::Error::TwoOutputPins), ImColor(45, 32, 32, 180));
                    NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                    NodeEditor::EndCreate();
                    return;
                }
 
-               const bool isExecutePinType = (startPinTypeId == NodeGraph::PinTypeId::Execute);
+               const bool isExecutePinType = (startPinTypeId == node_graph::PinTypeId::Execute);
                if (((isStartPinInput == false) && (isExecutePinType == false)) ||
                    (isStartPinInput && isExecutePinType))
                {
@@ -1351,7 +1351,7 @@ namespace Onyx::Editor
                        // TODO: Get out error string from this function
                        if (m_EditorContext->IsNewLinkValid(globalStartPinId, globalEndPinId) == false)
                        {
-                           showLabel(Format::Format("x {}", Localization::Editor::NodeEditor::Error::DependencyCycle), ImColor(45, 32, 32, 180));
+                           showLabel(format::Format("x {}", localization::editor::NodeEditor::Error::DependencyCycle), ImColor(45, 32, 32, 180));
                            NodeEditor::RejectNewItem(ImColor(255, 0, 0), 1.0f);
                            NodeEditor::EndCreate();
                            return;
@@ -1362,11 +1362,11 @@ namespace Onyx::Editor
                const bool isPinLinked = m_EditorContext->IsPinLinked(startPinGlobalId);
                if (isPinLinked)
                {
-                   showLabel(Format::Format("+ {}", Localization::Editor::NodeEditor::ReplaceLink), ImColor(32, 45, 32, 180));
+                   showLabel(format::Format("+ {}", localization::editor::NodeEditor::ReplaceLink), ImColor(32, 45, 32, 180));
                }
                else
                {
-                   showLabel(Format::Format("+ {}", Localization::Editor::NodeEditor::CreateLink), ImColor(32, 45, 32, 180));
+                   showLabel(format::Format("+ {}", localization::editor::NodeEditor::CreateLink), ImColor(32, 45, 32, 180));
                }
 
                if (NodeEditor::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
@@ -1448,18 +1448,18 @@ namespace Onyx::Editor
        NodeEditor::PinId pinId = 0;
        if (NodeEditor::QueryNewNode(&pinId))
        {
-           StringView label = Format::Format("+ {}", Localization::Editor::NodeEditor::CreateNode);
+           StringView label = format::Format("+ {}", localization::editor::NodeEditor::CreateNode);
 
            Guid64 globalPinId = Guid64(pinId.Get());
            const RerouteNode* rerouteNode = GetRerouteNodeByPinId(globalPinId);
            if (rerouteNode)
            {
                bool isInputPin = rerouteNode->ActivePinDirection == GraphEditorContext::PinDirection::Input;
-               if (isInputPin && (rerouteNode->PinTypeId != NodeGraph::PinTypeId::Execute))
+               if (isInputPin && (rerouteNode->PinTypeId != node_graph::PinTypeId::Execute))
                {
                    if (NodeEditor::PinHadAnyLinks(rerouteNode->InputPinId.Get()))
                    {
-                       label = Format::Format("+ {}", Localization::Editor::NodeEditor::ReplaceNode);
+                       label = format::Format("+ {}", localization::editor::NodeEditor::ReplaceNode);
                    }
                }
            }
@@ -1524,7 +1524,7 @@ namespace Onyx::Editor
             DrawPinIcon(inputPin.Color, inputPin.PinTypeId, m_EditorContext->IsPinLinked(inputPin.Id), true, ImVec2(24, 24), (int)(alpha * 255));
             ImGui::Spring(0);
 
-            if (inputPin.PinTypeId != NodeGraph::PinTypeId::Execute)
+            if (inputPin.PinTypeId != node_graph::PinTypeId::Execute)
             {
                 StringView inputName = inputPin.Name;
                 if (inputName.empty() == false)

@@ -3,18 +3,18 @@
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::Graphics::ShaderGraphNodes
+namespace onyx::graphics::shader_graph_nodes
 {
-    void FragmentShaderOutNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
+    void FragmentShaderOutNode::DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const
     {
         if (GetInputPin().IsConnected())
         {
-            generator.AppendCode(Format::Format("outColor = pin_{:x};", GetInputPin().GetLinkedPinGlobalId().Get()));
+            generator.AppendCode(format::Format("outColor = pin_{:x};", GetInputPin().GetLinkedPinGlobalId().Get()));
         }
         else
         {
             const Vector4f32& outColor = context.GetPinData<InPin>();
-            generator.AppendCode(Format::Format("outColor = vec4({}, {}, {}, {});", outColor[0], outColor[1], outColor[2], outColor[3]));
+            generator.AppendCode(format::Format("outColor = vec4({}, {}, {}, {});", outColor[0], outColor[1], outColor[2], outColor[3]));
         }
 
     }
@@ -32,7 +32,7 @@ namespace Onyx::Graphics::ShaderGraphNodes
     }
 #endif
 
-    void PBRMaterialShaderOutNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const
+    void PBRMaterialShaderOutNode::DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const
     {
         generator.AppendCode("PBRMaterial material;\n");
 
@@ -40,32 +40,32 @@ namespace Onyx::Graphics::ShaderGraphNodes
         if (albedoPin)
         {
             const AlbedoInPin& albedo = *albedoPin.value();
-            generator.AppendCode(Format::Format("material.Albedo = {};\n", 
-                albedo.IsConnected() ? Format::Format("pin_{:x}", albedo.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<AlbedoInPin>())));
+            generator.AppendCode(format::Format("material.Albedo = {};\n", 
+                albedo.IsConnected() ? format::Format("pin_{:x}", albedo.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<AlbedoInPin>())));
         }
 
         Optional<const NormalInPin*> normalPin = GetInputPinByLocalId<NormalInPin>();
         if (normalPin)
         {
             const NormalInPin& normal = *normalPin.value();
-            generator.AppendCode(Format::Format("material.Normal = {};\n",
-                normal.IsConnected() ? Format::Format("pin_{:x}", normal.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<NormalInPin>())));
+            generator.AppendCode(format::Format("material.Normal = {};\n",
+                normal.IsConnected() ? format::Format("pin_{:x}", normal.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<NormalInPin>())));
         }
 
         Optional<const MetalnessInPin*> metallicPin = GetInputPinByLocalId<MetalnessInPin>();
         if (metallicPin)
         {
             const MetalnessInPin& metalness = *metallicPin.value();
-            generator.AppendCode(Format::Format("material.Metalness = {};\n",
-                metalness.IsConnected() ? Format::Format("pin_{:x}", metalness.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<MetalnessInPin>())));
+            generator.AppendCode(format::Format("material.Metalness = {};\n",
+                metalness.IsConnected() ? format::Format("pin_{:x}", metalness.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<MetalnessInPin>())));
         }
 
         Optional<const RoughnessInPin*> roughnessPin = GetInputPinByLocalId<RoughnessInPin>();
         if (metallicPin)
         {
             const RoughnessInPin& roughness = *roughnessPin.value();
-            generator.AppendCode(Format::Format("material.Roughness = {};\n",
-                roughness.IsConnected() ? Format::Format("pin_{:x}", roughness.GetLinkedPinGlobalId().Get()) : ShaderGenerator::GenerateShaderValue(context.GetPinData<RoughnessInPin>())));
+            generator.AppendCode(format::Format("material.Roughness = {};\n",
+                roughness.IsConnected() ? format::Format("pin_{:x}", roughness.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<RoughnessInPin>())));
         }
     }
 
@@ -81,7 +81,7 @@ namespace Onyx::Graphics::ShaderGraphNodes
     }
 #endif
 
-    NodeGraph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index)
+    node_graph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index)
     {
         switch (index)
         {
@@ -95,7 +95,7 @@ namespace Onyx::Graphics::ShaderGraphNodes
         return nullptr;
     }
 
-    const NodeGraph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index) const
+    const node_graph::PinBase* PBRMaterialShaderOutNode::GetInputPin(onyxU32 index) const
     {
         switch (index)
         {
@@ -109,13 +109,13 @@ namespace Onyx::Graphics::ShaderGraphNodes
         return nullptr;
     }
 
-    NodeGraph::PinBase* PBRMaterialShaderOutNode::GetOutputPin(onyxU32 /*index*/)
+    node_graph::PinBase* PBRMaterialShaderOutNode::GetOutputPin(onyxU32 /*index*/)
     {
         ONYX_ASSERT(false, "Invalid pin index");
         return nullptr;
     }
 
-    const NodeGraph::PinBase* PBRMaterialShaderOutNode::GetOutputPin(onyxU32 /*index*/) const
+    const node_graph::PinBase* PBRMaterialShaderOutNode::GetOutputPin(onyxU32 /*index*/) const
     {
         ONYX_ASSERT(false, "Invalid pin index");
         return nullptr;

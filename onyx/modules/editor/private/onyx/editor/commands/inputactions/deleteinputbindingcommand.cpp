@@ -3,7 +3,7 @@
 
 #include <onyx/inputactions/inputactionsmap.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     DeleteInputBindingCommand::DeleteInputBindingCommand(StringId64 actionId, onyxS32 bindingIndex, InputActionSettingsWindow& inputSettingsWindow)
         : InputActionCommand("DeleteInputBinding", inputSettingsWindow)
@@ -13,11 +13,11 @@ namespace Onyx::Editor
     
     void DeleteInputBindingCommand::Execute()
     {
-        InputActions::InputActionsMap& context = GetInputActionsContext();
-        Optional<InputActions::InputAction*> actionOptional = context.GetAction(m_ActionId);
+        input_actions::InputActionsMap& context = GetInputActionsContext();
+        Optional<input_actions::InputAction*> actionOptional = context.GetAction(m_ActionId);
         ONYX_ASSERT(actionOptional.has_value());
         
-        InputActions::InputAction* action = *actionOptional;
+        input_actions::InputAction* action = *actionOptional;
         action->RemoveBinding(m_BindingIndex);
     }
 }

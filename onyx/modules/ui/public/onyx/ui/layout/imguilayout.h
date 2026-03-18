@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Ui::Layout
+namespace onyx::ui::layout
 {
     void BeginHorizontal(StringView id);
     void EndHorizontal();

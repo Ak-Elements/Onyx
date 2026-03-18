@@ -2,7 +2,7 @@
 
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx
+namespace onyx
 {
     IEngineVariable::IEngineVariable(StringId32 id)
         : m_Id(id)

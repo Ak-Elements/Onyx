@@ -1,9 +1,9 @@
 #include <onyx/filesystem/path.h>
 #include <onyx/platform/platformsystem.h>
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
-    PlatformSystem::PlatformSystem(WindowSettings windowSettings, Input::InputSystem& inputSystem)
+    PlatformSystem::PlatformSystem(WindowSettings windowSettings, input::InputSystem& inputSystem)
         : m_InputSystem(&inputSystem) 
         , m_Context(*this)
     {

@@ -4,17 +4,17 @@
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename InVectorT, typename OutVectorT, CompileTimeString TypeIdString>
-    class SwizzleVectorComponentsNode<Graphics::ShaderGraphNode, InVectorT, OutVectorT, TypeIdString> : public FixedPinNode_1_In_1_Out<Graphics::ShaderGraphNode, InVectorT, OutVectorT>
+    class SwizzleVectorComponentsNode<graphics::ShaderGraphNode, InVectorT, OutVectorT, TypeIdString> : public FixedPinNode_1_In_1_Out<graphics::ShaderGraphNode, InVectorT, OutVectorT>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_1_In_1_Out<Graphics::ShaderGraphNode, InVectorT, OutVectorT>;
+        using Super = FixedPinNode_1_In_1_Out<graphics::ShaderGraphNode, InVectorT, OutVectorT>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -66,15 +66,15 @@ namespace Onyx::NodeGraph
             return hasModified;
         }
 
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin& inputPin = Super::GetInputPin();
 
-            generator.AppendCode(Format::Format("{} pin_{:x} = {}.{}; \n",
-                Graphics::ShaderGenerator::GetTypeAsShaderTypeString<OutVectorT>().c_str(),
+            generator.AppendCode(format::Format("{} pin_{:x} = {}.{}; \n",
+                rhi::ShaderGenerator::GetTypeAsShaderTypeString<OutVectorT>().c_str(),
                 Super::GetOutputPin().GetGlobalId().Get(),
-                inputPin.IsConnected() ? Format::Format("pin_{:x}", inputPin.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>()),
-                ToLower(Enums::ToString(Mask))));
+                inputPin.IsConnected() ? format::Format("pin_{:x}", inputPin.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin>()),
+                ToLower(enums::ToString(Mask))));
         }
 
     private:
@@ -83,7 +83,7 @@ namespace Onyx::NodeGraph
             switch (pinId)
             {
                 case Super::InPin::LocalId: return "In";
-                case Super::OutPin::LocalId: return Enums::ToString(Mask);
+                case Super::OutPin::LocalId: return enums::ToString(Mask);
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
@@ -102,14 +102,14 @@ namespace Onyx::NodeGraph
     };
 
     template <typename ScalarT, CompileTimeString TypeIdString>
-    class GetVector2Components<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_1_In_2_Out<Graphics::ShaderGraphNode, Vector2<ScalarT>, ScalarT, ScalarT>
+    class GetVector2Components<graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_1_In_2_Out<graphics::ShaderGraphNode, Vector2<ScalarT>, ScalarT, ScalarT>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_1_In_2_Out<Graphics::ShaderGraphNode, Vector2<ScalarT>, ScalarT, ScalarT>;
+        using Super = FixedPinNode_1_In_2_Out<graphics::ShaderGraphNode, Vector2<ScalarT>, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -124,23 +124,23 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin& inputPin = Super::GetInputPin();
             if (inputPin.IsConnected())
             {
                 if (context.IsPinConnected<typename Super::OutPin0>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.x; // X \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.x; // X \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin0().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin1>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.y; // Y \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.y; // Y \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin1().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
@@ -151,16 +151,16 @@ namespace Onyx::NodeGraph
 
                 if (context.IsPinConnected<typename Super::OutPin0>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // X \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // X \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin0().GetGlobalId().Get(),
                         inPin[0]));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin1>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // Y \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // Y \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin1().GetGlobalId().Get(),
                         inPin[1]));
                 }
@@ -184,14 +184,14 @@ namespace Onyx::NodeGraph
     };
 
     template <typename ScalarT, CompileTimeString TypeIdString>
-    class GetVector3Components<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_1_In_3_Out<Graphics::ShaderGraphNode, Vector3<ScalarT>, ScalarT, ScalarT, ScalarT>
+    class GetVector3Components<graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_1_In_3_Out<graphics::ShaderGraphNode, Vector3<ScalarT>, ScalarT, ScalarT, ScalarT>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_1_In_3_Out<Graphics::ShaderGraphNode, Vector3<ScalarT>, ScalarT, ScalarT, ScalarT>;
+        using Super = FixedPinNode_1_In_3_Out<graphics::ShaderGraphNode, Vector3<ScalarT>, ScalarT, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -208,7 +208,7 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin& inputPin = Super::GetInputPin();
 
@@ -216,24 +216,24 @@ namespace Onyx::NodeGraph
             {
                 if (context.IsPinConnected<typename Super::OutPin0>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.x; // X \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.x; // X \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin0().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin1>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.y; // Y \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.y; // Y \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin1().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin2>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.z; // Z \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.z; // Z \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin2().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
@@ -244,24 +244,24 @@ namespace Onyx::NodeGraph
 
                 if (context.IsPinConnected<typename Super::OutPin0>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // X \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // X \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin0().GetGlobalId().Get(),
                         inPin[0]));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin1>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // Y \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // Y \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin1().GetGlobalId().Get(),
                         inPin[1]));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin2>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // Z \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // Z \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin2().GetGlobalId().Get(),
                         inPin[2]));
                 }
@@ -286,14 +286,14 @@ namespace Onyx::NodeGraph
     };
 
     template <typename ScalarT, CompileTimeString TypeIdString>
-    class GetVector4Components<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_1_In_4_Out<Graphics::ShaderGraphNode, Vector4<ScalarT>, ScalarT, ScalarT, ScalarT, ScalarT>
+    class GetVector4Components<graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_1_In_4_Out<graphics::ShaderGraphNode, Vector4<ScalarT>, ScalarT, ScalarT, ScalarT, ScalarT>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_1_In_4_Out<Graphics::ShaderGraphNode, Vector4<ScalarT>, ScalarT, ScalarT, ScalarT, ScalarT>;
+        using Super = FixedPinNode_1_In_4_Out<graphics::ShaderGraphNode, Vector4<ScalarT>, ScalarT, ScalarT, ScalarT, ScalarT>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -313,7 +313,7 @@ namespace Onyx::NodeGraph
         }
 
 #if ONYX_IS_EDITOR
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin& inputPin = Super::GetInputPin();
 
@@ -321,32 +321,32 @@ namespace Onyx::NodeGraph
             {
                 if (context.IsPinConnected<typename Super::OutPin0>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.x; // X \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.x; // X \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin0().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin1>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.y; // Y \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.y; // Y \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin1().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin2>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.z; // Z \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.z; // Z \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin2().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin3>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = pin_{:x}.w; // W \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = pin_{:x}.w; // W \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin3().GetGlobalId().Get(),
                         inputPin.GetLinkedPinGlobalId().Get()));
                 }
@@ -357,32 +357,32 @@ namespace Onyx::NodeGraph
 
                 if (context.IsPinConnected<typename Super::OutPin0>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // X \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // X \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin0().GetGlobalId().Get(),
                         inPin[0]));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin1>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // Y \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // Y \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin1().GetGlobalId().Get(),
                         inPin[1]));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin2>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // Z \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // Z \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin2().GetGlobalId().Get(),
                         inPin[2]));
                 }
 
                 if (context.IsPinConnected<typename Super::OutPin3>())
                 {
-                    generator.AppendCode(Format::Format("{} pin_{:x} = {}; // W \n",
-                        Graphics::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
+                    generator.AppendCode(format::Format("{} pin_{:x} = {}; // W \n",
+                        rhi::ShaderGenerator::GetTypeAsShaderTypeString<ScalarT>().c_str(),
                         Super::GetOutputPin3().GetGlobalId().Get(),
                         inPin[3]));
                 }
@@ -408,14 +408,14 @@ namespace Onyx::NodeGraph
     };
 
     template <typename ScalarT, CompileTimeString TypeIdString>
-    class CreateVector2<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, Vector2<ScalarT>>
+    class CreateVector2<graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_2_In_1_Out<graphics::ShaderGraphNode, ScalarT, ScalarT, Vector2<ScalarT>>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_2_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, Vector2<ScalarT>>;
+        using Super = FixedPinNode_2_In_1_Out<graphics::ShaderGraphNode, ScalarT, ScalarT, Vector2<ScalarT>>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -428,16 +428,16 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin0& inputPin0 = Super::GetInputPin0();
             const typename Super::InPin1& inputPin1 = Super::GetInputPin1();
 
-            generator.AppendCode(Format::Format("{0} pin_{1:x} = {0}({2}, {3}); \n",
-                Graphics::ShaderGenerator::GetTypeAsShaderTypeString<Vector2<ScalarT>>().c_str(),
+            generator.AppendCode(format::Format("{0} pin_{1:x} = {0}({2}, {3}); \n",
+                rhi::ShaderGenerator::GetTypeAsShaderTypeString<Vector2<ScalarT>>().c_str(),
                 Super::GetOutputPin().GetGlobalId().Get(),
-                inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
-                inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
+                inputPin0.IsConnected() ? format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
+                inputPin1.IsConnected() ? format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
         }
 
     private:
@@ -458,14 +458,14 @@ namespace Onyx::NodeGraph
 
 
     template <typename ScalarT, CompileTimeString TypeIdString>
-    class CreateVector3<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_3_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>
+    class CreateVector3<graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode3In1Out<graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_3_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>;
+        using Super = FixedPinNode3In1Out<graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -479,18 +479,18 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin0& inputPin0 = Super::GetInputPin0();
             const typename Super::InPin1& inputPin1 = Super::GetInputPin1();
             const typename Super::InPin2& inputPin2 = Super::GetInputPin2();
 
-            generator.AppendCode(Format::Format("{0} pin_{1:x} = {0}({2}, {3}, {4}); \n",
-                Graphics::ShaderGenerator::GetTypeAsShaderTypeString<Vector3<ScalarT>>().c_str(),
+            generator.AppendCode(format::Format("{0} pin_{1:x} = {0}({2}, {3}, {4}); \n",
+                rhi::ShaderGenerator::GetTypeAsShaderTypeString<Vector3<ScalarT>>().c_str(),
                 Super::GetOutputPin().GetGlobalId().Get(),
-                inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
-                inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>()),
-                inputPin2.IsConnected() ? Format::Format("pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin2>())));
+                inputPin0.IsConnected() ? format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
+                inputPin1.IsConnected() ? format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>()),
+                inputPin2.IsConnected() ? format::Format("pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin2>())));
         }
 
         StringView GetPinName(StringId32 pinId) const override
@@ -510,14 +510,14 @@ namespace Onyx::NodeGraph
     };
 
     template <typename ScalarT, CompileTimeString TypeIdString>
-    class CreateVector4<Graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_4_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, ScalarT, Vector4<ScalarT>>
+    class CreateVector4<graphics::ShaderGraphNode, ScalarT, TypeIdString> : public FixedPinNode_4_In_1_Out<graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, ScalarT, Vector4<ScalarT>>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_4_In_1_Out<Graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, ScalarT, Vector4<ScalarT>>;
+        using Super = FixedPinNode_4_In_1_Out<graphics::ShaderGraphNode, ScalarT, ScalarT, ScalarT, ScalarT, Vector4<ScalarT>>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -532,20 +532,20 @@ namespace Onyx::NodeGraph
 
 #if ONYX_IS_EDITOR
     private:
-        void DoGenerateShader(const ExecutionContext& context, Graphics::ShaderGenerator& generator) const override
+        void DoGenerateShader(const ExecutionContext& context, rhi::ShaderGenerator& generator) const override
         {
             const typename Super::InPin0& inputPin0 = Super::GetInputPin0();
             const typename Super::InPin1& inputPin1 = Super::GetInputPin1();
             const typename Super::InPin2& inputPin2 = Super::GetInputPin2();
             const typename Super::InPin3& inputPin3 = Super::GetInputPin3();
 
-            generator.AppendCode(Format::Format("{0} pin_{1:x} = {0}({2}, {3}, {4}, {5}); \n",
-                Graphics::ShaderGenerator::GetTypeAsShaderTypeString<Vector4<ScalarT>>().c_str(),
+            generator.AppendCode(format::Format("{0} pin_{1:x} = {0}({2}, {3}, {4}, {5}); \n",
+                rhi::ShaderGenerator::GetTypeAsShaderTypeString<Vector4<ScalarT>>().c_str(),
                 Super::GetOutputPin().GetGlobalId().Get(),
-                inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
-                inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>()),
-                inputPin2.IsConnected() ? Format::Format("pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin2>()),
-                inputPin3.IsConnected() ? Format::Format("pin_{:x}", inputPin3.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin3>())));
+                inputPin0.IsConnected() ? format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
+                inputPin1.IsConnected() ? format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>()),
+                inputPin2.IsConnected() ? format::Format("pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin2>()),
+                inputPin3.IsConnected() ? format::Format("pin_{:x}", inputPin3.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin3>())));
         }
 
 
@@ -567,85 +567,85 @@ namespace Onyx::NodeGraph
     };
 }
 
-namespace Onyx::Graphics::ShaderGraphNodes
+namespace onyx::graphics::shader_graph_nodes
 {
-    using GetVector2f32Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::GetVector2f32Components">;
-    using GetVector2f64Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::GetVector2f64Components">;
-    using GetVector2s32Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::GetVector2s32Components">;
-    using GetVector2s64Components = NodeGraph::GetVector2Components<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::GetVector2s64Components">;
+    using GetVector2f32Components = node_graph::GetVector2Components<ShaderGraphNode, onyxF32, "onyx::graphics::ShaderGraph::GetVector2f32Components">;
+    using GetVector2f64Components = node_graph::GetVector2Components<ShaderGraphNode, onyxF64, "onyx::graphics::ShaderGraph::GetVector2f64Components">;
+    using GetVector2s32Components = node_graph::GetVector2Components<ShaderGraphNode, onyxS32, "onyx::graphics::ShaderGraph::GetVector2s32Components">;
+    using GetVector2s64Components = node_graph::GetVector2Components<ShaderGraphNode, onyxS64, "onyx::graphics::ShaderGraph::GetVector2s64Components">;
 
-    using CreateVector2f32 = NodeGraph::CreateVector2<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::CreateVector2f32">;
-    using CreateVector2f64 = NodeGraph::CreateVector2<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::CreateVector2f64">;
-    using CreateVector2s32 = NodeGraph::CreateVector2<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::CreateVector2s32">;
-    using CreateVector2s64 = NodeGraph::CreateVector2<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::CreateVector2s64">;
+    using CreateVector2f32 = node_graph::CreateVector2<ShaderGraphNode, onyxF32, "onyx::graphics::ShaderGraph::CreateVector2f32">;
+    using CreateVector2f64 = node_graph::CreateVector2<ShaderGraphNode, onyxF64, "onyx::graphics::ShaderGraph::CreateVector2f64">;
+    using CreateVector2s32 = node_graph::CreateVector2<ShaderGraphNode, onyxS32, "onyx::graphics::ShaderGraph::CreateVector2s32">;
+    using CreateVector2s64 = node_graph::CreateVector2<ShaderGraphNode, onyxS64, "onyx::graphics::ShaderGraph::CreateVector2s64">;
 
-    using Swizzle2DVector2f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector2f32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2f32">;
-    using Swizzle2DVector3f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector2f32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3f32">;
-    using Swizzle2DVector4f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector2f32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4f32">;
+    using Swizzle2DVector2f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector2f32, "onyx::graphics::ShaderGraph::Swizzle2DVector2f32">;
+    using Swizzle2DVector3f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector2f32, "onyx::graphics::ShaderGraph::Swizzle2DVector3f32">;
+    using Swizzle2DVector4f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector2f32, "onyx::graphics::ShaderGraph::Swizzle2DVector4f32">;
 
-    using Swizzle2DVector2f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector2f64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2f64">;
-    using Swizzle2DVector3f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector2f64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3f64">;
-    using Swizzle2DVector4f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector2f64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4f64">;
+    using Swizzle2DVector2f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector2f64, "onyx::graphics::ShaderGraph::Swizzle2DVector2f64">;
+    using Swizzle2DVector3f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector2f64, "onyx::graphics::ShaderGraph::Swizzle2DVector3f64">;
+    using Swizzle2DVector4f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector2f64, "onyx::graphics::ShaderGraph::Swizzle2DVector4f64">;
 
-    using Swizzle2DVector2s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s32">;
-    using Swizzle2DVector3s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s32">;
-    using Swizzle2DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector2s32, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s32">;
+    using Swizzle2DVector2s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector2s32, "onyx::graphics::ShaderGraph::Swizzle2DVector2s32">;
+    using Swizzle2DVector3s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector2s32, "onyx::graphics::ShaderGraph::Swizzle2DVector3s32">;
+    using Swizzle2DVector4s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector2s32, "onyx::graphics::ShaderGraph::Swizzle2DVector4s32">;
 
-    using Swizzle2DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector2s64">;
-    using Swizzle2DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector3s64">;
-    using Swizzle2DVector4s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector2s64, "Onyx::Graphics::ShaderGraph::Swizzle2DVector4s64">;
+    using Swizzle2DVector2s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector2s64, "onyx::graphics::ShaderGraph::Swizzle2DVector2s64">;
+    using Swizzle2DVector3s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector2s64, "onyx::graphics::ShaderGraph::Swizzle2DVector3s64">;
+    using Swizzle2DVector4s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector2s64, "onyx::graphics::ShaderGraph::Swizzle2DVector4s64">;
 
     // Vector 3
-    using GetVector3f32Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::GetVector3f32Components">;
-    using GetVector3f64Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::GetVector3f64Components">;
-    using GetVector3s32Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::GetVector3s32Components">;
-    using GetVector3s64Components = NodeGraph::GetVector3Components<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::GetVector3s64Components">;
+    using GetVector3f32Components = node_graph::GetVector3Components<ShaderGraphNode, onyxF32, "onyx::graphics::ShaderGraph::GetVector3f32Components">;
+    using GetVector3f64Components = node_graph::GetVector3Components<ShaderGraphNode, onyxF64, "onyx::graphics::ShaderGraph::GetVector3f64Components">;
+    using GetVector3s32Components = node_graph::GetVector3Components<ShaderGraphNode, onyxS32, "onyx::graphics::ShaderGraph::GetVector3s32Components">;
+    using GetVector3s64Components = node_graph::GetVector3Components<ShaderGraphNode, onyxS64, "onyx::graphics::ShaderGraph::GetVector3s64Components">;
 
-    using CreateVector3f32 = NodeGraph::CreateVector3<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::CreateVector3f32">;
-    using CreateVector3f64 = NodeGraph::CreateVector3<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::CreateVector3f64">;
-    using CreateVector3s32 = NodeGraph::CreateVector3<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::CreateVector3s32">;
-    using CreateVector3s64 = NodeGraph::CreateVector3<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::CreateVector3s64">;
+    using CreateVector3f32 = node_graph::CreateVector3<ShaderGraphNode, onyxF32, "onyx::graphics::ShaderGraph::CreateVector3f32">;
+    using CreateVector3f64 = node_graph::CreateVector3<ShaderGraphNode, onyxF64, "onyx::graphics::ShaderGraph::CreateVector3f64">;
+    using CreateVector3s32 = node_graph::CreateVector3<ShaderGraphNode, onyxS32, "onyx::graphics::ShaderGraph::CreateVector3s32">;
+    using CreateVector3s64 = node_graph::CreateVector3<ShaderGraphNode, onyxS64, "onyx::graphics::ShaderGraph::CreateVector3s64">;
 
-    using Swizzle3DVector2f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector3f32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2f32">;
-    using Swizzle3DVector3f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector3f32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3f32">;
-    using Swizzle3DVector4f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector3f32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4f32">;
+    using Swizzle3DVector2f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector3f32, "onyx::graphics::ShaderGraph::Swizzle3DVector2f32">;
+    using Swizzle3DVector3f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector3f32, "onyx::graphics::ShaderGraph::Swizzle3DVector3f32">;
+    using Swizzle3DVector4f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector3f32, "onyx::graphics::ShaderGraph::Swizzle3DVector4f32">;
 
-    using Swizzle3DVector2f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector3f64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2f64">;
-    using Swizzle3DVector3f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector3f64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3f64">;
-    using Swizzle3DVector4f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector3f64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4f64">;
+    using Swizzle3DVector2f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector3f64, "onyx::graphics::ShaderGraph::Swizzle3DVector2f64">;
+    using Swizzle3DVector3f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector3f64, "onyx::graphics::ShaderGraph::Swizzle3DVector3f64">;
+    using Swizzle3DVector4f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector3f64, "onyx::graphics::ShaderGraph::Swizzle3DVector4f64">;
 
-    using Swizzle3DVector2s32  = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector3s32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2s32">;
-    using Swizzle3DVector3s32  = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector3s32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3s32">;
-    using Swizzle3DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector3s32, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4s32">;
+    using Swizzle3DVector2s32  = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector3s32, "onyx::graphics::ShaderGraph::Swizzle3DVector2s32">;
+    using Swizzle3DVector3s32  = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector3s32, "onyx::graphics::ShaderGraph::Swizzle3DVector3s32">;
+    using Swizzle3DVector4s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector3s32, "onyx::graphics::ShaderGraph::Swizzle3DVector4s32">;
 
-    using Swizzle3DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector3s64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector2s64">;
-    using Swizzle3DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector3s64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector3s64">;
-    using Swizzle3DVector4s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector3s64, "Onyx::Graphics::ShaderGraph::Swizzle3DVector4s64">;
+    using Swizzle3DVector2s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector3s64, "onyx::graphics::ShaderGraph::Swizzle3DVector2s64">;
+    using Swizzle3DVector3s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector3s64, "onyx::graphics::ShaderGraph::Swizzle3DVector3s64">;
+    using Swizzle3DVector4s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector3s64, "onyx::graphics::ShaderGraph::Swizzle3DVector4s64">;
 
     // Vector 4
-    using GetVector4f32Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::GetVector4f32Components">;
-    using GetVector4f64Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::GetVector4f64Components">;
-    using GetVector4s32Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::GetVector4s32Components">;
-    using GetVector4s64Components = NodeGraph::GetVector4Components<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::GetVector4s64Components">;
+    using GetVector4f32Components = node_graph::GetVector4Components<ShaderGraphNode, onyxF32, "onyx::graphics::ShaderGraph::GetVector4f32Components">;
+    using GetVector4f64Components = node_graph::GetVector4Components<ShaderGraphNode, onyxF64, "onyx::graphics::ShaderGraph::GetVector4f64Components">;
+    using GetVector4s32Components = node_graph::GetVector4Components<ShaderGraphNode, onyxS32, "onyx::graphics::ShaderGraph::GetVector4s32Components">;
+    using GetVector4s64Components = node_graph::GetVector4Components<ShaderGraphNode, onyxS64, "onyx::graphics::ShaderGraph::GetVector4s64Components">;
 
-    using CreateVector4f32 = NodeGraph::CreateVector4<ShaderGraphNode, onyxF32, "Onyx::Graphics::ShaderGraph::CreateVector4f32">;
-    using CreateVector4f64 = NodeGraph::CreateVector4<ShaderGraphNode, onyxF64, "Onyx::Graphics::ShaderGraph::CreateVector4f64">;
-    using CreateVector4s32 = NodeGraph::CreateVector4<ShaderGraphNode, onyxS32, "Onyx::Graphics::ShaderGraph::CreateVector4s32">;
-    using CreateVector4s64 = NodeGraph::CreateVector4<ShaderGraphNode, onyxS64, "Onyx::Graphics::ShaderGraph::CreateVector4s64">;
+    using CreateVector4f32 = node_graph::CreateVector4<ShaderGraphNode, onyxF32, "onyx::graphics::ShaderGraph::CreateVector4f32">;
+    using CreateVector4f64 = node_graph::CreateVector4<ShaderGraphNode, onyxF64, "onyx::graphics::ShaderGraph::CreateVector4f64">;
+    using CreateVector4s32 = node_graph::CreateVector4<ShaderGraphNode, onyxS32, "onyx::graphics::ShaderGraph::CreateVector4s32">;
+    using CreateVector4s64 = node_graph::CreateVector4<ShaderGraphNode, onyxS64, "onyx::graphics::ShaderGraph::CreateVector4s64">;
 
-    using Swizzle4DVector2f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector4f32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2f32">;
-    using Swizzle4DVector3f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector4f32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3f32">;
-    using Swizzle4DVector4f32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector4f32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4f32">;
+    using Swizzle4DVector2f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f32, Vector4f32, "onyx::graphics::ShaderGraph::Swizzle4DVector2f32">;
+    using Swizzle4DVector3f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f32, Vector4f32, "onyx::graphics::ShaderGraph::Swizzle4DVector3f32">;
+    using Swizzle4DVector4f32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f32, Vector4f32, "onyx::graphics::ShaderGraph::Swizzle4DVector4f32">;
 
-    using Swizzle4DVector2f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector4f64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2f64">;
-    using Swizzle4DVector3f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector4f64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3f64">;
-    using Swizzle4DVector4f64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector4f64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4f64">;
+    using Swizzle4DVector2f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2f64, Vector4f64, "onyx::graphics::ShaderGraph::Swizzle4DVector2f64">;
+    using Swizzle4DVector3f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3f64, Vector4f64, "onyx::graphics::ShaderGraph::Swizzle4DVector3f64">;
+    using Swizzle4DVector4f64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4f64, Vector4f64, "onyx::graphics::ShaderGraph::Swizzle4DVector4f64">;
 
-    using Swizzle4DVector2s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector4s32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2s32">;
-    using Swizzle4DVector3s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector4s32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3s32">;
-    using Swizzle4DVector4s32 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector4s32, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s32">;
+    using Swizzle4DVector2s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s32, Vector4s32, "onyx::graphics::ShaderGraph::Swizzle4DVector2s32">;
+    using Swizzle4DVector3s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s32, Vector4s32, "onyx::graphics::ShaderGraph::Swizzle4DVector3s32">;
+    using Swizzle4DVector4s32 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s32, Vector4s32, "onyx::graphics::ShaderGraph::Swizzle4DVector4s32">;
 
-    using Swizzle4DVector2s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector4s64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector2s64">;
-    using Swizzle4DVector3s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector4s64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector3s64">;
-    using Swizzle4DVector4s64 = NodeGraph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector4s64, "Onyx::Graphics::ShaderGraph::Swizzle4DVector4s64">;
+    using Swizzle4DVector2s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector2s64, Vector4s64, "onyx::graphics::ShaderGraph::Swizzle4DVector2s64">;
+    using Swizzle4DVector3s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector3s64, Vector4s64, "onyx::graphics::ShaderGraph::Swizzle4DVector3s64">;
+    using Swizzle4DVector4s64 = node_graph::SwizzleVectorComponentsNode<ShaderGraphNode, Vector4s64, Vector4s64, "onyx::graphics::ShaderGraph::Swizzle4DVector4s64">;
 }

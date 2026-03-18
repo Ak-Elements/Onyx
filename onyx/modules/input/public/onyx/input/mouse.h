@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class MouseButton : onyxU16
     {
@@ -18,11 +18,11 @@ namespace Onyx::Input
         Invalid = 0
     };
 
-    static constexpr onyxU16 MouseButton_Count = Enums::ToIntegral(MouseButton::Last) - Enums::ToIntegral(MouseButton::First);
+    static constexpr onyxU16 MouseButton_Count = enums::ToIntegral(MouseButton::Last) - enums::ToIntegral(MouseButton::First);
 
     enum class MouseAxis : onyxU16
     {
-        First = Enums::ToIntegral(MouseButton::Last),
+        First = enums::ToIntegral(MouseButton::Last),
 
         X,
         Y,
@@ -37,17 +37,17 @@ namespace Onyx::Input
         Invalid = 0
     };
 
-    static constexpr onyxU16 MouseAxis_Count = Enums::ToIntegral(MouseAxis::Last) - Enums::ToIntegral(MouseAxis::First);
+    static constexpr onyxU16 MouseAxis_Count = enums::ToIntegral(MouseAxis::Last) - enums::ToIntegral(MouseAxis::First);
 
     constexpr onyxU16 ToIndex(MouseButton button)
     {
-#if ONYX_ASSERTS_ENABLED
-        constexpr onyxU16 first = Enums::ToIntegral(MouseButton::First);
-        constexpr onyxU16 last = Enums::ToIntegral(MouseButton::Last);
-        ONYX_ASSERT(Enums::ToIntegral(button) > first);
-        ONYX_ASSERT(Enums::ToIntegral(button) < last);
+#if ONYX_ASSERT_ENABLED
+        constexpr onyxU16 first = enums::ToIntegral(MouseButton::First);
+        constexpr onyxU16 last = enums::ToIntegral(MouseButton::Last);
+        ONYX_ASSERT(enums::ToIntegral(button) > first);
+        ONYX_ASSERT(enums::ToIntegral(button) < last);
 #endif
-        onyxU16 index = Enums::ToIntegral(button) - 1; // mouse buttons first is set to 0
+        onyxU16 index = enums::ToIntegral(button) - 1; // mouse buttons first is set to 0
         return index;
 
     }

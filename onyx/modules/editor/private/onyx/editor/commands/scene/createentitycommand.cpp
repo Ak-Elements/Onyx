@@ -5,18 +5,18 @@
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    CreateEntityCommand::CreateEntityCommand(Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem)
+    CreateEntityCommand::CreateEntityCommand(assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem)
         : SceneCommand("CreateEntity", sceneId, gameCoreSystem)
     {
     }
 
     void CreateEntityCommand::Execute()
     {
-        Entity::EntityRegistry& registry = GetScene().GetRegistry();
+        ecs::EntityRegistry& registry = GetScene().GetRegistry();
         
-        if (m_EntityId == Entity::EntityId::Invalid)
+        if (m_EntityId == ecs::EntityId::Invalid)
         {
             m_EntityId = registry.CreateEntity();
         }
@@ -25,8 +25,8 @@ namespace Onyx::Editor
             std::ignore = registry.CreateEntity(m_EntityId);
         }
 
-        registry.AddComponent<GameCore::IdComponent>(m_EntityId);
-        registry.AddComponent<GameCore::NameComponent>(m_EntityId, "New Entity");
-        registry.AddComponent<GameCore::TransformComponent>(m_EntityId);
+        registry.AddComponent<game_core::IdComponent>(m_EntityId);
+        registry.AddComponent<game_core::NameComponent>(m_EntityId, "New Entity");
+        registry.AddComponent<game_core::TransformComponent>(m_EntityId);
     }
 }

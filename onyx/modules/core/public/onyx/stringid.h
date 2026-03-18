@@ -2,7 +2,7 @@
 
 #include <onyx/serialize/serialization.h>
 
-namespace Onyx
+namespace onyx
 {
     class Serializer;
 
@@ -90,7 +90,7 @@ namespace Onyx
 
         constexpr StringId(StringView string)
 #if ONYX_IS_RETAIL
-            : Id(Hash::FNV1aHash<T>(string))
+            : Id(hash::FNV1aHash<T>(string))
 #else
             : m_IdString([&]() -> StringView
                 {
@@ -103,7 +103,7 @@ namespace Onyx
                         return GetIdCache().Store(string);
                     }
                 }())
-            , m_Id(Hash::FNV1aHash<T>(string))
+            , m_Id(hash::FNV1aHash<T>(string))
 #endif
         {
         }
@@ -188,27 +188,27 @@ namespace Onyx
 namespace std
 {
     template<>
-    struct hash<Onyx::StringId32>
+    struct hash<onyx::StringId32>
     {
-        size_t operator()(const Onyx::StringId32& id) const noexcept
+        size_t operator()(const onyx::StringId32& id) const noexcept
         {
             return id.GetId();
         }
     };
 
     template<>
-    struct hash<Onyx::StringId64>
+    struct hash<onyx::StringId64>
     {
-        size_t operator()(const Onyx::StringId64& id) const noexcept
+        size_t operator()(const onyx::StringId64& id) const noexcept
         {
             return id.GetId();
         }
     };
 
     template <>
-    struct formatter<Onyx::StringId32> : std::formatter<std::string>
+    struct formatter<onyx::StringId32> : std::formatter<std::string>
     {
-        auto format(Onyx::StringId32 id, format_context& ctx) const
+        auto format(onyx::StringId32 id, format_context& ctx) const
         {
 #if ONYX_IS_RETAIL
             return std::format_to(ctx.out(), "{}({})", id.GetId());
@@ -219,9 +219,9 @@ namespace std
     };
 
     template <>
-    struct formatter<Onyx::StringId64> : std::formatter<std::string>
+    struct formatter<onyx::StringId64> : std::formatter<std::string>
     {
-        auto format(Onyx::StringId64 id, format_context& ctx) const
+        auto format(onyx::StringId64 id, format_context& ctx) const
         {
 #if ONYX_IS_RETAIL
             return std::format_to(ctx.out(), "{}", id.GetId());

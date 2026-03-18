@@ -3,7 +3,7 @@
 #include <onyx/assert.h>
 #include <onyx/inplacefunction.h>
 
-namespace Onyx
+namespace onyx
 {
 	template <typename... Args>
 	class EventDispatcher

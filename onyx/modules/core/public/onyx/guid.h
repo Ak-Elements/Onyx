@@ -3,7 +3,7 @@
 
 #include <onyx/serialize/serialization.h>
 
-namespace Onyx
+namespace onyx
 {
     class Serializer;
 
@@ -90,9 +90,9 @@ namespace Onyx
 namespace std
 {
     template<>
-    struct hash<Onyx::Guid64>
+    struct hash<onyx::Guid64>
     {
-        size_t operator()(const Onyx::Guid64& guid) const noexcept
+        size_t operator()(const onyx::Guid64& guid) const noexcept
         {
             return guid.Get();
         }

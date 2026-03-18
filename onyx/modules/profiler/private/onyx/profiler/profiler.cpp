@@ -1,6 +1,6 @@
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Profiler
+namespace onyx::Profiler
 {
     void Profiler::Update()
     {

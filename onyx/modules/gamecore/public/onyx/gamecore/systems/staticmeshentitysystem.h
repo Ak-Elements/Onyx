@@ -1,11 +1,11 @@
 #pragma once
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EcsBuilder;
 }
 
-namespace Onyx::GameCore::StaticMeshEntitySystem
+namespace onyx::game_core::static_mesh
 {
-    void registerSystems(Entity::EcsBuilder& ecsBuilder);
+    void registerSystems(ecs::EcsBuilder& ecsBuilder);
 }

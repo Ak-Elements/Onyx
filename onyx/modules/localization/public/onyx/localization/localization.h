@@ -2,12 +2,12 @@
 
 #include <onyx/localization/localizedstring.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 
     // Generic
-    namespace Generic
+    namespace generic
     {
 #if ONYX_IS_EDITOR
         inline LocalizedString Name;

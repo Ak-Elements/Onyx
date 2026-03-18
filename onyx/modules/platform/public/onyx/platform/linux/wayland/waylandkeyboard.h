@@ -7,7 +7,7 @@ struct wl_surface;
 struct wl_keyboard;
 struct wl_array;
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
 	class WaylandInput;
 

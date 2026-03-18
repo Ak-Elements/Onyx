@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     // TODO: Move out of render pass maybe? LoadOp etc.
     // Simplify?

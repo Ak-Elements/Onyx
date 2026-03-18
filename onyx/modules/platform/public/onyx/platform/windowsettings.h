@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     using ResizeSignalT = Signal<void(Vector2s32)>;
     using FocusSignalT = Signal<void(bool)>;
@@ -63,12 +63,12 @@ namespace Onyx::Platform
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Platform::WindowSettings>
+    struct Serialization<platform::WindowSettings>
     {
-        static bool Serialize(Serializer& serializer, const Platform::WindowSettings& settings);
-        static bool Deserialize(const Deserializer& deserializer, Platform::WindowSettings& outSettings);
+        static bool Serialize(Serializer& serializer, const platform::WindowSettings& settings);
+        static bool Deserialize(const Deserializer& deserializer, platform::WindowSettings& outSettings);
     };
 }

@@ -4,26 +4,26 @@
 
 #include <onyx/localization/localizationbackend.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class ILocalizationBackend;
 }
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     struct LocalizationSettings
     {
         onyxS32 Locale;
         // probably a flag indicating the backend to use
-        Assets::AssetId Database;
+        assets::AssetId Database;
 
 #if !ONYX_IS_RETAIL
-        DynamicArray<Assets::AssetId> SecondaryDatabases;
+        DynamicArray<assets::AssetId> SecondaryDatabases;
 #endif
     };
 
@@ -32,17 +32,17 @@ namespace Onyx::Localization
         friend struct Serialization<LocalizationModule>;
 
     public:
-        static constexpr StringId32 TypeId = "Onyx::Localization::LocalizationModule";
+        static constexpr StringId32 TypeId = "onyx::localization::LocalizationSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        LocalizationModule(const LocalizationSettings& settings, Assets::AssetSystem& assetSystem);
+        LocalizationModule(const LocalizationSettings& settings, assets::AssetSystem& assetSystem);
 
         LocalizedString GetLocalized(LocalizationId id) const;
         Optional<StringView> TryGetLocalized(LocalizationId id) const;
 
 #if !ONYX_IS_RETAIL
-        virtual void AddSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database);
-        virtual void RemoveSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database);
+        virtual void AddSecondaryDatabase(const assets::AssetHandle<GetTextLocalizationDatabase>& database);
+        virtual void RemoveSecondaryDatabase(const assets::AssetHandle<GetTextLocalizationDatabase>& database);
 #endif
 
     private:
@@ -51,12 +51,12 @@ namespace Onyx::Localization
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Localization::LocalizationSettings>
+    struct Serialization<localization::LocalizationSettings>
     {
-        static bool Serialize(Serializer& serializer, const Localization::LocalizationSettings& localizationSettings);
-        static bool Deserialize(const Deserializer& deserializer, Localization::LocalizationSettings& outLocalizationSettings);
+        static bool Serialize(Serializer& serializer, const localization::LocalizationSettings& localizationSettings);
+        static bool Deserialize(const Deserializer& deserializer, localization::LocalizationSettings& outLocalizationSettings);
     };
 }

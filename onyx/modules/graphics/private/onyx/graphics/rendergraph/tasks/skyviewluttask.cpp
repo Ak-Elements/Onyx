@@ -5,7 +5,7 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
     void SkyViewLutRenderGraphNode::OnBeginFrame(RenderGraphContext& context)
     {
@@ -19,8 +19,8 @@ namespace Onyx::Graphics::RenderGraphNodes
         const onyxU64 multipleScatteringLutGlobalId = GetInputPin1().GetLinkedPinGlobalId();
         const RenderGraphResource& multipleScatteringResource = context.Graph.GetResource(multipleScatteringLutGlobalId);
 
-        const TextureHandle& transmittanceTextureHandle = std::get<TextureHandle>(transmittanceResource.Handle);
-        const TextureHandle& multipleScatteringTextureHandle = std::get<TextureHandle>(multipleScatteringResource.Handle);
+        const rhi::TextureHandle& transmittanceTextureHandle = std::get<rhi::TextureHandle>(transmittanceResource.Handle);
+        const rhi::TextureHandle& multipleScatteringTextureHandle = std::get<rhi::TextureHandle>(multipleScatteringResource.Handle);
 
         m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
         m_MultipleScatteringTextureIndex = multipleScatteringTextureHandle.Texture->GetIndex();
@@ -29,11 +29,11 @@ namespace Onyx::Graphics::RenderGraphNodes
         transmittanceInfo.Type = RenderGraphResourceType::Attachment;
     }
 
-    void SkyViewLutRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void SkyViewLutRenderGraphNode::OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
 
         struct PushConstants
         {
@@ -50,8 +50,8 @@ namespace Onyx::Graphics::RenderGraphNodes
         pushConstants.MultipleScatteringTextureIndex = m_MultipleScatteringTextureIndex;
         pushConstants.SunDirection = GetSunDirection(frameContext.TimeOfDay);
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, pushConstants);
-        commandBuffer.Draw(Graphics::PrimitiveTopology::Triangle, 0, 3, 0, 1);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, 0, pushConstants);
+        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 
     Vector3f32 SkyViewLutRenderGraphNode::GetSunDirection(onyxF32 timeOfDay) const

@@ -16,9 +16,9 @@
 #include <imgui_internal.h>
 #include <onyx/localization/localization.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    void EditorMainWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
+    void EditorMainWindow::OnRender(ui::ImGuiSystem& imguiSystem)
     {
         ImGui::SetNextWindowPos(ImVec2{ 0, 0 }, ImGuiCond_Appearing);
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->WorkSize);
@@ -48,64 +48,64 @@ namespace Onyx::Editor
         End();
     }
 
-    void EditorMainWindow::RenderMenuBar(Ui::ImGuiSystem& imguiSystem)
+    void EditorMainWindow::RenderMenuBar(ui::ImGuiSystem& imguiSystem)
     {
         BeginMenuBar();
 
-        if (ImGui::BeginMenu(Format::Format("{}###File", Localization::Generic::File)))
+        if (ImGui::BeginMenu(format::Format("{}###File", localization::generic::File)))
         {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(Format::Format("{}###View", Localization::Editor::MainMenubar::View::Label)))
+        if (ImGui::BeginMenu(format::Format("{}###View", localization::editor::MainMenubar::View::Label)))
         {
-            if (ImGui::MenuItem(Localization::Editor::Windows::StartupTitle.Get().data()))
+            if (ImGui::MenuItem(localization::editor::windows::StartupTitle.Get().data()))
             {
                 imguiSystem.OpenWindow<StartupWindow>();
             }
 
-            if (ImGui::MenuItem(Localization::Editor::SceneEditor::Title.Get().data()))
+            if (ImGui::MenuItem(localization::editor::SceneEditor::Title.Get().data()))
             {
                 imguiSystem.OpenWindow<SceneEditorWindow>();
             }
 
-            if (ImGui::MenuItem(Localization::Editor::Windows::NodeEditorTitle.Get().data()))
+            if (ImGui::MenuItem(localization::editor::windows::NodeEditorTitle.Get().data()))
             {
                 //system.OpenWindow<NodeGraphEditorWindow>();
             }
 
-            if (ImGui::MenuItem(Localization::Editor::Windows::ShaderGraphEditorTitle.Get().data()))
+            if (ImGui::MenuItem(localization::editor::windows::ShaderGraphEditorTitle.Get().data()))
             {
-                ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
-                ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
+                ONYX_ASSERT(ui::g_UiContext.AssetSystem != nullptr);
+                ONYX_ASSERT(ui::g_UiContext.GraphicsSystem != nullptr);
 
                 NodeGraphEditorWindow& window = imguiSystem.OpenWindow<NodeGraphEditorWindow>();
-                window.SetContext(MakeUnique<ShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
+                window.SetContext(MakeUnique<ShaderGraphEditorContext>(*ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem));
             }
 
-            if (ImGui::MenuItem(Localization::Editor::Windows::RenderGraphEditorTitle.Get().data()))
+            if (ImGui::MenuItem(localization::editor::windows::RenderGraphEditorTitle.Get().data()))
             {
                 NodeGraphEditorWindow& window = imguiSystem.OpenWindow<NodeGraphEditorWindow>();
                 window.SetContext(MakeUnique<RenderGraphEditorContext>());
             }
 
-            if (ImGui::MenuItem(Localization::Editor::Windows::VolumeShaderGraphEditorTitle.Get().data()))
+            if (ImGui::MenuItem(localization::editor::windows::VolumeShaderGraphEditorTitle.Get().data()))
             {
-                ONYX_ASSERT(Ui::g_UiContext.AssetSystem != nullptr);
-                ONYX_ASSERT(Ui::g_UiContext.GraphicsSystem != nullptr);
+                ONYX_ASSERT(ui::g_UiContext.AssetSystem != nullptr);
+                ONYX_ASSERT(ui::g_UiContext.GraphicsSystem != nullptr);
 
                 NodeGraphEditorWindow& window = imguiSystem.OpenWindow<NodeGraphEditorWindow>();
-                window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*Ui::g_UiContext.AssetSystem, *Ui::g_UiContext.GraphicsSystem));
+                window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem));
             }
 
-            if (ImGui::BeginMenu(Localization::Editor::MainMenubar::View::Layouts::Label.Get().data()))
+            if (ImGui::BeginMenu(localization::editor::MainMenubar::View::Layouts::Label.Get().data()))
             {
-                if (ImGui::MenuItem(Localization::Generic::Default.Get().data()))
+                if (ImGui::MenuItem(localization::generic::Default.Get().data()))
                 {
                     //Internal::loc_ReloadLayout = true;
                 }
 
-                if (ImGui::MenuItem(Localization::Generic::SaveAs.Get().data()))
+                if (ImGui::MenuItem(localization::generic::SaveAs.Get().data()))
                 {
                     //Internal::loc_SaveLayout = true;
                 }
@@ -117,9 +117,9 @@ namespace Onyx::Editor
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(Format::Format("{}###Project", Localization::Editor::MainMenubar::Project::Label)))
+        if (ImGui::BeginMenu(format::Format("{}###Project", localization::editor::MainMenubar::Project::Label)))
         {
-            if (ImGui::MenuItem(Localization::Editor::InputActionSettings::Title.Get().data()))
+            if (ImGui::MenuItem(localization::editor::InputActionSettings::Title.Get().data()))
             {
                 imguiSystem.OpenUniqueWindow<InputActionSettingsWindow>();
                 //UniquePtr<EditorWindow>& window = m_ActiveWindows.emplace_back(MakeUnique<InputActionSettingsWindow>(m_Application.GetAssetSystem(), m_Application.GetModule<Application::InputSystem>()));
@@ -129,7 +129,7 @@ namespace Onyx::Editor
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(Format::Format("{}###Debug", Localization::Editor::MainMenubar::Debug::Label)))
+        if (ImGui::BeginMenu(format::Format("{}###Debug", localization::editor::MainMenubar::Debug::Label)))
         {
             const HashSet<StringId32>& debugWindows = imguiSystem.GetRegisteredWindows("Debug");
             for (StringId32 windowId : debugWindows)

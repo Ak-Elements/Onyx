@@ -1,11 +1,11 @@
 #pragma once
 #include <onyx/editor/assets/importer/assetimporter.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class TextureImporter : public AssetImporter
     {
     private:
-        AssetImportResult DoImport(const FilePath& path, Assets::AssetMetaData& outAssetMeta) override;
+        AssetImportResult DoImport(const FilePath& path, assets::AssetMetaData& outAssetMeta) override;
     };
 }

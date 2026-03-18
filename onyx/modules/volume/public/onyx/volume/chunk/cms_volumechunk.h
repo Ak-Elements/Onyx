@@ -3,7 +3,7 @@
 #include <onyx/eventhandler.h>
 //#include <onyx/volume/mesh/meshbuilder.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class MeshBuilder;
     namespace CubicalMarchingSquares

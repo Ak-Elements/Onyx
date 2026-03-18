@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     bool ColorInput(StringView id, Vector3u8& rgb);
     bool ColorInput(StringView id, Vector4u8& rgba);

@@ -6,24 +6,24 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
     static constexpr onyxU8 CLUSTER_X = 16;
     static constexpr onyxU8 CLUSTER_Y = 9;
     static constexpr onyxU8 CLUSTER_Z = 24;
     static constexpr onyxU32 MAX_LIGHTS_PER_CLUSTER = 100;
 
-    class CreateLightClusters : public NodeGraph::FixedPinNode_1_Out<RenderGraphFixedShaderNode, BufferHandle>
+    class CreateLightClusters : public node_graph::FixedPinNode_1_Out<RenderGraphFixedShaderNode, rhi::BufferHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::CreateLightClusters";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CreateLightClusters";
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
+        void OnInit(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
 
         void OnBeginFrame(RenderGraphContext& context) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
     private:
         struct Constants
@@ -38,22 +38,22 @@ namespace Onyx::Graphics::RenderGraphNodes
             Vector2u32 Padding;
         };
 
-        InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_LightClustersStorageBuffers;
+        InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_LightClustersStorageBuffers;
     };
 
-    class UpdateLightClustersRenderGraphNode : public NodeGraph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, BufferHandle, BufferHandle, BufferHandle, BufferHandle>
+    class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::BufferHandle, rhi::BufferHandle, rhi::BufferHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::UpdateLightClusters";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::UpdateLightClusters";
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = NodeGraph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, BufferHandle, BufferHandle, BufferHandle, BufferHandle>;
+        using Super = node_graph::FixedPinNode_1_In_3_Out<RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::BufferHandle, rhi::BufferHandle, rhi::BufferHandle>;
 
-        void OnInit(GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache) override;
+        void OnInit(rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache) override;
 
         void OnBeginFrame(RenderGraphContext& context) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
         StringView GetPinName(StringId32 pinId) const override
@@ -72,11 +72,11 @@ namespace Onyx::Graphics::RenderGraphNodes
 #endif
 
     private:
-        InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_LightIndexListSSBO;
-        InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_LightGridSSBO;
-        InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_LightIndexGlobalCountSSBO;
+        InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_LightIndexListSSBO;
+        InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_LightGridSSBO;
+        InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_LightIndexGlobalCountSSBO;
 
-        InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_LightsStorageBuffers;
+        InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_LightsStorageBuffers;
     };
 
 

@@ -2,12 +2,12 @@
 
 #include <onyx/inputactions/triggers/inputtrigger.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     class InputSystem;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     class InputActionSystem;
 
@@ -15,10 +15,10 @@ namespace Onyx::InputActions
     {
         friend struct Serialization<DependantActionInputTrigger>;
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Input::DependantActionInputTrigger" };
+        static constexpr StringId32 TypeId{ "onyx::input::DependantActionInputTrigger" };
         StringId32 GetTypeId() const override { return TypeId; }
 
-        bool IsTriggered(const Input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem) const override;
+        bool IsTriggered(const input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem) const override;
 
         StringId64& GetActionId() { return m_ActionId; }
         void SetActionId(StringId64 id) { m_ActionId = id; }
@@ -29,12 +29,12 @@ namespace Onyx::InputActions
 }
 
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<InputActions::DependantActionInputTrigger>
+    struct Serialization<input_actions::DependantActionInputTrigger>
     {
-        static bool Serialize(Serializer& serializer, const InputActions::DependantActionInputTrigger& trigger);
-        static bool Deserialize(const Deserializer& deserializer, InputActions::DependantActionInputTrigger& outTrigger);
+        static bool Serialize(Serializer& serializer, const input_actions::DependantActionInputTrigger& trigger);
+        static bool Deserialize(const Deserializer& deserializer, input_actions::DependantActionInputTrigger& outTrigger);
     };
 }

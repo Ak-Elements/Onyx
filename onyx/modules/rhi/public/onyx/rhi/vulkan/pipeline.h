@@ -4,7 +4,7 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class RenderContext;
     class Device;
@@ -12,7 +12,7 @@ namespace Onyx::Graphics::Vulkan
     class VulkanGraphicsApi;
     class Shader;
 
-    class Pipeline : public Graphics::Pipeline
+    class Pipeline : public rhi::Pipeline
     {
     public:
         Pipeline(const VulkanGraphicsApi& api, const PipelineProperties& properties, ShaderHandle& shader);

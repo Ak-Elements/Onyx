@@ -3,7 +3,7 @@
 #include <onyx/rhi/viewconstants.h>
 #include <onyx/rhi/lighting/lighting.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
 

@@ -2,11 +2,11 @@
 
 #include <onyx/rhi/commandbuffer.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    void CreateTransmittanceRenderGraphNode::OnRender(RenderGraphContext& /*context*/, CommandBuffer& commandBuffer)
+    void CreateTransmittanceRenderGraphNode::OnRender(RenderGraphContext& /*context*/, rhi::CommandBuffer& commandBuffer)
     {
-        commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, 0, 1);
+        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 
 #if ONYX_IS_EDITOR

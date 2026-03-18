@@ -329,7 +329,7 @@ namespace
     //    // draw dashed hill background
     //    float dashLength = 2.0f;
     //    float gap = 1.0f;
-    //    Onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
+    //    onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
     //    dl->PathClear();
 
     //    AddDashedCubicBezier(dl,
@@ -408,7 +408,7 @@ namespace
     //    float dashLength = 2.0f;
     //    float gap = 1.0f;
     //    
-    //    Onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
+    //    onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
     //    dl->PathClear();
     //    AddDashedCubicBezier(dl,
     //        ImVec2(dashedHillLeftStart, baseY),
@@ -540,7 +540,7 @@ namespace
     //    ImVec2 chiselBottom(centerX + bottomOffset.x * scale, centerY + bottomOffset.y * scale);
     //    DrawRoundedTriangle(chiselTip, chiselTop, chiselBottom, 1.0f, 0xFF0000FF);
 
-    //    Onyx::Vector2f32 direction(chiselTop.x - chiselBottom.x, chiselTop.y - chiselBottom.y);
+    //    onyx::Vector2f32 direction(chiselTop.x - chiselBottom.x, chiselTop.y - chiselBottom.y);
     //    direction.Normalize();
 
     //    float handleWidth = 0.02f * size;
@@ -554,7 +554,7 @@ namespace
     //    drawList->PathLineTo(handleBottomRight + ImVec2(handleLength, -handleHeight - 5.0f));
     //    drawList->PathLineTo(handleBottomRight + ImVec2(0, -handleHeight));
     //    drawList->PathLineTo(handleBottomRight);
-    //    drawList->PathArcTo(handleCenter, radius, Onyx::ToRadians(50.0f), Onyx::ToRadians(230.0f));
+    //    drawList->PathArcTo(handleCenter, radius, onyx::ToRadians(50.0f), onyx::ToRadians(230.0f));
     //    drawList->PathLineTo(handleBottomLeft);
     //    drawList->PathLineTo(handleBottomLeft + ImVec2(0, -handleHeight));
     //    drawList->PathLineTo(handleBottomLeft + ImVec2(handleLength, -handleHeight - 5.0f));
@@ -667,43 +667,43 @@ namespace
     //}
 }
 
-namespace Onyx::Editor::SceneEditor
+namespace onyx::editor::scene_editor
 {
     void TerrainPanel::OnOpen()
     {
-        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
-        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
+        input_actions::InputActionSystem& inputActionSystem = GetEngineSystem<input_actions::InputActionSystem>();
+        rhi::GraphicsSystem& graphicsSystem = GetEngineSystem<rhi::GraphicsSystem>();
 
         inputActionSystem.OnInput<&TerrainPanel::OnTerrainPanelBrushSizeInput>("TerrainBrushScale"_id64, this);
 
         // Should be transient buffers
-        Graphics::BufferProperties ssboBufferProps;
+        rhi::BufferProperties ssboBufferProps;
         ssboBufferProps.m_DebugName = "Terrain Brush Hit";
         ssboBufferProps.m_Size = sizeof(Vector3f32) + sizeof(onyxU32);
-        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress | Graphics::BufferUsage::Conditional);
-        ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
+        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage | rhi::BufferUsage::DeviceAddress | rhi::BufferUsage::Conditional);
+        ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
         graphicsSystem.CreateBuffer(m_HitBuffer, ssboBufferProps);
 
         ssboBufferProps.m_DebugName = "Terrain Brush Hit Readback";
         ssboBufferProps.m_Size = sizeof(Vector3f32) + sizeof(onyxU32);
-        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage);
-        ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Staging;
+        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage);
+        ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Staging;
         //ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Read;
         ssboBufferProps.m_IsWritable = true;
         graphicsSystem.CreateBuffer(m_HitReadbackBuffer, ssboBufferProps);
 
         ssboBufferProps.m_DebugName = "Split Update Request";
         ssboBufferProps.m_Size = sizeof(onyxU64) + 2 * sizeof(onyxU32);
-        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
-        ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
+        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage | rhi::BufferUsage::DeviceAddress);
+        ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
         graphicsSystem.CreateBuffer(m_SplitRequestsBuffer, ssboBufferProps);
 
         ssboBufferProps.m_DebugName = "Collapse Update Request";
         ssboBufferProps.m_Size = sizeof(onyxU64) + 2 * sizeof(onyxU32);
-        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Storage | Graphics::BufferUsage::DeviceAddress);
-        ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Write;
+        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage | rhi::BufferUsage::DeviceAddress);
+        ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
         graphicsSystem.CreateBuffer(m_CollapseRequestsBuffer, ssboBufferProps);
 
@@ -716,11 +716,11 @@ namespace Onyx::Editor::SceneEditor
 
     void TerrainPanel::OnClose()
     {
-        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionSystem = GetEngineSystem<input_actions::InputActionSystem>();
         inputActionSystem.Disconnect(this);
     }
 
-    void TerrainPanel::OnRender(Ui::ImGuiSystem& imguiSystem)
+    void TerrainPanel::OnRender(ui::ImGuiSystem& imguiSystem)
     {
         ONYX_ASSERT(m_CurrentScene != nullptr);
         
@@ -736,11 +736,11 @@ namespace Onyx::Editor::SceneEditor
         bool isUsingAnyGizmo = ImGuizmo::IsUsingAny();
         bool isHoveringGizmo = ImGuizmo::IsOver();
 
-        Reference<Graphics::RenderGraph> renderGraph;//TODO: = m_GraphicsSystem.GetRenderGraph();
+        Reference<graphics::RenderGraph> renderGraph;//TODO: = m_GraphicsSystem.GetRenderGraph();
         if (renderGraph.IsValid() == false)
             return;
 
-        Graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
+        graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
 
         if (isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo)
         {
@@ -748,16 +748,16 @@ namespace Onyx::Editor::SceneEditor
             return;
         }
 
-        Entity::EntityRegistry& registry = m_CurrentScene->GetRegistry();
-        auto runtimeComponentsView = registry.GetView<Volume::TerrainSettingsComponent, Volume::TerrainWorldOctreeComponent, const Volume::VolumeGenerationComponent>();
+        ecs::EntityRegistry& registry = m_CurrentScene->GetRegistry();
+        auto runtimeComponentsView = registry.GetView<volume::TerrainSettingsComponent, volume::TerrainWorldOctreeComponent, const volume::VolumeGenerationComponent>();
 
         if (runtimeComponentsView.begin() == runtimeComponentsView.end())
             return;
 
-        const Entity::EntityId terrainEntity = runtimeComponentsView.front();
-        const Volume::TerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<Volume::TerrainSettingsComponent>(terrainEntity);
-        Volume::TerrainWorldOctreeComponent& terrainOctree = runtimeComponentsView.get<Volume::TerrainWorldOctreeComponent>(terrainEntity);
-        const Volume::VolumeGenerationComponent& volumeGenerationComponent = runtimeComponentsView.get<const Volume::VolumeGenerationComponent>(terrainEntity);
+        const ecs::EntityId terrainEntity = runtimeComponentsView.front();
+        const volume::TerrainSettingsComponent& terrainSettings = runtimeComponentsView.get<volume::TerrainSettingsComponent>(terrainEntity);
+        volume::TerrainWorldOctreeComponent& terrainOctree = runtimeComponentsView.get<volume::TerrainWorldOctreeComponent>(terrainEntity);
+        const volume::VolumeGenerationComponent& volumeGenerationComponent = runtimeComponentsView.get<const volume::VolumeGenerationComponent>(terrainEntity);
 
         if (terrainOctree.OctreeGpuBuffer == false)
         {
@@ -768,22 +768,22 @@ namespace Onyx::Editor::SceneEditor
         hitBufferResource.Info.Id = HIT_BUFFER_RESOURCE_ID;
         hitBufferResource.Info.Name = "terrain hit";
         
-        hitBufferResource.Info.Type = Graphics::RenderGraphResourceType::Buffer;
+        hitBufferResource.Info.Type = graphics::RenderGraphResourceType::Buffer;
         hitBufferResource.Handle = m_HitBuffer;
 
         Rect2f32 sceneViewport{ sceneViewWindow->Pos.x, sceneViewWindow->Pos.y, sceneViewWindow->Viewport->Size.x,sceneViewWindow->Viewport->Size.y };
 
-        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
-        Graphics::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer(graphicsSystem.GetFrameIndex(), true);
+        rhi::GraphicsSystem& graphicsSystem = GetEngineSystem<rhi::GraphicsSystem>();
+        rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer(graphicsSystem.GetFrameIndex(), true);
         TraceTerrain(computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport);
 
         bool hasClickedLeft = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
         if (hasClickedLeft)
         {
-            Graphics::ConditionalRender conditional(computeCommandBuffer, m_HitBuffer, sizeof(Vector3f32));
+            rhi::ConditionalRender conditional(computeCommandBuffer, m_HitBuffer, sizeof(Vector3f32));
             
             {
-                computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+                computeCommandBuffer.Barrier(m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderRead);
                 ReadbackTerrainHit(computeCommandBuffer);
                 m_Tools[m_SelectedTab]->ApplyOperation(computeCommandBuffer, m_HitBuffer, terrainOctree);
             }
@@ -793,7 +793,7 @@ namespace Onyx::Editor::SceneEditor
             UpdateTerrainMesh(computeCommandBuffer, terrainSettings, terrainOctree);
         }
 
-        if (void* data = m_HitReadbackBuffer.Buffer->Map(Graphics::MapMode::Read))
+        if (void* data = m_HitReadbackBuffer.Buffer->Map(rhi::MapMode::Read))
         {
             struct HitData
             {
@@ -805,9 +805,9 @@ namespace Onyx::Editor::SceneEditor
             if (hitData->HasHit)
             {
                 hitData->HasHit = false;
-                const GameCore::GameCoreSystem& gameCoreSystem = GetEngineSystem<GameCore::GameCoreSystem>();
+                const game_core::GameCoreSystem& gameCoreSystem = GetEngineSystem<game_core::GameCoreSystem>();
                 m_Tools[m_SelectedTab]->OnHitPositionReadback(*m_CurrentScene, gameCoreSystem.GetComponentFactory(), hitData->HitPositon);
-                registry.AddComponent<Volume::Terrain::InitTerrainFlag>(runtimeComponentsView.front());
+                registry.AddComponent<volume::terrain::InitTerrainFlag>(runtimeComponentsView.front());
             }
 
         }
@@ -841,7 +841,7 @@ namespace Onyx::Editor::SceneEditor
         bool isVisible = ImGui::Begin("Terrain Toolbar", nullptr, flags);
         if (isVisible)
         {
-            Ui::ScopedImGuiColor styleColor
+            ui::ScopedImGuiColor styleColor
             {
                 { ImGuiCol_TableRowBg, 0x0 },
                 { ImGuiCol_NavCursor, 0x0 }
@@ -877,7 +877,7 @@ namespace Onyx::Editor::SceneEditor
         }
     }
 
-    void TerrainPanel::TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewport)
+    void TerrainPanel::TraceTerrain(rhi::CommandBuffer& computeCommandBuffer, volume::TerrainWorldOctreeComponent& terrainOctree, const volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewport)
     {
         struct RayTraceTerrainPushConstants
         {
@@ -893,7 +893,7 @@ namespace Onyx::Editor::SceneEditor
         ImVec2 mousePos = ImGui::GetMousePos();
         RayTraceTerrainPushConstants constants;
         
-        Graphics::GraphicsSystem& graphicsSystem = GetEngineSystem<Graphics::GraphicsSystem>();
+        rhi::GraphicsSystem& graphicsSystem = GetEngineSystem<rhi::GraphicsSystem>();
         constants.MousePosition[0] = ((mousePos.x - sceneViewport.Position[0]) / sceneViewport.Extents[0]) * 2.0f - 1.0f;
         constants.MousePosition[1] = (((mousePos.y - sceneViewport.Position[1]) / sceneViewport.Extents[1]) * -2.0f + 1.0f);
         constants.ViewConstantsAddress = graphicsSystem.GetViewConstantsBuffer().GetGpuAddress();
@@ -901,21 +901,21 @@ namespace Onyx::Editor::SceneEditor
         constants.VolumeSourcesList = terrainOctree.VolumeObjects.GetGpuAddress();
         constants.VolumeSourcesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
 
-        computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-        computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+        computeCommandBuffer.Barrier(m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite);
+        computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead);
+        computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead);
         computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.RayTraceTerrainShader);
-        computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, constants);
+        computeCommandBuffer.BindPushConstants(rhi::ShaderStage::Compute, 0, constants);
         computeCommandBuffer.Dispatch(1, 1, 1);
-        computeCommandBuffer.Barrier(m_HitBuffer, Graphics::Context::Compute, Graphics::Access::ShaderRead | Graphics::Access::IndirectRead);
+        computeCommandBuffer.Barrier(m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderRead | rhi::Access::IndirectRead);
     }
 
-    void TerrainPanel::ReadbackTerrainHit(Graphics::CommandBuffer& computeCommandBuffer)
+    void TerrainPanel::ReadbackTerrainHit(rhi::CommandBuffer& computeCommandBuffer)
     {
         computeCommandBuffer.Copy(m_HitBuffer, m_HitReadbackBuffer);
     }
 
-    void TerrainPanel::FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent)
+    void TerrainPanel::FindWorldOctreeNode(rhi::CommandBuffer& computeCommandBuffer, const volume::TerrainSettingsComponent& terrainSettings, volume::TerrainWorldOctreeComponent& terrainOctree, const volume::VolumeGenerationComponent& volumeGenerationComponent)
     {
         struct FindOctreeNodePushConstants
         {
@@ -956,21 +956,21 @@ namespace Onyx::Editor::SceneEditor
         findOctreeNodeConstants.MaxGeometricError = terrainSettings.MaxGeometricError;
         findOctreeNodeConstants.ComplexSurfaceThreshold = terrainSettings.ComplexSurfaceThreshold;
 
-        computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+        computeCommandBuffer.Barrier(terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead);
+        computeCommandBuffer.Barrier(terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead);
         computeCommandBuffer.BindShaderEffect(volumeGenerationComponent.FindRayTracedOctreeNodeShader);
-        computeCommandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, findOctreeNodeConstants);
+        computeCommandBuffer.BindPushConstants(rhi::ShaderStage::Compute, 0, findOctreeNodeConstants);
         computeCommandBuffer.Dispatch(1, 1, 1);
     }
 
-    void TerrainPanel::UpdateTerrainMesh(const Graphics::CommandBuffer& commandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree)
+    void TerrainPanel::UpdateTerrainMesh(const rhi::CommandBuffer& commandBuffer, const volume::TerrainSettingsComponent& terrainSettings, volume::TerrainWorldOctreeComponent& terrainOctree)
     {
         ONYX_UNUSED(commandBuffer);
         ONYX_UNUSED(terrainSettings);
         ONYX_UNUSED(terrainOctree);
     }
 
-    void TerrainPanel::OnTerrainPanelBrushSizeInput(const InputActions::InputActionEvent& inputEvent)
+    void TerrainPanel::OnTerrainPanelBrushSizeInput(const input_actions::InputActionEvent& inputEvent)
     {
         onyxF32 inputValue = inputEvent.GetData<onyxF32>();
         m_Tools[m_SelectedTab]->OnBrushSizeInput(inputValue);

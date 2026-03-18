@@ -6,7 +6,7 @@
 
 #include <onyx/serialize/serialization.h>
 
-namespace Onyx
+namespace onyx
 {
     template <>
     struct Serialization<Vector2f32>

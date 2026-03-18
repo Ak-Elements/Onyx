@@ -16,7 +16,7 @@ namespace JPH
     class JobSystemThreadPool;
 }
 
-namespace Onyx::Physics::Jolt
+namespace onyx::physics::jolt
 {
     class JoltBroadPhaseInterface;
 

@@ -1,7 +1,7 @@
 #pragma once 
 
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     template <typename T>
     class InputTypeFactory

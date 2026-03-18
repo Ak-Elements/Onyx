@@ -4,7 +4,7 @@
 #include <onyx/serialize/deserializer.h>
 #include <nlohmann/json_fwd.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     class JsonDeserializer : public Deserializer
     {

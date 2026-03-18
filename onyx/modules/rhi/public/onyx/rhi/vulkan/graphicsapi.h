@@ -4,12 +4,12 @@
 #include <onyx/rhi/graphicsresourcepool.h>
 #include <onyx/rhi/sampler.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class Sampler;
     struct RenderPassSettings;
 
-    namespace Vulkan
+    namespace vulkan
     {
         class CommandBufferManager;
         class Semaphore;
@@ -70,7 +70,7 @@ namespace Onyx::Graphics
             void SubmitInstantCommandBuffer(Context context, onyxU8 frameIndex, InplaceFunction<void(CommandBuffer&)>&& functor) override;
 
             const DescriptorPool& GetDescriptorPool() const { return *m_DescriptorPool; }
-            Reference<Graphics::Sampler> GetSampler(SamplerProperties properties) const;
+            Reference<rhi::Sampler> GetSampler(SamplerProperties properties) const;
 
             const DescriptorSetLayout& GetBindlessDescriptorSetLayout() const { ONYX_ASSERT(m_BindlessDescriptorSetLayout != nullptr); return *m_BindlessDescriptorSetLayout; }
             const DescriptorSet& GetBindlessDescriptorSet() const { ONYX_ASSERT(m_BindlessDescriptorSets != nullptr); return *m_BindlessDescriptorSets; }
@@ -79,7 +79,7 @@ namespace Onyx::Graphics
 
         private:
             void WaitIdle() const override;
-            void CreateSwapchain(const Platform::Window& window) override;
+            void CreateSwapchain(const platform::Window& window) override;
             
             TextureHandle& GetAcquiredSwapChainImage() override;
             const TextureHandle& GetAcquiredSwapChainImage() const override;
@@ -133,7 +133,7 @@ namespace Onyx::Graphics
             UniquePtr<Fence> m_GraphicsSingleSubmitFence;
             UniquePtr<Fence> m_ComputeSingleSubmitFence;
 
-            HashMap<onyxU32, Reference<Graphics::Sampler>> m_Samplers;
+            HashMap<onyxU32, Reference<rhi::Sampler>> m_Samplers;
 
             // TODO Move to command buffer manager
             InplaceArray<CommandBuffer*, COMMAND_BUFFER_COUNT> m_QueuedCommandBuffer;

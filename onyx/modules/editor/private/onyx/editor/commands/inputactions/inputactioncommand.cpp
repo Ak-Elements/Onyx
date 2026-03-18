@@ -2,7 +2,7 @@
 
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     InputActionCommand::InputActionCommand(StringId32 id, InputActionSettingsWindow& inputSettingsWindow)
         : ICommand(id)
@@ -11,7 +11,7 @@ namespace Onyx::Editor
     {
     }
 
-    InputActions::InputActionsMap& InputActionCommand::GetInputActionsContext()
+    input_actions::InputActionsMap& InputActionCommand::GetInputActionsContext()
     {
         ONYX_ASSERT(m_AssetId == m_SettingsWindow->GetOpenAssetId());
         return m_SettingsWindow->GetOpenActionsContext();

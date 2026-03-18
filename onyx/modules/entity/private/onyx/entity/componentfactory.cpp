@@ -1,6 +1,6 @@
 #include <onyx/entity/componentfactory.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     bool ComponentFactory::TryCreateComponent(EntityRegistry& registry, EntityId entity, StringId32 componentId) const
     {

@@ -9,14 +9,18 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/nodegraph/graph.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct FrameContext;
+}
+
+namespace onyx::graphics
+{
     class IRenderGraphNode;
 
     using RenderGraphResourceCache = HashMap<RenderGraphResourceId, RenderGraphResource>;
 
-    class RenderGraph : public Assets::Asset<RenderGraph>
+    class RenderGraph : public assets::Asset<RenderGraph>
     {
         friend class IRenderGraphNode;
 
@@ -24,28 +28,28 @@ namespace Onyx::Graphics
         using LocalNodeId = DirectedGraph::NodeId;
 
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::RenderGraph" };
+        static constexpr StringId32 TypeId{ "onyx::graphics::assets::RenderGraph" };
         StringId32 GetTypeId() const { return TypeId; }
 
         RenderGraph() = default;
         ~RenderGraph() override = default;
 
-        void Init(GraphicsSystem& graphicsSystem);
-        void Shutdown(GraphicsSystem& graphicsSystem);
+        void Init(rhi::GraphicsSystem& graphicsSystem);
+        void Shutdown(rhi::GraphicsSystem& graphicsSystem);
 
         bool HasResource(RenderGraphResourceId id) const;
         RenderGraphResource& GetResource(RenderGraphResourceId id);
         const RenderGraphResource& GetResource(RenderGraphResourceId id) const;
 
-        const TextureHandle& GetFinalTexture() const { return std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle); }
+        const rhi::TextureHandle& GetFinalTexture() const { return std::get<rhi::TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle); }
         
-        void OnSwapChainResized(GraphicsSystem& graphicsSystem);
+        void OnSwapChainResized(rhi::GraphicsSystem& graphicsSystem);
 
         // TODO: Remove this
         RenderGraphResourceCache& GetResourceCache() { return m_ResourceCache; }
 
-        NodeGraph::NodeGraph& GetNodeGraph() { return m_Graph; }
-        const NodeGraph::NodeGraph& GetNodeGraph() const { return m_Graph; }
+        node_graph::NodeGraph& GetNodeGraph() { return m_Graph; }
+        const node_graph::NodeGraph& GetNodeGraph() const { return m_Graph; }
 
         template <typename T>
         T& GetInput()
@@ -62,11 +66,11 @@ namespace Onyx::Graphics
         bool IsInitialized() const { return m_IsInitialized; }
 
     private:
-        void OnBeginFrame(const FrameContext& frameContext);
-        void OnRenderFrame(const FrameContext& context);
-        void OnEndFrame(const FrameContext& frameContext);
+        void OnBeginFrame(const rhi::FrameContext& frameContext);
+        void OnRenderFrame(const rhi::FrameContext& context);
+        void OnEndFrame(const rhi::FrameContext& frameContext);
 
-        bool CreateAttachment(GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
+        bool CreateAttachment(rhi::GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList);
 
         template <typename T>
         void AddInput()
@@ -78,7 +82,7 @@ namespace Onyx::Graphics
     private:
         bool m_IsInitialized = false;
 
-        NodeGraph::NodeGraph m_Graph;
+        node_graph::NodeGraph m_Graph;
         RenderGraphResourceCache m_ResourceCache;
         HashMap<onyxU32, std::any> m_Inputs;
 

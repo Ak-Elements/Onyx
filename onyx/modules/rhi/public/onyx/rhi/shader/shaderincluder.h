@@ -4,7 +4,7 @@
 #include <onyx/rhi/shader/shadercache.h>
 #include <shaderc/shaderc.hpp>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
 	struct ShaderInclude
 	{
@@ -23,16 +23,16 @@ namespace Onyx::Graphics
 namespace std
 {
 	template<>
-	struct hash<Onyx::Graphics::ShaderInclude>
+	struct hash<onyx::rhi::ShaderInclude>
 	{
-		size_t operator()(const Onyx::Graphics::ShaderInclude& data) const noexcept
+		size_t operator()(const onyx::rhi::ShaderInclude& data) const noexcept
 		{
 			return std::filesystem::hash_value(data.IncludedFilePath) ^ data.HashValue;
 		}
 	};
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
 	class ShaderIncluder : public shaderc::CompileOptions::IncluderInterface
 	{

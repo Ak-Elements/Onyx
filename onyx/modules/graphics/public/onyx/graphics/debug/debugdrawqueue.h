@@ -2,7 +2,7 @@
 
 #include <onyx/graphics/debug/debugshapes.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class DebugDrawQueue
     {

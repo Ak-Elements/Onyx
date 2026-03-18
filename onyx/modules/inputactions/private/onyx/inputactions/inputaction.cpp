@@ -2,7 +2,7 @@
 
 #include <onyx/inputactions/bindings/inputbindingsfactory.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     InputAction::InputAction() = default;
 
@@ -54,4 +54,4 @@ namespace Onyx::InputActions
         m_Type = type;
     }
 #endif
-} // namespace Onyx::InputActions
+} // namespace onyx::input_actions

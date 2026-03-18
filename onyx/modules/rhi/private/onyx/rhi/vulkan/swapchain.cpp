@@ -19,9 +19,9 @@
 
 #include <algorithm>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
-    SwapChain::SwapChain(VulkanGraphicsApi& api, const Surface& surface, const Platform::Window& window)
+    SwapChain::SwapChain(VulkanGraphicsApi& api, const Surface& surface, const platform::Window& window)
         : m_GraphicsApi(api)
 		, m_Window(&window)
         , m_Surface(surface)
@@ -195,10 +195,10 @@ namespace Onyx::Graphics::Vulkan
 	    {
 		    TextureHandle& texture = m_SwapchainBuffers[i];
 
-		    Reference<VulkanTextureStorage> textureStorage = Reference<VulkanTextureStorage>::Create(m_GraphicsApi, images[i], Format::Format("Swapchain Image {}", i));
+		    Reference<VulkanTextureStorage> textureStorage = Reference<VulkanTextureStorage>::Create(m_GraphicsApi, images[i], format::Format("Swapchain Image {}", i));
 
 		    texture.Storage = textureStorage;
-		    textureProps.m_DebugName = Format::Format("Swapchain ImageView {}", i);
+		    textureProps.m_DebugName = format::Format("Swapchain ImageView {}", i);
 
 		    texture.Texture = Reference<VulkanTexture, TextureDeleter>::Create(m_GraphicsApi, textureProps, textureStorage.Raw());
 	    }

@@ -4,7 +4,7 @@
 
 struct ImVec2;
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     struct ScopedImGuiStyle
     {

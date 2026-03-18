@@ -17,16 +17,16 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     template<>
-    struct Serialization<Graphics::RenderGraphTextureResourceInfo>
+    struct Serialization<graphics::RenderGraphTextureResourceInfo>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::RenderGraphTextureResourceInfo& textureResourceInfo)
+        static bool Serialize(Serializer& serializer, const graphics::RenderGraphTextureResourceInfo& textureResourceInfo)
         {
             // serialize type and other parameters if not a reference
             return serializer.Write<"type">(textureResourceInfo.Type) && (
-                (textureResourceInfo.Type == Graphics::RenderGraphResourceType::Reference) ||
+                (textureResourceInfo.Type == graphics::RenderGraphResourceType::Reference) ||
                 (
                     // only serialize if not a reference
                     serializer.Write<"external">(textureResourceInfo.IsExternal) &&
@@ -38,11 +38,11 @@ namespace Onyx
                 ));
         }
 
-        static bool Deserialize(const Deserializer& deserializer, Graphics::RenderGraphTextureResourceInfo& outTextureResourceInfo)
+        static bool Deserialize(const Deserializer& deserializer, graphics::RenderGraphTextureResourceInfo& outTextureResourceInfo)
         {
             // deserialize type and other parameters if not a reference
             return deserializer.Read<"type">(outTextureResourceInfo.Type) && (
-                (outTextureResourceInfo.Type == Graphics::RenderGraphResourceType::Reference) ||
+                (outTextureResourceInfo.Type == graphics::RenderGraphResourceType::Reference) ||
                 (
                     // only deserialize if not a reference
                     deserializer.Read<"external">(outTextureResourceInfo.IsExternal) &&
@@ -56,15 +56,15 @@ namespace Onyx
     };
 
     template<>
-    struct Serialization<Graphics::RenderGraphBufferResourceInfo>
+    struct Serialization<graphics::RenderGraphBufferResourceInfo>
     {
-        static bool Serialize(Serializer&, const Graphics::RenderGraphBufferResourceInfo&)
+        static bool Serialize(Serializer&, const graphics::RenderGraphBufferResourceInfo&)
         {
             // serialize type and other parameters if not a reference
             return true;
         }
 
-        static bool Deserialize(const Deserializer&, Graphics::RenderGraphBufferResourceInfo&)
+        static bool Deserialize(const Deserializer&, graphics::RenderGraphBufferResourceInfo&)
         {
             // not supported but needed for the graph pins
             return true;
@@ -72,9 +72,9 @@ namespace Onyx
     };
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    void RenderGraphShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::Init(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         // TODO: Cleanup render graph resources from transition to node graph
         // Resource and output info's both store the type (Reference / Attachment etc.)
@@ -84,7 +84,7 @@ namespace Onyx::Graphics
         const onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            const NodeGraph::PinBase* outputPin = GetOutputPin(i);
+            const node_graph::PinBase* outputPin = GetOutputPin(i);
             const RenderGraphTextureResourceInfo& outputInfo = GetOuputResourceInfo(i);
 
             RenderGraphResource& resource = resourceCache[outputPin->GetGlobalId()];
@@ -121,7 +121,7 @@ namespace Onyx::Graphics
         m_HasBegunFrame = true;
     }
 
-    void RenderGraphShaderNode::Shutdown(GraphicsSystem& api)
+    void RenderGraphShaderNode::Shutdown(rhi::GraphicsSystem& api)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -131,7 +131,7 @@ namespace Onyx::Graphics
         OnShutdown(api);
     }
 
-    void RenderGraphShaderNode::Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::Compile(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -144,22 +144,22 @@ namespace Onyx::Graphics
         UpdateFramebuffer(api, resourceCache);
     }
 
-    void RenderGraphShaderNode::PreRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void RenderGraphShaderNode::PreRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
         commandBuffer.BeginDebugLabel(GetTypeId().GetString(), Vector4f32{ 1.0f });
 #endif
-        //Vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<Vulkan::VulkanCommandBuffer&>(commandBuffer);
+        //vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<vulkan::VulkanCommandBuffer&>(commandBuffer);
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            const NodeGraph::PinBase* inputPin = GetInputPin(i);
+            const node_graph::PinBase* inputPin = GetInputPin(i);
             if (inputPin->IsConnected() == false)
                 continue;
 
-            if (inputPin->GetType() != static_cast<NodeGraph::PinTypeId>(TypeHash<TextureHandle>()))
+            if (inputPin->GetType() != static_cast<node_graph::PinTypeId>(TypeHash<rhi::TextureHandle>()))
                 continue;
 
             RenderGraphResource& input = context.Graph.GetResource(inputPin->GetLinkedPinGlobalId());
@@ -169,17 +169,17 @@ namespace Onyx::Graphics
                 continue;
             }
             
-            TextureHandle& textureHandle = std::get<TextureHandle>(input.Handle);
+            rhi::TextureHandle& textureHandle = std::get<rhi::TextureHandle>(input.Handle);
             
             // TODO: Fix barriers
             const RenderGraphTextureResourceInfo& attachmentInfo = m_InputAttachmentInfos[i];
             if (attachmentInfo.Type == RenderGraphResourceType::Attachment)
             {
-                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::InputAttachmentRead, ImageLayout::AttachmentOptimal);
+                commandBuffer.TransitionLayout(textureHandle, rhi::Context::Graphics, rhi::Access::InputAttachmentRead, rhi::ImageLayout::AttachmentOptimal);
             }
             else
             {
-                commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
+                commandBuffer.TransitionLayout(textureHandle, rhi::Context::Graphics, rhi::Access::ShaderRead, rhi::ImageLayout::ReadOptimal);
                 //storage.TransitionLayout(cmdBuffer, Context::Graphics, 5/*VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL*/, 0x00000020ULL/*VK_ACCESS_2_SHADER_READ_BIT_KHR*/, 0, 1);
             }
         }
@@ -191,18 +191,18 @@ namespace Onyx::Graphics
 
             if (output.Info.Type == RenderGraphResourceType::Attachment)
             {
-                TextureHandle& textureHandle = std::get<TextureHandle>(output.Handle);
-                //Vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<Vulkan::VulkanTextureStorage>();
+                rhi::TextureHandle& textureHandle = std::get<rhi::TextureHandle>(output.Handle);
+                //vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<vulkan::VulkanTextureStorage>();
 
                 // TODO: Fix barriers
-                const TextureStorageProperties& properties = textureHandle.Storage->GetProperties();
-                if (Utils::IsDepthFormat(properties.m_Format))
+                const rhi::TextureStorageProperties& properties = textureHandle.Storage->GetProperties();
+                if (rhi::Utils::IsDepthFormat(properties.m_Format))
                 {
-                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::DepthStencilWrite | Access::DepthStencilRead, ImageLayout::AttachmentOptimal);
+                    commandBuffer.TransitionLayout(textureHandle, rhi::Context::Graphics, rhi::Access::DepthStencilWrite | rhi::Access::DepthStencilRead, rhi::ImageLayout::AttachmentOptimal);
                 }
                 else
                 {
-                    commandBuffer.TransitionLayout(textureHandle, Context::Graphics, Access::ShaderRead | Access::ColorAttachmentWrite, ImageLayout::AttachmentOptimal);
+                    commandBuffer.TransitionLayout(textureHandle, rhi::Context::Graphics, rhi::Access::ShaderRead | rhi::Access::ColorAttachmentWrite, rhi::ImageLayout::AttachmentOptimal);
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace Onyx::Graphics
         OnPreRender(context, commandBuffer);
     }
 
-    void RenderGraphShaderNode::Render(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void RenderGraphShaderNode::Render(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -231,7 +231,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraphShaderNode::PostRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void RenderGraphShaderNode::PostRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -264,7 +264,7 @@ namespace Onyx::Graphics
             deserializer.ReadOptional<"output_buffers">(m_OutputBufferInfos);
     }
 
-    void RenderGraphShaderNode::OnSwapChainResized(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::OnSwapChainResized(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -273,7 +273,7 @@ namespace Onyx::Graphics
         onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            const NodeGraph::PinBase* outputPin = GetOutputPin(i);
+            const node_graph::PinBase* outputPin = GetOutputPin(i);
             const RenderGraphTextureResourceInfo& outputInfo = GetOuputResourceInfo(i);
 
             if (outputInfo.IsExternal)
@@ -285,21 +285,21 @@ namespace Onyx::Graphics
             if (outputInfo.Type == RenderGraphResourceType::Attachment)
             {
                 RenderGraphResource& output = resourceCache[outputPin->GetGlobalId()];
-                TextureHandle& attachment = std::get<TextureHandle>(output.Handle);
+                rhi::TextureHandle& attachment = std::get<rhi::TextureHandle>(output.Handle);
 
                 const RenderGraphTextureResourceInfo& resourceInfo = std::get<RenderGraphTextureResourceInfo>(output.Properties);
 
-                TextureStorageProperties storageProperties;
+                rhi::TextureStorageProperties storageProperties;
                 storageProperties.m_Size = resourceInfo.HasSize ? resourceInfo.Size : swapChainExtent;
                 storageProperties.m_Format = resourceInfo.Format;
                 storageProperties.m_IsFrameBuffer = true;
                 storageProperties.m_IsTexture = true;
-                storageProperties.m_GpuAccess = GPUAccess::Write;
+                storageProperties.m_GpuAccess = rhi::GPUAccess::Write;
 #if ONYX_IS_DEBUG
                 storageProperties.m_DebugName = output.Info.Name + " Storage";
 #endif
                 //[Aaron] do we really want to create the view here?
-                TextureProperties texProp;
+                rhi::TextureProperties texProp;
                 texProp.m_Format = resourceInfo.Format;
                 texProp.m_AllowCubeMapLoads = false;
                 texProp.m_MaxMipLevel = storageProperties.m_MaxMipLevel;
@@ -314,41 +314,41 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraphShaderNode::CreateRenderPass(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::CreateRenderPass(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
-        RenderPassSettings renderPassSettings;
-        RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
+        rhi::RenderPassSettings renderPassSettings;
+        rhi::RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
 
         // handle outputs
         onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            const NodeGraph::PinBase* outputPin = GetOutputPin(i);
+            const node_graph::PinBase* outputPin = GetOutputPin(i);
             const RenderGraphTextureResourceInfo& outputInfo = GetOuputResourceInfo(i);
             if (outputInfo.Type == RenderGraphResourceType::Attachment)
             {
                 const RenderGraphResource& output = resourceCache[outputPin->GetGlobalId()];
                 const RenderGraphTextureResourceInfo& properties = std::get<RenderGraphTextureResourceInfo>(output.Properties);
                 //TODO: add more granularity for only stencil or only depth write
-                if (Utils::IsDepthFormat(properties.Format))
+                if (rhi::Utils::IsDepthFormat(properties.Format))
                 {
-                    RenderPassSettings::Attachment attachment{};
+                    rhi::RenderPassSettings::Attachment attachment{};
                     // TODO: add proper format for depth target
-                    attachment.m_Format = Enums::ToIntegral(properties.Format);
-                    attachment.m_LoadOp = Enums::ToIntegral(RenderPassSettings::LoadOp::Clear);
+                    attachment.m_Format = enums::ToIntegral(properties.Format);
+                    attachment.m_LoadOp = enums::ToIntegral(rhi::RenderPassSettings::LoadOp::Clear);
 
                     renderPassSettings.m_Attachments.Add(attachment);
 
-                    subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::DepthWriteStencilWrite);
+                    subpass.m_AttachmentAccesses.Emplace(rhi::RenderPassSettings::AttachmentAccess::DepthWriteStencilWrite);
                 }
                 else
                 {
-                    RenderPassSettings::Attachment attachment{};
+                    rhi::RenderPassSettings::Attachment attachment{};
 
-                    attachment.m_Format = Enums::ToIntegral(properties.Format);
-                    attachment.m_LoadOp = Enums::ToIntegral(properties.LoadOp);
+                    attachment.m_Format = enums::ToIntegral(properties.Format);
+                    attachment.m_LoadOp = enums::ToIntegral(properties.LoadOp);
                     attachment.m_ClearColor[0] = properties.ClearColor[0];
                     attachment.m_ClearColor[1] = properties.ClearColor[1];
                     attachment.m_ClearColor[2] = properties.ClearColor[2];
@@ -356,7 +356,7 @@ namespace Onyx::Graphics
 
                     renderPassSettings.m_Attachments.Add(attachment);
 
-                    subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::RenderTarget);
+                    subpass.m_AttachmentAccesses.Emplace(rhi::RenderPassSettings::AttachmentAccess::RenderTarget);
                 }
             }
         }
@@ -365,31 +365,31 @@ namespace Onyx::Graphics
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            const NodeGraph::PinBase* inputPin = GetInputPin(i);
+            const node_graph::PinBase* inputPin = GetInputPin(i);
             const RenderGraphTextureResourceInfo& inputInfo = GetInputResourceInfo(i);
             if (inputInfo.Type == RenderGraphResourceType::Attachment)
             {
                 const RenderGraphResource& inputResource = resourceCache[inputPin->GetLinkedPinGlobalId()];
                 const RenderGraphTextureResourceInfo& properties = std::get<RenderGraphTextureResourceInfo>(inputResource.Properties);
                 //TODO: add more granularity for only stencil or only depth write
-                if (Utils::IsDepthFormat(properties.Format))
+                if (rhi::Utils::IsDepthFormat(properties.Format))
                 {
-                    RenderPassSettings::Attachment attachment{};
-                    attachment.m_Format = Enums::ToIntegral(properties.Format);
-                    attachment.m_LoadOp = Enums::ToIntegral(RenderPassSettings::LoadOp::Load);
+                    rhi::RenderPassSettings::Attachment attachment{};
+                    attachment.m_Format = enums::ToIntegral(properties.Format);
+                    attachment.m_LoadOp = enums::ToIntegral(rhi::RenderPassSettings::LoadOp::Load);
 
                     renderPassSettings.m_Attachments.Add(attachment);
 
-                    subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::DepthReadStencilRead);
+                    subpass.m_AttachmentAccesses.Emplace(rhi::RenderPassSettings::AttachmentAccess::DepthReadStencilRead);
                 }
                 else
                 {
-                    RenderPassSettings::Attachment attachment{};
-                    attachment.m_Format = Enums::ToIntegral(properties.Format);
-                    attachment.m_LoadOp = Enums::ToIntegral(RenderPassSettings::LoadOp::Load);
+                    rhi::RenderPassSettings::Attachment attachment{};
+                    attachment.m_Format = enums::ToIntegral(properties.Format);
+                    attachment.m_LoadOp = enums::ToIntegral(rhi::RenderPassSettings::LoadOp::Load);
 
                     renderPassSettings.m_Attachments.Add(attachment);
-                    subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::Input);
+                    subpass.m_AttachmentAccesses.Emplace(rhi::RenderPassSettings::AttachmentAccess::Input);
                 }
             }
         }
@@ -397,11 +397,11 @@ namespace Onyx::Graphics
         m_RenderPass = api.GetOrCreateRenderPass(renderPassSettings);
     }
 
-    void RenderGraphShaderNode::UpdateFramebuffer(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphShaderNode::UpdateFramebuffer(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         ONYX_PROFILE_FUNCTION;
 
-        FramebufferSettings framebufferSettings;
+        rhi::FramebufferSettings framebufferSettings;
         framebufferSettings.m_RenderPass = m_RenderPass;
 
         framebufferSettings.m_Width = 0;
@@ -413,7 +413,7 @@ namespace Onyx::Graphics
         onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            const NodeGraph::PinBase* outputPin = GetOutputPin(i);
+            const node_graph::PinBase* outputPin = GetOutputPin(i);
             const RenderGraphTextureResourceInfo& outputResourceInfo = GetOuputResourceInfo(i);
             
             if (outputResourceInfo.Type != RenderGraphResourceType::Attachment)
@@ -440,17 +440,17 @@ namespace Onyx::Graphics
                 ONYX_LOG_ERROR("Height of output attachments is not matching.");
             }
 
-            if (Utils::IsDepthFormat(properties.Format))
-                framebufferSettings.m_DepthTarget = std::get<TextureHandle>(output.Handle).Texture;
+            if (rhi::Utils::IsDepthFormat(properties.Format))
+                framebufferSettings.m_DepthTarget = std::get<rhi::TextureHandle>(output.Handle).Texture;
             else
-                framebufferSettings.m_ColorTargets.Add(std::get<TextureHandle>(output.Handle).Texture);
+                framebufferSettings.m_ColorTargets.Add(std::get<rhi::TextureHandle>(output.Handle).Texture);
         }
 
         // inputs
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            const NodeGraph::PinBase* inputPin = GetInputPin(i);
+            const node_graph::PinBase* inputPin = GetInputPin(i);
             const RenderGraphTextureResourceInfo& inputResourceInfo = GetInputResourceInfo(i);
             if (inputResourceInfo.Type != RenderGraphResourceType::Attachment)
                continue;
@@ -477,8 +477,8 @@ namespace Onyx::Graphics
                 ONYX_LOG_ERROR("Height of input attachments is not matching.");
             }
 
-            TextureHandle texture = std::get<TextureHandle>(inputResource.Handle);
-            if (Utils::IsDepthFormat(properties.Format))
+            rhi::TextureHandle texture = std::get<rhi::TextureHandle>(inputResource.Handle);
+            if (rhi::Utils::IsDepthFormat(properties.Format))
                 framebufferSettings.m_DepthTarget = texture.Texture;
             else
                 framebufferSettings.m_ColorTargets.Add(texture.Texture);
@@ -490,7 +490,7 @@ namespace Onyx::Graphics
         m_Framebuffer = api.GetOrCreateFramebuffer(framebufferSettings);
     }
 
-    void RenderGraphShaderNode::BindResources(ShaderInstanceHandle shaderInstance, const HashMap<RenderGraphResourceId, RenderGraphResource>& resourceCache, const FrameContext& frameContext)
+    void RenderGraphShaderNode::BindResources(rhi::ShaderInstanceHandle shaderInstance, const HashMap<RenderGraphResourceId, RenderGraphResource>& resourceCache, const rhi::FrameContext& frameContext)
     {
         ONYX_ASSERT(shaderInstance.IsValid());
         ONYX_PROFILE_FUNCTION;
@@ -499,7 +499,7 @@ namespace Onyx::Graphics
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            const NodeGraph::PinBase* inputPin = GetInputPin(i);
+            const node_graph::PinBase* inputPin = GetInputPin(i);
             if (inputPin->IsConnected() == false)
                 continue;
 
@@ -515,9 +515,9 @@ namespace Onyx::Graphics
                     break;
                 case RenderGraphResourceType::Buffer:
     #if ONYX_IS_DEBUG
-                    shaderInstance->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<rhi::BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
     #else
-                    shaderInstance->Bind(std::get<BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<rhi::BufferHandle>(inputResource.Handle), inputResource.Info.Name, frameContext.FrameIndex);
     #endif
                     break;
                 case RenderGraphResourceType::Invalid:
@@ -529,7 +529,7 @@ namespace Onyx::Graphics
         onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            const NodeGraph::PinBase* outputPin = GetOutputPin(i);
+            const node_graph::PinBase* outputPin = GetOutputPin(i);
             //if (outputPin->IsConnected() == false)
             //    continue;
 
@@ -545,9 +545,9 @@ namespace Onyx::Graphics
                     break;
                 case RenderGraphResourceType::Buffer:
     #if ONYX_IS_DEBUG
-                    shaderInstance->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<rhi::BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
     #else
-                    shaderInstance->Bind(std::get<BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
+                    shaderInstance->Bind(std::get<rhi::BufferHandle>(outputResource.Handle), outputResource.Info.Name, frameContext.FrameIndex);
     #endif
                     break;
                 case RenderGraphResourceType::Invalid:
@@ -557,12 +557,12 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraphFixedShaderNode::Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphFixedShaderNode::Init(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         RenderGraphShaderNode::Init(api, resourceCache);
     }
 
-    void RenderGraphFixedShaderNode::Compile(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void RenderGraphFixedShaderNode::Compile(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         RenderGraphShaderNode::Compile(api, resourceCache);
 
@@ -576,7 +576,7 @@ namespace Onyx::Graphics
         BindResources(m_ShaderInstance, context.Graph.GetResourceCache(), context.FrameContext);
     }
 
-    void RenderGraphFixedShaderNode::Render(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void RenderGraphFixedShaderNode::Render(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -612,7 +612,7 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDeserialize(const Deserializer& deserializer)
     {
-        Assets::AssetId shaderAssetId( m_PipelineProperties.Shader );
+        assets::AssetId shaderAssetId( m_PipelineProperties.Shader );
         if (deserializer.ReadOptional<"shader">(shaderAssetId))
             m_PipelineProperties.Shader = shaderAssetId;
 
@@ -621,5 +621,3 @@ namespace Onyx::Graphics
             RenderGraphShaderNode::OnDeserialize(deserializer);
     }
 }
-
-

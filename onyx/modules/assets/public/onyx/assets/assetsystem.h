@@ -8,12 +8,12 @@
 #include <onyx/filesystem/path.h>
 #include <onyx/log/logger.h>
 
-namespace Onyx
+namespace onyx
 {
     class IEngine;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct IAssetSerializer;
 
@@ -25,7 +25,7 @@ namespace Onyx::Assets
     class AssetSystem : public IEngineSystem
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Assets::AssetModule";
+        static constexpr StringId32 TypeId = "onyx::assets::AssetSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
         AssetSystem(IEngine& engine);
@@ -115,7 +115,7 @@ namespace Onyx::Assets
         template <typename T, onyxU64 N>
         constexpr bool GetAsset(const CompileTimeString<N>& path, AssetHandle<T>& outAsset)
         {
-            AssetId id = static_cast<AssetId>(Hash::FNV1aHash(path, 0));
+            AssetId id = static_cast<AssetId>(hash::FNV1aHash(path, 0));
             return GetAsset(id, outAsset, false);
         }
 
@@ -293,7 +293,7 @@ namespace Onyx::Assets
         Reference<AssetInterface> assetCopy = createFunctor(*m_Engine);
         assetCopy->SetState(AssetState::Loading);
 
-        Assets::AssetHandle newAssetHandle = { id, assetCopy };
+        assets::AssetHandle newAssetHandle = { id, assetCopy };
         outAssetReference = newAssetHandle;
 
         m_IOHandler.RequestLoad(metaData, newAssetHandle, serializer, m_Engine);

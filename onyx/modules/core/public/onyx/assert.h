@@ -1,61 +1,46 @@
 #pragma once
 
-#if ONYX_IS_DEBUG
-#define ONYX_ASSERTS_ENABLED 1
-#else
-#define ONYX_ASSERTS_ENABLED 0
-#endif
-
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
 
 #include <onyx/debugging.h>
 #include <onyx/inplacefunction.h>
-#include <onyx/string/inplacestring.h>
 #include <onyx/string/format.h>
+#include <onyx/string/inplacestring.h>
 
-namespace Onyx
-{
-    inline InplaceFunction<void(StringView message)> ErrorFunctor = [](StringView /*msg*/)
-    {
-    };
+namespace onyx {
+inline InplaceFunction< void( StringView message ) > ErrorFunctor = []( StringView /*msg*/ ) {};
 
-    template <typename... Args>
-    bool Assert(const char* file, int line, const char* conditionString, std::format_string<Args...> fmt, Args&&... args)
-    {
-        InplaceString<512> finalMessage;
+template < typename... Args > bool Assert( const char* file, int line, const char* conditionString, std::format_string< Args... > fmt, Args&&... args ) {
+    InplaceString< 512 > finalMessage;
 
-        constexpr onyxU32 formatArgsCount = sizeof...(args);
-        InplaceString<250> messageStr;
-        if constexpr (formatArgsCount > 0)
-        {
-            Format::FormatTo(messageStr, fmt, std::forward<Args>(args)...);
-        }
-
-        Format::FormatTo(finalMessage, "{}({}) : Assert failed({}): {} \n", file, line, conditionString, messageStr.GetData());
-
-        return true;
+    constexpr onyxU32 formatArgsCount = sizeof...( args );
+    InplaceString< 250 > messageStr;
+    if constexpr ( formatArgsCount > 0 ) {
+        Format::FormatTo( messageStr, fmt, std::forward< Args >( args )... );
     }
 
-    template <typename... Args>
-    bool Assert(const char* file, int line, const char* conditionString)
-    {
-        InplaceString<512> finalMessage;
-        Format::FormatTo(finalMessage, "{}({}) : Assert failed({}) \n", file, line, conditionString);
-        ErrorFunctor(finalMessage.GetData());
-        return true;
-    }
+    Format::FormatTo( finalMessage, "{}({}) : Assert failed({}): {} \n", file, line, conditionString, messageStr.GetData() );
+
+    return true;
 }
 
-#define ONYX_ASSERT(condition, ...)                                           \
-    do {                                                                      \
-        if (!(condition)) {                                                   \
-            if(::Onyx::Assert(__FILE__, __LINE__, #condition, ##__VA_ARGS__)) \
-            {                                                                 \
-                ::Onyx::Breakpoint();                                         \
-                ::std::terminate();                                           \
-            }                                                                 \
-        }                                                                     \
-    } while (false)
+template < typename... Args > bool Assert( const char* file, int line, const char* conditionString ) {
+    InplaceString< 512 > finalMessage;
+    Format::FormatTo( finalMessage, "{}({}) : Assert failed({}) \n", file, line, conditionString );
+    ErrorFunctor( finalMessage.GetData() );
+    return true;
+}
+} // namespace onyx
+
+#define ONYX_ASSERT( condition, ... )                                                                                                                                              \
+    do {                                                                                                                                                                           \
+        if ( !( condition ) ) {                                                                                                                                                    \
+            if ( ::onyx::Assert( __FILE__, __LINE__, #condition, ##__VA_ARGS__ ) ) {                                                                                               \
+                ::onyx::breakpoint();                                                                                                                                              \
+                ::std::terminate();                                                                                                                                                \
+            }                                                                                                                                                                      \
+        }                                                                                                                                                                          \
+    } while ( false )
 #else
-#define ONYX_ASSERT(condition, ...)
+#define ONYX_ASSERT( condition, ... )
 #endif

@@ -1,6 +1,6 @@
 #include <onyx/thread/thread.h>
 
-namespace Onyx
+namespace onyx
 {
     std::thread::id Thread::MAIN_THREAD_ID;
 

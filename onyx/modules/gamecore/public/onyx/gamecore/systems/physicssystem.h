@@ -1,24 +1,24 @@
 #pragma once
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EcsBuilder;
 }
 
-namespace Onyx::Physics
+namespace onyx::physics
 {
     enum class PhysicsBodyId : onyxU32;
 }
 
-namespace Onyx::GameCore::Physics
+namespace onyx::game_core::physics
 {
-    namespace Components
+    namespace components
     {
         struct PhysicsBodyId
         {
-            Onyx::Physics::PhysicsBodyId BodyId;
+            onyx::physics::PhysicsBodyId BodyId;
         };
     }
 
-    void registerSystems(Entity::EcsBuilder& ecsBuilder);
+    void registerSystems(ecs::EcsBuilder& ecsBuilder);
 }

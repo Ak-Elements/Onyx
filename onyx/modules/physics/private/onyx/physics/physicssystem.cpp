@@ -2,11 +2,11 @@
 
 #include <onyx/physics/jolt/joltphysicssystem.h>
 
-namespace Onyx::Physics
+namespace onyx::physics
 {
     PhysicsWorld::PhysicsWorld()
     {
-        m_System = MakeUnique<Jolt::JoltPhysicsSystem>();
+        m_System = MakeUnique<jolt::JoltPhysicsSystem>();
     }
 
     PhysicsWorld::~PhysicsWorld()

@@ -3,23 +3,23 @@
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    void VolumeShaderGraphOutNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
+    void VolumeShaderGraphOutNode::OnUpdate(node_graph::ExecutionContext& /*context*/) const
     {
     }
 
-    void VolumeShaderGraphOutNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const
+    void VolumeShaderGraphOutNode::DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const
     {
-        if (generator.GetStage() != Graphics::ShaderStage::Fragment)
+        if (generator.GetStage() != rhi::ShaderStage::Fragment)
             return;
 
         const InPin0& inputPin0 = GetInputPin0();
         const InPin1& inputPin1 = GetInputPin1();
 
-        generator.AppendCode(Format::Format("return vec4({}, {});\n",
-            inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
-            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
+        generator.AppendCode(format::Format("return vec4({}, {});\n",
+            inputPin1.IsConnected() ? format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
+            inputPin0.IsConnected() ? format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
     }
 
 #if ONYX_IS_EDITOR

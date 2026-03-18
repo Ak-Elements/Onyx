@@ -2,7 +2,7 @@
 
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx::Physics
+namespace onyx::physics
 {
     enum class MotionType : onyxU8;
     enum class CollisionLayer : onyxU16;

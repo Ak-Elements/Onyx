@@ -4,6 +4,7 @@ endif()
 
 onyx_add_target(onyx-input
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Input"
+    NAMESPACE "onyx::input"
+    NAMESPACE_PATH "onyx/input"
     NO_EDITOR_TARGET
 )

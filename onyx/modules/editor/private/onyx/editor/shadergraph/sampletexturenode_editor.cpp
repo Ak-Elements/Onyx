@@ -8,7 +8,7 @@
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
 
-namespace Onyx::Graphics::ShaderGraphNodes
+namespace onyx::graphics::shader_graph_nodes
 {
    //bool SampleTextureNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
    //{
@@ -17,8 +17,8 @@ namespace Onyx::Graphics::ShaderGraphNodes
 
    //    ImGui::BeginDisabled(isTexturePinConnected);
    //    {
-   //        Ui::ScopedImGuiId imguiId("SampleTexture");
-   //        if (Ui::PropertyGrid::DrawAssetSelector("Texture", TextureId, static_cast<Assets::AssetType>(TypeHash<TextureAsset>())))
+   //        ui::ScopedImGuiId imguiId("SampleTexture");
+   //        if (ui::property_grid::DrawAssetSelector("Texture", TextureId, static_cast<assets::AssetType>(TypeHash<TextureAsset>())))
    //        {
    //            isModified = true;
    //        }

@@ -1,6 +1,6 @@
 #include <onyx/stream/stream.h>
 
-namespace Onyx
+namespace onyx
 {
     void Stream::Read(String& outStr) const
     {

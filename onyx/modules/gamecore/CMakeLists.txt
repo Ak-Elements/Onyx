@@ -4,5 +4,6 @@ endif()
 
 onyx_add_target(onyx-gamecore
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::GameCore"
+    NAMESPACE "onyx::game_core"
+    NAMESPACE_PATH "onyx/gamecore"
 )

@@ -1,7 +1,7 @@
 #include <onyx/rhi/renderpasscache.h>
 #include <onyx/rhi/graphicssystem.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     RenderPassCache::RenderPassCache(GraphicsSystem& graphicsSystem)
         : m_GraphicsSystem(graphicsSystem)
@@ -15,7 +15,7 @@ namespace Onyx::Graphics
 
     RenderPassHandle RenderPassCache::GetOrCreateRenderPass(const RenderPassSettings& settings)
     {
-        onyxU64 renderPassHash = Hash::FNV1aHash<onyxU64>(settings);
+        onyxU64 renderPassHash = hash::FNV1aHash<onyxU64>(settings);
 
         auto it = m_Cache.find(renderPassHash);
         if (it != m_Cache.end())

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     enum class TreeViewFlags
     {

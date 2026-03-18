@@ -2,7 +2,7 @@
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     
     bool RenderGraphEditorContext::Compile()

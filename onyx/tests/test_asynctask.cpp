@@ -4,7 +4,7 @@
 #include <onyx/thread/async/asynctask.h>
 #include <onyx/thread/async/future.h>
 
-namespace Onyx::Threading::Async
+namespace onyx::threading::Async
 {
 
 TEST_CASE("AsyncTask - Basic", "[threading][async]")
@@ -28,8 +28,8 @@ TEST_CASE("AsyncTask - Basic", "[threading][async]")
 
 TEST_CASE("AsyncTask - Complete callback", "[threading][async]")
 {
-    using namespace Onyx;
-    using namespace Onyx::Threading;
+    using namespace onyx;
+    using namespace onyx::Threading;
 
     ThreadPool executor;
     Atomic<bool> taskFinished = false;
@@ -61,8 +61,8 @@ TEST_CASE("AsyncTask - Complete callback", "[threading][async]")
 
 TEST_CASE("AsyncTask cancellation", "[threading][async]")
 {
-    using namespace Onyx;
-    using namespace Onyx::Threading;
+    using namespace onyx;
+    using namespace onyx::Threading;
 
     ThreadPool executor;
     AsyncTask<void(std::stop_token)> task([](std::stop_token token)
@@ -85,8 +85,8 @@ TEST_CASE("AsyncTask cancellation", "[threading][async]")
 
 TEST_CASE("AsyncTask cancelation callback", "[threading][async]")
 {
-    using namespace Onyx;
-    using namespace Onyx::Threading;
+    using namespace onyx;
+    using namespace onyx::Threading;
 
     ThreadPool executor;
 
@@ -132,7 +132,7 @@ TEST_CASE("AsyncTask cancelation callback", "[threading][async]")
 
 TEST_CASE("AsyncTask continuation", "[threading][async]")
 {
-    using namespace Onyx;
+    using namespace onyx;
     using namespace Threading;
 
     ThreadPool executor;

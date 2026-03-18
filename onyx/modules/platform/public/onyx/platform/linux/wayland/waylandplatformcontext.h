@@ -21,18 +21,18 @@ struct zxdg_decoration_manager_v1;
 struct zxdg_toplevel_decoration_v1;
 
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class MouseButton : onyxU16;
     enum class Key : onyxU16;
     class InputSystem;
 }
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     class PlatformSystem;
 
-    namespace Wayland
+    namespace wayland
     {
         class WaylandInput;
 
@@ -79,7 +79,7 @@ namespace Onyx::Platform
             zxdg_decoration_manager_v1* GetDecorationManager() { return m_ZxdgDecorationManager; }
             zxdg_toplevel_decoration_v1* GetDecoration() { return m_ZxdgToplevelDecoration; }
 
-            Onyx::Input::InputSystem& GetInputSystem();
+            onyx::input::InputSystem& GetInputSystem();
 
         private:
             static void RegisterCallback(void* data, wl_registry* registry, onyxU32 name, const char* interface, onyxU32 version);

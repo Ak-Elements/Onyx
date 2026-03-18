@@ -6,7 +6,7 @@
 
 #include <onyx/platform/platformfwd.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class VulkanTextureStorage;
     class VulkanTexture;
@@ -25,7 +25,7 @@ namespace Onyx::Graphics::Vulkan
     class SwapChain : public NonCopyable
 	{
 	public:
-        SwapChain(VulkanGraphicsApi& graphicsApi, const Surface& surface, const Platform::Window& window);
+        SwapChain(VulkanGraphicsApi& graphicsApi, const Surface& surface, const platform::Window& window);
         ~SwapChain() override;
 
         bool BeginFrame(onyxU8 frameIndex);
@@ -69,7 +69,7 @@ namespace Onyx::Graphics::Vulkan
     private:
         std::mutex mutex;
         VulkanGraphicsApi& m_GraphicsApi;
-        const Platform::Window* m_Window = nullptr;
+        const platform::Window* m_Window = nullptr;
         const Surface& m_Surface;
         const Device& m_Device;
 

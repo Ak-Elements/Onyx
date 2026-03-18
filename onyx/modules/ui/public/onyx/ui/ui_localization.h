@@ -2,23 +2,20 @@
 
 #include <onyx/localization/localizedstring.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
+}
 
-    namespace Ui
-    {
+namespace onyx::ui::localization
+{
 #if ONYX_IS_EDITOR
-        namespace AssetSelector
-        {
-            namespace Modal
-            {
-                inline LocalizedString Title;
-            }
-        }
+    namespace asset_selector::modal
+    {
+        inline onyx::localization::LocalizedString Title;
+    }
+    
 #endif
 
-        void InitLocalization(const LocalizationModule& localizationModule);
-
-    }
+    void InitLocalization(const onyx::localization::LocalizationModule& localizationModule);
 }

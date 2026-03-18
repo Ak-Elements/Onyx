@@ -4,17 +4,17 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class ComputeMultipleScatteringRenderGraphNode : public NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>
+    class ComputeMultipleScatteringRenderGraphNode : public node_graph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, rhi::TextureHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::ComputeMultipleScattering";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::ComputeMultipleScattering";
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
         void OnBeginFrame(RenderGraphContext& context) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:

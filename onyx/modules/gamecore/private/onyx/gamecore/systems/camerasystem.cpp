@@ -8,12 +8,12 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
 
-namespace GameCore
+namespace game_core
 {
-    using CameraAccess = Entity::Access::Read<TransformComponent>::Write<CameraComponent>;
+    using CameraAccess = ecs::Access::Read<TransformComponent>::Write<CameraComponent>;
     using CameraEntity = CameraAccess::AsEntity;
 
     namespace UpdatePositions
@@ -30,7 +30,7 @@ namespace GameCore
         }
     }
 
-    void Camera::registerSystems(Entity::EcsBuilder& ecsBuilder)
+    void camera::registerSystems(ecs::EcsBuilder& ecsBuilder)
     {
         ecsBuilder.RegisterSystem(UpdatePositions::system);
     }

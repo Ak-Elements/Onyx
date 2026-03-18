@@ -5,37 +5,37 @@
 #include <onyx/assets/assethandle.h>
 #include <onyx/entity/entity.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct AssetId;
 
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     struct InputActionEvent;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class Scene;
     class GameCoreSystem;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EntityRegistry;
     enum class EntityId : onyxU32;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class ICommandGraph;
 }
 
-namespace Onyx::Editor::SceneEditor
+namespace onyx::editor::scene_editor
 {
-    class EntitiesPanel : public Ui::ImGuiWindow
+    class EntitiesPanel : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "EntitiesPanel";
@@ -47,18 +47,18 @@ namespace Onyx::Editor::SceneEditor
         void OnOpen() override;
         void OnClose() override;
 
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
 
-        void OnDeleteAction(const InputActions::InputActionEvent& deleteAction);
+        void OnDeleteAction(const input_actions::InputActionEvent& deleteAction);
 
     private:
         String GetNewEntityName() const;
 
-        void DeleteEntity(Entity::EntityId entity);
-        void SetSelectedEntity(Entity::EntityId entity);
+        void DeleteEntity(ecs::EntityId entity);
+        void SetSelectedEntity(ecs::EntityId entity);
 
     private:
-        Entity::EntityId m_SelectedEntity = Entity::EntityId::Invalid;
+        ecs::EntityId m_SelectedEntity = ecs::EntityId::Invalid;
 
         ICommandGraph* m_CommandGraph = nullptr;
     };

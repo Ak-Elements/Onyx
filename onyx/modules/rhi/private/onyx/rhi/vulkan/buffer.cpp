@@ -1,4 +1,3 @@
-#include <numeric>
 #include <onyx/rhi/vulkan/buffer.h>
 #include <onyx/rhi/vulkan/commandpool.h>
 #include <onyx/rhi/vulkan/device.h>
@@ -6,10 +5,10 @@
 #include <onyx/rhi/vulkan/commandbuffer.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     VulkanBuffer::VulkanBuffer(VulkanGraphicsApi& api, const BufferProperties& properties)
-        : Graphics::Buffer(properties)
+        : rhi::Buffer(properties)
         , DeviceMemory(api.GetAllocator())
         , m_Device(&api.GetDevice())
     {
@@ -147,7 +146,7 @@ namespace Onyx::Graphics::Vulkan
 
         m_Allocator->Bind(m_Buffer, m_Memory);
 
-        if ( Enums::HasAllFlags(m_Properties.m_UsageFlags, BufferUsage::DeviceAddress ))
+        if ( enums::HasAllFlags(m_Properties.m_UsageFlags, BufferUsage::DeviceAddress ))
         {
             VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
             addressInfo.buffer = m_Buffer;
@@ -212,19 +211,19 @@ namespace Onyx::Graphics::Vulkan
         else
             usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Vertex))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Vertex))
             usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Index))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Index))
             usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Uniform))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Uniform))
             usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Storage))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Storage))
             usage |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Indirect))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Indirect))
             usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::DeviceAddress))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::DeviceAddress))
             usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-        if (Enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Conditional))
+        if (enums::HasAnyFlags(properties.m_UsageFlags, BufferUsage::Conditional))
             usage |= VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT;
 
         if (properties.m_IsWritable)

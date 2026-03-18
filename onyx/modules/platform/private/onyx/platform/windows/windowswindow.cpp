@@ -49,12 +49,12 @@ namespace
         {
             if (wParam == WM_LBUTTONDOWN)
             {
-                PostMessage(g_MainHwnd, Onyx::Platform::Windows::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN, 0, 0);
+                PostMessage(g_MainHwnd, onyx::platform::windows::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN, 0, 0);
                 return 1;
             }
             if (wParam == WM_LBUTTONUP)
             {
-                PostMessage(g_MainHwnd, Onyx::Platform::Windows::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP, 0, 0);
+                PostMessage(g_MainHwnd, onyx::platform::windows::Window::ONYX_WM_SYSTEM_PRIMARY_MOUSEUP, 0, 0);
                 return 1;
             }
         }
@@ -62,7 +62,7 @@ namespace
         return CallNextHookEx(nullptr, nCode, wParam, lParam);
     }
 
-    ::HICON CreateIconFromBitmap(const Onyx::Span<Onyx::onyxU8>& imageData, Onyx::Vector2s32 imageSize)
+    ::HICON CreateIconFromBitmap(const onyx::Span<onyx::onyxU8>& imageData, onyx::Vector2s32 imageSize)
     {
         int i;
         ::HDC dc;
@@ -137,7 +137,7 @@ namespace
     }
 }
 
-namespace Onyx::Platform::Windows
+namespace onyx::platform::windows
 {
     Window::Window(PlatformContext& context, const WindowSettings& settings)
         : m_Settings(settings)
@@ -217,7 +217,7 @@ namespace Onyx::Platform::Windows
 
     onyxS64 Window::OnWindowProc(HWND hWnd, onyxU32 message, onyxU64 wParam, onyxS64 lParam)
     {
-        using namespace Onyx;
+        using namespace onyx;
         Window* pThis; // our "this" pointer will go here
         if (message == WM_NCCREATE)
         {
@@ -763,12 +763,12 @@ namespace Onyx::Platform::Windows
             {
                 const bool hasReleased = (((lParam >> 16) & 0xFFFF) & KF_UP) == KF_UP;
 
-                Input::KeyboardEvent event;
+                input::KeyboardEvent event;
                 event.Key = ConvertWindowsKey(wParam, lParam);
-                event.State = (hasReleased ? Input::ButtonState::Up : (IsKeyRepeated(lParam) ? Input::ButtonState::Repeat : Input::ButtonState::Down));
+                event.State = (hasReleased ? input::ButtonState::Up : (IsKeyRepeated(lParam) ? input::ButtonState::Repeat : input::ButtonState::Down));
                 event.Char = 0;
 
-                Input::InputSystem& inputSystem = m_Context->GetInputSystem();
+                input::InputSystem& inputSystem = m_Context->GetInputSystem();
                 inputSystem.AddEvent(event);
 
                 return true;
@@ -776,21 +776,21 @@ namespace Onyx::Platform::Windows
             case WM_CHAR:
             case WM_SYSCHAR:
             {
-                Input::KeyboardEvent event;
-                event.State = Input::ButtonState::Down;
+                input::KeyboardEvent event;
+                event.State = input::ButtonState::Down;
                 event.Key = ConvertWindowsKey(wParam, lParam);
                 event.Char = static_cast<onyxU16>(wParam);
 
-                Input::InputSystem& inputSystem = m_Context->GetInputSystem();
+                input::InputSystem& inputSystem = m_Context->GetInputSystem();
                 inputSystem.AddEvent(event);
                 return true;
             }
             case WM_MOUSEMOVE:
             {
-                Input::MousePositionEvent event;
+                input::MousePositionEvent event;
                 event.Position = { static_cast<onyxS32>(lParam & 0xFFFF), static_cast<onyxS32>((lParam >> 16) & 0xFFFF) };
 
-                Input::InputSystem& inputSystem = m_Context->GetInputSystem();
+                input::InputSystem& inputSystem = m_Context->GetInputSystem();
                 inputSystem.AddEvent(event);
                 return true;
             }
@@ -805,17 +805,17 @@ namespace Onyx::Platform::Windows
             case ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN:
             case ONYX_WM_SYSTEM_PRIMARY_MOUSEUP:
             {
-                Input::MouseButtonEvent event;
+                input::MouseButtonEvent event;
                 if (messageType == WM_LBUTTONDOWN || messageType == WM_LBUTTONUP || messageType == ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN || messageType == ONYX_WM_SYSTEM_PRIMARY_MOUSEUP)
-                    event.Button = Input::MouseButton::Button_1;
+                    event.Button = input::MouseButton::Button_1;
                 else if (messageType == WM_RBUTTONDOWN || messageType == WM_RBUTTONUP)
-                    event.Button = Input::MouseButton::Button_2;
+                    event.Button = input::MouseButton::Button_2;
                 else if (messageType == WM_MBUTTONDOWN || messageType == WM_MBUTTONUP)
-                    event.Button = Input::MouseButton::Button_3;
+                    event.Button = input::MouseButton::Button_3;
                 else
                 {
                     const onyxS32 extraMouseButton = (wParam >> 16) & 0xFFFF;
-                    event.Button = static_cast<Input::MouseButton>(static_cast<onyxS32>(Input::MouseButton::Button_3) + extraMouseButton);
+                    event.Button = static_cast<input::MouseButton>(static_cast<onyxS32>(input::MouseButton::Button_3) + extraMouseButton);
                 }
 
 
@@ -825,9 +825,9 @@ namespace Onyx::Platform::Windows
                     (messageType == WM_XBUTTONUP) ||
                     (messageType == ONYX_WM_SYSTEM_PRIMARY_MOUSEUP));
 
-                event.State = hasReleased ? Input::ButtonState::Up : Input::ButtonState::Down;
+                event.State = hasReleased ? input::ButtonState::Up : input::ButtonState::Down;
 
-                Input::InputSystem& inputSystem = m_Context->GetInputSystem();
+                input::InputSystem& inputSystem = m_Context->GetInputSystem();
                 inputSystem.AddEvent(event);
 
                 return true;
@@ -835,10 +835,10 @@ namespace Onyx::Platform::Windows
 
             case WM_MOUSEWHEEL:
             {
-                Input::MouseAxisEvent event;
+                input::MouseAxisEvent event;
                 event.Value = (onyxS16)HIWORD(wParam) / (onyxS16)WHEEL_DELTA;
 
-                Input::InputSystem& inputSystem = m_Context->GetInputSystem();
+                input::InputSystem& inputSystem = m_Context->GetInputSystem();
                 inputSystem.AddEvent(event);
 
                 return true;
@@ -890,7 +890,7 @@ namespace Onyx::Platform::Windows
 
     void Window::SetIcon(const FilePath& path)
     {
-        FileSystem::ImageFile image(path);
+        file_system::ImageFile image(path);
         HICON icon = CreateIconFromBitmap(image.GetData(), image.GetSize());
         
         SendMessage(m_WindowHandle, WM_SETICON, ICON_BIG, (LPARAM)icon);
@@ -921,7 +921,7 @@ namespace Onyx::Platform::Windows
         {
             m_Settings.MinSize = minSize;
             VectorComponentMask compared = m_Settings.Size > m_Settings.MinSize;
-            SetSize(Enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MinSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MinSize[1] : m_Settings.Size[1]);
+            SetSize(enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MinSize[1] : m_Settings.Size[0], enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MinSize[1] : m_Settings.Size[1]);
         }
     }
 
@@ -931,7 +931,7 @@ namespace Onyx::Platform::Windows
         {
             m_Settings.MaxSize = maxSize;
             VectorComponentMask compared = m_Settings.Size > m_Settings.MaxSize;
-            SetSize(Enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MaxSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MaxSize[1] : m_Settings.Size[1]);
+            SetSize(enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MaxSize[1] : m_Settings.Size[0], enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MaxSize[1] : m_Settings.Size[1]);
         }
     }
 
@@ -948,7 +948,7 @@ namespace Onyx::Platform::Windows
         newMonitorInfo.cbSize = sizeof(MONITORINFOEX);
         ::GetMonitorInfo(monitor, &newMonitorInfo);
 
-        //onyxS8 newMonitorIndex = static_cast<onyxS8>(Platform::GetMonitorIndexByName(newMonitorInfo.szDevice));
+        //onyxS8 newMonitorIndex = static_cast<onyxS8>(platform::GetMonitorIndexByName(newMonitorInfo.szDevice));
         //if (m_Settings.m_MonitorIndex != newMonitorIndex)
         //{
         //    RECT windowRect;
@@ -963,7 +963,7 @@ namespace Onyx::Platform::Windows
         //    monitorInfo.cbSize = sizeof(MONITORINFOEX);
         //    ::GetMonitorInfo(normalWindowMonitor, &monitorInfo);
 
-        //    onyxS8 normalMonitorIndex = static_cast<onyxS8>(Platform::GetMonitorIndexByName(monitorInfo.szDevice));
+        //    onyxS8 normalMonitorIndex = static_cast<onyxS8>(platform::GetMonitorIndexByName(monitorInfo.szDevice));
         //    if (normalMonitorIndex != newMonitorIndex)
         //    {
         //        // adjust window position to new monitor

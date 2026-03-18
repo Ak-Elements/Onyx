@@ -3,12 +3,12 @@
 #include <onyx/noncopyable.h>
 #include <onyx/filesystem/filewatcher.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetHotReloadSystem : public NonCopyable
     {
@@ -16,10 +16,10 @@ namespace Onyx::Assets
         AssetHotReloadSystem(AssetSystem& assetSystem);
         void MonitorDirectory(const FilePath& path);
 
-        void OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction action);
+        void OnFileChanged(const FilePath& path, file_system::FileWatcher::FileAction action);
 
     private:
         AssetSystem* m_AssetSystem = nullptr;
-        FileSystem::FileWatcher m_DirectoryWatcher;
+        file_system::FileWatcher m_DirectoryWatcher;
     };
 }

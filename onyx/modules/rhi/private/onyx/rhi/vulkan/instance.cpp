@@ -4,7 +4,7 @@
 #include <onyx/rhi/vulkan/debugutilsmessenger.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     Instance::Instance(const GraphicSettings& settings, const DynamicArray<const char*>& validationLayers)
     {

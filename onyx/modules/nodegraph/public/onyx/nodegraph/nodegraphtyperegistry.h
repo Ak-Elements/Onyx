@@ -2,7 +2,7 @@
 
 #include <onyx/nodegraph/nodegraphtypemeta.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     class NodeGraphTypeRegistry
     {
@@ -14,13 +14,13 @@ namespace Onyx::NodeGraph
             constexpr PinTypeId pinTypeId = static_cast<PinTypeId>(TypeHash<T>());
 
             bool hasRegisteredType = s_TypeMeta.contains(serializedTypeId);
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
             auto it = s_RuntimeToStaticTypeId.find(pinTypeId);
             
             bool hasFoundTypeId = it != s_RuntimeToStaticTypeId.end();
             bool isMatchingTypeId = (hasFoundTypeId == false) || (it->second == serializedTypeId);
-            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId), "Type({}) was not registered with the same PinTypeId({})", serializedTypeId, Enums::ToIntegral(pinTypeId));
-            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId) && isMatchingTypeId, "Type({}) was registered but a similar type overlaps the PinTypeId({}, typeId:{})", serializedTypeId, Enums::ToIntegral(pinTypeId), it->second);
+            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId), "Type({}) was not registered with the same PinTypeId({})", serializedTypeId, enums::ToIntegral(pinTypeId));
+            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId) && isMatchingTypeId, "Type({}) was registered but a similar type overlaps the PinTypeId({}, typeId:{})", serializedTypeId, enums::ToIntegral(pinTypeId), it->second);
 #endif
 
             if (hasRegisteredType)
@@ -39,13 +39,13 @@ namespace Onyx::NodeGraph
             constexpr PinTypeId pinTypeId = static_cast<PinTypeId>(TypeHash<T>());
 
             bool hasRegisteredType = s_TypeMeta.contains(serializedTypeId);
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
             auto it = s_RuntimeToStaticTypeId.find(pinTypeId);
 
             bool hasFoundTypeId = it != s_RuntimeToStaticTypeId.end();
             bool isMatchingTypeId = (hasFoundTypeId == false) || (it->second == serializedTypeId);
-            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId), "Type({}) was not registered with the same PinTypeId({})", serializedTypeId, Enums::ToIntegral(pinTypeId));
-            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId) && isMatchingTypeId, "Type({}) was registered but a similar type overlaps the PinTypeId({}, typeId:{})", serializedTypeId, Enums::ToIntegral(pinTypeId), it->second);
+            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId), "Type({}) was not registered with the same PinTypeId({})", serializedTypeId, enums::ToIntegral(pinTypeId));
+            ONYX_ASSERT((hasRegisteredType == hasFoundTypeId) && isMatchingTypeId, "Type({}) was registered but a similar type overlaps the PinTypeId({}, typeId:{})", serializedTypeId, enums::ToIntegral(pinTypeId), it->second);
 #endif
 
             if (hasRegisteredType)

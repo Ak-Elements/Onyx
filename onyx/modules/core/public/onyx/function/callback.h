@@ -7,7 +7,7 @@
 /*
  * Inspired by https://skypjack.github.io/2019-01-25-delegate-revised/
  */
-namespace Onyx
+namespace onyx
 {
     /*! @brief Disambiguation tag for constructors and the like. */
     template<auto>

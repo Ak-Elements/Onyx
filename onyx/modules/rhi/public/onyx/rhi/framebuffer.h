@@ -6,7 +6,7 @@
 #include <onyx/rhi/texture.h>
 
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class RenderPass;
 	class Texture;

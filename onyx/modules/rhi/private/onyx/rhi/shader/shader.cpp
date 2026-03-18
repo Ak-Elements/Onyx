@@ -5,7 +5,7 @@
 #include <onyx/rhi/vulkan/shader.h>
 #endif
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     Reference<Shader> Shader::Create(const IEngine& engine)
     {
@@ -15,7 +15,7 @@ namespace Onyx::Graphics
             using enum ApiType;
             case Vulkan:
     #if ONYX_USE_VULKAN
-                return Reference<Vulkan::Shader>::Create();
+                return Reference<vulkan::Shader>::Create();
     #else
                 return nullptr;
     #endif
@@ -30,13 +30,13 @@ namespace Onyx::Graphics
     DynamicArray<FilePath> GetShaderDirectories()
     {
         DynamicArray<FilePath> shaderDirectories;
-        for (const FileSystem::MountPoint& mountPoint : (FileSystem::Path::GetMountPoints() | std::views::values))
+        for (const file_system::MountPoint& mountPoint : (file_system::Path::GetMountPoints() | std::views::values))
         {
-            if (mountPoint.Prefix == FileSystem::Path::TMP_MOUNT_POINT_ID.GetString())
+            if (mountPoint.Prefix == file_system::Path::TMP_MOUNT_POINT_ID.GetString())
                 continue;
 
             const FilePath shaderIncludePath = mountPoint.Path / "shaders/";
-            if (FileSystem::Path::Exists(shaderIncludePath))
+            if (file_system::Path::Exists(shaderIncludePath))
             {
                 shaderDirectories.emplace_back(shaderIncludePath);
             }

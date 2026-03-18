@@ -2,7 +2,7 @@
 
 #include <onyx/entity/entityregistry.h>
 
-namespace Onyx::Editor
+namespace onyx::Editor
 {
     template <typename T>
     struct ComponentEditor
@@ -11,7 +11,7 @@ namespace Onyx::Editor
     };
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     namespace Details
     {

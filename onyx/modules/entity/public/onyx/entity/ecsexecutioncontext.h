@@ -3,7 +3,7 @@
 #include <onyx/engine/enginesystem.h>
 #include <onyx/entity/entityregistry.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     struct ECSExecutionContext
     {

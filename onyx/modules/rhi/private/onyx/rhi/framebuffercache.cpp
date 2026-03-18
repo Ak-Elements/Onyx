@@ -5,7 +5,7 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/rhi/vulkan/graphicsapi.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     FramebufferCache::FramebufferCache(GraphicsSystem& graphicsSystem)
         : m_GraphicsSystem(graphicsSystem)

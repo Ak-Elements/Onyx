@@ -4,7 +4,7 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/stream/stringstream.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     namespace
     {
@@ -109,7 +109,7 @@ namespace Onyx::Localization
         bool ParsePoFile(const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap)
         {
             String fileContent;
-            bool hasSucceeded = FileSystem::OnyxFile::ReadAll(path, fileContent);
+            bool hasSucceeded = file_system::OnyxFile::ReadAll(path, fileContent);
 
             if (hasSucceeded == false)
             {
@@ -248,16 +248,16 @@ namespace Onyx::Localization
         }
     }
 
-    bool PortableObjectSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
+    bool PortableObjectSerializer::Serialize(const assets::AssetHandle<assets::AssetInterface>& /*asset*/, const assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
     {
         // we can't save po files as they are created in a localization editor
         return false;
     }
 
-    bool PortableObjectSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& /*engine*/) const
+    bool PortableObjectSerializer::Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& /*engine*/) const
     {
         // po files are not json or yaml so we do not use the provided serializer and instead read the file as raw text
         GetTextLocalizationDatabase& localizationDatabase = asset.As<GetTextLocalizationDatabase>();
-        return ParsePoFile(FileSystem::Path::GetFullPath(meta.Path), localizationDatabase);
+        return ParsePoFile(file_system::Path::GetFullPath(meta.Path), localizationDatabase);
     }
 }

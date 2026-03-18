@@ -1,6 +1,6 @@
 #include <onyx/volume/source/csg/csgsphere.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     CSGSphere::CSGSphere(const onyxF32 radius, const Vector3f32& center)

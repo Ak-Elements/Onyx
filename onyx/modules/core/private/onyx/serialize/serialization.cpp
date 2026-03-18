@@ -3,7 +3,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     SerializationScope::SerializationScope(Serializer& serializer, StringView scopeName)
         : m_Serializer(serializer)

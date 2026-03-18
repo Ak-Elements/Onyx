@@ -13,7 +13,7 @@
 
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     void OnApplicationCreate(ApplicationSettings& settings)
     {

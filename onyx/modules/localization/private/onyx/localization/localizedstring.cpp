@@ -1,7 +1,7 @@
 #include <onyx/localization/localizedstring.h>
 #include <onyx/localization/localizationbackend.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     LocalizedString::LocalizedString(LocalizationId id, const ILocalizationBackend& backend)
         : m_LocalizationId(id)
@@ -21,7 +21,7 @@ namespace Onyx::Localization
         }
         else
         {
-            return Format::Format("!!!{}:{}", m_LocalizationId.Id.GetString(), m_LocalizationId.Id.GetId());
+            return format::Format("!!!{}:{}", m_LocalizationId.Id.GetString(), m_LocalizationId.Id.GetId());
         }
 #endif
     }
@@ -38,7 +38,7 @@ namespace Onyx::Localization
         }
         else
         {
-            return Format::Format("!!!{}:{}", m_LocalizationId.Id.GetString(), m_LocalizationId.Id.GetId());
+            return format::Format("!!!{}:{}", m_LocalizationId.Id.GetString(), m_LocalizationId.Id.GetId());
         }
 #endif
     }

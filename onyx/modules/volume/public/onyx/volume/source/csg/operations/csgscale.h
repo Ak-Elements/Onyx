@@ -2,7 +2,7 @@
 
 #include <onyx/volume/source/csg/operations/csgunary.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class CSGScale : public CSGUnary
     {

@@ -1,7 +1,12 @@
 #pragma once
 #include <onyx/gamecore/scene/scenesector.h>
 
-namespace Onyx::GameCore
+namespace onyx::ecs
+{
+    enum class EntityId : onyxU32;
+}
+
+namespace onyx::game_core
 {
     class Scene;
 
@@ -21,8 +26,8 @@ namespace Onyx::GameCore
 
         const DynamicArray<SceneSector>& GetSectors() const { return m_Sectors; }
 
-        void AddEntity(Entity::EntityId entity);
-        void RemoveEntity(Entity::EntityId entity);
+        void AddEntity(ecs::EntityId entity);
+        void RemoveEntity(ecs::EntityId entity);
 
     private:
         void LoadSectorEntity(const SceneSector& sector, SectorEntity& entity);

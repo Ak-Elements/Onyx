@@ -11,145 +11,131 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Application::Debug
-{
-    KeyboardOverlay::KeyboardOverlay()
-    {
-        FileSystem::OnyxFile file{ StringView("engine:/debug/keyboard/iso_105_us_international.json") };
-        FileSystem::JsonValue jsonDoc = file.LoadJson();
+namespace onyx::application::debug {
 
-        m_KeyboardLayout.reserve(6); // typical keyboards have 6 rows
+KeyboardOverlay::KeyboardOverlay() {
+    file_system::OnyxFile file{ StringView( "engine:/debug/keyboard/iso_105_us_international.json" ) };
+    file_system::JsonValue jsonDoc = file.LoadJson();
 
-        Vector2f32 offset;
-        Vector2f32 offset2; // optional
-        Vector2f32 size{ 1.0f, 1.0f };
-        Vector2f32 size2{ 0.0f, 0.0f }; // optional
+    m_keyboardLayout.reserve( 6 ); // typical keyboards have 6 rows
 
-        for (const auto& rowData : jsonDoc.Json)
-        {
-            DynamicArray<KeyData>& keyboardRow = m_KeyboardLayout.emplace_back();
-            for (const auto& columnValue : rowData)
-            {
-                if (columnValue.is_object() == false)
-                {
-                    ONYX_LOG_WARNING("Skipping element in keyboard json");
-                    continue;
-                }
-                
-                // is key data
-                if (columnValue.contains("label"))
-                {
-                    const String& label = columnValue["label"].get<String>();
-                    Input::Key key = Enums::ToEnum<Input::Key>(columnValue["keyCode"].get<onyxU16>());
-                    keyboardRow.emplace_back(offset, offset2, size, size2, key, label);
+    Vector2f32 offset;
+    Vector2f32 offset2; // optional
+    Vector2f32 size{ 1.0f, 1.0f };
+    Vector2f32 size2{ 0.0f, 0.0f }; // optional
 
-                    offset.Set(0.0f, 0.0f);
-                    offset2.Set(0.0f, 0.0f);
-                    size.Set(1.0f, 1.0f);
-                    size2.Set(0.0f, 0.0f);
-                }
-                else // is meta data
-                {
-                    if (columnValue.contains("x"))
-                        offset[0] = columnValue["x"].get<float>();
-                    if (columnValue.contains("x2"))
-                        offset2[0] = columnValue["x2"].get<float>();
-
-                    if (columnValue.contains("y"))
-                        offset[1] = columnValue["y"].get<float>();
-                    if (columnValue.contains("y2"))
-                        offset2[1] = columnValue["y2"].get<float>();
-
-                    if (columnValue.contains("w"))
-                        size[0] = columnValue["w"].get<float>();
-                    if (columnValue.contains("w2"))
-                        size2[0] = columnValue["w2"].get<float>();
-
-                    if (columnValue.contains("h"))
-                        size[1] = columnValue["h"].get<float>();
-                    if (columnValue.contains("h2"))
-                        size2[1] = columnValue["h2"].get<float>();
-                }
-                
-            }
-        }
-    }
-
-    void KeyboardOverlay::OnOpen()
-    {
-
-    }
-
-    void KeyboardOverlay::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
-    {
-        if (Ui::g_UiContext.InputSystem == nullptr)
-            return;
-
-        const Input::InputSystem& inputSystem = *Ui::g_UiContext.InputSystem;
-        SetWindowFlags(ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking);
-
-        // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
-        SetDefaultPosition( Ui::WindowPosition::BottomLeft );
-        
-        onyxF32 aspectRatio = 23.0f / static_cast<onyxF32>(m_KeyboardLayout.size() + 1);
-        auto aspect_ratio_constraint = [](ImGuiSizeCallbackData* data)
-        {
-            float aspectRatio = *static_cast<onyxF32*>(data->UserData);
-            data->DesiredSize.y = (float)(int)(data->DesiredSize.x / aspectRatio);
-        };
-
-        ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSizeConstraints(ImVec2(200, 300), ImVec2(FLT_MAX, FLT_MAX), aspect_ratio_constraint, &aspectRatio);   // Aspect ratio
-        Begin();
-        ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
-
-        static const ImVec4 defaultColor{ 0.7f, 0.7f, 0.7f, 1.0f };
-        static const ImVec4 pressedColor{ 0.9f, 0.2f, 0.2f, 1.0f };
-        onyxU32 defaultColorU32 = ImGui::GetColorU32(defaultColor);
-        onyxU32 pressedColorU32 = ImGui::GetColorU32(pressedColor);
-        auto drawList = ImGui::GetWindowDrawList();
-        const onyxF32 renderSize = ImGui::GetContentRegionAvail().x;
-        float size = renderSize / 23.0f;
-        const ImVec2& initialPosition = ImGui::GetCursorScreenPos();
-        Vector2f32 cursorPos = { initialPosition.x, initialPosition.y };
-        float spacing = 1.0f;
-
-        ImRect keyBounds;
-        for (const DynamicArray<KeyData>& keyboardRow : m_KeyboardLayout)
-        {
-            onyxU32 numButtonsInRow = static_cast<onyxU32>(keyboardRow.size());
-            for (onyxU32 i = 0; i < numButtonsInRow; ++i)
-            {
-                const KeyData& key = keyboardRow[i];
-                const Vector2f32& rectSize = key.m_Size * size;
-
-                Vector2f32 tempCursorPos = cursorPos;
-
-                onyxU32 color = inputSystem.IsButtonDown(key.m_Key) ? pressedColorU32 : defaultColorU32;
-
-                tempCursorPos += (key.m_Offset * size);
-                keyBounds = ImRect({tempCursorPos[0], tempCursorPos[1]}, { tempCursorPos[0] + rectSize[0] - spacing, tempCursorPos[1] + rectSize[1] - spacing });
-                drawList->AddRectFilled(keyBounds.Min, keyBounds.Max, color);
-
-                if (key.m_Size2.IsZero() == false)
-                {
-                    const Vector2f32& rectSize2 = key.m_Size2 * size;
-                    Vector2f32 tmpCursorPos2 = tempCursorPos + (key.m_Offset2 * size);
-                    keyBounds = ImRect({ tmpCursorPos2[0], tmpCursorPos2[1] }, { tmpCursorPos2[0] + rectSize2[0] - spacing, tmpCursorPos2[1] + rectSize2[1] - spacing });
-                    drawList->AddRectFilled(keyBounds.Min, keyBounds.Max, color);
-                }
-               
-                cursorPos = cursorPos + (key.m_Offset * size);
-                cursorPos[0] += rectSize[0];
+    for ( const auto& rowData : jsonDoc.Json ) {
+        DynamicArray< KeyData >& keyboardRow = m_keyboardLayout.emplace_back();
+        for ( const auto& columnValue : rowData ) {
+            if ( columnValue.is_object() == false ) {
+                ONYX_LOG_WARNING( "Skipping element in keyboard json" );
+                continue;
             }
 
-            cursorPos[0] = initialPosition.x;
-            cursorPos[1] += size;
-        }
+            // is key data
+            if ( columnValue.contains( "label" ) ) {
+                const String& label = columnValue[ "label" ].get< String >();
+                input::Key key = enums::ToEnum< input::Key >( columnValue[ "keyCode" ].get< onyxU16 >() );
+                keyboardRow.emplace_back( offset, offset2, size, size2, key, label );
 
-       // ImVec2 windowSize = ImVec2(initialPosition.x + renderSize, cursorPos[1]) - initialPosition;
-        //ImGui::Dummy(windowSize);
-        End();
+                offset.Set( 0.0f, 0.0f );
+                offset2.Set( 0.0f, 0.0f );
+                size.Set( 1.0f, 1.0f );
+                size2.Set( 0.0f, 0.0f );
+            } else // is meta data
+            {
+                if ( columnValue.contains( "x" ) )
+                    offset[ 0 ] = columnValue[ "x" ].get< float >();
+                if ( columnValue.contains( "x2" ) )
+                    offset2[ 0 ] = columnValue[ "x2" ].get< float >();
+
+                if ( columnValue.contains( "y" ) )
+                    offset[ 1 ] = columnValue[ "y" ].get< float >();
+                if ( columnValue.contains( "y2" ) )
+                    offset2[ 1 ] = columnValue[ "y2" ].get< float >();
+
+                if ( columnValue.contains( "w" ) )
+                    size[ 0 ] = columnValue[ "w" ].get< float >();
+                if ( columnValue.contains( "w2" ) )
+                    size2[ 0 ] = columnValue[ "w2" ].get< float >();
+
+                if ( columnValue.contains( "h" ) )
+                    size[ 1 ] = columnValue[ "h" ].get< float >();
+                if ( columnValue.contains( "h2" ) )
+                    size2[ 1 ] = columnValue[ "h2" ].get< float >();
+            }
+        }
     }
 }
+
+void KeyboardOverlay::OnOpen() {}
+
+void KeyboardOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
+    if ( ui::g_UiContext.InputSystem == nullptr )
+        return;
+
+    const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
+    SetWindowFlags( ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking );
+
+    // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
+    SetDefaultPosition( ui::WindowPosition::BottomLeft );
+
+    onyxF32 aspectRatio = 23.0f / static_cast< onyxF32 >( m_keyboardLayout.size() + 1 );
+    auto aspect_ratio_constraint = []( ImGuiSizeCallbackData* data ) {
+        float aspectRatio = *static_cast< onyxF32* >( data->UserData );
+        data->DesiredSize.y = (float)(int)( data->DesiredSize.x / aspectRatio );
+    };
+
+    ImGui::SetNextWindowSize( ImVec2( 400, 600 ), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowSizeConstraints( ImVec2( 200, 300 ), ImVec2( FLT_MAX, FLT_MAX ), aspect_ratio_constraint, &aspectRatio ); // Aspect ratio
+    Begin();
+    ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
+
+    static const ImVec4 defaultColor{ 0.7f, 0.7f, 0.7f, 1.0f };
+    static const ImVec4 pressedColor{ 0.9f, 0.2f, 0.2f, 1.0f };
+    onyxU32 defaultColorU32 = ImGui::GetColorU32( defaultColor );
+    onyxU32 pressedColorU32 = ImGui::GetColorU32( pressedColor );
+    auto drawList = ImGui::GetWindowDrawList();
+    const onyxF32 renderSize = ImGui::GetContentRegionAvail().x;
+    float size = renderSize / 23.0f;
+    const ImVec2& initialPosition = ImGui::GetCursorScreenPos();
+    Vector2f32 cursorPos = { initialPosition.x, initialPosition.y };
+    float spacing = 1.0f;
+
+    ImRect keyBounds;
+    for ( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
+        onyxU32 numButtonsInRow = static_cast< onyxU32 >( keyboardRow.size() );
+        for ( onyxU32 i = 0; i < numButtonsInRow; ++i ) {
+            const KeyData& key = keyboardRow[ i ];
+            const Vector2f32& rectSize = key.Size * size;
+
+            Vector2f32 tempCursorPos = cursorPos;
+
+            onyxU32 color = inputSystem.IsButtonDown( key.Key ) ? pressedColorU32 : defaultColorU32;
+
+            tempCursorPos += ( key.Offset * size );
+            keyBounds = ImRect( { tempCursorPos[ 0 ], tempCursorPos[ 1 ] }, { tempCursorPos[ 0 ] + rectSize[ 0 ] - spacing, tempCursorPos[ 1 ] + rectSize[ 1 ] - spacing } );
+            drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
+
+            if ( key.Size2.IsZero() == false ) {
+                const Vector2f32& rectSize2 = key.Size2 * size;
+                Vector2f32 tmpCursorPos2 = tempCursorPos + ( key.Offset2 * size );
+                keyBounds = ImRect( { tmpCursorPos2[ 0 ], tmpCursorPos2[ 1 ] }, { tmpCursorPos2[ 0 ] + rectSize2[ 0 ] - spacing, tmpCursorPos2[ 1 ] + rectSize2[ 1 ] - spacing } );
+                drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
+            }
+
+            cursorPos = cursorPos + ( key.Offset * size );
+            cursorPos[ 0 ] += rectSize[ 0 ];
+        }
+
+        cursorPos[ 0 ] = initialPosition.x;
+        cursorPos[ 1 ] += size;
+    }
+
+    // ImVec2 windowSize = ImVec2(initialPosition.x + renderSize, cursorPos[1]) - initialPosition;
+    // ImGui::Dummy(windowSize);
+    End();
+}
+
+} // namespace onyx::application::debug
 #endif

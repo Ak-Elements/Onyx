@@ -2,7 +2,7 @@
 
 #include <onyx/nodegraph/pins/pin.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename NodeType, typename InType, typename OutType>
     class FixedPinNode_1_In_1_Out : public NodeType

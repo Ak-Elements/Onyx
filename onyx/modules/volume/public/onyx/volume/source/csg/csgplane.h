@@ -5,7 +5,7 @@
 #include <onyx/geometry/vector3.h>
 #include <onyx/geometry/vector4.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class CSGPlane : public VolumeBase
     {

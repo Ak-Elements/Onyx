@@ -2,26 +2,26 @@
 
 #include <onyx/inputactions/inputaction.h>
 
-namespace Onyx
+namespace onyx
 {
     enum class Key : onyxU16;
     enum class GameControllerStick : onyxU8;
     enum class GameControllerButton : onyxU16;
 }
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     struct JsonValue;
 }
 
-namespace Onyx::Input
+namespace onyx::input
 {
     struct GameControllerButtonEvent;
     struct GameControllerStickEvent;
     struct KeyboardEvent;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     struct InputActionsMap
     {

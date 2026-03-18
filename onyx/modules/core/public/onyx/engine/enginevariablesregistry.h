@@ -2,7 +2,7 @@
 
 #include <onyx/engine/enginevariable.h>
 
-namespace Onyx
+namespace onyx
 {
     class EngineVariablesRegistry
     {

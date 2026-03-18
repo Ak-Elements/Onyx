@@ -2,7 +2,7 @@
 
 #include <imgui_internal.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     Dockspace Dockspace::Create(const DynamicArray<DockSplit>& splits)
     {

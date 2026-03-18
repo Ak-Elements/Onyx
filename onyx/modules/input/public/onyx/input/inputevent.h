@@ -4,7 +4,7 @@
 #include <onyx/input/keycodes.h>
 #include <onyx/input/mouse.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class ButtonState : onyxU8
     {

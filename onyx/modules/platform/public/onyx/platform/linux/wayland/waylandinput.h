@@ -2,7 +2,7 @@
 
 #if ONYX_IS_LINUX && ONYX_USE_WAYLAND
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class MouseButton : onyxU16;
     enum class Key : onyxU16;
@@ -12,11 +12,11 @@ namespace Onyx::Input
 struct wl_seat;
 struct wl_surface;
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     class PlatformSystem;
 
-    namespace Wayland
+    namespace wayland
     {
         class WaylandPointer;
         class WaylandKeyboard;

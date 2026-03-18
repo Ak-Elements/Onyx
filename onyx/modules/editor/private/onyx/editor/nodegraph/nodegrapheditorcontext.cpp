@@ -8,11 +8,11 @@
 #include <onyx/nodegraph/nodegraphserializer.h>
 #include <onyx/thread/threadpool/threadpool.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct DefaultNodeFilter
     {
-        bool operator()(NodeGraph::NodeEditorMetaData&) const
+        bool operator()(node_graph::NodeEditorMetaData&) const
         {
             return true;
         }
@@ -20,13 +20,13 @@ namespace Onyx::Editor
 
     void NodeGraphEditorContext::OnDrawNode(const Node& node)
     {
-        NodeGraph::Node& nodeGraphNode = GetNodeGraphNode(node.LocalId);
+        node_graph::Node& nodeGraphNode = GetNodeGraphNode(node.LocalId);
         nodeGraphNode.UIDrawNode();
     }
 
     void NodeGraphEditorContext::OnDrawNodeBackground(const Node& node)
     {
-        NodeGraph::Node& nodeGraphNode = GetNodeGraphNode(node.LocalId);
+        node_graph::Node& nodeGraphNode = GetNodeGraphNode(node.LocalId);
         nodeGraphNode.UIDrawNodeBackground();
     }
     
@@ -35,7 +35,7 @@ namespace Onyx::Editor
         return GetNodeGraph().IsNewLinkValid(fromPinId, toPinId) == false;
     }
 
-    bool NodeGraphEditorContext::ArePinTypesCompatible(NodeGraph::PinTypeId lhsPinType, NodeGraph::PinTypeId rhsPinType) const
+    bool NodeGraphEditorContext::ArePinTypesCompatible(node_graph::PinTypeId lhsPinType, node_graph::PinTypeId rhsPinType) const
     {
         return lhsPinType == rhsPinType;
     }
@@ -43,7 +43,7 @@ namespace Onyx::Editor
     void NodeGraphEditorContext::DrawNodeInPropertyPanel(Guid64 nodeId)
     {
         Node& editorNode = GetNode(nodeId);
-        NodeGraph::Node& graphNode = GetNodeGraphNode(editorNode.LocalId);
+        node_graph::Node& graphNode = GetNodeGraphNode(editorNode.LocalId);
         HashMap<Guid64, std::any>& constantPinData = GetNodeGraph().GetConstantPinData();
         // TODO: Change bool to enum - NodeChanged::PinAdded, NodeChanged::PinRemoved NodeChanged::PinRenamed etc...
         bool hasChanged = graphNode.DrawInPropertyGrid(constantPinData);
@@ -54,17 +54,17 @@ namespace Onyx::Editor
         }
     }
 
-    void NodeGraphEditorContext::FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData&)> filterFunctor)
+    void NodeGraphEditorContext::FilterNodeListContextMenu(InplaceFunction<bool(StringView, const node_graph::NodeEditorMetaData&)> filterFunctor)
     {
         m_ContextMenuRoot.Children.clear();
 
-        const NodeGraph::INodeFactory& factory = GetNodeFactory();
+        const node_graph::INodeFactory& factory = GetNodeFactory();
         const auto& nodeTypeIds = factory.GetRegisteredNodeIds();
-        const Localization::LocalizationModule& localizationModule = GetLocalizationModule();
+        const localization::LocalizationModule& localizationModule = GetLocalizationModule();
 
         for (const StringId32 typeId : nodeTypeIds)
         {
-            const NodeGraph::NodeEditorMetaData& nodeMetaData = factory.GetNodeMetaData(typeId);
+            const node_graph::NodeEditorMetaData& nodeMetaData = factory.GetNodeMetaData(typeId);
             StringView localizedFullyQualifiedNodeName = localizationModule.GetLocalized(nodeMetaData.TypeId).Get();
             if (filterFunctor && filterFunctor(localizedFullyQualifiedNodeName, nodeMetaData) == false)
             {
@@ -74,13 +74,13 @@ namespace Onyx::Editor
             constexpr char delimiter = '/';
             DynamicArray<String> split = Split(localizedFullyQualifiedNodeName, delimiter);
 
-            Ui::TreeItem* currentParent = &m_ContextMenuRoot;
+            ui::TreeItem* currentParent = &m_ContextMenuRoot;
             for (onyxU32 i = 0; i < split.size(); ++i)
             {
                 const String& currentToken = split[i];
                 if (i == split.size() - 1)
                 {
-                    Ui::TreeItem& menuItem = currentParent->Children[currentToken];
+                    ui::TreeItem& menuItem = currentParent->Children[currentToken];
                     menuItem.Label = currentToken;
                     menuItem.OnSelected = [&, typeId]()
                     {
@@ -101,12 +101,12 @@ namespace Onyx::Editor
         FilterNodeListContextMenu(nullptr);
     }
 
-    const Ui::TreeItem& NodeGraphEditorContext::GetNodeListContextMenuRoot()
+    const ui::TreeItem& NodeGraphEditorContext::GetNodeListContextMenuRoot()
     {
         return m_ContextMenuRoot;
     }
     
-    void NodeGraphEditorContext::UpdateEditorNodeData(Node& editorNode, const NodeGraph::Node& graphNode)
+    void NodeGraphEditorContext::UpdateEditorNodeData(Node& editorNode, const node_graph::Node& graphNode)
     {
         DynamicArray<Link>& editorLinks = GetLinks();
         const onyxU32 inputPinCount = graphNode.GetInputPinCount();
@@ -114,7 +114,7 @@ namespace Onyx::Editor
         editorNode.Inputs.reserve(inputPinCount);
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            const NodeGraph::PinBase* inputPin = graphNode.GetInputPin(i);
+            const node_graph::PinBase* inputPin = graphNode.GetInputPin(i);
 
             Pin& inputPinEditorMeta = editorNode.Inputs.emplace_back();
             inputPinEditorMeta.Name = graphNode.GetPinName(inputPin->GetLocalId());
@@ -140,7 +140,7 @@ namespace Onyx::Editor
         editorNode.Outputs.reserve(outputPinCount);
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            const NodeGraph::PinBase* outputPin = graphNode.GetOutputPin(i);
+            const node_graph::PinBase* outputPin = graphNode.GetOutputPin(i);
 
             Pin& outputPinEditorMeta = editorNode.Outputs.emplace_back();
             outputPinEditorMeta.Name = graphNode.GetPinName(outputPin->GetLocalId());
@@ -169,13 +169,13 @@ namespace Onyx::Editor
 
     void NodeGraphEditorContext::OnLinkCreate(const Link& newLink)
     {
-        NodeGraph::NodeGraph& graph = GetNodeGraph();
-        NodeGraph::Node& node = graph.GetNodeForPinId(newLink.FromPinId);
+        node_graph::NodeGraph& graph = GetNodeGraph();
+        node_graph::Node& node = graph.GetNodeForPinId(newLink.FromPinId);
 
         const onyxU32 inputPinCount = node.GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            NodeGraph::PinBase* inputPin = node.GetInputPin(i);
+            node_graph::PinBase* inputPin = node.GetInputPin(i);
             if (inputPin->GetGlobalId() != newLink.FromPinId)
                 continue;
 
@@ -193,7 +193,7 @@ namespace Onyx::Editor
         const onyxU32 outputPinCount = node.GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            NodeGraph::PinBase* outputPin = node.GetOutputPin(i);
+            node_graph::PinBase* outputPin = node.GetOutputPin(i);
             if (outputPin->GetGlobalId() != newLink.FromPinId)
                 continue;
 
@@ -214,12 +214,12 @@ namespace Onyx::Editor
     
     void NodeGraphEditorContext::OnLinkDelete(const Link& link)
     {
-        NodeGraph::Node& node = GetNodeGraph().GetNodeForPinId(link.FromPinId);
+        node_graph::Node& node = GetNodeGraph().GetNodeForPinId(link.FromPinId);
 
         const onyxU32 inputPinCount = node.GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            NodeGraph::PinBase* inputPin = node.GetInputPin(i);
+            node_graph::PinBase* inputPin = node.GetInputPin(i);
             if (inputPin->GetGlobalId() != link.FromPinId)
                 continue;
 
@@ -230,7 +230,7 @@ namespace Onyx::Editor
         const onyxU32 outputPinCount = node.GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            NodeGraph::PinBase* outputPin = node.GetOutputPin(i);
+            node_graph::PinBase* outputPin = node.GetOutputPin(i);
             if (outputPin->GetGlobalId() != link.FromPinId)
                 continue;
 
@@ -244,7 +244,7 @@ namespace Onyx::Editor
     
     bool NodeGraphEditorContext::OnNodeCreate(Node& newEditorNode, StringId32 typeId)
     {
-        UniquePtr<NodeGraph::Node> newNode = GetNodeFactory().CreateNode(typeId);
+        UniquePtr<node_graph::Node> newNode = GetNodeFactory().CreateNode(typeId);
         newNode->SetId(newEditorNode.Id);
 
         newEditorNode.Name = newNode->GetName();
@@ -258,7 +258,7 @@ namespace Onyx::Editor
 
         UpdateEditorNodeData(newEditorNode, *newNode);
 
-        const NodeGraph::NodeEditorMetaData& nodeMetaData = GetNodeFactory().GetNodeMetaData(typeId);
+        const node_graph::NodeEditorMetaData& nodeMetaData = GetNodeFactory().GetNodeMetaData(typeId);
         newEditorNode.ShowNodeName = nodeMetaData.ShowNodeName;
         newEditorNode.LocalId = GetNodeGraph().Emplace(std::move(newNode));
         return true;

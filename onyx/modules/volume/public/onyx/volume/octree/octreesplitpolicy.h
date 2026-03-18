@@ -2,7 +2,7 @@
 
 #include <onyx/volume/octree/octreenode.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class VolumeBase;
     struct VolumeDataContainer;

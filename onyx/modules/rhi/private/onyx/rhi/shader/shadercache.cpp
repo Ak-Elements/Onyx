@@ -8,23 +8,23 @@
 #include <onyx/filesystem/filestream.h>
 #include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     ShaderCache::ShaderCache(GraphicsSystem& graphicsSystem)
         : m_GraphicsSystem(graphicsSystem)
     {
 #if !ONYX_IS_RETAIL
-        const FilePath shaderCacheDirectory = FileSystem::Path::GetFullPath(SHADER_CACHE_PATH);
-        if (FileSystem::Path::Exists(shaderCacheDirectory) == false)
+        const FilePath shaderCacheDirectory = file_system::Path::GetFullPath(SHADER_CACHE_PATH);
+        if (file_system::Path::Exists(shaderCacheDirectory) == false)
         {
-            FileSystem::Path::CreateDirectory(shaderCacheDirectory);
+            file_system::Path::CreateDirectory(shaderCacheDirectory);
         }
 
         for (const FilePath& shaderDirectory : GetShaderDirectories())
         {
             m_DirectoryWatcher.AddPath(shaderDirectory, true);
 
-            FileSystem::Path::EnumerateFiles(shaderDirectory, [&](const FilePath& path)
+            file_system::Path::EnumerateFiles(shaderDirectory, [&](const FilePath& path)
             {
                 if (path.has_filename() == false)
                     return true;
@@ -33,17 +33,17 @@ namespace Onyx::Graphics
                     return true;
 
                 //TODO: enqueue in a different thread
-                FilePath mountPointPath = FileSystem::Path::ConvertToMountPath(path);
+                FilePath mountPointPath = file_system::Path::ConvertToMountPath(path);
 
                 String content;
-                if (FileSystem::OnyxFile::ReadAll(path, content) == false)
+                if (file_system::OnyxFile::ReadAll(path, content) == false)
                 {
                     ONYX_LOG_ERROR("Failed reading shader file. ({})", path);
                     return true;
                 }
 
-                onyxU64 fileHash = Hash::FNV1aHash<onyxU64>(mountPointPath.generic_string());
-                onyxU64 shaderFileHash = Hash::FNV1aHash<onyxU64>(content, fileHash);
+                onyxU64 fileHash = hash::FNV1aHash<onyxU64>(mountPointPath.generic_string());
+                onyxU64 shaderFileHash = hash::FNV1aHash<onyxU64>(content, fileHash);
 
                 m_IncludesCache[fileHash] = { .Path = mountPointPath, .ShaderHash = shaderFileHash, };
                 return true;
@@ -57,7 +57,7 @@ namespace Onyx::Graphics
     bool ShaderCache::GetOrLoadShader(const FilePath& shaderPath, Reference<Shader>& outShader)
     {
         // TODO: Hash should be hash of properties not just the path
-        onyxU64 fileHash = Hash::FNV1aHash<onyxU64>(shaderPath.generic_string());
+        onyxU64 fileHash = hash::FNV1aHash<onyxU64>(shaderPath.generic_string());
 
         auto entryIt = m_Cache.find(fileHash);
         bool hasEntry = entryIt != m_Cache.end();
@@ -74,21 +74,21 @@ namespace Onyx::Graphics
         ShaderCacheEntry& entry = entryIt->second;
 
         // we have that shader already cached
-        FilePath absoluteFilepath = FileSystem::Path::GetFullPath(shaderPath);
-        FileSystem::OnyxFile shaderSource = FileSystem::OnyxFile(absoluteFilepath);
+        FilePath absoluteFilepath = file_system::Path::GetFullPath(shaderPath);
+        file_system::OnyxFile shaderSource = file_system::OnyxFile(absoluteFilepath);
         String shaderCode;
-        if (FileSystem::OnyxFile::ReadAll(absoluteFilepath, shaderCode) == false)
+        if (file_system::OnyxFile::ReadAll(absoluteFilepath, shaderCode) == false)
         {
             ONYX_LOG_ERROR("Missing shader file. ({})", shaderPath);
             return false;
         }
 
-        onyxU64 shaderHash = Hash::FNV1aHash<onyxU64>(shaderCode, fileHash);
+        onyxU64 shaderHash = hash::FNV1aHash<onyxU64>(shaderCode, fileHash);
 
         // cached version is still valid we can return it
         // TODO: This is not correct when doing a reload from a header change
-        StringView path = Format::Format("{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash);
-        const FilePath& diskShaderCachePath = FileSystem::Path::GetFullPath(path);
+        StringView path = format::Format("{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash);
+        const FilePath& diskShaderCachePath = file_system::Path::GetFullPath(path);
         if (hasEntry)
         {
             if (IsEntryUpToDate(entry, shaderHash))
@@ -101,7 +101,7 @@ namespace Onyx::Graphics
         else // get from shader cache
         {
             // check shader disk cache before recompiling / reloading shaders
-            if (FileSystem::Path::Exists(diskShaderCachePath))
+            if (file_system::Path::Exists(diskShaderCachePath))
             {
                 bool hasLoaded = LoadCacheFromDisk(diskShaderCachePath, entry);
                 if (hasLoaded && IsEntryUpToDate(entry, shaderHash))
@@ -128,14 +128,14 @@ namespace Onyx::Graphics
         ShaderReflectionInfo reflectionInfo;
         
         //const bool isExistingShader = entry.Shader.IsValid();
-        for (onyxU8 i = Enums::ToIntegral(ShaderStage::Vertex); i < Enums::ToIntegral(ShaderStage::Count); ++i)
+        for (onyxU8 i = enums::ToIntegral(ShaderStage::Vertex); i < enums::ToIntegral(ShaderStage::Count); ++i)
         {
             ShaderStage stage = static_cast<ShaderStage>(i);
             const PreprocessedShader& preprocessedShader = shaderStagesSource[i];
             if (preprocessedShader.m_IsValid)
             {
                 ShaderStageCacheEntry& stageCacheEntry = entry.Stages[i];
-                const onyxU64 stageHash = Hash::FNV1aHash<onyxU64>(preprocessedShader.m_Code, shaderHash);
+                const onyxU64 stageHash = hash::FNV1aHash<onyxU64>(preprocessedShader.m_Code, shaderHash);
                 if ((stageCacheEntry.Hash != stageHash) ||
                     (AreIncludesUpToDate(stageCacheEntry.IncludeHashes) == false))
                 {
@@ -154,14 +154,14 @@ namespace Onyx::Graphics
                     else
                     {
                         // failed compiling early out
-                        ONYX_LOG_ERROR("Failed compiling shader stage {}. ({})", Enums::ToString<ShaderStage>(i), shaderPath);
+                        ONYX_LOG_ERROR("Failed compiling shader stage {}. ({})", enums::ToString<ShaderStage>(i), shaderPath);
                         return false;
                     }
                         
                     for (const String& includePath : stageIncludes)
                     {
-                       FilePath mountPointPath = FileSystem::Path::ConvertToMountPath(includePath);
-                       onyxU64 includePathHash = Hash::FNV1aHash<onyxU64>(mountPointPath.generic_string());
+                       FilePath mountPointPath = file_system::Path::ConvertToMountPath(includePath);
+                       onyxU64 includePathHash = hash::FNV1aHash<onyxU64>(mountPointPath.generic_string());
                        stageCacheEntry.IncludeHashes[includePathHash] = m_IncludesCache[includePathHash].ShaderHash;
                     }
                 }
@@ -170,7 +170,7 @@ namespace Onyx::Graphics
             {
 				ONYX_ASSERT(entry.Shader.IsValid(), "Can't remove stage from invalid shader handle");
                 entry.Stages[i].Hash = 0;
-				entry.Shader->RemoveStage(Enums::ToEnum<ShaderStage>(i));
+				entry.Shader->RemoveStage(enums::ToEnum<ShaderStage>(i));
             }
         }
 
@@ -199,8 +199,8 @@ namespace Onyx::Graphics
 
     bool ShaderCache::LoadCacheFromDisk(const FilePath& diskShaderCachePath, ShaderCacheEntry& outEntry)
     {
-        FileSystem::OnyxFile shaderDiskCacheFile = FileSystem::OnyxFile(diskShaderCachePath);
-        FileSystem::FileStream stream = shaderDiskCacheFile.OpenStream(FileSystem::OpenMode::Binary | FileSystem::OpenMode::Read);
+        file_system::OnyxFile shaderDiskCacheFile = file_system::OnyxFile(diskShaderCachePath);
+        file_system::FileStream stream = shaderDiskCacheFile.OpenStream(file_system::OpenMode::Binary | file_system::OpenMode::Read);
 
         if (stream.IsValid() == false)
             return false;
@@ -219,7 +219,7 @@ namespace Onyx::Graphics
             stream.ReadRaw(stageEntry.ByteCode);
             stream.ReadRaw(stageEntry.IncludeHashes);
 
-            outEntry.Shader->AddStage(m_GraphicsSystem, Enums::ToEnum<ShaderStage>(i), stageEntry.ByteCode);
+            outEntry.Shader->AddStage(m_GraphicsSystem, enums::ToEnum<ShaderStage>(i), stageEntry.ByteCode);
         }
 
         ShaderReflectionInfo reflectionInfo;
@@ -234,8 +234,8 @@ namespace Onyx::Graphics
 
     void ShaderCache::SaveCacheToDisk(const ShaderCacheEntry& entry, const FilePath& diskShaderCachePath, const ShaderReflectionInfo& reflectionInfo)
     {
-        FileSystem::OnyxFile shaderDiskCacheFile = FileSystem::OnyxFile(diskShaderCachePath);
-        FileSystem::FileStream stream = shaderDiskCacheFile.OpenStream(FileSystem::OpenMode::Binary | FileSystem::OpenMode::Write);
+        file_system::OnyxFile shaderDiskCacheFile = file_system::OnyxFile(diskShaderCachePath);
+        file_system::FileStream stream = shaderDiskCacheFile.OpenStream(file_system::OpenMode::Binary | file_system::OpenMode::Write);
 
         stream.Write(entry.ShaderHash);
         
@@ -256,15 +256,15 @@ namespace Onyx::Graphics
         stream.Write(reflectionInfo);
     }
 
-    void ShaderCache::OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction /*action*/)
+    void ShaderCache::OnFileChanged(const FilePath& path, file_system::FileWatcher::FileAction /*action*/)
     {
         // handled by the asset system
         if (path.extension() == "oshader")
             return;
 
-        //FilePath mountPointPath = FileSystem::Path::ConvertToMountPath(path);
+        //FilePath mountPointPath = file_system::Path::ConvertToMountPath(path);
         ////String genericPath = mountPointPath.generic_string();
-        //onyxU64 pathHash = Hash::FNV1aHash<onyxU64>(mountPointPath.generic_string());
+        //onyxU64 pathHash = hash::FNV1aHash<onyxU64>(mountPointPath.generic_string());
         //for (const ShaderCacheEntry& entry : m_Cache | std::views::values)
         //{ 
         //   //if (entry.ShaderPathHash == pathHash)

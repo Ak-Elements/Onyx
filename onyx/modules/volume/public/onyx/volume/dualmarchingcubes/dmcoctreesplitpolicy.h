@@ -9,7 +9,7 @@
 #endif
 
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     // Given an edge it gives back the two
     // cell vertices that connect it

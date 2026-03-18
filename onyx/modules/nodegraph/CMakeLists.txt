@@ -3,6 +3,7 @@
 endif()
 
 onyx_add_target(onyx-nodegraph
-    NAMESPACE "Onyx::NodeGraph"
+    NAMESPACE "onyx::node_graph"
+    NAMESPACE_PATH "onyx/nodegraph"
     FOLDER ${ONYX_TARGETS_FOLDER}
 )

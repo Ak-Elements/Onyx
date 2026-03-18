@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class InputType : onyxU8;
     enum class MouseButton : onyxU16;
@@ -27,7 +27,7 @@ namespace Onyx::Input
         
         template <InputEnum T>
         InputID(T inputValue)
-            : ID(Enums::ToIntegral(inputValue))
+            : ID(enums::ToIntegral(inputValue))
         {
         }
         
@@ -53,12 +53,12 @@ namespace Onyx::Input
     InputType GetInputType(InputID id);
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Input::InputID>
+    struct Serialization<input::InputID>
     {
-        static bool Serialize(Serializer& serializer, const Input::InputID& id);
-        static bool Deserialize(const Deserializer& deserializer, Input::InputID& outId);
+        static bool Serialize(Serializer& serializer, const input::InputID& id);
+        static bool Deserialize(const Deserializer& deserializer, input::InputID& outId);
     };
 }

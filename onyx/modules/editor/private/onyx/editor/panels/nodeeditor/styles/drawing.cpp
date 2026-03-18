@@ -2,7 +2,7 @@
 #include <onyx/editor/panels/nodeeditor/styles/drawing.h>
 #include <imgui_internal.h>
 
-void Onyx::Editor::DrawIcon(ImDrawList* drawList, const ImVec2& a, const ImVec2& b, IconType type, bool filled, bool showTriangleTip, ImU32 color, ImU32 innerColor)
+void onyx::editor::DrawIcon(ImDrawList* drawList, const ImVec2& a, const ImVec2& b, IconType type, bool filled, bool showTriangleTip, ImU32 color, ImU32 innerColor)
 {
           auto rect           = ImRect(a, b);
           auto rect_y         = rect.Min.y;

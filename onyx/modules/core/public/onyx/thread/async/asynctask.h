@@ -4,9 +4,9 @@
 #include <onyx/thread/async/future.h>
 #include <stop_token>
 
-namespace Onyx::Threading
+namespace onyx::threading
 {
-template<typename Signature, size_t Capacity = InplaceFunctionDetail::InplaceFunctionDefaultCapacity>
+template<typename Signature, size_t Capacity = inplace_function_detail::InplaceFunctionDefaultCapacity>
 class AsyncTask; // unspecified
 
 template <typename R, typename... Args, size_t Capacity>
@@ -103,4 +103,4 @@ private:
     std::stop_token m_StopToken;
 };
 
-} // namespace Onyx::Threading
+} // namespace onyx::threading

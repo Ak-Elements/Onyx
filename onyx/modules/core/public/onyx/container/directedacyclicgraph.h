@@ -2,7 +2,7 @@
 #include <bitset>
 #include <iostream>
 
-namespace Onyx
+namespace onyx
 {
     template <typename NodeDataT, typename NodeIdT>
     class DirectedAcyclicGraph;

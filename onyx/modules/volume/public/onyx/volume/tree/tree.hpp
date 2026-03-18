@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     template <typename T, typename KeyT, onyxU8 NumChildren>
     inline Tree<T, KeyT, NumChildren>::Tree()

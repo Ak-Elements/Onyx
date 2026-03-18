@@ -7,7 +7,7 @@
 #include <onyx/physics/collisionlayers.h>
 #include <onyx/physics/broadphaselayers.h>
 
-namespace Onyx::Physics::Jolt
+namespace onyx::physics::jolt
 {
     /// Class that determines if two object layers can collide
     class JoltObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilter
@@ -15,10 +15,10 @@ namespace Onyx::Physics::Jolt
     public:
         bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
         {
-            switch (Enums::ToEnum<CollisionLayer>(inObject1))
+            switch (enums::ToEnum<CollisionLayer>(inObject1))
             {
             case CollisionLayer::STATIC:
-                return Enums::ToEnum<CollisionLayer>(inObject2) == CollisionLayer::DYNAMIC; // Non moving only collides with moving
+                return enums::ToEnum<CollisionLayer>(inObject2) == CollisionLayer::DYNAMIC; // Non moving only collides with moving
             case CollisionLayer::DYNAMIC:
                 return true; // Moving collides with everything
             default:
@@ -34,10 +34,10 @@ namespace Onyx::Physics::Jolt
     public:
         bool ShouldCollide(JPH::ObjectLayer objectLayer, JPH::BroadPhaseLayer broadPhaseLayer) const override
         {
-            switch (Enums::ToEnum<CollisionLayer>(objectLayer))
+            switch (enums::ToEnum<CollisionLayer>(objectLayer))
             {
             case CollisionLayer::STATIC:
-                return Enums::ToEnum<BroadPhaseLayer>(broadPhaseLayer.GetValue()) == BroadPhaseLayer::DYNAMIC;
+                return enums::ToEnum<BroadPhaseLayer>(broadPhaseLayer.GetValue()) == BroadPhaseLayer::DYNAMIC;
             case CollisionLayer::DYNAMIC:
                 return true;
             default:

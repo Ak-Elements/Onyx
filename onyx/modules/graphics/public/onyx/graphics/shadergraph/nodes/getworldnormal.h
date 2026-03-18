@@ -3,16 +3,16 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1out.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
-namespace Onyx::Graphics::ShaderGraphNodes
+namespace onyx::graphics::shader_graph_nodes
 {
-    class GetWorldNormalNode : public NodeGraph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f32>
+    class GetWorldNormalNode : public node_graph::FixedPinNode_1_Out<ShaderGraphNode, Vector4f32>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::GetWorldNormal";
+        static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::GetWorldNormal";
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void DoGenerateShader(const NodeGraph::ExecutionContext&, ShaderGenerator&) const override;
+        void DoGenerateShader(const node_graph::ExecutionContext&, rhi::ShaderGenerator&) const override;
 
 #if ONYX_IS_EDITOR
     private:

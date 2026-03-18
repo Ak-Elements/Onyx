@@ -4,7 +4,7 @@
 #include <onyx/rhi/memoryaccess.h>
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
 	struct TextureStorageProperties
 	{

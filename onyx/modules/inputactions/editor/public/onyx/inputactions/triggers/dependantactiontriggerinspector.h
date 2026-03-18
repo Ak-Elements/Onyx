@@ -2,12 +2,12 @@
 
 #include <onyx/ui/propertyinspector.h>
 #include <onyx/inputactions/triggers/dependantactiontrigger.h>
-namespace Onyx::Ui
+namespace onyx::ui
 {
     template <>
-    struct PropertyInspector<InputActions::DependantActionInputTrigger>
+    struct PropertyInspector<input_actions::DependantActionInputTrigger>
     {
-        static bool Draw(InputActions::DependantActionInputTrigger& trigger, bool /*forceShow*/);
+        static bool Draw(input_actions::DependantActionInputTrigger& trigger, bool /*forceShow*/);
     };
 }
 

@@ -3,7 +3,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     Guid64Generator::Guid64Generator(onyxU64 machineId)
         : m_MachineId(machineId)

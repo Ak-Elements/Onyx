@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
 inline constexpr StringView BUILD_OCTREE_SHADER = R"(

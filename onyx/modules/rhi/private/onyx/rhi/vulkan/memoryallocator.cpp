@@ -7,7 +7,7 @@
 #define VMA_ASSERT ONYX_ASSERT
 #include <vulkanmemoryallocator.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     MemoryAllocator::MemoryAllocator(const String& tag, const VulkanGraphicsApi& graphicsApi)
         : m_Tag(tag)

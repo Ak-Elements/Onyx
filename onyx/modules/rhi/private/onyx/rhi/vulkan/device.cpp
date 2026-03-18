@@ -1,7 +1,7 @@
 #include <onyx/rhi/vulkan/device.h>
 #include <onyx/rhi/vulkan/physicaldevice.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	Device::Device(const PhysicalDevice& physicalDevice, const DynamicArray<const char*>& enabledExtensions, VkPhysicalDeviceFeatures2& physicalFeatures, VkQueueFlags requestedQueueTypes)
 	{

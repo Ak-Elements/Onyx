@@ -1,6 +1,6 @@
 #include <onyx/volume/source/csg/operations/csgdifference.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     CSGDifference::CSGDifference()
     {

@@ -2,7 +2,7 @@
 
 #include <onyx/inputactions/inputactionsmap.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     AddInputActionCommand::AddInputActionCommand(InputActionSettingsWindow& inputSettingsWindow)
         : InputActionCommand("AddInputAction", inputSettingsWindow)
@@ -10,8 +10,8 @@ namespace Onyx::Editor
     
     void AddInputActionCommand::Execute()
     {
-        InputActions::InputActionsMap& context = GetInputActionsContext();
-        InputActions::InputAction& newAction = context.GetActions().emplace_back("New Action");
-        newAction.SetType(InputActions::ActionType::Bool);
+        input_actions::InputActionsMap& context = GetInputActionsContext();
+        input_actions::InputAction& newAction = context.GetActions().emplace_back("New Action");
+        newAction.SetType(input_actions::ActionType::Bool);
     }
 }

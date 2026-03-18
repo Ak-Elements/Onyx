@@ -6,32 +6,32 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/physics/physicssystem.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class RenderGraph;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class ComponentFactory;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
-    class Scene : public Assets::Asset<Scene>
+    class Scene : public assets::Asset<Scene>
     {
         friend struct SceneSerializer;
     public:
-        static constexpr StringId32 TypeId{ "Onyx::GameCore::Assets::Scene" };
+        static constexpr StringId32 TypeId{ "onyx::game_core::assets::Scene" };
         
         static Reference<Scene> Create(IEngine& engine);
 
-        Scene(Entity::ComponentFactory& factory);
+        Scene(ecs::ComponentFactory& factory);
 
         StringId32 GetTypeId() const { return TypeId; }
 
-        Entity::EntityRegistry& GetRegistry() { return m_Registry; }
-        const Entity::EntityRegistry& GetRegistry() const { return m_Registry; }
+        ecs::EntityRegistry& GetRegistry() { return m_Registry; }
+        const ecs::EntityRegistry& GetRegistry() const { return m_Registry; }
 
         const SceneSectorStreamer& GetSectorStreamer() const { return m_SectorStreamer; }
 
@@ -45,11 +45,11 @@ namespace Onyx::GameCore
 
         bool HasRenderGraph() { return m_SceneRenderGraph.IsValid() && m_SceneRenderGraph->IsInitialized(); }
 
-        Assets::AssetHandle<Graphics::RenderGraph>& GetRenderGraphRef() { return m_SceneRenderGraph; }
-        Graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
-        const Graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
+        assets::AssetHandle<graphics::RenderGraph>& GetRenderGraphRef() { return m_SceneRenderGraph; }
+        graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
+        const graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
 
-        Onyx::Physics::PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
+        onyx::physics::PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
 
 #if ONYX_IS_EDITOR
         String GetUniqueEntityName(const String& preferredName);
@@ -57,16 +57,16 @@ namespace Onyx::GameCore
 
     private:
         // only needed in editor most likely 
-        void OnTransformComponentConstructed(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
-        void OnTransformComponentDestroyed(Entity::EntityRegistry::EntityRegistryT& registry, Entity::EntityId entity);
+        void OnTransformComponentConstructed(ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity);
+        void OnTransformComponentDestroyed(ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity);
 
     private:
         Vector3f32 m_LoadCenter; // center position of the streaming
 
         SceneSectorStreamer m_SectorStreamer { *this };
-        Entity::EntityRegistry m_Registry;
-        Onyx::Physics::PhysicsWorld m_PhysicsWorld;
+        ecs::EntityRegistry m_Registry;
+        onyx::physics::PhysicsWorld m_PhysicsWorld;
 
-        Assets::AssetHandle<Graphics::RenderGraph> m_SceneRenderGraph;
+        assets::AssetHandle<graphics::RenderGraph> m_SceneRenderGraph;
     };
 }

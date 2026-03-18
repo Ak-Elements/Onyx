@@ -4,5 +4,6 @@ endif()
 
 onyx_add_target(onyx-inputactions
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::InputActions"
+    NAMESPACE "onyx::input_actions"
+    NAMESPACE_PATH "onyx/inputactions"
 )

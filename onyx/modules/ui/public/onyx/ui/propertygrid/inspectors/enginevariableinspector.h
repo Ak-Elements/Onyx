@@ -7,7 +7,7 @@
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/windows/enginevariableswindow.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     template <typename T>
     struct PropertyInspector<EngineVariable<T>>
@@ -26,7 +26,7 @@ namespace Onyx::Ui
             if constexpr (Numeric<T> && !std::is_same_v<T, bool>) 
             {
                 T value = variable.Get();
-                if (PropertyGrid::DrawProperty(label, value, { variable.GetMin(), variable.GetMax() }))
+                if (property_grid::DrawProperty(label, value, { variable.GetMin(), variable.GetMax() }))
                 {
                     variable.Set(value);
                     return true;
@@ -34,7 +34,7 @@ namespace Onyx::Ui
             }
             else if constexpr (Invokable<T>)
             {
-                if (PropertyGrid::DrawButton(label))
+                if (property_grid::DrawButton(label))
                 {
                     variable.Invoke();
                 }
@@ -42,7 +42,7 @@ namespace Onyx::Ui
             else
             {
                 T value = variable.Get();
-                if (PropertyGrid::DrawProperty(label, value))
+                if (property_grid::DrawProperty(label, value))
                 {
                     variable.Set(value);
                     return true;

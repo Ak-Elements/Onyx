@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     JsonDeserializer::JsonDeserializer(const nlohmann::ordered_json& json)
         : JsonRoot(json)

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     struct ExecutePin {};
 

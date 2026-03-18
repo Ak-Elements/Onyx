@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/input/keycodes.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class ConnectionType
     {
@@ -12,7 +12,7 @@ namespace Onyx::Input
 
     enum class GameControllerButton : onyxU16
     {
-        First = Enums::ToIntegral(Key::Last),
+        First = enums::ToIntegral(Key::Last),
         South,
         East,
         West,
@@ -46,11 +46,11 @@ namespace Onyx::Input
         Invalid = 0
     };
 
-    static constexpr onyxU16 GameControllerButton_Count = Enums::ToIntegral(GameControllerButton::Last) - Enums::ToIntegral(GameControllerButton::First);
+    static constexpr onyxU16 GameControllerButton_Count = enums::ToIntegral(GameControllerButton::Last) - enums::ToIntegral(GameControllerButton::First);
 
     enum class GameControllerAxis : onyxU16
     {
-        First = Enums::ToIntegral(GameControllerButton::Last),
+        First = enums::ToIntegral(GameControllerButton::Last),
 
         LeftStick_X,
         LeftStick_Y,
@@ -66,7 +66,7 @@ namespace Onyx::Input
         Invalid = 0
     };
 
-    static constexpr onyxU16 GameControllerAxis_Count = Enums::ToIntegral(GameControllerAxis::Last) - Enums::ToIntegral(GameControllerAxis::First);
+    static constexpr onyxU16 GameControllerAxis_Count = enums::ToIntegral(GameControllerAxis::Last) - enums::ToIntegral(GameControllerAxis::First);
 
     struct GameController
     {
@@ -78,23 +78,23 @@ namespace Onyx::Input
 
     constexpr onyxU16 ToIndex(GameControllerButton button)
     {
-        constexpr onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
- #if ONYX_ASSERTS_ENABLED 
-        constexpr onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
-        ONYX_ASSERT(Enums::ToIntegral(button) > first);
-        ONYX_ASSERT(Enums::ToIntegral(button) < last);
+        constexpr onyxU16 first = enums::ToIntegral(GameControllerButton::First);
+ #if ONYX_ASSERT_ENABLED 
+        constexpr onyxU16 last = enums::ToIntegral(GameControllerButton::Last);
+        ONYX_ASSERT(enums::ToIntegral(button) > first);
+        ONYX_ASSERT(enums::ToIntegral(button) < last);
 #endif
-        return Enums::ToIntegral(button) - first;
+        return enums::ToIntegral(button) - first;
     }
 
     constexpr onyxU16 ToIndex(GameControllerAxis axis)
     {
-        constexpr onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
-#if ONYX_ASSERTS_ENABLED
-        constexpr onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
-        ONYX_ASSERT(Enums::ToIntegral(axis) > first);
-        ONYX_ASSERT(Enums::ToIntegral(axis) < last);
+        constexpr onyxU16 first = enums::ToIntegral(GameControllerButton::First);
+#if ONYX_ASSERT_ENABLED
+        constexpr onyxU16 last = enums::ToIntegral(GameControllerButton::Last);
+        ONYX_ASSERT(enums::ToIntegral(axis) > first);
+        ONYX_ASSERT(enums::ToIntegral(axis) < last);
 #endif
-        return Enums::ToIntegral(axis) - first;
+        return enums::ToIntegral(axis) - first;
     }
 }

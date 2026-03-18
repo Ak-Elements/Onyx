@@ -6,7 +6,7 @@
 SCENARIO("Quadtree", "[tree][quadtree][2d]")
 {
     using namespace std;
-    using namespace Onyx;
+    using namespace onyx;
     GIVEN("An empty quadtree")
     {
         struct TestData
@@ -21,7 +21,7 @@ SCENARIO("Quadtree", "[tree][quadtree][2d]")
         using Quadtree = Tree<DataT, KeyT, ChildCount>;
 
         Quadtree quadtree;
-        Onyx::TreeNode& root = quadtree.GetRootNode();
+        onyx::TreeNode& root = quadtree.GetRootNode();
 
         quadtree.SplitNode(root);
 
@@ -76,7 +76,7 @@ SCENARIO("Quadtree", "[tree][quadtree][2d]")
 SCENARIO("Octree", "[tree][octree][3d]")
 {
     using namespace std;
-    using namespace Onyx;
+    using namespace onyx;
     GIVEN("An empty Octree")
     {
         struct TestData

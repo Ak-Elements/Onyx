@@ -3,14 +3,14 @@
 #include <onyx/rhi/renderpass.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class Device;
     class DepthBuffer;
     class SwapChain;
     class VulkanGraphicsApi;
 
-    class VulkanRenderPass : public Graphics::RenderPass
+    class VulkanRenderPass : public rhi::RenderPass
     {
     public:
         ~VulkanRenderPass() override;

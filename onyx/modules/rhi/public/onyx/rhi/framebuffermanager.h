@@ -3,7 +3,7 @@
 #include <onyx/noncopyable.h>
 #include <onyx/onyx_types.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct FramebufferSettings;
     class Texture;

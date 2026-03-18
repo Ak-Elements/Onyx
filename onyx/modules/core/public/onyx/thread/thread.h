@@ -2,7 +2,7 @@
 
 #include <thread>
 
-namespace Onyx
+namespace onyx
 {
     class Thread
     {

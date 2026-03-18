@@ -1,7 +1,7 @@
 #pragma once
 
 #if !ONYX_IS_RETAIL
-namespace Onyx::Ui
+namespace onyx::ui
 {
     template <typename T>
     struct PropertyInspector;

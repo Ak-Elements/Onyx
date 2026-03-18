@@ -4,18 +4,18 @@
 #include <onyx/graphics/rendergraph/rendergraph.h> // TODO: REMOVE
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx
+namespace onyx
 {
-    class GridRenderGraphNode : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>
+    class GridRenderGraphNode : public node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Editor::RenderGraph::EditorSceneGridPass";
+        static constexpr StringId32 TypeId = "onyx::editor::render_graph_nodes::EditorSceneGridPass";
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>;
+        using Super = node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>;
 
-        void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
+        void OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:

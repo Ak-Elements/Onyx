@@ -4,7 +4,7 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct FramebufferSettings;
     class GraphicsSystem;

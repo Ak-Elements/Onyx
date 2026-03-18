@@ -19,7 +19,7 @@
 #include <onyx/ui/imguisystem.h>
 #include <onyx/ui/ui_localization.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     namespace
     {
@@ -27,34 +27,34 @@ namespace Onyx::Ui
         String loc_SearchString;
     }
 
-    bool AssetSelector(const Assets::AssetSystem& assetSystem, Assets::AssetType assetType, Assets::AssetId& outAssetId)
+    bool AssetSelector(const assets::AssetSystem& assetSystem, assets::AssetType assetType, assets::AssetId& outAssetId)
     {
         bool hasModified = false;
-        DynamicArray<Assets::AssetMetaData> availableAssets;
+        DynamicArray<assets::AssetMetaData> availableAssets;
 
         String assetName;
         if (outAssetId.IsValid())
         {
-            Optional<const Assets::AssetMetaData*> assetMetaOptional = assetSystem.TryGetAssetMeta(outAssetId);
-            const Assets::AssetMetaData* assetMeta = assetMetaOptional.value_or(nullptr);
+            Optional<const assets::AssetMetaData*> assetMetaOptional = assetSystem.TryGetAssetMeta(outAssetId);
+            const assets::AssetMetaData* assetMeta = assetMetaOptional.value_or(nullptr);
             if (assetMeta)
                 assetName = assetMeta->GetName();
             else
             {
-                assetName = Localization::Generic::None.Get();
+                assetName = onyx::localization::generic::None.Get();
             }
         }
         else
         {
-            assetName = Localization::Generic::None.Get();
+            assetName = onyx::localization::generic::None.Get();
         }
 
-        Layout::BeginHorizontal("#AssetControl");
+        layout::BeginHorizontal("#AssetControl");
 
         ScopedImGuiStyle styleOverride{ ImGuiStyleVar_FrameBorderSize, 1.0f };
         if (BeginCombobox("##selector", assetName))
         {
-            DrawSearchBar(loc_SearchString, Localization::Generic::Search.Get(), loc_HasFocus);
+            DrawSearchBar(loc_SearchString, onyx::localization::generic::Search.Get(), loc_HasFocus);
             StringView searchString = Trim(loc_SearchString);
 
             if (availableAssets.empty())
@@ -62,7 +62,7 @@ namespace Onyx::Ui
                 availableAssets = assetSystem.GetAvailableAssets(assetType);
             }
 
-            for (const Assets::AssetMetaData& assetMeta : availableAssets)
+            for (const assets::AssetMetaData& assetMeta : availableAssets)
             {
                 if ((searchString.empty() == false) && IgnoreCaseFind(assetMeta.GetName(), searchString) == String::npos)
                 {
@@ -91,7 +91,7 @@ namespace Onyx::Ui
         //const onyxF32 currentHeight = ImGui::GetFrameHeight();
         //currentPos.y += currentHeight * 0.5f - buttonSize.y * 0.5f;
         ImRect bb(ImGui::GetCursorScreenPos() + style.FramePadding, ImGui::GetCursorScreenPos() + buttonSize + style.FramePadding);
-        ButtonState state = Ui::ButtonBehavior(browseButtonId, bb);
+        ButtonState state = ui::ButtonBehavior(browseButtonId, bb);
 
         if (state == ButtonState::Pressed)
         {
@@ -113,7 +113,7 @@ namespace Onyx::Ui
 
         ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);
         bool isOpen = true;
-        StringView modalName = Format::Format("{}###AssetBrowser", Localization::Ui::AssetSelector::Modal::Title);
+        StringView modalName = format::Format("{}###AssetBrowser", ui::localization::asset_selector::modal::Title);
         if (ImGui::BeginPopupModal(modalName.data(), &isOpen))
         {
             if (availableAssets.empty())
@@ -122,11 +122,11 @@ namespace Onyx::Ui
             }
 
             ImGui::BeginTable("##assetlist", 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable);
-            ImGui::TableSetupColumn(Localization::Generic::File.Get().data(), ImGuiTableColumnFlags_None, 0.7f);
-            ImGui::TableSetupColumn(Localization::Generic::Type.Get().data(), ImGuiTableColumnFlags_None, 0.3f);
+            ImGui::TableSetupColumn(::onyx::localization::generic::File.Get().data(), ImGuiTableColumnFlags_None, 0.7f);
+            ImGui::TableSetupColumn(::onyx::localization::generic::Type.Get().data(), ImGuiTableColumnFlags_None, 0.3f);
             ImGui::TableHeadersRow();
 
-            for (const Assets::AssetMetaData& assetMeta : availableAssets)
+            for (const assets::AssetMetaData& assetMeta : availableAssets)
             {
                 if (assetMeta.Type != assetType)
                     continue;
@@ -152,7 +152,7 @@ namespace Onyx::Ui
             ImGui::EndPopup();
         }
 
-        Layout::EndHorizontal();
+        layout::EndHorizontal();
 
         return hasModified;
     }

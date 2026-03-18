@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     DynamicArray<String> Split(StringView string, StringView delimiters);
     DynamicArray<String> Split(StringView string, char delimiter);

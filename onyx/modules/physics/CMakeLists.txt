@@ -4,5 +4,6 @@ endif()
 
 onyx_add_target(onyx-physics
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Physics"
+    NAMESPACE "onyx::physics"
+    NAMESPACE_PATH "onyx/physics"
 )

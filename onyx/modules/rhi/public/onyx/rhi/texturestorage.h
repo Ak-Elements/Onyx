@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/texturestorageproperties.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class CommandBuffer;
 

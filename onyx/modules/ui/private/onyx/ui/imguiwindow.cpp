@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     void ImGuiWindow::Open()
     {

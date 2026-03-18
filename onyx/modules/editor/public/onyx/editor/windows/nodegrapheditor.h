@@ -10,22 +10,22 @@ namespace ax::NodeEditor
     struct EditorContext;
 }
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     class InputActionSystem;
     struct InputActionEvent;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct BlueprintNodeBuilder;
 
-    class NodeGraphEditorWindow : public Ui::ImGuiWindow
+    class NodeGraphEditorWindow : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "NodeGraphEditor";
@@ -40,7 +40,7 @@ namespace Onyx::Editor
         void SetContext(T&& context)
         {
             m_EditorContext = std::forward<T>(context);
-            m_EditorContext->SetLocalizationModule(GetEngineSystem<Localization::LocalizationModule>());
+            m_EditorContext->SetLocalizationModule(GetEngineSystem<localization::LocalizationModule>());
             m_EditorContext->OnLoaded.Connect<&NodeGraphEditorWindow::OnGraphLoaded>(this);
             m_EditorContext->OnSaved.Connect<&NodeGraphEditorWindow::OnGraphSaved>(this);
             m_EditorContext->LoadEditorMetaDataFunctor.Connect<&NodeGraphEditorWindow::LoadEditorMetaData>(this);
@@ -54,14 +54,14 @@ namespace Onyx::Editor
         void OnOpen() override;
         void OnClose() override;
 
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
         void RenderMenuBar();
 
     private:
         struct RerouteNode
         {
             RerouteNode() = default;
-            RerouteNode(NodeGraph::PinTypeId pinTypeId, onyxU32 pinTypeColor);
+            RerouteNode(node_graph::PinTypeId pinTypeId, onyxU32 pinTypeColor);
 
             Guid64 Id;
 
@@ -71,7 +71,7 @@ namespace Onyx::Editor
             Guid64 InteractionPinId; // Pin to connect and create connections
             GraphEditorContext::PinDirection ActivePinDirection;
 
-            NodeGraph::PinTypeId PinTypeId;
+            node_graph::PinTypeId PinTypeId;
             onyxU32 Color;
 
             Vector2f32 Position;
@@ -85,7 +85,7 @@ namespace Onyx::Editor
             Guid64 FromInputPinId;
             Guid64 ToOutputPinId;
 
-            NodeGraph::PinTypeId PinTypeId;
+            node_graph::PinTypeId PinTypeId;
             onyxU32 Color;
         };
 
@@ -119,9 +119,9 @@ namespace Onyx::Editor
         void OnGraphLoaded();
         void OnGraphSaved();
 
-        void OnCopyAction(const InputActions::InputActionEvent& inputActionContext);
-        void OnPasteAction(const InputActions::InputActionEvent& inputActionContext);
-        void OnDeleteAction(const InputActions::InputActionEvent& inputActionContext);
+        void OnCopyAction(const input_actions::InputActionEvent& inputActionContext);
+        void OnPasteAction(const input_actions::InputActionEvent& inputActionContext);
+        void OnDeleteAction(const input_actions::InputActionEvent& inputActionContext);
 
         void OnNodeCreated(const GraphEditorContext::Node& node);
 
@@ -135,7 +135,7 @@ namespace Onyx::Editor
         struct CreateNewNodeData
         {
             Guid64 PinId;
-            NodeGraph::PinTypeId PinTypeId;
+            node_graph::PinTypeId PinTypeId;
             GraphEditorContext::PinDirection Direction;
         };
 
@@ -144,7 +144,7 @@ namespace Onyx::Editor
         ax::NodeEditor::EditorContext* m_Context = nullptr;
         UniquePtr<GraphEditorContext> m_EditorContext;
 
-        Ui::Dockspace m_Dockspace;
+        ui::Dockspace m_Dockspace;
 
         DynamicArray<RerouteNode> m_RerouteNodes;
         DynamicArray<RerouteLink> m_RerouteLinks;

@@ -11,7 +11,7 @@
 #include <xkbcommon/xkbcommon.h>
 
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
     namespace 
     {
@@ -101,7 +101,7 @@ namespace Onyx::Platform::Wayland
     {
     }
 
-    Onyx::Input::InputSystem& WaylandPlatformContext::GetInputSystem()
+    onyx::input::InputSystem& WaylandPlatformContext::GetInputSystem()
     {
         ONYX_ASSERT(m_PlatformSystem != nullptr);
         return m_PlatformSystem->GetInputSystem();
@@ -125,6 +125,6 @@ namespace Onyx::Platform::Wayland
         }
     }
 
-    } // namespace Onyx::Platform
+    } // namespace onyx::platform
 
 #endif

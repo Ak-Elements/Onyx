@@ -6,7 +6,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     FramebufferCache::FramebufferCache(GraphicsApi& graphicsApi)
         : m_GraphicsApi(graphicsApi)
@@ -22,7 +22,7 @@ namespace Onyx::Graphics
     {
         // add custom hash function faster than std::hash
 
-        FramebufferKey key = Hash::FNV1aHash32(reinterpret_cast<const onyxU8*>(&frameBufferSettings), sizeof(FramebufferSettings));
+        FramebufferKey key = hash::FNV1aHash32(reinterpret_cast<const onyxU8*>(&frameBufferSettings), sizeof(FramebufferSettings));
         if (m_Framebuffers.contains(key) == false)
         {
             m_Framebuffers[key] = m_GraphicsApi.CreateFramebuffer(frameBufferSettings);

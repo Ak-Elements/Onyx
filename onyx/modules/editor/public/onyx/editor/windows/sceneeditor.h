@@ -13,7 +13,7 @@
 
 struct ImGuiWindowClass;
 
-namespace Onyx
+namespace onyx
 {
     namespace GameCore
     {
@@ -26,13 +26,13 @@ namespace Onyx
     }
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 { 
     struct SelectedComponent
     {
     };
 
-    class SceneEditorWindow : public Ui::ImGuiWindow
+    class SceneEditorWindow : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "SceneEditor";
@@ -41,11 +41,11 @@ namespace Onyx::Editor
         SceneEditorWindow();
         ~SceneEditorWindow() override;
 
-        GameCore::Scene& GetScene() { return *m_Scene; }
-        Assets::AssetId GetSceneId() const { return m_Scene.GetId(); }
+        game_core::Scene& GetScene() { return *m_Scene; }
+        assets::AssetId GetSceneId() const { return m_Scene.GetId(); }
 
-        //Assets::AssetHandle<GameCore::Scene>& GetScene() { return m_Scene; }
-        //const Assets::AssetHandle<GameCore::Scene>& GetScene() const { return m_Scene; }
+        //assets::AssetHandle<game_core::Scene>& GetScene() { return m_Scene; }
+        //const assets::AssetHandle<game_core::Scene>& GetScene() const { return m_Scene; }
 
         bool IsLoading() const { return m_Scene->IsLoading(); }
 
@@ -56,22 +56,22 @@ namespace Onyx::Editor
         void OnOpen() override;
         void OnClose() override;
 
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
 
         void RenderSceneViewport();
         void RenderImGuizmo(const Vector2f32& viewportExtents);
 
         void RenderMenuBar();
 
-        void OnGizmoModeAction(const InputActions::InputActionEvent& inputActionContext);
-        void OnCameraMoveInput(const InputActions::InputActionEvent& inputActionContext);
-        void OnCameraRotationInput(const InputActions::InputActionEvent& inputActionContext);
-        void OnCameraSpeedInput(const InputActions::InputActionEvent& inputActionContext);
-        void OnCameraSpeedUp(const InputActions::InputActionEvent& inputActionContext);
-        void OnCameraSlowDown(const InputActions::InputActionEvent& inputActionContext);
+        void OnGizmoModeAction(const input_actions::InputActionEvent& inputActionContext);
+        void OnCameraMoveInput(const input_actions::InputActionEvent& inputActionContext);
+        void OnCameraRotationInput(const input_actions::InputActionEvent& inputActionContext);
+        void OnCameraSpeedInput(const input_actions::InputActionEvent& inputActionContext);
+        void OnCameraSpeedUp(const input_actions::InputActionEvent& inputActionContext);
+        void OnCameraSlowDown(const input_actions::InputActionEvent& inputActionContext);
 
-        void LoadScene(Assets::AssetId sceneAssetId);
-        void OnSceneLoaded(const Assets::AssetHandle<GameCore::Scene>& sceneAsset);
+        void LoadScene(assets::AssetId sceneAssetId);
+        void OnSceneLoaded(const assets::AssetHandle<game_core::Scene>& sceneAsset);
 
     private:
         enum class GizmoType
@@ -81,18 +81,18 @@ namespace Onyx::Editor
             Scale
         };
 
-        CommandGraph<Entity::EntityRegistry> m_CommandStack;
+        CommandGraph<ecs::EntityRegistry> m_CommandStack;
 
         Atomic<bool> m_IsLoading = false;
 
         ImGuiWindowClass* m_WindowClass;
 
-        Assets::AssetHandle<GameCore::Scene> m_Scene;
+        assets::AssetHandle<game_core::Scene> m_Scene;
         
-        Ui::Dockspace m_Dockspace;
+        ui::Dockspace m_Dockspace;
 
-        Assets::AssetHandle<InputActions::InputActionsContext> m_LevelEditorActions;
-        Entity::EntityId m_EditorCameraEntity = Entity::EntityId(0);
+        assets::AssetHandle<input_actions::InputActionsContext> m_LevelEditorActions;
+        ecs::EntityId m_EditorCameraEntity = ecs::EntityId(0);
 
         bool m_HasSelectedEntity = false;
         GizmoType m_CurrentGizmo = GizmoType::Translate;

@@ -6,13 +6,13 @@
 #include <onyx/rhi/framecontext.h>
 #include <onyx/rhi/renderpass.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class RenderGraph;
     
     struct RenderGraphContext
     {
-        const FrameContext& FrameContext;
+        const rhi::FrameContext& FrameContext;
         RenderGraph& Graph;
 
         template <typename T>
@@ -27,9 +27,9 @@ namespace Onyx::Graphics
     using RenderGraphResourceId = onyxU64;
 
     constexpr RenderGraphResourceId INVALID_RESOURCE_ID = 0;
-    constexpr RenderGraphResourceId SWAPCHAIN_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("swapchain");
-    constexpr RenderGraphResourceId DEPTH_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("depth");
-    constexpr RenderGraphResourceId VIEW_CONSTANTS_RESOURCE_ID = Hash::FNV1aHash<onyxU32>("u_viewconstants");
+    constexpr RenderGraphResourceId SWAPCHAIN_RESOURCE_ID = hash::FNV1aHash<onyxU32>("swapchain");
+    constexpr RenderGraphResourceId DEPTH_RESOURCE_ID = hash::FNV1aHash<onyxU32>("depth");
+    constexpr RenderGraphResourceId VIEW_CONSTANTS_RESOURCE_ID = hash::FNV1aHash<onyxU32>("u_viewconstants");
 
     enum class RenderGraphResourceType
     {
@@ -45,9 +45,9 @@ namespace Onyx::Graphics
         RenderGraphResourceType Type;
 
         Vector3s32 Size;
-        TextureFormat Format = TextureFormat::BGRA_UNORM8;
+        rhi::TextureFormat Format = rhi::TextureFormat::BGRA_UNORM8;
 
-        RenderPassSettings::LoadOp LoadOp = RenderPassSettings::LoadOp::DontCare;
+        rhi::RenderPassSettings::LoadOp LoadOp = rhi::RenderPassSettings::LoadOp::DontCare;
         Vector4u8 ClearColor;
 
         bool IsExternal;
@@ -56,7 +56,7 @@ namespace Onyx::Graphics
 
     struct RenderGraphBufferResourceInfo
     {
-        BufferProperties BufferProperties;
+        rhi::BufferProperties BufferProperties;
     };
 
     struct RenderGraphResourceInfo
@@ -72,15 +72,15 @@ namespace Onyx::Graphics
     struct RenderGraphTexture
     {
         Vector3s32 Size;
-        TextureFormat Format;
+        rhi::TextureFormat Format;
 
-        RenderPassSettings::LoadOp LoadOp;
+        rhi::RenderPassSettings::LoadOp LoadOp;
         Vector4u8 ClearColor;
     };
 
     struct RenderGraphBuffer
     {
-        BufferProperties BufferProperties;
+        rhi::BufferProperties BufferProperties;
     };
 
     struct RenderGraphResource
@@ -89,7 +89,7 @@ namespace Onyx::Graphics
 
         bool IsExternal = false;
 
-        Variant<TextureHandle, BufferHandle> Handle;
+        Variant<rhi::TextureHandle, rhi::BufferHandle> Handle;
         Variant<RenderGraphTextureResourceInfo, RenderGraphBufferResourceInfo> Properties;
 
         bool DrawPinInPropertyGrid(StringView name, RenderGraphResource& value)

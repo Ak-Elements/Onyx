@@ -1,7 +1,7 @@
 #pragma once
 
 #include <onyx/geometry/vector.h>
-namespace Onyx
+namespace onyx
 {
     template <typename Scalar>
     struct Vector3;
@@ -93,7 +93,7 @@ namespace Onyx
         {
             const FloatingPointScalarT length = Length();
 
-            ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
+            ONYX_ASSERT(onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
 
             const FloatingPointScalarT invLength = (1 / length);
             X *= invLength;
@@ -104,7 +104,7 @@ namespace Onyx
         {
             const FloatingPointScalarT length = Length();
             
-            ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
+            ONYX_ASSERT(onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
             
             const FloatingPointScalarT invLength = (1 / length);
             return Vector2<FloatingPointScalarT>(X * invLength, Y * invLength);
@@ -346,24 +346,24 @@ namespace Onyx
 
         constexpr bool IsEqual(const Vector2& rhs) const
         {
-            return (Onyx::IsEqual(X, rhs.X)) &&
-                (Onyx::IsEqual(Y, rhs.Y));
+            return (onyx::IsEqual(X, rhs.X)) &&
+                (onyx::IsEqual(Y, rhs.Y));
         }
 
         constexpr bool IsEqual(const Vector2& rhs, Scalar epsilon) const requires std::is_floating_point_v<Scalar>
         {
-            return (Onyx::IsEqual(X, rhs.X, epsilon)) &&
-                (Onyx::IsEqual(Y, rhs.Y, epsilon));
+            return (onyx::IsEqual(X, rhs.X, epsilon)) &&
+                (onyx::IsEqual(Y, rhs.Y, epsilon));
         }
 
         constexpr bool IsZero() const
         {
-            return Onyx::IsZero(X) && Onyx::IsZero(Y);
+            return onyx::IsZero(X) && onyx::IsZero(Y);
         }
 
         constexpr bool IsZero(ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
-            return Onyx::IsZero(X, epsilon) && Onyx::IsZero(Y, epsilon);
+            return onyx::IsZero(X, epsilon) && onyx::IsZero(Y, epsilon);
         }
 
         constexpr Vector2 GetPerpendicularClockwise() const

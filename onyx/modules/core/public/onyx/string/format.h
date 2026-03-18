@@ -5,9 +5,9 @@
 
 #include <format>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Format
+    namespace format
     {
         static constexpr size_t DEFAULT_BUFFER_SIZE = 8192;
 

@@ -3,7 +3,7 @@
 #include <onyx/application/taskgraph/taskgraphtask.h>
 #include <onyx/container/directedacyclicgraph.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     using DirectedAcyclicTaskGraph = DirectedAcyclicGraph<TaskGraphNode, onyxS16>;
 
@@ -12,13 +12,13 @@ namespace Onyx::Application
     public:
         TaskGraph();
 
-        void Update(onyxU64 deltaTime, Graphics::FrameContext& context);
+        void Update(onyxU64 deltaTime, rhi::FrameContext& context);
 
         template <typename T, typename... Args>
         onyxS16 AddTask(Args&&... val)
         {
             static_assert(std::is_base_of_v<TaskGraphTask, T>, "T must be derived from TaskGraphTask");
-            //constexpr onyxU32 taskGraphHash = Entity::GetHash<T>();
+            //constexpr onyxU32 taskGraphHash = ecs::GetHash<T>();
             //ONYX_ASSERT(m_TaskHashToNodeId.contains(taskGraphHash) == false, "TaskGraphTask is already registered.");
 
             TaskGraphNode newNode(MakeUnique<T>(std::forward<Args>(val)...));

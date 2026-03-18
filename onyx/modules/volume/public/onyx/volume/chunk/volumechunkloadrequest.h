@@ -8,7 +8,7 @@
 #include <onyx/volume/chunk/volumechunk.h>
 
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class VolumeChunkLoader;
 
@@ -85,7 +85,7 @@ private:
 
 private:
     VolumeChunckLoadRequestData m_LoadRequestData;
-    Threading::Future<void> m_LoadingTaskFuture;
+    threading::Future<void> m_LoadingTaskFuture;
 
     InplaceFunction<void(const VolumeChunckLoadRequestData&), 64> m_FinishedCallback;
 };

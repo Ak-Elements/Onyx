@@ -12,12 +12,12 @@
 #include <onyx/localization/assets/gettextlocalizationdatabase.h>
 #include <onyx/ui/imguisystem.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    EditorSystem::EditorSystem(Ui::ImGuiSystem& imguiSystem,
-        Localization::LocalizationModule& localizationModule)
+    EditorSystem::EditorSystem(ui::ImGuiSystem& imguiSystem,
+        localization::LocalizationModule& localizationModule)
     {
-        Localization::Editor::InitLocalization(localizationModule);
+        localization::editor::InitLocalization(localizationModule);
 
         imguiSystem.OpenWindow<EditorMainWindow>();
         imguiSystem.OpenWindow<StartupWindow>();

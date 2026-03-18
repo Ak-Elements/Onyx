@@ -7,7 +7,7 @@ namespace efsw
     class FileWatcher;
 }
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     class FileWatcher
     {

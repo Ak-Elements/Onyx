@@ -3,13 +3,13 @@
 
 #include <onyx/morton.h>
 
-namespace Onyx::MortonCode
+namespace onyx::MortonCode
 {
 
 SCENARIO("MortonCode2D_U32", "[morton][32bit][2d]")
 {
     using namespace std;
-    using namespace Onyx;
+    using namespace onyx;
 
     using MortonT = MortonCode2D_U32;
 
@@ -123,7 +123,7 @@ SCENARIO("MortonCode2D_U32", "[morton][32bit][2d]")
 SCENARIO("MortonCode3D_U32", "[morton][32bit][3d]")
 {
     using namespace std;
-    using namespace Onyx;
+    using namespace onyx;
 
     using MortonT = MortonCode3D_U32;
 

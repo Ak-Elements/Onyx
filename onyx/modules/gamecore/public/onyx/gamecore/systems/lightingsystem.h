@@ -1,27 +1,27 @@
 #pragma once
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class Scene;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EcsBuilder;
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class GraphicsSystem;
 }
 
-namespace Onyx::GameCore::Lighting
+namespace onyx::game_core::lighting
 {
-    void registerSystems(Entity::EcsBuilder& ecsBuilder);
+    void registerSystems(ecs::EcsBuilder& ecsBuilder);
 
 }

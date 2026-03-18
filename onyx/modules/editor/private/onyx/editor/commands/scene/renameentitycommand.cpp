@@ -3,9 +3,9 @@
 #include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    RenameEntityCommand::RenameEntityCommand(Entity::EntityId entity, String name, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem)
+    RenameEntityCommand::RenameEntityCommand(ecs::EntityId entity, String name, assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem)
         : SceneCommand("RenameEntity", sceneId, gameCoreSystem)
         , m_Name(name)
         , m_Entity(entity)
@@ -14,7 +14,7 @@ namespace Onyx::Editor
 
     void RenameEntityCommand::Execute()
     {
-        Entity::EntityRegistry& registry = GetScene().GetRegistry();
-        registry.AddComponent<GameCore::NameComponent>(m_Entity, m_Name);
+        ecs::EntityRegistry& registry = GetScene().GetRegistry();
+        registry.AddComponent<game_core::NameComponent>(m_Entity, m_Name);
     }
 }

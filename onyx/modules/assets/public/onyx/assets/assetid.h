@@ -2,7 +2,7 @@
 
 #include <onyx/filesystem/path.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     // AssetId is the hash of the asset full path e.g.: C:/MyProject/data/mytext.txt
     struct AssetId
@@ -24,7 +24,7 @@ namespace Onyx::Assets
         }
 
         constexpr AssetId(StringView path)
-            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path))
+            : m_Id(path.empty() ? Invalid : hash::FNV1aHash<onyxU64>(path))
 #if ONYX_IS_DEBUG
             , m_Path(path)
 #endif
@@ -33,7 +33,7 @@ namespace Onyx::Assets
         }
 
         explicit AssetId(const FilePath& path)
-            : m_Id(path.empty() ? Invalid : Hash::FNV1aHash<onyxU64>(path.generic_string()))
+            : m_Id(path.empty() ? Invalid : hash::FNV1aHash<onyxU64>(path.generic_string()))
 #if ONYX_IS_DEBUG
             , m_Path(path.generic_string())
 #endif
@@ -60,30 +60,30 @@ namespace Onyx::Assets
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Assets::AssetId>
+    struct Serialization<assets::AssetId>
     {
-        static bool Serialize(Serializer& serializer, const Assets::AssetId& assetId);
-        static bool Deserialize(const Deserializer& deserializer, Assets::AssetId& outAssetId);
+        static bool Serialize(Serializer& serializer, const assets::AssetId& assetId);
+        static bool Deserialize(const Deserializer& deserializer, assets::AssetId& outAssetId);
     };
 }
 
 template<>
-struct std::hash<Onyx::Assets::AssetId>
+struct std::hash<onyx::assets::AssetId>
 {
-    std::size_t operator()(const Onyx::Assets::AssetId& s) const noexcept
+    std::size_t operator()(const onyx::assets::AssetId& s) const noexcept
     {
-        std::size_t h1 = std::hash<Onyx::onyxU64>{}(s.Get());
+        std::size_t h1 = std::hash<onyx::onyxU64>{}(s.Get());
         return h1;
     }
 };
 
 template <>
-struct std::formatter<Onyx::Assets::AssetId> : std::formatter<std::string>
+struct std::formatter<onyx::assets::AssetId> : std::formatter<std::string>
 {
-    auto format(Onyx::Assets::AssetId id, std::format_context& ctx) const
+    auto format(onyx::assets::AssetId id, std::format_context& ctx) const
     {
         return std::format_to(ctx.out(), "{:x}", id.Get());
     }

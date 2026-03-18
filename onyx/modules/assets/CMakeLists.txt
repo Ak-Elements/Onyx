@@ -5,6 +5,7 @@ endif()
 onyx_add_target(onyx-assets
     NO_EDITOR_TARGET
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Assets"
+    NAMESPACE "onyx::assets"
+    NAMESPACE_PATH "onyx/assets"
     NO_EDITOR_TARGET
 )

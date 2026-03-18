@@ -17,9 +17,9 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #endif
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<Graphics::GraphicSettings>::Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings)
+    bool Serialization<rhi::GraphicSettings>::Serialize(Serializer& serializer, const rhi::GraphicSettings& settings)
     {
         StringView path;
         serializer.Write<"rendergraph">(path);
@@ -36,12 +36,12 @@ namespace Onyx
 
     }
 
-    bool Serialization<Graphics::GraphicSettings>::Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings)
+    bool Serialization<rhi::GraphicSettings>::Deserialize(const Deserializer& deserializer, rhi::GraphicSettings& outSettings)
     {
         StringView path;
         if (deserializer.Read<"rendergraph">(path))
         {
-            outSettings.DefaultRenderGraph = Assets::AssetId(FilePath(path));
+            outSettings.DefaultRenderGraph = assets::AssetId(FilePath(path));
         }
 
         deserializer.Read<"api">(outSettings.Api);
@@ -58,9 +58,9 @@ namespace Onyx
     }
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
-    GraphicsSystem::GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, Platform::PlatformSystem& platformSystem)
+    GraphicsSystem::GraphicsSystem(const GraphicSettings& settings, assets::AssetSystem& assetSystem, platform::PlatformSystem& platformSystem)
         : m_AssetSystem(&assetSystem)
         , m_PlatformSystem(&platformSystem)
         , m_Settings(settings)
@@ -84,10 +84,10 @@ namespace Onyx::Graphics
         m_PlatformSystem->OnWindowCreate<&GraphicsSystem::OnWindowCreate>(this);
         m_PlatformSystem->OnWindowDestroy<&GraphicsSystem::OnWindowDestroy>(this);
 
-        m_GraphicsSystem = MakeUnique<Vulkan::VulkanGraphicsApi>();
+        m_GraphicsSystem = MakeUnique<vulkan::VulkanGraphicsApi>();
         m_GraphicsSystem->Init(m_Settings);
 
-        for (const UniquePtr<Platform::Window>& window : m_PlatformSystem->GetWindows())
+        for (const UniquePtr<platform::Window>& window : m_PlatformSystem->GetWindows())
         {
             OnWindowCreate(*window);
         }
@@ -137,8 +137,8 @@ namespace Onyx::Graphics
 
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            depthTargetStorageProperties.m_DebugName = Format::Format("Depth Storage {}", i);
-            depthTargetViewProperties.m_DebugName = Format::Format("Depth Image {}", i);
+            depthTargetStorageProperties.m_DebugName = format::Format("Depth Storage {}", i);
+            depthTargetViewProperties.m_DebugName = format::Format("Depth Image {}", i);
 
             CreateTexture(m_DepthImages[i], depthTargetStorageProperties, depthTargetViewProperties);
         }
@@ -148,12 +148,12 @@ namespace Onyx::Graphics
     {
         BufferProperties uniformBufferProps;
         uniformBufferProps.m_Size = sizeof(ViewConstants);
-        uniformBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Uniform | BufferUsage::DeviceAddress);
-        uniformBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+        uniformBufferProps.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Uniform | BufferUsage::DeviceAddress);
+        uniformBufferProps.m_CpuAccess = CPUAccess::Write;
 
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            uniformBufferProps.m_DebugName = Format::Format("ViewConstants-{}", i);
+            uniformBufferProps.m_DebugName = format::Format("ViewConstants-{}", i);
             CreateBuffer(m_ViewConstantsUniformBuffers[i], uniformBufferProps);
         }
     }
@@ -162,7 +162,7 @@ namespace Onyx::Graphics
     {
         ONYX_PROFILE(Graphics);
         ONYX_PROFILE_FUNCTION;
-        Platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
+        platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
         if (mainWindow.IsMinimized())
             return false;
 
@@ -323,13 +323,13 @@ namespace Onyx::Graphics
         return m_GraphicsSystem->CreateDescriptorSet(shader, debugName);
     }
 
-    ShaderInstanceHandle GraphicsSystem::CreateShaderInstance(Assets::AssetId shaderAssetId)
+    ShaderInstanceHandle GraphicsSystem::CreateShaderInstance(assets::AssetId shaderAssetId)
     {
         PipelineProperties properties;
         return CreateShaderInstance(shaderAssetId, properties);
     }
 
-    ShaderInstanceHandle GraphicsSystem::CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties)
+    ShaderInstanceHandle GraphicsSystem::CreateShaderInstance(assets::AssetId shaderAssetId, const PipelineProperties& properties)
     {
         ONYX_ASSERT(m_AssetSystem != nullptr);
         ShaderHandle shader;
@@ -403,7 +403,7 @@ namespace Onyx::Graphics
     {
     }
 
-    void GraphicsSystem::OnWindowCreate(const Platform::Window& window)
+    void GraphicsSystem::OnWindowCreate(const platform::Window& window)
     {
         //TODO: Add support for multiple windows
 
@@ -415,7 +415,7 @@ namespace Onyx::Graphics
         CreateViewConstantBuffers();
     }
 
-    void GraphicsSystem::OnWindowDestroy(const Platform::Window& /*window*/)
+    void GraphicsSystem::OnWindowDestroy(const platform::Window& /*window*/)
     {
         // TODO: For multiple windows we need to destroy the swapchain / surface here
     }

@@ -4,7 +4,7 @@
 
 #include <onyx/application/debug/gui/statusbaroverlay.h>
 
-namespace Onyx::Application::Debug
+namespace onyx::application::debug
 {
     class FpsStatusBarItem : public StatusBarOverlayItem
     {

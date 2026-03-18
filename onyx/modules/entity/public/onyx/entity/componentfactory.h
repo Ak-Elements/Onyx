@@ -5,7 +5,7 @@
 #include <entt/core/fwd.hpp>
 #include <entt/core/type_info.hpp>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class ComponentFactory
     {

@@ -1,6 +1,6 @@
 #include <onyx/volume/source/csg/operations/csgintersect.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     CSGIntersect::CSGIntersect()
     {

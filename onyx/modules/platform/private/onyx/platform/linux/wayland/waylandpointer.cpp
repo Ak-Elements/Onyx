@@ -12,19 +12,19 @@
 #include <wayland-client.h>
 #include <linux/input-event-codes.h>
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
     namespace 
     {
-        Onyx::Input::MouseButton WaylandToMouseButton(onyxU32 button)
+        onyx::input::MouseButton WaylandToMouseButton(onyxU32 button)
         {
-            constexpr onyxU16 leftMouseButton = Enums::ToIntegral(Input::MouseButton::Button_1);
+            constexpr onyxU16 leftMouseButton = enums::ToIntegral(input::MouseButton::Button_1);
             onyxU16 mouseButton = button - BTN_LEFT + leftMouseButton;
-            ONYX_ASSERT(mouseButton > Enums::ToIntegral(Onyx::Input::MouseButton::First));
-            ONYX_ASSERT(mouseButton < Enums::ToIntegral(Onyx::Input::MouseButton::Last));
+            ONYX_ASSERT(mouseButton > enums::ToIntegral(onyx::input::MouseButton::First));
+            ONYX_ASSERT(mouseButton < enums::ToIntegral(onyx::input::MouseButton::Last));
 
             // offset so we start from left mouse button
-            return static_cast<Onyx::Input::MouseButton>(mouseButton);
+            return static_cast<onyx::input::MouseButton>(mouseButton);
         }
     
     }
@@ -70,9 +70,9 @@ namespace Onyx::Platform::Wayland
 
         WaylandInput& waylandInput = *pointerInstance.m_Input;
         WaylandPlatformContext& context = waylandInput.GetContext();
-        Input::InputSystem& inputSystem = context.GetInputSystem();
+        input::InputSystem& inputSystem = context.GetInputSystem();
 
-        Input::MousePositionEvent event;
+        input::MousePositionEvent event;
         event.Position.X =  wl_fixed_to_int(x);
         event.Position.Y =  wl_fixed_to_int(y);
 
@@ -86,10 +86,10 @@ namespace Onyx::Platform::Wayland
 
         WaylandInput& waylandInput = *pointerInstance.m_Input;
         WaylandPlatformContext& context = waylandInput.GetContext();
-        Input::InputSystem& inputSystem = context.GetInputSystem();
+        input::InputSystem& inputSystem = context.GetInputSystem();
 
-        Input::MouseButtonEvent event;
-        event.State = state == 0 ? Input::ButtonState::Up : Input::ButtonState::Down;
+        input::MouseButtonEvent event;
+        event.State = state == 0 ? input::ButtonState::Up : input::ButtonState::Down;
         event.Button = WaylandToMouseButton(button);
 
         inputSystem.AddEvent(event);
@@ -103,9 +103,9 @@ namespace Onyx::Platform::Wayland
 
         WaylandInput& waylandInput = *pointerInstance.m_Input;
         WaylandPlatformContext& context = waylandInput.GetContext();
-        Input::InputSystem& inputSystem = context.GetInputSystem();
+        input::InputSystem& inputSystem = context.GetInputSystem();
 
-        Input::MouseAxisEvent event;
+        input::MouseAxisEvent event;
         // NOTE: 10 units of motion per mouse wheel step seems to be a common ratio
         event.Value = -wl_fixed_to_double(value) / 10.0f;
         inputSystem.AddEvent(event);

@@ -3,7 +3,7 @@
 #include <onyx/rhi/vulkan/device.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	CommandPool::CommandPool(const Device& device, onyxS32 queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
         : m_Device(&device)

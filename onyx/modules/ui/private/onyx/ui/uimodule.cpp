@@ -2,10 +2,10 @@
 
 #include <onyx/ui/ui_localization.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
-    UiModule::UiModule(Localization::LocalizationModule& localizationModule)
+    UiModule::UiModule(onyx::localization::LocalizationModule& localizationModule)
     {
-        Localization::Ui::InitLocalization(localizationModule);
+        localization::InitLocalization(localizationModule);
     }
 }

@@ -2,7 +2,7 @@
 
 #include <onyx/geometry/rotor3.h>
 
-namespace Onyx
+namespace onyx
 {
 	namespace detail
 	{

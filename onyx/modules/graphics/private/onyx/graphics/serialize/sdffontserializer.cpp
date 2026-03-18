@@ -7,33 +7,33 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Graphics::SDFFont>
+    struct Serialization<graphics::SDFFont>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::SDFFont& map)
+        static bool Serialize(Serializer& serializer, const graphics::SDFFont& map)
         {
             return serializer.Write<"metrics">(map.GetMetrics()) &&
                 serializer.Write<"glyphs">(map.GetGlyphs());
         }
 
-        static bool Deserialize(const Deserializer& deserializer, Graphics::SDFFont& outFont)
+        static bool Deserialize(const Deserializer& deserializer, graphics::SDFFont& outFont)
         {
-            Graphics::SDFFontMetrics& metrics = outFont.GetMetrics();
+            graphics::SDFFontMetrics& metrics = outFont.GetMetrics();
             if (deserializer.Read<"metrics">(metrics) == false)
             {
                 ONYX_LOG_ERROR("Failed loading SDF Font, missing metrics.");
                 return false;
             }
 
-            DynamicArray<Graphics::SDFFontGlyphData> deserializedGlyphs;
+            DynamicArray<graphics::SDFFontGlyphData> deserializedGlyphs;
             deserializer.Read<"glyphs">(deserializedGlyphs);
 
 
-            HashMap<onyxU32, Graphics::SDFFontGlyphData>& glyphs = outFont.GetGlyphs();
+            HashMap<onyxU32, graphics::SDFFontGlyphData>& glyphs = outFont.GetGlyphs();
 
-            for (const Graphics::SDFFontGlyphData& glyph : deserializedGlyphs)
+            for (const graphics::SDFFontGlyphData& glyph : deserializedGlyphs)
             {
                 if (glyphs.contains(glyph.KeyCode))
                 {
@@ -49,9 +49,9 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<Graphics::SDFFontMetrics>
+    struct Serialization<graphics::SDFFontMetrics>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::SDFFontMetrics& metrics)
+        static bool Serialize(Serializer& serializer, const graphics::SDFFontMetrics& metrics)
         {
             return serializer.Write<"glyphSize">(metrics.GlpyhSize) &&
                 serializer.Write<"atlasSize">(metrics.AtlasSize) &&
@@ -64,7 +64,7 @@ namespace Onyx
                 serializer.Write<"kerning">(metrics.Kerning);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, Graphics::SDFFontMetrics& outMetrics)
+        static bool Deserialize(const Deserializer& deserializer, graphics::SDFFontMetrics& outMetrics)
         {
             return deserializer.Read<"glyphSize">(outMetrics.GlpyhSize) &&
                 deserializer.Read<"atlasSize">(outMetrics.AtlasSize) &&
@@ -79,9 +79,9 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<Graphics::SDFFontGlyphData>
+    struct Serialization<graphics::SDFFontGlyphData>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::SDFFontGlyphData& glyph)
+        static bool Serialize(Serializer& serializer, const graphics::SDFFontGlyphData& glyph)
         {
             //TODO: Create and actually write out correct sdf font
             return serializer.Write<"unicode">(glyph.KeyCode) &&
@@ -90,7 +90,7 @@ namespace Onyx
                 serializer.Write<"atlasBounds">(glyph.AtlasBounds);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, Graphics::SDFFontGlyphData& outGlyph)
+        static bool Deserialize(const Deserializer& deserializer, graphics::SDFFontGlyphData& outGlyph)
         {
             bool success = deserializer.Read<"unicode">(outGlyph.KeyCode) &&
                 deserializer.Read<"advance">(outGlyph.Advance);
@@ -109,9 +109,9 @@ namespace Onyx
 
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    bool SDFFontSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool SDFFontSerializer::Serialize(const assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const SDFFont& font = asset.As<SDFFont>();
 
@@ -119,9 +119,9 @@ namespace Onyx::Graphics
             serializer.Write(font);
     }
 
-    bool SDFFontSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
+    bool SDFFontSerializer::Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
-        Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
+        assets::AssetSystem& assetSystem = engine.GetSystem<assets::AssetSystem>();
 
         SDFFont& font = asset.As<SDFFont>();
 
@@ -138,7 +138,7 @@ namespace Onyx::Graphics
             return false;
         }
 
-        Assets::AssetHandle<TextureAsset> fontTexture;
+        assets::AssetHandle<TextureAsset> fontTexture;
         assetSystem.GetAsset(textureAssetId, fontTexture);
         font.SetTexture(fontTexture);
 

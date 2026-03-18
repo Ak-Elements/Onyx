@@ -2,7 +2,7 @@
 
 #include <onyx/container/inplacearray.h>
 
-namespace Onyx
+namespace onyx
 {
     namespace SAT_2D
     {

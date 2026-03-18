@@ -2,11 +2,11 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-msgid "Onyx::Graphics::Assets::RenderGraph"
+msgid "onyx::Graphics::Assets::RenderGraph"
 msgstr "Render Graph"
 
-msgid "Onyx::Graphics::Assets::MaterialShaderGraph"
+msgid "onyx::Graphics::Assets::MaterialShaderGraph"
 msgstr "Material Shader Graph"
 
-msgid "Onyx::Volume::Assets::VolumeShaderGraph"
+msgid "onyx::volume::Assets::VolumeShaderGraph"
 msgstr "Volume Graph"

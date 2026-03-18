@@ -3,7 +3,7 @@
 #include <onyx/typetraits.h>
 #include <onyx/filesystem/path.h>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     class FileDialog
     {

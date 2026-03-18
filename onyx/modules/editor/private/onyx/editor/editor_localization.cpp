@@ -1,16 +1,16 @@
 #include <onyx/editor/editor_localization.h>
 #include <onyx/localization/localizationmodule.h>
 
-namespace Onyx::Localization::Editor
+namespace onyx::localization::editor
 {
     void InitLocalization(LocalizationModule& localizationModule)
     {
         // Window Titles
-        Windows::StartupTitle = localizationModule.GetLocalized("editor.windows.startup.title");
-        Windows::NodeEditorTitle = localizationModule.GetLocalized("editor.windows.nodeeditor.title");
-        Windows::RenderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.rendergrapheditor.title");
-        Windows::ShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.shadergrapheditor.title");
-        Windows::VolumeShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.volumeshadergrapheditor.title");
+        windows::StartupTitle = localizationModule.GetLocalized("editor.windows.startup.title");
+        windows::NodeEditorTitle = localizationModule.GetLocalized("editor.windows.nodeeditor.title");
+        windows::RenderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.rendergrapheditor.title");
+        windows::ShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.shadergrapheditor.title");
+        windows::VolumeShaderGraphEditorTitle = localizationModule.GetLocalized("editor.windows.volumeshadergrapheditor.title");
 
         // Main Menubar
         MainMenubar::View::Label = localizationModule.GetLocalized("editor.mainmenubar.view");

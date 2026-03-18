@@ -17,7 +17,7 @@ namespace detail
     }
 } // namespace detail
 
-namespace Onyx
+namespace onyx
 {
     using onyxChar8 = char;
     using onyxChar16 = char16_t;

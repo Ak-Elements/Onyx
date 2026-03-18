@@ -10,7 +10,7 @@
 #include <onyx/entity/componentfactory.h>
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     Reference<Scene> Scene::Create(IEngine& engine)
     {
@@ -18,7 +18,7 @@ namespace Onyx::GameCore
         return Reference<Scene>::Create(gameCoreSystem.GetComponentFactory());
     }
 
-    Scene::Scene(Entity::ComponentFactory& factory)
+    Scene::Scene(ecs::ComponentFactory& factory)
         : m_Registry(factory)
     {
         m_Registry.GetRegistry().on_construct<TransformComponent>().connect<&Scene::OnTransformComponentConstructed>(this);
@@ -48,10 +48,10 @@ namespace Onyx::GameCore
         m_Registry.Clear();
 
         // all entities
-        const Entity::EntityRegistry& fromRegistry = fromScene->GetRegistry();
-        for (Entity::EntityId sourceEntityId : fromRegistry.GetView<Entity::EntityId>())
+        const ecs::EntityRegistry& fromRegistry = fromScene->GetRegistry();
+        for (ecs::EntityId sourceEntityId : fromRegistry.GetView<ecs::EntityId>())
         {
-            Entity::EntityId targetEntity = m_Registry.CreateEntity();
+            ecs::EntityId targetEntity = m_Registry.CreateEntity();
             // create a copy of an entity component by component
             for (auto&& componentStorageIt : fromRegistry.GetStorage())
             {
@@ -83,7 +83,7 @@ namespace Onyx::GameCore
         auto namesView = m_Registry.GetView<const NameComponent>();
 
         onyxU32 count = 0;
-        for (Entity::EntityId entityId : namesView)
+        for (ecs::EntityId entityId : namesView)
         {
             const NameComponent& nameComponent = namesView.get<const NameComponent>(entityId);
 
@@ -95,13 +95,13 @@ namespace Onyx::GameCore
 
         if (count > 0)
         {
-            return Format::Format("{}_{}", preferredName, count);
+            return format::Format("{}_{}", preferredName, count);
         }
 
         return preferredName;
     }
 
-    void Scene::OnTransformComponentConstructed(Entity::EntityRegistry::EntityRegistryT& /*registry*/, Entity::EntityId entity)
+    void Scene::OnTransformComponentConstructed(ecs::EntityRegistry::EntityRegistryT& /*registry*/, ecs::EntityId entity)
     {
         //if (m_Registry.HasComponents<TransientComponent>(entity))
         //{
@@ -111,7 +111,7 @@ namespace Onyx::GameCore
         m_SectorStreamer.AddEntity(entity);
     }
 
-    void Scene::OnTransformComponentDestroyed(Entity::EntityRegistry::EntityRegistryT& /*registry*/, Entity::EntityId entity)
+    void Scene::OnTransformComponentDestroyed(ecs::EntityRegistry::EntityRegistryT& /*registry*/, ecs::EntityId entity)
     {
        // if (m_Registry.HasComponents<TransientComponent>(entity))
         //{

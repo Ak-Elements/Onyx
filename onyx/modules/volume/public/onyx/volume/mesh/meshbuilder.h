@@ -4,7 +4,7 @@
 #include <cstring>
 #include <onyx/geometry/vector3.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     struct Vertex
     {

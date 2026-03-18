@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class PostProcessShaderGraph : public ShaderGraph
     {

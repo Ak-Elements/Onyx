@@ -1,7 +1,7 @@
 #include <onyx/ui/scopeddisable.h>
 #include <imgui.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     ScopedImGuiDisabled::ScopedImGuiDisabled()
     {

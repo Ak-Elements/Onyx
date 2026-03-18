@@ -5,7 +5,7 @@
 
 #include <entt/entity/registry.hpp>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class ComponentFactory;
     struct ECSExecutionContext;

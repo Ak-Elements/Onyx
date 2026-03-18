@@ -1,12 +1,12 @@
 #pragma once
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EcsBuilder;
     class EntityComponentSystemsGraph;
 }
 
-namespace Onyx::Volume::Rendering
+namespace onyx::volume::rendering
 {
-    void Register(Entity::EcsBuilder& ecsBuilder);
+    void Register(ecs::EcsBuilder& ecsBuilder);
 }

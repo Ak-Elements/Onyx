@@ -3,7 +3,7 @@
 #include <onyx/onyx_types.h>
 #include <onyx/geometry/common.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     inline constexpr onyxU32 TRANSMITTANCE_TEXTURE_WIDTH = 256;
     inline constexpr onyxU32 TRANSMITTANCE_TEXTURE_HEIGHT = 64;

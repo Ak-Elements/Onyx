@@ -3,29 +3,29 @@
 #include <onyx/editor/commands/scene/scenecommand.h>
 #include <onyx/entity/entity.h>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Assets
+    namespace assets
     {
         struct AssetId;
     }
 
-    namespace GameCore
+    namespace game_core
     {
         class GameCoreSystem;
     }
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct AddComponentCommand : public SceneCommand
     {
-        AddComponentCommand(Entity::EntityId entity, StringId32 componentTypeId, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem);
+        AddComponentCommand(ecs::EntityId entity, StringId32 componentTypeId, assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem);
 
         void Execute() override;
 
     private:
-        Entity::EntityId m_EntityId; 
+        ecs::EntityId m_EntityId; 
         StringId32 m_ComponentTypeId;
     };
 }

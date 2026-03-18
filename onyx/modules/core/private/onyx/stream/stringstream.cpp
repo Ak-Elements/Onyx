@@ -1,6 +1,6 @@
 #include <onyx/stream/stringstream.h>
 
-namespace Onyx
+namespace onyx
 {
     StringStream::StringStream(const String& str)
         : m_Data(str)

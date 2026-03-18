@@ -4,7 +4,7 @@
             "id": "d4bb268c9001000",
             "typeId": {
                 "id": "c46e1588",
-                "string": "Onyx::Graphics::ShaderGraph::CreateVector3f32"
+                "string": "onyx::Graphics::ShaderGraph::CreateVector3f32"
             },
             "inputs": [
                 {
@@ -59,7 +59,7 @@
             "id": "d4bb261b3801000",
             "typeId": {
                 "id": "72df408f",
-                "string": "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut"
+                "string": "onyx::Graphics::ShaderGraph::PBRMaterialShaderOut"
             },
             "inputs": [
                 {

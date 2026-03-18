@@ -5,14 +5,14 @@
 #include <onyx/rhi/vulkan/commandbuffer.h>
 #include <onyx/rhi/vulkan/graphicsapi.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct Viewport;
     
     // TODO: add base for generic use
     // TODO: Change CommandBuffer returned to outside to RAII object that enqueues the buffer for submission
     // And internally the storage is just the 'raw' API command buffer without any functions which gets wrapped into the RAII object
-    namespace Vulkan
+    namespace vulkan
     {
         class VulkanCommandBuffer;
         class VulkanGraphicsApi;

@@ -2,7 +2,7 @@
 #include <onyx/assets/asset.h>
 #include <onyx/filesystem/path.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     enum AssetImportResult
     {
@@ -18,7 +18,7 @@ namespace Onyx::Editor
     public:
         virtual ~AssetImporter() = default;
 
-        void Import(const FilePath& path, Assets::AssetMetaData& outAssetMeta)
+        void Import(const FilePath& path, assets::AssetMetaData& outAssetMeta)
         {
             AssetImportResult result = DoImport(path, outAssetMeta);
             if (OnImportFinished)
@@ -26,9 +26,9 @@ namespace Onyx::Editor
         }
 
         // parameters - Imported asset ID, Success/Failed flag
-        Callback<void(Assets::AssetId, AssetImportResult)> OnImportFinished;
+        Callback<void(assets::AssetId, AssetImportResult)> OnImportFinished;
 
     private:
-        virtual AssetImportResult DoImport(const FilePath& path, Assets::AssetMetaData& outAssetMeta) = 0;
+        virtual AssetImportResult DoImport(const FilePath& path, assets::AssetMetaData& outAssetMeta) = 0;
     };
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class InputType : onyxU8
     {

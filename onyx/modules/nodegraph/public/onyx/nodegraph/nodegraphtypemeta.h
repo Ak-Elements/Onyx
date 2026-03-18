@@ -4,7 +4,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     struct INodeGraphTypeMeta
     {

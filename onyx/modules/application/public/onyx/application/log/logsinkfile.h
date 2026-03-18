@@ -4,7 +4,7 @@
 
 #include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     class LogSinkFile : public LoggerBackend
     {
@@ -15,7 +15,7 @@ namespace Onyx::Application
         void Log(const LogMessage& message) override;
 
     private:
-        FileSystem::OnyxFile m_LogFile;
-        FileSystem::FileStream m_LogFileStream;
+        file_system::OnyxFile m_LogFile;
+        file_system::FileStream m_LogFileStream;
     };
 }

@@ -5,9 +5,9 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
-    bool InputBindingAxis3DComposite::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
+    bool InputBindingAxis3DComposite::DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
         bool isUpDown = inputSystem.IsButtonDown(m_InputUp);
         bool isDownDown = inputSystem.IsButtonDown(m_InputDown);
@@ -37,7 +37,7 @@ namespace Onyx::InputActions
         m_InputBackward = 0;
     }
 
-    Input::InputID InputBindingAxis3DComposite::GetBoundInputForSlot(onyxU32 index) const
+    input::InputID InputBindingAxis3DComposite::GetBoundInputForSlot(onyxU32 index) const
     {
         switch (index)
         {
@@ -47,11 +47,11 @@ namespace Onyx::InputActions
             case 3: return m_InputRight;
             case 4: return m_InputForward;
             case 5: return m_InputBackward;
-            default: ONYX_ASSERT(false); return Input::InputID{};
+            default: ONYX_ASSERT(false); return input::InputID{};
         }
     }
 
-    void InputBindingAxis3DComposite::SetInputBindingSlot(onyxU32 index, Input::InputID inputID)
+    void InputBindingAxis3DComposite::SetInputBindingSlot(onyxU32 index, input::InputID inputID)
     {
         switch (index)
         {
@@ -92,9 +92,9 @@ namespace Onyx::InputActions
     }
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<InputActions::InputBindingAxis3DComposite>::Serialize(Serializer& serializer, const InputActions::InputBindingAxis3DComposite& binding)
+    bool Serialization<input_actions::InputBindingAxis3DComposite>::Serialize(Serializer& serializer, const input_actions::InputBindingAxis3DComposite& binding)
     {
         return serializer.Write<"up">(binding.m_InputUp) &&
             serializer.Write<"down">(binding.m_InputDown) &&
@@ -104,7 +104,7 @@ namespace Onyx
             serializer.Write<"backward">(binding.m_InputBackward);
     }
 
-    bool Serialization<InputActions::InputBindingAxis3DComposite>::Deserialize(const Deserializer& deserializer, InputActions::InputBindingAxis3DComposite& outBinding)
+    bool Serialization<input_actions::InputBindingAxis3DComposite>::Deserialize(const Deserializer& deserializer, input_actions::InputBindingAxis3DComposite& outBinding)
     {
         return deserializer.Read<"up">(outBinding.m_InputUp) &&
             deserializer.Read<"down">(outBinding.m_InputDown) &&

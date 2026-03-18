@@ -3,22 +3,22 @@
 #include <onyx/nodegraph/nodes/fixedpinnode2in.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    class VolumeShaderGraphOutNode : public NodeGraph::FixedPinNode_2_In<Graphics::ShaderGraphNode, onyxF32, Vector3f32>
+    class VolumeShaderGraphOutNode : public node_graph::FixedPinNode_2_In<graphics::ShaderGraphNode, onyxF32, Vector3f32>
     {
     private:
-        using Super = NodeGraph::FixedPinNode_2_In<Graphics::ShaderGraphNode, onyxF32, Vector3f32>;
+        using Super = node_graph::FixedPinNode_2_In<graphics::ShaderGraphNode, onyxF32, Vector3f32>;
     public:
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::VolumeGraphOutNode";
+        static constexpr StringId32 TypeId = "onyx::volume::volume_shader_graph::VolumeGraphOutNode";
         StringId32 GetTypeId() const override { return TypeId; }
 
         VolumeShaderGraphOutNode() = default;
 
-        void OnUpdate(NodeGraph::ExecutionContext& context) const override;
+        void OnUpdate(node_graph::ExecutionContext& context) const override;
 
     private:
-        void DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const override;
+        void DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const override;
         
 #if ONYX_IS_EDITOR
         StringView GetPinName(StringId32 pinId) const override;

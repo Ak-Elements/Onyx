@@ -2,17 +2,17 @@
 
 #include <onyx/nodegraph/nodes/node.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     struct LocalizationId;
 }
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     struct JsonValue;
 }
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     class Node;
     struct ExecutionContext;

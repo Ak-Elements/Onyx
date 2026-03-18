@@ -3,7 +3,7 @@
 #include <onyx/entity/entityregistry.h>
 #include <onyx/onyx_types.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     struct Prefab
     {
@@ -21,7 +21,7 @@ namespace Onyx::Entity
             return { m_PrefabRegistry.CreateEntity() } ;
         }
 
-        void AddComponent(EntityId entityId, onyxU32 componentId, const FileSystem::JsonValue& json)
+        void AddComponent(EntityId entityId, onyxU32 componentId, const file_system::JsonValue& json)
         {
             m_PrefabRegistry.AddComponent(entityId, componentId, json);
         }

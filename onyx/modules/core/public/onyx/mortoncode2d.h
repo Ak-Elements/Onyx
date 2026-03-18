@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     namespace MortonCode2D_Internal
     {
@@ -93,7 +93,7 @@ namespace Onyx
 
         static constexpr void Decode(MortonT morton, CoordT& x, CoordT& y)
         {
-            using namespace Onyx::MortonCode2D_Internal;
+            using namespace onyx::MortonCode2D_Internal;
             x = DecodeCoordinate<MortonT, CoordT>(morton);
             y = DecodeCoordinate<MortonT, CoordT>(morton >> 1);
         }

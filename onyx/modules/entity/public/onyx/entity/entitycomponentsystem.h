@@ -5,17 +5,17 @@
 #include <onyx/entity/ecsexecutioncontext.h>
 #include <onyx/entity/entityregistry.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EntityRegistry;
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     struct FrameContext;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     template <>
     class DependantFunctionArg<DeltaGameTime>

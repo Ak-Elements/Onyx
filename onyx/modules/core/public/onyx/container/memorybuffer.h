@@ -2,7 +2,7 @@
 
 #include <onyx/onyx_types.h>
 
-namespace Onyx
+namespace onyx
 {
     template <typename T>
     struct MemoryBufferBase

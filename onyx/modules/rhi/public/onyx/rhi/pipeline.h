@@ -4,7 +4,7 @@
 #include <onyx/rhi/graphicstypes.h>
 #include <onyx/serialize/serialization.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class RenderPass;
     class Shader;
@@ -15,7 +15,7 @@ namespace Onyx::Graphics
         DepthStencil DepthStencil;
 
         Reference<RenderPass> RenderPass;
-        Assets::AssetId Shader;
+        assets::AssetId Shader;
         Rasterization Rasterization;
 
         PrimitiveTopology Topology = PrimitiveTopology::Triangle;
@@ -36,33 +36,33 @@ namespace Onyx::Graphics
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Graphics::PipelineProperties>
+    struct Serialization<rhi::PipelineProperties>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::PipelineProperties& properties);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::PipelineProperties& outProperties);
+        static bool Serialize(Serializer& serializer, const rhi::PipelineProperties& properties);
+        static bool Deserialize(const Deserializer& deserializer, rhi::PipelineProperties& outProperties);
     };
 
     template <>
-    struct Serialization<Graphics::Rasterization>
+    struct Serialization<rhi::Rasterization>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::Rasterization& rasterization);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::Rasterization& outRasterization);
+        static bool Serialize(Serializer& serializer, const rhi::Rasterization& rasterization);
+        static bool Deserialize(const Deserializer& deserializer, rhi::Rasterization& outRasterization);
     };
 
     template <>
-    struct Serialization<Graphics::DepthStencil>
+    struct Serialization<rhi::DepthStencil>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::DepthStencil& depthStencil);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::DepthStencil& outDepthStencil);
+        static bool Serialize(Serializer& serializer, const rhi::DepthStencil& depthStencil);
+        static bool Deserialize(const Deserializer& deserializer, rhi::DepthStencil& outDepthStencil);
     };
 
     template <>
-    struct Serialization<Graphics::BlendState>
+    struct Serialization<rhi::BlendState>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::BlendState& blendState);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::BlendState& outblendState);
+        static bool Serialize(Serializer& serializer, const rhi::BlendState& blendState);
+        static bool Deserialize(const Deserializer& deserializer, rhi::BlendState& outblendState);
     };
 }

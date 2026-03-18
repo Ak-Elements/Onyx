@@ -2,7 +2,7 @@
 #include <onyx/rhi/vulkan/instance.h>
 #include <onyx/rhi/vulkan/surface.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	PhysicalDevice::PhysicalDevice(const Instance& instance)
     {

@@ -2,7 +2,7 @@
 
 #include <onyx/typetraits.h>
 
-namespace Onyx
+namespace onyx
 {
     // RefCounted
     inline RefCounted::~RefCounted() = default;

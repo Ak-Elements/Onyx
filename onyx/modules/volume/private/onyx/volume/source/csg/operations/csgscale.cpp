@@ -1,6 +1,6 @@
 #include <onyx/volume/source/csg/operations/csgscale.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     CSGScale::CSGScale()
         : m_Scale(1.0f)

@@ -10,7 +10,7 @@
 
 #include <onyx/volume/isosurface/isosurface.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 struct VolumeDataContainer
 {

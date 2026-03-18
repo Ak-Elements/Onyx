@@ -1,6 +1,6 @@
 #include <onyx/rhi/texture.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     Texture::Texture(const TextureProperties& properties, const TextureStorage* storage)
         : m_Properties(properties)

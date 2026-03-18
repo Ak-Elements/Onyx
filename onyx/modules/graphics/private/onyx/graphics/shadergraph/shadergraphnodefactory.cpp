@@ -1,5 +1,5 @@
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::NodeGraph
 {
 }

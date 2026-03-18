@@ -7,7 +7,7 @@
 #include <onyx/input/gamecontroller.h>
 #include <GameInput.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class InputEventId : onyxU8;
 

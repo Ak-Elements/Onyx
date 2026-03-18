@@ -2,7 +2,7 @@
 
 #if ONYX_USE_VULKAN
 #include <onyx/rhi/vulkan/pipelinelayout.h>
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     using PipelineLayout = Vulkan::PipelineLayout;
 }

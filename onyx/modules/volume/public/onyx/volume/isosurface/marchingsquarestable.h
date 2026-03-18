@@ -1,7 +1,7 @@
 #pragma once
 #pragma once
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     namespace MarchingSquares

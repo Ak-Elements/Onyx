@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/graph.h>
 #include <onyx/nodegraph/nodes/node.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     void GraphRunner::Prepare()
     {

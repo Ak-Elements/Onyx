@@ -13,7 +13,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     namespace
     {
@@ -368,7 +368,7 @@ namespace Onyx::Ui
                     if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) 
                     {
                         constexpr onyxF32 U8ToF32 = 1.0f / 255.0f;
-                        Vector3u8 pixelColor = Platform::GetPixelColorAtMousePosition();
+                        Vector3u8 pixelColor = platform::GetPixelColorAtMousePosition();
                         Vector3f32 saturatedPixelColor(pixelColor.X* U8ToF32, pixelColor.Y* U8ToF32, pixelColor.Z* U8ToF32);
 
                         if (outColor != saturatedPixelColor)
@@ -666,7 +666,7 @@ namespace Onyx::Ui
                         ScopedImGuiStyle styleOverride(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 0.0f));
                         ImGui::BeginHorizontal("##controls");
 
-                        const bool isDisplayingRGB = Enums::HasAnyFlags(flags, ImGuiColorEditFlags_DisplayRGB);
+                        const bool isDisplayingRGB = enums::HasAnyFlags(flags, ImGuiColorEditFlags_DisplayRGB);
 
                         const StringView labelX = isDisplayingRGB ? "R" : "H";
                         const StringView labelY = isDisplayingRGB ? "G" : "S";

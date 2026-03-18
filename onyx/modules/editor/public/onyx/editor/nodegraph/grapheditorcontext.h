@@ -4,23 +4,23 @@
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     struct TreeItem;
 }
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
     struct AssetMetaData;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class GraphEditorContext
     {
@@ -43,7 +43,7 @@ namespace Onyx::Editor
             String Name;
 
             PinDirection Direction;
-            NodeGraph::PinTypeId PinTypeId;
+            node_graph::PinTypeId PinTypeId;
             onyxU32 Color;
         };
 
@@ -89,8 +89,8 @@ namespace Onyx::Editor
             bool IsRerouted = false;
         };
 
-        void SetLocalizationModule(const Localization::LocalizationModule& localizationModule);
-        const Localization::LocalizationModule& GetLocalizationModule() const;
+        void SetLocalizationModule(const localization::LocalizationModule& localizationModule);
+        const localization::LocalizationModule& GetLocalizationModule() const;
 
         DynamicArray<Node>& GetNodes() { return m_Nodes; }
         const DynamicArray<Node>& GetNodes() const { return m_Nodes; }
@@ -122,21 +122,21 @@ namespace Onyx::Editor
         Pin& GetPin(Guid64 pinId);
         const Pin& GetPin(Guid64 pinId) const;
         bool IsPinLinked(Guid64 pindId) const;
-        virtual bool ArePinTypesCompatible(NodeGraph::PinTypeId lhsPinType, NodeGraph::PinTypeId rhsPinType) const = 0;
+        virtual bool ArePinTypesCompatible(node_graph::PinTypeId lhsPinType, node_graph::PinTypeId rhsPinType) const = 0;
 
         void DrawNode(const Node& node);
         void DrawNodeBackground(const Node& node);
 
         virtual void DrawNodeInPropertyPanel(Guid64 nodeId) = 0;
 
-        virtual void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData&)> filterFunctor) = 0;
+        virtual void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const node_graph::NodeEditorMetaData&)> filterFunctor) = 0;
         virtual void ClearNodeListFilter() = 0;
-        virtual const Ui::TreeItem& GetNodeListContextMenuRoot() = 0;
+        virtual const ui::TreeItem& GetNodeListContextMenuRoot() = 0;
 
         virtual bool Compile() = 0;
 
-        void Load(Assets::AssetSystem& assetSystem, const FilePath& path);
-        void Save(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& assetMeta);
+        void Load(assets::AssetSystem& assetSystem, const FilePath& path);
+        void Save(assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta);
         bool IsLoading() const { return m_IsLoading; };
 
         Callback<void()> OnLoaded;
@@ -151,12 +151,12 @@ namespace Onyx::Editor
         Callback<void(const FilePath&)> SaveEditorMetaDataFunctor;
 
     protected:
-        virtual const NodeGraph::INodeFactory& GetNodeFactory() const = 0;
-        void FinishLoading(const Assets::AssetMetaData& assetMeta);
+        virtual const node_graph::INodeFactory& GetNodeFactory() const = 0;
+        void FinishLoading(const assets::AssetMetaData& assetMeta);
 
     private:
-        virtual void OnSave(Assets::AssetSystem& assetSystem, const Assets::AssetMetaData& assetMeta) = 0;
-        virtual void OnLoad(Assets::AssetSystem& assetSystem, const FilePath& path) = 0;
+        virtual void OnSave(assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta) = 0;
+        virtual void OnLoad(assets::AssetSystem& assetSystem, const FilePath& path) = 0;
 
         virtual void OnDrawNode(const Node& node) = 0;
         virtual void OnDrawNodeBackground(const Node& node) = 0;
@@ -172,6 +172,6 @@ namespace Onyx::Editor
         DynamicArray<Link> m_Links;
 
         Atomic<bool> m_IsLoading = false;
-        const Localization::LocalizationModule* m_LocalizationModule = nullptr;
+        const localization::LocalizationModule* m_LocalizationModule = nullptr;
     };
 }

@@ -4,7 +4,7 @@
 #include <onyx/nodegraph/pins/pinmeta.hpp>
 #include <onyx/nodegraph/nodegraphtyperegistry.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename DataT, CompileTimeString PinId>
     class Pin : public PinBase

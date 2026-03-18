@@ -7,7 +7,7 @@
 
 #include <wayland-client.h>
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
     WaylandInput::WaylandInput(WaylandPlatformContext& context, wl_seat* seat)
         : m_Context(&context)

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Physics
+namespace onyx::physics
 {
     enum class CollisionLayer : onyxU16
     {

@@ -10,7 +10,8 @@ list(APPEND ONYX_PUBLIC_DEFINES
 set(ONYX_PUBLIC_DEFINES ${ONYX_PUBLIC_DEFINES} PARENT_SCOPE)
 
 onyx_add_target(onyx-profiler
-    NAMESPACE "Onyx::Profiler"
+    NAMESPACE "onyx::profiler"
+    NAMESPACE_PATH "onyx/profiler"
     FOLDER ${ONYX_TARGETS_FOLDER}
     NO_CODEGEN
     NO_EDITOR_TARGET

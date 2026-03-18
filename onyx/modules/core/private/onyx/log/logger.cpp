@@ -3,9 +3,9 @@
 
 #include <source_location>
 
-namespace Onyx
+namespace onyx
 {
-    Logger* Logger::s_DefaultLogger = nullptr;
+    Logger* Logger::s_defaultLogger = nullptr;
 
     Logger::~Logger()
     {
@@ -24,7 +24,7 @@ void Logger::Shutdown()
 
 void Logger::SetSeverity(LogLevel severity)
 {
-    m_Severity.store(severity);
+    m_severity.store(severity);
 }
 
 void Logger::LogSimple(LogLevel level, const char* message)
@@ -37,18 +37,18 @@ void Logger::Log(LogLevel level, const char* message, const std::source_location
 {
     //ASSERT(m_IsEnabled, "Log is not initialized yet.");
 
-    if (level < m_Severity.load(std::memory_order::relaxed))
+    if (level < m_severity.load(std::memory_order::relaxed))
     {
         return;
     }
 
     LogMessage logMessage(level, message, location);
 
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
     const bool success = m_LogMessageQueue.Push(std::move(logMessage));
     ONYX_ASSERT(success, "LogMessage queue is full. Too many log messages are sent at once.");
 #else
-    m_LogMessageQueue.Push(std::move(logMessage));
+    m_logMessageQueue.Push(std::move(logMessage));
 #endif
 }
 
@@ -57,7 +57,7 @@ void Logger::OnUpdate()
     LogMessage logMessage;
     while (IsRunning())
     {
-        if (m_LogMessageQueue.Pop(logMessage))
+        if (m_logMessageQueue.Pop(logMessage))
         {
             DoLog(logMessage);
         }
@@ -68,7 +68,7 @@ void Logger::OnUpdate()
     }
 
     // process all pending messages
-    while (m_LogMessageQueue.Pop(logMessage))
+    while (m_logMessageQueue.Pop(logMessage))
     {
         DoLog(logMessage);
     }
@@ -76,7 +76,7 @@ void Logger::OnUpdate()
 
 void Logger::DoLog(const LogMessage& logMessage)
 {
-    for (const UniquePtr<LoggerBackend>& loggingBackend : m_Backends)
+    for (const UniquePtr<LoggerBackend>& loggingBackend : m_backends)
     {
         loggingBackend->Log(logMessage);
     }

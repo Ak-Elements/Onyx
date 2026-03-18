@@ -1,6 +1,6 @@
 #include <onyx/hash.h>
 
-namespace Onyx::Hash
+namespace onyx::hash
 {
     namespace
     {

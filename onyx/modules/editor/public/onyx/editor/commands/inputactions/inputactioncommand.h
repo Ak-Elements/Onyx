@@ -4,12 +4,12 @@
 #include <onyx/editor/commands/command.h>
 #include <onyx/assets/assetid.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     struct InputActionsMap;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class InputActionSettingsWindow;
 
@@ -19,10 +19,10 @@ namespace Onyx::Editor
         InputActionCommand(StringId32 id, InputActionSettingsWindow& inputSettingsWindow);
 
     protected:
-        InputActions::InputActionsMap& GetInputActionsContext();
+        input_actions::InputActionsMap& GetInputActionsContext();
         
     private:
-        Assets::AssetId m_AssetId = Assets::AssetId::Invalid;
+        assets::AssetId m_AssetId = assets::AssetId::Invalid;
         InputActionSettingsWindow* m_SettingsWindow = nullptr;
     };
 }

@@ -4,7 +4,7 @@
 
 #include <onyx/serialize/serialization.h>
 
-namespace Onyx
+namespace onyx
 {
     template <>
     struct Serialization<Rect2s16>

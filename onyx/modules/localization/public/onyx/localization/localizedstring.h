@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class ILocalizationBackend;
 
@@ -74,21 +74,21 @@ namespace Onyx::Localization
 }
 
 template <>
-struct std::formatter<Onyx::Localization::LocalizedString> : std::formatter<std::string>
+struct std::formatter<onyx::localization::LocalizedString> : std::formatter<std::string>
 {
-    auto format(Onyx::Localization::LocalizedString localizedString, format_context& ctx) const
+    auto format(onyx::localization::LocalizedString localizedString, format_context& ctx) const
     {
         return std::format_to(ctx.out(), "{}", localizedString.Get());
     }
 };
 
 template<>
-struct std::hash<Onyx::Localization::LocalizationId>
+struct std::hash<onyx::localization::LocalizationId>
 {
-    size_t operator()(const Onyx::Localization::LocalizationId& id) const noexcept
+    size_t operator()(const onyx::localization::LocalizationId& id) const noexcept
     {
-        Onyx::onyxU64 hash = Onyx::Hash::FNV1aHash(id.Id.GetId(), 0);
-        return Onyx::Hash::FNV1aHash(id.Context.GetId(), hash);
+        onyx::onyxU64 hash = onyx::hash::FNV1aHash(id.Id.GetId(), 0);
+        return onyx::hash::FNV1aHash(id.Context.GetId(), hash);
     }
 };
 

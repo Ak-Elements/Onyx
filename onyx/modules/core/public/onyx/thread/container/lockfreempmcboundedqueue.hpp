@@ -2,10 +2,10 @@
 
 #include <onyx/thread/container/lockfreempmcboundedqueue.h>
 
-namespace Onyx
+namespace onyx
 {
 
-namespace Threading
+namespace threading
 {
 /// Implementation
 

@@ -2,7 +2,7 @@
 
 #include <onyx/inputactions/inputactionsmap.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     RenameInputActionCommand::RenameInputActionCommand(StringId64 actionId, StringId64 newName, InputActionSettingsWindow& inputSettingsWindow)
         : InputActionCommand("RenameInputAction", inputSettingsWindow)
@@ -12,11 +12,11 @@ namespace Onyx::Editor
     
     void RenameInputActionCommand::Execute()
     {
-        InputActions::InputActionsMap& context = GetInputActionsContext();
-        Optional<InputActions::InputAction*> actionOptional = context.GetAction(m_ActionId);
+        input_actions::InputActionsMap& context = GetInputActionsContext();
+        Optional<input_actions::InputAction*> actionOptional = context.GetAction(m_ActionId);
         ONYX_ASSERT(actionOptional.has_value());
 
-        InputActions::InputAction* action = *actionOptional;
+        input_actions::InputAction* action = *actionOptional;
         action->SetId(m_NewActionId);
     }
 }

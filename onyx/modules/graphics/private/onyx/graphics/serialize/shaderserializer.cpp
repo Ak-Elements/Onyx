@@ -3,21 +3,21 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/rhi/graphicssystem.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    bool ShaderSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& /*asset*/, const Assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
+    bool ShaderSerializer::Serialize(const assets::AssetHandle<assets::AssetInterface>& /*asset*/, const assets::AssetMetaData& /*meta*/, Serializer& /*serializer*/, const IEngine& /*engine*/) const
     {
         ONYX_ASSERT(false, "Shaders are not saved from the engine.");
         return false;
     }
 
-    bool ShaderSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& engine) const
+    bool ShaderSerializer::Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& /*deserializer*/, IEngine& engine) const
     {
-        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
+        rhi::GraphicsSystem& graphicsSystem = engine.GetSystem<rhi::GraphicsSystem>();
 
-        Reference<Shader> shaderRef(asset.GetHandle().Raw());
+        Reference<rhi::Shader> shaderRef(asset.GetHandle().Raw());
 
-        ShaderCache& shaderCache = graphicsSystem.GetShaderCache();
+        rhi::ShaderCache& shaderCache = graphicsSystem.GetShaderCache();
         shaderCache.GetOrLoadShader(meta.Path, shaderRef);
 
         return asset.IsValid();

@@ -6,7 +6,7 @@
 
 #include <imgui.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     namespace
     {
@@ -30,9 +30,9 @@ namespace Onyx::Ui
         else
         {
             ScopedImGuiId childId(currentItem.Item.Label);
-            if (Enums::HasAnyFlags(flags, (TreeViewFlags::ForceOpenAll | TreeViewFlags::ForceCloseAll)))
+            if (enums::HasAnyFlags(flags, (TreeViewFlags::ForceOpenAll | TreeViewFlags::ForceCloseAll)))
             {
-                ImGui::SetNextItemOpen(Enums::HasAnyFlags(flags, TreeViewFlags::ForceOpenAll));
+                ImGui::SetNextItemOpen(enums::HasAnyFlags(flags, TreeViewFlags::ForceOpenAll));
             }
 
             if (ContextMenuHeader(currentItem.Item.Label, ImGuiTreeNodeFlags_None))

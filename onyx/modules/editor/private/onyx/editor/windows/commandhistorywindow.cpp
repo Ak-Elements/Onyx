@@ -6,11 +6,11 @@
 #include <imgui.h>
 #include <imgui_stacklayout.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     void CommandHistoryWindow::OnOpen()
     {
-        InputActions::InputActionSystem& inputActionsSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionsSystem = GetEngineSystem<input_actions::InputActionSystem>();
 
         inputActionsSystem.OnInput<&CommandHistoryWindow::OnRedo>("Redo", this);
         inputActionsSystem.OnInput<&CommandHistoryWindow::OnUndo>("Undo", this); 
@@ -18,11 +18,11 @@ namespace Onyx::Editor
 
     void CommandHistoryWindow::OnClose()
     {
-        InputActions::InputActionSystem& inputActionsSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionsSystem = GetEngineSystem<input_actions::InputActionSystem>();
         inputActionsSystem.Disconnect(this);
     }
 
-    void CommandHistoryWindow::OnRender(Ui::ImGuiSystem& imguiSystem)
+    void CommandHistoryWindow::OnRender(ui::ImGuiSystem& imguiSystem)
     {
         Begin();
 
@@ -31,7 +31,7 @@ namespace Onyx::Editor
         onyxU32 i = 0;
         for (const UniquePtr<ICommand>& command : m_CommandStack->GetCommands())
         {
-            ImGui::BeginHorizontal(Format::Format("##item{}", i++));
+            ImGui::BeginHorizontal(format::Format("##item{}", i++));
             ImGui::Text("t    ");
             if (ImGui::Selectable(command->GetCommandId().GetString().data()))
             {
@@ -45,9 +45,9 @@ namespace Onyx::Editor
         End();
     }
 
-    void CommandHistoryWindow::OnUndo(const InputActions::InputActionEvent& undoAction)
+    void CommandHistoryWindow::OnUndo(const input_actions::InputActionEvent& undoAction)
     {
-        const Ui::ImGuiWindow* parent = GetParent<ImGuiWindow>().value_or(nullptr);
+        const ui::ImGuiWindow* parent = GetParent<ImGuiWindow>().value_or(nullptr);
         ONYX_ASSERT(parent != nullptr);
 
         if ((IsFocused() == false) && (parent->IsFocused() == false))
@@ -59,9 +59,9 @@ namespace Onyx::Editor
         m_CommandStack->MoveBack();
     }
 
-    void CommandHistoryWindow::OnRedo(const InputActions::InputActionEvent& redoAction)
+    void CommandHistoryWindow::OnRedo(const input_actions::InputActionEvent& redoAction)
     {
-        const Ui::ImGuiWindow* parent = GetParent<ImGuiWindow>().value_or(nullptr);
+        const ui::ImGuiWindow* parent = GetParent<ImGuiWindow>().value_or(nullptr);
         ONYX_ASSERT(parent != nullptr);
 
         if ((IsFocused() == false) && (parent->IsFocused() == false))

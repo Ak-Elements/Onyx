@@ -2,7 +2,7 @@
 
 #include <onyx/volume/octree/octreesplitpolicy.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
 template <typename Scalar>

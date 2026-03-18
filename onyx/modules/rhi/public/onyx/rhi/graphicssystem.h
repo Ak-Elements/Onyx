@@ -12,17 +12,17 @@
 
 #include <onyx/platform/platformfwd.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     class PlatformSystem;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class ShaderGraphNode;
     enum class ApiType : onyxU8;
@@ -57,10 +57,10 @@ namespace Onyx::Graphics
         using EndFrameSignalT = Signal<void(const FrameContext&)>;
 
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::GraphicsSystem";
+        static constexpr StringId32 TypeId = "onyx::rhi::GraphicsSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        GraphicsSystem(const GraphicSettings& settings, Assets::AssetSystem& assetSystem, Platform::PlatformSystem& platformSystem);
+        GraphicsSystem(const GraphicSettings& settings, assets::AssetSystem& assetSystem, platform::PlatformSystem& platformSystem);
         ~GraphicsSystem() override;
 
         bool BeginFrame();
@@ -93,8 +93,8 @@ namespace Onyx::Graphics
 
         RenderPassHandle GetOrCreateRenderPass(const RenderPassSettings& settings);
         FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
-        ShaderInstanceHandle CreateShaderInstance(Assets::AssetId shaderAssetId);
-        ShaderInstanceHandle CreateShaderInstance(Assets::AssetId shaderAssetId, const PipelineProperties& properties);
+        ShaderInstanceHandle CreateShaderInstance(assets::AssetId shaderAssetId);
+        ShaderInstanceHandle CreateShaderInstance(assets::AssetId shaderAssetId, const PipelineProperties& properties);
 
         void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties);
         void CreateTexture(TextureHandle& outTexture, const TextureStorageProperties& storageProperties, const TextureProperties& properties, const Span<onyxU8>& initialData);
@@ -133,8 +133,8 @@ namespace Onyx::Graphics
         void LoadSettings();
 
     private:
-        void OnWindowCreate(const Platform::Window& window);
-        void OnWindowDestroy(const Platform::Window& window);
+        void OnWindowCreate(const platform::Window& window);
+        void OnWindowDestroy(const platform::Window& window);
 
         void CreateDepthImages(Vector2s32 extents);
         void CreateViewConstantBuffers();
@@ -146,8 +146,8 @@ namespace Onyx::Graphics
 
     private:
         std::mutex m_Mutex;
-        Assets::AssetSystem* m_AssetSystem = nullptr;
-        Platform::PlatformSystem* m_PlatformSystem = nullptr;
+        assets::AssetSystem* m_AssetSystem = nullptr;
+        platform::PlatformSystem* m_PlatformSystem = nullptr;
 
         GraphicSettings m_Settings;
 
@@ -183,12 +183,12 @@ namespace Onyx::Graphics
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Graphics::GraphicSettings>
+    struct Serialization<rhi::GraphicSettings>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::GraphicSettings& settings);
-        static bool Deserialize(const Deserializer& deserializer, Graphics::GraphicSettings& outSettings);
+        static bool Serialize(Serializer& serializer, const rhi::GraphicSettings& settings);
+        static bool Deserialize(const Deserializer& deserializer, rhi::GraphicSettings& outSettings);
     };
 }

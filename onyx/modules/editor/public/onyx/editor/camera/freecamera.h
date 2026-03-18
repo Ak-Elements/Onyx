@@ -3,12 +3,12 @@
 //#include <onyx/geometry/rotor3.h>
 //#include <onyx/graphics/camera.h>
 //
-//namespace Onyx::Graphics
+//namespace onyx::graphics
 //{
 //    class Window;
 //}
 //
-//namespace Onyx::Application
+//namespace onyx::application
 //{
 //    struct InputActionContext;
 //

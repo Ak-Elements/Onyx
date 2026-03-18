@@ -7,12 +7,12 @@
 struct VmaAllocation_T;
 using VmaAllocation = VmaAllocation_T*;
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     enum class CPUAccess : onyxU8;
     enum class GPUAccess : onyxU8;
 
-    namespace Vulkan
+    namespace vulkan
     {
         class MemoryAllocator;
         class Device;

@@ -4,9 +4,9 @@
 #include <onyx/nodegraph/nodes/fixedpinnode3in1out.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class DebugLightClustersRenderPass : public NodeGraph::FixedPinNode_3_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, BufferHandle, BufferHandle, TextureHandle>
+    class DebugLightClustersRenderPass : public node_graph::FixedPinNode3In1Out<RenderGraphFixedShaderNode, rhi::TextureHandle, rhi::BufferHandle, rhi::BufferHandle, rhi::TextureHandle>
     {
     public:
         static constexpr StringId32 TypeId = "RenderGraph::DebugLightClusters";
@@ -17,7 +17,7 @@ namespace Onyx::Graphics::RenderGraphNodes
     private:
 
         void OnBeginFrame(RenderGraphContext&) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:

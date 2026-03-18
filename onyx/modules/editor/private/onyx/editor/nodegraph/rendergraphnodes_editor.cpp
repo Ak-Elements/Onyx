@@ -9,19 +9,19 @@
 
 #include <imgui_stacklayout.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     bool RenderGraphShaderNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
         onyxU32 inputPinCount = GetInputPinCount();
         for (onyxU32 i = 0; i < inputPinCount; ++i)
         {
-            NodeGraph::PinBase* inputPin = GetInputPin(i);
+            node_graph::PinBase* inputPin = GetInputPin(i);
 
-            if (inputPin->GetType() == NodeGraph::PinTypeId::Execute)
+            if (inputPin->GetType() == node_graph::PinTypeId::Execute)
                 continue;
 
-            Ui::ScopedImGuiId id(inputPin->GetLocalIdString());
+            ui::ScopedImGuiId id(inputPin->GetLocalIdString());
 
             if (i >= m_InputAttachmentInfos.size())
                 m_InputAttachmentInfos.emplace_back();
@@ -31,7 +31,7 @@ namespace Onyx::Graphics
             if (inputPin->IsConnected())
             {
                 bool isAttachment = info.Type == RenderGraphResourceType::Attachment;
-                if (Ui::PropertyGrid::DrawProperty("Attachment", isAttachment))
+                if (ui::property_grid::DrawProperty("Attachment", isAttachment))
                 {
                     info.Type = isAttachment ? RenderGraphResourceType::Attachment : RenderGraphResourceType::Texture;
                 }
@@ -43,11 +43,11 @@ namespace Onyx::Graphics
             if (constantPinData.contains(globalId) == false)
                 constantPinData[globalId] = CreateDefaultForPin(inputPin->GetLocalId());;
 
-            NodeGraph::PinTypeId typeId = inputPin->GetType();
-            bool isTexture = typeId == static_cast<NodeGraph::PinTypeId>(TypeHash<TextureHandle>());
+            node_graph::PinTypeId typeId = inputPin->GetType();
+            bool isTexture = typeId == static_cast<node_graph::PinTypeId>(TypeHash<rhi::TextureHandle>());
 
-            Ui::PropertyGrid::DrawPropertyName(GetPinName(inputPin->GetLocalId()));
-            Ui::PropertyGrid::DrawPropertyValue([&]()
+            ui::property_grid::DrawPropertyName(GetPinName(inputPin->GetLocalId()));
+            ui::property_grid::DrawPropertyValue([&]()
                 {
                     String type;
                     if (isTexture)
@@ -87,8 +87,8 @@ namespace Onyx::Graphics
                 String rgba;
                 Vector3f32 size;
 
-                Ui::PropertyGrid::DrawProperty("Format", rgba);
-                Ui::PropertyGrid::DrawProperty("Size", size);
+                ui::property_grid::DrawProperty("Format", rgba);
+                ui::property_grid::DrawProperty("Size", size);
 
 
 
@@ -98,26 +98,26 @@ namespace Onyx::Graphics
                 String rgba;
                 String type = "Uniform";
 
-                Ui::PropertyGrid::DrawProperty("Format", rgba);
-                Ui::PropertyGrid::DrawProperty("Type", type);
+                ui::property_grid::DrawProperty("Format", rgba);
+                ui::property_grid::DrawProperty("Type", type);
             }
         }
 
         onyxU32 outputPinCount = GetOutputPinCount();
         for (onyxU32 i = 0; i < outputPinCount; ++i)
         {
-            NodeGraph::PinBase* outputPin = GetOutputPin(i);
+            node_graph::PinBase* outputPin = GetOutputPin(i);
 
-            Ui::ScopedImGuiId imguiScopedId(outputPin->GetLocalIdString().data());
+            ui::ScopedImGuiId imguiScopedId(outputPin->GetLocalIdString().data());
 
             const Guid64 globalId = outputPin->GetGlobalId();
             if (constantPinData.contains(globalId) == false)
                 constantPinData[globalId] = CreateDefaultForPin(outputPin->GetLocalId());;
 
-            NodeGraph::PinTypeId typeId = outputPin->GetType();
-            bool isTexture = typeId == static_cast<NodeGraph::PinTypeId>(TypeHash<TextureHandle>());
+            node_graph::PinTypeId typeId = outputPin->GetType();
+            bool isTexture = typeId == static_cast<node_graph::PinTypeId>(TypeHash<rhi::TextureHandle>());
 
-            if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup(GetPinName(outputPin->GetLocalId())))
+            if (ui::property_grid::BeginCollapsiblePropertyGroup(GetPinName(outputPin->GetLocalId())))
             {
                 if (isTexture)
                 {
@@ -127,14 +127,14 @@ namespace Onyx::Graphics
                     RenderGraphTextureResourceInfo& info = m_OutputAttachmentInfos[i];
 
                     bool isReference = info.Type == RenderGraphResourceType::Reference;
-                    if (Ui::PropertyGrid::DrawProperty("Reference", isReference))
+                    if (ui::property_grid::DrawProperty("Reference", isReference))
                     {
                         info.Type = isReference ? RenderGraphResourceType::Reference : RenderGraphResourceType::Attachment;
                     }
 
                     if (isReference == false)
                     {
-                        Ui::PropertyGrid::DrawProperty("External", info.IsExternal);
+                        ui::property_grid::DrawProperty("External", info.IsExternal);
 
                         //if (info.IsExternal)
                         //{
@@ -142,30 +142,30 @@ namespace Onyx::Graphics
                         //}
                         //else
                         {
-                            Ui::PropertyGrid::DrawProperty("Format", info.Format);
+                            ui::property_grid::DrawProperty("Format", info.Format);
 
-                            bool shouldClear = (info.LoadOp == RenderPassSettings::LoadOp::Clear);
-                            if (Ui::PropertyGrid::DrawProperty("Clear", shouldClear))
+                            bool shouldClear = (info.LoadOp == rhi::RenderPassSettings::LoadOp::Clear);
+                            if (ui::property_grid::DrawProperty("Clear", shouldClear))
                             {
-                                info.LoadOp = shouldClear ? RenderPassSettings::LoadOp::Clear : RenderPassSettings::LoadOp::DontCare;
+                                info.LoadOp = shouldClear ? rhi::RenderPassSettings::LoadOp::Clear : rhi::RenderPassSettings::LoadOp::DontCare;
                             }
 
                             if (shouldClear)
                             {
-                                Ui::PropertyGrid::DrawColorProperty("Clear Color", info.ClearColor);
+                                ui::property_grid::DrawColorProperty("Clear Color", info.ClearColor);
                             }
 
-                            bool shouldLoad = (info.LoadOp == RenderPassSettings::LoadOp::Load);
-                            if (Ui::PropertyGrid::DrawProperty("Load", shouldLoad))
+                            bool shouldLoad = (info.LoadOp == rhi::RenderPassSettings::LoadOp::Load);
+                            if (ui::property_grid::DrawProperty("Load", shouldLoad))
                             {
-                                info.LoadOp = shouldLoad ? RenderPassSettings::LoadOp::Load : RenderPassSettings::LoadOp::DontCare;
+                                info.LoadOp = shouldLoad ? rhi::RenderPassSettings::LoadOp::Load : rhi::RenderPassSettings::LoadOp::DontCare;
                             }
 
-                            Ui::PropertyGrid::DrawProperty("Explicit Size", info.HasSize);
+                            ui::property_grid::DrawProperty("Explicit Size", info.HasSize);
 
                             if (info.HasSize)
                             {
-                                Ui::PropertyGrid::DrawProperty("Size", info.Size);
+                                ui::property_grid::DrawProperty("Size", info.Size);
                             }
                         }
                     }
@@ -175,11 +175,11 @@ namespace Onyx::Graphics
                     String rgba;
                     String type = "Uniform";
 
-                    Ui::PropertyGrid::DrawProperty("Format", rgba);
-                    Ui::PropertyGrid::DrawProperty("Type", type);
+                    ui::property_grid::DrawProperty("Format", rgba);
+                    ui::property_grid::DrawProperty("Type", type);
                 }
 
-                Ui::PropertyGrid::EndPropertyGroup();
+                ui::property_grid::EndPropertyGroup();
             }
         }
 
@@ -188,7 +188,7 @@ namespace Onyx::Graphics
 
     bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData)
     {
-        if (Ui::PropertyGrid::DrawAssetSelector("Shader", m_PipelineProperties.Shader, static_cast<Assets::AssetType>(Shader::TypeId.GetId())))
+        if (ui::property_grid::DrawAssetSelector("Shader", m_PipelineProperties.Shader, static_cast<assets::AssetType>(rhi::Shader::TypeId.GetId())))
         {
             // TODO: remove shaderPath and change m_Shader to be an asset
             // shaderHandle.isLoaded?
@@ -202,11 +202,11 @@ namespace Onyx::Graphics
 
         auto AddBlendFunctor = [&]()
             {
-                Ui::ScopedImGuiStyle style
+                ui::ScopedImGuiStyle style
                 {
                      { ImGuiStyleVar_FrameBorderSize, 0.0f },
                 };
-                Ui::ScopedImGuiColor color
+                ui::ScopedImGuiColor color
                 {
                     { ImGuiCol_Button, 0x30000000 },
                 };
@@ -215,9 +215,9 @@ namespace Onyx::Graphics
                 bool shouldOpen = false;
                 ImGui::BeginDisabled(canAddBlendState == false);
                 ImGui::Spring();
-                if (Ui::Button("+"))
+                if (ui::Button("+"))
                 {
-                    BlendState& state = m_PipelineProperties.BlendStates.Emplace();
+                    rhi::BlendState& state = m_PipelineProperties.BlendStates.Emplace();
                     state.IsBlendEnabled = true;
                     shouldOpen = true;
                 }
@@ -225,74 +225,74 @@ namespace Onyx::Graphics
                 return shouldOpen;
             };
 
-        if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Blend", AddBlendFunctor))
+        if (ui::property_grid::BeginCollapsiblePropertyGroup("Blend", AddBlendFunctor))
         {
             for (onyxS8 i = 0; i < blendStatesCount; ++i)
             {
-                BlendState& blendState = m_PipelineProperties.BlendStates[i];
+                rhi::BlendState& blendState = m_PipelineProperties.BlendStates[i];
 
-                if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup(Format::Format("{}", i), ImGuiTreeNodeFlags_DefaultOpen))
+                if (ui::property_grid::BeginCollapsiblePropertyGroup(format::Format("{}", i), ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    Ui::PropertyGrid::DrawProperty("Enabled", blendState.IsBlendEnabled);
-                    Ui::PropertyGrid::DrawProperty("Color Mask", blendState.ColorWriteMask);
+                    ui::property_grid::DrawProperty("Enabled", blendState.IsBlendEnabled);
+                    ui::property_grid::DrawProperty("Color Mask", blendState.ColorWriteMask);
 
-                    if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Color"))
+                    if (ui::property_grid::BeginCollapsiblePropertyGroup("Color"))
                     {
-                        Ui::PropertyGrid::DrawProperty("Source", blendState.SourceColor);
-                        Ui::PropertyGrid::DrawProperty("Destination", blendState.DestinationColor);
-                        Ui::PropertyGrid::DrawProperty("Operation", blendState.ColorOperation);
+                        ui::property_grid::DrawProperty("Source", blendState.SourceColor);
+                        ui::property_grid::DrawProperty("Destination", blendState.DestinationColor);
+                        ui::property_grid::DrawProperty("Operation", blendState.ColorOperation);
 
-                        Ui::PropertyGrid::EndPropertyGroup();
+                        ui::property_grid::EndPropertyGroup();
                     }
 
-                    if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Alpha"))
+                    if (ui::property_grid::BeginCollapsiblePropertyGroup("Alpha"))
                     {
-                        Ui::PropertyGrid::DrawProperty("Source", blendState.SourceAlpha);
-                        Ui::PropertyGrid::DrawProperty("Destination", blendState.DestinationAlpha);
-                        Ui::PropertyGrid::DrawProperty("Operation", blendState.AlphaOperation);
+                        ui::property_grid::DrawProperty("Source", blendState.SourceAlpha);
+                        ui::property_grid::DrawProperty("Destination", blendState.DestinationAlpha);
+                        ui::property_grid::DrawProperty("Operation", blendState.AlphaOperation);
 
-                        Ui::PropertyGrid::EndPropertyGroup();
+                        ui::property_grid::EndPropertyGroup();
                     }
 
-                    Ui::PropertyGrid::EndPropertyGroup();
+                    ui::property_grid::EndPropertyGroup();
                 }
 
             }
 
-            Ui::PropertyGrid::EndPropertyGroup();
+            ui::property_grid::EndPropertyGroup();
         }
 
-        if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Rasterization"))
+        if (ui::property_grid::BeginCollapsiblePropertyGroup("Rasterization"))
         {
-            Ui::PropertyGrid::DrawProperty("Front facing", m_PipelineProperties.Rasterization.IsFrontFacing);
-            Ui::PropertyGrid::DrawProperty("Fill Mode", m_PipelineProperties.Rasterization.FillMode);
-            Ui::PropertyGrid::DrawProperty("Cull Mode", m_PipelineProperties.Rasterization.CullMode);
+            ui::property_grid::DrawProperty("Front facing", m_PipelineProperties.Rasterization.IsFrontFacing);
+            ui::property_grid::DrawProperty("Fill Mode", m_PipelineProperties.Rasterization.FillMode);
+            ui::property_grid::DrawProperty("Cull Mode", m_PipelineProperties.Rasterization.CullMode);
 
-            Ui::PropertyGrid::EndPropertyGroup();
+            ui::property_grid::EndPropertyGroup();
         }
 
-        if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Depth Stencil"))
+        if (ui::property_grid::BeginCollapsiblePropertyGroup("Depth Stencil"))
         {
             bool isDepthEnabled = m_PipelineProperties.DepthStencil.IsDepthEnabled;
-            Ui::PropertyGrid::DrawProperty("Enabled", isDepthEnabled);
+            ui::property_grid::DrawProperty("Enabled", isDepthEnabled);
             m_PipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
 
             bool isDepthWriteEnabled = m_PipelineProperties.DepthStencil.IsDepthWriteEnabled;
-            Ui::PropertyGrid::DrawProperty("Write", isDepthWriteEnabled);
+            ui::property_grid::DrawProperty("Write", isDepthWriteEnabled);
             m_PipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
 
             bool isStencilEnabled = m_PipelineProperties.DepthStencil.IsStencilEnabled;
-            Ui::PropertyGrid::DrawProperty("Stencil", isStencilEnabled);
+            ui::property_grid::DrawProperty("Stencil", isStencilEnabled);
             m_PipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
 
-            Ui::PropertyGrid::DrawProperty("Compare", m_PipelineProperties.DepthStencil.Compare);
+            ui::property_grid::DrawProperty("Compare", m_PipelineProperties.DepthStencil.Compare);
 
-            //if (Ui::PropertyGrid::BeginCollapsiblePropertyGroup("Front Operation"))
+            //if (ui::property_grid::BeginCollapsiblePropertyGroup("Front Operation"))
             //{
             //    //m_PipelineProperties.DepthStencil.Front
             //}
 
-            Ui::PropertyGrid::EndPropertyGroup();
+            ui::property_grid::EndPropertyGroup();
         }
 
         return RenderGraphShaderNode::OnDrawInPropertyGrid(constantPinData);

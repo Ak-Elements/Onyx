@@ -1,19 +1,17 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
-    namespace Entity
+    namespace ecs
     {
         class EcsBuilder;
     };
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core::camera
 {
-    namespace Camera
-    {
-        void registerSystems(Entity::EcsBuilder& ecsBuilder);
-    }
-
+    void registerSystems(ecs::EcsBuilder& ecsBuilder);
 }
+
+
 

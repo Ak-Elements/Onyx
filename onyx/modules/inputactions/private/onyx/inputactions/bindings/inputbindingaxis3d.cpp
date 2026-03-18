@@ -4,9 +4,9 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
-    bool InputBindingAxis3D::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
+    bool InputBindingAxis3D::DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
         outInputValue.X = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_AxisX));
         outInputValue.X = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_AxisY));
@@ -22,18 +22,18 @@ namespace Onyx::InputActions
     }
 
 
-    Input::InputID InputBindingAxis3D::GetBoundInputForSlot(onyxU32 index) const
+    input::InputID InputBindingAxis3D::GetBoundInputForSlot(onyxU32 index) const
     {
         switch (index)
         {
             case 0: return m_AxisX;
             case 1: return m_AxisY;
             case 2: return m_AxisZ;
-            default: ONYX_ASSERT(false); return Input::InputID{};
+            default: ONYX_ASSERT(false); return input::InputID{};
         }
     }
 
-    void InputBindingAxis3D::SetInputBindingSlot(onyxU32 index, Input::InputID inputID)
+    void InputBindingAxis3D::SetInputBindingSlot(onyxU32 index, input::InputID inputID)
     {
         switch (index)
         {
@@ -62,16 +62,16 @@ namespace Onyx::InputActions
     }
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<InputActions::InputBindingAxis3D>::Serialize(Serializer& serializer, const InputActions::InputBindingAxis3D& binding)
+    bool Serialization<input_actions::InputBindingAxis3D>::Serialize(Serializer& serializer, const input_actions::InputBindingAxis3D& binding)
     {
         return serializer.Write<"axisX">(binding.m_AxisX) &&
             serializer.Write<"axisY">(binding.m_AxisY) &&
             serializer.Write<"axisZ">(binding.m_AxisZ);
     }
 
-    bool Serialization<InputActions::InputBindingAxis3D>::Deserialize(const Deserializer& deserializer, InputActions::InputBindingAxis3D& outBinding)
+    bool Serialization<input_actions::InputBindingAxis3D>::Deserialize(const Deserializer& deserializer, input_actions::InputBindingAxis3D& outBinding)
     {
         return deserializer.Read<"axisX">(outBinding.m_AxisX) &&
             deserializer.Read<"axisY">(outBinding.m_AxisY) &&

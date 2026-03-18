@@ -2,7 +2,7 @@
 
 #include <onyx/volume/mesh/meshbuilder.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     namespace CubicalMarchingSquares
     {

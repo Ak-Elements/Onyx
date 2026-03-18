@@ -6,7 +6,7 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/memoryallocator.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     VulkanTextureStorage::VulkanTextureStorage(VulkanGraphicsApi& api, const TextureStorageProperties& properties, const Span<onyxU8>& imageData)
         : VulkanTextureStorage(api, properties)
@@ -190,8 +190,8 @@ namespace Onyx::Graphics::Vulkan
 	    // Staging buffers for font data upload
 	    BufferProperties bufferProps;
 	    bufferProps.m_Size = static_cast<onyxU32>(data.size());
-	    bufferProps.m_GpuAccess = Graphics::GPUAccess::Staging;
-	    bufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+	    bufferProps.m_GpuAccess = rhi::GPUAccess::Staging;
+	    bufferProps.m_CpuAccess = rhi::CPUAccess::Write;
 	    VulkanBuffer stagingBuffer(api, bufferProps);
 
 	    //stagingBuffer.Map(Graphics::MapMode::Write);
@@ -401,7 +401,7 @@ namespace Onyx::Graphics::Vulkan
 			    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		    break;
 	    default:
-		    ONYX_ASSERT(false, "Illegal GPU access value: 0x{:x}", Enums::ToIntegral(properties.m_GpuAccess));
+		    ONYX_ASSERT(false, "Illegal GPU access value: 0x{:x}", enums::ToIntegral(properties.m_GpuAccess));
 	    }
 
 	    if (properties.m_IsTexture)

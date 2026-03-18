@@ -2,7 +2,7 @@
 
 #include <onyx/editor/commands/inputactions/inputactioncommand.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class InputActionSettingsWindow;
 

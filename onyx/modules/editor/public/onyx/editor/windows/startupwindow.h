@@ -2,14 +2,14 @@
 #include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    class StartupWindow : public Ui::ImGuiWindow
+    class StartupWindow : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "Startup";
@@ -18,7 +18,7 @@ namespace Onyx::Editor
         StringView GetWindowId() override { return WindowId; }
 
     private:
-        void OnRender(Ui::ImGuiSystem& system) override;
+        void OnRender(ui::ImGuiSystem& system) override;
     };
 
 }

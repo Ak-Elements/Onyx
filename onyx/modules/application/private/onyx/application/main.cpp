@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     extern void OnApplicationCreate();
     extern void OnApplicationCreated(Application& application);
@@ -41,7 +41,7 @@ int CALLBACK WinMain(
 int main(const int argc, const char *argv[])
 #endif
 {
-    using namespace Onyx::Application;
+    using namespace onyx::application;
     
     OnApplicationCreate();
 

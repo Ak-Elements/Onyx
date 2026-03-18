@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     JsonSerializer::JsonSerializer()
         : JsonRoot(nlohmann::ordered_json{})
@@ -24,20 +24,20 @@ namespace Onyx::FileSystem
         switch (base)
         {
         case 2:
-            valueAsBaseString = Format::Format("{:b}", value);
+            valueAsBaseString = format::Format("{:b}", value);
             break;
         case 8:
-            valueAsBaseString = Format::Format("{:o}", value);
+            valueAsBaseString = format::Format("{:o}", value);
             break;
         case 10:
-            valueAsBaseString = Format::Format("{}", value);
+            valueAsBaseString = format::Format("{}", value);
             break;
         case 16:
-            valueAsBaseString = Format::Format("{:x}", value);
+            valueAsBaseString = format::Format("{:x}", value);
             break;
         default:
             ONYX_LOG_WARNING("Unsupported base for json {}, falling back to base 10.", base);
-            valueAsBaseString = Format::Format("{}", value);
+            valueAsBaseString = format::Format("{}", value);
             break;
         }
 
@@ -59,20 +59,20 @@ namespace Onyx::FileSystem
         switch (base)
         {
         case 2:
-            valueAsBaseString = Format::Format("{:b}", value);
+            valueAsBaseString = format::Format("{:b}", value);
             break;
         case 8:
-            valueAsBaseString = Format::Format("{:o}", value);
+            valueAsBaseString = format::Format("{:o}", value);
             break;
         case 10:
-            valueAsBaseString = Format::Format("{}", value);
+            valueAsBaseString = format::Format("{}", value);
             break;
         case 16:
-            valueAsBaseString = Format::Format("{:x}", value);
+            valueAsBaseString = format::Format("{:x}", value);
             break;
         default:
             ONYX_LOG_WARNING("Unsupported base for json {}, falling back to base 10.", base);
-            valueAsBaseString = Format::Format("{}", value);
+            valueAsBaseString = format::Format("{}", value);
             break;
         }
 
@@ -285,7 +285,7 @@ namespace Onyx::FileSystem
         nlohmann::ordered_json& current = GetCurrent();
         if (current.is_object())
         {
-            StringView scopeKey = Format::Format("{:x}", index);
+            StringView scopeKey = format::Format("{:x}", index);
             return CreateScope(scopeKey);
         }
         else
@@ -300,7 +300,7 @@ namespace Onyx::FileSystem
         nlohmann::ordered_json& current = GetCurrent();
         if (current.is_object())
         {
-            StringView scopeKey = Format::Format("{:x}", index);
+            StringView scopeKey = format::Format("{:x}", index);
             return CreateScope(scopeKey);
         }
         else

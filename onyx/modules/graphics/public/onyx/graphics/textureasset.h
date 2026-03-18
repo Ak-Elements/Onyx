@@ -3,21 +3,21 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    class TextureAsset : public Assets::Asset<TextureAsset>
+    class TextureAsset : public assets::Asset<TextureAsset>
     {
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::TextureAsset" };
+        static constexpr StringId32 TypeId{ "onyx::graphics::assets::TextureAsset" };
         StringId32 GetTypeId() const { return TypeId; }
 
-        const TextureHandle& GetTextureHandle() const { return m_Texture; }
+        const rhi::TextureHandle& GetTextureHandle() const { return m_Texture; }
 
     private:
         friend struct TextureSerializer;
-        void SetTexture(const TextureHandle& handle);
+        void SetTexture(const rhi::TextureHandle& handle);
 
     private:
-        TextureHandle m_Texture;
+        rhi::TextureHandle m_Texture;
     };
 }

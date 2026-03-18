@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/bufferproperties.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     enum class Access : onyxU32;
     enum class Context : onyxU8;

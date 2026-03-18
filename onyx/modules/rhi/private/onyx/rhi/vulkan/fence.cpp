@@ -1,7 +1,7 @@
 #include <onyx/rhi/vulkan/fence.h>
 #include <onyx/rhi/vulkan/device.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     Fence::Fence(const Device& device, bool signaled)
         : m_Device(device)

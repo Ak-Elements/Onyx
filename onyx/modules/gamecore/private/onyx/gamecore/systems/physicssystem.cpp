@@ -13,20 +13,20 @@
 
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::GameCore::Physics
+namespace onyx::game_core::physics
 {
     struct InitPhysics {};
     struct DynamicBody {};
 
     namespace Init
     {
-        void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, BoxColliderComponent&& boxCollider)
+        void factory(ecs::EntityRegistry& registry, ecs::EntityId entity, BoxColliderComponent&& boxCollider)
         {
             registry.AddComponent<BoxColliderComponent>(entity, boxCollider);
             registry.AddComponent<InitPhysics>(entity);
         }
 
-        void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, SphereColliderComponent&& sphereCollider)
+        void factory(ecs::EntityRegistry& registry, ecs::EntityId entity, SphereColliderComponent&& sphereCollider)
         {
             registry.AddComponent<SphereColliderComponent>(entity, sphereCollider);
             registry.AddComponent<InitPhysics>(entity);
@@ -35,42 +35,61 @@ namespace Onyx::GameCore::Physics
     
     namespace StreamIn
     {
-        using Access = Entity::Access
-            ::Read<TransformComponent>
-            ::ReadIfExists<SphereColliderComponent, BoxColliderComponent>
-            ::With<InitPhysics>;
-        using PhysiscsEntity = Access::AsEntity;
-
-        void system(PhysiscsEntity entity, Onyx::Physics::PhysicsWorld& physicsSystem, Entity::EntityCommandBuffer entityCommandBuffer)
+        void initPhysicsEntity(ecs::EntityCommandBuffer& entityCommandBuffer, ecs::EntityId entity, onyx::physics::PhysicsBodyId bodyId, onyx::physics::MotionType motionType)
         {
-            auto&& [transform] = entity;
-
-            Onyx::Physics::PhysicsBodyId bodyId = Onyx::Physics::PhysicsBodyId::Invalid;
-            Onyx::Physics::MotionType motionType = Onyx::Physics::MotionType::Static;
-            if( const BoxColliderComponent* boxCollider = entity.TryGetComponent<BoxColliderComponent>() )
-            {
-                motionType = boxCollider->MotionType;
-                bodyId = physicsSystem.CreateBoxCollider(transform.Translation, transform.Rotation, boxCollider->HalfExtents, boxCollider->MotionType, boxCollider->Layer);
-            }
-            else if( const SphereColliderComponent* sphereCollider = entity.TryGetComponent<SphereColliderComponent>() )
-            {
-                motionType = sphereCollider->MotionType;
-                bodyId = physicsSystem.CreateSphereCollider(transform.Translation, transform.Rotation, sphereCollider->Radius, sphereCollider->MotionType, sphereCollider->Layer);
-            }
-
-            entityCommandBuffer.AddComponent<Components::PhysicsBodyId>(entity, bodyId);
-            if (motionType == Onyx::Physics::MotionType::Dynamic)
+            entityCommandBuffer.AddComponent<components::PhysicsBodyId>(entity, bodyId);
+            if (motionType == onyx::physics::MotionType::Dynamic)
             {
                 entityCommandBuffer.AddComponent<DynamicBody>(entity);
             }
 
             entityCommandBuffer.RemoveComponent<InitPhysics>(entity);
         }
+
+        using SphereColliderAccess = ecs::Access
+            ::Read<TransformComponent>
+            ::Read<SphereColliderComponent>
+            ::With<InitPhysics>;
+
+        using SphereColliderEntity = SphereColliderAccess::AsEntity;
+
+        void initSphereColliders(SphereColliderEntity entity, onyx::physics::PhysicsWorld& physicsSystem, ecs::EntityCommandBuffer entityCommandBuffer)
+        {
+            auto&& [transform, sphereCollider] = entity;
+
+            onyx::physics::PhysicsBodyId bodyId = physicsSystem.CreateSphereCollider(transform.Translation,
+                 transform.Rotation,
+                 sphereCollider.Radius,
+                 sphereCollider.MotionType,
+                 sphereCollider.Layer);
+
+            initPhysicsEntity(entityCommandBuffer, entity.GetId(), bodyId, sphereCollider.MotionType);
+        }
+
+        using BoxColliderAccess = ecs::Access
+            ::Read<TransformComponent>
+            ::Read<BoxColliderComponent>
+            ::With<InitPhysics>;
+
+        using BoxColliderEntity = BoxColliderAccess::AsEntity;
+
+        void initBoxColliders(BoxColliderEntity entity, onyx::physics::PhysicsWorld& physicsSystem, ecs::EntityCommandBuffer entityCommandBuffer)
+        {
+            auto&& [transform, boxCollider] = entity;
+
+            onyx::physics::PhysicsBodyId bodyId = physicsSystem.CreateBoxCollider(transform.Translation,
+                 transform.Rotation,
+                 boxCollider.HalfExtents,
+                 boxCollider.MotionType,
+                 boxCollider.Layer);
+
+            initPhysicsEntity(entityCommandBuffer, entity.GetId(), bodyId, boxCollider.MotionType);
+        }
     }
 
     namespace Simulate
     {
-        void system(Onyx::Physics::PhysicsWorld& physicsSystem)
+        void system(onyx::physics::PhysicsWorld& physicsSystem)
         {
             physicsSystem.Update();
         }
@@ -78,14 +97,14 @@ namespace Onyx::GameCore::Physics
 
     namespace PostPhysics
     {
-        using Access = Entity::Access
-            ::Read<Components::PhysicsBodyId>
+        using Access = ecs::Access
+            ::Read<components::PhysicsBodyId>
             ::Write<TransformComponent>
             ::With<DynamicBody>;
 
         using PhysiscsEntity = Access::AsEntity;
 
-        void system(PhysiscsEntity entity, Onyx::Physics::PhysicsWorld& physicsSystem)
+        void system(PhysiscsEntity entity, onyx::physics::PhysicsWorld& physicsSystem)
         {
             auto&& [physicsBody, transform] = entity;
             transform.Translation = physicsSystem.GetPosition(physicsBody.BodyId);
@@ -94,14 +113,14 @@ namespace Onyx::GameCore::Physics
 
     namespace DebugDraw
     {
-        using Access = Entity::Access
+        using Access = ecs::Access
             ::Read<TransformComponent>
             ::ReadIfExists<SphereColliderComponent, BoxColliderComponent>
-            ::With<Components::PhysicsBodyId>;
+            ::With<components::PhysicsBodyId>;
 
         using ColliderEntity = Access::AsEntity;
 
-        void system(ColliderEntity entity, Onyx::Graphics::DebugDrawQueue& debugDraw)
+        void system(ColliderEntity entity, onyx::graphics::DebugDrawQueue& debugDraw)
         {
             auto&& [ transform ] = entity;
 
@@ -116,9 +135,11 @@ namespace Onyx::GameCore::Physics
         }
     }
 
-    void registerSystems(Entity::EcsBuilder& ecsBuilder)
+    void registerSystems(ecs::EcsBuilder& ecsBuilder)
     {
-        ecsBuilder.RegisterSystem(StreamIn::system);
+        ecsBuilder.RegisterSystem(StreamIn::initBoxColliders);
+        ecsBuilder.RegisterSystem(StreamIn::initSphereColliders);
+
         ecsBuilder.RegisterSystem(Simulate::system);
         ecsBuilder.RegisterSystem(PostPhysics::system);
 

@@ -1,7 +1,7 @@
 #include <imgui_stacklayout.h>
 #include <onyx/ui/layout/imguilayout.h>
 
-namespace Onyx::Ui::Layout
+namespace onyx::ui::layout
 {
     void BeginHorizontal(StringView id)
     {

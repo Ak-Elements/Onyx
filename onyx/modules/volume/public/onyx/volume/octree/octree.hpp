@@ -3,7 +3,7 @@
 #include <onyx/volume/octree/octree.h>
 #include <onyx/volume/octree/octreenode.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     template <typename NodeDataContainer, typename KeyType>
     Octree<NodeDataContainer, KeyType>::Octree()

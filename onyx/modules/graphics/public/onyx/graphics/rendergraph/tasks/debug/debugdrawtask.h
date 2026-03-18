@@ -4,20 +4,20 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class DebugDrawTask : public NodeGraph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle>
+    class DebugDrawTask : public node_graph::FixedPinNode_1_In_1_Out<RenderGraphFixedShaderNode, rhi::TextureHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::DebugDrawTask";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::DebugDrawTask";
         StringId32 GetTypeId() const override { return TypeId; }
 
         DebugDrawTask();
 
     private:
         void OnBeginFrame(RenderGraphContext& context) override;
-        void OnPreRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnPreRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:
@@ -34,8 +34,8 @@ namespace Onyx::Graphics::RenderGraphNodes
         }
 #endif
     private:
-        BufferHandle m_WireframeSpheresBuffer;
-        BufferHandle m_WireframeBoxesBuffer;
+        rhi::BufferHandle m_WireframeSpheresBuffer;
+        rhi::BufferHandle m_WireframeBoxesBuffer;
 
         onyxU32 m_WireframeSpheresCount = 0;
         onyxU32 m_WireframeBoxesCount = 0;

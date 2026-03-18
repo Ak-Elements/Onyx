@@ -1,15 +1,15 @@
 #pragma once
 
 #if ONYX_IS_EDITOR
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct AssetId;
     enum class AssetType : onyxU32;
     class AssetSystem;
 }
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
-    bool AssetSelector(const Assets::AssetSystem& assetSystem, Assets::AssetType assetType, Assets::AssetId& outAssetId);
+    bool AssetSelector(const assets::AssetSystem& assetSystem, assets::AssetType assetType, assets::AssetId& outAssetId);
 }
 #endif

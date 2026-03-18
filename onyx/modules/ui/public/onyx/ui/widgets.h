@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     struct LocalizedString;
 }
@@ -15,7 +15,7 @@ namespace Onyx::Localization
 struct ImDrawList;
 struct ImVec2;
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     //TODO maybe move to a common gui file?
     template <typename T>
@@ -50,7 +50,7 @@ namespace Onyx::Ui
     
     bool DrawSearchBar(String& searchString, StringView hintLabel, bool& grabFocus);
 
-    bool ContextMenuHeader(const Localization::LocalizedString& label, ImGuiTreeNodeFlags flags = 0);
+    bool ContextMenuHeader(const localization::LocalizedString& label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, ImGuiTreeNodeFlags flags = 0);
     bool ContextMenuHeader(StringView label, const InplaceFunction<bool()>& customHeader, ImGuiTreeNodeFlags flags = 0);
 
@@ -92,7 +92,7 @@ namespace Onyx::Ui
         if ((flags & ImGuiInputTextFlags_DisplayEmptyRefVal) && ImGui::DataTypeCompare(data_type, &data, p_data_default) == 0)
             buf[0] = 0;
         else
-            Format::FormatTo2(buf, format, data);
+            format::FormatTo2(buf, format, data);
 
         // Disable the MarkItemEdited() call in InputText but keep ImGuiItemStatusFlags_Edited.
         // We call MarkItemEdited() ourselves by comparing the actual data rather than the string.

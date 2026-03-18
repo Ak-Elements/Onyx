@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace Onyx {
+namespace onyx {
 
     // TODO: Can be fully replaced by std::array or std::inplace_vector (c++26)
     template <typename T, onyxU8 Size>
@@ -107,4 +107,4 @@ namespace Onyx {
         onyxU8 m_NextIndex = 0;
     };
 
-} // namespace Onyx
+} // namespace onyx

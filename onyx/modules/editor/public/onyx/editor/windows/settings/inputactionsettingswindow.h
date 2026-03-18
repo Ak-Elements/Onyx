@@ -9,17 +9,17 @@
 #include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Input
+namespace onyx::input
 {
     struct InputActionsMap;
     class InputSystem;
@@ -27,14 +27,14 @@ namespace Onyx::Input
     struct InputActionContext;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     struct InputActionEvent;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    class InputActionSettingsWindow : public Ui::ImGuiWindow
+    class InputActionSettingsWindow : public ui::ImGuiWindow
     {
         friend struct InputActionCommand;
     public:
@@ -47,43 +47,43 @@ namespace Onyx::Editor
         StringId64 GetSelectedBindingIndex() const { return m_SelectedBindingIndex; }
     private:
         void OnOpen() override;
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
         void OnClose() override;
 
-        void OnMouseAxisChange(const Input::MouseAxisEvent& event);
-        void OnMouseButton(const Input::MouseButtonEvent& event);
-        void OnMousePositionChange(const Input::MousePositionEvent& event);
+        void OnMouseAxisChange(const input::MouseAxisEvent& event);
+        void OnMouseButton(const input::MouseButtonEvent& event);
+        void OnMousePositionChange(const input::MousePositionEvent& event);
 
-        void OnKey(const Input::KeyboardEvent& event);
+        void OnKey(const input::KeyboardEvent& event);
 
-        void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
-        void OnControllerButton(const Input::GameControllerButtonEvent& event);
+        void OnControllerAxisChange(const input::GameControllerAxisEvent& event);
+        void OnControllerButton(const input::GameControllerButtonEvent& event);
 
         void RenderInputActions();
         
-        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<InputActions::InputBinding>>& bindings);
-        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, InputActions::InputBinding& binding);
+        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<input_actions::InputBinding>>& bindings);
+        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, input_actions::InputBinding& binding);
 
         void RenderActionProperties();
         void RenderSelectedBindingProperties();
 
         void MarkAsDirty() { m_IsDirty = true; }
 
-        void OnInputAssetLoaded(Assets::AssetHandle<InputActions::InputActionsContext> inputActionsAsset);
+        void OnInputAssetLoaded(assets::AssetHandle<input_actions::InputActionsContext> inputActionsAsset);
 
-        Assets::AssetId GetOpenAssetId() const { return m_InputContextAssetId; }
-        void BindInputBindingSlot(Input::InputID inputId);
+        assets::AssetId GetOpenAssetId() const { return m_InputContextAssetId; }
+        void BindInputBindingSlot(input::InputID inputId);
 
-        InputActions::InputActionsMap& GetOpenActionsContext() { return m_OpenInputContext; }
+        input_actions::InputActionsMap& GetOpenActionsContext() { return m_OpenInputContext; }
 
-        void OnDeleteAction(const InputActions::InputActionEvent& deleteAction);
+        void OnDeleteAction(const input_actions::InputActionEvent& deleteAction);
 
     private:
-        CommandGraph<InputActions::InputActionsMap> m_CommandsHistory;
+        CommandGraph<input_actions::InputActionsMap> m_CommandsHistory;
 
         // Copy of InputActionAsset to edit until save
-        Assets::AssetId m_InputContextAssetId;
-        InputActions::InputActionsMap m_OpenInputContext;
+        assets::AssetId m_InputContextAssetId;
+        input_actions::InputActionsMap m_OpenInputContext;
       
         DynamicArray<bool> m_MapsSelectedStates;
         DynamicArray<bool> m_ActionsSelectedStates;

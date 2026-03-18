@@ -3,7 +3,7 @@
 #include <onyx/volume/dualmarchingcubes/dmcoctreesplitpolicy.h>
 #include <onyx/volume/chunk/volumechunk.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 	void VolumeTerrain::Init(const VolumeBase&)
 	{
@@ -54,7 +54,7 @@ namespace Onyx::Volume
 		return index3d[0] + m_TerrainSize[0] * (index3d[1] + m_TerrainSize[1] * index3d[2]);
 	}
 
-	Vector3<Onyx::onyxU32> VolumeTerrain::GetChunk3DIndex(onyxU32 index)
+	Vector3<onyx::onyxU32> VolumeTerrain::GetChunk3DIndex(onyxU32 index)
 	{
 		const onyxU32 xyMax = m_TerrainSize[0] * m_TerrainSize[1];
 		const int z = index / xyMax;
@@ -62,7 +62,7 @@ namespace Onyx::Volume
 		const int y = index / m_TerrainSize[0];
 		const int x = index % m_TerrainSize[0];
 
-		return Vector3<Onyx::onyxU32>(x, y, z); 
+		return Vector3<onyx::onyxU32>(x, y, z); 
 	}
 
 	void VolumeTerrain::OnVolumeChunkCreated(VolumeChunkPtr /*chunk*/)

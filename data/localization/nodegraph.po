@@ -59,658 +59,658 @@ msgstr "Vector4 (Integer 64)"
 msgid "execute"
 msgstr "Execute"
 
-msgid "Onyx::NodeGraph::AdditionF32"
+msgid "onyx::NodeGraph::AdditionF32"
 msgstr "Math/Float/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionF32"
+msgid "onyx::NodeGraph::AdditionF32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionF64"
+msgid "onyx::NodeGraph::AdditionF64"
 msgstr "Math/Float64/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionF64"
+msgid "onyx::NodeGraph::AdditionF64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionS32"
+msgid "onyx::NodeGraph::AdditionS32"
 msgstr "Math/Integer/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionS32"
+msgid "onyx::NodeGraph::AdditionS32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionS64"
+msgid "onyx::NodeGraph::AdditionS64"
 msgstr "Math/Integer64/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionS64"
+msgid "onyx::NodeGraph::AdditionS64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector2f32"
+msgid "onyx::NodeGraph::AdditionVector2f32"
 msgstr "Math/Float/Vector2/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector2f32"
+msgid "onyx::NodeGraph::AdditionVector2f32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector2f64"
+msgid "onyx::NodeGraph::AdditionVector2f64"
 msgstr "Math/Float64/Vector2/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector2f64"
+msgid "onyx::NodeGraph::AdditionVector2f64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector2s32"
+msgid "onyx::NodeGraph::AdditionVector2s32"
 msgstr "Math/Integer/Vector2/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector2s32"
+msgid "onyx::NodeGraph::AdditionVector2s32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector2s64"
+msgid "onyx::NodeGraph::AdditionVector2s64"
 msgstr "Math/Integer64/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector2s64"
+msgid "onyx::NodeGraph::AdditionVector2s64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector3f32"
+msgid "onyx::NodeGraph::AdditionVector3f32"
 msgstr "Math/Float/Vector3/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector3f32"
+msgid "onyx::NodeGraph::AdditionVector3f32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector3f64"
+msgid "onyx::NodeGraph::AdditionVector3f64"
 msgstr "Math/Float64/Vector3/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector3f64"
+msgid "onyx::NodeGraph::AdditionVector3f64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector3s32"
+msgid "onyx::NodeGraph::AdditionVector3s32"
 msgstr "Math/Integer/Vector3/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector3s32"
+msgid "onyx::NodeGraph::AdditionVector3s32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector3s64"
+msgid "onyx::NodeGraph::AdditionVector3s64"
 msgstr "Math/Integer64/Vector3/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector3s64"
+msgid "onyx::NodeGraph::AdditionVector3s64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector4f32"
+msgid "onyx::NodeGraph::AdditionVector4f32"
 msgstr "Math/Float/Vector4/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector4f32"
+msgid "onyx::NodeGraph::AdditionVector4f32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector4f64"
+msgid "onyx::NodeGraph::AdditionVector4f64"
 msgstr "Math/Float64/Vector4/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector4f64"
+msgid "onyx::NodeGraph::AdditionVector4f64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector4s32"
+msgid "onyx::NodeGraph::AdditionVector4s32"
 msgstr "Math/Integer/Vector4/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector4s32"
+msgid "onyx::NodeGraph::AdditionVector4s32"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::AdditionVector4s64"
+msgid "onyx::NodeGraph::AdditionVector4s64"
 msgstr "Math/Integer64/Vector4/Addition"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AdditionVector4s64"
+msgid "onyx::NodeGraph::AdditionVector4s64"
 msgstr "+;plus"
 
-msgid "Onyx::NodeGraph::SubtractF32"
+msgid "onyx::NodeGraph::SubtractF32"
 msgstr "Math/Float/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractF32"
+msgid "onyx::NodeGraph::SubtractF32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractF64"
+msgid "onyx::NodeGraph::SubtractF64"
 msgstr "Math/Float64/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractF64"
+msgid "onyx::NodeGraph::SubtractF64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractS32"
+msgid "onyx::NodeGraph::SubtractS32"
 msgstr "Math/Integer/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractS32"
+msgid "onyx::NodeGraph::SubtractS32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractS64"
+msgid "onyx::NodeGraph::SubtractS64"
 msgstr "Math/Integer64/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractS64"
+msgid "onyx::NodeGraph::SubtractS64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector2f32"
+msgid "onyx::NodeGraph::SubtractVector2f32"
 msgstr "Math/Float/Vector2/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector2f32"
+msgid "onyx::NodeGraph::SubtractVector2f32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector2f64"
+msgid "onyx::NodeGraph::SubtractVector2f64"
 msgstr "Math/Float64/Vector2/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector2f64"
+msgid "onyx::NodeGraph::SubtractVector2f64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector2s32"
+msgid "onyx::NodeGraph::SubtractVector2s32"
 msgstr "Math/Integer/Vector2/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector2s32"
+msgid "onyx::NodeGraph::SubtractVector2s32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector2s64"
+msgid "onyx::NodeGraph::SubtractVector2s64"
 msgstr "Math/Integer64/Vector2/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector2s64"
+msgid "onyx::NodeGraph::SubtractVector2s64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector3f32"
+msgid "onyx::NodeGraph::SubtractVector3f32"
 msgstr "Math/Float/Vector3/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector3f32"
+msgid "onyx::NodeGraph::SubtractVector3f32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector3f64"
+msgid "onyx::NodeGraph::SubtractVector3f64"
 msgstr "Math/Float64/Vector3/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector3f64"
+msgid "onyx::NodeGraph::SubtractVector3f64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector3s32"
+msgid "onyx::NodeGraph::SubtractVector3s32"
 msgstr "Math/Integer/Vector3/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector3s32"
+msgid "onyx::NodeGraph::SubtractVector3s32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector3s64"
+msgid "onyx::NodeGraph::SubtractVector3s64"
 msgstr "Math/Integer64/Vector3/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector3s64"
+msgid "onyx::NodeGraph::SubtractVector3s64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector4f32"
+msgid "onyx::NodeGraph::SubtractVector4f32"
 msgstr "Math/Float/Vector4/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector4f32"
+msgid "onyx::NodeGraph::SubtractVector4f32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector4f64"
+msgid "onyx::NodeGraph::SubtractVector4f64"
 msgstr "Math/Float64/Vector4/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector4f64"
+msgid "onyx::NodeGraph::SubtractVector4f64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector4s32"
+msgid "onyx::NodeGraph::SubtractVector4s32"
 msgstr "Math/Integer/Vector4/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector4s32"
+msgid "onyx::NodeGraph::SubtractVector4s32"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::SubtractVector4s64"
+msgid "onyx::NodeGraph::SubtractVector4s64"
 msgstr "Math/Integer64/Vector4/Subtract"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::SubtractVector4s64"
+msgid "onyx::NodeGraph::SubtractVector4s64"
 msgstr "-;minus"
 
-msgid "Onyx::NodeGraph::MultiplyF32"
+msgid "onyx::NodeGraph::MultiplyF32"
 msgstr "Math/Float/Multiply"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::MultiplyF32"
+msgid "onyx::NodeGraph::MultiplyF32"
 msgstr "*;times"
 
-msgid "Onyx::NodeGraph::MultiplyF64"
+msgid "onyx::NodeGraph::MultiplyF64"
 msgstr "Math/Float64/Multiply"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::MultiplyF64"
+msgid "onyx::NodeGraph::MultiplyF64"
 msgstr "*;times"
 
-msgid "Onyx::NodeGraph::MultiplyS32"
+msgid "onyx::NodeGraph::MultiplyS32"
 msgstr "Math/Integer/Multiply"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::MultiplyS32"
+msgid "onyx::NodeGraph::MultiplyS32"
 msgstr "*;times"
 
-msgid "Onyx::NodeGraph::MultiplyS64"
+msgid "onyx::NodeGraph::MultiplyS64"
 msgstr "Math/Integer64/Multiply"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::MultiplyS64"
+msgid "onyx::NodeGraph::MultiplyS64"
 msgstr "*;times"
 
-msgid "Onyx::NodeGraph::DivideF32"
+msgid "onyx::NodeGraph::DivideF32"
 msgstr "Math/Float/Divide"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::DivideF32"
+msgid "onyx::NodeGraph::DivideF32"
 msgstr "/"
 
-msgid "Onyx::NodeGraph::DivideF64"
+msgid "onyx::NodeGraph::DivideF64"
 msgstr "Math/Float64/Divide"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::DivideF64"
+msgid "onyx::NodeGraph::DivideF64"
 msgstr "/"
 
-msgid "Onyx::NodeGraph::DivideS32"
+msgid "onyx::NodeGraph::DivideS32"
 msgstr "Math/Integer/Divide"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::DivideS32"
+msgid "onyx::NodeGraph::DivideS32"
 msgstr "/"
 
-msgid "Onyx::NodeGraph::DivideS64"
+msgid "onyx::NodeGraph::DivideS64"
 msgstr "Math/Integer64/Divide"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::DivideS64"
+msgid "onyx::NodeGraph::DivideS64"
 msgstr "/"
 
-msgid "Onyx::NodeGraph::AbsoluteF32"
+msgid "onyx::NodeGraph::AbsoluteF32"
 msgstr "Math/Float/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteF32"
+msgid "onyx::NodeGraph::AbsoluteF32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteF64"
+msgid "onyx::NodeGraph::AbsoluteF64"
 msgstr "Math/Float64/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteF64"
+msgid "onyx::NodeGraph::AbsoluteF64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteS32"
+msgid "onyx::NodeGraph::AbsoluteS32"
 msgstr "Math/Integer/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteS32"
+msgid "onyx::NodeGraph::AbsoluteS32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteS64"
+msgid "onyx::NodeGraph::AbsoluteS64"
 msgstr "Math/Integer64/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteS64"
+msgid "onyx::NodeGraph::AbsoluteS64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector2f32"
+msgid "onyx::NodeGraph::AbsoluteVector2f32"
 msgstr "Math/Float/Vector2/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector2f32"
+msgid "onyx::NodeGraph::AbsoluteVector2f32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector2f64"
+msgid "onyx::NodeGraph::AbsoluteVector2f64"
 msgstr "Math/Float64/Vector2/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector2f64"
+msgid "onyx::NodeGraph::AbsoluteVector2f64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector2s32"
+msgid "onyx::NodeGraph::AbsoluteVector2s32"
 msgstr "Math/Integer/Vector2/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector2s32"
+msgid "onyx::NodeGraph::AbsoluteVector2s32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector2s64"
+msgid "onyx::NodeGraph::AbsoluteVector2s64"
 msgstr "Math/Integer64/Vector2/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector2s64"
+msgid "onyx::NodeGraph::AbsoluteVector2s64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector3f32"
+msgid "onyx::NodeGraph::AbsoluteVector3f32"
 msgstr "Math/Float/Vector3/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector3f32"
+msgid "onyx::NodeGraph::AbsoluteVector3f32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector3f64"
+msgid "onyx::NodeGraph::AbsoluteVector3f64"
 msgstr "Math/Float64/Vector3/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector3f64"
+msgid "onyx::NodeGraph::AbsoluteVector3f64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector3s32"
+msgid "onyx::NodeGraph::AbsoluteVector3s32"
 msgstr "Math/Integer/Vector3/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector3s32"
+msgid "onyx::NodeGraph::AbsoluteVector3s32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector3s64"
+msgid "onyx::NodeGraph::AbsoluteVector3s64"
 msgstr "Math/Integer64/Vector3/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector3s64"
+msgid "onyx::NodeGraph::AbsoluteVector3s64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector4f32"
+msgid "onyx::NodeGraph::AbsoluteVector4f32"
 msgstr "Math/Float/Vector4/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector4f32"
+msgid "onyx::NodeGraph::AbsoluteVector4f32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector4f64"
+msgid "onyx::NodeGraph::AbsoluteVector4f64"
 msgstr "Math/Float64/Vector4/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector4f64"
+msgid "onyx::NodeGraph::AbsoluteVector4f64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector4s32"
+msgid "onyx::NodeGraph::AbsoluteVector4s32"
 msgstr "Math/Integer/Vector4/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector4s32"
+msgid "onyx::NodeGraph::AbsoluteVector4s32"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::AbsoluteVector4s64"
+msgid "onyx::NodeGraph::AbsoluteVector4s64"
 msgstr "Math/Integer64/Vector4/Absolute"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::AbsoluteVector4s64"
+msgid "onyx::NodeGraph::AbsoluteVector4s64"
 msgstr "|x|"
 
-msgid "Onyx::NodeGraph::ScaleVector2f32"
+msgid "onyx::NodeGraph::ScaleVector2f32"
 msgstr "Math/Float/Vector2/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector2f32"
+msgid "onyx::NodeGraph::ScaleVector2f32"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector2f64"
+msgid "onyx::NodeGraph::ScaleVector2f64"
 msgstr "Math/Float64/Vector2/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector2f64"
+msgid "onyx::NodeGraph::ScaleVector2f64"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector2s32"
+msgid "onyx::NodeGraph::ScaleVector2s32"
 msgstr "Math/Integer/Vector2/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector2s32"
+msgid "onyx::NodeGraph::ScaleVector2s32"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector2s64"
+msgid "onyx::NodeGraph::ScaleVector2s64"
 msgstr "Math/Integer64/Vector2/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector2s64"
+msgid "onyx::NodeGraph::ScaleVector2s64"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector3f32"
+msgid "onyx::NodeGraph::ScaleVector3f32"
 msgstr "Math/Float/Vector3/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector3f32"
+msgid "onyx::NodeGraph::ScaleVector3f32"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector3f64"
+msgid "onyx::NodeGraph::ScaleVector3f64"
 msgstr "Math/Float64/Vector3/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector3f64"
+msgid "onyx::NodeGraph::ScaleVector3f64"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector3s32"
+msgid "onyx::NodeGraph::ScaleVector3s32"
 msgstr "Math/Integer/Vector3/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector3s32"
+msgid "onyx::NodeGraph::ScaleVector3s32"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector3s64"
+msgid "onyx::NodeGraph::ScaleVector3s64"
 msgstr "Math/Integer64/Vector3/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector3s64"
+msgid "onyx::NodeGraph::ScaleVector3s64"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector4f32"
+msgid "onyx::NodeGraph::ScaleVector4f32"
 msgstr "Math/Float/Vector4/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector4f32"
+msgid "onyx::NodeGraph::ScaleVector4f32"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector4f64"
+msgid "onyx::NodeGraph::ScaleVector4f64"
 msgstr "Math/Float64/Vector4/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector4f64"
+msgid "onyx::NodeGraph::ScaleVector4f64"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector4s32"
+msgid "onyx::NodeGraph::ScaleVector4s32"
 msgstr "Math/Integer/Vector4/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector4s32"
+msgid "onyx::NodeGraph::ScaleVector4s32"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::ScaleVector4s64"
+msgid "onyx::NodeGraph::ScaleVector4s64"
 msgstr "Math/Integer64/Vector4/Scale"
 
 msgctx "alias"
-msgid "Onyx::NodeGraph::ScaleVector4s64"
+msgid "onyx::NodeGraph::ScaleVector4s64"
 msgstr "*;multiply;times;/;divide"
 
-msgid "Onyx::NodeGraph::GetVector2f32Components"
+msgid "onyx::NodeGraph::GetVector2f32Components"
 msgstr "Math/Float/Vector2/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector2f64Components"
+msgid "onyx::NodeGraph::GetVector2f64Components"
 msgstr "Math/Float64/Vector2/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector2s32Components"
+msgid "onyx::NodeGraph::GetVector2s32Components"
 msgstr "Math/Integer/Vector2/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector2s64Components"
+msgid "onyx::NodeGraph::GetVector2s64Components"
 msgstr "Math/Integer64/Vector2/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector3f32Components"
+msgid "onyx::NodeGraph::GetVector3f32Components"
 msgstr "Math/Float/Vector3/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector3f64Components"
+msgid "onyx::NodeGraph::GetVector3f64Components"
 msgstr "Math/Float64/Vector3/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector3s32Components"
+msgid "onyx::NodeGraph::GetVector3s32Components"
 msgstr "Math/Integer/Vector3/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector3s64Components"
+msgid "onyx::NodeGraph::GetVector3s64Components"
 msgstr "Math/Integer64/Vector3/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector4f32Components"
+msgid "onyx::NodeGraph::GetVector4f32Components"
 msgstr "Math/Float/Vector4/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector4f64Components"
+msgid "onyx::NodeGraph::GetVector4f64Components"
 msgstr "Math/Float64/Vector4/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector4s32Components"
+msgid "onyx::NodeGraph::GetVector4s32Components"
 msgstr "Math/Integer/Vector4/Get Components"
 
-msgid "Onyx::NodeGraph::GetVector4s64Components"
+msgid "onyx::NodeGraph::GetVector4s64Components"
 msgstr "Math/Integer64/Vector4/Get Components"
 
-msgid "Onyx::NodeGraph::CreateVector2f32"
+msgid "onyx::NodeGraph::CreateVector2f32"
 msgstr "Math/Float/Vector2/Create"
 
-msgid "Onyx::NodeGraph::CreateVector2f64"
+msgid "onyx::NodeGraph::CreateVector2f64"
 msgstr "Math/Float64/Vector2/Create"
 
-msgid "Onyx::NodeGraph::CreateVector2s32"
+msgid "onyx::NodeGraph::CreateVector2s32"
 msgstr "Math/Integer/Vector2/Create"
 
-msgid "Onyx::NodeGraph::CreateVector2s64"
+msgid "onyx::NodeGraph::CreateVector2s64"
 msgstr "Math/Integer64/Vector2/Create"
 
-msgid "Onyx::NodeGraph::CreateVector3f32"
+msgid "onyx::NodeGraph::CreateVector3f32"
 msgstr "Math/Float/Vector3/Create"
 
-msgid "Onyx::NodeGraph::CreateVector3f64"
+msgid "onyx::NodeGraph::CreateVector3f64"
 msgstr "Math/Float64/Vector3/Create"
 
-msgid "Onyx::NodeGraph::CreateVector3s32"
+msgid "onyx::NodeGraph::CreateVector3s32"
 msgstr "Math/Integer/Vector3/Create"
 
-msgid "Onyx::NodeGraph::CreateVector3s64"
+msgid "onyx::NodeGraph::CreateVector3s64"
 msgstr "Math/Integer64/Vector3/Create"
 
-msgid "Onyx::NodeGraph::CreateVector4f32"
+msgid "onyx::NodeGraph::CreateVector4f32"
 msgstr "Math/Float/Vector4/Create"
 
-msgid "Onyx::NodeGraph::CreateVector4f64"
+msgid "onyx::NodeGraph::CreateVector4f64"
 msgstr "Math/Float64/Vector4/Create"
 
-msgid "Onyx::NodeGraph::CreateVector4s32"
+msgid "onyx::NodeGraph::CreateVector4s32"
 msgstr "Math/Integer/Vector4/Create"
 
-msgid "Onyx::NodeGraph::CreateVector4s64"
+msgid "onyx::NodeGraph::CreateVector4s64"
 msgstr "Math/Integer64/Vector4/Create"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector2f32"
+msgid "onyx::NodeGraph::Swizzle2DVector2f32"
 msgstr "Math/Float/Vector2/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector3f32"
+msgid "onyx::NodeGraph::Swizzle2DVector3f32"
 msgstr "Math/Float/Vector2/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector4f32"
+msgid "onyx::NodeGraph::Swizzle2DVector4f32"
 msgstr "Math/Float/Vector2/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector2f64"
+msgid "onyx::NodeGraph::Swizzle2DVector2f64"
 msgstr "Math/Float64/Vector2/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector3f64"
+msgid "onyx::NodeGraph::Swizzle2DVector3f64"
 msgstr "Math/Float64/Vector2/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector4f64"
+msgid "onyx::NodeGraph::Swizzle2DVector4f64"
 msgstr "Math/Float64/Vector2/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector2s32"
+msgid "onyx::NodeGraph::Swizzle2DVector2s32"
 msgstr "Math/Integer/Vector2/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector3s32"
+msgid "onyx::NodeGraph::Swizzle2DVector3s32"
 msgstr "Math/Integer/Vector2/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector4s32"
+msgid "onyx::NodeGraph::Swizzle2DVector4s32"
 msgstr "Math/Integer/Vector2/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector2s64"
+msgid "onyx::NodeGraph::Swizzle2DVector2s64"
 msgstr "Math/Integer64/Vector2/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector3s64"
+msgid "onyx::NodeGraph::Swizzle2DVector3s64"
 msgstr "Math/Integer64/Vector2/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle2DVector4s64"
+msgid "onyx::NodeGraph::Swizzle2DVector4s64"
 msgstr "Math/Integer64/Vector2/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector2f32"
+msgid "onyx::NodeGraph::Swizzle3DVector2f32"
 msgstr "Math/Float/Vector3/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector3f32"
+msgid "onyx::NodeGraph::Swizzle3DVector3f32"
 msgstr "Math/Float/Vector3/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector4f32"
+msgid "onyx::NodeGraph::Swizzle3DVector4f32"
 msgstr "Math/Float/Vector3/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector2f64"
+msgid "onyx::NodeGraph::Swizzle3DVector2f64"
 msgstr "Math/Float64/Vector3/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector3f64"
+msgid "onyx::NodeGraph::Swizzle3DVector3f64"
 msgstr "Math/Float64/Vector3/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector4f64"
+msgid "onyx::NodeGraph::Swizzle3DVector4f64"
 msgstr "Math/Float64/Vector3/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector2s32"
+msgid "onyx::NodeGraph::Swizzle3DVector2s32"
 msgstr "Math/Integer/Vector3/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector3s32"
+msgid "onyx::NodeGraph::Swizzle3DVector3s32"
 msgstr "Math/Integer/Vector3/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector4s32"
+msgid "onyx::NodeGraph::Swizzle3DVector4s32"
 msgstr "Math/Integer/Vector3/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector2s64"
+msgid "onyx::NodeGraph::Swizzle3DVector2s64"
 msgstr "Math/Integer64/Vector3/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector3s64"
+msgid "onyx::NodeGraph::Swizzle3DVector3s64"
 msgstr "Math/Integer64/Vector3/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle3DVector4s64"
+msgid "onyx::NodeGraph::Swizzle3DVector4s64"
 msgstr "Math/Integer64/Vector3/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector2f32"
+msgid "onyx::NodeGraph::Swizzle4DVector2f32"
 msgstr "Math/Float/Vector4/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector3f32"
+msgid "onyx::NodeGraph::Swizzle4DVector3f32"
 msgstr "Math/Float/Vector4/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector4f32"
+msgid "onyx::NodeGraph::Swizzle4DVector4f32"
 msgstr "Math/Float/Vector4/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector2f64"
+msgid "onyx::NodeGraph::Swizzle4DVector2f64"
 msgstr "Math/Float64/Vector4/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector3f64"
+msgid "onyx::NodeGraph::Swizzle4DVector3f64"
 msgstr "Math/Float64/Vector4/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector4f64"
+msgid "onyx::NodeGraph::Swizzle4DVector4f64"
 msgstr "Math/Float64/Vector4/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector2s32"
+msgid "onyx::NodeGraph::Swizzle4DVector2s32"
 msgstr "Math/Integer/Vector4/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector3s32"
+msgid "onyx::NodeGraph::Swizzle4DVector3s32"
 msgstr "Math/Integer/Vector4/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector4s32"
+msgid "onyx::NodeGraph::Swizzle4DVector4s32"
 msgstr "Math/Integer/Vector4/Swizzle Vector4"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector2s64"
+msgid "onyx::NodeGraph::Swizzle4DVector2s64"
 msgstr "Math/Integer64/Vector4/Swizzle Vector2"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector3s64"
+msgid "onyx::NodeGraph::Swizzle4DVector3s64"
 msgstr "Math/Integer64/Vector4/Swizzle Vector3"
 
-msgid "Onyx::NodeGraph::Swizzle4DVector4s64"
+msgid "onyx::NodeGraph::Swizzle4DVector4s64"
 msgstr "Math/Integer64/Vector4/Swizzle Vector4"

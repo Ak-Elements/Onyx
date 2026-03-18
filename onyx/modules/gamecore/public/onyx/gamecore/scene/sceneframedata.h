@@ -3,12 +3,12 @@
 #include <onyx/rhi/framecontext.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class MaterialShaderGraph;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class Material;
 
@@ -23,7 +23,7 @@ namespace Onyx::GameCore
     // Draw call for a mesh with a given Material and all its instances
     struct StaticSpriteDrawCall
     {
-        DynamicArray<Matrix4<onyxF32>> m_Transforms;
+        DynamicArray<Matrix4x4f32> m_Transforms;
     };
 
     struct StaticMeshIndirectDrawCall
@@ -32,9 +32,9 @@ namespace Onyx::GameCore
 
         // TODO: Change this to a struct / StaticMesh class
         // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
-        Assets::AssetHandle<Graphics::MaterialShaderGraph> Material;
-        Graphics::BufferHandle VertexData;
-        Graphics::BufferHandle DrawCommandBuffer;
+        assets::AssetHandle<graphics::MaterialShaderGraph> Material;
+        rhi::BufferHandle VertexData;
+        rhi::BufferHandle DrawCommandBuffer;
 
         DynamicArray<Matrix4<onyxF32>> Transforms;
     };
@@ -45,11 +45,11 @@ namespace Onyx::GameCore
 
         // TODO: Change this to a struct / StaticMesh class
         // TODO: Should not link a MaterialShaderGraph but rather a MaterialInstance which links to MaterialShaderGraph
-        Assets::AssetHandle<Graphics::MaterialShaderGraph> Material;
-        Graphics::BufferHandle VertexData;
-        Graphics::BufferHandle Indices;
+        assets::AssetHandle<graphics::MaterialShaderGraph> Material;
+        rhi::BufferHandle VertexData;
+        rhi::BufferHandle Indices;
 
-        DynamicArray<Matrix4<onyxF32>> Transforms;
+        DynamicArray<Matrix4x4f32> Transforms;
     };
 
     //struct TextDrawCall
@@ -63,9 +63,9 @@ namespace Onyx::GameCore
     struct VoxelChunk
     {
         Vector3s16 Coord;
-        Graphics::BufferHandle MeshVertices;
-        Graphics::BufferHandle VertexCount;
-        Graphics::BufferHandle IndirectDraw;
+        rhi::BufferHandle MeshVertices;
+        rhi::BufferHandle VertexCount;
+        rhi::BufferHandle IndirectDraw;
         onyxU32 Index;
 
         onyxU32 Size;
@@ -73,7 +73,7 @@ namespace Onyx::GameCore
     };
 
     // Data per frame that is sent from the level to the render api
-    struct SceneFrameData : public Graphics::FrameData
+    struct SceneFrameData : public rhi::FrameData
     {
         ~SceneFrameData();
 
@@ -85,7 +85,7 @@ namespace Onyx::GameCore
         //DynamicArray<TextDrawCall> m_TextDrawCalls;
         DynamicArray<VoxelChunk> m_VoxelChunksToInit;
 
-        Graphics::BufferHandle WorldChunksOctree;
+        rhi::BufferHandle WorldChunksOctree;
 
         DynamicArray<LightData> Lights;
     };

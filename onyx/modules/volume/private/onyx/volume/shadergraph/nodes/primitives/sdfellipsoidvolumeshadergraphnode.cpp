@@ -4,16 +4,16 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    void SdfEllipsoidVolumeShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
+    void SdfEllipsoidVolumeShaderGraphNode::OnUpdate(node_graph::ExecutionContext& /*context*/) const
     {
         
     }
 
-    void SdfEllipsoidVolumeShaderGraphNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const
+    void SdfEllipsoidVolumeShaderGraphNode::DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const
     {
-        if (generator.GetStage() != Graphics::ShaderStage::Fragment)
+        if (generator.GetStage() != rhi::ShaderStage::Fragment)
             return;
 
         if ((context.IsPinConnected<OutPin0>() == false) && (context.IsPinConnected<OutPin1>() == false))
@@ -22,20 +22,20 @@ namespace Onyx::Volume
         const InPin0& inputPin0 = GetInputPin0();
         const InPin1& inputPin1 = GetInputPin1();
 
-        generator.AddInclude(Graphics::ShaderStage::All, "includes/volume/csg/ellipsoid.h");
+        generator.AddInclude(rhi::ShaderStage::All, "includes/volume/csg/ellipsoid.h");
 
-        String ellipsoidVariableName = Format::Format("ellipsoidNode_{:x}", GetId().Get());
-        String sampleVariableName = Format::Format("ellipsoidSample_{:x}", GetId().Get());
-        String isoValueOutVariableName = Format::Format("pin_{:x}", GetOutputPin0().GetGlobalId().Get());
-        String gradientOutVariableName = Format::Format("pin_{:x}", GetOutputPin1().GetGlobalId().Get());
+        String ellipsoidVariableName = format::Format("ellipsoidNode_{:x}", GetId().Get());
+        String sampleVariableName = format::Format("ellipsoidSample_{:x}", GetId().Get());
+        String isoValueOutVariableName = format::Format("pin_{:x}", GetOutputPin0().GetGlobalId().Get());
+        String gradientOutVariableName = format::Format("pin_{:x}", GetOutputPin1().GetGlobalId().Get());
 
-        generator.AppendCode(Format::Format("CsgEllipsoid {} = CsgEllipsoid({}, {});\n", ellipsoidVariableName,
-            inputPin0.IsConnected() ? Format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
-            inputPin1.IsConnected() ? Format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
+        generator.AppendCode(format::Format("CsgEllipsoid {} = CsgEllipsoid({}, {});\n", ellipsoidVariableName,
+            inputPin0.IsConnected() ? format::Format("pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin0>()),
+            inputPin1.IsConnected() ? format::Format("pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<typename Super::InPin1>())));
 
-        generator.AppendCode(Format::Format("vec4 {} = GetValueAndGradient(worldPosition, {});\n", sampleVariableName, ellipsoidVariableName));
-        generator.AppendCode(Format::Format("float {} = {}.w;\n", isoValueOutVariableName, sampleVariableName));
-        generator.AppendCode(Format::Format("vec3 {} = {}.xyz;\n", gradientOutVariableName, sampleVariableName));
+        generator.AppendCode(format::Format("vec4 {} = GetValueAndGradient(worldPosition, {});\n", sampleVariableName, ellipsoidVariableName));
+        generator.AppendCode(format::Format("float {} = {}.w;\n", isoValueOutVariableName, sampleVariableName));
+        generator.AppendCode(format::Format("vec3 {} = {}.xyz;\n", gradientOutVariableName, sampleVariableName));
     }
 
 #if ONYX_IS_EDITOR

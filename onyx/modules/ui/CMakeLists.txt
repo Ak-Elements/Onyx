@@ -4,7 +4,8 @@ endif()
 
 onyx_add_target(onyx-ui
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Ui"
+    NAMESPACE "onyx::ui"
+    NAMESPACE_PATH "onyx/ui"
     PUBLIC_DEFINES "ONYX_UI_MODULE=1"
     NO_EDITOR_TARGET
 )

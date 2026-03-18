@@ -1,6 +1,6 @@
 #include <onyx/string/string.h>
 
-namespace Onyx
+namespace onyx
 {
     DynamicArray<String> Split(StringView string, StringView delimiters)
     {

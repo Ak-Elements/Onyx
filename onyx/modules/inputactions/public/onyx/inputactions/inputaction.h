@@ -2,7 +2,7 @@
 
 #include <onyx/inputactions/bindings/inputbinding.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     enum class ActionType : onyxU8
     {

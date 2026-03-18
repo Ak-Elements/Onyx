@@ -4,7 +4,7 @@
 #include <onyx/volume/octree/octreebreadthfirstiterator.h>
 #include <onyx/volume/octree/octreeleafnodeiterator.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
 template <typename KeyType>

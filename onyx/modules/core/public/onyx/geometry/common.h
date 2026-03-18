@@ -9,7 +9,7 @@
 #include <onyx/geometry/matrix3.h>
 #include <onyx/geometry/matrix4.h>
 
-namespace Onyx
+namespace onyx
 {
     template <typename T>
     concept IsVector2 = is_specialization_of_v<Vector2, T>;

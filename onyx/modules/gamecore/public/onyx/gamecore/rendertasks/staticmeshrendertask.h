@@ -4,30 +4,30 @@
 #include <onyx/nodegraph/pins/pin.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class ShaderGraph;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
-    class StaticMeshRenderGraphNode : public NodeGraph::FlexiblePinsNode<Graphics::RenderGraphShaderNode>
+    class StaticMeshRenderGraphNode : public node_graph::FlexiblePinsNode<graphics::RenderGraphShaderNode>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::GameCore::RenderGraph::StaticMeshPass";
+        static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::StaticMeshPass";
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FlexiblePinsNode<Graphics::RenderGraphShaderNode>;
+        using Super = FlexiblePinsNode<graphics::RenderGraphShaderNode>;
         
-        using ViewConstantsInPin = NodeGraph::Pin<Graphics::BufferHandle, "View Constants">;
-        using GBufferTargetInPin = NodeGraph::Pin<Graphics::TextureHandle, "GBuffer RenderTarget">;
-        using DepthTextureInPin = NodeGraph::Pin<Graphics::TextureHandle, "Depth Texture">;
-        using LightGridInPin = NodeGraph::Pin<Graphics::BufferHandle, "Light Grid">;
-        using LightIndicesInPin = NodeGraph::Pin<Graphics::BufferHandle, "Light Indices">;
-        using LightsInPin = NodeGraph::Pin<Graphics::BufferHandle, "Lights">;
+        using ViewConstantsInPin = node_graph::Pin<rhi::BufferHandle, "View Constants">;
+        using GBufferTargetInPin = node_graph::Pin<rhi::TextureHandle, "GBuffer RenderTarget">;
+        using DepthTextureInPin = node_graph::Pin<rhi::TextureHandle, "Depth Texture">;
+        using LightGridInPin = node_graph::Pin<rhi::BufferHandle, "Light Grid">;
+        using LightIndicesInPin = node_graph::Pin<rhi::BufferHandle, "Light Indices">;
+        using LightsInPin = node_graph::Pin<rhi::BufferHandle, "Lights">;
 
-        using OutPin = NodeGraph::Pin<Graphics::TextureHandle, "OutPin">;
+        using OutPin = node_graph::Pin<rhi::TextureHandle, "OutPin">;
 
     public:
         StaticMeshRenderGraphNode();
@@ -35,9 +35,9 @@ namespace Onyx::GameCore
         bool IsEnabled() override;
 
     private:
-        void OnBeginFrame(Graphics::RenderGraphContext& context) override;
-        void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
+        void OnBeginFrame(graphics::RenderGraphContext& context) override;
+        void OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
-        void PrepareShaderGraph(Graphics::CommandBuffer& commandBuffer, const Graphics::FrameContext& frameContext, const Graphics::ShaderGraph& shaderGraph);
+        void PrepareShaderGraph(rhi::CommandBuffer& commandBuffer, const rhi::FrameContext& frameContext, const graphics::ShaderGraph& shaderGraph);
     };
 }

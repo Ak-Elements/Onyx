@@ -1,13 +1,13 @@
 #pragma once
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     struct LocalizedString;
 }
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
-    bool BeginCombobox(StringView id, const Localization::LocalizedString& label);
+    bool BeginCombobox(StringView id, const localization::LocalizedString& label);
     bool BeginCombobox(StringView id, StringView label);
     void EndCombobox();
 }

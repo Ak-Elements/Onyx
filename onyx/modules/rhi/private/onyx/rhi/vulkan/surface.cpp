@@ -4,9 +4,9 @@
 
 #include <onyx/platform/platformcontext.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
-    Surface::Surface(const Instance& instance, const Platform::Window& window)
+    Surface::Surface(const Instance& instance, const platform::Window& window)
         : m_Instance(instance)
     {
 #if ONYX_USE_SDL2

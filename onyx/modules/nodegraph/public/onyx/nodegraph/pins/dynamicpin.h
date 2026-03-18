@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/pins/pinbase.h>
 #include <onyx/nodegraph/pins/pinmeta.hpp>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename DataT>
     class DynamicPin : public PinBase

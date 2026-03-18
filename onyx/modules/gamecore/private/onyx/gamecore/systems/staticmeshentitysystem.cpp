@@ -14,13 +14,13 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 
-namespace Onyx::GameCore::StaticMeshEntitySystem
+namespace onyx::game_core::static_mesh
 {
     struct LoadMesh {};
 
     namespace Init
     {
-        void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, StaticMeshComponent&& staticMeshComponent)
+        void factory(ecs::EntityRegistry& registry, ecs::EntityId entity, StaticMeshComponent&& staticMeshComponent)
         {
             registry.AddComponent<LoadMesh>(entity);
             registry.AddComponent<StaticMeshComponent>(entity, staticMeshComponent);
@@ -29,13 +29,13 @@ namespace Onyx::GameCore::StaticMeshEntitySystem
     
     namespace StreamIn
     {
-        using Access = Entity::Access
+        using Access = ecs::Access
             ::Write<StaticMeshComponent>
             ::With<LoadMesh>;
 
         using MeshEntity = Access::AsEntity;
 
-        void system(MeshEntity entity, Onyx::Assets::AssetSystem& assetSystem, Entity::EntityCommandBuffer entityCommandBuffer)
+        void system(MeshEntity entity, onyx::assets::AssetSystem& assetSystem, ecs::EntityCommandBuffer entityCommandBuffer)
         {
             auto&& [staticMesh] = entity;
 
@@ -46,15 +46,15 @@ namespace Onyx::GameCore::StaticMeshEntitySystem
 
     namespace QueueRender
     {
-        using Access = Entity::Access
+        using Access = ecs::Access
             ::Read<StaticMeshComponent, TransformComponent>
             ::Write<MaterialComponent>;
 
         using MeshEntity = Access::AsEntity;
 
-        void system(MeshEntity entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSystem)
+        void system(MeshEntity entity, rhi::FrameContext& frameContext, assets::AssetSystem& assetSystem)
         {
-            GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
+            game_core::SceneFrameData& sceneFrameData = static_cast<game_core::SceneFrameData&>(*frameContext.FrameData);
 
             auto&& [staticMesh, transform, materialComponent] = entity;
 
@@ -81,15 +81,15 @@ namespace Onyx::GameCore::StaticMeshEntitySystem
                 return;
 
             
-            GameCore::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
-            drawCall.Transforms.emplace_back(WorldTransform::GetTransform(transform));
+            game_core::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
+            drawCall.Transforms.emplace_back(world_transform::GetTransform(transform));
             drawCall.VertexData = staticMesh.Mesh->GetVertexBuffer();
             drawCall.Indices = staticMesh.Mesh->GetIndexBuffer();
             drawCall.Material = materialComponent.Material;
         }
     }
 
-    void registerSystems(Entity::EcsBuilder& ecsBuilder)
+    void registerSystems(ecs::EcsBuilder& ecsBuilder)
     {
         ecsBuilder.RegisterSystem(StreamIn::system);
         ecsBuilder.RegisterSystem(QueueRender::system);

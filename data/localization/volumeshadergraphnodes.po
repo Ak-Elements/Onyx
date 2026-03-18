@@ -2,35 +2,35 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-msgid "Onyx::Volume::VolumeShaderGraph::GetVoxelPositionShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::GetVoxelPositionShaderGraphNode"
 msgstr "Volume/Get Voxel Position"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfSphereVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfSphereVolumeShaderGraphNode"
 msgstr "Volume/Primitives/SDF Sphere"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfCubeVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfCubeVolumeShaderGraphNode"
 msgstr "Volume/Primitives/SDF Cube"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfPlaneVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfPlaneVolumeShaderGraphNode"
 msgstr "Volume/Primitives/SDF Plane"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfEllipsoidVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfEllipsoidVolumeShaderGraphNode"
 msgstr "Volume/Primitives/SDF Ellipsoid"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfNoise2DShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfNoise2DShaderGraphNode"
 msgstr "Volume/Noise/SDF Noise 2D"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfNoise3DShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfNoise3DShaderGraphNode"
 msgstr "Volume/Noise/SDF Noise 3D"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfDifferenceVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfDifferenceVolumeShaderGraphNode"
 msgstr "Volume/Operations/Difference"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfUnionVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfUnionVolumeShaderGraphNode"
 msgstr "Volume/Operations/Union"
 
-msgid "Onyx::Volume::VolumeShaderGraph::SdfIntersectVolumeShaderGraphNode"
+msgid "onyx::volume::volume_shader_graph::SdfIntersectVolumeShaderGraphNode"
 msgstr "Volume/Operations/Intersect"
 
-msgid "Onyx::Volume::VolumeShaderGraph::VolumeGraphOutNode"
+msgid "onyx::volume::volume_shader_graph::VolumeGraphOutNode"
 msgstr "Volume/Volume Out"

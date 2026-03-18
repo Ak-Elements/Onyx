@@ -3,7 +3,7 @@
 #include <onyx/mortoncode2d.h>
 #include <onyx/mortoncode3d.h>
 
-namespace Onyx
+namespace onyx
 {
     using MortonCode2D_U32 = MortonCode2D<onyxU32, onyxU16>;
     using MortonCode2D_U64 = MortonCode2D<onyxU64, onyxU32>;

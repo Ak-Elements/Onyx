@@ -4,6 +4,7 @@ endif()
 
 onyx_add_target(onyx-graphics
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Graphics"
+    NAMESPACE "onyx::graphics"
+    NAMESPACE_PATH "onyx/graphics"
     PRIVATE_DEFINES ${private_defines}
 )

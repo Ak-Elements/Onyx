@@ -3,7 +3,7 @@
 #include <onyx/rhi/graphicstypes.h>
 #include <onyx/rhi/sampler.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class Sampler;
 

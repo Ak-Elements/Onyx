@@ -5,7 +5,7 @@
 #include <onyx/rhi/vulkan/texturestorage.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 
 VulkanTexture::VulkanTexture(VulkanGraphicsApi& api, const TextureProperties& properties, const VulkanTextureStorage* storage)
@@ -106,7 +106,7 @@ VkImageViewType VulkanTexture::GetType(TextureType type, bool isArray)
 	case TextureType::TextureCube:
 		return isArray ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE;
 	default:
-		ONYX_ASSERT(false, "Unknown storage type: {}, {}", Enums::ToString(type), isArray);
+		ONYX_ASSERT(false, "Unknown storage type: {}, {}", enums::ToString(type), isArray);
 		return VK_IMAGE_VIEW_TYPE_MAX_ENUM;
 	}
 }

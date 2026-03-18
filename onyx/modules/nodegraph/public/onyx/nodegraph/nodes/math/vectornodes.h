@@ -17,7 +17,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename NodeType, typename InVectorT, typename OutVectorT, CompileTimeString TypeIdString>
     class SwizzleVectorComponentsNode : public FixedPinNode_1_In_1_Out<NodeType, InVectorT, OutVectorT>
@@ -84,7 +84,7 @@ namespace Onyx::NodeGraph
             switch (pinId)
             {
                 case Super::InPin::LocalId: return "In";
-                case Super::OutPin::LocalId: return Enums::ToString(Mask);
+                case Super::OutPin::LocalId: return enums::ToString(Mask);
             }
 
             ONYX_ASSERT(false, "Invalid pin id");
@@ -266,14 +266,14 @@ namespace Onyx::NodeGraph
 
 
     template <typename NodeType, typename ScalarT, CompileTimeString TypeIdString>
-    class CreateVector3 : public FixedPinNode_3_In_1_Out<NodeType, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>
+    class CreateVector3 : public FixedPinNode3In1Out<NodeType, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>
     {
     public:
         static constexpr StringId32 TypeId = TypeIdString;
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = FixedPinNode_3_In_1_Out<NodeType, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>;
+        using Super = FixedPinNode3In1Out<NodeType, ScalarT, ScalarT, ScalarT, Vector3<ScalarT>>;
 
         void OnUpdate(ExecutionContext& context) const override
         {
@@ -345,85 +345,85 @@ namespace Onyx::NodeGraph
 
     namespace Nodes
     {
-        using GetVector2f32Components = GetVector2Components<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::GetVector2f32Components">;
-        using GetVector2f64Components = GetVector2Components<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::GetVector2f64Components">;
-        using GetVector2s32Components = GetVector2Components<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::GetVector2s32Components">;
-        using GetVector2s64Components = GetVector2Components<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::GetVector2s64Components">;
+        using GetVector2f32Components = GetVector2Components<Node, onyxF32, "Nodeonyx::NodeGraph::Nodes::GetVector2f32Components">;
+        using GetVector2f64Components = GetVector2Components<Node, onyxF64, "Nodeonyx::NodeGraph::Nodes::GetVector2f64Components">;
+        using GetVector2s32Components = GetVector2Components<Node, onyxS32, "Nodeonyx::NodeGraph::Nodes::GetVector2s32Components">;
+        using GetVector2s64Components = GetVector2Components<Node, onyxS64, "Nodeonyx::NodeGraph::Nodes::GetVector2s64Components">;
 
-        using CreateVector2f32 = CreateVector2<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::CreateVector2f32">;
-        using CreateVector2f64 = CreateVector2<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::CreateVector2f64">;
-        using CreateVector2s32 = CreateVector2<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::CreateVector2s32">;
-        using CreateVector2s64 = CreateVector2<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::CreateVector2s64">;
+        using CreateVector2f32 = CreateVector2<Node, onyxF32, "Nodeonyx::NodeGraph::Nodes::CreateVector2f32">;
+        using CreateVector2f64 = CreateVector2<Node, onyxF64, "Nodeonyx::NodeGraph::Nodes::CreateVector2f64">;
+        using CreateVector2s32 = CreateVector2<Node, onyxS32, "Nodeonyx::NodeGraph::Nodes::CreateVector2s32">;
+        using CreateVector2s64 = CreateVector2<Node, onyxS64, "Nodeonyx::NodeGraph::Nodes::CreateVector2s64">;
 
-        using Swizzle2DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector2f32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2f32">;
-        using Swizzle2DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector2f32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3f32">;
-        using Swizzle2DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector2f32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4f32">;
+        using Swizzle2DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector2f32, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector2f32">;
+        using Swizzle2DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector2f32, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector3f32">;
+        using Swizzle2DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector2f32, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector4f32">;
 
-        using Swizzle2DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector2f64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2f64">;
-        using Swizzle2DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector2f64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3f64">;
-        using Swizzle2DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector2f64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4f64">;
+        using Swizzle2DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector2f64, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector2f64">;
+        using Swizzle2DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector2f64, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector3f64">;
+        using Swizzle2DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector2f64, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector4f64">;
 
-        using Swizzle2DVector2s32 = SwizzleVectorComponentsNode<Node, Vector2s32, Vector2s32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2s32">;
-        using Swizzle2DVector3s32 = SwizzleVectorComponentsNode<Node, Vector3s32, Vector2s32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3s32">;
-        using XSwizzle2DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector2s32, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4s32">;
+        using Swizzle2DVector2s32 = SwizzleVectorComponentsNode<Node, Vector2s32, Vector2s32, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector2s32">;
+        using Swizzle2DVector3s32 = SwizzleVectorComponentsNode<Node, Vector3s32, Vector2s32, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector3s32">;
+        using XSwizzle2DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector2s32, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector4s32">;
 
-        using Swizzle2DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector2s64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector2s64">;
-        using Swizzle2DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector2s64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector3s64">;
-        using Swizzle2DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector2s64, "NodeOnyx::NodeGraph::Nodes::Swizzle2DVector4s64">;
+        using Swizzle2DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector2s64, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector2s64">;
+        using Swizzle2DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector2s64, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector3s64">;
+        using Swizzle2DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector2s64, "Nodeonyx::NodeGraph::Nodes::Swizzle2DVector4s64">;
 
         // Vector 3
-        using GetVector3f32Components = GetVector3Components<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::GetVector3f32Components">;
-        using GetVector3f64Components = GetVector3Components<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::GetVector3f64Components">;
-        using GetVector3s32Components = GetVector3Components<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::GetVector3s32Components">;
-        using GetVector3s64Components = GetVector3Components<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::GetVector3s64Components">;
+        using GetVector3f32Components = GetVector3Components<Node, onyxF32, "Nodeonyx::NodeGraph::Nodes::GetVector3f32Components">;
+        using GetVector3f64Components = GetVector3Components<Node, onyxF64, "Nodeonyx::NodeGraph::Nodes::GetVector3f64Components">;
+        using GetVector3s32Components = GetVector3Components<Node, onyxS32, "Nodeonyx::NodeGraph::Nodes::GetVector3s32Components">;
+        using GetVector3s64Components = GetVector3Components<Node, onyxS64, "Nodeonyx::NodeGraph::Nodes::GetVector3s64Components">;
 
-        using CreateVector3f32 = CreateVector3<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::CreateVector3f32">;
-        using CreateVector3f64 = CreateVector3<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::CreateVector3f64">;
-        using CreateVector3s32 = CreateVector3<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::CreateVector3s32">;
-        using CreateVector3s64 = CreateVector3<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::CreateVector3s64">;
+        using CreateVector3f32 = CreateVector3<Node, onyxF32, "Nodeonyx::NodeGraph::Nodes::CreateVector3f32">;
+        using CreateVector3f64 = CreateVector3<Node, onyxF64, "Nodeonyx::NodeGraph::Nodes::CreateVector3f64">;
+        using CreateVector3s32 = CreateVector3<Node, onyxS32, "Nodeonyx::NodeGraph::Nodes::CreateVector3s32">;
+        using CreateVector3s64 = CreateVector3<Node, onyxS64, "Nodeonyx::NodeGraph::Nodes::CreateVector3s64">;
 
-        using Swizzle3DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector3f32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2f32">;
-        using Swizzle3DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector3f32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3f32">;
-        using Swizzle3DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector3f32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4f32">;
+        using Swizzle3DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector3f32, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector2f32">;
+        using Swizzle3DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector3f32, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector3f32">;
+        using Swizzle3DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector3f32, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector4f32">;
 
-        using Swizzle3DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector3f64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2f64">;
-        using Swizzle3DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector3f64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3f64">;
-        using Swizzle3DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector3f64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4f64">;
+        using Swizzle3DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector3f64, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector2f64">;
+        using Swizzle3DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector3f64, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector3f64">;
+        using Swizzle3DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector3f64, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector4f64">;
 
-        using Swizzle3DVector2s32  = SwizzleVectorComponentsNode<Node, Vector2s32, Vector3s32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2s32">;
-        using Swizzle3DVector3s32  = SwizzleVectorComponentsNode<Node, Vector3s32, Vector3s32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3s32">;
-        using Swizzle3DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector3s32, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4s32">;
+        using Swizzle3DVector2s32  = SwizzleVectorComponentsNode<Node, Vector2s32, Vector3s32, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector2s32">;
+        using Swizzle3DVector3s32  = SwizzleVectorComponentsNode<Node, Vector3s32, Vector3s32, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector3s32">;
+        using Swizzle3DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector3s32, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector4s32">;
 
-        using Swizzle3DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector3s64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector2s64">;
-        using Swizzle3DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector3s64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector3s64">;
-        using Swizzle3DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector3s64, "NodeOnyx::NodeGraph::Nodes::Swizzle3DVector4s64">;
+        using Swizzle3DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector3s64, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector2s64">;
+        using Swizzle3DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector3s64, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector3s64">;
+        using Swizzle3DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector3s64, "Nodeonyx::NodeGraph::Nodes::Swizzle3DVector4s64">;
 
         // Vector 4
-        using GetVector4f32Components = GetVector4Components<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::GetVector4f32Components">;
-        using GetVector4f64Components = GetVector4Components<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::GetVector4f64Components">;
-        using GetVector4s32Components = GetVector4Components<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::GetVector4s32Components">;
-        using GetVector4s64Components = GetVector4Components<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::GetVector4s64Components">;
+        using GetVector4f32Components = GetVector4Components<Node, onyxF32, "Nodeonyx::NodeGraph::Nodes::GetVector4f32Components">;
+        using GetVector4f64Components = GetVector4Components<Node, onyxF64, "Nodeonyx::NodeGraph::Nodes::GetVector4f64Components">;
+        using GetVector4s32Components = GetVector4Components<Node, onyxS32, "Nodeonyx::NodeGraph::Nodes::GetVector4s32Components">;
+        using GetVector4s64Components = GetVector4Components<Node, onyxS64, "Nodeonyx::NodeGraph::Nodes::GetVector4s64Components">;
 
-        using CreateVector4f32 = CreateVector4<Node, onyxF32, "NodeOnyx::NodeGraph::Nodes::CreateVector4f32">;
-        using CreateVector4f64 = CreateVector4<Node, onyxF64, "NodeOnyx::NodeGraph::Nodes::CreateVector4f64">;
-        using CreateVector4s32 = CreateVector4<Node, onyxS32, "NodeOnyx::NodeGraph::Nodes::CreateVector4s32">;
-        using CreateVector4s64 = CreateVector4<Node, onyxS64, "NodeOnyx::NodeGraph::Nodes::CreateVector4s64">;
+        using CreateVector4f32 = CreateVector4<Node, onyxF32, "Nodeonyx::NodeGraph::Nodes::CreateVector4f32">;
+        using CreateVector4f64 = CreateVector4<Node, onyxF64, "Nodeonyx::NodeGraph::Nodes::CreateVector4f64">;
+        using CreateVector4s32 = CreateVector4<Node, onyxS32, "Nodeonyx::NodeGraph::Nodes::CreateVector4s32">;
+        using CreateVector4s64 = CreateVector4<Node, onyxS64, "Nodeonyx::NodeGraph::Nodes::CreateVector4s64">;
 
-        using Swizzle4DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector4f32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2f32">;
-        using Swizzle4DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector4f32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3f32">;
-        using Swizzle4DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector4f32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4f32">;
+        using Swizzle4DVector2f32 = SwizzleVectorComponentsNode<Node, Vector2f32, Vector4f32, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector2f32">;
+        using Swizzle4DVector3f32 = SwizzleVectorComponentsNode<Node, Vector3f32, Vector4f32, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector3f32">;
+        using Swizzle4DVector4f32 = SwizzleVectorComponentsNode<Node, Vector4f32, Vector4f32, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector4f32">;
 
-        using Swizzle4DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector4f64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2f64">;
-        using Swizzle4DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector4f64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3f64">;
-        using Swizzle4DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector4f64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4f64">;
+        using Swizzle4DVector2f64 = SwizzleVectorComponentsNode<Node, Vector2f64, Vector4f64, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector2f64">;
+        using Swizzle4DVector3f64 = SwizzleVectorComponentsNode<Node, Vector3f64, Vector4f64, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector3f64">;
+        using Swizzle4DVector4f64 = SwizzleVectorComponentsNode<Node, Vector4f64, Vector4f64, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector4f64">;
 
-        using Swizzle4DVector2s32 = SwizzleVectorComponentsNode<Node, Vector2s32, Vector4s32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2s32">;
-        using Swizzle4DVector3s32 = SwizzleVectorComponentsNode<Node, Vector3s32, Vector4s32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3s32">;
-        using Swizzle4DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector4s32, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4s32">;
+        using Swizzle4DVector2s32 = SwizzleVectorComponentsNode<Node, Vector2s32, Vector4s32, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector2s32">;
+        using Swizzle4DVector3s32 = SwizzleVectorComponentsNode<Node, Vector3s32, Vector4s32, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector3s32">;
+        using Swizzle4DVector4s32 = SwizzleVectorComponentsNode<Node, Vector4s32, Vector4s32, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector4s32">;
 
-        using Swizzle4DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector4s64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector2s64">;
-        using Swizzle4DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector4s64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector3s64">;
-        using Swizzle4DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector4s64, "NodeOnyx::NodeGraph::Nodes::Swizzle4DVector4s64">;
+        using Swizzle4DVector2s64 = SwizzleVectorComponentsNode<Node, Vector2s64, Vector4s64, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector2s64">;
+        using Swizzle4DVector3s64 = SwizzleVectorComponentsNode<Node, Vector3s64, Vector4s64, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector3s64">;
+        using Swizzle4DVector4s64 = SwizzleVectorComponentsNode<Node, Vector4s64, Vector4s64, "Nodeonyx::NodeGraph::Nodes::Swizzle4DVector4s64">;
     }
 
 }

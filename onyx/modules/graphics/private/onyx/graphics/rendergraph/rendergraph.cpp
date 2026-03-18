@@ -13,9 +13,9 @@
 
 ONYX_PROFILE_CREATE_TAG(RenderGraph, 0x3ed694);
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    void RenderGraph::Init(GraphicsSystem& graphicsSystem)
+    void RenderGraph::Init(rhi::GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -39,7 +39,7 @@ namespace Onyx::Graphics
             const onyxU32 inputPinCount = graphNode.GetInputPinCount();
             for (onyxU32 i = 0; i < inputPinCount; ++i)
             {
-                const NodeGraph::PinBase* inputPin = graphNode.GetInputPin(i);
+                const node_graph::PinBase* inputPin = graphNode.GetInputPin(i);
                 if (inputPin->IsConnected() == false)
                     continue;
 
@@ -58,10 +58,10 @@ namespace Onyx::Graphics
             onyxU32 outputPinCount = graphNode.GetOutputPinCount();
             for (onyxU32 i = 0; i < outputPinCount; ++i)
             {
-                const NodeGraph::PinBase* outputPin = graphNode.GetOutputPin(i);
+                const node_graph::PinBase* outputPin = graphNode.GetOutputPin(i);
                 RenderGraphResource& output = m_ResourceCache[outputPin->GetGlobalId()];
 
-                if (outputPin->GetType() == static_cast<NodeGraph::PinTypeId>(TypeHash<BufferHandle>()))
+                if (outputPin->GetType() == static_cast<node_graph::PinTypeId>(TypeHash<rhi::BufferHandle>()))
                     continue;
 
                 // TODO: Improve handling of final texture Id as this is very error prone
@@ -97,7 +97,7 @@ namespace Onyx::Graphics
             const onyxU32 inputPinCount = graphNode.GetInputPinCount();
             for (onyxU32 i = 0; i < inputPinCount; ++i)
             {
-                const NodeGraph::PinBase* inputPin = graphNode.GetInputPin(i);
+                const node_graph::PinBase* inputPin = graphNode.GetInputPin(i);
                 // check for invalid ID
                 if (inputPin->IsConnected() == false)
                     continue;
@@ -138,7 +138,7 @@ namespace Onyx::Graphics
         m_IsInitialized = true;
     }
 
-    void RenderGraph::Shutdown(GraphicsSystem& graphicsSystem)
+    void RenderGraph::Shutdown(rhi::GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -159,16 +159,16 @@ namespace Onyx::Graphics
         m_IsInitialized = false;
     }
 
-    void RenderGraph::OnBeginFrame(const FrameContext& frameContext)
+    void RenderGraph::OnBeginFrame(const rhi::FrameContext& frameContext)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
 
-        const TextureHandle& swapchainTarget = frameContext.Api->GetAcquiredSwapChainImage();
+        const rhi::TextureHandle& swapchainTarget = frameContext.Api->GetAcquiredSwapChainImage();
         RenderGraphResource& swapchainResource = m_ResourceCache[SWAPCHAIN_RESOURCE_ID];
         swapchainResource.Handle = swapchainTarget;
 
-        const TextureHandle& depthTarget = frameContext.Api->GetDepthImage();
+        const rhi::TextureHandle& depthTarget = frameContext.Api->GetDepthImage();
         RenderGraphResource& depthResource = m_ResourceCache[DEPTH_RESOURCE_ID];
         depthResource.Handle = depthTarget;
 
@@ -190,14 +190,14 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraph::OnRenderFrame(const FrameContext& context)
+    void RenderGraph::OnRenderFrame(const rhi::FrameContext& context)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
 
         // kickoff root tasks
         RenderGraphContext graphContext{ context, *this };
-        CommandBuffer& commandBuffer = context.Api->GetCommandBuffer(context.FrameIndex, true);
+        rhi::CommandBuffer& commandBuffer = context.Api->GetCommandBuffer(context.FrameIndex, true);
 
         for (onyxS8 nodeId : m_Graph.GetTopologicalOrder())
         {
@@ -214,7 +214,7 @@ namespace Onyx::Graphics
         }
     }
 
-    void RenderGraph::OnEndFrame(const FrameContext& frameContext)
+    void RenderGraph::OnEndFrame(const rhi::FrameContext& frameContext)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -233,11 +233,11 @@ namespace Onyx::Graphics
             node.EndFrame(graphContext);
         }
 
-        TextureHandle finalTexture = std::get<TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle);
+        rhi::TextureHandle finalTexture = std::get<rhi::TextureHandle>(m_ResourceCache.at(m_FinalTextureId).Handle);
         if( finalTexture.IsValid())
         {
             auto& commandBuffer = frameContext.Api->GetCommandBuffer(frameContext.FrameIndex, true);
-            commandBuffer.TransitionLayout(finalTexture, Context::Graphics, Access::ShaderRead, ImageLayout::ReadOptimal);
+            commandBuffer.TransitionLayout(finalTexture, rhi::Context::Graphics, rhi::Access::ShaderRead, rhi::ImageLayout::ReadOptimal);
         }
     }
 
@@ -256,7 +256,7 @@ namespace Onyx::Graphics
         return m_ResourceCache.at(id);
     }
 
-    void RenderGraph::OnSwapChainResized(GraphicsSystem& graphicsSystem)
+    void RenderGraph::OnSwapChainResized(rhi::GraphicsSystem& graphicsSystem)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -278,7 +278,7 @@ namespace Onyx::Graphics
         return m_ResourceCache.at(id);
     }
 
-    bool RenderGraph::CreateAttachment(GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList)
+    bool RenderGraph::CreateAttachment(rhi::GraphicsSystem& graphicsSystem, RenderGraphResource& resource, DynamicArray<RenderGraphResourceId>& freeList)
     {
         ONYX_PROFILE(RenderGraph);
         ONYX_PROFILE_FUNCTION;
@@ -287,17 +287,17 @@ namespace Onyx::Graphics
 
         const Vector2s32& swapChainExtent = graphicsSystem.GetSwapchainExtent();
 
-        TextureStorageProperties storageProperties;
+        rhi::TextureStorageProperties storageProperties;
         storageProperties.m_Size = resourceInfo.HasSize ? resourceInfo.Size : Vector3s32(swapChainExtent, 1);
         storageProperties.m_Format = resourceInfo.Format;
         storageProperties.m_IsFrameBuffer = true;
         storageProperties.m_IsTexture = true;
-        storageProperties.m_GpuAccess = GPUAccess::Write;
+        storageProperties.m_GpuAccess = rhi::GPUAccess::Write;
 #if ONYX_IS_DEBUG
         storageProperties.m_DebugName = resource.Info.Name + " Storage";
 #endif
         //[Aaron] do we really want to create the view here?
-        TextureProperties texProp;
+        rhi::TextureProperties texProp;
         texProp.m_Format = resourceInfo.Format;
         texProp.m_AllowCubeMapLoads = false;
         texProp.m_MaxMipLevel = storageProperties.m_MaxMipLevel;
@@ -312,8 +312,8 @@ namespace Onyx::Graphics
             RenderGraphResourceId id = freeList[freeIndex];
             RenderGraphResource& freeResource = m_ResourceCache[id];
 
-            TextureHandle& freeTexture = std::get<TextureHandle>(freeResource.Handle);
-            const TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->GetProperties();
+            rhi::TextureHandle& freeTexture = std::get<rhi::TextureHandle>(freeResource.Handle);
+            const rhi::TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->GetProperties();
 
             // wrap in a function to check if its alias-able?
             if ((storageProperties.m_Size != freeTextureStorageProperties.m_Size) ||
@@ -325,11 +325,11 @@ namespace Onyx::Graphics
 #if ONYX_IS_DEBUG
             texProp.m_DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.m_DebugName;
 #endif
-            graphicsSystem.CreateAlias(std::get<TextureHandle>(resource.Handle), freeTexture.Storage, storageProperties, texProp);
+            graphicsSystem.CreateAlias(std::get<rhi::TextureHandle>(resource.Handle), freeTexture.Storage, storageProperties, texProp);
             return true;
         }
 
-        graphicsSystem.CreateTexture(std::get<TextureHandle>(resource.Handle), storageProperties, texProp);
+        graphicsSystem.CreateTexture(std::get<rhi::TextureHandle>(resource.Handle), storageProperties, texProp);
         return true;
     }
 

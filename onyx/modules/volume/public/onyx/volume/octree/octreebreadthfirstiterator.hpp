@@ -4,7 +4,7 @@
 
 #include <onyx/volume/octree/octreekey.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,4 +86,4 @@ namespace Onyx::Volume
         return (*this);
     }
 
-} // namespace Onyx
+} // namespace onyx

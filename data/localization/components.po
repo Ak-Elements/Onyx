@@ -2,50 +2,50 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-msgid "Onyx::GameCore::TransformComponent"
+msgid "onyx::game_core::TransformComponent"
 msgstr "General/Transform"
 
-msgid "Onyx::GameCore::IdComponent"
+msgid "onyx::game_core::IdComponent"
 msgstr "General/Id"
 
-msgid "Onyx::GameCore::NameComponent"
+msgid "onyx::game_core::NameComponent"
 msgstr "General/Editor Name"
 
-msgid "Onyx::GameCore::CameraComponent"
+msgid "onyx::game_core::CameraComponent"
 msgstr "Camera/Camera Settings"
 
-msgid "Onyx::GameCore::DirectionalLightComponent"
+msgid "onyx::game_core::DirectionalLightComponent"
 msgstr "Lights/Directional Light"
 
-msgid "Onyx::GameCore::PointLightComponent"
+msgid "onyx::game_core::PointLightComponent"
 msgstr "Lights/Point Light"
 
-msgid "Onyx::GameCore::SpotLightComponent"
+msgid "onyx::game_core::SpotLightComponent"
 msgstr "Lights/Spot Light"
 
-msgid "Onyx::GameCore::TextComponent"
+msgid "onyx::game_core::TextComponent"
 msgstr "Rendering/3D Text"
 
-msgid "Onyx::GameCore::MaterialComponent"
+msgid "onyx::game_core::MaterialComponent"
 msgstr "Rendering/Material"
 
-msgid "Onyx::Volume::CubeComponent"
+msgid "onyx::volume::CubeComponent"
 msgstr "Volume/Geometry/Cube"
 
-msgid "Onyx::Volume::PlaneComponent"
+msgid "onyx::volume::PlaneComponent"
 msgstr "Volume/Geometry/Plane"
 
-msgid "Onyx::Volume::SphereComponent"
+msgid "onyx::volume::SphereComponent"
 msgstr "Volume/Geometry/Sphere"
 
-msgid "Onyx::Volume::TerrainSettingsComponent"
+msgid "onyx::volume::TerrainSettingsComponent"
 msgstr "Volume/Terrain Settings"
 
-msgid "Onyx::GameCore::FreeCameraControllerComponent"
+msgid "onyx::game_core::FreeCameraControllerComponent"
 msgstr "Camera/Free Camera Controller"
 
-msgid "Onyx::GameCore::BoxColliderComponent"
+msgid "onyx::game_core::BoxColliderComponent"
 msgstr "Collision/Box Collider"
 
-msgid "Onyx::GameCore::SphereColliderComponent"
+msgid "onyx::game_core::SphereColliderComponent"
 msgstr "Collision/Sphere Collider"

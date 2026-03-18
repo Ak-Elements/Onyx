@@ -7,7 +7,7 @@
 #include <onyx/log/loglevel.h>
 #include <onyx/log/logmessage.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     void GuiNotificationLoggerSink::Log(const LogMessage& message)
     {

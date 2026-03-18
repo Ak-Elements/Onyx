@@ -1,25 +1,25 @@
 #pragma once
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    class VolumeShaderGraph : public Onyx::Graphics::ShaderGraph
+    class VolumeShaderGraph : public onyx::graphics::ShaderGraph
     {
         friend struct VolumeShaderGraphSerializer;
 
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Volume::Assets::VolumeShaderGraph" };
+        static constexpr StringId32 TypeId{ "onyx::volume::assets::VolumeShaderGraph" };
         StringId32 GetTypeId() const { return TypeId; }
 
-        Assets::AssetId GetBuildOctreeShader() const { return m_BuildOctreeShader; }
-        Assets::AssetId GetFindOctreeNodeShader() const { return m_FindOctreeNodeShader; }
-        Assets::AssetId GetGenerateVolumeMeshShader() const { return m_GenerateVolumeMeshShader; }
-        Assets::AssetId GetRaytraceTerrainShader() const { return m_RaytraceTerrainShader; }
+        assets::AssetId GetBuildOctreeShader() const { return m_BuildOctreeShader; }
+        assets::AssetId GetFindOctreeNodeShader() const { return m_FindOctreeNodeShader; }
+        assets::AssetId GetGenerateVolumeMeshShader() const { return m_GenerateVolumeMeshShader; }
+        assets::AssetId GetRaytraceTerrainShader() const { return m_RaytraceTerrainShader; }
 
     private:
-        Assets::AssetId m_BuildOctreeShader;
-        Assets::AssetId m_FindOctreeNodeShader;
-        Assets::AssetId m_GenerateVolumeMeshShader;
-        Assets::AssetId m_RaytraceTerrainShader;
+        assets::AssetId m_BuildOctreeShader;
+        assets::AssetId m_FindOctreeNodeShader;
+        assets::AssetId m_GenerateVolumeMeshShader;
+        assets::AssetId m_RaytraceTerrainShader;
     };
 }

@@ -7,7 +7,7 @@
 #include <onyx/volume/source/volumebase.h>
 #include <onyx/volume/mesh/meshbuilder.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     template <typename T>
     class MarchingSquaresSurface : public IsoSurface<T>

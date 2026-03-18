@@ -4,14 +4,14 @@
 #include <onyx/geometry/rect2.h>
 #include <onyx/localization/localizedstring.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
-    bool Button(const Localization::LocalizedString& localizedLabel)
+    bool Button(const localization::LocalizedString& localizedLabel)
     {
         return Button(localizedLabel.Get());
     }
 
-    bool Button(const Localization::LocalizedString& localizedLabel, Vector2f32 size)
+    bool Button(const localization::LocalizedString& localizedLabel, Vector2f32 size)
     {
         return Button(localizedLabel.Get(), size);
     }
@@ -26,12 +26,12 @@ namespace Onyx::Ui
         return ImGui::Button(label.data(), ImVec2(size[0], size[1]));
     }
 
-    bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected)
+    bool Selectable(const localization::LocalizedString& localizedLabel, bool isSelected)
     {
         return Selectable(localizedLabel.Get(), isSelected, false, ImGuiSelectableFlags_None);
     }
 
-    bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelected)
+    bool Selectable(const localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelected)
     {
         return Selectable(localizedLabel.Get(), isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None);
     }

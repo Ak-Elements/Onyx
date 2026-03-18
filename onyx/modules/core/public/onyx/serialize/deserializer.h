@@ -6,7 +6,7 @@
 #include <onyx/geometry/vectorserialization.h>
 #include <onyx/geometry/rectserialization.h>
 
-namespace Onyx
+namespace onyx
 {
     class Deserializer
     {
@@ -65,7 +65,7 @@ namespace Onyx
                 StringView enumValue;
                 if (DoRead(enumValue))
                 {
-                    outValue = Enums::FromString<T>(enumValue);
+                    outValue = enums::FromString<T>(enumValue);
                     return true;
                 }
                 return false;
@@ -96,7 +96,7 @@ namespace Onyx
                 StringView enumValue;
                 if (DoRead(name, enumValue))
                 {
-                    outValue = Enums::FromString<T>(enumValue);
+                    outValue = enums::FromString<T>(enumValue);
                     return true;
                 }
 

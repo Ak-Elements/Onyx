@@ -27,14 +27,15 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 #include <onyx/gamecore/components/transformcomponent.h>
-namespace Onyx::GameCore
+
+namespace onyx::game_core
 {
     namespace GameCoreInit
     {
-        void RegisterComponents(Entity::EcsBuilder& ecsBuilder)
+        void RegisterComponents(ecs::EcsBuilder& ecsBuilder)
         {
             ecsBuilder.RegisterComponent<IdComponent>();
-            ecsBuilder.RegisterComponent<TransformComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TransformComponent&& transform)
+            ecsBuilder.RegisterComponent<TransformComponent>([](ecs::EntityRegistry& registry, ecs::EntityId entity, TransformComponent&& transform)
             {
                 transform.Rotation = Rotor3f32::FromEulerAngles(transform.RotationEuler);
                 registry.AddComponent<TransformComponent>(entity, std::move(transform));
@@ -48,9 +49,9 @@ namespace Onyx::GameCore
             ecsBuilder.RegisterComponent<PointLightComponent>();
             ecsBuilder.RegisterComponent<SpotLightComponent>();
             ecsBuilder.RegisterComponent<MaterialComponent>();
-            ecsBuilder.RegisterComponent<TextComponent>([](Entity::EntityRegistry& registry, Entity::EntityId entity, TextComponent&& textComponent)
+            ecsBuilder.RegisterComponent<TextComponent>([](ecs::EntityRegistry& registry, ecs::EntityId entity, TextComponent&& textComponent)
             {
-                Reference<Graphics::SDFFont> fontAsset;
+                Reference<graphics::SDFFont> fontAsset;
                 //loc_AssetSystem->GetAsset(textComponent.FontId, fontAsset);
                 //textComponent.SetFont(fontAsset);
 
@@ -60,27 +61,27 @@ namespace Onyx::GameCore
             ecsBuilder.RegisterComponent<CameraComponent>();
         }
 
-        void RegisterEntitySystems(Entity::EcsBuilder& ecsBuilder)
+        void RegisterEntitySystems(ecs::EcsBuilder& ecsBuilder)
         {
             FreeCamera::registerSystems(ecsBuilder);
-            Camera::registerSystems(ecsBuilder);
+            camera::registerSystems(ecsBuilder);
 
-            Lighting::registerSystems(ecsBuilder);
+            lighting::registerSystems(ecsBuilder);
 
-            StaticMeshEntitySystem::registerSystems(ecsBuilder);
+            static_mesh::registerSystems(ecsBuilder);
 
-            Physics::registerSystems(ecsBuilder);
+            physics::registerSystems(ecsBuilder);
         }
     }
 
     GameCoreSystem::GameCoreSystem()
     {
-        Entity::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };
+        ecs::EcsBuilder ecsBuilder{ m_ComponentFactory, m_ECSGraph };
         GameCoreInit::RegisterComponents(ecsBuilder);
         GameCoreInit::RegisterEntitySystems(ecsBuilder);
     }
 
-    void GameCoreSystem::Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine)
+    void GameCoreSystem::Update(DeltaGameTime deltaTime, rhi::GraphicsSystem& graphicsSystem, IEngine& engine)
     {
         if (m_Scene.IsLoaded() == false)
         {
@@ -89,7 +90,7 @@ namespace Onyx::GameCore
 
         if (m_Scene->GetRenderGraphRef().HasAssetId())
         {
-            Graphics::RenderGraph& sceneRenderGraph = m_Scene->GetRenderGraph();
+            graphics::RenderGraph& sceneRenderGraph = m_Scene->GetRenderGraph();
             if (sceneRenderGraph.IsLoaded() && sceneRenderGraph.IsInitialized() == false)
             {
                 sceneRenderGraph.Init(graphicsSystem);
@@ -97,7 +98,7 @@ namespace Onyx::GameCore
         }
 
         // TODO: Can we find a cleaner / better solution for this?
-        Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
+        rhi::FrameContext& frameContext = graphicsSystem.GetFrameContext();
         if (frameContext.FrameData == nullptr)
             frameContext.FrameData = MakeUnique<SceneFrameData>();
 
@@ -106,29 +107,29 @@ namespace Onyx::GameCore
         sceneFrameData.m_StaticMeshIndirectDrawCalls.clear();
         sceneFrameData.m_VoxelChunksToInit.clear();
 
-        Entity::ECSExecutionContext context { deltaTime, m_Scene->GetRegistry(), engine };
+        ecs::ECSExecutionContext context { deltaTime, m_Scene->GetRegistry(), engine };
         m_ECSGraph.Update(context);
     }
 }
 
-Onyx::Physics::PhysicsWorld& Onyx::Entity::DependantFunctionArg<Onyx::Physics::PhysicsWorld>::Get(const ECSExecutionContext& context)
+onyx::physics::PhysicsWorld& onyx::ecs::DependantFunctionArg<onyx::physics::PhysicsWorld>::Get(const ECSExecutionContext& context)
 {
-    GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
+    game_core::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<game_core::GameCoreSystem>();
     return gameCoreSystem.GetScene()->GetPhysicsWorld();
 }
 
-Onyx::Graphics::FrameContext& Onyx::Entity::DependantFunctionArg<Onyx::Graphics::FrameContext>::Get(const ECSExecutionContext& context)
+onyx::rhi::FrameContext& onyx::ecs::DependantFunctionArg<onyx::rhi::FrameContext>::Get(const ECSExecutionContext& context)
 {
-    Graphics::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<Graphics::GraphicsSystem>();
+    rhi::GraphicsSystem& graphicsSystem = context.Engine.GetSystem<rhi::GraphicsSystem>();
     return graphicsSystem.GetFrameContext();
 }
 
-Onyx::Graphics::DebugDrawQueue& Onyx::Entity::DependantFunctionArg<Onyx::Graphics::DebugDrawQueue>::Get(const ECSExecutionContext& context)
+onyx::graphics::DebugDrawQueue& onyx::ecs::DependantFunctionArg<onyx::graphics::DebugDrawQueue>::Get(const ECSExecutionContext& context)
 {
-    GameCore::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<GameCore::GameCoreSystem>();
-    Assets::AssetHandle<GameCore::Scene>& activeScene = gameCoreSystem.GetScene();
-    Graphics::RenderGraph& renderGraph = activeScene->GetRenderGraph();
-    Graphics::DebugDrawQueue& debugQueue = renderGraph.GetInput<Graphics::DebugDrawQueue>();
+    game_core::GameCoreSystem& gameCoreSystem = context.Engine.GetSystem<game_core::GameCoreSystem>();
+    assets::AssetHandle<game_core::Scene>& activeScene = gameCoreSystem.GetScene();
+    graphics::RenderGraph& renderGraph = activeScene->GetRenderGraph();
+    graphics::DebugDrawQueue& debugQueue = renderGraph.GetInput<graphics::DebugDrawQueue>();
     return debugQueue; 
 }
 

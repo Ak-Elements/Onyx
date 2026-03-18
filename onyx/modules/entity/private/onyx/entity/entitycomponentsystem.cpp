@@ -1,6 +1,6 @@
 #include <onyx/entity/entitycomponentsystem.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     void EntityComponentSystemsGraph::Update(const ECSExecutionContext& context) const
     {

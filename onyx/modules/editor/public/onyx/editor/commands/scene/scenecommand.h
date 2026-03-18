@@ -3,33 +3,33 @@
 #include <onyx/editor/commands/command.h>
 #include <onyx/assets/assetid.h>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Entity
+    namespace ecs
     {
         class ComponentFactory;
     }
 
-    namespace GameCore
+    namespace game_core
     {
         class GameCoreSystem;
         class Scene;
     }
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct SceneCommand : public ICommand
     {
-        SceneCommand(StringId32 id, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem);
+        SceneCommand(StringId32 id, assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem);
 
     protected:
-        GameCore::Scene& GetScene();
-        const Entity::ComponentFactory& GetComponentFactory();
+        game_core::Scene& GetScene();
+        const ecs::ComponentFactory& GetComponentFactory();
         
     private:
-        Assets::AssetId m_SceneId = Assets::AssetId::Invalid;
-        GameCore::GameCoreSystem* m_GameCoreSystem = nullptr;
+        assets::AssetId m_SceneId = assets::AssetId::Invalid;
+        game_core::GameCoreSystem* m_GameCoreSystem = nullptr;
 
     };
 }

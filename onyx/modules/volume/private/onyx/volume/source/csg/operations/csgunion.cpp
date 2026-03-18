@@ -1,6 +1,6 @@
 #include <onyx/volume/source/csg/operations/csgunion.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     CSGUnion::CSGUnion()
     {

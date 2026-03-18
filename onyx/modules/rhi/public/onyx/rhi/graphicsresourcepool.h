@@ -2,14 +2,14 @@
 
 #include <onyx/onyx_types.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class MemoryPool
     {
     public:
         MemoryPool(onyxU32 dataSize, onyxU32 capacity)
             : m_ObjectSize(dataSize)
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
             , m_Capacity(capacity)
 #endif
         {
@@ -56,7 +56,7 @@ namespace Onyx::Graphics
         onyxU32* m_FreeIndices = nullptr;
 
         onyxU32 m_ObjectSize = 0;
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
         onyxU32 m_Capacity = 0;
 #endif
     };

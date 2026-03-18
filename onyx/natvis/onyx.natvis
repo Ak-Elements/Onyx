@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 	
-	<Type Name="Onyx::InplaceArray&lt;*&gt;">
+	<Type Name="onyx::InplaceArray&lt;*&gt;">
 		<DisplayString Condition="m_NextIndex == 0"> empty </DisplayString>
 		<DisplayString Condition="m_NextIndex != 0">{{ Size={m_NextIndex} Capacity={$T2} }}</DisplayString>
 		<Expand>
@@ -14,7 +14,7 @@
 		</Expand>
 	</Type>
 	
-	<Type Name="Onyx::MortonCode2D&lt;*&gt;">
+	<Type Name="onyx::MortonCode2D&lt;*&gt;">
 		<DisplayString> {m_MortonCode} </DisplayString>
 		<Expand>
 			<Item Name="Morton">m_MortonCode</Item>
@@ -48,7 +48,7 @@
 		</Expand>
 	</Type>
 
-	<Type Name="Onyx::MortonCode3D&lt;*&gt;">
+	<Type Name="onyx::MortonCode3D&lt;*&gt;">
 		<DisplayString> {m_MortonCode} </DisplayString>
 		<Expand>
 			<Item Name="Morton">m_MortonCode</Item>
@@ -83,7 +83,7 @@
 		</Expand>
 	</Type>
 	
-	<Type Name="Onyx::Vector2&lt;*&gt;">
+	<Type Name="onyx::Vector2&lt;*&gt;">
 		<DisplayString>{{ X={m_Components[0]} Y={m_Components[1]} }}</DisplayString>
 		<Expand>
 			<Item Name="X">m_Components[0]</Item>
@@ -91,7 +91,7 @@
 		</Expand>
 	</Type>
 	
-	<Type Name="Onyx::Vector3&lt;*&gt;">
+	<Type Name="onyx::Vector3&lt;*&gt;">
 		<DisplayString>{{ X={m_Components[0]} Y={m_Components[1]} Z={m_Components[2]} }}</DisplayString>
 		<Expand>
 			<Item Name="X">m_Components[0]</Item>
@@ -100,7 +100,7 @@
 		</Expand>
 	</Type>
 	
-	<Type Name="Onyx::Vector4&lt;*&gt;">
+	<Type Name="onyx::Vector4&lt;*&gt;">
 		<DisplayString>{{ X={m_Components[0]} Y={m_Components[1]} Z={m_Components[2]} W={m_Components[3]}}}</DisplayString>
 		<Expand>
 			<Item Name="X">m_Components[0]</Item>

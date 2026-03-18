@@ -2,7 +2,7 @@
 
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     class NodeGraph;
 

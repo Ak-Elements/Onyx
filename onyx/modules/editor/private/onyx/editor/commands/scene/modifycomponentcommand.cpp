@@ -5,9 +5,9 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    ModifyComponentCommand::ModifyComponentCommand(Entity::EntityId entity, StringId32 componentTypeId, DynamicArray<onyxU32>&& componentData, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem)
+    ModifyComponentCommand::ModifyComponentCommand(ecs::EntityId entity, StringId32 componentTypeId, DynamicArray<onyxU32>&& componentData, assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem)
         : SceneCommand("ModifyComponent", sceneId, gameCoreSystem)
         , m_ComponentData(std::move(componentData))
         , m_EntityId(entity)
@@ -17,13 +17,13 @@ namespace Onyx::Editor
     
     void ModifyComponentCommand::Execute()
     {
-        const Entity::ComponentFactory& componentFactory = GetComponentFactory();
-        Entity::EntityRegistry& registry = GetScene().GetRegistry();
+        const ecs::ComponentFactory& componentFactory = GetComponentFactory();
+        ecs::EntityRegistry& registry = GetScene().GetRegistry();
 
-        const Entity::IComponentMeta* componentMeta = componentFactory.GetComponentMeta(m_ComponentTypeId).value_or(nullptr);
+        const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta(m_ComponentTypeId).value_or(nullptr);
         ONYX_ASSERT(componentMeta != nullptr);
 
-        if (entt::basic_sparse_set<Entity::EntityId>* componentStorage = registry.GetStorage(componentMeta->GetRuntimeTypeId()))
+        if (entt::basic_sparse_set<ecs::EntityId>* componentStorage = registry.GetStorage(componentMeta->GetRuntimeTypeId()))
         {
             void* componentPtr = componentStorage->value(m_EntityId);
             if (componentPtr == nullptr)

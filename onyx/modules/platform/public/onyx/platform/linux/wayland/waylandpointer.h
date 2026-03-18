@@ -5,7 +5,7 @@
 struct wl_pointer;
 struct wl_surface;
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
 	class WaylandInput;
 

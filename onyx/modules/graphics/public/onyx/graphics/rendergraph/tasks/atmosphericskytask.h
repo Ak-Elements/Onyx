@@ -5,17 +5,17 @@
 #include <onyx/graphics/scattering/scattering.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class AtmosphericSkyRenderGraphNode : public NodeGraph::FixedPinNode_3_In_1_Out<RenderGraphFixedShaderNode, BufferHandle, TextureHandle, TextureHandle, TextureHandle>
+    class AtmosphericSkyRenderGraphNode : public node_graph::FixedPinNode3In1Out<RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle, rhi::TextureHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::AtmosphericSkyPass";
-       StringId32 GetTypeId() const override { return TypeId; }
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::AtmosphericSkyPass";
+        ONYX_NO_DISCARD StringId32 GetTypeId() const override { return TypeId; }
 
     private:
         void OnBeginFrame(RenderGraphContext& context) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
         Vector3f32 GetSunDirection(onyxF32 timeOfDay) const;
 

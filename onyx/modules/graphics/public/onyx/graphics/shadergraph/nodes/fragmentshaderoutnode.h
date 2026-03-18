@@ -5,16 +5,16 @@
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 #include <onyx/nodegraph/pins/pin.h>
 
-namespace Onyx::Graphics::ShaderGraphNodes
+namespace onyx::graphics::shader_graph_nodes
 {
-    class FragmentShaderOutNode : public NodeGraph::FixedPinNode_1_In<ShaderGraphNode, Vector4f32>
+    class FragmentShaderOutNode : public node_graph::FixedPinNode_1_In<ShaderGraphNode, Vector4f32>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::FragmentShaderOut";
+        static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::FragmentShaderOut";
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
+        void DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const override;
 
 #if ONYX_IS_EDITOR
     private:
@@ -22,27 +22,27 @@ namespace Onyx::Graphics::ShaderGraphNodes
 #endif
     };
 
-    class PBRMaterialShaderOutNode : public NodeGraph::FixedPinNode<ShaderGraphNode, 4, 0>
+    class PBRMaterialShaderOutNode : public node_graph::FixedPinNode<ShaderGraphNode, 4, 0>
     {
     private:
-        using AlbedoInPin = NodeGraph::Pin<Vector3f32, "Albedo">;
-        using NormalInPin = NodeGraph::Pin<Vector3f32, "Normal">;
-        using MetalnessInPin = NodeGraph::Pin<onyxF32, "Metalness">;
-        using RoughnessInPin = NodeGraph::Pin<onyxF32, "Roughness">;
+        using AlbedoInPin = node_graph::Pin<Vector3f32, "Albedo">;
+        using NormalInPin = node_graph::Pin<Vector3f32, "Normal">;
+        using MetalnessInPin = node_graph::Pin<onyxF32, "Metalness">;
+        using RoughnessInPin = node_graph::Pin<onyxF32, "Roughness">;
 
-        using Super = NodeGraph::FixedPinNode<ShaderGraphNode, 4, 0>;
+        using Super = node_graph::FixedPinNode<ShaderGraphNode, 4, 0>;
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::ShaderGraph::PBRMaterialShaderOut";
+        static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::PBRMaterialShaderOut";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        NodeGraph::PinBase* GetInputPin(onyxU32 index) override;
-        const NodeGraph::PinBase* GetInputPin(onyxU32 index) const override;
+        node_graph::PinBase* GetInputPin(onyxU32 index) override;
+        const node_graph::PinBase* GetInputPin(onyxU32 index) const override;
 
-        NodeGraph::PinBase* GetOutputPin(onyxU32 index) override;
-        const NodeGraph::PinBase* GetOutputPin(onyxU32 index) const override;
+        node_graph::PinBase* GetOutputPin(onyxU32 index) override;
+        const node_graph::PinBase* GetOutputPin(onyxU32 index) const override;
 
     private:
-        void DoGenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const override;
+        void DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const override;
 
 #if ONYX_IS_EDITOR
         std::any CreateDefaultForPin(StringId32 pinId) const override;

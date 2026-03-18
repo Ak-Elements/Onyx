@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
-	namespace Enums
+	namespace enums
 	{
 		template <typename Enum>
 		constexpr auto ToIntegral(Enum value) -> std::underlying_type_t<Enum>
@@ -19,8 +19,8 @@ namespace Onyx
 		template <typename Enum>
 		constexpr StringView ToString(Enum value)
 		{
-			ONYX_ASSERT(Enums::ToIntegral(value) >= MAGIC_ENUM_RANGE_MIN);
-			ONYX_ASSERT(Enums::ToIntegral(value) <= MAGIC_ENUM_RANGE_MAX);
+			ONYX_ASSERT(enums::ToIntegral(value) >= MAGIC_ENUM_RANGE_MIN);
+			ONYX_ASSERT(enums::ToIntegral(value) <= MAGIC_ENUM_RANGE_MAX);
 			return magic_enum::enum_name(value);
 		}
 
@@ -83,7 +83,7 @@ namespace Onyx
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr Enum& operator--(Enum& value) // pre decrement
 	{
-		const std::underlying_type_t<Enum> val = Enums::ToIntegral(value);
+		const std::underlying_type_t<Enum> val = enums::ToIntegral(value);
 		value = static_cast<Enum>(val - 1);
 		return value;
 	}
@@ -91,45 +91,45 @@ namespace Onyx
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr Enum& operator|=(Enum& Lhs, Enum Rhs)
 	{
-		Lhs = static_cast<Enum>(Enums::ToIntegral(Lhs) | Enums::ToIntegral(Rhs));
+		Lhs = static_cast<Enum>(enums::ToIntegral(Lhs) | enums::ToIntegral(Rhs));
 		return Lhs;
 	}
 
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr Enum& operator^=(Enum& Lhs, Enum Rhs)
 	{
-		Lhs = static_cast<Enum>(Enums::ToIntegral(Lhs) ^ Enums::ToIntegral(Rhs));
+		Lhs = static_cast<Enum>(enums::ToIntegral(Lhs) ^ enums::ToIntegral(Rhs));
 		return Lhs;
 	}
 
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr Enum operator|(Enum Lhs, Enum Rhs)
 	{
-		return static_cast<Enum>(Enums::ToIntegral(Lhs) | Enums::ToIntegral(Rhs));
+		return static_cast<Enum>(enums::ToIntegral(Lhs) | enums::ToIntegral(Rhs));
 	}
 
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr Enum operator&(Enum Lhs, Enum Rhs)
 	{
-		return static_cast<Enum>(Enums::ToIntegral(Lhs) & Enums::ToIntegral(Rhs));
+		return static_cast<Enum>(enums::ToIntegral(Lhs) & enums::ToIntegral(Rhs));
 	}
 
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr Enum operator^(Enum Lhs, Enum Rhs)
 	{
-		return static_cast<Enum>(Enums::ToIntegral(Lhs) ^ Enums::ToIntegral(Rhs));
+		return static_cast<Enum>(enums::ToIntegral(Lhs) ^ enums::ToIntegral(Rhs));
 	}
 
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr bool operator!(Enum value)
 	{
-		return !Enums::ToIntegral(value);
+		return !enums::ToIntegral(value);
 	}
 
 	template <typename Enum> requires std::is_scoped_enum_v<Enum>
 	constexpr bool operator~(Enum value)
 	{
-		return static_cast<Enum>(~Enums::ToIntegral(value));
+		return static_cast<Enum>(~enums::ToIntegral(value));
 	}
 }
 
@@ -137,7 +137,7 @@ template <typename Enum> requires std::is_scoped_enum_v<Enum>
 constexpr Enum operator++(Enum& value, int) // postfix increment
 {
 	Enum tmp = value;
-	const std::underlying_type_t<Enum> val = Onyx::Enums::ToIntegral(value);
+	const std::underlying_type_t<Enum> val = onyx::enums::ToIntegral(value);
 	value = static_cast<Enum>(val + 1);
 	return tmp;
 }
@@ -145,7 +145,7 @@ constexpr Enum operator++(Enum& value, int) // postfix increment
 template <typename Enum> requires std::is_scoped_enum_v<Enum>
 constexpr Enum& operator++(Enum& value) // pre increment
 {
-	const std::underlying_type_t<Enum> val = Onyx::Enums::ToIntegral(value);
+	const std::underlying_type_t<Enum> val = onyx::enums::ToIntegral(value);
 	value = static_cast<Enum>(val + 1);
 	return value;
 }
@@ -154,7 +154,7 @@ template <typename Enum> requires std::is_scoped_enum_v<Enum>
 constexpr Enum operator--(Enum& value, int) // postfix decrement
 {
 	Enum tmp = value;
-	const std::underlying_type_t<Enum> val = Onyx::Enums::ToIntegral(value);
+	const std::underlying_type_t<Enum> val = onyx::enums::ToIntegral(value);
 	value = static_cast<Enum>(val - 1);
 	return tmp;
 }

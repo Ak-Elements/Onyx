@@ -11,19 +11,19 @@
         {
             "typeId": {
                 "id": "8c9ea120",
-                "string": "Onyx::Assets::AssetModule"
+                "string": "onyx::assets::AssetModule"
             }
         },
         {
             "typeId": {
                 "id": "1ee5fbc5",
-                "string": "Onyx::Input::InputModule"
+                "string": "onyx::input::InputModule"
             }
         },
         {
             "typeId": {
                 "id": "edd9e218",
-                "string": "Onyx::Platform::PlatformSystem"
+                "string": "onyx::platform::PlatformSystem"
             },
             "settings": {
                 "size":[1600,900],
@@ -33,7 +33,7 @@
         {
             "typeId": {
                 "id": "1484e8d4",
-                "string": "Onyx::Graphics::GraphicsSystem"
+                "string": "onyx::Graphics::GraphicsSystem"
             },
             "settings": {
                 "api":"Vulkan",
@@ -44,37 +44,37 @@
         {
             "typeId": {
                 "id": "871a9079",
-                "string": "Onyx::InputActions::InputActionSystem"
+                "string": "onyx::input_actions::InputActionSystem"
             }
         },
         {
             "typeId": {
                 "id": "6f1591f9",
-                "string": "Onyx::Localization::LocalizationModule"
+                "string": "onyx::localization::LocalizationModule"
             }
         },
         {
             "typeId": {
                 "id": "1bc77835",
-                "string": "Onyx::Ui::UiModule"
+                "string": "onyx::ui::UiModule"
             }
         },
         {
             "typeId": {
                 "id": "127bbd68",
-                "string": "Onyx::Ui::ImGuiModule"
+                "string": "onyx::ui::ImGuiModule"
             }
         },
         {
             "typeId": {
                 "id": "17cd4be9",
-                "string": "Onyx::GameCore::GameCoreModule"
+                "string": "onyx::game_core::GameCoreModule"
             }
         },
         {
             "typeId": {
                 "id": "1d6bbb55",
-                "string": "Onyx::Volume::VolumeModule"
+                "string": "onyx::volume::VolumeModule"
             }
         },
         {

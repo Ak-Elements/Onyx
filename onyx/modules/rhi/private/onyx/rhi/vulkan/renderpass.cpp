@@ -8,9 +8,9 @@
 
 namespace
 {
-    VkImageLayout GetLayoutFromAttachmentRole(Onyx::Graphics::RenderPassSettings::AttachmentAccess access)
+    VkImageLayout GetLayoutFromAttachmentRole(onyx::rhi::RenderPassSettings::AttachmentAccess access)
     {
-        using namespace Onyx::Graphics;
+        using namespace onyx::rhi;
         switch (access)
         {
         case RenderPassSettings::AttachmentAccess::Input:
@@ -35,10 +35,10 @@ namespace
         }
     }
 
-    VkAttachmentDescription2 CreateAttachmentDescription(const Onyx::Graphics::RenderPassSettings::Attachment& attachmentSettings, VkImageLayout initialLayout, VkImageLayout finalLayout, bool& outHasLoadOp)
+    VkAttachmentDescription2 CreateAttachmentDescription(const onyx::rhi::RenderPassSettings::Attachment& attachmentSettings, VkImageLayout initialLayout, VkImageLayout finalLayout, bool& outHasLoadOp)
     {
-        using namespace Onyx::Graphics;
-        using namespace Onyx::Graphics::Vulkan;
+        using namespace onyx::rhi;
+        using namespace onyx::rhi::vulkan;
         TextureFormat format = static_cast<TextureFormat>(attachmentSettings.m_Format);
 
         VkAttachmentDescription2 attachmentDescription = {};
@@ -68,7 +68,7 @@ namespace
     }
 }
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     void VulkanRenderPass::Init(const VulkanGraphicsApi& api, const RenderPassSettings& settings)
     {

@@ -4,17 +4,17 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx
+namespace onyx
 {
-    void CompositeRenderGraphNode::OnInit(Graphics::GraphicsSystem& /*api*/ , RenderGraphResourceCache& /*resourceCache*/)
+    void CompositeRenderGraphNode::OnInit(rhi::GraphicsSystem& /*api*/ , RenderGraphResourceCache& /*resourceCache*/)
     {
         /*Graphics::RenderGraphResourceInfo& input = m_Inputs.emplace_back();
-        input.Id = Hash::FNV1aHash32("grid");
+        input.Id = hash::FNV1aHash32("grid");
         input.Name = "grid";
         input.Type = Graphics::RenderGraphResourceType::Texture;*/
 
         //Graphics::RenderGraphResourceInfo& output = m_Outputs.emplace_back();
-        //output.Id =  Hash::FNV1aHash32("final");
+        //output.Id =  hash::FNV1aHash32("final");
         //output.Name = "final";
         //output.Type = Graphics::RenderGraphResourceType::Attachment;
 
@@ -30,7 +30,7 @@ namespace Onyx
 #if ONYX_IS_EDITOR
     
 #endif
-    void CompositeRenderGraphNode::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
+    void CompositeRenderGraphNode::OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -40,34 +40,34 @@ namespace Onyx
             onyxU32 Count = 0;
         } constants;
 
-        const NodeGraph::PinBase* gridTextureInPin = GetInputPin(0);
+        const node_graph::PinBase* gridTextureInPin = GetInputPin(0);
         if (gridTextureInPin->IsConnected())
         {
-            const Graphics::RenderGraphResource& resource = context.Graph.GetResource(gridTextureInPin->GetLinkedPinGlobalId());
-            const Graphics::TextureHandle& gridTextureHandle = std::get<Graphics::TextureHandle>(resource.Handle);
+            const graphics::RenderGraphResource& resource = context.Graph.GetResource(gridTextureInPin->GetLinkedPinGlobalId());
+            const rhi::TextureHandle& gridTextureHandle = std::get<rhi::TextureHandle>(resource.Handle);
             constants.TextureIndices[1] = gridTextureHandle.Texture->GetIndex();
             ++constants.Count;
         }
 
-        const NodeGraph::PinBase* gbufferTextureInPin = GetInputPin(1);
+        const node_graph::PinBase* gbufferTextureInPin = GetInputPin(1);
         if (gbufferTextureInPin->IsConnected())
         {
-            const Graphics::RenderGraphResource& gbufferResource = context.Graph.GetResource(gbufferTextureInPin->GetLinkedPinGlobalId());
-            const Graphics::TextureHandle& gbufferTextureHandle = std::get<Graphics::TextureHandle>(gbufferResource.Handle);
+            const graphics::RenderGraphResource& gbufferResource = context.Graph.GetResource(gbufferTextureInPin->GetLinkedPinGlobalId());
+            const rhi::TextureHandle& gbufferTextureHandle = std::get<rhi::TextureHandle>(gbufferResource.Handle);
             constants.TextureIndices[0] = gbufferTextureHandle.Texture->GetIndex();
             ++constants.Count;
         }
 
-        const NodeGraph::PinBase* fontTextureInPin = GetInputPin(2);
+        const node_graph::PinBase* fontTextureInPin = GetInputPin(2);
         if (fontTextureInPin->IsConnected())
         {
-            const Graphics::RenderGraphResource& font3dResource = context.Graph.GetResource(fontTextureInPin->GetLinkedPinGlobalId());
-            const Graphics::TextureHandle& font3dTextureHandle = std::get<Graphics::TextureHandle>(font3dResource.Handle);
+            const graphics::RenderGraphResource& font3dResource = context.Graph.GetResource(fontTextureInPin->GetLinkedPinGlobalId());
+            const rhi::TextureHandle& font3dTextureHandle = std::get<rhi::TextureHandle>(font3dResource.Handle);
             constants.TextureIndices[2] = font3dTextureHandle.Texture->GetIndex();
             ++constants.Count;
         }
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 0, constants);
-        commandBuffer.Draw(Graphics::PrimitiveTopology::Triangle, 0, 3, 0, 1);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, 0, constants);
+        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 }

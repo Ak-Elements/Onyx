@@ -10,7 +10,7 @@
 #include <onyx/nodegraph/graphrunner.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     bool hasBegun = false;
 
@@ -26,38 +26,38 @@ namespace Onyx::GameCore
         AddOutPin<OutPin>();
 
         m_InputAttachmentInfos.emplace_back();
-        Graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
-        gbufferInfo.Type = Graphics::RenderGraphResourceType::Attachment;
-        gbufferInfo.Format = Graphics::TextureFormat::RGBA_FLOAT32;
+        graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+        gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
+        gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
 
-        Graphics::RenderGraphTextureResourceInfo& depthtextureInfo = m_InputAttachmentInfos.emplace_back();
-        depthtextureInfo.Type = Graphics::RenderGraphResourceType::Attachment;
+        graphics::RenderGraphTextureResourceInfo& depthtextureInfo = m_InputAttachmentInfos.emplace_back();
+        depthtextureInfo.Type = graphics::RenderGraphResourceType::Attachment;
     }
 
-    void StaticMeshRenderGraphNode::OnBeginFrame(Graphics::RenderGraphContext& context)
+    void StaticMeshRenderGraphNode::OnBeginFrame(graphics::RenderGraphContext& context)
     {
         hasBegun = false;
         ONYX_PROFILE_FUNCTION;
 
         onyxU64 outputGlobalId = GetOutputPin(0)->GetGlobalId();
 
-        const NodeGraph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId(GBufferTargetInPin::LocalId);
+        const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId(GBufferTargetInPin::LocalId);
         if (gbufferRenderTargetPin->IsConnected())
         {
-            const Graphics::RenderGraphResource& inputResource = context.Graph.GetResource(gbufferRenderTargetPin->GetLinkedPinGlobalId());
-            Graphics::RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
+            const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(gbufferRenderTargetPin->GetLinkedPinGlobalId());
+            graphics::RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
             outResource.Handle = inputResource.Handle;
         }
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
         if (frameContext.FrameData == nullptr)
             return;
 
         const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
         for (const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls)
         {
-            const Graphics::MaterialShaderGraph& shaderGraph = *drawCall.Material;
-            const Graphics::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
+            const graphics::MaterialShaderGraph& shaderGraph = *drawCall.Material;
+            const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
 
             BindResources(shaderInstance, context.Graph.GetResourceCache(), context.FrameContext);
             hasBegun = true;
@@ -65,19 +65,19 @@ namespace Onyx::GameCore
 
         for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
         {
-            const Graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
-            const Graphics::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
+            const graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
+            const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
 
             BindResources(shaderInstance, context.Graph.GetResourceCache(), context.FrameContext);
             hasBegun = true;
         }
     }
 
-    void StaticMeshRenderGraphNode::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
+    void StaticMeshRenderGraphNode::OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
         
         if (frameContext.FrameData == nullptr)
             return;
@@ -94,14 +94,14 @@ namespace Onyx::GameCore
             const onyxU32 instanceCount = 1;
 
             commandBuffer.BindVertexBuffer(drawCall.VertexData, 0, 0);
-            commandBuffer.BindIndexBuffer(drawCall.Indices, 0, Graphics::IndexType::uint32);
+            commandBuffer.BindIndexBuffer(drawCall.Indices, 0, rhi::IndexType::uint32);
 
             onyxU32 instanceOffset = 0;
 
             for (Matrix4<onyxF32> transformMatrix : drawCall.Transforms)
             {
-                commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
-                commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);
+                commandBuffer.BindPushConstants(rhi::ShaderStage::Vertex, 0, transformMatrix);
+                commandBuffer.DrawIndexed(rhi::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);
                 //instanceOffset += instanceCount;
             }
         }
@@ -119,23 +119,23 @@ namespace Onyx::GameCore
 
             for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
             {
-                commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
+                commandBuffer.BindPushConstants(rhi::ShaderStage::Vertex, 0, transformMatrix);
                 commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
             }
         }
     }
 
-    void StaticMeshRenderGraphNode::PrepareShaderGraph(Graphics::CommandBuffer& commandBuffer, const Graphics::FrameContext& frameContext, const Graphics::ShaderGraph& shaderGraph)
+    void StaticMeshRenderGraphNode::PrepareShaderGraph(rhi::CommandBuffer& commandBuffer, const rhi::FrameContext& frameContext, const graphics::ShaderGraph& shaderGraph)
     {
-        NodeGraph::GraphRunner runner(shaderGraph.GetNodeGraph());
+        node_graph::GraphRunner runner(shaderGraph.GetNodeGraph());
         runner.Prepare();
         runner.Update(0);
 
         // TODO: Fix for other types
-        const Graphics::MaterialShaderGraph& materialShader = static_cast<const Graphics::MaterialShaderGraph&>(shaderGraph);
+        const graphics::MaterialShaderGraph& materialShader = static_cast<const graphics::MaterialShaderGraph&>(shaderGraph);
         commandBuffer.BindShaderEffect(materialShader.GetShader());
 
-        const Graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<Graphics::ShaderGraphTextures>();
+        const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get<graphics::ShaderGraphTextures>();
         const DynamicArray<onyxU32>& textureIndices = shaderTextures.GetTextures();
 
         struct PushConstants
@@ -148,27 +148,27 @@ namespace Onyx::GameCore
             onyxU32 Debug;
         } generalConstants;
 
-        const Graphics::ViewConstants& viewConstants = frameContext.ViewConstants;
+        const rhi::ViewConstants& viewConstants = frameContext.ViewConstants;
         generalConstants.LightClusterGridSize =
         {
-            Graphics::RenderGraphNodes::CLUSTER_X,
-            Graphics::RenderGraphNodes::CLUSTER_Y,
-            Graphics::RenderGraphNodes::CLUSTER_Z
+            graphics::render_graph_nodes::CLUSTER_X,
+            graphics::render_graph_nodes::CLUSTER_Y,
+            graphics::render_graph_nodes::CLUSTER_Z
         };
 
         generalConstants.LightClusterSize = {
-            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / Graphics::RenderGraphNodes::CLUSTER_X)),
-            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / Graphics::RenderGraphNodes::CLUSTER_Y))
+            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[0] / graphics::render_graph_nodes::CLUSTER_X)),
+            static_cast<onyxU32>(std::ceil(viewConstants.Viewport[1] / graphics::render_graph_nodes::CLUSTER_Y))
         };
 
         const onyxF32 nearFarLog = log2(viewConstants.Far / viewConstants.Near);
-        generalConstants.LightClusterScale = Graphics::RenderGraphNodes::CLUSTER_Z / nearFarLog;
-        generalConstants.LightClusterBias = -(Graphics::RenderGraphNodes::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
+        generalConstants.LightClusterScale = graphics::render_graph_nodes::CLUSTER_Z / nearFarLog;
+        generalConstants.LightClusterBias = -(graphics::render_graph_nodes::CLUSTER_Z * log2(viewConstants.Near) / nearFarLog);
         generalConstants.Debug = 0;
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64, generalConstants);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, 64, generalConstants);
         if (textureIndices.empty() == false)
         {
-            commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, 64 + sizeof(PushConstants), textureIndices);
+            commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, 64 + sizeof(PushConstants), textureIndices);
         }
     }
 

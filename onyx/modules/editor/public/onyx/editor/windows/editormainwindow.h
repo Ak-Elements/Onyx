@@ -1,9 +1,9 @@
 #pragma once
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    class EditorMainWindow : public Ui::ImGuiWindow
+    class EditorMainWindow : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "MainWindow";
@@ -14,8 +14,8 @@ namespace Onyx::Editor
         onyxU32 GetCenterDockId() const { return m_CenterDockId; }
 
     private:
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
-        void RenderMenuBar(Ui::ImGuiSystem& imguiSystem);
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
+        void RenderMenuBar(ui::ImGuiSystem& imguiSystem);
 
     private:
         onyxU32 m_CenterDockId = 0;

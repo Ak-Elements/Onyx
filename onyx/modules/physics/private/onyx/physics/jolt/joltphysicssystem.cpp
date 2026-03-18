@@ -16,7 +16,7 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 
 #include <cstdarg>
-namespace Onyx::Physics::Jolt
+namespace onyx::physics::jolt
 {
     namespace 
     {
@@ -24,7 +24,7 @@ namespace Onyx::Physics::Jolt
         {
             switch (type)
             {
-                using enum Onyx::Physics::MotionType;
+                using enum onyx::physics::MotionType;
                 case Static:
                     return JPH::EMotionType::Static;
                 case Kinematic:
@@ -51,18 +51,18 @@ namespace Onyx::Physics::Jolt
             //cout << buffer << endl;
         }
 
+#if ONYX_ASSERT_ENABLED
 #ifdef JPH_ENABLE_ASSERTS
-
         // Callback for asserts, connect this to your own assert handler if you have one
         static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, uint inLine)
         {
-            ::Onyx::Assert(inFile, inLine, inMessage);
+            ::onyx::Assert(inFile, inLine, inMessage);
         
             // Breakpoint
             return true;
         };
-
 #endif // JPH_ENABLE_ASSERTS
+#endif
 
     // This is the max amount of rigid bodies that you can add to the physics system. If you try to add more you'll get an error.
 	// Note: This value is low because this is a simple test. For a real project use something in the order of 65536.
@@ -95,8 +95,9 @@ namespace Onyx::Physics::Jolt
 
         // Install trace and assert callbacks
         JPH::Trace = TraceImpl;
+#if ONYX_ASSERT_ENABLED
         JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = AssertFailedImpl;)
-
+#endif
         // Create a factory, this class is responsible for creating instances of classes based on their name or hash and is mainly used for deserialization of saved data.
         // It is not directly used in this example but still required.
         JPH::Factory::sInstance = new JPH::Factory();
@@ -147,7 +148,7 @@ namespace Onyx::Physics::Jolt
         JPH::RVec3 worldPos;
         JPH::Quat worldRotation;
 
-        interface.GetPositionAndRotation(JPH::BodyID(Enums::ToIntegral(id)), worldPos, worldRotation);
+        interface.GetPositionAndRotation(JPH::BodyID(enums::ToIntegral(id)), worldPos, worldRotation);
         return { worldPos.GetX(), worldPos.GetY(), worldPos.GetZ() };
     }
 
@@ -158,10 +159,10 @@ namespace Onyx::Physics::Jolt
 
         JPH::EMotionType motionType = ToMotion(motion);
 
-        JPH::BodyCreationSettings bodySettings(new JPH::SphereShape(radius), JPH::RVec3(position.X, position.Y, position.Z), JPH::Quat::sIdentity(), motionType, Enums::ToIntegral(layer));
+        JPH::BodyCreationSettings bodySettings(new JPH::SphereShape(radius), JPH::RVec3(position.X, position.Y, position.Z), JPH::Quat::sIdentity(), motionType, enums::ToIntegral(layer));
         bodySettings.mMotionQuality = JPH::EMotionQuality::LinearCast;
         JPH::BodyID bodyId = interface.CreateAndAddBody(bodySettings, JPH::EActivation::Activate);
-        return Enums::ToEnum<PhysicsBodyId>(bodyId.GetIndexAndSequenceNumber());
+        return enums::ToEnum<PhysicsBodyId>(bodyId.GetIndexAndSequenceNumber());
     }   
 
     PhysicsBodyId JoltPhysicsSystem::CreateBoxCollider(const Vector3f32& position, const Rotor3f32& rotation, const Vector3f32& halfExtents, MotionType motion, CollisionLayer layer)
@@ -171,9 +172,9 @@ namespace Onyx::Physics::Jolt
         JPH::RVec3 jphHalfExents(halfExtents.X, halfExtents.Y, halfExtents.Z);
         JPH::EMotionType motionType = ToMotion(motion);
 
-        JPH::BodyCreationSettings bodySettings(new JPH::BoxShape(jphHalfExents), JPH::RVec3(position.X, position.Y, position.Z), JPH::Quat::sIdentity(), motionType, Enums::ToIntegral(layer));
+        JPH::BodyCreationSettings bodySettings(new JPH::BoxShape(jphHalfExents), JPH::RVec3(position.X, position.Y, position.Z), JPH::Quat::sIdentity(), motionType, enums::ToIntegral(layer));
 	    JPH::BodyID bodyId = interface.CreateAndAddBody(bodySettings, JPH::EActivation::Activate);
-        return Enums::ToEnum<PhysicsBodyId>(bodyId.GetIndexAndSequenceNumber());
+        return enums::ToEnum<PhysicsBodyId>(bodyId.GetIndexAndSequenceNumber());
     }    
 
 }

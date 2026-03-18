@@ -7,23 +7,23 @@
 #include <imgui_stacklayout.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    ContentBrowserPanel::ContentBrowserPanel(Assets::AssetSystem& assetSystem)
+    ContentBrowserPanel::ContentBrowserPanel(assets::AssetSystem& assetSystem)
         : m_ContentDirectoryWatcher("", true)
     {
         BuildContentDirectoryTree("", m_ContentDirectoryTree);
 
-        Assets::AssetId closedId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed.png"));
+        assets::AssetId closedId(file_system::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed.png"));
         assetSystem.GetAsset(closedId, m_FolderClosedAsset);
 
-        Assets::AssetId openId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open.png"));
+        assets::AssetId openId(file_system::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open.png"));
         assetSystem.GetAsset(openId, m_FolderOpenAsset);
 
-        Assets::AssetId closedSelectedId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed_selected.png"));
+        assets::AssetId closedSelectedId(file_system::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_closed_selected.png"));
         assetSystem.GetAsset(closedSelectedId, m_FolderSelectedClosedAsset);
 
-        Assets::AssetId openSelectedId(FileSystem::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open_selected.png"));
+        assets::AssetId openSelectedId(file_system::Path::GetFullPath("textures/editor/icons/contentbrowser/folder_open_selected.png"));
         assetSystem.GetAsset(openSelectedId, m_FolderSelectedOpenAsset);
     }
 
@@ -88,7 +88,7 @@ namespace Onyx::Editor
         for (const std::filesystem::directory_entry& entry : directory_iterator(path))
         {
             DirectoryInfo& childItem = parentDirectoryInfo.Items.emplace_back();
-            childItem.Id = Hash::FNV1aHash<onyxU64>(entry.path().string());
+            childItem.Id = hash::FNV1aHash<onyxU64>(entry.path().string());
             childItem.Path = entry.path();
 
             if (entry.is_directory())
@@ -128,11 +128,11 @@ namespace Onyx::Editor
         ImGui::BeginHorizontal("##selectedDirContent");
         for (const DirectoryInfo& childItem : m_SelectedDirectory->Items)
         {
-            if (Ui::Button(childItem.Path.stem().string().c_str()))
+            if (ui::Button(childItem.Path.stem().string().c_str()))
             {
                 if (childItem.Path.extension().string() == ".png")
                 {
-                    Assets::AssetMetaData metaData;
+                    assets::AssetMetaData metaData;
                     TextureImporter importer;
                     importer.Import(childItem.Path, metaData);
                 }

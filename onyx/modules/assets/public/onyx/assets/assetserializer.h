@@ -2,12 +2,12 @@
 
 #include <onyx/assets/assethandle.h>
 
-namespace Onyx
+namespace onyx
 {
     class IEngine;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetInterface;
     class AssetSystem;

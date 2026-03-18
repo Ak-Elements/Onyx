@@ -1,6 +1,6 @@
 #include <onyx/graphics/debug/debugdrawqueue.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     void DebugDrawQueue::addWireframeSphere(Vector3f32 position, onyxF32 radius, onyxU32 color)
     {

@@ -3,16 +3,16 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<Platform::WindowSettings>::Serialize(Serializer& serializer, const Platform::WindowSettings& settings)
+    bool Serialization<platform::WindowSettings>::Serialize(Serializer& serializer, const platform::WindowSettings& settings)
     {
         serializer.Write<"size">(settings.Size);
         serializer.Write<"mode">(settings.Mode);
         return true;
     }
 
-    bool Serialization<Platform::WindowSettings>::Deserialize(const Deserializer& deserializer, Platform::WindowSettings& outSettings)
+    bool Serialization<platform::WindowSettings>::Deserialize(const Deserializer& deserializer, platform::WindowSettings& outSettings)
     {
         deserializer.Read<"size">(outSettings.Size);
         deserializer.Read<"mode">(outSettings.Mode);

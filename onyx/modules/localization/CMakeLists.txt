@@ -4,5 +4,6 @@ endif()
 
 onyx_add_target(onyx-localization
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Localization"
+    NAMESPACE "onyx::localization"
+    NAMESPACE_PATH "onyx/localization"
 )

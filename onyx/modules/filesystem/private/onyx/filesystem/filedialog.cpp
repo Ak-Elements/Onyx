@@ -1,7 +1,7 @@
 #include <onyx/filesystem/filedialog.h>
 
 #include <nfd.h>
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     void FileDialog::Init()
     {

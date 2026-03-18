@@ -4,14 +4,14 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     class Sampler;
     class Device;
     class VulkanTextureStorage;
     class VulkanGraphicsApi;
 
-	class VulkanTexture : public Graphics::Texture
+	class VulkanTexture : public rhi::Texture
 	{
 	public:
 		VulkanTexture(VulkanGraphicsApi& api, const TextureProperties& properties, const VulkanTextureStorage* storage);
@@ -36,7 +36,7 @@ namespace Onyx::Graphics::Vulkan
         
 		VULKAN_HANDLE(VkImageView, ImageView, nullptr);
 
-        Reference<Graphics::Sampler> m_Sampler;
+        Reference<rhi::Sampler> m_Sampler;
 
         VkDescriptorImageInfo m_DescriptorInfo;
 	};

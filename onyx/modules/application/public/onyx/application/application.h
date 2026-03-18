@@ -3,7 +3,7 @@
 
 #include <onyx/engine/enginesystemfactory.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
     class TaskGraph;
     class ApplicationModule;

@@ -5,14 +5,14 @@
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/localizedstring.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     namespace
     {
         
 
     }
-    void GetTextLocalizationBackend::Init(Assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings)
+    void GetTextLocalizationBackend::Init(assets::AssetSystem& assetSystem, const LocalizationSettings& localizationSettings)
     {
         if (localizationSettings.Database.IsValid())
         {
@@ -20,9 +20,9 @@ namespace Onyx::Localization
         }
 
 #if !ONYX_IS_RETAIL
-        for (const Assets::AssetId& secondaryDatabaseId : localizationSettings.SecondaryDatabases)
+        for (const assets::AssetId& secondaryDatabaseId : localizationSettings.SecondaryDatabases)
         {
-            Assets::AssetHandle<GetTextLocalizationDatabase> secondaryDb;
+            assets::AssetHandle<GetTextLocalizationDatabase> secondaryDb;
             assetSystem.GetAsset(secondaryDatabaseId, secondaryDb);
             AddSecondaryDatabase(secondaryDb);
         }
@@ -138,14 +138,14 @@ namespace Onyx::Localization
     }
 
 #if !ONYX_IS_RETAIL
-    void GetTextLocalizationBackend::AddSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database)
+    void GetTextLocalizationBackend::AddSecondaryDatabase(const assets::AssetHandle<GetTextLocalizationDatabase>& database)
     {
         if (m_MainDatabase.IsValid() && (database == m_MainDatabase))
         {
             return;
         }
 
-        auto it = std::ranges::find_if(m_SecondaryDatabases, [&](const Assets::AssetHandle<GetTextLocalizationDatabase>& secondaryDb)
+        auto it = std::ranges::find_if(m_SecondaryDatabases, [&](const assets::AssetHandle<GetTextLocalizationDatabase>& secondaryDb)
         {
             return secondaryDb == database;
         });
@@ -155,12 +155,12 @@ namespace Onyx::Localization
             return;
         }
 
-        m_SecondaryDatabases.push_back(Assets::AssetHandle(database));
+        m_SecondaryDatabases.push_back(assets::AssetHandle(database));
     }
 
-    void GetTextLocalizationBackend::RemoveSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database)
+    void GetTextLocalizationBackend::RemoveSecondaryDatabase(const assets::AssetHandle<GetTextLocalizationDatabase>& database)
     {
-        std::erase_if(m_SecondaryDatabases, [&](const Assets::AssetHandle<GetTextLocalizationDatabase>& secondaryDb)
+        std::erase_if(m_SecondaryDatabases, [&](const assets::AssetHandle<GetTextLocalizationDatabase>& secondaryDb)
         {
             return secondaryDb == database;
         });

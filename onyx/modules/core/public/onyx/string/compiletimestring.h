@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     template <onyxU64 N>
     struct CompileTimeString

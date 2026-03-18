@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/onyx_types.h>
 
-namespace Onyx
+namespace onyx
 {
     // Very basic inplace string
     template <typename CharT, onyxU32 Size>

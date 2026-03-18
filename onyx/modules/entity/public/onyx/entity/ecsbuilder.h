@@ -5,7 +5,7 @@
 #include <onyx/entity/entityaccess.h>
 #include <onyx/entity/entitycomponentsystem.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EcsBuilder : public NonCopyable
     {

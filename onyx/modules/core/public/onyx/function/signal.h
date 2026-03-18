@@ -5,7 +5,7 @@
 /*
  * Inspired by entt::sigh.hpp
  */
-namespace Onyx
+namespace onyx
 {
     /**
      * @brief Sink class.

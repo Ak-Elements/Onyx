@@ -3,17 +3,17 @@
 #include <onyx/rhi/textureproperties.h>
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
     class TextureStorage;
 
-	namespace Vulkan
+	namespace vulkan
 	{
 		class VulkanGraphicsApi;
 	}
 
-	namespace Internal
+	namespace internal
     {
 	    template <typename T>
 	    struct TextureDeleter;
@@ -21,8 +21,8 @@ namespace Onyx::Graphics
 
     class Texture : public RefCounted
 	{
-		friend class Vulkan::VulkanGraphicsApi;
-		friend struct Internal::TextureDeleter<Texture>;
+		friend class vulkan::VulkanGraphicsApi;
+		friend struct internal::TextureDeleter<Texture>;
 	public:
 		Texture(const TextureProperties& properties, const TextureStorage* storage);
         ~Texture() override = default;
@@ -45,7 +45,7 @@ namespace Onyx::Graphics
 		const TextureStorage* m_Storage; // non owning
 	};
 
-	namespace Internal
+	namespace internal
 	{
 		template <typename T>
 		struct TextureDeleter
@@ -72,7 +72,7 @@ namespace Onyx::Graphics
 		};
 	}
 
-	using TextureDeleter = Internal::TextureDeleter<Texture>;
+	using TextureDeleter = internal::TextureDeleter<Texture>;
 
 	namespace Utils
     {

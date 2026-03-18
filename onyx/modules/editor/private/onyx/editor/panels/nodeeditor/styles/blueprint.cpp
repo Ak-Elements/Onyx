@@ -14,7 +14,7 @@
 
 
 //------------------------------------------------------------------------------
-namespace Onyx::Editor
+namespace onyx::editor
 {
     BlueprintNodeBuilder::BlueprintNodeBuilder(ImTextureID texture, int textureWidth, int textureHeight) :
         HeaderTextureId(texture),

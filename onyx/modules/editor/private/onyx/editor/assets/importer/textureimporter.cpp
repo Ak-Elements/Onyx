@@ -3,11 +3,11 @@
 #include <onyx/filesystem/imagefile.h>
 #include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    AssetImportResult TextureImporter::DoImport(const FilePath& path, Assets::AssetMetaData& outAssetMeta)
+    AssetImportResult TextureImporter::DoImport(const FilePath& path, assets::AssetMetaData& outAssetMeta)
     {
-        if (FileSystem::Path::Exists(path) == false)
+        if (file_system::Path::Exists(path) == false)
             return AssetImportResult::FileNotFound;
 
         const String& extension = path.extension().string();
@@ -15,18 +15,18 @@ namespace Onyx::Editor
             // or others
             return AssetImportResult::InvalidFormat;
 
-        FileSystem::ImageFile file(path);
+        file_system::ImageFile file(path);
         
-        FilePath importedTexturePath = FileSystem::Path::ReplaceExtension(path, "otex");
+        FilePath importedTexturePath = file_system::Path::ReplaceExtension(path, "otex");
 
         StringId32 texturePathHashed(importedTexturePath.string());
-        outAssetMeta.Id = static_cast<Assets::AssetId>(texturePathHashed.GetId());
+        outAssetMeta.Id = static_cast<assets::AssetId>(texturePathHashed.GetId());
         outAssetMeta.Path = importedTexturePath;
         ++outAssetMeta.Version;
 
         {
-            FileSystem::OnyxFile importedTexFile(importedTexturePath);
-            FileSystem::FileStream binaryStream = importedTexFile.OpenStream(FileSystem::OpenMode::Binary | FileSystem::OpenMode::Write);
+            file_system::OnyxFile importedTexFile(importedTexturePath);
+            file_system::FileStream binaryStream = importedTexFile.OpenStream(file_system::OpenMode::Binary | file_system::OpenMode::Write);
 
             // Write out the import format
             // Write out mips?

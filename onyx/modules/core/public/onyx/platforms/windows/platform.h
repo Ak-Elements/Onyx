@@ -2,7 +2,7 @@
 
 #if ONYX_IS_WINDOWS
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     struct AdapterInfo
     {

@@ -9,7 +9,7 @@ struct std::formatter<std::filesystem::path> : std::formatter<std::string> {
     }
 };
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     struct MountPoint
     {
@@ -53,7 +53,7 @@ namespace Onyx::FileSystem
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
     struct Serialization<FilePath>
@@ -63,9 +63,9 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<FileSystem::MountPoint>
+    struct Serialization<file_system::MountPoint>
     {
-        static bool Serialize(Serializer& serializer, const FileSystem::MountPoint& mountPoint);
-        static bool Deserialize(const Deserializer& deserializer, FileSystem::MountPoint& outMountPoint);
+        static bool Serialize(Serializer& serializer, const file_system::MountPoint& mountPoint);
+        static bool Deserialize(const Deserializer& deserializer, file_system::MountPoint& outMountPoint);
     };
 }

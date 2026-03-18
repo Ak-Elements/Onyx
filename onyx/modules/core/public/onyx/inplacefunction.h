@@ -33,9 +33,9 @@
 #define SG14_INPLACE_FUNCTION_THROW(x) throw (x)
 #endif
 
-namespace Onyx
+namespace onyx
 {
-    namespace InplaceFunctionDetail {
+    namespace inplace_function_detail {
 
         static constexpr size_t InplaceFunctionDefaultCapacity = 32;
 
@@ -182,20 +182,20 @@ namespace Onyx
             F,
             Args...
         >;
-    } // namespace InplaceFunctionDetail
+    } // namespace inplace_function_detail
 
     template<
         class Signature,
-        size_t Capacity = InplaceFunctionDetail::InplaceFunctionDefaultCapacity,
-        size_t Alignment = alignof(InplaceFunctionDetail::aligned_storage_t<Capacity>)
+        size_t Capacity = inplace_function_detail::InplaceFunctionDefaultCapacity,
+        size_t Alignment = alignof(inplace_function_detail::aligned_storage_t<Capacity>)
     >
         class InplaceFunction; // unspecified
 
-    namespace InplaceFunctionDetail {
+    namespace inplace_function_detail {
         template<class> struct is_inplace_function : std::false_type {};
         template<class Sig, size_t Cap, size_t Align>
         struct is_inplace_function<InplaceFunction<Sig, Cap, Align>> : std::true_type {};
-    } // namespace InplaceFunctionDetail
+    } // namespace inplace_function_detail
 
     template<
         class R,
@@ -205,8 +205,8 @@ namespace Onyx
     >
         class InplaceFunction<R(Args...), Capacity, Alignment>
     {
-        using storage_t = InplaceFunctionDetail::aligned_storage_t<Capacity, Alignment>;
-        using vtable_t = InplaceFunctionDetail::vtable<R, Args...>;
+        using storage_t = inplace_function_detail::aligned_storage_t<Capacity, Alignment>;
+        using vtable_t = inplace_function_detail::vtable<R, Args...>;
         using vtable_ptr_t = const vtable_t*;
 
         template <class, size_t, size_t> friend class InplaceFunction;
@@ -216,7 +216,7 @@ namespace Onyx
         using alignment = std::integral_constant<size_t, Alignment>;
 
         InplaceFunction() noexcept :
-            vtable_ptr_{ std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>) }
+            vtable_ptr_{ std::addressof(inplace_function_detail::empty_vtable<R, Args...>) }
         {}
 
         template<class Obj>
@@ -237,8 +237,8 @@ namespace Onyx
             class T,
             class C = std::decay_t<T>,
             class = std::enable_if_t<
-            !InplaceFunctionDetail::is_inplace_function<C>::value
-            && InplaceFunctionDetail::is_invocable_r<R, C&, Args...>::value>>
+            !inplace_function_detail::is_inplace_function<C>::value
+            && inplace_function_detail::is_invocable_r<R, C&, Args...>::value>>
         InplaceFunction(T&& closure)
         {
             static_assert(std::is_copy_constructible<C>::value,
@@ -253,7 +253,7 @@ namespace Onyx
                 "InplaceFunction cannot be constructed from object with this (large) alignment"
                 );
 
-            static const vtable_t vt{ InplaceFunctionDetail::wrapper<C>{} };
+            static const vtable_t vt{ inplace_function_detail::wrapper<C>{} };
             vtable_ptr_ = std::addressof(vt);
 
             ::new (std::addressof(storage_)) C{ std::forward<T>(closure) };
@@ -263,7 +263,7 @@ namespace Onyx
         InplaceFunction(const InplaceFunction<R(Args...), Cap, Align>& other)
             : InplaceFunction(other.vtable_ptr_, other.vtable_ptr_->copy_ptr, std::addressof(other.storage_))
         {
-            static_assert(InplaceFunctionDetail::is_valid_inplace_dst<
+            static_assert(inplace_function_detail::is_valid_inplace_dst<
                 Capacity, Alignment, Cap, Align
             >::value, "conversion not allowed");
         }
@@ -272,15 +272,15 @@ namespace Onyx
         InplaceFunction(InplaceFunction<R(Args...), Cap, Align>&& other) noexcept
             : InplaceFunction(other.vtable_ptr_, other.vtable_ptr_->relocate_ptr, std::addressof(other.storage_))
         {
-            static_assert(InplaceFunctionDetail::is_valid_inplace_dst<
+            static_assert(inplace_function_detail::is_valid_inplace_dst<
                 Capacity, Alignment, Cap, Align
             >::value, "conversion not allowed");
 
-            other.vtable_ptr_ = std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>);
+            other.vtable_ptr_ = std::addressof(inplace_function_detail::empty_vtable<R, Args...>);
         }
 
         InplaceFunction(std::nullptr_t) noexcept :
-            vtable_ptr_{ std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>) }
+            vtable_ptr_{ std::addressof(inplace_function_detail::empty_vtable<R, Args...>) }
         {}
 
         InplaceFunction(const InplaceFunction& other) :
@@ -293,7 +293,7 @@ namespace Onyx
         }
 
         InplaceFunction(InplaceFunction&& other) noexcept :
-            vtable_ptr_{ std::exchange(other.vtable_ptr_, std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>)) }
+            vtable_ptr_{ std::exchange(other.vtable_ptr_, std::addressof(inplace_function_detail::empty_vtable<R, Args...>)) }
         {
             vtable_ptr_->relocate_ptr(
                 std::addressof(storage_),
@@ -304,7 +304,7 @@ namespace Onyx
         InplaceFunction& operator= (std::nullptr_t) noexcept
         {
             vtable_ptr_->destructor_ptr(std::addressof(storage_));
-            vtable_ptr_ = std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>);
+            vtable_ptr_ = std::addressof(inplace_function_detail::empty_vtable<R, Args...>);
             return *this;
         }
 
@@ -312,7 +312,7 @@ namespace Onyx
         {
             vtable_ptr_->destructor_ptr(std::addressof(storage_));
 
-            vtable_ptr_ = std::exchange(other.vtable_ptr_, std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>));
+            vtable_ptr_ = std::exchange(other.vtable_ptr_, std::addressof(inplace_function_detail::empty_vtable<R, Args...>));
             vtable_ptr_->relocate_ptr(
                 std::addressof(storage_),
                 std::addressof(other.storage_)
@@ -351,12 +351,12 @@ namespace Onyx
 
         explicit constexpr operator bool() noexcept
         {
-            return vtable_ptr_ != std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>);
+            return vtable_ptr_ != std::addressof(inplace_function_detail::empty_vtable<R, Args...>);
         }
 
         explicit constexpr operator bool() const noexcept
         {
-            return vtable_ptr_ != std::addressof(InplaceFunctionDetail::empty_vtable<R, Args...>);
+            return vtable_ptr_ != std::addressof(inplace_function_detail::empty_vtable<R, Args...>);
         }
 
         void swap(InplaceFunction& other) noexcept
@@ -401,4 +401,4 @@ namespace Onyx
         }
     };
 
-} // namespace Onyx
+} // namespace onyx

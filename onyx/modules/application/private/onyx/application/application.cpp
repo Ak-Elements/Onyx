@@ -28,7 +28,7 @@ namespace
     const char* const sl_CPU_Frame = "CPU";
 }
 
-namespace Onyx::Application
+namespace onyx::application
 {
     Application::Application() = default;
     Application::~Application() = default;
@@ -38,18 +38,18 @@ namespace Onyx::Application
         Thread::MAIN_THREAD_ID = std::this_thread::get_id();
 
         m_Logger = MakeUnique<Logger>();
-        Logger::s_DefaultLogger = m_Logger.get();
+        Logger::s_defaultLogger = m_Logger.get();
 
-        const FilePath appConfigPath = FileSystem::Path::GetWorkingDirectory() / "data/appconfig.oconf";
-        FileSystem::OnyxFile appSettings(appConfigPath);
-        FileSystem::JsonValue appConfigJson = appSettings.LoadJson();
+        const FilePath appConfigPath = file_system::Path::GetWorkingDirectory() / "data/appconfig.oconf";
+        file_system::OnyxFile appSettings(appConfigPath);
+        file_system::JsonValue appConfigJson = appSettings.LoadJson();
 
-        FileSystem::JsonDeserializer configDeserializer(appConfigJson.Json);
+        file_system::JsonDeserializer configDeserializer(appConfigJson.Json);
 
-        HashMap<StringId32, FileSystem::MountPoint> mountPoints;
+        HashMap<StringId32, file_system::MountPoint> mountPoints;
         configDeserializer.ReadForEach<"mountpoints">([&](const Deserializer& scopedDeserializer)
         {
-            FileSystem::MountPoint mountPoint;
+            file_system::MountPoint mountPoint;
             if (scopedDeserializer.Read(mountPoint))
             {
                 mountPoints[StringId32(mountPoint.Prefix)] = mountPoint;
@@ -58,15 +58,15 @@ namespace Onyx::Application
             return false;
         });
 
-        FileSystem::Path::SetMountPoints(mountPoints);
+        file_system::Path::SetMountPoints(mountPoints);
 
-        FileSystem::FileDialog::Init();
+        file_system::FileDialog::Init();
 
         constexpr StringView lastSessionLogPath = "tmp:/logs/last_session.log";
-        FilePath logDirectory = FileSystem::Path::GetFullPath(lastSessionLogPath).parent_path();
-        if (FileSystem::Path::Exists(logDirectory) == false)
+        FilePath logDirectory = file_system::Path::GetFullPath(lastSessionLogPath).parent_path();
+        if (file_system::Path::Exists(logDirectory) == false)
         {
-            FileSystem::Path::CreateDirectory(logDirectory);
+            file_system::Path::CreateDirectory(logDirectory);
         }
 
         m_Logger->AddLoggingBackend<StdoutLogger>();
@@ -113,12 +113,12 @@ namespace Onyx::Application
 
     void Application::Shutdown()
     {
-        FileSystem::FileDialog::Shutdown();
+        file_system::FileDialog::Shutdown();
 
         OnApplicationShutdown(*this);
 
         // Remove asset system first so we release all loaded resource references
-        RemoveModule<Assets::AssetSystem>();
+        RemoveModule<assets::AssetSystem>();
 
         // init modules project
         for (UniquePtr<IEngineSystem>& engineModule : (m_Modules | std::views::reverse) )
@@ -134,10 +134,10 @@ namespace Onyx::Application
         ONYX_PROFILE_SET_THREAD(Main)
 
 #if ONYX_USE_IMGUI
-        bool hasImGuiSystem = HasSystem<Ui::ImGuiSystem>();
+        bool hasImGuiSystem = HasSystem<ui::ImGuiSystem>();
 #endif
 
-        Graphics::GraphicsSystem& graphicsSystem = GetSystem<Graphics::GraphicsSystem>();
+        rhi::GraphicsSystem& graphicsSystem = GetSystem<rhi::GraphicsSystem>();
         // TODO: Fix
         // Graphics::WindowSystem& windowSystem = GetSystem<Graphics::WindowSystem>();
        // windowSystem.GetMainWindow().AddOnCloseHandler(this, &Application::OnWindowClose);
@@ -155,11 +155,11 @@ namespace Onyx::Application
             if (hasBegunFrame == false)
                 continue;
 
-            Graphics::FrameContext& frameContext = graphicsSystem.GetFrameContext();
+            rhi::FrameContext& frameContext = graphicsSystem.GetFrameContext();
 #if ONYX_USE_IMGUI
             if (hasImGuiSystem)
             {
-                Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
+                ui::ImGuiSystem& imGuiSystem = GetSystem<ui::ImGuiSystem>();
                 imGuiSystem.OnBeginFrame(frameContext);
             }
 #endif
@@ -180,7 +180,7 @@ namespace Onyx::Application
 #if ONYX_USE_IMGUI
                 if (hasImGuiSystem)
                 {
-                    Ui::ImGuiSystem& imGuiSystem = GetSystem<Ui::ImGuiSystem>();
+                    ui::ImGuiSystem& imGuiSystem = GetSystem<ui::ImGuiSystem>();
                     imGuiSystem.OnRenderFrame(frameContext);
                     imGuiSystem.OnEndFrame(frameContext);
                 }

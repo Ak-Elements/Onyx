@@ -11,12 +11,12 @@
 #include <onyx/rhi/renderpass.h>
 #include <onyx/rhi/descriptorset.h>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     struct JsonValue;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     //struct TextureHandle;
     //class DescriptorSet;
@@ -32,7 +32,7 @@ namespace Onyx::Graphics
     //using BufferHandle = Reference<Buffer>;
     using TextureViewHandle = Reference<Texture, TextureDeleter>;
     using TextureStorageHandle = Reference<TextureStorage>;
-    using ShaderHandle = Assets::AssetHandle<Shader>;
+    using ShaderHandle = assets::AssetHandle<Shader>;
     using ShaderInstanceHandle = Reference<ShaderInstance>;
     using RenderPassHandle = Reference<RenderPass>;
     using FramebufferHandle = Reference<Framebuffer>;
@@ -41,7 +41,7 @@ namespace Onyx::Graphics
 
     struct BufferHandle
     {
-        static constexpr StringId32 TypeId = "Onyx::Graphics::BufferHandle";
+        static constexpr StringId32 TypeId = "onyx::rhi::BufferHandle";
         StringId32 GetTypeId() const { return TypeId; }
 
         Reference<Buffer> Buffer;
@@ -81,7 +81,7 @@ namespace Onyx::Graphics
 
     struct TextureHandle
     {
-        static constexpr StringId32 TypeId = "Onyx::Graphics::TextureHandle";
+        static constexpr StringId32 TypeId = "onyx::rhi::TextureHandle";
         StringId32 GetTypeId() const { return TypeId; }
 
         TextureStorageHandle Storage;
@@ -110,18 +110,18 @@ namespace Onyx::Graphics
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template<>
-    struct Serialization<Graphics::TextureHandle>
+    struct Serialization<rhi::TextureHandle>
     {
-        static bool Serialize(Serializer&, const Graphics::TextureHandle&)
+        static bool Serialize(Serializer&, const rhi::TextureHandle&)
         {
             // not supported but needed for the graph pins
             return true;
         }
 
-        static bool Deserialize(const Deserializer&, Graphics::TextureHandle&)
+        static bool Deserialize(const Deserializer&, rhi::TextureHandle&)
         {
             // not supported but needed for the graph pins
             return true;
@@ -129,15 +129,15 @@ namespace Onyx
     };
 
     template<>
-    struct Serialization<Graphics::BufferHandle>
+    struct Serialization<rhi::BufferHandle>
     {
-        static bool Serialize(Serializer&, const Graphics::BufferHandle&)
+        static bool Serialize(Serializer&, const rhi::BufferHandle&)
         {
             // not supported but needed for the graph pins
             return true;
         }
 
-        static bool Deserialize(const Deserializer&, Graphics::BufferHandle&)
+        static bool Deserialize(const Deserializer&, rhi::BufferHandle&)
         {
             // not supported but needed for the graph pins
             return true;
@@ -145,26 +145,26 @@ namespace Onyx
     };
 }
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename T>
     struct PinMetaObject;
 
     template <>
-    struct PinMetaObject<Graphics::BufferHandle>
+    struct PinMetaObject<rhi::BufferHandle>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Graphics::BufferHandle& value);
+        static bool DrawPinInPropertyGrid(StringView name, rhi::BufferHandle& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFF5C5CCD; /* Indian Red */ }
 #endif
-        static bool Serialize(FileSystem::JsonValue& json, const Graphics::BufferHandle& handle)
+        static bool Serialize(file_system::JsonValue& json, const rhi::BufferHandle& handle)
         {
             ONYX_UNUSED(json);
             ONYX_UNUSED(handle);
             return true;
         }
 
-        static bool Deserialize(const FileSystem::JsonValue& json, Graphics::BufferHandle& handle)
+        static bool Deserialize(const file_system::JsonValue& json, rhi::BufferHandle& handle)
         {
             ONYX_UNUSED(json);
             ONYX_UNUSED(handle);
@@ -173,21 +173,21 @@ namespace Onyx::NodeGraph
     };
 
     template <>
-    struct PinMetaObject<Graphics::TextureHandle>
+    struct PinMetaObject<rhi::TextureHandle>
     {
 #if ONYX_IS_EDITOR
-        static bool DrawPinInPropertyGrid(StringView name, Graphics::TextureHandle& value);
+        static bool DrawPinInPropertyGrid(StringView name, rhi::TextureHandle& value);
         static constexpr onyxU32 GetPinTypeColor() { return 0xFFB48246; /*Steel Blue*/ }
 #endif
 
-        static bool Serialize(FileSystem::JsonValue& json, const Graphics::TextureHandle& handle)
+        static bool Serialize(file_system::JsonValue& json, const rhi::TextureHandle& handle)
         {
             ONYX_UNUSED(json);
             ONYX_UNUSED(handle);
             return true;
         }
 
-        static bool Deserialize(const FileSystem::JsonValue& json, Graphics::TextureHandle& handle)
+        static bool Deserialize(const file_system::JsonValue& json, rhi::TextureHandle& handle)
         {
             ONYX_UNUSED(json);
             ONYX_UNUSED(handle);

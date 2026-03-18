@@ -32,7 +32,7 @@
 
 #include <onyx/volume/source/noise/simplexnoised.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
 	namespace SimplexNoiseD

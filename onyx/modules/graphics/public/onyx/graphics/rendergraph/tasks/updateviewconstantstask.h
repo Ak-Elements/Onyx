@@ -5,16 +5,16 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class GetViewConstantsNode : public NodeGraph::FixedPinNode_1_Out<IRenderGraphNode, BufferHandle>
+    class GetViewConstantsNode : public node_graph::FixedPinNode_1_Out<IRenderGraphNode, rhi::BufferHandle>
     {
-        using Super = NodeGraph::FixedPinNode_1_Out<IRenderGraphNode, BufferHandle>;
+        using Super = node_graph::FixedPinNode_1_Out<IRenderGraphNode, rhi::BufferHandle>;
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::GetViewConstants";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::GetViewConstants";
        StringId32 GetTypeId() const override { return TypeId; }
 
-        void Init(GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
+        void Init(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
         void BeginFrame(RenderGraphContext& context) override;
 
         bool IsEnabled() override { return true; }
@@ -36,6 +36,6 @@ namespace Onyx::Graphics::RenderGraphNodes
     private:
 #endif
     private:
-        InplaceArray<BufferHandle, MAX_FRAMES_IN_FLIGHT> m_ViewConstantsUniformBuffers;
+        InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_ViewConstantsUniformBuffers;
     };
 }

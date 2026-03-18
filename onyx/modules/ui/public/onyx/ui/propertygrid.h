@@ -6,19 +6,19 @@
 #include <onyx/assets/assetid.h>
 #include <onyx/assets/assethandle.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetInterface;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
     struct AssetMetaData;
     enum class AssetType : onyxU32;
 }
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     enum class ScalarInputFlag
     {
@@ -35,9 +35,9 @@ namespace Onyx::Ui
         bool IsSlider = false;
     };
 
-    namespace PropertyGrid
+    namespace property_grid
     {
-        void SetAssetSystem(Assets::AssetSystem& assetSystem);
+        void SetAssetSystem(assets::AssetSystem& assetSystem);
 
         void BeginPropertyGrid(StringView propertyGrid, onyxF32 splitMinX);
         void EndPropertyGrid();
@@ -61,13 +61,13 @@ namespace Onyx::Ui
         bool DrawProperty(StringView propertyName, String& value);
         bool DrawProperty(StringView propertyName, String& value, ImGuiInputTextFlags textFlags);
 
-        bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType);
+        bool DrawAssetSelector(StringView propertyName, assets::AssetId& outAssetId, assets::AssetType assetType);
 
-        template <typename T> requires std::is_base_of_v<Assets::AssetInterface, T>
-        bool DrawProperty(StringView propertyName, Assets::AssetHandle<T>& outAsset)
+        template <typename T> requires std::is_base_of_v<assets::AssetInterface, T>
+        bool DrawProperty(StringView propertyName, assets::AssetHandle<T>& outAsset)
         {
-            Assets::AssetId assetId = outAsset.GetId();
-            if( DrawAssetSelector(propertyName, assetId, static_cast<Assets::AssetType>(T::TypeId.GetId())) )
+            assets::AssetId assetId = outAsset.GetId();
+            if( DrawAssetSelector(propertyName, assetId, static_cast<assets::AssetType>(T::TypeId.GetId())) )
             {
                 outAsset.SetId(assetId);
                 return true;
@@ -122,15 +122,15 @@ namespace Onyx::Ui
                     String tooltip;
                     if (hasMin && hasMax)
                     {
-                        tooltip = Format::Format("[ {} .. {} ]", minValue, maxValue);
+                        tooltip = format::Format("[ {} .. {} ]", minValue, maxValue);
                     }
                     else if (hasMin)
                     {
-                        tooltip = Format::Format("[ {} .. ]", minValue);
+                        tooltip = format::Format("[ {} .. ]", minValue);
                     }
                     else
                     {
-                        tooltip = Format::Format("[ .. {} ]", maxValue);
+                        tooltip = format::Format("[ .. {} ]", maxValue);
                     }
                     
                     ImGui::SetItemTooltip("%s", tooltip.c_str());
@@ -249,7 +249,7 @@ namespace Onyx::Ui
 
             bool isModified = false;
             ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-            if (ImGui::BeginCombo("##combo", Enums::ToString(currentValue).data()))
+            if (ImGui::BeginCombo("##combo", enums::ToString(currentValue).data()))
             {
                 constexpr auto enum_entries = magic_enum::enum_entries<EnumT>();
                 for (auto&& [enumValue, name] : enum_entries)
@@ -289,7 +289,7 @@ namespace Onyx::Ui
 
             bool isModified = false;
             ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-            if (ImGui::BeginCombo("##combo", Enums::ToString(currentValue).data()))
+            if (ImGui::BeginCombo("##combo", enums::ToString(currentValue).data()))
             {
                 constexpr auto enum_entries = magic_enum::enum_entries<EnumT>();
                 for (auto&& [enumValue, name] : enum_entries)

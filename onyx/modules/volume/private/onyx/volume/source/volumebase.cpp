@@ -1,6 +1,6 @@
 #include <onyx/volume/source/volumebase.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     //VolumeBase::~VolumeBase()

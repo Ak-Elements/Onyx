@@ -6,9 +6,9 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
-    LocalizationModule::LocalizationModule(const LocalizationSettings& settings, Assets::AssetSystem& assetSystem)
+    LocalizationModule::LocalizationModule(const LocalizationSettings& settings, assets::AssetSystem& assetSystem)
         : m_Settings(settings)
     {
         m_LocalizationBackend = MakeUnique<GetTextLocalizationBackend>();
@@ -28,21 +28,21 @@ namespace Onyx::Localization
     }
 
 #if !ONYX_IS_RETAIL
-    void LocalizationModule::AddSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database)
+    void LocalizationModule::AddSecondaryDatabase(const assets::AssetHandle<GetTextLocalizationDatabase>& database)
     {
         m_LocalizationBackend->AddSecondaryDatabase(database);
     }
 
-    void LocalizationModule::RemoveSecondaryDatabase(const Assets::AssetHandle<GetTextLocalizationDatabase>& database)
+    void LocalizationModule::RemoveSecondaryDatabase(const assets::AssetHandle<GetTextLocalizationDatabase>& database)
     {
         m_LocalizationBackend->RemoveSecondaryDatabase(database);
     }
 #endif
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<Localization::LocalizationSettings>::Serialize(Serializer& serializer, const Localization::LocalizationSettings& localizationSettings)
+    bool Serialization<localization::LocalizationSettings>::Serialize(Serializer& serializer, const localization::LocalizationSettings& localizationSettings)
     {
         return serializer.Write<"locale">(localizationSettings.Locale) &&
             serializer.Write<"database">(localizationSettings.Database) &&
@@ -50,7 +50,7 @@ namespace Onyx
 
     }
 
-    bool Serialization<Localization::LocalizationSettings>::Deserialize(const Deserializer& deserializer, Localization::LocalizationSettings& outLocalizationSettings)
+    bool Serialization<localization::LocalizationSettings>::Deserialize(const Deserializer& deserializer, localization::LocalizationSettings& outLocalizationSettings)
     {
         return deserializer.ReadOptional<"locale">(outLocalizationSettings.Locale) &&
             deserializer.ReadOptional<"database">(outLocalizationSettings.Database) &&

@@ -2,12 +2,12 @@
 
 struct ImRect;
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     struct LocalizedString;
 }
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     enum class ButtonState
     {
@@ -17,14 +17,14 @@ namespace Onyx::Ui
         Pressed
     };
 
-    bool Button(const Localization::LocalizedString& localizedLabel);
-    bool Button(const Localization::LocalizedString& localizedLabel, Vector2f32 size);
+    bool Button(const localization::LocalizedString& localizedLabel);
+    bool Button(const localization::LocalizedString& localizedLabel, Vector2f32 size);
 
     bool Button(StringView label);
     bool Button(StringView label, Vector2f32 size);
 
-    bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected);
-    bool Selectable(const Localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelect);
+    bool Selectable(const localization::LocalizedString& localizedLabel, bool isSelected);
+    bool Selectable(const localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelect);
     bool Selectable(StringView label, bool isSelected);
     bool Selectable(StringView label, bool isSelected, bool shouldFocusOnSelect);
     bool Selectable(StringView label, bool isSelected, bool shouldFocusOnSelected, onyxS32 flags);

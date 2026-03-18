@@ -14,7 +14,7 @@
 #include <imgui_internal.h>
 #include <imgui_stacklayout.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     class VectorControl
     {
@@ -187,7 +187,7 @@ namespace Onyx::Ui
             bool hasModified = false;
             if (ImGui::BeginPopupContextItem("##ContextMenu", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (Ui::Button("Reset"))
+                if (ui::Button("Reset"))
                 {
                     vector = T::Zero();
                     ImGui::CloseCurrentPopup();

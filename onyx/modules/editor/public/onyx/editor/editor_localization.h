@@ -2,14 +2,14 @@
 
 #include <onyx/localization/localizedstring.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 
-    namespace Editor
+    namespace editor
     {
         // Window Titles
-        namespace Windows
+        namespace windows
         {
             inline LocalizedString StartupTitle;
             inline LocalizedString NodeEditorTitle;

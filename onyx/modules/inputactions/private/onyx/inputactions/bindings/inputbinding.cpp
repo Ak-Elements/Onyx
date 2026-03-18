@@ -6,7 +6,7 @@
 #include <onyx/inputactions/modifiers/inputmodifier.h>
 #include <onyx/inputactions/modifiers/inputmodifiersfactory.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     InputBinding::InputBinding() = default;
     InputBinding::~InputBinding() = default;
@@ -48,7 +48,7 @@ namespace Onyx::InputActions
         return *this;
     }
 
-    bool InputBinding::Update(const Input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem, Vector3f32& outInputValue)
+    bool InputBinding::Update(const input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem, Vector3f32& outInputValue)
     {
         // Check triggers
         for (const UniquePtr<InputTrigger>& trigger : m_Triggers)

@@ -4,20 +4,19 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/platform/platformfwd.h>
 
-namespace Onyx
+namespace onyx
 {
     class Engine;
 
-    namespace Assets
+    namespace assets
     {
         class AssetSystem;
     }
 
-    namespace Graphics
+    namespace rhi
     {
         class GraphicsSystem;
    
-
         struct FrameContext;
         struct GraphicSettings;
 
@@ -44,7 +43,7 @@ namespace Onyx
 
         private:
             virtual void WaitIdle() const = 0;
-            virtual void CreateSwapchain(const Platform::Window& window) = 0;
+            virtual void CreateSwapchain(const platform::Window& window) = 0;
 
             virtual TextureHandle& GetAcquiredSwapChainImage() = 0;
             virtual const TextureHandle& GetAcquiredSwapChainImage() const = 0;

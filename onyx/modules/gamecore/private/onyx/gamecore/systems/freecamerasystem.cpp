@@ -13,11 +13,11 @@
 #if ONYX_USE_IMGUI
 #include <imgui.h>
 #endif
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     namespace FreeCamera
     {
-        using CameraAccess = Entity::Access
+        using CameraAccess = ecs::Access
             ::Read<FreeCameraControllerComponent>
             ::Write<TransformComponent, FreeCameraRuntimeComponent>;
 
@@ -75,7 +75,7 @@ namespace Onyx::GameCore
             }
         }
 
-        void factory(Entity::EntityRegistry& registry, Entity::EntityId entity, FreeCameraControllerComponent&& controller)
+        void factory(ecs::EntityRegistry& registry, ecs::EntityId entity, FreeCameraControllerComponent&& controller)
         {
             registry.GetRegistry().emplace_or_replace<FreeCameraControllerComponent>(entity, std::move(controller));
 
@@ -84,7 +84,7 @@ namespace Onyx::GameCore
             registry.AddComponent<FreeCameraRuntimeComponent>(entity, freeCameraRuntime);
         }
 
-        void registerSystems(Entity::EcsBuilder& ecsBuilder)
+        void registerSystems(ecs::EcsBuilder& ecsBuilder)
         {
             ecsBuilder.RegisterSystem(FreeCamera::system);
 

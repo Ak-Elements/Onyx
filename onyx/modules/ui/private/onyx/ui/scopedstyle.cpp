@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     ScopedImGuiStyle::ScopedImGuiStyle(onyxS32 styleVar, onyxF32 value)
     {

@@ -2,12 +2,12 @@
 
 #include <onyx/localization/localizationmodule.h>
 
-namespace Onyx::Localization::Ui
+namespace onyx::ui::localization
 {
-    void InitLocalization(const LocalizationModule& localizationModule)
+    void InitLocalization(const onyx::localization::LocalizationModule& localizationModule)
     {
 #if ONYX_IS_EDITOR
-        AssetSelector::Modal::Title = localizationModule.GetLocalized("ui.assetselector.modal.title");
+        asset_selector::modal::Title = localizationModule.GetLocalized("ui.assetselector.modal.title");
 #else
         ONYX_UNUSED(localizationModule);
 #endif

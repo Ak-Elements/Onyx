@@ -7,7 +7,7 @@
 #include <onyx/inplacefunction.h>
 #include <onyx/log/logger.h>
 
-namespace Onyx::Threading
+namespace onyx::threading
 {
    /* namespace Internal
     {
@@ -76,7 +76,7 @@ namespace Onyx::Threading
         {
             Worker<Task, Queue>* stealDonor = m_Workers[(i + 1) % m_Workers.size()].get();
 
-            m_Workers[i]->Start(i, stealDonor, m_StopSource.get_token(), Format::Format("{}_{}", profilerName, i));
+            m_Workers[i]->Start(i, stealDonor, m_StopSource.get_token(), format::Format("{}_{}", profilerName, i));
         }
     }
 #endif

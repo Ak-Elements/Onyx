@@ -2,13 +2,13 @@
 
 #include <onyx/ui/propertygrid.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
-    /*static*/ bool PropertyInspector<InputActions::DependantActionInputTrigger>::Draw(InputActions::DependantActionInputTrigger& trigger, bool /*forceShow*/)
+    /*static*/ bool PropertyInspector<input_actions::DependantActionInputTrigger>::Draw(input_actions::DependantActionInputTrigger& trigger, bool /*forceShow*/)
     {
         bool isModified = false;
         String actionId (trigger.GetActionId().GetString() );
-        if( PropertyGrid::DrawProperty("Action", actionId) )
+        if( property_grid::DrawProperty("Action", actionId) )
         {
             trigger.SetActionId(StringId64(actionId));
             isModified = true;

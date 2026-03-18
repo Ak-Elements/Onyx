@@ -10,9 +10,9 @@
 #include <imgui_internal.h>
 #include <imgui_stacklayout.h>
 
-namespace Onyx::Application::Debug
+namespace onyx::application::debug
 {
-    void StatusBarOverlay::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
+    void StatusBarOverlay::OnRender(ui::ImGuiSystem& /*imguiSystem*/)
     {
         ::ImGuiWindow* window = ImGui::FindWindowByName("SceneView");
         if (window != nullptr)
@@ -35,7 +35,7 @@ namespace Onyx::Application::Debug
             const StringView overlayName = overlay->GetName();
             const StringView value = overlay->GetValue();
 
-            bool hasClicked = Ui::Button(value.data(), Vector2f32(100,0));
+            bool hasClicked = ui::Button(value.data(), Vector2f32(100,0));
 
             if (hasClicked)
             {

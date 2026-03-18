@@ -3,21 +3,20 @@
 #include <onyx/rhi/descriptorset.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class Buffer;
     struct TextureHandle;
     struct BufferHandle;
 }
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
-    
     class DescriptorPool;
     class DescriptorSetLayout;
     class Device;
     class Shader;
 
-    class DescriptorSet : public Graphics::DescriptorSet
+    class DescriptorSet : public rhi::DescriptorSet
     {
     public:
         DescriptorSet(const Device& device, onyxU8 set, VkDescriptorSetAllocateInfo allocateInfo);

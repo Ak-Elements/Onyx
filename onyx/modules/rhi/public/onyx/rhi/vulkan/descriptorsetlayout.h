@@ -3,11 +3,11 @@
 #include <onyx/noncopyable.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct ShaderDescriptorSet;
 
-    namespace Vulkan
+    namespace vulkan
     {
         class Device;
 

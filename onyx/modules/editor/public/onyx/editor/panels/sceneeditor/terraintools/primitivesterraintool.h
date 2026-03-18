@@ -2,7 +2,7 @@
 
 #include <onyx/editor/panels/sceneeditor/terraintools/terraintool.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class PrimitivesTerrainTool : public TerrainTool
     {
@@ -22,13 +22,13 @@ namespace Onyx::Editor
         };
 
     public:
-        PrimitivesTerrainTool(Graphics::GraphicsSystem& graphicsSystem);
+        PrimitivesTerrainTool(rhi::GraphicsSystem& graphicsSystem);
 
         StringView GetTitle() override;
         void Render() override;
 
-        void ApplyOperation(Graphics::CommandBuffer& commandBuffer, const Graphics::BufferHandle& hitBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree) override;
-        void OnHitPositionReadback(GameCore::Scene& scene, const Entity::ComponentFactory& componentFactory, const Vector3f32& hitPosition) override;
+        void ApplyOperation(rhi::CommandBuffer& commandBuffer, const rhi::BufferHandle& hitBuffer, volume::TerrainWorldOctreeComponent& terrainOctree) override;
+        void OnHitPositionReadback(game_core::Scene& scene, const ecs::ComponentFactory& componentFactory, const Vector3f32& hitPosition) override;
 
         onyxF32 GetBounds() override { return m_BrushSize.Length(); }
         void OnBrushSizeInput(onyxF32 value) override;
@@ -41,6 +41,6 @@ namespace Onyx::Editor
         Primitives m_Type = Primitives::Sphere;
         Operation m_Operation = Operation::Union;
 
-        Graphics::ShaderInstanceHandle m_CreateVolumeSourceShader;
+        rhi::ShaderInstanceHandle m_CreateVolumeSourceShader;
     };
 }

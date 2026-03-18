@@ -1,11 +1,11 @@
 #pragma once
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct FrameContext;
 }
 
-namespace Onyx::Application
+namespace onyx::application
 {
     class Application;
 
@@ -13,10 +13,10 @@ namespace Onyx::Application
     {
     public:
         virtual ~TaskGraphTask() = default;
-        void Update(onyxU64 deltaTime, Graphics::FrameContext& context) { OnUpdate(deltaTime, context); }
+        void Update(onyxU64 deltaTime, rhi::FrameContext& context) { OnUpdate(deltaTime, context); }
 
     private:
-        virtual void OnUpdate(onyxU64 deltaTime, Graphics::FrameContext& context) = 0;
+        virtual void OnUpdate(onyxU64 deltaTime, rhi::FrameContext& context) = 0;
     };
 
     class TaskGraphNode
@@ -33,7 +33,7 @@ namespace Onyx::Application
 
         virtual ~TaskGraphNode() = default;
 
-        void Update(onyxU64 deltaTime, Graphics::FrameContext& context);
+        void Update(onyxU64 deltaTime, rhi::FrameContext& context);
 
     private:
 #if ONYX_IS_DEBUG

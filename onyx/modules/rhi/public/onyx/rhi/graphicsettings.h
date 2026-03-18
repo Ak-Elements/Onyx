@@ -2,12 +2,12 @@
 
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct GraphicSettings
     {
         ApiType Api = ApiType::Vulkan;
-        Assets::AssetId DefaultRenderGraph{ "engine:/rendergraphs/default.orendergraph" };
+        assets::AssetId DefaultRenderGraph{ "engine:/rendergraphs/default.orendergraph" };
 
         onyxU16 RefreshRate = 60;
 

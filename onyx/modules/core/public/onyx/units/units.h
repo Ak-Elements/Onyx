@@ -3,7 +3,7 @@
 #include <onyx/units/ratio.h>
 #include <onyx/units/quantity.h>
 
-namespace Onyx::Units
+namespace onyx::units
 {
     using Radians = Ratio< 1, 1 >;
     using Degrees = Ratio< 3141592653589793, 180000000000000000>;

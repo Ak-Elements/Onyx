@@ -2,9 +2,9 @@
 
 #include <thread>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Threading
+    namespace threading
     {
         /**
          * @brief The ThreadPoolOptions class provides creation options for

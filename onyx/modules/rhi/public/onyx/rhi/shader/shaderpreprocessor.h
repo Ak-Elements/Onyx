@@ -2,13 +2,13 @@
 
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx
+namespace onyx
 {
     class StringStream;
     class Stream;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct PreprocessedShader
     {

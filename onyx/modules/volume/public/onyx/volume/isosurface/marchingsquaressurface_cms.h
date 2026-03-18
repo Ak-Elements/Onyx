@@ -7,7 +7,7 @@
 #include <onyx/geometry/sat.h>
 #include <onyx/volume/mesh/meshbuilder.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     namespace CubicalMarchingSquares
     {
@@ -343,7 +343,7 @@ namespace Onyx::Volume
                     m_Intersection1P2[xIndex] = edgeCrossing1ToPosition[0];
                     m_Intersection1P2[yIndex] = edgeCrossing1ToPosition[1];
 
-                    if (Onyx::SAT_2D::IsOverlapping(edgeCrossing0FromPosition, edgeCrossing0ToPosition, intersectionEdge0, edgeCrossing1FromPosition, edgeCrossing1ToPosition, intersectionEdge1))
+                    if (onyx::SAT_2D::IsOverlapping(edgeCrossing0FromPosition, edgeCrossing0ToPosition, intersectionEdge0, edgeCrossing1FromPosition, edgeCrossing1ToPosition, intersectionEdge1))
                     {
                         // overlap choose other case
                         return true;
@@ -360,7 +360,7 @@ namespace Onyx::Volume
                     m_Intersection0P2[xIndex] = edgeCrossing0ToPosition[0];
                     m_Intersection0P2[yIndex] = edgeCrossing0ToPosition[1];
 
-                    if (Onyx::SAT_2D::IsOverlapping(edgeCrossing0FromPosition, intersectionEdge0, edgeCrossing0ToPosition, edgeCrossing1FromPosition, edgeCrossing1ToPosition))
+                    if (onyx::SAT_2D::IsOverlapping(edgeCrossing0FromPosition, intersectionEdge0, edgeCrossing0ToPosition, edgeCrossing1FromPosition, edgeCrossing1ToPosition))
                     {
                         return true;
                     }
@@ -376,7 +376,7 @@ namespace Onyx::Volume
                     m_Intersection1P2[xIndex] = edgeCrossing1ToPosition[0];
                     m_Intersection1P2[yIndex] = edgeCrossing1ToPosition[1];
 
-                    if (Onyx::SAT_2D::IsOverlapping(edgeCrossing1FromPosition, intersectionEdge1, edgeCrossing1ToPosition, edgeCrossing0FromPosition, edgeCrossing0ToPosition))
+                    if (onyx::SAT_2D::IsOverlapping(edgeCrossing1FromPosition, intersectionEdge1, edgeCrossing1ToPosition, edgeCrossing0FromPosition, edgeCrossing0ToPosition))
                     {
                         return true;
                     }

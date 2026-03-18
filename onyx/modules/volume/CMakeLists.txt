@@ -4,5 +4,6 @@ endif()
 
 onyx_add_target(onyx-volume
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Volume"
+    NAMESPACE "onyx::volume"
+    NAMESPACE_PATH "onyx/volume"
 )

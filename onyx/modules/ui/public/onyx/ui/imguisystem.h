@@ -6,7 +6,7 @@
 #include <onyx/ui/imguiwindow.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
     class LocalizationModule;
 }
@@ -14,9 +14,9 @@ namespace Onyx::Localization
 struct ImFont;
 struct ImGuiIO;
 
-namespace Onyx
+namespace onyx
 {
-    namespace Input
+    namespace input
     {
         class InputSystem;
         struct MouseAxisEvent;
@@ -27,12 +27,12 @@ namespace Onyx
         struct GameControllerButtonEvent;
     }
 
-    namespace Assets
+    namespace assets
     {
         class AssetSystem;
     }
 
-    namespace Graphics
+    namespace rhi
     {
         class TextureAsset;
         struct FrameContext;
@@ -40,12 +40,12 @@ namespace Onyx
         class GraphicsSystem;
     }
 
-    namespace Platform
+    namespace platform
     {
         class PlatformSystem;
     }
 
-    namespace Ui
+    namespace ui
     {
         class ImGuiWindow;
 
@@ -60,10 +60,10 @@ namespace Onyx
 
         struct ImGuiContext
         {
-            Assets::AssetSystem* AssetSystem = nullptr;
-            Graphics::GraphicsSystem* GraphicsSystem = nullptr;
-            Input::InputSystem* InputSystem = nullptr;
-            Localization::LocalizationModule* LocalizationSystem = nullptr;
+            assets::AssetSystem* AssetSystem = nullptr;
+            rhi::GraphicsSystem* GraphicsSystem = nullptr;
+            input::InputSystem* InputSystem = nullptr;
+            localization::LocalizationModule* LocalizationSystem = nullptr;
         };
 
         extern ImGuiContext g_UiContext;
@@ -71,29 +71,24 @@ namespace Onyx
         class ImGuiSystem : public IEngineSystem
         {
         public:
-            static constexpr StringId32 TypeId = "Onyx::Ui::ImGuiModule";
+            static constexpr StringId32 TypeId = "onyx::ui::ImGuiSystem";
             StringId32 GetTypeId() const override { return TypeId; }
 
-            static Reference<Graphics::TextureAsset> FolderClosedAsset;
-            static Reference<Graphics::TextureAsset> FolderOpenAsset;
-            static Reference<Graphics::TextureAsset> FolderSelectedClosedAsset;
-            static Reference<Graphics::TextureAsset> FolderSelectedOpenAsset;
-
             ImGuiSystem(IEngine& engine,
-                Assets::AssetSystem& assetSystem,
-                Input::InputSystem& inputSystem,
-                Localization::LocalizationModule& localizationSystem,
-                Graphics::GraphicsSystem& graphicsSystem,
-                Platform::PlatformSystem& platformSystem
+                assets::AssetSystem& assetSystem,
+                input::InputSystem& inputSystem,
+                localization::LocalizationModule& localizationSystem,
+                rhi::GraphicsSystem& graphicsSystem,
+                platform::PlatformSystem& platformSystem
             );
 
             ~ImGuiSystem() override;
 
-            void Update(Graphics::GraphicsSystem& api, DeltaGameTime deltaTime);
+            void Update(rhi::GraphicsSystem& api, DeltaGameTime deltaTime);
 
-            void OnBeginFrame(const Graphics::FrameContext& frameContext);
-            void OnRenderFrame(const Graphics::FrameContext& frameContext);
-            void OnEndFrame(const Graphics::FrameContext& frameContext);
+            void OnBeginFrame(const rhi::FrameContext& frameContext);
+            void OnRenderFrame(const rhi::FrameContext& frameContext);
+            void OnEndFrame(const rhi::FrameContext& frameContext);
 
             template <IsImGuiWindow T>
             void RegisterWindow()
@@ -281,29 +276,29 @@ namespace Onyx
             const HashSet<StringId32>& GetRegisteredWindows(StringId32 category) const { return m_WindowsPerCategory.at(category); }
 
         private:
-            void InitRenderBuffers(Graphics::GraphicsSystem& graphicsSystem);
-            void UpdateDrawBuffers(const Graphics::FrameContext& frameContext);
+            void InitRenderBuffers(rhi::GraphicsSystem& graphicsSystem);
+            void UpdateDrawBuffers(const rhi::FrameContext& frameContext);
 
             void OnWindowResize(Vector2s32 size);
             
-            void OnMouseAxisChange(const Input::MouseAxisEvent& event);
-            void OnMouseButton(const Input::MouseButtonEvent& event);
-            void OnMousePositionChange(const Input::MousePositionEvent& event);
+            void OnMouseAxisChange(const input::MouseAxisEvent& event);
+            void OnMouseButton(const input::MouseButtonEvent& event);
+            void OnMousePositionChange(const input::MousePositionEvent& event);
 
-            void OnKey(const Input::KeyboardEvent& event);
+            void OnKey(const input::KeyboardEvent& event);
 
-            void OnControllerAxisChange(const Input::GameControllerAxisEvent& event);
-            void OnControllerButton(const Input::GameControllerButtonEvent& event);
+            void OnControllerAxisChange(const input::GameControllerAxisEvent& event);
+            void OnControllerButton(const input::GameControllerButtonEvent& event);
 
         private:
-            Reference<Graphics::ShaderInstance> m_ImguiShader;
+            Reference<rhi::ShaderInstance> m_ImguiShader;
 
-            InplaceArray<Graphics::BufferHandle, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexBuffers;
-            InplaceArray<Graphics::BufferHandle, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexBuffers;
-            Graphics::TextureHandle m_FontImage;
+            InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_VertexBuffers;
+            InplaceArray<rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT> m_IndexBuffers;
+            rhi::TextureHandle m_FontImage;
 
-            InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_VertexCounts;
-            InplaceArray<onyxS32, Graphics::MAX_FRAMES_IN_FLIGHT> m_IndexCounts;
+            InplaceArray<onyxS32, rhi::MAX_FRAMES_IN_FLIGHT> m_VertexCounts;
+            InplaceArray<onyxS32, rhi::MAX_FRAMES_IN_FLIGHT> m_IndexCounts;
 
             HashMap<StringId64, ImFont*> m_Fonts;
             
@@ -312,8 +307,8 @@ namespace Onyx
             HashMap<StringId32, HashSet<StringId32>> m_WindowsPerCategory;
             
             IEngine* m_Engine = nullptr;
-            Platform::PlatformSystem* m_PlatformSystem = nullptr;
-            Input::InputSystem* m_InputSystem = nullptr;
+            platform::PlatformSystem* m_PlatformSystem = nullptr;
+            input::InputSystem* m_InputSystem = nullptr;
         };
     }
 }

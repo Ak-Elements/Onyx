@@ -26,21 +26,21 @@
 #include <onyx/localization/localization.h>
 #include <onyx/ui/controls/button.h>
 
-namespace Onyx::Editor::SceneEditor
+namespace onyx::editor::scene_editor
 {
     void EntitiesPanel::OnOpen()
     {
-        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionSystem = GetEngineSystem<input_actions::InputActionSystem>();
         inputActionSystem.OnInput<&EntitiesPanel::OnDeleteAction>("Delete"_id64, this);
     }
 
     void EntitiesPanel::OnClose()
     {
-        InputActions::InputActionSystem& inputActionSystem = GetEngineSystem<InputActions::InputActionSystem>();
+        input_actions::InputActionSystem& inputActionSystem = GetEngineSystem<input_actions::InputActionSystem>();
         inputActionSystem.Disconnect(this);
     }
 
-    void EntitiesPanel::OnRender(Ui::ImGuiSystem& /*imguiSystem*/)
+    void EntitiesPanel::OnRender(ui::ImGuiSystem& /*imguiSystem*/)
     {
         ONYX_ASSERT(m_CommandGraph != nullptr);
 
@@ -52,8 +52,8 @@ namespace Onyx::Editor::SceneEditor
         SetName(String(GetWindowId()));
         Begin();
         {
-        //GameCore::GameCoreSystem& gameCoreSystem, Assets::AssetId sceneId, GameCore::Scene& scene, ICommandGraph& commandStack
-        Ui::ScopedImGuiColor styleColor
+        //game_core::GameCoreSystem& gameCoreSystem, assets::AssetId sceneId, game_core::Scene& scene, ICommandGraph& commandStack
+        ui::ScopedImGuiColor styleColor
         {
             { ImGuiCol_TableRowBg, 0x0 },
             { ImGuiCol_Separator, 0xFFFF0000 },
@@ -68,22 +68,22 @@ namespace Onyx::Editor::SceneEditor
 
             ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
             ImGui::TableSetColumnIndex(0);
-            ImGui::TableHeader(Localization::Generic::Name.Get().data());
+            ImGui::TableHeader(localization::generic::Name.Get().data());
 
             ImGui::TableSetColumnIndex(1);
-            ImGui::TableHeader(Localization::Generic::Visibility.Get().data());
+            ImGui::TableHeader(localization::generic::Visibility.Get().data());
 
-            Entity::EntityRegistry& registry = parent.GetScene().GetRegistry();
+            ecs::EntityRegistry& registry = parent.GetScene().GetRegistry();
 
             // TODO: sorting
-            /*registry.GetRegistry().sort<Entity::IdComponent>([](const Entity::EntityId lhs, const Entity::EntityId rhs) {
+            /*registry.GetRegistry().sort<ecs::IdComponent>([](const ecs::EntityId lhs, const ecs::EntityId rhs) {
                 return lhs < rhs;
                 });
             */
 
-            auto entitiesView = registry.GetRegistry().view<GameCore::IdComponent, GameCore::NameComponent>();
+            auto entitiesView = registry.GetRegistry().view<game_core::IdComponent, game_core::NameComponent>();
 
-            for (Entity::EntityId entity : entitiesView)
+            for (ecs::EntityId entity : entitiesView)
             {
                 bool isSelected = m_SelectedEntity == entity;
 
@@ -99,29 +99,29 @@ namespace Onyx::Editor::SceneEditor
                 const ImVec2 rowAreaMax = { ImGui::TableGetCellBgRect(ImGui::GetCurrentTable(), ImGui::TableGetColumnCount() - 1).Max.x,
                                             rowAreaMin.y + rowHeight };
 
-                Ui::ScopedImGuiId scopedId(Format::Format("Entity {}", static_cast<onyxU64>(entity)));
+                ui::ScopedImGuiId scopedId(format::Format("Entity {}", static_cast<onyxU64>(entity)));
 
                 ImGui::PushClipRect(rowAreaMin, rowAreaMax, false);
                 ImGuiID id = ImGui::GetID("rowSelection");
-                Ui::ButtonState state = Ui::ButtonBehavior(id, ImRect(rowAreaMin, rowAreaMax), ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
-                bool isRowClicked = state == Ui::ButtonState::Pressed;
-                bool isRowHovered = state == Ui::ButtonState::Hovered;
+                ui::ButtonState state = ui::ButtonBehavior(id, ImRect(rowAreaMin, rowAreaMax), ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+                bool isRowClicked = state == ui::ButtonState::Pressed;
+                bool isRowHovered = state == ui::ButtonState::Hovered;
                 bool isRowFocused = false;
                 ImGui::KeepAliveID(id);
                 ImGui::PopClipRect();
 
-                const GameCore::NameComponent& nameComponent = entitiesView.get<GameCore::NameComponent>(entity);
+                const game_core::NameComponent& nameComponent = entitiesView.get<game_core::NameComponent>(entity);
                 String entityName = nameComponent.Name;
 
                 {
-                    Ui::ScopedImGuiColor renameStyleColor
+                    ui::ScopedImGuiColor renameStyleColor
                     {
                         { ImGuiCol_Header, 0x0 },
                         { ImGuiCol_HeaderActive, 0x0 },
                         { ImGuiCol_HeaderHovered, 0x0 }
                     };
 
-                    Ui::ScopedImGuiStyle renameStyle
+                    ui::ScopedImGuiStyle renameStyle
                     {
                         { ImGuiStyleVar_FramePadding, ImVec2(0, 0)},
                         { ImGuiStyleVar_SelectableTextAlign, ImVec2(0,0.5f)},
@@ -129,9 +129,9 @@ namespace Onyx::Editor::SceneEditor
 
                     ImGui::SetNextItemAllowOverlap();
                     String previousName = entityName;
-                    if (Ui::DrawRenameInput("name", entityName, ImVec2(-1, 0), isSelected))
+                    if (ui::DrawRenameInput("name", entityName, ImVec2(-1, 0), isSelected))
                     {
-                        m_CommandGraph->Push<RenameEntityCommand>(m_SelectedEntity, entityName, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>()); 
+                        m_CommandGraph->Push<RenameEntityCommand>(m_SelectedEntity, entityName, parent.GetSceneId(), GetEngineSystem<game_core::GameCoreSystem>()); 
                     }
 
                     isRowClicked |= isSelected;
@@ -141,7 +141,7 @@ namespace Onyx::Editor::SceneEditor
 
                 if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
                 {
-                    if (ImGui::MenuItem(Localization::Generic::Delete.Get().data()))
+                    if (ImGui::MenuItem(localization::generic::Delete.Get().data()))
                     {
                         DeleteEntity(entity);
                         ImGui::CloseCurrentPopup();
@@ -173,15 +173,15 @@ namespace Onyx::Editor::SceneEditor
 
             if (ImGui::BeginPopupContextWindow("CreateEntityPopUp", ImGuiPopupFlags_MouseButtonRight))
             {
-                if (ImGui::MenuItem(Localization::Generic::Create.Get().data()))
+                if (ImGui::MenuItem(localization::generic::Create.Get().data()))
                 {
-                    m_CommandGraph->Push<CreateEntityCommand>( parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>() );
+                    m_CommandGraph->Push<CreateEntityCommand>( parent.GetSceneId(), GetEngineSystem<game_core::GameCoreSystem>() );
                     ImGui::CloseCurrentPopup();
                 }
 
-                if (m_SelectedEntity != Entity::EntityId::Invalid)
+                if (m_SelectedEntity != ecs::EntityId::Invalid)
                 {
-                    if (ImGui::MenuItem(Localization::Generic::Duplicate.Get().data()))
+                    if (ImGui::MenuItem(localization::generic::Duplicate.Get().data()))
                     {
                        // selectedEntity = registry.DuplicateEntity(selectedEntity);
                         ImGui::CloseCurrentPopup();
@@ -204,12 +204,12 @@ namespace Onyx::Editor::SceneEditor
         return entityName;
     }
 
-    void EntitiesPanel::OnDeleteAction(const InputActions::InputActionEvent& deleteAction)
+    void EntitiesPanel::OnDeleteAction(const input_actions::InputActionEvent& deleteAction)
     {
         if (IsFocused() == false)
             return;
 
-        if (m_SelectedEntity == Entity::EntityId::Invalid)
+        if (m_SelectedEntity == ecs::EntityId::Invalid)
             return;
         
         if (deleteAction.GetData<bool>() == false)
@@ -218,29 +218,29 @@ namespace Onyx::Editor::SceneEditor
         DeleteEntity(m_SelectedEntity);
     }
 
-    void EntitiesPanel::DeleteEntity(Entity::EntityId entity)
+    void EntitiesPanel::DeleteEntity(ecs::EntityId entity)
     {
         if (entity == m_SelectedEntity)
         {
-            SetSelectedEntity(Entity::EntityId::Invalid);
+            SetSelectedEntity(ecs::EntityId::Invalid);
         }
 
         SceneEditorWindow& parent = *(GetParent<SceneEditorWindow>().value());
-        m_CommandGraph->Push<DeleteEntityCommand>(entity, parent.GetSceneId(), GetEngineSystem<GameCore::GameCoreSystem>());
+        m_CommandGraph->Push<DeleteEntityCommand>(entity, parent.GetSceneId(), GetEngineSystem<game_core::GameCoreSystem>());
     }
 
-    void EntitiesPanel::SetSelectedEntity(Entity::EntityId entity)
+    void EntitiesPanel::SetSelectedEntity(ecs::EntityId entity)
     {
         if (m_SelectedEntity != entity)
         {
             SceneEditorWindow& parent = *GetParent<SceneEditorWindow>().value();
             
-            Entity::EntityRegistry& registry = parent.GetScene().GetRegistry();
-            if (m_SelectedEntity != Entity::EntityId::Invalid)
+            ecs::EntityRegistry& registry = parent.GetScene().GetRegistry();
+            if (m_SelectedEntity != ecs::EntityId::Invalid)
                 registry.RemoveComponent<SelectedComponent>(m_SelectedEntity);
 
             m_SelectedEntity = entity;
-            if (m_SelectedEntity != Entity::EntityId::Invalid)
+            if (m_SelectedEntity != ecs::EntityId::Invalid)
             {
                 registry.AddComponent<SelectedComponent>(m_SelectedEntity);
             }

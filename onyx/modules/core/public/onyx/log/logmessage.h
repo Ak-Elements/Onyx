@@ -3,7 +3,7 @@
 #include <onyx/log/loglevel.h>
 #include <source_location>
 
-namespace Onyx
+namespace onyx
 {
     struct LogMessage
     {

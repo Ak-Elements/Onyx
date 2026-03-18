@@ -13,7 +13,7 @@
 #include <imgui_stacklayout.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     void DrawItemBackground(onyxF32 rounding, onyxF32 borderThickness, onyxU32 color)
     {
@@ -119,7 +119,7 @@ namespace Onyx::Ui
 
             ImGui::SetNextItemWidth(searchBarSize.x - 2 * iconSize - 2 * spacingX);
             searchInputId = ImGui::GetID("##searchbarinput");
-            if (Ui::DrawStringInput("##searchbarinput", hintLabel, searchString))
+            if (ui::DrawStringInput("##searchbarinput", hintLabel, searchString))
             {
                 modified = true;
             }
@@ -168,7 +168,7 @@ namespace Onyx::Ui
         return modified;
     }
 
-    bool ContextMenuHeader(const Localization::LocalizedString& label, ImGuiTreeNodeFlags flags)
+    bool ContextMenuHeader(const localization::LocalizedString& label, ImGuiTreeNodeFlags flags)
     {
         return ContextMenuHeader(label.Get(), flags);
     }
@@ -344,7 +344,7 @@ namespace Onyx::Ui
         }
         else
         {
-            if (ImGui::Selectable(Format::Format("{}##renameInput", outName.data()), isSelected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
+            if (ImGui::Selectable(format::Format("{}##renameInput", outName.data()), isSelected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap))
             {
                 isSelected = true;
                 if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -356,7 +356,7 @@ namespace Onyx::Ui
 
         if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight))
         {
-            if (ImGui::MenuItem(Localization::Generic::Rename.Get().data()))
+            if (ImGui::MenuItem(onyx::localization::generic::Rename.Get().data()))
             {
                 isRenaming = true;
                 ImGui::CloseCurrentPopup();

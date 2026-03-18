@@ -6,7 +6,7 @@
 #include <onyx/volume/source/volumebase.h>
 #include <onyx/volume/source/noise/simplexnoised.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class SimplexNoiseSource : public VolumeBase
     {

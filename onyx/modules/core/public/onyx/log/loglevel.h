@@ -2,7 +2,7 @@
 
 #include <onyx/assert.h>
 
-namespace Onyx
+namespace onyx
 {
     enum class LogLevel : onyxU8
     {
@@ -15,7 +15,7 @@ namespace Onyx
         Count
     };
 
-    namespace LogPrivate
+    namespace log_private
     {
         // Formatting codes
         static constexpr StringView reset = "\033[m";
@@ -47,12 +47,12 @@ namespace Onyx
     {
         switch (level)
         {
-        case LogLevel::Trace: return LogPrivate::white;
-        case LogLevel::Debug: return LogPrivate::cyan;
-        case LogLevel::Information: return LogPrivate::green;
-        case LogLevel::Warning: return LogPrivate::yellow_bold;
-        case LogLevel::Error: return LogPrivate::red_bold;
-        case LogLevel::Fatal: return LogPrivate::bold_on_red;
+        case LogLevel::Trace: return log_private::white;
+        case LogLevel::Debug: return log_private::cyan;
+        case LogLevel::Information: return log_private::green;
+        case LogLevel::Warning: return log_private::yellow_bold;
+        case LogLevel::Error: return log_private::red_bold;
+        case LogLevel::Fatal: return log_private::bold_on_red;
         default: ONYX_ASSERT(false, "Invalid log level"); return "";
         }
     }

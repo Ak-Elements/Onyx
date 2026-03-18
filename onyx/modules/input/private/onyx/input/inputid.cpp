@@ -7,7 +7,7 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     bool IsAxis1D(InputID id)
     {
@@ -22,50 +22,50 @@ namespace Onyx::Input
 
     bool IsMouseButton(InputID id)
     {
-        onyxU16 first = Enums::ToIntegral(MouseButton::First);
-        onyxU16 last = Enums::ToIntegral(MouseButton::Last);
+        onyxU16 first = enums::ToIntegral(MouseButton::First);
+        onyxU16 last = enums::ToIntegral(MouseButton::Last);
         return (id.ID > first) && (id.ID < last);
     }
 
     bool IsMouseAxis1D(InputID id)
     {
-        onyxU16 first = Enums::ToIntegral(MouseAxis::First);
-        onyxU16 last = Enums::ToIntegral(MouseAxis::Last);
+        onyxU16 first = enums::ToIntegral(MouseAxis::First);
+        onyxU16 last = enums::ToIntegral(MouseAxis::Last);
         return (id.ID > first) && (id.ID < last) && (IsMouseAxis2D(id) == false);
     }
 
     bool IsMouseAxis2D(InputID id)
     {
-        onyxU16 xyAxis = Enums::ToIntegral(MouseAxis::XY);
-        onyxU16 deltaXYAxis = Enums::ToIntegral(MouseAxis::DeltaXY);
+        onyxU16 xyAxis = enums::ToIntegral(MouseAxis::XY);
+        onyxU16 deltaXYAxis = enums::ToIntegral(MouseAxis::DeltaXY);
         return (id.ID == xyAxis) || (id.ID == deltaXYAxis);
     }
 
     bool IsKeyboardKey(InputID id)
     {
-        onyxU16 first = Enums::ToIntegral(Key::First);
-        onyxU16 last = Enums::ToIntegral(Key::Last);
+        onyxU16 first = enums::ToIntegral(Key::First);
+        onyxU16 last = enums::ToIntegral(Key::Last);
         return (id.ID > first) && (id.ID < last);
     }
 
     bool IsGameControllerButton(InputID id)
     {
-        onyxU16 first = Enums::ToIntegral(GameControllerButton::First);
-        onyxU16 last = Enums::ToIntegral(GameControllerButton::Last);
+        onyxU16 first = enums::ToIntegral(GameControllerButton::First);
+        onyxU16 last = enums::ToIntegral(GameControllerButton::Last);
         return (id.ID > first) && (id.ID < last);
     }
 
     bool IsGameControllerAxis1D(InputID id)
     {
-        onyxU16 first = Enums::ToIntegral(GameControllerAxis::First);
-        onyxU16 last = Enums::ToIntegral(GameControllerAxis::Last);
+        onyxU16 first = enums::ToIntegral(GameControllerAxis::First);
+        onyxU16 last = enums::ToIntegral(GameControllerAxis::Last);
         return (id.ID > first) && (id.ID < last) && (IsGameControllerAxis2D(id) == false);
     }
 
     bool IsGameControllerAxis2D(InputID id)
     {
-        onyxU16 leftStickAxis = Enums::ToIntegral(GameControllerAxis::LeftStick_XY);
-        onyxU16 rightStickAxis = Enums::ToIntegral(GameControllerAxis::RightStick_XY);
+        onyxU16 leftStickAxis = enums::ToIntegral(GameControllerAxis::LeftStick_XY);
+        onyxU16 rightStickAxis = enums::ToIntegral(GameControllerAxis::RightStick_XY);
         return (id.ID == leftStickAxis) || (id.ID == rightStickAxis);
     }
 
@@ -73,23 +73,23 @@ namespace Onyx::Input
     {
         if (IsMouseButton(id))
         {
-            return Enums::ToString<MouseButton>(id.ID);
+            return enums::ToString<MouseButton>(id.ID);
         }
         if (IsMouseAxis1D(id) || IsMouseAxis1D(id))
         {
-            return Enums::ToString<MouseAxis>(id.ID);
+            return enums::ToString<MouseAxis>(id.ID);
         }
         if (IsKeyboardKey(id))
         {
-            return Enums::ToString<Key>(id.ID);
+            return enums::ToString<Key>(id.ID);
         }
         if (IsGameControllerButton(id))
         {
-            return Enums::ToString<GameControllerButton>(id.ID);
+            return enums::ToString<GameControllerButton>(id.ID);
         }
         if (IsGameControllerAxis2D(id) || IsGameControllerAxis1D(id))
         {
-            return Enums::ToString<GameControllerAxis>(id.ID);
+            return enums::ToString<GameControllerAxis>(id.ID);
         }
 
         return "Unknown";
@@ -97,7 +97,7 @@ namespace Onyx::Input
 
     StringView GetInputTypeString(InputID id)
     {      
-        return Enums::ToString(GetInputType(id));
+        return enums::ToString(GetInputType(id));
     }
 
     InputType GetInputType(InputID id)
@@ -114,14 +114,14 @@ namespace Onyx::Input
     }
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<Input::InputID>::Serialize(Serializer& serializer, const Input::InputID& id)
+    bool Serialization<input::InputID>::Serialize(Serializer& serializer, const input::InputID& id)
     {
         return serializer.Write(id.ID);
     }
 
-    bool Serialization<Input::InputID>::Deserialize(const Deserializer& deserializer, Input::InputID& outId)
+    bool Serialization<input::InputID>::Deserialize(const Deserializer& deserializer, input::InputID& outId)
     {
         return deserializer.Read(outId.ID);
     }

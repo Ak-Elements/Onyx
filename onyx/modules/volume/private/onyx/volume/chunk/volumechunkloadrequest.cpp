@@ -10,7 +10,7 @@
 #include <onyx/volume/chunk/volumechunk.h>
 #include <onyx/volume/isosurface/marchingsquaressurface_cms.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     namespace
     {
@@ -103,7 +103,7 @@ namespace Onyx::Volume
             Vector3f32 worldPositionCorner6 = nodePosition + Vector3f32(1, 1, -1) * halfExtents; // 6
             Vector3f32 worldPositionCorner7 = nodePosition + Vector3f32(1, 1, 1) * halfExtents; // 7
 
-            Onyx::InplaceArray<Onyx::Vector3f32, 8> corners       
+            onyx::InplaceArray<onyx::Vector3f32, 8> corners       
             {
                 worldPositionCorner0,
                 worldPositionCorner1,
@@ -124,7 +124,7 @@ namespace Onyx::Volume
             Vector4f32 gradientCorner6 = csgSource.GetValueAndGradient(worldPositionCorner6);
             Vector4f32 gradientCorner7 = csgSource.GetValueAndGradient(worldPositionCorner7);
 
-            Onyx::InplaceArray<Onyx::Vector4f32, 8> hermiteDataSamples
+            onyx::InplaceArray<onyx::Vector4f32, 8> hermiteDataSamples
             {
                 gradientCorner0,
                 gradientCorner1,
@@ -138,14 +138,14 @@ namespace Onyx::Volume
 
             // run cms
 
-            using LineSegment = Onyx::Volume::CubicalMarchingSquares::Internal::LineSegment<Onyx::onyxF32>;
-            Onyx::InplaceArray<LineSegment, 24> outLineSegements;
+            using LineSegment = onyx::volume::CubicalMarchingSquares::Internal::LineSegment<onyx::onyxF32>;
+            onyx::InplaceArray<LineSegment, 24> outLineSegements;
 
-            Onyx::InplaceArray<Onyx::Vector3f32, 4> faceCorners;
-            Onyx::InplaceArray<Onyx::Vector4f32, 4> hermiteData;
+            onyx::InplaceArray<onyx::Vector3f32, 4> faceCorners;
+            onyx::InplaceArray<onyx::Vector4f32, 4> hermiteData;
 
             InplaceArray<onyxU8, 6> faceCases;
-            for (Onyx::onyxU8 faceIndex = 0; faceIndex < 6; ++faceIndex)
+            for (onyx::onyxU8 faceIndex = 0; faceIndex < 6; ++faceIndex)
             {
                 faceCorners[0] = corners[FACE_VERTICES[faceIndex][0]];
                 faceCorners[1] = corners[FACE_VERTICES[faceIndex][1]];
@@ -257,7 +257,7 @@ namespace Onyx::Volume
                 }
                 else
                 {
-                    Onyx::onyxU32 vertexCount = static_cast<Onyx::onyxU32>(component.Vertices.size());
+                    onyx::onyxU32 vertexCount = static_cast<onyx::onyxU32>(component.Vertices.size());
 
                     Vector3f32 triangleFanCenter;
                     Vector3f32 triangleFanCenterNormal;
@@ -298,7 +298,7 @@ namespace Onyx::Volume
 
     void VolumeChunkLoadRequest::Load()
     {
-        using namespace Threading;
+        using namespace threading;
         AsyncTask<void()> loadingTask([this]() { LoadChunk(); });
         m_LoadingTaskFuture = loadingTask.GetFuture();
         m_LoadingTaskFuture.Then([this]() { if (m_FinishedCallback) m_FinishedCallback(m_LoadRequestData); });
@@ -323,7 +323,7 @@ namespace Onyx::Volume
         {
             GenerateOctree(volumeOctree);
 
-            Volume::CubicalMarchingSquares::MarchingSquares cubicalMarchingSquares(1.0f);
+            volume::CubicalMarchingSquares::MarchingSquares cubicalMarchingSquares(1.0f);
 
             for (auto leafIt = volumeOctree.leaf_begin(); leafIt != volumeOctree.leaf_end(); ++leafIt)
             {

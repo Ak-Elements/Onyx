@@ -2,7 +2,7 @@
 
 #include <onyx/editor/commands/command.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class ICommandGraph
     {

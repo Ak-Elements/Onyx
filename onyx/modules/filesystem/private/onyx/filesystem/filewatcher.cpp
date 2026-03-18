@@ -2,7 +2,7 @@
 
 #include <efsw/efsw.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     namespace
     {

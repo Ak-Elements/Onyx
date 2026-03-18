@@ -2,29 +2,28 @@
 
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Localization
+    namespace localization
     {
         class LocalizationModule;
     }
     
-    namespace Ui
+    namespace ui
     {
         class ImGuiSystem;
     }
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class EditorSystem : public IEngineSystem
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Editor::EditorModule";
+        static constexpr StringId32 TypeId = "onyx::editor::EditorSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        EditorSystem(Ui::ImGuiSystem& imguiSystem,
-            Localization::LocalizationModule& localizationModule);
+        EditorSystem(ui::ImGuiSystem& imguiSystem, localization::LocalizationModule& localizationModule);
 
         ~EditorSystem() override;
     };

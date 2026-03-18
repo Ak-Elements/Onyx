@@ -2,7 +2,7 @@
 
 #include <onyx/volume/octree/octreeiteratorbase.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     template <typename OctreeT, typename OctreeNodeT>
@@ -55,6 +55,6 @@ namespace Onyx::Volume
         std::vector<IteratorT> m_IteratorStates;
     };
 
-} // namespace Onyx
+} // namespace onyx
 
 #include <onyx/volume/octree/octreedepthfirstiterator.hpp>

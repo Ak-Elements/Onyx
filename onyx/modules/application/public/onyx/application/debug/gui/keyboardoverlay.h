@@ -4,46 +4,46 @@
 
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     enum class Key : onyxU16;
 }
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     class ImGuiSystem;
 }
 
-namespace Onyx::Application::Debug
+namespace onyx::application::debug
 {
-    class KeyboardOverlay : public Ui::ImGuiWindow
+    class KeyboardOverlay : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "KeyboardOverlay";
         static constexpr StringView WindowCategory = "Debug";
 
-        StringView GetWindowId() override { return WindowId; }
+        ONYX_NO_DISCARD StringView GetWindowId() override { return WindowId; }
 
         KeyboardOverlay();
 
     private:
         void OnOpen() override;
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
         
     private:
         struct KeyData
         {
-            Vector2f32 m_Offset;
-            Vector2f32 m_Offset2; // optional
-            Vector2f32 m_Size;
-            Vector2f32 m_Size2; // optional
+            Vector2f32 Offset;
+            Vector2f32 Offset2; // optional
+            Vector2f32 Size;
+            Vector2f32 Size2; // optional
 
-            Input::Key m_Key;
-            String m_Label;
+            input::Key Key;
+            String Label;
             
         };
 
-        DynamicArray<DynamicArray<KeyData>> m_KeyboardLayout;
+        DynamicArray<DynamicArray<KeyData>> m_keyboardLayout;
     };
 }
 #endif

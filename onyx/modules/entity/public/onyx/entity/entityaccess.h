@@ -4,7 +4,7 @@
 #include <onyx/entity/entityregistry.h>
 #include <onyx/entity/ecsexecutioncontext.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     template <typename... ComponentAccessDefinition>
     struct EntityQuery;
@@ -228,19 +228,19 @@ namespace Onyx::Entity
 namespace std
 {
     template<typename... ComponentAccessDefintions>
-    struct tuple_size<Onyx::Entity::Entity<ComponentAccessDefintions...>>
-        : std::integral_constant<std::size_t, std::tuple_size_v<typename Onyx::Entity::Entity<ComponentAccessDefintions...>::IncludedMemoryAccessComponents>>
+    struct tuple_size<onyx::ecs::Entity<ComponentAccessDefintions...>>
+        : std::integral_constant<std::size_t, std::tuple_size_v<typename onyx::ecs::Entity<ComponentAccessDefintions...>::IncludedMemoryAccessComponents>>
     {
     };
 
     template<std::size_t I, typename... ComponentAccessDefintions>
-    struct tuple_element<I, Onyx::Entity::Entity<ComponentAccessDefintions...>>
+    struct tuple_element<I, onyx::ecs::Entity<ComponentAccessDefintions...>>
     {
-        using IncludedMemoryAccessComponents = typename Onyx::Entity::Entity<ComponentAccessDefintions...>::IncludedMemoryAccessComponents;
+        using IncludedMemoryAccessComponents = typename onyx::ecs::Entity<ComponentAccessDefintions...>::IncludedMemoryAccessComponents;
         using ComponentAccessDefinition = std::tuple_element_t<I, IncludedMemoryAccessComponents>; 
 
         using type = std::conditional_t<
-            ComponentAccessDefinition::Access == Onyx::Entity::Access::MemoryAccess::Write,
+            ComponentAccessDefinition::Access == onyx::ecs::Access::MemoryAccess::Write,
             typename ComponentAccessDefinition::Type,
             const typename ComponentAccessDefinition::Type>; 
     };

@@ -2,7 +2,7 @@
 
 #include <onyx/filesystem/path.h>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     // for now we only support a raw json format but in the future we want to support an optimized binary format
     class ImageFile

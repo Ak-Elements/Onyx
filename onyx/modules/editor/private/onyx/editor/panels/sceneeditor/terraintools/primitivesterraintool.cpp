@@ -18,9 +18,9 @@
 #include <imgui.h>
 #include <imgui_stacklayout.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    PrimitivesTerrainTool::PrimitivesTerrainTool(Graphics::GraphicsSystem& graphicsSystem)
+    PrimitivesTerrainTool::PrimitivesTerrainTool(rhi::GraphicsSystem& graphicsSystem)
         : m_CreateVolumeSourceShader(graphicsSystem.CreateShaderInstance("engine:/shaders/compute/volume/createvolumeprimitive.oshader"))
     {
     }
@@ -53,12 +53,12 @@ namespace Onyx::Editor
 
         RenderProperties();
 
-        Volume::PreviewTerrainEditPass::BrushSize = m_BrushSize;
-        Volume::PreviewTerrainEditPass::BrushType = static_cast<onyxU16>(Enums::ToIntegral(m_Type));
-        Volume::PreviewTerrainEditPass::BrushOperation = static_cast<onyxU16>(Enums::ToIntegral(m_Operation));
+        volume::PreviewTerrainEditPass::BrushSize = m_BrushSize;
+        volume::PreviewTerrainEditPass::BrushType = static_cast<onyxU16>(enums::ToIntegral(m_Type));
+        volume::PreviewTerrainEditPass::BrushOperation = static_cast<onyxU16>(enums::ToIntegral(m_Operation));
     }
 
-    void PrimitivesTerrainTool::ApplyOperation(Graphics::CommandBuffer& commandBuffer, const Graphics::BufferHandle& hitBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree)
+    void PrimitivesTerrainTool::ApplyOperation(rhi::CommandBuffer& commandBuffer, const rhi::BufferHandle& hitBuffer, volume::TerrainWorldOctreeComponent& terrainOctree)
     {
         struct CreateVolumeSourcePushConstants
         {
@@ -79,36 +79,36 @@ namespace Onyx::Editor
         createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
         createVolumeSourceConstants.HitBufferAddress = hitBuffer.GetGpuAddress();
         createVolumeSourceConstants.BrushSize = m_BrushSize;
-        createVolumeSourceConstants.BrushType = Enums::ToIntegral(m_Type);
-        createVolumeSourceConstants.BrushOperation = Enums::ToIntegral(m_Operation);
+        createVolumeSourceConstants.BrushType = enums::ToIntegral(m_Type);
+        createVolumeSourceConstants.BrushOperation = enums::ToIntegral(m_Operation);
 
         commandBuffer.BindShaderEffect(m_CreateVolumeSourceShader);
-        commandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-        commandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, createVolumeSourceConstants);
+        commandBuffer.Barrier(terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite);
+        commandBuffer.Barrier(terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Compute, 0, createVolumeSourceConstants);
         commandBuffer.Dispatch(1, 1, 1);
     }
 
-    void PrimitivesTerrainTool::OnHitPositionReadback(GameCore::Scene& scene, const Entity::ComponentFactory& componentFactory, const Vector3f32& hitPosition)
+    void PrimitivesTerrainTool::OnHitPositionReadback(game_core::Scene& scene, const ecs::ComponentFactory& componentFactory, const Vector3f32& hitPosition)
     {
-        Entity::EntityRegistry& registry = scene.GetRegistry();
-        Entity::EntityId newEntity = registry.CreateEntity();
+        ecs::EntityRegistry& registry = scene.GetRegistry();
+        ecs::EntityId newEntity = registry.CreateEntity();
 
-        componentFactory.TryCreateComponent<GameCore::TransformComponent>(registry, newEntity, hitPosition);
-        componentFactory.TryCreateComponent<GameCore::IdComponent>(registry, newEntity, static_cast<onyxU64>(newEntity));
+        componentFactory.TryCreateComponent<game_core::TransformComponent>(registry, newEntity, hitPosition);
+        componentFactory.TryCreateComponent<game_core::IdComponent>(registry, newEntity, static_cast<onyxU64>(newEntity));
 
         String name;
         switch (m_Type)
         {
         case Primitives::Sphere:
         {
-            componentFactory.TryCreateComponent<Volume::SphereComponent>(registry, newEntity, m_BrushSize.X);
+            componentFactory.TryCreateComponent<volume::SphereComponent>(registry, newEntity, m_BrushSize.X);
             name = scene.GetUniqueEntityName("VolumeSource_Sphere");
             break;
         }
         case Primitives::Cube:
         {
-            componentFactory.TryCreateComponent<Volume::CubeComponent>(registry, newEntity);
+            componentFactory.TryCreateComponent<volume::CubeComponent>(registry, newEntity);
             name = scene.GetUniqueEntityName("VolumeSource_Cube");
             break;
         }
@@ -118,7 +118,7 @@ namespace Onyx::Editor
         }
         }
 
-        componentFactory.TryCreateComponent<GameCore::NameComponent>(registry, newEntity, name);
+        componentFactory.TryCreateComponent<game_core::NameComponent>(registry, newEntity, name);
     }
 
     void PrimitivesTerrainTool::OnBrushSizeInput(onyxF32 value)
@@ -134,14 +134,14 @@ namespace Onyx::Editor
         ImGui::BeginHorizontal("Operations", ImVec2(ImGui::GetContentRegionAvail().x, 0));
         ImGui::Spring();
         onyxU32 color = m_Operation == Operation::Union ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_Button);
-        Onyx::Ui::DrawPlusIcon(drawList, ImVec2(-16, -16), 32.0f, color);
+        onyx::ui::DrawPlusIcon(drawList, ImVec2(-16, -16), 32.0f, color);
         if (ImGui::InvisibleButton("plus", ImVec2(32.0f, 32.0f)))
         {
             m_Operation = Operation::Union;
         }
 
         color = m_Operation == Operation::Subtract ? ImGui::GetColorU32(ImGuiCol_ButtonActive) : ImGui::GetColorU32(ImGuiCol_Button);
-        Onyx::Ui::DrawMinusIcon(drawList, ImVec2(-16, -16), 32.0f, color);
+        onyx::ui::DrawMinusIcon(drawList, ImVec2(-16, -16), 32.0f, color);
         if (ImGui::InvisibleButton("minus", ImVec2(32.0f, 32.0f)))
         {
             m_Operation = Operation::Subtract;
@@ -149,28 +149,28 @@ namespace Onyx::Editor
         ImGui::Spring();
         ImGui::EndHorizontal();
 
-        Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
+        ui::property_grid::BeginPropertyGrid("Properties", 80.0f);
 
         switch (m_Type)
         {
         case Primitives::Sphere:
         {
-            Ui::PropertyGrid::DrawProperty("Radius", m_BrushSize.X);
+            ui::property_grid::DrawProperty("Radius", m_BrushSize.X);
             break;
         }
         case Primitives::Cube:
         {
-            Ui::PropertyGrid::DrawProperty("Size", m_BrushSize);
+            ui::property_grid::DrawProperty("Size", m_BrushSize);
             break;
         }
         case Primitives::Ellipsoid:
         {
-            Ui::PropertyGrid::DrawProperty("Radii", m_BrushSize);
+            ui::property_grid::DrawProperty("Radii", m_BrushSize);
             break;
         }
         }
 
-        Ui::PropertyGrid::EndPropertyGrid();
+        ui::property_grid::EndPropertyGrid();
         ImGui::EndChild();
     }
 

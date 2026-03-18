@@ -13,7 +13,7 @@ struct wl_array;
 struct zxdg_toplevel_decoration_v1;
 struct zxdg_toplevel_decoration_v1;
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
     class WaylandPlatformContext;
 

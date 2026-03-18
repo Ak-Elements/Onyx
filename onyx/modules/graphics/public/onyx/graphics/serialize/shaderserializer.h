@@ -2,17 +2,20 @@
 #include <onyx/assets/assetserializer.h>
 #include <onyx/assets/assetformat.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
-    class Shader;
     class GraphicsSystem;
+    class Shader;
+}
 
-    struct ShaderSerializer : public Assets::AssetSerializer<Shader>
+namespace onyx::graphics
+{
+    struct ShaderSerializer : public assets::AssetSerializer<rhi::Shader>
     {
         static constexpr Array<StringView, 1> Extensions{ "oshader" };
-        static constexpr Assets::AssetFormat Format = Assets::AssetFormat::Text;
+        static constexpr assets::AssetFormat Format = assets::AssetFormat::Text;
 
-        bool Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const override;
-        bool Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const override;
+        bool Serialize(const assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, Serializer& serializer, const IEngine& engine) const override;
+        bool Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const override;
     };
 }

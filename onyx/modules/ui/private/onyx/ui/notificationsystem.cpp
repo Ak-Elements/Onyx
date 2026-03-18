@@ -6,7 +6,7 @@
 #include <onyx/ui/scopedstyle.h>
 #endif
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     void NotificationSystem::Update()
     {

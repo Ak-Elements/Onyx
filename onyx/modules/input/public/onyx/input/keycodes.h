@@ -1,12 +1,12 @@
 #pragma once
 #include <onyx/input/mouse.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
 
     enum class Key : onyxU16
     {
-        First = Enums::ToIntegral(MouseAxis::Last),
+        First = enums::ToIntegral(MouseAxis::Last),
 
         A,
         B,
@@ -268,7 +268,7 @@ namespace Onyx::Input
         Invalid = 0
     };
 
-    static constexpr onyxU16 Key_Count = Enums::ToIntegral(Key::Last) - Enums::ToIntegral(Key::First);
+    static constexpr onyxU16 Key_Count = enums::ToIntegral(Key::Last) - enums::ToIntegral(Key::First);
 
     inline bool IsModifierKey(Key key)
     {
@@ -285,14 +285,14 @@ namespace Onyx::Input
 
     constexpr auto ToIndex(Key key) -> std::underlying_type_t<Key>
     {
-        constexpr onyxU16 first = Enums::ToIntegral(Key::First);
-#if ONYX_ASSERTS_ENABLED 
-        constexpr onyxU16 last = Enums::ToIntegral(Key::Last);
-        ONYX_ASSERT(Enums::ToIntegral(key) > first);
-        ONYX_ASSERT(Enums::ToIntegral(key) < last);
+        constexpr onyxU16 first = enums::ToIntegral(Key::First);
+#if ONYX_ASSERT_ENABLED 
+        constexpr onyxU16 last = enums::ToIntegral(Key::Last);
+        ONYX_ASSERT(enums::ToIntegral(key) > first);
+        ONYX_ASSERT(enums::ToIntegral(key) < last);
 #endif
 
-        onyxU16 index = Enums::ToIntegral(key) - first;
+        onyxU16 index = enums::ToIntegral(key) - first;
         return index;
     }
     

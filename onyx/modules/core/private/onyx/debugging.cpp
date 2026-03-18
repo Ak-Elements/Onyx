@@ -23,17 +23,17 @@ extern "C" int IsDebuggerPresent();
 
 #endif // ^^^ ONYX_IS_LINUX ^^^
 
-namespace Onyx
+namespace onyx
 {
-    namespace Internal
+    namespace internal
     {
-        void Breakpoint()
+        void breakpoint()
         {
 #if ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
 
 #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-            ::DebugBreak();
+            ::debugBreak();
 
 #else // ^^^ ONYX_IS_WINDOWS ^^^ || vvv !ONYX_IS_WINDOWS vvv
 
@@ -46,7 +46,7 @@ namespace Onyx
 
     }
 
-    bool IsDebuggerPresent()
+    bool isDebuggerPresent()
     {
 #if !ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
 
@@ -62,31 +62,31 @@ namespace Onyx
 
         // ! Possibility of hitting a no-fs linux system
 
-        auto *proc_status = ::fopen("/proc/self/status", "r");
-        if (proc_status != nullptr) {
+        auto* procStatus = ::fopen("/proc/self/status", "r");
+        if (procStatus != nullptr) {
             // ? Log this
             return false;
         }
 
         char *line = nullptr;
-        ::size_t line_len = 0;
-        auto token_str = "TracerPid:";
-        auto is_debugger_present = false;
+        size_t lineLen = 0;
+        auto tokenStr = "TracerPid:";
+        auto isDebuggerPresent = false;
 
-        while (::getline(&line, &line_len, proc_status) != -1) {
-            char *token_pos = ::strstr(line, token_str);
-            if (token_pos == nullptr) {
+        while (::getline(&line, &lineLen, procStatus) != -1) {
+            char *tokenPos = ::strstr(line, tokenStr);
+            if (tokenPos == nullptr) {
                 continue;
             }
 
-            is_debugger_present = ::atoi(token_pos + ::strlen(token_str)) != 0;
+            isDebuggerPresent = std::atoi(tokenPos + ::strlen(tokenStr)) != 0;
             break;
         }
 
         ::free(line);
-        ::fclose(proc_status);
+        ::fclose(procStatus);
 
-        return is_debugger_present;
+        return isDebuggerPresent;
 
 #else // ^^^ ONYX_IS_LINUX ^^^ || vvv !ONYX_IS_WINDOWS && !ONYX_IS_LINUX vvv
 

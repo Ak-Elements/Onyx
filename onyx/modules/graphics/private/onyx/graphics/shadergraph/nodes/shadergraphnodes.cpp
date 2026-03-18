@@ -1,5 +1,5 @@
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     void RegisterShaderNodes()
     {

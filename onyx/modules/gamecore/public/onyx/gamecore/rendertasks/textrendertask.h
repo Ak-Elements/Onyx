@@ -3,22 +3,22 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
-    class MSDFFontRenderPass : public NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>
+    class MSDFFontRenderPass : public node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::GameCore::RenderGraph::MSDFFontPass";
+        static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::MSDFFontPass";
         StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        using Super = NodeGraph::FixedPinNode_1_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle>;
+        using Super = node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>;
 
-        void OnInit(Graphics::GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
-        void OnShutdown(Graphics::GraphicsSystem& api) override;
+        void OnInit(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache) override;
+        void OnShutdown(rhi::GraphicsSystem& api) override;
 
-        void OnPreRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
-        void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
+        void OnPreRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
+        void OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:
@@ -36,7 +36,7 @@ namespace Onyx::GameCore
 #endif
 
     private:
-        Graphics::BufferHandle m_VertexBuffer;
-        Graphics::BufferHandle m_IndexBuffer;
+        rhi::BufferHandle m_VertexBuffer;
+        rhi::BufferHandle m_IndexBuffer;
     };
 }

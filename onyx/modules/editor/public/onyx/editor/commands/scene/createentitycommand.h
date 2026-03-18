@@ -3,16 +3,16 @@
 #include <onyx/editor/commands/scene/scenecommand.h>
 #include <onyx/entity/entity.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct CreateEntityCommand : public SceneCommand
     {
     public:
-        CreateEntityCommand(Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem);
+        CreateEntityCommand(assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem);
             
         void Execute() override;
 
     private:
-        Entity::EntityId m_EntityId = Entity::EntityId::Invalid;
+        ecs::EntityId m_EntityId = ecs::EntityId::Invalid;
     };
 }

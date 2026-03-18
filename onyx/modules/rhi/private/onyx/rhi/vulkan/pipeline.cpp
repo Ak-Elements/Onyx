@@ -9,7 +9,7 @@
 #include <onyx/rhi/vulkan/shader.h>
 #include <onyx/rhi/vulkan/texturestorage.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     namespace
     {
@@ -22,7 +22,7 @@ namespace Onyx::Graphics::Vulkan
                 case VertexStreamInputRate::Instance:
                     return VK_VERTEX_INPUT_RATE_INSTANCE;
                 default:
-                    ONYX_ASSERT(false, "Unsupported vertex stream input rate %s", Enums::ToString(rate).data());
+                    ONYX_ASSERT(false, "Unsupported vertex stream input rate %s", enums::ToString(rate).data());
                     return VK_VERTEX_INPUT_RATE_MAX_ENUM;
             }
         }
@@ -46,7 +46,7 @@ namespace Onyx::Graphics::Vulkan
                 case PrimitiveTopology::Patch:
                     return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
                 default:
-                    ONYX_ASSERT(false, "Unhandled primitive topology %s", Enums::ToString(topology).data());
+                    ONYX_ASSERT(false, "Unhandled primitive topology %s", enums::ToString(topology).data());
                     return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
             }
         }
@@ -97,7 +97,7 @@ namespace Onyx::Graphics::Vulkan
                     break;
             }
 
-            ONYX_ASSERT(false, "Unhandled blend factor %s", Enums::ToString(factor).data());
+            ONYX_ASSERT(false, "Unhandled blend factor %s", enums::ToString(factor).data());
             return VK_BLEND_FACTOR_MAX_ENUM;
         }
 
@@ -117,7 +117,7 @@ namespace Onyx::Graphics::Vulkan
                     return VK_BLEND_OP_MAX;
             }
 
-            ONYX_ASSERT(false, "Unhandeld blend operation %s", Enums::ToString(operation).data());
+            ONYX_ASSERT(false, "Unhandeld blend operation %s", enums::ToString(operation).data());
             return VK_BLEND_OP_MAX_ENUM;
         }
 
@@ -142,7 +142,7 @@ namespace Onyx::Graphics::Vulkan
                 case CompareOperation::Always: 
                     return VK_COMPARE_OP_ALWAYS;
                 default: 
-                    ONYX_ASSERT(false, "Unhandeld compare operation %s", Enums::ToString(operation).data());
+                    ONYX_ASSERT(false, "Unhandeld compare operation %s", enums::ToString(operation).data());
                     return VK_COMPARE_OP_MAX_ENUM;
             }
         }
@@ -168,7 +168,7 @@ namespace Onyx::Graphics::Vulkan
             case StencilOperation::DecrementWrap: 
                 return VK_STENCIL_OP_DECREMENT_AND_WRAP;
             default:
-                ONYX_ASSERT(false, "Unhandeld stencil operation %s", Enums::ToString(operation).data());
+                ONYX_ASSERT(false, "Unhandeld stencil operation %s", enums::ToString(operation).data());
                 return VK_STENCIL_OP_MAX_ENUM;
             
             }
@@ -199,10 +199,10 @@ namespace Onyx::Graphics::Vulkan
                     return VK_CULL_MODE_BACK_BIT;
             }
 
-            if (Enums::HasAllFlags(mode, CullMode::Front | CullMode::Back))
+            if (enums::HasAllFlags(mode, CullMode::Front | CullMode::Back))
                 return VK_CULL_MODE_FRONT_AND_BACK;
 
-            ONYX_ASSERT(false, "Unhandeled cull mode {}", Enums::ToString(mode).data());
+            ONYX_ASSERT(false, "Unhandeled cull mode {}", enums::ToString(mode).data());
             return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
         }
 
@@ -217,14 +217,14 @@ namespace Onyx::Graphics::Vulkan
                 case FillMode::Point: 
                     return VK_POLYGON_MODE_POINT;
                 default: 
-                    ONYX_ASSERT(false, "Unhandeled fill mode {}", Enums::ToString(mode).data());
+                    ONYX_ASSERT(false, "Unhandeled fill mode {}", enums::ToString(mode).data());
                     return VK_POLYGON_MODE_MAX_ENUM;
             }
         }
     }
 
     Pipeline::Pipeline(const VulkanGraphicsApi& api, const PipelineProperties& properties, ShaderHandle& shader)
-        : Graphics::Pipeline(properties)
+        : rhi::Pipeline(properties)
         , m_Api(&api)
     {
         shader->GetOnLoadedEvent().Connect<&Pipeline::OnShaderLoaded>(*this);
@@ -281,7 +281,7 @@ namespace Onyx::Graphics::Vulkan
 
             for (const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments)
             {
-                TextureFormat format = Enums::ToEnum<TextureFormat>(attachment.m_Format);
+                TextureFormat format = enums::ToEnum<TextureFormat>(attachment.m_Format);
                 if (Utils::IsDepthFormat(format))
                 {
                     ONYX_ASSERT(depthStencilFormat == VK_FORMAT_UNDEFINED);

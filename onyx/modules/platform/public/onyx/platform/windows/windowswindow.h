@@ -15,7 +15,7 @@ struct HICON__;
 typedef HICON__* HICON;
 typedef HICON HCURSOR;
 
-namespace Onyx::Platform::Windows
+namespace onyx::platform::windows
 {
     class PlatformContext;
 

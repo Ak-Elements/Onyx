@@ -5,7 +5,7 @@
 #include <onyx/string/format.h>
 #include <onyx/rhi/graphicstypes.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct ShaderVariable
     {
@@ -37,15 +37,15 @@ namespace Onyx::Graphics
         {
             if constexpr (is_specialization_of_v<Vector4, T>)
             {
-                return String(Format::Format("vec4({}, {}, {}, {})", value[0], value[1], value[2], value[3]));
+                return String(format::Format("vec4({}, {}, {}, {})", value[0], value[1], value[2], value[3]));
             }
             else if constexpr (is_specialization_of_v<Vector3, T>)
             {
-                return String(Format::Format("vec3({}, {}, {})", value[0], value[1], value[2]));
+                return String(format::Format("vec3({}, {}, {})", value[0], value[1], value[2]));
             }
             else if constexpr (is_specialization_of_v<Vector2, T>)
             {
-                return String(Format::Format("vec2({}, {})", value[0], value[1]));
+                return String(format::Format("vec2({}, {})", value[0], value[1]));
             }
             else if constexpr (std::is_integral_v<T> || std::is_floating_point_v<T>)
             {

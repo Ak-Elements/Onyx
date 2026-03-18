@@ -3,14 +3,14 @@
 #include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    struct ShaderNodeMetaData : public NodeGraph::NodeEditorMetaData
+    struct ShaderNodeMetaData : public node_graph::NodeEditorMetaData
     {
-        InplaceFunction<void(const NodeGraph::Node& node, NodeGraph::ExecutionContext& executionContext, String& outString)> GenerateShaderCode;
+        InplaceFunction<void(const node_graph::Node& node, node_graph::ExecutionContext& executionContext, String& outString)> GenerateShaderCode;
     };
 
-    class ShaderGraphNodeFactory : public NodeGraph::TypedNodeFactory<ShaderGraphNode, ShaderNodeMetaData>
+    class ShaderGraphNodeFactory : public node_graph::TypedNodeFactory<ShaderGraphNode, ShaderNodeMetaData>
     {
     public:
         //TODO: Node concept to enforce node

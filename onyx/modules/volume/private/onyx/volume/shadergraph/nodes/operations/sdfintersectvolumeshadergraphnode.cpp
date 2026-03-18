@@ -4,38 +4,38 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/executioncontext.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    void SdfIntersectVolumeShaderGraphNode::OnUpdate(NodeGraph::ExecutionContext& /*context*/) const
+    void SdfIntersectVolumeShaderGraphNode::OnUpdate(node_graph::ExecutionContext& /*context*/) const
     {
     }
 
-    void SdfIntersectVolumeShaderGraphNode::DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const
+    void SdfIntersectVolumeShaderGraphNode::DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const
     {
-        if (generator.GetStage() != Graphics::ShaderStage::Fragment)
+        if (generator.GetStage() != rhi::ShaderStage::Fragment)
             return;
 
         if ((context.IsPinConnected<OutPinGradient>() == false) && (context.IsPinConnected<OutPinIsoValue>() == false))
             return;
 
-        generator.AddInclude(Graphics::ShaderStage::All, "includes/volume/csg/operations/intersect.h");
+        generator.AddInclude(rhi::ShaderStage::All, "includes/volume/csg/operations/intersect.h");
 
-        String intersectVariableName = Format::Format("intersectNode_{:x}", GetId().Get());
+        String intersectVariableName = format::Format("intersectNode_{:x}", GetId().Get());
 
-        String gradientOutVariableName = Format::Format("pin_{:x}", m_GradientOutPin.GetGlobalId().Get());
-        String isoValueOutVariableName = Format::Format("pin_{:x}", m_IsoValueOutPin.GetGlobalId().Get());
+        String gradientOutVariableName = format::Format("pin_{:x}", m_GradientOutPin.GetGlobalId().Get());
+        String isoValueOutVariableName = format::Format("pin_{:x}", m_IsoValueOutPin.GetGlobalId().Get());
 
-        generator.AppendCode(Format::Format("vec4 {} = GetIntersection(vec4({}, {}), vec4({}, {}));\n", intersectVariableName,
-            m_GradientSource0InPin.IsConnected() ? Format::Format("pin_{:x}", m_GradientSource0InPin.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinGradientSource0>()),
-            m_IsoValueSource0InPin.IsConnected() ? Format::Format("pin_{:x}", m_IsoValueSource0InPin.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinIsoValueSource0>()),
-            m_GradientSource1InPin.IsConnected() ? Format::Format("pin_{:x}", m_GradientSource1InPin.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinGradientSource1>()),
-            m_IsoValueSource0InPin.IsConnected() ? Format::Format("pin_{:x}", m_IsoValueSource1InPin.GetLinkedPinGlobalId().Get()) : Graphics::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinIsoValueSource1>())));
-        generator.AppendCode(Format::Format("float {} = {}.w;\n", isoValueOutVariableName, intersectVariableName));
-        generator.AppendCode(Format::Format("vec3 {} = {}.xyz;\n", gradientOutVariableName, intersectVariableName));
+        generator.AppendCode(format::Format("vec4 {} = GetIntersection(vec4({}, {}), vec4({}, {}));\n", intersectVariableName,
+            m_GradientSource0InPin.IsConnected() ? format::Format("pin_{:x}", m_GradientSource0InPin.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinGradientSource0>()),
+            m_IsoValueSource0InPin.IsConnected() ? format::Format("pin_{:x}", m_IsoValueSource0InPin.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinIsoValueSource0>()),
+            m_GradientSource1InPin.IsConnected() ? format::Format("pin_{:x}", m_GradientSource1InPin.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinGradientSource1>()),
+            m_IsoValueSource0InPin.IsConnected() ? format::Format("pin_{:x}", m_IsoValueSource1InPin.GetLinkedPinGlobalId().Get()) : rhi::ShaderGenerator::GenerateShaderValue(context.GetPinData<InPinIsoValueSource1>())));
+        generator.AppendCode(format::Format("float {} = {}.w;\n", isoValueOutVariableName, intersectVariableName));
+        generator.AppendCode(format::Format("vec3 {} = {}.xyz;\n", gradientOutVariableName, intersectVariableName));
     }
 
 
-    NodeGraph::PinBase* SdfIntersectVolumeShaderGraphNode::GetInputPin(onyxU32 index)
+    node_graph::PinBase* SdfIntersectVolumeShaderGraphNode::GetInputPin(onyxU32 index)
     {
         switch (index)
         {
@@ -49,7 +49,7 @@ namespace Onyx::Volume
         return nullptr;
     }
 
-    const NodeGraph::PinBase* SdfIntersectVolumeShaderGraphNode::GetInputPin(onyxU32 index) const
+    const node_graph::PinBase* SdfIntersectVolumeShaderGraphNode::GetInputPin(onyxU32 index) const
     {
         switch (index)
         {
@@ -63,7 +63,7 @@ namespace Onyx::Volume
         return nullptr;
     }
 
-    NodeGraph::PinBase* SdfIntersectVolumeShaderGraphNode::GetOutputPin(onyxU32 index)
+    node_graph::PinBase* SdfIntersectVolumeShaderGraphNode::GetOutputPin(onyxU32 index)
     {
         ONYX_ASSERT(index < GetOutputPinCount(), "Invalid pin index");
 
@@ -73,7 +73,7 @@ namespace Onyx::Volume
         return &m_GradientOutPin;
     }
 
-    const NodeGraph::PinBase* SdfIntersectVolumeShaderGraphNode::GetOutputPin(onyxU32 index) const
+    const node_graph::PinBase* SdfIntersectVolumeShaderGraphNode::GetOutputPin(onyxU32 index) const
     {
         ONYX_ASSERT(index < GetOutputPinCount(), "Invalid pin index");
         if (index == 0)

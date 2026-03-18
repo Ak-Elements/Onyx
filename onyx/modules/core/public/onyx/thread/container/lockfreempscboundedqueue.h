@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     template <typename T, onyxU32 Size>
     class LockFreeMPSCBoundedQueue

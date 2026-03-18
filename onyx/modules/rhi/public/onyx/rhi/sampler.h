@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     enum class SamplerFilter : onyxU8
     {
@@ -41,13 +41,13 @@ namespace Onyx::Graphics
         onyxU32 Hash()
         {
             onyxU32 hash = 0;
-            hash = Hash::FNV1aHash(MinFilter, hash);
-            hash = Hash::FNV1aHash(MagFilter, hash);
-            hash = Hash::FNV1aHash(MipFilter, hash);
-            hash = Hash::FNV1aHash(AddressModeU, hash);
-            hash = Hash::FNV1aHash(AddressModeV, hash);
-            hash = Hash::FNV1aHash(AddressModeW, hash);
-            hash = Hash::FNV1aHash(Reduction, hash);
+            hash = hash::FNV1aHash(MinFilter, hash);
+            hash = hash::FNV1aHash(MagFilter, hash);
+            hash = hash::FNV1aHash(MipFilter, hash);
+            hash = hash::FNV1aHash(AddressModeU, hash);
+            hash = hash::FNV1aHash(AddressModeV, hash);
+            hash = hash::FNV1aHash(AddressModeW, hash);
+            hash = hash::FNV1aHash(Reduction, hash);
             return hash;
         }
         SamplerFilter MinFilter = SamplerFilter::Linear;

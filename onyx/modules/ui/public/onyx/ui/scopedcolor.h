@@ -2,7 +2,7 @@
 
 #if ONYX_USE_IMGUI
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     struct ScopedImGuiColor
     {

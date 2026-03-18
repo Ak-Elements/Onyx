@@ -7,7 +7,7 @@
 #include <onyx/volume/tree/treeleafiterator.h>
 #include <onyx/morton.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     template <typename DataT, typename KeyT = MortonCode2D_U32, onyxU8 NumChildren = 4>
     class Tree

@@ -1,21 +1,20 @@
 #pragma once
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct AssetMetaData;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    class GraphicsSystem;
     class ShaderGraph;
 
-    namespace ShaderGraphSerializer
+    namespace shader_graph_serializer
     {
         bool Serialize(const ShaderGraph& graph, Serializer& serializer);
         bool Deserialize(ShaderGraph& graph, const Deserializer& deserializer);

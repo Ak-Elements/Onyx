@@ -6,17 +6,17 @@
 #include <onyx/inputactions/inputactionsasset.h>
 #include <onyx/inputactions/inputactionsmap.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Input
+namespace onyx::input
 {
     class InputSystem;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     struct InputBindingContext;
     struct InputActionsMap;
@@ -68,7 +68,7 @@ namespace Onyx::InputActions
 
     struct InputActionSystemSettings
     {
-        Assets::AssetId InputActionId { "engine:/inputcontexts.oinput" };
+        assets::AssetId InputActionId { "engine:/inputcontexts.oinput" };
     };
 
     class InputActionSystem : public IEngineSystem
@@ -77,15 +77,15 @@ namespace Onyx::InputActions
 
         using InputActionSignalT = Signal<void(const InputActionEvent&)>;
     public:
-        static constexpr StringId32 TypeId = "Onyx::InputActions::InputActionSystem";
+        static constexpr StringId32 TypeId = "onyx::input_actions::InputActionSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        InputActionSystem(const InputActionSystemSettings& settings, Input::InputSystem& inputSystem, Assets::AssetSystem& assetSystem);
+        InputActionSystem(const InputActionSystemSettings& settings, input::InputSystem& inputSystem, assets::AssetSystem& assetSystem);
         ~InputActionSystem() override;
 
         void Update();
 
-        void SetActionsMapAsset(Assets::AssetHandle<InputActionsContext> inputAsset);
+        void SetActionsMapAsset(assets::AssetHandle<InputActionsContext> inputAsset);
         void SetCurrentInputActionMap(StringId32 id);
 
         Optional<InputActionState*> GetActionState(StringId64 actionId);
@@ -115,9 +115,9 @@ namespace Onyx::InputActions
         void UpdateContext(InputActionsMap& context);
 
     private:
-        Input::InputSystem* m_InputSystem = nullptr;
+        input::InputSystem* m_InputSystem = nullptr;
 
-        Assets::AssetHandle<InputActionsContext> m_InputActionsAsset;
+        assets::AssetHandle<InputActionsContext> m_InputActionsAsset;
         DynamicArray<InputActionState> m_CurrentActionStates;
         HashMap<StringId64, InputActionSignalT> m_InputActionSignals;
 
@@ -125,12 +125,12 @@ namespace Onyx::InputActions
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<InputActions::InputActionSystemSettings>
+    struct Serialization<input_actions::InputActionSystemSettings>
     {
-        static bool Serialize(Serializer& serializer, const InputActions::InputActionSystemSettings& settings);
-        static bool Deserialize(const Deserializer& deserializer, InputActions::InputActionSystemSettings& outSettings);
+        static bool Serialize(Serializer& serializer, const input_actions::InputActionSystemSettings& settings);
+        static bool Deserialize(const Deserializer& deserializer, input_actions::InputActionSystemSettings& outSettings);
     };
 }

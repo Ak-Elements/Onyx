@@ -7,7 +7,7 @@
 #include <onyx/assets/assetformat.h>
 #include <onyx/assets/assethandle.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct AssetLoadRequest;
 

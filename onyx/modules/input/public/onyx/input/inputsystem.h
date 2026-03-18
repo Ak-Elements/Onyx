@@ -10,23 +10,17 @@
 #include <onyx/eventhandler.h>
 #include <onyx/input/inputevent.h>
 
-namespace Onyx
+namespace onyx
 {
     class Engine;
 }
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     class PlatformSystem;
 }
 
-namespace Onyx::Graphics
-{
-    class WindowSystem;
-    class Window;
-}
-
-namespace Onyx::Input
+namespace onyx::input
 {
     struct InputEvent;
 
@@ -43,7 +37,7 @@ namespace Onyx::Input
         using ControllerAxisSignalT = Signal<void(const GameControllerAxisEvent&)>;
         using ControllerButtonSignalT = Signal<void(const GameControllerButtonEvent&)>;
 
-        static constexpr StringId32 TypeId = "Onyx::Input::InputModule";
+        static constexpr StringId32 TypeId = "onyx::input::InputSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
         Sink<MouseAxisSignalT> OnMouseAxisChange() { return Sink<MouseAxisSignalT>(m_MouseAxisSignal); }

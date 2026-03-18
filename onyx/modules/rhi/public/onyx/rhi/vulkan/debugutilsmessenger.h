@@ -3,12 +3,12 @@
 #include <onyx/noncopyable.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx
+namespace onyx
 {
     class Engine;
     class Logger;
 
-    namespace Graphics::Vulkan
+    namespace rhi::vulkan
     {
         class Instance;
 

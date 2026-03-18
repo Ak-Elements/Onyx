@@ -2,7 +2,7 @@
 
 #include <onyx/geometry/vector2.h>
 
-namespace Onyx
+namespace onyx
 {
     template <typename T>
     struct Rect2

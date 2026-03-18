@@ -7,7 +7,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     struct JsonValue
     {
@@ -18,7 +18,7 @@ namespace Onyx::FileSystem
             {
                 if constexpr (std::is_enum_v<ValueT>)
                 {
-                    outValue = Enums::FromString<ValueT>(it->get<StringView>());
+                    outValue = enums::FromString<ValueT>(it->get<StringView>());
                 }
                 else if constexpr (std::is_same_v<ValueT, Guid64>)
                 {
@@ -83,7 +83,7 @@ namespace Onyx::FileSystem
             if (const auto& it = Json.find(name.data()); it != Json.end())
             {
                 if constexpr (std::is_enum_v<T>)
-                    outValue = Enums::FromString<T>(it->get<StringView>(), defaultValue);
+                    outValue = enums::FromString<T>(it->get<StringView>(), defaultValue);
                 else
                     outValue = it->get<T>();
                 return true;
@@ -103,7 +103,7 @@ namespace Onyx::FileSystem
         {
             if constexpr (std::is_enum_v<ValueT>)
             {
-                Json[key] = Enums::ToString(value);
+                Json[key] = enums::ToString(value);
             }
             else if constexpr (std::is_same_v<ValueT, JsonValue>)
             {
@@ -111,12 +111,12 @@ namespace Onyx::FileSystem
             }
             else if constexpr (std::is_same_v<ValueT, Guid64>)
             {
-                Json[key] = Format::Format("{:x}", value.Get());
+                Json[key] = format::Format("{:x}", value.Get());
             }
             else if constexpr (is_specialization_of_v<StringId, ValueT>)
             {
                 auto& stringIdObj = Json[key];
-                stringIdObj["id"] = Format::Format("{:x}", value.GetId());
+                stringIdObj["id"] = format::Format("{:x}", value.GetId());
 #if !ONYX_IS_RETAIL
                 stringIdObj["string"] = value.GetString();
 #endif

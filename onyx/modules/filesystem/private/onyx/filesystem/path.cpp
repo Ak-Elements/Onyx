@@ -6,7 +6,7 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::FileSystem::Path
+namespace onyx::file_system::Path
 {
     namespace
     {
@@ -201,7 +201,7 @@ namespace Onyx::FileSystem::Path
     }
 }
 
-namespace Onyx
+namespace onyx
 {
     bool Serialization<FilePath>::Serialize(Serializer& serializer, const FilePath& path)
     {
@@ -220,13 +220,13 @@ namespace Onyx
         return false;
     }
 
-    bool Serialization<FileSystem::MountPoint>::Serialize(Serializer& serializer, const FileSystem::MountPoint& mountPoint)
+    bool Serialization<file_system::MountPoint>::Serialize(Serializer& serializer, const file_system::MountPoint& mountPoint)
     {
         return serializer.Write<"name">(mountPoint.Prefix) &&
             serializer.Write<"path">(mountPoint.Path);
     }
 
-    bool Serialization<FileSystem::MountPoint>::Deserialize(const Deserializer& deserializer, FileSystem::MountPoint& outMountPoint)
+    bool Serialization<file_system::MountPoint>::Deserialize(const Deserializer& deserializer, file_system::MountPoint& outMountPoint)
     {
         bool success = deserializer.Read<"name">(outMountPoint.Prefix);
         if (success == false)

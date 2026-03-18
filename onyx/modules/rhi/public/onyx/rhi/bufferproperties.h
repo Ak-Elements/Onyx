@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/memoryaccess.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
 	enum class BufferUsage : onyxU8
 	{

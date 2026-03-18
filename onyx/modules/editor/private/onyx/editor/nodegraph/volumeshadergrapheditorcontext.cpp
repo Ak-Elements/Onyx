@@ -6,9 +6,9 @@
 #include <onyx/volume/shader/generators/volumeshadergraphgenerator.h>
 #include <onyx/volume/shadergraph/nodes/volumeshadergraphoutnode.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    VolumeShaderGraphEditorContext::VolumeShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem)
+    VolumeShaderGraphEditorContext::VolumeShaderGraphEditorContext(assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem)
         : m_AssetSystem(&assetSystem)
         , m_GraphicsSystem(&graphicsSystem)
     {
@@ -18,14 +18,14 @@ namespace Onyx::Editor
     {
         ONYX_ASSERT(m_GraphicsSystem != nullptr);
 
-        Volume::VolumeShaderGraphGenerator generator;
+        volume::VolumeShaderGraphGenerator generator;
         bool hasGenerated = Graph->GenerateShader(generator);
-        return hasGenerated && Graphics::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
+        return hasGenerated && rhi::ShaderCompiler::ValidateCode(*m_GraphicsSystem, Graph->GetShaderCode());
     }
 
     void VolumeShaderGraphEditorContext::OnNodeChanged(const Node& newNode)
     {
-        Graphics::ShaderGraphNode& node = GetNodeGraph().GetNode<Graphics::ShaderGraphNode>(newNode.LocalId);
+        graphics::ShaderGraphNode& node = GetNodeGraph().GetNode<graphics::ShaderGraphNode>(newNode.LocalId);
         node.OnNodeChanged(*m_AssetSystem);
     }
 }

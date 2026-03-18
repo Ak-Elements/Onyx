@@ -2,7 +2,7 @@
 
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     template <typename T>
     class DependantFunctionArg;

@@ -2,7 +2,7 @@
 
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     class EngineVariablesWindow : public ImGuiWindow
     {

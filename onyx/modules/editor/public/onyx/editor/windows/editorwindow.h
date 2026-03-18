@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class EditorWindow
     {

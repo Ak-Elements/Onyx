@@ -7,7 +7,7 @@
 
 #include <onyx/assets/assethandle.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     struct AssetMetaData;
     class AssetInterface;
@@ -62,9 +62,9 @@ namespace Onyx::Assets
 #endif
 
 #if ONYX_PROFILER_ENABLED
-        Threading::ThreadPool m_LoaderThreadPool { Threading::ThreadPoolOptions(), "Asset Loader" };
+        threading::ThreadPool m_LoaderThreadPool { threading::ThreadPoolOptions(), "Asset Loader" };
 #else
-        Threading::ThreadPool m_LoaderThreadPool { Threading::ThreadPoolOptions(1) };
+        threading::ThreadPool m_LoaderThreadPool { threading::ThreadPoolOptions(1) };
 #endif
     };
 }

@@ -5,7 +5,7 @@
 
 #include <any>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     class Node;
     class PinBase;

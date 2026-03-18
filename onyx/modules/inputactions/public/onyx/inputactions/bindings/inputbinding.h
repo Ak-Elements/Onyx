@@ -1,12 +1,12 @@
 #pragma once
 
-namespace Onyx::Input
+namespace onyx::input
 {
     class InputSystem;
     struct InputID;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     class InputActionSystem;
     
@@ -22,13 +22,13 @@ namespace Onyx::InputActions
         InputBinding& operator=(const InputBinding& other);
         
         virtual void Reset() = 0;
-        bool Update(const Input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem, Vector3f32& outInputValue);
+        bool Update(const input::InputSystem& inputSystem, const InputActionSystem& inputActionSystem, Vector3f32& outInputValue);
         
         virtual StringId32 GetTypeId() const = 0;
 
         virtual onyxS32 GetInputBindingSlotsCount() const = 0;
-        virtual Input::InputID GetBoundInputForSlot(onyxU32 /*index*/) const = 0;
-        virtual void SetInputBindingSlot(onyxU32 /*index*/, Input::InputID /*inputId*/) = 0;
+        virtual input::InputID GetBoundInputForSlot(onyxU32 /*index*/) const = 0;
+        virtual void SetInputBindingSlot(onyxU32 /*index*/, input::InputID /*inputId*/) = 0;
 
         virtual StringView GetName() const = 0;
         virtual StringView GetInputBindingSlotName(onyxU32 /*index*/) const = 0;
@@ -48,7 +48,7 @@ namespace Onyx::InputActions
 #endif
 
     private:
-        virtual bool DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue) = 0;
+        virtual bool DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue) = 0;
 
     private:
         // if empty the default trigger is Down

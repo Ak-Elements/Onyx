@@ -3,13 +3,13 @@
 
 #define PER_CHUNK_MESH_DATA 1
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class EcsBuilder;
     class EntityComponentSystemsGraph;
 }
 
-namespace Onyx::Volume::Terrain
+namespace onyx::volume::terrain
 {
 
     struct InitTerrainFlag
@@ -22,23 +22,23 @@ namespace Onyx::Volume::Terrain
     {
         Vector3s16 Coordinate;
 
-        Graphics::BufferHandle VolumeOctree;
+        rhi::BufferHandle VolumeOctree;
 
 #if PER_CHUNK_MESH_DATA
-        Graphics::BufferHandle MeshVertices;
-        Graphics::BufferHandle IndirectDrawBuffer;
+        rhi::BufferHandle MeshVertices;
+        rhi::BufferHandle IndirectDrawBuffer;
 #else
-        Graphics::BufferHandle VertexCount;
+        rhi::BufferHandle VertexCount;
 #endif
     };
 
     struct TerrainRuntimeComponent
     {
         // first node is root of the tree
-        Graphics::BufferHandle WorldChunksOctree;
+        rhi::BufferHandle WorldChunksOctree;
 
-        Graphics::BufferHandle MeshVertices;
-        Graphics::BufferHandle IndirectDrawBuffer;
+        rhi::BufferHandle MeshVertices;
+        rhi::BufferHandle IndirectDrawBuffer;
 
         //Graphics::BufferHandle ActiveChunks;
         onyxF32 RootSize;
@@ -47,10 +47,10 @@ namespace Onyx::Volume::Terrain
         DynamicArray<TerrainChunk> Chunks;
 
 #if !PER_CHUNK_MESH_DATA
-        Graphics::BufferHandle MeshVertices;
-        Graphics::BufferHandle IndirectDrawBuffer;
+        rhi::BufferHandle MeshVertices;
+        rhi::BufferHandle IndirectDrawBuffer;
 #endif
     };
 
-    void Register(Entity::EcsBuilder& ecsBuilder);
+    void Register(ecs::EcsBuilder& ecsBuilder);
 }

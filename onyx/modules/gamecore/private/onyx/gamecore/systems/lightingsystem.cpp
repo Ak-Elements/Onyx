@@ -11,14 +11,14 @@
 
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::GameCore::Lighting
+namespace onyx::game_core::lighting
 {
-    namespace DirectionalLights
+    namespace directional_lights
     {
-        using LightAccess = Entity::Access::Read<DirectionalLightComponent, TransformComponent>;
+        using LightAccess = ecs::Access::Read<DirectionalLightComponent, TransformComponent>;
         using LightsQuery = LightAccess::AsQuery;
 
-        void system(LightsQuery lightEntities, Graphics::FrameContext& frameContext)
+        void system(LightsQuery lightEntities, rhi::FrameContext& frameContext)
         {
             // Directional lights
             onyxU32 directionalLightIndex = 0;
@@ -26,7 +26,7 @@ namespace Onyx::GameCore::Lighting
             {
                 auto&& [lightComponent, transformComponent] = LightAccess::AsEntity(lightEntities, lightEntity);
 
-                Graphics::DirectionalLight& light = frameContext.Lighting.DirectionalLights[directionalLightIndex++];
+                rhi::DirectionalLight& light = frameContext.Lighting.DirectionalLights[directionalLightIndex++];
                 light.Color = lightComponent.Color;
                 light.Intensity = lightComponent.Intensity;
                 light.ShadowAmount = lightComponent.ShadowAmount;
@@ -38,19 +38,19 @@ namespace Onyx::GameCore::Lighting
         }
     }
 
-    namespace PointLights
+    namespace point_lights
     {
-        using LightAccess = Entity::Access::Read<PointLightComponent, TransformComponent>;
+        using LightAccess = ecs::Access::Read<PointLightComponent, TransformComponent>;
         using LightsQuery = LightAccess::AsQuery;
 
-        void system(LightsQuery lightEntities, Graphics::FrameContext& frameContext)
+        void system(LightsQuery lightEntities, rhi::FrameContext& frameContext)
         {
             onyxU32 pointLightIndex = 0;
-            for (Entity::EntityId lightEntity : lightEntities)
+            for (ecs::EntityId lightEntity : lightEntities)
             {
                 auto&& [lightComponent, transformComponent] = LightAccess::AsEntity(lightEntities, lightEntity);
 
-                Graphics::PointLight& light = frameContext.Lighting.PointLights[pointLightIndex++];
+                rhi::PointLight& light = frameContext.Lighting.PointLights[pointLightIndex++];
                 light.Position = transformComponent.Translation;
                 light.Color = lightComponent.Color;
                 light.Intensity = lightComponent.Intensity;
@@ -69,19 +69,19 @@ namespace Onyx::GameCore::Lighting
         }
     }
 
-    namespace SpotLights
+    namespace spot_lights
     {
-        using LightAccess = Entity::Access::Read<SpotLightComponent, TransformComponent>;
+        using LightAccess = ecs::Access::Read<SpotLightComponent, TransformComponent>;
         using LightsQuery = LightAccess::AsQuery;
 
-        void system(LightsQuery lightEntities, Graphics::FrameContext& frameContext)
+        void system(LightsQuery lightEntities, rhi::FrameContext& frameContext)
         {
             onyxU32 spotLightIndex = 0;
-            for (Entity::EntityId lightEntity : lightEntities)
+            for (ecs::EntityId lightEntity : lightEntities)
             {
                 auto&& [lightComponent, transformComponent] = LightAccess::AsEntity(lightEntities, lightEntity);
 
-                Graphics::SpotLight& light = frameContext.Lighting.SpotLights[spotLightIndex++];
+                rhi::SpotLight& light = frameContext.Lighting.SpotLights[spotLightIndex++];
                 light.Position = transformComponent.Translation;
                 light.Direction = transformComponent.Rotation.ToMatrix3() * -Vector3f32::Z_Unit();
                 light.Color = lightComponent.Color;
@@ -97,10 +97,10 @@ namespace Onyx::GameCore::Lighting
         }
     }
 
-    void registerSystems(Entity::EcsBuilder& ecsBuilder)
+    void registerSystems(ecs::EcsBuilder& ecsBuilder)
     {
-        ecsBuilder.RegisterSystem(DirectionalLights::system);
-        ecsBuilder.RegisterSystem(PointLights::system);
-        ecsBuilder.RegisterSystem(SpotLights::system);
+        ecsBuilder.RegisterSystem(directional_lights::system);
+        ecsBuilder.RegisterSystem(point_lights::system);
+        ecsBuilder.RegisterSystem(spot_lights::system);
     }
 }

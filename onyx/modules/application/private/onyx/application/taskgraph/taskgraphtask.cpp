@@ -1,6 +1,6 @@
 #include <onyx/application/taskgraph/taskgraphtask.h>
 
-namespace Onyx::Application
+namespace onyx::application
 {
 
 #if ONYX_IS_DEBUG
@@ -34,7 +34,7 @@ namespace Onyx::Application
         return *this;
     }
 
-    void TaskGraphNode::Update(onyxU64 deltaTime, Graphics::FrameContext& context)
+    void TaskGraphNode::Update(onyxU64 deltaTime, rhi::FrameContext& context)
     {
         ONYX_ASSERT(m_Task != nullptr);
         m_Task->Update(deltaTime, context);

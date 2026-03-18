@@ -11,9 +11,9 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    onyxU32 ShaderGraphTextures::AddTexture(const TextureHandle& texture)
+    onyxU32 ShaderGraphTextures::AddTexture(const rhi::TextureHandle& texture)
     {
         onyxU32 bindlessTextureIndex = texture.Texture->GetIndex();
         auto textureIt = std::ranges::find_if(Textures, [bindlessTextureIndex](onyxU32 textureIndex)
@@ -53,7 +53,7 @@ namespace Onyx::Graphics
 
     bool ShaderGraph::Serialize(Serializer& serializer) const
     {
-        bool success = NodeGraph::Serialize(serializer, Graph);
+        bool success = node_graph::Serialize(serializer, Graph);
 
         if (success)
         {
@@ -66,7 +66,7 @@ namespace Onyx::Graphics
     bool ShaderGraph::Deserialize(const Deserializer& deserializer)
     {
         ShaderGraphNodeFactory factory;
-        if (NodeGraph::Deserialize(deserializer, Graph, factory) == false)
+        if (node_graph::Deserialize(deserializer, Graph, factory) == false)
         {
             return false;
         }
@@ -81,14 +81,14 @@ namespace Onyx::Graphics
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
 
-    bool ShaderGraph::GenerateShader(ShaderGenerator& generator)
+    bool ShaderGraph::GenerateShader(rhi::ShaderGenerator& generator)
     {
         bool hasCompiled = Graph.Compile();
 
         if (hasCompiled == false)
             return false;
 
-        NodeGraph::GraphRunner runner(Graph);
+        node_graph::GraphRunner runner(Graph);
 
         // prepare nodes so data is setup
         runner.Prepare();
@@ -98,15 +98,15 @@ namespace Onyx::Graphics
 
         ShaderGraphNodeFactory factory;
         const DynamicArray<onyxS8>& executionOrder = Graph.GetTopologicalOrder();
-        NodeGraph::ExecutionContext& executionContext = runner.GetContext();
+        node_graph::ExecutionContext& executionContext = runner.GetContext();
         for (onyxS8 localNodeId : executionOrder)
         {
             const ShaderGraphNode& node = Graph.GetNode<ShaderGraphNode>(localNodeId);
             executionContext.SetCurrentNode(node.GetId());
 
-            generator.SetStage(ShaderStage::Fragment); //TODO: Add support for other stages
+            generator.SetStage(rhi::ShaderStage::Fragment); //TODO: Add support for other stages
 
-            generator.AppendCode(Format::Format("// {} 0x{:x} \n", node.GetName(), node.GetId().Get()));
+            generator.AppendCode(format::Format("// {} 0x{:x} \n", node.GetName(), node.GetId().Get()));
             node.GenerateShader(executionContext, generator);
         }
 

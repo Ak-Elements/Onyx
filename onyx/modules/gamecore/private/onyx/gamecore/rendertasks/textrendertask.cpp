@@ -8,25 +8,25 @@
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
-    void MSDFFontRenderPass::OnInit(Graphics::GraphicsSystem& api, Graphics::RenderGraphResourceCache& /*resourceCache*/)
+    void MSDFFontRenderPass::OnInit(rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& /*resourceCache*/)
     {
         constexpr onyxU32 MAX_QUADS = 10000;
         constexpr onyxU32 MAX_VERTICES = MAX_QUADS * 4;
         constexpr onyxU32 MAX_INDICES = MAX_QUADS * 6;
 
-        Graphics::BufferProperties vertexBufferProps;
-        vertexBufferProps.m_Size = static_cast<onyxU32>(MAX_VERTICES * sizeof(Graphics::FontVertex));
-        vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Vertex);
-        vertexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+        rhi::BufferProperties vertexBufferProps;
+        vertexBufferProps.m_Size = static_cast<onyxU32>(MAX_VERTICES * sizeof(rhi::FontVertex));
+        vertexBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Vertex);
+        vertexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
 
         api.CreateBuffer(m_VertexBuffer, vertexBufferProps);
 
-        Graphics::BufferProperties indexBufferProps;
+        rhi::BufferProperties indexBufferProps;
         indexBufferProps.m_Size = static_cast<onyxU32>(MAX_INDICES * sizeof(onyxU16));
-        indexBufferProps.m_UsageFlags = static_cast<onyxU8>(Graphics::BufferUsage::Index);
-        indexBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+        indexBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Index);
+        indexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
 
         onyxU16 indices[MAX_INDICES];
         onyxU16 offset = 0;
@@ -47,17 +47,17 @@ namespace Onyx::GameCore
         m_IndexBuffer.Buffer->SetData(0, indices, static_cast<onyxU32>(MAX_INDICES * sizeof(onyxU16)));
     }
 
-    void MSDFFontRenderPass::OnShutdown(Graphics::GraphicsSystem& /*api*/)
+    void MSDFFontRenderPass::OnShutdown(rhi::GraphicsSystem& /*api*/)
     {
         m_VertexBuffer.Buffer.Reset();
         m_IndexBuffer.Buffer.Reset();
     }
 
-    void MSDFFontRenderPass::OnPreRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& /*commandBuffer*/)
+    void MSDFFontRenderPass::OnPreRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
 
         if (frameContext.FrameData == nullptr)
             return;
@@ -75,11 +75,11 @@ namespace Onyx::GameCore
         }*/
     }
 
-    void MSDFFontRenderPass::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
+    void MSDFFontRenderPass::OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
 
         if (frameContext.FrameData == nullptr)
             return;
@@ -87,7 +87,7 @@ namespace Onyx::GameCore
         const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
 
         commandBuffer.BindVertexBuffer(m_VertexBuffer, 0, 0);
-        commandBuffer.BindIndexBuffer(m_IndexBuffer, 0, Graphics::IndexType::uint16);
+        commandBuffer.BindIndexBuffer(m_IndexBuffer, 0, rhi::IndexType::uint16);
         
         struct PushConstants
         {

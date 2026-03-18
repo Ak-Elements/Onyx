@@ -5,11 +5,11 @@
 
 #include <iostream>
 
-namespace Onyx::Threading::Benchmark
+namespace onyx::threading::Benchmark
 {
 
-constexpr Onyx::onyxS32 CONCURRENCY = 16;
-constexpr Onyx::onyxS32 REPOST_COUNT = 1000000;
+constexpr onyx::onyxS32 CONCURRENCY = 16;
+constexpr onyx::onyxS32 REPOST_COUNT = 1000000;
 
 struct Heavy
 {
@@ -76,7 +76,7 @@ struct Heavy
 
 struct Job
 {
-    Job(Onyx::Threading::ThreadPool* pool, Onyx::onyxS32 repostCount, Promise<void>* waiter)
+    Job(onyx::threading::ThreadPool* pool, onyx::onyxS32 repostCount, Promise<void>* waiter)
         : m_ThreadPool(pool)
         , m_RepostCount(repostCount)
         , m_Waiter(waiter)
@@ -105,17 +105,17 @@ struct Job
     }
 
 private:
-    Onyx::Threading::ThreadPool* m_ThreadPool = nullptr;
-    Onyx::onyxS32 m_RepostCount = 0;
+    onyx::threading::ThreadPool* m_ThreadPool = nullptr;
+    onyx::onyxS32 m_RepostCount = 0;
     Promise<void>* m_Waiter = nullptr;
 
-    Onyx::onyxS32 m_CurrentRepostCount = 0;
+    onyx::onyxS32 m_CurrentRepostCount = 0;
 };
 
 TEST_CASE("Benchmark generic tasks", "[threading][benchmark]")
 {
-    using namespace Onyx;
-    using namespace Onyx::Threading;
+    using namespace onyx;
+    using namespace onyx::Threading;
 
     ThreadPool threadPool;
     Promise<void> waiters[CONCURRENCY];
@@ -136,8 +136,8 @@ TEST_CASE("Benchmark generic tasks", "[threading][benchmark]")
 
 TEST_CASE("Idle thread pool", "[threading][benchmark]")
 {
-    using namespace Onyx;
-    using namespace Onyx::Threading;
+    using namespace onyx;
+    using namespace onyx::Threading;
 
     ThreadPool threadPool;
     std::this_thread::sleep_for(std::chrono::milliseconds(500));

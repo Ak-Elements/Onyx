@@ -2,46 +2,46 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-msgid "Onyx::Ui::RenderGraph::UIPass"
+msgid "onyx::ui::RenderGraph::UIPass"
 msgstr "UI Pass"
 
 msgid "CompositePass"
 msgstr "Composite Pass"
 
-msgid "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+msgid "onyx::Editor::RenderGraph::EditorSceneGridPass"
 msgstr "Editor Grid Pass"
 
-msgid "Onyx::GameCore::RenderGraph::DepthPrePass"
+msgid "onyx::game_core::RenderGraph::DepthPrePass"
 msgstr "Depth Pre Pass"
 
-msgid "Onyx::GameCore::RenderGraph::StaticMeshPass"
+msgid "onyx::game_core::RenderGraph::StaticMeshPass"
 msgstr "StaticMesh Pass"
 
-msgid "Onyx::GameCore::RenderGraph::MSDFFontPass"
+msgid "onyx::game_core::RenderGraph::MSDFFontPass"
 msgstr "3D Font Pass"
 
-msgid "Onyx::Graphics::RenderGraph::GetViewConstants"
+msgid "onyx::graphics::render_graph_nodes::GetViewConstants"
 msgstr "Get View Constants"
 
-msgid "Onyx::Graphics::RenderGraph::CreateLightClusters"
+msgid "onyx::graphics::render_graph_nodes::CreateLightClusters"
 msgstr "Create Light Clusters"
 
-msgid "Onyx::Graphics::RenderGraph::UpdateLightClusters"
+msgid "onyx::graphics::render_graph_nodes::UpdateLightClusters"
 msgstr "Update Light Clusters"
 
-msgid "Onyx::Graphics::RenderGraph::CreateTransmittance"
+msgid "onyx::graphics::render_graph_nodes::CreateTransmittance"
 msgstr "Create Transmittance"
 
-msgid "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
+msgid "onyx::graphics::render_graph_nodes::ComputeMultipleScattering"
 msgstr "Compute Multiple Scattering"
 
-msgid "Onyx::Graphics::RenderGraph::ComputeSkyViewLut"
+msgid "onyx::graphics::render_graph_nodes::ComputeSkyViewLut"
 msgstr "Compute Sky View Lut"
 
-msgid "Onyx::Graphics::RenderGraph::AtmosphericSkyPass"
+msgid "onyx::graphics::render_graph_nodes::AtmosphericSkyPass"
 msgstr "Atmospheric Sky Pass"
 
-msgid "Onyx::Graphics::RenderGraph::ToneMapPass"
+msgid "onyx::graphics::render_graph_nodes::ToneMapPass"
 msgstr "Tone Map Pass"
 
 msgid "RenderGraph::DebugLightClusters"

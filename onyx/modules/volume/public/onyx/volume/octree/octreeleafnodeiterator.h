@@ -2,7 +2,7 @@
 
 #include <onyx/volume/octree/octreedepthfirstiterator.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,4 +74,4 @@ namespace Onyx::Volume
         }
     };
 
-} // namespace Onyx
+} // namespace onyx

@@ -1,27 +1,27 @@
 #pragma once
-namespace Onyx::Platform
+namespace onyx::platform
 {
 #if ONYX_IS_WINDOWS
 
-    namespace Windows
+    namespace windows
     {
         class PlatformContext;
         class Window;
     }
 
-    using Window = Windows::Window;
-    using PlatformContext = Windows::PlatformContext;
+    using Window = windows::Window;
+    using PlatformContext = windows::PlatformContext;
 
 #elif ONYX_IS_LINUX && ONYX_USE_WAYLAND
 
-    namespace Wayland
+    namespace wayland
     {
         class WaylandPlatformContext;
         class Window;
     }
 
-    using Window = Wayland::Window;
-    using PlatformContext = Wayland::WaylandPlatformContext;
+    using Window = wayland::Window;
+    using PlatformContext = wayland::WaylandPlatformContext;
 
 #else
     //static_assert(false, "Unsupported window library.");

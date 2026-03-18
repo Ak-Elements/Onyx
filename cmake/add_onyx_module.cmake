@@ -1,6 +1,6 @@
 function(onyx_add_target TARGET_NAME)
      set(options NO_CODEGEN NO_EDITOR_TARGET)  # No boolean options
-     set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER ALIAS)
+     set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER NAMESPACE_PATH ALIAS)
      set(multiValueArgs PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
      
      #set(arg_ENABLE_CODEGEN true)
@@ -46,7 +46,7 @@ function(onyx_add_target TARGET_NAME)
             PRIVATE_DEPENDENCIES ${TARGET_NAME}
         )
         # adjust namespace after the create target to not change namespace folder path
-        set_target_properties(${TARGET_NAME}-editor PROPERTIES ONYX_NAMESPACE "${arg_NAMESPACE}::Editor")
+        set_target_properties(${TARGET_NAME}-editor PROPERTIES ONYX_NAMESPACE "${arg_NAMESPACE}::editor")
 
         get_property(editorTargets GLOBAL PROPERTY onyx_EDITOR_TARGETS)
         list(APPEND editorTargets ${TARGET_NAME}-editor)
@@ -59,8 +59,8 @@ function(onyx_add_target TARGET_NAME)
             TARGET ${TARGET_NAME}
             BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}
             BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-            PUBLIC_DIR_SUFFIX "public/${ns_path}"
-            PRIVATE_DIR_SUFFIX "private/${ns_path}"
+            PUBLIC_DIR_SUFFIX "public/${arg_NAMESPACE_PATH}"
+            PRIVATE_DIR_SUFFIX "private/${arg_NAMESPACE_PATH}"
             GENERATED_DIR_SUFFIX "generated"
             IS_EDITOR FALSE
         )
@@ -71,8 +71,8 @@ function(onyx_add_target TARGET_NAME)
                 RUNTIME_TARGET ${TARGET_NAME}
                 BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/editor
                 BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/editor
-                PUBLIC_DIR_SUFFIX "public/${ns_path}"
-                PRIVATE_DIR_SUFFIX "private/${ns_path}"
+                PUBLIC_DIR_SUFFIX "public/${arg_NAMESPACE_PATH}"
+                PRIVATE_DIR_SUFFIX "private/${arg_NAMESPACE_PATH}"
                 GENERATED_DIR_SUFFIX "generated"
                 IS_EDITOR TRUE
                 
@@ -116,13 +116,9 @@ function(onyx_create_target)
         add_library(${arg_ALIAS} ALIAS ${arg_TARGET})
     endif()
 
-    #### Namespace path ####
-    string(REPLACE "::" "/" ns_path "${arg_NAMESPACE}")
-    string(TOLOWER "${ns_path}" ns_path)
-
     #### Source dirs ####
-    set(public_dir "${arg_BASE_SOURCE_DIR}/public/${ns_path}")
-    set(private_dir "${arg_BASE_SOURCE_DIR}/private/${ns_path}")
+    set(public_dir "${arg_BASE_SOURCE_DIR}/public/${arg_NAMESPACE_PATH}")
+    set(private_dir "${arg_BASE_SOURCE_DIR}/private/${arg_NAMESPACE_PATH}")
 
     if (NOT EXISTS "${public_dir}")
         set(public_dir "${arg_BASE_SOURCE_DIR}")
@@ -217,7 +213,7 @@ function(onyx_create_target)
     #### Store metadata for later steps ####
     set_target_properties(${arg_TARGET} PROPERTIES
         ONYX_NAMESPACE       "${arg_NAMESPACE}"
-        ONYX_NS_PATH         "${ns_path}"
+        ONYX_NS_PATH         "${arg_NAMESPACE_PATH}"
         ONYX_PUBLIC_SOURCES  "${arg_PUBLIC_SOURCES}"
         ONYX_PRIVATE_SOURCES "${arg_PRIVATE_SOURCES}"
         ONYX_PUBLIC_DEPENDENCIES "${arg_PUBLIC_DEPENDENCIES}"

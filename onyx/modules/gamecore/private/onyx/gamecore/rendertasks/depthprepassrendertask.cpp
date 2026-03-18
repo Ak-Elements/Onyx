@@ -6,31 +6,31 @@
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
-    void DepthPrePassRenderGraphNode::OnInit(Graphics::GraphicsSystem& api, Graphics::RenderGraphResourceCache& resourceCache)
+    void DepthPrePassRenderGraphNode::OnInit(rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& resourceCache)
     {
-        Graphics::RenderGraphResource& depthResource = resourceCache[GetOutputPin().GetGlobalId()];
-        depthResource.Info.Type = Graphics::RenderGraphResourceType::Attachment;
-        Graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get<Graphics::RenderGraphTextureResourceInfo>(depthResource.Properties);
+        graphics::RenderGraphResource& depthResource = resourceCache[GetOutputPin().GetGlobalId()];
+        depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
+        graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get<graphics::RenderGraphTextureResourceInfo>(depthResource.Properties);
         resourceInfo.Format = api.GetDepthTextureFormat();
-        resourceInfo.LoadOp = Graphics::RenderPassSettings::LoadOp::Clear;
+        resourceInfo.LoadOp = rhi::RenderPassSettings::LoadOp::Clear;
 
         resourceCache[GetOutputPin().GetGlobalId()].Handle = api.GetDepthImage();
     }
 
-    void DepthPrePassRenderGraphNode::OnBeginFrame(Graphics::RenderGraphContext& context)
+    void DepthPrePassRenderGraphNode::OnBeginFrame(graphics::RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 
         context.Graph.GetResourceCache()[GetOutputPin().GetGlobalId()].Handle = context.FrameContext.Api->GetDepthImage();
     }
 
-    void DepthPrePassRenderGraphNode::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
+    void DepthPrePassRenderGraphNode::OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const Graphics::FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
 
         if (frameContext.FrameData == nullptr)
             return;
@@ -48,13 +48,13 @@ namespace Onyx::GameCore
             const onyxU32 instanceCount = 1;
 
             commandBuffer.BindVertexBuffer(drawCall.VertexData, 0, 0);
-            commandBuffer.BindIndexBuffer(drawCall.Indices, 0, Graphics::IndexType::uint32);
+            commandBuffer.BindIndexBuffer(drawCall.Indices, 0, rhi::IndexType::uint32);
 
             Matrix4<onyxF32> transformMatrix;
             for (Matrix4<onyxF32> transformMatrix : drawCall.Transforms)
             {
-                commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
-                commandBuffer.DrawIndexed(Graphics::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);
+                commandBuffer.BindPushConstants(rhi::ShaderStage::Vertex, 0, transformMatrix);
+                commandBuffer.DrawIndexed(rhi::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);
 
                 instanceOffset += instanceCount;
             }
@@ -65,7 +65,7 @@ namespace Onyx::GameCore
             for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
             {
                 commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
-                commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, transformMatrix);
+                commandBuffer.BindPushConstants(rhi::ShaderStage::Vertex, 0, transformMatrix);
                 commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
             }
         }

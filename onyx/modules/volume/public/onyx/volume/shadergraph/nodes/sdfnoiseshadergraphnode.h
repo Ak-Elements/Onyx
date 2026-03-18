@@ -4,31 +4,31 @@
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 #include <onyx/nodegraph/nodes/fixedpinsnode.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    class SdfNoise2DShaderGraphNode : public NodeGraph::FixedPinNode<Graphics::ShaderGraphNode, 2, 2>
+    class SdfNoise2DShaderGraphNode : public node_graph::FixedPinNode<graphics::ShaderGraphNode, 2, 2>
     {
     private:
-        using NoiseValueInPin = NodeGraph::Pin<onyxF32, "InPin0">;
-        using NoiseGradientInPin = NodeGraph::Pin<Vector2f32, "InPin1">;
-        using IsoValueOutPin = NodeGraph::Pin<onyxF32, "OutPin0">;
-        using GradientOutPin = NodeGraph::Pin<Vector3f32, "OutPin1">;
+        using NoiseValueInPin = node_graph::Pin<onyxF32, "InPin0">;
+        using NoiseGradientInPin = node_graph::Pin<Vector2f32, "InPin1">;
+        using IsoValueOutPin = node_graph::Pin<onyxF32, "OutPin0">;
+        using GradientOutPin = node_graph::Pin<Vector3f32, "OutPin1">;
 
     public:
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::SdfNoise2DShaderGraphNode";
+        static constexpr StringId32 TypeId = "onyx::volume::volume_shader_graph::SdfNoise2DShaderGraphNode";
         StringId32 GetTypeId() const override { return TypeId; }
 
         SdfNoise2DShaderGraphNode() = default;
 
-        void OnUpdate(NodeGraph::ExecutionContext& context) const override;
+        void OnUpdate(node_graph::ExecutionContext& context) const override;
 
-        NodeGraph::PinBase* GetInputPin(onyxU32 index) override;
-        const NodeGraph::PinBase* GetInputPin(onyxU32 index) const override;
+        node_graph::PinBase* GetInputPin(onyxU32 index) override;
+        const node_graph::PinBase* GetInputPin(onyxU32 index) const override;
 
-        NodeGraph::PinBase* GetOutputPin(onyxU32 index) override;
-        const NodeGraph::PinBase* GetOutputPin(onyxU32 index) const override;
+        node_graph::PinBase* GetOutputPin(onyxU32 index) override;
+        const node_graph::PinBase* GetOutputPin(onyxU32 index) const override;
     private:
-        void DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const override;
+        void DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const override;
 
 #if ONYX_IS_EDITOR
     protected:
@@ -42,30 +42,30 @@ namespace Onyx::Volume
         GradientOutPin m_GradientOutPin;
     };
 
-    class SdfNoise3DShaderGraphNode : public NodeGraph::FixedPinNode<Graphics::ShaderGraphNode, 2, 2>
+    class SdfNoise3DShaderGraphNode : public node_graph::FixedPinNode<graphics::ShaderGraphNode, 2, 2>
     {
     private:
-        using NoiseValueInPin = NodeGraph::Pin<onyxF32, "InPin0">;
-        using NoiseGradientInPin = NodeGraph::Pin<Vector3f32, "InPin1">;
-        using IsoValueOutPin = NodeGraph::Pin<onyxF32, "OutPin0">;
-        using GradientOutPin = NodeGraph::Pin<Vector3f32, "OutPin1">;
+        using NoiseValueInPin = node_graph::Pin<onyxF32, "InPin0">;
+        using NoiseGradientInPin = node_graph::Pin<Vector3f32, "InPin1">;
+        using IsoValueOutPin = node_graph::Pin<onyxF32, "OutPin0">;
+        using GradientOutPin = node_graph::Pin<Vector3f32, "OutPin1">;
 
     public:
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeShaderGraph::SdfNoise3DShaderGraphNode";
+        static constexpr StringId32 TypeId = "onyx::volume::volume_shader_graph::SdfNoise3DShaderGraphNode";
         StringId32 GetTypeId() const override { return TypeId; }
 
         SdfNoise3DShaderGraphNode() = default;
 
-        void OnUpdate(NodeGraph::ExecutionContext& context) const override;
+        void OnUpdate(node_graph::ExecutionContext& context) const override;
 
-        NodeGraph::PinBase* GetInputPin(onyxU32 index) override;
-        const NodeGraph::PinBase* GetInputPin(onyxU32 index) const override;
+        node_graph::PinBase* GetInputPin(onyxU32 index) override;
+        const node_graph::PinBase* GetInputPin(onyxU32 index) const override;
 
-        NodeGraph::PinBase* GetOutputPin(onyxU32 index) override;
-        const NodeGraph::PinBase* GetOutputPin(onyxU32 index) const override;
+        node_graph::PinBase* GetOutputPin(onyxU32 index) override;
+        const node_graph::PinBase* GetOutputPin(onyxU32 index) const override;
 
     private:
-        void DoGenerateShader(const NodeGraph::ExecutionContext& context, Graphics::ShaderGenerator& generator) const override;
+        void DoGenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const override;
 
 #if ONYX_IS_EDITOR
     protected:

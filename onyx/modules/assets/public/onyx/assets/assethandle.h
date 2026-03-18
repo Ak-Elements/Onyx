@@ -5,7 +5,7 @@
 #include <onyx/serialize/deserializer.h>
 #include<onyx/serialize/serializer.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     template <typename T>
     class AssetHandle
@@ -126,18 +126,18 @@ namespace Onyx::Assets
     };
 }
 
-namespace Onyx
+namespace onyx
 {
     template <typename U>
-    struct Serialization<Assets::AssetHandle<U>>
+    struct Serialization<assets::AssetHandle<U>>
     {
-        static bool Serialize(Serializer& serializer, const Assets::AssetHandle<U>& assetHandle)
+        static bool Serialize(Serializer& serializer, const assets::AssetHandle<U>& assetHandle)
         {
             return serializer.Write<"assetId">(assetHandle.GetId());
         }
-        static bool Deserialize(const Deserializer& deserializer, Assets::AssetHandle<U>& outAssetHandle)
+        static bool Deserialize(const Deserializer& deserializer, assets::AssetHandle<U>& outAssetHandle)
         {
-            Assets::AssetId assetId;
+            assets::AssetId assetId;
             if (deserializer.Read<"assetId">(assetId))
             {
                 outAssetHandle.SetId(assetId);

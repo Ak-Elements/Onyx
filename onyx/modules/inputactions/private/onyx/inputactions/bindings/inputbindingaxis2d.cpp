@@ -4,9 +4,9 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
-    bool InputBindingAxis2D::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
+    bool InputBindingAxis2D::DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
         outInputValue.X = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_AxisX));
         outInputValue.Y = numeric_cast<onyxF32>(inputSystem.GetAxisValue1D(0, m_AxisY));
@@ -19,12 +19,12 @@ namespace Onyx::InputActions
         m_AxisY = 0;
     }
 
-    Input::InputID InputBindingAxis2D::GetBoundInputForSlot(onyxU32 index) const
+    input::InputID InputBindingAxis2D::GetBoundInputForSlot(onyxU32 index) const
     {
         return index == 0 ? m_AxisX : m_AxisY;
     }
 
-    void InputBindingAxis2D::SetInputBindingSlot(onyxU32 index, Input::InputID inputID)
+    void InputBindingAxis2D::SetInputBindingSlot(onyxU32 index, input::InputID inputID)
     {
         if (index == 0)
             m_AxisX = inputID;
@@ -38,15 +38,15 @@ namespace Onyx::InputActions
     }
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<InputActions::InputBindingAxis2D>::Serialize(Serializer& serializer, const InputActions::InputBindingAxis2D& binding)
+    bool Serialization<input_actions::InputBindingAxis2D>::Serialize(Serializer& serializer, const input_actions::InputBindingAxis2D& binding)
     {
         return serializer.Write<"axisX">(binding.m_AxisX) &&
             serializer.Write<"axisY">(binding.m_AxisY);
     }
 
-    bool Serialization<InputActions::InputBindingAxis2D>::Deserialize(const Deserializer& deserializer, InputActions::InputBindingAxis2D& outBinding)
+    bool Serialization<input_actions::InputBindingAxis2D>::Deserialize(const Deserializer& deserializer, input_actions::InputBindingAxis2D& outBinding)
     {
         return deserializer.Read<"axisX">(outBinding.m_AxisX) &&
             deserializer.Read<"axisY">(outBinding.m_AxisY);

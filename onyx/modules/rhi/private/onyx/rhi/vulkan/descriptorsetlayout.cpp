@@ -5,7 +5,7 @@
 
 #include <onyx/string/string.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     DescriptorSetLayout::DescriptorSetLayout(const Device& device, onyxU8 set, const VkDescriptorSetLayoutCreateInfo& createInfo)
         : m_Device(device)

@@ -3,7 +3,7 @@
 #include <onyx/volume/octree/octreekey.h>
 #include <iterator>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 template <typename OctreeT, typename OctreeNodeT>
 class OctreeIteratorBase

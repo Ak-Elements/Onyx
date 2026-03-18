@@ -12,19 +12,19 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<InputActions::InputAction>
+    struct Serialization<input_actions::InputAction>
     {
-        static bool Serialize(Serializer& serializer, const InputActions::InputAction& action)
+        static bool Serialize(Serializer& serializer, const input_actions::InputAction& action)
         {
             return serializer.Write<"id">(action.m_Id) &&
                 serializer.Write<"type">(action.m_Type) &&
                 serializer.Write<"bindings">(action.m_Bindings);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, InputActions::InputAction& outAction)
+        static bool Deserialize(const Deserializer& deserializer, input_actions::InputAction& outAction)
         {
             if (deserializer.Read<"id">(outAction.m_Id) == false)
             {
@@ -36,7 +36,7 @@ namespace Onyx
                 return false;
             }
 
-            if (outAction.m_Type == InputActions::ActionType::Invalid)
+            if (outAction.m_Type == input_actions::ActionType::Invalid)
             {
                 ONYX_LOG_ERROR("Input action is missing action type.");
                 return false;
@@ -48,15 +48,15 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<InputActions::InputActionsMap>
+    struct Serialization<input_actions::InputActionsMap>
     {
-        static bool Serialize(Serializer& serializer, const InputActions::InputActionsMap& map)
+        static bool Serialize(Serializer& serializer, const input_actions::InputActionsMap& map)
         {
             serializer.Write(map.m_Actions);
             return true;
         }
 
-        static bool Deserialize(const Deserializer& deserializer, InputActions::InputActionsMap& outMap)
+        static bool Deserialize(const Deserializer& deserializer, input_actions::InputActionsMap& outMap)
         {
             deserializer.Read(outMap.m_Actions);
             return true;
@@ -64,9 +64,9 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<UniquePtr<InputActions::InputBinding>>
+    struct Serialization<UniquePtr<input_actions::InputBinding>>
     {
-        static bool Serialize(Serializer& serializer, const UniquePtr<InputActions::InputBinding>& binding)
+        static bool Serialize(Serializer& serializer, const UniquePtr<input_actions::InputBinding>& binding)
         {
             serializer.Write<"typeId">(binding->GetTypeId());
 
@@ -80,16 +80,16 @@ namespace Onyx
                 return false;
             }
 
-            const InputActions::InputBindingsFactory::MetaData& metaData = InputActions::InputBindingsFactory::GetMetaData(binding->GetTypeId());
+            const input_actions::InputBindingsFactory::MetaData& metaData = input_actions::InputBindingsFactory::GetMetaData(binding->GetTypeId());
             return metaData.SerializeFunctor(serializer, binding);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, UniquePtr<InputActions::InputBinding>& outBinding)
+        static bool Deserialize(const Deserializer& deserializer, UniquePtr<input_actions::InputBinding>& outBinding)
         {
             StringId32 typeId;
             deserializer.Read<"typeId">(typeId);
 
-            const InputActions::InputBindingsFactory::MetaData& metaData = InputActions::InputBindingsFactory::GetMetaData(typeId);
+            const input_actions::InputBindingsFactory::MetaData& metaData = input_actions::InputBindingsFactory::GetMetaData(typeId);
             outBinding = metaData.CreateFunctor();
 
             if (deserializer.ReadOptional<"triggers">(outBinding->GetTriggers()) == false)
@@ -107,21 +107,21 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<UniquePtr<InputActions::InputTrigger>>
+    struct Serialization<UniquePtr<input_actions::InputTrigger>>
     {
-        static bool Serialize(Serializer& serializer, const UniquePtr<InputActions::InputTrigger>& modifier)
+        static bool Serialize(Serializer& serializer, const UniquePtr<input_actions::InputTrigger>& modifier)
         {
             serializer.Write<"typeId">(modifier->GetTypeId());
-            const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetMetaData(modifier->GetTypeId());
+            const input_actions::InputTriggersFactory::MetaData& metaData = input_actions::InputTriggersFactory::GetMetaData(modifier->GetTypeId());
             return metaData.SerializeFunctor(serializer, modifier);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, UniquePtr<InputActions::InputTrigger>& outModifier)
+        static bool Deserialize(const Deserializer& deserializer, UniquePtr<input_actions::InputTrigger>& outModifier)
         {
             StringId32 typeId;
             deserializer.Read<"typeId">(typeId);
 
-            const InputActions::InputTriggersFactory::MetaData& metaData = InputActions::InputTriggersFactory::GetMetaData(typeId);
+            const input_actions::InputTriggersFactory::MetaData& metaData = input_actions::InputTriggersFactory::GetMetaData(typeId);
             outModifier = metaData.CreateFunctor();
 
             return metaData.DeserializeFunctor(deserializer, outModifier);
@@ -129,22 +129,22 @@ namespace Onyx
     };
 
     template <>
-    struct Serialization<UniquePtr<InputActions::InputModifier>>
+    struct Serialization<UniquePtr<input_actions::InputModifier>>
     {
-        static bool Serialize(Serializer& serializer, const UniquePtr<InputActions::InputModifier>& modifier)
+        static bool Serialize(Serializer& serializer, const UniquePtr<input_actions::InputModifier>& modifier)
         {
             serializer.Write<"typeId">(modifier->GetTypeId());
-            const InputActions::InputModifiersFactory::MetaData& metaData = InputActions::InputModifiersFactory::GetMetaData(modifier->GetTypeId());
+            const input_actions::InputModifiersFactory::MetaData& metaData = input_actions::InputModifiersFactory::GetMetaData(modifier->GetTypeId());
 
             return metaData.SerializeFunctor(serializer, modifier);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, UniquePtr<InputActions::InputModifier>& outModifier)
+        static bool Deserialize(const Deserializer& deserializer, UniquePtr<input_actions::InputModifier>& outModifier)
         {
             StringId32 typeId;
             deserializer.Read<"typeId">(typeId);
 
-            const InputActions::InputModifiersFactory::MetaData& metaData = InputActions::InputModifiersFactory::GetMetaData(typeId);
+            const input_actions::InputModifiersFactory::MetaData& metaData = input_actions::InputModifiersFactory::GetMetaData(typeId);
             outModifier = metaData.CreateFunctor();
 
             return metaData.DeserializeFunctor(deserializer, outModifier);
@@ -152,9 +152,9 @@ namespace Onyx
     };
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
-    bool InputActionsSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
+    bool InputActionsSerializer::Serialize(const assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& /*meta*/, Serializer& serializer, const IEngine& /*engine*/) const
     {
 #if ONYX_IS_EDITOR
         const InputActionsContext& inputActionsAsset = asset.As<InputActionsContext>();
@@ -172,7 +172,7 @@ namespace Onyx::InputActions
         return true;
     }
 
-    bool InputActionsSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
+    bool InputActionsSerializer::Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& /*engine*/) const
     {
         InputActionsContext& inputAsset = asset.As<InputActionsContext>();
 

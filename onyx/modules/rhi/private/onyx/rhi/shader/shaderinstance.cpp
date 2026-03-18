@@ -5,7 +5,7 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/rhi/shader/shader.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     ShaderInstance::ShaderInstance(const GraphicsSystem& api, const PipelineHandle& pipeline, const ShaderHandle& shader)
         : m_Api(&api)
@@ -82,7 +82,7 @@ namespace Onyx::Graphics
         return descriptorSets[descriptorSetIndex];
     }
 
-    void ShaderInstance::OnShaderLoaded(Assets::AssetHandle<Shader> /*shader*/)
+    void ShaderInstance::OnShaderLoaded(assets::AssetHandle<Shader> /*shader*/)
     {
         if (m_Shader->HasDescriptorSetLayout())
         {

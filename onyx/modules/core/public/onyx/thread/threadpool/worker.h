@@ -3,9 +3,9 @@
 #include <onyx/profiler/profiler.h>
 #include <stop_token>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Threading
+    namespace threading
     {
         /**
          * @brief The Worker class owns task queue and executing thread.

@@ -3,7 +3,7 @@
 #include <onyx/inputactions/inputaction.h>
 #include <onyx/filesystem/onyxfile.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     Optional<InputAction*> InputActionsMap::GetAction(StringId64 actionId)
     {

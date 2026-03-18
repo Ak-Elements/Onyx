@@ -1,24 +1,25 @@
 #pragma once
 #include <onyx/nodegraph/nodes/node.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
-
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class ShaderGenerator;
-
-    class ShaderGraphNode : public NodeGraph::Node
+}
+namespace onyx::graphics
+{
+    class ShaderGraphNode : public node_graph::Node
     {
     public:
-        void GenerateShader(const NodeGraph::ExecutionContext& context, ShaderGenerator& generator) const { DoGenerateShader(context, generator); }
+        void GenerateShader(const node_graph::ExecutionContext& context, rhi::ShaderGenerator& generator) const { DoGenerateShader(context, generator); }
 
-        void OnNodeChanged(Assets::AssetSystem& assetSystem) { OnChanged(assetSystem); }
+        void OnNodeChanged(assets::AssetSystem& assetSystem) { OnChanged(assetSystem); }
 
     private:
-        virtual void DoGenerateShader(const NodeGraph::ExecutionContext& /*context*/, ShaderGenerator& /*generator*/) const {}
-        virtual void OnChanged(Assets::AssetSystem& /*assetSystem*/) {}
+        virtual void DoGenerateShader(const node_graph::ExecutionContext& /*context*/, rhi::ShaderGenerator& /*generator*/) const {}
+        virtual void OnChanged(assets::AssetSystem& /*assetSystem*/) {}
     };
 }

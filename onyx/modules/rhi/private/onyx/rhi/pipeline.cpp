@@ -6,37 +6,37 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<Graphics::PipelineProperties>::Serialize(Serializer& serializer, const Graphics::PipelineProperties& properties)
+    bool Serialization<rhi::PipelineProperties>::Serialize(Serializer& serializer, const rhi::PipelineProperties& properties)
     {
         return serializer.Write<"depthstencil">(properties.DepthStencil) &&
             serializer.Write<"rasterization">(properties.Rasterization) &&
             serializer.Write<"blend">(properties.BlendStates);
     }
 
-    bool Serialization<Graphics::PipelineProperties>::Deserialize(const Deserializer& deserializer, Graphics::PipelineProperties& outProperties)
+    bool Serialization<rhi::PipelineProperties>::Deserialize(const Deserializer& deserializer, rhi::PipelineProperties& outProperties)
     {
         return deserializer.ReadOptional<"depthstencil">(outProperties.DepthStencil) &&
             deserializer.ReadOptional<"rasterization">(outProperties.Rasterization) &&
             deserializer.ReadOptional<"blend">(outProperties.BlendStates);
     }
 
-    bool Serialization<Graphics::Rasterization>::Serialize(Serializer& serializer, const Graphics::Rasterization& rasterization)
+    bool Serialization<rhi::Rasterization>::Serialize(Serializer& serializer, const rhi::Rasterization& rasterization)
     {
         return serializer.Write<"cull">(rasterization.CullMode) &&
             serializer.Write<"fill">(rasterization.FillMode) &&
             serializer.Write<"frontfacing">(rasterization.IsFrontFacing);
     }
 
-    bool Serialization<Graphics::Rasterization>::Deserialize(const Deserializer& deserializer, Graphics::Rasterization& rasterization)
+    bool Serialization<rhi::Rasterization>::Deserialize(const Deserializer& deserializer, rhi::Rasterization& rasterization)
     {
         return deserializer.ReadOptional<"cull">(rasterization.CullMode) &&
             deserializer.ReadOptional<"fill">(rasterization.FillMode) &&
             deserializer.ReadOptional<"frontfacing">(rasterization.IsFrontFacing);
     }
 
-    bool Serialization<Graphics::DepthStencil>::Serialize(Serializer& serializer, const Graphics::DepthStencil& depthStencil)
+    bool Serialization<rhi::DepthStencil>::Serialize(Serializer& serializer, const rhi::DepthStencil& depthStencil)
     {
         return serializer.Write<"enabled">(depthStencil.IsDepthEnabled) &&
             serializer.Write<"write">(depthStencil.IsDepthWriteEnabled) &&
@@ -44,7 +44,7 @@ namespace Onyx
             serializer.Write<"compare">(depthStencil.Compare);
     }
 
-    bool Serialization<Graphics::DepthStencil>::Deserialize(const Deserializer& deserializer, Graphics::DepthStencil& outDepthStencil)
+    bool Serialization<rhi::DepthStencil>::Deserialize(const Deserializer& deserializer, rhi::DepthStencil& outDepthStencil)
     {
         return deserializer.ReadOptional<"enabled">(outDepthStencil.IsDepthEnabled) &&
             deserializer.ReadOptional<"write">(outDepthStencil.IsDepthWriteEnabled) &&
@@ -52,7 +52,7 @@ namespace Onyx
             deserializer.ReadOptional<"compare">(outDepthStencil.Compare);
     }
 
-    bool Serialization<Graphics::BlendState>::Serialize(Serializer& serializer, const Graphics::BlendState& blendState)
+    bool Serialization<rhi::BlendState>::Serialize(Serializer& serializer, const rhi::BlendState& blendState)
     {
         return serializer.Write<"enabled">(blendState.IsBlendEnabled) &&
             serializer.Write<"colormask">(blendState.ColorWriteMask) &&
@@ -64,7 +64,7 @@ namespace Onyx
             serializer.Write<"alphaop">(blendState.AlphaOperation);
     }
 
-    bool Serialization<Graphics::BlendState>::Deserialize(const Deserializer& deserializer, Graphics::BlendState& outBlendState)
+    bool Serialization<rhi::BlendState>::Deserialize(const Deserializer& deserializer, rhi::BlendState& outBlendState)
     {
         return deserializer.ReadOptional<"enabled">(outBlendState.IsBlendEnabled) &&
             deserializer.ReadOptional<"colormask">(outBlendState.ColorWriteMask) &&

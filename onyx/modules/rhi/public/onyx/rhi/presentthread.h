@@ -2,12 +2,12 @@
 
 #include <condition_variable>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class PresentThread : public Thread
     {

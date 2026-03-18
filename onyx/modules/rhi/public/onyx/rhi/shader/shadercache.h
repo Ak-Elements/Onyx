@@ -4,13 +4,13 @@
 #include <onyx/rhi/graphicstypes.h>
 #include <onyx/filesystem/path.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     template <typename T>
     class AssetHandle;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
     struct ShaderReflectionInfo;
@@ -66,7 +66,7 @@ namespace Onyx::Graphics
         bool LoadCacheFromDisk(const FilePath& diskShaderCachePath, ShaderCacheEntry& outEntry);
         void SaveCacheToDisk(const ShaderCacheEntry& entry, const FilePath& diskShaderCachePath, const ShaderReflectionInfo& reflectionInfo);
 
-        void OnFileChanged(const FilePath& path, FileSystem::FileWatcher::FileAction action);
+        void OnFileChanged(const FilePath& path, file_system::FileWatcher::FileAction action);
 
         bool IsEntryUpToDate(const ShaderCacheEntry& entry, onyxU64 shaderHash) const;
         bool AreIncludesUpToDate(const HashMap<onyxU64, onyxU64>& includeHashes) const;
@@ -77,6 +77,6 @@ namespace Onyx::Graphics
         // stores a shader include path and the hashed content - used to identify if a shader has changed
         HashMap<onyxU64, ShaderIncludeCacheEntry> m_IncludesCache;
 
-        FileSystem::FileWatcher m_DirectoryWatcher;
+        file_system::FileWatcher m_DirectoryWatcher;
     };
 }

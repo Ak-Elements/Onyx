@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-namespace Onyx
+namespace onyx
 {
     struct Time
     {

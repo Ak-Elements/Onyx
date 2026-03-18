@@ -8,7 +8,7 @@
 
 #include <entt/entity/entity.hpp>
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     SceneSectorStreamer::SceneSectorStreamer(Scene& scene)
         : m_Scene(&scene)
@@ -39,7 +39,7 @@ namespace Onyx::GameCore
         }
     }
 
-    void SceneSectorStreamer::AddEntity(Entity::EntityId entity)
+    void SceneSectorStreamer::AddEntity(ecs::EntityId entity)
     {
         if (m_Sectors.empty())
         {
@@ -55,7 +55,7 @@ namespace Onyx::GameCore
         if (it != m_Sectors[0].Entities.end())
             return;
 
-        const Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        const ecs::EntityRegistry& registry = m_Scene->GetRegistry();
         const TransformComponent& transformComponent = registry.GetComponent<TransformComponent>(entity);
 
         SectorEntity newSectorEntity;
@@ -66,7 +66,7 @@ namespace Onyx::GameCore
         m_Sectors[0].Entities.push_back(newSectorEntity);
     }
 
-    void SceneSectorStreamer::RemoveEntity(Entity::EntityId entity)
+    void SceneSectorStreamer::RemoveEntity(ecs::EntityId entity)
     {
         std::erase_if(m_Sectors[0].Entities, [&](const SectorEntity& sectorEntity)
         {
@@ -78,8 +78,8 @@ namespace Onyx::GameCore
     {
         ONYX_UNUSED(sector);
         ONYX_UNUSED(entity);
-        /*Entity::EntityRegistry& registry = m_Scene->GetRegistry();
-        const FileSystem::JsonValue& entityJsonData = sector.m_EntitiesData[entity.EntityDataPosition];
+        /*ecs::EntityRegistry& registry = m_Scene->GetRegistry();
+        const file_system::JsonValue& entityJsonData = sector.m_EntitiesData[entity.EntityDataPosition];
 
         */
     }
@@ -88,7 +88,7 @@ namespace Onyx::GameCore
     {
         ONYX_UNUSED(sector);
         ONYX_UNUSED(entity);
-        /*Entity::EntityRegistry& registry = m_Scene->GetRegistry();
+        /*ecs::EntityRegistry& registry = m_Scene->GetRegistry();
         registry.DeleteEntity(entity.Entity);
         entity.Entity = entt::null;*/
     }

@@ -5,9 +5,9 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    DeleteEntityCommand::DeleteEntityCommand(Entity::EntityId entityId, Assets::AssetId sceneId, GameCore::GameCoreSystem& gameCoreSystem)
+    DeleteEntityCommand::DeleteEntityCommand(ecs::EntityId entityId, assets::AssetId sceneId, game_core::GameCoreSystem& gameCoreSystem)
         : SceneCommand("DeleteEntity", sceneId, gameCoreSystem)
         , m_EntityId(entityId)
     {
@@ -15,7 +15,7 @@ namespace Onyx::Editor
 
     void DeleteEntityCommand::Execute()
     {
-        Entity::EntityRegistry& registry = GetScene().GetRegistry();
+        ecs::EntityRegistry& registry = GetScene().GetRegistry();
         registry.DeleteEntity(m_EntityId);
     }
 }

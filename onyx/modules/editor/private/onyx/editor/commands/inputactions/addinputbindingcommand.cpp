@@ -5,7 +5,7 @@
 
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     AddInputBindingCommand::AddInputBindingCommand(StringId32 bindingTypeId, InputActionSettingsWindow& inputSettingsWindow)
         : InputActionCommand("AddInputBinding", inputSettingsWindow)
@@ -15,10 +15,10 @@ namespace Onyx::Editor
     
     void AddInputBindingCommand::Execute()
     {
-        InputActions::InputActionsMap& context = GetInputActionsContext();
-        if( InputActions::InputAction* action = context.GetAction(m_ActionId).value_or(nullptr) )
+        input_actions::InputActionsMap& context = GetInputActionsContext();
+        if( input_actions::InputAction* action = context.GetAction(m_ActionId).value_or(nullptr) )
         {
-            action->AddBinding(InputActions::InputBindingsFactory::Create(m_BindingTypeId));
+            action->AddBinding(input_actions::InputBindingsFactory::Create(m_BindingTypeId));
         }
     }
 }

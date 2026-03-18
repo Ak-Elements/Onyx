@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/nodegraph/nodes/node.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     bool NodeGraph::Compile()
     {

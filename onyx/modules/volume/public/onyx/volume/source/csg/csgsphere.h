@@ -2,7 +2,7 @@
 
 #include <onyx/volume/source/volumebase.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class CSGSphere : public VolumeBase
     {

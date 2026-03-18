@@ -1,7 +1,7 @@
 #pragma once
 
 // Reference from https://gist.github.com/daniel-j-h/1ac3726279c3e621f64b
-namespace Onyx
+namespace onyx
 {
     template <typename... Args> struct TypeList { };
 

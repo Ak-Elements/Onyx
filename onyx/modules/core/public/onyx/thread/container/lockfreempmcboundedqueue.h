@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Threading
+namespace onyx::threading
 {
     /**
      * @brief The MPMCBoundedQueue class implements bounded

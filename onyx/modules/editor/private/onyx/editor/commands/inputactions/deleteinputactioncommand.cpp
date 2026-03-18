@@ -3,7 +3,7 @@
 
 #include <onyx/inputactions/inputactionsmap.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     DeleteInputActionCommand::DeleteInputActionCommand(StringId64 actionId, InputActionSettingsWindow& inputSettingsWindow)
         : InputActionCommand("DeleteInputAction", inputSettingsWindow)
@@ -12,7 +12,7 @@ namespace Onyx::Editor
     
     void DeleteInputActionCommand::Execute()
     {
-        InputActions::InputActionsMap& context = GetInputActionsContext();
+        input_actions::InputActionsMap& context = GetInputActionsContext();
         context.RemoveAction(m_ActionId);
     }
 }

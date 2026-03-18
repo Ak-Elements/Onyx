@@ -4,7 +4,7 @@
 #include <onyx/entity/entityregistry.h>
 #include <onyx/entity/ecsexecutioncontext.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     struct EntityCommandBuffer
     {

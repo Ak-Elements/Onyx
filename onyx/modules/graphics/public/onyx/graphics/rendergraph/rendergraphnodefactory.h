@@ -4,17 +4,17 @@
 
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    struct RenderGraphNodeEditorMetaData : NodeGraph::NodeEditorMetaData
+    struct RenderGraphNodeEditorMetaData : node_graph::NodeEditorMetaData
     {
     };
 
-    class RenderGraphNodeFactory : public NodeGraph::TypedNodeFactory<IRenderGraphNode, RenderGraphNodeEditorMetaData>
+    class RenderGraphNodeFactory : public node_graph::TypedNodeFactory<IRenderGraphNode, RenderGraphNodeEditorMetaData>
     {
     public:
         //TODO: Node concept to enforce node
-        template <typename T> /*requires std::derived_from<Graphics::RenderGraphTask, T>*/
+        template <typename T> /*requires std::derived_from<graphics::RenderGraphTask, T>*/
         static void Register()
         {
             TypedNodeFactory::Register<T>();

@@ -5,7 +5,7 @@
 #include <onyx/rhi/vulkan/swapchain.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     PresentThread::PresentThread(GraphicsSystem& graphicsSystem)
         : m_GraphicsSystem(&graphicsSystem)
@@ -57,7 +57,7 @@ namespace Onyx::Graphics
 
     void PresentThread::OnUpdate()
     {
-        Vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->GetApi<Vulkan::VulkanGraphicsApi>();
+        vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->GetApi<vulkan::VulkanGraphicsApi>();
         SetRefreshRate(m_GraphicsSystem->GetRefreshRate());
 
         while (IsRunning())
@@ -80,7 +80,7 @@ namespace Onyx::Graphics
 
             {
                 ONYX_PROFILE_SECTION(Present);
-                Vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
+                vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
                 bool hasPresented = swapChain.Present(presentInfo.BackbufferImageIndex);
                 if (hasPresented == false)
                 {

@@ -4,7 +4,7 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/engine/enginevariablesregistry.h>
 
-namespace Onyx
+namespace onyx
 {
     class IEngine;
     class Deserializer;

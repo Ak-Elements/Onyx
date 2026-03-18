@@ -2,7 +2,7 @@
 
 #include <onyx/geometry/vector2.h>
 
-namespace Onyx
+namespace onyx
 {
     template <typename Scalar>
     struct Vector4;
@@ -156,7 +156,7 @@ namespace Onyx
         constexpr void Normalize() requires std::is_floating_point_v<Scalar>
         {
             const onyxF64 length = Length();
-            ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
+            ONYX_ASSERT(onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
 
             const FloatingPointScalarT invLength = numeric_cast<FloatingPointScalarT>(1 / length);
             X = numeric_cast<Scalar>(X * invLength);
@@ -167,10 +167,10 @@ namespace Onyx
         constexpr Vector3<FloatingPointScalarT> Normalized() const
         {
             const FloatingPointScalarT length = Length();
-            if (Onyx::IsZero(length))
+            if (onyx::IsZero(length))
                 return Vector3<FloatingPointScalarT>::Zero();
 
-            ONYX_ASSERT(Onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
+            ONYX_ASSERT(onyx::IsZero(length) == false, "Can not normalize a vector of length 0");
 
             const FloatingPointScalarT invLength = (1 / length);
             return
@@ -438,30 +438,30 @@ namespace Onyx
 
         constexpr bool IsEqual(const Vector3& rhs) const
         {
-            return Onyx::IsEqual(X, rhs.X) &&
-                Onyx::IsEqual(Y, rhs.Y) &&
-                Onyx::IsEqual(Z, rhs.Z);
+            return onyx::IsEqual(X, rhs.X) &&
+                onyx::IsEqual(Y, rhs.Y) &&
+                onyx::IsEqual(Z, rhs.Z);
         }
 
         constexpr bool IsEqual(const Vector3& rhs, ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
-            return Onyx::IsEqual(X, rhs.X, epsilon) &&
-                Onyx::IsEqual(Y, rhs.Y, epsilon) &&
-                Onyx::IsEqual(Z, rhs.Z, epsilon);
+            return onyx::IsEqual(X, rhs.X, epsilon) &&
+                onyx::IsEqual(Y, rhs.Y, epsilon) &&
+                onyx::IsEqual(Z, rhs.Z, epsilon);
         }
 
         constexpr bool IsZero() const
         {
-            return Onyx::IsZero(X) &&
-                Onyx::IsZero(Y) &&
-                Onyx::IsZero(Z);
+            return onyx::IsZero(X) &&
+                onyx::IsZero(Y) &&
+                onyx::IsZero(Z);
         }
 
         constexpr bool IsZero(ScalarT epsilon) const requires std::is_floating_point_v<Scalar>
         {
-            return Onyx::IsZero(X, epsilon) &&
-                Onyx::IsZero(Y, epsilon) &&
-                Onyx::IsZero(Z, epsilon);
+            return onyx::IsZero(X, epsilon) &&
+                onyx::IsZero(Y, epsilon) &&
+                onyx::IsZero(Z, epsilon);
         }
     };
 

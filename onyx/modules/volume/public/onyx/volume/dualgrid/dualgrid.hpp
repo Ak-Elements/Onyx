@@ -9,7 +9,7 @@
 #define USE_ANALYTICAL_NORMAL 0
 #endif
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     //TODO: change octreekey to z order again 
     //const uint8 Nodes[8] = {1, 5, 4, 0, 3, 7, 6, 2};

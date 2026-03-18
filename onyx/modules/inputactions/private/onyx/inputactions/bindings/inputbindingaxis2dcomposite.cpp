@@ -5,7 +5,7 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     void InputBindingAxis2DComposite::Reset()
     {
@@ -15,7 +15,7 @@ namespace Onyx::InputActions
         m_InputRight = 0;
     }
 
-    bool InputBindingAxis2DComposite::DoUpdate(const Input::InputSystem& inputSystem, Vector3f32& outInputValue)
+    bool InputBindingAxis2DComposite::DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue)
     {
         bool isUpDown = inputSystem.IsButtonDown(m_InputUp);
         bool isDownDown = inputSystem.IsButtonDown(m_InputDown);
@@ -31,7 +31,7 @@ namespace Onyx::InputActions
         return true;
     }
 
-    Input::InputID InputBindingAxis2DComposite::GetBoundInputForSlot(onyxU32 index) const
+    input::InputID InputBindingAxis2DComposite::GetBoundInputForSlot(onyxU32 index) const
     {
         switch (index)
         {
@@ -39,11 +39,11 @@ namespace Onyx::InputActions
             case 1: return m_InputDown;
             case 2: return m_InputLeft;
             case 3: return m_InputRight;
-            default: ONYX_ASSERT(false); return Input::InputID{};
+            default: ONYX_ASSERT(false); return input::InputID{};
         }
     }
 
-    void InputBindingAxis2DComposite::SetInputBindingSlot(onyxU32 index, Input::InputID inputID)
+    void InputBindingAxis2DComposite::SetInputBindingSlot(onyxU32 index, input::InputID inputID)
     {
         switch (index)
         {
@@ -76,9 +76,9 @@ namespace Onyx::InputActions
     }
 }
 
-namespace Onyx
+namespace onyx
 {
-    bool Serialization<InputActions::InputBindingAxis2DComposite>::Serialize(Serializer& serializer, const InputActions::InputBindingAxis2DComposite& binding)
+    bool Serialization<input_actions::InputBindingAxis2DComposite>::Serialize(Serializer& serializer, const input_actions::InputBindingAxis2DComposite& binding)
     {
         return serializer.Write<"up">(binding.m_InputUp) &&
             serializer.Write<"down">(binding.m_InputDown) &&
@@ -86,7 +86,7 @@ namespace Onyx
             serializer.Write<"right">(binding.m_InputRight);
     }
 
-    bool Serialization<InputActions::InputBindingAxis2DComposite>::Deserialize(const Deserializer& deserializer, InputActions::InputBindingAxis2DComposite& outBinding)
+    bool Serialization<input_actions::InputBindingAxis2DComposite>::Deserialize(const Deserializer& deserializer, input_actions::InputBindingAxis2DComposite& outBinding)
     {
         return deserializer.Read<"up">(outBinding.m_InputUp) &&
             deserializer.Read<"down">(outBinding.m_InputDown) &&

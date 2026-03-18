@@ -6,7 +6,7 @@
 
 #include <Windows.h>
 
-namespace Onyx::Platform::Windows
+namespace onyx::platform::windows
 {
     PlatformContext::PlatformContext(PlatformSystem& platformSystem)
         : m_PlatformSystem(&platformSystem)
@@ -15,7 +15,7 @@ namespace Onyx::Platform::Windows
 
     }
 
-    Input::InputSystem& PlatformContext::GetInputSystem()
+    input::InputSystem& PlatformContext::GetInputSystem()
     {
         ONYX_ASSERT(m_PlatformSystem != nullptr);
         return m_PlatformSystem->GetInputSystem();

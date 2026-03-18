@@ -4,7 +4,7 @@
 
 #include <onyx/log/backends/loggerbackend.h>
 
-namespace Onyx
+namespace onyx
 {
     class VisualStudioLogger : public LoggerBackend
     {

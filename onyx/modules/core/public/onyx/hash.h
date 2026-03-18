@@ -3,7 +3,7 @@
 #include <onyx/string/compiletimestring.h>
 #include <filesystem>
 
-namespace Onyx::Hash
+namespace onyx::hash
 {
     ONYX_NO_DISCARD constexpr onyxU32 FNV1aHash32(const onyxU8* data, onyxU64 length, onyxU32 seed)
     {

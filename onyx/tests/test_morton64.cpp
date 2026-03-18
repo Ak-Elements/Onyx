@@ -5,13 +5,13 @@
 
 #include <limits>
 
-namespace Onyx::MortonCode
+namespace onyx::MortonCode
 {
 
 SCENARIO("MortonCode2D_U64", "[morton][64bit][2d]")
 {
     using namespace std;
-    using namespace Onyx;
+    using namespace onyx;
 
     using MortonT = MortonCode2D_U64;
 
@@ -125,7 +125,7 @@ SCENARIO("MortonCode2D_U64", "[morton][64bit][2d]")
 SCENARIO("MortonCode3D_U64", "[morton][64bit][3d]")
 {
     using namespace std;
-    using namespace Onyx;
+    using namespace onyx;
 
     using MortonT = MortonCode3D_U64;
 

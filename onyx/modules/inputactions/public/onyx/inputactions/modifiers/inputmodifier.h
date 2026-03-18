@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     // modifiers that change the input value
     class InputModifier

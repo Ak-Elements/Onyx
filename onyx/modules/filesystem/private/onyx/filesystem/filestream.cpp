@@ -3,12 +3,12 @@
 #include <istream>
 #include <fstream>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     FileStream::FileStream(std::iostream* stream, OpenMode mode)
         : m_Stream(stream)
     {
-        if (Enums::HasAnyFlags(mode, OpenMode::Read))
+        if (enums::HasAnyFlags(mode, OpenMode::Read))
         {
             m_Stream->seekg(0, std::ios::end);
             m_Size = m_Stream->tellg();
@@ -18,12 +18,12 @@ namespace Onyx::FileSystem
 
     FileStream::FileStream(const FilePath& path, OpenMode openMode)
     {
-        onyxU32 openFlag = Enums::HasAnyFlags(openMode, OpenMode::Read) ? std::ios::in : std::ios::out;
-        if (Enums::HasAnyFlags(openMode, OpenMode::Append))
+        onyxU32 openFlag = enums::HasAnyFlags(openMode, OpenMode::Read) ? std::ios::in : std::ios::out;
+        if (enums::HasAnyFlags(openMode, OpenMode::Append))
         {
             openFlag |= std::ios::app;
         }
-        if (Enums::HasAnyFlags(openMode, OpenMode::Binary))
+        if (enums::HasAnyFlags(openMode, OpenMode::Binary))
         {
             openFlag |= std::ios::binary;
         }
@@ -31,7 +31,7 @@ namespace Onyx::FileSystem
         auto pathStr = path.generic_string();
         m_Stream = MakeUnique<std::fstream>(pathStr.c_str(), static_cast<std::ios_base::openmode>(openFlag));
         bool isGood = m_Stream->good();
-        if (isGood && Enums::HasAnyFlags(openMode, OpenMode::Read))
+        if (isGood && enums::HasAnyFlags(openMode, OpenMode::Read))
         {
             m_Stream->seekg(0, std::ios::end);
             m_Size = m_Stream->tellg();

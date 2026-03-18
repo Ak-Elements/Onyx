@@ -2,7 +2,7 @@
 
 #include <onyx/nodegraph/pins/pinbase.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     struct PrepareContext;
     struct ExecutionContext;
@@ -164,7 +164,7 @@ namespace Onyx::NodeGraph
                 if (inputPin->GetType() == PinTypeId::Execute)
                     continue;
 
-                if (Enums::HasNoneOf(GetPinVisibility(inputPin->GetLocalId()), PinVisibility::InPropertyGrid))
+                if (enums::HasNoneOf(GetPinVisibility(inputPin->GetLocalId()), PinVisibility::InPropertyGrid))
                     continue;
                
                 if (inputPin->IsConnected())

@@ -4,9 +4,9 @@
 #include <onyx/graphics/rendergraph/rendergraph.h> // TODO: REMOVE
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    class PreviewTerrainEditPass : public NodeGraph::FixedPinNode_2_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle, Graphics::TextureHandle>
+    class PreviewTerrainEditPass : public node_graph::FixedPinNode_2_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle, rhi::TextureHandle>
     {
     public:
         // TODO: Move this to a blackboard / variable storage on the RenderGraph?
@@ -14,16 +14,21 @@ namespace Onyx::Volume
         static onyxU16 BrushType;
         static onyxU16 BrushOperation;
 
-        static constexpr StringId32 TypeId = "Onyx::Volume::RenderGraph::PreviewTerrainEdit";
+        static constexpr StringId32 TypeId = "onyx::volume::RenderGraph::PreviewTerrainEdit";
         StringId32 GetTypeId() const override { return TypeId; }
 
         PreviewTerrainEditPass();
 
-    private:
-        using Super = NodeGraph::FixedPinNode_2_In_1_Out<Graphics::RenderGraphFixedShaderNode, Graphics::BufferHandle, Graphics::TextureHandle, Graphics::TextureHandle>;
+        PreviewTerrainEditPass( const PreviewTerrainEditPass& ) = default;
+        PreviewTerrainEditPass( PreviewTerrainEditPass&& ) = default;
+        PreviewTerrainEditPass& operator=( const PreviewTerrainEditPass& ) = default;
+        PreviewTerrainEditPass& operator=( PreviewTerrainEditPass&& ) = default;
 
-        void OnBeginFrame(Graphics::RenderGraphContext&) override;
-        void OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer) override;
+      private:
+        using Super = node_graph::FixedPinNode_2_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle, rhi::TextureHandle>;
+
+        void OnBeginFrame(graphics::RenderGraphContext&) override;
+        void OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:

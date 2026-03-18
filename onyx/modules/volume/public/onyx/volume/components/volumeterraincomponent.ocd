@@ -38,7 +38,7 @@ component VolumeGenerationComponent
     ShaderInstanceHandle RayTraceTerrainShader
     ShaderInstanceHandle FindRayTracedOctreeNodeShader
 
-    Assets::AssetHandle<VolumeShaderGraph> VolumeGraph
+    assets::AssetHandle<VolumeShaderGraph> VolumeGraph
 
     bool HasLoadedShaders = false
 }

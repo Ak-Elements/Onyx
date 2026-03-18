@@ -14,7 +14,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace Onyx::Ui::PropertyGrid
+namespace onyx::ui::property_grid
 {
     namespace
     {
@@ -280,7 +280,7 @@ namespace Onyx::Ui::PropertyGrid
 
     bool DrawButton(StringView propertyName)
     {
-        DrawPropertyName(Format::Format("##{}", propertyName));
+        DrawPropertyName(format::Format("##{}", propertyName));
 
         bool isPressed = ImGui::Button(propertyName.data());
         ImGui::EndHorizontal();
@@ -296,7 +296,7 @@ namespace Onyx::Ui::PropertyGrid
         {
             ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
             ScopedImGuiDisabled disabled;
-            hasModified = DrawStringInput(Format::Format("##{}", propertyName), readOnlyValue, ImVec2(0, 0), ImGuiInputTextFlags_ReadOnly);
+            hasModified = DrawStringInput(format::Format("##{}", propertyName), readOnlyValue, ImVec2(0, 0), ImGuiInputTextFlags_ReadOnly);
         }
 
         ImGui::EndHorizontal();
@@ -314,14 +314,14 @@ namespace Onyx::Ui::PropertyGrid
         DrawPropertyName(propertyName);
 
         ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-        bool hasModified = DrawStringInput(Format::Format("##{}", propertyName), value, ImVec2(0,0), textFlags);
+        bool hasModified = DrawStringInput(format::Format("##{}", propertyName), value, ImVec2(0,0), textFlags);
 
         ImGui::EndHorizontal();
 
         return hasModified;
     }
 
-    bool DrawAssetSelector(StringView propertyName, Assets::AssetId& outAssetId, Assets::AssetType assetType)
+    bool DrawAssetSelector(StringView propertyName, assets::AssetId& outAssetId, assets::AssetType assetType)
     {
         DrawPropertyName(propertyName);
 
@@ -362,7 +362,7 @@ namespace Onyx::Ui::PropertyGrid
         bool hasModified = false;
         //float color[3] = { inOutColor[0], inOutColor[1], inOutColor[2] };
         ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-        if (Ui::ColorInput("##inputColor", inOutColor))
+        if (ui::ColorInput("##inputColor", inOutColor))
         {
             hasModified = true;
             //inOutColor[0] = color[0];

@@ -1,30 +1,44 @@
 {
     "graph": [
         {
-            "id": "ba2926a5c001001",
+            "id": "ba4fcc11a401001",
             "typeId": {
-                "id": "d47b8af2",
-                "string": "Onyx::Graphics::RenderGraph::GetViewConstants"
+                "id": "0cc16c94",
+                "string": "onyx::graphics::render_graph_nodes::CreateLightClusters"
             },
             "outputs": [
                 {
-                    "id": "ba2926a5c001002",
+                    "id": "ba4fcc11a401002",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     }
                 }
-            ]
+            ],
+            "shader": "4a92973841f5cebe",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            }
         },
         {
             "id": "ba68ae7a0001001",
             "typeId": {
-                "id": "38c6fe1b",
-                "string": "Onyx::Graphics::RenderGraph::CreateTransmittance"
+                "id": "17eb3e80",
+                "string": "onyx::graphics::render_graph_nodes::CreateTransmittance"
             },
             "outputs": [
                 {
@@ -34,8 +48,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -75,25 +89,81 @@
             ]
         },
         {
-            "id": "ba4fcc11a401001",
+            "id": "ba2926a5c001001",
             "typeId": {
-                "id": "3e6650b",
-                "string": "Onyx::Graphics::RenderGraph::CreateLightClusters"
+                "id": "7f6de6eb",
+                "string": "onyx::graphics::render_graph_nodes::GetViewConstants"
             },
             "outputs": [
                 {
-                    "id": "ba4fcc11a401002",
+                    "id": "ba2926a5c001002",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "ba4fcc713c01000",
+            "typeId": {
+                "id": "2dbad233",
+                "string": "onyx::graphics::render_graph_nodes::UpdateLightClusters"
+            },
+            "inputs": [
+                {
+                    "id": "ba4fcc713c01001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
+                    },
+                    "linkedPin": "ba4fcc11a401002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba4fcc713c01002",
+                    "localId": {
+                        "id": "ae455c92",
+                        "string": "OutPin0"
+                    },
+                    "typeId": {
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
+                    }
+                },
+                {
+                    "id": "ba4fcc713c01003",
+                    "localId": {
+                        "id": "af455e25",
+                        "string": "OutPin1"
+                    },
+                    "typeId": {
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
+                    }
+                },
+                {
+                    "id": "b8e0fdab7c01102",
+                    "localId": {
+                        "id": "ac45596c",
+                        "string": "OutPin2"
+                    },
+                    "typeId": {
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     }
                 }
             ],
-            "shader": "4a92973841f5cebe",
+            "shader": "67d73da379312a29",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -109,10 +179,78 @@
             }
         },
         {
+            "id": "ba68af0af801000",
+            "typeId": {
+                "id": "7065c24c",
+                "string": "onyx::graphics::render_graph_nodes::ComputeMultipleScattering"
+            },
+            "inputs": [
+                {
+                    "id": "ba68af0af801001",
+                    "localId": {
+                        "id": "46c2a1b5",
+                        "string": "InPin"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    },
+                    "linkedPin": "ba68ae7a0001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ba68af0af801002",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "e1ae7204594cdf58",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                }
+            },
+            "output_attachments": [
+                {
+                    "type": "Attachment",
+                    "external": false,
+                    "format": "RGBA_FLOAT32",
+                    "loadOp": "Clear",
+                    "hassize": true,
+                    "size": [
+                        32,
+                        32,
+                        1
+                    ],
+                    "clearcolor": [
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
             "id": "ba6717196401001",
             "typeId": {
-                "id": "d457a11b",
-                "string": "Onyx::GameCore::RenderGraph::DepthPrePass"
+                "id": "c89ae035",
+                "string": "onyx::game_core::render_graph_nodes::DepthPrePass"
             },
             "inputs": [
                 {
@@ -122,8 +260,8 @@
                         "string": "InPin"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba2926a5c001002"
                 }
@@ -136,8 +274,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -179,8 +317,8 @@
         {
             "id": "ba8c92356401001",
             "typeId": {
-                "id": "6fadc1fa",
-                "string": "Onyx::GameCore::RenderGraph::MSDFFontPass"
+                "id": "7a83ceec",
+                "string": "onyx::game_core::render_graph_nodes::MSDFFontPass"
             },
             "inputs": [
                 {
@@ -190,8 +328,8 @@
                         "string": "InPin"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba2926a5c001002"
                 }
@@ -204,8 +342,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -247,8 +385,8 @@
         {
             "id": "b8e0fd536001001",
             "typeId": {
-                "id": "5ef77bb6",
-                "string": "Onyx::Editor::RenderGraph::EditorSceneGridPass"
+                "id": "40d6a6d9",
+                "string": "onyx::editor::render_graph_nodes::EditorSceneGridPass"
             },
             "inputs": [
                 {
@@ -258,8 +396,8 @@
                         "string": "InPin"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba2926a5c001002"
                 }
@@ -272,8 +410,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -313,148 +451,10 @@
             ]
         },
         {
-            "id": "ba68af0af801000",
-            "typeId": {
-                "id": "592cecf",
-                "string": "Onyx::Graphics::RenderGraph::ComputeMultipleScattering"
-            },
-            "inputs": [
-                {
-                    "id": "ba68af0af801001",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    },
-                    "linkedPin": "ba68ae7a0001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "ba68af0af801002",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
-                    }
-                }
-            ],
-            "shader": "e1ae7204594cdf58",
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": false,
-                    "format": "RGBA_FLOAT32",
-                    "loadOp": "Clear",
-                    "hassize": true,
-                    "size": [
-                        32,
-                        32,
-                        1
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "ba4fcc713c01000",
-            "typeId": {
-                "id": "d492e080",
-                "string": "Onyx::Graphics::RenderGraph::UpdateLightClusters"
-            },
-            "inputs": [
-                {
-                    "id": "ba4fcc713c01001",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    },
-                    "linkedPin": "ba4fcc11a401002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "ba4fcc713c01002",
-                    "localId": {
-                        "id": "ae455c92",
-                        "string": "OutPin0"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    }
-                },
-                {
-                    "id": "ba4fcc713c01003",
-                    "localId": {
-                        "id": "af455e25",
-                        "string": "OutPin1"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    }
-                },
-                {
-                    "id": "b8e0fdab7c01102",
-                    "localId": {
-                        "id": "ac45596c",
-                        "string": "OutPin2"
-                    },
-                    "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
-                    }
-                }
-            ],
-            "shader": "67d73da379312a29",
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            }
-        },
-        {
             "id": "ba68b013b801000",
             "typeId": {
-                "id": "1093842c",
-                "string": "Onyx::Graphics::RenderGraph::ComputeSkyViewLut"
+                "id": "136f92cf",
+                "string": "onyx::graphics::render_graph_nodes::ComputeSkyViewLut"
             },
             "inputs": [
                 {
@@ -464,8 +464,8 @@
                         "string": "InPin0"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba68ae7a0001002"
                 },
@@ -476,8 +476,8 @@
                         "string": "InPin1"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba68af0af801002"
                 }
@@ -490,8 +490,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -533,8 +533,8 @@
         {
             "id": "ba68b0d91801000",
             "typeId": {
-                "id": "108706ef",
-                "string": "Onyx::Graphics::RenderGraph::AtmosphericSkyPass"
+                "id": "ae46868a",
+                "string": "onyx::graphics::render_graph_nodes::AtmosphericSkyPass"
             },
             "inputs": [
                 {
@@ -544,8 +544,8 @@
                         "string": "InPin0"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba2926a5c001002"
                 },
@@ -556,8 +556,8 @@
                         "string": "InPin1"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba68ae7a0001002"
                 },
@@ -568,8 +568,8 @@
                         "string": "InPin2"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba68b013b801003"
                 }
@@ -582,8 +582,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -625,8 +625,8 @@
         {
             "id": "ba5010b28801001",
             "typeId": {
-                "id": "bfb6a6f6",
-                "string": "Onyx::GameCore::RenderGraph::StaticMeshPass"
+                "id": "febb1770",
+                "string": "onyx::game_core::render_graph_nodes::StaticMeshPass"
             },
             "inputs": [
                 {
@@ -636,8 +636,8 @@
                         "string": "View Constants"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba2926a5c001002"
                 },
@@ -648,8 +648,8 @@
                         "string": "GBuffer RenderTarget"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba68b0d91801004"
                 },
@@ -660,8 +660,8 @@
                         "string": "Depth Texture"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba6717196401002"
                 },
@@ -672,8 +672,8 @@
                         "string": "Light Grid"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba4fcc713c01002"
                 },
@@ -684,8 +684,8 @@
                         "string": "Light Indices"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "ba4fcc713c01003"
                 },
@@ -696,8 +696,8 @@
                         "string": "Lights"
                     },
                     "typeId": {
-                        "id": "2cc37a24",
-                        "string": "Onyx::Graphics::BufferHandle"
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
                     },
                     "linkedPin": "b8e0fdab7c01102"
                 }
@@ -710,8 +710,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -724,8 +724,8 @@
         {
             "id": "b8e0fd752001000",
             "typeId": {
-                "id": "3cee5b8d",
-                "string": "CompositePass"
+                "id": "c73e99b5",
+                "string": "onyx::graphics::render_graph_nodes::CompositePass"
             },
             "inputs": [
                 {
@@ -735,8 +735,8 @@
                         "string": "InPin0"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "b8e0fd536001003"
                 },
@@ -747,8 +747,8 @@
                         "string": "InPin1"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba5010b28801006"
                 },
@@ -759,8 +759,8 @@
                         "string": "InPin2"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "ba8c92356401003"
                 }
@@ -773,8 +773,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -816,8 +816,8 @@
         {
             "id": "baa254787001000",
             "typeId": {
-                "id": "bd96e437",
-                "string": "Onyx::Graphics::RenderGraph::ToneMapPass"
+                "id": "26a3ac08",
+                "string": "onyx::graphics::render_graph_nodes::ToneMapPass"
             },
             "inputs": [
                 {
@@ -827,8 +827,8 @@
                         "string": "InPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "b8e0fdab7c01000"
                 }
@@ -841,8 +841,8 @@
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -882,35 +882,35 @@
             ]
         },
         {
-            "id": "ddca9d6cfc01000",
+            "id": "ddca30f8dc01000",
             "typeId": {
-                "id": "caf1e79c",
-                "string": "Onyx::Graphics::RenderGraph::DebugDrawTask"
+                "id": "9579f2ef",
+                "string": "onyx::graphics::render_graph_nodes::DebugDrawTask"
             },
             "inputs": [
                 {
-                    "id": "ddca9d6cfc01001",
+                    "id": "ddca30f8dc01001",
                     "localId": {
                         "id": "46c2a1b5",
                         "string": "InPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     },
                     "linkedPin": "baa254787001002"
                 }
             ],
             "outputs": [
                 {
-                    "id": "ddca9d6cfc01002",
+                    "id": "ddca30f8dc01002",
                     "localId": {
                         "id": "938dd456",
                         "string": "OutPin"
                     },
                     "typeId": {
-                        "id": "99ce94ed",
-                        "string": "Onyx::Graphics::TextureHandle"
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
                     }
                 }
             ],
@@ -945,8 +945,5 @@
                 }
             ]
         }
-    ],
-    "data": {
-        "ddca9d6cfc01002": null
-    }
+    ]
 }

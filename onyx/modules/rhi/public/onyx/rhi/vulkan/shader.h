@@ -4,12 +4,12 @@
 #include <onyx/rhi/vulkan/descriptorsetlayout.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct ShaderCacheEntry;
 }
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	class VulkanGraphicsApi;
 
@@ -25,9 +25,9 @@ namespace Onyx::Graphics::Vulkan
 		VULKAN_HANDLE(VkShaderModule, Module, nullptr);
 	};
 
-	class Shader : public Graphics::Shader
+	class Shader : public rhi::Shader
 	{
-		using Super = Graphics::Shader;
+		using Super = rhi::Shader;
 	public:
 		Shader() = default;
 		~Shader() override;
@@ -45,7 +45,7 @@ namespace Onyx::Graphics::Vulkan
 		const DynamicArray<PushConstantRange>& GetPushConstantRanges() const { return m_ReflectionInfo.pushConstantRanges; }
 
 		bool IsComputeShader() const override { return HasStage(ShaderStage::Compute); }
-		bool HasStage(ShaderStage stage) const { return m_Stages[Enums::ToIntegral(stage)] != nullptr; }
+		bool HasStage(ShaderStage stage) const { return m_Stages[enums::ToIntegral(stage)] != nullptr; }
 		bool HasDescriptorSetLayout() const override { return m_DescriptorSetLayouts.empty() == false; }
 
 		const DynamicArray<VkPipelineShaderStageCreateInfo>& GetPipelineShaderStageCreateInfos() const { return m_PipelineShaderStageCreateInfos; }

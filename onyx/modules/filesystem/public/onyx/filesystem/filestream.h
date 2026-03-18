@@ -3,7 +3,7 @@
 #include <onyx/filesystem/path.h>
 #include <onyx/stream/stream.h>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     enum class OpenMode : onyxU8
     {

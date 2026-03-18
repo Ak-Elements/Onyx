@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx
+namespace onyx
 {
     template <typename Scalar>
     constexpr bool IsEqual(Scalar lhs, Scalar rhs)

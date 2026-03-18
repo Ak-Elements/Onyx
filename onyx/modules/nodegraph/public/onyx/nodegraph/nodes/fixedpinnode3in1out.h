@@ -2,10 +2,10 @@
 
 #include <onyx/nodegraph/pins/pin.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename NodeType, typename InType0, typename InType1, typename InType2, typename OutType>
-    class FixedPinNode_3_In_1_Out : public NodeType
+    class FixedPinNode3In1Out : public NodeType
     {
     public:
         using InPin0 = Pin<InType0, "InPin0">;
@@ -13,27 +13,27 @@ namespace Onyx::NodeGraph
         using InPin2 = Pin<InType2, "InPin2">;
         using OutPin = Pin<OutType, "OutPin">;
 
-        const InPin0& GetInputPin0() const { return m_Input0; }
-        const InPin1& GetInputPin1() const { return m_Input1; }
-        const InPin2& GetInputPin2() const { return m_Input2; }
-        const OutPin& GetOutputPin() const { return m_Output; }
+        const InPin0& GetInputPin0() const { return m_input0; }
+        const InPin1& GetInputPin1() const { return m_input1; }
+        const InPin2& GetInputPin2() const { return m_input2; }
+        const OutPin& GetOutputPin() const { return m_output; }
 
-        onyxU32 GetInputPinCount() const override { return 3; }
-        onyxU32 GetOutputPinCount() const override { return 1; }
+        ONYX_NO_DISCARD onyxU32 GetInputPinCount() const override { return 3; }
+        ONYX_NO_DISCARD onyxU32 GetOutputPinCount() const override { return 1; }
 
         PinBase* GetInputPin(onyxU32 index) override
         {
             switch (index)
             {
             case 0:
-                return static_cast<PinBase*>(&m_Input0);
+                return static_cast<PinBase*>(&m_input0);
             case 1:
-                return static_cast<PinBase*>(&m_Input1);
+                return static_cast<PinBase*>(&m_input1);
             case 2:
-                return static_cast<PinBase*>(&m_Input2);
+                return static_cast<PinBase*>(&m_input2);
             default:
                 ONYX_ASSERT(false, "Pin index out of range");
-                return static_cast<PinBase*>(&m_Input0);
+                return static_cast<PinBase*>(&m_input0);
             }
         }
 
@@ -42,21 +42,21 @@ namespace Onyx::NodeGraph
             switch (index)
             {
             case 0:
-                return static_cast<const PinBase*>(&m_Input0);
+                return static_cast<const PinBase*>(&m_input0);
             case 1:
-                return static_cast<const PinBase*>(&m_Input1);
+                return static_cast<const PinBase*>(&m_input1);
             case 2:
-                return static_cast<const PinBase*>(&m_Input2);
+                return static_cast<const PinBase*>(&m_input2);
             default:
                 ONYX_ASSERT(false, "Pin index out of range");
-                return static_cast<const PinBase*>(&m_Input0);
+                return static_cast<const PinBase*>(&m_input0);
             }
         }
 
-        PinBase* GetOutputPin(onyxU32 /*index*/) override { return static_cast<PinBase*>(&m_Output); }
-        const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_Output); }
+        PinBase* GetOutputPin(onyxU32 /*index*/) override { return static_cast<PinBase*>(&m_output); }
+        ONYX_NO_DISCARD const PinBase* GetOutputPin(onyxU32 /*index*/) const override { return static_cast<const PinBase*>(&m_output); }
 #if ONYX_IS_EDITOR
-        StringView GetPinName(StringId32 pinId) const override
+        ONYX_NO_DISCARD StringView GetPinName(StringId32 pinId) const override
         {
             switch (pinId)
             {
@@ -70,14 +70,14 @@ namespace Onyx::NodeGraph
             return "";
         }
 
-        std::any CreateDefaultForPin(StringId32 pinId) const override
+        ONYX_NO_DISCARD std::any CreateDefaultForPin(StringId32 pinId) const override
         {
             switch (pinId)
             {
-            case InPin0::LocalId: return m_Input0.CreateDefault();
-            case InPin1::LocalId: return m_Input1.CreateDefault();
-            case InPin2::LocalId: return m_Input2.CreateDefault();
-            case OutPin::LocalId: return m_Output.CreateDefault();
+            case InPin0::LocalId: return m_input0.CreateDefault();
+            case InPin1::LocalId: return m_input1.CreateDefault();
+            case InPin2::LocalId: return m_input2.CreateDefault();
+            case OutPin::LocalId: return m_output.CreateDefault();
             }
 
             ONYX_ASSERT(false, "Failed to get pin with local id {}", pinId);
@@ -86,9 +86,9 @@ namespace Onyx::NodeGraph
 #endif
 
     protected:
-        InPin0 m_Input0;
-        InPin1 m_Input1;
-        InPin2 m_Input2;
-        OutPin m_Output;
+        InPin0 m_input0;
+        InPin1 m_input1;
+        InPin2 m_input2;
+        OutPin m_output;
     };
 }

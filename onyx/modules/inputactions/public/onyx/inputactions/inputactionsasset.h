@@ -3,12 +3,12 @@
 #include <onyx/assets/asset.h>
 #include <onyx/inputactions/inputactionsmap.h>
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
-    class InputActionsContext : public Assets::Asset<InputActionsContext>
+    class InputActionsContext : public assets::Asset<InputActionsContext>
     {
     public:
-        static constexpr StringId32 TypeId{ "Onyx::InputActions::InputActionsContext" };
+        static constexpr StringId32 TypeId{ "onyx::input_actions::InputActionsContext" };
         StringId32 GetTypeId() const { return TypeId; }
 
         HashMap<StringId32, InputActionsMap>& GetMaps() { return m_Contexts; }

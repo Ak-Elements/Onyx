@@ -1,7 +1,7 @@
 #include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
 #include <onyx/ui/propertygrid.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     namespace 
     {
@@ -32,7 +32,7 @@ namespace Onyx::Editor
         bool DrawSwizzleEnumPropertyGrid(SwizzleMask& currentMask)
         {
             constexpr auto startEndPair = GetSwizzleMaskRange<InVectorT, OutVectorT>();
-            return Ui::PropertyGrid::DrawEnumPropertyFromTo<SwizzleMask, startEndPair.first, startEndPair.second>("Swizzle", currentMask);
+            return ui::property_grid::DrawEnumPropertyFromTo<SwizzleMask, startEndPair.first, startEndPair.second>("Swizzle", currentMask);
         }
     }
 

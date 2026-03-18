@@ -17,7 +17,7 @@
 #include <unistd.h>
 ///
 
-namespace Onyx::Platform::Wayland
+namespace onyx::platform::wayland
 {
     // TODO: Remove
 namespace
@@ -178,7 +178,7 @@ allocate_shm_file(size_t size)
         {
             m_Settings.MinSize = minSize;
             VectorComponentMask compared = m_Settings.Size > m_Settings.MinSize;
-            SetSize(Enums::HasAllFlags(compared, VectorComponentMask::X)  ? m_Settings.MinSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MinSize[1] : m_Settings.Size[1]);
+            SetSize(enums::HasAllFlags(compared, VectorComponentMask::X)  ? m_Settings.MinSize[1] : m_Settings.Size[0], enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MinSize[1] : m_Settings.Size[1]);
         }
     }
 
@@ -188,7 +188,7 @@ allocate_shm_file(size_t size)
         {
             m_Settings.MaxSize = maxSize;
             VectorComponentMask compared = m_Settings.Size > m_Settings.MaxSize;
-            SetSize(Enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MaxSize[1] : m_Settings.Size[0], Enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MaxSize[1] : m_Settings.Size[1]);
+            SetSize(enums::HasAllFlags(compared, VectorComponentMask::X) ? m_Settings.MaxSize[1] : m_Settings.Size[0], enums::HasAllFlags(compared, VectorComponentMask::Y) ? m_Settings.MaxSize[1] : m_Settings.Size[1]);
         }
     }
 

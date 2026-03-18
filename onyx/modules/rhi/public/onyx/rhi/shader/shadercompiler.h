@@ -3,14 +3,14 @@
 #include <onyx/rhi/shader/shader.h>
 #include <onyx/filesystem/path.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
     struct PreprocessedShader;
     class Shader;
     class ShaderInstance;
 }
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct ShaderCompiliationUnit
     {

@@ -5,24 +5,24 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx
+namespace onyx
 {
     template <>
-    struct Serialization<Graphics::ShaderGraph>
+    struct Serialization<graphics::ShaderGraph>
     {
-        static bool Serialize(Serializer& serializer, const Graphics::ShaderGraph& nodeGraphNode)
+        static bool Serialize(Serializer& serializer, const graphics::ShaderGraph& nodeGraphNode)
         {
             return nodeGraphNode.Serialize(serializer);
         }
 
-        static bool Deserialize(const Deserializer& deserializer, Graphics::ShaderGraph& outGraphNode)
+        static bool Deserialize(const Deserializer& deserializer, graphics::ShaderGraph& outGraphNode)
         {
             return outGraphNode.Deserialize(deserializer);
         }
     };
 }
 
-namespace Onyx::Graphics::ShaderGraphSerializer
+namespace onyx::graphics::shader_graph_serializer
 {
     bool Serialize(const ShaderGraph& graph, Serializer& serializer)
     {

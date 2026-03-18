@@ -4,7 +4,7 @@
 
 #include <onyx/log/logger.h>
 
-namespace Onyx
+namespace onyx
 {
     template <typename UnitT = std::chrono::microseconds>
     struct HighPerformanceTimer

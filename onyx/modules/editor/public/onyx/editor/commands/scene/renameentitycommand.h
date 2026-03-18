@@ -2,28 +2,28 @@
 
 #include <onyx/editor/commands/scene/scenecommand.h>
 
-namespace Onyx
+namespace onyx
 {
-    namespace Entity
+    namespace ecs
     {
         enum class EntityId : onyxU32;
     }
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct RenameEntityCommand : public SceneCommand
     {
     public:
-        RenameEntityCommand(Entity::EntityId entity,
+        RenameEntityCommand(ecs::EntityId entity,
             String name,
-            Assets::AssetId sceneId,
-            GameCore::GameCoreSystem& gameCoreSystem);
+            assets::AssetId sceneId,
+            game_core::GameCoreSystem& gameCoreSystem);
             
         void Execute() override;
 
     private:
         String m_Name;
-        Entity::EntityId m_Entity;
+        ecs::EntityId m_Entity;
     };
 }

@@ -4,17 +4,17 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class SkyViewLutRenderGraphNode : public NodeGraph::FixedPinNode_2_In_1_Out<RenderGraphFixedShaderNode, TextureHandle, TextureHandle, TextureHandle>
+    class SkyViewLutRenderGraphNode : public node_graph::FixedPinNode_2_In_1_Out<RenderGraphFixedShaderNode, rhi::TextureHandle, rhi::TextureHandle, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::ComputeSkyViewLut";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::ComputeSkyViewLut";
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
         void OnBeginFrame(RenderGraphContext& context) override;
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
         Vector3f32 GetSunDirection(float timeOfDay) const;
 

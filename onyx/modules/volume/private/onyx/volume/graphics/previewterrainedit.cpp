@@ -5,7 +5,7 @@
 
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     namespace
     {
@@ -22,27 +22,27 @@ namespace Onyx::Volume
         m_PipelineProperties.Shader = "engine:/shaders/volume/render_terrain_brush.oshader";
 
         m_InputAttachmentInfos.emplace_back(); // buffer
-        Graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
-        gbufferInfo.Type = Graphics::RenderGraphResourceType::Attachment;
+        graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+        gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
 
     }
 
-    void PreviewTerrainEditPass::OnBeginFrame(Graphics::RenderGraphContext& context)
+    void PreviewTerrainEditPass::OnBeginFrame(graphics::RenderGraphContext& context)
     {
         ONYX_PROFILE_FUNCTION;
 
         onyxU64 outputGlobalId = GetOutputPin(0)->GetGlobalId();
 
-        const NodeGraph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId(InPin1::LocalId);
+        const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId(InPin1::LocalId);
         if (gbufferRenderTargetPin->IsConnected())
         {
-            const Graphics::RenderGraphResource& inputResource = context.Graph.GetResource(gbufferRenderTargetPin->GetLinkedPinGlobalId());
-            Graphics::RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
+            const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(gbufferRenderTargetPin->GetLinkedPinGlobalId());
+            graphics::RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
             outResource.Handle = inputResource.Handle;
         }
     }
 
-    void PreviewTerrainEditPass::OnRender(Graphics::RenderGraphContext& context, Graphics::CommandBuffer& commandBuffer)
+    void PreviewTerrainEditPass::OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
@@ -63,19 +63,19 @@ namespace Onyx::Volume
 
 
         PushConstants constants;
-        const Graphics::RenderGraphResource& hitBufferResource = context.Graph.GetResource(HIT_BUFFER_RESOURCE_ID);
-        const Graphics::BufferHandle& buffer = std::get<Graphics::BufferHandle>(hitBufferResource.Handle);
+        const graphics::RenderGraphResource& hitBufferResource = context.Graph.GetResource(HIT_BUFFER_RESOURCE_ID);
+        const rhi::BufferHandle& buffer = std::get<rhi::BufferHandle>(hitBufferResource.Handle);
         constants.HitPositionBuffer = buffer.Buffer->GetGpuAddress();
 
-        const Graphics::RenderGraphResource& depthTextureResource = context.Graph.GetResource(Graphics::DEPTH_RESOURCE_ID);
-        const Graphics::TextureHandle& depthTexture = std::get<Graphics::TextureHandle>(depthTextureResource.Handle);
+        const graphics::RenderGraphResource& depthTextureResource = context.Graph.GetResource(graphics::DEPTH_RESOURCE_ID);
+        const rhi::TextureHandle& depthTexture = std::get<rhi::TextureHandle>(depthTextureResource.Handle);
         constants.DepthTextureIndex = depthTexture.Texture->GetIndex();
 
         constants.BrushSize = BrushSize;
         constants.BrushType = BrushType;
         constants.BrushOperation = BrushOperation;
 
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Fragment, constants);
-        commandBuffer.Draw(Graphics::PrimitiveTopology::Triangle, 0, 6, 0, 1);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, constants);
+        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1);
     }
 }

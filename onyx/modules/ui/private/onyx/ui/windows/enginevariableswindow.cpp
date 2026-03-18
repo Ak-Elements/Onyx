@@ -6,7 +6,7 @@
 #include <onyx/ui/propertygrid.h>
 #include <onyx/ui/widgets.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     void EngineVariablesWindow::OnOpen()
     {
@@ -23,11 +23,11 @@ namespace Onyx::Ui
             RebuildVariableGraph();
         }
 
-        PropertyGrid::BeginPropertyGrid("Engine Vars", 80);
+        property_grid::BeginPropertyGrid("Engine Vars", 80);
 
 
         RenderGraphNode(m_Root);
-        PropertyGrid::EndPropertyGrid();
+        property_grid::EndPropertyGrid();
 
         End();
     }
@@ -41,7 +41,7 @@ namespace Onyx::Ui
         bool isOpen = true;
         if (isRoot == false)
         {
-            isOpen = PropertyGrid::BeginCollapsiblePropertyGroup(graphNode.Label, flags);
+            isOpen = property_grid::BeginCollapsiblePropertyGroup(graphNode.Label, flags);
         }
 
         if ( isOpen )
@@ -60,7 +60,7 @@ namespace Onyx::Ui
 
             if ( isRoot == false )
             {
-                PropertyGrid::EndPropertyGroup();
+                property_grid::EndPropertyGroup();
             }
         }
     }
@@ -69,7 +69,7 @@ namespace Onyx::Ui
     {
         m_Root.Children.clear();
 
-        const Localization::LocalizationModule& localizationSystem = GetEngineSystem<Localization::LocalizationModule>();
+        const localization::LocalizationModule& localizationSystem = GetEngineSystem<localization::LocalizationModule>();
         HashMap<StringId32, IEngineVariable*> engineVariables = IEngine::GetVariablesRegistry().GetVariables();
 
         for (auto&& [id, variable] : engineVariables)

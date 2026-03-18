@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/vulkan/device.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     namespace
     {
@@ -21,7 +21,7 @@ namespace Onyx::Graphics::Vulkan
             case SamplerAddressMode::MirrorClampToEdge:
                 return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
             default:
-                ONYX_ASSERT(false, "Unhandeled sampler address mode %s", Enums::ToString(mode).data());
+                ONYX_ASSERT(false, "Unhandeled sampler address mode %s", enums::ToString(mode).data());
                 return VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
             }
         }
@@ -37,7 +37,7 @@ namespace Onyx::Graphics::Vulkan
             case SamplerFilter::Cubic:
                 return VK_FILTER_CUBIC_EXT;
             default:
-                ONYX_ASSERT(false, "Unhandeled sampler filter mode %s", Enums::ToString(mode).data());
+                ONYX_ASSERT(false, "Unhandeled sampler filter mode %s", enums::ToString(mode).data());
                 return VK_FILTER_MAX_ENUM;
             }
         }
@@ -51,7 +51,7 @@ namespace Onyx::Graphics::Vulkan
             case SamplerMipMapMode::Linear:
                 return VK_SAMPLER_MIPMAP_MODE_LINEAR;
             default:
-                ONYX_ASSERT(false, "Unhandeled sampler mipmap mode %s", Enums::ToString(mode).data());
+                ONYX_ASSERT(false, "Unhandeled sampler mipmap mode %s", enums::ToString(mode).data());
                 return VK_SAMPLER_MIPMAP_MODE_MAX_ENUM;
             }
         }

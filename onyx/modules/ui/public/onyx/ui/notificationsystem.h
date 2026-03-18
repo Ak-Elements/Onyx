@@ -2,12 +2,12 @@
 
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx::Ui
+namespace onyx::ui
 {
     class NotificationSystem : public IEngineSystem
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Ui::NotificationSystem";
+        static constexpr StringId32 TypeId = "onyx::ui::NotificationSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
         void Update();

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 template<typename KeyType>
 class OctreeKey

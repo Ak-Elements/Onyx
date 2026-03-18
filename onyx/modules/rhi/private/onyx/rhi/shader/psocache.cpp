@@ -2,19 +2,19 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     //PipelineHandle PsoCache::GetOrCreatePipeline(GraphicsSystem& api, const PsoKey& key, ShaderEffectHandle& outPso)
     //{
     //    ONYX_UNUSED(api);
     //    ONYX_UNUSED(outPso);
-    //    onyxU64 psoKey = Hash::FNV1aHash64(key.Rasterization);
+    //    onyxU64 psoKey = hash::FNV1aHash64(key.Rasterization);
 
-    //    psoKey = Hash::FNV1aHash64(key.DepthStencil, psoKey);
-    //    psoKey = Hash::FNV1aHash64(key.BlendState, psoKey);
-    //    psoKey = Hash::FNV1aHash64(key.ColorWriteMask, psoKey);
-    //    psoKey = Hash::FNV1aHash64(key.IsBlendEnabled, psoKey);
-    //    psoKey = Hash::FNV1aHash64(key.IsSeperateBlend, psoKey);
+    //    psoKey = hash::FNV1aHash64(key.DepthStencil, psoKey);
+    //    psoKey = hash::FNV1aHash64(key.BlendState, psoKey);
+    //    psoKey = hash::FNV1aHash64(key.ColorWriteMask, psoKey);
+    //    psoKey = hash::FNV1aHash64(key.IsBlendEnabled, psoKey);
+    //    psoKey = hash::FNV1aHash64(key.IsSeperateBlend, psoKey);
 
     //    auto it = m_Pipelines.find(psoKey);
     //    if (it != m_Pipelines.end())

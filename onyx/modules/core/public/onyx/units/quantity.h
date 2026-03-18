@@ -1,7 +1,7 @@
 #pragma once
 #include <onyx/units/ratio.h>
 
-namespace Onyx
+namespace onyx
 {
     template<typename T>
     concept StorageQuantity = requires(const T & obj)

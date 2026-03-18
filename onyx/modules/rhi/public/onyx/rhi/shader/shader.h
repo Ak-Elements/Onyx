@@ -5,12 +5,12 @@
 
 #include <onyx/stream/stream.h>
 
-namespace Onyx
+namespace onyx
 {
 	class IEngine;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
 
@@ -299,12 +299,12 @@ namespace Onyx::Graphics
 		}
 	};
 
-	class Shader : public Assets::Asset<Shader>
+	class Shader : public assets::Asset<Shader>
     {
 	public:
 		static Reference<Shader> Create(const IEngine& engine);
 
-		static constexpr StringId32 TypeId{ "Onyx::Graphics::Assets::Shader" };
+		static constexpr StringId32 TypeId{ "onyx::Graphics::assets::Shader" };
 		StringId32 GetTypeId() const { return TypeId; }
 
 		using ByteCode = DynamicArray<onyxU32>;

@@ -18,7 +18,8 @@ endif()
 
 onyx_add_target(onyx-rhi
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NAMESPACE "Onyx::Rhi"
+    NAMESPACE "onyx::rhi"
+    NAMESPACE_PATH "onyx/rhi"
     PRIVATE_DEFINES ${private_defines}
     NO_EDITOR_TARGET
 )

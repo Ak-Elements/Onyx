@@ -5,14 +5,14 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/rendergraphnodefactory.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
     class RenderGraph;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    class RenderGraphEditorContext : public TypedNodeGraphEditorContext<Graphics::RenderGraph, Graphics::RenderGraphNodeFactory>
+    class RenderGraphEditorContext : public TypedNodeGraphEditorContext<graphics::RenderGraph, graphics::RenderGraphNodeFactory>
     {
     public:
         bool Compile() override;

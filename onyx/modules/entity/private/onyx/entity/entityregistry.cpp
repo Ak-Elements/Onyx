@@ -3,7 +3,7 @@
 #include <onyx/entity/componentfactory.h>
 #include <onyx/entity/ecsexecutioncontext.h>
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     EntityRegistry::EntityRegistry(ComponentFactory& factory)
         : m_ComponentFactory(&factory)

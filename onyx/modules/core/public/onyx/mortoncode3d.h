@@ -2,7 +2,7 @@
 
 #include <onyx/onyx_types.h>
 
-namespace Onyx
+namespace onyx
 {
     namespace MortonCode3D_Internal
     {
@@ -93,7 +93,7 @@ namespace Onyx
 
         static constexpr void Decode(MortonT morton, CoordT& x, CoordT& y, CoordT& z)
         {
-            using namespace Onyx::MortonCode3D_Internal;
+            using namespace onyx::MortonCode3D_Internal;
             x = DecodeCoordinate<MortonT, CoordT>(morton);
             y = DecodeCoordinate<MortonT, CoordT>(morton >> 1);
             z = DecodeCoordinate<MortonT, CoordT>(morton >> 2);

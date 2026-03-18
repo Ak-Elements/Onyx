@@ -1,6 +1,6 @@
 #include <onyx/editor/windows/editorwindow.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     void EditorWindow::Render()
     {

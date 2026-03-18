@@ -7,7 +7,7 @@
 
 #define ONYX_PROFILE_CREATE_TAG(name, color) \
     //constexpr const char* const ONYX_PROFILE_CONCAT(g_ProfilerTag, name) = #name; \
-    //constexpr const Onyx::onyxU32 ONYX_PROFILE_CONCAT(g_ProfilerColor, name) = color;
+    //constexpr const onyx::onyxU32 ONYX_PROFILE_CONCAT(g_ProfilerColor, name) = color;
 
 #define ONYX_PROFILE(name) \
     //ZoneNamedNC(ONYX_PROFILE_CONCAT(tracy_scope_, name), \
@@ -24,7 +24,7 @@
 #define ONYX_PROFILE_TAG(name) //ZoneText(#name, strlen(#name));
 #define ONYX_PROFILE_SET_THREAD(name) tracy::SetThreadName(#name);
 
-namespace Onyx::Profiler
+namespace onyx::Profiler
 {
     struct Profiler
     {

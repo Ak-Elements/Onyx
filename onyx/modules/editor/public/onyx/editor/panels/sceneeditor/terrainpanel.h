@@ -2,30 +2,30 @@
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class TerrainTool;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class ComponentFactory;
 }
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     struct VolumeGenerationComponent;
     struct TerrainSettingsComponent;
     struct TerrainWorldOctreeComponent;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class GameCoreSystem;
     class Scene;
 }
 
-namespace Onyx::InputActions
+namespace onyx::input_actions
 {
     class InputActionSystem;
     struct InputActionEvent;
@@ -33,9 +33,9 @@ namespace Onyx::InputActions
 
 struct ImGuiWindow;
 
-namespace Onyx::Editor::SceneEditor
+namespace onyx::editor::scene_editor
 {
-    class TerrainPanel : public Ui::ImGuiWindow
+    class TerrainPanel : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "TerrainPanel";
@@ -55,7 +55,7 @@ namespace Onyx::Editor::SceneEditor
         void OnOpen() override;
         void OnClose() override;
 
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
         
         void RenderPropertiesPanel();
         void RenderTabs();
@@ -63,24 +63,24 @@ namespace Onyx::Editor::SceneEditor
         void RenderToolbar(::ImGuiWindow* sceneViewWindow);
         void RenderSelectedTabOperations();
 
-        void TraceTerrain(Graphics::CommandBuffer& computeCommandBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewPort);
-        void ReadbackTerrainHit(Graphics::CommandBuffer& computeCommandBuffer);
-        void FindWorldOctreeNode(Graphics::CommandBuffer& computeCommandBuffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree, const Volume::VolumeGenerationComponent& volumeGenerationComponent);
-        void UpdateTerrainMesh(const Graphics::CommandBuffer& command_buffer, const Volume::TerrainSettingsComponent& terrainSettings, Volume::TerrainWorldOctreeComponent& terrainOctree);
+        void TraceTerrain(rhi::CommandBuffer& computeCommandBuffer, volume::TerrainWorldOctreeComponent& terrainOctree, const volume::VolumeGenerationComponent& volumeGenerationComponent, Rect2f32 sceneViewPort);
+        void ReadbackTerrainHit(rhi::CommandBuffer& computeCommandBuffer);
+        void FindWorldOctreeNode(rhi::CommandBuffer& computeCommandBuffer, const volume::TerrainSettingsComponent& terrainSettings, volume::TerrainWorldOctreeComponent& terrainOctree, const volume::VolumeGenerationComponent& volumeGenerationComponent);
+        void UpdateTerrainMesh(const rhi::CommandBuffer& command_buffer, const volume::TerrainSettingsComponent& terrainSettings, volume::TerrainWorldOctreeComponent& terrainOctree);
 
-        void OnTerrainPanelBrushSizeInput(const InputActions::InputActionEvent& inputEvent);
+        void OnTerrainPanelBrushSizeInput(const input_actions::InputActionEvent& inputEvent);
 
     private:
-        GameCore::Scene* m_CurrentScene = nullptr;
+        game_core::Scene* m_CurrentScene = nullptr;
         onyxU32 m_SceneViewPanelId = 0;
 
         // should be a frame/transient buffer
-        Graphics::BufferHandle m_HitBuffer;
-        Graphics::BufferHandle m_HitReadbackBuffer;
-        Graphics::BufferHandle m_UpdateRequestBuffer;
+        rhi::BufferHandle m_HitBuffer;
+        rhi::BufferHandle m_HitReadbackBuffer;
+        rhi::BufferHandle m_UpdateRequestBuffer;
 
-        Graphics::BufferHandle m_CollapseRequestsBuffer;
-        Graphics::BufferHandle m_SplitRequestsBuffer;
+        rhi::BufferHandle m_CollapseRequestsBuffer;
+        rhi::BufferHandle m_SplitRequestsBuffer;
 
         onyxU32 m_SelectedTab = 0;
         DynamicArray<UniquePtr<TerrainTool>> m_Tools;

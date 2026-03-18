@@ -8,7 +8,7 @@
 
 #include <imgui_extra_math.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     namespace
     {
@@ -314,7 +314,7 @@ namespace Onyx::Editor
             // draw dashed hill background
             float dashLength = 2.0f;
             float gap = 1.0f;
-            Onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
+            onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
             dl->PathClear();
 
             AddDashedCubicBezier(dl,
@@ -393,7 +393,7 @@ namespace Onyx::Editor
             float dashLength = 2.0f;
             float gap = 1.0f;
 
-            Onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
+            onyx::onyxU32 dashedColor = (col & 0x00FFFFFF) | (128 << IM_COL32_A_SHIFT);
             dl->PathClear();
             AddDashedCubicBezier(dl,
                 ImVec2(dashedHillLeftStart, baseY),
@@ -545,7 +545,7 @@ namespace Onyx::Editor
         }
     }
 
-    SculptTerrainTool::SculptTerrainTool(Graphics::GraphicsSystem& graphicsSystem)
+    SculptTerrainTool::SculptTerrainTool(rhi::GraphicsSystem& graphicsSystem)
         : m_CreateVolumeSourceShader(graphicsSystem.CreateShaderInstance("engine:/shaders/compute/volume/createvolumebrush.oshader"))
     {
     }
@@ -561,12 +561,12 @@ namespace Onyx::Editor
 
         ImGui::BeginHorizontal("##group", ImVec2(0, 0));
         {
-            Ui::ScopedImGuiStyle style
+            ui::ScopedImGuiStyle style
             {
                 { ImGuiStyleVar_FrameBorderSize, 2.0f }
             };
 
-            Ui::ScopedImGuiColor colors
+            ui::ScopedImGuiColor colors
             {
                 {ImGuiCol_Button, 0xFFAA8877},
                 {ImGuiCol_ButtonHovered, 0xFFBB9977},
@@ -586,12 +586,12 @@ namespace Onyx::Editor
 
         RenderProperties();
 
-        Volume::PreviewTerrainEditPass::BrushSize = m_BrushSize;
-        Volume::PreviewTerrainEditPass::BrushType = 0;
-        Volume::PreviewTerrainEditPass::BrushOperation = 0;
+        volume::PreviewTerrainEditPass::BrushSize = m_BrushSize;
+        volume::PreviewTerrainEditPass::BrushType = 0;
+        volume::PreviewTerrainEditPass::BrushOperation = 0;
     }
 
-    void SculptTerrainTool::ApplyOperation(Graphics::CommandBuffer& commandBuffer, const Graphics::BufferHandle& hitBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree)
+    void SculptTerrainTool::ApplyOperation(rhi::CommandBuffer& commandBuffer, const rhi::BufferHandle& hitBuffer, volume::TerrainWorldOctreeComponent& terrainOctree)
     {
         struct CreateVolumeSourcePushConstants
         {
@@ -607,8 +607,8 @@ namespace Onyx::Editor
         };
 
         CreateVolumeSourcePushConstants createVolumeSourceConstants;
-        commandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
-        commandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderWrite);
+        commandBuffer.Barrier(terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite);
+        commandBuffer.Barrier(terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite);
         createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.GetGpuAddress();
         createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
         createVolumeSourceConstants.HitBufferAddress = hitBuffer.GetGpuAddress();
@@ -617,14 +617,14 @@ namespace Onyx::Editor
         createVolumeSourceConstants.BrushOperation = m_Type == SculptType::Lower ? 1 :  0;
         createVolumeSourceConstants.Smoothness = m_Smoothness;
         commandBuffer.BindShaderEffect(m_CreateVolumeSourceShader);
-        commandBuffer.BindPushConstants(Graphics::ShaderStage::Compute, 0, createVolumeSourceConstants);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Compute, 0, createVolumeSourceConstants);
         commandBuffer.Dispatch(1, 1, 1);
 
-        commandBuffer.Barrier(terrainOctree.VolumeObjects, Graphics::Context::Compute, Graphics::Access::ShaderRead);
-        commandBuffer.Barrier(terrainOctree.VolumeObjectsData, Graphics::Context::Compute, Graphics::Access::ShaderRead);
+        commandBuffer.Barrier(terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead);
+        commandBuffer.Barrier(terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead);
     }
 
-    void SculptTerrainTool::OnHitPositionReadback(GameCore::Scene& /*scene*/, const Entity::ComponentFactory& /*componentFactory*/, const Vector3f32& /*hitPosition*/)
+    void SculptTerrainTool::OnHitPositionReadback(game_core::Scene& /*scene*/, const ecs::ComponentFactory& /*componentFactory*/, const Vector3f32& /*hitPosition*/)
     {
         // Nothing to do for sculpting as we do not create entities;
     }
@@ -638,12 +638,12 @@ namespace Onyx::Editor
     {
         ImGui::BeginChild("Panel", ImVec2(0, 0), ImGuiChildFlags_None, ImGuiWindowFlags_HorizontalScrollbar);
 
-        Ui::PropertyGrid::BeginPropertyGrid("Properties", 80.0f);
+        ui::property_grid::BeginPropertyGrid("Properties", 80.0f);
 
-        Ui::PropertyGrid::DrawProperty("Brush Size", m_BrushSize.X);
-        Ui::PropertyGrid::DrawProperty("Smoothness", m_Smoothness);
+        ui::property_grid::DrawProperty("Brush Size", m_BrushSize.X);
+        ui::property_grid::DrawProperty("Smoothness", m_Smoothness);
 
-        Ui::PropertyGrid::EndPropertyGrid();
+        ui::property_grid::EndPropertyGrid();
         ImGui::EndChild();
     }
 
@@ -652,7 +652,7 @@ namespace Onyx::Editor
         bool isClicked = false;
         ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-        if (ImGui::InvisibleButton(Enums::ToString(type).data(), ImVec2(buttonSize, buttonSize)))
+        if (ImGui::InvisibleButton(enums::ToString(type).data(), ImVec2(buttonSize, buttonSize)))
         {
             m_Type = type;
             isClicked = true;

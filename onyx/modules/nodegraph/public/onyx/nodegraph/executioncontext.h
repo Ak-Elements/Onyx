@@ -2,7 +2,7 @@
 
 #include <onyx/nodegraph/pins/pinbase.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     struct PrepareContext
     {

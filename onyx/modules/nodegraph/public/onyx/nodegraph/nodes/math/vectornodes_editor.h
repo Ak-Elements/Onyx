@@ -2,7 +2,7 @@
 
 #include <onyx/geometry/vector.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     template <typename OutVectorT, typename InVectorT>
     struct EditorSwizzleVectorControl;

@@ -16,7 +16,7 @@
 
 #include <onyx/geometry/rect2.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     VulkanCommandBuffer::VulkanCommandBuffer(const VulkanGraphicsApi& api, const CommandPool& commandPool, VkCommandBufferLevel bufferLevel, onyxU8 frameIndex, StringView debugName)
         : m_Api(api)

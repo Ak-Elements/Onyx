@@ -2,12 +2,12 @@
 #include <onyx/assets/asset.h>
 #include <onyx/localization/localizedstring.h>
 
-namespace Onyx::Localization
+namespace onyx::localization
 {
-    class GetTextLocalizationDatabase : public Assets::Asset<GetTextLocalizationDatabase>
+    class GetTextLocalizationDatabase : public assets::Asset<GetTextLocalizationDatabase>
     {
     public:
-        static constexpr StringId32 TypeId{ "Onyx::Localization::Assets::GetTextLocalizationDatabase" };
+        static constexpr StringId32 TypeId{ "onyx::localization::assets::GetTextLocalizationDatabase" };
         StringId32 GetTypeId() const { return TypeId; }
 
         HashMap<LocalizationId, DynamicArray<String>>& GetDatabase() { return m_LocaleDatabase; }

@@ -1,3 +1,4 @@
+#include "onyx/graphics/serialize/shadergraphserializer.h"
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/rhi/lighting/lighting.h>
 
@@ -11,19 +12,19 @@
 
 #define BATCHED 1
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    void CreateLightClusters::OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void CreateLightClusters::OnInit(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         constexpr onyxU32 clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 
-        for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        for (onyxU8 i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            BufferProperties ssboBufferProps;
+            rhi::BufferProperties ssboBufferProps;
             ssboBufferProps.m_DebugName = "LightClusterAABBs";
-            ssboBufferProps.m_Size = sizeof(LightClusterAABB) * clusterCount;
-            ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Storage);
-            ssboBufferProps.m_GpuAccess = GPUAccess::Write;
+            ssboBufferProps.m_Size = sizeof(rhi::LightClusterAABB) * clusterCount;
+            ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage);
+            ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
             ssboBufferProps.m_IsWritable = true;
             api.CreateBuffer(m_LightClustersStorageBuffers[i], ssboBufferProps);
         }
@@ -43,11 +44,11 @@ namespace Onyx::Graphics::RenderGraphNodes
         context.Graph.GetResource(globalId).Handle = m_LightClustersStorageBuffers[context.FrameContext.FrameIndex];
     }
 
-    void CreateLightClusters::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void CreateLightClusters::OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
         
-        const ViewConstants& viewConstants = context.FrameContext.ViewConstants;
+        const rhi::ViewConstants& viewConstants = context.FrameContext.ViewConstants;
 
         Constants constants;
         constants.InverseProjection = viewConstants.InverseProjectionMatrix;
@@ -61,29 +62,29 @@ namespace Onyx::Graphics::RenderGraphNodes
         //TODO: Fix barrier
         commandBuffer.GlobalBarrier(0, 0x00000040);
 
-        commandBuffer.BindPushConstants(ShaderStage::Compute, 0, constants);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Compute, 0, constants);
         commandBuffer.Dispatch(CLUSTER_X, CLUSTER_Y, CLUSTER_Z);
 
         commandBuffer.GlobalBarrier(0x00000040, 0x00000020 | 0x00000040);
     }
 
-    void UpdateLightClustersRenderGraphNode::OnInit(GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
+    void UpdateLightClustersRenderGraphNode::OnInit(rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache)
     {
         constexpr onyxU32 clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 
-        BufferProperties ssboBufferProps;
-        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(BufferUsage::Storage);
+        rhi::BufferProperties ssboBufferProps;
+        ssboBufferProps.m_UsageFlags = static_cast<onyxU8>(rhi::BufferUsage::Storage);
         
         ssboBufferProps.m_IsWritable = true;
-        for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        for (onyxU8 i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i)
         {
             constexpr onyxU32 maxLightsPerTile = MAX_LIGHTS_PER_CLUSTER;
             constexpr onyxU32 totalLightsPerTile = clusterCount * maxLightsPerTile;
 
             // * 2 for point and spot lights
             ssboBufferProps.m_DebugName = "Light Index List";
-            ssboBufferProps.m_GpuAccess = GPUAccess::Write;
-            ssboBufferProps.m_CpuAccess = CPUAccess::None;
+            ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
+            ssboBufferProps.m_CpuAccess = rhi::CPUAccess::None;
             ssboBufferProps.m_Size = static_cast<onyxU32>(totalLightsPerTile * sizeof(onyxU32) * 2);
             api.CreateBuffer(m_LightIndexListSSBO[i], ssboBufferProps);
 
@@ -98,8 +99,8 @@ namespace Onyx::Graphics::RenderGraphNodes
 
             // lights ssbo (light information, e.g.: position, color etc.)
             ssboBufferProps.m_DebugName = "Lights";
-            ssboBufferProps.m_Size = sizeof(Lighting);
-            ssboBufferProps.m_CpuAccess = Graphics::CPUAccess::Write;
+            ssboBufferProps.m_Size = sizeof(rhi::Lighting);
+            ssboBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
             api.CreateBuffer(m_LightsStorageBuffers[i], ssboBufferProps);
         }
 
@@ -133,15 +134,15 @@ namespace Onyx::Graphics::RenderGraphNodes
         context.Graph.GetResource(globalId).Handle = m_LightGridSSBO[frameIndex];
 
         globalId = GetOutputPin2().GetGlobalId();
-        const Lighting& lighting = context.FrameContext.Lighting;
+        const rhi::Lighting& lighting = context.FrameContext.Lighting;
 
-        m_LightsStorageBuffers[frameIndex].Buffer->SetData(0, &lighting, sizeof(Lighting));
+        m_LightsStorageBuffers[frameIndex].Buffer->SetData(0, &lighting, sizeof(rhi::Lighting));
         context.Graph.GetResource(globalId).Handle = m_LightsStorageBuffers[frameIndex];
     }
 
-    void UpdateLightClustersRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void UpdateLightClustersRenderGraphNode::OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
-        const FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
         const onyxU8 frameIndex = frameContext.FrameIndex;
 
         struct PushConstants
@@ -154,7 +155,7 @@ namespace Onyx::Graphics::RenderGraphNodes
 
         PushConstants constants{ context.FrameContext.ViewConstants.ViewMatrix };
 
-        commandBuffer.BindPushConstants(ShaderStage::Compute, 0, constants);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Compute, 0, constants);
 
         commandBuffer.Bind(m_LightIndexGlobalCountSSBO[frameIndex], "globalindexcountssbo");
 

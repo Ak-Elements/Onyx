@@ -111,7 +111,7 @@ private:
     std::string									m_Content;
 
     int32_t										m_DismissTime;
-    uint64_t		                            m_CreationTime = Onyx::Time::GetCurrentMilliseconds();
+    uint64_t		                            m_CreationTime = onyx::Time::GetCurrentMilliseconds();
 
     bool m_UseSeperator = false;
     bool m_HasCloseButton = false;
@@ -256,7 +256,7 @@ public:
      */
     inline uint64_t GetElapsedTime()
     {
-        return Onyx::Time::GetCurrentMilliseconds() - m_CreationTime;
+        return onyx::Time::GetCurrentMilliseconds() - m_CreationTime;
     }
 
     /**
@@ -459,7 +459,7 @@ namespace ImGui
 
             if ((NotificationSettings.AutoDismissOnlyVisibleNotifications) && (currentToast->GetState() == ImGuiToastPhase::Queued))
             {
-                currentToast->SetCreationTime(Onyx::Time::GetCurrentMilliseconds());
+                currentToast->SetCreationTime(onyx::Time::GetCurrentMilliseconds());
             }
 
             currentToast->Update(NotificationSettings);
@@ -616,7 +616,7 @@ namespace ImGui
                     const float halfIconSize = iconSize / 3.0f;
                     
                     // If the button is pressed, we want to remove the notification
-                    if (Onyx::Ui::DrawCloseButton(GetWindowDrawList(), ImVec2(0.0f, 0.0f), halfIconSize, 0xC8A0A0A0))
+                    if (onyx::ui::DrawCloseButton(GetWindowDrawList(), ImVec2(0.0f, 0.0f), halfIconSize, 0xC8A0A0A0))
                     {
                         RemoveNotification(i);
                         End();

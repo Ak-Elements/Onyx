@@ -1,25 +1,25 @@
 #pragma once
 #include <onyx/engine/enginesystem.h>
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class GameCoreSystem;
 }
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class VolumeModule : public IEngineSystem
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Volume::VolumeModule";
+        static constexpr StringId32 TypeId = "onyx::volume::VolumeSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        VolumeModule(GameCore::GameCoreSystem& gameCore);
+        VolumeModule(game_core::GameCoreSystem& gameCore);
         ~VolumeModule() override;
     };
 }

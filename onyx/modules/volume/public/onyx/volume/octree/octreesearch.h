@@ -3,7 +3,7 @@
 #include <Octree/Octree.h>
 #include <Octree/OctreeNode.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
 
 namespace OctreeSearch   

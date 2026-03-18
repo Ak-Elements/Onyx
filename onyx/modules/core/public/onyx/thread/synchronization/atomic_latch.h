@@ -2,9 +2,9 @@
 
 #define onyxLock(m) std::lock_guard<std::mutex> lock { m };
 
-namespace Onyx
+namespace onyx
 {
-    namespace Threading
+    namespace threading
     {
         struct AtomicLatch
         {

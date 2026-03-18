@@ -7,34 +7,34 @@
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/ui/controls/treeview.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class NodeGraphEditorContext : public GraphEditorContext
     {
     public:
         bool IsNewLinkValid(Guid64 fromPinId, Guid64 toPinId) const override;
 
-        bool ArePinTypesCompatible(NodeGraph::PinTypeId lhsPinType, NodeGraph::PinTypeId rhsPinType) const override;
+        bool ArePinTypesCompatible(node_graph::PinTypeId lhsPinType, node_graph::PinTypeId rhsPinType) const override;
 
         void DrawNodeInPropertyPanel(Guid64 nodeId) override;
         
-        void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const NodeGraph::NodeEditorMetaData& nodeMeta)> filterFunctor) override;
+        void FilterNodeListContextMenu(InplaceFunction<bool(StringView, const node_graph::NodeEditorMetaData& nodeMeta)> filterFunctor) override;
         void ClearNodeListFilter() override;
-        const Ui::TreeItem& GetNodeListContextMenuRoot() override;
+        const ui::TreeItem& GetNodeListContextMenuRoot() override;
 
     protected:
-        void UpdateEditorNodeData(Node& editorNode, const NodeGraph::Node& graphNode);
-        virtual NodeGraph::NodeGraph& GetNodeGraph() = 0;
-        virtual const NodeGraph::NodeGraph& GetNodeGraph() const = 0;
+        void UpdateEditorNodeData(Node& editorNode, const node_graph::Node& graphNode);
+        virtual node_graph::NodeGraph& GetNodeGraph() = 0;
+        virtual const node_graph::NodeGraph& GetNodeGraph() const = 0;
 
-        template <typename T = NodeGraph::Node>
-        T& GetNodeGraphNode(NodeGraph::NodeGraph::LocalNodeId localNodeId)
+        template <typename T = node_graph::Node>
+        T& GetNodeGraphNode(node_graph::NodeGraph::LocalNodeId localNodeId)
         {
             return GetNodeGraph().GetNode(localNodeId);
         }
 
-        template <typename T = NodeGraph::Node>
-        const T& GetNodeGraphNode(NodeGraph::NodeGraph::LocalNodeId localNodeId) const
+        template <typename T = node_graph::Node>
+        const T& GetNodeGraphNode(node_graph::NodeGraph::LocalNodeId localNodeId) const
         {
             return GetNodeGraph().GetNode(localNodeId);
         }
@@ -49,6 +49,6 @@ namespace Onyx::Editor
         void OnLinkDelete(const Link& linkToDelete) override;
 
     protected:
-        Ui::TreeItem m_ContextMenuRoot;
+        ui::TreeItem m_ContextMenuRoot;
     };
 }

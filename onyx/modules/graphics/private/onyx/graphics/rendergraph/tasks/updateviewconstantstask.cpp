@@ -3,9 +3,9 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    void GetViewConstantsNode::Init(GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache)
+    void GetViewConstantsNode::Init(rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache)
     {
         onyxU64 outputGlobalPinId = GetOutputPin(0)->GetGlobalId();
         RenderGraphResource& resource = resourceCache[outputGlobalPinId];
@@ -16,7 +16,7 @@ namespace Onyx::Graphics::RenderGraphNodes
 
     void GetViewConstantsNode::BeginFrame(RenderGraphContext& context)
     {
-        const FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
         
         onyxU64 outputGlobalPinId = GetOutputPin(0)->GetGlobalId();
         context.Graph.GetResource(outputGlobalPinId).Handle = frameContext.Api->GetViewConstantsBuffer();

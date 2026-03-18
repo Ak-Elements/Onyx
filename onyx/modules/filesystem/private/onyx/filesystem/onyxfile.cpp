@@ -4,17 +4,17 @@
 
 #include <nlohmann/json.hpp>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
     OnyxFile::OnyxFile(const FilePath& filePath)
         : m_FilePath(filePath)
-        , m_FileId(Hash::FNV1aHash<onyxU64>(filePath.string()))
+        , m_FileId(hash::FNV1aHash<onyxU64>(filePath.string()))
     {
     }
 
     OnyxFile::OnyxFile(StringView mountPath)
         : m_FilePath(Path::GetFullPath(mountPath))
-        , m_FileId(Hash::FNV1aHash<onyxU64>(m_FilePath.string()))
+        , m_FileId(hash::FNV1aHash<onyxU64>(m_FilePath.string()))
     {
     }
 

@@ -5,7 +5,7 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
     void AtmosphericSkyRenderGraphNode::OnBeginFrame(RenderGraphContext& context)
     {
@@ -17,8 +17,8 @@ namespace Onyx::Graphics::RenderGraphNodes
         onyxU64 skyViewLutGlobalId = GetInputPin2().GetLinkedPinGlobalId();
         const RenderGraphResource& skyViewLutResource = context.Graph.GetResource(skyViewLutGlobalId);
 
-        const TextureHandle& transmittanceTextureHandle = std::get<TextureHandle>(transmittanceResource.Handle);
-        const TextureHandle& skyViewLutTextureHandle = std::get<TextureHandle>(skyViewLutResource.Handle);
+        const rhi::TextureHandle& transmittanceTextureHandle = std::get<rhi::TextureHandle>(transmittanceResource.Handle);
+        const rhi::TextureHandle& skyViewLutTextureHandle = std::get<rhi::TextureHandle>(skyViewLutResource.Handle);
 
         m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
         m_SkyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
@@ -27,11 +27,11 @@ namespace Onyx::Graphics::RenderGraphNodes
         transmittanceInfo.Type = RenderGraphResourceType::Attachment;
     }
 
-    void AtmosphericSkyRenderGraphNode::OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer)
+    void AtmosphericSkyRenderGraphNode::OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
     {
         ONYX_PROFILE_FUNCTION;
 
-        const FrameContext& frameContext = context.FrameContext;
+        const rhi::FrameContext& frameContext = context.FrameContext;
 
         struct PushConstants
         {
@@ -51,8 +51,8 @@ namespace Onyx::Graphics::RenderGraphNodes
         pushConstants.SkyViewLutTextureIndex = m_SkyViewLutTextureIndex;
         pushConstants.SunDirection = GetSunDirection(frameContext.TimeOfDay);
 
-        commandBuffer.BindPushConstants(ShaderStage::Fragment, 0, pushConstants);
-        commandBuffer.Draw(PrimitiveTopology::Triangle, 0, 3, 0, 1);
+        commandBuffer.BindPushConstants(rhi::ShaderStage::Fragment, 0, pushConstants);
+        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1);
     }
 
     Vector3f32 AtmosphericSkyRenderGraphNode::GetSunDirection(onyxF32 timeOfDay) const
@@ -63,7 +63,7 @@ namespace Onyx::Graphics::RenderGraphNodes
         onyxF32 cyclePoint = (1.0f - abs(std::fmod(timeOfDay, peroidSeconds) - halfPeriod) / halfPeriod);
         cyclePoint = (cyclePoint * (1.0f + sunriseShift)) - sunriseShift;
         onyxF32 sunAltitude = 0.5f * std::numbers::pi_v<onyxF32> *cyclePoint;
-        return Vector3f32(0.0, sin(sunAltitude), -cos(sunAltitude)).Normalized();
+        return Vector3f32(0.0, std::sin(sunAltitude), -std::cos(sunAltitude)).Normalized();
     }
 
 #if ONYX_IS_EDITOR

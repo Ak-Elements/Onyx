@@ -8,64 +8,64 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/debug/debugdrawqueue.h>
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     class GraphicsSystem;
 }
 
-namespace Onyx::Assets
+namespace onyx::assets
 {
     class AssetSystem;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     template <>
-    class DependantFunctionArg<Graphics::FrameContext>
+    class DependantFunctionArg<rhi::FrameContext>
     {
     public:
-        static Graphics::FrameContext& Get(const ECSExecutionContext& context);
+        static rhi::FrameContext& Get(const ECSExecutionContext& context);
     };
     
     template <>
-    class DependantFunctionArg<Physics::PhysicsWorld>
+    class DependantFunctionArg<physics::PhysicsWorld>
     {
     public:
-        static Physics::PhysicsWorld& Get(const ECSExecutionContext& context);
+        static physics::PhysicsWorld& Get(const ECSExecutionContext& context);
     };
 
     template <>
-    class DependantFunctionArg<Graphics::DebugDrawQueue>
+    class DependantFunctionArg<graphics::DebugDrawQueue>
     {
     public:
-        static Graphics::DebugDrawQueue& Get(const ECSExecutionContext& context);
+        static graphics::DebugDrawQueue& Get(const ECSExecutionContext& context);
     };
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class GameCoreSystem : public IEngineSystem
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::GameCore::GameCoreModule";
+        static constexpr StringId32 TypeId = "onyx::game_core::GameCoreSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
         GameCoreSystem();
         
-        void Update(DeltaGameTime deltaTime, Graphics::GraphicsSystem& graphicsSystem, IEngine& engine);
+        void Update(DeltaGameTime deltaTime, rhi::GraphicsSystem& graphicsSystem, IEngine& engine);
 
-        void SetScene(Assets::AssetHandle<Scene>& scene) { m_Scene = scene; }
-        Assets::AssetHandle<Scene>& GetScene() { return m_Scene; }
-        const Assets::AssetHandle<Scene>& GetScene() const { return m_Scene; }
+        void SetScene(assets::AssetHandle<Scene>& scene) { m_Scene = scene; }
+        assets::AssetHandle<Scene>& GetScene() { return m_Scene; }
+        const assets::AssetHandle<Scene>& GetScene() const { return m_Scene; }
 
-        Entity::ComponentFactory& GetComponentFactory() { return m_ComponentFactory; }
-        const Entity::ComponentFactory& GetComponentFactory() const { return m_ComponentFactory; }
+        ecs::ComponentFactory& GetComponentFactory() { return m_ComponentFactory; }
+        const ecs::ComponentFactory& GetComponentFactory() const { return m_ComponentFactory; }
 
-        Entity::EcsBuilder GetEcsBuilder() { return { m_ComponentFactory, m_ECSGraph }; }
+        ecs::EcsBuilder GetEcsBuilder() { return { m_ComponentFactory, m_ECSGraph }; }
 
     private:
-        Assets::AssetHandle<Scene> m_Scene;
-        Entity::ComponentFactory m_ComponentFactory;
-        Entity::EntityComponentSystemsGraph m_ECSGraph;
+        assets::AssetHandle<Scene> m_Scene;
+        ecs::ComponentFactory m_ComponentFactory;
+        ecs::EntityComponentSystemsGraph m_ECSGraph;
     };
 }

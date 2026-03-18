@@ -6,7 +6,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     template <typename NodeType>
     class FlexiblePinsNode : public NodeType
@@ -97,7 +97,7 @@ namespace Onyx::NodeGraph
         {
             //ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
             //ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-            m_InputPins.emplace_back(new DynamicPin<T>(Format::Format("InputPin_{}", m_InputPins.size())));
+            m_InputPins.emplace_back(new DynamicPin<T>(format::Format("InputPin_{}", m_InputPins.size())));
         }
 
         template <typename Pin>
@@ -113,7 +113,7 @@ namespace Onyx::NodeGraph
         {
             //ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
             //ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-            m_InputPins.emplace(m_InputPins.begin() + index, new DynamicPin<T>(Format::Format("InputPin_{}", index)));
+            m_InputPins.emplace(m_InputPins.begin() + index, new DynamicPin<T>(format::Format("InputPin_{}", index)));
         }
         
         void RemoveInputPinAt(onyxU32 index)
@@ -136,7 +136,7 @@ namespace Onyx::NodeGraph
         {
             //ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
             //ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-            m_OutputPins.emplace_back(new DynamicPin<T>(Format::Format("OutputPin_{}", m_OutputPins.size())));
+            m_OutputPins.emplace_back(new DynamicPin<T>(format::Format("OutputPin_{}", m_OutputPins.size())));
         }
 
         template <typename Pin>
@@ -215,7 +215,7 @@ namespace Onyx::NodeGraph
             return success;
         }
 
-#if ONYX_ASSERTS_ENABLED
+#if ONYX_ASSERT_ENABLED
         //template <PinType Pin>
         /*bool HasInputPin() const
         {

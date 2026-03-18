@@ -2,7 +2,7 @@
 
 #include <onyx/volume/source/csg/operations/csgoperation.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     class CSGUnion : public CSGOperation
     {

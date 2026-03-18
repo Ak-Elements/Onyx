@@ -5,7 +5,7 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/shader.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     PipelineLayout::PipelineLayout(const VulkanGraphicsApi& api, const DescriptorSetLayout& descriptorSetLayout)
         : m_Device(api.GetDevice())

@@ -3,18 +3,18 @@
 #include <onyx/noncopyable.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace Onyx
+namespace onyx
 {
 	class Engine;
 }
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     struct GraphicSettings;
     class Window;
 }
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	class Instance final : public NonCopyable
 	{

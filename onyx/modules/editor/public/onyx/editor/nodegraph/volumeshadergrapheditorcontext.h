@@ -4,12 +4,12 @@
 #include <onyx/graphics/shadergraph/shadergraphnodefactory.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
-    class VolumeShaderGraphEditorContext : public TypedNodeGraphEditorContext<Volume::VolumeShaderGraph, Graphics::ShaderGraphNodeFactory>
+    class VolumeShaderGraphEditorContext : public TypedNodeGraphEditorContext<volume::VolumeShaderGraph, graphics::ShaderGraphNodeFactory>
     {
     public:
-        VolumeShaderGraphEditorContext(Assets::AssetSystem& assetSystem, Graphics::GraphicsSystem& graphicsSystem);
+        VolumeShaderGraphEditorContext(assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem);
 
         bool Compile() override;
 
@@ -19,8 +19,8 @@ namespace Onyx::Editor
         void OnNodeChanged(const Node& newNode) override;
 
     private:
-        Assets::AssetSystem* m_AssetSystem = nullptr;
-        Graphics::GraphicsSystem* m_GraphicsSystem = nullptr;
+        assets::AssetSystem* m_AssetSystem = nullptr;
+        rhi::GraphicsSystem* m_GraphicsSystem = nullptr;
     };
 
 }

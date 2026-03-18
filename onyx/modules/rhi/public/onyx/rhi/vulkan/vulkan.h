@@ -8,7 +8,7 @@
 #include <onyx/rhi/vulkan/vulkanandroid.h>
 #endif
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	inline PFN_vkCmdDrawMeshTasksNV vkCmdDrawMeshTasksNV = nullptr;
 	inline PFN_vkCmdDrawMeshTasksIndirectNV vkCmdDrawMeshTasksIndirectNV = nullptr;
@@ -84,7 +84,7 @@ namespace Onyx::Graphics::Vulkan
 		case VkShaderStageFlagBits::VK_SHADER_STAGE_ALL:
 			return ShaderStage::All;
 		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
+			ONYX_LOG_ERROR("Unhandled shader stage: {}", enums::ToString(stage).data());
 			return ShaderStage::Invalid;
 		}
 	}
@@ -102,7 +102,7 @@ namespace Onyx::Graphics::Vulkan
 		case ShaderStage::All:
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
 		default:
-			ONYX_LOG_ERROR("Unhandled shader stage: {}", Enums::ToString(stage).data());
+			ONYX_LOG_ERROR("Unhandled shader stage: {}", enums::ToString(stage).data());
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 		}
 	}
@@ -260,18 +260,18 @@ namespace Onyx::Graphics::Vulkan
 	inline constexpr VkAccessFlags2 ToAccessFlag(Access access)
 	{
 		// this currently aligns with the VkAccessFlags so no conversion needed
-		static_assert(Enums::ToIntegral(Access::IndirectRead) == VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::IndexRead) == VK_ACCESS_2_INDEX_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::InputAttachmentRead) == VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::ShaderRead) == VK_ACCESS_2_SHADER_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::ShaderWrite) == VK_ACCESS_2_SHADER_WRITE_BIT);
-		static_assert(Enums::ToIntegral(Access::UniformRead) == VK_ACCESS_2_UNIFORM_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::VertexRead) == VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::DepthStencilWrite) == VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
-		static_assert(Enums::ToIntegral(Access::DepthStencilRead) == VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
-		static_assert(Enums::ToIntegral(Access::ColorAttachmentWrite) == VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
-		static_assert(Enums::ToIntegral(Access::TransferRead) == VK_ACCESS_TRANSFER_READ_BIT);
-        static_assert(Enums::ToIntegral(Access::TransferWrite) == VK_ACCESS_TRANSFER_WRITE_BIT);
+		static_assert(enums::ToIntegral(Access::IndirectRead) == VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT);
+		static_assert(enums::ToIntegral(Access::IndexRead) == VK_ACCESS_2_INDEX_READ_BIT);
+		static_assert(enums::ToIntegral(Access::InputAttachmentRead) == VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT);
+		static_assert(enums::ToIntegral(Access::ShaderRead) == VK_ACCESS_2_SHADER_READ_BIT);
+		static_assert(enums::ToIntegral(Access::ShaderWrite) == VK_ACCESS_2_SHADER_WRITE_BIT);
+		static_assert(enums::ToIntegral(Access::UniformRead) == VK_ACCESS_2_UNIFORM_READ_BIT);
+		static_assert(enums::ToIntegral(Access::VertexRead) == VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT);
+		static_assert(enums::ToIntegral(Access::DepthStencilWrite) == VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+		static_assert(enums::ToIntegral(Access::DepthStencilRead) == VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT);
+		static_assert(enums::ToIntegral(Access::ColorAttachmentWrite) == VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
+		static_assert(enums::ToIntegral(Access::TransferRead) == VK_ACCESS_TRANSFER_READ_BIT);
+        static_assert(enums::ToIntegral(Access::TransferWrite) == VK_ACCESS_TRANSFER_WRITE_BIT);
 
 		VkAccessFlags2 returnFlags = static_cast<VkAccessFlags2>(access);
 		return returnFlags;
@@ -316,14 +316,14 @@ namespace Onyx::Graphics::Vulkan
 #define VK_CHECK_RESULT(f)						\
 {												\
 	[[maybe_unused]] VkResult res = (f);		\
-    ONYX_ASSERT(res == VK_SUCCESS, "VkResult is {}", Onyx::Graphics::Vulkan::errorString(res)); \
+    ONYX_ASSERT(res == VK_SUCCESS, "VkResult is {}", onyx::Graphics::Vulkan::errorString(res)); \
 }
 
 //TODO: Remove that crap
 #define VK_CHECK_RESULT_RETURN_ON_FAIL(f)		\
 {												\
 	VkResult res = (f);							\
-	ONYX_ASSERT(res == VK_SUCCESS, "VkResult is {}", Onyx::Graphics::Vulkan::errorString(res));			\
+	ONYX_ASSERT(res == VK_SUCCESS, "VkResult is {}", onyx::Graphics::Vulkan::errorString(res));			\
     if (res != VK_SUCCESS)						\
 	{											\
 	    return false;							\

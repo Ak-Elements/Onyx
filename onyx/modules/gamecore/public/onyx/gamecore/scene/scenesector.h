@@ -3,12 +3,12 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <entt/entt.hpp>
 
-namespace Onyx {namespace Entity
+namespace onyx::ecs 
 {
     enum class EntityId : onyxU32;
-}}
+}
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     struct SectorEntity
     {
@@ -16,7 +16,7 @@ namespace Onyx::GameCore
         onyxF64 BoundsRadius;
         onyxF64 BoundsRadiusSquared;
         
-        Entity::EntityId Entity = entt::null;
+        ecs::EntityId Entity = entt::null;
     };
 
     struct SceneSector

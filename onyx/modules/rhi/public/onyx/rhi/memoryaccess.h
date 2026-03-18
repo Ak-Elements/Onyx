@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
 	enum class GPUAccess : onyxU8
 	{

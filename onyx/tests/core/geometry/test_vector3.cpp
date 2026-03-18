@@ -4,7 +4,7 @@
 #include <catch2/generators/catch_generators_adapters.hpp>
 #include <catch2/generators/catch_generators_random.hpp>
 
-namespace Onyx::Geometry
+namespace onyx::Geometry
 {
     TEMPLATE_TEST_CASE("Vector3 Constructor", "[Vector3][Constructor][template]", Vector3f, Vector3d, Vector3s8, Vector3s16, Vector3s32, Vector3s64, Vector3u8, Vector3u16, Vector3u32, Vector3u64)
     {
@@ -514,13 +514,13 @@ namespace Onyx::Geometry
         {
             TestType a { static_cast<TestType::ScalarT>(3), static_cast<TestType::ScalarT>(5), static_cast<TestType::ScalarT>(7) };
             RotatedVectorT expected { static_cast<RotatedVectorScalarT>(a[0]), static_cast<RotatedVectorScalarT>(a[1]), static_cast<RotatedVectorScalarT>(a[2]) };
-            //30°
+            //30ï¿½
             {
-                WHEN(Format::Format("rotated by {} degrees in YZ", i))
+                WHEN(format::Format("rotated by {} degrees in YZ", i))
                 {
                     expected = expected * rotationMatrixPitch;
                     const RotatedVectorT& rotated = a.RotatedAroundX(angleRadians);
-                    THEN(Format::Format("a' is ~[{}, {}, {}]", expected[0], expected[1], expected[2]))
+                    THEN(format::Format("a' is ~[{}, {}, {}]", expected[0], expected[1], expected[2]))
                     {
                         bool result = rotated.IsEqual(expected, epsilon);
                         if (result == false)
@@ -530,11 +530,11 @@ namespace Onyx::Geometry
                     }
                 }
 
-                WHEN(Format::Format("rotated by {} degrees in ZX", i))
+                WHEN(format::Format("rotated by {} degrees in ZX", i))
                 {
                     expected = expected * rotationMatrixYaw;
                     const RotatedVectorT& rotated = a.RotatedAroundY(angleRadians);
-                    THEN(Format::Format("a' is ~[{}, {}, {}]", expected[0], expected[1], expected[2]))
+                    THEN(format::Format("a' is ~[{}, {}, {}]", expected[0], expected[1], expected[2]))
                     {
                         bool result = rotated.IsEqual(expected, epsilon);
                         if (result == false)
@@ -544,11 +544,11 @@ namespace Onyx::Geometry
                     }
                 }
 
-                WHEN(Format::Format("rotated by {} degrees in  XY", i))
+                WHEN(format::Format("rotated by {} degrees in  XY", i))
                 {
                     expected = expected * rotationMatrixRoll;
                     const RotatedVectorT& rotated = a.RotatedAroundZ(angleRadians);
-                    THEN(Format::Format("a' is ~[{}, {}, {}]", expected[0], expected[1], expected[2]))
+                    THEN(format::Format("a' is ~[{}, {}, {}]", expected[0], expected[1], expected[2]))
                     {
                         bool result = rotated.IsEqual(expected, epsilon);
                         if (result == false)
@@ -605,17 +605,17 @@ namespace Onyx::Geometry
         const ScalarT toY = values[4];
         const ScalarT toZ = values[5];
 
-        GIVEN(Format::Format("a vector [{}, {}, {}]", fromX, fromY, fromZ))
+        GIVEN(format::Format("a vector [{}, {}, {}]", fromX, fromY, fromZ))
         {
             TestType a{ fromX, fromY, fromZ };
             TestType to{ toX, toY, toZ };
 
-            WHEN(Format::Format("rotated to [{}, {}, {}]", toX, toY, toZ))
+            WHEN(format::Format("rotated to [{}, {}, {}]", toX, toY, toZ))
             {
                 const RotatedVectorT& rotated = a.RotatedTo(to);
                 const RotatedVectorT& normalizedTo = to.Normalized();
                 const RotatedVectorT& expected = normalizedTo * numeric_cast<RotatedVectorScalarT>(a.Length());
-                THEN(Format::Format("a . a' is ~1.0"))
+                THEN(format::Format("a . a' is ~1.0"))
                 {
                     onyxF64 dot = rotated.Normalized().Dot(normalizedTo);
                     REQUIRE(IsEqual<onyxF64>(dot, 1.0, epsilon));

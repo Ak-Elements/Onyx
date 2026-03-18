@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Onyx::Graphics
+namespace onyx::rhi
 {
     inline constexpr onyxU8 MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -395,33 +395,33 @@ namespace Onyx::Graphics
 }
 
 template <>
-struct std::formatter<Onyx::Graphics::ShaderDataType> : std::formatter<std::string>
+struct std::formatter<onyx::rhi::ShaderDataType> : std::formatter<std::string>
 {
-    auto format(Onyx::Graphics::ShaderDataType type, format_context& ctx) const
+    auto format(onyx::rhi::ShaderDataType type, format_context& ctx) const
     {
-        Onyx::StringView typeStr;
+        onyx::StringView typeStr;
         switch (type)
         {
-            case Onyx::Graphics::ShaderDataType::Bool: typeStr = "bool"; break;
-            case Onyx::Graphics::ShaderDataType::Float: typeStr = "float"; break;
-            case Onyx::Graphics::ShaderDataType::Float2: typeStr = "vec2"; break;
-            case Onyx::Graphics::ShaderDataType::Float3: typeStr = "vec3"; break;
-            case Onyx::Graphics::ShaderDataType::Float4: typeStr = "vec4"; break;
-            case Onyx::Graphics::ShaderDataType::Mat3: typeStr = "mat3"; break;
-            case Onyx::Graphics::ShaderDataType::Mat4: typeStr = "mat4"; break;
-            case Onyx::Graphics::ShaderDataType::Byte: typeStr = "int"; break;
-            case Onyx::Graphics::ShaderDataType::Byte4: typeStr = "int"; break;
-            case Onyx::Graphics::ShaderDataType::UByte: typeStr = "uint"; break;
-            case Onyx::Graphics::ShaderDataType::UByte4: typeStr = "uint"; break;
-            case Onyx::Graphics::ShaderDataType::Short2: typeStr = "vec2"; break;
-            case Onyx::Graphics::ShaderDataType::Short2Normalized: typeStr = "vec2"; break;
-            case Onyx::Graphics::ShaderDataType::Short4: typeStr = "vec4"; break;
-            case Onyx::Graphics::ShaderDataType::Short4Normalized: typeStr = "vec4"; break;
-            case Onyx::Graphics::ShaderDataType::UInt: typeStr = "uint"; break;
-            case Onyx::Graphics::ShaderDataType::UInt2: typeStr = "uvec2"; break;
-            case Onyx::Graphics::ShaderDataType::UInt3: typeStr = "uvec3"; break;
-            case Onyx::Graphics::ShaderDataType::UInt4: typeStr = "uvec4"; break;
-            case Onyx::Graphics::ShaderDataType::Count: break;
+            case onyx::rhi::ShaderDataType::Bool: typeStr = "bool"; break;
+            case onyx::rhi::ShaderDataType::Float: typeStr = "float"; break;
+            case onyx::rhi::ShaderDataType::Float2: typeStr = "vec2"; break;
+            case onyx::rhi::ShaderDataType::Float3: typeStr = "vec3"; break;
+            case onyx::rhi::ShaderDataType::Float4: typeStr = "vec4"; break;
+            case onyx::rhi::ShaderDataType::Mat3: typeStr = "mat3"; break;
+            case onyx::rhi::ShaderDataType::Mat4: typeStr = "mat4"; break;
+            case onyx::rhi::ShaderDataType::Byte: typeStr = "int"; break;
+            case onyx::rhi::ShaderDataType::Byte4: typeStr = "int"; break;
+            case onyx::rhi::ShaderDataType::UByte: typeStr = "uint"; break;
+            case onyx::rhi::ShaderDataType::UByte4: typeStr = "uint"; break;
+            case onyx::rhi::ShaderDataType::Short2: typeStr = "vec2"; break;
+            case onyx::rhi::ShaderDataType::Short2Normalized: typeStr = "vec2"; break;
+            case onyx::rhi::ShaderDataType::Short4: typeStr = "vec4"; break;
+            case onyx::rhi::ShaderDataType::Short4Normalized: typeStr = "vec4"; break;
+            case onyx::rhi::ShaderDataType::UInt: typeStr = "uint"; break;
+            case onyx::rhi::ShaderDataType::UInt2: typeStr = "uvec2"; break;
+            case onyx::rhi::ShaderDataType::UInt3: typeStr = "uvec3"; break;
+            case onyx::rhi::ShaderDataType::UInt4: typeStr = "uvec4"; break;
+            case onyx::rhi::ShaderDataType::Count: break;
         }
 
         ONYX_ASSERT(typeStr.empty() == false);

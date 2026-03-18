@@ -8,7 +8,7 @@ struct VmaAllocationInfo;
 struct VmaAllocator_T;
 struct VmaPool_T;
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
 	class Device;
 	class Instance;

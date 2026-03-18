@@ -1,6 +1,6 @@
 #include <onyx/volume/chunk/cms_volumechunk.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     namespace CubicalMarchingSquares
     {

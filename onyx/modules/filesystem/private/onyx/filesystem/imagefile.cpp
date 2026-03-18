@@ -5,7 +5,7 @@
 
 #include <stb/stb_image.h>
 
-namespace Onyx::FileSystem
+namespace onyx::file_system
 {
 
     ImageFile::ImageFile(const FilePath& filePath)

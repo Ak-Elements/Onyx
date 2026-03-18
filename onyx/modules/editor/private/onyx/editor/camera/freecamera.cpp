@@ -3,7 +3,7 @@
 //
 //#include <imgui_internal.h>
 //
-//namespace Onyx::Application
+//namespace onyx::application
 //{
 //    void FreeCamera::Init()
 //    {

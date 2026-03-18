@@ -10,18 +10,18 @@
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
 
-namespace Onyx::Volume::Rendering
+namespace onyx::volume::rendering
 {
     // TODO: Material component should be read access
-    using Access = Entity::Access
-        ::Read<TerrainSettingsComponent, Terrain::TerrainRuntimeComponent>
-        ::Write<GameCore::MaterialComponent>;
+    using Access = ecs::Access
+        ::Read<TerrainSettingsComponent, terrain::TerrainRuntimeComponent>
+        ::Write<game_core::MaterialComponent>;
 
     using TerrainEntity = Access::AsEntity;
 
-    void System(TerrainEntity entity, Graphics::FrameContext& frameContext, Assets::AssetSystem& assetSystem)
+    void System(TerrainEntity entity, rhi::FrameContext& frameContext, assets::AssetSystem& assetSystem)
     {
-        GameCore::SceneFrameData& sceneFrameData = static_cast<GameCore::SceneFrameData&>(*frameContext.FrameData);
+        game_core::SceneFrameData& sceneFrameData = static_cast<game_core::SceneFrameData&>(*frameContext.FrameData);
 
         auto&& [volumeTerrainSettings, volumeTerrain, materialComponent] = entity;
 
@@ -38,8 +38,8 @@ namespace Onyx::Volume::Rendering
         if ((materialComponent.Material.IsValid() == false))
             return;
 
-        Matrix4<onyxF32> transform;
-        GameCore::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
+        Matrix4x4f32 transform;
+        game_core::StaticMeshIndirectDrawCall& drawCall = sceneFrameData.m_StaticMeshIndirectDrawCalls.emplace_back();
         drawCall.Transforms.emplace_back(transform);
         drawCall.VertexData = volumeTerrain.MeshVertices;
 
@@ -47,7 +47,7 @@ namespace Onyx::Volume::Rendering
         drawCall.Material = materialComponent.Material;
     }
 
-    void Register(Entity::EcsBuilder& ecsBuilder)
+    void Register(ecs::EcsBuilder& ecsBuilder)
     {
         ecsBuilder.RegisterSystem(System);
     }

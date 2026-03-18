@@ -2,9 +2,9 @@
 
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
-    class VolumeShaderGraphGenerator : public Graphics::ShaderGenerator
+    class VolumeShaderGraphGenerator : public rhi::ShaderGenerator
     {
     public:
         VolumeShaderGraphGenerator();

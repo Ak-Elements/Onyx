@@ -3,7 +3,7 @@
 #include <onyx/graphics/textureasset.h>
 #include <onyx/filesystem/filewatcher.h>
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     struct DirectoryInfo
     {
@@ -15,7 +15,7 @@ namespace Onyx::Editor
     class ContentBrowserPanel
     {
     public:
-        ContentBrowserPanel(Assets::AssetSystem& assetSystem);
+        ContentBrowserPanel(assets::AssetSystem& assetSystem);
 
         void Render();
 
@@ -30,12 +30,12 @@ namespace Onyx::Editor
         DirectoryInfo m_ContentDirectoryTree;
         const DirectoryInfo* m_SelectedDirectory = nullptr;
         
-        FileSystem::FileWatcher m_ContentDirectoryWatcher;
+        file_system::FileWatcher m_ContentDirectoryWatcher;
 
-        Assets::AssetHandle<Graphics::TextureAsset> m_FolderClosedAsset;
-        Assets::AssetHandle<Graphics::TextureAsset> m_FolderOpenAsset;
-        Assets::AssetHandle<Graphics::TextureAsset> m_FolderSelectedClosedAsset;
-        Assets::AssetHandle<Graphics::TextureAsset> m_FolderSelectedOpenAsset;
+        assets::AssetHandle<graphics::TextureAsset> m_FolderClosedAsset;
+        assets::AssetHandle<graphics::TextureAsset> m_FolderOpenAsset;
+        assets::AssetHandle<graphics::TextureAsset> m_FolderSelectedClosedAsset;
+        assets::AssetHandle<graphics::TextureAsset> m_FolderSelectedOpenAsset;
 
         bool m_IsOpen = false;
     };

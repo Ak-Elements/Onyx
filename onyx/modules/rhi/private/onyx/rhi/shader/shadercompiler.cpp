@@ -10,7 +10,7 @@
 #include <shaderc/shaderc.hpp>
 #include <spirv_glsl.hpp>
 
-namespace Onyx::Graphics::ShaderCompiler
+namespace onyx::rhi::ShaderCompiler
 {
 	// TODO: Move this to a vulkan shader compiler implementation
 	namespace
@@ -163,7 +163,7 @@ namespace Onyx::Graphics::ShaderCompiler
 				break;
             }
 
-			ONYX_ASSERT(false, "Invalid shader stage {} passed", Enums::ToString(stage));
+			ONYX_ASSERT(false, "Invalid shader stage {} passed", enums::ToString(stage));
 			return "";
 		}
 
@@ -225,7 +225,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderKind, sourcePath.string().c_str(), shaderCOptions);
 			if (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
 			{
-				ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, Enums::ToString(stage), preProcessingResult.GetErrorMessage());
+				ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, enums::ToString(stage), preProcessingResult.GetErrorMessage());
 				return false;
 			}
 
@@ -264,7 +264,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			//const shaderc::PreprocessedSourceCompilationResult& preProcessingResult = compiler.PreprocessGlsl(shaderSourceCode, shaderKind, sourcePath.string().c_str(), shaderCOptions);
 			// (preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success)
 			//{
-			//	ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, Enums::ToString(stage), preProcessingResult.GetErrorMessage());
+			//	ONYX_LOG_ERROR("Failed to pre-process {} (Stage: {}) shader.\nError: {}", sourcePath, enums::ToString(stage), preProcessingResult.GetErrorMessage());
 			//	return false;
 			//}
 
@@ -277,7 +277,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 			{
 				String test = module.GetErrorMessage();
-				ONYX_LOG_ERROR("Failed to compile {} shader at stage: {}.\nError: {}", sourcePath, Enums::ToString(stage), test);
+				ONYX_LOG_ERROR("Failed to compile {} shader at stage: {}.\nError: {}", sourcePath, enums::ToString(stage), test);
 				return false;
 			}
 
@@ -290,16 +290,16 @@ namespace Onyx::Graphics::ShaderCompiler
 #undef CreateDirectory
 #endif
 			// TODO: Allow different shader language and update this export folder
-			String shaderStageString = ToLower(Enums::ToString(stage));
-			const StringView exportShaderSourcePath = Format::Format("{}/{}/glsl/{}.{}", SHADER_SOURCE_TMP_PATH, shaderStageString, sourcePath.stem(), GetShaderExtension(stage));
+			String shaderStageString = ToLower(enums::ToString(stage));
+			const StringView exportShaderSourcePath = format::Format("{}/{}/glsl/{}.{}", SHADER_SOURCE_TMP_PATH, shaderStageString, sourcePath.stem(), GetShaderExtension(stage));
 
-			FileSystem::OnyxFile shaderSourceFile(exportShaderSourcePath);
-			FileSystem::FileStream shaderSourceFileStream = shaderSourceFile.OpenStream(FileSystem::OpenMode::Text | FileSystem::OpenMode::Write);
+			file_system::OnyxFile shaderSourceFile(exportShaderSourcePath);
+			file_system::FileStream shaderSourceFileStream = shaderSourceFile.OpenStream(file_system::OpenMode::Text | file_system::OpenMode::Write);
 			shaderSourceFileStream.WriteRaw(preprocessedCode.data(), preprocessedCode.size());
 
-			const StringView exportShaderBinaryPath = Format::Format("{}/{}/glsl/{}.spirv", SHADER_BINARIES_TMP_PATH, shaderStageString, sourcePath.stem());
-			FileSystem::OnyxFile shaderBinaryFile(exportShaderBinaryPath);
-			FileSystem::FileStream shaderBinaryFileStream = shaderBinaryFile.OpenStream(FileSystem::OpenMode::Binary | FileSystem::OpenMode::Write);
+			const StringView exportShaderBinaryPath = format::Format("{}/{}/glsl/{}.spirv", SHADER_BINARIES_TMP_PATH, shaderStageString, sourcePath.stem());
+			file_system::OnyxFile shaderBinaryFile(exportShaderBinaryPath);
+			file_system::FileStream shaderBinaryFileStream = shaderBinaryFile.OpenStream(file_system::OpenMode::Binary | file_system::OpenMode::Write);
 			shaderBinaryFileStream.WriteRaw(outByteCode, false);
 #endif
 
@@ -319,7 +319,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			    break;
 		}
 
-		ONYX_ASSERT(false, "Shader compiler not implemented for language ({}).", Enums::ToString(language));
+		ONYX_ASSERT(false, "Shader compiler not implemented for language ({}).", enums::ToString(language));
 		return false;
     }
 
@@ -332,16 +332,16 @@ namespace Onyx::Graphics::ShaderCompiler
 #undef CreateDirectory
 #endif
 
-		const String shaderLanguageString = ToLower(Enums::ToString(language));
+		const String shaderLanguageString = ToLower(enums::ToString(language));
 		for (ShaderStage s = ShaderStage::Vertex; s < ShaderStage::All; ++s)
 		{
-			String shaderStageString = ToLower(Enums::ToString(s));
+			String shaderStageString = ToLower(enums::ToString(s));
 
-			const FilePath tempSourceDirectory = FileSystem::Path::GetFullPath(SHADER_SOURCE_TMP_PATH);
-			const FilePath tempBinariesDirectory = FileSystem::Path::GetFullPath(SHADER_BINARIES_TMP_PATH);
+			const FilePath tempSourceDirectory = file_system::Path::GetFullPath(SHADER_SOURCE_TMP_PATH);
+			const FilePath tempBinariesDirectory = file_system::Path::GetFullPath(SHADER_BINARIES_TMP_PATH);
 
-			FileSystem::Path::CreateDirectory(tempSourceDirectory / shaderStageString/  shaderLanguageString);
-			FileSystem::Path::CreateDirectory(tempBinariesDirectory / shaderStageString / shaderLanguageString);
+			file_system::Path::CreateDirectory(tempSourceDirectory / shaderStageString/  shaderLanguageString);
+			file_system::Path::CreateDirectory(tempBinariesDirectory / shaderStageString / shaderLanguageString);
 		}
 
 #endif
@@ -356,7 +356,7 @@ namespace Onyx::Graphics::ShaderCompiler
 			    break;
 		}
 
-		ONYX_ASSERT(false, "Shader compiler not implemented for language ({}).", Enums::ToString(language));
+		ONYX_ASSERT(false, "Shader compiler not implemented for language ({}).", enums::ToString(language));
 		return false;
     }
 
@@ -528,7 +528,7 @@ namespace Onyx::Graphics::ShaderCompiler
 				onyxU32 size = static_cast<onyxU32>(compiler.get_declared_struct_member_size(bufferType, i));
 				onyxU32 offset = compiler.type_struct_member_offset(bufferType, i) - bufferOffset;
 
-				String uniformName = Format::Format("{}.{}", bufferName, memberName);
+				String uniformName = format::Format("{}.{}", bufferName, memberName);
 				buffer.Uniforms[uniformName] = ShaderUniform(uniformName, size, offset);
 			}
 		}

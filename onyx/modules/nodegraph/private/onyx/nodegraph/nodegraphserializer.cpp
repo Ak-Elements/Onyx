@@ -8,7 +8,7 @@
 #include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     bool Serialize(Serializer& serializer, const NodeGraph& nodeGraph)
     {

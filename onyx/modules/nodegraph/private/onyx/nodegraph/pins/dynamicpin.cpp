@@ -3,7 +3,7 @@
 #include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/nodegraph/nodegraphtyperegistry.h>
 
-namespace Onyx::NodeGraph
+namespace onyx::node_graph
 {
     UniquePtr<PinBase> CreatePin(StringId32 typeId, Guid64 globalId, StringId32 localId)
     {

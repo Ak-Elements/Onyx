@@ -4,7 +4,7 @@
 #include <onyx/rhi/graphicstypes.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
     DebugLightClustersRenderPass::DebugLightClustersRenderPass()
     {
@@ -13,22 +13,22 @@ namespace Onyx::Graphics::RenderGraphNodes
         RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
         gbufferInfo.Type = RenderGraphResourceType::Attachment;
 
-        m_PipelineProperties.Topology = PrimitiveTopology::LineStrip;
+        m_PipelineProperties.Topology = rhi::PrimitiveTopology::LineStrip;
     }
 
     void DebugLightClustersRenderPass::OnBeginFrame(RenderGraphContext& context)
     {
-        Onyx::onyxU64 outputGlobalId = m_Output.GetGlobalId();
+        onyx::onyxU64 outputGlobalId = m_output.GetGlobalId();
 
-        if (m_Input0.IsConnected())
+        if (m_input0.IsConnected())
         {
-            const RenderGraphResource& inputResource = context.Graph.GetResource(m_Input0.GetLinkedPinGlobalId());
+            const RenderGraphResource& inputResource = context.Graph.GetResource(m_input0.GetLinkedPinGlobalId());
             RenderGraphResource& outResource = context.Graph.GetResource(outputGlobalId);
             outResource.Handle = inputResource.Handle;
         }
     }
 
-    void DebugLightClustersRenderPass::OnRender(RenderGraphContext& /*context*/, CommandBuffer& /*commandBuffer*/)
+    void DebugLightClustersRenderPass::OnRender(RenderGraphContext& /*context*/, rhi::CommandBuffer& /*commandBuffer*/)
     {
         ONYX_PROFILE_FUNCTION;
         //commandBuffer.Draw(PrimitiveTopology::Point, 0, 24, 0, CLUSTER_X * CLUSTER_Y * CLUSTER_Z);

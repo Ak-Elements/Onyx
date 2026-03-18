@@ -25,7 +25,7 @@
 #include <onyx/platform/window.h>
 #include <onyx/profiler/profiler.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     // needed for UniquePtr forward declarations
     VulkanGraphicsApi::VulkanGraphicsApi() = default;
@@ -192,10 +192,10 @@ namespace Onyx::Graphics::Vulkan
         {
             pools =
             {
-                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Graphics::MAX_BINDLESS_RESOURCES },
-                { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, Graphics::MAX_BINDLESS_RESOURCES },
+                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, rhi::MAX_BINDLESS_RESOURCES },
+                { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, rhi::MAX_BINDLESS_RESOURCES },
             };
-            m_BindlessDescriptorPool = MakeUnique<DescriptorPool>(*m_Device, pools, VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT, Graphics::MAX_BINDLESS_RESOURCES);
+            m_BindlessDescriptorPool = MakeUnique<DescriptorPool>(*m_Device, pools, VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT, rhi::MAX_BINDLESS_RESOURCES);
 
             const onyxU32 poolCount = static_cast<uint32_t>(pools.size());
 
@@ -203,14 +203,14 @@ namespace Onyx::Graphics::Vulkan
             InplaceArray<VkDescriptorSetLayoutBinding, 4> descriptorSetBindings;
             VkDescriptorSetLayoutBinding& imageSamplerBinding = descriptorSetBindings[0];
             imageSamplerBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            imageSamplerBinding.descriptorCount = Graphics::MAX_BINDLESS_RESOURCES;
-            imageSamplerBinding.binding = Graphics::Vulkan::BINDLESS_TEXTURE_BINDING;
+            imageSamplerBinding.descriptorCount = rhi::MAX_BINDLESS_RESOURCES;
+            imageSamplerBinding.binding = rhi::vulkan::BINDLESS_TEXTURE_BINDING;
             imageSamplerBinding.stageFlags = VK_SHADER_STAGE_ALL;
 
             VkDescriptorSetLayoutBinding& storageImageBinding = descriptorSetBindings[1];
             storageImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-            storageImageBinding.descriptorCount = Graphics::MAX_BINDLESS_RESOURCES;
-            storageImageBinding.binding = Graphics::Vulkan::BINDLESS_TEXTURE_BINDING + 1;
+            storageImageBinding.descriptorCount = rhi::MAX_BINDLESS_RESOURCES;
+            storageImageBinding.binding = rhi::vulkan::BINDLESS_TEXTURE_BINDING + 1;
             storageImageBinding.stageFlags = VK_SHADER_STAGE_ALL;
 
             VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
@@ -245,7 +245,7 @@ namespace Onyx::Graphics::Vulkan
 
             VkDescriptorSetVariableDescriptorCountAllocateInfoEXT count_info;
             count_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
-            onyxU32 max_binding = Graphics::MAX_BINDLESS_RESOURCES - 1;
+            onyxU32 max_binding = rhi::MAX_BINDLESS_RESOURCES - 1;
             count_info.descriptorSetCount = 1;
             // This number is the max allocatable count
             count_info.pDescriptorCounts = &max_binding;
@@ -265,7 +265,7 @@ namespace Onyx::Graphics::Vulkan
 
         for (onyxU8 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
         {
-            tempFrameBuffer.m_DebugName = Format::Format("TransientBuffer-{}", i);
+            tempFrameBuffer.m_DebugName = format::Format("TransientBuffer-{}", i);
             CreateBuffer(m_RingBuffer[i], tempFrameBuffer);
         }
 
@@ -670,7 +670,7 @@ namespace Onyx::Graphics::Vulkan
         return true;
     }
 
-    Reference<Graphics::Sampler> VulkanGraphicsApi::GetSampler(SamplerProperties properties) const
+    Reference<rhi::Sampler> VulkanGraphicsApi::GetSampler(SamplerProperties properties) const
     {
         onyxU32 hash = properties.Hash();
         if (m_Samplers.contains(hash) == false)
@@ -703,7 +703,7 @@ namespace Onyx::Graphics::Vulkan
         vkQueueWaitIdle(m_Device->GetGraphicsQueue());
     }
 
-    void VulkanGraphicsApi::CreateSwapchain(const Platform::Window& window)
+    void VulkanGraphicsApi::CreateSwapchain(const platform::Window& window)
     {
         m_Surface = MakeUnique<Surface>(*m_Instance, window);
 

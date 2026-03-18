@@ -3,16 +3,16 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Graphics::RenderGraphNodes
+namespace onyx::graphics::render_graph_nodes
 {
-    class CreateTransmittanceRenderGraphNode : public NodeGraph::FixedPinNode_1_Out<RenderGraphFixedShaderNode, TextureHandle>
+    class CreateTransmittanceRenderGraphNode : public node_graph::FixedPinNode_1_Out<RenderGraphFixedShaderNode, rhi::TextureHandle>
     {
     public:
-        static constexpr StringId32 TypeId = "Onyx::Graphics::RenderGraph::CreateTransmittance";
+        static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CreateTransmittance";
        StringId32 GetTypeId() const override { return TypeId; }
 
     private:
-        void OnRender(RenderGraphContext& context, CommandBuffer& commandBuffer) override;
+        void OnRender(RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
 
 #if ONYX_IS_EDITOR
     private:

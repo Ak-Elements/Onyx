@@ -2,22 +2,22 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace Onyx::Volume
+namespace onyx::volume
 {
     struct TerrainWorldOctreeComponent;
 }
 
-namespace Onyx::GameCore
+namespace onyx::game_core
 {
     class Scene;
 }
 
-namespace Onyx::Entity
+namespace onyx::ecs
 {
     class ComponentFactory;
 }
 
-namespace Onyx::Editor
+namespace onyx::editor
 {
     class TerrainTool
     {
@@ -26,8 +26,8 @@ namespace Onyx::Editor
 
         virtual StringView GetTitle() = 0;
         virtual void Render() = 0;
-        virtual void ApplyOperation(Graphics::CommandBuffer& commandBuffer, const Graphics::BufferHandle& hitBuffer, Volume::TerrainWorldOctreeComponent& terrainOctree) = 0;
-        virtual void OnHitPositionReadback(GameCore::Scene& scene, const Entity::ComponentFactory& componentFactory, const Vector3f32& hitPosition) = 0;
+        virtual void ApplyOperation(rhi::CommandBuffer& commandBuffer, const rhi::BufferHandle& hitBuffer, volume::TerrainWorldOctreeComponent& terrainOctree) = 0;
+        virtual void OnHitPositionReadback(game_core::Scene& scene, const ecs::ComponentFactory& componentFactory, const Vector3f32& hitPosition) = 0;
 
         virtual onyxF32 GetBounds() = 0;
         virtual void OnBrushSizeInput(onyxF32 value) = 0;

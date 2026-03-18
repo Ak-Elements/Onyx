@@ -3,7 +3,7 @@
 #if ONYX_UI_MODULE
 #include <onyx/ui/imguiwindow.h>
 
-namespace Onyx::Application::Debug
+namespace onyx::application::debug
 {
     class StatusBarOverlayItem
     {
@@ -13,7 +13,7 @@ namespace Onyx::Application::Debug
         virtual StringView GetName() = 0;
     };
 
-    class StatusBarOverlay : public Ui::ImGuiWindow
+    class StatusBarOverlay : public ui::ImGuiWindow
     {
     public:
         static constexpr StringView WindowId = "StatusBar";
@@ -26,7 +26,7 @@ namespace Onyx::Application::Debug
             return static_cast<T&>(*Items.emplace_back(MakeUnique<T>(std::forward<_Types>(args)...)));
         }
     private:
-        void OnRender(Ui::ImGuiSystem& imguiSystem) override;
+        void OnRender(ui::ImGuiSystem& imguiSystem) override;
     private:
         DynamicArray<UniquePtr<StatusBarOverlayItem>> Items;
         Vector2u32 Position;

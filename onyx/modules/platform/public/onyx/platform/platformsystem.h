@@ -5,12 +5,12 @@
 
 #include <onyx/platform/window.h>
 
-namespace Onyx::Input
+namespace onyx::input
 {
     class InputSystem;
 }
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     class PlatformSystem : public IEngineSystem
     {
@@ -18,15 +18,15 @@ namespace Onyx::Platform
         using WindowCreatedSignalT = Signal<void(const Window&)>;
         using WindowDestroySignalT = Signal<void(const Window&)>;
 
-        static constexpr StringId32 TypeId = "Onyx::Platform::PlatformSystem";
+        static constexpr StringId32 TypeId = "onyx::platform::PlatformSystem";
         StringId32 GetTypeId() const override { return TypeId; }
 
-        PlatformSystem(WindowSettings windowSettings, Input::InputSystem& inputSystem);
+        PlatformSystem(WindowSettings windowSettings, input::InputSystem& inputSystem);
 
         PlatformContext& GetContext() { return m_Context; }
         const PlatformContext& GetContext() const { return m_Context; }
 
-        Input::InputSystem& GetInputSystem() { ONYX_ASSERT(m_InputSystem != nullptr); return *m_InputSystem; }
+        input::InputSystem& GetInputSystem() { ONYX_ASSERT(m_InputSystem != nullptr); return *m_InputSystem; }
 
         void CreateNewWindow(WindowSettings settings);
         Window& GetMainWindow();
@@ -58,7 +58,7 @@ namespace Onyx::Platform
         }
 
     private:
-        Input::InputSystem* m_InputSystem = nullptr; 
+        input::InputSystem* m_InputSystem = nullptr; 
 
         PlatformContext m_Context;
         DynamicArray<UniquePtr<Window>> m_Windows;

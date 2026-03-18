@@ -10,43 +10,43 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
 
-namespace Onyx::Graphics
+namespace onyx::graphics
 {
-    bool MaterialShaderGraphSerializer::Serialize(const Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
+    bool MaterialShaderGraphSerializer::Serialize(const assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, Serializer& serializer, const IEngine& /*engine*/) const
     {
         const MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
-        if (ShaderGraphSerializer::Serialize(shaderGraph, serializer) == false)
+        if (shader_graph_serializer::Serialize(shaderGraph, serializer) == false)
             return false;
 
         // save shader to file
-        FileSystem::OnyxFile shaderOutFile(FileSystem::Path::GetFullPath(FileSystem::Path::ReplaceExtension(meta.Path, "oshader")));
-        FileSystem::FileStream shaderOutStream = shaderOutFile.OpenStream(FileSystem::OpenMode::Write | FileSystem::OpenMode::Text);
+        file_system::OnyxFile shaderOutFile(file_system::Path::GetFullPath(file_system::Path::ReplaceExtension(meta.Path, "oshader")));
+        file_system::FileStream shaderOutStream = shaderOutFile.OpenStream(file_system::OpenMode::Write | file_system::OpenMode::Text);
         shaderOutStream.WriteRaw(shaderGraph.GetShaderCode().data(), shaderGraph.GetShaderCode().size());
 
         return true;
     }
 
-    bool MaterialShaderGraphSerializer::Deserialize(Assets::AssetHandle<Assets::AssetInterface>& asset, const Assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
+    bool MaterialShaderGraphSerializer::Deserialize(assets::AssetHandle<assets::AssetInterface>& asset, const assets::AssetMetaData& meta, const Deserializer& deserializer, IEngine& engine) const
     {
-        GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
-        Assets::AssetSystem& assetSystem = engine.GetSystem<Assets::AssetSystem>();
+        rhi::GraphicsSystem& graphicsSystem = engine.GetSystem<rhi::GraphicsSystem>();
+        assets::AssetSystem& assetSystem = engine.GetSystem<assets::AssetSystem>();
 
         MaterialShaderGraph& shaderGraph = asset.As<MaterialShaderGraph>();
 
-        if (ShaderGraphSerializer::Deserialize(shaderGraph, deserializer) == false)
+        if (shader_graph_serializer::Deserialize(shaderGraph, deserializer) == false)
             return false;
 
-        const FilePath& shaderPath = FileSystem::Path::ReplaceExtension(meta.Path, "oshader");
+        const FilePath& shaderPath = file_system::Path::ReplaceExtension(meta.Path, "oshader");
         //ShaderHandle shader = graphicsApi.CreateShader();
         //graphicsApi.GetShaderCache().GetOrLoadShader(shaderPath, shader);
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
         // TODO: Add shader generator factory here to create unlit shader
-        PBRShaderGenerator shaderGenerator;
+        rhi::PBRShaderGenerator shaderGenerator;
         if (shaderGraph.GenerateShader(shaderGenerator) == false)
             return false;
 
-        //const onyxU64 shaderCodeHash = Hash::FNV1aHash<onyxU64>(shaderGraph.GetShaderCode(), Hash::FNV1aHash<onyxU64>(shaderPath));
+        //const onyxU64 shaderCodeHash = hash::FNV1aHash<onyxU64>(shaderGraph.GetShaderCode(), hash::FNV1aHash<onyxU64>(shaderPath));
         //if ((shader == nullptr) || (shaderCodeHash != shader->GetShaderHash()))
         //{
         //    // Save out shader again and trigger reload
@@ -62,48 +62,48 @@ namespace Onyx::Graphics
         }*/
 
         // call on changed on nodes to queue dependency loading (e.g. textures)
-        NodeGraph::NodeGraph& nodeGraph = shaderGraph.GetNodeGraph();
+        node_graph::NodeGraph& nodeGraph = shaderGraph.GetNodeGraph();
         for (auto& node : (nodeGraph.GetNodes() | std::views::values))
         {
             ShaderGraphNode& shaderGraphNode = static_cast<ShaderGraphNode&>(*node.m_Data);
             shaderGraphNode.OnNodeChanged(assetSystem);
         }
 
-        RenderPassSettings renderPassSettings;
-        RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
-        RenderPassSettings::Attachment attachment{};
+        rhi::RenderPassSettings renderPassSettings;
+        rhi::RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.Emplace();
+        rhi::RenderPassSettings::Attachment attachment{};
 
-        attachment.m_Format = Enums::ToIntegral(TextureFormat::RGBA_FLOAT32);
-        attachment.m_LoadOp = Enums::ToIntegral(RenderPassSettings::LoadOp::DontCare);
+        attachment.m_Format = enums::ToIntegral(rhi::TextureFormat::RGBA_FLOAT32);
+        attachment.m_LoadOp = enums::ToIntegral(rhi::RenderPassSettings::LoadOp::DontCare);
         renderPassSettings.m_Attachments.Add(attachment);
 
-        attachment.m_Format = Enums::ToIntegral(TextureFormat::DEPTH_FLOAT32);
-        attachment.m_LoadOp = Enums::ToIntegral(RenderPassSettings::LoadOp::Load);
+        attachment.m_Format = enums::ToIntegral(rhi::TextureFormat::DEPTH_FLOAT32);
+        attachment.m_LoadOp = enums::ToIntegral(rhi::RenderPassSettings::LoadOp::Load);
         renderPassSettings.m_Attachments.Add(attachment);
 
-        subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::RenderTarget);
-        subpass.m_AttachmentAccesses.Emplace(RenderPassSettings::AttachmentAccess::DepthReadStencilRead);
+        subpass.m_AttachmentAccesses.Emplace(rhi::RenderPassSettings::AttachmentAccess::RenderTarget);
+        subpass.m_AttachmentAccesses.Emplace(rhi::RenderPassSettings::AttachmentAccess::DepthReadStencilRead);
 
-        PipelineProperties pipelineProperties;
-        pipelineProperties.Shader = Assets::AssetId(shaderPath);
+        rhi::PipelineProperties pipelineProperties;
+        pipelineProperties.Shader = assets::AssetId(shaderPath);
         pipelineProperties.RenderPass = graphicsSystem.GetOrCreateRenderPass(renderPassSettings);
         
-        pipelineProperties.Rasterization.CullMode = CullMode::Back;
+        pipelineProperties.Rasterization.CullMode = rhi::CullMode::Back;
         pipelineProperties.DepthStencil.IsDepthEnabled = true;
         pipelineProperties.DepthStencil.IsDepthWriteEnabled = false;
         pipelineProperties.DepthStencil.IsStencilEnabled = false;
-        pipelineProperties.DepthStencil.Compare = CompareOperation::Equal;
+        pipelineProperties.DepthStencil.Compare = rhi::CompareOperation::Equal;
 
-        BlendState& blendState = pipelineProperties.BlendStates.Emplace();
-        blendState.SourceColor = Blend::SrcAlpha;
-        blendState.DestinationColor = Blend::OneMinusSrcAlpha;
-        blendState.ColorOperation = BlendOperation::Add;
-        blendState.SourceAlpha = Blend::SrcAlpha;
-        blendState.DestinationAlpha = Blend::OneMinusSrcAlpha;
-        blendState.AlphaOperation = BlendOperation::Add;
+        rhi::BlendState& blendState = pipelineProperties.BlendStates.Emplace();
+        blendState.SourceColor = rhi::Blend::SrcAlpha;
+        blendState.DestinationColor = rhi::Blend::OneMinusSrcAlpha;
+        blendState.ColorOperation = rhi::BlendOperation::Add;
+        blendState.SourceAlpha = rhi::Blend::SrcAlpha;
+        blendState.DestinationAlpha = rhi::Blend::OneMinusSrcAlpha;
+        blendState.AlphaOperation = rhi::BlendOperation::Add;
 
-        ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
-        shaderEffect = graphicsSystem.CreateShaderInstance(Assets::AssetId(shaderPath), pipelineProperties);
+        rhi::ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
+        shaderEffect = graphicsSystem.CreateShaderInstance(assets::AssetId(shaderPath), pipelineProperties);
 
         return true;
     }

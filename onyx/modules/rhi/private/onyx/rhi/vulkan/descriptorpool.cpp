@@ -1,7 +1,7 @@
 #include <onyx/rhi/vulkan/descriptorpool.h>
 #include <onyx/rhi/vulkan/device.h>
 
-namespace Onyx::Graphics::Vulkan
+namespace onyx::rhi::vulkan
 {
     DescriptorPool::DescriptorPool(const Device& device, const DynamicArray<VkDescriptorPoolSize>& poolSizes, VkDescriptorPoolCreateFlagBits poolCreationFlags, onyxU32 maxSets)
         : m_Device(device)

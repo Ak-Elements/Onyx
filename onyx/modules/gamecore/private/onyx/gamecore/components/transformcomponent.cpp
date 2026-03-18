@@ -1,7 +1,7 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 
-namespace Onyx::GameCore::WorldTransform
+namespace onyx::game_core::world_transform
 {
     void SetRotation(TransformComponent& transformComponent, const Rotor3f32& rotation)
     {

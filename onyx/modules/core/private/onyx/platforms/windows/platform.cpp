@@ -8,7 +8,7 @@
 #include <Windows.h>
 #include <combaseapi.h>
 
-namespace Onyx::Platform
+namespace onyx::platform
 {
     void GetAdapterAndMonitorInfos(HashMap<StringId32, AdapterInfo>& outAdapterInfo)
     {
