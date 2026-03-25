@@ -11,7 +11,7 @@ TaskGraphNode::TaskGraphNode( UniquePtr< TaskGraphTask >&& task )
 #if ONYX_IS_DEBUG
     : m_task( std::move( task ) )
 #else
-    : m_Task( std::move( task ) )
+    : m_task( std::move( task ) )
 #endif
 {
 }

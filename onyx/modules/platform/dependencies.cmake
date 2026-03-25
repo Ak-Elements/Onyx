@@ -31,6 +31,11 @@ if (UNIX)
             message(FATAL_ERROR "Neither X11 (xcb) nor Wayland found — cannot build on this system")
         endif()
     endif()
+
+    find_package(X11 REQUIRED COMPONENTS xkbcommon)
+    if (X11_xkbcommon_FOUND)
+        list(APPEND onyx_TARGET_PRIVATE_DEPENDENCIES X11::xkbcommon)
+    endif()
 endif()
 
 target_compile_definitions(onyx-platform PUBLIC 
