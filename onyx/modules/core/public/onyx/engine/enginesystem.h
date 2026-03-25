@@ -25,13 +25,13 @@ class IEngine : public NonCopyable {
 
     template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
     ONYX_NO_DISCARD T& getSystem() {
-        ONYX_ASSERT( HasSystem( T::TypeId ), "System is not registered." );
+        ONYX_ASSERT( hasSystem( T::TypeId ), "System is not registered." );
         return static_cast< T& >( getSystem( T::TypeId ) );
     }
 
     template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
     ONYX_NO_DISCARD const T& getSystem() const {
-        ONYX_ASSERT( HasSystem( T::TypeId ), "System is not registered." );
+        ONYX_ASSERT( hasSystem( T::TypeId ), "System is not registered." );
         return static_cast< const T& >( getSystem( T::TypeId ) );
     }
 
@@ -72,8 +72,8 @@ struct EngineSystemCreateContext {
 
 struct EngineSystemUpdateContext {
     IEngine& Engine;
-    DeltaGameTime Delta { 0 };
-    GameTime Time { 0 };
+    DeltaGameTime Delta{ 0 };
+    GameTime Time{ 0 };
 
     template < typename T > requires std::is_base_of_v< IEngine, T >
     T& get() const {

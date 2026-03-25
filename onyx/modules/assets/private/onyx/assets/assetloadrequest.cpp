@@ -32,7 +32,7 @@ void AssetLoadRequest::load() {
     ONYX_PROFILE_FUNCTION;
 
     // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
-    ONYX_ASSERT( Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not load assets on the main thread" );
+    ONYX_ASSERT( Thread::s_mainThreadId != std::this_thread::get_id(), "Do not load assets on the main thread" );
 
     FilePath path = file_system::Path::GetFullPath( MetaData.Path );
     String assetName = MetaData.Path.string();
@@ -81,7 +81,7 @@ void AssetSaveRequest::save() {
     ONYX_PROFILE( AssetSystem );
 
     // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
-    ONYX_ASSERT( Thread::MAIN_THREAD_ID != std::this_thread::get_id(), "Do not save assets on the main thread" );
+    ONYX_ASSERT( Thread::s_mainThreadId != std::this_thread::get_id(), "Do not save assets on the main thread" );
 
     // FilePath relativePath = Path.lexically_relative(file_system::Path::GetDataDirectory());
     // String assetName = relativePath.string();

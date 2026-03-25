@@ -315,14 +315,14 @@ inline constexpr VkImageLayout ToImageLayout( ImageLayout layout ) {
 #define VK_CHECK_RESULT( f )                                                                                           \
     {                                                                                                                  \
         [[maybe_unused]] VkResult res = ( f );                                                                         \
-        ONYX_ASSERT( res == VK_SUCCESS, "VkResult is {}", onyx::Graphics::Vulkan::errorString( res ) );                \
+        ONYX_ASSERT( res == VK_SUCCESS, "VkResult is {}", onyx::rhi::vulkan::errorString( res ) );                     \
     }
 
 // TODO: Remove that crap
 #define VK_CHECK_RESULT_RETURN_ON_FAIL( f )                                                                            \
     {                                                                                                                  \
         VkResult res = ( f );                                                                                          \
-        ONYX_ASSERT( res == VK_SUCCESS, "VkResult is {}", onyx::Graphics::Vulkan::errorString( res ) );                \
+        ONYX_ASSERT( res == VK_SUCCESS, "VkResult is {}", onyx::rhi::vulkan::errorString( res ) );                     \
         if ( res != VK_SUCCESS ) {                                                                                     \
             return false;                                                                                              \
         }                                                                                                              \

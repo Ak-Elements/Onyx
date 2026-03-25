@@ -165,7 +165,7 @@ X11PlatformContext::X11PlatformContext( PlatformSystem& platformSystem )
 }
 
 input::InputSystem& PlatformContext::getInputSystem() {
-    ONYX_ASSERT( m_PlatformSystem != nullptr );
+    ONYX_ASSERT( m_platformSystem != nullptr );
     return m_platformSystem->GetInputSystem();
 }
 

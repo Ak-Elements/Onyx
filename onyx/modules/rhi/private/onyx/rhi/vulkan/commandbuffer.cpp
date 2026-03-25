@@ -286,7 +286,7 @@ void VulkanCommandBuffer::EndConditionalRendering() {
 }
 
 VkPipelineLayout VulkanCommandBuffer::GetPipelineLayout() const {
-    ONYX_ASSERT( m_CurrentShaderEffect.IsValid() );
+    ONYX_ASSERT( m_CurrentShaderEffect.isValid() );
     return m_CurrentShaderEffect->GetPipeline().as< Pipeline >().GetPipelineLayout().GetHandle();
 }
 

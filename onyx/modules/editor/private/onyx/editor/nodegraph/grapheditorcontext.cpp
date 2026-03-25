@@ -93,7 +93,7 @@ GraphEditorContext::Node& GraphEditorContext::GetNodeForPin( Guid64 pinId ) {
         }
     }
 
-    ONYX_ASSERT( false, "Failed finding pin with ID {}", pinId.Get() );
+    ONYX_ASSERT( false, "Failed finding pin with ID {}", pinId.get() );
     return m_Nodes[ 0 ];
 }
 
@@ -110,7 +110,7 @@ const GraphEditorContext::Node& GraphEditorContext::GetNodeForPin( Guid64 pinId 
         }
     }
 
-    ONYX_ASSERT( false, "Failed finding pin with ID {}", pinId.Get() );
+    ONYX_ASSERT( false, "Failed finding pin with ID {}", pinId.get() );
     return m_Nodes[ 0 ];
 }
 

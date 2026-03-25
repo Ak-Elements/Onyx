@@ -137,7 +137,7 @@ struct Vector3 {
     constexpr void normalize() requires std::is_floating_point_v< Scalar >
     {
         const float64 len = length();
-        ONYX_ASSERT( onyx::IsZero( len ) == false, "Can not normalize a vector of length 0" );
+        ONYX_ASSERT( onyx::isZero( len ) == false, "Can not normalize a vector of length 0" );
 
         const FloatingPointScalarT invLength = numericCast< FloatingPointScalarT >( 1 / len );
         X = numericCast< Scalar >( X * invLength );
@@ -150,7 +150,7 @@ struct Vector3 {
         if ( onyx::isZero( len ) )
             return Vector3< FloatingPointScalarT >::zero();
 
-        ONYX_ASSERT( onyx::IsZero( len ) == false, "Can not normalize a vector of length 0" );
+        ONYX_ASSERT( onyx::isZero( len ) == false, "Can not normalize a vector of length 0" );
 
         const FloatingPointScalarT invLength = ( 1 / len );
         return { numericCast< FloatingPointScalarT >( X * invLength ),
@@ -298,9 +298,9 @@ struct Vector3 {
     }
 
     constexpr void operator-=( const Vector3& rhs ) {
-        ONYX_ASSERT( IsSubtractionSafe( X, rhs.X ) );
-        ONYX_ASSERT( IsSubtractionSafe( Y, rhs.Y ) );
-        ONYX_ASSERT( IsSubtractionSafe( Z, rhs.Z ) );
+        ONYX_ASSERT( isSubtractionSafe( X, rhs.X ) );
+        ONYX_ASSERT( isSubtractionSafe( Y, rhs.Y ) );
+        ONYX_ASSERT( isSubtractionSafe( Z, rhs.Z ) );
 
         X -= rhs.X;
         Y -= rhs.Y;
@@ -320,9 +320,9 @@ struct Vector3 {
     constexpr void operator/=( const ScalarT scalar ) {
         const FloatingPointScalarT invScalar = 1 / numericCast< FloatingPointScalarT >( scalar );
 
-        ONYX_ASSERT( IsMultiplicationSafe( X, invScalar ) );
-        ONYX_ASSERT( IsMultiplicationSafe( Y, invScalar ) );
-        ONYX_ASSERT( IsMultiplicationSafe( Z, invScalar ) );
+        ONYX_ASSERT( isMultiplicationSafe( X, invScalar ) );
+        ONYX_ASSERT( isMultiplicationSafe( Y, invScalar ) );
+        ONYX_ASSERT( isMultiplicationSafe( Z, invScalar ) );
 
         X = numericCast< ScalarT >( X * invScalar );
         Y = numericCast< ScalarT >( Y * invScalar );
@@ -330,17 +330,17 @@ struct Vector3 {
     }
 
     constexpr Vector3 operator+( const Vector3& rhs ) const {
-        ONYX_ASSERT( IsAdditionSafe( X, rhs.X ) );
-        ONYX_ASSERT( IsAdditionSafe( Y, rhs.Y ) );
-        ONYX_ASSERT( IsAdditionSafe( Z, rhs.Z ) );
+        ONYX_ASSERT( isAdditionSafe( X, rhs.X ) );
+        ONYX_ASSERT( isAdditionSafe( Y, rhs.Y ) );
+        ONYX_ASSERT( isAdditionSafe( Z, rhs.Z ) );
 
         return Vector3( X + rhs.X, Y + rhs.Y, Z + rhs.Z );
     }
 
     constexpr Vector3 operator-( const Vector3& rhs ) const {
-        ONYX_ASSERT( IsSubtractionSafe( X, rhs.X ) );
-        ONYX_ASSERT( IsSubtractionSafe( Y, rhs.Y ) );
-        ONYX_ASSERT( IsSubtractionSafe( Z, rhs.Z ) );
+        ONYX_ASSERT( isSubtractionSafe( X, rhs.X ) );
+        ONYX_ASSERT( isSubtractionSafe( Y, rhs.Y ) );
+        ONYX_ASSERT( isSubtractionSafe( Z, rhs.Z ) );
 
         return Vector3( X - rhs.X, Y - rhs.Y, Z - rhs.Z );
     }
@@ -354,9 +354,9 @@ struct Vector3 {
     }
 
     constexpr Vector3 operator/( ScalarT scalar ) const {
-        ONYX_ASSERT( IsDivisionSafe( X, scalar ) );
-        ONYX_ASSERT( IsDivisionSafe( Y, scalar ) );
-        ONYX_ASSERT( IsDivisionSafe( Z, scalar ) );
+        ONYX_ASSERT( isDivisionSafe( X, scalar ) );
+        ONYX_ASSERT( isDivisionSafe( Y, scalar ) );
+        ONYX_ASSERT( isDivisionSafe( Z, scalar ) );
 
         return Vector3( X / scalar, Y / scalar, Z / scalar );
     }

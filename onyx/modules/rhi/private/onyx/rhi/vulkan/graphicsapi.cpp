@@ -711,7 +711,7 @@ std::lock_guard< std::mutex > VulkanGraphicsApi::LockGraphicsQueue() {
 }
 
 void VulkanGraphicsApi::ReleaseTexture( const VulkanTexture& texture ) {
-    ONYX_ASSERT( texture.GetRefCount() == 0 );
+    ONYX_ASSERT( texture.getRefCount() == 0 );
     m_DeletionQueue.emplace_back( [ textureIndex = texture.GetIndex(), this ]() mutable {
         m_Textures.Release( textureIndex );
         return true;

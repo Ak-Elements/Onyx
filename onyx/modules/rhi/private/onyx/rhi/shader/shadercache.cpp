@@ -159,7 +159,7 @@ bool ShaderCache::GetOrLoadShader( const FilePath& shaderPath, Reference< Shader
             }
         } else if ( entry.Stages[ i ].Hash != 0 ) // remove stages that are not in the source anymore
         {
-            ONYX_ASSERT( entry.Shader.IsValid(), "Can't remove stage from invalid shader handle" );
+            ONYX_ASSERT( entry.Shader.isValid(), "Can't remove stage from invalid shader handle" );
             entry.Stages[ i ].Hash = 0;
             entry.Shader->RemoveStage( enums::toEnum< ShaderStage >( i ) );
         }

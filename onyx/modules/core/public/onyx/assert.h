@@ -10,33 +10,33 @@
 namespace onyx {
 inline InplaceFunction< void( StringView message ) > ErrorFunctor = []( StringView /*msg*/ ) {};
 
-template < typename... Args > bool Assert( const char* file,
-                                           int line,
-                                           const char* conditionString,
-                                           std::format_string< Args... > fmt,
-                                           Args&&... args ) {
+template < typename... Args > bool logAssert( const char* file,
+                                              int line,
+                                              const char* conditionString,
+                                              std::format_string< Args... > fmt,
+                                              Args&&... args ) {
     InplaceString< 512 > finalMessage;
 
     constexpr uint32_t formatArgsCount = sizeof...( args );
     InplaceString< 250 > messageStr;
     if constexpr ( formatArgsCount > 0 ) {
-        Format::FormatTo( messageStr, fmt, std::forward< Args >( args )... );
+        format::formatTo( messageStr, fmt, std::forward< Args >( args )... );
     }
 
-    Format::FormatTo( finalMessage,
+    format::formatTo( finalMessage,
                       "{}({}) : Assert failed({}): {} \n",
                       file,
                       line,
                       conditionString,
-                      messageStr.GetData() );
+                      messageStr.getData() );
 
     return true;
 }
 
-template < typename... Args > bool Assert( const char* file, int line, const char* conditionString ) {
+template < typename... Args > bool logAssert( const char* file, int line, const char* conditionString ) {
     InplaceString< 512 > finalMessage;
-    Format::FormatTo( finalMessage, "{}({}) : Assert failed({}) \n", file, line, conditionString );
-    ErrorFunctor( finalMessage.GetData() );
+    format::formatTo( finalMessage, "{}({}) : Assert failed({}) \n", file, line, conditionString );
+    ErrorFunctor( finalMessage.getData() );
     return true;
 }
 } // namespace onyx
@@ -44,7 +44,7 @@ template < typename... Args > bool Assert( const char* file, int line, const cha
 #define ONYX_ASSERT( condition, ... )                                                                                  \
     do {                                                                                                               \
         if ( !( condition ) ) {                                                                                        \
-            if ( ::onyx::Assert( __FILE__, __LINE__, #condition, ##__VA_ARGS__ ) ) {                                   \
+            if ( ::onyx::logAssert( __FILE__, __LINE__, #condition, ##__VA_ARGS__ ) ) {                                \
                 ::onyx::breakpoint();                                                                                  \
                 ::std::terminate();                                                                                    \
             }                                                                                                          \

@@ -180,22 +180,22 @@ class Reference {
     explicit operator bool() const { return isValid(); }
 
     T* operator->() {
-        ONYX_ASSERT( m_Object != nullptr );
+        ONYX_ASSERT( m_object != nullptr );
         return raw();
     }
 
     const T* operator->() const {
-        ONYX_ASSERT( m_Object != nullptr );
+        ONYX_ASSERT( m_object != nullptr );
         return raw();
     }
 
     T& operator*() {
-        ONYX_ASSERT( m_Object != nullptr );
+        ONYX_ASSERT( m_object != nullptr );
         return *raw();
     }
 
     const T& operator*() const {
-        ONYX_ASSERT( m_Object != nullptr );
+        ONYX_ASSERT( m_object != nullptr );
         return *raw();
     }
 

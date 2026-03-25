@@ -10,7 +10,7 @@ class EventDispatcher {
 
   public:
 #if ONYX_IS_DEBUG
-    ~EventDispatcher() { ONYX_ASSERT( m_EventHandlers.empty(), "Event Handlers did not get released" ); }
+    ~EventDispatcher() { ONYX_ASSERT( m_eventHandlers.empty(), "Event Handlers did not get released" ); }
 #endif
 
     void addDelegate( EventHandlerFunction&& delegate ) { m_eventHandlers.push_back( delegate ); }

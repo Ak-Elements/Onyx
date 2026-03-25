@@ -68,12 +68,12 @@ struct ExecutionContext {
     void AddNodeContext( Guid64 id, NodeContext context ) { m_NodeContexts[ id.get() ] = context; }
 
     const NodeContext& GetNodeContext( Guid64 nodeId ) const {
-        ONYX_ASSERT( m_NodeContexts.contains( nodeId.Get() ) );
+        ONYX_ASSERT( m_NodeContexts.contains( nodeId.get() ) );
         return m_NodeContexts.at( nodeId.get() );
     }
 
     NodeContext& SetCurrentNode( Guid64 nodeId ) {
-        ONYX_ASSERT( m_NodeContexts.contains( nodeId.Get() ) );
+        ONYX_ASSERT( m_NodeContexts.contains( nodeId.get() ) );
         m_CurrentNodeContext = &( m_NodeContexts.at( nodeId.get() ) );
         return *m_CurrentNodeContext;
     }

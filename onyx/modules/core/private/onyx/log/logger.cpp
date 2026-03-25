@@ -7,7 +7,7 @@ namespace onyx {
 Logger* Logger::s_defaultLogger = nullptr;
 
 Logger::~Logger() {
-    ONYX_ASSERT( IsRunning() == false, "Shutdown was not called on Logger" );
+    ONYX_ASSERT( isRunning() == false, "Shutdown was not called on Logger" );
 }
 
 void Logger::init() {
@@ -37,7 +37,7 @@ void Logger::log( LogLevel level, const char* message, const std::source_locatio
     LogMessage logMessage( level, message, location );
 
 #if ONYX_ASSERT_ENABLED
-    const bool success = m_LogMessageQueue.Push( std::move( logMessage ) );
+    const bool success = m_logMessageQueue.push( std::move( logMessage ) );
     ONYX_ASSERT( success, "LogMessage queue is full. Too many log messages are sent at once." );
 #else
     m_logMessageQueue.push( std::move( logMessage ) );

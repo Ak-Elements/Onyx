@@ -181,37 +181,37 @@ class Future {
     explicit operator bool() const { return ( m_futureState != nullptr ) && ( isPending() == false ); }
 
     T get() {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->get();
     }
 
     void wait() {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         m_futureState->wait();
     }
 
     ONYX_NO_DISCARD bool isPending() const {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->isPending();
     }
 
     ONYX_NO_DISCARD bool isCompleted() const {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->isCompleted();
     }
 
     ONYX_NO_DISCARD bool isCancelled() const {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->isCancelled();
     }
 
     void cancel() {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         m_futureState->cancel();
     }
 
     void cancel( bool waitForCancel ) {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         m_futureState->cancel();
 
         if ( waitForCancel )
@@ -220,13 +220,13 @@ class Future {
 
     template < typename Callable >
     void then( Callable&& c ) {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         m_futureState->then( std::forward< Callable >( c ) );
     }
 
     template < typename Callable >
     void onCancel( Callable&& c ) {
-        ONYX_ASSERT( m_FutureState != nullptr );
+        ONYX_ASSERT( m_futureState != nullptr );
         m_futureState->onCancel( std::forward< Callable >( c ) );
     }
 

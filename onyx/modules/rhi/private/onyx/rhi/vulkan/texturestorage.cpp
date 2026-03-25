@@ -458,7 +458,7 @@ VkImageUsageFlags VulkanTextureStorage::GetUsageFlags( const TextureStoragePrope
             usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         break;
     default:
-        ONYX_ASSERT( false, "Illegal GPU access value: 0x{:x}", enums::ToIntegral( properties.m_GpuAccess ) );
+        ONYX_ASSERT( false, "Illegal GPU access value: 0x{:x}", enums::toIntegral( properties.m_GpuAccess ) );
     }
 
     if ( properties.m_IsTexture )

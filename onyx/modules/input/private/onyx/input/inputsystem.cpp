@@ -90,8 +90,8 @@ bool InputSystem::IsButtonDown( GameControllerButton button, uint8_t deviceIndex
         return false;
 
     constexpr uint16_t first = enums::toIntegral( GameControllerButton::First );
-    ONYX_ASSERT( enums::ToIntegral( button ) > first );
-    ONYX_ASSERT( enums::ToIntegral( button ) < enums::ToIntegral( GameControllerButton::Last ) );
+    ONYX_ASSERT( enums::toIntegral( button ) > first );
+    ONYX_ASSERT( enums::toIntegral( button ) < enums::toIntegral( GameControllerButton::Last ) );
 
     uint16_t bitmaskIndex = enums::toIntegral( button ) - first;
     return m_Gamepads[ deviceIndex ].ButtonStates & ( 1 << bitmaskIndex );

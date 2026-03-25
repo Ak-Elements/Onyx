@@ -49,7 +49,7 @@ void TraceImpl( const char* inFMT, ... ) {
 #ifdef JPH_ENABLE_ASSERTS
 // Callback for asserts, connect this to your own assert handler if you have one
 static bool AssertFailedImpl( const char* inExpression, const char* inMessage, const char* inFile, uint inLine ) {
-    ::onyx::Assert( inFile, inLine, inMessage );
+    ::onyx::logAssert( inFile, inLine, inMessage );
 
     // Breakpoint
     return true;

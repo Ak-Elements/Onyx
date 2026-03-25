@@ -61,7 +61,7 @@ class WaylandPlatformContext : public Thread {
                                   uint32_t version );
     static void UnregisterCallback( void* data, wl_registry* registry, uint32_t name );
 
-    void OnUpdate() override;
+    void onUpdate() override;
 
   private:
     Atomic< bool > m_IsInitialized = false;

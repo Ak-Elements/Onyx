@@ -40,10 +40,10 @@ static constexpr uint16_t MouseAxis_Count = enums::toIntegral( MouseAxis::Last )
 
 constexpr uint16_t ToIndex( MouseButton button ) {
 #if ONYX_ASSERT_ENABLED
-    constexpr uint16_t first = enums::ToIntegral( MouseButton::First );
-    constexpr uint16_t last = enums::ToIntegral( MouseButton::Last );
-    ONYX_ASSERT( enums::ToIntegral( button ) > first );
-    ONYX_ASSERT( enums::ToIntegral( button ) < last );
+    constexpr uint16_t first = enums::toIntegral( MouseButton::First );
+    constexpr uint16_t last = enums::toIntegral( MouseButton::Last );
+    ONYX_ASSERT( enums::toIntegral( button ) > first );
+    ONYX_ASSERT( enums::toIntegral( button ) < last );
 #endif
     uint16_t index = enums::toIntegral( button ) - 1; // mouse buttons first is set to 0
     return index;

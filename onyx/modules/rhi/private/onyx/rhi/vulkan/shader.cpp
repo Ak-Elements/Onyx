@@ -39,7 +39,7 @@ bool Shader::AddStage( GraphicsSystem& graphicsSystem, ShaderStage stage, const 
     else
         ONYX_ASSERT( IsComputeShader() == false,
                      "Compute shader does not support %s shader stage",
-                     enums::ToString( stage ).data() );
+                     enums::toString( stage ) );
 #endif
     UniquePtr< ShaderModule > module = makeUnique< ShaderModule >( vulkanApi, byteCode );
 

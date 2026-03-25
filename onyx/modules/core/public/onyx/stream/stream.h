@@ -29,7 +29,7 @@ class Stream {
 
     explicit operator bool() const { return isValid(); }
     ONYX_NO_DISCARD uint64_t getRemainingLength() const {
-        ONYX_ASSERT( GetLength() >= GetPosition() );
+        ONYX_ASSERT( getLength() >= getPosition() );
         return getLength() - getPosition();
     }
 

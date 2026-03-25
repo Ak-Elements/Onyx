@@ -147,7 +147,7 @@ StringView GetShaderExtension( ShaderStage stage ) {
         break;
     }
 
-    ONYX_ASSERT( false, "Invalid shader stage {} passed", enums::ToString( stage ) );
+    ONYX_ASSERT( false, "Invalid shader stage {} passed", enums::toString( stage ) );
     return "";
 }
 
@@ -340,7 +340,7 @@ bool Preprocess( const GraphicsSystem& api,
         break;
     }
 
-    ONYX_ASSERT( false, "Shader compiler not implemented for language ({}).", enums::ToString( language ) );
+    ONYX_ASSERT( false, "Shader compiler not implemented for language ({}).", enums::toString( language ) );
     return false;
 }
 
@@ -379,7 +379,7 @@ bool Compile( const GraphicsSystem& api,
         break;
     }
 
-    ONYX_ASSERT( false, "Shader compiler not implemented for language ({}).", enums::ToString( language ) );
+    ONYX_ASSERT( false, "Shader compiler not implemented for language ({}).", enums::toString( language ) );
     return false;
 }
 

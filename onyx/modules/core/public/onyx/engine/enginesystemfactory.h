@@ -44,7 +44,7 @@ struct EngineSystemFactory {
     }
 
     static UniquePtr< IEngineSystem > create( StringId32 moduleId, const EngineSystemCreateContext& context ) {
-        ONYX_ASSERT( s_CreateFunctions.contains( moduleId ) );
+        ONYX_ASSERT( s_createFunctions.contains( moduleId ) );
         return s_createFunctions.at( moduleId )( context );
     }
 

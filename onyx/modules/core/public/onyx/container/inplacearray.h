@@ -31,7 +31,7 @@ struct InplaceArray {
     }*/
 
     constexpr InplaceArray( std::initializer_list< ValueType > data ) {
-        ONYX_ASSERT( data.size() <= MAX_SIZE, "Initializer list is too large." );
+        ONYX_ASSERT( data.size() <= MaxSize, "Initializer list is too large." );
         for ( const ValueType& dataElement : data ) {
             m_data[ m_nextIndex++ ] = dataElement;
         }
@@ -45,7 +45,7 @@ struct InplaceArray {
     }*/
 
     void add( ValueType val ) {
-        ONYX_ASSERT( m_NextIndex < MAX_SIZE, "Index out of bounds." );
+        ONYX_ASSERT( m_nextIndex < MaxSize, "Index out of bounds." );
         m_data[ m_nextIndex++ ] = val;
     }
 
@@ -56,7 +56,7 @@ struct InplaceArray {
 
     template < typename... Args >
     ValueType& emplaceAt( uint8_t i, Args&&... args ) {
-        ONYX_ASSERT( i < MAX_SIZE, "Index out of bounds." );
+        ONYX_ASSERT( i < MaxSize, "Index out of bounds." );
         m_nextIndex = i < m_nextIndex ? m_nextIndex : i + 1;
         return m_data[ i ] = ValueType( std::forward< Args >( args )... );
     }
@@ -67,14 +67,14 @@ struct InplaceArray {
 
     constexpr ValueType& operator[]( uint8_t i ) {
         // assert size
-        ONYX_ASSERT( i < MAX_SIZE, "Index out of bounds." );
+        ONYX_ASSERT( i < MaxSize, "Index out of bounds." );
         m_nextIndex = i < m_nextIndex ? m_nextIndex : i + 1;
         return m_data[ i ];
     }
 
     constexpr const ValueType& operator[]( uint8_t i ) const {
         // assert size
-        ONYX_ASSERT( i < MAX_SIZE, "Index out of bounds." );
+        ONYX_ASSERT( i < MaxSize, "Index out of bounds." );
         return m_data[ i ];
     }
 

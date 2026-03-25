@@ -73,9 +73,9 @@ struct GameController {
 constexpr uint16_t ToIndex( GameControllerButton button ) {
     constexpr uint16_t first = enums::toIntegral( GameControllerButton::First );
 #if ONYX_ASSERT_ENABLED
-    constexpr uint16_t last = enums::ToIntegral( GameControllerButton::Last );
-    ONYX_ASSERT( enums::ToIntegral( button ) > first );
-    ONYX_ASSERT( enums::ToIntegral( button ) < last );
+    constexpr uint16_t last = enums::toIntegral( GameControllerButton::Last );
+    ONYX_ASSERT( enums::toIntegral( button ) > first );
+    ONYX_ASSERT( enums::toIntegral( button ) < last );
 #endif
     return enums::toIntegral( button ) - first;
 }
@@ -83,9 +83,9 @@ constexpr uint16_t ToIndex( GameControllerButton button ) {
 constexpr uint16_t ToIndex( GameControllerAxis axis ) {
     constexpr uint16_t first = enums::toIntegral( GameControllerButton::First );
 #if ONYX_ASSERT_ENABLED
-    constexpr uint16_t last = enums::ToIntegral( GameControllerButton::Last );
-    ONYX_ASSERT( enums::ToIntegral( axis ) > first );
-    ONYX_ASSERT( enums::ToIntegral( axis ) < last );
+    constexpr uint16_t last = enums::toIntegral( GameControllerButton::Last );
+    ONYX_ASSERT( enums::toIntegral( axis ) > first );
+    ONYX_ASSERT( enums::toIntegral( axis ) < last );
 #endif
     return enums::toIntegral( axis ) - first;
 }

@@ -282,9 +282,9 @@ inline bool IsModifierKey( Key key ) {
 constexpr auto ToIndex( Key key ) -> std::underlying_type_t< Key > {
     constexpr uint16_t first = enums::toIntegral( Key::First );
 #if ONYX_ASSERT_ENABLED
-    constexpr uint16_t last = enums::ToIntegral( Key::Last );
-    ONYX_ASSERT( enums::ToIntegral( key ) > first );
-    ONYX_ASSERT( enums::ToIntegral( key ) < last );
+    constexpr uint16_t last = enums::toIntegral( Key::Last );
+    ONYX_ASSERT( enums::toIntegral( key ) > first );
+    ONYX_ASSERT( enums::toIntegral( key ) < last );
 #endif
 
     uint16_t index = enums::toIntegral( key ) - first;

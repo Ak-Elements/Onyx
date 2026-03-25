@@ -113,7 +113,7 @@ VkImageViewType VulkanTexture::GetType( TextureType type, bool isArray ) {
     case TextureType::TextureCube:
         return isArray ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE;
     default:
-        ONYX_ASSERT( false, "Unknown storage type: {}, {}", enums::ToString( type ), isArray );
+        ONYX_ASSERT( false, "Unknown storage type: {}, {}", enums::toString( type ), isArray );
         return VK_IMAGE_VIEW_TYPE_MAX_ENUM;
     }
 }

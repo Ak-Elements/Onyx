@@ -94,7 +94,7 @@ void Reference< T, D >::increaseRefCount() const {
 
 template < typename T, typename D >
 void Reference< T, D >::decreaseRefCount() const {
-    ONYX_ASSERT( ( m_Object == nullptr ) || ( m_Object->m_RefCount != 0 ) );
+    ONYX_ASSERT( ( m_object == nullptr ) || ( m_object->m_refCount != 0 ) );
     if ( m_object && m_object->removeReference() ) {
         m_deleter( std::remove_const_t< T* >( raw() ) );
         m_object = nullptr;

@@ -28,7 +28,7 @@ class Application : public IEngine {
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
     void removeModule() {
-        ONYX_ASSERT( HasSystem< T >(), "Module is not added." );
+        ONYX_ASSERT( hasSystem< T >(), "Module is not added." );
 
         auto it = std::ranges::find_if( m_modules, [ = ]( const UniquePtr< IEngineSystem >& module ) {
             return module->getTypeId() == T::TypeId;
@@ -39,21 +39,21 @@ class Application : public IEngine {
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
-    ONYX_NO_DISCARD bool HasSystem() const {
+    ONYX_NO_DISCARD bool hasSystem() const {
         return hasSystem( T::TypeId );
     }
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
     ONYX_NO_DISCARD T& GetSystem() {
-        ONYX_ASSERT( HasSystem( T::TypeId ), "Module is not registered." );
+        ONYX_ASSERT( hasSystem( T::TypeId ), "Module is not registered." );
         return static_cast< T& >( getSystem( T::TypeId ) );
     }
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
     ONYX_NO_DISCARD const T& GetSystem() const {
-        ONYX_ASSERT( HasSystem( T::TypeId ), "Module is not registered." );
+        ONYX_ASSERT( hasSystem( T::TypeId ), "Module is not registered." );
         return static_cast< const T& >( getSystem( T::TypeId ) );
     }
 
@@ -64,7 +64,7 @@ class Application : public IEngine {
     }
 
     IEngineSystem& getSystem( StringId32 systemId ) override {
-        ONYX_ASSERT( HasSystem( systemId ), "Module is not added." );
+        ONYX_ASSERT( hasSystem( systemId ), "Module is not added." );
         auto it = std::ranges::find_if( m_modules, [ = ]( const UniquePtr< IEngineSystem >& module ) {
             return module->getTypeId() == systemId;
         } );
@@ -72,7 +72,7 @@ class Application : public IEngine {
     }
 
     ONYX_NO_DISCARD const IEngineSystem& getSystem( StringId32 systemId ) const override {
-        ONYX_ASSERT( HasSystem( systemId ), "Module is not added." );
+        ONYX_ASSERT( hasSystem( systemId ), "Module is not added." );
         auto it = std::ranges::find_if( m_modules, [ = ]( const UniquePtr< IEngineSystem >& module ) {
             return module->getTypeId() == systemId;
         } );

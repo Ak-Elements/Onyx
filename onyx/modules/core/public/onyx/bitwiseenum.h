@@ -14,8 +14,8 @@ constexpr auto toEnum( std::underlying_type_t< Enum > value ) -> Enum {
 
 template < typename Enum >
 constexpr StringView toString( Enum value ) {
-    ONYX_ASSERT( enums::ToIntegral( value ) >= MAGIC_ENUM_RANGE_MIN );
-    ONYX_ASSERT( enums::ToIntegral( value ) <= MAGIC_ENUM_RANGE_MAX );
+    ONYX_ASSERT( enums::toIntegral( value ) >= MAGIC_ENUM_RANGE_MIN );
+    ONYX_ASSERT( enums::toIntegral( value ) <= MAGIC_ENUM_RANGE_MAX );
     return magic_enum::enum_name( value );
 }
 

@@ -130,7 +130,7 @@ class AssetSystem : public IEngineSystem {
 
     template < typename SerializerT, typename... Args >
     static constexpr bool registerSerializer( Args&&... args ) {
-        ONYX_ASSERT( s_RegisteredSerializer.contains( SerializerT::AssetT::TypeId ) == false,
+        ONYX_ASSERT( s_registeredSerializer.contains( SerializerT::AssetT::TypeId ) == false,
                      "Serializer with that type is already registered." );
         s_registeredSerializer[ SerializerT::AssetT::TypeId ] = makeUnique< SerializerT >(
             std::forward< Args >( args )... );
@@ -161,7 +161,7 @@ template < typename AssetT >
 requires std::is_base_of_v< AssetInterface, AssetT >
 inline constexpr bool AssetSystem::registerAsset() {
     constexpr StringId32 TypeId( AssetT::TypeId );
-    ONYX_ASSERT( s_RegisteredAssets.contains( typeId ) == false, "Asset with that type is already registered." );
+    ONYX_ASSERT( s_registeredAssets.contains( TypeId ) == false, "Asset with that type is already registered." );
     if constexpr ( (std::is_abstract_v< AssetT >) || HasStaticCreate< AssetT > ) {
         s_registeredAssets[ TypeId ] = []( IEngine& engine ) -> Reference< AssetInterface > {
             return AssetT::create( engine );

@@ -5,7 +5,7 @@ StringStream::StringStream( String str )
     : m_data( std::move( str ) ) {}
 
 bool StringStream::readConditional( StringView expectedValue ) {
-    ONYX_ASSERT( IsEof() == false );
+    ONYX_ASSERT( isEof() == false );
 
     const uint32_t count = static_cast< uint32_t >( expectedValue.size() );
     if ( getRemainingLength() < count )
@@ -28,7 +28,7 @@ void StringStream::skipWhitespaces() {
 }
 
 bool StringStream::readLine( StringView& outStrView ) {
-    ONYX_ASSERT( IsEof() == false );
+    ONYX_ASSERT( isEof() == false );
 
     const char* startPos = m_data.data() + m_currentDataPosition;
     const char* endPos = startPos + getRemainingLength();
@@ -75,7 +75,7 @@ bool StringStream::readString( StringView& outStrView ) {
 }
 
 void StringStream::doRead( char* destination, uint64_t size ) const {
-    ONYX_ASSERT( ( m_currentDataPosition + size ) < GetLength() );
+    ONYX_ASSERT( ( m_currentDataPosition + size ) < getLength() );
     char* startPos = const_cast< char* >( m_data.data() + m_currentDataPosition );
     std::memcpy( destination, startPos, size );
     m_currentDataPosition += size;

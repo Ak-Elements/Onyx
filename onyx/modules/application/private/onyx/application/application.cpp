@@ -123,7 +123,7 @@ void Application::run() {
     ONYX_PROFILE_SET_THREAD( Main )
 
 #if ONYX_USE_IMGUI
-    bool hasImGuiSystem = HasSystem< ui::ImGuiSystem >();
+    bool hasImGuiSystem = hasSystem< ui::ImGuiSystem >();
 #endif
 
     platform::PlatformSystem& platformSystem = GetSystem< platform::PlatformSystem >();

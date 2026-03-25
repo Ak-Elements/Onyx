@@ -450,7 +450,7 @@ void RenderGraphShaderNode::UpdateFramebuffer( rhi::GraphicsSystem& api, RenderG
 void RenderGraphShaderNode::BindResources( rhi::ShaderInstanceHandle shaderInstance,
                                            const HashMap< RenderGraphResourceId, RenderGraphResource >& resourceCache,
                                            const rhi::FrameContext& frameContext ) {
-    ONYX_ASSERT( shaderInstance.IsValid() );
+    ONYX_ASSERT( shaderInstance.isValid() );
     ONYX_PROFILE_FUNCTION;
 
     //// Inputs

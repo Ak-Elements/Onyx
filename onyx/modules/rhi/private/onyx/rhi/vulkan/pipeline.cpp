@@ -18,7 +18,7 @@ VkVertexInputRate ToVulkanInputRate( VertexStreamInputRate rate ) {
     case VertexStreamInputRate::Instance:
         return VK_VERTEX_INPUT_RATE_INSTANCE;
     default:
-        ONYX_ASSERT( false, "Unsupported vertex stream input rate %s", enums::ToString( rate ).data() );
+        ONYX_ASSERT( false, "Unsupported vertex stream input rate %s", enums::toString( rate ) );
         return VK_VERTEX_INPUT_RATE_MAX_ENUM;
     }
 }
@@ -40,7 +40,7 @@ VkPrimitiveTopology ToVulkanTopology( PrimitiveTopology topology ) {
     case PrimitiveTopology::Patch:
         return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
     default:
-        ONYX_ASSERT( false, "Unhandled primitive topology %s", enums::ToString( topology ).data() );
+        ONYX_ASSERT( false, "Unhandled primitive topology %s", enums::toString( topology ) );
         return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
     }
 }
@@ -89,7 +89,7 @@ VkBlendFactor ToVulkanBlendFactor( Blend factor ) {
         break;
     }
 
-    ONYX_ASSERT( false, "Unhandled blend factor %s", enums::ToString( factor ).data() );
+    ONYX_ASSERT( false, "Unhandled blend factor %s", enums::toString( factor ) );
     return VK_BLEND_FACTOR_MAX_ENUM;
 }
 
@@ -107,7 +107,7 @@ VkBlendOp ToVulkanBlendOpration( BlendOperation operation ) {
         return VK_BLEND_OP_MAX;
     }
 
-    ONYX_ASSERT( false, "Unhandeld blend operation %s", enums::ToString( operation ).data() );
+    ONYX_ASSERT( false, "Unhandeld blend operation %s", enums::toString( operation ) );
     return VK_BLEND_OP_MAX_ENUM;
 }
 
@@ -130,7 +130,7 @@ VkCompareOp ToVulkanCompareOp( CompareOperation operation ) {
     case CompareOperation::Always:
         return VK_COMPARE_OP_ALWAYS;
     default:
-        ONYX_ASSERT( false, "Unhandeld compare operation %s", enums::ToString( operation ).data() );
+        ONYX_ASSERT( false, "Unhandeld compare operation %s", enums::toString( operation ) );
         return VK_COMPARE_OP_MAX_ENUM;
     }
 }
@@ -154,7 +154,7 @@ VkStencilOp ToVkStencilOperation( StencilOperation operation ) {
     case StencilOperation::DecrementWrap:
         return VK_STENCIL_OP_DECREMENT_AND_WRAP;
     default:
-        ONYX_ASSERT( false, "Unhandeld stencil operation %s", enums::ToString( operation ).data() );
+        ONYX_ASSERT( false, "Unhandeld stencil operation %s", enums::toString( operation ) );
         return VK_STENCIL_OP_MAX_ENUM;
     }
 }
@@ -184,7 +184,7 @@ VkCullModeFlags ToVulkanCullMode( CullMode mode ) {
     if ( enums::all( mode, CullMode::Front | CullMode::Back ) )
         return VK_CULL_MODE_FRONT_AND_BACK;
 
-    ONYX_ASSERT( false, "Unhandeled cull mode {}", enums::ToString( mode ).data() );
+    ONYX_ASSERT( false, "Unhandeled cull mode {}", enums::toString( mode ) );
     return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
 }
 
@@ -197,7 +197,7 @@ VkPolygonMode ToVulkanFillMode( FillMode mode ) {
     case FillMode::Point:
         return VK_POLYGON_MODE_POINT;
     default:
-        ONYX_ASSERT( false, "Unhandeled fill mode {}", enums::ToString( mode ).data() );
+        ONYX_ASSERT( false, "Unhandeled fill mode {}", enums::toString( mode ) );
         return VK_POLYGON_MODE_MAX_ENUM;
     }
 }

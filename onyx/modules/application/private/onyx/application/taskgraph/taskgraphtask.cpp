@@ -28,7 +28,7 @@ TaskGraphNode& TaskGraphNode::operator=( TaskGraphNode&& other ) noexcept {
 }
 
 void TaskGraphNode::update( uint64_t deltaTime, rhi::FrameContext& context ) {
-    ONYX_ASSERT( m_Task != nullptr );
+    ONYX_ASSERT( m_task != nullptr );
     m_task->update( deltaTime, context );
 }
 } // namespace onyx::application

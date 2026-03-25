@@ -30,7 +30,7 @@ class StringStream : public Stream {
 
     template < typename T >
     bool readType( T& outValue ) {
-        ONYX_ASSERT( IsEof() == false );
+        ONYX_ASSERT( isEof() == false );
 
         const char* startPos = ( m_data.data() + m_currentDataPosition );
         const std::from_chars_result result = std::from_chars( startPos, startPos + getRemainingLength(), outValue );

@@ -18,7 +18,7 @@ Node& NodeGraph::GetNodeForPinId( Guid64 globalPinId ) {
             return *node;
     }
 
-    ONYX_ASSERT( false, "Failed getting pin with id 0x{:x}", globalPinId.Get() );
+    ONYX_ASSERT( false, "Failed getting pin with id 0x{:x}", globalPinId.get() );
     return *Graph.getNode( 0 );
 }
 
@@ -29,7 +29,7 @@ const Node& NodeGraph::GetNodeForPinId( Guid64 globalPinId ) const {
             return *node;
     }
 
-    ONYX_ASSERT( false, "Failed getting pin with id 0x{:x}", globalPinId.Get() );
+    ONYX_ASSERT( false, "Failed getting pin with id 0x{:x}", globalPinId.get() );
     return *Graph.getNode( 0 );
 }
 
@@ -57,7 +57,7 @@ const PinBase& NodeGraph::GetPinById( Guid64 globalPinId ) const {
         }
     }
 
-    ONYX_ASSERT( false, "Failed finding pin with global id 0x{:x}", globalPinId.Get() );
+    ONYX_ASSERT( false, "Failed finding pin with global id 0x{:x}", globalPinId.get() );
     return *pin;
 }
 
@@ -143,7 +143,7 @@ typename NodeGraph::LocalNodeId NodeGraph::GetLocalNodeIdForPin( Guid64 globalPi
             return id;
     }
 
-    ONYX_ASSERT( false, "Failed getting node id for pin with id 0x{:x}", globalPinId.Get() );
+    ONYX_ASSERT( false, "Failed getting node id for pin with id 0x{:x}", globalPinId.get() );
     return InvalidIndex32;
 }
 

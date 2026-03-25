@@ -158,7 +158,7 @@ class RenderGraphFixedShaderNode : public RenderGraphShaderNode {
     void Render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) override;
 
     bool IsComputeTask() const override {
-        ONYX_ASSERT( m_ShaderInstance.IsValid() );
+        ONYX_ASSERT( m_ShaderInstance.isValid() );
         return m_ShaderInstance->IsCompute();
     }
     bool IsEnabled() override { return m_ShaderInstance.isValid(); }
