@@ -12,7 +12,7 @@ namespace onyx::ui
     {
     public:
         static constexpr StringId32 TypeId = "onyx::ui::UiSystem";
-        StringId32 GetTypeId() const override { return TypeId; }
+        StringId32 getTypeId() const override { return TypeId; }
 
         UiModule(onyx::localization::LocalizationModule& localizationModule);
     };

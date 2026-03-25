@@ -4,212 +4,192 @@
 #include <onyx/rhi/vulkan/debugutilsmessenger.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace onyx::rhi::vulkan
-{
-    Instance::Instance(const GraphicSettings& settings, const DynamicArray<const char*>& validationLayers)
-    {
-		// Application
-		VkApplicationInfo appInfo
-        {
-		    .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-			.pNext = nullptr,
-	        .pApplicationName = "Onyx Samples",
-			.applicationVersion = VK_MAKE_VERSION(1, 2, 0),
-		    .pEngineName = "Onyx",
-		    .engineVersion = VK_MAKE_VERSION(1, 0, 0),
-		    .apiVersion = VULKAN_API_VERSION,
-		};
-        
-		// TODO: should this come from the platform context?
-		std::vector<const char*> requiredExtensions;
-		requiredExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        
-		requiredExtensions.push_back(ONYX_VK_SURFACE_EXTENSION_NAME);
+namespace onyx::rhi::vulkan {
+Instance::Instance( const GraphicSettings& settings, const DynamicArray< const char* >& validationLayers ) {
+    // Application
+    VkApplicationInfo appInfo{
+        .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pNext = nullptr,
+        .pApplicationName = "Onyx Samples",
+        .applicationVersion = VK_MAKE_VERSION( 1, 2, 0 ),
+        .pEngineName = "Onyx",
+        .engineVersion = VK_MAKE_VERSION( 1, 0, 0 ),
+        .apiVersion = VULKAN_API_VERSION,
+    };
 
-        if (m_EnableValidations)
-			requiredExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    // TODO: should this come from the platform context?
+    std::vector< const char* > requiredExtensions;
+    requiredExtensions.push_back( VK_KHR_SURFACE_EXTENSION_NAME );
+    requiredExtensions.push_back( ONYX_VK_SURFACE_EXTENSION_NAME );
 
-        if (VerifyExtensionSupport(requiredExtensions) == false)
-		{
-			ONYX_LOG_ERROR("Missing required extensions");
-			return;
-		}
+    if ( m_EnableValidations )
+        requiredExtensions.emplace_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
 
-		VkInstanceCreateInfo instanceCreateInfo{
-		    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		    .pNext = nullptr,
-			.flags = 0,
-		    .pApplicationInfo = &appInfo,
-			.enabledLayerCount = 0,
-			.ppEnabledLayerNames = nullptr,
-		    .enabledExtensionCount = static_cast<onyxU32>(requiredExtensions.size()),
-			.ppEnabledExtensionNames = requiredExtensions.data(),
-		};
-
-		VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo{};
-		VkValidationFeaturesEXT  validationFeaturesExtensionInfo{};
-		DynamicArray<VkValidationFeatureEnableEXT> enabledValidationExtensions;
-
-		void* pNext = nullptr;
-		if (m_EnableValidations)
-		{
-			if (VerifyValidationLayerSupport(validationLayers))
-			{
-				instanceCreateInfo.enabledLayerCount = static_cast<onyxU32>(validationLayers.size());
-				instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
-			}
-			else
-			{
-				ONYX_LOG_ERROR("Missing required validation layers");
-				return;
-			}
-
-			if (settings.IsDebugEnabled)
-			{
-				debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-				debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-				debugUtilsMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-				debugUtilsMessengerCreateInfo.pfnUserCallback = DebugUtilsMessenger::VulkanDebugCallback;
-				pNext = &debugUtilsMessengerCreateInfo;
-			}
-
-			if (settings.IsShaderDebugEnabled)
-			{
-				enabledValidationExtensions.emplace_back(VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT);
-				if (enabledValidationExtensions.empty() == false)
-				{
-					validationFeaturesExtensionInfo.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-					validationFeaturesExtensionInfo.enabledValidationFeatureCount = static_cast<onyxU32>(enabledValidationExtensions.size());
-					validationFeaturesExtensionInfo.pEnabledValidationFeatures = enabledValidationExtensions.data();
-					validationFeaturesExtensionInfo.pNext = pNext;
-					pNext = &validationFeaturesExtensionInfo;
-				}
-			}
-
-			instanceCreateInfo.pNext = pNext;
-		}
-		else
-		{
-			instanceCreateInfo.enabledLayerCount = 0;
-		}
-
-		VK_CHECK_RESULT(vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance));
+    if ( VerifyExtensionSupport( requiredExtensions ) == false ) {
+        ONYX_LOG_ERROR( "Missing required extensions" );
+        return;
     }
 
-    Instance::~Instance()
-    {
-	    if (m_Instance != nullptr)
-	    {
-		    vkDestroyInstance(m_Instance, nullptr);
-		    m_Instance = nullptr;
-	    }
+    VkInstanceCreateInfo instanceCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .pApplicationInfo = &appInfo,
+        .enabledLayerCount = 0,
+        .ppEnabledLayerNames = nullptr,
+        .enabledExtensionCount = static_cast< uint32_t >( requiredExtensions.size() ),
+        .ppEnabledExtensionNames = requiredExtensions.data(),
+    };
+
+    VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo{};
+    VkValidationFeaturesEXT validationFeaturesExtensionInfo{};
+    DynamicArray< VkValidationFeatureEnableEXT > enabledValidationExtensions;
+
+    void* pNext = nullptr;
+    if ( m_EnableValidations ) {
+        if ( VerifyValidationLayerSupport( validationLayers ) ) {
+            instanceCreateInfo.enabledLayerCount = static_cast< uint32_t >( validationLayers.size() );
+            instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+        } else {
+            ONYX_LOG_ERROR( "Missing required validation layers" );
+            return;
+        }
+
+        if ( settings.IsDebugEnabled ) {
+            debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+            debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+                                                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+            debugUtilsMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                                        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+            debugUtilsMessengerCreateInfo.pfnUserCallback = DebugUtilsMessenger::VulkanDebugCallback;
+            pNext = &debugUtilsMessengerCreateInfo;
+        }
+
+        if ( settings.IsShaderDebugEnabled ) {
+            enabledValidationExtensions.emplace_back( VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT );
+            if ( enabledValidationExtensions.empty() == false ) {
+                validationFeaturesExtensionInfo.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+                validationFeaturesExtensionInfo.enabledValidationFeatureCount = static_cast< uint32_t >(
+                    enabledValidationExtensions.size() );
+                validationFeaturesExtensionInfo.pEnabledValidationFeatures = enabledValidationExtensions.data();
+                validationFeaturesExtensionInfo.pNext = pNext;
+                pNext = &validationFeaturesExtensionInfo;
+            }
+        }
+
+        instanceCreateInfo.pNext = pNext;
+    } else {
+        instanceCreateInfo.enabledLayerCount = 0;
     }
 
-    bool Instance::VerifyExtensionSupport(const std::vector<const char*> requiredExtensions) const
-    {
-		onyxU32 extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    VK_CHECK_RESULT( vkCreateInstance( &instanceCreateInfo, nullptr, &m_Instance ) );
+}
 
-		std::vector<VkExtensionProperties> supportedExtensions(extensionCount);
-		VK_CHECK_RESULT_RETURN_ON_FAIL(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data()));
-
-		bool extensionsSupported = true;
-		for (const char* extensionName : requiredExtensions)
-		{
-			extensionsSupported &= std::any_of(supportedExtensions.begin(), supportedExtensions.end(), [&](const VkExtensionProperties& extensionProperty)
-				{
-					if (strcmp(extensionProperty.extensionName, extensionName) == 0)
-					{
-						return true;
-					}
-					return false;
-				});
-
-			if (extensionsSupported == false)
-			{
-				ONYX_LOG_ERROR("Extension {} not supported", extensionName);
-			}
-		}
-
-		return extensionsSupported;
-    }
-
-    bool Instance::VerifyValidationLayerSupport(const std::vector<const char*>& validationLayers) const
-    {
-		ONYX_ASSERT(m_EnableValidations);
-
-		onyxU32 instanceLayerCount = 0;
-		vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-
-		std::vector<VkLayerProperties> supportedLayerProperties(instanceLayerCount);
-		vkEnumerateInstanceLayerProperties(&instanceLayerCount, supportedLayerProperties.data());
-
-		bool validationLayersSupported = true;
-		for (const char* validationLayerName : validationLayers)
-		{
-			validationLayersSupported &= std::any_of(supportedLayerProperties.begin(), supportedLayerProperties.end(), [&](const VkLayerProperties& layerProperties)
-				{
-					if (strcmp(layerProperties.layerName, validationLayerName) == 0)
-					{
-						return true;
-					}
-
-					return false;
-				});
-
-			if (validationLayersSupported == false)
-			{
-				ONYX_LOG_ERROR("Validation layer not supported");
-			}
-		}
-
-		return validationLayersSupported;
-    }
-
-	DynamicArray<VkPhysicalDevice> Instance::GetPhysicalDevices() const
-    {
-		DynamicArray<VkPhysicalDevice> outPhysicalDevices;
-
-		onyxU32 physicalDevicesCount = 0;
-	    vkEnumeratePhysicalDevices(m_Instance, &physicalDevicesCount, nullptr);
-
-		outPhysicalDevices.resize(physicalDevicesCount);
-	    vkEnumeratePhysicalDevices(m_Instance, &physicalDevicesCount, outPhysicalDevices.data());
-
-		ONYX_ASSERT(!outPhysicalDevices.empty(), "Missing physical devices");
-		return outPhysicalDevices;
-    }
-
-    bool Instance::CheckVulkanMinimumVersion(onyxU32 minVersion)
-    {
-	    onyxU32 version;
-	    VK_CHECK_RESULT_RETURN_ON_FAIL(vkEnumerateInstanceVersion(&version));
-
-	    return (minVersion > version);
-    }
-
-    bool Instance::CheckVulkanValidationLayerSupport(const std::vector<const char*>& validationLayers)
-    {
-	    onyxU32 instanceLayerCount = 0;
-	    vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-
-		DynamicArray<VkLayerProperties> availableLayers{ instanceLayerCount };
-	    vkEnumerateInstanceLayerProperties(&instanceLayerCount, availableLayers.data());
-
-	    for (const char* layer : validationLayers)
-	    {
-		    auto result = std::find_if(availableLayers.begin(), availableLayers.end(), [layer](const VkLayerProperties& layerProperties)
-		    {
-			    return strcmp(layer, layerProperties.layerName) == 0;
-		    });
-
-		    if (result == availableLayers.end())
-		    {
-			    ONYX_LOG_ERROR("could not find the requested validation layer: '{}'", layer);
-			    return false;
-		    }
-	    }
-
-	    return true;
+Instance::~Instance() {
+    if ( m_Instance != nullptr ) {
+        vkDestroyInstance( m_Instance, nullptr );
+        m_Instance = nullptr;
     }
 }
+
+bool Instance::VerifyExtensionSupport( const std::vector< const char* > requiredExtensions ) const {
+    uint32_t extensionCount = 0;
+    vkEnumerateInstanceExtensionProperties( nullptr, &extensionCount, nullptr );
+
+    std::vector< VkExtensionProperties > supportedExtensions( extensionCount );
+    VK_CHECK_RESULT_RETURN_ON_FAIL(
+        vkEnumerateInstanceExtensionProperties( nullptr, &extensionCount, supportedExtensions.data() ) );
+
+    bool extensionsSupported = true;
+    for ( const char* extensionName : requiredExtensions ) {
+        extensionsSupported &= std::any_of( supportedExtensions.begin(),
+                                            supportedExtensions.end(),
+                                            [ & ]( const VkExtensionProperties& extensionProperty ) {
+                                                if ( strcmp( extensionProperty.extensionName, extensionName ) == 0 ) {
+                                                    return true;
+                                                }
+                                                return false;
+                                            } );
+
+        if ( extensionsSupported == false ) {
+            ONYX_LOG_ERROR( "Extension {} not supported", extensionName );
+        }
+    }
+
+    return extensionsSupported;
+}
+
+bool Instance::VerifyValidationLayerSupport( const std::vector< const char* >& validationLayers ) const {
+    ONYX_ASSERT( m_EnableValidations );
+
+    uint32_t instanceLayerCount = 0;
+    vkEnumerateInstanceLayerProperties( &instanceLayerCount, nullptr );
+
+    std::vector< VkLayerProperties > supportedLayerProperties( instanceLayerCount );
+    vkEnumerateInstanceLayerProperties( &instanceLayerCount, supportedLayerProperties.data() );
+
+    bool validationLayersSupported = true;
+    for ( const char* validationLayerName : validationLayers ) {
+        validationLayersSupported &= std::any_of( supportedLayerProperties.begin(),
+                                                  supportedLayerProperties.end(),
+                                                  [ & ]( const VkLayerProperties& layerProperties ) {
+                                                      if ( strcmp( layerProperties.layerName, validationLayerName ) ==
+                                                           0 ) {
+                                                          return true;
+                                                      }
+
+                                                      return false;
+                                                  } );
+
+        if ( validationLayersSupported == false ) {
+            ONYX_LOG_ERROR( "Validation layer not supported" );
+        }
+    }
+
+    return validationLayersSupported;
+}
+
+DynamicArray< VkPhysicalDevice > Instance::GetPhysicalDevices() const {
+    DynamicArray< VkPhysicalDevice > outPhysicalDevices;
+
+    uint32_t physicalDevicesCount = 0;
+    vkEnumeratePhysicalDevices( m_Instance, &physicalDevicesCount, nullptr );
+
+    outPhysicalDevices.resize( physicalDevicesCount );
+    vkEnumeratePhysicalDevices( m_Instance, &physicalDevicesCount, outPhysicalDevices.data() );
+
+    ONYX_ASSERT( !outPhysicalDevices.empty(), "Missing physical devices" );
+    return outPhysicalDevices;
+}
+
+bool Instance::CheckVulkanMinimumVersion( uint32_t minVersion ) {
+    uint32_t version;
+    VK_CHECK_RESULT_RETURN_ON_FAIL( vkEnumerateInstanceVersion( &version ) );
+
+    return ( minVersion > version );
+}
+
+bool Instance::CheckVulkanValidationLayerSupport( const std::vector< const char* >& validationLayers ) {
+    uint32_t instanceLayerCount = 0;
+    vkEnumerateInstanceLayerProperties( &instanceLayerCount, nullptr );
+
+    DynamicArray< VkLayerProperties > availableLayers{ instanceLayerCount };
+    vkEnumerateInstanceLayerProperties( &instanceLayerCount, availableLayers.data() );
+
+    for ( const char* layer : validationLayers ) {
+        auto result = std::find_if( availableLayers.begin(),
+                                    availableLayers.end(),
+                                    [ layer ]( const VkLayerProperties& layerProperties ) {
+                                        return strcmp( layer, layerProperties.layerName ) == 0;
+                                    } );
+
+        if ( result == availableLayers.end() ) {
+            ONYX_LOG_ERROR( "could not find the requested validation layer: '{}'", layer );
+            return false;
+        }
+    }
+
+    return true;
+}
+} // namespace onyx::rhi::vulkan

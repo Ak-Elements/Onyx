@@ -1,52 +1,39 @@
 #include <onyx/thread/thread.h>
 
-namespace onyx
-{
-    std::thread::id Thread::MAIN_THREAD_ID;
+namespace onyx {
+std::thread::id Thread::s_mainThreadId;
 
-    Thread::~Thread()
-    {
-        if (m_Stopped == false)
-        {
-            Stop(true);
-        }
-        else if (m_Thread.joinable())
-        {
-            m_Thread.join();
-        }
+Thread::~Thread() {
+    if ( m_stopped == false ) {
+        stop( true );
+    } else if ( m_thread.joinable() ) {
+        m_thread.join();
     }
-
-    void Thread::Start()
-    {
-        m_Thread = std::thread([this]()
-        {
-            Run();
-        });
-    }
-
-    void Thread::Stop(bool waitForStop)
-    {
-        if (m_Stopped)
-            return;
-
-        m_Stopped = true;
-
-        if (waitForStop)
-        {
-            m_Thread.join();
-        }
-    }
-
-    void Thread::Sleep(onyxU64 milliseconds)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-    }
-
-    void Thread::Run()
-    {
-        OnStart();
-        OnUpdate();
-        OnStop();
-    }
-
 }
+
+void Thread::start() {
+    m_thread = std::thread( [ this ]() { run(); } );
+}
+
+void Thread::stop( bool waitForStop ) {
+    if ( m_stopped )
+        return;
+
+    m_stopped = true;
+
+    if ( waitForStop ) {
+        m_thread.join();
+    }
+}
+
+void Thread::sleep( uint64_t milliseconds ) {
+    std::this_thread::sleep_for( std::chrono::milliseconds( milliseconds ) );
+}
+
+void Thread::run() {
+    onStart();
+    onUpdate();
+    onStop();
+}
+
+} // namespace onyx

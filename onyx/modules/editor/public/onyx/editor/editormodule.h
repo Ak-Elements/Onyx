@@ -21,7 +21,7 @@ namespace onyx::editor
     {
     public:
         static constexpr StringId32 TypeId = "onyx::editor::EditorSystem";
-        StringId32 GetTypeId() const override { return TypeId; }
+        StringId32 getTypeId() const override { return TypeId; }
 
         EditorSystem(ui::ImGuiSystem& imguiSystem, localization::LocalizationModule& localizationModule);
 

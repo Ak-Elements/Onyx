@@ -5,76 +5,73 @@
 
 #include <any>
 
-namespace onyx::node_graph
-{
-    class Node;
-    class PinBase;
-    
-    class NodeGraph
-    {
-    public:
-        using DirectedAcyclicGraphT = DirectedAcyclicGraph<UniquePtr<Node>>;
-        using DirectedAcyclicGraphNodeContainerT = DirectedAcyclicGraphT::Node;
-        using LocalNodeId = typename DirectedAcyclicGraphT::NodeId;
+namespace onyx::node_graph {
+class Node;
+class PinBase;
 
-        LocalNodeId Emplace(UniquePtr<Node>&& newNode)
-        {
-            LocalNodeId nodeId = Graph.AddNode(std::move(newNode));
-            return nodeId;
-        }
+class NodeGraph {
+  public:
+    using DirectedAcyclicGraphT = DirectedAcyclicGraph< UniquePtr< Node > >;
+    using DirectedAcyclicGraphNodeContainerT = DirectedAcyclicGraphT::Node;
+    using LocalNodeId = typename DirectedAcyclicGraphT::NodeId;
 
-        template <typename T, typename... Args>
-        LocalNodeId Emplace(Args&&... args)
-        {
-            UniquePtr<Node> newNode = MakeUnique<T>(std::forward<Args>(args)...);
+    LocalNodeId Emplace( UniquePtr< Node >&& newNode ) {
+        LocalNodeId nodeId = Graph.addNode( std::move( newNode ) );
+        return nodeId;
+    }
 
-            SetupNode(*newNode);
+    template < typename T, typename... Args >
+    LocalNodeId Emplace( Args&&... args ) {
+        UniquePtr< Node > newNode = makeUnique< T >( std::forward< Args >( args )... );
 
-            LocalNodeId nodeId = Graph.AddNode(std::move(newNode));
-            return nodeId;
-        }
+        SetupNode( *newNode );
 
-        void Remove(LocalNodeId localNodeId)
-        {
-            Graph.RemoveNode(localNodeId);
-        }
+        LocalNodeId nodeId = Graph.addNode( std::move( newNode ) );
+        return nodeId;
+    }
 
-        void Clear();
+    void Remove( LocalNodeId localNodeId ) { Graph.removeNode( localNodeId ); }
 
-        template <typename T = Node> requires std::same_as<Node, T> || std::is_base_of_v<Node, T>
-        T& GetNode(LocalNodeId index) { return static_cast<T&>(*Graph.GetNode(index)); }
+    void Clear();
 
-        template <typename T = Node> requires std::same_as<Node, T> || std::is_base_of_v<Node, T>
-        const T& GetNode(LocalNodeId index) const { return static_cast<const T&>(*Graph.GetNode(index)); }
+    template < typename T = Node > requires std::same_as< Node, T > || std::is_base_of_v< Node, T >
+    T& GetNode( LocalNodeId index ) {
+        return static_cast< T& >( *Graph.getNode( index ) );
+    }
 
-        bool Compile();
+    template < typename T = Node > requires std::same_as< Node, T > || std::is_base_of_v< Node, T >
+    const T& GetNode( LocalNodeId index ) const {
+        return static_cast< const T& >( *Graph.getNode( index ) );
+    }
 
-        HashMap<LocalNodeId, DirectedAcyclicGraphNodeContainerT>& GetNodes() { return Graph.GetNodes(); }
-        const HashMap<LocalNodeId, DirectedAcyclicGraphNodeContainerT>& GetNodes() const { return Graph.GetNodes(); }
+    bool Compile();
 
-        Node& GetNodeForPinId(Guid64 pinId);
-        const Node& GetNodeForPinId(Guid64 pinId) const;
+    HashMap< LocalNodeId, DirectedAcyclicGraphNodeContainerT >& GetNodes() { return Graph.getNodes(); }
+    const HashMap< LocalNodeId, DirectedAcyclicGraphNodeContainerT >& GetNodes() const { return Graph.getNodes(); }
 
-        PinBase& GetPinById(Guid64 pinId);
-        const PinBase& GetPinById(Guid64 pinId) const;
+    Node& GetNodeForPinId( Guid64 pinId );
+    const Node& GetNodeForPinId( Guid64 pinId ) const;
 
-        bool IsNewLinkValid(Guid64 fromGlobalPinId, Guid64 toGlobalPinId) const;
-        bool AddEdge(Guid64 fromGlobalPinId, Guid64 toGlobalPinId);
+    PinBase& GetPinById( Guid64 pinId );
+    const PinBase& GetPinById( Guid64 pinId ) const;
 
-        DynamicArray<const Node*> GetNodesSorted() const;
+    bool IsNewLinkValid( Guid64 fromGlobalPinId, Guid64 toGlobalPinId ) const;
+    bool AddEdge( Guid64 fromGlobalPinId, Guid64 toGlobalPinId );
 
-        const DynamicArray<LocalNodeId>& GetTopologicalOrder() const { return TopologicalOrder; }
-        HashMap<Guid64, std::any>& GetConstantPinData() { return ConstantPinData; }
-        const HashMap<Guid64, std::any>& GetConstantPinData() const { return ConstantPinData; }
+    DynamicArray< const Node* > GetNodesSorted() const;
 
-    private:
-        LocalNodeId GetLocalNodeIdForPin(Guid64 globalPinId);
-        void SetupNode(Node& node);
+    const DynamicArray< LocalNodeId >& GetTopologicalOrder() const { return TopologicalOrder; }
+    HashMap< Guid64, std::any >& GetConstantPinData() { return ConstantPinData; }
+    const HashMap< Guid64, std::any >& GetConstantPinData() const { return ConstantPinData; }
 
-    private:
-        DirectedAcyclicGraphT Graph;
-        HashMap<Guid64, std::any> ConstantPinData;
+  private:
+    LocalNodeId GetLocalNodeIdForPin( Guid64 globalPinId );
+    void SetupNode( Node& node );
 
-        DynamicArray<LocalNodeId> TopologicalOrder;
-    };
-}
+  private:
+    DirectedAcyclicGraphT Graph;
+    HashMap< Guid64, std::any > ConstantPinData;
+
+    DynamicArray< LocalNodeId > TopologicalOrder;
+};
+} // namespace onyx::node_graph

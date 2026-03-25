@@ -3,21 +3,23 @@
 #include <onyx/editor/commands/inputactions/inputactioncommand.h>
 #include <onyx/input/inputid.h>
 
-namespace onyx::editor
-{
-    class InputActionSettingsWindow;
+namespace onyx::editor {
+class InputActionSettingsWindow;
 
-    struct BindInputBindingSlotCommand : public InputActionCommand
-    {
-    public:
-        BindInputBindingSlotCommand(StringId64 actionId, onyxS32 bindingIndex, onyxS32 bindingSlotIndex, input::InputID inputId, InputActionSettingsWindow& inputSettingsWindow);
+struct BindInputBindingSlotCommand : public InputActionCommand {
+  public:
+    BindInputBindingSlotCommand( StringId64 actionId,
+                                 int32_t bindingIndex,
+                                 int32_t bindingSlotIndex,
+                                 input::InputID inputId,
+                                 InputActionSettingsWindow& inputSettingsWindow );
 
-        void Execute() override;
+    void Execute() override;
 
-    private:
-        StringId64 m_ActionId = StringId64::Invalid;
-        onyxS32 m_BindingIndex = INVALID_INDEX_32;
-        onyxS32 m_BindingSlotIndex = INVALID_INDEX_32;
-        input::InputID m_InputId;
-    };
-}
+  private:
+    StringId64 m_ActionId = StringId64::Invalid;
+    int32_t m_BindingIndex = InvalidIndex32;
+    int32_t m_BindingSlotIndex = InvalidIndex32;
+    input::InputID m_InputId;
+};
+} // namespace onyx::editor

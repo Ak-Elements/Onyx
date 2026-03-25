@@ -3,46 +3,46 @@
 #include <onyx/rhi/descriptorset.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace onyx::rhi
-{
-    class Buffer;
-    struct TextureHandle;
-    struct BufferHandle;
-}
-namespace onyx::rhi::vulkan
-{
-    class DescriptorPool;
-    class DescriptorSetLayout;
-    class Device;
-    class Shader;
+namespace onyx::rhi {
+class Buffer;
+struct TextureHandle;
+struct BufferHandle;
+} // namespace onyx::rhi
+namespace onyx::rhi::vulkan {
+class DescriptorPool;
+class DescriptorSetLayout;
+class Device;
+class Shader;
 
-    class DescriptorSet : public rhi::DescriptorSet
-    {
-    public:
-        DescriptorSet(const Device& device, onyxU8 set, VkDescriptorSetAllocateInfo allocateInfo);
-        DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout);
-        DescriptorSet(const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout, StringView debugName);
-        // Don't need to be cleaned up as they will be cleaned up when the pool is destroyed
-        //vkFreeDescriptorSets()
-        ~DescriptorSet() override = default;
+class DescriptorSet : public rhi::DescriptorSet {
+  public:
+    DescriptorSet( const Device& device, uint8_t set, VkDescriptorSetAllocateInfo allocateInfo );
+    DescriptorSet( const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout );
+    DescriptorSet( const Device& device,
+                   const DescriptorPool& pool,
+                   const DescriptorSetLayout& descriptorSetLayout,
+                   StringView debugName );
+    // Don't need to be cleaned up as they will be cleaned up when the pool is destroyed
+    // vkFreeDescriptorSets()
+    ~DescriptorSet() override = default;
 
-        bool HasPendingUpdates() const override { return m_PendingDescriptorUpdates.empty() == false; }
+    bool HasPendingUpdates() const override { return m_PendingDescriptorUpdates.empty() == false; }
 
-        void UpdateDescriptors() override;
+    void UpdateDescriptors() override;
 
-        void Bind(const TextureHandle& textureHandle, const String& bindingName) override;
-        void Bind(const BufferHandle& bufferHandle, const String& bindingName) override;
+    void Bind( const TextureHandle& textureHandle, const String& bindingName ) override;
+    void Bind( const BufferHandle& bufferHandle, const String& bindingName ) override;
 
-        HashSet<String> GetBindingIds() const override;
+    HashSet< String > GetBindingIds() const override;
 
-    private:
-        const Device& m_Device;
+  private:
+    const Device& m_Device;
 
-        VULKAN_HANDLE(VkDescriptorSet, DescriptorSet, nullptr);
+    VULKAN_HANDLE( VkDescriptorSet, DescriptorSet, nullptr );
 
-        DynamicArray<VkWriteDescriptorSet> m_PendingDescriptorUpdates;
-        DynamicArray<VkImageMemoryBarrier2KHR> m_PendingBarriers;
+    DynamicArray< VkWriteDescriptorSet > m_PendingDescriptorUpdates;
+    DynamicArray< VkImageMemoryBarrier2KHR > m_PendingBarriers;
 
-        HashMap<String, VkWriteDescriptorSet> m_WriteDescriptorSets;
-    };
-}
+    HashMap< String, VkWriteDescriptorSet > m_WriteDescriptorSets;
+};
+} // namespace onyx::rhi::vulkan

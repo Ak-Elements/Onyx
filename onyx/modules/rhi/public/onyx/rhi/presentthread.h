@@ -2,47 +2,43 @@
 
 #include <condition_variable>
 
-namespace onyx::rhi
-{
-    class GraphicsSystem;
+namespace onyx::rhi {
+class GraphicsSystem;
 }
 
-namespace onyx::rhi
-{
-    class PresentThread : public Thread
-    {
-    public:
-        PresentThread(GraphicsSystem& graphicsSystem);
-        ~PresentThread() override;
+namespace onyx::rhi {
+class PresentThread : public Thread {
+  public:
+    PresentThread( GraphicsSystem& graphicsSystem );
+    ~PresentThread() override;
 
-        void Shutdown();
+    void Shutdown();
 
-        void QueuePresent(onyxU8 frameIndex, onyxU32 swapchainImageIndex);
-        void SetRefreshRate(onyxU32 refreshRate);
+    void QueuePresent( uint8_t frameIndex, uint32_t swapchainImageIndex );
+    void SetRefreshRate( uint32_t refreshRate );
 
-        void ClearQueue();
+    void ClearQueue();
 
-    private:
-        void OnStart() override;
-        void OnStop() override;
-        void OnUpdate() override;
+  private:
+    void onStart() override;
+    void onStop() override;
+    void onUpdate() override;
 
-    private:
-        struct PresentInfo
-        {
-            onyxU8 BackbufferImageIndex;
-            onyxU8 FrameIndex;
-        };
-
-        std::mutex m_Mutex;
-        std::condition_variable m_WaitCondition;
-
-        GraphicsSystem* m_GraphicsSystem;
-
-        Queue<PresentInfo> m_PresentQueue;
-        onyxU32 m_RefreshRate;
-        onyxU64 m_TargetFrameTime;
-
-        onyxU32 m_PresentCount = 0;
+  private:
+    struct PresentInfo {
+        uint8_t BackbufferImageIndex;
+        uint8_t FrameIndex;
     };
-}
+
+    std::mutex m_Mutex;
+    std::condition_variable m_WaitCondition;
+
+    GraphicsSystem* m_GraphicsSystem;
+
+    Queue< PresentInfo > m_PresentQueue;
+    uint32_t m_RefreshRate;
+    uint64_t m_TargetFrameTime;
+
+    uint32_t m_PresentCount = 0;
+};
+} // namespace onyx::rhi

@@ -1,137 +1,117 @@
 #pragma once
 
-namespace onyx
-{
-    struct IEngineVariable
-    {
-        IEngineVariable(StringId32 id);
-        virtual ~IEngineVariable();
+namespace onyx {
+struct IEngineVariable {
+    explicit IEngineVariable( StringId32 id );
+    virtual ~IEngineVariable();
 
-        template <typename T>
-        T Get() const { *(std::bit_cast<T*>(DoGet())); }
+    template < typename T >
+    T get() const {
+        *( std::bit_cast< T* >( doGet() ) );
+    }
 
-        template <typename T>
-        void Set(T value) { DoSet(std::bit_cast<void*>(&value)); }
-        
-        virtual onyxU32 GetRuntimeTypeId() const = 0;
+    template < typename T >
+    void set( T value ) {
+        doSet( std::bit_cast< void* >( &value ) );
+    }
 
-        StringId32 GetId() const { return m_Id; }
+    ONYX_NO_DISCARD virtual uint32_t getRuntimeTypeId() const = 0;
 
-    private:
-        virtual void DoSet(void* value) = 0;
-        virtual void* DoGet() const = 0; 
+    ONYX_NO_DISCARD StringId32 getId() const { return m_id; }
 
-    private:
-        StringId32 m_Id;
-    };
+  private:
+    virtual void doSet( void* value ) = 0;
+    ONYX_NO_DISCARD virtual void* doGet() const = 0;
 
-    template <typename T> requires 
-        Numeric<T> ||
-        (!Numeric<T>) ||
-        Invokable<T>
-    struct EngineVariable : public IEngineVariable
-    {
-    public:
-        EngineVariable(StringId32 id)
-         : IEngineVariable(id)
-        {
-        }
+  private:
+    StringId32 m_id;
+};
 
-        EngineVariable(StringId32 id, T defaultValue)
-            : IEngineVariable(id)
-            , m_Value(defaultValue)
-        {
-        }
-        
-        onyxU32 GetRuntimeTypeId() const override { return TypeHash<EngineVariable<T>>(); }
+template < typename T > requires Numeric< T > || (!Numeric< T >) || Invokable< T >
+struct EngineVariable : public IEngineVariable {
+  public:
+    explicit EngineVariable( StringId32 id )
+        : IEngineVariable( id ) {}
 
-        void Set(T value) { m_Value = value; }
-        T Get() const { return m_Value; }
+    EngineVariable( StringId32 id, T defaultValue )
+        : IEngineVariable( id )
+        , m_value( defaultValue ) {}
 
-    private:
-        void* DoGet() const override { return std::bit_cast<void*>(&m_Value); }
-        void DoSet(void *value) override { m_Value = *std::bit_cast<T*>(value); }
+    ONYX_NO_DISCARD uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
 
-    private:
-        T m_Value;
-    };
+    void set( T value ) { m_value = value; }
+    T get() const { return m_value; }
 
-    template <Numeric T> requires std::is_arithmetic_v<T>
-    struct EngineVariable<T> : public IEngineVariable
-    {
-        using DataT = T;
-    public:
-        EngineVariable(StringId32 id)
-         : IEngineVariable(id)
-        {
-        }
+  private:
+    void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
+    void doSet( void* value ) override { m_value = *std::bit_cast< T* >( value ); }
 
-        EngineVariable(StringId32 id, T defaultValue)
-            : IEngineVariable(id)
-            , m_Value(defaultValue)
-        {
-        }
-        
-        EngineVariable(StringId32 id, T defaultValue, T minValue)
-            : IEngineVariable(id)
-            , m_Value(defaultValue)
-            , m_MinValue(minValue)
-        {
-        }
+  private:
+    T m_value;
+};
 
-        EngineVariable(StringId32 id, T defaultValue, T minValue, T maxValue)
-            : IEngineVariable(id)
-            , m_Value(defaultValue)
-            , m_MinValue(minValue)
-            , m_MaxValue(maxValue)
-        {
-        }
+template < Numeric T > requires std::is_arithmetic_v< T >
+struct EngineVariable< T > : public IEngineVariable {
+    using DataT = T;
 
-        onyxU32 GetRuntimeTypeId() const override { return TypeHash<EngineVariable<T>>(); }
+  public:
+    explicit EngineVariable( StringId32 id )
+        : IEngineVariable( id ) {}
 
-        void Set(T value) { m_Value = std::clamp(value, m_MinValue, m_MaxValue); }
-        T Get() const { return m_Value; }
+    EngineVariable( StringId32 id, T defaultValue )
+        : IEngineVariable( id )
+        , m_value( defaultValue ) {}
 
-        T GetMin() const { return m_MinValue; }
-        T GetMax() const { return m_MaxValue; }
+    EngineVariable( StringId32 id, T defaultValue, T minValue )
+        : IEngineVariable( id )
+        , m_value( defaultValue )
+        , m_minValue( minValue ) {}
 
-    private:
-        void* DoGet() const override { return std::bit_cast<void*>(&m_Value); }
-        void DoSet(void *value) override { m_Value = *std::bit_cast<T*>(value); }
+    EngineVariable( StringId32 id, T defaultValue, T minValue, T maxValue )
+        : IEngineVariable( id )
+        , m_value( defaultValue )
+        , m_minValue( minValue )
+        , m_maxValue( maxValue ) {}
 
-    private:
-        T m_Value;
-        T m_MinValue = std::numeric_limits<T>::lowest();
-        T m_MaxValue = std::numeric_limits<T>::max();
-    };
+    ONYX_NO_DISCARD uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
 
-    template <Invokable T> requires Invokable<T>
-    struct EngineVariable<T> : public IEngineVariable
-    {
-        EngineVariable(StringId32 id)
-         : IEngineVariable(id)
-        {
-        }
+    void set( T value ) { m_value = std::clamp( value, m_minValue, m_maxValue ); }
+    T get() const { return m_value; }
 
-        EngineVariable(StringId32 id, T invokable)
-            : IEngineVariable(id)
-            , m_Invokable(invokable)
-        {
-        }
-    
-        onyxU32 GetRuntimeTypeId() const override { return TypeHash<EngineVariable<T>>(); }
+    T getMin() const { return m_minValue; }
+    T getMax() const { return m_maxValue; }
 
-        void Invoke() 
-        {
-            if (m_Invokable != nullptr)
-                m_Invokable();
-        }
+  private:
+    void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
+    void doSet( void* value ) override { m_value = *std::bit_cast< T* >( value ); }
 
-    private:
-        void* DoGet() const override { ONYX_ASSERT(false, "Can not get invokable EngineVariable."); }
-        void DoSet(void *value) override { ONYX_ASSERT(false, "Can not set invokable EngineVariable."); }
+  private:
+    T m_value;
+    T m_minValue = std::numeric_limits< T >::lowest();
+    T m_maxValue = std::numeric_limits< T >::max();
+};
 
-    private:
-        T* m_Invokable = nullptr;
-    };
-}
+template < Invokable T > requires Invokable< T >
+struct EngineVariable< T > : public IEngineVariable {
+    explicit EngineVariable( StringId32 id )
+        : IEngineVariable( id ) {}
+
+    EngineVariable( StringId32 id, T invokable )
+        : IEngineVariable( id )
+        , m_invokable( invokable ) {}
+
+    ONYX_NO_DISCARD uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+
+    void invoke() {
+        if ( m_invokable != nullptr )
+            m_invokable();
+    }
+
+  private:
+    void* doGet() const override { ONYX_ASSERT( false, "Can not get invokable EngineVariable." ); }
+    void doSet( void* value ) override { ONYX_ASSERT( false, "Can not set invokable EngineVariable." ); }
+
+  private:
+    T* m_invokable = nullptr;
+};
+} // namespace onyx

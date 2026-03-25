@@ -1,341 +1,285 @@
 #pragma once
 
-namespace onyx
-{
-    class Stream;
+namespace onyx {
+class Stream;
 
-    template<typename T>
-    concept HasSerialize = requires(const T& obj, Stream& outStream)
-    {
-        { obj.Serialize(outStream) } -> std::same_as<void>;
-    };
+template < typename T >
+concept HasSerialize = requires( const T& obj, Stream& outStream ) {
+    { obj.Serialize( outStream ) } -> std::same_as< void >;
+};
 
-    template<typename T>
-    concept HasDeserialize = requires(T& obj, const Stream& inStream)
-    {
-        { obj.Deserialize(inStream) } -> std::same_as<void>;
-    };
+template < typename T >
+concept HasDeserialize = requires( T& obj, const Stream& inStream ) {
+    { obj.Deserialize( inStream ) } -> std::same_as< void >;
+};
 
-    class Stream
-    {
-    public:
-        virtual ~Stream() = default;
+class Stream {
+  public:
+    virtual ~Stream() = default;
 
-        // interface to implement for streams
-        virtual bool IsValid() const = 0;
-        virtual bool IsEof() const = 0;
+    // interface to implement for streams
+    ONYX_NO_DISCARD virtual bool isValid() const = 0;
+    ONYX_NO_DISCARD virtual bool isEof() const = 0;
 
-        virtual onyxU64 GetPosition() = 0;
-        virtual onyxU64 GetPosition() const = 0;
-        virtual void SetPosition(onyxU64 position) = 0;
-        virtual onyxU64 GetLength() const = 0;
+    ONYX_NO_DISCARD virtual uint64_t getPosition() = 0;
+    ONYX_NO_DISCARD virtual uint64_t getPosition() const = 0;
+    virtual void setPosition( uint64_t position ) = 0;
 
-        operator bool() const { return IsValid(); }
-        onyxU64 GetRemainingLength() const
-        {
-            ONYX_ASSERT(GetLength() >= GetPosition());
-            return GetLength() - GetPosition();
-        }
+    ONYX_NO_DISCARD virtual uint64_t getLength() const = 0;
 
-        void Reset()
-        {
-            SetPosition(0);
-        }
+    explicit operator bool() const { return isValid(); }
+    ONYX_NO_DISCARD uint64_t getRemainingLength() const {
+        ONYX_ASSERT( GetLength() >= GetPosition() );
+        return getLength() - getPosition();
+    }
 
-        template <typename T>
-        void Peek(T& out)
-        {
-            onyxU64 position = GetPosition();
-            Read(out);
-            SetPosition(position);
-        }
+    void reset() { setPosition( 0 ); }
 
-        void Skip() { SetPosition(GetPosition() + 1); }
-        void Skip(onyxU32 count) { SetPosition(GetPosition() + count); }
+    template < typename T >
+    void peek( T& out ) {
+        uint64_t position = getPosition();
+        read( out );
+        setPosition( position );
+    }
 
-        // Read Raw interface
-        template <typename T>
-        void Read(T& out) const
-        {
-            if constexpr (HasDeserialize<T>)
-                out.Deserialize(*this);
-            else
-                ReadRaw(out);
-        }
+    void skip() { setPosition( getPosition() + 1 ); }
+    void skip( uint32_t count ) { setPosition( getPosition() + count ); }
 
-        void Read(String& outStr) const;
-        void Read(String& outStr, onyxU64 length) const;
+    // Read Raw interface
+    template < typename T >
+    void read( T& out ) const {
+        if constexpr ( HasDeserialize< T > )
+            out.Deserialize( *this );
+        else
+            readRaw( out );
+    }
 
-        template <typename T>
-        void Read(StringId<T>& outId) const
-        {
-            T id;
-            Read(id);
+    void read( String& outStr ) const;
+    void read( String& outStr, uint64_t length ) const;
+
+    template < typename T >
+    void read( StringId< T >& outId ) const {
+        T id;
+        read( id );
 
 #if ONYX_IS_RETAIL
-            outId = { id };
+        outId = { id };
 #else
-            String idString;
-            Read(idString);
+        String idString;
+        read( idString );
 
-            outId = { id, idString };
+        outId = { id, idString };
 #endif
+    }
+
+    template < typename T >
+    void read( DynamicArray< T >& array, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
+
+        if ( length != 0 ) {
+            array.resize( length );
+            doRead( reinterpret_cast< char* >( array.data() ), sizeof( T ) * length );
         }
+    }
 
-        template <typename T>
-        void Read(DynamicArray<T>& array, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
+    template < template < typename > typename Container, typename T >
+    void read( Container< T >& array, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
 
-            if (length != 0)
-            {
-                array.resize(length);
-                DoRead(reinterpret_cast<char*>(array.data()), sizeof(T) * length);
+        if ( length != 0 ) {
+            array.resize( length );
+            for ( uint64_t i = 0; i < length; ++i ) {
+                read( array[ i ] );
             }
         }
+    }
 
-        template <template<typename> typename Container, typename T>
-        void Read(Container<T>& array, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
+    template < typename T >
+    void read( Set< T >& set, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
 
-            if (length != 0)
-            {
-                array.resize(length);
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    Read(array[i]);
-                }
+        if ( length != 0 ) {
+            for ( uint64_t i = 0; i < length; ++i ) {
+                T element;
+                read( element );
+                set.emplace( element );
             }
         }
+    }
 
-        template <typename T>
-        void Read(Set<T>& set, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
+    template < typename T >
+    void read( HashSet< T >& set, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
 
-            if (length != 0)
-            {
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    T element;
-                    Read(element);
-                    set.emplace(element);
-                }
+        if ( length != 0 ) {
+            for ( uint64_t i = 0; i < length; ++i ) {
+                T element;
+                read( element );
+                set.emplace( element );
             }
         }
+    }
 
-        template <typename T>
-        void Read(HashSet<T>& set, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
+    template < typename KeyT, typename ValueT >
+    void read( HashMap< KeyT, ValueT >& map, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
 
-            if (length != 0)
-            {
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    T element;
-                    Read(element);
-                    set.emplace(element);
-                }
+        if ( length != 0 ) {
+            KeyT key{};
+            for ( uint64_t i = 0; i < length; ++i ) {
+                read( key );
+                read( map[ key ] );
             }
         }
+    }
 
-        template <typename KeyT, typename ValueT>
-        void Read(HashMap<KeyT, ValueT>& map, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
+    void readRaw( char* data, uint64_t size ) { doRead( data, size ); }
 
-            if (length != 0)
-            {
-                KeyT key{};
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    Read(key);
-                    Read(map[key]);
-                }
+    // Read Raw (binary data)
+    template < typename T >
+    void readRaw( T& out ) const {
+        doRead( reinterpret_cast< char* >( &out ), sizeof( T ) );
+    }
+
+    template < typename T >
+    void readRaw( DynamicArray< T >& array, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
+
+        if ( length != 0 ) {
+            array.resize( length );
+            for ( uint64_t i = 0; i < length; ++i ) {
+                readRaw( array[ i ] );
             }
         }
+    }
 
-        void ReadRaw(char* data, onyxU64 size)
-        {
-            DoRead(data, size);
-        }
+    template < typename T, uint8_t Size >
+    void readRaw( InplaceArray< T, Size >& array, uint64_t length = 0 ) {
+        if ( length == 0 )
+            read( length );
 
-        // Read Raw (binary data)
-        template <typename T>
-        void ReadRaw(T& out) const
-        {
-            DoRead(reinterpret_cast<char*>(&out), sizeof(T));
-        }
-
-        template <typename T>
-        void ReadRaw(DynamicArray<T>& array, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
-
-            if (length != 0)
-            {
-                array.resize(length);
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    ReadRaw(array[i]);
-                }
+        if ( length != 0 ) {
+            for ( uint64_t i = 0; i < length; ++i ) {
+                readRaw( array[ i ] );
             }
         }
+    }
 
-        template <typename T, onyxU8 Size>
-        void ReadRaw(InplaceArray<T, Size>& array, onyxU64 length = 0)
-        {
-            if (length == 0)
-                Read(length);
+    template < typename KeyT, typename ValueT >
+    void readRaw( HashMap< KeyT, ValueT >& map, uint64_t length = 0 ) const {
+        if ( length == 0 )
+            read( length );
 
-            if (length != 0)
-            {
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    ReadRaw(array[i]);
-                }
+        if ( length != 0 ) {
+            // map.reserve(length);
+            KeyT key;
+            for ( uint64_t i = 0; i < length; ++i ) {
+                readRaw( key );
+                readRaw( map[ key ] );
             }
         }
+    }
 
-        template <typename KeyT, typename ValueT>
-        void ReadRaw(HashMap<KeyT, ValueT>& map, onyxU64 length = 0) const
-        {
-            if (length == 0)
-                Read(length);
+    // Write interface
+    template < typename T >
+    void write( const T& val ) {
+        if constexpr ( HasSerialize< T > )
+            val.Serialize( *this );
+        else
+            writeRaw( val );
+    }
 
-            if (length != 0)
-            {
-                //map.reserve(length);
-                KeyT key;
-                for (onyxU64 i = 0; i < length; ++i)
-                {
-                    ReadRaw(key);
-                    ReadRaw(map[key]);
-                }
-            }
-        }
+    void write( const String& val );
+    void write( StringView val );
 
-        // Write interface
-        template <typename T>
-        void Write(const T& val)
-        {
-            if constexpr (HasSerialize<T>)
-                val.Serialize(*this);
-            else
-                WriteRaw(val);
-        }
-
-        void Write(const String& val);
-        void Write(StringView val);
-
-        template <typename T>
-        void Write(StringId<T> id)
-        {
-            Write(id.GetId());
+    template < typename T >
+    void write( StringId< T > id ) {
+        write( id.getId() );
 #if !ONYX_IS_RETAIL
-            Write(id.GetString());
+        write( id.getString() );
 #endif
-        }
+    }
 
-        template <template<typename> typename Container, typename T>
-        void Write(const Container<T>& array, bool writeSize = true)
-        {
-            if (writeSize)
-                Write(static_cast<onyxU64>(array.size()));
+    template < template < typename > typename Container, typename T >
+    void write( const Container< T >& array, bool writeSize = true ) {
+        if ( writeSize )
+            write( static_cast< uint64_t >( array.size() ) );
 
-            if (array.empty() == false)
-            {
-                for (const T& element : array)
-                {
-                    Write(element);
-                }
+        if ( array.empty() == false ) {
+            for ( const T& element : array ) {
+                write( element );
             }
         }
+    }
 
+    template < typename T >
+    void write( const HashSet< T >& set, bool writeSize = true ) {
+        if ( writeSize )
+            write( static_cast< uint64_t >( set.size() ) );
 
-        template <typename T>
-        void Write(const HashSet<T>& set, bool writeSize = true)
-        {
-            if (writeSize)
-                Write(static_cast<onyxU64>(set.size()));
-
-            if (set.empty() == false)
-            {
-                for (const T& element : set)
-                {
-                    Write(element);
-                }
+        if ( set.empty() == false ) {
+            for ( const T& element : set ) {
+                write( element );
             }
         }
+    }
 
-        template <typename KeyT, typename ValueT>
-        void Write(const HashMap<KeyT, ValueT>& map, bool writeSize = true)
-        {
-            if (writeSize)
-                Write(static_cast<onyxU64>(map.size()));
+    template < typename KeyT, typename ValueT >
+    void write( const HashMap< KeyT, ValueT >& map, bool writeSize = true ) {
+        if ( writeSize )
+            write( static_cast< uint64_t >( map.size() ) );
 
-            for (const auto& [key, value] : map)
-            {
-                Write(key);
-                Write(value);
-            }
+        for ( const auto& [ key, value ] : map ) {
+            write( key );
+            write( value );
         }
+    }
 
-        void WriteRaw(const char* data, onyxU64 size)
-        {
-            DoWrite(data, size);
+    void writeRaw( const char* data, uint64_t size ) { doWrite( data, size ); }
+
+    // Write Raw (binary data)
+    template < typename T >
+    void writeRaw( const T& val ) {
+        doWrite( reinterpret_cast< const char* >( &val ), sizeof( T ) );
+    }
+
+    template < typename T >
+    void writeRaw( const DynamicArray< T >& array, bool writeSize = true ) {
+        if ( writeSize )
+            write( static_cast< uint64_t >( array.size() ) );
+
+        if ( array.empty() == false )
+            doWrite( reinterpret_cast< const char* >( array.data() ), sizeof( T ) * array.size() );
+    }
+
+    template < typename T, uint8_t Size >
+    void writeRaw( const InplaceArray< T, Size >& array, bool writeSize = true ) {
+        if ( writeSize )
+            write( static_cast< uint64_t >( array.size() ) );
+
+        if ( array.empty() == false )
+            doWrite( reinterpret_cast< const char* >( array.data() ), sizeof( T ) * array.size() );
+    }
+
+    template < typename KeyT, typename ValueT >
+    void writeRaw( const HashMap< KeyT, ValueT >& map, bool writeSize = true ) {
+        if ( writeSize )
+            write( static_cast< int64_t >( map.size() ) );
+
+        for ( const auto& [ key, value ] : map ) {
+            writeRaw( key );
+            writeRaw( value );
         }
+    }
 
-        // Write Raw (binary data)
-        template <typename T>
-        void WriteRaw(const T& val)
-        {
-            DoWrite(reinterpret_cast<const char*>(&val), sizeof(T));
-        }
-
-        template <typename T>
-        void WriteRaw(const DynamicArray<T>& array, bool writeSize = true)
-        {
-            if (writeSize)
-                Write(static_cast<onyxU64>(array.size()));
-
-            if (array.empty() == false)
-                DoWrite(reinterpret_cast<const char*>(array.data()), sizeof(T) * array.size());
-        }
-
-        template <typename T, onyxU8 Size>
-        void WriteRaw(const InplaceArray<T, Size>& array, bool writeSize = true)
-        {
-            if (writeSize)
-                Write(static_cast<onyxU64>(array.size()));
-
-            if (array.empty() == false)
-                DoWrite(reinterpret_cast<const char*>(array.data()), sizeof(T) * array.size());
-        }
-
-        template <typename KeyT, typename ValueT>
-        void WriteRaw(const HashMap<KeyT, ValueT>& map, bool writeSize = true)
-        {
-            if (writeSize)
-                Write(static_cast<onyxS64>(map.size()));
-
-            for (const auto& [key, value] : map)
-            {
-                WriteRaw(key);
-                WriteRaw(value);
-            }
-        }
-
-    private:
-        virtual void DoRead(char* destination, onyxU64 size) const = 0;
-        virtual void DoWrite(const char* data, onyxU64 size) = 0;
-    };
-}
+  private:
+    virtual void doRead( char* destination, uint64_t size ) const = 0;
+    virtual void doWrite( const char* data, uint64_t size ) = 0;
+};
+} // namespace onyx

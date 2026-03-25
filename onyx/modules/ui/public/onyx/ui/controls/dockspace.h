@@ -3,40 +3,31 @@
 
 struct ImGuiWindowClass;
 
-namespace onyx::ui
-{
-    enum DockSplitDirection
-    {
-        Left,
-        Right,
-        Up,
-        Down
-    };
+namespace onyx::ui {
+enum DockSplitDirection { Left, Right, Up, Down };
 
-    struct DockSplit
-    {
-        DockSplitDirection Direction;
-        onyxF32 Ratio;
+struct DockSplit {
+    DockSplitDirection Direction;
+    float32 Ratio;
 
-        String DockWindowInDirection;
-        String DockWindowOppositeDirection;
-    };
+    String DockWindowInDirection;
+    String DockWindowOppositeDirection;
+};
 
-    class Dockspace
-    {
-    public:
-        static Dockspace Create(const DynamicArray<DockSplit>& splits);
-        
-        bool Render();
+class Dockspace {
+  public:
+    static Dockspace Create( const DynamicArray< DockSplit >& splits );
 
-        void SetWindowClass(const ImGuiWindowClass& newWindowClass) { windowClass = &newWindowClass; }
-        void Reset() { shouldReset = true; }
-        void SetId(onyxU32 newId) { id = newId; }
+    bool Render();
 
-    private:
-        onyxU32 id = 0;
-        DynamicArray<DockSplit> splits;
-        const ImGuiWindowClass* windowClass;
-        bool shouldReset;
-    };
-}
+    void SetWindowClass( const ImGuiWindowClass& newWindowClass ) { windowClass = &newWindowClass; }
+    void Reset() { shouldReset = true; }
+    void SetId( uint32_t newId ) { id = newId; }
+
+  private:
+    uint32_t id = 0;
+    DynamicArray< DockSplit > splits;
+    const ImGuiWindowClass* windowClass;
+    bool shouldReset;
+};
+} // namespace onyx::ui

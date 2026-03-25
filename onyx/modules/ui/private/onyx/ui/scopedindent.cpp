@@ -4,21 +4,18 @@
 
 #include <imgui.h>
 
-namespace onyx::ui
-{
-    ScopedImGuiIndent::ScopedImGuiIndent()
-    {
-        ImGui::Indent(m_Indent);
-    }
-
-    ScopedImGuiIndent::ScopedImGuiIndent(onyxF32 indent): m_Indent(indent)
-    {
-        ImGui::Indent(m_Indent);
-    }
-
-    ScopedImGuiIndent::~ScopedImGuiIndent()
-    {
-        ImGui::Unindent(m_Indent);
-    }
+namespace onyx::ui {
+ScopedImGuiIndent::ScopedImGuiIndent() {
+    ImGui::Indent( m_Indent );
 }
+
+ScopedImGuiIndent::ScopedImGuiIndent( float32 indent )
+    : m_Indent( indent ) {
+    ImGui::Indent( m_Indent );
+}
+
+ScopedImGuiIndent::~ScopedImGuiIndent() {
+    ImGui::Unindent( m_Indent );
+}
+} // namespace onyx::ui
 #endif

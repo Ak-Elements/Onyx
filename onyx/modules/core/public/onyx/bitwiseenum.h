@@ -1,160 +1,136 @@
 #pragma once
 
-namespace onyx
-{
-	namespace enums
-	{
-		template <typename Enum>
-		constexpr auto ToIntegral(Enum value) -> std::underlying_type_t<Enum>
-		{
-			return static_cast<std::underlying_type_t<Enum>>(value);
-		}
-
-		template <typename Enum>
-		constexpr auto ToEnum(std::underlying_type_t<Enum> value) -> Enum
-		{
-			return static_cast<Enum>(value);
-		}
-
-		template <typename Enum>
-		constexpr StringView ToString(Enum value)
-		{
-			ONYX_ASSERT(enums::ToIntegral(value) >= MAGIC_ENUM_RANGE_MIN);
-			ONYX_ASSERT(enums::ToIntegral(value) <= MAGIC_ENUM_RANGE_MAX);
-			return magic_enum::enum_name(value);
-		}
-
-		template <typename Enum>
-		constexpr StringView ToString(std::underlying_type_t<Enum> value)
-		{
-			ONYX_ASSERT(value >= MAGIC_ENUM_RANGE_MIN);
-			ONYX_ASSERT(value <= MAGIC_ENUM_RANGE_MAX);
-			return magic_enum::enum_name(static_cast<Enum>(value));
-		}
-
-		template <typename Enum>
-		constexpr Enum FromString(StringView str)
-		{
-			auto enumVal = magic_enum::enum_cast<Enum>(str, magic_enum::case_insensitive);
-			ONYX_ASSERT(enumVal.has_value());
-			return enumVal.value();
-		}
-
-		template <typename Enum>
-		constexpr Enum FromString(StringView str, Enum defaultValue)
-		{
-			auto enumVal = magic_enum::enum_cast<Enum>(str, magic_enum::case_insensitive);
-			return enumVal.value_or(defaultValue);
-		}
-
-		template<typename Enum, typename T>
-		constexpr bool HasAllFlags(T Flags, Enum Contains)
-		{
-			const std::underlying_type_t<Enum> containsFlag = ToIntegral(Contains);
-			return (static_cast<std::underlying_type_t<Enum>>(Flags) & containsFlag) == containsFlag;
-		}
-
-		template<typename Enum, typename T>
-		constexpr bool HasAnyFlags(T Flags, Enum Contains)
-		{
-			return (static_cast<std::underlying_type_t<Enum>>(Flags) & (ToIntegral(Contains))) != 0;
-		}
-
-		template<typename Enum>
-		constexpr bool HasAllFlags(Enum Flags, Enum Contains)
-		{
-			const std::underlying_type_t<Enum> containsFlag = ToIntegral(Contains);
-			return (ToIntegral(Flags) & containsFlag) == containsFlag;
-		}
-
-		template<typename Enum>
-		constexpr bool HasNoneOf(Enum Flags, Enum noneOfFlags)
-		{
-			return (ToIntegral(Flags) & (ToIntegral(noneOfFlags))) == 0;
-		}
-
-		template<typename Enum>
-		constexpr bool HasNotFlags(Enum Flags, Enum Contains)
-		{
-			return (ToIntegral(Flags) & (ToIntegral(Contains))) != 0;
-		}
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr Enum& operator--(Enum& value) // pre decrement
-	{
-		const std::underlying_type_t<Enum> val = enums::ToIntegral(value);
-		value = static_cast<Enum>(val - 1);
-		return value;
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr Enum& operator|=(Enum& Lhs, Enum Rhs)
-	{
-		Lhs = static_cast<Enum>(enums::ToIntegral(Lhs) | enums::ToIntegral(Rhs));
-		return Lhs;
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr Enum& operator^=(Enum& Lhs, Enum Rhs)
-	{
-		Lhs = static_cast<Enum>(enums::ToIntegral(Lhs) ^ enums::ToIntegral(Rhs));
-		return Lhs;
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr Enum operator|(Enum Lhs, Enum Rhs)
-	{
-		return static_cast<Enum>(enums::ToIntegral(Lhs) | enums::ToIntegral(Rhs));
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr Enum operator&(Enum Lhs, Enum Rhs)
-	{
-		return static_cast<Enum>(enums::ToIntegral(Lhs) & enums::ToIntegral(Rhs));
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr Enum operator^(Enum Lhs, Enum Rhs)
-	{
-		return static_cast<Enum>(enums::ToIntegral(Lhs) ^ enums::ToIntegral(Rhs));
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr bool operator!(Enum value)
-	{
-		return !enums::ToIntegral(value);
-	}
-
-	template <typename Enum> requires std::is_scoped_enum_v<Enum>
-	constexpr bool operator~(Enum value)
-	{
-		return static_cast<Enum>(~enums::ToIntegral(value));
-	}
+namespace onyx {
+namespace enums {
+template < typename Enum >
+constexpr auto toIntegral( Enum value ) -> std::underlying_type_t< Enum > {
+    return static_cast< std::underlying_type_t< Enum > >( value );
 }
 
-template <typename Enum> requires std::is_scoped_enum_v<Enum>
-constexpr Enum operator++(Enum& value, int) // postfix increment
-{
-	Enum tmp = value;
-	const std::underlying_type_t<Enum> val = onyx::enums::ToIntegral(value);
-	value = static_cast<Enum>(val + 1);
-	return tmp;
+template < typename Enum >
+constexpr auto toEnum( std::underlying_type_t< Enum > value ) -> Enum {
+    return static_cast< Enum >( value );
 }
 
-template <typename Enum> requires std::is_scoped_enum_v<Enum>
-constexpr Enum& operator++(Enum& value) // pre increment
-{
-	const std::underlying_type_t<Enum> val = onyx::enums::ToIntegral(value);
-	value = static_cast<Enum>(val + 1);
-	return value;
+template < typename Enum >
+constexpr StringView toString( Enum value ) {
+    ONYX_ASSERT( enums::ToIntegral( value ) >= MAGIC_ENUM_RANGE_MIN );
+    ONYX_ASSERT( enums::ToIntegral( value ) <= MAGIC_ENUM_RANGE_MAX );
+    return magic_enum::enum_name( value );
 }
 
-template <typename Enum> requires std::is_scoped_enum_v<Enum>
-constexpr Enum operator--(Enum& value, int) // postfix decrement
+template < typename Enum >
+constexpr StringView toString( std::underlying_type_t< Enum > value ) {
+    ONYX_ASSERT( value >= MAGIC_ENUM_RANGE_MIN );
+    ONYX_ASSERT( value <= MAGIC_ENUM_RANGE_MAX );
+    return magic_enum::enum_name( static_cast< Enum >( value ) );
+}
+
+template < typename Enum >
+constexpr Enum fromString( StringView str ) {
+    auto enumVal = magic_enum::enum_cast< Enum >( str, magic_enum::case_insensitive );
+    ONYX_ASSERT( enumVal.has_value() );
+    return enumVal.value();
+}
+
+template < typename Enum >
+constexpr Enum fromString( StringView str, Enum defaultValue ) {
+    auto enumVal = magic_enum::enum_cast< Enum >( str, magic_enum::case_insensitive );
+    return enumVal.value_or( defaultValue );
+}
+
+template < typename Enum, typename T >
+constexpr bool all( T flags, Enum contains ) {
+    const std::underlying_type_t< Enum > containsFlag = toIntegral( contains );
+    return ( static_cast< std::underlying_type_t< Enum > >( flags ) & containsFlag ) == containsFlag;
+}
+
+template < typename Enum, typename T >
+constexpr bool any( T flags, Enum contains ) {
+    return ( static_cast< std::underlying_type_t< Enum > >( flags ) & ( toIntegral( contains ) ) ) != 0;
+}
+
+template < typename Enum >
+constexpr bool all( Enum flags, Enum contains ) {
+    const std::underlying_type_t< Enum > containsFlag = toIntegral( contains );
+    return ( toIntegral( flags ) & containsFlag ) == containsFlag;
+}
+
+template < typename Enum >
+constexpr bool none( Enum flags, Enum noneOfFlags ) {
+    return ( toIntegral( flags ) & ( toIntegral( noneOfFlags ) ) ) == 0;
+}
+
+} // namespace enums
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum& operator--( Enum& value ) // pre decrement
 {
-	Enum tmp = value;
-	const std::underlying_type_t<Enum> val = onyx::enums::ToIntegral(value);
-	value = static_cast<Enum>(val - 1);
-	return tmp;
+    const std::underlying_type_t< Enum > val = enums::toIntegral( value );
+    value = static_cast< Enum >( val - 1 );
+    return value;
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum& operator|=( Enum& lhs, Enum rhs ) {
+    lhs = static_cast< Enum >( enums::toIntegral( lhs ) | enums::toIntegral( rhs ) );
+    return lhs;
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum& operator^=( Enum& lhs, Enum rhs ) {
+    lhs = static_cast< Enum >( enums::toIntegral( lhs ) ^ enums::toIntegral( rhs ) );
+    return lhs;
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum operator|( Enum lhs, Enum rhs ) {
+    return static_cast< Enum >( enums::toIntegral( lhs ) | enums::toIntegral( rhs ) );
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum operator&( Enum lhs, Enum rhs ) {
+    return static_cast< Enum >( enums::toIntegral( lhs ) & enums::toIntegral( rhs ) );
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum operator^( Enum lhs, Enum rhs ) {
+    return static_cast< Enum >( enums::toIntegral( lhs ) ^ enums::toIntegral( rhs ) );
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr bool operator!( Enum value ) {
+    return !enums::toIntegral( value );
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr bool operator~( Enum value ) {
+    return static_cast< Enum >( ~enums::toIntegral( value ) );
+}
+} // namespace onyx
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum operator++( Enum& value, int ) // postfix increment
+{
+    Enum tmp = value;
+    const std::underlying_type_t< Enum > val = onyx::enums::toIntegral( value );
+    value = static_cast< Enum >( val + 1 );
+    return tmp;
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum& operator++( Enum& value ) // pre increment
+{
+    const std::underlying_type_t< Enum > val = onyx::enums::toIntegral( value );
+    value = static_cast< Enum >( val + 1 );
+    return value;
+}
+
+template < typename Enum > requires std::is_scoped_enum_v< Enum >
+constexpr Enum operator--( Enum& value, int ) // postfix decrement
+{
+    Enum tmp = value;
+    const std::underlying_type_t< Enum > val = onyx::enums::toIntegral( value );
+    value = static_cast< Enum >( val - 1 );
+    return tmp;
 }

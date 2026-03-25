@@ -7,56 +7,54 @@
 
 #include <onyx/assets/assethandle.h>
 
-namespace onyx
-{
-    class IEngine;
+namespace onyx {
+class IEngine;
 }
 
-namespace onyx::assets
-{
-    struct IAssetSerializer;
-    class AssetLoader;
-    struct AssetId;
-    class AssetInterface;
+namespace onyx::assets {
+struct IAssetSerializer;
+class AssetLoader;
+struct AssetId;
+class AssetInterface;
 
-    struct AssetLoadRequest
-    {
-    public:
-        void Start(threading::ThreadPool& loaderPool);
-        void Cancel();
+struct AssetLoadRequest {
+  public:
+    void start( threading::ThreadPool& loaderPool );
+    void cancel();
 
-        IEngine* Engine = nullptr;
-        AssetMetaData MetaData;
-        AssetHandle<AssetInterface> Asset;
-        const IAssetSerializer* Serializer = nullptr;
+    IEngine* Engine = nullptr;
+    AssetMetaData MetaData;
+    AssetHandle< AssetInterface > Asset;
+    const IAssetSerializer* Serializer = nullptr;
 
-        Callback<void(AssetHandle<AssetInterface>&)> OnLoadFinished;
-    private:
-        void Load();
+    Callback< void( AssetHandle< AssetInterface >& ) > OnLoadFinished;
 
-    private:
-        threading::Future<void> m_Future;
-    };
+  private:
+    void load();
+
+  private:
+    threading::Future< void > m_future;
+};
 
 #if ONYX_IS_EDITOR
-    struct AssetSaveRequest
-    {
-    public:
-        void Start(threading::ThreadPool& loaderPool);
-        void Cancel();
+struct AssetSaveRequest {
+  public:
+    void start( threading::ThreadPool& loaderPool );
+    void cancel();
 
-        const IEngine* Engine = nullptr;
-        AssetMetaData MetaData;
-        AssetHandle<AssetInterface> Asset;
-        const IAssetSerializer* Serializer = nullptr;
+    const IEngine* Engine = nullptr;
+    AssetMetaData MetaData;
+    AssetHandle< AssetInterface > Asset;
+    const IAssetSerializer* Serializer = nullptr;
 
-        Callback<void(const AssetHandle<AssetInterface>&)> OnSaveFinished;
-    private:
-        void Save();
+    Callback< void( const AssetHandle< AssetInterface >& ) > OnSaveFinished;
 
-    private:
-        threading::Future<void> m_Future;
-    };
+  private:
+    void save();
+
+  private:
+    threading::Future< void > m_future;
+};
 #endif
 
-}
+} // namespace onyx::assets

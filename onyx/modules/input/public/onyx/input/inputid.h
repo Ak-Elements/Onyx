@@ -1,64 +1,55 @@
 #pragma once
 
-namespace onyx::input
-{
-    enum class InputType : onyxU8;
-    enum class MouseButton : onyxU16;
-    enum class MouseAxis : onyxU16;
-    enum class Key : onyxU16;
-    enum class GameControllerAxis : onyxU16;
-    enum class GameControllerButton : onyxU16;
-    
-    template <typename T>
-    concept InputEnum = std::is_same_v<T, MouseButton> ||
-        std::is_same_v<T, MouseAxis> ||
-        std::is_same_v<T, Key> ||
-        std::is_same_v<T, GameControllerAxis> ||
-        std::is_same_v<T, GameControllerButton>;
+namespace onyx::input {
+enum class InputType : uint8_t;
+enum class MouseButton : uint16_t;
+enum class MouseAxis : uint16_t;
+enum class Key : uint16_t;
+enum class GameControllerAxis : uint16_t;
+enum class GameControllerButton : uint16_t;
 
-    static constexpr onyxU16 InvalidInputID = 0;
+template < typename T >
+concept InputEnum = std::is_same_v< T, MouseButton > || std::is_same_v< T, MouseAxis > || std::is_same_v< T, Key > ||
+                    std::is_same_v< T, GameControllerAxis > || std::is_same_v< T, GameControllerButton >;
 
-    struct InputID
-    {
-        static constexpr onyxU16 Invalid = 0;
-        onyxU16 ID = Invalid;
+static constexpr uint16_t InvalidInputID = 0;
 
-        InputID() = default;
-        
-        template <InputEnum T>
-        InputID(T inputValue)
-            : ID(enums::ToIntegral(inputValue))
-        {
-        }
-        
-        void operator=(onyxU16 other) { ID = other; }
-        void operator=(InputID other) { ID = other.ID; }
-        
-        bool operator==(onyxU16 other) const { return ID == other; }
-        bool operator!=(onyxU16 other) const { return ID != other; }
-    };
+struct InputID {
+    static constexpr uint16_t Invalid = 0;
+    uint16_t ID = Invalid;
 
-    bool IsAxis1D(InputID id);
-    bool IsAxis2D(InputID id);
-    bool IsMouseButton(InputID id);
-    bool IsMouseAxis1D(InputID id);
-    bool IsMouseAxis2D(InputID id);
-    bool IsKeyboardKey(InputID id);
-    bool IsGameControllerButton(InputID id);
-    bool IsGameControllerAxis1D(InputID id);
-    bool IsGameControllerAxis2D(InputID id);
+    InputID() = default;
 
-    StringView ToString(InputID id);
-    StringView GetInputTypeString(InputID id);
-    InputType GetInputType(InputID id);
-}
+    template < InputEnum T >
+    InputID( T inputValue )
+        : ID( enums::toIntegral( inputValue ) ) {}
 
-namespace onyx
-{
-    template <>
-    struct Serialization<input::InputID>
-    {
-        static bool Serialize(Serializer& serializer, const input::InputID& id);
-        static bool Deserialize(const Deserializer& deserializer, input::InputID& outId);
-    };
-}
+    void operator=( uint16_t other ) { ID = other; }
+    void operator=( InputID other ) { ID = other.ID; }
+
+    bool operator==( uint16_t other ) const { return ID == other; }
+    bool operator!=( uint16_t other ) const { return ID != other; }
+};
+
+bool IsAxis1D( InputID id );
+bool IsAxis2D( InputID id );
+bool IsMouseButton( InputID id );
+bool IsMouseAxis1D( InputID id );
+bool IsMouseAxis2D( InputID id );
+bool IsKeyboardKey( InputID id );
+bool IsGameControllerButton( InputID id );
+bool IsGameControllerAxis1D( InputID id );
+bool IsGameControllerAxis2D( InputID id );
+
+StringView ToString( InputID id );
+StringView GetInputTypeString( InputID id );
+InputType GetInputType( InputID id );
+} // namespace onyx::input
+
+namespace onyx {
+template <>
+struct Serialization< input::InputID > {
+    static bool serialize( Serializer& serializer, const input::InputID& id );
+    static bool deserialize( const Deserializer& deserializer, input::InputID& outId );
+};
+} // namespace onyx

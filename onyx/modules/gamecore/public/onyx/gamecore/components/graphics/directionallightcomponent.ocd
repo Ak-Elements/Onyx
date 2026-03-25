@@ -1,10 +1,10 @@
 component DirectionalLightComponent
 {
-    onyxF32 Intensity = 1.0f
+    float32 Intensity = 1.0f
 
     [Editor(Color)]
     Vector3f32 Color = { 1.0, 1.0, 1.0 }
-    onyxF32 ShadowAmount = 1.0f
+    float32 ShadowAmount = 1.0f
 
     bool IsShadowCasting = true
 }

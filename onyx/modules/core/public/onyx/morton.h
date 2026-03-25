@@ -3,10 +3,9 @@
 #include <onyx/mortoncode2d.h>
 #include <onyx/mortoncode3d.h>
 
-namespace onyx
-{
-    using MortonCode2D_U32 = MortonCode2D<onyxU32, onyxU16>;
-    using MortonCode2D_U64 = MortonCode2D<onyxU64, onyxU32>;
-    using MortonCode3D_U32 = MortonCode3D<onyxU32, onyxU16>;
-    using MortonCode3D_U64 = MortonCode3D<onyxU64, onyxU32>;
-}
+namespace onyx {
+using MortonCode2dU32 = MortonCode2D< uint32_t, uint16_t >;
+using MortonCode2dU64 = MortonCode2D< uint64_t, uint32_t >;
+using MortonCode3dU32 = MortonCode3D< uint32_t, uint16_t >;
+using MortonCode3dU64 = MortonCode3D< uint64_t, uint32_t >;
+} // namespace onyx

@@ -1,9 +1,5 @@
 #pragma once
 
-namespace onyx::ecs
-{
-    enum class EntityId : onyxU32
-    {
-        Invalid = std::numeric_limits<onyxU32>::max()
-    };
+namespace onyx::ecs {
+enum class EntityId : uint32_t { Invalid = std::numeric_limits< uint32_t >::max() };
 }

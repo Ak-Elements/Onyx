@@ -1,35 +1,24 @@
 #include <onyx/stream/stream.h>
 
-namespace onyx
-{
-    void Stream::Read(String& outStr) const
-    {
-        onyxU64 length = 0;
-        Read(length);
-        Read(outStr, length);
-    }
-
-    void Stream::Read(String& outStr, onyxU64 length) const
-    {
-        outStr.resize(length);
-        DoRead(outStr.data(), length);
-    }
-
-    /*void Stream::Read(StringView& outStr, onyxU64 length) const
-    {
-        outStr = { "", static_cast<StringView::size_type>(length) };
-        DoRead(outStr.data(), length);
-    }*/
-
-    void Stream::Write(const String& val)
-    {
-        Write(static_cast<onyxU64>(val.size()));
-        DoWrite(val.data(), sizeof(char) * val.size());
-    }
-
-    void Stream::Write(StringView val)
-    {
-        Write(static_cast<onyxU64>(val.size()));
-        DoWrite(val.data(), sizeof(char) * val.size());
-    }
+namespace onyx {
+void Stream::read( String& outStr ) const {
+    uint64_t length = 0;
+    read( length );
+    read( outStr, length );
 }
+
+void Stream::read( String& outStr, uint64_t length ) const {
+    outStr.resize( length );
+    doRead( outStr.data(), length );
+}
+
+void Stream::write( const String& val ) {
+    write( static_cast< uint64_t >( val.size() ) );
+    doWrite( val.data(), sizeof( char ) * val.size() );
+}
+
+void Stream::write( StringView val ) {
+    write( static_cast< uint64_t >( val.size() ) );
+    doWrite( val.data(), sizeof( char ) * val.size() );
+}
+} // namespace onyx

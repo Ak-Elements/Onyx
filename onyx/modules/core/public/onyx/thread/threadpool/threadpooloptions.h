@@ -2,80 +2,67 @@
 
 #include <thread>
 
-namespace onyx
-{
-    namespace threading
-    {
-        /**
-         * @brief The ThreadPoolOptions class provides creation options for
-         * ThreadPool.
-         */
-        class ThreadPoolOptions
-        {
-        public:
-            /**
-             * @brief ThreadPoolOptions Construct default options for thread pool.
-             */
-            ThreadPoolOptions();
-            explicit ThreadPoolOptions(onyxS32 threadCount);
+namespace onyx::threading {
+/**
+ * @brief The ThreadPoolOptions class provides creation options for
+ * ThreadPool.
+ */
+class ThreadPoolOptions {
+  public:
+    /**
+     * @brief ThreadPoolOptions Construct default options for thread pool.
+     */
+    ThreadPoolOptions();
+    explicit ThreadPoolOptions( int32_t threadCount );
 
-            /**
-             * @brief setThreadCount Set thread count.
-             * @param count Number of threads to be created.
-             */
-            void SetThreadCount(onyxS32 count);
+    /**
+     * @brief setThreadCount Set thread count.
+     * @param count Number of threads to be created.
+     */
+    void setThreadCount( int32_t count );
 
-            /**
-             * @brief setQueueSize Set single worker queue size.
-             * @param count Maximum length of queue of single worker.
-             */
-            void SetQueueSize(onyxS32 size);
+    /**
+     * @brief setQueueSize Set single worker queue size.
+     * @param count Maximum length of queue of single worker.
+     */
+    void setQueueSize( int32_t size );
 
-            /**
-             * @brief threadCount Return thread count.
-             */
-            onyxS32 GetThreadCount() const;
+    /**
+     * @brief threadCount Return thread count.
+     */
+    ONYX_NO_DISCARD int32_t getThreadCount() const;
 
-            /**
-             * @brief queueSize Return single worker queue size.
-             */
-            onyxS32 GetQueueSize() const;
+    /**
+     * @brief queueSize Return single worker queue size.
+     */
+    ONYX_NO_DISCARD int32_t getQueueSize() const;
 
-        private:
-            onyxS32 m_ThreadCount;
-            onyxS32 m_QueueSize;
-        };
+  private:
+    int32_t m_threadCount;
+    int32_t m_queueSize;
+};
 
-        /// Implementation
-        inline ThreadPoolOptions::ThreadPoolOptions()
-            : ThreadPoolOptions(std::max<onyxS32>(1, static_cast<onyxS32>(std::thread::hardware_concurrency())))
-        {
-        }
+/// Implementation
+inline ThreadPoolOptions::ThreadPoolOptions()
+    : ThreadPoolOptions( std::max< int32_t >( 1, static_cast< int32_t >( std::thread::hardware_concurrency() ) ) ) {}
 
-        inline ThreadPoolOptions::ThreadPoolOptions(onyxS32 threadCount)
-            : m_ThreadCount(threadCount)
-            , m_QueueSize(1024)
-        {
-        }
+inline ThreadPoolOptions::ThreadPoolOptions( int32_t threadCount )
+    : m_threadCount( threadCount )
+    , m_queueSize( 1024 ) {}
 
-        inline void ThreadPoolOptions::SetThreadCount(onyxS32 count)
-        {
-            m_ThreadCount = std::max<onyxS32>(1, count);
-        }
-
-        inline void ThreadPoolOptions::SetQueueSize(onyxS32 size)
-        {
-            m_QueueSize = std::max<onyxS32>(1, size);
-        }
-
-        inline onyxS32 ThreadPoolOptions::GetThreadCount() const
-        {
-            return m_ThreadCount;
-        }
-
-        inline onyxS32 ThreadPoolOptions::GetQueueSize() const
-        {
-            return m_QueueSize;
-        }
-    }
+inline void ThreadPoolOptions::setThreadCount( int32_t count ) {
+    m_threadCount = std::max< int32_t >( 1, count );
 }
+
+inline void ThreadPoolOptions::setQueueSize( int32_t size ) {
+    m_queueSize = std::max< int32_t >( 1, size );
+}
+
+inline int32_t ThreadPoolOptions::getThreadCount() const {
+    return m_threadCount;
+}
+
+inline int32_t ThreadPoolOptions::getQueueSize() const {
+    return m_queueSize;
+}
+} // namespace onyx::threading

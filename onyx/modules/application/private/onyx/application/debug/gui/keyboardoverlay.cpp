@@ -35,13 +35,13 @@ KeyboardOverlay::KeyboardOverlay() {
             // is key data
             if ( columnValue.contains( "label" ) ) {
                 const String& label = columnValue[ "label" ].get< String >();
-                input::Key key = enums::ToEnum< input::Key >( columnValue[ "keyCode" ].get< onyxU16 >() );
+                input::Key key = enums::toEnum< input::Key >( columnValue[ "keyCode" ].get< uint16_t >() );
                 keyboardRow.emplace_back( offset, offset2, size, size2, key, label );
 
-                offset.Set( 0.0f, 0.0f );
-                offset2.Set( 0.0f, 0.0f );
-                size.Set( 1.0f, 1.0f );
-                size2.Set( 0.0f, 0.0f );
+                offset.set( 0.0f, 0.0f );
+                offset2.set( 0.0f, 0.0f );
+                size.set( 1.0f, 1.0f );
+                size2.set( 0.0f, 0.0f );
             } else // is meta data
             {
                 if ( columnValue.contains( "x" ) )
@@ -80,23 +80,26 @@ void KeyboardOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
     SetDefaultPosition( ui::WindowPosition::BottomLeft );
 
-    onyxF32 aspectRatio = 23.0f / static_cast< onyxF32 >( m_keyboardLayout.size() + 1 );
+    float32 aspectRatio = 23.0f / static_cast< float32 >( m_keyboardLayout.size() + 1 );
     auto aspect_ratio_constraint = []( ImGuiSizeCallbackData* data ) {
-        float aspectRatio = *static_cast< onyxF32* >( data->UserData );
+        float aspectRatio = *static_cast< float32* >( data->UserData );
         data->DesiredSize.y = (float)(int)( data->DesiredSize.x / aspectRatio );
     };
 
     ImGui::SetNextWindowSize( ImVec2( 400, 600 ), ImGuiCond_FirstUseEver );
-    ImGui::SetNextWindowSizeConstraints( ImVec2( 200, 300 ), ImVec2( FLT_MAX, FLT_MAX ), aspect_ratio_constraint, &aspectRatio ); // Aspect ratio
+    ImGui::SetNextWindowSizeConstraints( ImVec2( 200, 300 ),
+                                         ImVec2( FLT_MAX, FLT_MAX ),
+                                         aspect_ratio_constraint,
+                                         &aspectRatio ); // Aspect ratio
     Begin();
     ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
 
     static const ImVec4 defaultColor{ 0.7f, 0.7f, 0.7f, 1.0f };
     static const ImVec4 pressedColor{ 0.9f, 0.2f, 0.2f, 1.0f };
-    onyxU32 defaultColorU32 = ImGui::GetColorU32( defaultColor );
-    onyxU32 pressedColorU32 = ImGui::GetColorU32( pressedColor );
+    uint32_t defaultColorU32 = ImGui::GetColorU32( defaultColor );
+    uint32_t pressedColorU32 = ImGui::GetColorU32( pressedColor );
     auto drawList = ImGui::GetWindowDrawList();
-    const onyxF32 renderSize = ImGui::GetContentRegionAvail().x;
+    const float32 renderSize = ImGui::GetContentRegionAvail().x;
     float size = renderSize / 23.0f;
     const ImVec2& initialPosition = ImGui::GetCursorScreenPos();
     Vector2f32 cursorPos = { initialPosition.x, initialPosition.y };
@@ -104,23 +107,27 @@ void KeyboardOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     ImRect keyBounds;
     for ( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
-        onyxU32 numButtonsInRow = static_cast< onyxU32 >( keyboardRow.size() );
-        for ( onyxU32 i = 0; i < numButtonsInRow; ++i ) {
+        uint32_t numButtonsInRow = static_cast< uint32_t >( keyboardRow.size() );
+        for ( uint32_t i = 0; i < numButtonsInRow; ++i ) {
             const KeyData& key = keyboardRow[ i ];
             const Vector2f32& rectSize = key.Size * size;
 
             Vector2f32 tempCursorPos = cursorPos;
 
-            onyxU32 color = inputSystem.IsButtonDown( key.Key ) ? pressedColorU32 : defaultColorU32;
+            uint32_t color = inputSystem.IsButtonDown( key.Key ) ? pressedColorU32 : defaultColorU32;
 
             tempCursorPos += ( key.Offset * size );
-            keyBounds = ImRect( { tempCursorPos[ 0 ], tempCursorPos[ 1 ] }, { tempCursorPos[ 0 ] + rectSize[ 0 ] - spacing, tempCursorPos[ 1 ] + rectSize[ 1 ] - spacing } );
+            keyBounds = ImRect(
+                { tempCursorPos[ 0 ], tempCursorPos[ 1 ] },
+                { tempCursorPos[ 0 ] + rectSize[ 0 ] - spacing, tempCursorPos[ 1 ] + rectSize[ 1 ] - spacing } );
             drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
 
-            if ( key.Size2.IsZero() == false ) {
+            if ( key.Size2.isZero() == false ) {
                 const Vector2f32& rectSize2 = key.Size2 * size;
                 Vector2f32 tmpCursorPos2 = tempCursorPos + ( key.Offset2 * size );
-                keyBounds = ImRect( { tmpCursorPos2[ 0 ], tmpCursorPos2[ 1 ] }, { tmpCursorPos2[ 0 ] + rectSize2[ 0 ] - spacing, tmpCursorPos2[ 1 ] + rectSize2[ 1 ] - spacing } );
+                keyBounds = ImRect(
+                    { tmpCursorPos2[ 0 ], tmpCursorPos2[ 1 ] },
+                    { tmpCursorPos2[ 0 ] + rectSize2[ 0 ] - spacing, tmpCursorPos2[ 1 ] + rectSize2[ 1 ] - spacing } );
                 drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
             }
 

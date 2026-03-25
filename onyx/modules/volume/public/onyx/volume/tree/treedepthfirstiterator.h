@@ -2,59 +2,51 @@
 
 #include <onyx/volume/tree/treeiterator.h>
 
-namespace onyx::volume
-{
+namespace onyx::volume {
 
-    template <typename TreeT>
-    class TreeDepthFirstIterator : public TreeIterator<TreeT>
-    {
-    private:
-        using super = TreeIterator<TreeT>;
-        using IteratorT = typename TreeDepthFirstIterator::IteratorState;
-    public:
-        explicit  TreeDepthFirstIterator()
-            : super()
-        {
+template < typename TreeT >
+class TreeDepthFirstIterator : public TreeIterator< TreeT > {
+  private:
+    using super = TreeIterator< TreeT >;
+    using IteratorT = typename TreeDepthFirstIterator::IteratorState;
+
+  public:
+    explicit TreeDepthFirstIterator()
+        : super() {}
+
+    explicit TreeDepthFirstIterator( TreeT* quadtree, uint8_t maxDepth );
+
+    virtual ~TreeDepthFirstIterator();
+
+    inline TreeDepthFirstIterator& operator=( const TreeDepthFirstIterator& src ) {
+        super::operator=( src );
+
+        m_IteratorStates = src.m_IteratorStates;
+
+        if ( m_IteratorStates.empty() == false ) {
+            super::m_CurrentState = &m_IteratorStates.back();
+        } else {
+            super::m_CurrentState = nullptr;
         }
 
-        explicit TreeDepthFirstIterator(TreeT* quadtree, onyxU8 maxDepth);
+        return ( *this );
+    }
 
-        virtual ~TreeDepthFirstIterator();
+    void Reset();
 
-        inline TreeDepthFirstIterator& operator=(const TreeDepthFirstIterator& src)
-        {
-            super::operator=(src);
+    TreeDepthFirstIterator& operator++();
 
-            m_IteratorStates = src.m_IteratorStates;
+    inline TreeDepthFirstIterator operator++( int ) {
+        TreeDepthFirstIterator tmp = *this;
+        ++*this;
+        return ( tmp );
+    }
 
-            if (m_IteratorStates.empty() == false)
-            {
-                super::m_CurrentState = &m_IteratorStates.back();
-            }
-            else
-            {
-                super::m_CurrentState = nullptr;
-            }
+  protected:
+    // TODO: Fix out of stack problem for large tree depths ~ 7000
+    std::vector< IteratorT > m_IteratorStates;
+};
 
-            return (*this);
-        }
-
-        void Reset();
-
-        TreeDepthFirstIterator& operator++();
-
-        inline TreeDepthFirstIterator operator++ (int)
-        {
-            TreeDepthFirstIterator tmp = *this;
-            ++*this;
-            return (tmp);
-        }
-
-    protected:
-        //TODO: Fix out of stack problem for large tree depths ~ 7000
-        std::vector<IteratorT> m_IteratorStates;
-    };
-
-} // namespace onyx
+} // namespace onyx::volume
 
 #include <onyx/volume/tree/treedepthfirstiterator.hpp>

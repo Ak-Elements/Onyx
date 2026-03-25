@@ -1,11 +1,9 @@
 #pragma once
 
-namespace onyx::physics
-{
-    enum class CollisionLayer : onyxU16
-    {
-        STATIC,
-        DYNAMIC,
-        COUNT,
-    };
+namespace onyx::physics {
+enum class CollisionLayer : uint16_t {
+    STATIC,
+    DYNAMIC,
+    COUNT,
+};
 }

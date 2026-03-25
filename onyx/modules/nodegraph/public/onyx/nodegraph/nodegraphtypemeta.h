@@ -16,8 +16,8 @@ namespace onyx::node_graph
         virtual ~INodeGraphTypeMeta() = default;
 
         virtual UniquePtr<PinBase> CreatePin(Guid64 globalId, StringId32 localId) const = 0;
-        virtual bool Serialize(Serializer&, const std::any& dataAny) const = 0;
-        virtual bool Deserialize(const Deserializer&, std::any& outDataAny) const = 0;
+        virtual bool serialize(Serializer&, const std::any& dataAny) const = 0;
+        virtual bool deserialize(const Deserializer&, std::any& outDataAny) const = 0;
 
         StringId32 TypeId;
     };
@@ -33,10 +33,10 @@ namespace onyx::node_graph
 
         UniquePtr<PinBase> CreatePin(Guid64 globalId, StringId32 localId) const override
         {
-            return MakeUnique<DynamicPin<T>>(globalId, localId);
+            return makeUnique<DynamicPin<T>>(globalId, localId);
         }
 
-        bool Serialize(Serializer& serializer, const std::any& dataAny) const override
+        bool serialize(Serializer& serializer, const std::any& dataAny) const override
         {
             if constexpr (std::is_same_v<T, ExecutePin>)
             {
@@ -46,11 +46,11 @@ namespace onyx::node_graph
             else
             {
                 const T& value = std::any_cast<const T&>(dataAny);
-                return serializer.Write(value);
+                return serializer.write(value);
             }
         }
 
-        bool Deserialize(const Deserializer& deserializer, std::any& outDataAny) const override
+        bool deserialize(const Deserializer& deserializer, std::any& outDataAny) const override
         {
             if constexpr (std::is_same_v<T, ExecutePin>)
             {
@@ -60,7 +60,7 @@ namespace onyx::node_graph
             else
             {
                 T outValue;
-                if (deserializer.Read(outValue))
+                if (deserializer.read(outValue))
                 {
                     outDataAny = outValue;
                     return true;

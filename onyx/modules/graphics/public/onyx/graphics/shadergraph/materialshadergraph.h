@@ -15,7 +15,7 @@ namespace onyx::graphics
         rhi::ShaderInstanceHandle& GetShader() { return m_Shader; }
         const rhi::ShaderInstanceHandle& GetShader() const { return m_Shader; }
 
-        bool IsValid() const { return m_Shader.IsValid(); }
+        bool IsValid() const { return m_Shader.isValid(); }
 
     private:
         ShadingModel m_ShadingModel = ShadingModel::Lit;

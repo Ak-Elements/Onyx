@@ -4,21 +4,17 @@
 
 #include <imgui.h>
 
-namespace onyx::ui
-{
-    ScopedImGuiId::ScopedImGuiId(StringView str)
-    {
-        ImGui::PushID(str.data());
-    }
-
-    ScopedImGuiId::ScopedImGuiId(onyxS32 id)
-    {
-        ImGui::PushID(id);
-    }
-
-    ScopedImGuiId::~ScopedImGuiId()
-    {
-        ImGui::PopID();
-    }
+namespace onyx::ui {
+ScopedImGuiId::ScopedImGuiId( StringView str ) {
+    ImGui::PushID( str.data() );
 }
+
+ScopedImGuiId::ScopedImGuiId( int32_t id ) {
+    ImGui::PushID( id );
+}
+
+ScopedImGuiId::~ScopedImGuiId() {
+    ImGui::PopID();
+}
+} // namespace onyx::ui
 #endif

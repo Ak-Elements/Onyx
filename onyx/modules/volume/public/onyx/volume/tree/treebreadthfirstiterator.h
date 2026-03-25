@@ -4,59 +4,51 @@
 
 #include <deque>
 
-namespace onyx::volume
-{
+namespace onyx::volume {
 
-    template <typename TreeT>
-    class TreeBreadthFirstIterator : public TreeIterator<TreeT>
-    {
-    private:
-        using super = TreeIterator<TreeT>;
-        using IteratorT = typename TreeBreadthFirstIterator::IteratorState;
-    public:
-        explicit TreeBreadthFirstIterator()
-            : super()
-        {
+template < typename TreeT >
+class TreeBreadthFirstIterator : public TreeIterator< TreeT > {
+  private:
+    using super = TreeIterator< TreeT >;
+    using IteratorT = typename TreeBreadthFirstIterator::IteratorState;
+
+  public:
+    explicit TreeBreadthFirstIterator()
+        : super() {}
+
+    explicit TreeBreadthFirstIterator( TreeT* quadtree, uint8_t maxDepth );
+
+    virtual ~TreeBreadthFirstIterator();
+
+    inline TreeBreadthFirstIterator& operator=( const TreeBreadthFirstIterator& src ) {
+        super::operator=( src );
+
+        m_IteratorStates = src.m_IteratorStates;
+
+        if ( m_IteratorStates.empty() == false ) {
+            super::m_CurrentState = &m_IteratorStates.front();
+        } else {
+            super::m_CurrentState = nullptr;
         }
 
-        explicit TreeBreadthFirstIterator(TreeT* quadtree, onyxU8 maxDepth);
+        return ( *this );
+    }
 
-        virtual ~TreeBreadthFirstIterator();
+    void Reset();
 
-        inline TreeBreadthFirstIterator& operator=(const TreeBreadthFirstIterator& src)
-        {
-            super::operator=(src);
+    TreeBreadthFirstIterator& operator++();
 
-            m_IteratorStates = src.m_IteratorStates;
+    inline TreeBreadthFirstIterator operator++( int ) {
+        TreeBreadthFirstIterator tmp = *this;
+        ++*this;
+        return ( tmp );
+    }
 
-            if (m_IteratorStates.empty() == false)
-            {
-                super::m_CurrentState = &m_IteratorStates.front();
-            }
-            else
-            {
-                super::m_CurrentState = nullptr;
-            }
+  protected:
+    // TODO: Fix out of stack problem for large trees depth ~ 7000
+    std::deque< IteratorT > m_IteratorStates;
+};
 
-            return (*this);
-        }
-
-        void Reset();
-
-        TreeBreadthFirstIterator& operator++();
-
-        inline TreeBreadthFirstIterator operator++ (int)
-        {
-            TreeBreadthFirstIterator tmp = *this;
-            ++*this;
-            return (tmp);
-        }
-
-    protected:
-        //TODO: Fix out of stack problem for large trees depth ~ 7000
-        std::deque<IteratorT> m_IteratorStates;
-    };
-
-} // namespace onyx
+} // namespace onyx::volume
 
 #include <onyx/volume/tree/treebreadthfirstiterator.hpp>

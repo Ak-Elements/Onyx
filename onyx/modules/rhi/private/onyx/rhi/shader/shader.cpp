@@ -7,15 +7,15 @@
 
 namespace onyx::rhi
 {
-    Reference<Shader> Shader::Create(const IEngine& engine)
+    Reference<Shader> Shader::create(const IEngine& engine)
     {
-        const GraphicsSystem& graphicsSystem = engine.GetSystem<GraphicsSystem>();
+        const GraphicsSystem& graphicsSystem = engine.getSystem<GraphicsSystem>();
         switch (graphicsSystem.GetApiType())
         {
             using enum ApiType;
             case Vulkan:
     #if ONYX_USE_VULKAN
-                return Reference<vulkan::Shader>::Create();
+                return Reference<vulkan::Shader>::create();
     #else
                 return nullptr;
     #endif
@@ -32,7 +32,7 @@ namespace onyx::rhi
         DynamicArray<FilePath> shaderDirectories;
         for (const file_system::MountPoint& mountPoint : (file_system::Path::GetMountPoints() | std::views::values))
         {
-            if (mountPoint.Prefix == file_system::Path::TMP_MOUNT_POINT_ID.GetString())
+            if (mountPoint.Prefix == file_system::Path::TMP_MOUNT_POINT_ID.getString())
                 continue;
 
             const FilePath shaderIncludePath = mountPoint.Path / "shaders/";

@@ -4,24 +4,22 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace onyx::rhi
-{
-    struct FramebufferSettings;
-    class GraphicsSystem;
-    class RenderPassCache;
+namespace onyx::rhi {
+struct FramebufferSettings;
+class GraphicsSystem;
+class RenderPassCache;
 
-    class FramebufferCache : public NonCopyable
-    {
-    public:
-        FramebufferCache(GraphicsSystem& graphicsSystem);
+class FramebufferCache : public NonCopyable {
+  public:
+    FramebufferCache( GraphicsSystem& graphicsSystem );
 
-        void Clear();
+    void Clear();
 
-        FramebufferHandle GetOrCreateFramebuffer(const FramebufferSettings& settings);
+    FramebufferHandle GetOrCreateFramebuffer( const FramebufferSettings& settings );
 
-    private:
-        GraphicsSystem& m_GraphicsSystem;
+  private:
+    GraphicsSystem& m_GraphicsSystem;
 
-        HashMap<onyxU64, FramebufferHandle> m_Cache;
-    };
-}
+    HashMap< uint64_t, FramebufferHandle > m_Cache;
+};
+} // namespace onyx::rhi

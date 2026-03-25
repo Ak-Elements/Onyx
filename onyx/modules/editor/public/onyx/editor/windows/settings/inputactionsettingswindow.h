@@ -2,99 +2,95 @@
 
 #include <onyx/editor/windows/editorwindow.h>
 
-#include <onyx/inputactions/inputactionsasset.h>
-#include <onyx/input/inputevent.h>
 #include <onyx/editor/commands/commandgraph.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/input/inputevent.h>
+#include <onyx/inputactions/inputactionsasset.h>
 #include <onyx/localization/localizedstring.h>
 #include <onyx/ui/imguiwindow.h>
 
-namespace onyx::localization
-{
-    class LocalizationModule;
+namespace onyx::localization {
+class LocalizationModule;
 }
 
-namespace onyx::assets
-{
-    class AssetSystem;
+namespace onyx::assets {
+class AssetSystem;
 }
 
-namespace onyx::input
-{
-    struct InputActionsMap;
-    class InputSystem;
-    class InputBinding;
-    struct InputActionContext;
+namespace onyx::input {
+struct InputActionsMap;
+class InputSystem;
+class InputBinding;
+struct InputActionContext;
+} // namespace onyx::input
+
+namespace onyx::input_actions {
+struct InputActionEvent;
 }
 
-namespace onyx::input_actions
-{
-    struct InputActionEvent;
-}
+namespace onyx::editor {
+class InputActionSettingsWindow : public ui::ImGuiWindow {
+    friend struct InputActionCommand;
 
-namespace onyx::editor
-{
-    class InputActionSettingsWindow : public ui::ImGuiWindow
-    {
-        friend struct InputActionCommand;
-    public:
-        static constexpr StringView WindowId = "InputActionSettings";
-        static constexpr StringView WindowCategory = "Input";
-        
-        StringView GetWindowId() override { return WindowId; }
+  public:
+    static constexpr StringView WindowId = "InputActionSettings";
+    static constexpr StringView WindowCategory = "Input";
 
-        StringId64 GetSelectedActionId() const { return m_SelectedActionId; }
-        StringId64 GetSelectedBindingIndex() const { return m_SelectedBindingIndex; }
-    private:
-        void OnOpen() override;
-        void OnRender(ui::ImGuiSystem& imguiSystem) override;
-        void OnClose() override;
+    StringView GetWindowId() override { return WindowId; }
 
-        void OnMouseAxisChange(const input::MouseAxisEvent& event);
-        void OnMouseButton(const input::MouseButtonEvent& event);
-        void OnMousePositionChange(const input::MousePositionEvent& event);
+    StringId64 GetSelectedActionId() const { return m_SelectedActionId; }
+    StringId64 GetSelectedBindingIndex() const { return m_SelectedBindingIndex; }
 
-        void OnKey(const input::KeyboardEvent& event);
+  private:
+    void OnOpen() override;
+    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+    void OnClose() override;
 
-        void OnControllerAxisChange(const input::GameControllerAxisEvent& event);
-        void OnControllerButton(const input::GameControllerButtonEvent& event);
+    void OnMouseAxisChange( const input::MouseAxisEvent& event );
+    void OnMouseButton( const input::MouseButtonEvent& event );
+    void OnMousePositionChange( const input::MousePositionEvent& event );
 
-        void RenderInputActions();
-        
-        void RenderBindings(bool& isSelected, DynamicArray<UniquePtr<input_actions::InputBinding>>& bindings);
-        void RenderBinding(bool& isSelected, onyxS32 bindingIndex, input_actions::InputBinding& binding);
+    void OnKey( const input::KeyboardEvent& event );
 
-        void RenderActionProperties();
-        void RenderSelectedBindingProperties();
+    void OnControllerAxisChange( const input::GameControllerAxisEvent& event );
+    void OnControllerButton( const input::GameControllerButtonEvent& event );
 
-        void MarkAsDirty() { m_IsDirty = true; }
+    void RenderInputActions();
 
-        void OnInputAssetLoaded(assets::AssetHandle<input_actions::InputActionsContext> inputActionsAsset);
+    void RenderBindings( bool& isSelected, DynamicArray< UniquePtr< input_actions::InputBinding > >& bindings );
+    void RenderBinding( bool& isSelected, int32_t bindingIndex, input_actions::InputBinding& binding );
 
-        assets::AssetId GetOpenAssetId() const { return m_InputContextAssetId; }
-        void BindInputBindingSlot(input::InputID inputId);
+    void RenderActionProperties();
+    void RenderSelectedBindingProperties();
 
-        input_actions::InputActionsMap& GetOpenActionsContext() { return m_OpenInputContext; }
+    void MarkAsDirty() { m_IsDirty = true; }
 
-        void OnDeleteAction(const input_actions::InputActionEvent& deleteAction);
+    void OnInputAssetLoaded( assets::AssetHandle< input_actions::InputActionsContext > inputActionsAsset );
 
-    private:
-        CommandGraph<input_actions::InputActionsMap> m_CommandsHistory;
+    assets::AssetId GetOpenAssetId() const { return m_InputContextAssetId; }
+    void BindInputBindingSlot( input::InputID inputId );
 
-        // Copy of InputActionAsset to edit until save
-        assets::AssetId m_InputContextAssetId;
-        input_actions::InputActionsMap m_OpenInputContext;
-      
-        DynamicArray<bool> m_MapsSelectedStates;
-        DynamicArray<bool> m_ActionsSelectedStates;
+    input_actions::InputActionsMap& GetOpenActionsContext() { return m_OpenInputContext; }
 
-        StringId64 m_SelectedActionId = StringId64::Invalid;
-        onyxS32 m_SelectedActionIndex = INVALID_INDEX_32;
+    void OnDeleteAction( const input_actions::InputActionEvent& deleteAction );
 
-        onyxS32 m_SelectedBindingIndex = INVALID_INDEX_32;
-        onyxS32 m_SelectedBindingSlotIndex = INVALID_INDEX_32;
+  private:
+    CommandGraph< input_actions::InputActionsMap > m_CommandsHistory;
 
-        bool m_IsListeningOnInput = false;
-        bool m_IsDirty = false;
-    };
-}
+    // Copy of InputActionAsset to edit until save
+    assets::AssetId m_InputContextAssetId;
+    input_actions::InputActionsMap m_OpenInputContext;
+
+    DynamicArray< bool > m_MapsSelectedStates;
+    DynamicArray< bool > m_ActionsSelectedStates;
+
+    StringId64 m_SelectedActionId = StringId64::Invalid;
+    int32_t m_SelectedActionIndex = InvalidIndex32;
+
+    int32_t m_SelectedBindingIndex = InvalidIndex32;
+    int32_t m_SelectedBindingSlotIndex = InvalidIndex32;
+
+    bool m_IsListeningOnInput = false;
+    bool m_IsDirty = false;
+};
+} // namespace onyx::editor

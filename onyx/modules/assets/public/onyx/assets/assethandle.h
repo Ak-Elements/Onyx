@@ -3,149 +3,135 @@
 #include <onyx/assets/assetid.h>
 
 #include <onyx/serialize/deserializer.h>
-#include<onyx/serialize/serializer.h>
+#include <onyx/serialize/serializer.h>
 
-namespace onyx::assets
-{
-    template <typename T>
-    class AssetHandle
-    {
-        template <typename U>
-        friend class AssetHandle;
+namespace onyx::assets {
+template < typename T > class AssetHandle {
+    template < typename U > friend class AssetHandle;
 
-    public:
-        AssetHandle() = default;
-        AssetHandle(AssetId id, Reference<T> handle) : Id(id), Handle(handle) {}
+  public:
+    AssetHandle() = default;
+    AssetHandle( AssetId id, Reference< T > handle )
+        : m_id( id )
+        , m_handle( handle ) {}
 
-        AssetHandle(const AssetHandle& other)
-            : Id(other.Id)
-            , Handle(other.Handle)
-        {
-        }
+    AssetHandle( const AssetHandle& other )
+        : m_id( other.m_id )
+        , m_handle( other.m_handle ) {}
 
-        template <typename U> requires std::is_base_of_v<T, U> || std::is_base_of_v<U, T>
-        AssetHandle(const AssetHandle<U>& other)
-            : Id(other.Id)
-            , Handle(other.Handle)
-        {
-        }
+    template < typename U >
+    requires std::is_base_of_v< T, U > || std::is_base_of_v< U, T >
+    explicit AssetHandle( const AssetHandle< U >& other )
+        : m_id( other.m_id )
+        , m_handle( other.m_handle ) {}
 
+    AssetHandle( AssetHandle&& other ) noexcept
+        : m_id( std::move( other.m_id ) )
+        , m_handle( std::move( other.m_handle ) ) {}
 
-        AssetHandle(AssetHandle&& other) noexcept
-            : Id(other.Id)
-            , Handle(std::move(other.Handle))
-        {
-        }
+    template < typename U >
+    requires std::is_base_of_v< T, U > || std::is_base_of_v< U, T >
+    explicit AssetHandle( AssetHandle< U >&& other ) noexcept
+        : m_id( other.m_id )
+        , m_handle( std::move( other.m_handle ) ) {}
 
-        template <typename U> requires std::is_base_of_v<T, U> || std::is_base_of_v<U, T>
-        AssetHandle(AssetHandle<U>&& other) noexcept
-            : Id(other.Id)
-            , Handle(std::move(other.Handle))
-        {
-        }
-
-        AssetHandle& operator=(const AssetHandle& other)
-        {
-            if (this == &other)
-                return *this;
-
-            Id = other.Id;
-            Handle = other.Handle;
+    AssetHandle& operator=( const AssetHandle& other ) {
+        if ( this == &other )
             return *this;
-        }
 
-        template <typename U> requires std::is_base_of_v<T, U> || std::is_base_of_v<U, T>
-        AssetHandle& operator=(const AssetHandle<U>& other)
-        {
-            Id = other.Id;
-            Handle = other.Handle;
+        m_id = other.m_id;
+        m_handle = other.m_handle;
+        return *this;
+    }
+
+    template < typename U >
+    requires std::is_base_of_v< T, U > || std::is_base_of_v< U, T >
+    AssetHandle& operator=( const AssetHandle< U >& other ) {
+        m_id = other.m_id;
+        m_handle = other.m_handle;
+        return *this;
+    }
+
+    template < typename U >
+    requires std::is_base_of_v< T, U > || std::is_base_of_v< U, T >
+    AssetHandle& operator=( AssetHandle< U >&& other ) noexcept {
+        m_id = other.m_id;
+        m_handle = std::move( other.m_handle );
+        return *this;
+    }
+
+    AssetHandle& operator=( AssetHandle&& other ) noexcept {
+        if ( this == &other )
             return *this;
+
+        m_id = other.m_id;
+        m_handle = std::move( other.m_handle );
+        return *this;
+    }
+
+    bool operator==( const AssetHandle& other ) const { return m_id == other.m_id; }
+    bool operator!=( const AssetHandle& other ) const { return m_id != other.m_id; }
+
+    ONYX_NO_DISCARD bool hasAssetId() const { return m_id.isValid(); }
+    ONYX_NO_DISCARD bool isValid() const { return m_handle.isValid(); }
+    ONYX_NO_DISCARD bool hasHandle() const { return m_handle != Reference< T >::invalid(); }
+
+    ONYX_NO_DISCARD bool isLoading() const { return isValid() && m_handle->isLoading(); }
+    ONYX_NO_DISCARD bool isLoaded() const { return isValid() && m_handle->isLoaded(); }
+
+    void reset() {
+        m_id = AssetId::invalid();
+        m_handle.reset();
+    }
+
+    template < typename U >
+    requires std::is_base_of_v< T, U > || std::is_base_of_v< U, T >
+    U& as() {
+        return m_handle.template as< U >();
+    }
+
+    template < typename U >
+    requires std::is_base_of_v< T, U > || std::is_base_of_v< U, T >
+    const U& as() const {
+        return m_handle.template as< U >();
+    }
+
+    T* operator->() { return m_handle.raw(); }
+    const T* operator->() const { return m_handle.raw(); }
+
+    T& operator*() { return *m_handle; }
+    const T& operator*() const { return *m_handle; }
+
+    ONYX_NO_DISCARD AssetId getId() const { return m_id; }
+    void setId( AssetId id ) {
+        if ( id != m_id ) {
+            m_id = id;
+            m_handle.reset();
+        }
+    }
+
+    Reference< T >& getHandle() { return m_handle; }
+
+  private:
+    AssetId m_id;
+    Reference< T > m_handle;
+};
+} // namespace onyx::assets
+
+namespace onyx {
+template < typename U > struct Serialization< assets::AssetHandle< U > > {
+    static bool serialize( Serializer& serializer, const assets::AssetHandle< U >& assetHandle ) {
+        return serializer.write< "assetId" >( assetHandle.getId() );
+    }
+    static bool deserialize( const Deserializer& deserializer, assets::AssetHandle< U >& outAssetHandle ) {
+        assets::AssetId assetId;
+        if ( deserializer.read< "assetId" >( assetId ) ) {
+            outAssetHandle.setId( assetId );
+            return true;
         }
 
-        template <typename U> requires std::is_base_of_v<T, U> || std::is_base_of_v<U, T>
-        AssetHandle& operator=(AssetHandle<U>&& other) noexcept
-        {
-            Id = other.Id;
-            Handle = std::move(other.Handle);
-            return *this;
-        }
+        return false;
+    }
+};
 
-        AssetHandle& operator=(AssetHandle&& other) noexcept
-        {
-            if (this == &other)
-                return *this;
-
-            Id = other.Id;
-            Handle = std::move(other.Handle);
-            return *this;
-        }
-
-        bool operator==(const AssetHandle& other) const { return Id == other.Id; }
-        bool operator!=(const AssetHandle& other) const { return Id != other.Id; }
-
-        bool HasAssetId() const { return Id != AssetId::Invalid; }
-        bool IsValid() const { return Handle.IsValid(); }
-        bool HasHandle() const { return Handle != Reference<T>::Invalid(); }
-
-        bool IsLoading() const { return IsValid() && Handle->IsLoading(); }
-        bool IsLoaded() const { return IsValid() && Handle->IsLoaded(); }
-
-        void Reset()
-        {
-            Id = AssetId::Invalid;
-            Handle.Reset();
-        }
-
-        template <typename U> requires std::is_base_of_v<T, U> || std::is_base_of_v<U, T>
-        U& As() { return Handle.template As<U>(); }
-
-        template <typename U> requires std::is_base_of_v<T, U> || std::is_base_of_v<U, T>
-        const U& As() const { return Handle.template As<U>(); }
-
-        T* operator->() { return Handle.Raw(); }
-        const T* operator->() const { return Handle.Raw(); }
-
-        T& operator*() { return *Handle; }
-        const T& operator*() const { return *Handle; }
-
-        AssetId GetId() const { return Id; }
-        void SetId(AssetId id)
-        {
-            if (id != Id)
-            {
-                Id = id;
-                Handle.Reset();
-            }
-        }
-
-        Reference<T>& GetHandle() { return Handle; }
-
-    private:
-        AssetId Id;
-        Reference<T> Handle;
-    };
-}
-
-namespace onyx
-{
-    template <typename U>
-    struct Serialization<assets::AssetHandle<U>>
-    {
-        static bool Serialize(Serializer& serializer, const assets::AssetHandle<U>& assetHandle)
-        {
-            return serializer.Write<"assetId">(assetHandle.GetId());
-        }
-        static bool Deserialize(const Deserializer& deserializer, assets::AssetHandle<U>& outAssetHandle)
-        {
-            assets::AssetId assetId;
-            if (deserializer.Read<"assetId">(assetId))
-            {
-                outAssetHandle.SetId(assetId);
-                return true;
-            }
-
-            return false;
-        }
-    };
-
-}
+} // namespace onyx

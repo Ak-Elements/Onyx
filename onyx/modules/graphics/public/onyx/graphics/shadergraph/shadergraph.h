@@ -3,70 +3,64 @@
 #include <onyx/nodegraph/graph.h>
 #include <onyx/rhi/graphicshandles.h>
 
-namespace onyx::rhi
-{
-    class ShaderGenerator;
+namespace onyx::rhi {
+class ShaderGenerator;
 }
 
-namespace onyx::file_system
-{
-    class FileStream;
+namespace onyx::file_system {
+class FileStream;
 }
 
-namespace onyx::graphics
-{
-    class TextureAsset;
-    class ShaderGraphNode;
+namespace onyx::graphics {
+class TextureAsset;
+class ShaderGraphNode;
 
-    enum class ShaderPass
-    {
-        Surface, // PBR Material 
-        PostProcess,
-        UI,
-        // Volume, Light etc.
-    };
+enum class ShaderPass {
+    Surface, // PBR Material
+    PostProcess,
+    UI,
+    // Volume, Light etc.
+};
 
-    enum class ShadingModel
-    {
-        Lit,
-        Unlit,
-        // Subsurface scattering etc.
-    };
+enum class ShadingModel {
+    Lit,
+    Unlit,
+    // Subsurface scattering etc.
+};
 
-    class ShaderGraphTextures
-    {
-    public:
-        onyxU32 AddTexture(const rhi::TextureHandle& texture);
-        const DynamicArray<onyxU32>& GetTextures() const { return Textures; }
-    private:
-        DynamicArray<onyxU32> Textures;
-    };
+class ShaderGraphTextures {
+  public:
+    uint32_t AddTexture( const rhi::TextureHandle& texture );
+    const DynamicArray< uint32_t >& GetTextures() const { return Textures; }
 
-    class ShaderGraph : public assets::Asset<ShaderGraph>
-    {
-    public:
-        node_graph::NodeGraph& GetNodeGraph() { return Graph; }
-        const node_graph::NodeGraph& GetNodeGraph() const { return Graph; }
+  private:
+    DynamicArray< uint32_t > Textures;
+};
 
-      //  void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
+class ShaderGraph : public assets::Asset< ShaderGraph > {
+  public:
+    node_graph::NodeGraph& GetNodeGraph() { return Graph; }
+    const node_graph::NodeGraph& GetNodeGraph() const { return Graph; }
+
+    //  void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
-        const String& GetShaderCode() const { return ShaderCode; }
-        bool GenerateShader(rhi::ShaderGenerator& generator);
+    const String& GetShaderCode() const { return ShaderCode; }
+    bool GenerateShader( rhi::ShaderGenerator& generator );
 #endif
 
-        bool Serialize(Serializer& serializer) const;
-        bool Deserialize(const Deserializer& deserializer);
+    bool serialize( Serializer& serializer ) const;
+    bool deserialize( const Deserializer& deserializer );
 
-    private:
-        virtual bool OnSerialize(Serializer& /*serializer*/) const { return true; }
-        virtual bool OnDeserialize(const Deserializer& /*deserializer*/) { return true; }
+  private:
+    virtual bool OnSerialize( Serializer& /*serializer*/ ) const { return true; }
+    virtual bool OnDeserialize( const Deserializer& /*deserializer*/ ) { return true; }
 
-    private:
+  private:
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
-        String ShaderCode;
+    String ShaderCode;
 #endif
 
-        node_graph::NodeGraph Graph;
-    };
-}
+    node_graph::NodeGraph Graph;
+};
+} // namespace onyx::graphics

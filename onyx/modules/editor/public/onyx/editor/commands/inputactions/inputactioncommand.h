@@ -1,28 +1,25 @@
 
 #pragma once
 
-#include <onyx/editor/commands/command.h>
 #include <onyx/assets/assetid.h>
+#include <onyx/editor/commands/command.h>
 
-namespace onyx::input_actions
-{
-    struct InputActionsMap;
+namespace onyx::input_actions {
+struct InputActionsMap;
 }
 
-namespace onyx::editor
-{
-    class InputActionSettingsWindow;
+namespace onyx::editor {
+class InputActionSettingsWindow;
 
-    struct InputActionCommand : public ICommand
-    {
-    public:
-        InputActionCommand(StringId32 id, InputActionSettingsWindow& inputSettingsWindow);
+struct InputActionCommand : public ICommand {
+  public:
+    InputActionCommand( StringId32 id, InputActionSettingsWindow& inputSettingsWindow );
 
-    protected:
-        input_actions::InputActionsMap& GetInputActionsContext();
-        
-    private:
-        assets::AssetId m_AssetId = assets::AssetId::Invalid;
-        InputActionSettingsWindow* m_SettingsWindow = nullptr;
-    };
-}
+  protected:
+    input_actions::InputActionsMap& GetInputActionsContext();
+
+  private:
+    assets::AssetId m_AssetId = assets::AssetId::invalid();
+    InputActionSettingsWindow* m_SettingsWindow = nullptr;
+};
+} // namespace onyx::editor

@@ -22,11 +22,9 @@ set(onyx_TARGET_PUBLIC_SOURCES
     stringid.h
     time.h
     typetraits.h
-    container/arrayview.h
     container/directedacyclicgraph.h
     container/inplacearray.h
     container/memorybuffer.h
-    container/staticarray.h
     container/typelist.h
     engine/enginesystem.h
     engine/enginesystemfactory.h
@@ -84,7 +82,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
-    assert.cpp
     debugging.cpp
     guid.cpp
     hash.cpp

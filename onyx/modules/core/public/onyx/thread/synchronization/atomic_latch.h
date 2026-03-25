@@ -1,63 +1,50 @@
 #pragma once
 
-#define onyxLock(m) std::lock_guard<std::mutex> lock { m };
+#define onyxLock( m ) std::lock_guard< std::mutex > lock{ m };
 
-namespace onyx
-{
-    namespace threading
-    {
-        struct AtomicLatch
-        {
-            AtomicLatch() = default;
-            AtomicLatch(onyxS32 counterVal) : m_Counter(counterVal) {}
+namespace onyx::threading {
+struct AtomicLatch {
+    AtomicLatch() = default;
+    explicit AtomicLatch( int32_t counterVal )
+        : m_counter( counterVal ) {}
 
-            AtomicLatch(const AtomicLatch& other)
-                : m_Counter(other.m_Counter.load()) {}
+    AtomicLatch( const AtomicLatch& other )
+        : m_counter( other.m_counter.load() ) {}
 
-            AtomicLatch& operator=(const AtomicLatch& other)
-            {
-                if (this == &other)
-                    return *this;
-                m_Counter = other.m_Counter.load();
-                return *this;
-            }
-
-            void SetCounter(onyxS32 counterVal) { m_Counter = counterVal; }
-            void Increment(onyxS32 val)
-            {
-                m_Counter += val;
-            }
-
-            bool Decrement()
-            {
-                if (m_Counter == 0)
-                    return true;
-
-                if (m_Counter.fetch_sub(1) == 1)
-                {
-                    m_Counter.notify_all();
-                    return true;
-                }
-
-                return false;
-            }
-
-            void Wait()
-            {
-                if (m_Counter == 0)
-                    return;
-
-                onyxS32 counter = m_Counter;
-                while (counter != 0)
-                {
-                    std::atomic_wait(&m_Counter, counter);
-                    counter = m_Counter;
-                }
-
-            }
-
-        private:
-            Atomic<onyxS32> m_Counter = 0;
-        };
+    AtomicLatch& operator=( const AtomicLatch& other ) {
+        if ( this == &other )
+            return *this;
+        m_counter = other.m_counter.load();
+        return *this;
     }
-}
+
+    void setCounter( int32_t counterVal ) { m_counter = counterVal; }
+    void increment( int32_t val ) { m_counter += val; }
+
+    bool decrement() {
+        if ( m_counter == 0 )
+            return true;
+
+        if ( m_counter.fetch_sub( 1 ) == 1 ) {
+            m_counter.notify_all();
+            return true;
+        }
+
+        return false;
+    }
+
+    void wait() {
+        if ( m_counter == 0 )
+            return;
+
+        int32_t counter = m_counter;
+        while ( counter != 0 ) {
+            std::atomic_wait( &m_counter, counter );
+            counter = m_counter;
+        }
+    }
+
+  private:
+    Atomic< int32_t > m_counter = 0;
+};
+} // namespace onyx::threading

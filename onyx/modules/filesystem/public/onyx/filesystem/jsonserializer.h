@@ -1,96 +1,94 @@
 #pragma once
 
-#include <onyx/serialize/serializer.h>
 #include <nlohmann/json.hpp>
+#include <onyx/serialize/serializer.h>
 
-namespace onyx::file_system
-{
-    class JsonSerializer : public Serializer
-    {
-    public:
-        JsonSerializer();
+namespace onyx::file_system {
+class JsonSerializer : public Serializer {
+  public:
+    JsonSerializer();
 
-    private:
-        template <typename T>
-        bool DoGenericWrite(T outValue);
+  private:
+    template < typename T >
+    bool DoGenericWrite( T outValue );
 
-        template <std::integral T>
-        bool DoGenericWrite(T outValue, onyxU8 base);
+    template < std::integral T >
+    bool DoGenericWrite( T outValue, uint8_t base );
 
-        template <typename T>
-        bool DoGenericWrite(StringView name, T outValue);
+    template < typename T >
+    bool DoGenericWrite( StringView name, T outValue );
 
-        template <std::integral T>
-        bool DoGenericWrite(StringView name, T outValue, onyxU8 base);
+    template < std::integral T >
+    bool DoGenericWrite( StringView name, T outValue, uint8_t base );
 
-        nlohmann::ordered_json& GetCurrent();
-        nlohmann::ordered_json& GetCurrent() const;
+    nlohmann::ordered_json& GetCurrent();
+    nlohmann::ordered_json& GetCurrent() const;
 
-        bool DoWrite(bool value) override;
-        bool DoWrite(StringView name, bool value) override;
+    bool doWrite( bool value ) override;
+    bool doWrite( StringView name, bool value ) override;
 
-        bool DoWrite(onyxS8 value) override;
-        bool DoWrite(onyxS16 value) override;
-        bool DoWrite(onyxS32 value) override;
-        bool DoWrite(onyxS64 value) override;
-        bool DoWrite(onyxU8 value) override;
-        bool DoWrite(onyxU16 value) override;
-        bool DoWrite(onyxU32 value) override;
-        bool DoWrite(onyxU64 value) override;
-        bool DoWrite(onyxS8 value, onyxU8 base) override;
-        bool DoWrite(onyxS16 value, onyxU8 base) override;
-        bool DoWrite(onyxS32 value, onyxU8 base) override;
-        bool DoWrite(onyxS64 value, onyxU8 base) override;
-        bool DoWrite(onyxU8 value, onyxU8 base) override;
-        bool DoWrite(onyxU16 value, onyxU8 base) override;
-        bool DoWrite(onyxU32 value, onyxU8 base) override;
-        bool DoWrite(onyxU64 value, onyxU8 base) override;
+    bool doWrite( int8_t value ) override;
+    bool doWrite( int16_t value ) override;
+    bool doWrite( int32_t value ) override;
+    bool doWrite( int64_t value ) override;
+    bool doWrite( uint8_t value ) override;
+    bool doWrite( uint16_t value ) override;
+    bool doWrite( uint32_t value ) override;
+    bool doWrite( uint64_t value ) override;
+    bool doWrite( int8_t value, uint8_t base ) override;
+    bool doWrite( int16_t value, uint8_t base ) override;
+    bool doWrite( int32_t value, uint8_t base ) override;
+    bool doWrite( int64_t value, uint8_t base ) override;
+    bool doWrite( uint8_t value, uint8_t base ) override;
+    bool doWrite( uint16_t value, uint8_t base ) override;
+    bool doWrite( uint32_t value, uint8_t base ) override;
+    bool doWrite( uint64_t value, uint8_t base ) override;
 
-        bool DoWrite(StringView name, onyxS8 value) override;
-        bool DoWrite(StringView name, onyxS16 value) override;
-        bool DoWrite(StringView name, onyxS32 value) override;
-        bool DoWrite(StringView name, onyxS64 value) override;
-        bool DoWrite(StringView name, onyxU8 value) override;
-        bool DoWrite(StringView name, onyxU16 value) override;
-        bool DoWrite(StringView name, onyxU32 value) override;
-        bool DoWrite(StringView name, onyxU64 value) override;
-        bool DoWrite(StringView name, onyxS8 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxS16 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxS32 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxS64 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxU8 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxU16 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxU32 value, onyxU8 base) override;
-        bool DoWrite(StringView name, onyxU64 value, onyxU8 base) override;
+    bool doWrite( StringView name, int8_t value ) override;
+    bool doWrite( StringView name, int16_t value ) override;
+    bool doWrite( StringView name, int32_t value ) override;
+    bool doWrite( StringView name, int64_t value ) override;
+    bool doWrite( StringView name, uint8_t value ) override;
+    bool doWrite( StringView name, uint16_t value ) override;
+    bool doWrite( StringView name, uint32_t value ) override;
+    bool doWrite( StringView name, uint64_t value ) override;
+    bool doWrite( StringView name, int8_t value, uint8_t base ) override;
+    bool doWrite( StringView name, int16_t value, uint8_t base ) override;
+    bool doWrite( StringView name, int32_t value, uint8_t base ) override;
+    bool doWrite( StringView name, int64_t value, uint8_t base ) override;
+    bool doWrite( StringView name, uint8_t value, uint8_t base ) override;
+    bool doWrite( StringView name, uint16_t value, uint8_t base ) override;
+    bool doWrite( StringView name, uint32_t value, uint8_t base ) override;
+    bool doWrite( StringView name, uint64_t value, uint8_t base ) override;
 
-        bool DoWrite(onyxF32 value) override;
-        bool DoWrite(onyxF64 value) override;
-        bool DoWrite(StringView name, onyxF32 value) override;
-        bool DoWrite(StringView name, onyxF64 value) override;
+    bool doWrite( float32 value ) override;
+    bool doWrite( float64 value ) override;
+    bool doWrite( StringView name, float32 value ) override;
+    bool doWrite( StringView name, float64 value ) override;
 
-        bool DoWrite(StringView value) override;
-        bool DoWrite(StringView name, StringView value) override;
+    bool doWrite( StringView value ) override;
+    bool doWrite( StringView name, StringView value ) override;
 
-        bool CreateScope(onyxU32 index) override;
+    bool createScope( uint32_t index ) override;
 
-        bool CreateScope(onyxU64 index) override;
+    bool createScope( uint64_t index ) override;
 
-        bool CreateScope(StringView name) override;
+    bool createScope( StringView name ) override;
 
-        bool EndScope() override;
+    bool endScope() override;
 
-        bool WriteItemsCount(onyxU8 /*count*/) override { return true; }
-        bool WriteItemsCount(onyxU16 /*count*/) override { return true; }
-        bool WriteItemsCount(onyxU32 /*count*/) override { return true; }
-        bool WriteItemsCount(onyxU64 /*count*/) override { return true; }
+    bool writeItemsCount( uint8_t /*count*/ ) override { return true; }
+    bool writeItemsCount( uint16_t /*count*/ ) override { return true; }
+    bool writeItemsCount( uint32_t /*count*/ ) override { return true; }
+    bool writeItemsCount( uint64_t /*count*/ ) override { return true; }
 
-        bool IsSupportingIntegralScopes() const override { return false; }
+    bool isSupportingIntegralScopes() const override { return false; }
 
-    public:
-        nlohmann::ordered_json JsonRoot;
+  public:
+    nlohmann::ordered_json JsonRoot;
 
-    private:
-        mutable Stack<nlohmann::ordered_json*> JsonNodes;
-        mutable StringView m_CurrentScopeName;
-    };
-}
+  private:
+    mutable Stack< nlohmann::ordered_json* > JsonNodes;
+    mutable StringView m_CurrentScopeName;
+};
+} // namespace onyx::file_system

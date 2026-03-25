@@ -4,40 +4,41 @@
 #include <onyx/rhi/vulkan/graphicsapi.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace onyx::rhi::vulkan
-{
-    class Sampler;
-    class Device;
-    class VulkanTextureStorage;
-    class VulkanGraphicsApi;
+namespace onyx::rhi::vulkan {
+class Sampler;
+class Device;
+class VulkanTextureStorage;
+class VulkanGraphicsApi;
 
-	class VulkanTexture : public rhi::Texture
-	{
-	public:
-		VulkanTexture(VulkanGraphicsApi& api, const TextureProperties& properties, const VulkanTextureStorage* storage);
-        VulkanTexture(VulkanGraphicsApi& api, const TextureProperties& properties, const VulkanTextureStorage* storage, onyxS8 aliasIndex);
-        ~VulkanTexture() override;
+class VulkanTexture : public rhi::Texture {
+  public:
+    VulkanTexture( VulkanGraphicsApi& api, const TextureProperties& properties, const VulkanTextureStorage* storage );
+    VulkanTexture( VulkanGraphicsApi& api,
+                   const TextureProperties& properties,
+                   const VulkanTextureStorage* storage,
+                   int8_t aliasIndex );
+    ~VulkanTexture() override;
 
-        const VkDescriptorImageInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
+    const VkDescriptorImageInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 
-        bool HasSampler() const { return m_Sampler.IsValid(); }
+    bool HasSampler() const { return m_Sampler.isValid(); }
 
-    private:
-        void Init(const VulkanGraphicsApi& api, onyxS8 aliasIndex);
-        void UpdateDescriptorInfo();
+  private:
+    void Init( const VulkanGraphicsApi& api, int8_t aliasIndex );
+    void UpdateDescriptorInfo();
 
-        static VkImageViewType GetType(TextureType type, bool isArray);
-        TextureFormat ResolveTextureFormat(TextureFormat viewFormat, TextureFormat storageFormat);
+    static VkImageViewType GetType( TextureType type, bool isArray );
+    TextureFormat ResolveTextureFormat( TextureFormat viewFormat, TextureFormat storageFormat );
 
-        void Release() override;
+    void Release() override;
 
-    private:
-        VulkanGraphicsApi* m_Api = nullptr;
-        
-		VULKAN_HANDLE(VkImageView, ImageView, nullptr);
+  private:
+    VulkanGraphicsApi* m_Api = nullptr;
 
-        Reference<rhi::Sampler> m_Sampler;
+    VULKAN_HANDLE( VkImageView, ImageView, nullptr );
 
-        VkDescriptorImageInfo m_DescriptorInfo;
-	};
-}
+    Reference< rhi::Sampler > m_Sampler;
+
+    VkDescriptorImageInfo m_DescriptorInfo;
+};
+} // namespace onyx::rhi::vulkan

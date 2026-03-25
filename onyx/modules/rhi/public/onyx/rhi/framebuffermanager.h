@@ -3,29 +3,28 @@
 #include <onyx/noncopyable.h>
 #include <onyx/onyx_types.h>
 
-namespace onyx::rhi
-{
-    struct FramebufferSettings;
-    class Texture;
-    class Framebuffer;
-    class GraphicsApi;
-    class RenderPassCache;
+namespace onyx::rhi {
+struct FramebufferSettings;
+class Texture;
+class Framebuffer;
+class GraphicsApi;
+class RenderPassCache;
 
-    class FramebufferCache : NonCopyable
-    {
-        using FramebufferKey = onyxU32;
-    public:
-        FramebufferCache(GraphicsApi& graphicsApi);
+class FramebufferCache : NonCopyable {
+    using FramebufferKey = uint32_t;
 
-        const Framebuffer& GetFramebuffer(FramebufferKey& key);
-        FramebufferKey GetFramebuffer(const FramebufferSettings& frameBufferSettings, Framebuffer& outFrameBuffer);
+  public:
+    FramebufferCache( GraphicsApi& graphicsApi );
 
-        void OnResize(onyxU32 width, onyxU32 height);
+    const Framebuffer& GetFramebuffer( FramebufferKey& key );
+    FramebufferKey GetFramebuffer( const FramebufferSettings& frameBufferSettings, Framebuffer& outFrameBuffer );
 
-    private:
-        GraphicsApi& m_GraphicsApi;
+    void OnResize( uint32_t width, uint32_t height );
 
-        HashMap<FramebufferKey, UniquePtr<Framebuffer>> m_Framebuffers;
-        DynamicArray<UniquePtr<Framebuffer>> m_SwapchainFramebuffers;
-    };
-}
+  private:
+    GraphicsApi& m_GraphicsApi;
+
+    HashMap< FramebufferKey, UniquePtr< Framebuffer > > m_Framebuffers;
+    DynamicArray< UniquePtr< Framebuffer > > m_SwapchainFramebuffers;
+};
+} // namespace onyx::rhi

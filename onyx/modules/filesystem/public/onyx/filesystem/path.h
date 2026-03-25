@@ -58,14 +58,14 @@ namespace onyx
     template <>
     struct Serialization<FilePath>
     {
-        static bool Serialize(Serializer& serializer, const FilePath& path);
-        static bool Deserialize(const Deserializer& deserializer, FilePath& outPath);
+        static bool serialize(Serializer& serializer, const FilePath& path);
+        static bool deserialize(const Deserializer& deserializer, FilePath& outPath);
     };
 
     template <>
     struct Serialization<file_system::MountPoint>
     {
-        static bool Serialize(Serializer& serializer, const file_system::MountPoint& mountPoint);
-        static bool Deserialize(const Deserializer& deserializer, file_system::MountPoint& outMountPoint);
+        static bool serialize(Serializer& serializer, const file_system::MountPoint& mountPoint);
+        static bool deserialize(const Deserializer& deserializer, file_system::MountPoint& outMountPoint);
     };
 }

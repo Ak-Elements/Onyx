@@ -1,74 +1,59 @@
 #pragma once
 
-namespace onyx::platform
-{
-    using ResizeSignalT = Signal<void(Vector2s32)>;
-    using FocusSignalT = Signal<void(bool)>;
-    using CloseSignalT = Signal<void()>;
+#include <onyx/platform/platformfwd.h>
 
-    enum class WindowMode : onyxU8
-    {
-        Windowed,
-        Fullscreen,
-        Borderless
-    };
+namespace onyx::platform {
+using ResizeSignalT = Signal< void( Vector2s32 ) >;
+using FocusSignalT = Signal< void( bool ) >;
+using CloseSignalT = Signal< void( Window& ) >;
 
-    enum class WindowState : onyxU8
-    {
-        None,
-        Hidden,
-        Minimized,
-        Background,
-        Default,
-        Maximized,
-        Resizing,
-    };
+enum class WindowMode : uint8_t { Windowed, Fullscreen, Borderless };
 
-    enum class CursorMode : onyxU8
-    {
-        Normal,
-        Captured,
-        Disabled
-    };
+enum class WindowState : uint8_t {
+    None,
+    Hidden,
+    Minimized,
+    Background,
+    Default,
+    Maximized,
+    Resizing,
+    Closed,
+};
 
-    struct WindowSettings
-    {
-        WindowSettings() = default;
-        WindowSettings(StringView title, const Vector2u32& size, WindowMode mode)
-            : Mode(mode)
-            , Size(size)
-            , Title(title)
-        {
-        }
+enum class CursorMode : uint8_t { Normal, Captured, Disabled };
 
-        WindowMode Mode = WindowMode::Windowed;
-        onyxS8 MonitorIndex = -1;
+struct WindowSettings {
+    WindowSettings() = default;
+    WindowSettings( StringView title, const Vector2u32& size, WindowMode mode )
+        : Mode( mode )
+        , Size( size )
+        , Title( title ) {}
 
-        Vector2s32 Position{ -1 ,-1 };
-        Vector2s32 Size = { 1024, 768 };
+    WindowMode Mode = WindowMode::Windowed;
+    int8_t MonitorIndex = -1;
 
-        Vector2s32 MinSize{ 0, 0 };
-        Vector2s32 MaxSize{ 0, 0 };
+    Vector2s32 Position{ -1, -1 };
+    Vector2s32 Size = { 1024, 768 };
 
-        onyxU16 MonitorRefreshRate = 60;
-        String Title = "Onyx";
-        void* Icon = nullptr;
-        void* SmallIcon = nullptr;
+    Vector2s32 MinSize{ 0, 0 };
+    Vector2s32 MaxSize{ 0, 0 };
 
-        bool AutoMinimize = true;
-        bool HasMenu = false;
-        bool HasTitleBar = true;
-        bool IsTransparent = false;
-        bool UseVsync = true;
-    };
-}
+    uint16_t MonitorRefreshRate = 60;
+    String Title = "Onyx";
+    void* Icon = nullptr;
+    void* SmallIcon = nullptr;
 
-namespace onyx
-{
-    template <>
-    struct Serialization<platform::WindowSettings>
-    {
-        static bool Serialize(Serializer& serializer, const platform::WindowSettings& settings);
-        static bool Deserialize(const Deserializer& deserializer, platform::WindowSettings& outSettings);
-    };
-}
+    bool AutoMinimize = true;
+    bool HasMenu = false;
+    bool HasTitleBar = true;
+    bool IsTransparent = false;
+    bool UseVsync = true;
+};
+} // namespace onyx::platform
+
+namespace onyx {
+template <> struct Serialization< platform::WindowSettings > {
+    static bool serialize( Serializer& serializer, const platform::WindowSettings& settings );
+    static bool deserialize( const Deserializer& deserializer, platform::WindowSettings& outSettings );
+};
+} // namespace onyx

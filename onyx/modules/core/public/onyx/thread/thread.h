@@ -2,43 +2,43 @@
 
 #include <thread>
 
-namespace onyx
-{
-    class Thread
-    {
-    public:
-        static std::thread::id MAIN_THREAD_ID;
+namespace onyx {
+class Thread {
+  public:
+    static std::thread::id s_mainThreadId;
 
-        Thread() = default;
-        virtual ~Thread();
+    Thread() = default;
+    virtual ~Thread();
 
-        Thread(const Thread& other) = delete;
-        Thread& operator=(const Thread& other) = delete;
+    Thread( const Thread& other ) = delete;
+    Thread& operator=( const Thread& other ) = delete;
 
-        Thread(Thread&& other) = delete;
-        Thread& operator=(Thread&& other) = delete;
+    Thread( Thread&& other ) = delete;
+    Thread& operator=( Thread&& other ) = delete;
 
-        void Start();
-        void Stop(bool waitForStop);
-        static void Sleep(onyxU64 milliseconds);
-    protected:
-        bool IsRunning() const { return m_Stopped == false; }
-    private:
-        void Run();
-        
-        virtual void OnStart() {}
-        virtual void OnStop() {}
-        /*
-         * should be implemented as
-         * while (IsRunning())
-         * {
-         *      // do work
-         * }
-         * */
-        virtual void OnUpdate() {}
+    void start();
+    void stop( bool waitForStop );
+    static void sleep( uint64_t milliseconds );
 
-    private:
-        std::thread m_Thread;
-        Atomic<bool> m_Stopped;
-    };
-}
+  protected:
+    bool isRunning() const { return m_stopped == false; }
+
+  private:
+    void run();
+
+    virtual void onStart() {}
+    virtual void onStop() {}
+    /*
+     * should be implemented as
+     * while (IsRunning())
+     * {
+     *      // do work
+     * }
+     * */
+    virtual void onUpdate() {}
+
+  private:
+    std::thread m_thread;
+    Atomic< bool > m_stopped;
+};
+} // namespace onyx

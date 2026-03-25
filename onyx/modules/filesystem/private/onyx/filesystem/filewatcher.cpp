@@ -36,16 +36,16 @@ namespace onyx::file_system
     FileWatchListener listener;
 
     FileWatcher::FileWatcher()
-        : m_Watcher(MakeUnique<efsw::FileWatcher>())
+        : m_watcher(makeUnique<efsw::FileWatcher>())
     {
-        listener.OnFileChanged.Connect<&FileWatcher::OnFileAction>(this);
-        m_Watcher->watch();
+        listener.OnFileChanged.Connect<&FileWatcher::onFileAction>(this);
+        m_watcher->watch();
     }
 
     FileWatcher::FileWatcher(const FilePath& path, bool recursive)
         : FileWatcher()
     {
-        m_Watcher->addWatch(path.string(), &listener, recursive);
+        m_watcher->addWatch(path.string(), &listener, recursive);
     }
 
     FileWatcher::FileWatcher(const FilePath& path)
@@ -58,14 +58,14 @@ namespace onyx::file_system
         listener.OnFileChanged.Reset();
     }
 
-    void FileWatcher::AddPath(const FilePath& path, bool recursive)
+    void FileWatcher::addPath(const FilePath& path, bool recursive)
     {
-        m_Watcher->addWatch(path.string(), &listener, recursive);
+        m_watcher->addWatch(path.string(), &listener, recursive);
     }
 
-    void FileWatcher::OnFileAction(const FilePath& path, FileAction action)
+    void FileWatcher::onFileAction(const FilePath& path, FileAction action)
     {
-        if (OnFileChanged)
-            OnFileChanged(path, action);
+        if (onFileChanged)
+            onFileChanged(path, action);
     }
 }

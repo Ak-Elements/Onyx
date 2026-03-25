@@ -3,45 +3,42 @@
 #include <onyx/filesystem/path.h>
 #include <onyx/stream/stream.h>
 
-namespace onyx::file_system
-{
-    enum class OpenMode : onyxU8
-    {
-        Read = 1 << 0,
-        Write = 1 << 1,
-        Text = 1 << 2,
-        Binary = 1 << 3,
-        Append = 1 << 4,
+namespace onyx::file_system {
+enum class OpenMode : uint8_t {
+    Read = 1 << 0,
+    Write = 1 << 1,
+    Text = 1 << 2,
+    Binary = 1 << 3,
+    Append = 1 << 4,
 
-    };
+};
 
-class FileStream : public Stream
-{
-public:
-    FileStream(std::iostream* stream, OpenMode mode);
-    FileStream(const FilePath& path, OpenMode openMode);
+class FileStream : public Stream {
+  public:
+    FileStream( std::iostream* stream, OpenMode mode );
+    FileStream( const FilePath& path, OpenMode openMode );
     ~FileStream() override;
 
-    bool IsValid() const override { return m_Stream->good(); }
-    onyxU64 GetPosition() override { return m_Stream->tellg(); }
-    onyxU64 GetPosition() const override { return m_Stream->tellg(); }
-    void SetPosition(onyxU64 position) override;
-    bool IsEof() const override { return m_Stream->eof(); }
-    onyxU64 GetLength() const override { return m_Size; }
+    bool isValid() const override { return m_Stream->good(); }
+    uint64_t getPosition() override { return m_Stream->tellg(); }
+    uint64_t getPosition() const override { return m_Stream->tellg(); }
+    void setPosition( uint64_t position ) override;
+    bool isEof() const override { return m_Stream->eof(); }
+    uint64_t getLength() const override { return m_Size; }
 
-    void ReadAll(String& outStr) const;
+    void readAll( String& outStr ) const;
 
-    void ReadAllWithoutBOM(std::string& outStr) const;
+    void readAllWithoutBOM( std::string& outStr ) const;
 
     std::iostream& get() { return *m_Stream; }
-    void Flush();
+    void flush();
 
-private:
-    void DoRead(char* destination, onyxU64 size) const override;
-    void DoWrite(const char* data, onyxU64 size) override;
+  private:
+    void doRead( char* destination, uint64_t size ) const override;
+    void doWrite( const char* data, uint64_t size ) override;
 
-private:
-    UniquePtr<std::iostream> m_Stream;
-    onyxS64 m_Size = 0;
+  private:
+    UniquePtr< std::iostream > m_Stream;
+    int64_t m_Size = 0;
 };
-}
+} // namespace onyx::file_system

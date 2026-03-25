@@ -39,14 +39,14 @@ namespace onyx::editor
             ONYX_ASSERT(ui::g_UiContext.GraphicsSystem != nullptr);
 
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-            window.SetContext(MakeUnique<ShaderGraphEditorContext>(*ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem));
+            window.SetContext(makeUnique<ShaderGraphEditorContext>(*ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem));
             Close();
         }
 
         if (ui::Button(localization::editor::windows::RenderGraphEditorTitle, Vector2f32(200, 50)))
         {
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-            window.SetContext(MakeUnique<RenderGraphEditorContext>());
+            window.SetContext(makeUnique<RenderGraphEditorContext>());
             Close();
         }
 
@@ -56,7 +56,7 @@ namespace onyx::editor
             ONYX_ASSERT(ui::g_UiContext.GraphicsSystem != nullptr);
 
             NodeGraphEditorWindow& window = system.OpenWindow<NodeGraphEditorWindow>();
-            window.SetContext(MakeUnique<VolumeShaderGraphEditorContext>(*ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem));
+            window.SetContext(makeUnique<VolumeShaderGraphEditorContext>(*ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem));
             Close();
         }
 

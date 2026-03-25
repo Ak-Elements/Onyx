@@ -7,48 +7,43 @@
 
 #include <onyx/rhi/graphicshandles.h>
 
-namespace onyx::rhi::vulkan
-{
-    void VulkanFramebuffer::Init(const VulkanGraphicsApi& api, const FramebufferSettings& settings)
-    {
-        m_Device = &api.GetDevice();
-        m_Settings = settings;
+namespace onyx::rhi::vulkan {
+void VulkanFramebuffer::Init( const VulkanGraphicsApi& api, const FramebufferSettings& settings ) {
+    m_Device = &api.GetDevice();
+    m_Settings = settings;
 
-        // Don't create a framebuffer if we use dynamic rendering
-        if (api.IsDynamicRenderingEnabled())
-            return;
+    // Don't create a framebuffer if we use dynamic rendering
+    if ( api.IsDynamicRenderingEnabled() )
+        return;
 
-        VkFramebufferCreateInfo createInfo;
-        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        createInfo.renderPass = settings.m_RenderPass.As<VulkanRenderPass>().GetHandle();
-        createInfo.width = settings.m_Width;
-        createInfo.height = settings.m_Height;
-        createInfo.layers = settings.m_LayerCount;
-        createInfo.pNext = nullptr;
+    VkFramebufferCreateInfo createInfo;
+    createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    createInfo.renderPass = settings.m_RenderPass.as< VulkanRenderPass >().GetHandle();
+    createInfo.width = settings.m_Width;
+    createInfo.height = settings.m_Height;
+    createInfo.layers = settings.m_LayerCount;
+    createInfo.pNext = nullptr;
 
-        InplaceArray<VkImageView, MAX_RENDERPASS_ATTACHMENTS> attachments;
+    InplaceArray< VkImageView, MAX_RENDERPASS_ATTACHMENTS > attachments;
 
-        for (const TextureViewHandle& colorTargetHandle : settings.m_ColorTargets)
-        {
-            const VulkanTexture& colorTarget = colorTargetHandle.As<VulkanTexture>();
-            attachments.Add(colorTarget.GetHandle());
-        }
-
-        if (settings.m_DepthTarget)
-        {
-            const VulkanTexture& depthStencilTarget = settings.m_DepthTarget.As<VulkanTexture>();
-            attachments.Add(depthStencilTarget.GetHandle());
-        }
-
-        createInfo.attachmentCount = attachments.size();
-        createInfo.pAttachments = attachments.data();
-
-        VK_CHECK_RESULT(vkCreateFramebuffer(m_Device->GetHandle(), &createInfo, nullptr, &m_Framebuffer));
-        //TODO: Set debug name
+    for ( const TextureViewHandle& colorTargetHandle : settings.m_ColorTargets ) {
+        const VulkanTexture& colorTarget = colorTargetHandle.as< VulkanTexture >();
+        attachments.add( colorTarget.GetHandle() );
     }
 
-    VulkanFramebuffer::~VulkanFramebuffer()
-    {
-        vkDestroyFramebuffer(m_Device->GetHandle(), m_Framebuffer, nullptr);
+    if ( settings.m_DepthTarget ) {
+        const VulkanTexture& depthStencilTarget = settings.m_DepthTarget.as< VulkanTexture >();
+        attachments.add( depthStencilTarget.GetHandle() );
     }
+
+    createInfo.attachmentCount = attachments.size();
+    createInfo.pAttachments = attachments.data();
+
+    VK_CHECK_RESULT( vkCreateFramebuffer( m_Device->GetHandle(), &createInfo, nullptr, &m_Framebuffer ) );
+    // TODO: Set debug name
 }
+
+VulkanFramebuffer::~VulkanFramebuffer() {
+    vkDestroyFramebuffer( m_Device->GetHandle(), m_Framebuffer, nullptr );
+}
+} // namespace onyx::rhi::vulkan

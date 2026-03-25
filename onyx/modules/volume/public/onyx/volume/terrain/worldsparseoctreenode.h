@@ -1,33 +1,28 @@
 #pragma once
 
-namespace onyx::volume::terrain
-{
-    struct WorldChunksOctreeNode
-    {
-        onyxU64 ChildMask : 8;
-        onyxU64 ValidMask : 8;
-        onyxU64 ChildrenOffset : 24;
-        onyxU64 VoxelOffset : 24;
-    };
+namespace onyx::volume::terrain {
+struct WorldChunksOctreeNode {
+    uint64_t ChildMask : 8;
+    uint64_t ValidMask : 8;
+    uint64_t ChildrenOffset : 24;
+    uint64_t VoxelOffset : 24;
+};
 
-    struct WorldOctreeChunk
-    {
-        onyxU64 MortonIndex;
-        onyxU32 Depth;
-        onyxU32 ChunkIndex;
-    };
+struct WorldOctreeChunk {
+    uint64_t MortonIndex;
+    uint32_t Depth;
+    uint32_t ChunkIndex;
+};
 
-    struct WorldOctreeSplitRequest
-    {
-        onyxU64 MortonIndex;
-        onyxU32 OctreeNodeIndex;
-        onyxU32 ChunkIndex;
-    };
+struct WorldOctreeSplitRequest {
+    uint64_t MortonIndex;
+    uint32_t OctreeNodeIndex;
+    uint32_t ChunkIndex;
+};
 
-    struct IsoSurfaceRequest
-    {
-        onyxU64 MortonIndex;
-        onyxU32 Depth;
-        onyxU32 ChunkIndex;
-    };
-}
+struct IsoSurfaceRequest {
+    uint64_t MortonIndex;
+    uint32_t Depth;
+    uint32_t ChunkIndex;
+};
+} // namespace onyx::volume::terrain

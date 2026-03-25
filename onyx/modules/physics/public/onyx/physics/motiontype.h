@@ -1,11 +1,9 @@
 #pragma once
 
-namespace onyx::physics
-{
-    enum class MotionType : onyxU8
-    {
-        Static,
-        Kinematic,
-        Dynamic,
-    };
+namespace onyx::physics {
+enum class MotionType : uint8_t {
+    Static,
+    Kinematic,
+    Dynamic,
+};
 }

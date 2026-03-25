@@ -22,7 +22,16 @@ namespace onyx::platform
 
     using Window = wayland::Window;
     using PlatformContext = wayland::WaylandPlatformContext;
+#elif ONYX_IS_LINUX && ONYX_USE_X11
 
+    namespace x11
+    {
+        class X11PlatformContext;
+        class Window;
+    }
+
+    using Window = x11::Window;
+    using PlatformContext = x11::X11PlatformContext;
 #else
     //static_assert(false, "Unsupported window library.");
 #endif

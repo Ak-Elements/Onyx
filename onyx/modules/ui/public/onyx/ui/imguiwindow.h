@@ -71,10 +71,10 @@ namespace onyx::ui
         const ImGuiWindowClass& GetWindowClass() const { return *m_WindowClass; }
 
         template <typename T>
-        T& GetEngineSystem() { return m_Engine->GetSystem<T>(); }
+        T& GetEngineSystem() { return m_Engine->getSystem<T>(); }
 
         template <typename T>
-        const T& GetEngineSystem() const { return m_Engine->GetSystem<T>(); }
+        const T& GetEngineSystem() const { return m_Engine->getSystem<T>(); }
 
         template <typename T>
         const Optional<T*> GetParent()

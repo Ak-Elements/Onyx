@@ -1,20 +1,18 @@
 #pragma once
 
-namespace onyx
-{
-    class NonCopyable
-    {
-    public:
-        NonCopyable() = default;
+namespace onyx {
+class NonCopyable {
+  public:
+    NonCopyable() = default;
 
-        NonCopyable(const NonCopyable&) = delete;
-        const NonCopyable& operator=(const NonCopyable&) = delete;
+    NonCopyable( const NonCopyable& ) = delete;
+    const NonCopyable& operator=( const NonCopyable& ) = delete;
 
-        NonCopyable(NonCopyable&&) = default;
-        NonCopyable& operator= (NonCopyable&&) = default;
+    NonCopyable( NonCopyable&& ) = default;
+    NonCopyable& operator=( NonCopyable&& ) = default;
 
-    protected:
-        virtual ~NonCopyable() = default;
-    };
+  protected:
+    virtual ~NonCopyable() = default;
+};
 
-}
+} // namespace onyx

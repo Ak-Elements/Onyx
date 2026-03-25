@@ -1,54 +1,51 @@
 #pragma once
 
-namespace onyx::input
-{
-    enum class MouseButton : onyxU16
-    {
-        First = 0, // first is after Button_1 for the magic enum to return Button_1
-        Button_1,
-        Button_2,
-        Button_3,
-        Button_4,
-        Button_5,
-        Button_6,
-        Button_7,
-        Button_8,
+namespace onyx::input {
+enum class MouseButton : uint16_t {
+    First = 0, // first is after Button_1 for the magic enum to return Button_1
+    Button_1,
+    Button_2,
+    Button_3,
+    Button_4,
+    Button_5,
+    Button_6,
+    Button_7,
+    Button_8,
 
-        Last,
-        Invalid = 0
-    };
+    Last,
+    Invalid = 0
+};
 
-    static constexpr onyxU16 MouseButton_Count = enums::ToIntegral(MouseButton::Last) - enums::ToIntegral(MouseButton::First);
+static constexpr uint16_t MouseButton_Count = enums::toIntegral( MouseButton::Last ) -
+                                              enums::toIntegral( MouseButton::First );
 
-    enum class MouseAxis : onyxU16
-    {
-        First = enums::ToIntegral(MouseButton::Last),
+enum class MouseAxis : uint16_t {
+    First = enums::toIntegral( MouseButton::Last ),
 
-        X,
-        Y,
-        DeltaX,
-        DeltaY,
-        Wheel,
+    X,
+    Y,
+    DeltaX,
+    DeltaY,
+    Wheel,
 
-        XY,
-        DeltaXY,
+    XY,
+    DeltaXY,
 
-        Last,
-        Invalid = 0
-    };
+    Last,
+    Invalid = 0
+};
 
-    static constexpr onyxU16 MouseAxis_Count = enums::ToIntegral(MouseAxis::Last) - enums::ToIntegral(MouseAxis::First);
+static constexpr uint16_t MouseAxis_Count = enums::toIntegral( MouseAxis::Last ) -
+                                            enums::toIntegral( MouseAxis::First );
 
-    constexpr onyxU16 ToIndex(MouseButton button)
-    {
+constexpr uint16_t ToIndex( MouseButton button ) {
 #if ONYX_ASSERT_ENABLED
-        constexpr onyxU16 first = enums::ToIntegral(MouseButton::First);
-        constexpr onyxU16 last = enums::ToIntegral(MouseButton::Last);
-        ONYX_ASSERT(enums::ToIntegral(button) > first);
-        ONYX_ASSERT(enums::ToIntegral(button) < last);
+    constexpr uint16_t first = enums::ToIntegral( MouseButton::First );
+    constexpr uint16_t last = enums::ToIntegral( MouseButton::Last );
+    ONYX_ASSERT( enums::ToIntegral( button ) > first );
+    ONYX_ASSERT( enums::ToIntegral( button ) < last );
 #endif
-        onyxU16 index = enums::ToIntegral(button) - 1; // mouse buttons first is set to 0
-        return index;
-
-    }
+    uint16_t index = enums::toIntegral( button ) - 1; // mouse buttons first is set to 0
+    return index;
 }
+} // namespace onyx::input

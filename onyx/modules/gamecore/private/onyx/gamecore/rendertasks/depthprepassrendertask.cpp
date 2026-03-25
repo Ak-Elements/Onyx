@@ -1,73 +1,73 @@
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 
+#include <onyx/gamecore/scene/sceneframedata.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
+#include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
-#include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/gamecore/scene/sceneframedata.h>
-#include <onyx/profiler/profiler.h>
 
-namespace onyx::game_core
-{
-    void DepthPrePassRenderGraphNode::OnInit(rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& resourceCache)
-    {
-        graphics::RenderGraphResource& depthResource = resourceCache[GetOutputPin().GetGlobalId()];
-        depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
-        graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get<graphics::RenderGraphTextureResourceInfo>(depthResource.Properties);
-        resourceInfo.Format = api.GetDepthTextureFormat();
-        resourceInfo.LoadOp = rhi::RenderPassSettings::LoadOp::Clear;
+namespace onyx::game_core {
+void DepthPrePassRenderGraphNode::OnInit( rhi::GraphicsSystem& api,
+                                          graphics::RenderGraphResourceCache& resourceCache ) {
+    graphics::RenderGraphResource& depthResource = resourceCache[ GetOutputPin().GetGlobalId().get() ];
+    depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
+    graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get< graphics::RenderGraphTextureResourceInfo >(
+        depthResource.Properties );
+    resourceInfo.Format = api.GetDepthTextureFormat();
+    resourceInfo.LoadOp = rhi::RenderPassSettings::LoadOp::Clear;
 
-        resourceCache[GetOutputPin().GetGlobalId()].Handle = api.GetDepthImage();
-    }
+    resourceCache[ GetOutputPin().GetGlobalId().get() ].Handle = api.GetDepthImage();
+}
 
-    void DepthPrePassRenderGraphNode::OnBeginFrame(graphics::RenderGraphContext& context)
-    {
-        ONYX_PROFILE_FUNCTION;
+void DepthPrePassRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& context ) {
+    ONYX_PROFILE_FUNCTION;
 
-        context.Graph.GetResourceCache()[GetOutputPin().GetGlobalId()].Handle = context.FrameContext.Api->GetDepthImage();
-    }
+    context.Graph.GetResourceCache()[ GetOutputPin().GetGlobalId().get() ].Handle = context.FrameContext.Api
+                                                                                        ->GetDepthImage();
+}
 
-    void DepthPrePassRenderGraphNode::OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer)
-    {
-        ONYX_PROFILE_FUNCTION;
+void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+    ONYX_PROFILE_FUNCTION;
 
-        const rhi::FrameContext& frameContext = context.FrameContext;
+    const rhi::FrameContext& frameContext = context.FrameContext;
 
-        if (frameContext.FrameData == nullptr)
-            return;
+    if ( frameContext.FrameData == nullptr )
+        return;
 
-        const SceneFrameData& sceneFrameData = static_cast<const SceneFrameData&>(*frameContext.FrameData);
+    const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
 
-        commandBuffer.SetScissor();
+    commandBuffer.SetScissor();
 
-        onyxU32 instanceOffset = 0;
-        for (const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls)
-        {
-            ONYX_UNUSED(drawCall);
-            // TODO: Batch instances per mesh/material and send transforms via SBO
-            //const onyxU32 instanceCount = static_cast<onyxU32>(drawCall.m_Transforms.size());
-            const onyxU32 instanceCount = 1;
+    uint32_t instanceOffset = 0;
+    for ( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
+        ONYX_UNUSED( drawCall );
+        // TODO: Batch instances per mesh/material and send transforms via SBO
+        // const uint32_t instanceCount = static_cast<uint32_t>(drawCall.m_Transforms.size());
+        const uint32_t instanceCount = 1;
 
-            commandBuffer.BindVertexBuffer(drawCall.VertexData, 0, 0);
-            commandBuffer.BindIndexBuffer(drawCall.Indices, 0, rhi::IndexType::uint32);
+        commandBuffer.BindVertexBuffer( drawCall.VertexData, 0, 0 );
+        commandBuffer.BindIndexBuffer( drawCall.Indices, 0, rhi::IndexType::uint32 );
 
-            Matrix4<onyxF32> transformMatrix;
-            for (Matrix4<onyxF32> transformMatrix : drawCall.Transforms)
-            {
-                commandBuffer.BindPushConstants(rhi::ShaderStage::Vertex, 0, transformMatrix);
-                commandBuffer.DrawIndexed(rhi::PrimitiveTopology::Triangle, static_cast<onyxU32>(drawCall.Indices.Buffer->GetProperties().m_Size / 4), instanceCount, 0, 0, instanceOffset);
+        Matrix4< float32 > transformMatrix;
+        for ( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
+            commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.DrawIndexed( rhi::PrimitiveTopology::Triangle,
+                                       static_cast< uint32_t >( drawCall.Indices.Buffer->GetProperties().m_Size / 4 ),
+                                       instanceCount,
+                                       0,
+                                       0,
+                                       instanceOffset );
 
-                instanceOffset += instanceCount;
-            }
+            instanceOffset += instanceCount;
         }
+    }
 
-        for (const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls)
-        {
-            for (Matrix4<onyxF32> transformMatrix : indirectDrawCall.Transforms)
-            {
-                commandBuffer.BindVertexBuffer(indirectDrawCall.VertexData, 0, 0);
-                commandBuffer.BindPushConstants(rhi::ShaderStage::Vertex, 0, transformMatrix);
-                commandBuffer.DrawIndirect(indirectDrawCall.DrawCommandBuffer, 1, 0, 0);
-            }
+    for ( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
+        for ( Matrix4< float32 > transformMatrix : indirectDrawCall.Transforms ) {
+            commandBuffer.BindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
+            commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.DrawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
         }
     }
 }
+} // namespace onyx::game_core

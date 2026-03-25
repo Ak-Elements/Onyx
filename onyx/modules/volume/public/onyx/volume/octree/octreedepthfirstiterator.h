@@ -2,59 +2,51 @@
 
 #include <onyx/volume/octree/octreeiteratorbase.h>
 
-namespace onyx::volume
-{
+namespace onyx::volume {
 
-    template <typename OctreeT, typename OctreeNodeT>
-    class OctreeDepthFirstIterator : public OctreeIteratorBase<OctreeT, OctreeNodeT>
-    {
-    private:
-        using super = OctreeIteratorBase<OctreeT, OctreeNodeT>;
-        using IteratorT = typename OctreeDepthFirstIterator::IteratorState;
-    public:
-        explicit  OctreeDepthFirstIterator()
-            : super()
-        {
+template < typename OctreeT, typename OctreeNodeT >
+class OctreeDepthFirstIterator : public OctreeIteratorBase< OctreeT, OctreeNodeT > {
+  private:
+    using super = OctreeIteratorBase< OctreeT, OctreeNodeT >;
+    using IteratorT = typename OctreeDepthFirstIterator::IteratorState;
+
+  public:
+    explicit OctreeDepthFirstIterator()
+        : super() {}
+
+    explicit OctreeDepthFirstIterator( OctreeT* octree, uint8_t maxDepth );
+
+    virtual ~OctreeDepthFirstIterator();
+
+    inline OctreeDepthFirstIterator& operator=( const OctreeDepthFirstIterator& src ) {
+        super::operator=( src );
+
+        super::m_IteratorStates = src.m_IteratorStates;
+
+        if ( super::m_IteratorStates.empty() == false ) {
+            super::m_CurrentState = &m_IteratorStates.back();
+        } else {
+            super::m_CurrentState = nullptr;
         }
 
-        explicit OctreeDepthFirstIterator(OctreeT* octree, onyxU8 maxDepth);
+        return ( *this );
+    }
 
-        virtual ~OctreeDepthFirstIterator();
+    void Reset();
 
-        inline OctreeDepthFirstIterator& operator = (const OctreeDepthFirstIterator& src)
-        {
-            super::operator=(src);
+    OctreeDepthFirstIterator& operator++();
 
-            super::m_IteratorStates = src.m_IteratorStates;
+    inline OctreeDepthFirstIterator operator++( int ) {
+        OctreeDepthFirstIterator tmp = *this;
+        ++*this;
+        return ( tmp );
+    }
 
-            if (super::m_IteratorStates.empty() == false)
-            {
-                super::m_CurrentState = &m_IteratorStates.back();
-            }
-            else
-            {
-                super::m_CurrentState = nullptr;
-            }
+  protected:
+    // TODO: Fix out of stack problem for large trees depth ~ 7000
+    std::vector< IteratorT > m_IteratorStates;
+};
 
-            return (*this);
-        }
-
-        void Reset();
-
-        OctreeDepthFirstIterator& operator++();
-
-        inline OctreeDepthFirstIterator operator++ (int)
-        {
-            OctreeDepthFirstIterator tmp = *this;
-            ++*this;
-            return (tmp);
-        }
-
-    protected:
-        //TODO: Fix out of stack problem for large trees depth ~ 7000
-        std::vector<IteratorT> m_IteratorStates;
-    };
-
-} // namespace onyx
+} // namespace onyx::volume
 
 #include <onyx/volume/octree/octreedepthfirstiterator.hpp>

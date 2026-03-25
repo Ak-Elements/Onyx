@@ -3,23 +3,21 @@
 #include <onyx/rhi/framebuffer.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace onyx::rhi::vulkan
-{
-    class VulkanGraphicsApi;
-    class Device;
-	
-	class VulkanFramebuffer : public rhi::Framebuffer
-	{
-	public:
-	    ~VulkanFramebuffer() override;
+namespace onyx::rhi::vulkan {
+class VulkanGraphicsApi;
+class Device;
 
-		void Init(const VulkanGraphicsApi& api, const FramebufferSettings& settings);
+class VulkanFramebuffer : public rhi::Framebuffer {
+  public:
+    ~VulkanFramebuffer() override;
 
-        //onyxU32 AddAttachment(AttachmentCreateInfo createinfo, VkImage* existingImage);
-        //VkResult CreateSampler(VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode adressMode);
-	private:
-        const Device* m_Device;
+    void Init( const VulkanGraphicsApi& api, const FramebufferSettings& settings );
 
-        VULKAN_HANDLE(VkFramebuffer, Framebuffer, nullptr)
-	};
-}
+    // uint32_t AddAttachment(AttachmentCreateInfo createinfo, VkImage* existingImage);
+    // VkResult CreateSampler(VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode adressMode);
+  private:
+    const Device* m_Device;
+
+    VULKAN_HANDLE( VkFramebuffer, Framebuffer, nullptr )
+};
+} // namespace onyx::rhi::vulkan

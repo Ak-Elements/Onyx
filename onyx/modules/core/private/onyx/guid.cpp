@@ -1,77 +1,64 @@
 #include <onyx/guid.h>
 
-#include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
+#include <onyx/serialize/serializer.h>
 
-namespace onyx
-{
-    Guid64Generator::Guid64Generator(onyxU64 machineId)
-        : m_MachineId(machineId)
-        , m_LastTimestamp(GetCurrentTime())
-    {}
+namespace onyx {
+Guid64Generator::Guid64Generator( uint64_t machineId )
+    : m_machineId( machineId )
+    , m_lastTimestamp( getCurrentTime() ) {}
 
-    Guid64 Guid64Generator::GetGuid()
+Guid64 Guid64Generator::getGuid() {
+    static thread_local Guid64Generator GuidGeneratorTls( 1 );
+    return GuidGeneratorTls.next();
+}
+
+Guid64 Guid64Generator::next() {
+    int64_t now = 0;
     {
-        static thread_local Guid64Generator gs_GuidGeneratorTLS(1);
-        return gs_GuidGeneratorTLS.Next();
-    }
+        std::lock_guard lock( m_mutex );
+        now = getCurrentTime();
 
-    Guid64 Guid64Generator::Next()
-    {
-        onyxS64 now = 0;
-        {
-            std::lock_guard lock(m_Mutex);
-            now = GetCurrentTime();
+        if ( now == m_lastTimestamp ) {
+            m_sequence = ( m_sequence + 1 ) & MaxSequenceId;
 
-            if (now == m_LastTimestamp)
-            {
-                m_Sequence = (m_Sequence + 1) & MAX_SEQUENCE_ID;
-
-                if (m_Sequence == 0)
-                {
-                    now = WaitForNextMillisecond();
-                }
+            if ( m_sequence == 0 ) {
+                now = waitForNextMillisecond();
             }
-            else
-            {
-                m_Sequence = 0;
-            }
-
-            m_LastTimestamp = now;
+        } else {
+            m_sequence = 0;
         }
 
-        const onyxU64 id = (now - EPOCH) << TIMESTAMP_LEFT_SHIFT
-            | m_MachineId << MACHINE_ID_SHIFT
-            | m_Sequence;
-        return Guid64{ id };
+        m_lastTimestamp = now;
     }
 
-    onyxS64 Guid64Generator::GetCurrentTime()
-    {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count();
-    }
-
-    onyxS64 Guid64Generator::WaitForNextMillisecond()
-    {
-        onyxS64 timestamp = GetCurrentTime();
-
-        while (timestamp <= m_LastTimestamp)
-            timestamp = GetCurrentTime();
-
-        return timestamp;
-    }
-
-    bool Serialization<Guid64>::Serialize(Serializer& serializer, const Guid64& id)
-    {
-        return serializer.Write(id.Get(), 16);
-    }
-
-    bool Serialization<Guid64>::Deserialize(const Deserializer& deserializer, Guid64& outId)
-    {
-        onyxU64 id;
-        bool success = deserializer.Read(id, 16);
-        outId = Guid64(id);
-        return success;
-    }
+    const uint64_t id = ( now - Epoch ) << TimestampLeftShift | m_machineId << MachineIdShift | m_sequence;
+    return Guid64{ id };
 }
+
+int64_t Guid64Generator::getCurrentTime() {
+    return std::chrono::duration_cast< std::chrono::milliseconds >(
+               std::chrono::system_clock::now().time_since_epoch() )
+        .count();
+}
+
+int64_t Guid64Generator::waitForNextMillisecond() {
+    int64_t timestamp = getCurrentTime();
+
+    while ( timestamp <= m_lastTimestamp )
+        timestamp = getCurrentTime();
+
+    return timestamp;
+}
+
+bool Serialization< Guid64 >::serialize( Serializer& serializer, const Guid64& id ) {
+    return serializer.write( id.get(), 16 );
+}
+
+bool Serialization< Guid64 >::deserialize( const Deserializer& deserializer, Guid64& outId ) {
+    uint64_t id;
+    bool success = deserializer.read( id, 16 );
+    outId = Guid64( id );
+    return success;
+}
+} // namespace onyx

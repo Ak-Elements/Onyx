@@ -1,424 +1,432 @@
 ﻿#pragma once
 
-
 #include <onyx/container/inplacearray.h>
-#include <onyx/volume/isosurface/marchingsquarestable_cms.h>
-#include <onyx/volume/cubicalmarchingsquares/linesegment.h>
 #include <onyx/geometry/sat.h>
+#include <onyx/volume/cubicalmarchingsquares/linesegment.h>
+#include <onyx/volume/isosurface/marchingsquarestable_cms.h>
 #include <onyx/volume/mesh/meshbuilder.h>
 
-namespace onyx::volume
-{
-    namespace CubicalMarchingSquares
-    {
+namespace onyx::volume {
+namespace CubicalMarchingSquares {
 
-        template <typename Scalar>
-        class MarchingSquares
+template < typename Scalar >
+class MarchingSquares {
+  private:
+    using Vector2T = Vector2< Scalar >;
+    using Vector3T = Vector3< Scalar >;
+    using Vector4T = Vector4< Scalar >;
+    using LineSegment = Internal::LineSegment< Scalar >;
+    // using Vertex = Internal::Vertex<Scalar>;
+  public:
+    static constexpr float32 ISO_LEVEL = 0.0f;
+
+    explicit MarchingSquares( const Scalar maxDistance )
+        : m_MaxDistance( maxDistance ) {}
+
+    Scalar minX;
+    Scalar minY;
+    Scalar maxX;
+    Scalar maxY;
+
+    uint8_t GenerateLines( uint8_t faceIndex,
+                           const InplaceArray< Vector3T, 4 >& corners,
+                           const InplaceArray< Vector4T, 4 >& hermiteData,
+                           InplaceArray< LineSegment, 24 >& outLineSegments ) {
+        /*
+        DEBUG
+        */
+
+        uint8_t xIndex = MarchingSquares_CMS::FACE_COORDS[ faceIndex ][ 0 ];
+        uint8_t yIndex = MarchingSquares_CMS::FACE_COORDS[ faceIndex ][ 1 ];
+
+        Vector2T corner0_2D( corners[ 0 ][ xIndex ], corners[ 0 ][ yIndex ] );
+        Vector2T corner1_2D( corners[ 1 ][ xIndex ], corners[ 1 ][ yIndex ] );
+        Vector2T corner2_2D( corners[ 2 ][ xIndex ], corners[ 2 ][ yIndex ] );
+        Vector2T corner3_2D( corners[ 3 ][ xIndex ], corners[ 3 ][ yIndex ] );
+
+        minX = minY = std::numeric_limits< Scalar >::max();
+        maxX = maxY = std::numeric_limits< Scalar >::min();
+
+        for ( uint8_t i = 0; i < 4; ++i ) {
+            if ( corners[ i ][ xIndex ] < minX ) {
+                minX = corners[ i ][ xIndex ];
+            }
+
+            if ( corners[ i ][ yIndex ] < minY ) {
+                minY = corners[ i ][ yIndex ];
+            }
+
+            if ( corners[ i ][ xIndex ] > maxX ) {
+                maxX = corners[ i ][ xIndex ];
+            }
+
+            if ( corners[ i ][ yIndex ] > maxY ) {
+                maxY = corners[ i ][ yIndex ];
+            }
+        }
+
+        uint8_t msCase = ( hermiteData[ 0 ][ 3 ] < ISO_LEVEL ? 1 : 0 ) | ( hermiteData[ 1 ][ 3 ] < ISO_LEVEL ? 2 : 0 ) |
+                         ( hermiteData[ 2 ][ 3 ] < ISO_LEVEL ? 4 : 0 ) | ( hermiteData[ 3 ][ 3 ] < ISO_LEVEL ? 8 : 0 );
+
+        if ( ( msCase == 0 ) || ( msCase == 15 ) ) {
+            return msCase;
+        }
+
+        // Don't generate lines if we are completely inside and far enough away from the surface
+        /*if ((msCase == 15) &&
+            (hermiteData[0][3] >= m_MaxDistance) &&
+            (hermiteData[1][3] >= m_MaxDistance) &&
+            (hermiteData[2][3] >= m_MaxDistance) &&
+            (hermiteData[3][3] >= m_MaxDistance))
         {
-        private:
-            using Vector2T = Vector2<Scalar>;
-            using Vector3T = Vector3<Scalar>;
-            using Vector4T = Vector4<Scalar>;
-            using LineSegment = Internal::LineSegment<Scalar>;
-            //using Vertex = Internal::Vertex<Scalar>;
-        public:
-            static constexpr onyxF32 ISO_LEVEL = 0.0f;
+            return;
+        }*/
 
-            explicit MarchingSquares(const Scalar maxDistance)
-                : m_MaxDistance(maxDistance)
-            {
+        if ( MarchingSquares_CMS::MS_TABLE[ msCase ][ 2 ] >= 0 ) // ambigous case
+        {
+            ResolveAmbigousCase( faceIndex, msCase, corners, hermiteData, outLineSegments );
+        } else {
+            uint8_t edge0_A = MarchingSquares_CMS::MS_TABLE[ msCase ][ 0 ];
+            uint8_t edge0_B = MarchingSquares_CMS::MS_TABLE[ msCase ][ 1 ];
+
+            uint8_t cubeEdge0_A = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[ faceIndex ][ edge0_A ];
+            uint8_t cubeEdge0_B = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[ faceIndex ][ edge0_B ];
+
+            Vertex Edge0_FromVertex;
+            Vertex Edge0_ToVertex;
+
+            CalculateZeroCrossing( edge0_A, corners, hermiteData, Edge0_FromVertex );
+            CalculateZeroCrossing( edge0_B, corners, hermiteData, Edge0_ToVertex );
+
+            Vertex intersection;
+            if ( ResolveFaceSharpFeature( faceIndex, Edge0_FromVertex, Edge0_ToVertex, intersection ) ) {
+                LineSegment& newSegment = outLineSegments.emplace( cubeEdge0_A, cubeEdge0_B );
+                newSegment.LinePoints.add( Edge0_FromVertex );
+                newSegment.LinePoints.add( intersection );
+                newSegment.LinePoints.add( Edge0_ToVertex );
+            } else {
+                LineSegment& newSegment = outLineSegments.emplace( cubeEdge0_A, cubeEdge0_B );
+                newSegment.LinePoints.add( Edge0_FromVertex );
+                newSegment.LinePoints.add( Edge0_ToVertex );
             }
+        }
 
-            Scalar minX;
-            Scalar minY;
-            Scalar maxX;
-            Scalar maxY;
-
-            onyxU8 GenerateLines(onyxU8 faceIndex, const InplaceArray<Vector3T, 4> & corners, const InplaceArray<Vector4T, 4>& hermiteData, InplaceArray<LineSegment, 24>& outLineSegments)
-            {
-                /*
-                DEBUG
-                */
-
-                onyxU8 xIndex = MarchingSquares_CMS::FACE_COORDS[faceIndex][0];
-                onyxU8 yIndex = MarchingSquares_CMS::FACE_COORDS[faceIndex][1];
-
-                Vector2T corner0_2D(corners[0][xIndex], corners[0][yIndex]);
-                Vector2T corner1_2D(corners[1][xIndex], corners[1][yIndex]);
-                Vector2T corner2_2D(corners[2][xIndex], corners[2][yIndex]);
-                Vector2T corner3_2D(corners[3][xIndex], corners[3][yIndex]);
-
-                minX = minY = std::numeric_limits<Scalar>::max();
-                maxX = maxY = std::numeric_limits<Scalar>::min();
-
-                for (onyxU8 i = 0; i < 4; ++i)
-                {
-                    if (corners[i][xIndex] < minX)
-                    {
-                        minX = corners[i][xIndex];
-                    }
-
-                    if (corners[i][yIndex] < minY)
-                    {
-                        minY = corners[i][yIndex];
-                    }
-
-                    if (corners[i][xIndex] > maxX)
-                    {
-                        maxX = corners[i][xIndex];
-                    }
-
-                    if (corners[i][yIndex] > maxY)
-                    {
-                        maxY = corners[i][yIndex];
-                    }
-                }
-
-                onyxU8 msCase =
-                    (hermiteData[0][3] < ISO_LEVEL ? 1 : 0) |
-                    (hermiteData[1][3] < ISO_LEVEL ? 2 : 0) |
-                    (hermiteData[2][3] < ISO_LEVEL ? 4 : 0) |
-                    (hermiteData[3][3] < ISO_LEVEL ? 8 : 0);
-
-                if ((msCase == 0) || (msCase == 15))
-                {
-                    return msCase;
-                }
-
-                // Don't generate lines if we are completely inside and far enough away from the surface
-                /*if ((msCase == 15) &&
-                    (hermiteData[0][3] >= m_MaxDistance) &&
-                    (hermiteData[1][3] >= m_MaxDistance) &&
-                    (hermiteData[2][3] >= m_MaxDistance) &&
-                    (hermiteData[3][3] >= m_MaxDistance))
-                {
-                    return;
-                }*/
-
-                if (MarchingSquares_CMS::MS_TABLE[msCase][2] >= 0) // ambigous case
-                {
-                    ResolveAmbigousCase(faceIndex, msCase, corners, hermiteData, outLineSegments);
-                }
-                else
-                {
-                    onyxU8 edge0_A = MarchingSquares_CMS::MS_TABLE[msCase][0];
-                    onyxU8 edge0_B = MarchingSquares_CMS::MS_TABLE[msCase][1];
-
-                    onyxU8 cubeEdge0_A = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[faceIndex][edge0_A];
-                    onyxU8 cubeEdge0_B = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[faceIndex][edge0_B];
-
-                    Vertex Edge0_FromVertex;
-                    Vertex Edge0_ToVertex;
-
-                    CalculateZeroCrossing(edge0_A, corners, hermiteData, Edge0_FromVertex);
-                    CalculateZeroCrossing(edge0_B, corners, hermiteData, Edge0_ToVertex);
-
-                    Vertex intersection;
-                    if (ResolveFaceSharpFeature(faceIndex, Edge0_FromVertex, Edge0_ToVertex, intersection))
-                    {
-                        LineSegment& newSegment = outLineSegments.Emplace(cubeEdge0_A, cubeEdge0_B);
-                        newSegment.LinePoints.Add(Edge0_FromVertex);
-                        newSegment.LinePoints.Add(intersection);
-                        newSegment.LinePoints.Add(Edge0_ToVertex);
-                    }
-                    else
-                    {
-                        LineSegment& newSegment = outLineSegments.Emplace(cubeEdge0_A, cubeEdge0_B);
-                        newSegment.LinePoints.Add(Edge0_FromVertex);
-                        newSegment.LinePoints.Add(Edge0_ToVertex);
-                    }
-                }
-
-                return msCase;
-            }
-
-        private:
-            void CalculateZeroCrossing(const onyxU8 edgeIndex, const InplaceArray<Vector3T, 4> & corners, const InplaceArray<Vector4T, 4> & hermiteData, Vertex& outVertex) const
-            {
-                const uint8_t v0 = MarchingSquares_CMS::VERTEX_MAP[edgeIndex][0];
-                const uint8_t v1 = MarchingSquares_CMS::VERTEX_MAP[edgeIndex][1];
-
-                const onyxF32 isoVal0 = hermiteData[v0][3];
-                const onyxF32 isoVal1 = hermiteData[v1][3];
-
-                // linear interpolation to get the point on the surface and the normal
-                const Scalar interpolated = (ISO_LEVEL - isoVal0) / (isoVal1 - isoVal0);
-
-                outVertex.Position = corners[v0] + interpolated * (corners[v1] - corners[v0]);
-                outVertex.Normal = Vector3T(hermiteData[v0] + (hermiteData[v1] - hermiteData[v0]) * interpolated);
-
-                if (outVertex.Normal.IsZero() == false)
-                    outVertex.Normal.Normalize();
-            }
-
-            void ResolveAmbigousCase(onyxU8 faceIndex,
-                                     onyxU8 msCase,
-                                     const InplaceArray<Vector3T, 4> & corners,
-                                     const InplaceArray<Vector4T, 4> & hermiteData,
-                                     InplaceArray<LineSegment, 24> & outLineSegments)
-            {
-                onyxU8 edge0_A = MarchingSquares_CMS::MS_TABLE[msCase][0];
-                onyxU8 edge0_B = MarchingSquares_CMS::MS_TABLE[msCase][1];
-
-                Vertex Edge0_FromVertex;
-                Vertex Edge0_ToVertex;
-
-                CalculateZeroCrossing(edge0_A, corners, hermiteData, Edge0_FromVertex);
-                CalculateZeroCrossing(edge0_B, corners, hermiteData, Edge0_ToVertex);
-
-                onyxU8 edge1_A = MarchingSquares_CMS::MS_TABLE[msCase][2];
-                onyxU8 edge1_B = MarchingSquares_CMS::MS_TABLE[msCase][3];
-
-                Vertex Edge1_FromVertex;
-                Vertex Edge1_ToVertex;
-
-                CalculateZeroCrossing(edge1_A, corners, hermiteData, Edge1_FromVertex);
-                CalculateZeroCrossing(edge1_B, corners, hermiteData, Edge1_ToVertex);
-
-                // is overlapping?
-                if (HasFaceAmbiguity(faceIndex, msCase, Edge0_FromVertex, Edge0_ToVertex, Edge1_FromVertex, Edge1_ToVertex))
-                {
-                    edge0_A = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[msCase][0];
-                    edge0_B = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[msCase][1];
-
-                    CalculateZeroCrossing(edge0_A, corners, hermiteData, Edge0_FromVertex);
-                    CalculateZeroCrossing(edge0_B, corners, hermiteData, Edge0_ToVertex);
-
-                    edge1_A = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[msCase][2];
-                    edge1_B = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[msCase][3];
-
-                    CalculateZeroCrossing(edge1_A, corners, hermiteData, Edge1_FromVertex);
-                    CalculateZeroCrossing(edge1_B, corners, hermiteData, Edge1_ToVertex);
-                }
-
-                onyxU8 cubeEdge0_A = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[faceIndex][edge0_A];
-                onyxU8 cubeEdge0_B = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[faceIndex][edge0_B];
-                onyxU8 cubeEdge1_A = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[faceIndex][edge1_A];
-                onyxU8 cubeEdge1_B = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[faceIndex][edge1_B];
-
-                // we calculate the intersection now 2 times in case of no ambiguity
-                Vertex intersection;
-                if (ResolveFaceSharpFeature(faceIndex, Edge0_FromVertex, Edge0_ToVertex, intersection))
-                {
-                    LineSegment& newLineSegment = outLineSegments.Emplace(cubeEdge0_A, cubeEdge0_B);
-                    newLineSegment.LinePoints.Add(Edge0_FromVertex);
-                    newLineSegment.LinePoints.Add(intersection);
-                    newLineSegment.LinePoints.Add(Edge0_ToVertex);
-                }
-                else
-                {
-                    LineSegment& newLineSegment = outLineSegments.Emplace(cubeEdge0_A, cubeEdge0_B);
-                    newLineSegment.LinePoints.Add(Edge0_FromVertex);
-                    newLineSegment.LinePoints.Add(Edge0_ToVertex);
-                }
-
-                Vertex intersection2;
-                if (ResolveFaceSharpFeature(faceIndex, Edge1_FromVertex, Edge1_ToVertex, intersection2))
-                {
-                    LineSegment& newLineSegment = outLineSegments.Emplace(cubeEdge1_A, cubeEdge1_B);
-                    newLineSegment.LinePoints.Add(Edge1_FromVertex);
-                    newLineSegment.LinePoints.Add(intersection2);
-                    newLineSegment.LinePoints.Add(Edge1_ToVertex);
-                }
-                else
-                {
-                    LineSegment& newLineSegment = outLineSegments.Emplace(cubeEdge1_A, cubeEdge1_B);
-                    newLineSegment.LinePoints.Add(Edge1_FromVertex);
-                    newLineSegment.LinePoints.Add(Edge1_ToVertex);
-                }
-            }
-
-            bool ResolveFaceSharpFeature(onyxU8 faceIndex, const Vertex& edgeCrossing_From, const Vertex& edgeCrossing_To, Vertex& outIntersectionPosition)
-            {
-                onyxU8 xIndex = MarchingSquares_CMS::FACE_COORDS[faceIndex][0];
-                onyxU8 yIndex = MarchingSquares_CMS::FACE_COORDS[faceIndex][1];
-
-                Vector2T edgeCrossingFromPosition(edgeCrossing_From.Position[xIndex], edgeCrossing_From.Position[yIndex]);
-                Vector2T edgeCrossingFromNormal(edgeCrossing_From.Normal[xIndex], edgeCrossing_From.Normal[yIndex]);
-                if (edgeCrossingFromNormal.IsZero())
-                    return false;
-
-                edgeCrossingFromNormal.Normalize();
-
-                Vector2T edgeCrossingToPosition(edgeCrossing_To.Position[xIndex], edgeCrossing_To.Position[yIndex]);
-                Vector2T edgeCrossingToNormal(edgeCrossing_To.Normal[xIndex], edgeCrossing_To.Normal[yIndex]);
-                if (edgeCrossingToNormal.IsZero())
-                    return false;
-
-                edgeCrossingToNormal.Normalize();
-                Vector2T intersectionPoint;
-                const bool hasSharpFeature = ResolveFaceSharpFeature(edgeCrossingFromPosition, edgeCrossingFromNormal, edgeCrossingToPosition, edgeCrossingToNormal, intersectionPoint);
-                if (hasSharpFeature)
-                {
-                    outIntersectionPosition.Position = edgeCrossing_From.Position;
-                    outIntersectionPosition.Position[xIndex] = intersectionPoint[0];
-                    outIntersectionPosition.Position[yIndex] = intersectionPoint[1];
-                    outIntersectionPosition.Normal = edgeCrossing_From.Normal; // TODO: This normal is wrong
-                }
-
-                return hasSharpFeature;
-            }
-
-            bool ResolveFaceSharpFeature(const Vector2T& edgeCrossingFromPosition,
-                                        const Vector2T& edgeCrossingFromNormal,
-                                        const Vector2T& edgeCrossingToPosition,
-                                        const Vector2T& edgeCrossingToNormal,
-                                        Vector2T& outIntersectionPosition)
-            {
-                const bool hasSharpFeature = HasSharpFeature(edgeCrossingFromNormal, edgeCrossingToNormal);
-                if (hasSharpFeature)
-                {
-                    outIntersectionPosition = ComputeIntersection(edgeCrossingFromPosition, edgeCrossingFromNormal, edgeCrossingToPosition, edgeCrossingToNormal);
-
-                    // clamp to min and max of cell boundaries
-                    if (outIntersectionPosition[0] < minX || outIntersectionPosition[0] > maxX)
-                    {
-                        outIntersectionPosition[0] = std::max(minX, std::min(outIntersectionPosition[0], maxX));
-                    }
-
-                    if (outIntersectionPosition[1] < minY || outIntersectionPosition[1] > maxY)
-                    {
-                        outIntersectionPosition[1] = std::max(minY, std::min(outIntersectionPosition[1], maxY));
-                    }
-                }
-
-                return hasSharpFeature;
-            }
-
-            bool HasFaceAmbiguity(onyxU8 faceIndex, onyxU8 /*msCase*/, const Vertex& edgeCrossing0_From, const Vertex& edgeCrossing0_To, const Vertex& edgeCrossing1_From, const Vertex& edgeCrossing1_To)
-            {
-                onyxU8 xIndex = MarchingSquares_CMS::FACE_COORDS[faceIndex][0];
-                onyxU8 yIndex = MarchingSquares_CMS::FACE_COORDS[faceIndex][1];
-
-                m_Intersection0P0 = edgeCrossing0_From.Position;
-                m_Intersection0P1 = edgeCrossing0_From.Position;
-                m_Intersection0P2 = edgeCrossing0_To.Position;
-
-                m_Intersection1P0 = edgeCrossing1_From.Position;
-                m_Intersection1P1 = edgeCrossing1_From.Position;
-                m_Intersection1P2 = edgeCrossing1_To.Position;
-
-                Vector2T edgeCrossing0FromPosition(edgeCrossing0_From.Position[xIndex], edgeCrossing0_From.Position[yIndex]);
-                Vector2T edgeCrossing0FromNormal(edgeCrossing0_From.Normal[xIndex], edgeCrossing0_From.Normal[yIndex]);
-                edgeCrossing0FromNormal.Normalize();
-
-                Vector2T edgeCrossing0ToPosition(edgeCrossing0_To.Position[xIndex], edgeCrossing0_To.Position[yIndex]);
-                Vector2T edgeCrossing0ToNormal(edgeCrossing0_To.Normal[xIndex], edgeCrossing0_To.Normal[yIndex]);
-                edgeCrossing0ToNormal.Normalize();
-
-                Vector2T edgeCrossing1FromPosition(edgeCrossing1_From.Position[xIndex], edgeCrossing1_From.Position[yIndex]);
-                Vector2T edgeCrossing1FromNormal(edgeCrossing1_From.Normal[xIndex], edgeCrossing1_From.Normal[yIndex]);
-                edgeCrossing1FromNormal.Normalize();
-
-                Vector2T edgeCrossing1ToPosition(edgeCrossing1_To.Position[xIndex], edgeCrossing1_To.Position[yIndex]);
-                Vector2T edgeCrossing1ToNormal(edgeCrossing1_To.Normal[xIndex], edgeCrossing1_To.Normal[yIndex]);
-                edgeCrossing1ToNormal.Normalize();
-
-                Vector2T intersectionEdge0;
-                Vector2T intersectionEdge1;
-
-                const bool hasSharpFeatureEdge0 = ResolveFaceSharpFeature(edgeCrossing0FromPosition, edgeCrossing0FromNormal, edgeCrossing0ToPosition, edgeCrossing0ToNormal, intersectionEdge0);
-                const bool hasSharpFeatureEdge1 = ResolveFaceSharpFeature(edgeCrossing1FromPosition, edgeCrossing1FromNormal, edgeCrossing1ToPosition, edgeCrossing1ToNormal, intersectionEdge1);
-
-                hasIntersection0 = hasSharpFeatureEdge0;
-                hasIntersection1 = hasSharpFeatureEdge1;
-
-                if (hasSharpFeatureEdge0 && hasSharpFeatureEdge1)
-                {
-                    m_Intersection0P0[xIndex] = intersectionEdge0[0];
-                    m_Intersection0P0[yIndex] = intersectionEdge0[1];
-
-                    m_Intersection0P1[xIndex] = edgeCrossing0FromPosition[0];
-                    m_Intersection0P1[yIndex] = edgeCrossing0FromPosition[1];
-
-                    m_Intersection0P2[xIndex] = edgeCrossing0ToPosition[0];
-                    m_Intersection0P2[yIndex] = edgeCrossing0ToPosition[1];
-
-                    m_Intersection1P0[xIndex] = intersectionEdge1[0];
-                    m_Intersection1P0[yIndex] = intersectionEdge1[1];
-
-                    m_Intersection1P1[xIndex] = edgeCrossing1FromPosition[0];
-                    m_Intersection1P1[yIndex] = edgeCrossing1FromPosition[1];
-
-                    m_Intersection1P2[xIndex] = edgeCrossing1ToPosition[0];
-                    m_Intersection1P2[yIndex] = edgeCrossing1ToPosition[1];
-
-                    if (onyx::SAT_2D::IsOverlapping(edgeCrossing0FromPosition, edgeCrossing0ToPosition, intersectionEdge0, edgeCrossing1FromPosition, edgeCrossing1ToPosition, intersectionEdge1))
-                    {
-                        // overlap choose other case
-                        return true;
-                    }
-                }
-                else if (hasSharpFeatureEdge0)
-                {
-                    m_Intersection0P0[xIndex] = intersectionEdge0[0];
-                    m_Intersection0P0[yIndex] = intersectionEdge0[1];
-
-                    m_Intersection0P1[xIndex] = edgeCrossing0FromPosition[0];
-                    m_Intersection0P1[yIndex] = edgeCrossing0FromPosition[1];
-                    
-                    m_Intersection0P2[xIndex] = edgeCrossing0ToPosition[0];
-                    m_Intersection0P2[yIndex] = edgeCrossing0ToPosition[1];
-
-                    if (onyx::SAT_2D::IsOverlapping(edgeCrossing0FromPosition, intersectionEdge0, edgeCrossing0ToPosition, edgeCrossing1FromPosition, edgeCrossing1ToPosition))
-                    {
-                        return true;
-                    }
-                }
-                else if (hasSharpFeatureEdge1)
-                {
-                    m_Intersection1P0[xIndex] = intersectionEdge1[0];
-                    m_Intersection1P0[yIndex] = intersectionEdge1[1];
-
-                    m_Intersection1P1[xIndex] = edgeCrossing1FromPosition[0];
-                    m_Intersection1P1[yIndex] = edgeCrossing1FromPosition[1];
-
-                    m_Intersection1P2[xIndex] = edgeCrossing1ToPosition[0];
-                    m_Intersection1P2[yIndex] = edgeCrossing1ToPosition[1];
-
-                    if (onyx::SAT_2D::IsOverlapping(edgeCrossing1FromPosition, intersectionEdge1, edgeCrossing1ToPosition, edgeCrossing0FromPosition, edgeCrossing0ToPosition))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            Vector2T ComputeIntersection(const Vector2T& edgeCrossingPoint0, const Vector2T& edgeCrossingNormal0, const Vector2T& edgeCrossingPoint1, const Vector2T& edgeCrossingNormal1)
-            {
-                const Vector2T direction = edgeCrossingPoint1 - edgeCrossingPoint0;
-
-                const Vector2T d1(edgeCrossingNormal0[1], -edgeCrossingNormal0[0]); // perpendicular to edgeCrossingNormal1
-                auto proj2 = (edgeCrossingNormal1 | direction) / (edgeCrossingNormal1 | d1);
-                auto correctProjPoint = edgeCrossingPoint0 + d1 * static_cast<onyxF32>(proj2);
-
-                return correctProjPoint;
-            }
-
-            inline bool HasSharpFeature(const Vector2T& edgeCrossingNormal0, const Vector2T& edgeCrossingNormal1)
-            {
-                auto dot = edgeCrossingNormal0.Dot(-edgeCrossingNormal1);
-
-                auto cross = edgeCrossingNormal0.Cross(-edgeCrossingNormal1);
-
-                static const onyxF64 SHARP_ANGLE_FEATURE = cos((135 * (std::numbers::pi_v<onyxF32> / 180.0))); /*Degrees*/
-                return (std::abs(cross) > std::numeric_limits<Scalar>::epsilon()) && dot >= SHARP_ANGLE_FEATURE;
-            }
-        public:
-            Vector3T m_Intersection0P0;
-            Vector3T m_Intersection0P1;
-            Vector3T m_Intersection0P2;
-
-            Vector3T m_Intersection1P0;
-            Vector3T m_Intersection1P1;
-            Vector3T m_Intersection1P2;
-
-            bool hasIntersection0 = false;
-            bool hasIntersection1 = false;
-
-        private:
-            const Scalar m_MaxDistance = {};
-        };
+        return msCase;
     }
-}
+
+  private:
+    void CalculateZeroCrossing( const uint8_t edgeIndex,
+                                const InplaceArray< Vector3T, 4 >& corners,
+                                const InplaceArray< Vector4T, 4 >& hermiteData,
+                                Vertex& outVertex ) const {
+        const uint8_t v0 = MarchingSquares_CMS::VERTEX_MAP[ edgeIndex ][ 0 ];
+        const uint8_t v1 = MarchingSquares_CMS::VERTEX_MAP[ edgeIndex ][ 1 ];
+
+        const float32 isoVal0 = hermiteData[ v0 ][ 3 ];
+        const float32 isoVal1 = hermiteData[ v1 ][ 3 ];
+
+        // linear interpolation to get the point on the surface and the normal
+        const Scalar interpolated = ( ISO_LEVEL - isoVal0 ) / ( isoVal1 - isoVal0 );
+
+        outVertex.Position = corners[ v0 ] + interpolated * ( corners[ v1 ] - corners[ v0 ] );
+        outVertex.Normal = Vector3T( hermiteData[ v0 ] + ( hermiteData[ v1 ] - hermiteData[ v0 ] ) * interpolated );
+
+        if ( outVertex.Normal.isZero() == false )
+            outVertex.Normal.normalize();
+    }
+
+    void ResolveAmbigousCase( uint8_t faceIndex,
+                              uint8_t msCase,
+                              const InplaceArray< Vector3T, 4 >& corners,
+                              const InplaceArray< Vector4T, 4 >& hermiteData,
+                              InplaceArray< LineSegment, 24 >& outLineSegments ) {
+        uint8_t edge0_A = MarchingSquares_CMS::MS_TABLE[ msCase ][ 0 ];
+        uint8_t edge0_B = MarchingSquares_CMS::MS_TABLE[ msCase ][ 1 ];
+
+        Vertex Edge0_FromVertex;
+        Vertex Edge0_ToVertex;
+
+        CalculateZeroCrossing( edge0_A, corners, hermiteData, Edge0_FromVertex );
+        CalculateZeroCrossing( edge0_B, corners, hermiteData, Edge0_ToVertex );
+
+        uint8_t edge1_A = MarchingSquares_CMS::MS_TABLE[ msCase ][ 2 ];
+        uint8_t edge1_B = MarchingSquares_CMS::MS_TABLE[ msCase ][ 3 ];
+
+        Vertex Edge1_FromVertex;
+        Vertex Edge1_ToVertex;
+
+        CalculateZeroCrossing( edge1_A, corners, hermiteData, Edge1_FromVertex );
+        CalculateZeroCrossing( edge1_B, corners, hermiteData, Edge1_ToVertex );
+
+        // is overlapping?
+        if ( HasFaceAmbiguity( faceIndex,
+                               msCase,
+                               Edge0_FromVertex,
+                               Edge0_ToVertex,
+                               Edge1_FromVertex,
+                               Edge1_ToVertex ) ) {
+            edge0_A = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[ msCase ][ 0 ];
+            edge0_B = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[ msCase ][ 1 ];
+
+            CalculateZeroCrossing( edge0_A, corners, hermiteData, Edge0_FromVertex );
+            CalculateZeroCrossing( edge0_B, corners, hermiteData, Edge0_ToVertex );
+
+            edge1_A = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[ msCase ][ 2 ];
+            edge1_B = MarchingSquares_CMS::MS_TABLE_AMBIGUOUS[ msCase ][ 3 ];
+
+            CalculateZeroCrossing( edge1_A, corners, hermiteData, Edge1_FromVertex );
+            CalculateZeroCrossing( edge1_B, corners, hermiteData, Edge1_ToVertex );
+        }
+
+        uint8_t cubeEdge0_A = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[ faceIndex ][ edge0_A ];
+        uint8_t cubeEdge0_B = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[ faceIndex ][ edge0_B ];
+        uint8_t cubeEdge1_A = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[ faceIndex ][ edge1_A ];
+        uint8_t cubeEdge1_B = MarchingSquares_CMS::FACE_EDGE_TO_CUBE_EDGE[ faceIndex ][ edge1_B ];
+
+        // we calculate the intersection now 2 times in case of no ambiguity
+        Vertex intersection;
+        if ( ResolveFaceSharpFeature( faceIndex, Edge0_FromVertex, Edge0_ToVertex, intersection ) ) {
+            LineSegment& newLineSegment = outLineSegments.emplace( cubeEdge0_A, cubeEdge0_B );
+            newLineSegment.LinePoints.add( Edge0_FromVertex );
+            newLineSegment.LinePoints.add( intersection );
+            newLineSegment.LinePoints.add( Edge0_ToVertex );
+        } else {
+            LineSegment& newLineSegment = outLineSegments.emplace( cubeEdge0_A, cubeEdge0_B );
+            newLineSegment.LinePoints.add( Edge0_FromVertex );
+            newLineSegment.LinePoints.add( Edge0_ToVertex );
+        }
+
+        Vertex intersection2;
+        if ( ResolveFaceSharpFeature( faceIndex, Edge1_FromVertex, Edge1_ToVertex, intersection2 ) ) {
+            LineSegment& newLineSegment = outLineSegments.emplace( cubeEdge1_A, cubeEdge1_B );
+            newLineSegment.LinePoints.add( Edge1_FromVertex );
+            newLineSegment.LinePoints.add( intersection2 );
+            newLineSegment.LinePoints.add( Edge1_ToVertex );
+        } else {
+            LineSegment& newLineSegment = outLineSegments.emplace( cubeEdge1_A, cubeEdge1_B );
+            newLineSegment.LinePoints.add( Edge1_FromVertex );
+            newLineSegment.LinePoints.add( Edge1_ToVertex );
+        }
+    }
+
+    bool ResolveFaceSharpFeature( uint8_t faceIndex,
+                                  const Vertex& edgeCrossing_From,
+                                  const Vertex& edgeCrossing_To,
+                                  Vertex& outIntersectionPosition ) {
+        uint8_t xIndex = MarchingSquares_CMS::FACE_COORDS[ faceIndex ][ 0 ];
+        uint8_t yIndex = MarchingSquares_CMS::FACE_COORDS[ faceIndex ][ 1 ];
+
+        Vector2T edgeCrossingFromPosition( edgeCrossing_From.Position[ xIndex ], edgeCrossing_From.Position[ yIndex ] );
+        Vector2T edgeCrossingFromNormal( edgeCrossing_From.Normal[ xIndex ], edgeCrossing_From.Normal[ yIndex ] );
+        if ( edgeCrossingFromNormal.isZero() )
+            return false;
+
+        edgeCrossingFromNormal.normalize();
+
+        Vector2T edgeCrossingToPosition( edgeCrossing_To.Position[ xIndex ], edgeCrossing_To.Position[ yIndex ] );
+        Vector2T edgeCrossingToNormal( edgeCrossing_To.Normal[ xIndex ], edgeCrossing_To.Normal[ yIndex ] );
+        if ( edgeCrossingToNormal.isZero() )
+            return false;
+
+        edgeCrossingToNormal.normalize();
+        Vector2T intersectionPoint;
+        const bool hasSharpFeature = ResolveFaceSharpFeature( edgeCrossingFromPosition,
+                                                              edgeCrossingFromNormal,
+                                                              edgeCrossingToPosition,
+                                                              edgeCrossingToNormal,
+                                                              intersectionPoint );
+        if ( hasSharpFeature ) {
+            outIntersectionPosition.Position = edgeCrossing_From.Position;
+            outIntersectionPosition.Position[ xIndex ] = intersectionPoint[ 0 ];
+            outIntersectionPosition.Position[ yIndex ] = intersectionPoint[ 1 ];
+            outIntersectionPosition.Normal = edgeCrossing_From.Normal; // TODO: This normal is wrong
+        }
+
+        return hasSharpFeature;
+    }
+
+    bool ResolveFaceSharpFeature( const Vector2T& edgeCrossingFromPosition,
+                                  const Vector2T& edgeCrossingFromNormal,
+                                  const Vector2T& edgeCrossingToPosition,
+                                  const Vector2T& edgeCrossingToNormal,
+                                  Vector2T& outIntersectionPosition ) {
+        const bool hasSharpFeature = HasSharpFeature( edgeCrossingFromNormal, edgeCrossingToNormal );
+        if ( hasSharpFeature ) {
+            outIntersectionPosition = ComputeIntersection( edgeCrossingFromPosition,
+                                                           edgeCrossingFromNormal,
+                                                           edgeCrossingToPosition,
+                                                           edgeCrossingToNormal );
+
+            // clamp to min and max of cell boundaries
+            if ( outIntersectionPosition[ 0 ] < minX || outIntersectionPosition[ 0 ] > maxX ) {
+                outIntersectionPosition[ 0 ] = std::max( minX, std::min( outIntersectionPosition[ 0 ], maxX ) );
+            }
+
+            if ( outIntersectionPosition[ 1 ] < minY || outIntersectionPosition[ 1 ] > maxY ) {
+                outIntersectionPosition[ 1 ] = std::max( minY, std::min( outIntersectionPosition[ 1 ], maxY ) );
+            }
+        }
+
+        return hasSharpFeature;
+    }
+
+    bool HasFaceAmbiguity( uint8_t faceIndex,
+                           uint8_t /*msCase*/,
+                           const Vertex& edgeCrossing0_From,
+                           const Vertex& edgeCrossing0_To,
+                           const Vertex& edgeCrossing1_From,
+                           const Vertex& edgeCrossing1_To ) {
+        uint8_t xIndex = MarchingSquares_CMS::FACE_COORDS[ faceIndex ][ 0 ];
+        uint8_t yIndex = MarchingSquares_CMS::FACE_COORDS[ faceIndex ][ 1 ];
+
+        m_Intersection0P0 = edgeCrossing0_From.Position;
+        m_Intersection0P1 = edgeCrossing0_From.Position;
+        m_Intersection0P2 = edgeCrossing0_To.Position;
+
+        m_Intersection1P0 = edgeCrossing1_From.Position;
+        m_Intersection1P1 = edgeCrossing1_From.Position;
+        m_Intersection1P2 = edgeCrossing1_To.Position;
+
+        Vector2T edgeCrossing0FromPosition( edgeCrossing0_From.Position[ xIndex ],
+                                            edgeCrossing0_From.Position[ yIndex ] );
+        Vector2T edgeCrossing0FromNormal( edgeCrossing0_From.Normal[ xIndex ], edgeCrossing0_From.Normal[ yIndex ] );
+        edgeCrossing0FromNormal.normalize();
+
+        Vector2T edgeCrossing0ToPosition( edgeCrossing0_To.Position[ xIndex ], edgeCrossing0_To.Position[ yIndex ] );
+        Vector2T edgeCrossing0ToNormal( edgeCrossing0_To.Normal[ xIndex ], edgeCrossing0_To.Normal[ yIndex ] );
+        edgeCrossing0ToNormal.normalize();
+
+        Vector2T edgeCrossing1FromPosition( edgeCrossing1_From.Position[ xIndex ],
+                                            edgeCrossing1_From.Position[ yIndex ] );
+        Vector2T edgeCrossing1FromNormal( edgeCrossing1_From.Normal[ xIndex ], edgeCrossing1_From.Normal[ yIndex ] );
+        edgeCrossing1FromNormal.normalize();
+
+        Vector2T edgeCrossing1ToPosition( edgeCrossing1_To.Position[ xIndex ], edgeCrossing1_To.Position[ yIndex ] );
+        Vector2T edgeCrossing1ToNormal( edgeCrossing1_To.Normal[ xIndex ], edgeCrossing1_To.Normal[ yIndex ] );
+        edgeCrossing1ToNormal.normalize();
+
+        Vector2T intersectionEdge0;
+        Vector2T intersectionEdge1;
+
+        const bool hasSharpFeatureEdge0 = ResolveFaceSharpFeature( edgeCrossing0FromPosition,
+                                                                   edgeCrossing0FromNormal,
+                                                                   edgeCrossing0ToPosition,
+                                                                   edgeCrossing0ToNormal,
+                                                                   intersectionEdge0 );
+        const bool hasSharpFeatureEdge1 = ResolveFaceSharpFeature( edgeCrossing1FromPosition,
+                                                                   edgeCrossing1FromNormal,
+                                                                   edgeCrossing1ToPosition,
+                                                                   edgeCrossing1ToNormal,
+                                                                   intersectionEdge1 );
+
+        hasIntersection0 = hasSharpFeatureEdge0;
+        hasIntersection1 = hasSharpFeatureEdge1;
+
+        if ( hasSharpFeatureEdge0 && hasSharpFeatureEdge1 ) {
+            m_Intersection0P0[ xIndex ] = intersectionEdge0[ 0 ];
+            m_Intersection0P0[ yIndex ] = intersectionEdge0[ 1 ];
+
+            m_Intersection0P1[ xIndex ] = edgeCrossing0FromPosition[ 0 ];
+            m_Intersection0P1[ yIndex ] = edgeCrossing0FromPosition[ 1 ];
+
+            m_Intersection0P2[ xIndex ] = edgeCrossing0ToPosition[ 0 ];
+            m_Intersection0P2[ yIndex ] = edgeCrossing0ToPosition[ 1 ];
+
+            m_Intersection1P0[ xIndex ] = intersectionEdge1[ 0 ];
+            m_Intersection1P0[ yIndex ] = intersectionEdge1[ 1 ];
+
+            m_Intersection1P1[ xIndex ] = edgeCrossing1FromPosition[ 0 ];
+            m_Intersection1P1[ yIndex ] = edgeCrossing1FromPosition[ 1 ];
+
+            m_Intersection1P2[ xIndex ] = edgeCrossing1ToPosition[ 0 ];
+            m_Intersection1P2[ yIndex ] = edgeCrossing1ToPosition[ 1 ];
+
+            if ( onyx::SAT_2D::IsOverlapping( edgeCrossing0FromPosition,
+                                              edgeCrossing0ToPosition,
+                                              intersectionEdge0,
+                                              edgeCrossing1FromPosition,
+                                              edgeCrossing1ToPosition,
+                                              intersectionEdge1 ) ) {
+                // overlap choose other case
+                return true;
+            }
+        } else if ( hasSharpFeatureEdge0 ) {
+            m_Intersection0P0[ xIndex ] = intersectionEdge0[ 0 ];
+            m_Intersection0P0[ yIndex ] = intersectionEdge0[ 1 ];
+
+            m_Intersection0P1[ xIndex ] = edgeCrossing0FromPosition[ 0 ];
+            m_Intersection0P1[ yIndex ] = edgeCrossing0FromPosition[ 1 ];
+
+            m_Intersection0P2[ xIndex ] = edgeCrossing0ToPosition[ 0 ];
+            m_Intersection0P2[ yIndex ] = edgeCrossing0ToPosition[ 1 ];
+
+            if ( onyx::SAT_2D::IsOverlapping( edgeCrossing0FromPosition,
+                                              intersectionEdge0,
+                                              edgeCrossing0ToPosition,
+                                              edgeCrossing1FromPosition,
+                                              edgeCrossing1ToPosition ) ) {
+                return true;
+            }
+        } else if ( hasSharpFeatureEdge1 ) {
+            m_Intersection1P0[ xIndex ] = intersectionEdge1[ 0 ];
+            m_Intersection1P0[ yIndex ] = intersectionEdge1[ 1 ];
+
+            m_Intersection1P1[ xIndex ] = edgeCrossing1FromPosition[ 0 ];
+            m_Intersection1P1[ yIndex ] = edgeCrossing1FromPosition[ 1 ];
+
+            m_Intersection1P2[ xIndex ] = edgeCrossing1ToPosition[ 0 ];
+            m_Intersection1P2[ yIndex ] = edgeCrossing1ToPosition[ 1 ];
+
+            if ( onyx::SAT_2D::IsOverlapping( edgeCrossing1FromPosition,
+                                              intersectionEdge1,
+                                              edgeCrossing1ToPosition,
+                                              edgeCrossing0FromPosition,
+                                              edgeCrossing0ToPosition ) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Vector2T ComputeIntersection( const Vector2T& edgeCrossingPoint0,
+                                  const Vector2T& edgeCrossingNormal0,
+                                  const Vector2T& edgeCrossingPoint1,
+                                  const Vector2T& edgeCrossingNormal1 ) {
+        const Vector2T direction = edgeCrossingPoint1 - edgeCrossingPoint0;
+
+        const Vector2T d1( edgeCrossingNormal0[ 1 ],
+                           -edgeCrossingNormal0[ 0 ] ); // perpendicular to edgeCrossingNormal1
+        auto proj2 = ( edgeCrossingNormal1 | direction ) / ( edgeCrossingNormal1 | d1 );
+        auto correctProjPoint = edgeCrossingPoint0 + d1 * static_cast< float32 >( proj2 );
+
+        return correctProjPoint;
+    }
+
+    inline bool HasSharpFeature( const Vector2T& edgeCrossingNormal0, const Vector2T& edgeCrossingNormal1 ) {
+        auto dot = edgeCrossingNormal0.dot( -edgeCrossingNormal1 );
+
+        auto cross = edgeCrossingNormal0.cross( -edgeCrossingNormal1 );
+
+        static const float64 SHARP_ANGLE_FEATURE = cos(
+            ( 135 * ( std::numbers::pi_v< float32 > / 180.0 ) ) ); /*Degrees*/
+        return ( std::abs( cross ) > std::numeric_limits< Scalar >::epsilon() ) && dot >= SHARP_ANGLE_FEATURE;
+    }
+
+  public:
+    Vector3T m_Intersection0P0;
+    Vector3T m_Intersection0P1;
+    Vector3T m_Intersection0P2;
+
+    Vector3T m_Intersection1P0;
+    Vector3T m_Intersection1P1;
+    Vector3T m_Intersection1P2;
+
+    bool hasIntersection0 = false;
+    bool hasIntersection1 = false;
+
+  private:
+    const Scalar m_MaxDistance = {};
+};
+} // namespace CubicalMarchingSquares
+} // namespace onyx::volume

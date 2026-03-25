@@ -1,40 +1,28 @@
 #include <onyx/volume/source/csg/csgsphere.h>
 
-namespace onyx::volume
-{
+namespace onyx::volume {
 
-    CSGSphere::CSGSphere(const onyxF32 radius, const Vector3f32& center)
-        : Radius(radius)
-        , Center(center)
-    {
-    }
+CSGSphere::CSGSphere( const float32 radius, const Vector3f32& center )
+    : Radius( radius )
+    , Center( center ) {}
 
-    Vector4f32 CSGSphere::GetValueAndGradient(const Vector3f32& position) const
-    {
-        Vector3f32 gradient = position - Center;
+Vector4f32 CSGSphere::GetValueAndGradient( const Vector3f32& position ) const {
+    Vector3f32 gradient = position - Center;
 
-        onyxF32 length = 0.0f;
-        if (gradient.IsZero() == false) 
-        {
-            length = numeric_cast<onyxF32>(gradient.Length());
-            if (length > 0.0f)
-            {
-                gradient = gradient * (1.0f / length);
-            }
+    float32 length = 0.0f;
+    if ( gradient.isZero() == false ) {
+        length = numericCast< float32 >( gradient.length() );
+        if ( length > 0.0f ) {
+            gradient = gradient * ( 1.0f / length );
         }
-
-        return Vector4f32(
-            gradient[0],
-            gradient[1],
-            gradient[2],
-            Radius - length
-        );
     }
 
-    onyxF32 CSGSphere::GetValue(const Vector3f32& position) const
-    {
-        const Vector3f32 pMinCenter = position - Center;
-        return Radius - numeric_cast<onyxF32>(pMinCenter.Length());
-    }
-
+    return Vector4f32( gradient[ 0 ], gradient[ 1 ], gradient[ 2 ], Radius - length );
 }
+
+float32 CSGSphere::GetValue( const Vector3f32& position ) const {
+    const Vector3f32 pMinCenter = position - Center;
+    return Radius - numericCast< float32 >( pMinCenter.length() );
+}
+
+} // namespace onyx::volume

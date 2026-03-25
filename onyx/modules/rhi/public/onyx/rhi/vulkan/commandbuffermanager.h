@@ -1,46 +1,46 @@
 #pragma once
 
 #include <onyx/noncopyable.h>
-#include <onyx/rhi/vulkan/commandpool.h>
 #include <onyx/rhi/vulkan/commandbuffer.h>
+#include <onyx/rhi/vulkan/commandpool.h>
 #include <onyx/rhi/vulkan/graphicsapi.h>
 
-namespace onyx::rhi
-{
-    struct Viewport;
-    
-    // TODO: add base for generic use
-    // TODO: Change CommandBuffer returned to outside to RAII object that enqueues the buffer for submission
-    // And internally the storage is just the 'raw' API command buffer without any functions which gets wrapped into the RAII object
-    namespace vulkan
-    {
-        class VulkanCommandBuffer;
-        class VulkanGraphicsApi;
+namespace onyx::rhi {
+struct Viewport;
 
-        class CommandBufferManager : public NonCopyable
-        {
-        public:
-            static constexpr onyxU32 COMMAND_BUFFERS_PER_THREAD = 5;
-            static constexpr onyxU32 SECONDARY_COMMAND_BUFFERS_PER_THREAD = 2;
+// TODO: add base for generic use
+// TODO: Change CommandBuffer returned to outside to RAII object that enqueues the buffer for submission
+// And internally the storage is just the 'raw' API command buffer without any functions which gets wrapped into the
+// RAII object
+namespace vulkan {
+class VulkanCommandBuffer;
+class VulkanGraphicsApi;
 
-            void Init(VulkanGraphicsApi& api, onyxU32 queueIndex, onyxU32 threadCount);
-            void Shutdown();
+class CommandBufferManager : public NonCopyable {
+  public:
+    static constexpr uint32_t COMMAND_BUFFERS_PER_THREAD = 5;
+    static constexpr uint32_t SECONDARY_COMMAND_BUFFERS_PER_THREAD = 2;
 
-            void Reset(Device& device, onyxU8 frameIndex);
+    void Init( VulkanGraphicsApi& api, uint32_t queueIndex, uint32_t threadCount );
+    void Shutdown();
 
-            CommandBuffer& GetCommandBuffer(onyxU32 frameIndex, onyxU32 threadIndex, bool begin);
-            UniquePtr<CommandBuffer> CreateSingleSubmitCommandBuffer(VulkanGraphicsApi& api, onyxU32 frameIndex, onyxU32 threadIndex);
+    void Reset( Device& device, uint8_t frameIndex );
 
-        private:
-            onyxU32 m_ThreadCount = 0;
-            // graphic command pools 1 pool per thread per frame
-            DynamicArray<CommandPool> m_CommandPools;
-            
-            DynamicArray<VulkanCommandBuffer> m_PrimaryBuffers;
-            DynamicArray<VulkanCommandBuffer> m_SecondaryBuffers;
+    CommandBuffer& GetCommandBuffer( uint32_t frameIndex, uint32_t threadIndex, bool begin );
+    UniquePtr< CommandBuffer > CreateSingleSubmitCommandBuffer( VulkanGraphicsApi& api,
+                                                                uint32_t frameIndex,
+                                                                uint32_t threadIndex );
 
-            DynamicArray<onyxU8> m_UsedBuffers;
-            DynamicArray<onyxU8> m_UsedSecondaryBuffers;
-        };
-    }
-}
+  private:
+    uint32_t m_ThreadCount = 0;
+    // graphic command pools 1 pool per thread per frame
+    DynamicArray< CommandPool > m_CommandPools;
+
+    DynamicArray< VulkanCommandBuffer > m_PrimaryBuffers;
+    DynamicArray< VulkanCommandBuffer > m_SecondaryBuffers;
+
+    DynamicArray< uint8_t > m_UsedBuffers;
+    DynamicArray< uint8_t > m_UsedSecondaryBuffers;
+};
+} // namespace vulkan
+} // namespace onyx::rhi

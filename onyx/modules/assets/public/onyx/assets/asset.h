@@ -3,129 +3,112 @@
 #include <onyx/filesystem/path.h>
 #include <onyx/function/signal.h>
 
-#include <onyx/assets/assetid.h>
 #include <onyx/assets/assetformat.h>
 #include <onyx/assets/assethandle.h>
+#include <onyx/assets/assetid.h>
 
-namespace onyx::assets
-{
-    struct AssetLoadRequest;
+namespace onyx::assets {
+struct AssetLoadRequest;
 
-    // AssetType is the hash of the asset class to use. e.g.: AudioAsset, MeshAsset, StaticMeshAsset, ...
-    // class hashes are constructed using entt type_info
-    enum class AssetType : onyxU32
-    {
-        Invalid
-    };
+// AssetType is the hash of the asset class to use. e.g.: AudioAsset, MeshAsset, StaticMeshAsset, ...
+// class hashes are constructed using entt type_info
+// NOLINTNEXTLINE
+enum class AssetType : uint32_t { Invalid };
 
-    enum class AssetState : onyxU8
-    {
-        Invalid = 0, // asset is in undefined invalid state
-        Loading,
-        Loaded,
-        Missing, // asset is defined but can't be found
-    };
+enum class AssetState : uint8_t {
+    Invalid = 0, // asset is in undefined invalid state
+    Loading,
+    Loaded,
+    Missing, // asset is defined but can't be found
+};
 
-    struct AssetMetaData
-    {
-        FilePath Path;
-        AssetId Id = AssetId::Invalid;
-        AssetType Type = AssetType::Invalid;
-        AssetFormat Format = AssetFormat::Json;
+struct AssetMetaData {
+    FilePath Path;
+    AssetId Id;
+    AssetType Type = AssetType::Invalid;
+    AssetFormat Format = AssetFormat::Json;
 
-        onyxS64 Handle = INVALID_INDEX_64;
+    int64_t Handle = InvalidIndex64;
 
-        onyxU32 Version = 0; // Maybe not needed
+    uint32_t Version = 0; // Maybe not needed
 
-        String GetName() const
-        {
-             return Path.stem().string();
+    ONYX_NO_DISCARD String getName() const { return Path.stem().string(); }
+
+    ONYX_NO_DISCARD String getExtension() const {
+        // TODO: remove extension once we have meta data stored on disk
+        String extension = Path.extension().string();
+        if ( extension.empty() == false ) {
+            return extension.substr( 1 ); // ignore .
         }
 
-        String GetExtension() const
-        {
-            //TODO: remove extension once we have meta data stored on disk
-            String extension = Path.extension().string();
-            if (extension.empty() == false)
-            {
-                return extension.substr(1); // ignore .
-            }
+        return "";
+    }
+};
 
-            return "";
-        }
-    };
+// Type trait to check if a class has Dependencies using alias
+template < typename T, typename = void > struct HasExtension : std::false_type {};
 
-    // Type trait to check if a class has Dependencies using alias
-    template<typename T, typename = void>
-    struct HasExtension : std::false_type {};
+template < typename T > struct HasExtension< T, std::void_t< typename T::Extension > > : std::true_type {};
 
-    template<typename T>
-    struct HasExtension<T, std::void_t<typename T::Extension>> : std::true_type {};
-
-    class AssetInterface : public RefCounted
-    {
-        friend struct AssetLoadRequest;
+class AssetInterface : public RefCounted {
+    friend struct AssetLoadRequest;
 #if ONYX_IS_EDITOR
-        friend struct AssetSaveRequest;
+    friend struct AssetSaveRequest;
 #endif
-    public:
-        void SetState(AssetState state) { m_State = state; }
+  public:
+    void setState( AssetState state ) { m_state = state; }
 
-        bool IsLoading() const { return m_State == AssetState::Loading; }
-        bool IsLoaded() const { return m_State == AssetState::Loaded; }
+    bool isLoading() const { return m_state == AssetState::Loading; }
+    bool isLoaded() const { return m_state == AssetState::Loaded; }
 
-    private:
-        virtual void OnLoadFinished(AssetId id, AssetState state) = 0;
+  private:
+    virtual void onLoadFinished( AssetId id, AssetState state ) = 0;
 #if ONYX_IS_EDITOR
-        virtual void OnSaveFinished(AssetId id, bool success) const = 0;
+    virtual void onSaveFinished( AssetId id, bool success ) const = 0;
 #endif
 
-    protected:
-        Atomic<AssetState> m_State = AssetState::Invalid;
-    };
+  protected:
+    Atomic< AssetState > m_state = AssetState::Invalid;
+};
 
-    template <typename T>
-    class Asset : public AssetInterface
-    {
-    public:
-        using AssetT = T;
+template < typename T > class Asset : public AssetInterface {
+  public:
+    using AssetT = T;
 
-        using LoadedSignalT = Signal<void(AssetHandle<AssetT>)>;
+    using LoadedSignalT = Signal< void( AssetHandle< AssetT > ) >;
 #if ONYX_IS_EDITOR
-        using SavedSignalT = Signal<void(AssetHandle<AssetT>, bool)>;
+    using SavedSignalT = Signal< void( AssetHandle< AssetT >, bool ) >;
 #endif
 
-    public:
-        Sink<LoadedSignalT> GetOnLoadedEvent() { return Sink<LoadedSignalT>(m_LoadedSignal); }
+  public:
+    Sink< LoadedSignalT > getOnLoadedEvent() { return Sink< LoadedSignalT >( m_loadedSignal ); }
 #if ONYX_IS_EDITOR
-        Sink<SavedSignalT> GetOnSavedEvent() { return Sink<SavedSignalT>(m_SavedSignal); }
+    Sink< SavedSignalT > getOnSavedEvent() { return Sink< SavedSignalT >( m_savedSignal ); }
 #endif
 
-    private:
-        void OnLoadFinished(AssetId id, AssetState state) override
-        {
-            if (state == AssetState::Loaded)
-            {
-                Reference<AssetT> ref(this);
-                m_LoadedSignal.Dispatch(AssetHandle<AssetT>( id, ref ));
-            }
-            
-            // set to loaded after callbacks to not trigger code that depends on those callback early
-            SetState(state);
+  private:
+    void onLoadFinished( AssetId id, AssetState state ) override {
+        if ( state == AssetState::Loaded ) {
+            Reference< AssetT > ref( this );
+            m_loadedSignal.Dispatch( AssetHandle< AssetT >( id, ref ) );
         }
 
+        // set to loaded after callbacks to not trigger code that depends on those callback early
+        setState( state );
+    }
+
 #if ONYX_IS_EDITOR
-        void OnSaveFinished(AssetId /*id*/, bool /*success*/) const override
-        {
-           // Reference<AssetT> ref(this);
-          //  m_SavedSignal.Dispatch({ .Id = id, .Handle = ref }, success);
-        }
+    void onSaveFinished( AssetId /*id*/, bool /*success*/ ) const override {
+        // Reference<AssetT> ref(this);
+        //  m_SavedSignal.Dispatch({ .Id = id, .Handle = ref }, success);
+    }
 #endif
 
-    private:
-        LoadedSignalT m_LoadedSignal;
+  private:
+    LoadedSignalT m_loadedSignal;
 #if ONYX_IS_EDITOR
-        SavedSignalT m_SavedSignal;
+    SavedSignalT m_savedSignal;
 #endif
-    };
-}
+};
+
+} // namespace onyx::assets

@@ -2,7 +2,7 @@
 
 #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-#pragma comment(lib, "kernel32.lib")
+#pragma comment( lib, "kernel32.lib" )
 
 extern "C" void DebugBreak();
 extern "C" int IsDebuggerPresent();
@@ -23,79 +23,75 @@ extern "C" int IsDebuggerPresent();
 
 #endif // ^^^ ONYX_IS_LINUX ^^^
 
-namespace onyx
-{
-    namespace internal
-    {
-        void breakpoint()
-        {
+namespace onyx {
+namespace internal {
+void breakpoint() {
 #if ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
 
 #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-            ::debugBreak();
+    ::debugBreak();
 
 #else // ^^^ ONYX_IS_WINDOWS ^^^ || vvv !ONYX_IS_WINDOWS vvv
 
-            std::raise(SIGTRAP);
+    std::raise( SIGTRAP );
 
 #endif // ^^^ !ONYX_IS_WINDOWS ^^^
 
 #endif // ^^^ ONYX_IS_DEBUG ^^^
-        }
+}
 
-    }
+} // namespace internal
 
-    bool isDebuggerPresent()
-    {
+bool isDebuggerPresent() {
 #if !ONYX_IS_DEBUG // vvv ONYX_IS_DEBUG vvv
 
-        return false;
+    return false;
 
 #else // ^^^ ONYX_IS_DEBUG ^^^ || vvv !ONYX_IS_DEBUG vvv
 
 #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-        return ::IsDebuggerPresent();
+    return ::IsDebuggerPresent();
 
 #elif ONYX_IS_LINUX // ^^^ ONYX_IS_WINDOWS ^^^ || vvv ONYX_IS_LINUX vvv
 
-        // ! Possibility of hitting a no-fs linux system
+    // ! Possibility of hitting a no-fs linux system
 
-        auto* procStatus = ::fopen("/proc/self/status", "r");
-        if (procStatus != nullptr) {
-            // ? Log this
-            return false;
+    auto* procStatus = ::fopen( "/proc/self/status", "r" );
+    if ( procStatus != nullptr ) {
+        // ? Log this
+        return false;
+    }
+
+    char* line = nullptr;
+    size_t lineLen = 0;
+    auto tokenStr = "TracerPid:";
+    auto isDebuggerPresent = false;
+
+    while ( ::getline( &line, &lineLen, procStatus ) != -1 ) {
+        char* tokenPos = ::strstr( line, tokenStr );
+        if ( tokenPos == nullptr ) {
+            continue;
         }
 
-        char *line = nullptr;
-        size_t lineLen = 0;
-        auto tokenStr = "TracerPid:";
-        auto isDebuggerPresent = false;
+        isDebuggerPresent = std::atoi( tokenPos + ::strlen( tokenStr ) ) != 0;
+        break;
+    }
 
-        while (::getline(&line, &lineLen, procStatus) != -1) {
-            char *tokenPos = ::strstr(line, tokenStr);
-            if (tokenPos == nullptr) {
-                continue;
-            }
+    ::free( line );
+    ::fclose( procStatus );
 
-            isDebuggerPresent = std::atoi(tokenPos + ::strlen(tokenStr)) != 0;
-            break;
-        }
-
-        ::free(line);
-        ::fclose(procStatus);
-
-        return isDebuggerPresent;
+    return isDebuggerPresent;
 
 #else // ^^^ ONYX_IS_LINUX ^^^ || vvv !ONYX_IS_WINDOWS && !ONYX_IS_LINUX vvv
 
 #warning "IsDebuggerPresent() is not implemented for this platform"
 
-        return false;
+    return false;
 
 #endif // ^^^ !ONYX_IS_WINDOWS && !ONYX_IS_LINUX ^^^
 
 #endif // ^^^ !ONYX_IS_DEBUG ^^^
-    }
 }
+} // namespace onyx

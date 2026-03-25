@@ -2,5 +2,5 @@
 component IdComponent
 {
     [ReadOnly]
-    onyxU64 Id;
+    uint64_t Id;
 };

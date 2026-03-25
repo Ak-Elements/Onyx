@@ -28,7 +28,7 @@ namespace onyx::node_graph
                 return;
             }
 
-            s_TypeMeta[serializedTypeId] = MakeUnique<NodeGraphTypeMeta<T>>(serializedTypeId);
+            s_TypeMeta[serializedTypeId] = makeUnique<NodeGraphTypeMeta<T>>(serializedTypeId);
             s_RuntimeToStaticTypeId[pinTypeId] = serializedTypeId;
         }
 
@@ -53,7 +53,7 @@ namespace onyx::node_graph
                 return;
             }
 
-            s_TypeMeta[serializedTypeId] = MakeUnique<NodeGraphTypeMeta<T>>(serializedTypeId);
+            s_TypeMeta[serializedTypeId] = makeUnique<NodeGraphTypeMeta<T>>(serializedTypeId);
             s_RuntimeToStaticTypeId[pinTypeId] = serializedTypeId;
         }
 

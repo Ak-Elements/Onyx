@@ -1,102 +1,98 @@
 #pragma once
 
+#include <onyx/engine/enginevariablesregistry.h>
 #include <onyx/noncopyable.h>
 #include <onyx/serialize/deserializer.h>
-#include <onyx/engine/enginevariablesregistry.h>
 
-namespace onyx
-{
-    class IEngine;
-    class Deserializer;
+namespace onyx {
+class IEngine;
+class Deserializer;
 
-    class IEngineSystem : public NonCopyable
-    {
-    public:
-        virtual StringId32 GetTypeId() const = 0;
-    };
+class IEngineSystem : public NonCopyable {
+  public:
+    ONYX_NO_DISCARD virtual StringId32 getTypeId() const = 0;
+};
 
-    template <typename T>
-    concept EngineSystem = std::is_base_of_v<IEngineSystem, T>;
+template < typename T >
+concept EngineSystem = std::is_base_of_v< IEngineSystem, T >;
 
-    class IEngine : public NonCopyable
-    {
-    public:
-        template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
-        ONYX_NO_DISCARD bool HasSystem() const
-        {
-            return HasSystem(T::TypeId);
-        }
+class IEngine : public NonCopyable {
+  public:
+    template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
+    ONYX_NO_DISCARD bool hasSystem() const {
+        return hasSystem( T::TypeId );
+    }
 
-        template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
-        ONYX_NO_DISCARD T& GetSystem()
-        {
-            ONYX_ASSERT(HasSystem(T::TypeId), "System is not registered.");
-            return static_cast<T&>(GetSystem(T::TypeId));
-        }
+    template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
+    ONYX_NO_DISCARD T& getSystem() {
+        ONYX_ASSERT( HasSystem( T::TypeId ), "System is not registered." );
+        return static_cast< T& >( getSystem( T::TypeId ) );
+    }
 
-        template <typename T>// requires std::is_base_of_v<IEngineSystem, T>
-        ONYX_NO_DISCARD const T& GetSystem() const
-        {
-            ONYX_ASSERT(HasSystem(T::TypeId), "System is not registered.");
-            return static_cast<const T&>(GetSystem(T::TypeId));
-        }
+    template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
+    ONYX_NO_DISCARD const T& getSystem() const {
+        ONYX_ASSERT( HasSystem( T::TypeId ), "System is not registered." );
+        return static_cast< const T& >( getSystem( T::TypeId ) );
+    }
 
-        virtual bool HasSystem(StringId32 systemId) const = 0;
-        virtual IEngineSystem& GetSystem(StringId32 systemId) = 0;
-        virtual const IEngineSystem& GetSystem(StringId32 systemId) const = 0;
+    ONYX_NO_DISCARD virtual bool hasSystem( StringId32 systemId ) const = 0;
+    virtual IEngineSystem& getSystem( StringId32 systemId ) = 0;
+    ONYX_NO_DISCARD virtual const IEngineSystem& getSystem( StringId32 systemId ) const = 0;
 
-        static const EngineVariablesRegistry& GetVariablesRegistry() { return s_EngineVariables; }
+    static const EngineVariablesRegistry& getVariablesRegistry() { return s_engineVariables; }
 
-        static void Register(IEngineVariable& variable)
-        {
-            s_EngineVariables.Register(variable);
-        } 
+    static void registerVariable( IEngineVariable& variable ) { s_engineVariables.registerVariable( variable ); }
+    static void unregisterVariable( IEngineVariable& variable ) { s_engineVariables.unregisterVariable( variable ); }
 
-        static void Unregister(IEngineVariable& variable)
-        {
-            s_EngineVariables.Unregister(variable);
-        }
+  private:
+    static inline EngineVariablesRegistry s_engineVariables;
+};
 
-    private:
-        static inline EngineVariablesRegistry s_EngineVariables; 
-    };
+struct EngineSystemCreateContext {
+    IEngine& Engine;
+    const Deserializer& Deserializer;
 
-    struct EngineSystemCreateContext
-    {
-        IEngine& Engine;
-        const Deserializer& Deserializer;
+    template < typename T > requires std::is_base_of_v< IEngine, T >
+    T& get() const {
+        return static_cast< T& >( Engine );
+    }
 
-        template <typename T> requires std::is_base_of_v<IEngine, T>
-        T& Get() const { return static_cast<T&>(Engine); }
+    template < typename T > requires std::is_base_of_v< IEngineSystem, T >
+    T& get() const {
+        return Engine.getSystem< T >();
+    }
 
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
-        T& Get() const { return Engine.GetSystem<T>(); }
+    template < typename T > requires( Deserializable< T > && ( std::is_base_of_v< IEngineSystem, T > == false ) )
+    auto get() const {
+        T obj;
+        Deserializer.read< "settings" >( obj );
+        return obj;
+    }
+};
 
-        template <typename T> requires (Deserializable<T> && (std::is_base_of_v<IEngineSystem, T> == false))
-        auto Get() const
-        {
-            T obj;
-            Deserializer.Read<"settings">(obj);
-            return obj;
-        }
-    };
+struct EngineSystemUpdateContext {
+    IEngine& Engine;
+    DeltaGameTime Delta { 0 };
+    GameTime Time { 0 };
 
-    struct EngineSystemUpdateContext
-    {
-        IEngine& Engine;
-        DeltaGameTime Delta;
-        GameTime Time;
+    template < typename T > requires std::is_base_of_v< IEngine, T >
+    T& get() const {
+        return static_cast< T& >( Engine );
+    }
 
-        template <typename T> requires std::is_base_of_v<IEngine, T>
-        T& Get() const { return static_cast<T&>(Engine); }
+    template < typename T > requires std::is_base_of_v< IEngineSystem, T >
+    T& get() const {
+        return Engine.getSystem< T >();
+    }
 
-        template <typename T> requires std::is_base_of_v<IEngineSystem, T>
-        T& Get() const { return Engine.GetSystem<T>(); }
+    template < typename T > requires std::is_same_v< DeltaGameTime, T >
+    ONYX_NO_DISCARD DeltaGameTime get() const {
+        return Delta;
+    }
 
-        template <typename T> requires std::is_same_v<DeltaGameTime, T>
-        DeltaGameTime Get() const { return Delta; }
-
-        template <typename T> requires std::is_same_v<GameTime, T>
-        GameTime Get() const { return Time; }
-    };
-}
+    template < typename T > requires std::is_same_v< GameTime, T >
+    ONYX_NO_DISCARD GameTime get() const {
+        return Time;
+    }
+};
+} // namespace onyx

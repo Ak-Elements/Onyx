@@ -1,13 +1,11 @@
 #pragma once
 
-namespace onyx
-{
-    struct LogMessage;
+namespace onyx {
+struct LogMessage;
 
-    class LoggerBackend
-    {
-    public:
-        virtual ~LoggerBackend() = default;
-        virtual void Log(const LogMessage& message) = 0;
-    };
-}
+class LoggerBackend {
+  public:
+    virtual ~LoggerBackend() = default;
+    virtual void log( const LogMessage& message ) = 0;
+};
+} // namespace onyx

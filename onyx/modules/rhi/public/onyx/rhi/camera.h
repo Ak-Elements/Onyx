@@ -13,13 +13,13 @@ class Camera {
 
     void LookAt( const Vector3f32& cameraPosition, const Vector3f32& lookAtPosition, const Vector3f32& upDirection );
 
-    void SetPerspective( onyxF32 fovInDegrees );
-    void SetPerspective( onyxF32 fovInDegrees, onyxF32 near );
-    void SetPerspective( onyxF32 fovInDegrees, onyxF32 near, onyxF32 far );
+    void SetPerspective( float32 fovInDegrees );
+    void SetPerspective( float32 fovInDegrees, float32 near );
+    void SetPerspective( float32 fovInDegrees, float32 near, float32 far );
 
-    void SetOrthographic( onyxF32 size );
-    void SetOrthographic( onyxF32 size, onyxF32 near );
-    void SetOrthographic( onyxF32 size, onyxF32 near, onyxF32 far );
+    void SetOrthographic( float32 size );
+    void SetOrthographic( float32 size, float32 near );
+    void SetOrthographic( float32 size, float32 near, float32 far );
 
     void SetViewMatrix( const Matrix4x4f32& matrix );
     void SetViewportExtents( const Vector2s32& extents );
@@ -34,8 +34,8 @@ class Camera {
     const Vector3f32& GetDirection() const { return direction; }
     const Vector2s32& GetViewportExtents() const { return viewportExtents; }
 
-    onyxF32 GetNear() const { return nearPlane; }
-    onyxF32 GetFar() const { return farPlane; }
+    float32 GetNear() const { return nearPlane; }
+    float32 GetFar() const { return farPlane; }
 
   protected:
     Matrix4x4f32 projectionMatrix{ 0 };
@@ -51,13 +51,13 @@ class Camera {
 
     ProjectionType type = ProjectionType::Perspective;
 
-    onyxF32 perspectiveFOV = 45.0f; // Degrees
-    onyxF32 orthographicSize = 1.0f;
+    float32 perspectiveFOV = 45.0f; // Degrees
+    float32 orthographicSize = 1.0f;
 
     Vector2s32 viewportExtents;
 
-    onyxF32 nearPlane = 0.0f;
-    onyxF32 farPlane = 1.0f;
+    float32 nearPlane = 0.0f;
+    float32 farPlane = 1.0f;
 };
 
 } // namespace onyx::rhi

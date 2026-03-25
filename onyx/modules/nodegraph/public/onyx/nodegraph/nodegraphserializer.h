@@ -6,6 +6,6 @@ namespace onyx::node_graph
     class NodeGraph;
     class INodeFactory;
 
-    bool Serialize(Serializer& serializer, const NodeGraph& outNodeGraph);
-    bool Deserialize(const Deserializer& deserializer, NodeGraph& outNodeGraph, const INodeFactory& nodeFactory);
+    bool serialize(Serializer& serializer, const NodeGraph& outNodeGraph);
+    bool deserialize(const Deserializer& deserializer, NodeGraph& outNodeGraph, const INodeFactory& nodeFactory);
 }

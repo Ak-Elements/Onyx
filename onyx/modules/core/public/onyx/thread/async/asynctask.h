@@ -4,103 +4,79 @@
 #include <onyx/thread/async/future.h>
 #include <stop_token>
 
-namespace onyx::threading
-{
-template<typename Signature, size_t Capacity = inplace_function_detail::InplaceFunctionDefaultCapacity>
+namespace onyx::threading {
+template < typename Signature, size_t Capacity = inplace_function_detail::InplaceFunctionDefaultCapacity >
 class AsyncTask; // unspecified
 
-template <typename R, typename... Args, size_t Capacity>
-class AsyncTask<R(Args...), Capacity>
-{
-private:
-    template <typename T, typename U>
-    using is_enabled = std::enable_if_t <
-        !(std::is_same<T, U>::value
-            || std::is_convertible<T, U>::value)>;
+template < typename R, typename... Args, size_t Capacity >
+class AsyncTask< R( Args... ), Capacity > {
+  private:
+    template < typename T, typename U >
+    using IsEnabled = std::enable_if_t< !( std::is_same< T, U >::value || std::is_convertible< T, U >::value ) >;
 
-public:
+  public:
     using ReturnT = R;
-    using FutureT = Future<R>;
-    using TaskT = InplaceFunction<R(Args...), Capacity>;
-    template <typename, size_t>	friend class AsyncTask;
+    using FutureT = Future< R >;
+    using TaskT = InplaceFunction< R( Args... ), Capacity >;
+    template < typename, size_t > friend class AsyncTask;
 
     AsyncTask() = default;
-    explicit AsyncTask(const TaskT& taskFunctor)
-        : m_TaskFunctor(taskFunctor)
-    {
-        m_StopToken = m_Promise.GetStopToken();
+    explicit AsyncTask( const TaskT& taskFunctor )
+        : m_taskFunctor( taskFunctor ) {
+        m_stopToken = m_promise.getStopToken();
     }
 
-    AsyncTask(const TaskT& taskFunctor, std::stop_token&& stopToken)
-        : m_StopToken(std::move(stopToken))
-        , m_TaskFunctor(taskFunctor)
-    {
-    }
+    AsyncTask( const TaskT& taskFunctor, std::stop_token&& stopToken )
+        : m_stopToken( std::move( stopToken ) )
+        , m_taskFunctor( taskFunctor ) {}
 
     // TODO: fix to remove copy ctor - needs promise to not be copyable
-    AsyncTask(const AsyncTask& other) = default;
-    AsyncTask& operator=(const AsyncTask& other) = default;
+    AsyncTask( const AsyncTask& other ) = default;
+    AsyncTask& operator=( const AsyncTask& other ) = default;
 
-    AsyncTask(AsyncTask&& other) noexcept
-        : m_TaskFunctor(std::move(other.m_TaskFunctor))
-        , m_Promise(std::move(other.m_Promise))
-        , m_StopToken(std::move(other.m_StopToken))
-    {
-    }
+    AsyncTask( AsyncTask&& other ) noexcept
+        : m_taskFunctor( std::move( other.m_taskFunctor ) )
+        , m_promise( std::move( other.m_promise ) )
+        , m_stopToken( std::move( other.m_stopToken ) ) {}
 
-    AsyncTask& operator=(AsyncTask&& other)
-    {
-        if (*this == other)
-        {
+    AsyncTask& operator=( AsyncTask&& other ) noexcept {
+        if ( *this == other ) {
             return *this;
         }
 
-        std::swap(m_TaskFunctor, other.m_TaskFunctor);
-        std::swap(m_StopToken, other.m_StopToken);
-        std::swap(m_Promise, other.m_Promise);
+        std::swap( m_taskFunctor, other.m_taskFunctor );
+        std::swap( m_stopToken, other.m_stopToken );
+        std::swap( m_promise, other.m_promise );
     }
 
     ~AsyncTask() = default;
 
-    bool IsCanceled() const
-    {
-        return m_StopToken.stop_requested();
-    }
+    ONYX_NO_DISCARD bool isCanceled() const { return m_stopToken.stop_requested(); }
 
-    FutureT GetFuture() const { return m_Promise.GetFuture(); }
+    FutureT getFuture() const { return m_promise.getFuture(); }
 
-    void operator()()
-    {
-        if constexpr (std::is_void<ReturnT>::value)
-        {
-            if constexpr (std::is_invocable_v<TaskT, std::stop_token>)
-            {
-                m_TaskFunctor(m_StopToken);
-            }
-            else
-            {
-                m_TaskFunctor();
+    void operator()() {
+        if constexpr ( std::is_void< ReturnT >::value ) {
+            if constexpr ( std::is_invocable_v< TaskT, std::stop_token > ) {
+                m_taskFunctor( m_stopToken );
+            } else {
+                m_taskFunctor();
             }
 
-            m_Promise.SetValue();
-        }
-        else
-        {
-            if constexpr (std::is_invocable_v<TaskT, std::stop_token>)
-            {
-                m_Promise.SetValue(m_TaskFunctor(m_StopToken));
-            }
-            else
-            {
-                m_Promise.SetValue(m_TaskFunctor());
+            m_promise.setValue();
+        } else {
+            if constexpr ( std::is_invocable_v< TaskT, std::stop_token > ) {
+                m_promise.setValue( m_taskFunctor( m_stopToken ) );
+            } else {
+                m_promise.setValue( m_taskFunctor() );
             }
         }
     }
 
-private:
-    TaskT m_TaskFunctor = nullptr;
-    Promise<ReturnT> m_Promise;
-    std::stop_token m_StopToken;
+  private:
+    TaskT m_taskFunctor = nullptr;
+    Promise< ReturnT > m_promise;
+    std::stop_token m_stopToken;
 };
 
 } // namespace onyx::threading

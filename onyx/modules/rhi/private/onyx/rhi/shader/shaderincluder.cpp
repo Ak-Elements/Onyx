@@ -90,7 +90,7 @@ namespace onyx::rhi
 				for (const FilePath& includeDirectoryPath : m_IncludeDirectories)
 				{
 					String includeDirectory = includeDirectoryPath.generic_string();
-					if (IgnoreCaseStartsWith(requestedPathString, includeDirectory))
+					if (ignoreCaseStartsWith(requestedPathString, includeDirectory))
 					{
 						requestedPathString = requestedPathString.substr(includeDirectory.length());
 					}

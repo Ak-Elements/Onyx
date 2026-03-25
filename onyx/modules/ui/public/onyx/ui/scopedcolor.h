@@ -2,22 +2,20 @@
 
 #if ONYX_USE_IMGUI
 
-namespace onyx::ui
-{
-    struct ScopedImGuiColor
-    {
-    public:
-        ScopedImGuiColor(onyxS32 colorId, onyxU32 color);
+namespace onyx::ui {
+struct ScopedImGuiColor {
+  public:
+    ScopedImGuiColor( int32_t colorId, uint32_t color );
 
-        // list of color vars
-        ScopedImGuiColor(std::initializer_list<std::pair<onyxS32, onyxU32>> colorVars);
+    // list of color vars
+    ScopedImGuiColor( std::initializer_list< std::pair< int32_t, uint32_t > > colorVars );
 
-        ~ScopedImGuiColor();
+    ~ScopedImGuiColor();
 
-        void Reset();
+    void Reset();
 
-    private:
-        onyxS32 m_ColorVarsCount = 1;
-    };
-}
+  private:
+    int32_t m_ColorVarsCount = 1;
+};
+} // namespace onyx::ui
 #endif

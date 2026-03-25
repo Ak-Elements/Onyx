@@ -1,42 +1,39 @@
 #pragma once
 
-#include <onyx/inputactions/bindings/inputbinding.h>
 #include <onyx/input/inputid.h>
+#include <onyx/inputactions/bindings/inputbinding.h>
 
-namespace onyx::input_actions
-{
-    class InputBindingAxis2D : public InputBinding
-    {
-        friend struct Serialization<InputBindingAxis2D>;
-    public:
-        static constexpr StringId32 TypeId{ "onyx::input_bindings::Axis2D" };
-        StringId32 GetTypeId() const override { return TypeId; }
+namespace onyx::input_actions {
+class InputBindingAxis2D : public InputBinding {
+    friend struct Serialization< InputBindingAxis2D >;
 
-        void Reset() override;
+  public:
+    static constexpr StringId32 TypeId{ "onyx::input_bindings::Axis2D" };
+    StringId32 GetTypeId() const override { return TypeId; }
 
-        onyxS32 GetInputBindingSlotsCount() const override { return 2; }
-        input::InputID GetBoundInputForSlot(onyxU32 index) const override;
-        void SetInputBindingSlot(onyxU32 index, input::InputID inputID) override;
+    void Reset() override;
 
-        StringView GetName() const override { return "Axis 2D"; }
-        StringView GetInputBindingSlotName(onyxU32 index) const override;
+    int32_t GetInputBindingSlotsCount() const override { return 2; }
+    input::InputID GetBoundInputForSlot( uint32_t index ) const override;
+    void SetInputBindingSlot( uint32_t index, input::InputID inputID ) override;
 
-    private:
-        bool DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue) override;
+    StringView GetName() const override { return "Axis 2D"; }
+    StringView GetInputBindingSlotName( uint32_t index ) const override;
 
-    private:
-        // just for mouse / gamepad / joysticks
-        input::InputID m_AxisX;
-        input::InputID m_AxisY;
-    };
-}
+  private:
+    bool DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) override;
 
-namespace onyx
-{
-    template <>
-    struct Serialization<input_actions::InputBindingAxis2D>
-    {
-        static bool Serialize(Serializer& serializer, const input_actions::InputBindingAxis2D& binding);
-        static bool Deserialize(const Deserializer& deserializer, input_actions::InputBindingAxis2D& outBinding);
-    };
-}
+  private:
+    // just for mouse / gamepad / joysticks
+    input::InputID m_AxisX;
+    input::InputID m_AxisY;
+};
+} // namespace onyx::input_actions
+
+namespace onyx {
+template <>
+struct Serialization< input_actions::InputBindingAxis2D > {
+    static bool serialize( Serializer& serializer, const input_actions::InputBindingAxis2D& binding );
+    static bool deserialize( const Deserializer& deserializer, input_actions::InputBindingAxis2D& outBinding );
+};
+} // namespace onyx

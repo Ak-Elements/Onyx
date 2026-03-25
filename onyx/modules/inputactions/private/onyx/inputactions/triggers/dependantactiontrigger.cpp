@@ -15,13 +15,13 @@ namespace onyx::input_actions
 
 namespace onyx
 {
-    bool Serialization<input_actions::DependantActionInputTrigger>::Serialize(Serializer& serializer, const input_actions::DependantActionInputTrigger& trigger)
+    bool Serialization<input_actions::DependantActionInputTrigger>::serialize(Serializer& serializer, const input_actions::DependantActionInputTrigger& trigger)
     {
-        return serializer.Write<"actionId">(trigger.m_ActionId);
+        return serializer.write<"actionId">(trigger.m_ActionId);
     }
 
-    bool Serialization<input_actions::DependantActionInputTrigger>::Deserialize(const Deserializer& deserializer, input_actions::DependantActionInputTrigger& outTrigger)
+    bool Serialization<input_actions::DependantActionInputTrigger>::deserialize(const Deserializer& deserializer, input_actions::DependantActionInputTrigger& outTrigger)
     {
-        return deserializer.Read<"actionId">(outTrigger.m_ActionId);
+        return deserializer.read<"actionId">(outTrigger.m_ActionId);
     }
 }

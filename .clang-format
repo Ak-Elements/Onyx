@@ -8,10 +8,14 @@ AccessModifierOffset: -2
 NamespaceIndentation: None
 
 # Column limit
-ColumnLimit: 180
+ColumnLimit: 120
 
 # Braces (K&R / attach style)
 BreakBeforeBraces: Attach
+BreakBeforeBinaryOperators: None
+PenaltyBreakAssignment: 1000
+PenaltyReturnTypeOnItsOwnLine: 1000
+BreakTemplateDeclarations: Leave
 
 # Spaces
 SpaceBeforeParens: ControlStatements
@@ -28,16 +32,18 @@ AlignConsecutiveDeclarations: false
 AlignTrailingComments: true
 
 # Constructor initializer lists
-BreakConstructorInitializers: BeforeColon
+BreakConstructorInitializers: BeforeComma
 ConstructorInitializerIndentWidth: 4
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
+PackConstructorInitializers: Never
 
 # Function formatting
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 BinPackArguments: false
-BinPackParameters: false
+BinPackParameters: OnePerLine
 
 # Pointer alignment
 PointerAlignment: Left
@@ -45,6 +51,8 @@ PointerAlignment: Left
 # Line breaks
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
+
+RequiresClausePosition: WithPreceding
 
 # Comments
 ReflowComments: true

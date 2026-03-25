@@ -4,50 +4,38 @@
 #include <onyx/input/keycodes.h>
 #include <onyx/input/mouse.h>
 
-namespace onyx::input
-{
-    enum class ButtonState : onyxU8
-    {
-        Down,
-        Up,
-        Repeat
-    };
+namespace onyx::input {
+enum class ButtonState : uint8_t { Down, Up, Repeat };
 
-    struct KeyboardEvent
-    {
-        //Key
-        onyxU16 Char;
-        Key Key;
-        ButtonState State;
-    };
+struct KeyboardEvent {
+    // Key
+    uint16_t Char;
+    Key Key;
+    ButtonState State;
+};
 
-    struct MouseButtonEvent
-    {
-        MouseButton Button;
-        ButtonState State;
-    };
+struct MouseButtonEvent {
+    MouseButton Button;
+    ButtonState State;
+};
 
-    struct MousePositionEvent
-    {
-        Vector2s32 Position;
-    };
+struct MousePositionEvent {
+    Vector2s32 Position;
+};
 
-    struct MouseAxisEvent
-    {
-        onyxS16 Value;
-    };
+struct MouseAxisEvent {
+    int16_t Value;
+};
 
-    struct GameControllerButtonEvent
-    {
-        onyxU32 ControllerIndex;
-        GameControllerButton Button;
-        ButtonState State;
-    };
+struct GameControllerButtonEvent {
+    uint32_t ControllerIndex;
+    GameControllerButton Button;
+    ButtonState State;
+};
 
-    struct GameControllerAxisEvent
-    {
-        onyxU32 ControllerIndex;
-        GameControllerAxis Axis;
-        onyxS16 Value;
-    };
-}
+struct GameControllerAxisEvent {
+    uint32_t ControllerIndex;
+    GameControllerAxis Axis;
+    int16_t Value;
+};
+} // namespace onyx::input

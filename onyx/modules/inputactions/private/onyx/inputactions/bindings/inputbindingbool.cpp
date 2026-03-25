@@ -17,13 +17,13 @@ namespace onyx::input_actions
 
 namespace onyx
 {
-    bool Serialization<input_actions::InputBindingBool>::Serialize(Serializer& serializer, const input_actions::InputBindingBool& binding)
+    bool Serialization<input_actions::InputBindingBool>::serialize(Serializer& serializer, const input_actions::InputBindingBool& binding)
     {
-        return serializer.Write<"input">(binding.m_Input);
+        return serializer.write<"input">(binding.m_Input);
     }
 
-    bool Serialization<input_actions::InputBindingBool>::Deserialize(const Deserializer& deserializer, input_actions::InputBindingBool& outBinding)
+    bool Serialization<input_actions::InputBindingBool>::deserialize(const Deserializer& deserializer, input_actions::InputBindingBool& outBinding)
     {
-        return deserializer.Read<"input">(outBinding.m_Input);
+        return deserializer.read<"input">(outBinding.m_Input);
     }
 }

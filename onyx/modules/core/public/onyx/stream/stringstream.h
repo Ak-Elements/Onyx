@@ -1,65 +1,59 @@
 #pragma once
 
-#include <algorithm>
-#include <string>
 #include <charconv>
 
 #include <onyx/onyx_types.h>
 #include <onyx/stream/stream.h>
 
-namespace onyx
-{
-    class StringStream : public Stream
-    {
-    public:
-        StringStream() = default;
-        explicit StringStream(const String& str);
+namespace onyx {
+class StringStream : public Stream {
+  public:
+    StringStream() = default;
+    explicit StringStream( String str );
 
-        bool IsValid() const override { return m_Data.empty(); }
-        bool IsEof() const override { return m_CurrentDataPosition >= GetLength(); }
-        onyxU64 GetPosition() override { return m_CurrentDataPosition; }
-        onyxU64 GetPosition() const override { return m_CurrentDataPosition; }
-        void SetPosition(onyxU64 position) override { m_CurrentDataPosition = position; }
-        onyxU64 GetLength() const override { return static_cast<onyxU64>(m_Data.size()); }
+    bool isValid() const override { return m_data.empty(); }
+    bool isEof() const override { return m_currentDataPosition >= getLength(); }
+    uint64_t getPosition() override { return m_currentDataPosition; }
+    uint64_t getPosition() const override { return m_currentDataPosition; }
+    void setPosition( uint64_t position ) override { m_currentDataPosition = position; }
+    uint64_t getLength() const override { return static_cast< uint64_t >( m_data.size() ); }
 
-        const String& GetData() { return m_Data; }
+    const String& getData() { return m_data; }
 
-        void SkipWhitespaces();
+    void skipWhitespaces();
 
-        bool ReadString(StringView& outStrView, const char delimiter);
-        bool ReadString(StringView& outStrView);
-        bool ReadLine(StringView& outStrView);
-        bool ReadStringUntil(StringView& outStrView, const char delimiter);
-        bool ReadConditional(StringView expectedValue);
+    bool readString( StringView& outStrView, const char delimiter );
+    bool readString( StringView& outStrView );
+    bool readLine( StringView& outStrView );
+    bool readStringUntil( StringView& outStrView, const char delimiter );
+    bool readConditional( StringView expectedValue );
 
-        template <typename T>
-        bool ReadType(T& outValue)
-        {
-            ONYX_ASSERT(IsEof() == false);
+    template < typename T >
+    bool readType( T& outValue ) {
+        ONYX_ASSERT( IsEof() == false );
 
-            const char* startPos = (m_Data.data() + m_CurrentDataPosition);
-            const std::from_chars_result result = std::from_chars(startPos, startPos + GetRemainingLength(), outValue);
-            ONYX_ASSERT(result.ec != std::errc::invalid_argument);
-            ONYX_ASSERT(result.ec != std::errc::result_out_of_range);
+        const char* startPos = ( m_data.data() + m_currentDataPosition );
+        const std::from_chars_result result = std::from_chars( startPos, startPos + getRemainingLength(), outValue );
+        ONYX_ASSERT( result.ec != std::errc::invalid_argument );
+        ONYX_ASSERT( result.ec != std::errc::result_out_of_range );
 
-            onyxU32 count = static_cast<onyxU32>(result.ptr - startPos);
-            Skip(count);
-            return true;
-        }
+        uint32_t count = static_cast< uint32_t >( result.ptr - startPos );
+        skip( count );
+        return true;
+    }
 
-        template <typename T>
-        void WriteType(const T& val)
-        {
-            String valStr = to_string(val);
-            Write(valStr);
-        }
+    template < typename T >
+    void writeType( const T& val ) {
+        String valStr = to_string( val );
+        write( valStr );
+    }
 
-    private:
-        void DoRead(char* destination, onyxU64 size) const override;
-        void DoWrite(const char* data, onyxU64 size) override;
+  private:
+    void doRead( char* destination, uint64_t size ) const override;
+    void doWrite( const char* data, uint64_t size ) override;
 
-    private:
-        String m_Data;
-        mutable onyxU64 m_CurrentDataPosition = 0;
-    };
-}
+  private:
+    String m_data;
+    mutable uint64_t m_currentDataPosition = 0;
+};
+} // namespace onyx

@@ -1,72 +1,69 @@
 #pragma once
 #include <onyx/assets/asset.h>
-#include <onyx/gamecore/scene/scenesectorstreamer.h>
 #include <onyx/entity/entityregistry.h>
+#include <onyx/gamecore/scene/scenesectorstreamer.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/physics/physicssystem.h>
 
-namespace onyx::graphics
-{
-    class RenderGraph;
+namespace onyx::graphics {
+class RenderGraph;
 }
 
-namespace onyx::ecs
-{
-    class ComponentFactory;
+namespace onyx::ecs {
+class ComponentFactory;
 }
 
-namespace onyx::game_core
-{
-    class Scene : public assets::Asset<Scene>
-    {
-        friend struct SceneSerializer;
-    public:
-        static constexpr StringId32 TypeId{ "onyx::game_core::assets::Scene" };
-        
-        static Reference<Scene> Create(IEngine& engine);
+namespace onyx::game_core {
+class Scene : public assets::Asset< Scene > {
+    friend struct SceneSerializer;
 
-        Scene(ecs::ComponentFactory& factory);
+  public:
+    static constexpr StringId32 TypeId{ "onyx::game_core::assets::Scene" };
 
-        StringId32 GetTypeId() const { return TypeId; }
+    static Reference< Scene > create( IEngine& engine );
 
-        ecs::EntityRegistry& GetRegistry() { return m_Registry; }
-        const ecs::EntityRegistry& GetRegistry() const { return m_Registry; }
+    Scene( ecs::ComponentFactory& factory );
 
-        const SceneSectorStreamer& GetSectorStreamer() const { return m_SectorStreamer; }
+    StringId32 GetTypeId() const { return TypeId; }
 
-        void SetLoadCenter(const Vector3f32& loadCenter);
-        void SetStreamInDistance(onyxF64 distance);
-        void SetStreamOutDistance(onyxF64 distance);
+    ecs::EntityRegistry& GetRegistry() { return m_Registry; }
+    const ecs::EntityRegistry& GetRegistry() const { return m_Registry; }
 
-        void Copy(const Reference<Scene>& scene);
+    const SceneSectorStreamer& GetSectorStreamer() const { return m_SectorStreamer; }
 
-        void Update(onyxU64 deltaTime);
+    void SetLoadCenter( const Vector3f32& loadCenter );
+    void SetStreamInDistance( float64 distance );
+    void SetStreamOutDistance( float64 distance );
 
-        bool HasRenderGraph() { return m_SceneRenderGraph.IsValid() && m_SceneRenderGraph->IsInitialized(); }
+    void Copy( const Reference< Scene >& scene );
 
-        assets::AssetHandle<graphics::RenderGraph>& GetRenderGraphRef() { return m_SceneRenderGraph; }
-        graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
-        const graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
+    void Update( uint64_t deltaTime );
 
-        onyx::physics::PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
+    bool HasRenderGraph() { return m_SceneRenderGraph.isValid() && m_SceneRenderGraph->IsInitialized(); }
+
+    assets::AssetHandle< graphics::RenderGraph >& GetRenderGraphRef() { return m_SceneRenderGraph; }
+    graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
+    const graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
+
+    onyx::physics::PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
 
 #if ONYX_IS_EDITOR
-        String GetUniqueEntityName(const String& preferredName);
+    String GetUniqueEntityName( const String& preferredName );
 #endif
 
-    private:
-        // only needed in editor most likely 
-        void OnTransformComponentConstructed(ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity);
-        void OnTransformComponentDestroyed(ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity);
+  private:
+    // only needed in editor most likely
+    void OnTransformComponentConstructed( ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity );
+    void OnTransformComponentDestroyed( ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity );
 
-    private:
-        Vector3f32 m_LoadCenter; // center position of the streaming
+  private:
+    Vector3f32 m_LoadCenter; // center position of the streaming
 
-        SceneSectorStreamer m_SectorStreamer { *this };
-        ecs::EntityRegistry m_Registry;
-        onyx::physics::PhysicsWorld m_PhysicsWorld;
+    SceneSectorStreamer m_SectorStreamer{ *this };
+    ecs::EntityRegistry m_Registry;
+    onyx::physics::PhysicsWorld m_PhysicsWorld;
 
-        assets::AssetHandle<graphics::RenderGraph> m_SceneRenderGraph;
-    };
-}
+    assets::AssetHandle< graphics::RenderGraph > m_SceneRenderGraph;
+};
+} // namespace onyx::game_core

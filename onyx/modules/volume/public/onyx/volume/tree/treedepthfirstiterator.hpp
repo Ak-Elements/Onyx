@@ -1,85 +1,73 @@
 #pragma once
 
-namespace onyx::volume
-{
+namespace onyx::volume {
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    template<typename TreeT>
-    TreeDepthFirstIterator<TreeT>::TreeDepthFirstIterator(TreeT* quadtree, onyxU8 maxDepth)
-        : super(quadtree, maxDepth)
-        , m_IteratorStates()
-    {
-        // initialize iterator
-        Reset();
+//////////////////////////////////////////////////////////////////////////////////////////////
+template < typename TreeT >
+TreeDepthFirstIterator< TreeT >::TreeDepthFirstIterator( TreeT* quadtree, uint8_t maxDepth )
+    : super( quadtree, maxDepth )
+    , m_IteratorStates() {
+    // initialize iterator
+    Reset();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+template < typename TreeT >
+TreeDepthFirstIterator< TreeT >::~TreeDepthFirstIterator() {}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+template < typename TreeT >
+void TreeDepthFirstIterator< TreeT >::Reset() {
+    super::Reset();
+
+    // allocate stack
+    m_IteratorStates.reserve( super::m_MaxDepth );
+
+    // empty stack
+    m_IteratorStates.clear();
+
+    if ( super::m_Tree != nullptr ) {
+        m_IteratorStates.emplace_back( &( super::m_Tree->GetRootNode() ) );
+        super::m_CurrentState = &m_IteratorStates.back();
+        super::m_CurrentState->m_Depth = 0;
     }
+}
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    template<typename TreeT>
-    TreeDepthFirstIterator<TreeT>::~TreeDepthFirstIterator()
-    {
-    }
+//////////////////////////////////////////////////////////////////////////////////////////////
+template < typename TreeT >
+TreeDepthFirstIterator< TreeT >& TreeDepthFirstIterator< TreeT >::operator++() {
+    if ( m_IteratorStates.empty() == false ) {
+        // get stack element
+        IteratorT state = m_IteratorStates.back();
+        m_IteratorStates.pop_back();
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    template<typename TreeT>
-    void TreeDepthFirstIterator<TreeT>::Reset()
-    {
-        super::Reset();
+        ++state.m_Depth;
+        if ( state.m_Depth <= super::m_MaxDepth ) {
+            TreeNode* currentNode = state.m_Node;
+            if ( currentNode->IsBranch() ) {
+                const uint32_t firstChildIndex = currentNode->GetIndex();
+                for ( int8_t childIndex = TreeT::ChildCount - 1; childIndex >= 0; --childIndex ) {
+                    TreeNode* childNode = &( super::m_Tree->GetNode( firstChildIndex + childIndex ) );
 
-        // allocate stack
-        m_IteratorStates.reserve(super::m_MaxDepth);
+                    // either morton2D or 3D
+                    constexpr uint8_t keyDimension = is_specialization_of_v< MortonCode3D, typename TreeT::KeyType >
+                                                         ? 3
+                                                         : 2;
+                    typename TreeDepthFirstIterator::KeyType nodeKey( ( state.m_Key << keyDimension ) + childIndex );
 
-        // empty stack
-        m_IteratorStates.clear();
-
-        if (super::m_Tree != nullptr)
-        {
-            m_IteratorStates.emplace_back(&(super::m_Tree->GetRootNode()));
-            super::m_CurrentState = &m_IteratorStates.back();
-            super::m_CurrentState->m_Depth = 0;
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    template<typename TreeT>
-    TreeDepthFirstIterator<TreeT>& TreeDepthFirstIterator<TreeT>::operator++()
-    {
-        if (m_IteratorStates.empty() == false)
-        {
-            // get stack element
-            IteratorT state = m_IteratorStates.back();
-            m_IteratorStates.pop_back();
-
-            ++state.m_Depth;
-            if (state.m_Depth <= super::m_MaxDepth)
-            {
-                TreeNode* currentNode = state.m_Node;
-                if (currentNode->IsBranch())
-                {
-                    const onyxU32 firstChildIndex = currentNode->GetIndex();
-                    for (onyxS8 childIndex = TreeT::ChildCount - 1; childIndex >= 0; --childIndex)
-                    {
-                        TreeNode* childNode = &(super::m_Tree->GetNode(firstChildIndex + childIndex));
-
-                        // either morton2D or 3D
-                        constexpr onyxU8 keyDimension = is_specialization_of_v<MortonCode3D, typename TreeT::KeyType> ? 3 : 2;
-                        typename TreeDepthFirstIterator::KeyType nodeKey((state.m_Key << keyDimension) + childIndex);
-
-                        m_IteratorStates.emplace_back(childNode, nodeKey, state.m_Depth);
-                    }
+                    m_IteratorStates.emplace_back( childNode, nodeKey, state.m_Depth );
                 }
             }
-
-            if (m_IteratorStates.empty())
-            {
-                super::m_CurrentState = nullptr;
-            }
-            else
-            {
-                super::m_CurrentState = &m_IteratorStates.back();
-            }
         }
 
-        return (*this);
+        if ( m_IteratorStates.empty() ) {
+            super::m_CurrentState = nullptr;
+        } else {
+            super::m_CurrentState = &m_IteratorStates.back();
+        }
     }
 
-} // namespace onyx
+    return ( *this );
+}
+
+} // namespace onyx::volume

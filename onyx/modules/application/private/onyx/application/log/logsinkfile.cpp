@@ -1,38 +1,31 @@
 #include <onyx/application/log/logsinkfile.h>
 
-namespace onyx::application
-{
-    LogSinkFile::LogSinkFile(StringView mountPath)
-        : m_LogFile(mountPath)
-        , m_LogFileStream(m_LogFile.OpenStream(file_system::OpenMode::Text | file_system::OpenMode::Write))
-    {
+namespace onyx::application {
+LogSinkFile::LogSinkFile( StringView mountPath )
+    : m_logFile( mountPath )
+    , m_logFileStream( m_logFile.OpenStream( file_system::OpenMode::Text | file_system::OpenMode::Write ) ) {}
+
+void LogSinkFile::log( const LogMessage& message ) {
+    if ( m_logFileStream.isValid() == false ) {
+        return;
     }
 
-    LogSinkFile::~LogSinkFile()
-    {
-        // close file properly?
+    FilePath relativeFilePath = file_system::Path::ConvertToMountPath( message.FileName );
+
+    StringView formattedMessage;
+    if ( message.FileName == nullptr ) {
+        formattedMessage = format::format( "{}: {}\n",
+                                           getLogLevelName( message.LogLevel ).data(),
+                                           message.Message.data() );
+    } else {
+        formattedMessage = format::format( "{}:{}:{}: {}\n",
+                                           relativeFilePath.generic_string(),
+                                           message.LineNumber,
+                                           getLogLevelName( message.LogLevel ).data(),
+                                           message.Message.data() );
     }
 
-    void LogSinkFile::Log(const LogMessage& message)
-    {
-        if (m_LogFileStream.IsValid() == false)
-        {
-            return;
-        }
-
-		FilePath relativeFilePath = file_system::Path::ConvertToMountPath(message.m_FileName);
-
-        StringView formattedMessage;
-        if( message.m_FileName == nullptr )
-        {
-            formattedMessage = format::Format( "{}: {}\n", GetLogLevelName( message.m_LogLevel ).data(), message.m_Message.data() );
-        }
-        else
-        {
-            formattedMessage = format::Format( "{}:{}:{}: {}\n", relativeFilePath.generic_string(), message.m_LineNumber, GetLogLevelName( message.m_LogLevel ).data(), message.m_Message.data() );
-        }
-
-        m_LogFileStream.WriteRaw(formattedMessage.data(), formattedMessage.size());
-        m_LogFileStream.Flush();
-    }
+    m_logFileStream.writeRaw( formattedMessage.data(), formattedMessage.size() );
+    m_logFileStream.flush();
 }
+} // namespace onyx::application

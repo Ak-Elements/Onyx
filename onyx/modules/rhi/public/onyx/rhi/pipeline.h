@@ -41,28 +41,28 @@ namespace onyx
     template <>
     struct Serialization<rhi::PipelineProperties>
     {
-        static bool Serialize(Serializer& serializer, const rhi::PipelineProperties& properties);
-        static bool Deserialize(const Deserializer& deserializer, rhi::PipelineProperties& outProperties);
+        static bool serialize(Serializer& serializer, const rhi::PipelineProperties& properties);
+        static bool deserialize(const Deserializer& deserializer, rhi::PipelineProperties& outProperties);
     };
 
     template <>
     struct Serialization<rhi::Rasterization>
     {
-        static bool Serialize(Serializer& serializer, const rhi::Rasterization& rasterization);
-        static bool Deserialize(const Deserializer& deserializer, rhi::Rasterization& outRasterization);
+        static bool serialize(Serializer& serializer, const rhi::Rasterization& rasterization);
+        static bool deserialize(const Deserializer& deserializer, rhi::Rasterization& outRasterization);
     };
 
     template <>
     struct Serialization<rhi::DepthStencil>
     {
-        static bool Serialize(Serializer& serializer, const rhi::DepthStencil& depthStencil);
-        static bool Deserialize(const Deserializer& deserializer, rhi::DepthStencil& outDepthStencil);
+        static bool serialize(Serializer& serializer, const rhi::DepthStencil& depthStencil);
+        static bool deserialize(const Deserializer& deserializer, rhi::DepthStencil& outDepthStencil);
     };
 
     template <>
     struct Serialization<rhi::BlendState>
     {
-        static bool Serialize(Serializer& serializer, const rhi::BlendState& blendState);
-        static bool Deserialize(const Deserializer& deserializer, rhi::BlendState& outblendState);
+        static bool serialize(Serializer& serializer, const rhi::BlendState& blendState);
+        static bool deserialize(const Deserializer& deserializer, rhi::BlendState& outblendState);
     };
 }

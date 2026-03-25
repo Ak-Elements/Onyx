@@ -2,16 +2,15 @@
 
 #include <onyx/engine/enginevariable.h>
 
-namespace onyx
-{
-    class EngineVariablesRegistry
-    {
-    public:
-        void Register(IEngineVariable& variable) { m_Variables.emplace(variable.GetId(), &variable); }
-        void Unregister(IEngineVariable& variable) { m_Variables.erase(variable.GetId()); }
+namespace onyx {
+class EngineVariablesRegistry {
+  public:
+    void registerVariable( IEngineVariable& variable ) { m_variables.emplace( variable.getId(), &variable ); }
+    void unregisterVariable( IEngineVariable& variable ) { m_variables.erase( variable.getId() ); }
 
-        const HashMap<StringId32, IEngineVariable*> GetVariables() const { return m_Variables; }
-    private:
-        HashMap<StringId32, IEngineVariable*> m_Variables;
-    };
-}
+    const HashMap< StringId32, IEngineVariable* >& getVariables() const { return m_variables; }
+
+  private:
+    HashMap< StringId32, IEngineVariable* > m_variables;
+};
+} // namespace onyx

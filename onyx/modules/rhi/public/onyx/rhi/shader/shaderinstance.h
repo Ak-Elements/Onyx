@@ -1,55 +1,55 @@
 #pragma once
 
 #include <onyx/assets/assethandle.h>
-#include <onyx/rhi/shader/shader.h>
 #include <onyx/rhi/graphicstypes.h>
+#include <onyx/rhi/shader/shader.h>
 
-namespace onyx::rhi
-{
-    class Buffer;
-    class Pipeline;
-    class Shader;
-    class ShaderCache;
-    class GraphicsSystem;
-    class DescriptorSet;
+namespace onyx::rhi {
+class Buffer;
+class Pipeline;
+class Shader;
+class ShaderCache;
+class GraphicsSystem;
+class DescriptorSet;
 
-    struct BufferHandle;
-    struct TextureHandle;
-    struct PipelineProperties;
+struct BufferHandle;
+struct TextureHandle;
+struct PipelineProperties;
 
-    class ShaderInstance : public RefCounted
-    {
-    public:
-        ShaderInstance() = default;
-        ShaderInstance(const GraphicsSystem& api, const Reference<Pipeline>& pipeline, const assets::AssetHandle<Shader>& shader);
+class ShaderInstance : public RefCounted {
+  public:
+    ShaderInstance() = default;
+    ShaderInstance( const GraphicsSystem& api,
+                    const Reference< Pipeline >& pipeline,
+                    const assets::AssetHandle< Shader >& shader );
 
-        const Reference<Pipeline>& GetPipeline() const { return m_Pipeline; }
-        DynamicArray<Reference<DescriptorSet>>& GetDescriptorSets(onyxU8 frameIndex);
-        const DynamicArray<Reference<DescriptorSet>>& GetDescriptorSets(onyxU8 frameIndex) const;
+    const Reference< Pipeline >& GetPipeline() const { return m_Pipeline; }
+    DynamicArray< Reference< DescriptorSet > >& GetDescriptorSets( uint8_t frameIndex );
+    const DynamicArray< Reference< DescriptorSet > >& GetDescriptorSets( uint8_t frameIndex ) const;
 
-        bool HasDescriptorSets() const { return m_DescriptorSets.empty() == false; }
-        bool IsCompute() const;
+    bool HasDescriptorSets() const { return m_DescriptorSets.empty() == false; }
+    bool IsCompute() const;
 
-        bool IsValid() const;
+    bool IsValid() const;
 
-        void Bind(const TextureHandle& texture, const String& bindingName, onyxU8 frameIndex);
-        void Bind(const BufferHandle& buffer, const String& bindingName, onyxU8 frameIndex);
+    void Bind( const TextureHandle& texture, const String& bindingName, uint8_t frameIndex );
+    void Bind( const BufferHandle& buffer, const String& bindingName, uint8_t frameIndex );
 
-        void PreDraw(onyxU8 frameIndex);
+    void PreDraw( uint8_t frameIndex );
 
-    private:
-        Reference<DescriptorSet>& GetDescriptorSet(onyxU8 frameIndex, onyxU8 descriptorSetIndex);
-        const Reference<DescriptorSet>& GetDescriptorSet(onyxU8 frameIndex, onyxU8 descriptorSetIndex) const;
+  private:
+    Reference< DescriptorSet >& GetDescriptorSet( uint8_t frameIndex, uint8_t descriptorSetIndex );
+    const Reference< DescriptorSet >& GetDescriptorSet( uint8_t frameIndex, uint8_t descriptorSetIndex ) const;
 
-        void OnShaderLoaded(assets::AssetHandle<Shader> shader);
+    void OnShaderLoaded( assets::AssetHandle< Shader > shader );
 
-    private:
-        const GraphicsSystem* m_Api = nullptr;
+  private:
+    const GraphicsSystem* m_Api = nullptr;
 
-        assets::AssetHandle<Shader> m_Shader;
-        Reference<Pipeline> m_Pipeline;
-                                    // node can rebind descriptor bindings
-        InplaceArray<DynamicArray<Reference<DescriptorSet>>, MAX_FRAMES_IN_FLIGHT> m_DescriptorSets; // per frame
-        HashMap<String, onyxU8> m_BindingIdToDescriptorSet;
-    };
-}
+    assets::AssetHandle< Shader > m_Shader;
+    Reference< Pipeline > m_Pipeline;
+    // node can rebind descriptor bindings
+    InplaceArray< DynamicArray< Reference< DescriptorSet > >, MAX_FRAMES_IN_FLIGHT > m_DescriptorSets; // per frame
+    HashMap< String, uint8_t > m_BindingIdToDescriptorSet;
+};
+} // namespace onyx::rhi

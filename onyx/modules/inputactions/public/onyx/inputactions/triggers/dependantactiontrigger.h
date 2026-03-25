@@ -34,7 +34,7 @@ namespace onyx
     template <>
     struct Serialization<input_actions::DependantActionInputTrigger>
     {
-        static bool Serialize(Serializer& serializer, const input_actions::DependantActionInputTrigger& trigger);
-        static bool Deserialize(const Deserializer& deserializer, input_actions::DependantActionInputTrigger& outTrigger);
+        static bool serialize(Serializer& serializer, const input_actions::DependantActionInputTrigger& trigger);
+        static bool deserialize(const Deserializer& deserializer, input_actions::DependantActionInputTrigger& outTrigger);
     };
 }

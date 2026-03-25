@@ -2,17 +2,15 @@
 
 #if ONYX_USE_IMGUI
 
-namespace onyx::ui
-{
-    struct ScopedImGuiIndent
-    {
-        ScopedImGuiIndent();
-        ScopedImGuiIndent(onyxF32 indent);
-        ~ScopedImGuiIndent();
+namespace onyx::ui {
+struct ScopedImGuiIndent {
+    ScopedImGuiIndent();
+    ScopedImGuiIndent( float32 indent );
+    ~ScopedImGuiIndent();
 
-    private:
-        onyxF32 m_Indent = 0.0f;
-    };
-}
+  private:
+    float32 m_Indent = 0.0f;
+};
+} // namespace onyx::ui
 
 #endif

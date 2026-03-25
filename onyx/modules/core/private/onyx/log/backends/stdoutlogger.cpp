@@ -1,25 +1,26 @@
 #include <onyx/log/backends/stdoutlogger.h>
 
-#include <onyx/string/format.h>
 #include <onyx/log/loglevel.h>
 #include <onyx/log/logmessage.h>
+#include <onyx/string/format.h>
 
-namespace onyx
-{
-    void StdoutLogger::Log(const LogMessage& message)
-    {
-        const char* formattedMessage;
-        if (message.m_FileName == nullptr)
-        {
-            formattedMessage = format::Format("{}: {}", GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
-        }
-        else
-        {
-            formattedMessage = format::Format("{}:{}:{}: {}", message.m_FileName, message.m_LineNumber, GetLogLevelName(message.m_LogLevel).data(), message.m_Message.data());
-        }
-
-        std::printf("%s", GetLogLevelConsoleColor(message.m_LogLevel).data());
-        std::printf("%s\n", formattedMessage);
-        std::printf("%s", log_private::reset.data());
+namespace onyx {
+void StdoutLogger::log( const LogMessage& message ) {
+    const char* formattedMessage;
+    if ( message.FileName == nullptr ) {
+        formattedMessage = format::format( "{}: {}",
+                                           getLogLevelName( message.LogLevel ).data(),
+                                           message.Message.data() );
+    } else {
+        formattedMessage = format::format( "{}:{}:{}: {}",
+                                           message.FileName,
+                                           message.LineNumber,
+                                           getLogLevelName( message.LogLevel ).data(),
+                                           message.Message.data() );
     }
+
+    std::printf( "%s", getLogLevelConsoleColor( message.LogLevel ).data() );
+    std::printf( "%s\n", formattedMessage );
+    std::printf( "%s", log_private::Reset.data() );
 }
+} // namespace onyx

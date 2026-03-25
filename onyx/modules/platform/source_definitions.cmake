@@ -9,6 +9,9 @@ set(onyx_TARGET_PUBLIC_SOURCES
     linux/wayland/waylandinput.h
     linux/wayland/waylandpointer.h
     linux/wayland/waylandkeyboard.h
+    linux/x11/x11platformcontext.h
+    linux/x11/x11window.h
+    linux/xkb.h
     windows/gameinputcontroller.h
     windows/windowskeycodes.h
     windows/windowsplatformcontext.h
@@ -23,6 +26,9 @@ set(onyx_TARGET_PRIVATE_SOURCES
     linux/wayland/waylandinput.cpp
     linux/wayland/waylandpointer.cpp
     linux/wayland/waylandkeyboard.cpp
+    linux/x11/x11platformcontext.cpp
+    linux/x11/x11window.cpp
+    linux/xkb.cpp
     windows/gameinputcontroller.cpp
     windows/windowsplatformcontext.cpp
     windows/windowswindow.cpp

@@ -1,12 +1,10 @@
 #pragma once
 
-namespace onyx::input
-{
-    enum class InputType : onyxU8
-    {
-        Invalid,
-        Mouse,
-        Keyboard,
-        Gamepad,
-    };
+namespace onyx::input {
+enum class InputType : uint8_t {
+    Invalid,
+    Mouse,
+    Keyboard,
+    Gamepad,
+};
 }

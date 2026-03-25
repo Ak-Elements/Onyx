@@ -5,160 +5,152 @@
 #include <onyx/editor/nodegraph/grapheditorcontext.h>
 #include <onyx/ui/controls/dockspace.h>
 
-namespace ax::NodeEditor
-{
-    struct EditorContext;
+namespace ax::NodeEditor {
+struct EditorContext;
 }
 
-namespace onyx::localization
-{
-    class LocalizationModule;
+namespace onyx::localization {
+class LocalizationModule;
 }
 
-namespace onyx::input_actions
-{
-    class InputActionSystem;
-    struct InputActionEvent;
-}
+namespace onyx::input_actions {
+class InputActionSystem;
+struct InputActionEvent;
+} // namespace onyx::input_actions
 
-namespace onyx::editor
-{
-    struct BlueprintNodeBuilder;
+namespace onyx::editor {
+struct BlueprintNodeBuilder;
 
-    class NodeGraphEditorWindow : public ui::ImGuiWindow
-    {
-    public:
-        static constexpr StringView WindowId = "NodeGraphEditor";
-        static constexpr StringView WindowCategory = "Window";
+class NodeGraphEditorWindow : public ui::ImGuiWindow {
+  public:
+    static constexpr StringView WindowId = "NodeGraphEditor";
+    static constexpr StringView WindowCategory = "Window";
 
-        NodeGraphEditorWindow();
-        ~NodeGraphEditorWindow() override;
+    NodeGraphEditorWindow();
+    ~NodeGraphEditorWindow() override;
 
-        StringView GetWindowId() override { return WindowId; }
+    StringView GetWindowId() override { return WindowId; }
 
-        template <typename T>
-        void SetContext(T&& context)
-        {
-            m_EditorContext = std::forward<T>(context);
-            m_EditorContext->SetLocalizationModule(GetEngineSystem<localization::LocalizationModule>());
-            m_EditorContext->OnLoaded.Connect<&NodeGraphEditorWindow::OnGraphLoaded>(this);
-            m_EditorContext->OnSaved.Connect<&NodeGraphEditorWindow::OnGraphSaved>(this);
-            m_EditorContext->LoadEditorMetaDataFunctor.Connect<&NodeGraphEditorWindow::LoadEditorMetaData>(this);
-            m_EditorContext->SaveEditorMetaDataFunctor.Connect<&NodeGraphEditorWindow::SaveEditorMetaData>(this);
-            m_EditorContext->OnNodeCreated.Connect<&NodeGraphEditorWindow::OnNodeCreated>(this);
-            m_ShouldFocus = true;
-            m_FocusDuration = 0.0f;
-        }
+    template < typename T >
+    void SetContext( T&& context ) {
+        m_EditorContext = std::forward< T >( context );
+        m_EditorContext->SetLocalizationModule( GetEngineSystem< localization::LocalizationModule >() );
+        m_EditorContext->OnLoaded.Connect< &NodeGraphEditorWindow::OnGraphLoaded >( this );
+        m_EditorContext->OnSaved.Connect< &NodeGraphEditorWindow::OnGraphSaved >( this );
+        m_EditorContext->LoadEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::LoadEditorMetaData >( this );
+        m_EditorContext->SaveEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::SaveEditorMetaData >( this );
+        m_EditorContext->OnNodeCreated.Connect< &NodeGraphEditorWindow::OnNodeCreated >( this );
+        m_ShouldFocus = true;
+        m_FocusDuration = 0.0f;
+    }
 
-    private:
-        void OnOpen() override;
-        void OnClose() override;
+  private:
+    void OnOpen() override;
+    void OnClose() override;
 
-        void OnRender(ui::ImGuiSystem& imguiSystem) override;
-        void RenderMenuBar();
+    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+    void RenderMenuBar();
 
-    private:
-        struct RerouteNode
-        {
-            RerouteNode() = default;
-            RerouteNode(node_graph::PinTypeId pinTypeId, onyxU32 pinTypeColor);
+  private:
+    struct RerouteNode {
+        RerouteNode() = default;
+        RerouteNode( node_graph::PinTypeId pinTypeId, uint32_t pinTypeColor );
 
-            Guid64 Id;
+        Guid64 Id;
 
-            Guid64 InputPinId;
-            Guid64 OutputPinId;
+        Guid64 InputPinId;
+        Guid64 OutputPinId;
 
-            Guid64 InteractionPinId; // Pin to connect and create connections
-            GraphEditorContext::PinDirection ActivePinDirection;
+        Guid64 InteractionPinId; // Pin to connect and create connections
+        GraphEditorContext::PinDirection ActivePinDirection;
 
-            node_graph::PinTypeId PinTypeId;
-            onyxU32 Color;
+        node_graph::PinTypeId PinTypeId;
+        uint32_t Color;
 
-            Vector2f32 Position;
-            bool HasUpdatedPosition;
-        };
-
-        struct RerouteLink
-        {
-            Guid64 Id;
-
-            Guid64 FromInputPinId;
-            Guid64 ToOutputPinId;
-
-            node_graph::PinTypeId PinTypeId;
-            onyxU32 Color;
-        };
-
-        void OnUpdate(onyxU64 deltaTime);
-
-        void DrawCanvas();
-
-        void DrawNode(const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder);
-        void DrawNodeHeader(const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder);
-        void DrawNodeInputs(const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder);
-        void DrawNodeOutputs(const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder);
-
-        void DrawRerouteNode(RerouteNode& node);
-
-        void DrawNodeLinks() const;
-
-        void DrawContextMenu();
-
-        void DrawCreateLink();
-        void DrawCreateNode();
-
-        void DrawPropertiesPanel();
-
-        void FilterNodeListContextMenu(StringView searchString);
-
-        void Save();
-        void SaveEditorMetaData(const FilePath& path);
-        void Load();
-        void LoadEditorMetaData(const FilePath& path);
-
-        void OnGraphLoaded();
-        void OnGraphSaved();
-
-        void OnCopyAction(const input_actions::InputActionEvent& inputActionContext);
-        void OnPasteAction(const input_actions::InputActionEvent& inputActionContext);
-        void OnDeleteAction(const input_actions::InputActionEvent& inputActionContext);
-
-        void OnNodeCreated(const GraphEditorContext::Node& node);
-
-        void OnLinkDoubleClicked(Guid64 linkId);
-
-        const RerouteNode* GetRerouteNodeById(Guid64 nodeId) const;
-        const RerouteNode* GetRerouteNodeByPinId(Guid64 pinId) const;
-
-        void FindRerouteDestinations(Guid64 reroutePinId, DynamicArray<Guid64>& outDestinationPinIds);
-    private:
-        struct CreateNewNodeData
-        {
-            Guid64 PinId;
-            node_graph::PinTypeId PinTypeId;
-            GraphEditorContext::PinDirection Direction;
-        };
-
-        CreateNewNodeData m_CreateNodeData;
-
-        ax::NodeEditor::EditorContext* m_Context = nullptr;
-        UniquePtr<GraphEditorContext> m_EditorContext;
-
-        ui::Dockspace m_Dockspace;
-
-        DynamicArray<RerouteNode> m_RerouteNodes;
-        DynamicArray<RerouteLink> m_RerouteLinks;
-
-        onyxF32 m_FocusDuration = 0.0f;
-
-        bool m_ShouldFocus = false;
-        bool m_ShowLinkDirections = false;
-
-        GraphEditorContext::PinDirection m_ForcedReroutePinDirection;
-
-        String m_CanvasPanelId;
-        String m_PropertiesPanelId;
-
-        onyxU32 m_WindowId;
+        Vector2f32 Position;
+        bool HasUpdatedPosition;
     };
-}
+
+    struct RerouteLink {
+        Guid64 Id;
+
+        Guid64 FromInputPinId;
+        Guid64 ToOutputPinId;
+
+        node_graph::PinTypeId PinTypeId;
+        uint32_t Color;
+    };
+
+    void OnUpdate( uint64_t deltaTime );
+
+    void DrawCanvas();
+
+    void DrawNode( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void DrawNodeHeader( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void DrawNodeInputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void DrawNodeOutputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+
+    void DrawRerouteNode( RerouteNode& node );
+
+    void DrawNodeLinks() const;
+
+    void DrawContextMenu();
+
+    void DrawCreateLink();
+    void DrawCreateNode();
+
+    void DrawPropertiesPanel();
+
+    void FilterNodeListContextMenu( StringView searchString );
+
+    void Save();
+    void SaveEditorMetaData( const FilePath& path );
+    void Load();
+    void LoadEditorMetaData( const FilePath& path );
+
+    void OnGraphLoaded();
+    void OnGraphSaved();
+
+    void OnCopyAction( const input_actions::InputActionEvent& inputActionContext );
+    void OnPasteAction( const input_actions::InputActionEvent& inputActionContext );
+    void OnDeleteAction( const input_actions::InputActionEvent& inputActionContext );
+
+    void OnNodeCreated( const GraphEditorContext::Node& node );
+
+    void OnLinkDoubleClicked( Guid64 linkId );
+
+    const RerouteNode* GetRerouteNodeById( Guid64 nodeId ) const;
+    const RerouteNode* GetRerouteNodeByPinId( Guid64 pinId ) const;
+
+    void FindRerouteDestinations( Guid64 reroutePinId, DynamicArray< Guid64 >& outDestinationPinIds );
+
+  private:
+    struct CreateNewNodeData {
+        Guid64 PinId;
+        node_graph::PinTypeId PinTypeId;
+        GraphEditorContext::PinDirection Direction;
+    };
+
+    CreateNewNodeData m_CreateNodeData;
+
+    ax::NodeEditor::EditorContext* m_Context = nullptr;
+    UniquePtr< GraphEditorContext > m_EditorContext;
+
+    ui::Dockspace m_Dockspace;
+
+    DynamicArray< RerouteNode > m_RerouteNodes;
+    DynamicArray< RerouteLink > m_RerouteLinks;
+
+    float32 m_FocusDuration = 0.0f;
+
+    bool m_ShouldFocus = false;
+    bool m_ShowLinkDirections = false;
+
+    GraphEditorContext::PinDirection m_ForcedReroutePinDirection;
+
+    String m_CanvasPanelId;
+    String m_PropertiesPanelId;
+
+    uint32_t m_WindowId;
+};
+} // namespace onyx::editor

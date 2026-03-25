@@ -1,42 +1,34 @@
 #include <onyx/application/taskgraph/taskgraphtask.h>
 
-namespace onyx::application
-{
+namespace onyx::application {
 
 #if ONYX_IS_DEBUG
-    TaskGraphNode::TaskGraphNode(const String& name)
-        : m_Name(name)
-    {
-    }
+TaskGraphNode::TaskGraphNode( const String& name )
+    : m_name( name ) {}
 #endif
 
-    TaskGraphNode::TaskGraphNode(UniquePtr<TaskGraphTask>&& task)
+TaskGraphNode::TaskGraphNode( UniquePtr< TaskGraphTask >&& task )
 #if ONYX_IS_DEBUG
-        : m_Name("")
-        , m_Task(std::move(task))
+    : m_task( std::move( task ) )
 #else
-        : m_Task(std::move(task))
+    : m_Task( std::move( task ) )
 #endif
-    {
-    }
-
-    TaskGraphNode::TaskGraphNode(TaskGraphNode&& other) noexcept
-        : m_Task(std::move(other.m_Task))
-    {
-    }
-
-    TaskGraphNode& TaskGraphNode::operator=(TaskGraphNode&& other) noexcept
-    {
-        if (this == &other)
-            return *this;
-
-        m_Task = std::move(other.m_Task);
-        return *this;
-    }
-
-    void TaskGraphNode::Update(onyxU64 deltaTime, rhi::FrameContext& context)
-    {
-        ONYX_ASSERT(m_Task != nullptr);
-        m_Task->Update(deltaTime, context);
-    }
+{
 }
+
+TaskGraphNode::TaskGraphNode( TaskGraphNode&& other ) noexcept
+    : m_task( std::move( other.m_task ) ) {}
+
+TaskGraphNode& TaskGraphNode::operator=( TaskGraphNode&& other ) noexcept {
+    if ( this == &other )
+        return *this;
+
+    m_task = std::move( other.m_task );
+    return *this;
+}
+
+void TaskGraphNode::update( uint64_t deltaTime, rhi::FrameContext& context ) {
+    ONYX_ASSERT( m_Task != nullptr );
+    m_task->update( deltaTime, context );
+}
+} // namespace onyx::application

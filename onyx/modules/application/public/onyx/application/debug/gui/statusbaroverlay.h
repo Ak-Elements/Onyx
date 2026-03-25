@@ -3,34 +3,31 @@
 #if ONYX_UI_MODULE
 #include <onyx/ui/imguiwindow.h>
 
-namespace onyx::application::debug
-{
-    class StatusBarOverlayItem
-    {
-    public:
-        virtual ~StatusBarOverlayItem( ) = default;
-        virtual StringView GetValue() = 0;
-        virtual StringView GetName() = 0;
-    };
+namespace onyx::application::debug {
+class StatusBarOverlayItem {
+  public:
+    virtual ~StatusBarOverlayItem() = default;
+    virtual StringView getValue() = 0;
+    virtual StringView getName() = 0;
+};
 
-    class StatusBarOverlay : public ui::ImGuiWindow
-    {
-    public:
-        static constexpr StringView WindowId = "StatusBar";
+class StatusBarOverlay : public ui::ImGuiWindow {
+  public:
+    static constexpr StringView WindowId = "StatusBar";
 
-        StringView GetWindowId() override { return WindowId; }
+    StringView GetWindowId() override { return WindowId; }
 
-        template <typename T, class... _Types>
-        T& AddOverlay(_Types&&... args)
-        {
-            return static_cast<T&>(*Items.emplace_back(MakeUnique<T>(std::forward<_Types>(args)...)));
-        }
-    private:
-        void OnRender(ui::ImGuiSystem& imguiSystem) override;
-    private:
-        DynamicArray<UniquePtr<StatusBarOverlayItem>> Items;
-        Vector2u32 Position;
-    };
-}
+    template < typename T, class... Types > T& addOverlay( Types&&... args ) {
+        return static_cast< T& >( *m_items.emplace_back( makeUnique< T >( std::forward< Types >( args )... ) ) );
+    }
+
+  private:
+    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+
+  private:
+    DynamicArray< UniquePtr< StatusBarOverlayItem > > m_items;
+    Vector2u32 m_position;
+};
+} // namespace onyx::application::debug
 
 #endif

@@ -2,110 +2,83 @@
 
 #include <onyx/onyx_types.h>
 
-namespace onyx
-{
-    template <typename T>
-    struct MemoryBufferBase
-    {
-        using Type = T;
-        using PointerT = Type*;
+namespace onyx {
+template < typename T >
+struct MemoryBufferBase {
+    using Type = T;
+    using PointerT = Type*;
 
-        //static constexpr onyxU64 ElementSize = sizeof(T);
+    MemoryBufferBase( uint32_t bufferSize, uint8_t bufferAlignment, T* buffer )
+        : m_size( bufferSize )
+        , m_alignment( bufferAlignment )
+        , m_bufferPtr( buffer ) {}
 
-        MemoryBufferBase(onyxU32 bufferSize, onyxU8 bufferAlignment, T* buffer)
-            : m_Size(bufferSize)
-            , m_Alignment(bufferAlignment)
-            , m_BufferPtr(buffer)
-        {
-        }
+    virtual ~MemoryBufferBase() {}
 
-        virtual ~MemoryBufferBase()
-        {
-            
-        }
+    Type* getData() { return m_bufferPtr; }
 
-        Type* GetData()
-        {
-            return m_BufferPtr;
-        }
+    Type* operator[]( uint32_t index ) { return m_bufferPtr + index; }
 
-        Type* operator[](onyxU32 index)
-        {
-            return m_BufferPtr + index;
-        }
+  protected:
+    uint32_t m_size;
+    uint8_t m_alignment;
+    T* m_bufferPtr;
+};
 
-        /*virtual Span<Type> GetBuffer(onyxU32 requestedSize)
-        {
-            const onyxU32 clampedRequestedSize = std::min<onyxU32>(static_cast<onyxU32>(requestedSize * ElementSize), m_Size);
-            const onyxU32 alignedClampedBufferSize = (clampedRequestedSize + (m_Alignment - 1)) & -m_Alignment;
+template < typename T >
+struct MemoryRingBufferBase : public MemoryBufferBase< T > {
+    using Base = MemoryBufferBase< T >;
+    using typename Base::PointerT;
+    using typename Base::Type;
 
-            const PointerT bufferPtr = reinterpret_cast<PointerT>(m_BufferPtr);
-            return { bufferPtr, (alignedClampedBufferSize / ElementSize) };
-        }*/
+    static constexpr uint64_t ElementSize = sizeof( T );
 
-    protected:
-        onyxU32 m_Size;
-        onyxU8 m_Alignment;
-        T* m_BufferPtr;
-    };
+    MemoryRingBufferBase( uint32_t bufferSize, uint8_t bufferAlignment, T* buffer )
+        : Base( bufferSize, bufferAlignment, buffer )
+        , m_nextBufferPos( 0 ) {}
 
-    template <typename T>
-    struct MemoryRingBufferBase : public MemoryBufferBase<T>
-    {
-        using Base = MemoryBufferBase<T>;
-        using typename Base::Type;
-        using typename Base::PointerT;
+    Span< Type > getBuffer() { return getBuffer( Base::m_size ); }
 
-        static constexpr onyxU64 ElementSize = sizeof(T);
+    Span< Type > getBuffer( uint32_t requestedSize ) {
+        const uint32_t clampedRequestedSize = std::min< uint32_t >(
+            static_cast< uint32_t >( requestedSize * ElementSize ),
+            Base::m_size );
+        const uint32_t alignedClampedBufferSize = ( clampedRequestedSize + ( Base::m_alignment - 1 ) ) &
+                                                  -Base::m_alignment;
 
-        MemoryRingBufferBase(onyxU32 bufferSize, onyxU8 bufferAlignment, T* buffer)
-            : Base(bufferSize, bufferAlignment, buffer)
-            , m_NextBufferPos(0)
-        {
-        }
+        const uint32_t bufferPos = ( m_nextBufferPos + alignedClampedBufferSize ) >= Base::m_size ? 0u
+                                                                                                  : m_nextBufferPos;
+        m_nextBufferPos = bufferPos + alignedClampedBufferSize;
 
-        Span<Type> GetBuffer()
-        {
-            return GetBuffer(Base::m_Size);
-        }
+        const PointerT bufferPtr = reinterpret_cast< PointerT >( Base::m_bufferPtr + bufferPos );
+        return { bufferPtr, ( alignedClampedBufferSize / ElementSize ) };
+    }
 
-        Span<Type> GetBuffer(onyxU32 requestedSize)
-        {
-            const onyxU32 clampedRequestedSize = std::min<onyxU32>(static_cast<onyxU32>(requestedSize * ElementSize), Base::m_Size);
-            const onyxU32 alignedClampedBufferSize = (clampedRequestedSize + (Base::m_Alignment - 1)) & -Base::m_Alignment;
+  private:
+    uint32_t m_nextBufferPos;
+};
 
-            const onyxU32 bufferPos = (m_NextBufferPos + alignedClampedBufferSize) >= Base::m_Size ? 0u : m_NextBufferPos;
-            m_NextBufferPos = bufferPos + alignedClampedBufferSize;
+template < typename T, uint32_t Size, uint8_t Alignment = alignof( T ) >
+struct MemoryBuffer : MemoryBufferBase< T > {
+    static_assert( ( Alignment & ( Alignment - 1 ) ) == 0, "Alignment has to be a power of 2!" );
+    static_assert( Size % Alignment == 0, "Size is not matching alignment" );
 
-            const PointerT bufferPtr = reinterpret_cast<PointerT>(Base::m_BufferPtr + bufferPos);
-            return { bufferPtr, (alignedClampedBufferSize / ElementSize) };
-        }
+    MemoryBuffer()
+        : MemoryBufferBase< T >( Size, Alignment, m_buffer ) {}
 
-    private:
-        onyxU32 m_NextBufferPos;
-    };
+  private:
+    T m_buffer[ Size ] = { 0 };
+};
 
-    template <typename T, onyxU32 Size, onyxU8 Alignment = alignof(T)>
-    struct MemoryBuffer : MemoryBufferBase<T>
-    {
-        static_assert((Alignment& (Alignment - 1)) == 0, "Alignment has to be a power of 2!");
-        static_assert(Size% Alignment == 0, "Size is not matching alignment");
+template < typename T, uint32_t Size, uint8_t Alignment = alignof( T ) >
+struct MemoryRingBuffer : MemoryRingBufferBase< T > {
+    static_assert( ( Alignment & ( Alignment - 1 ) ) == 0, "Alignment has to be a power of 2!" );
+    static_assert( Size % Alignment == 0, "Size is not matching alignment" );
 
-        MemoryBuffer() : MemoryBufferBase<T>(Size, Alignment, m_Buffer) {}
+    MemoryRingBuffer()
+        : MemoryRingBufferBase< T >( Size, Alignment, m_buffer ) {}
 
-    private:
-        T m_Buffer[Size] = { 0 };
-    };
-
-    template <typename T, onyxU32 Size, onyxU8 Alignment = alignof(T)>
-    struct MemoryRingBuffer : MemoryRingBufferBase<T>
-    {
-        static_assert((Alignment& (Alignment - 1)) == 0, "Alignment has to be a power of 2!");
-        static_assert(Size% Alignment == 0, "Size is not matching alignment");
-
-        MemoryRingBuffer() : MemoryRingBufferBase<T>(Size, Alignment, m_Buffer) {}
-
-    private:
-        T m_Buffer[Size] = { 0 };
-    };
-}
+  private:
+    T m_buffer[ Size ] = { 0 };
+};
+} // namespace onyx

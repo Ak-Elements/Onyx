@@ -2,8 +2,8 @@
 
 #if ONYX_IS_LINUX && ONYX_USE_WAYLAND
 
-#include <onyx/platform/windowsettings.h>
 #include <onyx/eventhandler.h>
+#include <onyx/platform/windowsettings.h>
 
 struct wl_surface;
 struct wl_output;
@@ -13,93 +13,101 @@ struct wl_array;
 struct zxdg_toplevel_decoration_v1;
 struct zxdg_toplevel_decoration_v1;
 
-namespace onyx::platform::wayland
-{
-    class WaylandPlatformContext;
+namespace onyx::platform::wayland {
+class WaylandPlatformContext;
 
-    class Window
-    {
-    public:
-        Window(WaylandPlatformContext& platformContext, const WindowSettings& setting);
-        ~Window();
+class Window {
+  public:
+    Window( uint32_t id, WaylandPlatformContext& platformContext, const WindowSettings& setting );
+    ~Window();
 
-        void Show();
-        void Hide();
+    void Show();
+    void Hide();
 
-        void Minimize();
-        void Maximize();
-        void Focus() {}
-        void RequestWindowAttention() {}
+    void close();
 
-        void ToggleCursor(bool enable) {}
-        void UpdateCursorImage() {}
+    void Minimize();
+    void Maximize();
+    void Focus() {}
+    void RequestWindowAttention() {}
 
-        void SetTitle(StringView title) { m_Settings.Title = String(title); }
-        void SetIcon(const FilePath& path) {}
+    void ToggleCursor( bool enable ) {}
+    void UpdateCursorImage() {}
 
-        Vector2s32 GetFrameBufferSize() const { return m_Settings.Size; }
-        onyxU16 GetRefreshRate() const { return m_Settings.MonitorRefreshRate; }
+    void SetTitle( StringView title ) { m_Settings.Title = String( title ); }
+    void SetIcon( const FilePath& path ) {}
 
-        void SetSize(onyxS32 width, onyxS32 height);
-        void SetMinimumSize(const Vector2s32& minSize);
-        void SetMaximumSize(const Vector2s32& maxSize);
-        void SetWindowMode(WindowMode mode);
-        void SetState(WindowState state);
+    Vector2s32 GetFrameBufferSize() const { return m_Settings.Size; }
+    uint16_t GetRefreshRate() const { return m_Settings.MonitorRefreshRate; }
 
-        bool GetRequiredExtensions(std::vector<const char*>& outExtensions) const;
+    void SetSize( int32_t width, int32_t height );
+    void SetMinimumSize( const Vector2s32& minSize );
+    void SetMaximumSize( const Vector2s32& maxSize );
+    void SetWindowMode( WindowMode mode );
+    void SetState( WindowState state );
 
-        bool IsVSyncEnabled() const { return m_Settings.UseVsync; }
-        bool IsMinimized() const { return m_State == WindowState::Minimized; }
+    bool GetRequiredExtensions( std::vector< const char* >& outExtensions ) const;
 
-        onyxS32 GetWidth() const { return m_Settings.Size.X; }
-        onyxS32 GetHeight() const { return m_Settings.Size.Y; }
+    bool IsVSyncEnabled() const { return m_Settings.UseVsync; }
+    bool IsMinimized() const { return m_State == WindowState::Minimized; }
 
-        void SetCursor(void* /*cursor*/) { }
+    int32_t GetWidth() const { return m_Settings.Size.X; }
+    int32_t GetHeight() const { return m_Settings.Size.Y; }
 
-        void EnableSystemMouseCapture(bool enable) { ONYX_UNUSED(enable); }
-        WaylandPlatformContext* GetContext() const { return m_Context; }
-        wl_surface* GetSurfaceHandle() const { return m_Surface; }
+    void SetCursor( void* /*cursor*/ ) {}
 
-        WindowSettings& GetSettings() { return m_Settings; }
-        const WindowSettings& GetSettings() const { return m_Settings; }
+    void EnableSystemMouseCapture( bool enable ) { ONYX_UNUSED( enable ); }
+    WaylandPlatformContext& GetContext() const { return *m_Context; }
+    wl_surface* GetSurfaceHandle() const { return m_Surface; }
 
-        Sink<ResizeSignalT> OnResize() const { return Sink(m_ResizeSignal); }
-        Sink<FocusSignalT> OnFocus() { return Sink(m_FocusSignal); }
-        Sink<CloseSignalT> OnClose() { return Sink(m_CloseSignal); }
+    WindowSettings& GetSettings() { return m_Settings; }
+    const WindowSettings& GetSettings() const { return m_Settings; }
 
-    private:
-        static void HandleSurfaceConfigure(void* data, xdg_surface* surface, onyxU32 serial);
-        static void HandleToplevelConfigure(void* data, xdg_toplevel* toplevel, onyxS32 width, onyxS32 height, wl_array* states);
-        static void HandleToplevelClose(void* data, xdg_toplevel* xdg_toplevel);
-        static void HandleTopLevelDecorationConfigure(void *data, zxdg_toplevel_decoration_v1* zxdg_toplevel_decoration_v1, onyxU32 mode);
+    Sink< ResizeSignalT > OnResize() const { return Sink( m_ResizeSignal ); }
+    Sink< FocusSignalT > OnFocus() { return Sink( m_FocusSignal ); }
+    Sink< CloseSignalT > OnClose() { return Sink( m_CloseSignal ); }
 
-        static void HandleSurfaceEnter(void* data, wl_surface* surface, wl_output* output);
-        static void HandleSurfaceLeave(void* data, wl_surface* surface, wl_output* output);
+    WindowState getState() const { return m_State; }
+    uint32_t getId() const { return m_id; }
 
-        void CreateNativeWindow();
-        void FitToMonitor() {}
-        void CaptureCursor() {}
-        void ReleaseCursor() {}
+  private:
+    static void HandleSurfaceConfigure( void* data, xdg_surface* surface, uint32_t serial );
+    static void HandleToplevelConfigure( void* data,
+                                         xdg_toplevel* toplevel,
+                                         int32_t width,
+                                         int32_t height,
+                                         wl_array* states );
+    static void HandleToplevelClose( void* data, xdg_toplevel* xdg_toplevel );
+    static void HandleTopLevelDecorationConfigure( void* data,
+                                                   zxdg_toplevel_decoration_v1* zxdg_toplevel_decoration_v1,
+                                                   uint32_t mode );
 
-        onyxS32 GetStyle() { return 0; }
-        onyxS32 GetExtendedStyle() { return 0; }
+    static void HandleSurfaceEnter( void* data, wl_surface* surface, wl_output* output );
+    static void HandleSurfaceLeave( void* data, wl_surface* surface, wl_output* output );
 
-    private:
-        WindowSettings m_Settings;
+    void CreateNativeWindow();
+    void FitToMonitor() {}
+    void CaptureCursor() {}
+    void ReleaseCursor() {}
 
-        mutable ResizeSignalT m_ResizeSignal;
-        FocusSignalT m_FocusSignal;
-        CloseSignalT m_CloseSignal;
+  private:
+    WindowSettings m_Settings;
 
-        Atomic<bool> m_IsInitialized = false;
-        WindowState m_State = WindowState::None;
-    
-        WaylandPlatformContext* m_Context = nullptr;
+    mutable ResizeSignalT m_ResizeSignal;
+    FocusSignalT m_FocusSignal;
+    CloseSignalT m_CloseSignal;
 
-        wl_surface* m_Surface = nullptr;
-        xdg_surface* m_XdgSurface = nullptr;;
-        xdg_toplevel* m_XdgToplevel = nullptr;
-        zxdg_toplevel_decoration_v1* m_XdgTopLevelDecoration = nullptr;
-    };
-}
+    Atomic< bool > m_IsInitialized = false;
+    WindowState m_State = WindowState::None;
+
+    uint32_t m_id;
+    WaylandPlatformContext* m_Context = nullptr;
+
+    wl_surface* m_Surface = nullptr;
+    xdg_surface* m_XdgSurface = nullptr;
+
+    xdg_toplevel* m_XdgToplevel = nullptr;
+    zxdg_toplevel_decoration_v1* m_XdgTopLevelDecoration = nullptr;
+};
+} // namespace onyx::platform::wayland
 #endif

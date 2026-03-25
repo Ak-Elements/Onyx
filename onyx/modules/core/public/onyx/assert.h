@@ -10,16 +10,25 @@
 namespace onyx {
 inline InplaceFunction< void( StringView message ) > ErrorFunctor = []( StringView /*msg*/ ) {};
 
-template < typename... Args > bool Assert( const char* file, int line, const char* conditionString, std::format_string< Args... > fmt, Args&&... args ) {
+template < typename... Args > bool Assert( const char* file,
+                                           int line,
+                                           const char* conditionString,
+                                           std::format_string< Args... > fmt,
+                                           Args&&... args ) {
     InplaceString< 512 > finalMessage;
 
-    constexpr onyxU32 formatArgsCount = sizeof...( args );
+    constexpr uint32_t formatArgsCount = sizeof...( args );
     InplaceString< 250 > messageStr;
     if constexpr ( formatArgsCount > 0 ) {
         Format::FormatTo( messageStr, fmt, std::forward< Args >( args )... );
     }
 
-    Format::FormatTo( finalMessage, "{}({}) : Assert failed({}): {} \n", file, line, conditionString, messageStr.GetData() );
+    Format::FormatTo( finalMessage,
+                      "{}({}) : Assert failed({}): {} \n",
+                      file,
+                      line,
+                      conditionString,
+                      messageStr.GetData() );
 
     return true;
 }
@@ -32,14 +41,14 @@ template < typename... Args > bool Assert( const char* file, int line, const cha
 }
 } // namespace onyx
 
-#define ONYX_ASSERT( condition, ... )                                                                                                                                              \
-    do {                                                                                                                                                                           \
-        if ( !( condition ) ) {                                                                                                                                                    \
-            if ( ::onyx::Assert( __FILE__, __LINE__, #condition, ##__VA_ARGS__ ) ) {                                                                                               \
-                ::onyx::breakpoint();                                                                                                                                              \
-                ::std::terminate();                                                                                                                                                \
-            }                                                                                                                                                                      \
-        }                                                                                                                                                                          \
+#define ONYX_ASSERT( condition, ... )                                                                                  \
+    do {                                                                                                               \
+        if ( !( condition ) ) {                                                                                        \
+            if ( ::onyx::Assert( __FILE__, __LINE__, #condition, ##__VA_ARGS__ ) ) {                                   \
+                ::onyx::breakpoint();                                                                                  \
+                ::std::terminate();                                                                                    \
+            }                                                                                                          \
+        }                                                                                                              \
     } while ( false )
 #else
 #define ONYX_ASSERT( condition, ... )

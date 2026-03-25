@@ -4,107 +4,96 @@
 
 namespace onyx {
 
-    // TODO: Can be fully replaced by std::array or std::inplace_vector (c++26)
-    template <typename T, onyxU8 Size>
-    struct InplaceArray
+// TODO: Can be fully replaced by std::array or std::inplace_vector (c++26)
+template < typename T, uint8_t Size >
+struct InplaceArray {
+  public:
+    using ValueType = T;
+
+  private:
+    static constexpr uint8_t MaxSize = Size;
+    using Iterator = typename std::array< ValueType, Size >::iterator;
+    using ConstIterator = typename std::array< ValueType, Size >::const_iterator;
+
+  public:
+    InplaceArray() = default;
+    explicit InplaceArray( const std::array< ValueType, MaxSize >& data )
+        : m_data( data )
+        , m_nextIndex( data.size() ) {}
+
+    /*explicit InplaceArray(std::initializer_list<value_type> data)
     {
-    public:
-        using value_type = T;
-
-    private:
-       static constexpr onyxU8 MAX_SIZE = Size;
-       using iterator = typename std::array<value_type, Size>::iterator;
-       using const_iterator = typename std::array<value_type, Size>::const_iterator;
-
-    public:
-        InplaceArray() = default;
-        explicit InplaceArray(const std::array<value_type, MAX_SIZE>& data)
-            : m_Data(data)
-            , m_NextIndex(data.size())
+        ONYX_ASSERT(data.size() <= MAX_SIZE, "Initializer list is too large.");
+        for (const value_type& dataElement : data)
         {
+            m_Data[m_NextIndex++] = dataElement;
         }
+    }*/
 
-        /*explicit InplaceArray(std::initializer_list<value_type> data)
-        {
-            ONYX_ASSERT(data.size() <= MAX_SIZE, "Initializer list is too large.");
-            for (const value_type& dataElement : data)
-            {
-                m_Data[m_NextIndex++] = dataElement;
-            }
-        }*/
-
-        constexpr InplaceArray(std::initializer_list<value_type> data)
-        {
-            ONYX_ASSERT(data.size() <= MAX_SIZE, "Initializer list is too large.");
-            for (const value_type& dataElement : data)
-            {
-                m_Data[m_NextIndex++] = dataElement;
-            }
+    constexpr InplaceArray( std::initializer_list< ValueType > data ) {
+        ONYX_ASSERT( data.size() <= MAX_SIZE, "Initializer list is too large." );
+        for ( const ValueType& dataElement : data ) {
+            m_data[ m_nextIndex++ ] = dataElement;
         }
+    }
 
-        /*InplaceArray& operator=(InplaceArray other)
-        {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }*/
+    /*InplaceArray& operator=(InplaceArray other)
+    {
+        using std::swap;
+        swap(*this, other);
+        return *this;
+    }*/
 
-        void Add(value_type val)
-        {
-            ONYX_ASSERT(m_NextIndex < MAX_SIZE, "Index out of bounds.");
-            m_Data[m_NextIndex++] = val;
-        }
+    void add( ValueType val ) {
+        ONYX_ASSERT( m_NextIndex < MAX_SIZE, "Index out of bounds." );
+        m_data[ m_nextIndex++ ] = val;
+    }
 
-        template <typename... Args>
-        value_type& Emplace(Args&& ... args)
-        {
-            return m_Data[m_NextIndex++] = value_type(std::forward<Args>(args)...);
-        }
+    template < typename... Args >
+    ValueType& emplace( Args&&... args ) {
+        return m_data[ m_nextIndex++ ] = ValueType( std::forward< Args >( args )... );
+    }
 
-        template <typename... Args>
-        value_type& EmplaceAt(onyxU8 i, Args&& ... args)
-        {
-            ONYX_ASSERT(i < MAX_SIZE, "Index out of bounds.");
-            m_NextIndex = i < m_NextIndex ? m_NextIndex : i + 1;
-            return m_Data[i] = value_type(std::forward<Args>(args)...);
-        }
+    template < typename... Args >
+    ValueType& emplaceAt( uint8_t i, Args&&... args ) {
+        ONYX_ASSERT( i < MAX_SIZE, "Index out of bounds." );
+        m_nextIndex = i < m_nextIndex ? m_nextIndex : i + 1;
+        return m_data[ i ] = ValueType( std::forward< Args >( args )... );
+    }
 
-        constexpr bool empty() const { return m_NextIndex == 0; }
-        constexpr onyxU8 size() const { return m_NextIndex; }
-        constexpr onyxU8 capacity() { return MAX_SIZE; }
+    ONYX_NO_DISCARD constexpr bool empty() const { return m_nextIndex == 0; }
+    ONYX_NO_DISCARD constexpr uint8_t size() const { return m_nextIndex; }
+    ONYX_NO_DISCARD constexpr uint8_t capacity() { return MaxSize; }
 
-        constexpr value_type& operator[] (onyxU8 i)
-        {
-            // assert size
-            ONYX_ASSERT(i < MAX_SIZE, "Index out of bounds.");
-            m_NextIndex = i < m_NextIndex ? m_NextIndex : i + 1;
-            return m_Data[i];
-        }
+    constexpr ValueType& operator[]( uint8_t i ) {
+        // assert size
+        ONYX_ASSERT( i < MAX_SIZE, "Index out of bounds." );
+        m_nextIndex = i < m_nextIndex ? m_nextIndex : i + 1;
+        return m_data[ i ];
+    }
 
-        constexpr const value_type& operator[] (onyxU8 i) const
-        {
-            // assert size
-            ONYX_ASSERT(i < MAX_SIZE, "Index out of bounds.");
-            return m_Data[i];
-        }
+    constexpr const ValueType& operator[]( uint8_t i ) const {
+        // assert size
+        ONYX_ASSERT( i < MAX_SIZE, "Index out of bounds." );
+        return m_data[ i ];
+    }
 
-        void Clear()
-        {
-            m_NextIndex = 0;
-            m_Data = {};
-        }
+    void clear() {
+        m_nextIndex = 0;
+        m_data = {};
+    }
 
-        iterator begin() { return std::begin(m_Data); }
-        const_iterator begin() const { return std::begin(m_Data); }
-        iterator end() { return begin() + m_NextIndex; }
-        const_iterator end() const { return begin() + m_NextIndex; }
+    Iterator begin() { return std::begin( m_data ); }
+    ConstIterator begin() const { return std::begin( m_data ); }
+    Iterator end() { return begin() + m_nextIndex; }
+    ConstIterator end() const { return begin() + m_nextIndex; }
 
-        value_type* data() { return m_Data.data(); }
-        const value_type* data() const { return m_Data.data(); }
+    ValueType* data() { return m_data.data(); }
+    const ValueType* data() const { return m_data.data(); }
 
-    private:
-        std::array<value_type, MAX_SIZE> m_Data{};
-        onyxU8 m_NextIndex = 0;
-    };
+  private:
+    std::array< ValueType, MaxSize > m_data{};
+    uint8_t m_nextIndex = 0;
+};
 
 } // namespace onyx

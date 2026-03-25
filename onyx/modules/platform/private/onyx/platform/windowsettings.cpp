@@ -5,17 +5,17 @@
 
 namespace onyx
 {
-    bool Serialization<platform::WindowSettings>::Serialize(Serializer& serializer, const platform::WindowSettings& settings)
+    bool Serialization<platform::WindowSettings>::serialize(Serializer& serializer, const platform::WindowSettings& settings)
     {
-        serializer.Write<"size">(settings.Size);
-        serializer.Write<"mode">(settings.Mode);
+        serializer.write<"size">(settings.Size);
+        serializer.write<"mode">(settings.Mode);
         return true;
     }
 
-    bool Serialization<platform::WindowSettings>::Deserialize(const Deserializer& deserializer, platform::WindowSettings& outSettings)
+    bool Serialization<platform::WindowSettings>::deserialize(const Deserializer& deserializer, platform::WindowSettings& outSettings)
     {
-        deserializer.Read<"size">(outSettings.Size);
-        deserializer.Read<"mode">(outSettings.Mode);
+        deserializer.read<"size">(outSettings.Size);
+        deserializer.read<"mode">(outSettings.Mode);
         return true;
     }
 }

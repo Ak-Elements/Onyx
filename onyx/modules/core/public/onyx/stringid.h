@@ -1,233 +1,194 @@
 #pragma once
 
+#include <onyx/onyx_types.h>
 #include <onyx/serialize/serialization.h>
 
-namespace onyx
-{
-    class Serializer;
+namespace onyx {
+class Serializer;
 
-    class StringIdCache
-    {
-    public:
-        ~StringIdCache()
-        {
-            
-        }
-        StringView Store(StringView string)
-        {
-            Optional<StringView> cachedString = TryGet(string);
-            if (cachedString.has_value())
-            {
-                return cachedString.value();
-            }
-
-            std::lock_guard lock(m_Mutex);
-            cachedString = TryGet(string);
-            if (cachedString.has_value())
-            {
-                return cachedString.value();
-            }
-
-            return m_Cache.emplace_back(string);
-        }
-    private:
-        Optional<StringView> TryGet(StringView string)
-        {
-            auto it = std::ranges::find_if(m_Cache, [&](const String& cachedString)
-                {
-                    return string == cachedString;
-                });
-
-            if (it == m_Cache.end())
-            {
-                return std::nullopt;
-            }
-
-            return { *it };
+class StringIdCache {
+  public:
+    ~StringIdCache() {}
+    StringView store( StringView string ) {
+        Optional< StringView > cachedString = tryGet( string );
+        if ( cachedString.has_value() ) {
+            return cachedString.value();
         }
 
-    private:
-        std::mutex m_Mutex;
-        std::deque<String> m_Cache;
-    };
+        std::lock_guard lock( m_mutex );
+        cachedString = tryGet( string );
+        if ( cachedString.has_value() ) {
+            return cachedString.value();
+        }
 
-    inline StringIdCache& GetIdCache()
-    {
-        static StringIdCache instance;
-        return instance;
+        return m_cache.emplace_back( string );
     }
 
-    template <typename T> requires std::is_integral_v<T>
-    struct StringId
-    {
-    private:
-        friend struct Serialization<StringId>;
+  private:
+    Optional< StringView > tryGet( StringView string ) {
+        auto it = std::ranges::find_if( m_cache,
+                                        [ & ]( const String& cachedString ) { return string == cachedString; } );
 
-    public:
-        using IdType = T;
-        static constexpr T Invalid = 0;
-
-        constexpr StringId()
-#if ONYX_IS_RETAIL
-            : Id(T(Invalid))
-#else
-            : m_IdString("Invalid")
-            , m_Id(T(Invalid))
-#endif
-        {
-
+        if ( it == m_cache.end() ) {
+            return std::nullopt;
         }
 
-        constexpr StringId(T id)
-#if ONYX_IS_RETAIL
-            : Id(id)
-#else
-            : m_IdString("IdString not provided")
-            , m_Id(id)
-#endif
-        {
-        }
-
-        constexpr StringId(StringView string)
-#if ONYX_IS_RETAIL
-            : Id(hash::FNV1aHash<T>(string))
-#else
-            : m_IdString([&]() -> StringView
-                {
-                    if (std::is_constant_evaluated())
-                    {
-                        return string; // Safe to store view
-                    }
-                    else
-                    {
-                        return GetIdCache().Store(string);
-                    }
-                }())
-            , m_Id(hash::FNV1aHash<T>(string))
-#endif
-        {
-        }
-
-        template <onyxU64 N>
-        constexpr StringId(const char(&str)[N])
-            : StringId(StringView(str, StringView::traits_type::length(str)))
-        {
-        }
-
-        template <onyxU64 N>
-        consteval StringId(const CompileTimeString<N>& str)
-            : StringId(str.string_view())
-        {
-        }
-
-#if !ONYX_IS_RETAIL
-        StringId(T id, const String& string)
-            : m_IdString(GetIdCache().Store(string))
-            , m_Id(id)
-        {
-        }
-
-        StringId(T id, StringView string)
-            : m_IdString(GetIdCache().Store(string))
-            , m_Id(id)
-            
-        {
-        }
-
-#endif
-
-        constexpr operator T() const { return m_Id; }
-
-        constexpr bool IsValid() const { return m_Id != Invalid; }
-        constexpr void Reset() { m_Id = Invalid; m_IdString = ""; }
-
-        constexpr bool operator==(const StringId& other) const { return m_Id == other.m_Id; }
-        constexpr bool operator!=(const StringId& other) const { return m_Id != other.m_Id; }
-
-        constexpr T GetId() const { return m_Id; }
-        constexpr StringView GetString() const { return m_IdString; }
-
-    private:
-#if !ONYX_IS_RETAIL
-        StringView m_IdString;
-#endif
-        T m_Id;
-    };
-
-    using StringId32 = StringId<onyxU32>;
-    using StringId64 = StringId<onyxU64>;
-
-    template <typename T>
-    constexpr bool IsStringId = is_specialization_of_v<StringId, T>;
-
-    consteval StringId32 operator""_id32(const char* deg, std::size_t len)
-    {
-        return StringId32(StringView(deg, len));
+        return { *it };
     }
 
-    consteval StringId64 operator""_id64(const char* deg, std::size_t len)
-    {
-        return StringId64(StringView(deg, len));
-    }
+  private:
+    std::mutex m_mutex;
+    std::deque< String > m_cache;
+};
 
-    template <>
-    struct Serialization<StringId32>
-    {
-        static bool Serialize(Serializer& serializer, const StringId32& id);
-        static bool Deserialize(const Deserializer& deserializer, StringId32& id);
-    };
-
-    template <>
-    struct Serialization<StringId64>
-    {
-        static bool Serialize(Serializer& serializer, const StringId64& id);
-        static bool Deserialize(const Deserializer& deserializer, StringId64& id);
-    };
+inline StringIdCache& getIdCache() {
+    static StringIdCache Instance;
+    return Instance;
 }
 
-namespace std
-{
-    template<>
-    struct hash<onyx::StringId32>
-    {
-        size_t operator()(const onyx::StringId32& id) const noexcept
-        {
-            return id.GetId();
-        }
-    };
+template < typename T > requires std::is_integral_v< T >
+struct StringId {
+  private:
+    friend struct Serialization< StringId >;
 
-    template<>
-    struct hash<onyx::StringId64>
-    {
-        size_t operator()(const onyx::StringId64& id) const noexcept
-        {
-            return id.GetId();
-        }
-    };
+  public:
+    using IdType = T;
+    static constexpr T Invalid = 0;
 
-    template <>
-    struct formatter<onyx::StringId32> : std::formatter<std::string>
-    {
-        auto format(onyx::StringId32 id, format_context& ctx) const
-        {
+    constexpr StringId()
 #if ONYX_IS_RETAIL
-            return std::format_to(ctx.out(), "{}({})", id.GetId());
+        : id( T( Invalid ) )
 #else
-            return std::format_to(ctx.out(), "{}({})", id.GetId(), id.GetString());
+        : m_idString( "Invalid" )
+        , m_id( T( Invalid ) )
 #endif
-        }
-    };
-
-    template <>
-    struct formatter<onyx::StringId64> : std::formatter<std::string>
     {
-        auto format(onyx::StringId64 id, format_context& ctx) const
-        {
+    }
+
+    constexpr StringId( T id )
 #if ONYX_IS_RETAIL
-            return std::format_to(ctx.out(), "{}", id.GetId());
+        : id( id )
 #else
-            return std::format_to(ctx.out(), "{}({})", id.GetId(), id.GetString());
+        : m_idString( "IdString not provided" )
+        , m_id( id )
 #endif
-        }
-    };
+    {
+    }
+
+    constexpr StringId( StringView string )
+#if ONYX_IS_RETAIL
+        : id( hash::FNV1aHash< T >( string ) )
+#else
+        : m_idString( [ & ]() -> StringView {
+            if ( std::is_constant_evaluated() ) {
+                return string; // Safe to store view
+            } else {
+                return getIdCache().store( string );
+            }
+        }() )
+        , m_id( hash::fnV1aHash< T >( string ) )
+#endif
+    {
+    }
+
+    template < uint64_t N >
+    constexpr StringId( const char ( &str )[ N ] )
+        : StringId( StringView( str, StringView::traits_type::length( str ) ) ) {}
+
+    template < uint64_t N >
+    consteval StringId( const CompileTimeString< N >& str )
+        : StringId( str.stringView() ) {}
+
+#if !ONYX_IS_RETAIL
+    StringId( T id, const String& string )
+        : m_idString( getIdCache().store( string ) )
+        , m_id( id ) {}
+
+    StringId( T id, StringView string )
+        : m_idString( getIdCache().store( string ) )
+        , m_id( id )
+
+    {}
+#endif
+
+    constexpr operator T() const { return m_id; }
+
+    ONYX_NO_DISCARD constexpr bool isValid() const { return m_id != Invalid; }
+    constexpr void reset() {
+        m_id = Invalid;
+        m_idString = "";
+    }
+
+    constexpr bool operator==( const StringId& other ) const { return m_id == other.m_id; }
+    constexpr bool operator!=( const StringId& other ) const { return m_id != other.m_id; }
+
+    constexpr T getId() const { return m_id; }
+    constexpr StringView getString() const { return m_idString; }
+
+  private:
+#if !ONYX_IS_RETAIL
+    StringView m_idString;
+#endif
+    T m_id;
+};
+
+using StringId32 = StringId< uint32_t >;
+using StringId64 = StringId< uint64_t >;
+
+template < typename T >
+constexpr bool IsStringId = is_specialization_of_v< StringId, T >;
+
+consteval StringId32 operator""_id32( const char* deg, std::size_t len ) {
+    return StringId32( StringView( deg, len ) );
 }
+
+consteval StringId64 operator""_id64( const char* deg, std::size_t len ) {
+    return StringId64( StringView( deg, len ) );
+}
+
+template <>
+struct Serialization< StringId32 > {
+    static bool serialize( Serializer& serializer, const StringId32& id );
+    static bool deserialize( const Deserializer& deserializer, StringId32& id );
+};
+
+template <>
+struct Serialization< StringId64 > {
+    static bool serialize( Serializer& serializer, const StringId64& id );
+    static bool deserialize( const Deserializer& deserializer, StringId64& id );
+};
+} // namespace onyx
+
+namespace std {
+template <>
+struct hash< onyx::StringId32 > {
+    size_t operator()( const onyx::StringId32& id ) const noexcept { return id.getId(); }
+};
+
+template <>
+struct hash< onyx::StringId64 > {
+    size_t operator()( const onyx::StringId64& id ) const noexcept { return id.getId(); }
+};
+
+template <>
+struct formatter< onyx::StringId32 > : std::formatter< std::string > {
+    auto format( onyx::StringId32 id, format_context& ctx ) const {
+#if ONYX_IS_RETAIL
+        return std::format_to( ctx.out(), "{}({})", id.getId() );
+#else
+        return std::format_to( ctx.out(), "{}({})", id.getId(), id.getString() );
+#endif
+    }
+};
+
+template <>
+struct formatter< onyx::StringId64 > : std::formatter< std::string > {
+    auto format( onyx::StringId64 id, format_context& ctx ) const {
+#if ONYX_IS_RETAIL
+        return std::format_to( ctx.out(), "{}", id.getId() );
+#else
+        return std::format_to( ctx.out(), "{}({})", id.getId(), id.getString() );
+#endif
+    }
+};
+} // namespace std
