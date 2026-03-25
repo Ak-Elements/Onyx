@@ -81,7 +81,7 @@ onyx::input::InputSystem& WaylandPlatformContext::GetInputSystem() {
     return m_PlatformSystem->GetInputSystem();
 }
 
-void WaylandPlatformContext::OnUpdate() {
+void WaylandPlatformContext::onUpdate() {
     while ( IsRunning() ) {
         while ( wl_display_prepare_read( m_Display ) != 0 ) {
             if ( wl_display_dispatch_pending( m_Display ) == -1 )
