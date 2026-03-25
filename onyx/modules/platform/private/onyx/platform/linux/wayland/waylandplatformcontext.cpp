@@ -63,7 +63,7 @@ void WaylandPlatformContext::RegisterCallback( void* data,
         xdg_wm_base_add_listener( platformContext.m_Shell, &xdg_wm_base_listener, nullptr );
     } else if ( std::strcmp( interface, wl_seat_interface.name ) == 0 ) {
         wl_seat* seat = static_cast< wl_seat* >( wl_registry_bind( registry, name, &wl_seat_interface, 1 ) );
-        platformContext.m_Input = MakeUnique< WaylandInput >( platformContext, seat );
+        platformContext.m_Input = makeUnique< WaylandInput >( platformContext, seat );
 
     } else if ( strcmp( interface, zxdg_decoration_manager_v1_interface.name ) == 0 ) {
         platformContext.m_ZxdgDecorationManager = static_cast< zxdg_decoration_manager_v1* >(
@@ -82,7 +82,7 @@ onyx::input::InputSystem& WaylandPlatformContext::GetInputSystem() {
 }
 
 void WaylandPlatformContext::onUpdate() {
-    while ( IsRunning() ) {
+    while ( isRunning() ) {
         while ( wl_display_prepare_read( m_Display ) != 0 ) {
             if ( wl_display_dispatch_pending( m_Display ) == -1 )
                 break;

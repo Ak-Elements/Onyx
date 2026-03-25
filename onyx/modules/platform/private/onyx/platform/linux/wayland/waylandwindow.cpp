@@ -159,9 +159,8 @@ void Window::SetMinimumSize( const Vector2s32& minSize ) {
     if ( m_Settings.MinSize != minSize ) {
         m_Settings.MinSize = minSize;
         VectorComponentMask compared = m_Settings.Size > m_Settings.MinSize;
-        SetSize(
-            enums::HasAllFlags( compared, VectorComponentMask::X ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 0 ],
-            enums::HasAllFlags( compared, VectorComponentMask::Y ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 1 ] );
+        SetSize( enums::all( compared, VectorComponentMask::X ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 0 ],
+                 enums::all( compared, VectorComponentMask::Y ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 1 ] );
     }
 }
 
@@ -169,9 +168,8 @@ void Window::SetMaximumSize( const Vector2s32& maxSize ) {
     if ( m_Settings.MaxSize != maxSize ) {
         m_Settings.MaxSize = maxSize;
         VectorComponentMask compared = m_Settings.Size > m_Settings.MaxSize;
-        SetSize(
-            enums::HasAllFlags( compared, VectorComponentMask::X ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 0 ],
-            enums::HasAllFlags( compared, VectorComponentMask::Y ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 1 ] );
+        SetSize( enums::all( compared, VectorComponentMask::X ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 0 ],
+                 enums::all( compared, VectorComponentMask::Y ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 1 ] );
     }
 }
 

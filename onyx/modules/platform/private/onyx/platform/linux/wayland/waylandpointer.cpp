@@ -16,8 +16,8 @@ namespace {
 onyx::input::MouseButton WaylandToMouseButton( uint32_t button ) {
     constexpr uint16_t leftMouseButton = enums::toIntegral( input::MouseButton::Button_1 );
     uint16_t mouseButton = button - BTN_LEFT + leftMouseButton;
-    ONYX_ASSERT( mouseButton > enums::ToIntegral( onyx::input::MouseButton::First ) );
-    ONYX_ASSERT( mouseButton < enums::ToIntegral( onyx::input::MouseButton::Last ) );
+    ONYX_ASSERT( mouseButton > enums::toIntegral( onyx::input::MouseButton::First ) );
+    ONYX_ASSERT( mouseButton < enums::toIntegral( onyx::input::MouseButton::Last ) );
 
     // offset so we start from left mouse button
     return static_cast< onyx::input::MouseButton >( mouseButton );
