@@ -9,8 +9,8 @@ set(onyx_TARGET_PRIVATE_DEPENDENCIES
 )
 
 if (UNIX)
-    set(ONYX_USE_WAYLAND OFF CACHE STRING "Use Wayland" FORCE)
-    set(ONYX_USE_X11 true CACHE STRING "Use X11" FORCE)
+    set( ONYX_USE_WAYLAND OFF CACHE STRING "Use Wayland" )
+    set( ONYX_USE_X11 OFF CACHE STRING "Use X11" )
 
     if(NOT ONYX_USE_X11 )
         find_package(Wayland REQUIRED COMPONENTS Client Cursor)
