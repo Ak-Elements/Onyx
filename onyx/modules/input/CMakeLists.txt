@@ -6,5 +6,4 @@ onyx_add_target(onyx-input
     FOLDER ${ONYX_TARGETS_FOLDER}
     NAMESPACE "onyx::input"
     NAMESPACE_PATH "onyx/input"
-    NO_EDITOR_TARGET
 )

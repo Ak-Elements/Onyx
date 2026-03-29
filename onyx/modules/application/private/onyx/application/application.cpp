@@ -21,8 +21,6 @@
 
 #include <onyx/platform/platformsystem.h>
 
-#include <onyx/application/debug/gui/keyboardoverlay.h>
-
 namespace {
 const char* const CpuFrame = "CPU";
 }
@@ -126,9 +124,9 @@ void Application::run() {
     bool hasImGuiSystem = hasSystem< ui::ImGuiSystem >();
 #endif
 
-    platform::PlatformSystem& platformSystem = GetSystem< platform::PlatformSystem >();
+    platform::PlatformSystem& platformSystem = getSystem< platform::PlatformSystem >();
     platformSystem.onWindowDestroy< &Application::onWindowDestroy >( this );
-    rhi::GraphicsSystem& graphicsSystem = GetSystem< rhi::GraphicsSystem >();
+    rhi::GraphicsSystem& graphicsSystem = getSystem< rhi::GraphicsSystem >();
 
     uint64_t lastFrameTime = Time::GetCurrentMilliseconds();
 
@@ -144,7 +142,7 @@ void Application::run() {
         rhi::FrameContext& frameContext = graphicsSystem.GetFrameContext();
 #if ONYX_USE_IMGUI
         if ( hasImGuiSystem ) {
-            ui::ImGuiSystem& imGuiSystem = GetSystem< ui::ImGuiSystem >();
+            ui::ImGuiSystem& imGuiSystem = getSystem< ui::ImGuiSystem >();
             imGuiSystem.OnBeginFrame( frameContext );
         }
 #endif
@@ -162,7 +160,7 @@ void Application::run() {
 
 #if ONYX_USE_IMGUI
             if ( hasImGuiSystem ) {
-                ui::ImGuiSystem& imGuiSystem = GetSystem< ui::ImGuiSystem >();
+                ui::ImGuiSystem& imGuiSystem = getSystem< ui::ImGuiSystem >();
                 imGuiSystem.OnRenderFrame( frameContext );
                 imGuiSystem.OnEndFrame( frameContext );
             }

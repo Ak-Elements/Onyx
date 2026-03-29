@@ -241,7 +241,7 @@ void LoadShaders( assets::AssetSystem& assetSystem,
                                                                                          properties );
     }
 
-    // generationComponent.HasLoadedShaders = true;
+    generationComponent.HasLoadedShaders = true;
 }
 
 void ResetBuffers( rhi::CommandBuffer& computeCommandBuffer,

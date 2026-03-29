@@ -67,15 +67,15 @@ class FixedPinNode_1_In_4_Out : public NodeType {
     StringView GetPinName( StringId32 pinId ) const override {
         switch ( pinId ) {
         case InPin::LocalId:
-            return InPin::LocalId.GetString();
+            return InPin::LocalId.getString();
         case OutPin0::LocalId:
-            return OutPin0::LocalId.GetString();
+            return OutPin0::LocalId.getString();
         case OutPin1::LocalId:
-            return OutPin1::LocalId.GetString();
+            return OutPin1::LocalId.getString();
         case OutPin2::LocalId:
-            return OutPin2::LocalId.GetString();
+            return OutPin2::LocalId.getString();
         case OutPin3::LocalId:
-            return OutPin3::LocalId.GetString();
+            return OutPin3::LocalId.getString();
         }
 
         ONYX_ASSERT( false, "Invalid pin id" );

@@ -45,7 +45,7 @@ class Application : public IEngine {
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
-    ONYX_NO_DISCARD T& GetSystem() {
+    ONYX_NO_DISCARD T& getSystem() {
         ONYX_ASSERT( hasSystem( T::TypeId ), "Module is not registered." );
         return static_cast< T& >( getSystem( T::TypeId ) );
     }

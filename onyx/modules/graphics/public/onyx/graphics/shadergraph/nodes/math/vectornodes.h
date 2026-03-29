@@ -67,9 +67,9 @@ class SwizzleVectorComponentsNode< graphics::ShaderGraphNode, InVectorT, OutVect
         generator.AppendCode( format::format(
             "{} pin_{:x} = {}.{}; \n",
             rhi::ShaderGenerator::GetTypeAsShaderTypeString< OutVectorT >().c_str(),
-            Super::GetOutputPin().GetGlobalId().Get(),
+            Super::GetOutputPin().GetGlobalId().get(),
             inputPin.IsConnected()
-                ? format::format( "pin_{:x}", inputPin.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin >() ),
             toLower( enums::toString( Mask ) ) ) );
     }
@@ -125,16 +125,16 @@ class GetVector2Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.x; // X \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin0().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin0().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
 
             if ( context.IsPinConnected< typename Super::OutPin1 >() ) {
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.y; // Y \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin1().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin1().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
         } else {
             Vector2< ScalarT > inPin = context.GetPinData< typename Super::InPin >();
@@ -143,7 +143,7 @@ class GetVector2Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // X \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin0().GetGlobalId().Get(),
+                                    Super::GetOutputPin0().GetGlobalId().get(),
                                     inPin[ 0 ] ) );
             }
 
@@ -151,7 +151,7 @@ class GetVector2Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // Y \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin1().GetGlobalId().Get(),
+                                    Super::GetOutputPin1().GetGlobalId().get(),
                                     inPin[ 1 ] ) );
             }
         }
@@ -206,24 +206,24 @@ class GetVector3Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.x; // X \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin0().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin0().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
 
             if ( context.IsPinConnected< typename Super::OutPin1 >() ) {
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.y; // Y \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin1().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin1().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
 
             if ( context.IsPinConnected< typename Super::OutPin2 >() ) {
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.z; // Z \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin2().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin2().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
         } else {
             Vector3< ScalarT > inPin = context.GetPinData< typename Super::InPin >();
@@ -232,7 +232,7 @@ class GetVector3Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // X \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin0().GetGlobalId().Get(),
+                                    Super::GetOutputPin0().GetGlobalId().get(),
                                     inPin[ 0 ] ) );
             }
 
@@ -240,7 +240,7 @@ class GetVector3Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // Y \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin1().GetGlobalId().Get(),
+                                    Super::GetOutputPin1().GetGlobalId().get(),
                                     inPin[ 1 ] ) );
             }
 
@@ -248,7 +248,7 @@ class GetVector3Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // Z \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin2().GetGlobalId().Get(),
+                                    Super::GetOutputPin2().GetGlobalId().get(),
                                     inPin[ 2 ] ) );
             }
         }
@@ -314,32 +314,32 @@ class GetVector4Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.x; // X \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin0().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin0().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
 
             if ( context.IsPinConnected< typename Super::OutPin1 >() ) {
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.y; // Y \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin1().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin1().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
 
             if ( context.IsPinConnected< typename Super::OutPin2 >() ) {
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.z; // Z \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin2().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin2().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
 
             if ( context.IsPinConnected< typename Super::OutPin3 >() ) {
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = pin_{:x}.w; // W \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin3().GetGlobalId().Get(),
-                                    inputPin.GetLinkedPinGlobalId().Get() ) );
+                                    Super::GetOutputPin3().GetGlobalId().get(),
+                                    inputPin.GetLinkedPinGlobalId().get() ) );
             }
         } else {
             Vector4< ScalarT > inPin = context.GetPinData< typename Super::InPin >();
@@ -348,7 +348,7 @@ class GetVector4Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // X \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin0().GetGlobalId().Get(),
+                                    Super::GetOutputPin0().GetGlobalId().get(),
                                     inPin[ 0 ] ) );
             }
 
@@ -356,7 +356,7 @@ class GetVector4Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // Y \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin1().GetGlobalId().Get(),
+                                    Super::GetOutputPin1().GetGlobalId().get(),
                                     inPin[ 1 ] ) );
             }
 
@@ -364,7 +364,7 @@ class GetVector4Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // Z \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin2().GetGlobalId().Get(),
+                                    Super::GetOutputPin2().GetGlobalId().get(),
                                     inPin[ 2 ] ) );
             }
 
@@ -372,7 +372,7 @@ class GetVector4Components< graphics::ShaderGraphNode, ScalarT, TypeIdString >
                 generator.AppendCode(
                     format::format( "{} pin_{:x} = {}; // W \n",
                                     rhi::ShaderGenerator::GetTypeAsShaderTypeString< ScalarT >().c_str(),
-                                    Super::GetOutputPin3().GetGlobalId().Get(),
+                                    Super::GetOutputPin3().GetGlobalId().get(),
                                     inPin[ 3 ] ) );
             }
         }
@@ -426,12 +426,12 @@ class CreateVector2< graphics::ShaderGraphNode, ScalarT, TypeIdString >
         generator.AppendCode( format::format(
             "{0} pin_{1:x} = {0}({2}, {3}); \n",
             rhi::ShaderGenerator::GetTypeAsShaderTypeString< Vector2< ScalarT > >().c_str(),
-            Super::GetOutputPin().GetGlobalId().Get(),
+            Super::GetOutputPin().GetGlobalId().get(),
             inputPin0.IsConnected()
-                ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin0 >() ),
             inputPin1.IsConnected()
-                ? format::format( "pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin1.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin1 >() ) ) );
     }
 
@@ -481,15 +481,15 @@ class CreateVector3< graphics::ShaderGraphNode, ScalarT, TypeIdString >
         generator.AppendCode( format::format(
             "{0} pin_{1:x} = {0}({2}, {3}, {4}); \n",
             rhi::ShaderGenerator::GetTypeAsShaderTypeString< Vector3< ScalarT > >().c_str(),
-            Super::GetOutputPin().GetGlobalId().Get(),
+            Super::GetOutputPin().GetGlobalId().get(),
             inputPin0.IsConnected()
-                ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin0 >() ),
             inputPin1.IsConnected()
-                ? format::format( "pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin1.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin1 >() ),
             inputPin2.IsConnected()
-                ? format::format( "pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin2.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin2 >() ) ) );
     }
 
@@ -548,18 +548,18 @@ class CreateVector4< graphics::ShaderGraphNode, ScalarT, TypeIdString >
         generator.AppendCode( format::format(
             "{0} pin_{1:x} = {0}({2}, {3}, {4}, {5}); \n",
             rhi::ShaderGenerator::GetTypeAsShaderTypeString< Vector4< ScalarT > >().c_str(),
-            Super::GetOutputPin().GetGlobalId().Get(),
+            Super::GetOutputPin().GetGlobalId().get(),
             inputPin0.IsConnected()
-                ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin0 >() ),
             inputPin1.IsConnected()
-                ? format::format( "pin_{:x}", inputPin1.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin1.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin1 >() ),
             inputPin2.IsConnected()
-                ? format::format( "pin_{:x}", inputPin2.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin2.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin2 >() ),
             inputPin3.IsConnected()
-                ? format::format( "pin_{:x}", inputPin3.GetLinkedPinGlobalId().Get() )
+                ? format::format( "pin_{:x}", inputPin3.GetLinkedPinGlobalId().get() )
                 : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin3 >() ) ) );
     }
 
@@ -586,250 +586,250 @@ class CreateVector4< graphics::ShaderGraphNode, ScalarT, TypeIdString >
 
 namespace onyx::graphics::shader_graph_nodes {
 using GetVector2f32Components = node_graph::
-    GetVector2Components< ShaderGraphNode, float32, "onyx::graphics::ShaderGraph::GetVector2f32Components" >;
+    GetVector2Components< ShaderGraphNode, float32, "onyx::graphics::shader_graph_nodes::GetVector2f32Components" >;
 using GetVector2f64Components = node_graph::
-    GetVector2Components< ShaderGraphNode, float64, "onyx::graphics::ShaderGraph::GetVector2f64Components" >;
+    GetVector2Components< ShaderGraphNode, float64, "onyx::graphics::shader_graph_nodes::GetVector2f64Components" >;
 using GetVector2s32Components = node_graph::
-    GetVector2Components< ShaderGraphNode, int32_t, "onyx::graphics::ShaderGraph::GetVector2s32Components" >;
+    GetVector2Components< ShaderGraphNode, int32_t, "onyx::graphics::shader_graph_nodes::GetVector2s32Components" >;
 using GetVector2s64Components = node_graph::
-    GetVector2Components< ShaderGraphNode, int64_t, "onyx::graphics::ShaderGraph::GetVector2s64Components" >;
+    GetVector2Components< ShaderGraphNode, int64_t, "onyx::graphics::shader_graph_nodes::GetVector2s64Components" >;
 
 using CreateVector2f32 = node_graph::
-    CreateVector2< ShaderGraphNode, float32, "onyx::graphics::ShaderGraph::CreateVector2f32" >;
+    CreateVector2< ShaderGraphNode, float32, "onyx::graphics::shader_graph_nodes::CreateVector2f32" >;
 using CreateVector2f64 = node_graph::
-    CreateVector2< ShaderGraphNode, float64, "onyx::graphics::ShaderGraph::CreateVector2f64" >;
+    CreateVector2< ShaderGraphNode, float64, "onyx::graphics::shader_graph_nodes::CreateVector2f64" >;
 using CreateVector2s32 = node_graph::
-    CreateVector2< ShaderGraphNode, int32_t, "onyx::graphics::ShaderGraph::CreateVector2s32" >;
+    CreateVector2< ShaderGraphNode, int32_t, "onyx::graphics::shader_graph_nodes::CreateVector2s32" >;
 using CreateVector2s64 = node_graph::
-    CreateVector2< ShaderGraphNode, int64_t, "onyx::graphics::ShaderGraph::CreateVector2s64" >;
+    CreateVector2< ShaderGraphNode, int64_t, "onyx::graphics::shader_graph_nodes::CreateVector2s64" >;
 
 using Swizzle2DVector2f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2f32,
     Vector2f32,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector2f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector2f32" >;
 using Swizzle2DVector3f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3f32,
     Vector2f32,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector3f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector3f32" >;
 using Swizzle2DVector4f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4f32,
     Vector2f32,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector4f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector4f32" >;
 
 using Swizzle2DVector2f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2f64,
     Vector2f64,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector2f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector2f64" >;
 using Swizzle2DVector3f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3f64,
     Vector2f64,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector3f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector3f64" >;
 using Swizzle2DVector4f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4f64,
     Vector2f64,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector4f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector4f64" >;
 
 using Swizzle2DVector2s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2s32,
     Vector2s32,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector2s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector2s32" >;
 using Swizzle2DVector3s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3s32,
     Vector2s32,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector3s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector3s32" >;
 using Swizzle2DVector4s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4s32,
     Vector2s32,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector4s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector4s32" >;
 
 using Swizzle2DVector2s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2s64,
     Vector2s64,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector2s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector2s64" >;
 using Swizzle2DVector3s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3s64,
     Vector2s64,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector3s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector3s64" >;
 using Swizzle2DVector4s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4s64,
     Vector2s64,
-    "onyx::graphics::ShaderGraph::Swizzle2DVector4s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle2DVector4s64" >;
 
 // Vector 3
 using GetVector3f32Components = node_graph::
-    GetVector3Components< ShaderGraphNode, float32, "onyx::graphics::ShaderGraph::GetVector3f32Components" >;
+    GetVector3Components< ShaderGraphNode, float32, "onyx::graphics::shader_graph_nodes::GetVector3f32Components" >;
 using GetVector3f64Components = node_graph::
-    GetVector3Components< ShaderGraphNode, float64, "onyx::graphics::ShaderGraph::GetVector3f64Components" >;
+    GetVector3Components< ShaderGraphNode, float64, "onyx::graphics::shader_graph_nodes::GetVector3f64Components" >;
 using GetVector3s32Components = node_graph::
-    GetVector3Components< ShaderGraphNode, int32_t, "onyx::graphics::ShaderGraph::GetVector3s32Components" >;
+    GetVector3Components< ShaderGraphNode, int32_t, "onyx::graphics::shader_graph_nodes::GetVector3s32Components" >;
 using GetVector3s64Components = node_graph::
-    GetVector3Components< ShaderGraphNode, int64_t, "onyx::graphics::ShaderGraph::GetVector3s64Components" >;
+    GetVector3Components< ShaderGraphNode, int64_t, "onyx::graphics::shader_graph_nodes::GetVector3s64Components" >;
 
 using CreateVector3f32 = node_graph::
-    CreateVector3< ShaderGraphNode, float32, "onyx::graphics::ShaderGraph::CreateVector3f32" >;
+    CreateVector3< ShaderGraphNode, float32, "onyx::graphics::shader_graph_nodes::CreateVector3f32" >;
 using CreateVector3f64 = node_graph::
-    CreateVector3< ShaderGraphNode, float64, "onyx::graphics::ShaderGraph::CreateVector3f64" >;
+    CreateVector3< ShaderGraphNode, float64, "onyx::graphics::shader_graph_nodes::CreateVector3f64" >;
 using CreateVector3s32 = node_graph::
-    CreateVector3< ShaderGraphNode, int32_t, "onyx::graphics::ShaderGraph::CreateVector3s32" >;
+    CreateVector3< ShaderGraphNode, int32_t, "onyx::graphics::shader_graph_nodes::CreateVector3s32" >;
 using CreateVector3s64 = node_graph::
-    CreateVector3< ShaderGraphNode, int64_t, "onyx::graphics::ShaderGraph::CreateVector3s64" >;
+    CreateVector3< ShaderGraphNode, int64_t, "onyx::graphics::shader_graph_nodes::CreateVector3s64" >;
 
 using Swizzle3DVector2f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2f32,
     Vector3f32,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector2f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector2f32" >;
 using Swizzle3DVector3f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3f32,
     Vector3f32,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector3f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector3f32" >;
 using Swizzle3DVector4f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4f32,
     Vector3f32,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector4f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector4f32" >;
 
 using Swizzle3DVector2f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2f64,
     Vector3f64,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector2f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector2f64" >;
 using Swizzle3DVector3f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3f64,
     Vector3f64,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector3f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector3f64" >;
 using Swizzle3DVector4f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4f64,
     Vector3f64,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector4f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector4f64" >;
 
 using Swizzle3DVector2s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2s32,
     Vector3s32,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector2s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector2s32" >;
 using Swizzle3DVector3s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3s32,
     Vector3s32,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector3s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector3s32" >;
 using Swizzle3DVector4s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4s32,
     Vector3s32,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector4s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector4s32" >;
 
 using Swizzle3DVector2s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2s64,
     Vector3s64,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector2s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector2s64" >;
 using Swizzle3DVector3s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3s64,
     Vector3s64,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector3s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector3s64" >;
 using Swizzle3DVector4s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4s64,
     Vector3s64,
-    "onyx::graphics::ShaderGraph::Swizzle3DVector4s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle3DVector4s64" >;
 
 // Vector 4
 using GetVector4f32Components = node_graph::
-    GetVector4Components< ShaderGraphNode, float32, "onyx::graphics::ShaderGraph::GetVector4f32Components" >;
+    GetVector4Components< ShaderGraphNode, float32, "onyx::graphics::shader_graph_nodes::GetVector4f32Components" >;
 using GetVector4f64Components = node_graph::
-    GetVector4Components< ShaderGraphNode, float64, "onyx::graphics::ShaderGraph::GetVector4f64Components" >;
+    GetVector4Components< ShaderGraphNode, float64, "onyx::graphics::shader_graph_nodes::GetVector4f64Components" >;
 using GetVector4s32Components = node_graph::
-    GetVector4Components< ShaderGraphNode, int32_t, "onyx::graphics::ShaderGraph::GetVector4s32Components" >;
+    GetVector4Components< ShaderGraphNode, int32_t, "onyx::graphics::shader_graph_nodes::GetVector4s32Components" >;
 using GetVector4s64Components = node_graph::
-    GetVector4Components< ShaderGraphNode, int64_t, "onyx::graphics::ShaderGraph::GetVector4s64Components" >;
+    GetVector4Components< ShaderGraphNode, int64_t, "onyx::graphics::shader_graph_nodes::GetVector4s64Components" >;
 
 using CreateVector4f32 = node_graph::
-    CreateVector4< ShaderGraphNode, float32, "onyx::graphics::ShaderGraph::CreateVector4f32" >;
+    CreateVector4< ShaderGraphNode, float32, "onyx::graphics::shader_graph_nodes::CreateVector4f32" >;
 using CreateVector4f64 = node_graph::
-    CreateVector4< ShaderGraphNode, float64, "onyx::graphics::ShaderGraph::CreateVector4f64" >;
+    CreateVector4< ShaderGraphNode, float64, "onyx::graphics::shader_graph_nodes::CreateVector4f64" >;
 using CreateVector4s32 = node_graph::
-    CreateVector4< ShaderGraphNode, int32_t, "onyx::graphics::ShaderGraph::CreateVector4s32" >;
+    CreateVector4< ShaderGraphNode, int32_t, "onyx::graphics::shader_graph_nodes::CreateVector4s32" >;
 using CreateVector4s64 = node_graph::
-    CreateVector4< ShaderGraphNode, int64_t, "onyx::graphics::ShaderGraph::CreateVector4s64" >;
+    CreateVector4< ShaderGraphNode, int64_t, "onyx::graphics::shader_graph_nodes::CreateVector4s64" >;
 
 using Swizzle4DVector2f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2f32,
     Vector4f32,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector2f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector2f32" >;
 using Swizzle4DVector3f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3f32,
     Vector4f32,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector3f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector3f32" >;
 using Swizzle4DVector4f32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4f32,
     Vector4f32,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector4f32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector4f32" >;
 
 using Swizzle4DVector2f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2f64,
     Vector4f64,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector2f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector2f64" >;
 using Swizzle4DVector3f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3f64,
     Vector4f64,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector3f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector3f64" >;
 using Swizzle4DVector4f64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4f64,
     Vector4f64,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector4f64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector4f64" >;
 
 using Swizzle4DVector2s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2s32,
     Vector4s32,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector2s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector2s32" >;
 using Swizzle4DVector3s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3s32,
     Vector4s32,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector3s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector3s32" >;
 using Swizzle4DVector4s32 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4s32,
     Vector4s32,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector4s32" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector4s32" >;
 
 using Swizzle4DVector2s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector2s64,
     Vector4s64,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector2s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector2s64" >;
 using Swizzle4DVector3s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector3s64,
     Vector4s64,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector3s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector3s64" >;
 using Swizzle4DVector4s64 = node_graph::SwizzleVectorComponentsNode<
     ShaderGraphNode,
     Vector4s64,
     Vector4s64,
-    "onyx::graphics::ShaderGraph::Swizzle4DVector4s64" >;
+    "onyx::graphics::shader_graph_nodes::Swizzle4DVector4s64" >;
 } // namespace onyx::graphics::shader_graph_nodes

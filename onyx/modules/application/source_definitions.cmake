@@ -1,7 +1,6 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     application.h
     debug/gui/statusbaroverlay.h
-    debug/gui/keyboardoverlay.h
     debug/gui/notificationloggersink.h
     debug/gui/fpsstatusbaritem.h
     log/logsinkfile.h
@@ -13,7 +12,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     application.cpp
     main.cpp
     debug/gui/statusbaroverlay.cpp
-    debug/gui/keyboardoverlay.cpp
     debug/gui/notificationloggersink.cpp
     debug/gui/fpsstatusbaritem.cpp
     log/logsinkfile.cpp

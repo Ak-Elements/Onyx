@@ -1,6 +1,6 @@
-#include <onyx/application/debug/gui/keyboardoverlay.h>
+#include <onyx/input/keyboardoverlay.h>
 
-#if ONYX_UI_MODULE && ONYX_USE_IMGUI
+#if ONYX_USE_IMGUI
 
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/input/inputsystem.h>
@@ -11,7 +11,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-namespace onyx::application::debug {
+namespace onyx::input::tools {
 
 KeyboardOverlay::KeyboardOverlay() {
     file_system::OnyxFile file{ StringView( "engine:/debug/keyboard/iso_105_us_international.json" ) };
@@ -144,5 +144,5 @@ void KeyboardOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     End();
 }
 
-} // namespace onyx::application::debug
+} // namespace onyx::input::tools
 #endif

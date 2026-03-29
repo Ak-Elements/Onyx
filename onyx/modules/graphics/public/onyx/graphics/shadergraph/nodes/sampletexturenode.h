@@ -27,7 +27,7 @@ class SampleTextureNode : public node_graph::FlexiblePinsNode< ShaderGraphNode >
     using AlphaOutPin = node_graph::Pin< float32, "A" >;
 
   public:
-    static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::SampleTexture";
+    static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::SampleTexture";
     StringId32 GetTypeId() const override { return TypeId; }
 
     SampleTextureNode();

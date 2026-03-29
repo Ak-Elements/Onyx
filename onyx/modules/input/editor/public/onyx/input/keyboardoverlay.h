@@ -1,6 +1,6 @@
 #pragma once
 
-#if ONYX_UI_MODULE && ONYX_USE_IMGUI
+#if ONYX_USE_IMGUI
 
 #include <onyx/ui/imguiwindow.h>
 
@@ -12,7 +12,7 @@ namespace onyx::ui {
 class ImGuiSystem;
 }
 
-namespace onyx::application::debug {
+namespace onyx::input::tools {
 class KeyboardOverlay : public ui::ImGuiWindow {
   public:
     static constexpr StringView WindowId = "KeyboardOverlay";
@@ -39,5 +39,5 @@ class KeyboardOverlay : public ui::ImGuiWindow {
 
     DynamicArray< DynamicArray< KeyData > > m_keyboardLayout;
 };
-} // namespace onyx::application::debug
+} // namespace onyx::input::tools
 #endif

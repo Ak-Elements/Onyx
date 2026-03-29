@@ -8,7 +8,7 @@
 namespace onyx::graphics::shader_graph_nodes {
 class FragmentShaderOutNode : public node_graph::FixedPinNode_1_In< ShaderGraphNode, Vector4f32 > {
   public:
-    static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::FragmentShaderOut";
+    static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::FragmentShaderOut";
     StringId32 GetTypeId() const override { return TypeId; }
 
   private:
@@ -31,7 +31,7 @@ class PBRMaterialShaderOutNode : public node_graph::FixedPinNode< ShaderGraphNod
     using Super = node_graph::FixedPinNode< ShaderGraphNode, 4, 0 >;
 
   public:
-    static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::PBRMaterialShaderOut";
+    static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::PBRMaterialShaderOut";
     StringId32 GetTypeId() const override { return TypeId; }
 
     node_graph::PinBase* GetInputPin( uint32_t index ) override;

@@ -3,8 +3,8 @@
         {
             "id": "d4bb268c9001000",
             "typeId": {
-                "id": "c46e1588",
-                "string": "onyx::Graphics::ShaderGraph::CreateVector3f32"
+                "id": "c6e8403b",
+                "string": "onyx::graphics::shader_graph_nodes::CreateVector3f32"
             },
             "inputs": [
                 {
@@ -14,8 +14,8 @@
                         "string": "InPin0"
                     },
                     "typeId": {
-                        "id": "a6fd6c8",
-                        "string": "onyxF32"
+                        "id": "e89f7410",
+                        "string": "float32"
                     }
                 },
                 {
@@ -25,8 +25,8 @@
                         "string": "InPin1"
                     },
                     "typeId": {
-                        "id": "a6fd6c8",
-                        "string": "onyxF32"
+                        "id": "e89f7410",
+                        "string": "float32"
                     }
                 },
                 {
@@ -36,8 +36,8 @@
                         "string": "InPin2"
                     },
                     "typeId": {
-                        "id": "a6fd6c8",
-                        "string": "onyxF32"
+                        "id": "e89f7410",
+                        "string": "float32"
                     }
                 }
             ],
@@ -58,8 +58,8 @@
         {
             "id": "d4bb261b3801000",
             "typeId": {
-                "id": "72df408f",
-                "string": "onyx::Graphics::ShaderGraph::PBRMaterialShaderOut"
+                "id": "a78ae764",
+                "string": "onyx::graphics::shader_graph_nodes::PBRMaterialShaderOut"
             },
             "inputs": [
                 {
@@ -92,8 +92,8 @@
                         "string": "Metalness"
                     },
                     "typeId": {
-                        "id": "a6fd6c8",
-                        "string": "onyxF32"
+                        "id": "e89f7410",
+                        "string": "float32"
                     }
                 },
                 {
@@ -103,8 +103,8 @@
                         "string": "Roughness"
                     },
                     "typeId": {
-                        "id": "a6fd6c8",
-                        "string": "onyxF32"
+                        "id": "e89f7410",
+                        "string": "float32"
                     }
                 }
             ]

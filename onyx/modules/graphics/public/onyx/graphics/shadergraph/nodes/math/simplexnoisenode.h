@@ -10,7 +10,7 @@ class SimplexNoise2DNode
     using Super = node_graph::FixedPinNode_1_In_2_Out< ShaderGraphNode, Vector2f32, float32, Vector2f32 >;
 
   public:
-    static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::SimplexNoise2DShaderGraphNode";
+    static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::SimplexNoise2DShaderGraphNode";
     StringId32 GetTypeId() const override { return TypeId; }
 
     SimplexNoise2DNode() = default;
@@ -33,7 +33,7 @@ class SimplexNoise3DNode
     using Super = node_graph::FixedPinNode_1_In_2_Out< ShaderGraphNode, Vector3f32, float32, Vector3f32 >;
 
   public:
-    static constexpr StringId32 TypeId = "onyx::graphics::ShaderGraph::SimplexNoise3DShaderGraphNode";
+    static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::SimplexNoise3DShaderGraphNode";
     StringId32 GetTypeId() const override { return TypeId; }
 
     SimplexNoise3DNode() = default;
