@@ -28,7 +28,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     DynamicArray< uint32_t >& indices = meshAsset.GetIndices();
 
     file_system::OnyxFile meshSource(
-        file_system::Path::ReplaceExtension( file_system::Path::GetFullPath( meta.Path ), "obj" ) );
+        file_system::path::replaceExtension( file_system::path::getFullPath( meta.Path ), "obj" ) );
     file_system::FileStream stream = meshSource.OpenStream( file_system::OpenMode::Text | file_system::OpenMode::Read );
 
     String meshSourceContent;

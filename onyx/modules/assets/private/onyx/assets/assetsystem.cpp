@@ -1,3 +1,4 @@
+#include "onyx/filesystem/path.h"
 #include <onyx/assets/assetsystem.h>
 
 #include <onyx/thread/async/asynctask.h>
@@ -14,8 +15,8 @@ bool GetAllAssetMetaData( HashMap< AssetId, AssetMetaData >& outAssetsMetaData )
     // async creation of asset meta data
     using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
-    for ( auto& [ mountIdentifier, mountPoint ] : file_system::Path::GetMountPoints() ) {
-        if ( mountIdentifier == file_system::Path::TMP_MOUNT_POINT_ID )
+    for ( auto& [ mountIdentifier, mountPoint ] : file_system::path::getMountPoints() ) {
+        if ( mountIdentifier == file_system::path::TmpMountPointId )
             continue;
 
         for ( const std::filesystem::directory_entry& entry : recursive_directory_iterator( mountPoint.Path ) ) {

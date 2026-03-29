@@ -10,7 +10,7 @@ void LogSinkFile::log( const LogMessage& message ) {
         return;
     }
 
-    FilePath relativeFilePath = file_system::Path::ConvertToMountPath( message.FileName );
+    FilePath relativeFilePath = file_system::path::convertToMountPath( message.FileName );
 
     StringView formattedMessage;
     if ( message.FileName == nullptr ) {

@@ -34,7 +34,7 @@ void AssetLoadRequest::load() {
     // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
     ONYX_ASSERT( Thread::s_mainThreadId != std::this_thread::get_id(), "Do not load assets on the main thread" );
 
-    FilePath path = file_system::Path::GetFullPath( MetaData.Path );
+    FilePath path = file_system::path::getFullPath( MetaData.Path );
     String assetName = MetaData.Path.string();
 
     // tracy_scope_AssetSystem.NameFmt("%s", assetName.c_str());
@@ -83,7 +83,7 @@ void AssetSaveRequest::save() {
     // might add other threads here that are not valid for loading (e.g.: Present thread / render thread.. etc.)
     ONYX_ASSERT( Thread::s_mainThreadId != std::this_thread::get_id(), "Do not save assets on the main thread" );
 
-    // FilePath relativePath = Path.lexically_relative(file_system::Path::GetDataDirectory());
+    // FilePath relativePath = Path.lexically_relative(file_system::path::GetDataDirectory());
     // String assetName = relativePath.string();
     // ZoneText(assetName.c_str(), assetName.length());
 
@@ -92,7 +92,7 @@ void AssetSaveRequest::save() {
 
     const String& jsonString = serializer.JsonRoot.dump( 4 );
     using namespace file_system;
-    OnyxFile inputConfigFile( Path::GetFullPath( MetaData.Path ) );
+    OnyxFile inputConfigFile( path::getFullPath( MetaData.Path ) );
     FileStream stream = inputConfigFile.OpenStream( OpenMode::Write | OpenMode::Text );
     stream.writeRaw( jsonString.data(), jsonString.size() );
 

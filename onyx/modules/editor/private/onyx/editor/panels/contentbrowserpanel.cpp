@@ -13,18 +13,18 @@ ContentBrowserPanel::ContentBrowserPanel( assets::AssetSystem& assetSystem )
     BuildContentDirectoryTree( "", m_ContentDirectoryTree );
 
     assets::AssetId closedId(
-        file_system::Path::GetFullPath( "textures/editor/icons/contentbrowser/folder_closed.png" ) );
+        file_system::path::getFullPath( "textures/editor/icons/contentbrowser/folder_closed.png" ) );
     assetSystem.getAsset( closedId, m_FolderClosedAsset );
 
-    assets::AssetId openId( file_system::Path::GetFullPath( "textures/editor/icons/contentbrowser/folder_open.png" ) );
+    assets::AssetId openId( file_system::path::getFullPath( "textures/editor/icons/contentbrowser/folder_open.png" ) );
     assetSystem.getAsset( openId, m_FolderOpenAsset );
 
     assets::AssetId closedSelectedId(
-        file_system::Path::GetFullPath( "textures/editor/icons/contentbrowser/folder_closed_selected.png" ) );
+        file_system::path::getFullPath( "textures/editor/icons/contentbrowser/folder_closed_selected.png" ) );
     assetSystem.getAsset( closedSelectedId, m_FolderSelectedClosedAsset );
 
     assets::AssetId openSelectedId(
-        file_system::Path::GetFullPath( "textures/editor/icons/contentbrowser/folder_open_selected.png" ) );
+        file_system::path::getFullPath( "textures/editor/icons/contentbrowser/folder_open_selected.png" ) );
     assetSystem.getAsset( openSelectedId, m_FolderSelectedOpenAsset );
 }
 

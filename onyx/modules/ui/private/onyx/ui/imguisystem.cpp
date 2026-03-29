@@ -663,9 +663,9 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     Internal::SetCatppuccinMochaGraphite(); // ImGui::StyleColorsDark();
 
-    FilePath settingsPath = file_system::Path::GetFullPath( "tmp:imgui.ini" );
-    if ( file_system::Path::Exists( settingsPath ) == false ) {
-        settingsPath = file_system::Path::GetFullPath( "engine:/layouts/default.ini" );
+    FilePath settingsPath = file_system::path::getFullPath( "tmp:imgui.ini" );
+    if ( file_system::path::exists( settingsPath ) == false ) {
+        settingsPath = file_system::path::getFullPath( "engine:/layouts/default.ini" );
     }
 
     ImGui::LoadIniSettingsFromDisk( settingsPath.string().data() );
@@ -674,7 +674,7 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     fontConfig.FontDataOwnedByAtlas = false;
     constexpr StringId64 fontHash( "fonts/Roboto-Regular.ttf" );
 
-    FilePath fontPath = file_system::Path::GetFullPath( "engine:/fonts/Roboto-Regular.ttf" );
+    FilePath fontPath = file_system::path::getFullPath( "engine:/fonts/Roboto-Regular.ttf" );
     auto [ it, _ ] = m_Fonts.emplace( fontHash,
                                       io.Fonts->AddFontFromFileTTF( fontPath.string().data(), 16.0f, &fontConfig ) );
     m_Fonts.emplace( fontHash, io.Fonts->AddFontFromFileTTF( fontPath.string().data(), 36.0f, &fontConfig ) );
@@ -721,7 +721,7 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
 }
 
 ImGuiSystem::~ImGuiSystem() {
-    const FilePath settingsPath = file_system::Path::GetTempDirectory() / "imgui.ini";
+    const FilePath settingsPath = file_system::path::getTempDirectory() / "imgui.ini";
     ImGui::SaveIniSettingsToDisk( settingsPath.string().data() );
 
     // m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
@@ -766,7 +766,7 @@ void ImGuiSystem::OnBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
 
     if ( Internal::loc_ReloadLayout ) {
         Internal::loc_ReloadLayout = false;
-        /*FilePath settingsPath = file_system::Path::GetDataDirectory() / "layouts/default_2.ini";
+        /*FilePath settingsPath = file_system::path::GetDataDirectory() / "layouts/default_2.ini";
         ImGui::LoadIniSettingsFromDisk(settingsPath.string().data());*/
     }
 

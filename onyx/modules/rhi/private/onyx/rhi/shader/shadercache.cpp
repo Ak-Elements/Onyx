@@ -12,15 +12,15 @@ namespace onyx::rhi {
 ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
     : m_GraphicsSystem( graphicsSystem ) {
 #if !ONYX_IS_RETAIL
-    const FilePath shaderCacheDirectory = file_system::Path::GetFullPath( SHADER_CACHE_PATH );
-    if ( file_system::Path::Exists( shaderCacheDirectory ) == false ) {
-        file_system::Path::CreateDirectory( shaderCacheDirectory );
+    const FilePath shaderCacheDirectory = file_system::path::getFullPath( SHADER_CACHE_PATH );
+    if ( file_system::path::exists( shaderCacheDirectory ) == false ) {
+        file_system::path::createDirectory( shaderCacheDirectory );
     }
 
     for ( const FilePath& shaderDirectory : GetShaderDirectories() ) {
         m_DirectoryWatcher.addPath( shaderDirectory, true );
 
-        file_system::Path::EnumerateFiles( shaderDirectory, [ & ]( const FilePath& path ) {
+        file_system::path::enumerateFiles( shaderDirectory, [ & ]( const FilePath& path ) {
             if ( path.has_filename() == false )
                 return true;
 
@@ -28,7 +28,7 @@ ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
                 return true;
 
             // TODO: enqueue in a different thread
-            FilePath mountPointPath = file_system::Path::ConvertToMountPath( path );
+            FilePath mountPointPath = file_system::path::convertToMountPath( path );
 
             String content;
             if ( file_system::OnyxFile::ReadAll( path, content ) == false ) {
@@ -67,7 +67,7 @@ bool ShaderCache::GetOrLoadShader( const FilePath& shaderPath, Reference< Shader
     ShaderCacheEntry& entry = entryIt->second;
 
     // we have that shader already cached
-    FilePath absoluteFilepath = file_system::Path::GetFullPath( shaderPath );
+    FilePath absoluteFilepath = file_system::path::getFullPath( shaderPath );
     file_system::OnyxFile shaderSource = file_system::OnyxFile( absoluteFilepath );
     String shaderCode;
     if ( file_system::OnyxFile::ReadAll( absoluteFilepath, shaderCode ) == false ) {
@@ -80,7 +80,7 @@ bool ShaderCache::GetOrLoadShader( const FilePath& shaderPath, Reference< Shader
     // cached version is still valid we can return it
     // TODO: This is not correct when doing a reload from a header change
     StringView path = format::format( "{}/{:x}.ocache", SHADER_CACHE_PATH, shaderHash );
-    const FilePath& diskShaderCachePath = file_system::Path::GetFullPath( path );
+    const FilePath& diskShaderCachePath = file_system::path::getFullPath( path );
     if ( hasEntry ) {
         if ( IsEntryUpToDate( entry, shaderHash ) ) {
             // outEntry = entry;
@@ -90,7 +90,7 @@ bool ShaderCache::GetOrLoadShader( const FilePath& shaderPath, Reference< Shader
     } else // get from shader cache
     {
         // check shader disk cache before recompiling / reloading shaders
-        if ( file_system::Path::Exists( diskShaderCachePath ) ) {
+        if ( file_system::path::exists( diskShaderCachePath ) ) {
             bool hasLoaded = LoadCacheFromDisk( diskShaderCachePath, entry );
             if ( hasLoaded && IsEntryUpToDate( entry, shaderHash ) ) {
                 m_Cache[ fileHash ] = entry;
@@ -152,7 +152,7 @@ bool ShaderCache::GetOrLoadShader( const FilePath& shaderPath, Reference< Shader
                 }
 
                 for ( const String& includePath : stageIncludes ) {
-                    FilePath mountPointPath = file_system::Path::ConvertToMountPath( includePath );
+                    FilePath mountPointPath = file_system::path::convertToMountPath( includePath );
                     uint64_t includePathHash = hash::fnV1aHash< uint64_t >( mountPointPath.generic_string() );
                     stageCacheEntry.IncludeHashes[ includePathHash ] = m_IncludesCache[ includePathHash ].ShaderHash;
                 }
@@ -249,7 +249,7 @@ void ShaderCache::OnFileChanged( const FilePath& path, file_system::FileWatcher:
     if ( path.extension() == "oshader" )
         return;
 
-    // FilePath mountPointPath = file_system::Path::ConvertToMountPath(path);
+    // FilePath mountPointPath = file_system::path::ConvertToMountPath(path);
     ////String genericPath = mountPointPath.generic_string();
     // uint64_t pathHash = hash::FNV1aHash<uint64_t>(mountPointPath.generic_string());
     // for (const ShaderCacheEntry& entry : m_Cache | std::views::values)

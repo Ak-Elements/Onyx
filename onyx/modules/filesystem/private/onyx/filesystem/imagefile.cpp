@@ -8,7 +8,7 @@
 namespace onyx::file_system {
 
 ImageFile::ImageFile( const FilePath& filePath ) {
-    const String& pathStr = Path::GetFullPath( filePath ).string();
+    const String& pathStr = path::getFullPath( filePath ).string();
     int channels;
 
     if ( stbi_is_hdr( pathStr.data() ) ) {

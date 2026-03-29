@@ -361,11 +361,11 @@ bool Compile( const GraphicsSystem& api,
     for ( ShaderStage s = ShaderStage::Vertex; s < ShaderStage::All; ++s ) {
         String shaderStageString = toLower( enums::toString( s ) );
 
-        const FilePath tempSourceDirectory = file_system::Path::GetFullPath( SHADER_SOURCE_TMP_PATH );
-        const FilePath tempBinariesDirectory = file_system::Path::GetFullPath( SHADER_BINARIES_TMP_PATH );
+        const FilePath tempSourceDirectory = file_system::path::getFullPath( SHADER_SOURCE_TMP_PATH );
+        const FilePath tempBinariesDirectory = file_system::path::getFullPath( SHADER_BINARIES_TMP_PATH );
 
-        file_system::Path::CreateDirectory( tempSourceDirectory / shaderStageString / shaderLanguageString );
-        file_system::Path::CreateDirectory( tempBinariesDirectory / shaderStageString / shaderLanguageString );
+        file_system::path::createDirectory( tempSourceDirectory / shaderStageString / shaderLanguageString );
+        file_system::path::createDirectory( tempBinariesDirectory / shaderStageString / shaderLanguageString );
     }
 
 #endif

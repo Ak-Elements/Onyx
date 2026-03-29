@@ -5,7 +5,7 @@
 
 namespace onyx::editor {
 AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::AssetMetaData& outAssetMeta ) {
-    if ( file_system::Path::Exists( path ) == false )
+    if ( file_system::path::exists( path ) == false )
         return AssetImportResult::FileNotFound;
 
     const String& extension = path.extension().string();
@@ -15,7 +15,7 @@ AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::Asset
 
     file_system::ImageFile file( path );
 
-    FilePath importedTexturePath = file_system::Path::ReplaceExtension( path, "otex" );
+    FilePath importedTexturePath = file_system::path::replaceExtension( path, "otex" );
 
     StringId32 texturePathHashed( importedTexturePath.string() );
     outAssetMeta.Id = static_cast< assets::AssetId >( texturePathHashed.getId() );

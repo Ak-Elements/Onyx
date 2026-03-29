@@ -28,7 +28,7 @@ bool TextureSerializer::deserialize( assets::AssetHandle< assets::AssetInterface
     rhi::GraphicsSystem& graphicsSystem = engine.getSystem< rhi::GraphicsSystem >();
     TextureAsset& textureAsset = asset.as< TextureAsset >();
 
-    file_system::ImageFile file( file_system::Path::ReplaceExtension( meta.Path, "png" ) );
+    file_system::ImageFile file( file_system::path::replaceExtension( meta.Path, "png" ) );
 
     rhi::TextureStorageProperties storageProps;
     storageProps.m_Format = /*(file.GetChannelCount() == 4) ? */ rhi::TextureFormat::

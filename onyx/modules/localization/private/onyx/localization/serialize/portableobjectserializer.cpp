@@ -353,6 +353,6 @@ bool PortableObjectSerializer::deserialize( assets::AssetHandle< assets::AssetIn
                                             IEngine& /*engine*/ ) const {
     // po files are not json or yaml so we do not use the provided serializer and instead read the file as raw text
     GetTextLocalizationDatabase& localizationDatabase = asset.as< GetTextLocalizationDatabase >();
-    return ParsePoFile( file_system::Path::GetFullPath( meta.Path ), localizationDatabase );
+    return ParsePoFile( file_system::path::getFullPath( meta.Path ), localizationDatabase );
 }
 } // namespace onyx::localization

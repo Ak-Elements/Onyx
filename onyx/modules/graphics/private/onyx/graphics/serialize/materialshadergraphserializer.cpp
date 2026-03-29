@@ -21,7 +21,7 @@ bool MaterialShaderGraphSerializer::serialize( const assets::AssetHandle< assets
 
     // save shader to file
     file_system::OnyxFile shaderOutFile(
-        file_system::Path::GetFullPath( file_system::Path::ReplaceExtension( meta.Path, "oshader" ) ) );
+        file_system::path::getFullPath( file_system::path::replaceExtension( meta.Path, "oshader" ) ) );
     file_system::FileStream shaderOutStream = shaderOutFile.OpenStream( file_system::OpenMode::Write |
                                                                         file_system::OpenMode::Text );
     shaderOutStream.writeRaw( shaderGraph.GetShaderCode().data(), shaderGraph.GetShaderCode().size() );
@@ -41,7 +41,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     if ( shader_graph_serializer::deserialize( shaderGraph, deserializer ) == false )
         return false;
 
-    const FilePath& shaderPath = file_system::Path::ReplaceExtension( meta.Path, "oshader" );
+    const FilePath& shaderPath = file_system::path::replaceExtension( meta.Path, "oshader" );
     // ShaderHandle shader = graphicsApi.CreateShader();
     // graphicsApi.GetShaderCache().GetOrLoadShader(shaderPath, shader);
 

@@ -1,169 +1,153 @@
 #include <onyx/rhi/shader/shaderincluder.h>
 
-#include <onyx/rhi/shader/shaderpreprocessor.h>
 #include <onyx/filesystem/onyxfile.h>
+#include <onyx/rhi/shader/shaderpreprocessor.h>
 
-namespace
-{
-	// From https://wandbox.org/permlink/iXC7DWaU8Tk8jrf3 and is modified.
-	enum class State : char { SlashOC, StarIC, SingleLineComment, MultiLineComment, NotAComment };
+namespace {
+// From https://wandbox.org/permlink/iXC7DWaU8Tk8jrf3 and is modified.
+enum class State : char { SlashOC, StarIC, SingleLineComment, MultiLineComment, NotAComment };
 
+template < typename InputIt, typename OutputIt >
+void CopyWithoutComments( InputIt first, InputIt last, OutputIt out ) {
+    State state = State::NotAComment;
 
-	template <typename InputIt, typename OutputIt>
-	void CopyWithoutComments(InputIt first, InputIt last, OutputIt out)
-	{
-		State state = State::NotAComment;
+    while ( first != last ) {
+        switch ( state ) {
+        case State::SlashOC:
+            if ( *first == '/' )
+                state = State::SingleLineComment;
+            else if ( *first == '*' )
+                state = State::MultiLineComment;
+            else {
+                state = State::NotAComment;
+                *out++ = '/';
+                *out++ = *first;
+            }
+            break;
+        case State::StarIC:
+            if ( *first == '/' )
+                state = State::NotAComment;
+            else
+                state = State::MultiLineComment;
+            break;
+        case State::NotAComment:
+            if ( *first == '/' )
+                state = State::SlashOC;
+            else
+                *out++ = *first;
+            break;
+        case State::SingleLineComment:
+            if ( *first == '\n' ) {
+                state = State::NotAComment;
+                *out++ = '\n';
+            }
+            break;
+        case State::MultiLineComment:
+            if ( *first == '*' )
+                state = State::StarIC;
+            else if ( *first == '\n' )
+                *out++ = '\n';
+            break;
+        }
+        ++first;
+    }
+}
+} // namespace
 
-		while (first != last)
-		{
-			switch (state)
-			{
-			case State::SlashOC:
-				if (*first == '/') state = State::SingleLineComment;
-				else if (*first == '*') state = State::MultiLineComment;
-				else
-				{
-					state = State::NotAComment;
-					*out++ = '/';
-					*out++ = *first;
-				}
-				break;
-			case State::StarIC:
-				if (*first == '/') state = State::NotAComment;
-				else state = State::MultiLineComment;
-				break;
-			case State::NotAComment:
-				if (*first == '/') state = State::SlashOC;
-				else *out++ = *first;
-				break;
-			case State::SingleLineComment:
-				if (*first == '\n')
-				{
-					state = State::NotAComment;
-					*out++ = '\n';
-				}
-				break;
-			case State::MultiLineComment:
-				if (*first == '*') state = State::StarIC;
-				else if (*first == '\n') *out++ = '\n';
-				break;
-			}
-			++first;
-		}
-	}
+namespace onyx::rhi {
+ShaderIncluder::ShaderIncluder() {}
+
+ShaderIncluder::~ShaderIncluder() {}
+
+HashSet< String > ShaderIncluder::GetIncludes() const {
+    HashSet< String > allIncludes;
+    for ( const ShaderInclude& include : m_Includes ) {
+        allIncludes.emplace( include.IncludedFilePath );
+    }
+    return allIncludes;
 }
 
-namespace onyx::rhi
-{
-	ShaderIncluder::ShaderIncluder()
-	{
-	}
+shaderc_include_result* ShaderIncluder::GetInclude( const char* requestedPath,
+                                                    shaderc_include_type type,
+                                                    const char* requestingPath,
+                                                    size_t /*includeDepth*/ ) {
+    (void)requestingPath;
+    using namespace file_system;
+    const bool isRelativePath = type == shaderc_include_type_relative;
 
-	ShaderIncluder::~ShaderIncluder()
-	{
-	}
+    FilePath requestedFilePath;
+    if ( isRelativePath ) {
+        FilePath requestingPathDirectory = requestingPath;
+        requestedFilePath = path::getFullPath( requestingPathDirectory.parent_path() / requestedPath );
+        StringView requestedPathString( requestedPath );
+        if ( path::exists( requestedFilePath ) == false ) {
+            for ( const FilePath& includeDirectoryPath : m_IncludeDirectories ) {
+                String includeDirectory = includeDirectoryPath.generic_string();
+                if ( ignoreCaseStartsWith( requestedPathString, includeDirectory ) ) {
+                    requestedPathString = requestedPathString.substr( includeDirectory.length() );
+                }
 
-	HashSet<String> ShaderIncluder::GetIncludes() const
-	{
-		HashSet<String> allIncludes;
-		for (const ShaderInclude& include : m_Includes)
-		{
-			allIncludes.emplace(include.IncludedFilePath);
-		}
-		return allIncludes;
-	}
+                requestedFilePath = path::getFullPath( includeDirectoryPath / requestedPathString );
+                if ( path::exists( requestedFilePath ) ) {
+                    break;
+                }
+            }
+        }
+    } else {
+        requestedFilePath = requestedPath;
+    }
 
-	shaderc_include_result* ShaderIncluder::GetInclude(const char* requestedPath, shaderc_include_type type, const char* requestingPath, size_t /*includeDepth*/)
-	{
-		(void)requestingPath;
-		using namespace file_system;
-		const bool isRelativePath = type == shaderc_include_type_relative;
+    requestedFilePath = requestedFilePath.lexically_normal();
 
-		FilePath requestedFilePath;
-		if (isRelativePath)
-		{
-			FilePath requestingPathDirectory = requestingPath;
-			requestedFilePath = Path::GetFullPath(requestingPathDirectory.parent_path() / requestedPath);
-			StringView requestedPathString(requestedPath);
-			if (Path::Exists(requestedFilePath) == false)
-			{
-				for (const FilePath& includeDirectoryPath : m_IncludeDirectories)
-				{
-					String includeDirectory = includeDirectoryPath.generic_string();
-					if (ignoreCaseStartsWith(requestedPathString, includeDirectory))
-					{
-						requestedPathString = requestedPathString.substr(includeDirectory.length());
-					}
+    shaderc_include_result* const data = new shaderc_include_result;
+    std::array< String, 2 >* const container = new std::array< String, 2 >;
+    data->user_data = container;
 
-					requestedFilePath = Path::GetFullPath(includeDirectoryPath / requestedPathString);
-					if (Path::Exists(requestedFilePath))
-					{
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			requestedFilePath = requestedPath;
-		}
-
-		requestedFilePath = requestedFilePath.lexically_normal();
-
-        shaderc_include_result* const data = new shaderc_include_result;
-        std::array<String, 2>* const container = new std::array<String, 2>;
-		data->user_data = container;
-
-		(*container)[0] = requestedFilePath.string();
-		(*container)[1] = String();
+    ( *container )[ 0 ] = requestedFilePath.string();
+    ( *container )[ 1 ] = String();
 
 #if ONYX_IS_DEBUG
-		if (Path::Exists(requestedFilePath) == false)
-		{
-			ONYX_LOG_ERROR("Can not find include {} for {}", requestedPath, requestingPath);
-			return data;
-		}
+    if ( path::exists( requestedFilePath ) == false ) {
+        ONYX_LOG_ERROR( "Can not find include {} for {}", requestedPath, requestingPath );
+        return data;
+    }
 #endif
 
-        String shaderSource;
-		if (OnyxFile::ReadAll(requestedFilePath, shaderSource, true) == false)
-		{
-			ONYX_LOG_ERROR("Failed reading include file {} for {}", requestedPath, requestingPath);
-			return data;
-		}
+    String shaderSource;
+    if ( OnyxFile::ReadAll( requestedFilePath, shaderSource, true ) == false ) {
+        ONYX_LOG_ERROR( "Failed reading include file {} for {}", requestedPath, requestingPath );
+        return data;
+    }
 
-		std::stringstream sourceStream;	
-		CopyWithoutComments(shaderSource.begin(), shaderSource.end(), std::ostream_iterator<char>(sourceStream));
-		shaderSource = sourceStream.str();
+    std::stringstream sourceStream;
+    CopyWithoutComments( shaderSource.begin(), shaderSource.end(), std::ostream_iterator< char >( sourceStream ) );
+    shaderSource = sourceStream.str();
 
-		/// TODO: Add header preprocessor
-		ShaderPreprocessor preprocessor;
-		if (preprocessor.PreprocessShader(shaderSource) == false)
-		{
-			ONYX_LOG_ERROR("Failed to retrive shader entry {} for {}", requestedPath, requestingPath);
-			return data;
-		}
+    /// TODO: Add header preprocessor
+    ShaderPreprocessor preprocessor;
+    if ( preprocessor.PreprocessShader( shaderSource ) == false ) {
+        ONYX_LOG_ERROR( "Failed to retrive shader entry {} for {}", requestedPath, requestingPath );
+        return data;
+    }
 
-		bool isGuarded = false;
-		auto [_, hasAdded] = m_Includes.emplace(requestedFilePath.generic_string(), isGuarded, 0, shaderSource);
-		if (hasAdded == false)
-		{
-			shaderSource.clear();
-		}
+    bool isGuarded = false;
+    auto [ _, hasAdded ] = m_Includes.emplace( requestedFilePath.generic_string(), isGuarded, 0, shaderSource );
+    if ( hasAdded == false ) {
+        shaderSource.clear();
+    }
 
-		(*container)[1] = shaderSource;
+    ( *container )[ 1 ] = shaderSource;
 
-		data->source_name = (*container)[0].data();
-		data->source_name_length = (*container)[0].size();
+    data->source_name = ( *container )[ 0 ].data();
+    data->source_name_length = ( *container )[ 0 ].size();
 
-		data->content = (*container)[1].data();
-		data->content_length = (*container)[1].size();
-		return data;
-	}
-
-	void ShaderIncluder::ReleaseInclude(shaderc_include_result* data)
-	{
-		delete static_cast<std::array<String, 2>*>(data->user_data);
-		delete data;
-	}
+    data->content = ( *container )[ 1 ].data();
+    data->content_length = ( *container )[ 1 ].size();
+    return data;
 }
+
+void ShaderIncluder::ReleaseInclude( shaderc_include_result* data ) {
+    delete static_cast< std::array< String, 2 >* >( data->user_data );
+    delete data;
+}
+} // namespace onyx::rhi

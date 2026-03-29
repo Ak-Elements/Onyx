@@ -814,8 +814,8 @@ void NodeGraphEditorWindow::SaveEditorMetaData( const FilePath& path ) {
         jsonRoot.Set( "reroutelinks", rerouteLinksJsonArray );
     }
 
-    FilePath metaFilePath = Path::ReplaceExtension( path, "ometa" );
-    OnyxFile metaDataFile( Path::GetFullPath( metaFilePath ) );
+    FilePath metaFilePath = path::replaceExtension( path, "ometa" );
+    OnyxFile metaDataFile( path::getFullPath( metaFilePath ) );
     FileStream stream = metaDataFile.OpenStream( OpenMode::Write | OpenMode::Text );
 
     const String& jsonString = jsonRoot.Json.dump( 4 );
@@ -828,8 +828,8 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
     m_RerouteLinks.clear();
 
     using namespace file_system;
-    FilePath metaFilePath = file_system::Path::ReplaceExtension( path, "ometa" );
-    OnyxFile metaDataJsonFile( file_system::Path::GetFullPath( metaFilePath ) );
+    FilePath metaFilePath = file_system::path::replaceExtension( path, "ometa" );
+    OnyxFile metaDataJsonFile( file_system::path::getFullPath( metaFilePath ) );
 
     const JsonValue& metaDataJsonRoot = metaDataJsonFile.LoadJson();
 

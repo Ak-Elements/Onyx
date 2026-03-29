@@ -32,7 +32,7 @@ bool SceneSerializer::serialize( const assets::AssetHandle< assets::AssetInterfa
     bool hasSucceeded = serializeSectorsToJson( scene.m_Registry,
                                                 componentFactory,
                                                 sectors,
-                                                file_system::Path::GetFullPath( meta.Path ).parent_path() );
+                                                file_system::path::getFullPath( meta.Path ).parent_path() );
 
     return hasSucceeded;
 }
@@ -95,7 +95,7 @@ bool SceneSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
     deserializer.read< "renderGraph" >( renderGraphAssetId );
     assetSystem.getAsset( renderGraphAssetId, scene.m_SceneRenderGraph );
 
-    FilePath sceneDirectoryPath = file_system::Path::GetFullPath( meta.Path.parent_path() );
+    FilePath sceneDirectoryPath = file_system::path::getFullPath( meta.Path.parent_path() );
     SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
     DynamicArray< SceneSector >& sectors = sectorStreamer.m_Sectors;
     const GameCoreSystem& gameCoreSystem = engine.getSystem< GameCoreSystem >();

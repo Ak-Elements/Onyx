@@ -6,14 +6,14 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace onyx::file_system::Path {
+namespace onyx::file_system::path {
 namespace {
-constexpr StringView DEFAULT_FILE_EXTENSION = "ofile";
+constexpr StringView DefaultFileExtension = "ofile";
 
-HashMap< StringId32, MountPoint > MountPoints;
+HashMap< StringId32, MountPoint > g_mountPoints;
 
-Optional< MountPoint > GetMountPointFromPrefixPath( StringView path ) {
-    for ( auto& [ _, mountPoint ] : MountPoints ) {
+Optional< MountPoint > getMountPointFromPrefixPath( StringView path ) {
+    for ( auto& [ _, mountPoint ] : g_mountPoints ) {
         if ( path.starts_with( mountPoint.Prefix ) ) {
             return mountPoint;
         }
@@ -21,8 +21,8 @@ Optional< MountPoint > GetMountPointFromPrefixPath( StringView path ) {
     return {};
 }
 
-Optional< MountPoint > GetMountPointFromPath( StringView path ) {
-    for ( auto& [ _, mountPoint ] : MountPoints ) {
+Optional< MountPoint > getMountPointFromPath( StringView path ) {
+    for ( auto& [ _, mountPoint ] : g_mountPoints ) {
         if ( path.starts_with( mountPoint.Path.generic_string() ) ) {
             return mountPoint;
         }
@@ -31,30 +31,30 @@ Optional< MountPoint > GetMountPointFromPath( StringView path ) {
 }
 } // namespace
 
-FilePath GetWorkingDirectory() {
+FilePath getWorkingDirectory() {
     using namespace std::filesystem;
     return current_path();
 }
 
-FilePath GetTempDirectory() {
-    return MountPoints.at( TMP_MOUNT_POINT_ID ).Path;
+FilePath getTempDirectory() {
+    return g_mountPoints.at( TmpMountPointId ).Path;
 }
 
-String GetFileName( const FilePath& path ) {
+String getFileName( const FilePath& path ) {
     using namespace std::filesystem;
     return path.stem().generic_string();
 }
 
-const HashMap< StringId32, MountPoint >& GetMountPoints() {
-    return MountPoints;
+const HashMap< StringId32, MountPoint >& getMountPoints() {
+    return g_mountPoints;
 }
 
-FilePath GetFullPath( const FilePath& path ) {
-    return GetFullPath( path, DEFAULT_FILE_EXTENSION );
+FilePath getFullPath( const FilePath& path ) {
+    return getFullPath( path, DefaultFileExtension );
 }
 
-FilePath GetFullPath( const FilePath& path, StringView /*newExtension*/ ) {
-    Optional< MountPoint > mountPoint = GetMountPointFromPrefixPath( path.string() );
+FilePath getFullPath( const FilePath& path, StringView /*newExtension*/ ) {
+    Optional< MountPoint > mountPoint = getMountPointFromPrefixPath( path.string() );
     if ( mountPoint.has_value() ) {
         return mountPoint.value().Path / path.lexically_relative( mountPoint.value().Prefix );
     }
@@ -62,42 +62,42 @@ FilePath GetFullPath( const FilePath& path, StringView /*newExtension*/ ) {
     return path;
 }
 
-FilePath GetFullPath( const String& pathStr ) {
-    return GetFullPath( pathStr, DEFAULT_FILE_EXTENSION );
+FilePath getFullPath( const String& pathStr ) {
+    return getFullPath( pathStr, DefaultFileExtension );
 }
 
-FilePath GetFullPath( const String& pathStr, StringView newExtension ) {
-    return GetFullPath( FilePath( pathStr ), newExtension );
+FilePath getFullPath( const String& pathStr, StringView newExtension ) {
+    return getFullPath( FilePath( pathStr ), newExtension );
 }
 
-FilePath GetFullPath( StringView pathStr ) {
-    return GetFullPath( pathStr, DEFAULT_FILE_EXTENSION );
+FilePath getFullPath( StringView pathStr ) {
+    return getFullPath( pathStr, DefaultFileExtension );
 }
 
-FilePath GetFullPath( StringView pathStr, StringView newExtension ) {
-    return GetFullPath( FilePath( pathStr ), newExtension );
+FilePath getFullPath( StringView pathStr, StringView newExtension ) {
+    return getFullPath( FilePath( pathStr ), newExtension );
 }
 
-FilePath GetFullPath( const char* path ) {
-    return GetFullPath( path, DEFAULT_FILE_EXTENSION );
+FilePath getFullPath( const char* path ) {
+    return getFullPath( path, DefaultFileExtension );
 }
 
-FilePath GetFullPath( const char* path, StringView newExtension ) {
-    return GetFullPath( StringView( path ), newExtension );
+FilePath getFullPath( const char* path, StringView newExtension ) {
+    return getFullPath( StringView( path ), newExtension );
 }
 
-FilePath ReplaceExtension( const FilePath& path, StringView newExtension ) {
+FilePath replaceExtension( const FilePath& path, StringView newExtension ) {
     FilePath returnPath( path );
     return returnPath.replace_extension( newExtension );
 }
 
-FilePath ConvertToMountPath( const FilePath& absolutePath ) {
+FilePath convertToMountPath( const FilePath& absolutePath ) {
     FilePath relativePath = absolutePath;
     if ( absolutePath.is_absolute() ) {
-        relativePath = absolutePath.lexically_relative( GetWorkingDirectory() );
+        relativePath = absolutePath.lexically_relative( getWorkingDirectory() );
     }
 
-    Optional< MountPoint > mountPoint = GetMountPointFromPath( relativePath.generic_string() );
+    Optional< MountPoint > mountPoint = getMountPointFromPath( relativePath.generic_string() );
     if ( mountPoint.has_value() ) {
         String prefixedPath = mountPoint->Prefix + relativePath.lexically_relative( mountPoint->Path ).generic_string();
         toLower( prefixedPath );
@@ -107,37 +107,35 @@ FilePath ConvertToMountPath( const FilePath& absolutePath ) {
     return relativePath;
 }
 
-bool Exists( const FilePath& path ) {
-    using namespace std::filesystem;
-    return exists( path );
+bool exists( const FilePath& path ) {
+    return std::filesystem::exists( path );
 }
 
-bool TempFileExists( const FilePath& path ) {
-    using namespace std::filesystem;
-    return exists( GetTempDirectory().append( path.generic_string() ) );
+bool tempFileExists( const FilePath& path ) {
+    return std::filesystem::exists( getTempDirectory().append( path.generic_string() ) );
 }
 
-void SetMountPoints( const HashMap< StringId32, MountPoint >& dataRoots ) {
+void setMountPoints( const HashMap< StringId32, MountPoint >& dataRoots ) {
     // ensure data directories exist
     for ( auto&& [ identifier, mountPoint ] : dataRoots ) {
-        if ( identifier == TMP_MOUNT_POINT_ID ) {
-            if ( Exists( mountPoint.Path ) == false ) {
-                if ( CreateDirectory( mountPoint.Path ) == false ) {
+        if ( identifier == TmpMountPointId ) {
+            if ( path::exists( mountPoint.Path ) == false ) {
+                if ( createDirectory( mountPoint.Path ) == false ) {
                     ONYX_LOG_ERROR( "Failed to create temp directory at path {}.", mountPoint.Path );
                     continue;
                 }
             }
-        } else if ( Exists( mountPoint.Path ) == false ) {
+        } else if ( path::exists( mountPoint.Path ) == false ) {
             ONYX_LOG_ERROR( "Mount point is not valid, path does not exist at path {}.", mountPoint.Path );
             continue;
         }
 
-        MountPoints[ identifier ] = mountPoint;
+        g_mountPoints[ identifier ] = mountPoint;
     }
 }
 
-bool CreateDirectory( const FilePath& directoryPath ) {
-    if ( Exists( directoryPath ) )
+bool createDirectory( const FilePath& directoryPath ) {
+    if ( path::exists( directoryPath ) )
         return true;
 
     using namespace std::filesystem;
@@ -152,7 +150,7 @@ bool CreateDirectory( const FilePath& directoryPath ) {
     return true;
 }
 
-void EnumerateFiles( const FilePath& directoryPath, InplaceFunction< bool( const FilePath& ) > forEach ) {
+void enumerateFiles( const FilePath& directoryPath, InplaceFunction< bool( const FilePath& ) > forEach ) {
     for ( const std::filesystem::directory_entry& entry :
           std::filesystem::recursive_directory_iterator( directoryPath ) ) {
         if ( entry.is_directory() )
@@ -162,7 +160,7 @@ void EnumerateFiles( const FilePath& directoryPath, InplaceFunction< bool( const
             return;
     }
 }
-} // namespace onyx::file_system::Path
+} // namespace onyx::file_system::path
 
 namespace onyx {
 bool Serialization< FilePath >::serialize( Serializer& serializer, const FilePath& path ) {

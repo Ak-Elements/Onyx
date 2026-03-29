@@ -35,7 +35,7 @@ void Application::init() {
     m_logger = makeUnique< Logger >();
     Logger::s_defaultLogger = m_logger.get();
 
-    const FilePath appConfigPath = file_system::Path::GetWorkingDirectory() / "data/appconfig.oconf";
+    const FilePath appConfigPath = file_system::path::getWorkingDirectory() / "data/appconfig.oconf";
     file_system::OnyxFile appSettings( appConfigPath );
     file_system::JsonValue appConfigJson = appSettings.LoadJson();
 
@@ -51,14 +51,14 @@ void Application::init() {
         return false;
     } );
 
-    file_system::Path::SetMountPoints( mountPoints );
+    file_system::path::setMountPoints( mountPoints );
 
     file_system::FileDialog::Init();
 
     constexpr StringView LastSessionLogPath = "tmp:/logs/last_session.log";
-    FilePath logDirectory = file_system::Path::GetFullPath( LastSessionLogPath ).parent_path();
-    if ( file_system::Path::Exists( logDirectory ) == false ) {
-        file_system::Path::CreateDirectory( logDirectory );
+    FilePath logDirectory = file_system::path::getFullPath( LastSessionLogPath ).parent_path();
+    if ( file_system::path::exists( logDirectory ) == false ) {
+        file_system::path::createDirectory( logDirectory );
     }
 
     m_logger->addLoggingBackend< StdoutLogger >();

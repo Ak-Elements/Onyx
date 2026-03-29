@@ -10,7 +10,7 @@ OnyxFile::OnyxFile( const FilePath& filePath )
     , m_FileId( hash::fnV1aHash< uint64_t >( filePath.string() ) ) {}
 
 OnyxFile::OnyxFile( StringView mountPath )
-    : m_FilePath( Path::GetFullPath( mountPath ) )
+    : m_FilePath( path::getFullPath( mountPath ) )
     , m_FileId( hash::fnV1aHash< uint64_t >( m_FilePath.string() ) ) {}
 
 bool OnyxFile::ReadAll( const FilePath& filePath, String& outFileContent ) {
@@ -31,7 +31,7 @@ bool OnyxFile::ReadAll( const FilePath& filePath, String& outFileContent, bool s
 }
 
 FileStream OnyxFile::OpenStream( OpenMode mode ) const {
-    return { Path::GetWorkingDirectory() / m_FilePath, mode };
+    return { path::getWorkingDirectory() / m_FilePath, mode };
 }
 
 JsonValue OnyxFile::LoadJson() const {

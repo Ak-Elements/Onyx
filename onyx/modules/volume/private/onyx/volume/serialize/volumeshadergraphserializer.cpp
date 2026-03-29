@@ -40,8 +40,8 @@ bool VolumeShaderGraphSerializer::serialize( const assets::AssetHandle< assets::
     if ( graphics::shader_graph_serializer::serialize( shaderGraph, serializer ) == false )
         return false;
 
-    FilePath volumeShaderPath = file_system::Path::ReplaceExtension( meta.Path, "h" );
-    FilePath volumeShaderGraphHeaderPath = file_system::Path::GetFullPath( volumeShaderPath );
+    FilePath volumeShaderPath = file_system::path::replaceExtension( meta.Path, "h" );
+    FilePath volumeShaderGraphHeaderPath = file_system::path::getFullPath( volumeShaderPath );
 
     // write out header
     WriteFile( volumeShaderGraphHeaderPath, shaderGraph.GetShaderCode() );
@@ -71,7 +71,7 @@ bool VolumeShaderGraphSerializer::deserialize( assets::AssetHandle< assets::Asse
     if ( graphics::shader_graph_serializer::deserialize( shaderGraph, deserializer ) == false )
         return false;
 
-    FilePath directoryPath = file_system::Path::ConvertToMountPath( meta.Path ).parent_path();
+    FilePath directoryPath = file_system::path::convertToMountPath( meta.Path ).parent_path();
     shaderGraph.m_BuildOctreeShader = assets::AssetId( directoryPath / BUILD_OCTREE_SHADER_FILENAME );
     shaderGraph.m_FindOctreeNodeShader = assets::AssetId( directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME );
     shaderGraph.m_GenerateVolumeMeshShader = assets::AssetId( directoryPath / GENERATE_VOLUME_MESH_SHADER_FILENAME );
