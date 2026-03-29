@@ -1,4 +1,3 @@
-#include "onyx/filesystem/path.h"
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/rhi/shader/shader.h>
 

@@ -1,10 +1,10 @@
 #include <onyx/filesystem/path.h>
 
-#include <filesystem>
-
 #include <onyx/log/logger.h>
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
+
+#include <filesystem>
 
 namespace onyx::file_system::path {
 namespace {

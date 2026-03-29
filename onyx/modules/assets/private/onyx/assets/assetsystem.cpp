@@ -1,4 +1,3 @@
-#include "onyx/filesystem/path.h"
 #include <onyx/assets/assetsystem.h>
 
 #include <onyx/thread/async/asynctask.h>
