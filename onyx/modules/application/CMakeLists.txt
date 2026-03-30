@@ -7,5 +7,5 @@ onyx_add_target(onyx-application
     NAMESPACE "onyx::application"
     NAMESPACE_PATH "onyx/application"
     NO_CODEGEN
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

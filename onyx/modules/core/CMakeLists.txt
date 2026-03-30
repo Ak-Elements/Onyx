@@ -7,5 +7,5 @@ onyx_add_target(onyx-core
     NAMESPACE_PATH "onyx"
     FOLDER ${ONYX_TARGETS_FOLDER}
     NO_CODEGEN
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

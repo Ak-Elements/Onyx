@@ -1,16 +1,15 @@
 function(onyx_add_target TARGET_NAME)
-     set(options NO_CODEGEN NO_EDITOR_TARGET)  # No boolean options
-     set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER NAMESPACE_PATH ALIAS)
-     set(multiValueArgs PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
+    set(options NO_CODEGEN NO_TOOLS_TARGET)  # No boolean options
+    set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER NAMESPACE_PATH ALIAS)
+    set(multiValueArgs PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
      
-     #set(arg_ENABLE_CODEGEN true)
-     cmake_parse_arguments(
+    cmake_parse_arguments(
          arg
          "${options}"
          "${oneValueArgs}"
          "${multiValueArgs}"
          ${ARGN}
-     )
+    )
      
     if (NOT arg_NAMESPACE)
         set(arg_NAMESPACE "${TARGET_NAME}")
@@ -35,22 +34,22 @@ function(onyx_add_target TARGET_NAME)
         set(runtime_target_ocd_files "")
     endif()
 
-    if (NOT arg_NO_EDITOR_TARGET AND (runtime_target_ocd_files OR EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/editor"))
+    if (NOT arg_NO_TOOLS_TARGET AND (runtime_target_ocd_files OR EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tools"))
         onyx_create_target(
-            TARGET ${TARGET_NAME}-editor
+            TARGET ${TARGET_NAME}-tools
             NAMESPACE ${arg_NAMESPACE}
             TYPE ${arg_TARGET_TYPE}
-            FOLDER editor
-            BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/editor
-            BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/editor
+            FOLDER tools
+            BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools
+            BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/tools
             PRIVATE_DEPENDENCIES ${TARGET_NAME}
         )
         # adjust namespace after the create target to not change namespace folder path
-        set_target_properties(${TARGET_NAME}-editor PROPERTIES ONYX_NAMESPACE "${arg_NAMESPACE}::editor")
+        set_target_properties(${TARGET_NAME}-tools PROPERTIES ONYX_NAMESPACE "${arg_NAMESPACE}::tools")
 
-        get_property(editorTargets GLOBAL PROPERTY onyx_EDITOR_TARGETS)
-        list(APPEND editorTargets ${TARGET_NAME}-editor)
-        set_property(GLOBAL PROPERTY onyx_EDITOR_TARGETS ${editorTargets})
+        get_property(toolsTargets GLOBAL PROPERTY onyx_TOOLS_TARGETS)
+        list(APPEND toolsTargets ${TARGET_NAME}-tools)
+        set_property(GLOBAL PROPERTY onyx_TOOLS_TARGETS ${toolsTargets})
 
     endif()
 
@@ -62,19 +61,19 @@ function(onyx_add_target TARGET_NAME)
             PUBLIC_DIR_SUFFIX "public/${arg_NAMESPACE_PATH}"
             PRIVATE_DIR_SUFFIX "private/${arg_NAMESPACE_PATH}"
             GENERATED_DIR_SUFFIX "generated"
-            IS_EDITOR FALSE
+            IS_TOOLS_TARGET FALSE
         )
 
-        if (TARGET ${TARGET_NAME}-editor)
+        if (TARGET ${TARGET_NAME}-tools)
             onyx_add_codegen_for_target(
-                TARGET ${TARGET_NAME}-editor
+                TARGET ${TARGET_NAME}-tools
                 RUNTIME_TARGET ${TARGET_NAME}
-                BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/editor
-                BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/editor
+                BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/tools
+                BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools
                 PUBLIC_DIR_SUFFIX "public/${arg_NAMESPACE_PATH}"
                 PRIVATE_DIR_SUFFIX "private/${arg_NAMESPACE_PATH}"
                 GENERATED_DIR_SUFFIX "generated"
-                IS_EDITOR TRUE
+                IS_TOOLS_TARGET TRUE
                 
             )
         endif()
@@ -428,8 +427,8 @@ function(onyx_install_targets TARGET)
     endif()
 
     set(installtargets ${TARGET})
-    if (TARGET ${TARGET}-editor)
-        list(APPEND installtargets ${TARGET}-editor)
+    if (TARGET ${TARGET}-tools)
+        list(APPEND installtargets ${TARGET}-tools)
     endif()
     #### Install ####
     include(GNUInstallDirs)

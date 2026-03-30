@@ -23,5 +23,5 @@ onyx_add_target(onyx-rhi
     NAMESPACE "onyx::rhi"
     NAMESPACE_PATH "onyx/rhi"
     PRIVATE_DEFINES ${private_defines}
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

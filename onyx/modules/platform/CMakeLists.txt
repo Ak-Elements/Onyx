@@ -6,5 +6,5 @@ onyx_add_target(onyx-platform
     NAMESPACE "onyx::platform"
     NAMESPACE_PATH "onyx/platform"
     FOLDER ${ONYX_TARGETS_FOLDER}
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

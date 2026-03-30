@@ -7,5 +7,5 @@ onyx_add_target(onyx-ui
     NAMESPACE "onyx::ui"
     NAMESPACE_PATH "onyx/ui"
     PUBLIC_DEFINES "ONYX_UI_MODULE=1"
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

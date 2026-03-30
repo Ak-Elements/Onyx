@@ -12,7 +12,7 @@ list(APPEND ONYX_PUBLIC_DEFINES
 )
 
 set(ONYX_PUBLIC_DEFINES ${ONYX_PUBLIC_DEFINES} PARENT_SCOPE)
-set_property(GLOBAL PROPERTY onyx_EDITOR_TARGETS "")
+set_property(GLOBAL PROPERTY onyx_TOOLS_TARGETS "")
 
 # modules
 add_subdirectory(profiler)
@@ -34,11 +34,12 @@ add_subdirectory(volume)
 add_subdirectory(editor)
 add_subdirectory(application)
 
-get_property(editorTargets GLOBAL PROPERTY onyx_EDITOR_TARGETS)
+get_property(toolsTargets GLOBAL PROPERTY onyx_TOOLS_TARGETS)
 
 #add editor references
-foreach(editorTarget IN LISTS editorTargets)
-    target_link_libraries(${editorTarget} PRIVATE onyx-editor)
+# is it enough to just link to ui?
+foreach(toolsTarget IN LISTS toolsTargets)
+    target_link_libraries(${toolsTarget} PRIVATE onyx-editor)
 endforeach()
 
-set_property(GLOBAL PROPERTY onyx_EDITOR_TARGETS "")
+set_property(GLOBAL PROPERTY onyx_TOOLS_TARGETS "")

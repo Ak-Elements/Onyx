@@ -7,5 +7,5 @@ onyx_add_target(onyx-entity
     NAMESPACE "onyx::ecs"
     NAMESPACE_PATH "onyx/entity"
     NO_CODEGEN
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

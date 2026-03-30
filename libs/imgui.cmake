@@ -60,7 +60,7 @@ target_include_directories(ImGui PUBLIC
     $<INSTALL_INTERFACE:include/imgui>
 )
 
-target_compile_definitions(ImGui PRIVATE
+target_compile_definitions(ImGui PUBLIC
     "IMGUI_HAS_STACK_LAYOUT=1"
     "IMGUI_DEFINE_MATH_OPERATORS"
 )

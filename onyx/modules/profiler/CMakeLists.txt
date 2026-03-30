@@ -14,5 +14,5 @@ onyx_add_target(onyx-profiler
     NAMESPACE_PATH "onyx/profiler"
     FOLDER ${ONYX_TARGETS_FOLDER}
     NO_CODEGEN
-    NO_EDITOR_TARGET
+    NO_TOOLS_TARGET
 )

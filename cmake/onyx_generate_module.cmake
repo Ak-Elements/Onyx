@@ -5,7 +5,7 @@ function(onyx_add_codegen_for_target)
         BASE_BINARY_DIR
         BASE_SOURCE_DIR
         GENERATED_DIR_SUFFIX
-        IS_EDITOR
+        IS_TOOLS_TARGET 
     )
 
     set(multiValueArgs
@@ -34,8 +34,8 @@ function(onyx_add_codegen_for_target)
     set(generated_public_sources "")
     set(generated_private_sources "")
 
-    cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "editor" "${arg_GENERATED_DIR_SUFFIX}" "public" "${target_ns_path}" OUTPUT_VARIABLE editor_gen_public_dir)
-    cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "editor" "${arg_GENERATED_DIR_SUFFIX}" "private" "${target_ns_path}" OUTPUT_VARIABLE editor_gen_private_dir)
+    cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "tools" "${arg_GENERATED_DIR_SUFFIX}" "public" "${target_ns_path}" OUTPUT_VARIABLE tools_gen_public_dir)
+    cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "tools" "${arg_GENERATED_DIR_SUFFIX}" "private" "${target_ns_path}" OUTPUT_VARIABLE tools_gen_private_dir)
 
     foreach(ocd_file IN LISTS target_ocd_files)
         cmake_path(RELATIVE_PATH ocd_file
@@ -61,32 +61,32 @@ function(onyx_add_codegen_for_target)
         list(APPEND generated_public_sources  "${gen_h}")
         list(APPEND generated_private_sources "${gen_cpp}")
 
-        if (TARGET ${arg_TARGET}-editor)
-            cmake_path(GET relative_file_path  PARENT_PATH relative_file_path_dir)
+        if (TARGET ${arg_TARGET}-tools)
+            cmake_path(GET relative_file_path PARENT_PATH relative_file_path_dir)
            
-            cmake_path(APPEND editor_gen_public_dir "${relative_file_path_dir}" OUTPUT_VARIABLE editor_gen_file_public_dir)
-            cmake_path(APPEND editor_gen_private_dir "${relative_file_path_dir}" OUTPUT_VARIABLE editor_gen_file_private_dir)
+            cmake_path(APPEND tools_gen_public_dir "${relative_file_path_dir}" OUTPUT_VARIABLE tools_gen_file_public_dir)
+            cmake_path(APPEND tools_gen_private_dir "${relative_file_path_dir}" OUTPUT_VARIABLE tools_gen_file_private_dir)
 
             cmake_path(GET ocd_file STEM out_file_name)
             
-            cmake_path(APPEND editor_gen_file_public_dir "${out_file_name}inspector.gen.h" OUTPUT_VARIABLE editor_gen_h)
-            cmake_path(APPEND editor_gen_file_private_dir "${out_file_name}inspector.gen.cpp" OUTPUT_VARIABLE editor_gen_cpp)
+            cmake_path(APPEND tools_gen_file_public_dir "${out_file_name}inspector.gen.h" OUTPUT_VARIABLE tools_gen_h)
+            cmake_path(APPEND tools_gen_file_private_dir "${out_file_name}inspector.gen.cpp" OUTPUT_VARIABLE tools_gen_cpp)
 
-            file(MAKE_DIRECTORY ${editor_gen_file_public_dir})
-            file(MAKE_DIRECTORY ${editor_gen_file_private_dir})
+            file(MAKE_DIRECTORY ${tools_gen_file_public_dir})
+            file(MAKE_DIRECTORY ${tools_gen_file_private_dir})
             
-            file(TOUCH ${editor_gen_h})
-            file(TOUCH ${editor_gen_cpp})
+            file(TOUCH ${tools_gen_h})
+            file(TOUCH ${tools_gen_cpp})
 
-            target_sources(${arg_TARGET}-editor PUBLIC
+            target_sources(${arg_TARGET}-tools PUBLIC
                 FILE_SET HEADERS
-                BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/editor/${arg_GENERATED_DIR_SUFFIX}/public"
-                FILES ${editor_gen_h}
+                BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/tools/${arg_GENERATED_DIR_SUFFIX}/public"
+                FILES ${tools_gen_h}
             )
-            source_group(TREE ${editor_gen_public_dir} FILES ${editor_gen_h})
+            source_group(TREE ${tools_gen_public_dir} FILES ${tools_gen_h})
 
-            target_sources(${arg_TARGET}-editor PRIVATE ${editor_gen_cpp})
-            source_group(TREE ${editor_gen_private_dir} FILES ${editor_gen_cpp})
+            target_sources(${arg_TARGET}-tools PRIVATE ${tools_gen_cpp})
+            source_group(TREE ${tools_gen_private_dir} FILES ${tools_gen_cpp})
 
         endif()
     endforeach()
@@ -133,7 +133,7 @@ function(onyx_add_codegen_for_target)
         RUNTIME_TARGET ${arg_RUNTIME_TARGET}
         NAMESPACE "${target_namespace}"
         TARGET_TYPE "${target_type}"
-        IS_EDITOR ${arg_IS_EDITOR}
+        IS_TOOLS_TARGET ${arg_IS_TOOLS_TARGET}
         INCLUDE_DIRS "${include_dirs}"
         PUBLIC_SOURCES "${target_public_sources}"
         GENERATED_DIR_SUFFIX "${arg_GENERATED_DIR_SUFFIX}"
@@ -159,7 +159,7 @@ function(onyx_generate_codegen_config outPath)
         RUNTIME_TARGET
         NAMESPACE
         TARGET_TYPE
-        IS_EDITOR
+        IS_TOOLS_TARGET
         GENERATED_DIR_SUFFIX
         NAMESPACE_DIR_SUFFIX
     )
@@ -178,8 +178,8 @@ function(onyx_generate_codegen_config outPath)
         "name = \"${arg_TARGET}\""
         "namespace = \"${arg_NAMESPACE}\""
         "is_executable = $<BOOL:$<STREQUAL:${arg_TARGET_TYPE},EXECUTABLE>>"
-        "has_editor_target = $<TARGET_EXISTS:${arg_TARGET}-editor>"
-        "is_editor_target = $<BOOL:${arg_IS_EDITOR}>"
+        "has_tools_target = $<TARGET_EXISTS:${arg_TARGET}-tools>"
+        "is_tools_target = $<BOOL:${arg_IS_TOOLS_TARGET}>"
         "source_files = [${public_sources_string}]"
         "include_directories = [${include_directories_string}]"
         ""
@@ -187,9 +187,9 @@ function(onyx_generate_codegen_config outPath)
 
     set(target_source_dir ${CMAKE_CURRENT_SOURCE_DIR})
     set(target_binary_dir ${CMAKE_CURRENT_BINARY_DIR})
-    if (arg_IS_EDITOR)
-        set(target_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/editor")
-        set(target_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/editor")
+    if (arg_IS_TOOLS_TARGET)
+        set(target_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/tools")
+        set(target_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
     endif()
 
     list(APPEND toml_lines
@@ -202,9 +202,9 @@ function(onyx_generate_codegen_config outPath)
         "namespace_dir_suffix = \"${arg_NAMESPACE_DIR_SUFFIX}\""
     )
 
-    if (NOT arg_IS_EDITOR AND TARGET ${arg_TARGET}-editor)
+    if (NOT arg_IS_TOOLS_TARGET AND TARGET ${arg_TARGET}-tools)
         list(APPEND toml_lines
-            "editor_target_binary_dir = \"${CMAKE_CURRENT_BINARY_DIR}/editor\""
+            "tools_target_binary_dir = \"${CMAKE_CURRENT_BINARY_DIR}/tools\""
             ""
         )
     endif()
