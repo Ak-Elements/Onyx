@@ -663,9 +663,9 @@ namespace {
 } // namespace
 
 namespace onyx::editor::scene_editor {
-void TerrainPanel::OnOpen() {
-    input_actions::InputActionSystem& inputActionSystem = GetEngineSystem< input_actions::InputActionSystem >();
-    rhi::GraphicsSystem& graphicsSystem = GetEngineSystem< rhi::GraphicsSystem >();
+void TerrainPanel::onOpen() {
+    input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
+    rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
 
     inputActionSystem.OnInput< &TerrainPanel::OnTerrainPanelBrushSizeInput >( "TerrainBrushScale"_id64, this );
 
@@ -709,12 +709,12 @@ void TerrainPanel::OnOpen() {
     }
 }
 
-void TerrainPanel::OnClose() {
-    input_actions::InputActionSystem& inputActionSystem = GetEngineSystem< input_actions::InputActionSystem >();
+void TerrainPanel::onClose() {
+    input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionSystem.Disconnect( this );
 }
 
-void TerrainPanel::OnRender( ui::ImGuiSystem& imguiSystem ) {
+void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
     ONYX_ASSERT( m_CurrentScene != nullptr );
 
     ::ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName( "Scene###SceneViewPanel0" );
@@ -772,7 +772,7 @@ void TerrainPanel::OnRender( ui::ImGuiSystem& imguiSystem ) {
                             sceneViewWindow->Viewport->Size.x,
                             sceneViewWindow->Viewport->Size.y };
 
-    rhi::GraphicsSystem& graphicsSystem = GetEngineSystem< rhi::GraphicsSystem >();
+    rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
     rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer( graphicsSystem.GetFrameIndex(), true );
     TraceTerrain( computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport );
 
@@ -800,7 +800,7 @@ void TerrainPanel::OnRender( ui::ImGuiSystem& imguiSystem ) {
         HitData* hitData = static_cast< HitData* >( data );
         if ( hitData->HasHit ) {
             hitData->HasHit = false;
-            const game_core::GameCoreSystem& gameCoreSystem = GetEngineSystem< game_core::GameCoreSystem >();
+            const game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
             m_Tools[ m_SelectedTab ]->OnHitPositionReadback( *m_CurrentScene,
                                                              gameCoreSystem.GetComponentFactory(),
                                                              hitData->HitPositon );
@@ -876,7 +876,7 @@ void TerrainPanel::TraceTerrain( rhi::CommandBuffer& computeCommandBuffer,
     ImVec2 mousePos = ImGui::GetMousePos();
     RayTraceTerrainPushConstants constants;
 
-    rhi::GraphicsSystem& graphicsSystem = GetEngineSystem< rhi::GraphicsSystem >();
+    rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
     constants.MousePosition[ 0 ] = ( ( mousePos.x - sceneViewport.Position[ 0 ] ) / sceneViewport.Extents[ 0 ] ) *
                                        2.0f -
                                    1.0f;

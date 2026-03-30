@@ -8,90 +8,120 @@
 #include <imgui_internal.h>
 
 namespace onyx::ui {
-void ImGuiWindow::Open() {
-    if ( m_IsOpen ) {
-        BringToFront();
-        SetIsCollapsed( false );
+void ImGuiWindow::open() {
+    if( isOpen() ) {
+        bringToFront();
+        setIsCollapsed( false );
         return;
     }
 
-    m_IsOpen = true;
-    OnOpen();
+    m_state |= ImGuiWindow::State::Opening;
 }
 
-void ImGuiWindow::Close() {
-    if ( m_IsOpen == false ) {
+void ImGuiWindow::close() {
+    if( isOpen() == false ) {
         return;
     }
 
-    m_IsOpen = false;
-    OnClose();
+    m_state = m_state ^ ImGuiWindow::State::Open;
 }
 
-void ImGuiWindow::Render( ImGuiSystem& imguiSystem ) {
-    if ( m_IsOpen == false ) {
+void ImGuiWindow::render( ImGuiSystem& imguiSystem ) {
+    if( m_state == State::Closed ) {
         return;
     }
 
-    const bool wasOpen = m_IsOpen;
+    ::ImGuiWindow* window = ImGui::FindWindowByName( m_name.c_str() );
+    enums::set( m_state, State::Docked, ( window != nullptr ) && ( window->DockId != 0 ) );
 
-    ::ImGuiWindow* window = ImGui::FindWindowByName( m_Name.c_str() );
-    m_IsDocked = ( window != nullptr ) && ( window->DockId != 0 );
-    OnRender( imguiSystem );
+    if( enums::all( m_state, State::Opening ) ) {
+        onOpen();
 
-    if ( m_IsOpen && ( wasOpen == false ) ) {
-        OnOpen();
-    } else if ( ( m_IsOpen == false ) && wasOpen ) {
-        OnClose();
+        enums::set( m_state, State::Open );
+        enums::unset( m_state, State::Opening );
     }
 
-    OnRenderMainMenuBar();
+    if( isOpen() ) {
+        bool isVisible = begin();
+
+        m_dockspace.render();
+
+        if( isVisible )
+            if( beginMenuBar() ) {
+                onRenderMainMenuBar();
+                endMenuBar();
+            }
+
+        onRender( imguiSystem );
+
+        end();
+    }
+
+    if( enums::all( m_state, State::Closing ) ) {
+        onClose();
+        m_state = State::Closed;
+    }
 }
 
-void ImGuiWindow::BringToFront() {
-    ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( m_Name.c_str() );
+void ImGuiWindow::bringToFront() {
+    ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( m_name.c_str() );
     ::ImGui::BringWindowToDisplayFront( imguiWindow );
 }
 
-void ImGuiWindow::SetIsCollapsed( bool _isCollapsed ) {
-    if ( m_IsCollapsed != _isCollapsed ) {
-        m_IsCollapsed = _isCollapsed;
-        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( m_Name.c_str() );
-        ::ImGui::SetWindowCollapsed( imguiWindow, m_IsCollapsed, ImGuiCond_Always );
+void ImGuiWindow::setIsCollapsed( bool isCollapsed ) {
+    if( m_isCollapsed != isCollapsed ) {
+        m_isCollapsed = isCollapsed;
+        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( m_name.c_str() );
+        ::ImGui::SetWindowCollapsed( imguiWindow, m_isCollapsed, ImGuiCond_Always );
     }
 }
 
-bool ImGuiWindow::Begin() {
-    if ( m_WindowClass != nullptr )
-        ::ImGui::SetNextWindowClass( m_WindowClass );
+bool ImGuiWindow::begin() {
+    if( m_windowClass != nullptr )
+        ::ImGui::SetNextWindowClass( m_windowClass );
 
-    bool hasBegun = ::ImGui::Begin( m_Name.c_str(), &m_IsOpen, m_Flags );
-    m_IsCollapsed = ::ImGui::IsWindowCollapsed();
-    m_IsFocused = ::ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy );
+    if( std::numeric_limits< uint32_t >::max() != m_dockId ) {
+        ImGui::SetNextWindowDockID( m_dockId );
+    }
+
+    bool open = isOpen();
+    bool hasBegun = ::ImGui::Begin( m_name.c_str(), &open, m_flags );
+    if( open == false ) {
+        enums::set( m_state, State::Closing );
+    }
+    m_isCollapsed = ::ImGui::IsWindowCollapsed();
+    m_isFocused = ::ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy );
     return hasBegun;
 }
 
-void ImGuiWindow::End() {
+void ImGuiWindow::end() {
     ImGui::End();
 }
 
-void ImGuiWindow::SetPosition( Vector2s32 position ) {
-    SetPosition( position, Vector2f32::zero() );
+void ImGuiWindow::createDockspace( uint32_t id,
+                                   const ImGuiWindowClass* windowClass,
+                                   const DynamicArray< DockSplit >& splits ) {
+    m_dockspace.init( id, windowClass, splits );
 }
 
-void ImGuiWindow::SetPosition( Vector2s32 position, Vector2f32 pivot ) {
+void ImGuiWindow::setDefaultPosition( Vector2s32 position ) {
+    setDefaultPosition( position, Vector2f32::zero() );
+}
+
+void ImGuiWindow::setDefaultPosition( Vector2s32 position, Vector2f32 pivot ) {
     ImGui::SetNextWindowPos( { numericCast< float32 >( position.X ), numericCast< float32 >( position.Y ) },
-                             ImGuiCond_None,
+                             ImGuiCond_FirstUseEver,
                              { pivot.X, pivot.Y } );
 }
 
-void ImGuiWindow::SetDefaultPosition( Vector2s32 position ) {
-    SetDefaultPosition( position, Vector2f32::zero() );
+void ImGuiWindow::setDefaultSize( Vector2s32 size ) {
+    ImGui::SetNextWindowSize( { numericCast< float32 >( size.X ), numericCast< float32 >( size.Y ) },
+                              ImGuiCond_FirstUseEver );
 }
 
-void ImGuiWindow::SetDefaultPosition( WindowPosition position ) {
+void ImGuiWindow::setDefaultPosition( WindowPosition position ) {
     ImGuiViewport* windowViewport = ImGui::GetWindowViewport();
-    if ( windowViewport == nullptr ) {
+    if( windowViewport == nullptr ) {
         return;
     }
 
@@ -102,84 +132,77 @@ void ImGuiWindow::SetDefaultPosition( WindowPosition position ) {
     Vector2s32 windowPosition{ numericCast< int32_t >( mainWindowPosition.x ),
                                numericCast< int32_t >( mainWindowPosition.y ) };
     Vector2f32 windowPivot;
-    switch ( position ) {
+    switch( position ) {
     case WindowPosition::TopLeft:
         windowPivot = Vector2f32( 0.0f, 0.0f );
-        windowPosition.X += style.WindowPadding.x;
-        windowPosition.Y += style.WindowPadding.y;
+        windowPosition.X += numericCast< int32_t >( style.WindowPadding.x );
+        windowPosition.Y += numericCast< int32_t >( style.WindowPadding.y );
         break;
     case WindowPosition::TopCenter:
         windowPivot = Vector2f32( 0.5f, 0.0f );
-        windowPosition.X += mainWindowSize.x / 2.0f;
-        windowPosition.Y += style.WindowPadding.y;
+        windowPosition.X += numericCast< int32_t >( mainWindowSize.x / 2.0f );
+        windowPosition.Y += numericCast< int32_t >( style.WindowPadding.y );
         break;
     case WindowPosition::TopRight:
         windowPivot = Vector2f32( 1.0f, 0.0f );
-        windowPosition.X += mainWindowSize.x - style.WindowPadding.x;
-        windowPosition.Y += style.WindowPadding.y;
+        windowPosition.X += numericCast< int32_t >( mainWindowSize.x - style.WindowPadding.x );
+        windowPosition.Y += numericCast< int32_t >( style.WindowPadding.y );
         break;
     case WindowPosition::CenterLeft:
         windowPivot = Vector2f32( 0.0f, 0.5f );
-        windowPosition.X += style.WindowPadding.x;
-        windowPosition.Y += mainWindowSize.y / 2.0f;
+        windowPosition.X += numericCast< int32_t >( style.WindowPadding.x );
+        windowPosition.Y += numericCast< int32_t >( mainWindowSize.y / 2.0f );
         break;
     case WindowPosition::Center:
         windowPivot = Vector2f32( 0.5f, 0.5f );
-        windowPosition.X += mainWindowSize.x - style.WindowPadding.x;
-        windowPosition.Y += mainWindowSize.y / 2.0f;
+        windowPosition.X += numericCast< int32_t >( mainWindowSize.x - style.WindowPadding.x );
+        windowPosition.Y += numericCast< int32_t >( mainWindowSize.y / 2.0f );
         break;
     case WindowPosition::CenterRight:
         windowPivot = Vector2f32( 1.0f, 0.5f );
-        windowPosition.X += mainWindowSize.x / 2.0f;
-        windowPosition.Y += mainWindowSize.y / 2.0f;
+        windowPosition.X += numericCast< int32_t >( mainWindowSize.x / 2.0f );
+        windowPosition.Y += numericCast< int32_t >( mainWindowSize.y / 2.0f );
         break;
     case WindowPosition::BottomLeft:
         windowPivot = Vector2f32( 0.0f, 1.0f );
-        windowPosition.X += style.WindowPadding.x;
-        windowPosition.Y += mainWindowSize.y - style.WindowPadding.y;
+        windowPosition.X += numericCast< int32_t >( style.WindowPadding.x );
+        windowPosition.Y += numericCast< int32_t >( mainWindowSize.y - style.WindowPadding.y );
         break;
     case WindowPosition::BottomCenter:
         windowPivot = Vector2f32( 0.5f, 1.0f );
-        windowPosition.X += mainWindowSize.x / 2.0f;
-        windowPosition.Y += mainWindowSize.y - style.WindowPadding.y;
+        windowPosition.X += numericCast< int32_t >( mainWindowSize.x / 2.0f );
+        windowPosition.Y += numericCast< int32_t >( mainWindowSize.y - style.WindowPadding.y );
         break;
     case WindowPosition::BottomRight:
         windowPivot = Vector2f32( 1.0f, 1.0f );
-        windowPosition.X += mainWindowSize.x - style.WindowPadding.x;
-        windowPosition.Y += mainWindowSize.y - style.WindowPadding.y;
+        windowPosition.X += numericCast< int32_t >( mainWindowSize.x - style.WindowPadding.x );
+        windowPosition.Y += numericCast< int32_t >( mainWindowSize.y - style.WindowPadding.y );
         break;
     }
 
-    SetDefaultPosition( windowPosition, windowPivot );
+    setDefaultPosition( windowPosition, windowPivot );
 }
 
-void ImGuiWindow::SetDefaultPosition( Vector2s32 position, Vector2f32 pivot ) {
-    ImGui::SetNextWindowPos( { numericCast< float32 >( position.X ), numericCast< float32 >( position.Y ) },
-                             ImGuiCond_FirstUseEver,
-                             { pivot.X, pivot.Y } );
-}
-
-bool ImGuiWindow::BeginMenuBar() {
+bool ImGuiWindow::beginMenuBar() const {
     bool hasBegun = true;
-    if ( ( m_Flags & ImGuiWindowFlags_MenuBar ) != ImGuiWindowFlags_MenuBar ) {
+    if( ( m_flags & ImGuiWindowFlags_MenuBar ) != ImGuiWindowFlags_MenuBar ) {
         hasBegun = ImGui::Begin( "MainWindow" );
     }
 
     return hasBegun && ImGui::BeginMenuBar();
 }
 
-void ImGuiWindow::EndMenuBar() {
+void ImGuiWindow::endMenuBar() const {
     ImGui::EndMenuBar();
 
-    if ( ( m_Flags & ImGuiWindowFlags_MenuBar ) != ImGuiWindowFlags_MenuBar ) {
+    if( ( m_flags & ImGuiWindowFlags_MenuBar ) != ImGuiWindowFlags_MenuBar ) {
         ImGui::End();
     }
 }
 
-void ImGuiWindow::OnOpen() {}
-
-void ImGuiWindow::OnClose() {}
-
-void ImGuiWindow::OnRenderMainMenuBar() {}
+void ImGuiWindow::onOpen() {}
+// void ImGuiWindow::onPreRender( ui::ImGuiSystem& /*system*/ ) {}
+void ImGuiWindow::onClose() {}
+void ImGuiWindow::onRenderMainMenuBar() {}
 } // namespace onyx::ui
 #endif

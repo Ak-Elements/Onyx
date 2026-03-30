@@ -18,13 +18,13 @@ class KeyboardOverlay : public ui::ImGuiWindow {
     static constexpr StringView WindowId = "KeyboardOverlay";
     static constexpr StringView WindowCategory = "Debug";
 
-    ONYX_NO_DISCARD StringView GetWindowId() override { return WindowId; }
+    ONYX_NO_DISCARD StringView getWindowId() override { return WindowId; }
 
     KeyboardOverlay();
 
   private:
-    void OnOpen() override;
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+    void onOpen() override;
+    void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
   private:
     struct KeyData {

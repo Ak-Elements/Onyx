@@ -7,13 +7,11 @@
 #include <onyx/ui/widgets.h>
 
 namespace onyx::ui {
-void EngineVariablesWindow::OnOpen() {
+void EngineVariablesWindow::onOpen() {
     RebuildVariableGraph();
 }
 
-void EngineVariablesWindow::OnRender( ImGuiSystem& /*imguiSystem*/ ) {
-    Begin();
-
+void EngineVariablesWindow::onRender( ImGuiSystem& /*imguiSystem*/ ) {
     bool hasSearchChanged = DrawSearchBar( m_Search, "Search", m_SearchBarIsFocused );
     if ( hasSearchChanged ) {
         RebuildVariableGraph();
@@ -23,8 +21,6 @@ void EngineVariablesWindow::OnRender( ImGuiSystem& /*imguiSystem*/ ) {
 
     RenderGraphNode( m_Root );
     property_grid::endPropertyGrid();
-
-    End();
 }
 
 void EngineVariablesWindow::RenderGraphNode( const EngineVariablesWindow::EngineVariableGraphNode& graphNode ) const {
@@ -55,7 +51,7 @@ void EngineVariablesWindow::RenderGraphNode( const EngineVariablesWindow::Engine
 void EngineVariablesWindow::RebuildVariableGraph() {
     m_Root.Children.clear();
 
-    const localization::LocalizationModule& localizationSystem = GetEngineSystem< localization::LocalizationModule >();
+    const localization::LocalizationModule& localizationSystem = getEngineSystem< localization::LocalizationModule >();
     HashMap< StringId32, IEngineVariable* > engineVariables = IEngine::getVariablesRegistry().getVariables();
 
     for ( auto&& [ id, variable ] : engineVariables ) {

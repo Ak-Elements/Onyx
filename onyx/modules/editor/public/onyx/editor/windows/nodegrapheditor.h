@@ -29,12 +29,12 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
     NodeGraphEditorWindow();
     ~NodeGraphEditorWindow() override;
 
-    StringView GetWindowId() override { return WindowId; }
+    StringView getWindowId() override { return WindowId; }
 
     template < typename T >
     void SetContext( T&& context ) {
         m_EditorContext = std::forward< T >( context );
-        m_EditorContext->SetLocalizationModule( GetEngineSystem< localization::LocalizationModule >() );
+        m_EditorContext->SetLocalizationModule( getEngineSystem< localization::LocalizationModule >() );
         m_EditorContext->OnLoaded.Connect< &NodeGraphEditorWindow::OnGraphLoaded >( this );
         m_EditorContext->OnSaved.Connect< &NodeGraphEditorWindow::OnGraphSaved >( this );
         m_EditorContext->LoadEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::LoadEditorMetaData >( this );
@@ -45,11 +45,12 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
     }
 
   private:
-    void OnOpen() override;
-    void OnClose() override;
+    void onOpen() override;
+    void onClose() override;
 
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
-    void RenderMenuBar();
+    void onRender( ui::ImGuiSystem& imguiSystem ) override;
+
+    void onRenderMainMenuBar() override;
 
   private:
     struct RerouteNode {
@@ -135,8 +136,6 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
 
     ax::NodeEditor::EditorContext* m_Context = nullptr;
     UniquePtr< GraphEditorContext > m_EditorContext;
-
-    ui::Dockspace m_Dockspace;
 
     DynamicArray< RerouteNode > m_RerouteNodes;
     DynamicArray< RerouteLink > m_RerouteLinks;

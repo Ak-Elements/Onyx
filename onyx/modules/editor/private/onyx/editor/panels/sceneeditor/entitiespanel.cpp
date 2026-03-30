@@ -27,26 +27,25 @@
 #include <onyx/ui/widgets.h>
 
 namespace onyx::editor::scene_editor {
-void EntitiesPanel::OnOpen() {
-    input_actions::InputActionSystem& inputActionSystem = GetEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.OnInput< &EntitiesPanel::OnDeleteAction >( "Delete"_id64, this );
+void EntitiesPanel::onOpen() {
+    input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
+    inputActionSystem.OnInput< &EntitiesPanel::onDeleteAction >( "Delete"_id64, this );
 }
 
-void EntitiesPanel::OnClose() {
-    input_actions::InputActionSystem& inputActionSystem = GetEngineSystem< input_actions::InputActionSystem >();
+void EntitiesPanel::onClose() {
+    input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionSystem.Disconnect( this );
 }
 
-void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    ONYX_ASSERT( m_CommandGraph != nullptr );
+void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
+    ONYX_ASSERT( m_commandGraph != nullptr );
 
-    SceneEditorWindow& parent = *( GetParent< SceneEditorWindow >().value() );
+    SceneEditorWindow& parent = *( getParent< SceneEditorWindow >().value() );
 
-    if ( parent.IsLoading() )
+    if( parent.isLoading() )
         return;
 
-    SetName( String( GetWindowId() ) );
-    Begin();
+    // setName( String( getWindowId() ) );
     {
         // game_core::GameCoreSystem& gameCoreSystem, assets::AssetId sceneId, game_core::Scene& scene, ICommandGraph&
         // commandStack
@@ -55,10 +54,10 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                                          { ImGuiCol_NavCursor, 0x0 } };
         const float32 rowHeight = 21.0f;
 
-        if ( ImGui::BeginTable( "##scene",
-                                2,
-                                ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_Resizable |
-                                    ImGuiTableFlags_SizingStretchProp ) ) {
+        if( ImGui::BeginTable( "##scene",
+                               2,
+                               ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_Resizable |
+                                   ImGuiTableFlags_SizingStretchProp ) ) {
             ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_None, 0.7f );
             ImGui::TableSetupColumn( "Visibility", ImGuiTableColumnFlags_None, 0.3f );
 
@@ -69,7 +68,7 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
             ImGui::TableSetColumnIndex( 1 );
             ImGui::TableHeader( localization::generic::Visibility.Get().data() );
 
-            ecs::EntityRegistry& registry = parent.GetScene().GetRegistry();
+            ecs::EntityRegistry& registry = parent.getScene().GetRegistry();
 
             // TODO: sorting
             /*registry.GetRegistry().sort<ecs::IdComponent>([](const ecs::EntityId lhs, const ecs::EntityId rhs) {
@@ -79,11 +78,11 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
             auto entitiesView = registry.GetRegistry().view< game_core::IdComponent, game_core::NameComponent >();
 
-            for ( ecs::EntityId entity : entitiesView ) {
-                bool isSelected = m_SelectedEntity == entity;
+            for( ecs::EntityId entity : entitiesView ) {
+                bool isSelected = m_selectedEntity == entity;
 
-                if ( isSelected && registry.HasComponents< SelectedComponent >( m_SelectedEntity ) == false ) {
-                    registry.AddComponent< SelectedComponent >( m_SelectedEntity );
+                if( isSelected && registry.HasComponents< SelectedComponent >( m_selectedEntity ) == false ) {
+                    registry.AddComponent< SelectedComponent >( m_selectedEntity );
                 }
 
                 ImGui::TableNextRow( ImGuiTableRowFlags_None, rowHeight );
@@ -124,11 +123,11 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
                     ImGui::SetNextItemAllowOverlap();
                     String previousName = entityName;
-                    if ( ui::DrawRenameInput( "name", entityName, ImVec2( -1, 0 ), isSelected ) ) {
-                        m_CommandGraph->Push< RenameEntityCommand >( m_SelectedEntity,
+                    if( ui::DrawRenameInput( "name", entityName, ImVec2( -1, 0 ), isSelected ) ) {
+                        m_commandGraph->Push< RenameEntityCommand >( m_selectedEntity,
                                                                      entityName,
-                                                                     parent.GetSceneId(),
-                                                                     GetEngineSystem< game_core::GameCoreSystem >() );
+                                                                     parent.getSceneId(),
+                                                                     getEngineSystem< game_core::GameCoreSystem >() );
                     }
 
                     isRowClicked |= isSelected;
@@ -136,9 +135,9 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                     isRowFocused = ImGui::IsItemFocused();
                 }
 
-                if ( ImGui::BeginPopupContextItem( nullptr, ImGuiPopupFlags_MouseButtonRight ) ) {
-                    if ( ImGui::MenuItem( localization::generic::Delete.Get().data() ) ) {
-                        DeleteEntity( entity );
+                if( ImGui::BeginPopupContextItem( nullptr, ImGuiPopupFlags_MouseButtonRight ) ) {
+                    if( ImGui::MenuItem( localization::generic::Delete.Get().data() ) ) {
+                        deleteEntity( entity );
                         ImGui::CloseCurrentPopup();
                     }
 
@@ -153,28 +152,28 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                 ImGui::Checkbox("##load", &load);
                 ImGui::EndHorizontal();*/
 
-                if ( isRowClicked || isRowFocused ) {
-                    SetSelectedEntity( entity );
+                if( isRowClicked || isRowFocused ) {
+                    setSelectedEntity( entity );
                 }
 
                 uint32_t cellBackgroundColor = isRowHovered
                                                    ? ImGui::GetColorU32( ImGuiCol_HeaderHovered )
                                                    : ( isSelected ? ImGui::GetColorU32( ImGuiCol_HeaderActive )
                                                                   : ImGui::GetColorU32( ImGuiTableBgTarget_CellBg ) );
-                for ( int column = 0; column < ImGui::TableGetColumnCount(); column++ ) {
+                for( int column = 0; column < ImGui::TableGetColumnCount(); column++ ) {
                     ImGui::TableSetBgColor( ImGuiTableBgTarget_CellBg, cellBackgroundColor, column );
                 }
             }
 
-            if ( ImGui::BeginPopupContextWindow( "CreateEntityPopUp", ImGuiPopupFlags_MouseButtonRight ) ) {
-                if ( ImGui::MenuItem( localization::generic::Create.Get().data() ) ) {
-                    m_CommandGraph->Push< CreateEntityCommand >( parent.GetSceneId(),
-                                                                 GetEngineSystem< game_core::GameCoreSystem >() );
+            if( ImGui::BeginPopupContextWindow( "CreateEntityPopUp", ImGuiPopupFlags_MouseButtonRight ) ) {
+                if( ImGui::MenuItem( localization::generic::Create.Get().data() ) ) {
+                    m_commandGraph->Push< CreateEntityCommand >( parent.getSceneId(),
+                                                                 getEngineSystem< game_core::GameCoreSystem >() );
                     ImGui::CloseCurrentPopup();
                 }
 
-                if ( m_SelectedEntity != ecs::EntityId::Invalid ) {
-                    if ( ImGui::MenuItem( localization::generic::Duplicate.Get().data() ) ) {
+                if( m_selectedEntity != ecs::EntityId::Invalid ) {
+                    if( ImGui::MenuItem( localization::generic::Duplicate.Get().data() ) ) {
                         // selectedEntity = registry.DuplicateEntity(selectedEntity);
                         ImGui::CloseCurrentPopup();
                     }
@@ -186,50 +185,49 @@ void EntitiesPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
             ImGui::EndTable();
         }
     }
-    End();
 }
 
-String EntitiesPanel::GetNewEntityName() const {
+String EntitiesPanel::getNewEntityName() const {
     // TODO: Add logic to have unique names in scene
     String entityName = "New Entity";
     return entityName;
 }
 
-void EntitiesPanel::OnDeleteAction( const input_actions::InputActionEvent& deleteAction ) {
-    if ( IsFocused() == false )
+void EntitiesPanel::onDeleteAction( const input_actions::InputActionEvent& deleteAction ) {
+    if( isFocused() == false )
         return;
 
-    if ( m_SelectedEntity == ecs::EntityId::Invalid )
+    if( m_selectedEntity == ecs::EntityId::Invalid )
         return;
 
-    if ( deleteAction.GetData< bool >() == false )
+    if( deleteAction.GetData< bool >() == false )
         return;
 
-    DeleteEntity( m_SelectedEntity );
+    deleteEntity( m_selectedEntity );
 }
 
-void EntitiesPanel::DeleteEntity( ecs::EntityId entity ) {
-    if ( entity == m_SelectedEntity ) {
-        SetSelectedEntity( ecs::EntityId::Invalid );
+void EntitiesPanel::deleteEntity( ecs::EntityId entity ) {
+    if( entity == m_selectedEntity ) {
+        setSelectedEntity( ecs::EntityId::Invalid );
     }
 
-    SceneEditorWindow& parent = *( GetParent< SceneEditorWindow >().value() );
-    m_CommandGraph->Push< DeleteEntityCommand >( entity,
-                                                 parent.GetSceneId(),
-                                                 GetEngineSystem< game_core::GameCoreSystem >() );
+    SceneEditorWindow& parent = *( getParent< SceneEditorWindow >().value() );
+    m_commandGraph->Push< DeleteEntityCommand >( entity,
+                                                 parent.getSceneId(),
+                                                 getEngineSystem< game_core::GameCoreSystem >() );
 }
 
-void EntitiesPanel::SetSelectedEntity( ecs::EntityId entity ) {
-    if ( m_SelectedEntity != entity ) {
-        SceneEditorWindow& parent = *GetParent< SceneEditorWindow >().value();
+void EntitiesPanel::setSelectedEntity( ecs::EntityId entity ) {
+    if( m_selectedEntity != entity ) {
+        SceneEditorWindow& parent = *getParent< SceneEditorWindow >().value();
 
-        ecs::EntityRegistry& registry = parent.GetScene().GetRegistry();
-        if ( m_SelectedEntity != ecs::EntityId::Invalid )
-            registry.RemoveComponent< SelectedComponent >( m_SelectedEntity );
+        ecs::EntityRegistry& registry = parent.getScene().GetRegistry();
+        if( m_selectedEntity != ecs::EntityId::Invalid )
+            registry.RemoveComponent< SelectedComponent >( m_selectedEntity );
 
-        m_SelectedEntity = entity;
-        if ( m_SelectedEntity != ecs::EntityId::Invalid ) {
-            registry.AddComponent< SelectedComponent >( m_SelectedEntity );
+        m_selectedEntity = entity;
+        if( m_selectedEntity != ecs::EntityId::Invalid ) {
+            registry.AddComponent< SelectedComponent >( m_selectedEntity );
         }
     }
 }

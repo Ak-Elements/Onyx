@@ -36,7 +36,7 @@ class TerrainPanel : public ui::ImGuiWindow {
 
     static constexpr StringId64 HIT_BUFFER_RESOURCE_ID = "hit buffer";
 
-    StringView GetWindowId() override { return WindowId; }
+    StringView getWindowId() override { return WindowId; }
 
     void SetSceneViewPanelId( uint32_t panelId ) {
         m_SceneViewPanelId = panelId;
@@ -44,10 +44,10 @@ class TerrainPanel : public ui::ImGuiWindow {
     }
 
   private:
-    void OnOpen() override;
-    void OnClose() override;
+    void onOpen() override;
+    void onClose() override;
 
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+    void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
     void RenderPropertiesPanel();
     void RenderTabs();

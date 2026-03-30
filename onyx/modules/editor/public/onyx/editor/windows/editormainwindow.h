@@ -7,15 +7,17 @@ class EditorMainWindow : public ui::ImGuiWindow {
     static constexpr StringView WindowId = "MainWindow";
     static constexpr StringView WindowCategory = "Window";
 
-    StringView GetWindowId() override { return WindowId; }
+    StringView getWindowId() override { return WindowId; }
 
-    uint32_t GetCenterDockId() const { return m_CenterDockId; }
-
-  private:
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
-    void RenderMenuBar( ui::ImGuiSystem& imguiSystem );
+    ONYX_NO_DISCARD uint32_t getCenterDockId() const { return m_centerDockId; }
 
   private:
-    uint32_t m_CenterDockId = 0;
+    void onOpen() override;
+    void onRender( ui::ImGuiSystem& system ) override;
+
+    void onRenderMainMenuBar() override;
+
+  private:
+    uint32_t m_centerDockId = 0;
 };
 } // namespace onyx::editor

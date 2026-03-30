@@ -7,20 +7,20 @@
 #include <imgui_stacklayout.h>
 
 namespace onyx::editor {
-void CommandHistoryWindow::OnOpen() {
-    input_actions::InputActionSystem& inputActionsSystem = GetEngineSystem< input_actions::InputActionSystem >();
+void CommandHistoryWindow::onOpen() {
+    input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
 
     inputActionsSystem.OnInput< &CommandHistoryWindow::OnRedo >( "Redo", this );
     inputActionsSystem.OnInput< &CommandHistoryWindow::OnUndo >( "Undo", this );
 }
 
-void CommandHistoryWindow::OnClose() {
-    input_actions::InputActionSystem& inputActionsSystem = GetEngineSystem< input_actions::InputActionSystem >();
+void CommandHistoryWindow::onClose() {
+    input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionsSystem.Disconnect( this );
 }
 
-void CommandHistoryWindow::OnRender( ui::ImGuiSystem& imguiSystem ) {
-    Begin();
+void CommandHistoryWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
+    // begin();
 
     ImGui::BeginVertical( "##content" );
 
@@ -36,14 +36,14 @@ void CommandHistoryWindow::OnRender( ui::ImGuiSystem& imguiSystem ) {
 
     ImGui::EndVertical();
 
-    End();
+    // end();
 }
 
 void CommandHistoryWindow::OnUndo( const input_actions::InputActionEvent& undoAction ) {
-    const ui::ImGuiWindow* parent = GetParent< ImGuiWindow >().value_or( nullptr );
+    const ui::ImGuiWindow* parent = getParent< ImGuiWindow >().value_or( nullptr );
     ONYX_ASSERT( parent != nullptr );
 
-    if ( ( IsFocused() == false ) && ( parent->IsFocused() == false ) )
+    if ( ( isFocused() == false ) && ( parent->isFocused() == false ) )
         return;
 
     if ( undoAction.GetData< bool >() == false )
@@ -53,10 +53,10 @@ void CommandHistoryWindow::OnUndo( const input_actions::InputActionEvent& undoAc
 }
 
 void CommandHistoryWindow::OnRedo( const input_actions::InputActionEvent& redoAction ) {
-    const ui::ImGuiWindow* parent = GetParent< ImGuiWindow >().value_or( nullptr );
+    const ui::ImGuiWindow* parent = getParent< ImGuiWindow >().value_or( nullptr );
     ONYX_ASSERT( parent != nullptr );
 
-    if ( ( IsFocused() == false ) && ( parent->IsFocused() == false ) )
+    if ( ( isFocused() == false ) && ( parent->isFocused() == false ) )
         return;
 
     if ( redoAction.GetData< bool >() == false )

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "onyx/defines.h"
 #include <onyx/ui/imguiwindow.h>
 
 #include <onyx/assets/assethandle.h>
@@ -34,25 +35,25 @@ class EntitiesPanel : public ui::ImGuiWindow {
     static constexpr StringView WindowId = "EntitiesPanel";
     static constexpr StringView WindowCategory = "Panel";
 
-    void SetCommandGraph( ICommandGraph& commandGraph ) { m_CommandGraph = &commandGraph; }
+    void setCommandGraph( ICommandGraph& commandGraph ) { m_commandGraph = &commandGraph; }
 
   private:
-    void OnOpen() override;
-    void OnClose() override;
+    void onOpen() override;
+    void onClose() override;
 
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+    void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
-    void OnDeleteAction( const input_actions::InputActionEvent& deleteAction );
-
-  private:
-    String GetNewEntityName() const;
-
-    void DeleteEntity( ecs::EntityId entity );
-    void SetSelectedEntity( ecs::EntityId entity );
+    void onDeleteAction( const input_actions::InputActionEvent& deleteAction );
 
   private:
-    ecs::EntityId m_SelectedEntity = ecs::EntityId::Invalid;
+    ONYX_NO_DISCARD String getNewEntityName() const;
 
-    ICommandGraph* m_CommandGraph = nullptr;
+    void deleteEntity( ecs::EntityId entity );
+    void setSelectedEntity( ecs::EntityId entity );
+
+  private:
+    ecs::EntityId m_selectedEntity = ecs::EntityId::Invalid;
+
+    ICommandGraph* m_commandGraph = nullptr;
 };
 } // namespace onyx::editor::scene_editor

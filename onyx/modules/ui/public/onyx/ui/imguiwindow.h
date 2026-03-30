@@ -1,112 +1,123 @@
 #pragma once
 
+#include "onyx/defines.h"
 #include <onyx/engine/enginesystem.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
+#include <onyx/ui/controls/dockspace.h>
 
-namespace onyx::ui
-{
-    class ImGuiSystem;
+#include <utility>
 
-    enum class WindowPosition
-    {
-        TopLeft,
-        TopCenter,
-        TopRight,
-        CenterLeft,
-        Center,
-        CenterRight,
-        BottomLeft,
-        BottomCenter,
-        BottomRight
-    };
+namespace onyx::ui {
+class ImGuiSystem;
 
-    class ImGuiWindow
-    {
-    public:
-        virtual ~ImGuiWindow() = default;
+enum class WindowPosition {
+    TopLeft,
+    TopCenter,
+    TopRight,
+    CenterLeft,
+    Center,
+    CenterRight,
+    BottomLeft,
+    BottomCenter,
+    BottomRight
+};
 
-        void Open();
-        void Close();
+class ImGuiWindow {
+  public:
+    virtual ~ImGuiWindow() = default;
 
-        void Render(ImGuiSystem& imguiSystem);
+    void open();
+    void close();
 
-        virtual constexpr StringId32 GetWindowCategory() { return "Default"; }
+    void render( ImGuiSystem& imguiSystem );
 
-        void SetWindowId(String windowId) { m_Id = windowId; }
-        virtual StringView GetWindowId() { return m_Id; }
+    ONYX_NO_DISCARD virtual constexpr StringId32 getWindowCategory() { return "Default"; }
 
-        void SetName(const String& newName) { m_Name = newName; }
-        void SetWindowClass(ImGuiWindowClass* windowClass) { m_WindowClass = windowClass; }
+    void setWindowId( String windowId ) { m_id = std::move( windowId ); }
+    virtual StringView getWindowId() { return m_id; }
 
-        void SetEngine(IEngine& engine) { m_Engine = &engine; }
-        void SetParent(ImGuiWindow& parent)  { m_Parent = &parent; }
+    void setName( const String& newName ) { m_name = newName; }
+    void setWindowClass( ImGuiWindowClass* windowClass ) { m_windowClass = windowClass; }
 
-        bool IsOpen() const { return m_IsOpen; }
-        bool IsCollapsed() const { return m_IsCollapsed; }
-        void SetIsCollapsed(bool _isCollapsed);
-        bool IsDocked() const { return m_IsDocked; }
-        bool IsFocused() const { return m_IsFocused; }
+    void setEngine( IEngine& engine ) { m_engine = &engine; }
+    void setParent( ImGuiWindow& parent ) { m_parent = &parent; }
 
-        void BringToFront();
+    ONYX_NO_DISCARD bool isOpen() const { return enums::all( m_state, State::Open ); }
+    ONYX_NO_DISCARD bool isCollapsed() const { return m_isCollapsed; }
+    ONYX_NO_DISCARD bool isDocked() const { return enums::all( m_state, State::Docked ); }
+    ONYX_NO_DISCARD bool isFocused() const { return m_isFocused; }
 
-    protected:
-        bool Begin();
-        void End();
+    void setIsCollapsed( bool isCollapsed );
+    void setDockId( uint32_t dockId ) { m_dockId = dockId; }
 
-        bool BeginMenuBar();
-        void EndMenuBar();
+    void bringToFront();
 
-        void SetWindowFlags(ImGuiWindowFlags newFlags) { m_Flags = newFlags; }
-        ImGuiWindowFlags GetWindowFlags() const { return m_Flags; }
+  protected:
+    enum class State : uint8_t { Closed = 0, Opening = 1 << 0, Open = 1 << 1, Closing = 1 << 2, Docked = 1 << 3 };
 
-        void SetPosition(Vector2s32 position);
-        void SetPosition(Vector2s32 position, Vector2f32 pivot);
+    ONYX_NO_DISCARD bool beginMenuBar() const;
+    void endMenuBar() const;
 
-        void SetDefaultPosition(Vector2s32 position);
-        void SetDefaultPosition(Vector2s32 position, Vector2f32 pivot);
-        void SetDefaultPosition(WindowPosition position);
+    void setWindowFlags( ImGuiWindowFlags newFlags ) { m_flags = newFlags; }
+    ONYX_NO_DISCARD ImGuiWindowFlags getWindowFlags() const { return m_flags; }
 
-        const ImGuiWindowClass& GetWindowClass() const { return *m_WindowClass; }
+    void createDockspace( uint32_t id, const ImGuiWindowClass* windowClass, const DynamicArray< DockSplit >& splits );
 
-        template <typename T>
-        T& GetEngineSystem() { return m_Engine->getSystem<T>(); }
+    void setDefaultPosition( Vector2s32 position );
+    void setDefaultPosition( Vector2s32 position, Vector2f32 pivot );
+    void setDefaultPosition( WindowPosition position );
 
-        template <typename T>
-        const T& GetEngineSystem() const { return m_Engine->getSystem<T>(); }
+    void setDefaultSize( Vector2s32 size );
 
-        template <typename T>
-        const Optional<T*> GetParent()
-        {
-            if ( ImGuiWindow* parent = m_Parent.value_or(nullptr))
-            {
-                return static_cast<T*>(parent); 
-            }
-            
-            return std::nullopt;
+    ONYX_NO_DISCARD const ImGuiWindowClass& getWindowClass() const { return *m_windowClass; }
+
+    template < typename T >
+    T& getEngineSystem() {
+        return m_engine->getSystem< T >();
+    }
+
+    template < typename T >
+    const T& getEngineSystem() const {
+        return m_engine->getSystem< T >();
+    }
+
+    template < typename T >
+    Optional< T* > getParent() {
+        if( ImGuiWindow* parent = m_parent.value_or( nullptr ) ) {
+            return static_cast< T* >( parent );
         }
 
-    private:
-        virtual void OnOpen();
-        virtual void OnRender(ImGuiSystem& imguiSystem) = 0;
-        virtual void OnClose();
+        return std::nullopt;
+    }
 
-        virtual void OnRenderMainMenuBar();
+  private:
+    bool begin();
+    void end();
 
-    private:
-        String m_Id;
-        String m_Name;
-    
-        ImGuiWindowClass* m_WindowClass = nullptr;
-        ImGuiWindowFlags m_Flags;
-        
-        Optional<ImGuiWindow*> m_Parent;
-        IEngine* m_Engine = nullptr;
+    virtual void onOpen();
+    virtual void onRender( ImGuiSystem& imguiSystem ) = 0;
+    virtual void onClose();
 
-        bool m_IsDocked = false;
-        bool m_IsOpen = false;
-        bool m_IsCollapsed = false;
-        bool m_IsFocused = false;
-    };
-}
+    virtual void onRenderMainMenuBar();
+
+  private:
+    String m_id;
+    String m_name;
+
+    Dockspace m_dockspace;
+    uint32_t m_dockId = std::numeric_limits< uint32_t >::max();
+
+    ImGuiWindowClass* m_windowClass = nullptr;
+    ImGuiWindowFlags m_flags = ImGuiWindowFlags_None;
+
+    Optional< ImGuiWindow* > m_parent;
+    IEngine* m_engine = nullptr;
+
+    State m_state = State::Closed;
+
+    bool m_isCollapsed = false;
+    bool m_isFocused = false;
+};
+} // namespace onyx::ui

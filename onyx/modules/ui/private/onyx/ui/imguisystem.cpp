@@ -749,7 +749,7 @@ void ImGuiSystem::update( rhi::GraphicsSystem& system, DeltaGameTime deltaTime )
     const uint32_t windowsCount = numericCast< uint32_t >( m_Windows.size() );
     for ( uint32_t i = 0; i < windowsCount; ++i ) {
         const UniquePtr< ImGuiWindow >& imguiWindow = m_Windows[ i ];
-        imguiWindow->Render( *this );
+        imguiWindow->render( *this );
     }
 
     g_UiContext.GraphicsSystem = nullptr;
@@ -956,7 +956,7 @@ void ImGuiSystem::OnEndFrame( const rhi::FrameContext& /*frameContext*/ ) {
 
 Optional< ImGuiWindow* > ImGuiSystem::GetWindow( StringId32 windowId ) {
     auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
-        return StringId32( window->GetWindowId() ) == windowId;
+        return StringId32( window->getWindowId() ) == windowId;
     } );
 
     if ( it == m_Windows.end() ) {

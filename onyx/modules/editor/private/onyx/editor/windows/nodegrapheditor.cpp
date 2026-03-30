@@ -42,7 +42,7 @@ void DrawPinIcon( uint32_t color,
     ImColor imColor = color;
     imColor.Value.w = alpha / 255.0f;
 
-    if ( typeId == node_graph::PinTypeId::Execute )
+    if( typeId == node_graph::PinTypeId::Execute )
         iconType = IconType::Flow;
 
     Icon( ImVec2( PIN_ICON_SIZE, PIN_ICON_SIZE ),
@@ -79,8 +79,16 @@ NodeGraphEditorWindow::NodeGraphEditorWindow()
 
 NodeGraphEditorWindow::~NodeGraphEditorWindow() = default;
 
-void NodeGraphEditorWindow::OnOpen() {
-    SetName( format::format( "Node Editor###NodeEditor{}", localization::editor::NodeEditor::Title, m_WindowId ) );
+void NodeGraphEditorWindow::onOpen() {
+    setName( format::format( "Node Editor###NodeEditor{}", localization::editor::NodeEditor::Title, m_WindowId ) );
+
+    ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
+    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.GetWindow< EditorMainWindow >();
+    if( mainWindowOptional.has_value() ) {
+        EditorMainWindow& mainWindow = *mainWindowOptional.value();
+        ImGui::SetNextWindowDockID( mainWindow.getCenterDockId(), ImGuiCond_FirstUseEver );
+    }
+
     m_CanvasPanelId = format::format( "###CanvasPanel{}", m_WindowId );
     m_PropertiesPanelId = format::format( "###PropertiesPanel{}", m_WindowId );
 
@@ -90,10 +98,10 @@ void NodeGraphEditorWindow::OnOpen() {
     float windowWidth = ImGui::GetMainViewport()->Size.x;
     float propertiesPanelRatio = ( 400.0f / windowWidth );
 
-    m_Dockspace = ui::Dockspace::Create(
+    createDockspace(
+        dockspaceID,
+        &getWindowClass(),
         { { ui::DockSplitDirection::Right, propertiesPanelRatio, m_PropertiesPanelId, m_CanvasPanelId } } );
-    m_Dockspace.SetId( dockspaceID );
-    m_Dockspace.SetWindowClass( GetWindowClass() );
 
     ax::NodeEditor::Config config;
     // disable automatic save - We have to override SaveSettings to avoid a leak if the settings file is nullptr
@@ -102,13 +110,13 @@ void NodeGraphEditorWindow::OnOpen() {
 
     m_Context = ax::NodeEditor::CreateEditor( &config );
 
-    input_actions::InputActionSystem& inputActionSystem = GetEngineSystem< input_actions::InputActionSystem >();
+    input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionSystem.OnInput< &NodeGraphEditorWindow::OnCopyAction >( "Copy"_id64, this );
     inputActionSystem.OnInput< &NodeGraphEditorWindow::OnPasteAction >( "Paste"_id64, this );
     inputActionSystem.OnInput< &NodeGraphEditorWindow::OnDeleteAction >( "Delete"_id64, this );
 }
 
-void NodeGraphEditorWindow::OnClose() {
+void NodeGraphEditorWindow::onClose() {
     ax::NodeEditor::DestroyEditor( m_Context );
     m_Context = nullptr;
     m_EditorContext.reset();
@@ -116,87 +124,71 @@ void NodeGraphEditorWindow::OnClose() {
     m_RerouteNodes.clear();
     m_RerouteLinks.clear();
 
-    input_actions::InputActionSystem& inputActionSystem = GetEngineSystem< input_actions::InputActionSystem >();
+    input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionSystem.Disconnect( this );
 }
 
-void NodeGraphEditorWindow::OnRender( ui::ImGuiSystem& imguiSystem ) {
-    if ( ( m_Context == nullptr ) || ( m_EditorContext == nullptr ) ) {
+void NodeGraphEditorWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
+    if( ( m_Context == nullptr ) || ( m_EditorContext == nullptr ) ) {
         return;
     }
 
     using namespace ax;
 
-    if ( IsDocked() ) {
-        SetWindowFlags( ImGuiWindowFlags_NoScrollWithMouse );
-    } else {
-        SetWindowFlags( ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar );
-    }
-
-    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.GetWindow< EditorMainWindow >();
-    if ( mainWindowOptional.has_value() ) {
-        EditorMainWindow& mainWindow = *mainWindowOptional.value();
-        ImGui::SetNextWindowDockID( mainWindow.GetCenterDockId(), ImGuiCond_FirstUseEver );
-    }
+    // if( isDocked() ) {
+    //     setWindowFlags( ImGuiWindowFlags_NoScrollWithMouse );
+    // } else {
+    //     setWindowFlags( ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_MenuBar );
+    // }
 
     // combine window name with graph name as the visual name
-    if ( Begin() ) {
-        if ( ImGui::IsWindowAppearing() ) {
-            ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
-        }
+    // if ( begin() ) {
+    // if( ImGui::IsWindowAppearing() ) {
+    //     ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
+    // }
 
-        RenderMenuBar();
+    // renderMenuBar();
 
-        m_Dockspace.Render();
+    ImGui::Begin( format::format( "{}{}", localization::editor::NodeEditor::UnnamedGraph, m_CanvasPanelId ) );
 
-        ImGui::Begin( format::format( "{}{}", localization::editor::NodeEditor::UnnamedGraph, m_CanvasPanelId ) );
+    NodeEditor::SetCurrentEditor( m_Context );
+    NodeEditor::PushStyleColor( NodeEditor::StyleColor_Bg,
+                                ImGui::ColorConvertU32ToFloat4( m_EditorContext->GetCanvasBackgroundColor() ) );
+    NodeEditor::Begin( "canvas" );
 
-        NodeEditor::SetCurrentEditor( m_Context );
-        NodeEditor::PushStyleColor( NodeEditor::StyleColor_Bg,
-                                    ImGui::ColorConvertU32ToFloat4( m_EditorContext->GetCanvasBackgroundColor() ) );
-        NodeEditor::Begin( "canvas" );
-
-        if ( m_EditorContext->IsLoading() == false ) {
-            DrawCanvas();
-        }
-
-        NodeEditor::End();
-
-        ImGui::End();
-
-        if ( m_EditorContext->IsLoading() == false ) {
-            DrawPropertiesPanel();
-        }
-
-        if ( m_ShouldFocus ) {
-            m_ShouldFocus = false;
-            NodeEditor::NavigateToContent( false );
-        }
-
-        NodeEditor::SetCurrentEditor( nullptr );
-
-    } else {
-        m_Dockspace.Render();
+    if( m_EditorContext->IsLoading() == false ) {
+        DrawCanvas();
     }
 
-    End();
+    NodeEditor::End();
+
+    ImGui::End();
+
+    if( m_EditorContext->IsLoading() == false ) {
+        DrawPropertiesPanel();
+    }
+
+    if( m_ShouldFocus ) {
+        m_ShouldFocus = false;
+        NodeEditor::NavigateToContent( false );
+    }
+
+    NodeEditor::SetCurrentEditor( nullptr );
 }
 
-void NodeGraphEditorWindow::RenderMenuBar() {
-    BeginMenuBar();
-
-    if ( ImGui::BeginMenu( format::format( "{}###File", localization::generic::File ) ) ) {
-        if ( ImGui::MenuItem( format::format( "{}###Open", localization::generic::Open ) ) ) {
+void NodeGraphEditorWindow::onRenderMainMenuBar() {
+    if( ImGui::BeginMenu( format::format( "{}###File", localization::generic::File ) ) ) {
+        if( ImGui::MenuItem( format::format( "{}###Open", localization::generic::Open ) ) ) {
             Load();
         }
 
-        if ( ImGui::MenuItem( format::format( "{}###Save", localization::generic::Save ) ) ) {
+        if( ImGui::MenuItem( format::format( "{}###Save", localization::generic::Save ) ) ) {
             ax::NodeEditor::SetCurrentEditor( m_Context );
             Save();
             ax::NodeEditor::SetCurrentEditor( nullptr );
         }
 
-        if ( ImGui::MenuItem( format::format( "{}###SaveAs", localization::generic::SaveAs ) ) ) {
+        if( ImGui::MenuItem( format::format( "{}###SaveAs", localization::generic::SaveAs ) ) ) {
             ax::NodeEditor::SetCurrentEditor( m_Context );
             Save();
             ax::NodeEditor::SetCurrentEditor( nullptr );
@@ -205,20 +197,17 @@ void NodeGraphEditorWindow::RenderMenuBar() {
         ImGui::EndMenu();
     }
 
-    if ( ImGui::BeginMenu(
-             format::format( "{}###Debug", localization::editor::NodeEditor::MainMenubar::Debug::Label ) ) ) {
-        if ( ImGui::MenuItem(
-                 format::format( "{}###ShowLinkDirections",
-                                 localization::editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections ),
-                 0,
-                 m_ShowLinkDirections ) ) {
+    if( ImGui::BeginMenu(
+            format::format( "{}###Debug", localization::editor::NodeEditor::MainMenubar::Debug::Label ) ) ) {
+        if( ImGui::MenuItem( format::format( "{}###ShowLinkDirections",
+                                             localization::editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections ),
+                             0,
+                             m_ShowLinkDirections ) ) {
             m_ShowLinkDirections = !m_ShowLinkDirections;
         }
 
         ImGui::EndMenu();
     }
-
-    EndMenuBar();
 }
 
 NodeGraphEditorWindow::RerouteNode::RerouteNode( node_graph::PinTypeId pinTypeId, uint32_t pinTypeColor ) {
@@ -243,9 +232,9 @@ void NodeGraphEditorWindow::DrawContextMenu() {
     //     ImGui::OpenPopup("Pin Context Menu");
     // else
     // NodeEditor::getlin
-    if ( NodeEditor::ShowLinkContextMenu( &linkId ) ) {
+    if( NodeEditor::ShowLinkContextMenu( &linkId ) ) {
         ImGui::OpenPopup( "Link Context Menu" );
-    } else if ( NodeEditor::ShowBackgroundContextMenu() ) {
+    } else if( NodeEditor::ShowBackgroundContextMenu() ) {
         ImGui::OpenPopup( "Create New Node" );
     }
     NodeEditor::Resume();
@@ -253,7 +242,7 @@ void NodeGraphEditorWindow::DrawContextMenu() {
     ax::NodeEditor::Suspend();
 
     ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
-    if ( ImGui::BeginPopup( "Create New Node" ) ) {
+    if( ImGui::BeginPopup( "Create New Node" ) ) {
         static String s_SearchString;
         static bool s_HasFocus = false;
 
@@ -261,22 +250,22 @@ void NodeGraphEditorWindow::DrawContextMenu() {
         s_HasFocus |= isAppearing;
 
         bool hasChanged = false;
-        if ( isAppearing ) {
+        if( isAppearing ) {
             s_SearchString.clear();
             hasChanged = true;
         }
 
         hasChanged |= ui::DrawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
-        if ( hasChanged ) {
-            if ( s_SearchString.empty() && ( m_CreateNodeData.PinId.isValid() == false ) )
+        if( hasChanged ) {
+            if( s_SearchString.empty() && ( m_CreateNodeData.PinId.isValid() == false ) )
                 m_EditorContext->ClearNodeListFilter();
             else
                 FilterNodeListContextMenu( s_SearchString );
         }
 
-        if ( ImGui::BeginChild( "##NodesScrollList",
-                                ImVec2( 350.0f, 350.0f ),
-                                ImGuiChildFlags_AlwaysUseWindowPadding ) ) {
+        if( ImGui::BeginChild( "##NodesScrollList",
+                               ImVec2( 350.0f, 350.0f ),
+                               ImGuiChildFlags_AlwaysUseWindowPadding ) ) {
             // TODO: Currently is we have a pin filter we force open all the time - we should fix thaxt to only force
             // open once
             const ui::TreeItem& nodeListMenuRoot = m_EditorContext->GetNodeListContextMenuRoot();
@@ -284,7 +273,7 @@ void NodeGraphEditorWindow::DrawContextMenu() {
                                                   : ( s_SearchString.empty() ? ui::TreeViewFlags::None
                                                                              : ui::TreeViewFlags::ForceOpenAll );
             bool hasClickedItem = ui::RenderTreeView( "CreateNodeMenu", nodeListMenuRoot, flags );
-            if ( hasClickedItem ) {
+            if( hasClickedItem ) {
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -314,11 +303,11 @@ void NodeGraphEditorWindow::OnLinkDoubleClicked( Guid64 linkId ) {
     auto rerouteLinkIt = std::ranges::find_if( m_RerouteLinks,
                                                [ & ]( RerouteLink& link ) { return link.Id == linkId; } );
 
-    if ( rerouteLinkIt == m_RerouteLinks.end() ) {
+    if( rerouteLinkIt == m_RerouteLinks.end() ) {
         auto it = std::ranges::find_if( m_EditorContext->GetLinks(),
                                         [ & ]( GraphEditorContext::Link& link ) { return link.Id == linkId; } );
 
-        if ( it != m_EditorContext->GetLinks().end() ) {
+        if( it != m_EditorContext->GetLinks().end() ) {
             fromPinId = it->FromPinId;
             toPinId = it->ToPinId;
             pinTypeColor = it->Color;
@@ -336,7 +325,7 @@ void NodeGraphEditorWindow::OnLinkDoubleClicked( Guid64 linkId ) {
         m_RerouteLinks.erase( rerouteLinkIt );
     }
 
-    if ( fromPinId.isValid() && toPinId.isValid() ) {
+    if( fromPinId.isValid() && toPinId.isValid() ) {
         const ImVec2 newNodePostion = ImGui::GetMousePos();
         RerouteNode& newRerouteNode = m_RerouteNodes.emplace_back( pinTypeId, pinTypeColor );
         ax::NodeEditor::SetNodePosition( newRerouteNode.Id.get(), newNodePostion );
@@ -355,8 +344,8 @@ void NodeGraphEditorWindow::OnLinkDoubleClicked( Guid64 linkId ) {
 }
 
 const NodeGraphEditorWindow::RerouteNode* NodeGraphEditorWindow::GetRerouteNodeById( Guid64 nodeId ) const {
-    for ( const RerouteNode& node : m_RerouteNodes ) {
-        if ( node.Id == nodeId )
+    for( const RerouteNode& node : m_RerouteNodes ) {
+        if( node.Id == nodeId )
             return &node;
     }
 
@@ -364,14 +353,14 @@ const NodeGraphEditorWindow::RerouteNode* NodeGraphEditorWindow::GetRerouteNodeB
 }
 
 const NodeGraphEditorWindow::RerouteNode* NodeGraphEditorWindow::GetRerouteNodeByPinId( Guid64 pinId ) const {
-    for ( const RerouteNode& node : m_RerouteNodes ) {
-        if ( node.InputPinId == pinId )
+    for( const RerouteNode& node : m_RerouteNodes ) {
+        if( node.InputPinId == pinId )
             return &node;
 
-        if ( node.OutputPinId == pinId )
+        if( node.OutputPinId == pinId )
             return &node;
 
-        if ( node.InteractionPinId == pinId )
+        if( node.InteractionPinId == pinId )
             return &node;
     }
 
@@ -381,7 +370,7 @@ const NodeGraphEditorWindow::RerouteNode* NodeGraphEditorWindow::GetRerouteNodeB
 void NodeGraphEditorWindow::FindRerouteDestinations( Guid64 reroutePinId,
                                                      DynamicArray< Guid64 >& outDestinationPinIds ) {
     const RerouteNode* rerouteNode = GetRerouteNodeByPinId( reroutePinId );
-    if ( rerouteNode == nullptr ) {
+    if( rerouteNode == nullptr ) {
         outDestinationPinIds.push_back( reroutePinId );
         return;
     }
@@ -391,22 +380,22 @@ void NodeGraphEditorWindow::FindRerouteDestinations( Guid64 reroutePinId,
     Stack< Guid64 > traversalStack;
     traversalStack.push( isWalkingBackwards ? rerouteNode->InputPinId : rerouteNode->OutputPinId );
 
-    while ( traversalStack.empty() == false ) {
+    while( traversalStack.empty() == false ) {
         Guid64 currentPinId = traversalStack.top();
         traversalStack.pop();
 
-        for ( const RerouteLink& link : m_RerouteLinks ) {
+        for( const RerouteLink& link : m_RerouteLinks ) {
             Guid64 linkedPinId;
-            if ( link.ToOutputPinId == currentPinId )
+            if( link.ToOutputPinId == currentPinId )
                 linkedPinId = link.FromInputPinId;
-            else if ( link.FromInputPinId == currentPinId )
+            else if( link.FromInputPinId == currentPinId )
                 linkedPinId = link.ToOutputPinId;
             else
                 continue;
 
             rerouteNode = GetRerouteNodeByPinId( linkedPinId );
             // if we failed to get a reroute node for the pin id, this pin has to be a real node pin
-            if ( rerouteNode == nullptr )
+            if( rerouteNode == nullptr )
                 outDestinationPinIds.push_back( linkedPinId );
             else
                 traversalStack.push( isWalkingBackwards ? rerouteNode->InputPinId : rerouteNode->OutputPinId );
@@ -433,7 +422,7 @@ void NodeGraphEditorWindow::DrawRerouteNode( RerouteNode& node ) {
     ax::NodeEditor::PushStyleVar( ax::NodeEditor::StyleVar_NodePadding, ImVec4( 10, 4, 10, 4 ) );
     ax::NodeEditor::PushStyleVar( ax::NodeEditor::StyleVar_NodeBorderWidth, 0.0f );
     ax::NodeEditor::PushStyleColor( ax::NodeEditor::StyleColor_NodeBg, ImVec4( 0, 0, 0, 0 ) );
-    if ( isPinHovered ) {
+    if( isPinHovered ) {
         ax::NodeEditor::PushStyleColor( ax::NodeEditor::StyleColor_HovNodeBorder, ImVec4( 0, 0, 0, 0 ) );
     }
 
@@ -469,13 +458,13 @@ void NodeGraphEditorWindow::DrawRerouteNode( RerouteNode& node ) {
         ax::NodeEditor::PinKind pinKind = ax::NodeEditor::PinKind::Input;
         node.ActivePinDirection = GraphEditorContext::PinDirection::Input;
 
-        if ( m_ForcedReroutePinDirection != GraphEditorContext::PinDirection::Invalid ) {
+        if( m_ForcedReroutePinDirection != GraphEditorContext::PinDirection::Invalid ) {
             node.ActivePinDirection = m_ForcedReroutePinDirection;
             pinKind = m_ForcedReroutePinDirection == GraphEditorContext::PinDirection::Input
                           ? ax::NodeEditor::PinKind::Input
                           : ax::NodeEditor::PinKind::Output;
         } else {
-            if ( mousePos.x >= ( pinPosition.x + PIN_ICON_SIZE_HALF_2D.x ) ) {
+            if( mousePos.x >= ( pinPosition.x + PIN_ICON_SIZE_HALF_2D.x ) ) {
                 pinKind = ax::NodeEditor::PinKind::Output;
                 node.ActivePinDirection = GraphEditorContext::PinDirection::Output;
             }
@@ -503,7 +492,7 @@ void NodeGraphEditorWindow::DrawRerouteNode( RerouteNode& node ) {
 }
 
 void NodeGraphEditorWindow::DrawCanvas() {
-    if ( m_EditorContext == nullptr )
+    if( m_EditorContext == nullptr )
         return;
 
     const ImVec2& cursorTopLeft = ImGui::GetCursorScreenPos();
@@ -511,8 +500,8 @@ void NodeGraphEditorWindow::DrawCanvas() {
     // Start drawing nodes.
     BlueprintNodeBuilder builder;
     DynamicArray< GraphEditorContext::Node >& nodes = m_EditorContext->GetNodes();
-    for ( GraphEditorContext::Node& node : nodes ) {
-        if ( node.HasUpdatedPosition ) {
+    for( GraphEditorContext::Node& node : nodes ) {
+        if( node.HasUpdatedPosition ) {
             ax::NodeEditor::SetNodePosition( node.Id.get(), ImVec2( node.Position[ 0 ], node.Position[ 1 ] ) );
             node.HasUpdatedPosition = false;
         }
@@ -520,8 +509,8 @@ void NodeGraphEditorWindow::DrawCanvas() {
         DrawNode( node, builder );
     }
 
-    for ( RerouteNode& node : m_RerouteNodes ) {
-        if ( node.HasUpdatedPosition ) {
+    for( RerouteNode& node : m_RerouteNodes ) {
+        if( node.HasUpdatedPosition ) {
             ax::NodeEditor::SetNodePosition( node.Id.get(), ImVec2( node.Position[ 0 ], node.Position[ 1 ] ) );
             node.HasUpdatedPosition = false;
         }
@@ -532,7 +521,7 @@ void NodeGraphEditorWindow::DrawCanvas() {
     // draw links
     DrawNodeLinks();
 
-    if ( local_IsCreatingNode == false ) {
+    if( local_IsCreatingNode == false ) {
         // draw link create
         DrawCreateLink();
     }
@@ -541,7 +530,7 @@ void NodeGraphEditorWindow::DrawCanvas() {
 
     DrawContextMenu();
 
-    if ( ax::NodeEditor::LinkId linkId = ax::NodeEditor::GetDoubleClickedLink() ) {
+    if( ax::NodeEditor::LinkId linkId = ax::NodeEditor::GetDoubleClickedLink() ) {
         OnLinkDoubleClicked( Guid64( linkId.Get() ) );
     }
 }
@@ -572,10 +561,10 @@ void NodeGraphEditorWindow::DrawPropertiesPanel() {
     // e.g.: if 2 Add Floats are selected, you can edit the inputs of both with 1 input field
     // For that we have to collect all nodes with the same PinID
 
-    for ( NodeEditor::NodeId nodeId : selectedNodes ) {
+    for( NodeEditor::NodeId nodeId : selectedNodes ) {
         Guid64 globalNodeId( nodeId.Get() );
 
-        if ( GetRerouteNodeById( globalNodeId ) != nullptr )
+        if( GetRerouteNodeById( globalNodeId ) != nullptr )
             continue;
 
         ImGui::PushID( nodeId.AsPointer< uintptr_t >() );
@@ -608,19 +597,19 @@ void NodeGraphEditorWindow::DrawPropertiesPanel() {
 void NodeGraphEditorWindow::FilterNodeListContextMenu( StringView searchString ) {
     m_EditorContext->FilterNodeListContextMenu( [ & ]( StringView localizedFullyQualifiedNodeName,
                                                        const node_graph::NodeEditorMetaData& nodeMetaData ) {
-        if ( ignoreCaseFind( localizedFullyQualifiedNodeName, searchString ) == StringView::npos ) {
-            if ( nodeMetaData.HasAliases == false ) {
+        if( ignoreCaseFind( localizedFullyQualifiedNodeName, searchString ) == StringView::npos ) {
+            if( nodeMetaData.HasAliases == false ) {
                 return false;
             }
 
             // look for any aliases
             localization::LocalizationModule&
-                localizationSystem = GetEngineSystem< localization::LocalizationModule >();
+                localizationSystem = getEngineSystem< localization::LocalizationModule >();
             localization::LocalizationId aliasLocalizationId( "alias", nodeMetaData.TypeId );
             Optional< StringView > localizedAliasesOptional = localizationSystem.TryGetLocalized( aliasLocalizationId );
-            if ( localizedAliasesOptional.has_value() ) {
+            if( localizedAliasesOptional.has_value() ) {
                 StringView localizedAliases = *localizedAliasesOptional;
-                if ( ignoreCaseFind( localizedAliases, searchString ) == StringView::npos ) {
+                if( ignoreCaseFind( localizedAliases, searchString ) == StringView::npos ) {
                     return false;
                 }
             } else {
@@ -632,17 +621,17 @@ void NodeGraphEditorWindow::FilterNodeListContextMenu( StringView searchString )
             }
         }
 
-        if ( m_CreateNodeData.PinTypeId != node_graph::PinTypeId::Invalid ) {
-            if ( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input ) {
-                for ( const node_graph::PinTypeId& outputType : nodeMetaData.OutputPins ) {
-                    if ( outputType == m_CreateNodeData.PinTypeId )
+        if( m_CreateNodeData.PinTypeId != node_graph::PinTypeId::Invalid ) {
+            if( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input ) {
+                for( const node_graph::PinTypeId& outputType : nodeMetaData.OutputPins ) {
+                    if( outputType == m_CreateNodeData.PinTypeId )
                         return true;
                 }
 
                 return false;
-            } else if ( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output ) {
-                for ( const node_graph::PinTypeId& inputType : nodeMetaData.InputPins ) {
-                    if ( inputType == m_CreateNodeData.PinTypeId )
+            } else if( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output ) {
+                for( const node_graph::PinTypeId& inputType : nodeMetaData.InputPins ) {
+                    if( inputType == m_CreateNodeData.PinTypeId )
                         return true;
                 }
 
@@ -659,32 +648,32 @@ void NodeGraphEditorWindow::OnNodeCreated( const GraphEditorContext::Node& node 
     const ImVec2 newNodePostion = ax::NodeEditor::ScreenToCanvas( ImGui::GetMousePosOnOpeningCurrentPopup() );
     ax::NodeEditor::SetNodePosition( node.Id.get(), newNodePostion );
 
-    if ( m_CreateNodeData.PinId.isValid() ) {
+    if( m_CreateNodeData.PinId.isValid() ) {
         // check if pin is a reroute pin and get original pin for the real graph connection
         Guid64 fromPin = m_CreateNodeData.PinId;
         Guid64 toPin = m_CreateNodeData.PinId;
-        if ( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input ) {
-            for ( const GraphEditorContext::Pin& outputPin : node.Outputs ) {
-                if ( outputPin.PinTypeId == m_CreateNodeData.PinTypeId ) {
+        if( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Input ) {
+            for( const GraphEditorContext::Pin& outputPin : node.Outputs ) {
+                if( outputPin.PinTypeId == m_CreateNodeData.PinTypeId ) {
                     toPin = outputPin.Id;
                     break;
                 }
             }
-        } else if ( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output ) {
-            for ( const GraphEditorContext::Pin& inputPin : node.Inputs ) {
-                if ( inputPin.PinTypeId == m_CreateNodeData.PinTypeId ) {
+        } else if( m_CreateNodeData.Direction == GraphEditorContext::PinDirection::Output ) {
+            for( const GraphEditorContext::Pin& inputPin : node.Inputs ) {
+                if( inputPin.PinTypeId == m_CreateNodeData.PinTypeId ) {
                     fromPin = inputPin.Id;
                     break;
                 }
             }
         }
 
-        if ( m_CreateNodeData.PinTypeId == node_graph::PinTypeId::Execute ) {
+        if( m_CreateNodeData.PinTypeId == node_graph::PinTypeId::Execute ) {
             std::swap( fromPin, toPin );
         }
 
         const RerouteNode* rerouteNode = GetRerouteNodeByPinId( m_CreateNodeData.PinId );
-        if ( rerouteNode == nullptr ) {
+        if( rerouteNode == nullptr ) {
             m_EditorContext->CreateNewLink( fromPin, toPin );
         } else {
             DynamicArray< Guid64 > rerouteDestinationPinIds;
@@ -701,8 +690,8 @@ void NodeGraphEditorWindow::OnNodeCreated( const GraphEditorContext::Node& node 
                                          m_CreateNodeData.PinTypeId,
                                          rerouteNode->Color );
 
-            for ( Guid64 rerouteDestinationPinId : rerouteDestinationPinIds ) {
-                if ( fromPin == m_CreateNodeData.PinId ) {
+            for( Guid64 rerouteDestinationPinId : rerouteDestinationPinIds ) {
+                if( fromPin == m_CreateNodeData.PinId ) {
                     GraphEditorContext::Link& newLink = m_EditorContext->CreateNewLink( rerouteDestinationPinId,
                                                                                         toPin );
                     newLink.IsRerouted = true;
@@ -721,28 +710,28 @@ void NodeGraphEditorWindow::OnNodeCreated( const GraphEditorContext::Node& node 
 
 void NodeGraphEditorWindow::Save() {
     FilePath path;
-    if ( file_system::FileDialog::SaveFileDialog( path,
-                                                  m_EditorContext->GetLocalizedAssetTypeName(),
-                                                  m_EditorContext->GetExtensions() ) ) {
+    if( file_system::FileDialog::SaveFileDialog( path,
+                                                 m_EditorContext->GetLocalizedAssetTypeName(),
+                                                 m_EditorContext->GetExtensions() ) ) {
         assets::AssetMetaData dummyAsset;
         dummyAsset.Path = path;
         dummyAsset.Id = assets::AssetId( dummyAsset.Path );
 
-        if ( m_EditorContext->Compile() == false ) {
+        if( m_EditorContext->Compile() == false ) {
             return;
         }
 
-        assets::AssetSystem& assetSystem = GetEngineSystem< assets::AssetSystem >();
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
         m_EditorContext->Save( assetSystem, dummyAsset );
     }
 }
 
 void NodeGraphEditorWindow::Load() {
     FilePath path;
-    if ( file_system::FileDialog::OpenFileDialog( path,
-                                                  m_EditorContext->GetLocalizedAssetTypeName(),
-                                                  m_EditorContext->GetExtensions() ) ) {
-        assets::AssetSystem& assetSystem = GetEngineSystem< assets::AssetSystem >();
+    if( file_system::FileDialog::OpenFileDialog( path,
+                                                 m_EditorContext->GetLocalizedAssetTypeName(),
+                                                 m_EditorContext->GetExtensions() ) ) {
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
         m_EditorContext->Load( assetSystem, path );
     }
 }
@@ -752,7 +741,7 @@ void NodeGraphEditorWindow::SaveEditorMetaData( const FilePath& path ) {
     JsonValue jsonRoot;
 
     JsonValue nodesJsonArray;
-    for ( const GraphEditorContext::Node& node : m_EditorContext->GetNodes() ) {
+    for( const GraphEditorContext::Node& node : m_EditorContext->GetNodes() ) {
         JsonValue nodeMetaInfo;
         nodeMetaInfo.Set( "id", node.Id );
         nodeMetaInfo.Set( "name", node.Name );
@@ -768,8 +757,8 @@ void NodeGraphEditorWindow::SaveEditorMetaData( const FilePath& path ) {
 
     // this is added here to save the visibility state of links (for hidden links based on reroute nodes)
     JsonValue linksJsonArray;
-    for ( const GraphEditorContext::Link& link : m_EditorContext->GetLinks() ) {
-        if ( link.IsRerouted == false )
+    for( const GraphEditorContext::Link& link : m_EditorContext->GetLinks() ) {
+        if( link.IsRerouted == false )
             continue;
 
         JsonValue linkMetaInfo;
@@ -779,12 +768,12 @@ void NodeGraphEditorWindow::SaveEditorMetaData( const FilePath& path ) {
         linksJsonArray.Add( linkMetaInfo );
     }
 
-    if ( linksJsonArray.Json.empty() == false )
+    if( linksJsonArray.Json.empty() == false )
         jsonRoot.Set( "hiddenlinks", linksJsonArray );
 
-    if ( m_RerouteNodes.empty() == false ) {
+    if( m_RerouteNodes.empty() == false ) {
         JsonValue rerouteNodesJsonArray;
-        for ( const RerouteNode& node : m_RerouteNodes ) {
+        for( const RerouteNode& node : m_RerouteNodes ) {
             JsonValue nodeMetaInfo;
             nodeMetaInfo.Set( "id", node.Id );
             nodeMetaInfo.Set( "inputpin", node.InputPinId );
@@ -800,9 +789,9 @@ void NodeGraphEditorWindow::SaveEditorMetaData( const FilePath& path ) {
         jsonRoot.Set( "reroutenodes", rerouteNodesJsonArray );
     }
 
-    if ( m_RerouteLinks.empty() == false ) {
+    if( m_RerouteLinks.empty() == false ) {
         JsonValue rerouteLinksJsonArray;
-        for ( const RerouteLink& link : m_RerouteLinks ) {
+        for( const RerouteLink& link : m_RerouteLinks ) {
             JsonValue linkMetaInfo;
             linkMetaInfo.Set( "id", link.Id );
             linkMetaInfo.Set( "frominputpin", link.FromInputPinId );
@@ -834,12 +823,12 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
     const JsonValue& metaDataJsonRoot = metaDataJsonFile.LoadJson();
 
     JsonValue nodesJsonArray;
-    if ( metaDataJsonRoot.Get( "nodes", nodesJsonArray ) == false ) {
+    if( metaDataJsonRoot.Get( "nodes", nodesJsonArray ) == false ) {
         // fallback to root if we don't find nodes array in json, this is to allow loading of old meta data
         nodesJsonArray.Json = metaDataJsonRoot.Json;
     }
 
-    for ( const auto& nodeMetaJson : nodesJsonArray.Json ) {
+    for( const auto& nodeMetaJson : nodesJsonArray.Json ) {
         JsonValue nodeMetaJsonObj{ nodeMetaJson };
 
         Guid64 nodeId;
@@ -857,8 +846,8 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
     }
 
     JsonValue linksJsonArray;
-    if ( metaDataJsonRoot.Get( "hiddenlinks", linksJsonArray ) ) {
-        for ( const auto& linkMetaJson : linksJsonArray.Json ) {
+    if( metaDataJsonRoot.Get( "hiddenlinks", linksJsonArray ) ) {
+        for( const auto& linkMetaJson : linksJsonArray.Json ) {
             JsonValue linkMetaJsonObj{ linkMetaJson };
 
             Guid64 fromInputPinId;
@@ -870,7 +859,7 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
                 return ( link.FromPinId == fromInputPinId ) && ( link.ToPinId == toOutputPinId );
             } );
 
-            if ( it == m_EditorContext->GetLinks().end() ) {
+            if( it == m_EditorContext->GetLinks().end() ) {
                 ONYX_LOG_ERROR( "Missing link from node graph" );
                 continue;
             }
@@ -880,8 +869,8 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
     }
 
     JsonValue rerouteNodesJsonArray;
-    if ( metaDataJsonRoot.Get( "reroutenodes", rerouteNodesJsonArray ) ) {
-        for ( const auto& rerouteNodeMetaJson : rerouteNodesJsonArray.Json ) {
+    if( metaDataJsonRoot.Get( "reroutenodes", rerouteNodesJsonArray ) ) {
+        for( const auto& rerouteNodeMetaJson : rerouteNodesJsonArray.Json ) {
             JsonValue rerouteNodeMetaJsonObj{ rerouteNodeMetaJson };
 
             RerouteNode& newReroute = m_RerouteNodes.emplace_back();
@@ -900,8 +889,8 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
     }
 
     JsonValue rerouteLinksJsonArray;
-    if ( metaDataJsonRoot.Get( "reroutelinks", rerouteLinksJsonArray ) ) {
-        for ( const auto& rerouteLinkMetaJson : rerouteLinksJsonArray.Json ) {
+    if( metaDataJsonRoot.Get( "reroutelinks", rerouteLinksJsonArray ) ) {
+        for( const auto& rerouteLinkMetaJson : rerouteLinksJsonArray.Json ) {
             JsonValue rerouteLinkMetaJsonObj{ rerouteLinkMetaJson };
 
             RerouteLink& newLink = m_RerouteLinks.emplace_back();
@@ -918,17 +907,17 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
     }
 
     // TODO: Fix this to make the retrieval smarter and maybe remove typeId and color from the reroute links
-    for ( RerouteNode& node : m_RerouteNodes ) {
+    for( RerouteNode& node : m_RerouteNodes ) {
         DynamicArray< Guid64 > destinations;
         FindRerouteDestinations( node.InputPinId, destinations );
 
-        if ( destinations.empty() == false ) {
+        if( destinations.empty() == false ) {
             const GraphEditorContext::Pin& pin = m_EditorContext->GetPin( destinations.front() );
             node.PinTypeId = pin.PinTypeId;
             node.Color = pin.Color;
         } else {
             FindRerouteDestinations( node.OutputPinId, destinations );
-            if ( destinations.empty() == false ) {
+            if( destinations.empty() == false ) {
                 const GraphEditorContext::Pin& pin = m_EditorContext->GetPin( destinations.front() );
                 node.PinTypeId = pin.PinTypeId;
                 node.Color = pin.Color;
@@ -936,17 +925,17 @@ void NodeGraphEditorWindow::LoadEditorMetaData( const FilePath& path ) {
         }
     }
 
-    for ( RerouteLink& link : m_RerouteLinks ) {
+    for( RerouteLink& link : m_RerouteLinks ) {
         DynamicArray< Guid64 > destinations;
         FindRerouteDestinations( link.FromInputPinId, destinations );
 
-        if ( destinations.empty() == false ) {
+        if( destinations.empty() == false ) {
             const GraphEditorContext::Pin& pin = m_EditorContext->GetPin( destinations.front() );
             link.PinTypeId = pin.PinTypeId;
             link.Color = pin.Color;
         } else {
             FindRerouteDestinations( link.ToOutputPinId, destinations );
-            if ( destinations.empty() == false ) {
+            if( destinations.empty() == false ) {
                 const GraphEditorContext::Pin& pin = m_EditorContext->GetPin( destinations.front() );
                 link.PinTypeId = pin.PinTypeId;
                 link.Color = pin.Color;
@@ -978,15 +967,15 @@ void NodeGraphEditorWindow::OnDeleteAction( const input_actions::InputActionEven
                                                       static_cast< int >( selectedNodes.size() ) );
     selectedNodes.resize( nodeCount );
 
-    for ( ax::NodeEditor::NodeId selectedNode : selectedNodes ) {
+    for( ax::NodeEditor::NodeId selectedNode : selectedNodes ) {
         Guid64 globalNodeId( selectedNode.Get() );
-        if ( const RerouteNode* rerouteNode = GetRerouteNodeById( globalNodeId ) ) {
-            for ( RerouteLink& inputLink : m_RerouteLinks ) {
-                if ( inputLink.FromInputPinId != rerouteNode->InputPinId )
+        if( const RerouteNode* rerouteNode = GetRerouteNodeById( globalNodeId ) ) {
+            for( RerouteLink& inputLink : m_RerouteLinks ) {
+                if( inputLink.FromInputPinId != rerouteNode->InputPinId )
                     continue;
 
-                for ( RerouteLink& outputLink : m_RerouteLinks ) {
-                    if ( outputLink.ToOutputPinId != rerouteNode->OutputPinId )
+                for( RerouteLink& outputLink : m_RerouteLinks ) {
+                    if( outputLink.ToOutputPinId != rerouteNode->OutputPinId )
                         continue;
 
                     outputLink.ToOutputPinId = inputLink.ToOutputPinId;
@@ -1002,13 +991,13 @@ void NodeGraphEditorWindow::OnDeleteAction( const input_actions::InputActionEven
         } else {
             // TODO: A remove link callback might be smarter than brute forcing this here
             const GraphEditorContext::Node& node = m_EditorContext->GetNode( globalNodeId );
-            for ( const GraphEditorContext::Pin& inputPin : node.Inputs ) {
+            for( const GraphEditorContext::Pin& inputPin : node.Inputs ) {
                 std::erase_if( m_RerouteLinks, [ & ]( const RerouteLink& link ) {
                     return ( link.FromInputPinId == inputPin.Id ) || ( link.ToOutputPinId == inputPin.Id );
                 } );
             }
 
-            for ( const GraphEditorContext::Pin& outputPin : node.Outputs ) {
+            for( const GraphEditorContext::Pin& outputPin : node.Outputs ) {
                 std::erase_if( m_RerouteLinks, [ & ]( const RerouteLink& link ) {
                     return ( link.FromInputPinId == outputPin.Id ) || ( link.ToOutputPinId == outputPin.Id );
                 } );
@@ -1039,7 +1028,7 @@ void NodeGraphEditorWindow::DrawNode( const GraphEditorContext::Node& node, Blue
 }
 
 void NodeGraphEditorWindow::DrawNodeLinks() const {
-    for ( const RerouteLink& reroutedLink : m_RerouteLinks ) {
+    for( const RerouteLink& reroutedLink : m_RerouteLinks ) {
         const uint64_t linkId = reroutedLink.Id.get();
         ax::NodeEditor::Link( linkId,
                               reroutedLink.FromInputPinId.get(),
@@ -1047,12 +1036,12 @@ void NodeGraphEditorWindow::DrawNodeLinks() const {
                               ImGui::ColorConvertU32ToFloat4( reroutedLink.Color ),
                               4 );
 
-        if ( m_ShowLinkDirections )
+        if( m_ShowLinkDirections )
             ax::NodeEditor::Flow( linkId, ax::NodeEditor::FlowDirection::Backward );
     }
 
-    for ( const GraphEditorContext::Link& link : m_EditorContext->GetLinks() ) {
-        if ( link.IsRerouted )
+    for( const GraphEditorContext::Link& link : m_EditorContext->GetLinks() ) {
+        if( link.IsRerouted )
             continue;
 
         const uint64_t linkId = link.Id.get();
@@ -1062,7 +1051,7 @@ void NodeGraphEditorWindow::DrawNodeLinks() const {
                               ImGui::ColorConvertU32ToFloat4( link.Color ),
                               4 );
 
-        if ( m_ShowLinkDirections )
+        if( m_ShowLinkDirections )
             ax::NodeEditor::Flow( linkId, ax::NodeEditor::FlowDirection::Backward );
     }
 }
@@ -1088,15 +1077,15 @@ void NodeGraphEditorWindow::DrawCreateLink() {
         ImGui::TextUnformatted( label );
     };
 
-    if ( NodeEditor::BeginCreate( ImColor( 255, 255, 255 ), 2.0f ) ) {
+    if( NodeEditor::BeginCreate( ImColor( 255, 255, 255 ), 2.0f ) ) {
         m_ForcedReroutePinDirection = GraphEditorContext::PinDirection::Invalid;
 
         NodeEditor::PinId startPinId = 0, endPinId = 0;
-        if ( NodeEditor::QueryNewLink( &startPinId, &endPinId ) ) {
+        if( NodeEditor::QueryNewLink( &startPinId, &endPinId ) ) {
             Guid64 startPinGlobalId( startPinId.Get() );
             Guid64 endPinGlobalId( endPinId.Get() );
 
-            if ( startPinGlobalId == endPinGlobalId ) {
+            if( startPinGlobalId == endPinGlobalId ) {
                 showLabel( format::format( "x {}", localization::editor::NodeEditor::Error::ConnectSamePin ),
                            ImColor( 45, 32, 32, 180 ) );
                 NodeEditor::RejectNewItem( ImColor( 255, 0, 0 ), 2.0f );
@@ -1111,19 +1100,19 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             const RerouteNode* endRerouteNode = GetRerouteNodeByPinId( endPinGlobalId );
             bool isEndPinReroute = endRerouteNode != nullptr;
 
-            if ( isStartPinReroute ) {
+            if( isStartPinReroute ) {
                 startPinGlobalId = ( startRerouteNode->ActivePinDirection == GraphEditorContext::PinDirection::Input )
                                        ? startRerouteNode->InputPinId
                                        : startRerouteNode->OutputPinId;
             }
 
-            if ( isEndPinReroute ) {
+            if( isEndPinReroute ) {
                 endPinGlobalId = ( endRerouteNode->ActivePinDirection == GraphEditorContext::PinDirection::Input )
                                      ? endRerouteNode->InputPinId
                                      : endRerouteNode->OutputPinId;
             }
 
-            if ( isStartPinReroute && isEndPinReroute && ( startRerouteNode->Id == endRerouteNode->Id ) ) {
+            if( isStartPinReroute && isEndPinReroute && ( startRerouteNode->Id == endRerouteNode->Id ) ) {
                 showLabel( format::format( "x {}", localization::editor::NodeEditor::Error::ConnectSelf ),
                            ImColor( 45, 32, 32, 180 ) );
                 NodeEditor::RejectNewItem( ImColor( 255, 0, 0 ), 2.0f );
@@ -1132,11 +1121,11 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             }
 
             const GraphEditorContext::Pin* startPin = nullptr;
-            if ( isStartPinReroute == false )
+            if( isStartPinReroute == false )
                 startPin = &m_EditorContext->GetPin( startPinGlobalId );
 
             const GraphEditorContext::Pin* endPin = nullptr;
-            if ( isEndPinReroute == false )
+            if( isEndPinReroute == false )
                 endPin = &m_EditorContext->GetPin( endPinGlobalId );
 
             const node_graph::PinTypeId startPinTypeId = isStartPinReroute ? startRerouteNode->PinTypeId
@@ -1144,16 +1133,16 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             const node_graph::PinTypeId endPinTypeId = isEndPinReroute ? endRerouteNode->PinTypeId : endPin->PinTypeId;
 
             uint32_t pinTypeColor = 0xFFFFFFFF;
-            if ( isStartPinReroute )
+            if( isStartPinReroute )
                 pinTypeColor = startRerouteNode->Color;
-            else if ( isEndPinReroute )
+            else if( isEndPinReroute )
                 pinTypeColor = endRerouteNode->Color;
-            else if ( startPin != nullptr )
+            else if( startPin != nullptr )
                 pinTypeColor = startPin->Color;
-            else if ( endPin != nullptr )
+            else if( endPin != nullptr )
                 pinTypeColor = endPin->Color;
 
-            if ( m_EditorContext->ArePinTypesCompatible( startPinTypeId, endPinTypeId ) == false ) {
+            if( m_EditorContext->ArePinTypesCompatible( startPinTypeId, endPinTypeId ) == false ) {
                 showLabel( format::format( "x {}", localization::editor::NodeEditor::Error::IncompatiblePinType ),
                            ImColor( 45, 32, 32, 180 ) );
                 NodeEditor::RejectNewItem( ImColor( 255, 128, 128 ), 1.0f );
@@ -1167,19 +1156,19 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             bool isEndPinInput = isEndPinReroute ? ( endRerouteNode->InputPinId == endPinGlobalId )
                                                  : ( endPin->Direction == GraphEditorContext::PinDirection::Input );
 
-            if ( isStartPinInput == isEndPinInput ) {
-                if ( isStartPinReroute && ( isEndPinReroute == false ) ) {
+            if( isStartPinInput == isEndPinInput ) {
+                if( isStartPinReroute && ( isEndPinReroute == false ) ) {
                     m_ForcedReroutePinDirection = isStartPinInput ? GraphEditorContext::PinDirection::Output
                                                                   : GraphEditorContext::PinDirection::Input;
                     isStartPinInput = !isStartPinInput;
-                } else if ( isEndPinReroute && ( isStartPinReroute == false ) ) {
+                } else if( isEndPinReroute && ( isStartPinReroute == false ) ) {
                     m_ForcedReroutePinDirection = isEndPinInput ? GraphEditorContext::PinDirection::Output
                                                                 : GraphEditorContext::PinDirection::Input;
                     isEndPinInput = !isEndPinInput;
                 }
             }
 
-            if ( isStartPinInput && isEndPinInput ) {
+            if( isStartPinInput && isEndPinInput ) {
                 showLabel( format::format( "x {}", localization::editor::NodeEditor::Error::TwoInputPins ),
                            ImColor( 45, 32, 32, 180 ) );
                 NodeEditor::RejectNewItem( ImColor( 255, 0, 0 ), 2.0f );
@@ -1187,7 +1176,7 @@ void NodeGraphEditorWindow::DrawCreateLink() {
                 return;
             }
 
-            if ( ( isStartPinInput == false ) && ( isEndPinInput == false ) ) {
+            if( ( isStartPinInput == false ) && ( isEndPinInput == false ) ) {
                 showLabel( format::format( "x {}", localization::editor::NodeEditor::Error::TwoOutputPins ),
                            ImColor( 45, 32, 32, 180 ) );
                 NodeEditor::RejectNewItem( ImColor( 255, 0, 0 ), 2.0f );
@@ -1196,8 +1185,8 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             }
 
             const bool isExecutePinType = ( startPinTypeId == node_graph::PinTypeId::Execute );
-            if ( ( ( isStartPinInput == false ) && ( isExecutePinType == false ) ) ||
-                 ( isStartPinInput && isExecutePinType ) ) {
+            if( ( ( isStartPinInput == false ) && ( isExecutePinType == false ) ) ||
+                ( isStartPinInput && isExecutePinType ) ) {
                 std::swap( startPinId, endPinId );
                 std::swap( startPinGlobalId, endPinGlobalId );
                 std::swap( isStartPinReroute, isEndPinReroute );
@@ -1207,23 +1196,23 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             DynamicArray< Guid64 > startPinIds;
             DynamicArray< Guid64 > endPinsIds;
 
-            if ( isStartPinReroute ) {
+            if( isStartPinReroute ) {
                 FindRerouteDestinations( startPinGlobalId, startPinIds );
             } else {
                 startPinIds.push_back( startPinGlobalId );
             }
 
-            if ( isEndPinReroute ) {
+            if( isEndPinReroute ) {
                 FindRerouteDestinations( endPinGlobalId, endPinsIds );
 
             } else {
                 endPinsIds.push_back( endPinGlobalId );
             }
 
-            for ( Guid64 globalStartPinId : startPinIds ) {
-                for ( Guid64 globalEndPinId : endPinsIds ) {
+            for( Guid64 globalStartPinId : startPinIds ) {
+                for( Guid64 globalEndPinId : endPinsIds ) {
                     // TODO: Get out error string from this function
-                    if ( m_EditorContext->IsNewLinkValid( globalStartPinId, globalEndPinId ) == false ) {
+                    if( m_EditorContext->IsNewLinkValid( globalStartPinId, globalEndPinId ) == false ) {
                         showLabel( format::format( "x {}", localization::editor::NodeEditor::Error::DependencyCycle ),
                                    ImColor( 45, 32, 32, 180 ) );
                         NodeEditor::RejectNewItem( ImColor( 255, 0, 0 ), 1.0f );
@@ -1234,7 +1223,7 @@ void NodeGraphEditorWindow::DrawCreateLink() {
             }
 
             const bool isPinLinked = m_EditorContext->IsPinLinked( startPinGlobalId );
-            if ( isPinLinked ) {
+            if( isPinLinked ) {
                 showLabel( format::format( "+ {}", localization::editor::NodeEditor::ReplaceLink ),
                            ImColor( 32, 45, 32, 180 ) );
             } else {
@@ -1242,11 +1231,11 @@ void NodeGraphEditorWindow::DrawCreateLink() {
                            ImColor( 32, 45, 32, 180 ) );
             }
 
-            if ( NodeEditor::AcceptNewItem( ImColor( 128, 255, 128 ), 4.0f ) ) {
-                if ( isStartPinReroute || isEndPinReroute ) {
+            if( NodeEditor::AcceptNewItem( ImColor( 128, 255, 128 ), 4.0f ) ) {
+                if( isStartPinReroute || isEndPinReroute ) {
                     // handle reroute linking
-                    for ( Guid64 globalStartPinId : startPinIds ) {
-                        for ( Guid64 globalEndPinId : endPinsIds ) {
+                    for( Guid64 globalStartPinId : startPinIds ) {
+                        for( Guid64 globalEndPinId : endPinsIds ) {
                             GraphEditorContext::Link& newLink = m_EditorContext->CreateNewLink( globalStartPinId,
                                                                                                 globalEndPinId );
                             newLink.IsRerouted = true;
@@ -1254,11 +1243,11 @@ void NodeGraphEditorWindow::DrawCreateLink() {
                     }
 
                     // remove replaced reroute link
-                    if ( isStartPinReroute ) {
+                    if( isStartPinReroute ) {
                         std::ignore = std::erase_if( m_RerouteLinks, [ & ]( const RerouteLink& rerouteLink ) {
                             return rerouteLink.FromInputPinId == startPinGlobalId;
                         } );
-                    } else if ( isEndPinReroute ) {
+                    } else if( isEndPinReroute ) {
                         pinTypeColor = endRerouteNode->Color;
                         std::ignore = std::erase_if( m_RerouteLinks, [ & ]( const RerouteLink& rerouteLink ) {
                             return ( rerouteLink.FromInputPinId == startPinGlobalId );
@@ -1310,15 +1299,15 @@ void NodeGraphEditorWindow::DrawCreateNode() {
     };
 
     NodeEditor::PinId pinId = 0;
-    if ( NodeEditor::QueryNewNode( &pinId ) ) {
+    if( NodeEditor::QueryNewNode( &pinId ) ) {
         StringView label = format::format( "+ {}", localization::editor::NodeEditor::CreateNode );
 
         Guid64 globalPinId = Guid64( pinId.Get() );
         const RerouteNode* rerouteNode = GetRerouteNodeByPinId( globalPinId );
-        if ( rerouteNode ) {
+        if( rerouteNode ) {
             bool isInputPin = rerouteNode->ActivePinDirection == GraphEditorContext::PinDirection::Input;
-            if ( isInputPin && ( rerouteNode->PinTypeId != node_graph::PinTypeId::Execute ) ) {
-                if ( NodeEditor::PinHadAnyLinks( rerouteNode->InputPinId.get() ) ) {
+            if( isInputPin && ( rerouteNode->PinTypeId != node_graph::PinTypeId::Execute ) ) {
+                if( NodeEditor::PinHadAnyLinks( rerouteNode->InputPinId.get() ) ) {
                     label = format::format( "+ {}", localization::editor::NodeEditor::ReplaceNode );
                 }
             }
@@ -1326,12 +1315,12 @@ void NodeGraphEditorWindow::DrawCreateNode() {
 
         showLabel( label.data(), ImColor( 32, 45, 32, 180 ) );
 
-        if ( NodeEditor::AcceptNewItem() ) {
+        if( NodeEditor::AcceptNewItem() ) {
             local_IsCreatingNode = true;
             m_CreateNodeData.PinId = globalPinId;
 
             // check if pin is part of a reroute node
-            if ( rerouteNode ) {
+            if( rerouteNode ) {
                 m_CreateNodeData.PinId = ( rerouteNode->ActivePinDirection == GraphEditorContext::PinDirection::Input )
                                              ? rerouteNode->InputPinId
                                              : rerouteNode->OutputPinId;
@@ -1353,7 +1342,7 @@ void NodeGraphEditorWindow::DrawCreateNode() {
 }
 
 void NodeGraphEditorWindow::DrawNodeHeader( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder ) {
-    if ( node.Name.empty() || ( node.ShowNodeName == false ) ) {
+    if( node.Name.empty() || ( node.ShowNodeName == false ) ) {
         return;
     }
 
@@ -1372,7 +1361,7 @@ void NodeGraphEditorWindow::DrawNodeHeader( const GraphEditorContext::Node& node
 void NodeGraphEditorWindow::DrawNodeInputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder ) {
     float32 alpha = ImGui::GetStyle().Alpha;
 
-    for ( const GraphEditorContext::Pin& inputPin : node.Inputs ) {
+    for( const GraphEditorContext::Pin& inputPin : node.Inputs ) {
         builder.Input( inputPin.Id.get() );
 
         DrawPinIcon( inputPin.Color,
@@ -1383,9 +1372,9 @@ void NodeGraphEditorWindow::DrawNodeInputs( const GraphEditorContext::Node& node
                      (int)( alpha * 255 ) );
         ImGui::Spring( 0 );
 
-        if ( inputPin.PinTypeId != node_graph::PinTypeId::Execute ) {
+        if( inputPin.PinTypeId != node_graph::PinTypeId::Execute ) {
             StringView inputName = inputPin.Name;
-            if ( inputName.empty() == false ) {
+            if( inputName.empty() == false ) {
                 ImGui::TextUnformatted( inputName.data() );
                 ImGui::Spring( 0 );
             }
@@ -1398,11 +1387,11 @@ void NodeGraphEditorWindow::DrawNodeInputs( const GraphEditorContext::Node& node
 void NodeGraphEditorWindow::DrawNodeOutputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder ) {
     float32 alpha = ImGui::GetStyle().Alpha;
 
-    for ( const GraphEditorContext::Pin& outputPin : node.Outputs ) {
+    for( const GraphEditorContext::Pin& outputPin : node.Outputs ) {
         builder.Output( outputPin.Id.get() );
 
         StringView outputName = outputPin.Name;
-        if ( outputName.empty() == false ) {
+        if( outputName.empty() == false ) {
             ImGui::Spring();
             ImGui::TextUnformatted( outputName.data() );
         }

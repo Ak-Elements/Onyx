@@ -47,7 +47,7 @@ concept IsImGuiWindow = requires( T& window ) {
     // std::is_base_of_v<ImGuiWindow, T>;
     { T::WindowId };
     { T::WindowCategory };
-    { window.Open() } -> std::same_as< void >;
+    { window.open() } -> std::same_as< void >;
 };
 
 struct ImGuiContext {
@@ -85,8 +85,8 @@ class ImGuiSystem : public IEngineSystem {
         ONYX_ASSERT( m_WindowFactory.contains( windowTypeId ) == false );
         m_WindowFactory[ windowTypeId ] = [ & ]() {
             auto newWindow = makeUnique< T >();
-            newWindow->SetEngine( *m_Engine );
-            newWindow->SetName( String( newWindow->GetWindowId() ) );
+            newWindow->setEngine( *m_Engine );
+            newWindow->setName( String( newWindow->getWindowId() ) );
             return newWindow;
         };
 
@@ -99,27 +99,27 @@ class ImGuiSystem : public IEngineSystem {
     T& OpenWindow( ImGuiWindow& parent ) {
         // find first non open window matching the id and reuse
         auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
-            return ( window->IsOpen() == false ) && ( window->GetWindowId() == T::WindowId );
+            return ( window->isOpen() == false ) && ( window->getWindowId() == T::WindowId );
         } );
 
-        if ( it != m_Windows.end() ) {
+        if( it != m_Windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
-            imguiWindow->SetParent( parent );
-            imguiWindow->Open();
+            imguiWindow->setParent( parent );
+            imguiWindow->open();
             return static_cast< T& >( *imguiWindow );
         }
 
         constexpr StringId32 windowTypeId( T::WindowId );
         auto factoryIt = m_WindowFactory.find( windowTypeId );
 
-        if ( factoryIt == m_WindowFactory.end() ) {
+        if( factoryIt == m_WindowFactory.end() ) {
             RegisterWindow< T >();
             factoryIt = m_WindowFactory.find( windowTypeId );
         }
 
         UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
-        newWindow->SetParent( parent );
-        newWindow->Open();
+        newWindow->setParent( parent );
+        newWindow->open();
         return static_cast< T& >( *newWindow );
     }
 
@@ -127,25 +127,25 @@ class ImGuiSystem : public IEngineSystem {
     T& OpenWindow() {
         // find first non open window matching the id and reuse
         auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
-            return ( window->IsOpen() == false ) && ( window->GetWindowId() == T::WindowId );
+            return ( window->isOpen() == false ) && ( window->getWindowId() == T::WindowId );
         } );
 
-        if ( it != m_Windows.end() ) {
+        if( it != m_Windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
-            imguiWindow->Open();
+            imguiWindow->open();
             return static_cast< T& >( *imguiWindow );
         }
 
         constexpr StringId32 windowTypeId( T::WindowId );
         auto factoryIt = m_WindowFactory.find( windowTypeId );
-        if ( factoryIt == m_WindowFactory.end() ) {
+        if( factoryIt == m_WindowFactory.end() ) {
             RegisterWindow< T >();
             factoryIt = m_WindowFactory.find( windowTypeId );
         }
 
         uint32_t index = m_Windows.size();
         UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
-        newWindow->Open();
+        newWindow->open();
         return static_cast< T& >( *m_Windows[ index ] );
     }
 
@@ -153,72 +153,100 @@ class ImGuiSystem : public IEngineSystem {
     T& OpenUniqueWindow() {
         // check if the window is already opened if it is, bring it to the front
         auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
-            return ( window->GetWindowId() == T::WindowId );
+            return ( window->getWindowId() == T::WindowId );
         } );
 
-        if ( it != m_Windows.end() ) {
+        if( it != m_Windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
-            imguiWindow->Open();
+            imguiWindow->open();
             return static_cast< T& >( *imguiWindow );
         }
 
         // create window as its not opened yet
         constexpr StringId32 windowTypeId( T::WindowId );
         auto factoryIt = m_WindowFactory.find( windowTypeId );
-        if ( factoryIt == m_WindowFactory.end() ) {
+        if( factoryIt == m_WindowFactory.end() ) {
             RegisterWindow< T >();
             factoryIt = m_WindowFactory.find( windowTypeId );
         }
 
         UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
-        newWindow->Open();
+        newWindow->open();
+        return static_cast< T& >( *newWindow );
+    }
+
+    template < IsImGuiWindow T >
+    T& OpenUniqueWindow( ImGuiWindow& parent ) {
+        // check if the window is already opened if it is, bring it to the front
+        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+            return ( window->getWindowId() == T::WindowId );
+        } );
+
+        if( it != m_Windows.end() ) {
+            UniquePtr< ImGuiWindow >& imguiWindow = *it;
+            imguiWindow->setParent( parent );
+            imguiWindow->open();
+            return static_cast< T& >( *imguiWindow );
+        }
+
+        // create window as its not opened yet
+        constexpr StringId32 windowTypeId( T::WindowId );
+        auto factoryIt = m_WindowFactory.find( windowTypeId );
+        if( factoryIt == m_WindowFactory.end() ) {
+            RegisterWindow< T >();
+            factoryIt = m_WindowFactory.find( windowTypeId );
+        }
+
+        UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        newWindow->setParent( parent );
+        newWindow->open();
         return static_cast< T& >( *newWindow );
     }
 
     void OpenWindow( StringId32 windowId ) {
         // find first non open window matching the id and reuse
         auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
-            return ( window->IsOpen() == false ) && ( StringId32( window->GetWindowId() ) == windowId );
+            return ( window->isOpen() == false ) && ( StringId32( window->getWindowId() ) == windowId );
         } );
 
-        if ( it != m_Windows.end() ) {
+        if( it != m_Windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
-            imguiWindow->Open();
+            imguiWindow->open();
             return;
         }
 
         auto factoryIt = m_WindowFactory.find( windowId );
-        if ( factoryIt != m_WindowFactory.end() ) {
+        if( factoryIt != m_WindowFactory.end() ) {
             UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
-            newWindow->Open();
+            newWindow->open();
         }
     }
 
     void OpenWindow( ImGuiWindow& parent, StringId32 windowId ) {
         // find first non open window matching the id and reuse
         auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
-            return ( window->IsOpen() == false ) && ( StringId32( window->GetWindowId() ) == windowId );
+            return ( window->isOpen() == false ) && ( StringId32( window->getWindowId() ) == windowId );
         } );
 
-        if ( it != m_Windows.end() ) {
+        if( it != m_Windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
-            imguiWindow->SetParent( parent );
-            imguiWindow->Open();
+            imguiWindow->setParent( parent );
+            imguiWindow->open();
             return;
         }
 
         auto factoryIt = m_WindowFactory.find( windowId );
-        if ( factoryIt != m_WindowFactory.end() ) {
+        if( factoryIt != m_WindowFactory.end() ) {
             UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
-            newWindow->SetParent( parent );
-            newWindow->Open();
+            newWindow->setParent( parent );
+            newWindow->open();
         }
     }
 
     void CloseWindow( StringId32 windowId ) {
         ImGuiWindow* window = GetWindow( windowId ).value_or( nullptr );
-        if ( window ) {
-            window->Close();
+        if( window ) {
+            window->close();
         }
     }
 

@@ -34,63 +34,60 @@ class SceneEditorWindow : public ui::ImGuiWindow {
     SceneEditorWindow();
     ~SceneEditorWindow() override;
 
-    game_core::Scene& GetScene() { return *m_Scene; }
-    assets::AssetId GetSceneId() const { return m_Scene.getId(); }
+    game_core::Scene& getScene() { return *m_scene; }
+    assets::AssetId getSceneId() const { return m_scene.getId(); }
 
     // assets::AssetHandle<game_core::Scene>& GetScene() { return m_Scene; }
     // const assets::AssetHandle<game_core::Scene>& GetScene() const { return m_Scene; }
 
-    bool IsLoading() const { return m_Scene->isLoading(); }
+    bool isLoading() const { return m_scene->isLoading(); }
 
-    StringView GetWindowId() override { return WindowId; }
-    //   ImGuiWindowClass* GetWindowClass() const { return m_WindowClass; }
-
-  private:
-    void OnOpen() override;
-    void OnClose() override;
-
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
-
-    void RenderSceneViewport();
-    void RenderImGuizmo( const Vector2f32& viewportPosition, const Vector2f32& viewportExtents );
-
-    void RenderMenuBar();
-
-    void OnGizmoModeAction( const input_actions::InputActionEvent& inputActionContext );
-    void OnCameraMoveInput( const input_actions::InputActionEvent& inputActionContext );
-    void OnCameraRotationInput( const input_actions::InputActionEvent& inputActionContext );
-    void OnCameraSpeedInput( const input_actions::InputActionEvent& inputActionContext );
-    void OnCameraSpeedUp( const input_actions::InputActionEvent& inputActionContext );
-    void OnCameraSlowDown( const input_actions::InputActionEvent& inputActionContext );
-
-    void LoadScene( assets::AssetId sceneAssetId );
-    void OnSceneLoaded( const assets::AssetHandle< game_core::Scene >& sceneAsset );
+    StringView getWindowId() override { return WindowId; }
 
   private:
-    enum class GizmoType { Translate, Rotate, Scale };
+    void onOpen() override;
+    void onClose() override;
 
-    CommandGraph< ecs::EntityRegistry > m_CommandStack;
+    void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
-    Atomic< bool > m_IsLoading = false;
+    void onRenderMainMenuBar() override;
 
-    ImGuiWindowClass* m_WindowClass;
+    void renderSceneViewport();
+    void renderImGuizmo( const Vector2f32& viewportPosition, const Vector2f32& viewportExtents );
 
-    assets::AssetHandle< game_core::Scene > m_Scene;
+    void onGizmoModeAction( const input_actions::InputActionEvent& inputActionContext );
+    void onCameraMoveInput( const input_actions::InputActionEvent& inputActionContext );
+    void onCameraRotationInput( const input_actions::InputActionEvent& inputActionContext );
+    void onCameraSpeedInput( const input_actions::InputActionEvent& inputActionContext );
+    void onCameraSpeedUp( const input_actions::InputActionEvent& inputActionContext );
+    void onCameraSlowDown( const input_actions::InputActionEvent& inputActionContext );
 
-    ui::Dockspace m_Dockspace;
+    void loadScene( assets::AssetId sceneAssetId );
+    void onSceneLoaded( const assets::AssetHandle< game_core::Scene >& sceneAsset );
 
-    assets::AssetHandle< input_actions::InputActionsContext > m_LevelEditorActions;
-    ecs::EntityId m_EditorCameraEntity = ecs::EntityId( 0 );
+  private:
+    enum class GizmoType : uint8_t { Translate, Rotate, Scale };
 
-    bool m_HasSelectedEntity = false;
-    GizmoType m_CurrentGizmo = GizmoType::Translate;
+    CommandGraph< ecs::EntityRegistry > m_commandStack;
 
-    String m_SceneViewPanelId;
-    String m_EntitiesPanelId;
-    String m_ComponentsPanelId;
+    Atomic< bool > m_isLoading = false;
 
-    uint32_t m_WindowId;
+    ImGuiWindowClass* m_windowClass;
 
-    Rect2s16 m_ViewportBounds;
+    assets::AssetHandle< game_core::Scene > m_scene;
+
+    assets::AssetHandle< input_actions::InputActionsContext > m_levelEditorActions;
+    ecs::EntityId m_editorCameraEntity = ecs::EntityId( 0 );
+
+    bool m_hasSelectedEntity = false;
+    GizmoType m_currentGizmo = GizmoType::Translate;
+
+    String m_sceneViewPanelId;
+    String m_entitiesPanelId;
+    String m_componentsPanelId;
+
+    uint32_t m_windowId;
+
+    Rect2s16 m_viewportBounds;
 };
 } // namespace onyx::editor

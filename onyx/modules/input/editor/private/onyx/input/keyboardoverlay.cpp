@@ -68,30 +68,30 @@ KeyboardOverlay::KeyboardOverlay() {
     }
 }
 
-void KeyboardOverlay::OnOpen() {}
+void KeyboardOverlay::onOpen() {}
 
-void KeyboardOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
+void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     if ( ui::g_UiContext.InputSystem == nullptr )
         return;
 
     const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
-    SetWindowFlags( ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking );
-
-    // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
-    SetDefaultPosition( ui::WindowPosition::BottomLeft );
-
-    float32 aspectRatio = 23.0f / static_cast< float32 >( m_keyboardLayout.size() + 1 );
-    auto aspect_ratio_constraint = []( ImGuiSizeCallbackData* data ) {
-        float aspectRatio = *static_cast< float32* >( data->UserData );
-        data->DesiredSize.y = (float)(int)( data->DesiredSize.x / aspectRatio );
-    };
-
-    ImGui::SetNextWindowSize( ImVec2( 400, 600 ), ImGuiCond_FirstUseEver );
-    ImGui::SetNextWindowSizeConstraints( ImVec2( 200, 300 ),
-                                         ImVec2( FLT_MAX, FLT_MAX ),
-                                         aspect_ratio_constraint,
-                                         &aspectRatio ); // Aspect ratio
-    Begin();
+    // setWindowFlags( ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking );
+    //
+    // // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
+    // setDefaultPosition( ui::WindowPosition::BottomLeft );
+    //
+    // float32 aspectRatio = 23.0f / static_cast< float32 >( m_keyboardLayout.size() + 1 );
+    // auto aspect_ratio_constraint = []( ImGuiSizeCallbackData* data ) {
+    //     float aspectRatio = *static_cast< float32* >( data->UserData );
+    //     data->DesiredSize.y = (float)(int)( data->DesiredSize.x / aspectRatio );
+    // };
+    //
+    // ImGui::SetNextWindowSize( ImVec2( 400, 600 ), ImGuiCond_FirstUseEver );
+    // ImGui::SetNextWindowSizeConstraints( ImVec2( 200, 300 ),
+    //                                      ImVec2( FLT_MAX, FLT_MAX ),
+    //                                      aspect_ratio_constraint,
+    //                                      &aspectRatio ); // Aspect ratio
+    // begin();
     ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
 
     static const ImVec4 defaultColor{ 0.7f, 0.7f, 0.7f, 1.0f };
@@ -141,7 +141,7 @@ void KeyboardOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     // ImVec2 windowSize = ImVec2(initialPosition.x + renderSize, cursorPos[1]) - initialPosition;
     // ImGui::Dummy(windowSize);
-    End();
+    // end();
 }
 
 } // namespace onyx::input::tools

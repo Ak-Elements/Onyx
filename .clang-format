@@ -18,7 +18,7 @@ PenaltyReturnTypeOnItsOwnLine: 1000
 BreakTemplateDeclarations: Leave
 
 # Spaces
-SpaceBeforeParens: ControlStatements
+SpaceBeforeParens: Never
 SpacesInParentheses: true
 SpacesInSquareBrackets: true
 SpacesInAngles: Always

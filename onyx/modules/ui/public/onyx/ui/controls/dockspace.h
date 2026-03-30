@@ -4,7 +4,7 @@
 struct ImGuiWindowClass;
 
 namespace onyx::ui {
-enum DockSplitDirection { Left, Right, Up, Down };
+enum class DockSplitDirection : uint8_t { Left, Right, Up, Down };
 
 struct DockSplit {
     DockSplitDirection Direction;
@@ -16,18 +16,12 @@ struct DockSplit {
 
 class Dockspace {
   public:
-    static Dockspace Create( const DynamicArray< DockSplit >& splits );
+    void init( uint32_t id, const ImGuiWindowClass* windowClass, const DynamicArray< DockSplit >& splits );
 
-    bool Render();
-
-    void SetWindowClass( const ImGuiWindowClass& newWindowClass ) { windowClass = &newWindowClass; }
-    void Reset() { shouldReset = true; }
-    void SetId( uint32_t newId ) { id = newId; }
+    void render();
 
   private:
-    uint32_t id = 0;
-    DynamicArray< DockSplit > splits;
-    const ImGuiWindowClass* windowClass;
-    bool shouldReset;
+    uint32_t m_id = 0;
+    const ImGuiWindowClass* m_windowClass = nullptr;
 };
 } // namespace onyx::ui

@@ -15,14 +15,14 @@ class StatusBarOverlay : public ui::ImGuiWindow {
   public:
     static constexpr StringView WindowId = "StatusBar";
 
-    StringView GetWindowId() override { return WindowId; }
+    StringView getWindowId() override { return WindowId; }
 
     template < typename T, class... Types > T& addOverlay( Types&&... args ) {
         return static_cast< T& >( *m_items.emplace_back( makeUnique< T >( std::forward< Types >( args )... ) ) );
     }
 
   private:
-    void OnRender( ui::ImGuiSystem& imguiSystem ) override;
+    void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
   private:
     DynamicArray< UniquePtr< StatusBarOverlayItem > > m_items;

@@ -2,18 +2,14 @@
 
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 
-namespace onyx::editor
-{
-    InputActionCommand::InputActionCommand(StringId32 id, InputActionSettingsWindow& inputSettingsWindow)
-        : ICommand(id)
-        , m_AssetId(inputSettingsWindow.GetOpenAssetId())
-        , m_SettingsWindow(&inputSettingsWindow)
-    {
-    }
+namespace onyx::editor {
+InputActionCommand::InputActionCommand( StringId32 id, InputActionSettingsWindow& inputSettingsWindow )
+    : ICommand( id )
+    , m_AssetId( inputSettingsWindow.getOpenAssetId() )
+    , m_SettingsWindow( &inputSettingsWindow ) {}
 
-    input_actions::InputActionsMap& InputActionCommand::GetInputActionsContext()
-    {
-        ONYX_ASSERT(m_AssetId == m_SettingsWindow->GetOpenAssetId());
-        return m_SettingsWindow->GetOpenActionsContext();
-    }
+input_actions::InputActionsMap& InputActionCommand::GetInputActionsContext() {
+    ONYX_ASSERT( m_AssetId == m_SettingsWindow->getOpenAssetId() );
+    return m_SettingsWindow->getOpenActionsContext();
 }
+} // namespace onyx::editor

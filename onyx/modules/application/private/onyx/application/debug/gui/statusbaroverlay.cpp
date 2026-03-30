@@ -10,7 +10,7 @@
 #include <imgui_stacklayout.h>
 
 namespace onyx::application::debug {
-void StatusBarOverlay::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
+void StatusBarOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ::ImGuiWindow* window = ImGui::FindWindowByName( "SceneView" );
     if ( window != nullptr ) {
         ImGui::SetNextWindowPos( window->InnerRect.Min + ImGui::GetStyle().FramePadding );

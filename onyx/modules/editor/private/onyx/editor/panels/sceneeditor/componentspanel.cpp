@@ -24,32 +24,32 @@
 #include <onyx/ui/propertyinspector.h>
 
 namespace onyx::editor::scene_editor {
-void ComponentsPanel::OnOpen() {}
+void ComponentsPanel::onOpen() {}
 
-void ComponentsPanel::OnClose() {}
+void ComponentsPanel::onClose() {}
 
-void ComponentsPanel::OnRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    SetName( String( GetWindowId() ) );
-    Begin();
+void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
+    // setName( String( getWindowId() ) );
+    //  begin();
 
     ImGui::Checkbox( localization::editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll );
 
-    game_core::GameCoreSystem& gameCoreSystem = GetEngineSystem< game_core::GameCoreSystem >();
-    const localization::LocalizationModule& localizationModule = GetEngineSystem< localization::LocalizationModule >();
+    game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
+    const localization::LocalizationModule& localizationModule = getEngineSystem< localization::LocalizationModule >();
 
-    SceneEditorWindow& parent = *GetParent< SceneEditorWindow >().value();
-    game_core::Scene& scene = parent.GetScene();
+    SceneEditorWindow& parent = *getParent< SceneEditorWindow >().value();
+    game_core::Scene& scene = parent.getScene();
 
     ecs::EntityRegistry& registry = scene.GetRegistry();
 
-    DrawSelectedEntityComponents( registry, parent.GetSceneId(), gameCoreSystem, localizationModule );
+    DrawSelectedEntityComponents( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
 
     auto selectedEntities = registry.GetView< SelectedComponent >();
-    if ( selectedEntities.empty() == false ) {
-        DrawCreateComponentContextMenu( registry, parent.GetSceneId(), gameCoreSystem, localizationModule );
+    if( selectedEntities.empty() == false ) {
+        DrawCreateComponentContextMenu( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
     }
 
-    End();
+    // end();
 }
 
 void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registry,
@@ -59,15 +59,15 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
     const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
     auto selectedEntities = registry.GetView< SelectedComponent >();
 
-    for ( ecs::EntityId selectedEntity : selectedEntities ) {
-        for ( auto&& componentStorageIt : registry.GetStorage() ) {
+    for( ecs::EntityId selectedEntity : selectedEntities ) {
+        for( auto&& componentStorageIt : registry.GetStorage() ) {
             // if the component storage contains the entity we know that the entity has this component
-            if ( entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
-                 componentStorage.contains( selectedEntity ) ) {
-                if ( const ecs::IComponentMeta* componentMeta = componentFactory
-                                                                    .GetComponentMeta( componentStorageIt.first )
-                                                                    .value_or( nullptr ) ) {
-                    if ( ui::PropertyInspectors::isTypeRegistered( componentMeta->GetRuntimeTypeId() ) == false ) {
+            if( entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
+                componentStorage.contains( selectedEntity ) ) {
+                if( const ecs::IComponentMeta* componentMeta = componentFactory
+                                                                   .GetComponentMeta( componentStorageIt.first )
+                                                                   .value_or( nullptr ) ) {
+                    if( ui::PropertyInspectors::isTypeRegistered( componentMeta->GetRuntimeTypeId() ) == false ) {
                         continue;
                     }
 
@@ -79,8 +79,8 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
 
                     onyx::localization::LocalizationId localizationId( componentTypeId );
                     localization::LocalizedString componentName = localizationModule.GetLocalized( localizationId );
-                    if ( ui::ContextMenuHeader( componentName,
-                                                ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
+                    if( ui::ContextMenuHeader( componentName,
+                                               ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
                         ImGui::BeginChild( "Panel",
                                            ImVec2( 0, 0 ),
                                            ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY );
@@ -96,7 +96,7 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
                                                                          componentPtr,
                                                                          m_ShowAll );
 
-                        if ( hasModified ) {
+                        if( hasModified ) {
                             DynamicArray< uint32_t > componentData;
                             componentMeta->Copy( componentPtr, componentData );
                             m_CommandGraph->Push< ModifyComponentCommand >( selectedEntity,
@@ -125,20 +125,20 @@ void ComponentsPanel::DrawCreateComponentContextMenu( ecs::EntityRegistry& regis
                                                       assets::AssetId sceneId,
                                                       game_core::GameCoreSystem& gameCoreSystem,
                                                       const localization::LocalizationModule& localizationModule ) {
-    if ( ImGui::BeginPopupContextWindow( "AddComponentModal", ImGuiPopupFlags_MouseButtonRight ) ) {
+    if( ImGui::BeginPopupContextWindow( "AddComponentModal", ImGuiPopupFlags_MouseButtonRight ) ) {
         static String s_SearchString;
         static bool s_HasFocus = false;
 
         const bool isAppearing = ImGui::IsWindowAppearing();
         s_HasFocus |= isAppearing;
 
-        if ( isAppearing ) {
+        if( isAppearing ) {
             s_SearchString.clear();
         }
 
         ui::DrawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
 
-        if ( ImGui::BeginChild( "##ScrollList", ImVec2( 350.0f, 350.0f ) ) ) {
+        if( ImGui::BeginChild( "##ScrollList", ImVec2( 350.0f, 350.0f ) ) ) {
             ui::TreeViewFlags flags = isAppearing ? ui::TreeViewFlags::ForceCloseAll
                                                   : ( s_SearchString.empty() ? ui::TreeViewFlags::None
                                                                              : ui::TreeViewFlags::ForceOpenAll );
@@ -163,15 +163,15 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
                                                   const localization::LocalizationModule& localizationModule ) const {
     ui::TreeItem root;
     const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
-    for ( auto&& [ componentTypeId, componentMeta ] : componentFactory.GetComponentMeta() ) {
-        if ( componentMeta->IsTransient() || ( componentMeta->IsCodeOnly() ) ) {
+    for( auto&& [ componentTypeId, componentMeta ] : componentFactory.GetComponentMeta() ) {
+        if( componentMeta->IsTransient() || ( componentMeta->IsCodeOnly() ) ) {
             continue;
         }
 
         localization::LocalizationId localizationId( componentTypeId );
         localization::LocalizedString localizedString = localizationModule.GetLocalized( localizationId );
         StringView componentName = localizedString.Get();
-        if ( ignoreCaseFind( componentName, searchString ) == StringView::npos ) {
+        if( ignoreCaseFind( componentName, searchString ) == StringView::npos ) {
             continue;
         }
 
@@ -179,16 +179,16 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
         DynamicArray< String > parts = split( componentName, delimiter );
 
         ui::TreeItem* currentParent = &root;
-        for ( uint32_t i = 0; i < parts.size(); ++i ) {
+        for( uint32_t i = 0; i < parts.size(); ++i ) {
             const String& currentToken = parts[ i ];
-            if ( i == parts.size() - 1 ) {
+            if( i == parts.size() - 1 ) {
                 ui::TreeItem& menuItem = currentParent->Children[ currentToken ];
                 menuItem.Label = currentToken;
                 menuItem.OnSelected = [ & ]() {
                     auto selectedEntities = registry.GetView< SelectedComponent >();
                     auto size = selectedEntities.size();
                     ONYX_UNUSED( size );
-                    for ( ecs::EntityId selectedEntity : selectedEntities ) {
+                    for( ecs::EntityId selectedEntity : selectedEntities ) {
                         m_CommandGraph->Push< AddComponentCommand >( selectedEntity,
                                                                      componentTypeId,
                                                                      sceneId,

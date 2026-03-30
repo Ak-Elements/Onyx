@@ -61,6 +61,24 @@ constexpr bool none( Enum flags, Enum noneOfFlags ) {
     return ( toIntegral( flags ) & ( toIntegral( noneOfFlags ) ) ) == 0;
 }
 
+template < typename Enum >
+constexpr void set( Enum& flags, Enum setFlags ) {
+    flags = toEnum< Enum >( toIntegral( flags ) | toIntegral( setFlags ) );
+}
+
+template < typename Enum >
+constexpr void unset( Enum& flags, Enum unsetFlags ) {
+    flags = toEnum< Enum >( toIntegral( flags ) & ~toIntegral( unsetFlags ) );
+}
+
+template < typename Enum >
+constexpr void set( Enum& flags, Enum setFlags, bool value ) {
+    if( value )
+        set< Enum >( flags, setFlags );
+    else
+        unset< Enum >( flags, setFlags );
+}
+
 } // namespace enums
 
 template < typename Enum > requires std::is_scoped_enum_v< Enum >
