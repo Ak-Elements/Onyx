@@ -1,7 +1,5 @@
 #include <onyx/ui/controls/colorcontrol.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <onyx/platforms/windows/platform.h>
 #include <onyx/ui/controls/vectorcontrol.h>
 #include <onyx/ui/scopedid.h>
@@ -59,8 +57,8 @@ template < typename VectorT > requires( IsVector3< VectorT > || IsVector4< Vecto
 void ColorEditRestoreH( const VectorT& col, typename VectorT::ScalarT& H ) {
     ::ImGuiContext& g = *GImGui;
     IM_ASSERT( g.ColorEditCurrentID != 0 );
-    if ( g.ColorEditSavedID != g.ColorEditCurrentID ||
-         g.ColorEditSavedColor != ImGui::ColorConvertFloat4ToU32( ImVec4( col.X, col.Y, col.Z, 0 ) ) )
+    if( g.ColorEditSavedID != g.ColorEditCurrentID ||
+        g.ColorEditSavedColor != ImGui::ColorConvertFloat4ToU32( ImVec4( col.X, col.Y, col.Z, 0 ) ) )
         return;
     H = g.ColorEditSavedHue;
 }
@@ -74,17 +72,17 @@ void ColorEditRestoreHS( const VectorT& col,
                          typename VectorT::ScalarT& V ) {
     ::ImGuiContext& g = *GImGui;
     IM_ASSERT( g.ColorEditCurrentID != 0 );
-    if ( g.ColorEditSavedID != g.ColorEditCurrentID ||
-         g.ColorEditSavedColor != ImGui::ColorConvertFloat4ToU32( ImVec4( col.X, col.Y, col.Z, 0 ) ) )
+    if( g.ColorEditSavedID != g.ColorEditCurrentID ||
+        g.ColorEditSavedColor != ImGui::ColorConvertFloat4ToU32( ImVec4( col.X, col.Y, col.Z, 0 ) ) )
         return;
 
     // When S == 0, H is undefined.
     // When H == 1 it wraps around to 0.
-    if ( S == 0.0f || ( H == 0.0f && g.ColorEditSavedHue == 1 ) )
+    if( S == 0.0f || ( H == 0.0f && g.ColorEditSavedHue == 1 ) )
         H = g.ColorEditSavedHue;
 
     // When V == 0, S is undefined.
-    if ( V == 0.0f )
+    if( V == 0.0f )
         S = g.ColorEditSavedSat;
 }
 
@@ -116,33 +114,33 @@ template < typename VectorT > requires( IsVector3< VectorT > || IsVector4< Vecto
 void ColorPickerOptionsPopup( const VectorT& ref_col, ImGuiColorEditFlags flags ) {
     bool allow_opt_picker = !( flags & ImGuiColorEditFlags_PickerMask_ );
     bool allow_opt_alpha_bar = !( flags & ImGuiColorEditFlags_NoAlpha ) && !( flags & ImGuiColorEditFlags_AlphaBar );
-    if ( ( !allow_opt_picker && !allow_opt_alpha_bar ) || !ImGui::BeginPopup( "context" ) )
+    if( ( !allow_opt_picker && !allow_opt_alpha_bar ) || !ImGui::BeginPopup( "context" ) )
         return;
 
     ::ImGuiContext& g = *GImGui;
     ImGui::PushItemFlag( ImGuiItemFlags_NoMarkEdited, true );
-    if ( allow_opt_picker ) {
+    if( allow_opt_picker ) {
         ImVec2 picker_size( g.FontSize * 8,
                             ImMax( g.FontSize * 8 - ( ImGui::GetFrameHeight() + g.Style.ItemInnerSpacing.x ),
                                    1.0f ) ); // FIXME: Picker size copied from main picker function
         ImGui::PushItemWidth( picker_size.x );
-        for ( int picker_type = 0; picker_type < 2; picker_type++ ) {
+        for( int picker_type = 0; picker_type < 2; picker_type++ ) {
             // Draw small/thumbnail version of each picker type (over an invisible button for selection)
-            if ( picker_type > 0 )
+            if( picker_type > 0 )
                 ImGui::Separator();
             ImGui::PushID( picker_type );
             ImGuiColorEditFlags picker_flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions |
                                                ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoSidePreview |
                                                ( flags & ImGuiColorEditFlags_NoAlpha );
-            if ( picker_type == 0 )
+            if( picker_type == 0 )
                 picker_flags |= ImGuiColorEditFlags_PickerHueBar;
-            if ( picker_type == 1 )
+            if( picker_type == 1 )
                 picker_flags |= ImGuiColorEditFlags_PickerHueWheel;
             ImVec2 backup_pos = ImGui::GetCursorScreenPos();
-            if ( ImGui::Selectable( "##selectable",
-                                    false,
-                                    0,
-                                    picker_size ) ) // By default, Selectable() is closing popup
+            if( ImGui::Selectable( "##selectable",
+                                   false,
+                                   0,
+                                   picker_size ) ) // By default, Selectable() is closing popup
                 g.ColorEditOptions = ( g.ColorEditOptions & ~ImGuiColorEditFlags_PickerMask_ ) |
                                      ( picker_flags & ImGuiColorEditFlags_PickerMask_ );
             ImGui::SetCursorScreenPos( backup_pos );
@@ -152,8 +150,8 @@ void ColorPickerOptionsPopup( const VectorT& ref_col, ImGuiColorEditFlags flags 
         }
         ImGui::PopItemWidth();
     }
-    if ( allow_opt_alpha_bar ) {
-        if ( allow_opt_picker )
+    if( allow_opt_alpha_bar ) {
+        if( allow_opt_picker )
             ImGui::Separator();
         ImGui::CheckboxFlags( "Alpha Bar", &g.ColorEditOptions, ImGuiColorEditFlags_AlphaBar );
     }
@@ -178,7 +176,7 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     ::ImGuiContext& g = *GImGui;
     ::ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if ( window->SkipItems )
+    if( window->SkipItems )
         return false;
 
     ImDrawList* draw_list = window->DrawList;
@@ -191,29 +189,29 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     ScopedImGuiId scopedId( label );
     const bool set_current_color_edit_id = ( g.ColorEditCurrentID == 0 );
-    if ( set_current_color_edit_id )
+    if( set_current_color_edit_id )
         g.ColorEditCurrentID = window->IDStack.back();
     ImGui::BeginGroup();
 
-    if ( !( flags & ImGuiColorEditFlags_NoSidePreview ) )
+    if( !( flags & ImGuiColorEditFlags_NoSidePreview ) )
         flags |= ImGuiColorEditFlags_NoSmallPreview;
 
     // Context menu: display and store options.
-    if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+    if( !( flags & ImGuiColorEditFlags_NoOptions ) )
         ColorPickerOptionsPopup( outColor, flags );
 
     // Read stored options
-    if ( !( flags & ImGuiColorEditFlags_PickerMask_ ) )
+    if( !( flags & ImGuiColorEditFlags_PickerMask_ ) )
         flags |= ( ( g.ColorEditOptions & ImGuiColorEditFlags_PickerMask_ ) ? g.ColorEditOptions
                                                                             : ImGuiColorEditFlags_DefaultOptions_ ) &
                  ImGuiColorEditFlags_PickerMask_;
-    if ( !( flags & ImGuiColorEditFlags_InputMask_ ) )
+    if( !( flags & ImGuiColorEditFlags_InputMask_ ) )
         flags |= ( ( g.ColorEditOptions & ImGuiColorEditFlags_InputMask_ ) ? g.ColorEditOptions
                                                                            : ImGuiColorEditFlags_DefaultOptions_ ) &
                  ImGuiColorEditFlags_InputMask_;
     IM_ASSERT( ImIsPowerOfTwo( flags & ImGuiColorEditFlags_PickerMask_ ) ); // Check that only 1 is selected
     IM_ASSERT( ImIsPowerOfTwo( flags & ImGuiColorEditFlags_InputMask_ ) );  // Check that only 1 is selected
-    if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+    if( !( flags & ImGuiColorEditFlags_NoOptions ) )
         flags |= ( g.ColorEditOptions & ImGuiColorEditFlags_AlphaBar );
 
     // Setup
@@ -244,42 +242,42 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     float H = outColor.X, S = outColor.Y, V = outColor.Z;
     float R = outColor.X, G = outColor.Y, B = outColor.Z;
-    if ( flags & ImGuiColorEditFlags_InputRGB ) {
+    if( flags & ImGuiColorEditFlags_InputRGB ) {
         // Hue is lost when converting from grayscale rgb (saturation=0). Restore it.
         ImGui::ColorConvertRGBtoHSV( R, G, B, H, S, V );
         ColorEditRestoreHS( outColor, H, S, V );
-    } else if ( flags & ImGuiColorEditFlags_InputHSV ) {
+    } else if( flags & ImGuiColorEditFlags_InputHSV ) {
         ImGui::ColorConvertHSVtoRGB( H, S, V, R, G, B );
     }
 
     bool value_changed = false, value_changed_h = false, value_changed_sv = false;
 
     ImGui::PushItemFlag( ImGuiItemFlags_NoNav, true );
-    if ( flags & ImGuiColorEditFlags_PickerHueWheel ) {
+    if( flags & ImGuiColorEditFlags_PickerHueWheel ) {
         // Hue wheel + SV triangle logic
         ImGui::InvisibleButton( "hsv",
                                 ImVec2( sv_picker_size + style.ItemInnerSpacing.x + bars_width, sv_picker_size ) );
-        if ( ImGui::IsItemActive() && !is_readonly ) {
+        if( ImGui::IsItemActive() && !is_readonly ) {
             ImVec2 initial_off = g.IO.MouseClickedPos[ 0 ] - wheel_center;
             ImVec2 current_off = g.IO.MousePos - wheel_center;
             float initial_dist2 = ImLengthSqr( initial_off );
-            if ( initial_dist2 >= ( wheel_r_inner - 1 ) * ( wheel_r_inner - 1 ) &&
-                 initial_dist2 <= ( wheel_r_outer + 1 ) * ( wheel_r_outer + 1 ) ) {
+            if( initial_dist2 >= ( wheel_r_inner - 1 ) * ( wheel_r_inner - 1 ) &&
+                initial_dist2 <= ( wheel_r_outer + 1 ) * ( wheel_r_outer + 1 ) ) {
                 // Interactive with Hue wheel
                 H = ImAtan2( current_off.y, current_off.x ) / IM_PI * 0.5f;
-                if ( H < 0.0f )
+                if( H < 0.0f )
                     H += 1.0f;
                 value_changed = value_changed_h = true;
             }
             float cos_hue_angle = ImCos( -H * 2.0f * IM_PI );
             float sin_hue_angle = ImSin( -H * 2.0f * IM_PI );
-            if ( ImTriangleContainsPoint( triangle_pa,
-                                          triangle_pb,
-                                          triangle_pc,
-                                          ImRotate( initial_off, cos_hue_angle, sin_hue_angle ) ) ) {
+            if( ImTriangleContainsPoint( triangle_pa,
+                                         triangle_pb,
+                                         triangle_pc,
+                                         ImRotate( initial_off, cos_hue_angle, sin_hue_angle ) ) ) {
                 // Interacting with SV triangle
                 ImVec2 current_off_unrotated = ImRotate( current_off, cos_hue_angle, sin_hue_angle );
-                if ( !ImTriangleContainsPoint( triangle_pa, triangle_pb, triangle_pc, current_off_unrotated ) )
+                if( !ImTriangleContainsPoint( triangle_pa, triangle_pb, triangle_pc, current_off_unrotated ) )
                     current_off_unrotated = ImTriangleClosestPoint( triangle_pa,
                                                                     triangle_pb,
                                                                     triangle_pc,
@@ -291,36 +289,36 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
                 value_changed = value_changed_sv = true;
             }
         }
-        if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+        if( !( flags & ImGuiColorEditFlags_NoOptions ) )
             ImGui::OpenPopupOnItemClick( "context", ImGuiPopupFlags_MouseButtonRight );
-    } else if ( flags & ImGuiColorEditFlags_PickerHueBar ) {
+    } else if( flags & ImGuiColorEditFlags_PickerHueBar ) {
         // SV rectangle logic
         ImGui::InvisibleButton( "sv", ImVec2( sv_picker_size, sv_picker_size ) );
-        if ( ImGui::IsItemActive() && !is_readonly ) {
+        if( ImGui::IsItemActive() && !is_readonly ) {
             S = ImSaturate( ( io.MousePos.x - picker_pos.x ) / ( sv_picker_size - 1 ) );
             V = 1.0f - ImSaturate( ( io.MousePos.y - picker_pos.y ) / ( sv_picker_size - 1 ) );
             ColorEditRestoreH( outColor, H ); // Greatly reduces hue jitter and reset to 0 when hue == 255 and color is
                                               // rapidly modified using SV square.
             value_changed = value_changed_sv = true;
         }
-        if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+        if( !( flags & ImGuiColorEditFlags_NoOptions ) )
             ImGui::OpenPopupOnItemClick( "context", ImGuiPopupFlags_MouseButtonRight );
 
         // Hue bar logic
         ImGui::SetCursorScreenPos( ImVec2( bar0_pos_x, picker_pos.y ) );
         ImGui::InvisibleButton( "hue", ImVec2( bars_width, sv_picker_size ) );
-        if ( ImGui::IsItemActive() && !is_readonly ) {
+        if( ImGui::IsItemActive() && !is_readonly ) {
             H = ImSaturate( ( io.MousePos.y - picker_pos.y ) / ( sv_picker_size - 1 ) );
             value_changed = value_changed_h = true;
         }
     }
 
     // Alpha bar logic
-    if constexpr ( hasAlpha ) {
-        if ( alpha_bar ) {
+    if constexpr( hasAlpha ) {
+        if( alpha_bar ) {
             ImGui::SetCursorScreenPos( ImVec2( bar1_pos_x, picker_pos.y ) );
             ImGui::InvisibleButton( "alpha", ImVec2( bars_width, sv_picker_size ) );
-            if ( ImGui::IsItemActive() ) {
+            if( ImGui::IsItemActive() ) {
                 outColor.W = 1.0f - ImSaturate( ( io.MousePos.y - picker_pos.y ) / ( sv_picker_size - 1 ) );
                 value_changed = true;
             }
@@ -329,32 +327,32 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     ImGui::PopItemFlag(); // ImGuiItemFlags_NoNav
 
-    if ( !( flags & ImGuiColorEditFlags_NoSidePreview ) ) {
+    if( !( flags & ImGuiColorEditFlags_NoSidePreview ) ) {
         ImGui::SameLine( 0, style.ItemInnerSpacing.x );
         ImGui::BeginGroup();
     }
 
-    if ( !( flags & ImGuiColorEditFlags_NoLabel ) ) {
+    if( !( flags & ImGuiColorEditFlags_NoLabel ) ) {
         const char* label_display_end = ImGui::FindRenderedTextEnd( label.data() );
-        if ( label != label_display_end ) {
-            if ( ( flags & ImGuiColorEditFlags_NoSidePreview ) )
+        if( label != label_display_end ) {
+            if( ( flags & ImGuiColorEditFlags_NoSidePreview ) )
                 ImGui::SameLine( 0, style.ItemInnerSpacing.x );
             ImGui::TextEx( label.data(), label_display_end );
         }
     }
 
-    if ( !( flags & ImGuiColorEditFlags_NoSidePreview ) ) {
+    if( !( flags & ImGuiColorEditFlags_NoSidePreview ) ) {
         ImGui::PushItemFlag( ImGuiItemFlags_NoNavDefaultFocus, true );
         ImVec4 col_v4( static_cast< float32 >( outColor.X ),
                        static_cast< float32 >( outColor.Y ),
                        static_cast< float32 >( outColor.Z ),
                        1.0f );
 
-        if constexpr ( hasAlpha ) {
+        if constexpr( hasAlpha ) {
             col_v4.w = ( flags & ImGuiColorEditFlags_NoAlpha ) ? 1.0f : static_cast< float32 >( outColor.W );
         }
 
-        if ( ( flags & ImGuiColorEditFlags_NoLabel ) )
+        if( ( flags & ImGuiColorEditFlags_NoLabel ) )
             ImGui::Text( "Current" );
 
         ImGuiColorEditFlags sub_flags_to_forward = ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_HDR |
@@ -364,20 +362,20 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
                             col_v4,
                             ( flags & sub_flags_to_forward ),
                             ImVec2( square_sz * 3, square_sz * 2 ) );
-        if ( ref_col != nullptr ) {
+        if( ref_col != nullptr ) {
             ImGui::Text( "Original" );
             ImVec4 ref_col_v4( ref_col->x,
                                ref_col->y,
                                ref_col->z,
                                ( flags & ImGuiColorEditFlags_NoAlpha ) ? 1.0f : ref_col->w );
-            if ( ImGui::ColorButton( "##original",
-                                     ref_col_v4,
-                                     ( flags & sub_flags_to_forward ),
-                                     ImVec2( square_sz * 3, square_sz * 2 ) ) ) {
+            if( ImGui::ColorButton( "##original",
+                                    ref_col_v4,
+                                    ( flags & sub_flags_to_forward ),
+                                    ImVec2( square_sz * 3, square_sz * 2 ) ) ) {
                 outColor.X = static_cast< ScalarT >( col_v4.x );
                 outColor.Y = static_cast< ScalarT >( col_v4.y );
                 outColor.Z = static_cast< ScalarT >( col_v4.z );
-                if constexpr ( hasAlpha ) {
+                if constexpr( hasAlpha ) {
                     outColor.W = static_cast< ScalarT >( col_v4.w );
                 }
                 value_changed = true;
@@ -389,20 +387,20 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
         ImGuiStorage* storage = ImGui::GetStateStorage();
         bool& colorPickState = *storage->GetBoolRef( colorPickStateId, false );
         // ImGuiID buttonID = ImGui::GetID("Pick");
-        if ( ImGui::Button( "Pick" ) ) {
+        if( ImGui::Button( "Pick" ) ) {
             colorPickState = true;
             g_UiContext.InputSystem->EnableSystemMouseCapture( true );
         }
 
-        if ( colorPickState ) {
-            if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) ) {
+        if( colorPickState ) {
+            if( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) ) {
                 constexpr float32 U8ToF32 = 1.0f / 255.0f;
                 Vector3u8 pixelColor = platform::GetPixelColorAtMousePosition();
                 Vector3f32 saturatedPixelColor( pixelColor.X * U8ToF32,
                                                 pixelColor.Y * U8ToF32,
                                                 pixelColor.Z * U8ToF32 );
 
-                if ( outColor != saturatedPixelColor ) {
+                if( outColor != saturatedPixelColor ) {
                     outColor = saturatedPixelColor;
                     value_changed = true;
                 }
@@ -420,14 +418,14 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
     }
 
     // Convert back color to RGB
-    if ( value_changed_h || value_changed_sv ) {
-        if ( flags & ImGuiColorEditFlags_InputRGB ) {
+    if( value_changed_h || value_changed_sv ) {
+        if( flags & ImGuiColorEditFlags_InputRGB ) {
             ImGui::ColorConvertHSVtoRGB( H, S, V, outColor.X, outColor.Y, outColor.Z );
             g.ColorEditSavedHue = H;
             g.ColorEditSavedSat = S;
             g.ColorEditSavedID = g.ColorEditCurrentID;
             g.ColorEditSavedColor = ImGui::ColorConvertFloat4ToU32( ImVec4( outColor.X, outColor.Y, outColor.Z, 0 ) );
-        } else if ( flags & ImGuiColorEditFlags_InputHSV ) {
+        } else if( flags & ImGuiColorEditFlags_InputHSV ) {
             outColor.X = static_cast< ScalarT >( H );
             outColor.X = static_cast< ScalarT >( S );
             outColor.X = static_cast< ScalarT >( V );
@@ -436,7 +434,7 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     // R,G,B and H,S,V slider color editor
     bool value_changed_fix_hue_wrap = false;
-    if ( ( flags & ImGuiColorEditFlags_NoInputs ) == 0 ) {
+    if( ( flags & ImGuiColorEditFlags_NoInputs ) == 0 ) {
         ImGui::PushItemWidth( ( alpha_bar ? bar1_pos_x : bar0_pos_x ) + bars_width - picker_pos.x );
         ImGuiColorEditFlags sub_flags_to_forward = ImGuiColorEditFlags_DataTypeMask_ | ImGuiColorEditFlags_InputMask_ |
                                                    ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_NoAlpha |
@@ -445,29 +443,29 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
                                                    ImGuiColorEditFlags_AlphaPreview |
                                                    ImGuiColorEditFlags_AlphaPreviewHalf;
         ImGuiColorEditFlags sub_flags = ( flags & sub_flags_to_forward ) | ImGuiColorEditFlags_NoPicker;
-        if ( flags & ImGuiColorEditFlags_DisplayRGB || ( flags & ImGuiColorEditFlags_DisplayMask_ ) == 0 )
-            if ( ColorEdit( "##rgb", outColor, sub_flags | ImGuiColorEditFlags_DisplayRGB ) ) {
+        if( flags & ImGuiColorEditFlags_DisplayRGB || ( flags & ImGuiColorEditFlags_DisplayMask_ ) == 0 )
+            if( ColorEdit( "##rgb", outColor, sub_flags | ImGuiColorEditFlags_DisplayRGB ) ) {
                 // FIXME: Hackily differentiating using the DragInt (ActiveId != 0 && !ActiveIdAllowOverlap) vs. using
                 // the InputText or DropTarget. For the later we don't want to run the hue-wrap canceling code. If you
                 // are well versed in HSV picker please provide your input! (See #2050)
                 value_changed_fix_hue_wrap = ( g.ActiveId != 0 && !g.ActiveIdAllowOverlap );
                 value_changed = true;
             }
-        if ( flags & ImGuiColorEditFlags_DisplayHSV || ( flags & ImGuiColorEditFlags_DisplayMask_ ) == 0 )
+        if( flags & ImGuiColorEditFlags_DisplayHSV || ( flags & ImGuiColorEditFlags_DisplayMask_ ) == 0 )
             value_changed |= ColorEdit( "##hsv", outColor, sub_flags | ImGuiColorEditFlags_DisplayHSV );
-        if ( flags & ImGuiColorEditFlags_DisplayHex || ( flags & ImGuiColorEditFlags_DisplayMask_ ) == 0 )
+        if( flags & ImGuiColorEditFlags_DisplayHex || ( flags & ImGuiColorEditFlags_DisplayMask_ ) == 0 )
             value_changed |= ColorEdit( "##hex", outColor, sub_flags | ImGuiColorEditFlags_DisplayHex );
         ImGui::PopItemWidth();
     }
 
     // Try to cancel hue wrap (after ColorEdit4 call), if any
-    if ( value_changed_fix_hue_wrap && ( flags & ImGuiColorEditFlags_InputRGB ) ) {
+    if( value_changed_fix_hue_wrap && ( flags & ImGuiColorEditFlags_InputRGB ) ) {
         ScalarT new_H, new_S, new_V;
         ImGui::ColorConvertRGBtoHSV( outColor.X, outColor.Y, outColor.Z, new_H, new_S, new_V );
-        if ( new_H <= 0 && H > 0 ) {
-            if ( new_V <= 0 && V != new_V )
+        if( new_H <= 0 && H > 0 ) {
+            if( new_V <= 0 && V != new_V )
                 ImGui::ColorConvertHSVtoRGB( H, S, new_V <= 0 ? V * 0.5f : new_V, outColor.X, outColor.Y, outColor.Z );
-            else if ( new_S <= 0 )
+            else if( new_S <= 0 )
                 ImGui::ColorConvertHSVtoRGB( H,
                                              new_S <= 0 ? S * 0.5f : new_S,
                                              new_V,
@@ -477,14 +475,14 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
         }
     }
 
-    if ( value_changed ) {
-        if ( flags & ImGuiColorEditFlags_InputRGB ) {
+    if( value_changed ) {
+        if( flags & ImGuiColorEditFlags_InputRGB ) {
             R = outColor.X;
             G = outColor.Y;
             B = outColor.Z;
             ImGui::ColorConvertRGBtoHSV( R, G, B, H, S, V );
             ColorEditRestoreHS( outColor, H, S, V ); // Fix local Hue as display below will use it immediately.
-        } else if ( flags & ImGuiColorEditFlags_InputHSV ) {
+        } else if( flags & ImGuiColorEditFlags_InputHSV ) {
             H = outColor.X;
             S = outColor.Y;
             V = outColor.Z;
@@ -512,11 +510,11 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     ImVec2 sv_cursor_pos;
 
-    if ( flags & ImGuiColorEditFlags_PickerHueWheel ) {
+    if( flags & ImGuiColorEditFlags_PickerHueWheel ) {
         // Render Hue Wheel
         const float aeps = 0.5f / wheel_r_outer; // Half a pixel arc length in radians (2pi cancels out).
         const int segment_per_arc = ImMax( 4, (int)wheel_r_outer / 12 );
-        for ( int n = 0; n < 6; n++ ) {
+        for( int n = 0; n < 6; n++ ) {
             const float a0 = ( n ) / 6.0f * 2.0f * IM_PI - aeps;
             const float a1 = ( n + 1.0f ) / 6.0f * 2.0f * IM_PI + aeps;
             const int vert_start_idx = draw_list->VtxBuffer.Size;
@@ -561,7 +559,7 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
         draw_list->PrimVtx( trc, uv_white, col_white );
         draw_list->AddTriangle( tra, trb, trc, col_midgrey, 1.5f );
         sv_cursor_pos = ImLerp( ImLerp( trc, tra, ImSaturate( S ) ), trb, ImSaturate( 1 - V ) );
-    } else if ( flags & ImGuiColorEditFlags_PickerHueBar ) {
+    } else if( flags & ImGuiColorEditFlags_PickerHueBar ) {
         // Render SV Square
         draw_list->AddRectFilledMultiColor( picker_pos,
                                             picker_pos + ImVec2( sv_picker_size, sv_picker_size ),
@@ -585,7 +583,7 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
                                    picker_pos.y + sv_picker_size - 2 );
 
         // Render Hue Bar
-        for ( int i = 0; i < 6; ++i )
+        for( int i = 0; i < 6; ++i )
             draw_list->AddRectFilledMultiColor(
                 ImVec2( bar0_pos_x, picker_pos.y + i * ( sv_picker_size / 6 ) ),
                 ImVec2( bar0_pos_x + bars_width, picker_pos.y + ( i + 1 ) * ( sv_picker_size / 6 ) ),
@@ -614,8 +612,8 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
     draw_list->AddCircle( sv_cursor_pos, sv_cursor_rad, col_white, sv_cursor_segments );
 
     // Render alpha bar
-    if constexpr ( hasAlpha ) {
-        if ( alpha_bar ) {
+    if constexpr( hasAlpha ) {
+        if( alpha_bar ) {
             float alpha = ImSaturate( outColor.W );
             ImRect bar1_bb( bar1_pos_x, picker_pos.y, bar1_pos_x + bars_width, picker_pos.y + sv_picker_size );
             ImGui::RenderColorRectWithAlphaCheckerboard( draw_list,
@@ -642,14 +640,14 @@ bool ColorPicker( StringView label, VectorT& outColor, ImGuiColorEditFlags flags
 
     ImGui::EndGroup();
 
-    if ( value_changed && backup_initial_col == outColor )
+    if( value_changed && backup_initial_col == outColor )
         value_changed = false;
 
-    if ( value_changed &&
-         g.LastItemData.ID != 0 ) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
+    if( value_changed &&
+        g.LastItemData.ID != 0 ) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
         ImGui::MarkItemEdited( g.LastItemData.ID );
 
-    if ( set_current_color_edit_id )
+    if( set_current_color_edit_id )
         g.ColorEditCurrentID = 0;
 
     return value_changed;
@@ -664,7 +662,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
     constexpr bool hasAlpha = IsVector4< VectorT >;
 
     ::ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if ( window->SkipItems )
+    if( window->SkipItems )
         return false;
 
     ::ImGuiContext& g = *GImGui;
@@ -682,27 +680,27 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
         ScopedImGuiId imguiScopeId( id );
 
         const bool set_current_color_edit_id = ( g.ColorEditCurrentID == 0 );
-        if ( set_current_color_edit_id )
+        if( set_current_color_edit_id )
             g.ColorEditCurrentID = window->IDStack.back();
 
         // If we're not showing any slider there's no point in doing any HSV conversions
         const ImGuiColorEditFlags flags_untouched = flags;
-        if ( flags & ImGuiColorEditFlags_NoInputs )
+        if( flags & ImGuiColorEditFlags_NoInputs )
             flags = ( flags & ( ~ImGuiColorEditFlags_DisplayMask_ ) ) | ImGuiColorEditFlags_DisplayRGB |
                     ImGuiColorEditFlags_NoOptions;
 
         // Context menu: display and modify options (before defaults are applied)
-        if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+        if( !( flags & ImGuiColorEditFlags_NoOptions ) )
             ImGui::ColorEditOptionsPopup( &outColor.X, flags );
 
         // Read stored options
-        if ( !( flags & ImGuiColorEditFlags_DisplayMask_ ) )
+        if( !( flags & ImGuiColorEditFlags_DisplayMask_ ) )
             flags |= ( g.ColorEditOptions & ImGuiColorEditFlags_DisplayMask_ );
-        if ( !( flags & ImGuiColorEditFlags_DataTypeMask_ ) )
+        if( !( flags & ImGuiColorEditFlags_DataTypeMask_ ) )
             flags |= ( g.ColorEditOptions & ImGuiColorEditFlags_DataTypeMask_ );
-        if ( !( flags & ImGuiColorEditFlags_PickerMask_ ) )
+        if( !( flags & ImGuiColorEditFlags_PickerMask_ ) )
             flags |= ( g.ColorEditOptions & ImGuiColorEditFlags_PickerMask_ );
-        if ( !( flags & ImGuiColorEditFlags_InputMask_ ) )
+        if( !( flags & ImGuiColorEditFlags_InputMask_ ) )
             flags |= ( g.ColorEditOptions & ImGuiColorEditFlags_InputMask_ );
         flags |= ( g.ColorEditOptions & ~( ImGuiColorEditFlags_DisplayMask_ | ImGuiColorEditFlags_DataTypeMask_ |
                                            ImGuiColorEditFlags_PickerMask_ | ImGuiColorEditFlags_InputMask_ ) );
@@ -717,20 +715,20 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
 
         // Convert to the formats we need
         auto floatVector = [ & ]() {
-            if constexpr ( hasAlpha )
+            if constexpr( hasAlpha )
                 return Vector4f32{ outColor.X, outColor.Y, outColor.Z, outColor.W };
             else
                 return Vector3f32{ outColor.X, outColor.Y, outColor.Z };
         }();
 
-        if ( ( flags & ImGuiColorEditFlags_InputHSV ) && ( flags & ImGuiColorEditFlags_DisplayRGB ) )
+        if( ( flags & ImGuiColorEditFlags_InputHSV ) && ( flags & ImGuiColorEditFlags_DisplayRGB ) )
             ImGui::ColorConvertHSVtoRGB( floatVector[ 0 ],
                                          floatVector[ 1 ],
                                          floatVector[ 2 ],
                                          floatVector[ 0 ],
                                          floatVector[ 1 ],
                                          floatVector[ 2 ] );
-        else if ( ( flags & ImGuiColorEditFlags_InputRGB ) && ( flags & ImGuiColorEditFlags_DisplayHSV ) ) {
+        else if( ( flags & ImGuiColorEditFlags_InputRGB ) && ( flags & ImGuiColorEditFlags_DisplayHSV ) ) {
             // Hue is lost when converting from grayscale rgb (saturation=0). Restore it.
             ImGui::ColorConvertRGBtoHSV( floatVector[ 0 ],
                                          floatVector[ 1 ],
@@ -745,7 +743,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
             return static_cast< uint8_t >( std::clamp( val, 0.0f, 1.0f ) * 255.0f + 0.5f );
         };
         auto intVector = [ & ]() {
-            if constexpr ( hasAlpha )
+            if constexpr( hasAlpha )
                 return Vector4u8{ toRGB( floatVector[ 0 ] ),
                                   toRGB( floatVector[ 1 ] ),
                                   toRGB( floatVector[ 2 ] ),
@@ -759,8 +757,8 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
         window->DC.CursorPos.x = pos.x + inputs_offset_x;
 
         ::ImGuiWindow* picker_active_window = nullptr;
-        if ( ( flags & ( ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHSV ) ) != 0 &&
-             ( flags & ImGuiColorEditFlags_NoInputs ) == 0 ) {
+        if( ( flags & ( ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHSV ) ) != 0 &&
+            ( flags & ImGuiColorEditFlags_NoInputs ) == 0 ) {
             {
                 float32 componentInputSize = 50.0f;
                 ScopedImGuiStyle styleOverride( ImGuiStyleVar_ItemSpacing, ImVec2( 10.0f, 0.0f ) );
@@ -794,7 +792,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
                                                                                 // 1.0f, floatVector.Z);
                 const uint32_t colorW = VectorControl::BACKGROUND_COLOR_W_COMPONENT;
 
-                if ( flags & ImGuiColorEditFlags_Float ) {
+                if( flags & ImGuiColorEditFlags_Float ) {
                     // ImGui::BeginHorizontal("##vec3Inputs");
 
                     // TODO: show error tooltip or error effect on UI when clamping (red flash)
@@ -814,7 +812,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
                                                                           componentInputSize,
                                                                           colorZ );
 
-                    if constexpr ( hasAlpha ) {
+                    if constexpr( hasAlpha ) {
                         value_changed |= VectorControl::VectorComponentInput( labelW,
                                                                               floatVector.W,
                                                                               ImGuiDataType_Float,
@@ -838,7 +836,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
                                                                           componentInputSize,
                                                                           colorZ );
 
-                    if constexpr ( hasAlpha ) {
+                    if constexpr( hasAlpha ) {
                         value_changed |= VectorControl::VectorComponentInput( labelW,
                                                                               intVector.W,
                                                                               ImGuiDataType_U8,
@@ -848,18 +846,18 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
                 }
             }
 
-            if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+            if( !( flags & ImGuiColorEditFlags_NoOptions ) )
                 ImGui::OpenPopupOnItemClick( "context", ImGuiPopupFlags_MouseButtonRight );
 
-            if ( !( flags & ImGuiColorEditFlags_NoSmallPreview ) ) {
+            if( !( flags & ImGuiColorEditFlags_NoSmallPreview ) ) {
                 ImVec4 col_v4( outColor.X, outColor.Y, outColor.Z, 1.0f );
 
-                if constexpr ( hasAlpha ) {
+                if constexpr( hasAlpha ) {
                     col_v4.w = outColor.W;
                 }
 
-                if ( ImGui::ColorButton( "##ColorButton", col_v4, flags ) ) {
-                    if ( !( flags & ImGuiColorEditFlags_NoPicker ) ) {
+                if( ImGui::ColorButton( "##ColorButton", col_v4, flags ) ) {
+                    if( !( flags & ImGuiColorEditFlags_NoPicker ) ) {
                         // Store current color and open a picker
                         g.ColorPickerRef = col_v4;
                         ImGui::OpenPopup( "picker" );
@@ -867,13 +865,13 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
                     }
                 }
 
-                if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+                if( !( flags & ImGuiColorEditFlags_NoOptions ) )
                     ImGui::OpenPopupOnItemClick( "context", ImGuiPopupFlags_MouseButtonRight );
 
-                if ( ImGui::BeginPopup( "picker", ImGuiWindowFlags_Popup ) ) {
-                    if ( g.CurrentWindow->BeginCount == 1 ) {
+                if( ImGui::BeginPopup( "picker", ImGuiWindowFlags_Popup ) ) {
+                    if( g.CurrentWindow->BeginCount == 1 ) {
                         picker_active_window = g.CurrentWindow;
-                        if ( id.data() != label_display_end ) {
+                        if( id.data() != label_display_end ) {
                             ImGui::TextEx( id.data(), label_display_end );
                             ImGui::Spacing();
                         }
@@ -891,7 +889,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
 
                         value_changed |= ColorPicker( "##picker", floatVector, picker_flags, &g.ColorPickerRef );
 
-                        if ( value_changed ) {
+                        if( value_changed ) {
                             outColor = floatVector;
                         }
                     }
@@ -900,7 +898,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
             }
 
             ImGui::EndHorizontal();
-        } else if ( ( flags & ImGuiColorEditFlags_DisplayHex ) != 0 && ( flags & ImGuiColorEditFlags_NoInputs ) == 0 ) {
+        } else if( ( flags & ImGuiColorEditFlags_DisplayHex ) != 0 && ( flags & ImGuiColorEditFlags_NoInputs ) == 0 ) {
             //// RGB Hexadecimal Input
             // char buf[64];
             // if (alpha)
@@ -926,11 +924,11 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
             //         r = sscanf(p, "%02X%02X%02X", (unsigned int*)&i[0], (unsigned int*)&i[1], (unsigned int*)&i[2]);
             //     IM_UNUSED(r); // Fixes C6031: Return value ignored: 'sscanf'.
             // }
-            if ( !( flags & ImGuiColorEditFlags_NoOptions ) )
+            if( !( flags & ImGuiColorEditFlags_NoOptions ) )
                 ImGui::OpenPopupOnItemClick( "context", ImGuiPopupFlags_MouseButtonRight );
         }
 
-        if ( id.data() != label_display_end && !( flags & ImGuiColorEditFlags_NoLabel ) ) {
+        if( id.data() != label_display_end && !( flags & ImGuiColorEditFlags_NoLabel ) ) {
             // Position not necessarily next to last submitted button (e.g. if style.ColorButtonPosition ==
             // ImGuiDir_Left), but we need to use SameLine() to setup baseline correctly. Might want to refactor
             // SameLine() to simplify this.
@@ -942,14 +940,14 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
         }
 
         // Convert back
-        if ( value_changed && picker_active_window == NULL ) {
-            if ( !value_changed_as_float ) {
+        if( value_changed && picker_active_window == NULL ) {
+            if( !value_changed_as_float ) {
                 constexpr uint32_t componentCount = hasAlpha ? 4 : 3;
-                for ( uint32_t n = 0; n < componentCount; n++ )
+                for( uint32_t n = 0; n < componentCount; n++ )
                     floatVector[ n ] = intVector[ n ] / 255.0f;
             }
 
-            if ( ( flags & ImGuiColorEditFlags_DisplayHSV ) && ( flags & ImGuiColorEditFlags_InputRGB ) ) {
+            if( ( flags & ImGuiColorEditFlags_DisplayHSV ) && ( flags & ImGuiColorEditFlags_InputRGB ) ) {
                 g.ColorEditSavedHue = floatVector[ 0 ];
                 g.ColorEditSavedSat = floatVector[ 1 ];
                 ImGui::ColorConvertHSVtoRGB( floatVector[ 0 ],
@@ -962,7 +960,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
                 g.ColorEditSavedColor = ImGui::ColorConvertFloat4ToU32(
                     ImVec4( floatVector[ 0 ], floatVector[ 1 ], floatVector[ 2 ], 0 ) );
             }
-            if ( ( flags & ImGuiColorEditFlags_DisplayRGB ) && ( flags & ImGuiColorEditFlags_InputHSV ) )
+            if( ( flags & ImGuiColorEditFlags_DisplayRGB ) && ( flags & ImGuiColorEditFlags_InputHSV ) )
                 ImGui::ColorConvertRGBtoHSV( floatVector[ 0 ],
                                              floatVector[ 1 ],
                                              floatVector[ 2 ],
@@ -973,7 +971,7 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
             outColor = floatVector;
         }
 
-        if ( set_current_color_edit_id )
+        if( set_current_color_edit_id )
             g.ColorEditCurrentID = 0;
         // ImGui::PopID();
 
@@ -1007,8 +1005,8 @@ bool ColorEdit( StringView id, VectorT& outColor, ImGuiColorEditFlags flags ) {
     // if (picker_active_window && g.ActiveId != 0 && g.ActiveIdWindow == picker_active_window)
     //     g.LastItemData.ID = g.ActiveId;
 
-    if ( value_changed &&
-         g.LastItemData.ID != 0 ) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
+    if( value_changed &&
+        g.LastItemData.ID != 0 ) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
         ImGui::MarkItemEdited( g.LastItemData.ID );
 
     return value_changed;
@@ -1018,7 +1016,7 @@ bool ColorInput( StringView id, Vector3u8& rgb ) {
     Vector3f32 rgba( static_cast< float32 >( rgb.X ),
                      static_cast< float32 >( rgb.Y ),
                      static_cast< float32 >( rgb.Z ) );
-    if ( ColorEdit( id, rgba, ImGuiColorEditFlags_NoAlpha ) ) {
+    if( ColorEdit( id, rgba, ImGuiColorEditFlags_NoAlpha ) ) {
         rgb.X = static_cast< uint8_t >( rgba.X );
         rgb.Y = static_cast< uint8_t >( rgba.Y );
         rgb.Z = static_cast< uint8_t >( rgba.Z );
@@ -1037,7 +1035,7 @@ bool ColorInput( StringView id, Vector4u8& rgba ) {
 
 bool ColorInput( StringView id, Vector3f32& hsv ) {
     Vector3f32 rgb( hsv );
-    if ( ColorEdit( id, rgb, ImGuiColorEditFlags_None ) ) {
+    if( ColorEdit( id, rgb, ImGuiColorEditFlags_None ) ) {
         hsv = rgb;
         return true;
     }

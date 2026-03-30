@@ -3,7 +3,6 @@
 
 #if ONYX_IS_EDITOR
 
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <onyx/assets/assetsystem.h>
 
 #include <onyx/ui/controls/button.h>
@@ -30,10 +29,10 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
     DynamicArray< assets::AssetMetaData > availableAssets;
 
     String assetName;
-    if ( outAssetId.isValid() ) {
+    if( outAssetId.isValid() ) {
         Optional< const assets::AssetMetaData* > assetMetaOptional = assetSystem.tryGetAssetMeta( outAssetId );
         const assets::AssetMetaData* assetMeta = assetMetaOptional.value_or( nullptr );
-        if ( assetMeta )
+        if( assetMeta )
             assetName = assetMeta->getName();
         else {
             assetName = onyx::localization::generic::None.Get();
@@ -45,22 +44,22 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
     layout::BeginHorizontal( "#AssetControl" );
 
     ScopedImGuiStyle styleOverride{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if ( BeginCombobox( "##selector", assetName ) ) {
+    if( BeginCombobox( "##selector", assetName ) ) {
         DrawSearchBar( loc_SearchString, onyx::localization::generic::Search.Get(), loc_HasFocus );
         StringView searchString = trim( loc_SearchString );
 
-        if ( availableAssets.empty() ) {
+        if( availableAssets.empty() ) {
             availableAssets = assetSystem.getAvailableAssets( assetType );
         }
 
-        for ( const assets::AssetMetaData& assetMeta : availableAssets ) {
-            if ( ( searchString.empty() == false ) &&
-                 ignoreCaseFind( assetMeta.getName(), searchString ) == String::npos ) {
+        for( const assets::AssetMetaData& assetMeta : availableAssets ) {
+            if( ( searchString.empty() == false ) &&
+                ignoreCaseFind( assetMeta.getName(), searchString ) == String::npos ) {
                 continue;
             }
 
             bool isSelected = assetMeta.Id == outAssetId;
-            if ( Selectable( assetMeta.getName(), isSelected, true ) ) {
+            if( Selectable( assetMeta.getName(), isSelected, true ) ) {
                 hasModified = outAssetId != assetMeta.Id;
                 outAssetId = assetMeta.Id;
                 loc_HasFocus = true;
@@ -83,12 +82,12 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
                ImGui::GetCursorScreenPos() + buttonSize + style.FramePadding );
     ButtonState state = ui::ButtonBehavior( browseButtonId, bb );
 
-    if ( state == ButtonState::Pressed ) {
+    if( state == ButtonState::Pressed ) {
         ImGui::OpenPopup( "###AssetBrowser" );
     }
     ImGui::ItemAdd( bb, browseButtonId );
 
-    if ( ( state == ButtonState::Held ) || ( state == ButtonState::Hovered ) ) {
+    if( ( state == ButtonState::Held ) || ( state == ButtonState::Hovered ) ) {
         uint32_t buttonBackgroundColor = state == ButtonState::Held ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                                                                     : ImGui::GetColorU32( ImGuiCol_ButtonHovered );
         ImGui::GetForegroundDrawList()->AddRectFilled( bb.Min - style.FramePadding,
@@ -107,8 +106,8 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
     ImGui::SetNextWindowSize( ImVec2( 800, 600 ), ImGuiCond_Appearing );
     bool isOpen = true;
     StringView modalName = format::format( "{}###AssetBrowser", ui::localization::asset_selector::modal::Title );
-    if ( ImGui::BeginPopupModal( modalName.data(), &isOpen ) ) {
-        if ( availableAssets.empty() ) {
+    if( ImGui::BeginPopupModal( modalName.data(), &isOpen ) ) {
+        if( availableAssets.empty() ) {
             availableAssets = assetSystem.getAvailableAssets( assetType );
         }
 
@@ -120,14 +119,14 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
         ImGui::TableSetupColumn( ::onyx::localization::generic::Type.Get().data(), ImGuiTableColumnFlags_None, 0.3f );
         ImGui::TableHeadersRow();
 
-        for ( const assets::AssetMetaData& assetMeta : availableAssets ) {
-            if ( assetMeta.Type != assetType )
+        for( const assets::AssetMetaData& assetMeta : availableAssets ) {
+            if( assetMeta.Type != assetType )
                 continue;
 
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex( 0 );
             bool isSelected = assetMeta.Id == outAssetId;
-            if ( ImGui::Selectable( assetMeta.getName().data(), isSelected, ImGuiSelectableFlags_SpanAllColumns ) ) {
+            if( ImGui::Selectable( assetMeta.getName().data(), isSelected, ImGuiSelectableFlags_SpanAllColumns ) ) {
                 hasModified = outAssetId != assetMeta.Id;
                 outAssetId = assetMeta.Id;
                 loc_HasFocus = true;

@@ -16,8 +16,6 @@
 #include <onyx/editor/commands/scene/deleteentitycommand.h>
 #include <onyx/editor/commands/scene/renameentitycommand.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <imgui_internal.h>
 #include <onyx/localization/localization.h>
 #include <onyx/ui/controls/button.h>

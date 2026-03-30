@@ -1,8 +1,6 @@
 #include "onyx/math.h"
 #include <onyx/editor/windows/editormainwindow.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/nodegraph/rendergrapheditorcontext.h>
 #include <onyx/editor/nodegraph/shadergrapheditorcontext.h>

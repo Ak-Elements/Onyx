@@ -17,7 +17,6 @@
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_extra_math.inl>
 #include <imgui_internal.h>
@@ -703,7 +702,7 @@ void TerrainPanel::onOpen() {
     ssboBufferProps.m_IsWritable = true;
     graphicsSystem.CreateBuffer( m_CollapseRequestsBuffer, ssboBufferProps );
 
-    if ( m_Tools.empty() ) {
+    if( m_Tools.empty() ) {
         m_Tools.push_back( makeUnique< SculptTerrainTool >( graphicsSystem ) );
         m_Tools.push_back( makeUnique< PrimitivesTerrainTool >( graphicsSystem ) );
     }
@@ -718,7 +717,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
     ONYX_ASSERT( m_CurrentScene != nullptr );
 
     ::ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName( "Scene###SceneViewPanel0" );
-    if ( sceneViewWindow == nullptr ) {
+    if( sceneViewWindow == nullptr ) {
         return;
     }
 
@@ -729,12 +728,12 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
     bool isHoveringGizmo = ImGuizmo::IsOver();
 
     Reference< graphics::RenderGraph > renderGraph; // TODO: = m_GraphicsSystem.GetRenderGraph();
-    if ( renderGraph.isValid() == false )
+    if( renderGraph.isValid() == false )
         return;
 
     graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
 
-    if ( isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo ) {
+    if( isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo ) {
         renderGraphResourceCache.erase( HIT_BUFFER_RESOURCE_ID );
         return;
     }
@@ -744,7 +743,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
                                                    volume::TerrainWorldOctreeComponent,
                                                    const volume::VolumeGenerationComponent >();
 
-    if ( runtimeComponentsView.begin() == runtimeComponentsView.end() )
+    if( runtimeComponentsView.begin() == runtimeComponentsView.end() )
         return;
 
     const ecs::EntityId terrainEntity = runtimeComponentsView.front();
@@ -756,7 +755,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
         volumeGenerationComponent = runtimeComponentsView.get< const volume::VolumeGenerationComponent >(
             terrainEntity );
 
-    if ( terrainOctree.OctreeGpuBuffer == false ) {
+    if( terrainOctree.OctreeGpuBuffer == false ) {
         return;
     }
 
@@ -777,7 +776,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
     TraceTerrain( computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport );
 
     bool hasClickedLeft = ImGui::IsMouseClicked( ImGuiMouseButton_Left );
-    if ( hasClickedLeft ) {
+    if( hasClickedLeft ) {
         rhi::ConditionalRender conditional( computeCommandBuffer, m_HitBuffer, sizeof( Vector3f32 ) );
 
         {
@@ -791,14 +790,14 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
         UpdateTerrainMesh( computeCommandBuffer, terrainSettings, terrainOctree );
     }
 
-    if ( void* data = m_HitReadbackBuffer.Buffer->Map( rhi::MapMode::Read ) ) {
+    if( void* data = m_HitReadbackBuffer.Buffer->Map( rhi::MapMode::Read ) ) {
         struct HitData {
             Vector3f32 HitPositon;
             bool HasHit;
         };
 
         HitData* hitData = static_cast< HitData* >( data );
-        if ( hitData->HasHit ) {
+        if( hitData->HasHit ) {
             hitData->HasHit = false;
             const game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
             m_Tools[ m_SelectedTab ]->OnHitPositionReadback( *m_CurrentScene,
@@ -813,10 +812,10 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
 
 void TerrainPanel::RenderTabs() {
     uint32_t index = 0;
-    for ( const UniquePtr< TerrainTool >& tool : m_Tools ) {
+    for( const UniquePtr< TerrainTool >& tool : m_Tools ) {
         // DrawSculptIcon(ImGui::GetCursorScreenPos(), 64.0f, 1.5f, 0xFF);
         // ImGui::InvisibleButton("##", ImVec2(64.0f, 64.0f));
-        if ( ImGui::Button( tool->GetTitle().data() ) ) {
+        if( ImGui::Button( tool->GetTitle().data() ) ) {
             m_SelectedTab = index;
         }
         ++index;
@@ -829,26 +828,26 @@ void TerrainPanel::RenderToolbar( ::ImGuiWindow* sceneViewWindow ) {
     ImGui::SetNextWindowClass( &sceneViewWindow->WindowClass );
     ImGui::SetNextWindowSize( ImVec2( 700, 300 ) );
     bool isVisible = ImGui::Begin( "Terrain Toolbar", nullptr, flags );
-    if ( isVisible ) {
+    if( isVisible ) {
         ui::ScopedImGuiColor styleColor{ { ImGuiCol_TableRowBg, 0x0 }, { ImGuiCol_NavCursor, 0x0 } };
 
         bool focusSceneView = false;
 
-        if ( ImGui::BeginTable( "##scene", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp ) ) {
+        if( ImGui::BeginTable( "##scene", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp ) ) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 
             RenderTabs();
 
             ImGui::TableNextColumn();
-            if ( m_Tools.empty() == false ) {
+            if( m_Tools.empty() == false ) {
                 m_Tools[ m_SelectedTab ]->Render();
             }
 
             ImGui::EndTable();
         }
 
-        if ( focusSceneView ) {
+        if( focusSceneView ) {
             ImGui::FocusWindow( sceneViewWindow );
         }
     }

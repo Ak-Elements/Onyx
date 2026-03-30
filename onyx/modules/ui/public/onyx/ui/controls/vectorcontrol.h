@@ -2,8 +2,6 @@
 
 #if ONYX_IS_EDITOR
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <onyx/ui/controls/button.h>
 #include <onyx/ui/scopedcolor.h>
 #include <onyx/ui/scopedid.h>
@@ -201,7 +199,7 @@ class VectorControl {
         }
 
         ImGuiStyle& style = ImGui::GetStyle();
-        if ( style.FrameBorderSize > 0.0f ) {
+        if( style.FrameBorderSize > 0.0f ) {
             ImDrawList* drawList = ImGui::GetWindowDrawList();
             uint32_t borderColor = isHovered   ? ImGui::GetColorU32( ImGuiCol_ButtonHovered )
                                    : isFocused ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
@@ -216,8 +214,8 @@ class VectorControl {
     template < typename T >
     static bool RenderContextMenu( T& vector ) {
         bool hasModified = false;
-        if ( ImGui::BeginPopupContextItem( "##ContextMenu", ImGuiPopupFlags_MouseButtonRight ) ) {
-            if ( ui::Button( "Reset" ) ) {
+        if( ImGui::BeginPopupContextItem( "##ContextMenu", ImGuiPopupFlags_MouseButtonRight ) ) {
+            if( ui::Button( "Reset" ) ) {
                 vector = T::Zero();
                 ImGui::CloseCurrentPopup();
                 hasModified = true;
@@ -251,7 +249,7 @@ class VectorControl {
         // Render border
         float32 frameRounding = style.FrameRounding;
         float32 borderSize = style.FrameBorderSize;
-        if ( style.FrameBorderSize > 0.0f ) {
+        if( style.FrameBorderSize > 0.0f ) {
             uint32_t borderColor = hovered     ? ImGui::GetColorU32( ImGuiCol_ButtonHovered )
                                    : isFocused ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                                                : ImGui::GetColorU32( ImGuiCol_Border );
@@ -265,7 +263,7 @@ class VectorControl {
 
         // Render background
         uint32_t bgColor = ImGui::GetColorU32( ImGui::GetStyleColorVec4( ImGuiCol_FrameBg ) );
-        if ( hovered ) {
+        if( hovered ) {
             bgColor = ImGui::GetColorU32( ImGui::GetStyleColorVec4( ImGuiCol_FrameBgHovered ) );
         }
 
@@ -282,8 +280,8 @@ class VectorControl {
         // ImGui::SetCursorScreenPos(ImVec2(screenPos.x + horizontalPadding, screenPos.y));
 
         StringView format = "{}";
-        if constexpr ( std::is_floating_point_v< ScalarT > ) {
-            if ( isEqual( std::floor( value ), value ) && ( isFocused == false ) ) {
+        if constexpr( std::is_floating_point_v< ScalarT > ) {
+            if( isEqual( std::floor( value ), value ) && ( isFocused == false ) ) {
                 format = "{:.1f}";
             } else {
                 format = "{:2.6g}";

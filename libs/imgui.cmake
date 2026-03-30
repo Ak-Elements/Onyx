@@ -60,7 +60,10 @@ target_include_directories(ImGui PUBLIC
     $<INSTALL_INTERFACE:include/imgui>
 )
 
-target_compile_definitions(ImGui PUBLIC "IMGUI_HAS_STACK_LAYOUT=1")
+target_compile_definitions(ImGui PRIVATE
+    "IMGUI_HAS_STACK_LAYOUT=1"
+    "IMGUI_DEFINE_MATH_OPERATORS"
+)
 
 add_library(ImGuizmo STATIC ${ImGuizmo_SOURCE_DIR}/ImGuizmo.cpp)
 set_target_properties(ImGuizmo PROPERTIES FOLDER extern/imgui)

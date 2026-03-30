@@ -31,8 +31,6 @@
 
 #include <onyx/filesystem/filedialog.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <onyx/ui/propertyinspector.h>
 #include <onyx/ui/scopedcolor.h>
 #include <onyx/ui/scopedid.h>

@@ -1,7 +1,5 @@
 #include <onyx/nodegraph/nodes/math/arithmeticnodes.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <imgui_node_editor.h>
 #include <onyx/ui/widgets.h>
 
@@ -13,7 +11,7 @@ void DrawPlusIconBackground( Guid64 id ) {
     ImVec2 position = ax::NodeEditor::GetNodePosition( id.get() );
     ImVec2 size = ax::NodeEditor::GetNodeSize( id.get() );
     auto drawlist = ax::NodeEditor::GetNodeBackgroundDrawList( id.get() );
-    if ( drawlist ) {
+    if( drawlist ) {
         ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2( position.x + size.x * 0.5f, position.y + size.y * 0.5f );
         ui::DrawPlusIcon( drawlist, offset, ICON_SIZE, 0x33FFFFFF );
     }
@@ -23,7 +21,7 @@ void DrawMinusIconBackground( Guid64 id ) {
     ImVec2 position = ax::NodeEditor::GetNodePosition( id.get() );
     ImVec2 size = ax::NodeEditor::GetNodeSize( id.get() );
     auto drawlist = ax::NodeEditor::GetNodeBackgroundDrawList( id.get() );
-    if ( drawlist ) {
+    if( drawlist ) {
         ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2( position.x + size.x * 0.5f, position.y + size.y * 0.5f );
         ui::DrawMinusIcon( drawlist, offset, ICON_SIZE, 0x33FFFFFF );
     }
@@ -33,7 +31,7 @@ void DrawMultiplyIconBackground( Guid64 id ) {
     ImVec2 position = ax::NodeEditor::GetNodePosition( id.get() );
     ImVec2 size = ax::NodeEditor::GetNodeSize( id.get() );
     auto drawlist = ax::NodeEditor::GetNodeBackgroundDrawList( id.get() );
-    if ( drawlist ) {
+    if( drawlist ) {
         ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2( position.x + size.x * 0.5f, position.y + size.y * 0.5f );
         ui::DrawXIcon( drawlist, offset, ICON_SIZE, 0x33FFFFFF );
     }
@@ -43,7 +41,7 @@ void DrawDivisionIconBackground( Guid64 id ) {
     ImVec2 position = ax::NodeEditor::GetNodePosition( id.get() );
     ImVec2 size = ax::NodeEditor::GetNodeSize( id.get() );
     auto drawlist = ax::NodeEditor::GetNodeBackgroundDrawList( id.get() );
-    if ( drawlist ) {
+    if( drawlist ) {
         ImVec2 offset = ImGui::GetCursorScreenPos() - ImVec2( position.x + size.x * 0.5f, position.y + size.y * 0.5f );
         ui::DrawDivisionIcon( drawlist, offset, ICON_SIZE, 0x33FFFFFF );
     }
@@ -53,7 +51,7 @@ void DrawAbsoluteIconBackground( Guid64 id ) {
     ImVec2 position = ax::NodeEditor::GetNodePosition( id.get() );
     ImVec2 size = ax::NodeEditor::GetNodeSize( id.get() );
     auto drawlist = ax::NodeEditor::GetNodeBackgroundDrawList( id.get() );
-    if ( drawlist ) {
+    if( drawlist ) {
         ImVec2 center( position.x + size.x * 0.5f, position.y + size.y * 0.5f );
 
         constexpr float32 iconHalfSize = ICON_SIZE * 0.5f;

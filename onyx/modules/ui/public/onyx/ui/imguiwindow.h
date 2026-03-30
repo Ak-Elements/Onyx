@@ -1,12 +1,10 @@
 #pragma once
 
-#include "onyx/defines.h"
 #include <onyx/engine/enginesystem.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui.h>
 #include <onyx/ui/controls/dockspace.h>
 
+#include <imgui.h>
 #include <utility>
 
 namespace onyx::ui {

@@ -6,8 +6,6 @@
 #include <onyx/input/inputsystem.h>
 #include <onyx/ui/imguisystem.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -24,16 +22,16 @@ KeyboardOverlay::KeyboardOverlay() {
     Vector2f32 size{ 1.0f, 1.0f };
     Vector2f32 size2{ 0.0f, 0.0f }; // optional
 
-    for ( const auto& rowData : jsonDoc.Json ) {
+    for( const auto& rowData : jsonDoc.Json ) {
         DynamicArray< KeyData >& keyboardRow = m_keyboardLayout.emplace_back();
-        for ( const auto& columnValue : rowData ) {
-            if ( columnValue.is_object() == false ) {
+        for( const auto& columnValue : rowData ) {
+            if( columnValue.is_object() == false ) {
                 ONYX_LOG_WARNING( "Skipping element in keyboard json" );
                 continue;
             }
 
             // is key data
-            if ( columnValue.contains( "label" ) ) {
+            if( columnValue.contains( "label" ) ) {
                 const String& label = columnValue[ "label" ].get< String >();
                 input::Key key = enums::toEnum< input::Key >( columnValue[ "keyCode" ].get< uint16_t >() );
                 keyboardRow.emplace_back( offset, offset2, size, size2, key, label );
@@ -44,24 +42,24 @@ KeyboardOverlay::KeyboardOverlay() {
                 size2.set( 0.0f, 0.0f );
             } else // is meta data
             {
-                if ( columnValue.contains( "x" ) )
+                if( columnValue.contains( "x" ) )
                     offset[ 0 ] = columnValue[ "x" ].get< float >();
-                if ( columnValue.contains( "x2" ) )
+                if( columnValue.contains( "x2" ) )
                     offset2[ 0 ] = columnValue[ "x2" ].get< float >();
 
-                if ( columnValue.contains( "y" ) )
+                if( columnValue.contains( "y" ) )
                     offset[ 1 ] = columnValue[ "y" ].get< float >();
-                if ( columnValue.contains( "y2" ) )
+                if( columnValue.contains( "y2" ) )
                     offset2[ 1 ] = columnValue[ "y2" ].get< float >();
 
-                if ( columnValue.contains( "w" ) )
+                if( columnValue.contains( "w" ) )
                     size[ 0 ] = columnValue[ "w" ].get< float >();
-                if ( columnValue.contains( "w2" ) )
+                if( columnValue.contains( "w2" ) )
                     size2[ 0 ] = columnValue[ "w2" ].get< float >();
 
-                if ( columnValue.contains( "h" ) )
+                if( columnValue.contains( "h" ) )
                     size[ 1 ] = columnValue[ "h" ].get< float >();
-                if ( columnValue.contains( "h2" ) )
+                if( columnValue.contains( "h2" ) )
                     size2[ 1 ] = columnValue[ "h2" ].get< float >();
             }
         }
@@ -71,7 +69,7 @@ KeyboardOverlay::KeyboardOverlay() {
 void KeyboardOverlay::onOpen() {}
 
 void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    if ( ui::g_UiContext.InputSystem == nullptr )
+    if( ui::g_UiContext.InputSystem == nullptr )
         return;
 
     const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
@@ -106,9 +104,9 @@ void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     float spacing = 1.0f;
 
     ImRect keyBounds;
-    for ( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
+    for( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
         uint32_t numButtonsInRow = static_cast< uint32_t >( keyboardRow.size() );
-        for ( uint32_t i = 0; i < numButtonsInRow; ++i ) {
+        for( uint32_t i = 0; i < numButtonsInRow; ++i ) {
             const KeyData& key = keyboardRow[ i ];
             const Vector2f32& rectSize = key.Size * size;
 
@@ -122,7 +120,7 @@ void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                 { tempCursorPos[ 0 ] + rectSize[ 0 ] - spacing, tempCursorPos[ 1 ] + rectSize[ 1 ] - spacing } );
             drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
 
-            if ( key.Size2.isZero() == false ) {
+            if( key.Size2.isZero() == false ) {
                 const Vector2f32& rectSize2 = key.Size2 * size;
                 Vector2f32 tmpCursorPos2 = tempCursorPos + ( key.Offset2 * size );
                 keyBounds = ImRect(

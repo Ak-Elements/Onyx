@@ -1,7 +1,5 @@
 #include <onyx/editor/windows/nodegrapheditor.h>
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
 #include <onyx/editor/panels/nodeeditor/styles/blueprint.h>
 
 #include <onyx/editor/nodegraph/nodegrapheditorcontext.h>
