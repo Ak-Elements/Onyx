@@ -67,12 +67,12 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
                 if( const ecs::IComponentMeta* componentMeta = componentFactory
                                                                    .GetComponentMeta( componentStorageIt.first )
                                                                    .value_or( nullptr ) ) {
-                    if( ui::PropertyInspectors::isTypeRegistered( componentMeta->GetRuntimeTypeId() ) == false ) {
+                    if( ui::PropertyInspectors::isTypeRegistered( componentMeta->getRuntimeTypeId() ) == false ) {
                         continue;
                     }
 
-                    const StringId32 componentTypeId = componentMeta->GetTypeId();
-                    ui::ScopedImGuiId id( componentTypeId.getId() );
+                    const StringId32 componentTypeId = componentMeta->getTypeId();
+                    ui::ScopedImGuiId id( static_cast< int32_t >( componentTypeId.getId() ) );
                     ui::ScopedImGuiStyle style{ { ImGuiStyleVar_FrameBorderSize, 0.0f },
                                                 { ImGuiStyleVar_ItemSpacing, ImVec2( 0.0, 0.0f ) },
                                                 { ImGuiStyleVar_ItemInnerSpacing, ImVec2( 0.0, 0.0f ) } };
@@ -92,16 +92,16 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
 
                         void* componentPtr = componentStorage.value( selectedEntity );
 
-                        bool hasModified = ui::PropertyInspectors::draw( componentMeta->GetRuntimeTypeId(),
+                        bool hasModified = ui::PropertyInspectors::draw( componentMeta->getRuntimeTypeId(),
                                                                          componentPtr,
                                                                          m_ShowAll );
 
                         if( hasModified ) {
-                            DynamicArray< uint32_t > componentData;
-                            componentMeta->Copy( componentPtr, componentData );
+                            std::any component;
+                            componentMeta->copy( componentPtr, component );
                             m_CommandGraph->Push< ModifyComponentCommand >( selectedEntity,
                                                                             componentTypeId,
-                                                                            std::move( componentData ),
+                                                                            std::move( component ),
                                                                             sceneId,
                                                                             gameCoreSystem );
                         }
@@ -164,7 +164,7 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
     ui::TreeItem root;
     const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
     for( auto&& [ componentTypeId, componentMeta ] : componentFactory.GetComponentMeta() ) {
-        if( componentMeta->IsTransient() || ( componentMeta->IsCodeOnly() ) ) {
+        if( componentMeta->isTransient() || ( componentMeta->isCodeOnly() ) ) {
             continue;
         }
 

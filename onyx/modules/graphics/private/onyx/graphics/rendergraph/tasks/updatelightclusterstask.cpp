@@ -16,7 +16,7 @@ namespace onyx::graphics::render_graph_nodes {
 void CreateLightClusters::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
     constexpr uint32_t clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
 
-    for ( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
         rhi::BufferProperties ssboBufferProps;
         ssboBufferProps.m_DebugName = "LightClusterAABBs";
         ssboBufferProps.m_Size = sizeof( rhi::LightClusterAABB ) * clusterCount;
@@ -55,12 +55,12 @@ void CreateLightClusters::OnRender( RenderGraphContext& context, rhi::CommandBuf
     constants.Viewport = viewConstants.Viewport;
 
     // TODO: Fix barrier
-    commandBuffer.GlobalBarrier( 0, 0x00000040 );
+    commandBuffer.globalBarrier( 0, 0x00000040 );
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, constants );
-    commandBuffer.Dispatch( CLUSTER_X, CLUSTER_Y, CLUSTER_Z );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
+    commandBuffer.dispatch( CLUSTER_X, CLUSTER_Y, CLUSTER_Z );
 
-    commandBuffer.GlobalBarrier( 0x00000040, 0x00000020 | 0x00000040 );
+    commandBuffer.globalBarrier( 0x00000040, 0x00000020 | 0x00000040 );
 }
 
 void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
@@ -70,7 +70,7 @@ void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, Rende
     ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage );
 
     ssboBufferProps.m_IsWritable = true;
-    for ( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
         constexpr uint32_t maxLightsPerTile = MAX_LIGHTS_PER_CLUSTER;
         constexpr uint32_t totalLightsPerTile = clusterCount * maxLightsPerTile;
 
@@ -141,20 +141,20 @@ void UpdateLightClustersRenderGraphNode::OnRender( RenderGraphContext& context, 
     };
 
     // TODO: Fix barrier
-    commandBuffer.GlobalBarrier( 0, 0x00000020 | 0x00000040 );
+    commandBuffer.globalBarrier( 0, 0x00000020 | 0x00000040 );
 
     PushConstants constants{ context.FrameContext.ViewConstants.ViewMatrix };
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
 
-    commandBuffer.Bind( m_LightIndexGlobalCountSSBO[ frameIndex ], "globalindexcountssbo" );
+    commandBuffer.bind( m_LightIndexGlobalCountSSBO[ frameIndex ], "globalindexcountssbo" );
 
 #if BATCHED
-    commandBuffer.Dispatch( 1, 1, 6 );
+    commandBuffer.dispatch( 1, 1, 6 );
 #else
     commandBuffer.Dispatch( CLUSTER_X, CLUSTER_Y, CLUSTER_Z );
 #endif
     // TODO: Fix barrier
-    commandBuffer.GlobalBarrier( 0x00000040, 0x00000020 );
+    commandBuffer.globalBarrier( 0x00000040, 0x00000020 );
 }
 } // namespace onyx::graphics::render_graph_nodes

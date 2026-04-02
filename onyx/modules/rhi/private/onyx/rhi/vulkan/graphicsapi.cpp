@@ -35,7 +35,7 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
 
     m_Instance = makeUnique< Instance >( settings, validationLayers );
 
-    if ( settings.IsDebugEnabled ) {
+    if( settings.IsDebugEnabled ) {
         m_DebugUtilsMessenger = makeUnique< DebugUtilsMessenger >(
             *m_Instance,
             static_cast< VkDebugUtilsMessageSeverityFlagBitsEXT >( VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
@@ -48,23 +48,23 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
     // TODO: can this be moved somehow into Logiccal Device=
     DynamicArray< const char* > deviceExtensions;
 
-    VkPhysicalDeviceVulkan11Features vulkan_11_features;
-    vulkan_11_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
-    vulkan_11_features.pNext = nullptr;
+    VkPhysicalDeviceVulkan11Features vulkan11Features;
+    vulkan11Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+    vulkan11Features.pNext = nullptr;
 
-    void* current_pnext = &vulkan_11_features;
+    void* currentPnext = &vulkan11Features;
 
-    VkPhysicalDeviceVulkan12Features vulkan_12_features;
-    vulkan_12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-    vulkan_12_features.pNext = current_pnext;
-    current_pnext = &vulkan_12_features;
+    VkPhysicalDeviceVulkan12Features vulkan12Features;
+    vulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    vulkan12Features.pNext = currentPnext;
+    currentPnext = &vulkan12Features;
 
-    VkPhysicalDeviceVulkan13Features vulkan_13_features;
-    vulkan_13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
-    vulkan_13_features.maintenance4 = true;
-    vulkan_13_features.pNext = current_pnext;
+    VkPhysicalDeviceVulkan13Features vulkan13Features;
+    vulkan13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+    vulkan13Features.maintenance4 = true;
+    vulkan13Features.pNext = currentPnext;
 
-    current_pnext = &vulkan_13_features;
+    currentPnext = &vulkan13Features;
 
     deviceExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     deviceExtensions.push_back( VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME );
@@ -75,34 +75,34 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
     deviceExtensions.push_back( VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME );
     //
 
-    if ( m_PhysicalDevice->IsExtensionSupported( VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME ) ) {
+    if( m_PhysicalDevice->IsExtensionSupported( VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME ) ) {
         m_IsTimelineSemaphoreEnabled = true;
     }
 
-    if ( m_PhysicalDevice->IsExtensionSupported( VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME ) ) {
+    if( m_PhysicalDevice->IsExtensionSupported( VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME ) ) {
         m_IsSynchronization2Enabled = true;
     }
 
-    if ( m_PhysicalDevice->IsExtensionSupported( VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME ) ) {
+    if( m_PhysicalDevice->IsExtensionSupported( VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME ) ) {
         m_IsDynamicRenderingEnabled = true;
     }
 
 #if VK_KHR_unified_image_layouts
-    if ( m_PhysicalDevice->IsExtensionSupported( VK_KHR_UNIFIED_IMAGE_LAYOUTS_EXTENSION_NAME ) ) {
+    if( m_PhysicalDevice->IsExtensionSupported( VK_KHR_UNIFIED_IMAGE_LAYOUTS_EXTENSION_NAME ) ) {
         deviceExtensions.push_back( VK_KHR_UNIFIED_IMAGE_LAYOUTS_EXTENSION_NAME );
         m_IsUnifiedImageLayoutSupported = true;
     }
 #endif
 
-    if ( m_IsDynamicRenderingEnabled == false ) {
-        if ( m_PhysicalDevice->IsExtensionSupported( VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME ) ) {
+    if( m_IsDynamicRenderingEnabled == false ) {
+        if( m_PhysicalDevice->IsExtensionSupported( VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME ) ) {
             deviceExtensions.push_back( VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME );
             m_IsRenderPass2ExtensionEnabled = true;
         }
     }
 
     VkPhysicalDeviceDescriptorIndexingFeatures bindlessExtenstion;
-    if ( m_PhysicalDevice->IsExtensionSupported( VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME ) ) {
+    if( m_PhysicalDevice->IsExtensionSupported( VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME ) ) {
         bindlessExtenstion.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
         bindlessExtenstion.pNext = nullptr;
 
@@ -115,31 +115,22 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
                               bindlessExtenstion.runtimeDescriptorArray;
     }
 
-    /*  VkPhysicalDevice16BitStorageFeatures bitStorageFeatures;
-      bitStorageFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES;
-      bitStorageFeatures.pNext = nullptr;
+    VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderExtension;
 
-      VkPhysicalDeviceFeatures2 deviceFeatures{};
-      deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-      deviceFeatures.pNext = &bitStorageFeatures;
-      vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetHandle(), &deviceFeatures);*/
+    if( m_PhysicalDevice->IsExtensionSupported( VK_NV_MESH_SHADER_EXTENSION_NAME ) ) {
+        deviceExtensions.push_back( VK_EXT_MESH_SHADER_EXTENSION_NAME );
 
-    VkPhysicalDeviceMeshShaderFeaturesNV meshShaderExtension;
-
-    if ( m_PhysicalDevice->IsExtensionSupported( VK_NV_MESH_SHADER_EXTENSION_NAME ) ) {
-        deviceExtensions.push_back( VK_NV_MESH_SHADER_EXTENSION_NAME );
-
-        meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV;
+        meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
         meshShaderExtension.taskShader = true;
         meshShaderExtension.meshShader = true;
 
-        meshShaderExtension.pNext = current_pnext;
-        current_pnext = &meshShaderExtension;
+        meshShaderExtension.pNext = currentPnext;
+        currentPnext = &meshShaderExtension;
     }
 
     VkPhysicalDeviceFeatures2 physicalFeatures;
     physicalFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    physicalFeatures.pNext = current_pnext;
+    physicalFeatures.pNext = currentPnext;
     // End device extensions
 
     m_Device = makeUnique< Device >( *m_PhysicalDevice,
@@ -147,57 +138,57 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
                                      physicalFeatures,
                                      VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT );
 
-    vkCmdDrawMeshTasksNV = (PFN_vkCmdDrawMeshTasksNV)vkGetDeviceProcAddr( m_Device->GetHandle(),
-                                                                          "vkCmdDrawMeshTasksNV" );
-    vkCmdDrawMeshTasksIndirectNV = (PFN_vkCmdDrawMeshTasksIndirectNV)vkGetDeviceProcAddr(
+    g_vkCmdDrawMeshTasks = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr( m_Device->GetHandle(),
+                                                                           "vkCmdDrawMeshTasksEXT" );
+    g_vkCmdDrawMeshTasksIndirect = (PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(
         m_Device->GetHandle(),
-        "vkCmdDrawMeshTasksIndirectNV" );
-    vkCmdDrawMeshTasksIndirectCountNV = (PFN_vkCmdDrawMeshTasksIndirectCountNV)vkGetDeviceProcAddr(
+        "vkCmdDrawMeshTasksIndirectEXT" );
+    g_vkCmdDrawMeshTasksIndirectCount = (PFN_vkCmdDrawMeshTasksIndirectCountEXT)vkGetDeviceProcAddr(
         m_Device->GetHandle(),
-        "vkCmdDrawMeshTasksIndirectCountNV" );
-    vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(
+        "vkCmdDrawMeshTasksIndirectCountEXT" );
+    g_vkSetDebugUtilsObjectNameExt = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(
         m_Device->GetHandle(),
         "vkSetDebugUtilsObjectNameEXT" );
-    vkCmdBeginDebugUtilsLabelEXT = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(
+    g_vkCmdBeginDebugUtilsLabelExt = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(
         m_Device->GetHandle(),
         "vkCmdBeginDebugUtilsLabelEXT" );
-    vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr( m_Device->GetHandle(),
-                                                                                      "vkCmdEndDebugUtilsLabelEXT" );
+    g_vkCmdEndDebugUtilsLabelExt = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr( m_Device->GetHandle(),
+                                                                                        "vkCmdEndDebugUtilsLabelEXT" );
 
-    vkResetQueryPoolEXT = (PFN_vkResetQueryPoolEXT)vkGetDeviceProcAddr( m_Device->GetHandle(), "vkResetQueryPool" );
-    vkGetPhysicalDeviceCalibrateableTimeDomainsEXT = (PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)
+    g_vkResetQueryPoolExt = (PFN_vkResetQueryPoolEXT)vkGetDeviceProcAddr( m_Device->GetHandle(), "vkResetQueryPool" );
+    g_vkGetPhysicalDeviceCalibrateableTimeDomainsExt = (PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)
         vkGetInstanceProcAddr( m_Instance->GetHandle(), "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT" );
-    vkGetCalibratedTimestampsEXT = (PFN_vkGetCalibratedTimestampsEXT)vkGetInstanceProcAddr(
+    g_vkGetCalibratedTimestampsExt = (PFN_vkGetCalibratedTimestampsEXT)vkGetInstanceProcAddr(
         m_Instance->GetHandle(),
         "vkGetCalibratedTimestampsEXT" );
 
-    vkCmdBeginConditionalRenderingEXT = (PFN_vkCmdBeginConditionalRenderingEXT)vkGetDeviceProcAddr(
+    g_vkCmdBeginConditionalRenderingExt = (PFN_vkCmdBeginConditionalRenderingEXT)vkGetDeviceProcAddr(
         m_Device->GetHandle(),
         "vkCmdBeginConditionalRenderingEXT" );
-    vkCmdEndConditionalRenderingEXT = (PFN_vkCmdEndConditionalRenderingEXT)vkGetDeviceProcAddr(
+    g_vkCmdEndConditionalRenderingExt = (PFN_vkCmdEndConditionalRenderingEXT)vkGetDeviceProcAddr(
         m_Device->GetHandle(),
         "vkCmdEndConditionalRenderingEXT" );
 
     m_Allocator = makeUnique< MemoryAllocator >( "Default Allocator", *this );
 
-    constexpr uint32_t maxPoolElements = 128;
-    DynamicArray< VkDescriptorPoolSize > pools{ { VK_DESCRIPTOR_TYPE_SAMPLER, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, maxPoolElements },
-                                                { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, maxPoolElements } };
+    constexpr uint32_t MaxPoolElements = 128;
+    DynamicArray< VkDescriptorPoolSize > pools{ { VK_DESCRIPTOR_TYPE_SAMPLER, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, MaxPoolElements },
+                                                { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, MaxPoolElements } };
 
     m_DescriptorPool = makeUnique< DescriptorPool >( *m_Device,
                                                      pools,
                                                      VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-                                                     maxPoolElements );
-    if ( IsBindless() ) {
+                                                     MaxPoolElements );
+    if( IsBindless() ) {
         pools = {
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, rhi::MAX_BINDLESS_RESOURCES },
             { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, rhi::MAX_BINDLESS_RESOURCES },
@@ -239,13 +230,13 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
         descriptorBindingFlags[ 0 ] = bindlessFlags;
         descriptorBindingFlags[ 1 ] = bindlessFlags;
 
-        VkDescriptorSetLayoutBindingFlagsCreateInfoEXT extended_info;
-        extended_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
-        extended_info.bindingCount = poolCount;
-        extended_info.pBindingFlags = descriptorBindingFlags.data();
-        extended_info.pNext = nullptr;
+        VkDescriptorSetLayoutBindingFlagsCreateInfoEXT extendedInfo;
+        extendedInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+        extendedInfo.bindingCount = poolCount;
+        extendedInfo.pBindingFlags = descriptorBindingFlags.data();
+        extendedInfo.pNext = nullptr;
 
-        descriptorSetLayoutCreateInfo.pNext = &extended_info;
+        descriptorSetLayoutCreateInfo.pNext = &extendedInfo;
 
         m_BindlessDescriptorSetLayout = makeUnique< DescriptorSetLayout >( *m_Device,
                                                                            0,
@@ -257,15 +248,15 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
         descriptorSetAllocInfo.descriptorSetCount = 1;
         descriptorSetAllocInfo.pSetLayouts = m_BindlessDescriptorSetLayout->GetHandlePtr();
 
-        VkDescriptorSetVariableDescriptorCountAllocateInfoEXT count_info;
-        count_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
-        uint32_t max_binding = rhi::MAX_BINDLESS_RESOURCES - 1;
-        count_info.descriptorSetCount = 1;
+        VkDescriptorSetVariableDescriptorCountAllocateInfoEXT countInfo;
+        countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
+        uint32_t maxBinding = rhi::MAX_BINDLESS_RESOURCES - 1;
+        countInfo.descriptorSetCount = 1;
         // This number is the max allocatable count
-        count_info.pDescriptorCounts = &max_binding;
-        count_info.pNext = nullptr;
+        countInfo.pDescriptorCounts = &maxBinding;
+        countInfo.pNext = nullptr;
 
-        descriptorSetAllocInfo.pNext = &count_info;
+        descriptorSetAllocInfo.pNext = &countInfo;
         m_BindlessDescriptorSets = makeUnique< DescriptorSet >( *m_Device, BINDLESS_SET, descriptorSetAllocInfo );
     }
 
@@ -278,7 +269,7 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
     tempFrameBuffer.m_GpuAccess = GPUAccess::Write;
     // tempFrameBuffer.m_IsWritable = true;
 
-    for ( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
         tempFrameBuffer.m_DebugName = format::format( "TransientBuffer-{}", i );
         CreateBuffer( m_RingBuffer[ i ], tempFrameBuffer );
     }
@@ -347,7 +338,7 @@ void VulkanGraphicsApi::Shutdown() {
     m_BindlessDescriptorPool.reset();
     m_DescriptorPool.reset();
 
-    for ( InplaceFunction< bool(), 48 >& deletionFunctor : m_DeletionQueue ) {
+    for( InplaceFunction< bool(), 48 >& deletionFunctor : m_DeletionQueue ) {
         std::ignore = deletionFunctor();
     }
     m_DeletionQueue.clear();
@@ -363,35 +354,35 @@ void VulkanGraphicsApi::Shutdown() {
 }
 
 bool VulkanGraphicsApi::BeginFrame( const FrameContext& context ) {
-    if ( m_SwapChain == nullptr )
+    if( m_SwapChain == nullptr )
         return false;
 
-    if ( IsTimelineSemaphoreEnabled() && context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT ) {
+    if( IsTimelineSemaphoreEnabled() && context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT ) {
         ONYX_PROFILE_SECTION( SemaphoreWait );
 
-        uint64_t graphics_timeline_value = context.AbsoluteFrame - ( MAX_FRAMES_IN_FLIGHT - 1 );
-        uint64_t compute_timeline_value = context.ComputeFrame;
+        uint64_t graphicsTimelineValue = context.AbsoluteFrame - ( MAX_FRAMES_IN_FLIGHT - 1 );
+        uint64_t computeTimelineValue = context.ComputeFrame;
 
-        uint64_t wait_values[]{ graphics_timeline_value, compute_timeline_value };
+        uint64_t waitValues[]{ graphicsTimelineValue, computeTimelineValue };
         const bool hasAsyncWork = false;
 
         VkSemaphore semaphores[]{ m_GraphicsSemaphore->GetHandle(), m_ComputeSemaphore->GetHandle() };
 
-        VkSemaphoreWaitInfo semaphore_wait_info{};
-        semaphore_wait_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-        semaphore_wait_info.semaphoreCount = hasAsyncWork ? 2 : 1;
-        semaphore_wait_info.pSemaphores = semaphores;
-        semaphore_wait_info.pValues = wait_values;
-        semaphore_wait_info.pNext = nullptr;
+        VkSemaphoreWaitInfo semaphoreWaitInfo{};
+        semaphoreWaitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+        semaphoreWaitInfo.semaphoreCount = hasAsyncWork ? 2 : 1;
+        semaphoreWaitInfo.pSemaphores = semaphores;
+        semaphoreWaitInfo.pValues = waitValues;
+        semaphoreWaitInfo.pNext = nullptr;
 
-        vkWaitSemaphores( m_Device->GetHandle(), &semaphore_wait_info, std::numeric_limits< uint64_t >::max() );
+        vkWaitSemaphores( m_Device->GetHandle(), &semaphoreWaitInfo, std::numeric_limits< uint64_t >::max() );
     }
 
     bool hasAcquiredImage = m_SwapChain->BeginFrame( context.FrameIndex );
 
     m_CommandBufferManager->Reset( *m_Device, context.FrameIndex );
     m_ComputeCommandBufferManager->Reset( *m_Device, context.FrameIndex );
-    m_CurrentRingBufferSize = 0;
+    m_currentRingBufferSize = 0;
     m_RingBuffer[ context.FrameIndex ].Buffer->ClearAliases();
 
     return hasAcquiredImage;
@@ -402,49 +393,49 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
 
     const uint8_t commandBufferCount = m_QueuedCommandBuffer.size();
     InplaceArray< VkCommandBuffer, COMMAND_BUFFER_COUNT > enqueuedCommandBuffers;
-    for ( uint8_t i = 0; i < commandBufferCount; ++i ) {
+    for( uint8_t i = 0; i < commandBufferCount; ++i ) {
         VulkanCommandBuffer* cmdBuffer = static_cast< VulkanCommandBuffer* >( m_QueuedCommandBuffer[ i ] );
 
         enqueuedCommandBuffers.add( cmdBuffer->GetHandle() );
-        cmdBuffer->End();
+        cmdBuffer->end();
     }
 
     const uint8_t computeCommandBufferCount = m_QueuedComputeCommandBuffer.size();
     InplaceArray< VkCommandBuffer, COMMAND_BUFFER_COUNT > enqueuedComputeCommandBuffers;
-    for ( uint8_t i = 0; i < computeCommandBufferCount; ++i ) {
+    for( uint8_t i = 0; i < computeCommandBufferCount; ++i ) {
         VulkanCommandBuffer* cmdBuffer = static_cast< VulkanCommandBuffer* >( m_QueuedComputeCommandBuffer[ i ] );
 
         enqueuedComputeCommandBuffers.add( cmdBuffer->GetHandle() );
-        cmdBuffer->End();
+        cmdBuffer->end();
     }
 
     // update bindless textures or should update them at the start of the frame?
     uint32_t currentIndex = 0;
-    if ( m_BindlessTexturesToUpdate.empty() == false ) {
+    if( m_BindlessTexturesToUpdate.empty() == false ) {
         DynamicArray< VkWriteDescriptorSet > bindlessDescriptorWrites;
         bindlessDescriptorWrites.reserve( MAX_BINDLESS_RESOURCES );
 
         int32_t count = static_cast< int32_t >( m_BindlessTexturesToUpdate.size() );
-        for ( int32_t i = 0; i < count; ++i ) {
+        for( int32_t i = 0; i < count; ++i ) {
             TextureUpdate& textureUpdate = m_BindlessTexturesToUpdate[ i ];
             // TODO: This is probably not the best way to handle textures that get allocated and dealloacted in the same
             // frame TextureDeleter clears the index which is a bit hacky just to ensure resizing of the depth texture
-            if ( textureUpdate.Texture->GetIndex() == std::numeric_limits< uint32_t >::max() )
+            if( textureUpdate.Texture->GetIndex() == std::numeric_limits< uint32_t >::max() )
                 continue;
 
-            VkWriteDescriptorSet& descriptor_write = bindlessDescriptorWrites.emplace_back();
-            descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptor_write.descriptorCount = 1;
-            descriptor_write.dstArrayElement = textureUpdate.Index;
-            descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptor_write.dstSet = m_BindlessDescriptorSets->GetHandle();
-            descriptor_write.dstBinding = BINDLESS_TEXTURE_BINDING;
-            descriptor_write.pImageInfo = &( textureUpdate.Texture->GetDescriptorInfo() );
+            VkWriteDescriptorSet& descriptorWrite = bindlessDescriptorWrites.emplace_back();
+            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.dstArrayElement = textureUpdate.Index;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrite.dstSet = m_BindlessDescriptorSets->GetHandle();
+            descriptorWrite.dstBinding = BINDLESS_TEXTURE_BINDING;
+            descriptorWrite.pImageInfo = &( textureUpdate.Texture->GetDescriptorInfo() );
 
             ++currentIndex;
         }
 
-        if ( currentIndex != 0 )
+        if( currentIndex != 0 )
             vkUpdateDescriptorSets( m_Device->GetHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
 
         m_BindlessTexturesToUpdate.clear();
@@ -455,16 +446,16 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
     const UniquePtr< Semaphore >& backbufferAcquiredSemaphore = m_SwapChain->GetBackbufferAcquiredSemaphore(
         context.FrameIndex );
     // Submit
-    if ( IsTimelineSemaphoreEnabled() ) {
+    if( IsTimelineSemaphoreEnabled() ) {
         const bool shouldWaitForCompute = ( context.ComputeFrame > 0 ) && ( computeCommandBufferCount > 0 );
         const bool shouldWaitForGraphics = context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT;
 
         // index of the previous frame in flight to be finished
         const uint64_t waitForFrameIndex = context.AbsoluteFrame - ( MAX_FRAMES_IN_FLIGHT - 1 );
 
-        if ( IsSynchronization2Enabled() ) {
+        if( IsSynchronization2Enabled() ) {
             VkCommandBufferSubmitInfo commandBufferInfo[ COMMAND_BUFFER_COUNT ]{};
-            for ( uint8_t i = 0; i < commandBufferCount; ++i ) {
+            for( uint8_t i = 0; i < commandBufferCount; ++i ) {
                 commandBufferInfo[ i ].sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
                 commandBufferInfo[ i ].commandBuffer = enqueuedCommandBuffers[ i ];
             }
@@ -477,7 +468,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
                                   VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
                                   0 } );
 
-            if ( shouldWaitForCompute )
+            if( shouldWaitForCompute )
                 waitSemaphores.emplace( VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                         nullptr,
                                         m_ComputeSemaphore->GetHandle(),
@@ -485,7 +476,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
                                         VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT_KHR,
                                         0 );
 
-            if ( shouldWaitForGraphics )
+            if( shouldWaitForGraphics )
                 waitSemaphores.emplace( VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                         nullptr,
                                         m_GraphicsSemaphore->GetHandle(),
@@ -527,13 +518,13 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
             waitValues.add( 0 );
             waitStages.add( VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
 
-            if ( shouldWaitForCompute ) {
+            if( shouldWaitForCompute ) {
                 waitSemaphores.add( m_ComputeSemaphore->GetHandle() );
                 waitValues.add( context.ComputeFrame );
                 waitStages.add( VK_PIPELINE_STAGE_VERTEX_INPUT_BIT );
             }
 
-            if ( shouldWaitForGraphics ) {
+            if( shouldWaitForGraphics ) {
                 waitSemaphores.add( m_GraphicsSemaphore->GetHandle() );
                 waitValues.add( waitForFrameIndex );
                 waitStages.add( VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
@@ -644,16 +635,16 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
     // submit compute buffers
     // m_HasComputeWork = false;
     // move to function
-    if ( computeCommandBufferCount != 0 ) {
+    if( computeCommandBufferCount != 0 ) {
         bool hasWaitSemaphore = context.ComputeFrame > 0;
-        VkSemaphoreSubmitInfoKHR wait_semaphores[]{ { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
-                                                      nullptr,
-                                                      m_ComputeSemaphore->GetHandle(),
-                                                      context.ComputeFrame,
-                                                      VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR,
-                                                      0 } };
+        VkSemaphoreSubmitInfoKHR waitSemaphores[]{ { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
+                                                     nullptr,
+                                                     m_ComputeSemaphore->GetHandle(),
+                                                     context.ComputeFrame,
+                                                     VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR,
+                                                     0 } };
 
-        VkSemaphoreSubmitInfoKHR signal_semaphores[]{
+        VkSemaphoreSubmitInfoKHR signalSemaphores[]{
             { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
               nullptr,
               m_ComputeSemaphore->GetHandle(),
@@ -663,7 +654,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
         };
 
         InplaceArray< VkCommandBufferSubmitInfoKHR, 4 > commandBufferInfo;
-        for ( uint8_t i = 0; i < computeCommandBufferCount; ++i ) {
+        for( uint8_t i = 0; i < computeCommandBufferCount; ++i ) {
             commandBufferInfo[ i ].sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
             commandBufferInfo[ i ].commandBuffer = enqueuedComputeCommandBuffers[ i ];
         }
@@ -671,11 +662,11 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
         VkSubmitInfo2 submit_info;
         submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
         submit_info.waitSemaphoreInfoCount = hasWaitSemaphore ? 1 : 0;
-        submit_info.pWaitSemaphoreInfos = wait_semaphores;
+        submit_info.pWaitSemaphoreInfos = waitSemaphores;
         submit_info.commandBufferInfoCount = commandBufferInfo.size();
         submit_info.pCommandBufferInfos = commandBufferInfo.data();
         submit_info.signalSemaphoreInfoCount = 1;
-        submit_info.pSignalSemaphoreInfos = signal_semaphores;
+        submit_info.pSignalSemaphoreInfos = signalSemaphores;
         submit_info.pNext = nullptr;
 
         vkQueueSubmit2( m_Device->GetComputeQueue(), 1, &submit_info, VK_NULL_HANDLE );
@@ -685,8 +676,8 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
     m_QueuedComputeCommandBuffer.clear();
 
     // Delete resources
-    for ( auto it = m_DeletionQueue.begin(); it != m_DeletionQueue.end(); ) {
-        if ( it->operator()() ) {
+    for( auto it = m_DeletionQueue.begin(); it != m_DeletionQueue.end(); ) {
+        if( it->operator()() ) {
             it = m_DeletionQueue.erase( it );
         } else {
             ++it;
@@ -698,7 +689,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
 
 Reference< rhi::Sampler > VulkanGraphicsApi::GetSampler( SamplerProperties properties ) const {
     uint32_t hash = properties.Hash();
-    if ( m_Samplers.contains( hash ) == false ) {
+    if( m_Samplers.contains( hash ) == false ) {
         //, "Unknown sampler");
         return {};
     }
@@ -757,7 +748,7 @@ void VulkanGraphicsApi::SubmitInstantCommandBuffer( Context context,
     CommandBufferManager* commandBufferManager = nullptr;
     VkQueue queue = nullptr;
     VkFence fence = nullptr;
-    switch ( context ) {
+    switch( context ) {
     case Context::Graphics:
         commandBufferManager = m_CommandBufferManager.get();
         queue = m_Device->GetGraphicsQueue();
@@ -775,7 +766,7 @@ void VulkanGraphicsApi::SubmitInstantCommandBuffer( Context context,
         break;
     }
 
-    if ( queue == nullptr )
+    if( queue == nullptr )
         return;
 
     UniquePtr< CommandBuffer > commandBuffer = commandBufferManager->CreateSingleSubmitCommandBuffer( *this,
@@ -783,12 +774,12 @@ void VulkanGraphicsApi::SubmitInstantCommandBuffer( Context context,
                                                                                                       0 );
     VulkanCommandBuffer& vulkanCmdBuffer = static_cast< VulkanCommandBuffer& >( *commandBuffer );
 
-    vulkanCmdBuffer.Begin();
+    vulkanCmdBuffer.begin();
     functor( vulkanCmdBuffer );
-    vulkanCmdBuffer.End();
+    vulkanCmdBuffer.end();
 
     // Submit command buffer
-    if ( IsSynchronization2Enabled() ) {
+    if( IsSynchronization2Enabled() ) {
         VkCommandBufferSubmitInfoKHR commandBufferInfo{};
         commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
         commandBufferInfo.commandBuffer = vulkanCmdBuffer.GetHandle();
@@ -815,7 +806,7 @@ void VulkanGraphicsApi::SubmitInstantCommandBuffer( Context context,
     vkWaitForFences( m_Device->GetHandle(), 1, &fence, true, 9999999 );
     vkResetFences( m_Device->GetHandle(), 1, &fence );
 
-    if ( context == Context::Graphics ) {
+    if( context == Context::Graphics ) {
         std::lock_guard lock( m_GraphicsMutex );
         vkQueueWaitIdle( queue );
     }
@@ -988,9 +979,9 @@ void VulkanGraphicsApi::CreateBuffer( BufferHandle& outBuffer, const BufferPrope
 
 BufferHandle VulkanGraphicsApi::GetTransientBuffer( uint8_t frameIndex, const BufferProperties& properties ) {
     BufferHandle& ringBuffer = m_RingBuffer[ frameIndex ];
-    ONYX_ASSERT( m_CurrentRingBufferSize < ringBuffer.Buffer->GetProperties().m_Size );
+    ONYX_ASSERT( m_currentRingBufferSize < ringBuffer.Buffer->GetProperties().m_Size );
 
-    m_CurrentRingBufferSize += properties.m_Size;
+    m_currentRingBufferSize += properties.m_Size;
     int8_t alias = ringBuffer.Buffer->Alias( properties );
     return { ringBuffer.Buffer, alias };
 }
@@ -1006,7 +997,7 @@ DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::CreateDescriptorSet( cons
     const Shader& vulkanShader = shader.as< Shader >();
     const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >&
         descriptorSetLayouts = vulkanShader.GetDescriptorSetLayouts();
-    for ( const UniquePtr< DescriptorSetLayout >& layout : descriptorSetLayouts ) {
+    for( const UniquePtr< DescriptorSetLayout >& layout : descriptorSetLayouts ) {
         descriptorSets.push_back(
             Reference< DescriptorSet >::create( *m_Device, *m_DescriptorPool, *layout, debugName ) );
     }

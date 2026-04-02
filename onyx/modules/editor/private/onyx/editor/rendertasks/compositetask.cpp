@@ -37,7 +37,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
     } constants;
 
     const node_graph::PinBase* gridTextureInPin = GetInputPin( 0 );
-    if ( gridTextureInPin->IsConnected() ) {
+    if( gridTextureInPin->IsConnected() ) {
         const graphics::RenderGraphResource& resource = context.Graph.GetResource(
             gridTextureInPin->GetLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gridTextureHandle = std::get< rhi::TextureHandle >( resource.Handle );
@@ -46,7 +46,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
     }
 
     const node_graph::PinBase* gbufferTextureInPin = GetInputPin( 1 );
-    if ( gbufferTextureInPin->IsConnected() ) {
+    if( gbufferTextureInPin->IsConnected() ) {
         const graphics::RenderGraphResource& gbufferResource = context.Graph.GetResource(
             gbufferTextureInPin->GetLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gbufferTextureHandle = std::get< rhi::TextureHandle >( gbufferResource.Handle );
@@ -55,7 +55,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
     }
 
     const node_graph::PinBase* fontTextureInPin = GetInputPin( 2 );
-    if ( fontTextureInPin->IsConnected() ) {
+    if( fontTextureInPin->IsConnected() ) {
         const graphics::RenderGraphResource& font3dResource = context.Graph.GetResource(
             fontTextureInPin->GetLinkedPinGlobalId().get() );
         const rhi::TextureHandle& font3dTextureHandle = std::get< rhi::TextureHandle >( font3dResource.Handle );
@@ -63,7 +63,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
         ++constants.Count;
     }
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
-    commandBuffer.Draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 } // namespace onyx

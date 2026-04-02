@@ -17,16 +17,16 @@ namespace onyx::editor {
 struct ModifyComponentCommand : public SceneCommand {
     ModifyComponentCommand( ecs::EntityId entity,
                             StringId32 componentTypeId,
-                            DynamicArray< uint32_t >&& componentData,
+                            std::any&& componentData,
                             assets::AssetId sceneId,
                             game_core::GameCoreSystem& gameCoreSystem );
 
     void Execute() override;
 
   private:
-    DynamicArray< uint32_t > m_ComponentData;
+    std::any m_component;
 
-    ecs::EntityId m_EntityId;
-    StringId32 m_ComponentTypeId;
+    ecs::EntityId m_entityId;
+    StringId32 m_componentTypeId;
 };
 } // namespace onyx::editor

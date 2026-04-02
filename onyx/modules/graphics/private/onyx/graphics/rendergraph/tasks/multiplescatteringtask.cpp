@@ -22,13 +22,13 @@ void ComputeMultipleScatteringRenderGraphNode::OnRender( RenderGraphContext& /*c
                                                          rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 0, m_TransmittanceTextureIndex );
-    commandBuffer.Draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, m_TransmittanceTextureIndex );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 
 #if ONYX_IS_EDITOR
 StringView ComputeMultipleScatteringRenderGraphNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+    switch( pinId ) {
     case InPin::LocalId:
         return "Transmittance";
     case OutPin::LocalId:

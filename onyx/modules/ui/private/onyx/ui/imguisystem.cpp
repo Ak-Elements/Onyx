@@ -34,7 +34,7 @@ bool loc_ReloadLayout = false;
 bool loc_SaveLayout = false;
 
 ImGuiKey ConvertToImGuiKey( input::Key key ) {
-    switch ( key ) {
+    switch( key ) {
         using enum input::Key;
     case Tab:
         return ImGuiKey_Tab;
@@ -664,7 +664,7 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     Internal::SetCatppuccinMochaGraphite(); // ImGui::StyleColorsDark();
 
     FilePath settingsPath = file_system::path::getFullPath( "tmp:imgui.ini" );
-    if ( file_system::path::exists( settingsPath ) == false ) {
+    if( file_system::path::exists( settingsPath ) == false ) {
         settingsPath = file_system::path::getFullPath( "engine:/layouts/default.ini" );
     }
 
@@ -747,7 +747,7 @@ void ImGuiSystem::update( rhi::GraphicsSystem& system, DeltaGameTime deltaTime )
 
     //// this is an index based loop on purpose as windows might be added during rendering by other windows
     const uint32_t windowsCount = numericCast< uint32_t >( m_Windows.size() );
-    for ( uint32_t i = 0; i < windowsCount; ++i ) {
+    for( uint32_t i = 0; i < windowsCount; ++i ) {
         const UniquePtr< ImGuiWindow >& imguiWindow = m_Windows[ i ];
         imguiWindow->render( *this );
     }
@@ -764,18 +764,18 @@ void ImGuiSystem::OnBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
 
     io.DisplayFramebufferScale = ImVec2( 1.0f, 1.0f );
 
-    if ( Internal::loc_ReloadLayout ) {
+    if( Internal::loc_ReloadLayout ) {
         Internal::loc_ReloadLayout = false;
         /*FilePath settingsPath = file_system::path::GetDataDirectory() / "layouts/default_2.ini";
         ImGui::LoadIniSettingsFromDisk(settingsPath.string().data());*/
     }
 
-    if ( Internal::loc_SaveLayout ) {
+    if( Internal::loc_SaveLayout ) {
         Internal::loc_SaveLayout = false;
         FilePath savePath;
         file_system::FileDialog saveDialog;
         DynamicArray< StringView > extensions{ "ini" };
-        if ( saveDialog.SaveFileDialog( savePath, "Ini File", extensions ) ) {
+        if( saveDialog.SaveFileDialog( savePath, "Ini File", extensions ) ) {
             ImGui::SaveIniSettingsToDisk( savePath.string().data() );
         }
     }
@@ -790,7 +790,7 @@ void ImGuiSystem::OnBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
 }
 
 void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
-    if ( m_ImguiShader.isValid() == false )
+    if( m_ImguiShader.isValid() == false )
         return;
 
     ImGui::Render();
@@ -815,26 +815,26 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
     rhi::FramebufferHandle frameBuffer = frameContext.Api->GetOrCreateFramebuffer( framebufferSettings );
 
     // TODO: Do a proper barrier here for the rendergraph to be finished and the imgui pass to start
-    commandBuffer.TransitionLayout( swapchainImage,
+    commandBuffer.transitionLayout( swapchainImage,
                                     rhi::Context::Graphics,
                                     rhi::Access::ColorAttachmentWrite,
                                     rhi::ImageLayout::AttachmentOptimal );
-    commandBuffer.GlobalBarrier( enums::toIntegral( rhi::Access::ColorAttachmentWrite ),
+    commandBuffer.globalBarrier( enums::toIntegral( rhi::Access::ColorAttachmentWrite ),
                                  0x00000400ULL,
                                  enums::toIntegral( rhi::Access::None ),
                                  0x00000001ULL );
-    commandBuffer.BeginRenderPass( properties.RenderPass, frameBuffer );
-    commandBuffer.SetViewport();
-    commandBuffer.BindShaderEffect( m_ImguiShader );
+    commandBuffer.beginRenderPass( properties.RenderPass, frameBuffer );
+    commandBuffer.setViewport();
+    commandBuffer.bindShaderEffect( m_ImguiShader );
 
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
     int32_t fb_width = numericCast< int32_t >( imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x );
     int32_t fb_height = numericCast< int32_t >( imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y );
-    if ( fb_width <= 0 || fb_height <= 0 )
+    if( fb_width <= 0 || fb_height <= 0 )
         return;
 
-    if ( ( !imDrawData ) || ( imDrawData->CmdListsCount == 0 ) ) {
+    if( ( !imDrawData ) || ( imDrawData->CmdListsCount == 0 ) ) {
         return;
     }
 
@@ -844,8 +844,8 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
     const uint8_t frameIndex = frameContext.FrameIndex;
     const rhi::BufferHandle& vertexBuffer = m_VertexBuffers[ frameIndex ];
     const rhi::BufferHandle& indexBuffer = m_IndexBuffers[ frameIndex ];
-    commandBuffer.BindVertexBuffer( vertexBuffer, 0, 0 );
-    commandBuffer.BindIndexBuffer( indexBuffer, 0, rhi::IndexType::uint16 );
+    commandBuffer.bindVertexBuffer( vertexBuffer, 0, 0 );
+    commandBuffer.bindIndexBuffer( indexBuffer, 0, rhi::IndexType::uint16 );
 
     struct PushConstants {
         Vector2f32 scale;
@@ -855,17 +855,17 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
     constants.scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
     constants.translate = { -1.0f - imDrawData->DisplayPos.x * constants.scale[ 0 ],
                             1.0f - imDrawData->DisplayPos.y * constants.scale[ 1 ] };
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, constants );
 
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clip_off = imDrawData->DisplayPos;         // (0,0) unless using multi-viewports
     ImVec2 clip_scale = imDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
 
-    for ( int32_t i = 0; i < imDrawData->CmdListsCount; i++ ) {
+    for( int32_t i = 0; i < imDrawData->CmdListsCount; i++ ) {
         const ImDrawList* cmd_list = imDrawData->CmdLists[ i ];
-        for ( int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++ ) {
+        for( int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++ ) {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[ j ];
-            if ( pcmd->UserCallback != nullptr ) {
+            if( pcmd->UserCallback != nullptr ) {
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer
                 // to reset render state.)
@@ -883,11 +883,11 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
                 clip_rect.z = ( pcmd->ClipRect.z - clip_off.x ) * clip_scale.x;
                 clip_rect.w = ( pcmd->ClipRect.w - clip_off.y ) * clip_scale.y;
 
-                if ( clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f ) {
+                if( clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f ) {
                     // Negative offsets are illegal for vkCmdSetScissor
-                    if ( clip_rect.x < 0.0f )
+                    if( clip_rect.x < 0.0f )
                         clip_rect.x = 0.0f;
-                    if ( clip_rect.y < 0.0f )
+                    if( clip_rect.y < 0.0f )
                         clip_rect.y = 0.0f;
 
                     // Apply scissor/clipping rectangle
@@ -898,8 +898,8 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
                     scissor.Extents[ 1 ] = (int16_t)( std::abs( clip_rect.w - clip_rect.y ) );
                     // vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
-                    commandBuffer.SetScissor( scissor );
-                    commandBuffer.DrawIndexed( rhi::PrimitiveTopology::Triangle,
+                    commandBuffer.setScissor( scissor );
+                    commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
                                                pcmd->ElemCount,
                                                1,
                                                pcmd->IdxOffset + indexOffset,
@@ -915,10 +915,10 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
         Rect2s16 scissor;
         scissor.Position = { 0, 0 };
         scissor.Extents = { (int16_t)fb_width, (int16_t)fb_height };
-        commandBuffer.SetScissor( scissor );
+        commandBuffer.setScissor( scissor );
     }
 
-    commandBuffer.EndRenderPass();
+    commandBuffer.endRenderPass();
 }
 
 void ImGuiSystem::OnEndFrame( const rhi::FrameContext& /*frameContext*/ ) {
@@ -946,7 +946,7 @@ void ImGuiSystem::OnEndFrame( const rhi::FrameContext& /*frameContext*/ ) {
     ImGuiIO& io = ImGui::GetIO();
 
     // Update and Render additional Platform Windows
-    if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable ) {
+    if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable ) {
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
     }
@@ -959,7 +959,7 @@ Optional< ImGuiWindow* > ImGuiSystem::GetWindow( StringId32 windowId ) {
         return StringId32( window->getWindowId() ) == windowId;
     } );
 
-    if ( it == m_Windows.end() ) {
+    if( it == m_Windows.end() ) {
         return {};
     }
 
@@ -1011,7 +1011,7 @@ void ImGuiSystem::InitRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
     indexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
     indexBufferProps.m_DebugName = "ImGui Indices";
 
-    for ( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
         rhi::BufferHandle& vertexBuffer = m_VertexBuffers[ i ];
         graphicsSystem.CreateBuffer( vertexBuffer, vertexBufferProps );
         m_VertexCounts.add( 400000 );
@@ -1025,13 +1025,13 @@ void ImGuiSystem::InitRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
 void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
-    if ( ( !imDrawData ) || ( imDrawData->CmdListsCount == 0 ) ) {
+    if( ( !imDrawData ) || ( imDrawData->CmdListsCount == 0 ) ) {
         return;
     }
 
     int32_t fb_width = numericCast< int32_t >( imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x );
     int32_t fb_height = numericCast< int32_t >( imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y );
-    if ( fb_width <= 0 || fb_height <= 0 )
+    if( fb_width <= 0 || fb_height <= 0 )
         return;
 
     // Note: Alignment is done inside buffer creation
@@ -1039,15 +1039,15 @@ void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
     uint32_t indexBufferSize = imDrawData->TotalIdxCount * sizeof( ImDrawIdx );
 
     // Update buffers only if vertex or index count has been changed compared to current buffer size
-    if ( ( vertexBufferSize == 0 ) || ( indexBufferSize == 0 ) ) {
+    if( ( vertexBufferSize == 0 ) || ( indexBufferSize == 0 ) ) {
         return /*false*/;
     }
 
     // Vertex buffer
     const uint8_t frameIndex = frameContext.FrameIndex;
     rhi::BufferHandle& vertexBuffer = m_VertexBuffers[ frameIndex ];
-    if ( ( vertexBuffer.Buffer.isValid() == false ) || ( vertexBuffer.Buffer->IsMapped() == false ) ||
-         ( m_VertexCounts[ frameIndex ] < imDrawData->TotalVtxCount ) ) {
+    if( ( vertexBuffer.Buffer.isValid() == false ) || ( vertexBuffer.Buffer->IsMapped() == false ) ||
+        ( m_VertexCounts[ frameIndex ] < imDrawData->TotalVtxCount ) ) {
         rhi::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
         vertexBufferProps.m_Size = vertexBufferSize;
 
@@ -1057,8 +1057,8 @@ void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
 
     // Index buffer
     rhi::BufferHandle& indexBuffer = m_IndexBuffers[ frameIndex ];
-    if ( ( indexBuffer.Buffer.isValid() == false ) || ( indexBuffer.Buffer->IsMapped() == false ) ||
-         ( m_IndexCounts[ frameIndex ] < imDrawData->TotalIdxCount ) ) {
+    if( ( indexBuffer.Buffer.isValid() == false ) || ( indexBuffer.Buffer->IsMapped() == false ) ||
+        ( m_IndexCounts[ frameIndex ] < imDrawData->TotalIdxCount ) ) {
         rhi::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
         indexBufferProps.m_Size = indexBufferSize;
 
@@ -1070,7 +1070,7 @@ void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
     int32_t vertexCopyOffset = 0;
     int32_t indexCopyOffset = 0;
 
-    for ( int n = 0; n < imDrawData->CmdListsCount; n++ ) {
+    for( int n = 0; n < imDrawData->CmdListsCount; n++ ) {
         const ImDrawList* cmd_list = imDrawData->CmdLists[ n ];
         vertexBuffer.Buffer->SetData( vertexCopyOffset,
                                       cmd_list->VtxBuffer.Data,
@@ -1109,8 +1109,8 @@ void ImGuiSystem::OnKey( const input::KeyboardEvent& keyboardEvent ) {
     ImGuiIO& io = ImGui::GetIO();
 
     bool isDown = keyboardEvent.State == input::ButtonState::Down;
-    if ( IsModifierKey( keyboardEvent.Key ) ) {
-        switch ( keyboardEvent.Key ) {
+    if( IsModifierKey( keyboardEvent.Key ) ) {
+        switch( keyboardEvent.Key ) {
         case input::Key::Left_Ctrl:
         case input::Key::Right_Ctrl: {
             io.AddKeyEvent( ImGuiKey_ModCtrl, isDown );
@@ -1139,7 +1139,7 @@ void ImGuiSystem::OnKey( const input::KeyboardEvent& keyboardEvent ) {
 
     io.AddKeyEvent( Internal::ConvertToImGuiKey( keyboardEvent.Key ), isDown );
 
-    if ( isDown && ( keyboardEvent.Char != 0 ) )
+    if( isDown && ( keyboardEvent.Char != 0 ) )
         io.AddInputCharacterUTF16( keyboardEvent.Char );
 }
 

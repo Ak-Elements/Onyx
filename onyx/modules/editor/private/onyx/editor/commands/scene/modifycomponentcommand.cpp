@@ -8,36 +8,33 @@
 namespace onyx::editor {
 ModifyComponentCommand::ModifyComponentCommand( ecs::EntityId entity,
                                                 StringId32 componentTypeId,
-                                                DynamicArray< uint32_t >&& componentData,
+                                                std::any&& component,
                                                 assets::AssetId sceneId,
                                                 game_core::GameCoreSystem& gameCoreSystem )
     : SceneCommand( "ModifyComponent", sceneId, gameCoreSystem )
-    , m_ComponentData( std::move( componentData ) )
-    , m_EntityId( entity )
-    , m_ComponentTypeId( componentTypeId ) {}
+    , m_component( std::move( component ) )
+    , m_entityId( entity )
+    , m_componentTypeId( componentTypeId ) {}
 
 void ModifyComponentCommand::Execute() {
     const ecs::ComponentFactory& componentFactory = GetComponentFactory();
     ecs::EntityRegistry& registry = GetScene().GetRegistry();
 
-    const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta( m_ComponentTypeId )
+    const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta( m_componentTypeId )
                                                    .value_or( nullptr );
     ONYX_ASSERT( componentMeta != nullptr );
 
-    if ( entt::basic_sparse_set< ecs::EntityId >* componentStorage = registry.GetStorage(
-             componentMeta->GetRuntimeTypeId() ) ) {
-        void* componentPtr = componentStorage->value( m_EntityId );
-        if ( componentPtr == nullptr )
+    if( entt::basic_sparse_set< ecs::EntityId >* componentStorage = registry.GetStorage(
+            componentMeta->getRuntimeTypeId() ) ) {
+        void* componentPtr = componentStorage->value( m_entityId );
+        if( componentPtr == nullptr )
             return;
 
-        bool hasCopied = componentFactory.TryCreateComponent( registry,
-                                                              m_EntityId,
-                                                              m_ComponentTypeId,
-                                                              m_ComponentData );
-        if ( hasCopied == false ) {
+        bool hasCopied = componentFactory.TryCreateComponent( registry, m_entityId, m_componentTypeId, m_component );
+        if( hasCopied == false ) {
             ONYX_LOG_WARNING( "Failed modifying component({}) on entity {}",
-                              m_ComponentTypeId,
-                              static_cast< uint32_t >( m_EntityId ) );
+                              m_componentTypeId,
+                              static_cast< uint32_t >( m_entityId ) );
         }
     }
 }

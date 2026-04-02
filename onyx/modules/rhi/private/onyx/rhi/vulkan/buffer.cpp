@@ -14,8 +14,8 @@ VulkanBuffer::VulkanBuffer( VulkanGraphicsApi& api, const BufferProperties& prop
 }
 
 VulkanBuffer::~VulkanBuffer() {
-    if ( m_Buffer != nullptr ) {
-        if ( m_MappedPtr ) {
+    if( m_Buffer != nullptr ) {
+        if( m_MappedPtr ) {
             DeviceMemory::Unmap();
         }
 
@@ -24,7 +24,7 @@ VulkanBuffer::~VulkanBuffer() {
 }
 
 void VulkanBuffer::Destroy() {
-    if ( m_Buffer != nullptr ) {
+    if( m_Buffer != nullptr ) {
         vkDestroyBuffer( m_Device->GetHandle(), m_Buffer, nullptr );
         m_Buffer = nullptr;
     }
@@ -42,7 +42,7 @@ void VulkanBuffer::Barrier( CommandBuffer& commandBuffer, Context newContext, Ac
     Context currentContext = m_Context;
     uint64_t offset = 0;
     uint64_t bufferSize = m_Properties.m_Size;
-    if ( aliasIndex != InvalidIndex8 ) {
+    if( aliasIndex != InvalidIndex8 ) {
         AliasInfo& aliasInfo = m_Aliases[ aliasIndex ];
         currentAccess = aliasInfo.Access;
         currentContext = aliasInfo.Context;
@@ -54,10 +54,10 @@ void VulkanBuffer::Barrier( CommandBuffer& commandBuffer, Context newContext, Ac
     }
 
     VkBufferMemoryBarrier2 barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2 };
-    barrier.srcAccessMask = ToAccessFlag( currentAccess );
-    barrier.srcStageMask = GetPipelineFlags( barrier.srcAccessMask, currentContext );
-    barrier.dstAccessMask = ToAccessFlag( newAccess );
-    barrier.dstStageMask = GetPipelineFlags( barrier.dstAccessMask, newContext );
+    barrier.srcAccessMask = toAccessFlag( currentAccess );
+    barrier.srcStageMask = getPipelineFlags( barrier.srcAccessMask, currentContext );
+    barrier.dstAccessMask = toAccessFlag( newAccess );
+    barrier.dstStageMask = getPipelineFlags( barrier.dstAccessMask, newContext );
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
@@ -81,7 +81,7 @@ int8_t VulkanBuffer::Alias( const BufferProperties& properties ) {
     // do we support device address?
 
     uint64_t offset = 0;
-    for ( const AliasInfo& info : m_Aliases ) {
+    for( const AliasInfo& info : m_Aliases ) {
         offset += info.Size;
     }
 
@@ -143,18 +143,18 @@ void VulkanBuffer::Init( const void* data ) {
 
     m_Allocator->Bind( m_Buffer, m_Memory );
 
-    if ( enums::all( m_Properties.m_UsageFlags, BufferUsage::DeviceAddress ) ) {
+    if( enums::all( m_Properties.m_UsageFlags, BufferUsage::DeviceAddress ) ) {
         VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
         addressInfo.buffer = m_Buffer;
         m_GpuAddress = vkGetBufferDeviceAddress( device, &addressInfo );
     }
 
-    if ( ( m_Properties.m_CpuAccess == CPUAccess::UpdateUnsynchronized ) ||
-         m_Properties.m_CpuAccess == CPUAccess::Write ) {
+    if( ( m_Properties.m_CpuAccess == CPUAccess::UpdateUnsynchronized ) ||
+        m_Properties.m_CpuAccess == CPUAccess::Write ) {
         Map( MapMode::Write );
     }
 
-    if ( data != nullptr ) {
+    if( data != nullptr ) {
         SetData( 0, data, numericCast< int32_t >( m_Properties.m_Size ) );
     }
 
@@ -177,7 +177,7 @@ void VulkanBuffer::Unmap() {
 }
 
 void VulkanBuffer::Flush( uint32_t /*offset*/, uint32_t /*count*/ ) {
-    if ( m_IsNonCoherent == false )
+    if( m_IsNonCoherent == false )
         return;
 
     ONYX_ASSERT( false, "Not implemented" );
@@ -194,27 +194,27 @@ VkBufferUsageFlags VulkanBuffer::GetUsageFlags() const {
 /*static*/ VkBufferUsageFlags VulkanBuffer::GetUsageFlags( const BufferProperties& properties ) {
     VkBufferUsageFlags usage = 0;
 
-    if ( properties.m_GpuAccess == GPUAccess::Staging && properties.m_CpuAccess == CPUAccess::Write )
+    if( properties.m_GpuAccess == GPUAccess::Staging && properties.m_CpuAccess == CPUAccess::Write )
         usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     else
         usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::Vertex ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::Vertex ) )
         usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::Index ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::Index ) )
         usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::Uniform ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::Uniform ) )
         usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::Storage ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::Storage ) )
         usage |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::Indirect ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::Indirect ) )
         usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::DeviceAddress ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::DeviceAddress ) )
         usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-    if ( enums::any( properties.m_UsageFlags, BufferUsage::Conditional ) )
+    if( enums::any( properties.m_UsageFlags, BufferUsage::Conditional ) )
         usage |= VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT;
 
-    if ( properties.m_IsWritable )
+    if( properties.m_IsWritable )
         usage |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
                  VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
 

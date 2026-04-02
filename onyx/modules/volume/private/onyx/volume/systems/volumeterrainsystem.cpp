@@ -62,7 +62,7 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                     TerrainWorldOctreeComponent& worldOctree,
                     TerrainRuntimeComponent& terrainMesh,
                     uint32_t nodeCount ) {
-    if ( worldOctree.VolumeObjects == false ) {
+    if( worldOctree.VolumeObjects == false ) {
         rhi::BufferProperties ssboVolumeOctreeBufferProps;
         ssboVolumeOctreeBufferProps.m_DebugName = "Volume-WorldOctree";
         ssboVolumeOctreeBufferProps.m_Size = sizeof( uint32_t ) + sizeof( terrain::WorldChunksOctreeNode ) * nodeCount;
@@ -181,20 +181,19 @@ void LoadShaders( assets::AssetSystem& assetSystem,
                   rhi::GraphicsSystem& graphicsSystem,
                   const TerrainSettingsComponent& terrainSettings,
                   VolumeGenerationComponent& generationComponent ) {
-    if ( generationComponent.UpdateWorldOctreeShader != nullptr )
+    if( generationComponent.UpdateWorldOctreeShader != nullptr )
         return;
 
-    if ( terrainSettings.VolumeGraph.hasAssetId() ) {
+    if( terrainSettings.VolumeGraph.hasAssetId() ) {
         bool isAssetAvailable = true;
-        if ( ( generationComponent.VolumeGraph.isValid() == false ) ) {
+        if( ( generationComponent.VolumeGraph.isValid() == false ) ) {
             generationComponent.HasLoadedShaders = false;
             isAssetAvailable = assetSystem.getAsset( terrainSettings.VolumeGraph.getId(),
                                                      generationComponent.VolumeGraph );
         }
 
-        if ( isAssetAvailable ) {
-            if ( ( generationComponent.VolumeGraph.isValid() == false ) ||
-                 generationComponent.VolumeGraph->isLoading() )
+        if( isAssetAvailable ) {
+            if( ( generationComponent.VolumeGraph.isValid() == false ) || generationComponent.VolumeGraph->isLoading() )
                 return;
         }
     }
@@ -209,7 +208,7 @@ void LoadShaders( assets::AssetSystem& assetSystem,
     generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.CreateShaderInstance( properties.Shader,
                                                                                                properties );
 
-    if ( generationComponent.VolumeGraph.hasAssetId() ) {
+    if( generationComponent.VolumeGraph.hasAssetId() ) {
         properties.Shader = generationComponent.VolumeGraph->GetBuildOctreeShader();
         generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance( properties.Shader,
                                                                                            properties );
@@ -264,14 +263,14 @@ void ResetBuffers( rhi::CommandBuffer& computeCommandBuffer,
     constants.IndirectDispatch = indirectDispatch.GetGpuAddress();
     constants.SplitRequests = splitRequests.GetGpuAddress();
 
-    computeCommandBuffer.Barrier( surfaceRequests, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    computeCommandBuffer.Barrier( indirectDraw, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    computeCommandBuffer.Barrier( indirectDispatch, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    computeCommandBuffer.Barrier( splitRequests, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    computeCommandBuffer.barrier( surfaceRequests, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    computeCommandBuffer.barrier( indirectDraw, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    computeCommandBuffer.barrier( indirectDispatch, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    computeCommandBuffer.barrier( splitRequests, rhi::Context::Compute, rhi::Access::ShaderWrite );
 
-    computeCommandBuffer.BindShaderEffect( volumeGeneration.ResetBuffersShader );
-    computeCommandBuffer.BindPushConstants( rhi::ShaderStage::Compute, constants );
-    computeCommandBuffer.Dispatch( 1, 1, 1 );
+    computeCommandBuffer.bindShaderEffect( volumeGeneration.ResetBuffersShader );
+    computeCommandBuffer.bindPushConstants( rhi::ShaderStage::Compute, constants );
+    computeCommandBuffer.dispatch( 1, 1, 1 );
 }
 
 void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
@@ -315,25 +314,25 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
     pushConstants.NodeExtents = terrainWorldOctree.RootSize;
     pushConstants.Offset = 0;
 
-    commandBuffer.BindShaderEffect( generationComponent.UpdateWorldOctreeShader );
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, pushConstants );
-    commandBuffer.Barrier( IndirectDispatchBuffer0,
+    commandBuffer.bindShaderEffect( generationComponent.UpdateWorldOctreeShader );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, pushConstants );
+    commandBuffer.barrier( IndirectDispatchBuffer0,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( IndirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
-    commandBuffer.Barrier( SplitRequestQueueBuffer0,
+    commandBuffer.barrier( IndirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
+    commandBuffer.barrier( SplitRequestQueueBuffer0,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( SplitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.Barrier( IsoSurfaceRequestsBuffer,
+    commandBuffer.barrier( SplitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( IsoSurfaceRequestsBuffer,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.Dispatch( 1, 1, 1 );
+    commandBuffer.dispatch( 1, 1, 1 );
 
     uint64_t dispatchBufferRead = IndirectDispatchBuffer0.GetGpuAddress();
     uint64_t dispatchBufferWrite = IndirectDispatchBuffer1.GetGpuAddress();
 
-    for ( uint32_t depth = 1; depth <= terrainWorldOctree.MaxDepth; ++depth ) {
+    for( uint32_t depth = 1; depth <= terrainWorldOctree.MaxDepth; ++depth ) {
         std::swap( pushConstants.SplitRequestsReadBuffer, pushConstants.SplitRequestsWriteBuffer );
 
         pushConstants.IndirectDispatchBuffer = dispatchBufferWrite;
@@ -343,35 +342,35 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
 
         // TODO: Find right barrier to set
 
-        commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, pushConstants );
-        commandBuffer.Barrier( terrainWorldOctree.OctreeGpuBuffer,
+        commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, pushConstants );
+        commandBuffer.barrier( terrainWorldOctree.OctreeGpuBuffer,
                                rhi::Context::Compute,
                                rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-        commandBuffer.Barrier( terrainWorldOctree.OctreeChunksBuffer,
+        commandBuffer.barrier( terrainWorldOctree.OctreeChunksBuffer,
                                rhi::Context::Compute,
                                rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-        commandBuffer.Barrier( IsoSurfaceRequestsBuffer,
+        commandBuffer.barrier( IsoSurfaceRequestsBuffer,
                                rhi::Context::Compute,
                                rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
 
-        if ( dispatchBufferRead == IndirectDispatchBuffer0.GetGpuAddress() ) {
-            commandBuffer.Barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
-            commandBuffer.Barrier( SplitRequestQueueBuffer0, rhi::Context::Compute, rhi::Access::ShaderRead );
-            commandBuffer.Barrier( SplitRequestQueueBuffer1,
+        if( dispatchBufferRead == IndirectDispatchBuffer0.GetGpuAddress() ) {
+            commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
+            commandBuffer.barrier( SplitRequestQueueBuffer0, rhi::Context::Compute, rhi::Access::ShaderRead );
+            commandBuffer.barrier( SplitRequestQueueBuffer1,
                                    rhi::Context::Compute,
                                    rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-            commandBuffer.Barrier( IndirectDispatchBuffer1,
+            commandBuffer.barrier( IndirectDispatchBuffer1,
                                    rhi::Context::Compute,
                                    rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-            commandBuffer.DispatchIndirect( IndirectDispatchBuffer0 );
+            commandBuffer.dispatchIndirect( IndirectDispatchBuffer0 );
         } else {
-            commandBuffer.Barrier( SplitRequestQueueBuffer0,
+            commandBuffer.barrier( SplitRequestQueueBuffer0,
                                    rhi::Context::Compute,
                                    rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-            commandBuffer.Barrier( SplitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
-            commandBuffer.Barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
-            commandBuffer.Barrier( IndirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
-            commandBuffer.DispatchIndirect( IndirectDispatchBuffer1 );
+            commandBuffer.barrier( SplitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
+            commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
+            commandBuffer.barrier( IndirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
+            commandBuffer.dispatchIndirect( IndirectDispatchBuffer1 );
         }
 
         std::swap( dispatchBufferRead, dispatchBufferWrite );
@@ -383,8 +382,8 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
     // voxelOffset -> index to leaf structure
     //
 
-    commandBuffer.Barrier( terrainWorldOctree.OctreeGpuBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.Barrier( terrainWorldOctree.OctreeChunksBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( terrainWorldOctree.OctreeGpuBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( terrainWorldOctree.OctreeChunksBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
 }
 
 void ExtractIsoSurface( rhi::CommandBuffer& commandBuffer,
@@ -402,13 +401,13 @@ void ExtractIsoSurface( rhi::CommandBuffer& commandBuffer,
     initIsoSurfaceConstants.SurfaceRequests = IsoSurfaceRequestsBuffer.GetGpuAddress();
     initIsoSurfaceConstants.IndirectDispatchBuffer = IndirectDispatchBuffer0.GetGpuAddress();
     initIsoSurfaceConstants.IndirectDrawBuffer = terrainMesh.IndirectDrawBuffer.GetGpuAddress();
-    commandBuffer.BindShaderEffect( generationComponent.SetupDispatchGenerateMeshShader );
+    commandBuffer.bindShaderEffect( generationComponent.SetupDispatchGenerateMeshShader );
 
-    commandBuffer.Barrier( IsoSurfaceRequestsBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.Barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( terrainMesh.IndirectDrawBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, initIsoSurfaceConstants );
-    commandBuffer.Dispatch( 1, 1, 1 );
+    commandBuffer.barrier( IsoSurfaceRequestsBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( terrainMesh.IndirectDrawBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, initIsoSurfaceConstants );
+    commandBuffer.dispatch( 1, 1, 1 );
 
     struct IsoSurfaceExtractionConstants {
         uint64_t SurfaceRequests;
@@ -431,22 +430,22 @@ void ExtractIsoSurface( rhi::CommandBuffer& commandBuffer,
     isoSurfaceConstants.VolumeSourcesList = worldOctree.VolumeObjects.GetGpuAddress();
     isoSurfaceConstants.VolumeSourcesData = worldOctree.VolumeObjectsData.GetGpuAddress();
 
-    commandBuffer.Barrier( TransientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( terrainMesh.IndirectDrawBuffer,
+    commandBuffer.barrier( TransientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( terrainMesh.IndirectDrawBuffer,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
+    commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
 
-    commandBuffer.BindShaderEffect( generationComponent.GenerateMeshShader );
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, isoSurfaceConstants );
-    commandBuffer.DispatchIndirect( IndirectDispatchBuffer0 );
+    commandBuffer.bindShaderEffect( generationComponent.GenerateMeshShader );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, isoSurfaceConstants );
+    commandBuffer.dispatchIndirect( IndirectDispatchBuffer0 );
 
-    commandBuffer.Barrier( terrainMesh.MeshVertices, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( TransientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.Copy( TransientVertexBuffer, terrainMesh.MeshVertices );
+    commandBuffer.barrier( terrainMesh.MeshVertices, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( TransientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.copy( TransientVertexBuffer, terrainMesh.MeshVertices );
 
-    commandBuffer.Barrier( terrainMesh.MeshVertices, rhi::Context::Graphics, rhi::Access::VertexRead );
-    commandBuffer.Barrier( terrainMesh.IndirectDrawBuffer, rhi::Context::Graphics, rhi::Access::IndirectRead );
+    commandBuffer.barrier( terrainMesh.MeshVertices, rhi::Context::Graphics, rhi::Access::VertexRead );
+    commandBuffer.barrier( terrainMesh.IndirectDrawBuffer, rhi::Context::Graphics, rhi::Access::IndirectRead );
 }
 
 using TerrainAccess = ecs::Access ::Read< TerrainSettingsComponent >::
@@ -466,9 +465,9 @@ void System( TerrainEntity terrainEntity,
 
     LoadShaders( assetSystem, graphicsSystem, terrainSettings, generationComponent );
 
-    if ( ( generationComponent.HasLoadedShaders == false ) || !generationComponent.UpdateWorldOctreeShader.isValid() ||
-         !generationComponent.ResetBuffersShader.isValid() || !generationComponent.GenerateMeshShader.isValid() ||
-         !generationComponent.SetupDispatchGenerateMeshShader.isValid() )
+    if( ( generationComponent.HasLoadedShaders == false ) || !generationComponent.UpdateWorldOctreeShader.isValid() ||
+        !generationComponent.ResetBuffersShader.isValid() || !generationComponent.GenerateMeshShader.isValid() ||
+        !generationComponent.SetupDispatchGenerateMeshShader.isValid() )
         return;
 
     constexpr uint32_t nodeCount = ( 1 << 19 );
@@ -516,7 +515,7 @@ void System( TerrainEntity terrainEntity,
         cameraTransform = cameraQuery.GetView().get< const game_core::TransformComponent >( cameraEntity );
 
     static Vector3f32 lastPosition = cameraTransform.Translation;
-    if ( ( lastPosition - cameraTransform.Translation ).lengthSquared() > ( 50 * 50 ) ) {
+    if( ( lastPosition - cameraTransform.Translation ).lengthSquared() > ( 50 * 50 ) ) {
         lastPosition = cameraTransform.Translation;
         ecs::EntityId terrainEntityId = terrainEntity.GetId();
         entityCommandBuffer.AddComponent< InitTerrainFlag >( terrainEntityId );

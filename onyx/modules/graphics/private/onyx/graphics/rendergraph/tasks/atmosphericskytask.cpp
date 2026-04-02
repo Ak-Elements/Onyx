@@ -48,8 +48,8 @@ void AtmosphericSkyRenderGraphNode::OnRender( RenderGraphContext& context, rhi::
     pushConstants.SkyViewLutTextureIndex = m_SkyViewLutTextureIndex;
     pushConstants.SunDirection = GetSunDirection( frameContext.TimeOfDay );
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
-    commandBuffer.Draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 
 Vector3f32 AtmosphericSkyRenderGraphNode::GetSunDirection( float32 timeOfDay ) const {
@@ -64,7 +64,7 @@ Vector3f32 AtmosphericSkyRenderGraphNode::GetSunDirection( float32 timeOfDay ) c
 
 #if ONYX_IS_EDITOR
 StringView AtmosphericSkyRenderGraphNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+    switch( pinId ) {
     case InPin0::LocalId:
         return "View constants";
     case InPin1::LocalId:

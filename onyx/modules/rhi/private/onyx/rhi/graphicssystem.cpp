@@ -36,7 +36,7 @@ bool Serialization< rhi::GraphicSettings >::serialize( Serializer& serializer, c
 bool Serialization< rhi::GraphicSettings >::deserialize( const Deserializer& deserializer,
                                                          rhi::GraphicSettings& outSettings ) {
     StringView path;
-    if ( deserializer.read< "rendergraph" >( path ) ) {
+    if( deserializer.read< "rendergraph" >( path ) ) {
         outSettings.DefaultRenderGraph = assets::AssetId( FilePath( path ) );
     }
 
@@ -72,7 +72,7 @@ GraphicsSystem::GraphicsSystem( const GraphicSettings& settings,
     BlendState& noBlendState = m_BlendStates[ noBlendStateId ];
     noBlendState.IsBlendEnabled = false;
 
-    for ( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
         m_FrameContext[ i ].Api = this;
     }
 
@@ -82,7 +82,7 @@ GraphicsSystem::GraphicsSystem( const GraphicSettings& settings,
     m_GraphicsSystem = makeUnique< vulkan::VulkanGraphicsApi >();
     m_GraphicsSystem->Init( m_Settings );
 
-    for ( const UniquePtr< platform::Window >& window : m_PlatformSystem->GetWindows() ) {
+    for( const UniquePtr< platform::Window >& window : m_PlatformSystem->GetWindows() ) {
         OnWindowCreate( *window );
     }
 
@@ -111,7 +111,7 @@ GraphicsSystem::~GraphicsSystem() {
 }
 
 void GraphicsSystem::CreateDepthImages( Vector2s32 extents ) {
-    if ( extents == m_DepthTextureExtent ) {
+    if( extents == m_DepthTextureExtent ) {
         return;
     }
 
@@ -126,7 +126,7 @@ void GraphicsSystem::CreateDepthImages( Vector2s32 extents ) {
     TextureProperties depthTargetViewProperties;
     depthTargetViewProperties.m_Format = depthTargetStorageProperties.m_Format;
 
-    for ( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
         depthTargetStorageProperties.m_DebugName = format::format( "Depth Storage {}", i );
         depthTargetViewProperties.m_DebugName = format::format( "Depth Image {}", i );
 
@@ -140,7 +140,7 @@ void GraphicsSystem::CreateViewConstantBuffers() {
     uniformBufferProps.m_UsageFlags = static_cast< uint8_t >( BufferUsage::Uniform | BufferUsage::DeviceAddress );
     uniformBufferProps.m_CpuAccess = CPUAccess::Write;
 
-    for ( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
         uniformBufferProps.m_DebugName = format::format( "ViewConstants-{}", i );
         CreateBuffer( m_ViewConstantsUniformBuffers[ i ], uniformBufferProps );
     }
@@ -150,17 +150,17 @@ bool GraphicsSystem::BeginFrame() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
     platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
-    if ( mainWindow.IsMinimized() )
+    if( mainWindow.IsMinimized() )
         return false;
 
-    if ( m_Camera != m_QueuedCamera )
+    if( m_Camera != m_QueuedCamera )
         m_Camera = m_QueuedCamera;
 
     m_HasComputeWork = false;
 
     FrameContext& currentFrameContext = GetFrameContext();
     bool hasBegunFrame = m_GraphicsSystem->BeginFrame( currentFrameContext );
-    if ( ( hasBegunFrame == false ) || m_HasWindowResized ) {
+    if( ( hasBegunFrame == false ) || m_HasWindowResized ) {
         m_HasWindowResized = false;
         m_PresentThread.ClearQueue();
         m_FramebufferCache.Clear();
@@ -171,7 +171,7 @@ bool GraphicsSystem::BeginFrame() {
 
     ONYX_PROFILE_MARK_FRAME_START( GPU_FRAME_NAME );
 
-    if ( m_Camera != nullptr ) {
+    if( m_Camera != nullptr ) {
         ViewConstants& viewConstants = currentFrameContext.ViewConstants;
         viewConstants.ProjectionMatrix = m_Camera->GetProjectionMatrix();
         viewConstants.InverseProjectionMatrix = m_Camera->GetProjectionMatrixInverse();
@@ -218,7 +218,7 @@ void GraphicsSystem::EndFrame() {
     // blit the final image on the swapchain
     //
 
-    commandBuffer.TransitionLayout( swapchainTarget, Context::Graphics, Access::None, ImageLayout::Present );
+    commandBuffer.transitionLayout( swapchainTarget, Context::Graphics, Access::None, ImageLayout::Present );
 
     m_GraphicsSystem->EndFrame( currentFrameContext );
 
@@ -230,7 +230,7 @@ void GraphicsSystem::EndFrame() {
     FrameContext& nextFrameContext = m_FrameContext[ m_FrameIndex ];
     nextFrameContext.FrameIndex = m_FrameIndex;
     nextFrameContext.AbsoluteFrame = currentFrameContext.AbsoluteFrame + 1;
-    if ( m_HasComputeWork )
+    if( m_HasComputeWork )
         nextFrameContext.ComputeFrame = currentFrameContext.ComputeFrame + 1;
 }
 
@@ -274,7 +274,7 @@ void GraphicsSystem::CreateTexture( TextureHandle& outTexture,
                                     const TextureProperties& properties,
                                     const Span< uint8_t >& initialData ) {
     std::lock_guard lock( m_Mutex );
-    if ( initialData.empty() == false ) {
+    if( initialData.empty() == false ) {
         const FrameContext& currentFrameContext = m_FrameContext[ m_FrameIndex ];
         ONYX_LOG_INFO( "Submitting instant in frame {}", currentFrameContext.AbsoluteFrame );
     }

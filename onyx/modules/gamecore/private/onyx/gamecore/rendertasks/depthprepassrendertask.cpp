@@ -31,27 +31,27 @@ void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& contex
 
     const rhi::FrameContext& frameContext = context.FrameContext;
 
-    if ( frameContext.FrameData == nullptr )
+    if( frameContext.FrameData == nullptr )
         return;
 
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
 
-    commandBuffer.SetScissor();
+    commandBuffer.setScissor();
 
     uint32_t instanceOffset = 0;
-    for ( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
+    for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
         ONYX_UNUSED( drawCall );
         // TODO: Batch instances per mesh/material and send transforms via SBO
         // const uint32_t instanceCount = static_cast<uint32_t>(drawCall.m_Transforms.size());
         const uint32_t instanceCount = 1;
 
-        commandBuffer.BindVertexBuffer( drawCall.VertexData, 0, 0 );
-        commandBuffer.BindIndexBuffer( drawCall.Indices, 0, rhi::IndexType::uint32 );
+        commandBuffer.bindVertexBuffer( drawCall.VertexData, 0, 0 );
+        commandBuffer.bindIndexBuffer( drawCall.Indices, 0, rhi::IndexType::uint32 );
 
         Matrix4< float32 > transformMatrix;
-        for ( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
-            commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
-            commandBuffer.DrawIndexed( rhi::PrimitiveTopology::Triangle,
+        for( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
+            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
                                        static_cast< uint32_t >( drawCall.Indices.Buffer->GetProperties().m_Size / 4 ),
                                        instanceCount,
                                        0,
@@ -62,11 +62,11 @@ void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& contex
         }
     }
 
-    for ( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
-        for ( Matrix4< float32 > transformMatrix : indirectDrawCall.Transforms ) {
-            commandBuffer.BindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
-            commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
-            commandBuffer.DrawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
+    for( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
+        for( Matrix4< float32 > transformMatrix : indirectDrawCall.Transforms ) {
+            commandBuffer.bindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
+            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.drawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
         }
     }
 }

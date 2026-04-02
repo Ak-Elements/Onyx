@@ -4,12 +4,10 @@
 
 #include <onyx/profiler/profiler.h>
 
-namespace onyx
-{
-    void GridRenderGraphNode::OnRender(graphics::RenderGraphContext& /*context*/, rhi::CommandBuffer& commandBuffer)
-    {
-        ONYX_PROFILE_FUNCTION;
-        commandBuffer.Draw(rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1);
-    }
+namespace onyx {
+void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& /*context*/, rhi::CommandBuffer& commandBuffer ) {
+    ONYX_PROFILE_FUNCTION;
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1 );
 }
- 
+} // namespace onyx
+

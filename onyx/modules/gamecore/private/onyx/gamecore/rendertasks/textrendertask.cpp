@@ -28,7 +28,7 @@ void MSDFFontRenderPass::OnInit( rhi::GraphicsSystem& api, graphics::RenderGraph
 
     uint16_t indices[ MAX_INDICES ];
     uint16_t offset = 0;
-    for ( uint32_t i = 0; i < MAX_INDICES; i += 6 ) {
+    for( uint32_t i = 0; i < MAX_INDICES; i += 6 ) {
         indices[ i + 0 ] = offset + static_cast< uint16_t >( 0 );
         indices[ i + 1 ] = offset + static_cast< uint16_t >( 1 );
         indices[ i + 2 ] = offset + static_cast< uint16_t >( 2 );
@@ -54,7 +54,7 @@ void MSDFFontRenderPass::OnPreRender( graphics::RenderGraphContext& context, rhi
 
     const rhi::FrameContext& frameContext = context.FrameContext;
 
-    if ( frameContext.FrameData == nullptr )
+    if( frameContext.FrameData == nullptr )
         return;
 
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
@@ -75,13 +75,13 @@ void MSDFFontRenderPass::OnRender( graphics::RenderGraphContext& context, rhi::C
 
     const rhi::FrameContext& frameContext = context.FrameContext;
 
-    if ( frameContext.FrameData == nullptr )
+    if( frameContext.FrameData == nullptr )
         return;
 
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
 
-    commandBuffer.BindVertexBuffer( m_VertexBuffer, 0, 0 );
-    commandBuffer.BindIndexBuffer( m_IndexBuffer, 0, rhi::IndexType::uint16 );
+    commandBuffer.bindVertexBuffer( m_VertexBuffer, 0, 0 );
+    commandBuffer.bindIndexBuffer( m_IndexBuffer, 0, rhi::IndexType::uint16 );
 
     struct PushConstants {
         Matrix4< float32 > Transform;

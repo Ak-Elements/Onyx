@@ -780,7 +780,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
         rhi::ConditionalRender conditional( computeCommandBuffer, m_HitBuffer, sizeof( Vector3f32 ) );
 
         {
-            computeCommandBuffer.Barrier( m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+            computeCommandBuffer.barrier( m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
             ReadbackTerrainHit( computeCommandBuffer );
             m_Tools[ m_SelectedTab ]->ApplyOperation( computeCommandBuffer, m_HitBuffer, terrainOctree );
         }
@@ -887,19 +887,19 @@ void TerrainPanel::TraceTerrain( rhi::CommandBuffer& computeCommandBuffer,
     constants.VolumeSourcesList = terrainOctree.VolumeObjects.GetGpuAddress();
     constants.VolumeSourcesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
 
-    computeCommandBuffer.Barrier( m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    computeCommandBuffer.Barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
-    computeCommandBuffer.Barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
-    computeCommandBuffer.BindShaderEffect( volumeGenerationComponent.RayTraceTerrainShader );
-    computeCommandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, constants );
-    computeCommandBuffer.Dispatch( 1, 1, 1 );
-    computeCommandBuffer.Barrier( m_HitBuffer,
+    computeCommandBuffer.barrier( m_HitBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    computeCommandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
+    computeCommandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
+    computeCommandBuffer.bindShaderEffect( volumeGenerationComponent.RayTraceTerrainShader );
+    computeCommandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
+    computeCommandBuffer.dispatch( 1, 1, 1 );
+    computeCommandBuffer.barrier( m_HitBuffer,
                                   rhi::Context::Compute,
                                   rhi::Access::ShaderRead | rhi::Access::IndirectRead );
 }
 
 void TerrainPanel::ReadbackTerrainHit( rhi::CommandBuffer& computeCommandBuffer ) {
-    computeCommandBuffer.Copy( m_HitBuffer, m_HitReadbackBuffer );
+    computeCommandBuffer.copy( m_HitBuffer, m_HitReadbackBuffer );
 }
 
 void TerrainPanel::FindWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer,
@@ -925,7 +925,7 @@ void TerrainPanel::FindWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer
         float32 Padding[ 3 ];
     };
 
-    computeCommandBuffer.GlobalBarrier( 0, 0x00000020 | 0x00000040 );
+    computeCommandBuffer.globalBarrier( 0, 0x00000020 | 0x00000040 );
     FindOctreeNodePushConstants findOctreeNodeConstants;
     findOctreeNodeConstants.OctreeBufferAddress = terrainOctree.OctreeGpuBuffer.GetGpuAddress();
     findOctreeNodeConstants.RootHalfExtents = terrainOctree.RootSize * 0.5f;
@@ -944,11 +944,11 @@ void TerrainPanel::FindWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer
     findOctreeNodeConstants.MaxGeometricError = terrainSettings.MaxGeometricError;
     findOctreeNodeConstants.ComplexSurfaceThreshold = terrainSettings.ComplexSurfaceThreshold;
 
-    computeCommandBuffer.Barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
-    computeCommandBuffer.Barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
-    computeCommandBuffer.BindShaderEffect( volumeGenerationComponent.FindRayTracedOctreeNodeShader );
-    computeCommandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, findOctreeNodeConstants );
-    computeCommandBuffer.Dispatch( 1, 1, 1 );
+    computeCommandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
+    computeCommandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
+    computeCommandBuffer.bindShaderEffect( volumeGenerationComponent.FindRayTracedOctreeNodeShader );
+    computeCommandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, findOctreeNodeConstants );
+    computeCommandBuffer.dispatch( 1, 1, 1 );
 }
 
 void TerrainPanel::UpdateTerrainMesh( const rhi::CommandBuffer& commandBuffer,

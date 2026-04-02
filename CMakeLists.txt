@@ -34,6 +34,10 @@ option(ONYX_BUILD_TESTS "Build tests" OFF)
 option(ONYX_STATIC_ANALYSIS "Turn static analysis on/off" OFF)
 option(ONYX_GENERATE_DATA_SYMLINK "Turn static analysis on/off" OFF)
 
+if(NOT DEFINED CPM_SOURCE_CACHE)
+  set(CPM_SOURCE_CACHE "${CMAKE_SOURCE_DIR}/.cache/deps")
+endif()
+
 cmake_dependent_option(ONYX_GENERATE_APP_CONFIG "Generate default application config" OFF PROJECT_IS_TOP_LEVEL ON)
 
 # String Options

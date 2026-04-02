@@ -48,8 +48,8 @@ void SkyViewLutRenderGraphNode::OnRender( RenderGraphContext& context, rhi::Comm
     pushConstants.MultipleScatteringTextureIndex = m_MultipleScatteringTextureIndex;
     pushConstants.SunDirection = GetSunDirection( frameContext.TimeOfDay );
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
-    commandBuffer.Draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 
 Vector3f32 SkyViewLutRenderGraphNode::GetSunDirection( float32 timeOfDay ) const {
@@ -64,7 +64,7 @@ Vector3f32 SkyViewLutRenderGraphNode::GetSunDirection( float32 timeOfDay ) const
 
 #if ONYX_IS_EDITOR
 StringView SkyViewLutRenderGraphNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+    switch( pinId ) {
     case InPin0::LocalId:
         return "Transmittance";
     case InPin1::LocalId:

@@ -37,7 +37,7 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, const Textur
                                     uint32_t( properties.m_Size[ 1 ] ),
                                     uint32_t( properties.m_Size[ 2 ] ) };
     createInfo.usage = GetUsageFlags( properties );
-    if ( properties.m_Type == TextureType::TextureCube )
+    if( properties.m_Type == TextureType::TextureCube )
         createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
     createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -90,19 +90,19 @@ void VulkanTextureStorage::Free( VulkanGraphicsApi& api ) {
 
 VulkanTextureStorage::~VulkanTextureStorage() {
     // m_Memory is only set for dedicated allocated images, swapchain images have no m_Memory
-    if ( m_Memory ) {
+    if( m_Memory ) {
         vkDestroyImage( m_Device->GetHandle(), m_Image, nullptr );
         m_Image = nullptr;
     }
 }
 
 VkImageAspectFlags VulkanTextureStorage::GetAspectFlags( TextureFormat format ) {
-    if ( Utils::IsDepthFormat( format ) ) {
-        if ( format == TextureFormat::STENCIL_UINT8 )
+    if( Utils::IsDepthFormat( format ) ) {
+        if( format == TextureFormat::STENCIL_UINT8 )
             return VK_IMAGE_ASPECT_STENCIL_BIT;
 
         VkFormatFeatureFlags flags = VK_IMAGE_ASPECT_DEPTH_BIT;
-        if ( Utils::HasStencil( format ) )
+        if( Utils::HasStencil( format ) )
             flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
         return flags;
@@ -112,7 +112,7 @@ VkImageAspectFlags VulkanTextureStorage::GetAspectFlags( TextureFormat format ) 
 }
 
 VkImageType VulkanTextureStorage::GetType( TextureType type ) {
-    switch ( type ) {
+    switch( type ) {
     case TextureType::Texture1D:
         return VK_IMAGE_TYPE_1D;
     case TextureType::Texture2D: // intentional fallthrough
@@ -129,7 +129,7 @@ VkImageType VulkanTextureStorage::GetType( TextureType type ) {
 }
 
 VkFormat VulkanTextureStorage::GetFormat( TextureFormat format ) {
-    switch ( format ) {
+    switch( format ) {
     case TextureFormat::Invalid:
         break;
     case TextureFormat::R_UNORM8:
@@ -183,7 +183,7 @@ VkFormat VulkanTextureStorage::GetFormat( TextureFormat format ) {
 }
 
 TextureFormat VulkanTextureStorage::GetFormat( VkFormat format ) {
-    switch ( format ) {
+    switch( format ) {
     case VK_FORMAT_UNDEFINED:
         return TextureFormat::Invalid;
     case VK_FORMAT_R8_UNORM:
@@ -276,7 +276,7 @@ void VulkanTextureStorage::UpdateData( VulkanGraphicsApi& api, const Span< uint8
                                 &bufferCopyRegion );
 
         // prepare first mip
-        if ( m_Properties.m_MaxMipLevel > 1 )
+        if( m_Properties.m_MaxMipLevel > 1 )
             TransitionLayout( vulkanCmdBuffer,
                               Context::Graphics,
                               Access::TransferRead,
@@ -285,7 +285,7 @@ void VulkanTextureStorage::UpdateData( VulkanGraphicsApi& api, const Span< uint8
         int32_t width = m_Properties.m_Size[ 0 ];
         int32_t height = m_Properties.m_Size[ 1 ];
 
-        for ( uint32_t mipIndex = 1; mipIndex < m_Properties.m_MaxMipLevel; ++mipIndex ) {
+        for( uint32_t mipIndex = 1; mipIndex < m_Properties.m_MaxMipLevel; ++mipIndex ) {
             TransitionLayout( vulkanCmdBuffer,
                               Context::Graphics,
                               Access::TransferWrite,
@@ -348,7 +348,7 @@ int8_t VulkanTextureStorage::Alias( const TextureStorageProperties& aliasPropert
                                     static_cast< uint32_t >( aliasProperties.m_Size[ 1 ] ),
                                     static_cast< uint32_t >( aliasProperties.m_Size[ 2 ] ) };
     createInfo.usage = GetUsageFlags( aliasProperties );
-    if ( aliasProperties.m_Type == TextureType::TextureCube )
+    if( aliasProperties.m_Type == TextureType::TextureCube )
         createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
     createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -397,21 +397,21 @@ void VulkanTextureStorage::TransitionLayout( CommandBuffer& commandBuffer,
                                              ImageLayout newLayout ) {
     VkImageMemoryBarrier2KHR barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR;
-    barrier.srcAccessMask = ToAccessFlag( m_Access );
-    barrier.srcStageMask = GetPipelineFlags( barrier.srcAccessMask, context );
-    barrier.dstAccessMask = ToAccessFlag( newAccess );
-    barrier.dstStageMask = GetPipelineFlags( barrier.dstAccessMask, context );
+    barrier.srcAccessMask = toAccessFlag( m_Access );
+    barrier.srcStageMask = getPipelineFlags( barrier.srcAccessMask, context );
+    barrier.dstAccessMask = toAccessFlag( newAccess );
+    barrier.dstStageMask = getPipelineFlags( barrier.dstAccessMask, context );
 
     bool isDepthFormat = Utils::IsDepthFormat( m_Properties.m_Format );
-    VkImageLayout vkOldLayout = ToImageLayout( m_Layout );
-    VkImageLayout vkNewLayout = ToImageLayout( newLayout );
+    VkImageLayout vkOldLayout = toImageLayout( m_Layout );
+    VkImageLayout vkNewLayout = toImageLayout( newLayout );
 
-    if ( isDepthFormat ) {
-        if ( vkOldLayout == VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL ) {
+    if( isDepthFormat ) {
+        if( vkOldLayout == VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL ) {
             vkOldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        if ( vkNewLayout == VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL ) {
+        if( vkNewLayout == VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL ) {
             vkNewLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
     }
@@ -445,14 +445,14 @@ void VulkanTextureStorage::TransitionLayout( CommandBuffer& commandBuffer,
 VkImageUsageFlags VulkanTextureStorage::GetUsageFlags( const TextureStorageProperties& properties ) {
     VkImageUsageFlags usageFlags = 0;
 
-    switch ( properties.m_GpuAccess ) {
+    switch( properties.m_GpuAccess ) {
     case GPUAccess::Read:
     case GPUAccess::Write:
         usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         break;
 
     case GPUAccess::Staging:
-        if ( properties.m_CpuAccess == CPUAccess::Write ) // upload staging texture
+        if( properties.m_CpuAccess == CPUAccess::Write ) // upload staging texture
             usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         else
             usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
@@ -461,17 +461,17 @@ VkImageUsageFlags VulkanTextureStorage::GetUsageFlags( const TextureStoragePrope
         ONYX_ASSERT( false, "Illegal GPU access value: 0x{:x}", enums::toIntegral( properties.m_GpuAccess ) );
     }
 
-    if ( properties.m_IsTexture )
+    if( properties.m_IsTexture )
         usageFlags |= VK_IMAGE_USAGE_SAMPLED_BIT;
 
-    if ( properties.m_IsFrameBuffer ) {
-        if ( Utils::IsDepthFormat( properties.m_Format ) )
+    if( properties.m_IsFrameBuffer ) {
+        if( Utils::IsDepthFormat( properties.m_Format ) )
             usageFlags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         else
             usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     }
 
-    if ( properties.m_IsWritable )
+    if( properties.m_IsWritable )
         usageFlags |= VK_IMAGE_USAGE_STORAGE_BIT;
 
     return usageFlags;

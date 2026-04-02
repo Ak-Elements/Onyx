@@ -10,7 +10,7 @@ struct ComponentEditor {
 } // namespace onyx::Editor
 
 namespace onyx::ecs {
-namespace Details {
+namespace details {
 template < typename T >
 concept IsTransient = requires( T obj ) { T::IsTransient; };
 
@@ -19,21 +19,21 @@ concept IsCodeOnly = requires( T obj ) { T::IsCodeOnly; };
 
 template < typename T >
 concept IsFlagComponent = std::is_empty_v< T >;
-} // namespace Details
+} // namespace details
 
 class EntityRegistry;
 
 struct IComponentMeta {
     virtual ~IComponentMeta() = default;
 
-    virtual void Create( EntityRegistry& registry, EntityId entity ) const = 0;
-    virtual void Create( EntityRegistry& registry, EntityId entity, const Deserializer& deserializer ) const = 0;
-    virtual void Create( EntityRegistry& registry, EntityId entity, Span< uint32_t > buffer ) const = 0;
+    virtual void create( EntityRegistry& registry, EntityId entity ) const = 0;
+    virtual void create( EntityRegistry& registry, EntityId entity, const Deserializer& deserializer ) const = 0;
+    virtual void create( EntityRegistry& registry, EntityId entity, const std::any& component ) const = 0;
 
-    virtual void Copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const = 0;
-    virtual void Copy( void* componentPtr, DynamicArray< uint32_t >& outBuffer ) const = 0;
+    virtual void copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const = 0;
+    virtual void copy( void* componentPtr, std::any& outCopy ) const = 0;
 
-    virtual bool HasFactory() const = 0;
+    ONYX_NO_DISCARD virtual bool hasFactory() const = 0;
 
     virtual bool serialize( const void* componentAny, Serializer& ) const = 0;
     virtual bool deserialize( void* componentAny, const Deserializer& ) const = 0;
@@ -41,11 +41,11 @@ struct IComponentMeta {
 #if !ONYX_IS_RETAIL
     // virtual bool DrawPropertyGridEditor(void* componentAny) const = 0;
 #endif
-    virtual constexpr bool IsTransient() const = 0;
-    virtual constexpr bool IsCodeOnly() const = 0;
-    virtual constexpr bool IsFlag() const = 0;
-    virtual constexpr StringId32 GetTypeId() const = 0;
-    virtual constexpr uint32_t GetRuntimeTypeId() const = 0;
+    ONYX_NO_DISCARD virtual constexpr bool isTransient() const = 0;
+    ONYX_NO_DISCARD virtual constexpr bool isCodeOnly() const = 0;
+    ONYX_NO_DISCARD virtual constexpr bool isFlag() const = 0;
+    ONYX_NO_DISCARD virtual constexpr StringId32 getTypeId() const = 0;
+    ONYX_NO_DISCARD virtual constexpr uint32_t getRuntimeTypeId() const = 0;
 };
 
 template < typename T >
@@ -58,19 +58,19 @@ struct ComponentMeta : public IComponentMeta {
 
   public:
     static_assert(
-        Details::IsTransient< T > || Details::IsFlagComponent< T > || (Serializable< T > && Deserializable< T >),
+        details::IsTransient< T > || details::IsFlagComponent< T > || (Serializable< T > && Deserializable< T >),
         "Component needs to be either marked as transient or implement Serialize / Deserialize capabilities." );
 
     ComponentMeta() = default;
     ComponentMeta( ComponentFactoryFunction< T > factory )
-        : m_Factory( factory ) {}
+        : m_factory( factory ) {}
 
-    constexpr bool IsTransient() const override { return Details::IsTransient< T >; }
-    constexpr bool IsCodeOnly() const override { return Details::IsCodeOnly< T >; }
-    constexpr bool IsFlag() const override { return Details::IsFlagComponent< T >; }
+    constexpr bool isTransient() const override { return details::IsTransient< T >; }
+    constexpr bool isCodeOnly() const override { return details::IsCodeOnly< T >; }
+    constexpr bool isFlag() const override { return details::IsFlagComponent< T >; }
 
-    constexpr StringId32 GetTypeId() const override {
-        if constexpr ( HasTypeId< T > ) {
+    constexpr StringId32 getTypeId() const override {
+        if constexpr( HasTypeId< T > ) {
             return T::TypeId;
         } else {
             ONYX_ASSERT( false, "Calling get typeid on a component that has no type id defined" );
@@ -78,15 +78,15 @@ struct ComponentMeta : public IComponentMeta {
         }
     }
 
-    constexpr uint32_t GetRuntimeTypeId() const override { return TypeHash< T >(); }
+    constexpr uint32_t getRuntimeTypeId() const override { return TypeHash< T >(); }
 
-    void Create( EntityRegistry& registry, EntityId entity ) const override {
-        if constexpr ( Details::IsFlagComponent< T > ) {
+    void create( EntityRegistry& registry, EntityId entity ) const override {
+        if constexpr( details::IsFlagComponent< T > ) {
             registry.AddComponent< T >( entity );
-        } else if constexpr ( Deserializable< T > ) {
+        } else if constexpr( Deserializable< T > ) {
             T component{};
-            if ( m_Factory ) {
-                m_Factory( registry, entity, std::move( component ) );
+            if( m_factory ) {
+                m_factory( registry, entity, std::move( component ) );
             } else {
                 registry.AddComponent< T >( entity, component );
             }
@@ -96,13 +96,13 @@ struct ComponentMeta : public IComponentMeta {
     }
 
     template < typename... Args >
-    void Create( EntityRegistry& registry, EntityId entity, Args&&... args ) const {
-        if constexpr ( Details::IsFlagComponent< T > ) {
+    void create( EntityRegistry& registry, EntityId entity, Args&&... args ) const {
+        if constexpr( details::IsFlagComponent< T > ) {
             registry.AddComponent< T >( entity );
-        } else if constexpr ( Deserializable< T > ) {
+        } else if constexpr( Deserializable< T > ) {
             T component( std::forward< Args >( args )... );
-            if ( m_Factory ) {
-                m_Factory( registry, entity, std::move( component ) );
+            if( m_factory ) {
+                m_factory( registry, entity, std::move( component ) );
             } else {
                 registry.AddComponent< T >( entity, component );
             }
@@ -111,15 +111,15 @@ struct ComponentMeta : public IComponentMeta {
         }
     }
 
-    void Create( EntityRegistry& registry, EntityId entity, const Deserializer& deserializer ) const override {
-        if constexpr ( Details::IsFlagComponent< T > ) {
+    void create( EntityRegistry& registry, EntityId entity, const Deserializer& deserializer ) const override {
+        if constexpr( details::IsFlagComponent< T > ) {
             registry.AddComponent< T >( entity );
-        } else if constexpr ( Deserializable< T > ) {
+        } else if constexpr( Deserializable< T > ) {
             T component{};
             Serialization< T >::deserialize( deserializer, component );
 
-            if ( m_Factory ) {
-                m_Factory( registry, entity, std::move( component ) );
+            if( m_factory ) {
+                m_factory( registry, entity, std::move( component ) );
             } else {
                 registry.AddComponent< T >( entity, component );
             }
@@ -128,35 +128,31 @@ struct ComponentMeta : public IComponentMeta {
         }
     }
 
-    void Create( EntityRegistry& registry, EntityId entity, Span< uint32_t > buffer ) const override {
-        T component;
-        std::memcpy( std::bit_cast< void* >( &component ), buffer.data(), buffer.size() );
-        Create( registry, entity, component );
+    void create( EntityRegistry& registry, EntityId entity, const std::any& component ) const override {
+        const T& typedComponent = std::any_cast< const T >( component );
+        create( registry, entity, typedComponent );
     }
 
-    void Copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const override {
-        if constexpr ( Details::IsFlagComponent< T > ) {
+    void copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const override {
+        if constexpr( details::IsFlagComponent< T > ) {
             registry.AddComponent< T >( entity );
         } else {
             const T* component = static_cast< const T* >( componentPtr );
-            if ( m_Factory ) {
+            if( m_factory ) {
                 T copied = *component;
-                m_Factory( registry, entity, std::move( copied ) );
+                m_factory( registry, entity, std::move( copied ) );
             } else {
                 registry.AddComponent< T >( entity, *component );
             }
         }
     }
 
-    void Copy( void* componentPtr, DynamicArray< uint32_t >& outBuffer ) const override {
-        outBuffer.resize( sizeof( T ) );
-        std::memcpy( outBuffer.data(), componentPtr, outBuffer.size() );
-    }
+    void copy( void* componentPtr, std::any& outCopy ) const override { outCopy = *static_cast< T* >( componentPtr ); }
 
-    bool HasFactory() const override { return m_Factory != nullptr; }
+    bool hasFactory() const override { return m_factory != nullptr; }
 
     bool serialize( const void* componentAny, Serializer& serializer ) const override {
-        if constexpr ( Serializable< T > ) {
+        if constexpr( Serializable< T > ) {
             const T* component = static_cast< const T* >( componentAny );
             Serialization< T >::serialize( serializer, *component );
             return true;
@@ -167,7 +163,7 @@ struct ComponentMeta : public IComponentMeta {
     }
 
     bool deserialize( void* componentAny, const Deserializer& deserializer ) const override {
-        if constexpr ( Deserializable< T > ) {
+        if constexpr( Deserializable< T > ) {
             T* component = static_cast< T* >( componentAny );
             Serialization< T >::deserialize( deserializer, *component );
             return true;
@@ -178,7 +174,7 @@ struct ComponentMeta : public IComponentMeta {
     }
 
   private:
-    StringId32 m_TypeId;
-    InplaceFunction< void( EntityRegistry&, EntityId, T&& ) > m_Factory;
+    StringId32 m_typeId;
+    InplaceFunction< void( EntityRegistry&, EntityId, T&& ) > m_factory;
 };
 } // namespace onyx::ecs

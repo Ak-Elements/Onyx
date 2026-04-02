@@ -39,7 +39,7 @@ void StaticMeshRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& cont
     uint64_t outputGlobalId = GetOutputPin( 0 )->GetGlobalId().get();
 
     const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId( GBufferTargetInPin::LocalId );
-    if ( gbufferRenderTargetPin->IsConnected() ) {
+    if( gbufferRenderTargetPin->IsConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
             gbufferRenderTargetPin->GetLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
@@ -47,11 +47,11 @@ void StaticMeshRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& cont
     }
 
     const rhi::FrameContext& frameContext = context.FrameContext;
-    if ( frameContext.FrameData == nullptr )
+    if( frameContext.FrameData == nullptr )
         return;
 
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
-    for ( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
+    for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
         const graphics::MaterialShaderGraph& shaderGraph = *drawCall.Material;
         const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
 
@@ -59,7 +59,7 @@ void StaticMeshRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& cont
         hasBegun = true;
     }
 
-    for ( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
+    for( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
         const graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
         const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
 
@@ -73,27 +73,27 @@ void StaticMeshRenderGraphNode::OnRender( graphics::RenderGraphContext& context,
 
     const rhi::FrameContext& frameContext = context.FrameContext;
 
-    if ( frameContext.FrameData == nullptr )
+    if( frameContext.FrameData == nullptr )
         return;
 
-    if ( hasBegun == false )
+    if( hasBegun == false )
         return;
 
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
 
-    for ( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
+    for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
         PrepareShaderGraph( commandBuffer, context.FrameContext, *drawCall.Material );
 
         const uint32_t instanceCount = 1;
 
-        commandBuffer.BindVertexBuffer( drawCall.VertexData, 0, 0 );
-        commandBuffer.BindIndexBuffer( drawCall.Indices, 0, rhi::IndexType::uint32 );
+        commandBuffer.bindVertexBuffer( drawCall.VertexData, 0, 0 );
+        commandBuffer.bindIndexBuffer( drawCall.Indices, 0, rhi::IndexType::uint32 );
 
         uint32_t instanceOffset = 0;
 
-        for ( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
-            commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
-            commandBuffer.DrawIndexed( rhi::PrimitiveTopology::Triangle,
+        for( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
+            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
                                        static_cast< uint32_t >( drawCall.Indices.Buffer->GetProperties().m_Size / 4 ),
                                        instanceCount,
                                        0,
@@ -103,18 +103,18 @@ void StaticMeshRenderGraphNode::OnRender( graphics::RenderGraphContext& context,
         }
     }
 
-    if ( sceneFrameData.m_StaticMeshIndirectDrawCalls.empty() )
+    if( sceneFrameData.m_StaticMeshIndirectDrawCalls.empty() )
         return;
 
     const StaticMeshIndirectDrawCall& first = sceneFrameData.m_StaticMeshIndirectDrawCalls.front();
     PrepareShaderGraph( commandBuffer, context.FrameContext, *first.Material );
 
-    for ( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
-        commandBuffer.BindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
+    for( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
+        commandBuffer.bindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
 
-        for ( Matrix4< float32 > transformMatrix : indirectDrawCall.Transforms ) {
-            commandBuffer.BindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
-            commandBuffer.DrawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
+        for( Matrix4< float32 > transformMatrix : indirectDrawCall.Transforms ) {
+            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.drawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
         }
     }
 }
@@ -129,7 +129,7 @@ void StaticMeshRenderGraphNode::PrepareShaderGraph( rhi::CommandBuffer& commandB
     // TODO: Fix for other types
     const graphics::MaterialShaderGraph& materialShader = static_cast< const graphics::MaterialShaderGraph& >(
         shaderGraph );
-    commandBuffer.BindShaderEffect( materialShader.GetShader() );
+    commandBuffer.bindShaderEffect( materialShader.GetShader() );
 
     const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get< graphics::ShaderGraphTextures >();
     const DynamicArray< uint32_t >& textureIndices = shaderTextures.GetTextures();
@@ -157,9 +157,9 @@ void StaticMeshRenderGraphNode::PrepareShaderGraph( rhi::CommandBuffer& commandB
     generalConstants.LightClusterBias = -( graphics::render_graph_nodes::CLUSTER_Z * log2( viewConstants.Near ) /
                                            nearFarLog );
     generalConstants.Debug = 0;
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 64, generalConstants );
-    if ( textureIndices.empty() == false ) {
-        commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 64 + sizeof( PushConstants ), textureIndices );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64, generalConstants );
+    if( textureIndices.empty() == false ) {
+        commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64 + sizeof( PushConstants ), textureIndices );
     }
 }
 

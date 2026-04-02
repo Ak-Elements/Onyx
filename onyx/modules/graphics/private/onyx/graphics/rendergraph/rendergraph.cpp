@@ -31,19 +31,19 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
 
     // Create render, framebuffers & pso's
     const auto topologicalOrder = m_Graph.GetTopologicalOrder();
-    for ( const LocalNodeId nodeId : topologicalOrder ) {
+    for( const LocalNodeId nodeId : topologicalOrder ) {
         IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
         const uint32_t inputPinCount = graphNode.GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
-            if ( inputPin->IsConnected() == false )
+            if( inputPin->IsConnected() == false )
                 continue;
 
             ++resourceRefCounts[ inputPin->GetLinkedPinGlobalId().get() ];
         }
     }
 
-    for ( const LocalNodeId nodeId : topologicalOrder ) {
+    for( const LocalNodeId nodeId : topologicalOrder ) {
         const bool isLastNode = nodeId == topologicalOrder[ ( topologicalOrder.size() - 1 ) ];
 
         IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
@@ -51,21 +51,21 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
         graphNode.Init( graphicsSystem, m_ResourceCache );
 
         uint32_t outputPinCount = graphNode.GetOutputPinCount();
-        for ( uint32_t i = 0; i < outputPinCount; ++i ) {
+        for( uint32_t i = 0; i < outputPinCount; ++i ) {
             const node_graph::PinBase* outputPin = graphNode.GetOutputPin( i );
             RenderGraphResource& output = m_ResourceCache[ outputPin->GetGlobalId().get() ];
 
-            if ( outputPin->GetType() == static_cast< node_graph::PinTypeId >( TypeHash< rhi::BufferHandle >() ) )
+            if( outputPin->GetType() == static_cast< node_graph::PinTypeId >( TypeHash< rhi::BufferHandle >() ) )
                 continue;
 
             // TODO: Improve handling of final texture Id as this is very error prone
-            if ( isLastNode ) {
+            if( isLastNode ) {
                 m_FinalTextureId = outputPin->GetGlobalId().get();
             }
 
             RenderGraphTextureResourceInfo& textureInfo = std::get< RenderGraphTextureResourceInfo >(
                 output.Properties );
-            if ( textureInfo.Type == RenderGraphResourceType::Reference ) {
+            if( textureInfo.Type == RenderGraphResourceType::Reference ) {
                 RenderGraphTextureResourceInfo& linkedTextureInfo = std::get< RenderGraphTextureResourceInfo >(
                     m_ResourceCache[ 0xba68b0d91801004 ].Properties );
                 textureInfo.Format = linkedTextureInfo.Format;
@@ -74,12 +74,12 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
                 continue;
             }
 
-            if ( output.IsExternal ) {
+            if( output.IsExternal ) {
                 // external resources get patched in during the rendering
                 continue;
             }
 
-            if ( CreateAttachment( graphicsSystem, output, freeList ) == false ) {
+            if( CreateAttachment( graphicsSystem, output, freeList ) == false ) {
                 // TODO: Add info for node / which output resource etc.
                 ONYX_LOG_WARNING( "Failed creating output attachment for graph resource." );
                 continue;
@@ -87,17 +87,17 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
         }
 
         const uint32_t inputPinCount = graphNode.GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
             // check for invalid ID
-            if ( inputPin->IsConnected() == false )
+            if( inputPin->IsConnected() == false )
                 continue;
 
             Guid64 id = inputPin->GetLinkedPinGlobalId();
             --resourceRefCounts[ id.get() ];
 
             RenderGraphResource& input = m_ResourceCache[ id.get() ];
-            if ( ( input.IsExternal == false ) && ( resourceRefCounts[ input.Info.Id ] == 0 ) ) {
+            if( ( input.IsExternal == false ) && ( resourceRefCounts[ input.Info.Id ] == 0 ) ) {
                 // deallocations.
                 //  Track deallocations?
                 // if ((input.Info.Type == RenderGraphResourceType::Attachment) || (input.Info.Type ==
@@ -115,7 +115,7 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
     }
 
     // create renderpass and framebuffer
-    for ( const LocalNodeId nodeId : topologicalOrder ) {
+    for( const LocalNodeId nodeId : topologicalOrder ) {
         IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
         graphNode.Compile( graphicsSystem, m_ResourceCache );
     }
@@ -131,7 +131,7 @@ void RenderGraph::Shutdown( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    for ( const LocalNodeId nodeId : m_Graph.GetTopologicalOrder() ) {
+    for( const LocalNodeId nodeId : m_Graph.GetTopologicalOrder() ) {
         IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
         graphNode.Shutdown( graphicsSystem );
     }
@@ -164,10 +164,10 @@ void RenderGraph::OnBeginFrame( const rhi::FrameContext& frameContext ) {
     resourceInfo.Size = Vector3s32( frameContext.Api->GetSwapchainExtent(), 0 );
 
     RenderGraphContext graphContext{ frameContext, *this };
-    for ( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
+    for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
         IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
 
-        if ( node.IsEnabled() == false ) {
+        if( node.IsEnabled() == false ) {
             continue;
         }
 
@@ -183,10 +183,10 @@ void RenderGraph::OnRenderFrame( const rhi::FrameContext& context ) {
     RenderGraphContext graphContext{ context, *this };
     rhi::CommandBuffer& commandBuffer = context.Api->GetCommandBuffer( context.FrameIndex, true );
 
-    for ( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
+    for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
         IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
 
-        if ( node.HasBegunFrame() == false ) {
+        if( node.HasBegunFrame() == false ) {
             continue;
         }
 
@@ -202,10 +202,10 @@ void RenderGraph::OnEndFrame( const rhi::FrameContext& frameContext ) {
 
     // wait for tasks
     RenderGraphContext graphContext{ frameContext, *this };
-    for ( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
+    for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
         IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
 
-        if ( node.HasBegunFrame() == false ) {
+        if( node.HasBegunFrame() == false ) {
             continue;
         }
 
@@ -213,9 +213,9 @@ void RenderGraph::OnEndFrame( const rhi::FrameContext& frameContext ) {
     }
 
     rhi::TextureHandle finalTexture = std::get< rhi::TextureHandle >( m_ResourceCache.at( m_FinalTextureId ).Handle );
-    if ( finalTexture.IsValid() ) {
+    if( finalTexture.IsValid() ) {
         auto& commandBuffer = frameContext.Api->GetCommandBuffer( frameContext.FrameIndex, true );
-        commandBuffer.TransitionLayout( finalTexture,
+        commandBuffer.transitionLayout( finalTexture,
                                         rhi::Context::Graphics,
                                         rhi::Access::ShaderRead,
                                         rhi::ImageLayout::ReadOptimal );
@@ -239,7 +239,7 @@ void RenderGraph::OnSwapChainResized( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    for ( LocalNodeId nodeId : m_Graph.GetTopologicalOrder() ) {
+    for( LocalNodeId nodeId : m_Graph.GetTopologicalOrder() ) {
         IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
         node.OnSwapChainResized( graphicsSystem, m_ResourceCache );
     }
@@ -285,7 +285,7 @@ bool RenderGraph::CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
 #endif
 
     // first check if we have a resource in the free list that we can use
-    for ( uint32_t freeIndex = 0; freeIndex < freeList.size(); ++freeIndex ) {
+    for( uint32_t freeIndex = 0; freeIndex < freeList.size(); ++freeIndex ) {
         RenderGraphResourceId id = freeList[ freeIndex ];
         RenderGraphResource& freeResource = m_ResourceCache[ id ];
 
@@ -293,8 +293,8 @@ bool RenderGraph::CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
         const rhi::TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->GetProperties();
 
         // wrap in a function to check if its alias-able?
-        if ( ( storageProperties.m_Size != freeTextureStorageProperties.m_Size ) ||
-             ( storageProperties.m_Format != freeTextureStorageProperties.m_Format ) )
+        if( ( storageProperties.m_Size != freeTextureStorageProperties.m_Size ) ||
+            ( storageProperties.m_Format != freeTextureStorageProperties.m_Format ) )
             continue;
 
         // Add logic for handling already aliased textures?

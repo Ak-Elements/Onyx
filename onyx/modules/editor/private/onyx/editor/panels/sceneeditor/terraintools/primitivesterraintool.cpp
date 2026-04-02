@@ -30,15 +30,15 @@ StringView PrimitivesTerrainTool::GetTitle() {
 void PrimitivesTerrainTool::Render() {
     ImGui::BeginHorizontal( "Primitives", ImVec2( 0, 0 ) );
 
-    if ( ImGui::Button( "Sphere" ) ) {
+    if( ImGui::Button( "Sphere" ) ) {
         m_Type = Primitives::Sphere;
     }
 
-    if ( ImGui::Button( "Cube" ) ) {
+    if( ImGui::Button( "Cube" ) ) {
         m_Type = Primitives::Cube;
     }
 
-    if ( ImGui::Button( "Ellipsoid" ) ) {
+    if( ImGui::Button( "Ellipsoid" ) ) {
         m_Type = Primitives::Ellipsoid;
     }
 
@@ -75,11 +75,11 @@ void PrimitivesTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
     createVolumeSourceConstants.BrushType = enums::toIntegral( m_Type );
     createVolumeSourceConstants.BrushOperation = enums::toIntegral( m_Operation );
 
-    commandBuffer.BindShaderEffect( m_CreateVolumeSourceShader );
-    commandBuffer.Barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, createVolumeSourceConstants );
-    commandBuffer.Dispatch( 1, 1, 1 );
+    commandBuffer.bindShaderEffect( m_CreateVolumeSourceShader );
+    commandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, createVolumeSourceConstants );
+    commandBuffer.dispatch( 1, 1, 1 );
 }
 
 void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
@@ -94,7 +94,7 @@ void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
                                                                    static_cast< uint64_t >( newEntity ) );
 
     String name;
-    switch ( m_Type ) {
+    switch( m_Type ) {
     case Primitives::Sphere: {
         componentFactory.TryCreateComponent< volume::SphereComponent >( registry, newEntity, m_BrushSize.X );
         name = scene.GetUniqueEntityName( "VolumeSource_Sphere" );
@@ -126,14 +126,14 @@ void PrimitivesTerrainTool::RenderProperties() {
     uint32_t color = m_Operation == Operation::Union ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                                                      : ImGui::GetColorU32( ImGuiCol_Button );
     onyx::ui::DrawPlusIcon( drawList, ImVec2( -16, -16 ), 32.0f, color );
-    if ( ImGui::InvisibleButton( "plus", ImVec2( 32.0f, 32.0f ) ) ) {
+    if( ImGui::InvisibleButton( "plus", ImVec2( 32.0f, 32.0f ) ) ) {
         m_Operation = Operation::Union;
     }
 
     color = m_Operation == Operation::Subtract ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                                                : ImGui::GetColorU32( ImGuiCol_Button );
     onyx::ui::DrawMinusIcon( drawList, ImVec2( -16, -16 ), 32.0f, color );
-    if ( ImGui::InvisibleButton( "minus", ImVec2( 32.0f, 32.0f ) ) ) {
+    if( ImGui::InvisibleButton( "minus", ImVec2( 32.0f, 32.0f ) ) ) {
         m_Operation = Operation::Subtract;
     }
     ImGui::Spring();
@@ -141,7 +141,7 @@ void PrimitivesTerrainTool::RenderProperties() {
 
     ui::property_grid::beginPropertyGrid( "Properties", 80.0f );
 
-    switch ( m_Type ) {
+    switch( m_Type ) {
     case Primitives::Sphere: {
         ui::property_grid::drawProperty( "Radius", m_BrushSize.X );
         break;

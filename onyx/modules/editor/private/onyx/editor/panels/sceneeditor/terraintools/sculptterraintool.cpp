@@ -20,7 +20,7 @@ void DrawSmoothArrow( const ImVec2& from,
 
     ImVec2 dir = to - from;
     float len = sqrtf( dir.x * dir.x + dir.y * dir.y );
-    if ( len < 0.001f )
+    if( len < 0.001f )
         return;
 
     dir.x /= len;
@@ -40,7 +40,7 @@ void DrawSmoothArrow( const ImVec2& from,
     draw_list->PathLineTo( to - dir * thickness * 0.5f );
     draw_list->PathStroke( color, false, thickness ); // false = open path
     // rounded start cap
-    if ( roundShaft )
+    if( roundShaft )
         draw_list->AddCircleFilled( from, radius, color );
 
     // ---- Draw arrowhead ----
@@ -65,7 +65,7 @@ void AddDashedCubicBezier( ImDrawList* dl,
                            float dash_len = 10.0f,
                            float gap_len = 5.0f,
                            int num_segments = 64 ) {
-    if ( ( col & IM_COL32_A_MASK ) == 0 || dl == nullptr )
+    if( ( col & IM_COL32_A_MASK ) == 0 || dl == nullptr )
         return;
 
     // float total_len = dash_len + gap_len;
@@ -74,7 +74,7 @@ void AddDashedCubicBezier( ImDrawList* dl,
     float dist_accum = 0.0f;
     bool drawing = true;
 
-    for ( int i = 1; i <= num_segments; i++ ) {
+    for( int i = 1; i <= num_segments; i++ ) {
         float t = t_step * i;
         ImVec2 p = ImBezierCubicCalc( p0, p1, p2, p3, t );
 
@@ -84,17 +84,17 @@ void AddDashedCubicBezier( ImDrawList* dl,
         float remaining = seg_len;
         ImVec2 seg_start = prev;
 
-        while ( remaining > 0.0f ) {
+        while( remaining > 0.0f ) {
             float space_left = ( drawing ? dash_len : gap_len ) - dist_accum;
 
             float step = ImMin( remaining, space_left );
             ImVec2 seg_end = seg_start + ( p - seg_start ) * ( step / seg_len );
 
-            if ( drawing )
+            if( drawing )
                 dl->AddLine( seg_start, seg_end, col, thickness );
 
             dist_accum += step;
-            if ( dist_accum >= ( drawing ? dash_len : gap_len ) ) {
+            if( dist_accum >= ( drawing ? dash_len : gap_len ) ) {
                 drawing = !drawing;
                 dist_accum = 0.0f;
             }
@@ -476,8 +476,8 @@ void DrawNoiseIcon( ImVec2 pos, float size, ImU32 col ) {
     const float step = size / resolution;
     const float dotSize = step * 0.6f;
 
-    for ( int y = 0; y < resolution; y++ ) {
-        for ( int x = 0; x < resolution; x++ ) {
+    for( int y = 0; y < resolution; y++ ) {
+        for( int x = 0; x < resolution; x++ ) {
             float fx = x * step + step * 0.5f;
             float fy = y * step + step * 0.5f;
 
@@ -586,8 +586,8 @@ void SculptTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
     };
 
     CreateVolumeSourcePushConstants createVolumeSourceConstants;
-    commandBuffer.Barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.Barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite );
     createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.GetGpuAddress();
     createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
     createVolumeSourceConstants.HitBufferAddress = hitBuffer.GetGpuAddress();
@@ -595,12 +595,12 @@ void SculptTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
     createVolumeSourceConstants.BrushType = 5;
     createVolumeSourceConstants.BrushOperation = m_Type == SculptType::Lower ? 1 : 0;
     createVolumeSourceConstants.Smoothness = m_Smoothness;
-    commandBuffer.BindShaderEffect( m_CreateVolumeSourceShader );
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Compute, 0, createVolumeSourceConstants );
-    commandBuffer.Dispatch( 1, 1, 1 );
+    commandBuffer.bindShaderEffect( m_CreateVolumeSourceShader );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, createVolumeSourceConstants );
+    commandBuffer.dispatch( 1, 1, 1 );
 
-    commandBuffer.Barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.Barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
 }
 
 void SculptTerrainTool::OnHitPositionReadback( game_core::Scene& /*scene*/,
@@ -629,7 +629,7 @@ bool SculptTerrainTool::RenderBrushToolbarButton( SculptType type, float32 butto
     bool isClicked = false;
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
-    if ( ImGui::InvisibleButton( enums::toString( type ).data(), ImVec2( buttonSize, buttonSize ) ) ) {
+    if( ImGui::InvisibleButton( enums::toString( type ).data(), ImVec2( buttonSize, buttonSize ) ) ) {
         m_Type = type;
         isClicked = true;
     }
@@ -638,7 +638,7 @@ bool SculptTerrainTool::RenderBrushToolbarButton( SculptType type, float32 butto
     uint32_t color = m_Type == type           ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                      : ImGui::IsItemHovered() ? ImGui::GetColorU32( ImGuiCol_ButtonHovered )
                                               : ImGui::GetColorU32( ImGuiCol_Button );
-    switch ( type ) {
+    switch( type ) {
     case SculptType::Raise:
         DrawRaiseIcon( cursorPos, buttonSize, thickness, color );
         break;

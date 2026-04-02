@@ -28,7 +28,7 @@ void PreviewTerrainEditPass::OnBeginFrame( graphics::RenderGraphContext& context
     uint64_t outputGlobalId = GetOutputPin( 0 )->GetGlobalId().get();
 
     const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId( InPin1::LocalId );
-    if ( gbufferRenderTargetPin->IsConnected() ) {
+    if( gbufferRenderTargetPin->IsConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
             gbufferRenderTargetPin->GetLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
@@ -39,7 +39,7 @@ void PreviewTerrainEditPass::OnBeginFrame( graphics::RenderGraphContext& context
 void PreviewTerrainEditPass::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    if ( context.Graph.HasResource( HIT_BUFFER_RESOURCE_ID ) == false ) {
+    if( context.Graph.HasResource( HIT_BUFFER_RESOURCE_ID ) == false ) {
         return;
     }
 
@@ -66,7 +66,7 @@ void PreviewTerrainEditPass::OnRender( graphics::RenderGraphContext& context, rh
     constants.BrushType = BrushType;
     constants.BrushOperation = BrushOperation;
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, constants );
-    commandBuffer.Draw( rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1 );
 }
 } // namespace onyx::volume

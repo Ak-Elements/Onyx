@@ -43,7 +43,7 @@ bool SceneSerializer::serializeSectorsToJson( const ecs::EntityRegistry& registr
                                               const FilePath& sectorDirectoryPath ) const {
     bool hasSucceeded = true;
 
-    for ( const SceneSector& sceneSector : sectors ) {
+    for( const SceneSector& sceneSector : sectors ) {
         hasSucceeded &= serializeSectorToJson( registry, componentFactory, sceneSector, sectorDirectoryPath );
     }
 
@@ -56,8 +56,8 @@ bool SceneSerializer::serializeSectorToJson( const ecs::EntityRegistry& registry
                                              const FilePath& sectorDirectoryPath ) const {
     file_system::JsonSerializer serializer;
     serializer.writeForEach( sector.Entities, [ & ]( Serializer& scopeSerializer, const SectorEntity& sectorEntity ) {
-        if ( ( sectorEntity.Entity != entt::null ) &&
-             ( registry.HasComponents< TransientComponent >( sectorEntity.Entity ) == false ) ) {
+        if( ( sectorEntity.Entity != entt::null ) &&
+            ( registry.HasComponents< TransientComponent >( sectorEntity.Entity ) == false ) ) {
             return scopeSerializer.write< "position" >( sectorEntity.Position ) &&
                    scopeSerializer.write< "radius" >( sectorEntity.BoundsRadius ) &&
                    serializeEntity( scopeSerializer, registry, componentFactory, sectorEntity.Entity );
@@ -109,10 +109,10 @@ bool SceneSerializer::deserializeSectorsFromJson( Scene& scene,
                                                   const ecs::ComponentFactory& componentFactory,
                                                   DynamicArray< SceneSector >& sectors,
                                                   const FilePath& sectorDirectoryPath ) const {
-    for ( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( sectorDirectoryPath ) ) {
-        if ( entry.is_regular_file() ) {
+    for( const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator( sectorDirectoryPath ) ) {
+        if( entry.is_regular_file() ) {
             bool isSector = entry.path().extension() == ".osector";
-            if ( isSector ) {
+            if( isSector ) {
                 SceneSector& sector = sectors.emplace_back();
                 // TODO: Parse sector position
                 // This should not load entities
@@ -155,24 +155,24 @@ bool SceneSerializer::serializeEntity( Serializer& serializer,
     // iterate all component storages and save out the components for the entity
     uint32_t index = 0;
 
-    for ( auto componentStorageIt : registry.GetStorage() ) {
+    for( auto componentStorageIt : registry.GetStorage() ) {
         // if the component storage contains the entity we know that the entity has this component
-        if ( const entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
-             componentStorage.contains( entityId ) ) {
+        if( const entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
+            componentStorage.contains( entityId ) ) {
             entt::id_type runtimeTypeId = componentStorageIt.first;
 
-            if ( const ecs::IComponentMeta* meta = componentFactory.GetComponentMeta( runtimeTypeId )
-                                                       .value_or( nullptr ) ) {
-                if ( meta->IsTransient() )
+            if( const ecs::IComponentMeta* meta = componentFactory.GetComponentMeta( runtimeTypeId )
+                                                      .value_or( nullptr ) ) {
+                if( meta->isTransient() )
                     continue;
 
                 SerializationScope scope = serializer.enterScope< "components" >();
                 {
                     SerializationScope arrayIndexScope = serializer.enterScope( index++ );
 
-                    const StringId32 typeId = meta->GetTypeId();
+                    const StringId32 typeId = meta->getTypeId();
                     serializer.write< "typeId" >( typeId );
-                    if ( meta->IsFlag() == false ) {
+                    if( meta->isFlag() == false ) {
                         meta->serialize( componentStorage.value( entityId ), serializer );
                     }
                 }
@@ -192,7 +192,7 @@ bool SceneSerializer::deserializeEntity( const Deserializer& deserializer,
         scopeDeserializer.read< "typeId" >( componentTypeId );
 
         bool hasCreated = componentFactory.TryCreateComponent( registry, entityId, componentTypeId, scopeDeserializer );
-        if ( hasCreated == false ) {
+        if( hasCreated == false ) {
             ONYX_LOG_WARNING( "Failed deserializing component. Unkown component {}", componentTypeId );
         }
 

@@ -21,7 +21,7 @@ void DebugDrawTask::OnBeginFrame( RenderGraphContext& context ) {
     uint64_t outputGlobalId = GetOutputPin().GetGlobalId().get();
 
     const node_graph::PinBase& gbufferRenderTargetPin = GetInputPin();
-    if ( gbufferRenderTargetPin.IsConnected() ) {
+    if( gbufferRenderTargetPin.IsConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
             gbufferRenderTargetPin.GetLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
@@ -55,12 +55,12 @@ void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer
     const Span< const DebugSphere > wireframeSpheres = debugQueue.GetWireframeSpheres();
     const Span< const DebugBox > wireframeBoxes = debugQueue.GetWireframeBoxes();
 
-    if ( wireframeSpheres.empty() == false ) {
+    if( wireframeSpheres.empty() == false ) {
         m_WireframeSpheresCount = static_cast< uint32_t >( wireframeSpheres.size() );
         m_WireframeSpheresBuffer.SetData( wireframeSpheres );
     }
 
-    if ( wireframeBoxes.empty() == false ) {
+    if( wireframeBoxes.empty() == false ) {
         m_WireframeBoxesCount = static_cast< uint32_t >( wireframeBoxes.size() );
         m_WireframeBoxesBuffer.SetData( wireframeBoxes );
     }
@@ -85,7 +85,7 @@ void DebugDrawTask::OnRender( RenderGraphContext& context, rhi::CommandBuffer& c
     constants.WireFrameSpheresCount = m_WireframeSpheresCount;
     constants.WireFrameBoxesCount = m_WireframeBoxesCount;
 
-    commandBuffer.BindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
-    commandBuffer.Draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 } // namespace onyx::graphics::render_graph_nodes

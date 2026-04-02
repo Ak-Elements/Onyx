@@ -15,20 +15,20 @@ void CommandBufferManager::Init( VulkanGraphicsApi& api, uint32_t queueIndex, ui
     m_PrimaryBuffers.reserve( totalPoolCount * COMMAND_BUFFERS_PER_THREAD );
     m_SecondaryBuffers.reserve( totalPoolCount * SECONDARY_COMMAND_BUFFERS_PER_THREAD );
 
-    for ( uint32_t commandPoolIndex = 0; commandPoolIndex < totalPoolCount; ++commandPoolIndex ) {
+    for( uint32_t commandPoolIndex = 0; commandPoolIndex < totalPoolCount; ++commandPoolIndex ) {
         CommandPool& commandPool = m_CommandPools.emplace_back( api.GetDevice(),
                                                                 queueIndex,
                                                                 VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 
         uint8_t frameIndex = ( commandPoolIndex % MAX_FRAMES_IN_FLIGHT );
-        for ( uint32_t i = 0; i < COMMAND_BUFFERS_PER_THREAD; ++i )
+        for( uint32_t i = 0; i < COMMAND_BUFFERS_PER_THREAD; ++i )
             m_PrimaryBuffers.emplace_back( api,
                                            commandPool,
                                            VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                                            frameIndex,
                                            format::format( "CommandBuffer {} {}", commandPoolIndex, i ) );
 
-        for ( uint32_t i = 0; i < SECONDARY_COMMAND_BUFFERS_PER_THREAD; ++i )
+        for( uint32_t i = 0; i < SECONDARY_COMMAND_BUFFERS_PER_THREAD; ++i )
             m_SecondaryBuffers.emplace_back( api,
                                              commandPool,
                                              VK_COMMAND_BUFFER_LEVEL_SECONDARY,
@@ -47,7 +47,7 @@ void CommandBufferManager::Shutdown() {
 }
 
 void CommandBufferManager::Reset( Device& device, uint8_t frameIndex ) {
-    for ( uint32_t threadIndex = 0; threadIndex < m_ThreadCount; threadIndex++ ) {
+    for( uint32_t threadIndex = 0; threadIndex < m_ThreadCount; threadIndex++ ) {
         const uint32_t poolIndex = ( frameIndex * m_ThreadCount ) + threadIndex;
         vkResetCommandPool( device.GetHandle(), m_CommandPools[ poolIndex ].GetHandle(), 0 );
 
@@ -66,9 +66,9 @@ CommandBuffer& CommandBufferManager::GetCommandBuffer( uint32_t frameIndex, uint
 
     CommandBuffer&
         commandBuffer = m_PrimaryBuffers[ ( commandPoolIndex * COMMAND_BUFFERS_PER_THREAD ) + currentUsedBufferIndex ];
-    if ( begin ) {
-        commandBuffer.Reset();
-        commandBuffer.Begin();
+    if( begin ) {
+        commandBuffer.reset();
+        commandBuffer.begin();
 
         // TODO: reset query pools
         /*
