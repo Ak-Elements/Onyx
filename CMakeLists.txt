@@ -171,7 +171,7 @@ if (WIN32 AND (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
 endif()
 
 include(FetchContent)
-include(cmakepackagemanager)
+include(CPM)
 
 include(GNUInstallDirs)
 
