@@ -1,4 +1,4 @@
-#include <onyx/input/keyboardoverlay.h>
+﻿#include <onyx/input/keyboardoverlay.h>
 
 #if ONYX_USE_IMGUI
 
@@ -10,7 +10,165 @@
 #include <imgui_internal.h>
 
 namespace onyx::input::tools {
+namespace {
+	void drawLabel( ImDrawList*  dl,
+                           ImVec2       tl,
+                           ImVec2       br,
+                           const char*  label,
+                           ImU32        color)
+    {
+        if( !label || label[ 0 ] == '\0' )
+            return;
+ 
+        ImFont* font = ImGui::GetFont();
+        float   keyW = br.x - tl.x;
+        float   keyH = br.y - tl.y;
+ 
+        const float nativeSz    = font->FontSize;                       // e.g. 16
+        const float targetH     = std::min( keyH, keyW ) * 0.60f;
+        const float desiredSz   = std::min( targetH, nativeSz );        // never upscale
+        const float savedScale  = font->Scale;
+        font->Scale             = desiredSz / nativeSz;
+ 
+        ImVec2 textSz = font->CalcTextSizeA( font->FontSize * font->Scale,
+                                             FLT_MAX, 0.f, label );
+ 
+        if( textSz.x <= keyW - 2.0f && textSz.y <= keyH - 2.0f )
+        {
+            ImVec2 textPos = {
+                tl.x + ( keyW - textSz.x ) * 0.5f,
+                tl.y + ( keyH - textSz.y ) * 0.5f
+            };
+ 
+            dl->PushClipRect( tl, br, true );
+            dl->AddText( font, 0.f, textPos, color, label );
+            dl->PopClipRect();
+        }
+ 
+        font->Scale = savedScale; // always restore
+    }
 
+	void drawLShapeKey( ImDrawList*                  dl,
+                               ImVec2                       tl1, ImVec2 br1,  // primary rect
+                               ImVec2                       tl2, ImVec2 br2,  // secondary rect
+                               bool                         pressed,
+                               const char*                  label,
+                               const KeyboardOverlaySettings& cfg )
+    {
+        const ImU32 fill    = ImGui::ColorConvertFloat4ToU32(
+                                  pressed ? cfg.ColorKeyPressed : cfg.ColorKeyIdle );
+        const ImU32 outline = ImGui::ColorConvertFloat4ToU32(
+                                  pressed ? cfg.ColorOutlinePressed : cfg.ColorOutlineIdle );
+        const ImU32 lblCol  = ImGui::ColorConvertFloat4ToU32(
+                                  pressed ? cfg.ColorLabelPressed : cfg.ColorLabelIdle );
+ 
+        // Determine which rect is the "top narrow" part and which is the
+        // "bottom wider" part (ISO Enter: top is narrow-right, bottom is wide-left).
+        // We identify this by comparing left edges: the secondary rect usually
+        // extends further left (smaller x).
+        //
+        // Build the 6-point clockwise L-polygon:
+        //
+        //   A ──────── B
+        //   |          |
+        //   C ──── D   |   (if secondary is wider to the left)
+        //          |   |
+        //          E ── F
+        //
+        // Where the exact corners depend on which side the step is on.
+ 
+        // Normalise: rect1 = top (smaller y), rect2 = bottom (larger y)
+        ImVec2 r1tl = tl1, r1br = br1;
+        ImVec2 r2tl = tl2, r2br = br2;
+		if( r2tl.y < r1tl.y )
+        {
+            std::swap( r1tl, r2tl );
+            std::swap( r1br, r2br );
+        }
+
+        // The 6 vertices of the L (clockwise):
+        //  Top-left, Top-right, step-right / step-left inner corner,
+        //  bottom-right, bottom-left, step inner corner on the other side.
+        //
+        // For ISO Enter the secondary (bottom) rect is wider to the LEFT,
+        // so the step is on the left side.
+        ImVec2 poly[6];
+ 
+        if( r2tl.x < r1tl.x ) // step on left  (ISO Enter)
+        {
+            poly[ 0 ] = { r2tl.x,  r2tl.y };  // A
+            poly[ 1 ] = { r1br.x,  r2tl.y };  // B
+            poly[ 2 ] = { r1br.x,  r1br.y };  // C
+            poly[ 3 ] = { r1tl.x,  r1br.y };  // D
+            poly[ 4 ] = { r1tl.x,  r2br.y };  // E  ← inner step
+            poly[ 5 ] = { r2tl.x,  r2br.y };  // F  ← inner step
+        }
+        else                   // step on right (numpad + / big Enter variants)
+        {
+            poly[ 0 ] = { r1tl.x,  r1tl.y };  // A
+            poly[ 1 ] = { r1br.x,  r1tl.y };  // B
+            poly[ 2 ] = { r1br.x,  r2br.y };  // C  ← inner step
+            poly[ 3 ] = { r1br.x,  r2br.y };  // D  ← inner step
+            poly[ 4 ] = { r1br.x,  r2tl.y };  // E
+            poly[ 5 ] = { r2tl.x,  r2br.y };  // F
+        }
+ 
+        // Filled polygon (no rounding — we'll soften corners with a nudge below)
+        dl->AddConvexPolyFilled( poly, 6, fill );
+ 
+        // Bevel highlight on top edge only
+        if( !pressed )
+        {
+            ImU32 bevel = IM_COL32( 255, 255, 255, 18 );
+            dl->AddLine( { poly[ 0 ].x + cfg.KeyRounding, poly[ 0 ].y + 0.5f },
+                         { poly[ 1 ].x - cfg.KeyRounding, poly[ 1 ].y + 0.5f },
+                         bevel, 1.0f );
+        }
+ 
+        dl->AddPolyline( poly, 6, outline, ImDrawFlags_Closed, cfg.OutlineThickness );
+ 
+        if( cfg.ShowKeyLabels )
+        {
+	        // Label centred in the bounding box of the whole shape
+	        ImVec2 bbTL = { std::min( r1tl.x, r2tl.x ), r1tl.y };
+	        ImVec2 bbBR = { std::max( r1br.x, r2br.x ), r2br.y };
+	        drawLabel( dl, bbTL, bbBR, label, lblCol );
+        }
+    }
+ 
+    void drawRectKey( ImDrawList*                  dl,
+                             ImVec2                       tl,
+                             ImVec2                       br,
+                             bool                         pressed,
+                             const char*                  label,
+                             const KeyboardOverlaySettings& cfg )
+    {
+        const ImU32 fill    = ImGui::ColorConvertFloat4ToU32(
+                                  pressed ? cfg.ColorKeyPressed : cfg.ColorKeyIdle );
+        const ImU32 outline = ImGui::ColorConvertFloat4ToU32(
+                                  pressed ? cfg.ColorOutlinePressed : cfg.ColorOutlineIdle );
+        const ImU32 lblCol  = ImGui::ColorConvertFloat4ToU32(
+                                  pressed ? cfg.ColorLabelPressed : cfg.ColorLabelIdle );
+ 
+        dl->AddRectFilled( tl, br, fill, cfg.KeyRounding );
+ 
+        if( !pressed )
+        {
+            ImU32 bevel = IM_COL32( 255, 255, 255, 18 );
+            dl->AddLine( { tl.x + cfg.KeyRounding, tl.y + 0.5f },
+                         { br.x - cfg.KeyRounding, tl.y + 0.5f },
+                         bevel, 1.0f );
+        }
+ 
+        dl->AddRect( tl, br, outline, cfg.KeyRounding, 0, cfg.OutlineThickness );
+
+        if( cfg.ShowKeyLabels )
+        {
+			drawLabel( dl, tl, br, label, lblCol );
+        }
+    }
+
+}
 KeyboardOverlay::KeyboardOverlay() {
     file_system::OnyxFile file{ StringView( "engine:/debug/keyboard/iso_105_us_international.json" ) };
     file_system::JsonValue jsonDoc = file.LoadJson();
@@ -66,18 +224,12 @@ KeyboardOverlay::KeyboardOverlay() {
     }
 }
 
-void KeyboardOverlay::onOpen() {}
+void KeyboardOverlay::onOpen() {
+	setDefaultPosition( ui::WindowPosition::BottomLeft );
 
-void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    if( ui::g_UiContext.InputSystem == nullptr )
-        return;
+    setWindowFlags( ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking );
+    setDefaultSize( { 400, -1 } );
 
-    const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
-    // setWindowFlags( ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking );
-    //
-    // // TODO: This should probably be rewritten to use ItemAdd from Imgui to auto-size the window
-    // setDefaultPosition( ui::WindowPosition::BottomLeft );
-    //
     // float32 aspectRatio = 23.0f / static_cast< float32 >( m_keyboardLayout.size() + 1 );
     // auto aspect_ratio_constraint = []( ImGuiSizeCallbackData* data ) {
     //     float aspectRatio = *static_cast< float32* >( data->UserData );
@@ -89,58 +241,75 @@ void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     //                                      ImVec2( FLT_MAX, FLT_MAX ),
     //                                      aspect_ratio_constraint,
     //                                      &aspectRatio ); // Aspect ratio
-    // begin();
-    ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
-
-    static const ImVec4 defaultColor{ 0.7f, 0.7f, 0.7f, 1.0f };
-    static const ImVec4 pressedColor{ 0.9f, 0.2f, 0.2f, 1.0f };
-    uint32_t defaultColorU32 = ImGui::GetColorU32( defaultColor );
-    uint32_t pressedColorU32 = ImGui::GetColorU32( pressedColor );
-    auto drawList = ImGui::GetWindowDrawList();
-    const float32 renderSize = ImGui::GetContentRegionAvail().x;
-    float size = renderSize / 23.0f;
-    const ImVec2& initialPosition = ImGui::GetCursorScreenPos();
-    Vector2f32 cursorPos = { initialPosition.x, initialPosition.y };
-    float spacing = 1.0f;
-
-    ImRect keyBounds;
-    for( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
-        uint32_t numButtonsInRow = static_cast< uint32_t >( keyboardRow.size() );
-        for( uint32_t i = 0; i < numButtonsInRow; ++i ) {
-            const KeyData& key = keyboardRow[ i ];
-            const Vector2f32& rectSize = key.Size * size;
-
-            Vector2f32 tempCursorPos = cursorPos;
-
-            uint32_t color = inputSystem.IsButtonDown( key.Key ) ? pressedColorU32 : defaultColorU32;
-
-            tempCursorPos += ( key.Offset * size );
-            keyBounds = ImRect(
-                { tempCursorPos[ 0 ], tempCursorPos[ 1 ] },
-                { tempCursorPos[ 0 ] + rectSize[ 0 ] - spacing, tempCursorPos[ 1 ] + rectSize[ 1 ] - spacing } );
-            drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
-
-            if( key.Size2.isZero() == false ) {
-                const Vector2f32& rectSize2 = key.Size2 * size;
-                Vector2f32 tmpCursorPos2 = tempCursorPos + ( key.Offset2 * size );
-                keyBounds = ImRect(
-                    { tmpCursorPos2[ 0 ], tmpCursorPos2[ 1 ] },
-                    { tmpCursorPos2[ 0 ] + rectSize2[ 0 ] - spacing, tmpCursorPos2[ 1 ] + rectSize2[ 1 ] - spacing } );
-                drawList->AddRectFilled( keyBounds.Min, keyBounds.Max, color );
-            }
-
-            cursorPos = cursorPos + ( key.Offset * size );
-            cursorPos[ 0 ] += rectSize[ 0 ];
-        }
-
-        cursorPos[ 0 ] = initialPosition.x;
-        cursorPos[ 1 ] += size;
-    }
-
-    // ImVec2 windowSize = ImVec2(initialPosition.x + renderSize, cursorPos[1]) - initialPosition;
-    // ImGui::Dummy(windowSize);
-    // end();
 }
 
+void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
+    
+    const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
+ 
+    ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
+ 
+    static constexpr float       k_LayoutWidthUnits = 23.0f;
+    static KeyboardOverlaySettings cfg;
+	cfg.KeyRounding = 1.0f;
+    cfg.KeySpacing = 2.0f;
+    cfg.ShowKeyLabels = false;
+
+    ImDrawList*  dl             = ImGui::GetWindowDrawList();
+    const float  availableWidth = ImGui::GetContentRegionAvail().x;
+    const float  unitSize       = availableWidth / k_LayoutWidthUnits;
+    const ImVec2 origin         = ImGui::GetCursorScreenPos();
+ 
+    float  totalHeight = 0.0f;
+    ImVec2 cursorPos   = origin;
+ 
+    for( const DynamicArray<KeyData>& keyboardRow : m_keyboardLayout )
+    {
+        for( const KeyData& key : keyboardRow )
+        {
+            const bool pressed = inputSystem.IsButtonDown( key.Key );
+ 
+            ImVec2 tl = {
+                cursorPos.x + key.Offset[ 0 ] * unitSize,
+                cursorPos.y + key.Offset[ 1 ] * unitSize
+            };
+            ImVec2 br = {
+                tl.x + key.Size[ 0 ] * unitSize - cfg.KeySpacing,
+                tl.y + key.Size[ 1 ] * unitSize - cfg.KeySpacing
+            };
+ 
+            if( key.Size2.isZero() )
+            {
+                drawRectKey( dl, tl, br, pressed, key.Label.c_str(), cfg );
+            }
+            else
+            {
+                ImVec2 tl2 = {
+                    tl.x + key.Offset2[ 0 ] * unitSize,
+                    tl.y + key.Offset2[ 1 ] * unitSize
+                };
+                ImVec2 br2 = {
+                    tl2.x + key.Size2[ 0 ] * unitSize - cfg.KeySpacing,
+                    tl2.y + key.Size2[ 1 ] * unitSize - cfg.KeySpacing
+                };
+ 
+                drawLShapeKey( dl, tl, br, tl2, br2,
+                               pressed, key.Label.c_str(), cfg );
+            }
+ 
+            cursorPos.x += ( key.Offset[ 0 ] + key.Size[ 0 ] ) * unitSize;
+            cursorPos.y += key.Offset[1] * unitSize;
+
+            totalHeight  = std::max( totalHeight, br.y - origin.y );
+        }
+ 
+        cursorPos.x  = origin.x;
+        cursorPos.y += unitSize;
+        totalHeight   = cursorPos.y - origin.y;
+    }
+ 
+    // Reserve space → window auto-sizes correctly
+    ImGui::Dummy( ImVec2( availableWidth, totalHeight ) );
+}
 } // namespace onyx::input::tools
 #endif
