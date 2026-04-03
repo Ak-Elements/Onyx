@@ -205,7 +205,8 @@ VkPolygonMode ToVulkanFillMode( FillMode mode ) {
 
 Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& properties, ShaderHandle& shader )
     : rhi::Pipeline( properties )
-    , m_Api( &api ) {
+    , m_Api( &api )
+	, m_shader( shader.getHandle().raw() ) {
     shader->getOnLoadedEvent().Connect< &Pipeline::OnShaderLoaded >( *this );
     if ( shader->isLoaded() ) {
         CreatePipeline( shader.as< Shader >() );
@@ -222,6 +223,11 @@ Pipeline::~Pipeline() {
     if ( m_Pipeline != nullptr ) {
         vkDestroyPipeline( m_Api->GetDevice().GetHandle(), m_Pipeline, nullptr );
         m_Pipeline = nullptr;
+    }
+
+    if( m_shader != nullptr )
+    {
+	    m_shader->getOnLoadedEvent().Disconnect( this );
     }
 
     m_PipelineLayout.reset();

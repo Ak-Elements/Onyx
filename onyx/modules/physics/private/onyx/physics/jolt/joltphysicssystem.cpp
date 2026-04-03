@@ -48,7 +48,8 @@ void TraceImpl( const char* inFMT, ... ) {
 #if ONYX_ASSERT_ENABLED
 #ifdef JPH_ENABLE_ASSERTS
 // Callback for asserts, connect this to your own assert handler if you have one
-static bool AssertFailedImpl( const char* inExpression, const char* inMessage, const char* inFile, uint inLine ) {
+static bool AssertFailedImpl( const char* inExpression, const char* inMessage, const char* inFile, uint32_t inLine ) {
+    ONYX_UNUSED(inExpression);
     ::onyx::logAssert( inFile, inLine, inMessage );
 
     // Breakpoint
@@ -59,23 +60,23 @@ static bool AssertFailedImpl( const char* inExpression, const char* inMessage, c
 
 // This is the max amount of rigid bodies that you can add to the physics system. If you try to add more you'll get an
 // error. Note: This value is low because this is a simple test. For a real project use something in the order of 65536.
-const uint cMaxBodies = 1024;
+const uint32_t cMaxBodies = 1024;
 
 // This determines how many mutexes to allocate to protect rigid bodies from concurrent access. Set it to 0 for the
 // default settings.
-const uint cNumBodyMutexes = 0;
+const uint32_t cNumBodyMutexes = 0;
 
 // This is the max amount of body pairs that can be queued at any time (the broad phase will detect overlapping
 // body pairs based on their bounding boxes and will insert them into a queue for the narrowphase). If you make this
 // buffer too small the queue will fill up and the broad phase jobs will start to do narrow phase work. This is slightly
 // less efficient. Note: This value is low because this is a simple test. For a real project use something in the order
 // of 65536.
-const uint cMaxBodyPairs = 1024;
+const uint32_t cMaxBodyPairs = 1024;
 
 // This is the maximum size of the contact constraint buffer. If more contacts (collisions between bodies) are detected
 // than this number then these contacts will be ignored and bodies will start interpenetrating / fall through the world.
 // Note: This value is low because this is a simple test. For a real project use something in the order of 10240.
-const uint cMaxContactConstraints = 1024;
+const uint32_t cMaxContactConstraints = 1024;
 
 // JPH::BPLayerInterfaceImpl broad_phase_layer_interface;
 // JPH::ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter;
@@ -126,11 +127,11 @@ JoltPhysicsSystem::~JoltPhysicsSystem() {
 }
 
 void JoltPhysicsSystem::Update() {
-    const float cDeltaTime = 1.0f / 60.0f;
+    const float32 cDeltaTime = 1.0f / 60.0f;
 
     // If you take larger steps than 1 / 60th of a second you need to do multiple collision steps in order to keep the
     // simulation stable. Do 1 collision step per 1 / 60th of a second (round up).
-    const int cCollisionSteps = 1;
+    const int32_t cCollisionSteps = 1;
 
     // Step the world
     m_System.Update( cDeltaTime, cCollisionSteps, m_Allocator.get(), job_system );
@@ -147,7 +148,7 @@ Vector3f32 JoltPhysicsSystem::GetPosition( PhysicsBodyId id ) const {
 }
 
 PhysicsBodyId JoltPhysicsSystem::CreateSphereCollider( const Vector3f32& position,
-                                                       const Rotor3f32& rotation,
+                                                       const Rotor3f32& /*rotation*/,
                                                        float32 radius,
                                                        MotionType motion,
                                                        CollisionLayer layer ) {
@@ -166,7 +167,7 @@ PhysicsBodyId JoltPhysicsSystem::CreateSphereCollider( const Vector3f32& positio
 }
 
 PhysicsBodyId JoltPhysicsSystem::CreateBoxCollider( const Vector3f32& position,
-                                                    const Rotor3f32& rotation,
+                                                    const Rotor3f32& /*rotation*/,
                                                     const Vector3f32& halfExtents,
                                                     MotionType motion,
                                                     CollisionLayer layer ) {

@@ -32,7 +32,7 @@ void EditorMainWindow::onOpen() {
 //     ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
 // }
 
-void EditorMainWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
+void EditorMainWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // /    ImGui::SetNextWindowPos( ImVec2{ 0, 0 }, ImGuiCond_Appearing );
     // ImGui::SetNextWindowSize( ImGui::GetMainViewport()->WorkSize );
 

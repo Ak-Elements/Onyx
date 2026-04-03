@@ -64,7 +64,7 @@ void Application::init() {
     m_logger->addLoggingBackend< StdoutLogger >();
 
 #if ONYX_IS_MSVC
-    m_Logger->AddLoggingBackend< VisualStudioLogger >();
+    m_logger->addLoggingBackend< VisualStudioLogger >();
 #endif
 
 #if ONYX_UI_MODULE && ONYX_USE_IMGUI

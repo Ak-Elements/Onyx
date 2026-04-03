@@ -121,7 +121,7 @@ void SceneEditorWindow::onClose() {
     // m_CommandStack.Disable(inputActionSystem);
 }
 
-void SceneEditorWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
+void SceneEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     if( ( m_scene.isValid() == false ) || isLoading() )
         return;
 

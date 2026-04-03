@@ -26,7 +26,7 @@ struct AssetId {
     {
     }
 
-    constexpr explicit AssetId( const FilePath& path )
+    explicit AssetId( const FilePath& path )
         : m_id( path.empty() ? 0 : hash::fnV1aHash< uint64_t >( path.generic_string() ) )
 #if ONYX_IS_DEBUG
         , m_path( path.generic_string() )

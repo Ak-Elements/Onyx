@@ -57,7 +57,7 @@ struct BufferHandle {
 
     template < typename T >
     void SetData( Span< T > span ) {
-        Buffer->SetData( GetOffset(), span.data(), span.size() * sizeof( T ) );
+        Buffer->SetData( static_cast< uint32_t >( GetOffset() ), span.data(), static_cast< int32_t >( span.size() * sizeof( T ) ) );
     }
 
     friend bool operator==( const BufferHandle& lhs, const BufferHandle& rhs ) {

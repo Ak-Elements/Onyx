@@ -11,16 +11,16 @@
 namespace onyx {
 void VisualStudioLogger::log( const LogMessage& message ) {
     const char* formattedMessage;
-    if ( message.m_FileName == nullptr ) {
-        formattedMessage = format::Format( "{}: {} \n",
-                                           GetLogLevelName( message.m_LogLevel ).data(),
-                                           message.m_Message.data() );
+    if ( message.FileName == nullptr ) {
+        formattedMessage = format::format( "{}: {} \n",
+                                           getLogLevelName( message.LogLevel ).data(),
+                                           message.Message.data() );
     } else {
-        formattedMessage = format::Format( "{}({}):{}: {} \n",
-                                           message.m_FileName,
-                                           message.m_LineNumber,
-                                           GetLogLevelName( message.m_LogLevel ).data(),
-                                           message.m_Message.data() );
+        formattedMessage = format::format( "{}({}):{}: {} \n",
+                                           message.FileName,
+                                           message.LineNumber,
+                                           getLogLevelName( message.LogLevel ).data(),
+                                           message.Message.data() );
     }
 
     OutputDebugStringA( formattedMessage );

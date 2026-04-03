@@ -19,7 +19,7 @@ void CommandHistoryWindow::onClose() {
     inputActionsSystem.Disconnect( this );
 }
 
-void CommandHistoryWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
+void CommandHistoryWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // begin();
 
     ImGui::BeginVertical( "##content" );

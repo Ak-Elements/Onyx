@@ -35,7 +35,7 @@ void DebugDrawTask::OnBeginFrame( RenderGraphContext& context ) {
     m_WireframeBoxesCount = 0;
 }
 
-void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/ ) {
     rhi::BufferProperties ssboInstanceBuffer;
     ssboInstanceBuffer.m_DebugName = "TMP DebugSpheres";
     ssboInstanceBuffer.m_Size = sizeof( DebugSphere ) * 16; // This should match the size of queued spheres

@@ -1,9 +1,9 @@
-#include <onyx/filesystem/imagefile.h>
 #include <onyx/platform/windows/windowswindow.h>
 
 #if ONYX_IS_WINDOWS
 
 #include <onyx/encoding.h>
+#include <onyx/filesystem/imagefile.h>
 #include <onyx/input/inputevent.h>
 #include <onyx/input/inputsystem.h>
 #include <onyx/platform/windows/windowskeycodes.h>
@@ -57,7 +57,7 @@ LRESULT CALLBACK LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM lParam ) {
     return CallNextHookEx( nullptr, nCode, wParam, lParam );
 }
 
-::HICON CreateIconFromBitmap( const onyx::Span< onyx::uint8_t >& imageData, onyx::Vector2s32 imageSize ) {
+::HICON CreateIconFromBitmap( const onyx::Span< uint8_t >& imageData, onyx::Vector2s32 imageSize ) {
     int i;
     ::HDC dc;
     ::HBITMAP color, mask;
@@ -123,18 +123,19 @@ LRESULT CALLBACK LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM lParam ) {
 } // namespace
 
 namespace onyx::platform::windows {
-Window::Window( PlatformContext& context, const WindowSettings& settings )
+Window::Window( uint32_t id, PlatformContext& context, const WindowSettings& settings )
     : m_Settings( settings )
-    , m_Context( &context ) {
+    , m_Context( &context )
+	, m_id( id ) {
     m_IsInitialized = false;
     myWakeFromSleepEvent = CreateEvent( nullptr, FALSE, FALSE, "Local\\WindowThread_WakeFromSleepEvent" );
-    Start();
+    start();
 
     m_IsInitialized.wait( false );
 }
 
 Window::~Window() {
-    Stop( true );
+    stop( true );
     if ( myWakeFromSleepEvent != nullptr ) {
         ::CloseHandle( myWakeFromSleepEvent );
     }
@@ -206,7 +207,7 @@ int64_t Window::OnWindowProc( HWND hWnd, uint32_t message, uint64_t wParam, int6
     return ::DefWindowProcW( hWnd, message, wParam, lParam );
 }
 
-void Window::OnStart() {
+void Window::onStart() {
     ONYX_PROFILE_SET_THREAD( WindowThread )
     m_Cursor = ::LoadCursor( nullptr, IDC_ARROW );
 
@@ -224,9 +225,9 @@ void Window::OnStart() {
     m_IsInitialized.notify_one();
 }
 
-void Window::OnUpdate() {
+void Window::onUpdate() {
     MSG msg;
-    while ( IsRunning() ) {
+    while ( isRunning() ) {
         ONYX_PROFILE_SECTION( OnUpdate )
 
         while ( ::PeekMessageW( &msg, NULL, 0, 0, PM_REMOVE ) ) {
@@ -242,12 +243,12 @@ void Window::OnUpdate() {
     }
 }
 
-void Window::OnStop() {}
+void Window::onStop() {}
 
 void Window::CreateNativeWindow() {
     HINSTANCE instance = ::GetModuleHandle( nullptr );
 
-    String_U16 windowTitle = Encoding::utf8_to_utf16( m_Settings.Title );
+    StringU16 windowTitle = encoding::utf8ToUtf16( m_Settings.Title );
     HICON icon = static_cast< HICON >( m_Settings.Icon );
     WNDCLASSEXW wndClass;
 
@@ -397,7 +398,7 @@ bool Window::HandleWindowMessages( uint32_t messageType, uint64_t wParam, int64_
 
     switch ( messageType ) {
     case WM_CLOSE: {
-        m_CloseSignal.Dispatch();
+        m_CloseSignal.Dispatch( *this );
         ::DestroyWindow( m_WindowHandle );
         ::PostQuitMessage( 0 );
         break;
@@ -776,7 +777,7 @@ void Window::SetTitle( StringView title ) {
     if ( m_Settings.Title != title ) {
         m_Settings.Title = title;
 
-        String_U16 windowTitle = Encoding::utf8_to_utf16( m_Settings.Title );
+        StringU16 windowTitle = encoding::utf8ToUtf16( m_Settings.Title );
         ::SetWindowTextW( m_WindowHandle, (LPCWSTR)windowTitle.data() );
     }
 }
@@ -819,8 +820,8 @@ void Window::SetMinimumSize( const Vector2s32& minSize ) {
         m_Settings.MinSize = minSize;
         VectorComponentMask compared = m_Settings.Size > m_Settings.MinSize;
         SetSize(
-            enums::HasAllFlags( compared, VectorComponentMask::X ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 0 ],
-            enums::HasAllFlags( compared, VectorComponentMask::Y ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 1 ] );
+            enums::all( compared, VectorComponentMask::X ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 0 ],
+            enums::all( compared, VectorComponentMask::Y ) ? m_Settings.MinSize[ 1 ] : m_Settings.Size[ 1 ] );
     }
 }
 
@@ -829,8 +830,8 @@ void Window::SetMaximumSize( const Vector2s32& maxSize ) {
         m_Settings.MaxSize = maxSize;
         VectorComponentMask compared = m_Settings.Size > m_Settings.MaxSize;
         SetSize(
-            enums::HasAllFlags( compared, VectorComponentMask::X ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 0 ],
-            enums::HasAllFlags( compared, VectorComponentMask::Y ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 1 ] );
+            enums::all( compared, VectorComponentMask::X ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 0 ],
+            enums::all( compared, VectorComponentMask::Y ) ? m_Settings.MaxSize[ 1 ] : m_Settings.Size[ 1 ] );
     }
 }
 

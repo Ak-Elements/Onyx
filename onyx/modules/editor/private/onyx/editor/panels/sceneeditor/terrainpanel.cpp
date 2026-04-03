@@ -713,7 +713,7 @@ void TerrainPanel::onClose() {
     inputActionSystem.Disconnect( this );
 }
 
-void TerrainPanel::onRender( ui::ImGuiSystem& imguiSystem ) {
+void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ONYX_ASSERT( m_CurrentScene != nullptr );
 
     ::ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName( "Scene###SceneViewPanel0" );

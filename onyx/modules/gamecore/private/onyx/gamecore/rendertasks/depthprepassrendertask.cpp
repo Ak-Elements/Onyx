@@ -48,7 +48,6 @@ void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& contex
         commandBuffer.bindVertexBuffer( drawCall.VertexData, 0, 0 );
         commandBuffer.bindIndexBuffer( drawCall.Indices, 0, rhi::IndexType::uint32 );
 
-        Matrix4< float32 > transformMatrix;
         for( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
             commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
             commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,

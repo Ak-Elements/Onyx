@@ -160,14 +160,13 @@ class AssetSystem : public IEngineSystem {
 template < typename AssetT >
 requires std::is_base_of_v< AssetInterface, AssetT >
 inline constexpr bool AssetSystem::registerAsset() {
-    constexpr StringId32 TypeId( AssetT::TypeId );
-    ONYX_ASSERT( s_registeredAssets.contains( TypeId ) == false, "Asset with that type is already registered." );
+	ONYX_ASSERT( s_registeredAssets.contains(  AssetT::TypeId ) == false, "Asset with that type is already registered." );
     if constexpr ( (std::is_abstract_v< AssetT >) || HasStaticCreate< AssetT > ) {
-        s_registeredAssets[ TypeId ] = []( IEngine& engine ) -> Reference< AssetInterface > {
+        s_registeredAssets[  AssetT::TypeId ] = []( IEngine& engine ) -> Reference< AssetInterface > {
             return AssetT::create( engine );
         };
     } else {
-        s_registeredAssets[ TypeId ] = []( IEngine& ) -> Reference< AssetInterface > {
+        s_registeredAssets[ AssetT::TypeId ] = []( IEngine& ) -> Reference< AssetInterface > {
             return Reference< AssetT >::create();
         };
     }

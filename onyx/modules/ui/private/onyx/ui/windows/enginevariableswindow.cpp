@@ -66,7 +66,7 @@ void EngineVariablesWindow::RebuildVariableGraph() {
 
 EngineVariablesWindow::EngineVariableGraphNode& EngineVariablesWindow::GetOrCreateParent( StringView nodePath ) {
     EngineVariableGraphNode* currentNode = &m_Root;
-    StringView::size_type currentIndex = -1;
+    StringView::size_type currentIndex = static_cast< StringView::size_type >( -1 );
     StringView::size_type previousIndex = 0;
     while ( ( currentIndex = nodePath.find_first_of( ENGINE_VARIABLE_PATH_SEPERATOR, currentIndex + 1 ) ) !=
             StringView::npos ) {

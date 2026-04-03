@@ -96,7 +96,7 @@ struct ComponentMeta : public IComponentMeta {
     }
 
     template < typename... Args >
-    void create( EntityRegistry& registry, EntityId entity, Args&&... args ) const {
+    void create( EntityRegistry& registry, EntityId entity, [[maybe_unused]] Args&&... args ) const {
         if constexpr( details::IsFlagComponent< T > ) {
             registry.AddComponent< T >( entity );
         } else if constexpr( Deserializable< T > ) {

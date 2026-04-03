@@ -26,7 +26,7 @@ class Window : public Thread {
     static constexpr uint32_t ONYX_WM_SYSTEM_PRIMARY_MOUSEDOWN = 0x0400 + 2;
     static constexpr uint32_t ONYX_WM_SYSTEM_PRIMARY_MOUSEUP = 0x0400 + 3;
 
-    Window( PlatformContext& context, const WindowSettings& settings );
+    Window( uint32_t id, PlatformContext& context, const WindowSettings& settings );
     ~Window() override;
 
     void Show();
@@ -60,6 +60,8 @@ class Window : public Thread {
     void SetWindowMode( WindowMode mode );
     void SetState( WindowState state );
 
+    WindowState getState() const { return m_State; }
+
     bool GetRequiredExtensions( std::vector< const char* >& outExtensions ) const;
 
     bool IsVSyncEnabled() const { return m_Settings.UseVsync; }
@@ -78,14 +80,16 @@ class Window : public Thread {
     Sink< FocusSignalT > OnFocus() { return Sink( m_FocusSignal ); }
     Sink< CloseSignalT > OnClose() { return Sink( m_CloseSignal ); }
 
+    uint32_t getId() const { return m_id; }
+
   private:
     static int64_t __stdcall OnWindowProc( HWND hWnd, uint32_t message, uint64_t wParam, int64_t lParam );
 
-    void OnStart() override;
+    void onStart() override;
 
     bool HandleWindowMessages( uint32_t messageType, uint64_t wParam, int64_t lParam );
-    void OnUpdate() override;
-    void OnStop() override;
+    void onUpdate() override;
+    void onStop() override;
 
     void CreateNativeWindow();
 
@@ -116,6 +120,7 @@ class Window : public Thread {
     void* myWakeFromSleepEvent = nullptr;
 
     HHOOK m_SystemMouseHook = nullptr;
+    uint32_t m_id = 0;
 };
 } // namespace onyx::platform::windows
 

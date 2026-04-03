@@ -126,7 +126,7 @@ void NodeGraphEditorWindow::onClose() {
     inputActionSystem.Disconnect( this );
 }
 
-void NodeGraphEditorWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
+void NodeGraphEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     if( ( m_Context == nullptr ) || ( m_EditorContext == nullptr ) ) {
         return;
     }

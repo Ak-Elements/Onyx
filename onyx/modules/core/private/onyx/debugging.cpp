@@ -30,7 +30,7 @@ void breakpoint() {
 
 #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
 
-    ::debugBreak();
+    ::DebugBreak();
 
 #else // ^^^ ONYX_IS_WINDOWS ^^^ || vvv !ONYX_IS_WINDOWS vvv
 

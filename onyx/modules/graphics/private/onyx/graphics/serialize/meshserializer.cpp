@@ -80,38 +80,38 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
             tempVertices.emplace_back( coords[ 0 ], coords[ 1 ], coords[ 2 ] );
         } else if ( line.starts_with( "f" ) ) {
             line.remove_prefix( 2 );
-            uint32_t indices[ 12 ];
+            uint32_t localIndices[ 12 ];
 
             DynamicArray< String > parts = split( line, " /" );
             int32_t i = -1;
             for ( const String& token : parts ) {
-                std::from_chars( token.data(), token.data() + token.size(), indices[ ++i ] );
+                std::from_chars( token.data(), token.data() + token.size(), localIndices[ ++i ] );
             }
 
-            vertexIndices.push_back( indices[ 0 ] );
-            uvIndices.push_back( indices[ 1 ] );
-            normalIndices.push_back( indices[ 2 ] );
+            vertexIndices.push_back( localIndices [ 0 ] );
+            uvIndices.push_back( localIndices [ 1 ] );
+            normalIndices.push_back( localIndices[ 2 ] );
 
-            vertexIndices.push_back( indices[ 3 ] );
-            uvIndices.push_back( indices[ 4 ] );
-            normalIndices.push_back( indices[ 5 ] );
+            vertexIndices.push_back( localIndices[ 3 ] );
+            uvIndices.push_back( localIndices[ 4 ] );
+            normalIndices.push_back( localIndices[ 5 ] );
 
-            vertexIndices.push_back( indices[ 6 ] );
-            uvIndices.push_back( indices[ 7 ] );
-            normalIndices.push_back( indices[ 8 ] );
+            vertexIndices.push_back( localIndices[ 6 ] );
+            uvIndices.push_back( localIndices[ 7 ] );
+            normalIndices.push_back( localIndices[ 8 ] );
 
             if ( parts.size() > 9 ) {
-                vertexIndices.push_back( indices[ 9 ] );
-                uvIndices.push_back( indices[ 10 ] );
-                normalIndices.push_back( indices[ 11 ] );
+                vertexIndices.push_back( localIndices[ 9 ] );
+                uvIndices.push_back( localIndices[ 10 ] );
+                normalIndices.push_back( localIndices[ 11 ] );
 
-                vertexIndices.push_back( indices[ 0 ] );
-                uvIndices.push_back( indices[ 1 ] );
-                normalIndices.push_back( indices[ 2 ] );
+                vertexIndices.push_back( localIndices[ 0 ] );
+                uvIndices.push_back( localIndices[ 1 ] );
+                normalIndices.push_back( localIndices[ 2 ] );
 
-                vertexIndices.push_back( indices[ 6 ] );
-                uvIndices.push_back( indices[ 7 ] );
-                normalIndices.push_back( indices[ 8 ] );
+                vertexIndices.push_back( localIndices[ 6 ] );
+                uvIndices.push_back( localIndices[ 7 ] );
+                normalIndices.push_back( localIndices[ 8 ] );
             }
         }
     }
@@ -146,7 +146,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     vertexBufferProps.m_DebugName = "static mesh vertices";
 
     graphics.CreateBuffer( meshAsset.m_VertexBuffer, vertexBufferProps );
-    meshAsset.m_VertexBuffer.Buffer->SetData( 0, vertices.data(), vertexBufferProps.m_Size );
+    meshAsset.m_VertexBuffer.Buffer->SetData( 0, vertices.data(), static_cast< uint32_t >( vertexBufferProps.m_Size ) );
 
     rhi::BufferProperties indexBufferProps;
     indexBufferProps.m_Size = static_cast< uint32_t >( indices.size() ) * sizeof( uint32_t );
@@ -155,7 +155,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     indexBufferProps.m_DebugName = "static mesh Indices";
 
     graphics.CreateBuffer( meshAsset.m_IndexBuffer, indexBufferProps );
-    meshAsset.m_IndexBuffer.Buffer->SetData( 0, indices.data(), indexBufferProps.m_Size );
+    meshAsset.m_IndexBuffer.Buffer->SetData( 0, indices.data(), static_cast< uint32_t >( indexBufferProps.m_Size ) );
 
     return true;
 }

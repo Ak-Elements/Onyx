@@ -27,7 +27,7 @@ namespace onyx::rhi::vulkan
 
     private:
         const VulkanGraphicsApi* m_Api;
-  
+		rhi::Shader* m_shader = nullptr; 
         VkPipelineBindPoint m_BindPoint = VK_PIPELINE_BIND_POINT_MAX_ENUM;
 
         UniquePtr<PipelineLayout> m_PipelineLayout;

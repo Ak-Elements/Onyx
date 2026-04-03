@@ -137,7 +137,7 @@ void InputActionSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     //    if ( isOpen() == false )
     //        return;
 
-    const String& assetName = "None";
+    //const String& assetName = "None";
 
     // setWindowFlags( ImGuiWindowFlags_MenuBar );
 

@@ -10,13 +10,14 @@ class StringIdCache {
   public:
     ~StringIdCache() {}
     StringView store( StringView string ) {
+        // A read / write concurrent collection would be better here probably
+		std::lock_guard lock( m_mutex );
         Optional< StringView > cachedString = tryGet( string );
         if ( cachedString.has_value() ) {
             return cachedString.value();
         }
 
-        std::lock_guard lock( m_mutex );
-        cachedString = tryGet( string );
+    	cachedString = tryGet( string );
         if ( cachedString.has_value() ) {
             return cachedString.value();
         }

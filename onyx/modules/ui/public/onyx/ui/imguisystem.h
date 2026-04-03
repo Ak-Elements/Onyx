@@ -143,7 +143,7 @@ class ImGuiSystem : public IEngineSystem {
             factoryIt = m_WindowFactory.find( windowTypeId );
         }
 
-        uint32_t index = m_Windows.size();
+        uint32_t index = static_cast< uint32_t >( m_Windows.size() );
         UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
         newWindow->open();
         return static_cast< T& >( *m_Windows[ index ] );
