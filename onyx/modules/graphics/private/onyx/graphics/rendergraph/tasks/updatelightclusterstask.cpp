@@ -18,7 +18,7 @@ void CreateLightClusters::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceC
 
     for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
         rhi::BufferProperties ssboBufferProps;
-        ssboBufferProps.m_DebugName = "LightClusterAABBs";
+        ssboBufferProps.m_DebugName = format::format( "LightClusterAABBs_{}", i );
         ssboBufferProps.m_Size = sizeof( rhi::LightClusterAABB ) * ClusterCount;
         ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage );
         ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
@@ -75,23 +75,23 @@ void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, Rende
         constexpr uint32_t totalLightsPerTile = ClusterCount * maxLightsPerTile;
 
         // * 2 for point and spot lights
-        ssboBufferProps.m_DebugName = "Light Index List";
+        ssboBufferProps.m_DebugName = format::format( "Light Index List_{}", i );
         ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_CpuAccess = rhi::CPUAccess::None;
         ssboBufferProps.m_Size = static_cast< uint32_t >( totalLightsPerTile * sizeof( uint32_t ) * 2 );
         api.CreateBuffer( m_LightIndexListSSBO[ i ], ssboBufferProps );
 
-        ssboBufferProps.m_DebugName = "Light Grid";
+        ssboBufferProps.m_DebugName = format::format( "Light Grid_{}", i );
         ssboBufferProps.m_Size = static_cast< uint32_t >( ClusterCount * sizeof( Vector4u32 ) );
         api.CreateBuffer( m_LightGridSSBO[ i ], ssboBufferProps );
 
         // * 2 for point and spot lights
-        ssboBufferProps.m_DebugName = "Light Global Index Count";
+        ssboBufferProps.m_DebugName = format::format( "Light Global Index Count_{}", i );
         ssboBufferProps.m_Size = static_cast< uint32_t >( sizeof( uint32_t ) * 2 );
         api.CreateBuffer( m_LightIndexGlobalCountSSBO[ i ], ssboBufferProps );
 
         // lights ssbo (light information, e.g.: position, color etc.)
-        ssboBufferProps.m_DebugName = "Lights";
+        ssboBufferProps.m_DebugName = format::format( "Lights_{}", i );
         ssboBufferProps.m_Size = sizeof( rhi::Lighting );
         ssboBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
         api.CreateBuffer( m_LightsStorageBuffers[ i ], ssboBufferProps );
@@ -131,7 +131,6 @@ void UpdateLightClustersRenderGraphNode::OnBeginFrame( RenderGraphContext& conte
     m_LightsStorageBuffers[ frameIndex ].Buffer->SetData( 0, &lighting, sizeof( rhi::Lighting ) );
     context.Graph.GetResource( globalId ).Handle = m_LightsStorageBuffers[ frameIndex ];
 
-    m_ShaderInstance->Bind( m_LightGridSSBO[ frameIndex ], "sbo_lightgrid", frameIndex );
     m_ShaderInstance->Bind( m_LightsStorageBuffers[ frameIndex ], "globalindexcountssbo", frameIndex );
 }
 

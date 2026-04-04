@@ -20,7 +20,12 @@ void CommandBufferManager::Init( VulkanGraphicsApi& api, uint32_t queueIndex, ui
                                                                 queueIndex,
                                                                 VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 
-        uint8_t frameIndex = ( commandPoolIndex % MAX_FRAMES_IN_FLIGHT );
+        uint8_t frameIndex = commandPoolIndex / threadCount;
+
+#if !ONYX_IS_RETAIL
+        commandPool.setFrameIndex( frameIndex );
+#endif
+
         for( uint32_t i = 0; i < COMMAND_BUFFERS_PER_THREAD; ++i )
             m_PrimaryBuffers.emplace_back( api,
                                            commandPool,
@@ -49,6 +54,7 @@ void CommandBufferManager::Shutdown() {
 void CommandBufferManager::Reset( Device& device, uint8_t frameIndex ) {
     for( uint32_t threadIndex = 0; threadIndex < m_ThreadCount; threadIndex++ ) {
         const uint32_t poolIndex = ( frameIndex * m_ThreadCount ) + threadIndex;
+        ONYX_ASSERT( m_CommandPools[ poolIndex ].getFrameIndex() == frameIndex );
         vkResetCommandPool( device.GetHandle(), m_CommandPools[ poolIndex ].GetHandle(), 0 );
 
         m_UsedBuffers[ poolIndex ] = 0;
