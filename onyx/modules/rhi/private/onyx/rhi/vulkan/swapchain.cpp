@@ -40,7 +40,7 @@ SwapChain::~SwapChain() {
 bool SwapChain::BeginFrame( uint8_t frameIndex ) {
     ONYX_PROFILE_FUNCTION;
 
-    if ( m_ShouldRecreateSwapchain ) {
+    if( m_ShouldRecreateSwapchain ) {
         Init();
     }
 
@@ -56,7 +56,7 @@ bool SwapChain::BeginFrame( uint8_t frameIndex ) {
                                         m_ImageAcquiredSemaphores[ frameIndex ]->GetHandle(),
                                         VK_NULL_HANDLE,
                                         &m_CurrentImageIndex );
-        if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
+        if( result == VK_ERROR_OUT_OF_DATE_KHR ) {
             m_ShouldRecreateSwapchain = true;
             m_CurrentImageIndex = std::numeric_limits< uint32_t >::max();
             return false;
@@ -67,7 +67,7 @@ bool SwapChain::BeginFrame( uint8_t frameIndex ) {
 }
 
 bool SwapChain::Present( uint32_t imageIndex ) {
-    if ( imageIndex == std::numeric_limits< uint32_t >::max() )
+    if( imageIndex == std::numeric_limits< uint32_t >::max() )
         return true;
 
     VkPresentInfoKHR presentInfo{};
@@ -83,8 +83,8 @@ bool SwapChain::Present( uint32_t imageIndex ) {
     {
         std::lock_guard lock( mutex );
         std::lock_guard queueLock = m_GraphicsApi.LockGraphicsQueue();
-        VkResult result = vkQueuePresentKHR( m_Device.GetGraphicsQueue(), &presentInfo );
-        if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
+        VkResult result = vkQueuePresentKHR( m_Device.getGraphicsQueue(), &presentInfo );
+        if( result == VK_ERROR_OUT_OF_DATE_KHR ) {
             m_ShouldRecreateSwapchain = true;
             return false;
         }
@@ -128,12 +128,12 @@ void SwapChain::Init() {
     createInfo.oldSwapchain = m_SwapChain;
 
     // Enable transfer source on swap chain images if supported
-    if ( details.Capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT ) {
+    if( details.Capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT ) {
         createInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 
     // Enable transfer destination on swap chain images if supported
-    if ( details.Capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT ) {
+    if( details.Capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT ) {
         createInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
 
@@ -176,7 +176,7 @@ void SwapChain::Init() {
     TextureProperties textureProps;
     textureProps.m_Format = TextureFormat::BGRA_UNORM8;
 
-    for ( uint32_t i = 0; i < m_ImageCount; ++i ) {
+    for( uint32_t i = 0; i < m_ImageCount; ++i ) {
         TextureHandle& texture = m_SwapchainBuffers[ i ];
 
         Reference< VulkanTextureStorage > textureStorage = Reference< VulkanTextureStorage >::create(
@@ -192,12 +192,12 @@ void SwapChain::Init() {
                                                                               textureStorage.raw() );
     }
 
-    if ( hasSwapchain == false ) {
-        for ( uint8_t i = 0; i < m_ImageCount; ++i ) {
+    if( hasSwapchain == false ) {
+        for( uint8_t i = 0; i < m_ImageCount; ++i ) {
             m_RenderCompleteSemaphores.emplace_back( makeUnique< Semaphore >( m_Device ) );
         }
 
-        for ( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+        for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
             m_ImageAcquiredSemaphores.emplace( makeUnique< Semaphore >( m_Device ) );
         }
     }
@@ -247,12 +247,12 @@ SwapChain::SupportDetails SwapChain::QuerySwapChainSupport( const PhysicalDevice
 }
 
 VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat( const std::vector< VkSurfaceFormatKHR >& formats ) const {
-    if ( formats.size() == 1 && formats[ 0 ].format == VK_FORMAT_UNDEFINED ) {
+    if( formats.size() == 1 && formats[ 0 ].format == VK_FORMAT_UNDEFINED ) {
         return { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     }
 
-    for ( const VkSurfaceFormatKHR& format : formats ) {
-        if ( format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR ) {
+    for( const VkSurfaceFormatKHR& format : formats ) {
+        if( format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR ) {
             return format;
         }
     }
@@ -263,17 +263,17 @@ VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat( const std::vector< VkSurf
 
 VkPresentModeKHR SwapChain::ChooseSwapPresentMode( const std::vector< VkPresentModeKHR >& presentModes,
                                                    bool isVSyncEnabled ) const {
-    if ( isVSyncEnabled == false ) {
-        for ( const VkPresentModeKHR& presentMode : presentModes ) {
-            if ( presentMode == VK_PRESENT_MODE_MAILBOX_KHR ) {
+    if( isVSyncEnabled == false ) {
+        for( const VkPresentModeKHR& presentMode : presentModes ) {
+            if( presentMode == VK_PRESENT_MODE_MAILBOX_KHR ) {
                 return VK_PRESENT_MODE_MAILBOX_KHR;
             }
 
-            if ( presentMode == VK_PRESENT_MODE_FIFO_RELAXED_KHR ) {
+            if( presentMode == VK_PRESENT_MODE_FIFO_RELAXED_KHR ) {
                 return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
 
-            if ( presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR ) {
+            if( presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR ) {
                 return VK_PRESENT_MODE_IMMEDIATE_KHR;
             }
         }
@@ -288,7 +288,7 @@ VkExtent2D SwapChain::ChooseSwapExtent( const Vector2s32& windowSize,
     // member. However, some window managers do allow us to differ here and this is indicated by setting the width and
     // height in currentExtent to a special value: the maximum value of uint32_t. In that case we'll pick the resolution
     // that best matches the window within the minImageExtent and maxImageExtent bounds.
-    if ( capabilities.currentExtent.width != std::numeric_limits< uint32_t >::max() ) {
+    if( capabilities.currentExtent.width != std::numeric_limits< uint32_t >::max() ) {
         return capabilities.currentExtent;
     }
 
@@ -303,7 +303,7 @@ VkExtent2D SwapChain::ChooseSwapExtent( const Vector2s32& windowSize,
 uint32_t SwapChain::ChooseImageCount( const VkSurfaceCapabilitiesKHR& capabilities ) const {
     uint32_t imageCount = std::max< uint32_t >( 2u, capabilities.minImageCount + 1 );
 
-    if ( capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount ) {
+    if( capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount ) {
         imageCount = capabilities.maxImageCount;
     }
 
@@ -311,7 +311,7 @@ uint32_t SwapChain::ChooseImageCount( const VkSurfaceCapabilitiesKHR& capabiliti
 }
 
 VkSurfaceTransformFlagBitsKHR SwapChain::ChoosePreTransform( const VkSurfaceCapabilitiesKHR& capabilities ) const {
-    if ( capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ) {
+    if( capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ) {
         return VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     }
 
@@ -319,7 +319,7 @@ VkSurfaceTransformFlagBitsKHR SwapChain::ChoosePreTransform( const VkSurfaceCapa
 }
 
 void SwapChain::OnWindowResize( Vector2s32 size ) {
-    if ( m_Extent != size ) {
+    if( m_Extent != size ) {
         m_Extent = size;
         m_ShouldRecreateSwapchain = true;
     }

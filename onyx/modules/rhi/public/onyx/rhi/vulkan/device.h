@@ -3,29 +3,30 @@
 #include <onyx/noncopyable.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace onyx::rhi::vulkan
-{
-    class PhysicalDevice;
+namespace onyx::rhi::vulkan {
+class PhysicalDevice;
 
-    class Device : public NonCopyable
-    {
-    public:
-        explicit Device(const PhysicalDevice& physicalDevice, const DynamicArray<const char*>& enabledExtensions, VkPhysicalDeviceFeatures2& physicalFeatures, VkQueueFlags requestedQueueTypes);
-        ~Device();
+class Device : public NonCopyable {
+  public:
+    explicit Device( const PhysicalDevice& physicalDevice,
+                     const DynamicArray< const char* >& enabledExtensions,
+                     VkPhysicalDeviceFeatures2& physicalFeatures,
+                     VkQueueFlags requestedQueueTypes );
+    ~Device() override;
 
-        VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
-        VkQueue GetComputeQueue() const { return m_ComputeQueue; }
-        VkQueue GetTransferQueue() const { return m_TransferQueue; }
-        VkQueue GetPresentQueue() const { return m_PresentQueue; }
+    ONYX_NO_DISCARD VkQueue getGraphicsQueue() const { return m_graphicsQueue; }
+    ONYX_NO_DISCARD VkQueue getComputeQueue() const { return m_computeQueue; }
+    ONYX_NO_DISCARD VkQueue getTransferQueue() const { return m_transferQueue; }
+    ONYX_NO_DISCARD VkQueue getPresentQueue() const { return m_presentQueue; }
 
-    private:
-        VULKAN_HANDLE(VkDevice, Device, nullptr);
+  private:
+    VULKAN_HANDLE( VkDevice, Device, nullptr );
 
-        bool m_EnableDebugMarkers = false;
+    bool m_enableDebugMarkers = false;
 
-        VkQueue m_GraphicsQueue = nullptr;
-        VkQueue m_ComputeQueue = nullptr;
-        VkQueue m_TransferQueue = nullptr;
-        VkQueue m_PresentQueue = nullptr;
-    };
-}
+    VkQueue m_graphicsQueue = nullptr;
+    VkQueue m_computeQueue = nullptr;
+    VkQueue m_transferQueue = nullptr;
+    VkQueue m_presentQueue = nullptr;
+};
+} // namespace onyx::rhi::vulkan

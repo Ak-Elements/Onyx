@@ -36,10 +36,12 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
     m_Instance = makeUnique< Instance >( settings, validationLayers );
 
     if( settings.IsDebugEnabled ) {
+        uint32_t severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+
         m_DebugUtilsMessenger = makeUnique< DebugUtilsMessenger >(
             *m_Instance,
-            static_cast< VkDebugUtilsMessageSeverityFlagBitsEXT >( VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                                                   VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT ) );
+            static_cast< VkDebugUtilsMessageSeverityFlagBitsEXT >( severity ) );
     }
 
     m_PhysicalDevice = makeUnique< PhysicalDevice >( *m_Instance );
@@ -115,14 +117,22 @@ void VulkanGraphicsApi::Init( const GraphicSettings& settings ) {
                               bindlessExtenstion.runtimeDescriptorArray;
     }
 
-    VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderExtension;
+    VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderExtension{
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT };
+    VkPhysicalDeviceFragmentShadingRateFeaturesKHR fragmentShadingExtension{
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR };
 
-    if( m_PhysicalDevice->IsExtensionSupported( VK_NV_MESH_SHADER_EXTENSION_NAME ) ) {
+    if( m_PhysicalDevice->IsExtensionSupported( VK_EXT_MESH_SHADER_EXTENSION_NAME ) ) {
         deviceExtensions.push_back( VK_EXT_MESH_SHADER_EXTENSION_NAME );
 
-        meshShaderExtension.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
         meshShaderExtension.taskShader = true;
         meshShaderExtension.meshShader = true;
+        meshShaderExtension.primitiveFragmentShadingRateMeshShader = true;
+
+        fragmentShadingExtension.primitiveFragmentShadingRate = true;
+
+        fragmentShadingExtension.pNext = currentPnext;
+        currentPnext = &fragmentShadingExtension;
 
         meshShaderExtension.pNext = currentPnext;
         currentPnext = &meshShaderExtension;
@@ -508,7 +518,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
             submitInfo.pNext = nullptr;
 
             std::lock_guard lock( m_GraphicsMutex );
-            VK_CHECK_RESULT( vkQueueSubmit2( m_Device->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE ) );
+            VK_CHECK_RESULT( vkQueueSubmit2( m_Device->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE ) );
         } else {
             InplaceArray< VkSemaphore, 4 > waitSemaphores;
             InplaceArray< uint64_t, 4 > waitValues;
@@ -554,7 +564,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
             submitInfo.pNext = &semaphoreInfo;
 
             std::lock_guard lock( m_GraphicsMutex );
-            VK_CHECK_RESULT( vkQueueSubmit( m_Device->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE ) );
+            VK_CHECK_RESULT( vkQueueSubmit( m_Device->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE ) );
         }
     } else {
         //    const UniquePtr<Fence>& renderCompleteFence = m_SwapChain->GetRenderCompleteFence(context.FrameIndex);
@@ -669,7 +679,7 @@ bool VulkanGraphicsApi::EndFrame( const FrameContext& context ) {
         submit_info.pSignalSemaphoreInfos = signalSemaphores;
         submit_info.pNext = nullptr;
 
-        vkQueueSubmit2( m_Device->GetComputeQueue(), 1, &submit_info, VK_NULL_HANDLE );
+        vkQueueSubmit2( m_Device->getComputeQueue(), 1, &submit_info, VK_NULL_HANDLE );
     }
 
     m_QueuedCommandBuffer.clear();
@@ -711,7 +721,7 @@ void VulkanGraphicsApi::ReleaseTexture( const VulkanTexture& texture ) {
 
 void VulkanGraphicsApi::WaitIdle() const {
     vkDeviceWaitIdle( m_Device->GetHandle() );
-    vkQueueWaitIdle( m_Device->GetGraphicsQueue() );
+    vkQueueWaitIdle( m_Device->getGraphicsQueue() );
 }
 
 void VulkanGraphicsApi::CreateSwapchain( const platform::Window& window ) {
@@ -751,12 +761,12 @@ void VulkanGraphicsApi::SubmitInstantCommandBuffer( Context context,
     switch( context ) {
     case Context::Graphics:
         commandBufferManager = m_CommandBufferManager.get();
-        queue = m_Device->GetGraphicsQueue();
+        queue = m_Device->getGraphicsQueue();
         fence = m_GraphicsSingleSubmitFence->GetHandle();
         break;
     case Context::Compute:
         commandBufferManager = m_ComputeCommandBufferManager.get();
-        queue = m_Device->GetComputeQueue();
+        queue = m_Device->getComputeQueue();
         fence = m_ComputeSingleSubmitFence->GetHandle();
         break;
     case Context::CopyTransfer:

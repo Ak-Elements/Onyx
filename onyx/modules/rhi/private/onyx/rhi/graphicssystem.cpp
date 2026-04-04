@@ -160,12 +160,7 @@ bool GraphicsSystem::BeginFrame() {
 
     FrameContext& currentFrameContext = GetFrameContext();
     bool hasBegunFrame = m_GraphicsSystem->BeginFrame( currentFrameContext );
-    if( ( hasBegunFrame == false ) || m_HasWindowResized ) {
-        m_HasWindowResized = false;
-        m_PresentThread.ClearQueue();
-        m_FramebufferCache.Clear();
-        CreateDepthImages( mainWindow.GetFrameBufferSize() );
-        // m_RenderGraph->OnSwapChainResized(*this);
+    if( hasBegunFrame == false ) {
         return false;
     }
 

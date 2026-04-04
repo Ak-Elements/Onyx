@@ -6,7 +6,7 @@
 namespace onyx::rhi::vulkan {
 namespace {
 const char* ObjectTypeToString( const VkObjectType objectType ) {
-    switch ( objectType ) {
+    switch( objectType ) {
 #define STR( e )                                                                                                       \
     case VK_OBJECT_TYPE_##e:                                                                                           \
         return #e
@@ -69,7 +69,7 @@ void DestroyDebugUtilsMessengerEXT( VkInstance instance,
                                     const VkAllocationCallbacks* pAllocator ) {
     const auto func = reinterpret_cast< PFN_vkDestroyDebugUtilsMessengerEXT >(
         vkGetInstanceProcAddr( instance, "vkDestroyDebugUtilsMessengerEXT" ) );
-    if ( func != nullptr ) {
+    if( func != nullptr ) {
         func( instance, callback, pAllocator );
     }
 }
@@ -78,7 +78,7 @@ void DestroyDebugUtilsMessengerEXT( VkInstance instance,
 DebugUtilsMessenger::DebugUtilsMessenger( const Instance& instance, VkDebugUtilsMessageSeverityFlagBitsEXT severity )
     : m_Instance( instance )
     , m_Severity( severity ) {
-    if ( m_Instance.GetValidationsEnabled() == false ) {
+    if( m_Instance.GetValidationsEnabled() == false ) {
         return;
     }
 
@@ -86,7 +86,8 @@ DebugUtilsMessenger::DebugUtilsMessenger( const Instance& instance, VkDebugUtils
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.flags = 0;
     createInfo.messageSeverity = severity;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = DebugUtilsMessenger::VulkanDebugCallback;
     createInfo.pUserData = nullptr;
@@ -96,7 +97,7 @@ DebugUtilsMessenger::DebugUtilsMessenger( const Instance& instance, VkDebugUtils
 }
 
 DebugUtilsMessenger::~DebugUtilsMessenger() {
-    if ( m_Messenger != nullptr ) {
+    if( m_Messenger != nullptr ) {
         DestroyDebugUtilsMessengerEXT( m_Instance.GetHandle(), m_Messenger, nullptr );
         m_Messenger = nullptr;
     }
@@ -107,7 +108,7 @@ VkBool32 DebugUtilsMessenger::VulkanDebugCallback( const VkDebugUtilsMessageSeve
                                                    const VkDebugUtilsMessengerCallbackDataEXT* const pCallbackData,
                                                    void* const /*userData*/ ) {
     LogLevel logLevel;
-    switch ( messageSeverity ) {
+    switch( messageSeverity ) {
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
         logLevel = LogLevel::Trace;
         break;
@@ -125,7 +126,7 @@ VkBool32 DebugUtilsMessenger::VulkanDebugCallback( const VkDebugUtilsMessageSeve
     }
 
     std::string_view messageTypeString;
-    switch ( messageType ) {
+    switch( messageType ) {
     case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
         messageTypeString = "GENERAL: ";
         break;
@@ -144,8 +145,8 @@ VkBool32 DebugUtilsMessenger::VulkanDebugCallback( const VkDebugUtilsMessageSeve
 
     const char* objectInfoMessage;
     constexpr std::string_view fmtString = " - Object [ {} ]: \n Type: {} \n Handle: {} \n Name: {} \n ";
-    if ( pCallbackData->objectCount > 0 && messageSeverity > VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT ) {
-        for ( uint32_t i = 0; i != pCallbackData->objectCount; ++i ) {
+    if( pCallbackData->objectCount > 0 && messageSeverity > VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT ) {
+        for( uint32_t i = 0; i != pCallbackData->objectCount; ++i ) {
             const auto object = pCallbackData->pObjects[ i ];
             objectInfoMessage = format::format( fmtString.data(),
                                                 i,

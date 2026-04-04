@@ -11,11 +11,11 @@ Device::Device( const PhysicalDevice& physicalDevice,
 
     // Queues can be the same
     HashSet< int32_t > uniqueQueueFamilies;
-    if ( requestedQueueTypes & VK_QUEUE_GRAPHICS_BIT )
+    if( requestedQueueTypes & VK_QUEUE_GRAPHICS_BIT )
         uniqueQueueFamilies.emplace( queueFamilyIndices.Graphics );
-    if ( requestedQueueTypes & VK_QUEUE_COMPUTE_BIT )
+    if( requestedQueueTypes & VK_QUEUE_COMPUTE_BIT )
         uniqueQueueFamilies.emplace( queueFamilyIndices.Compute );
-    if ( requestedQueueTypes & VK_QUEUE_TRANSFER_BIT )
+    if( requestedQueueTypes & VK_QUEUE_TRANSFER_BIT )
         uniqueQueueFamilies.emplace( queueFamilyIndices.Transfer );
 
     // Create queues
@@ -23,8 +23,8 @@ Device::Device( const PhysicalDevice& physicalDevice,
     queueCreateInfos.reserve( uniqueQueueFamilies.size() );
 
     const float defaultQueuePriority = 1.0f;
-    for ( int32_t queueFamilyIndex : uniqueQueueFamilies ) {
-        if ( queueFamilyIndex == InvalidIndex32 )
+    for( int32_t queueFamilyIndex : uniqueQueueFamilies ) {
+        if( queueFamilyIndex == InvalidIndex32 )
             continue;
 
         VkDeviceQueueCreateInfo queueCreateInfo = {};
@@ -57,15 +57,15 @@ Device::Device( const PhysicalDevice& physicalDevice,
     DynamicArray< const char* > deviceExtensions( enabledExtensions );
 
     // Enable the debug marker extension if it is present (likely meaning a debugging tool is present)
-    if ( physicalDevice.IsExtensionSupported( VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) ) {
+    if( physicalDevice.IsExtensionSupported( VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) ) {
         deviceExtensions.push_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
-        m_EnableDebugMarkers = true;
+        m_enableDebugMarkers = true;
     }
 
     // enable extensions
-    if ( deviceExtensions.empty() == false ) {
-        for ( const char* enabledExtension : deviceExtensions ) {
-            if ( physicalDevice.IsExtensionSupported( enabledExtension ) == false )
+    if( deviceExtensions.empty() == false ) {
+        for( const char* enabledExtension : deviceExtensions ) {
+            if( physicalDevice.IsExtensionSupported( enabledExtension ) == false )
                 ONYX_LOG_WARNING( "Enabled device extension {} is not supported.", enabledExtension );
             else
                 ONYX_LOG_INFO( "Enabled device extension: {}", enabledExtension );
@@ -77,9 +77,9 @@ Device::Device( const PhysicalDevice& physicalDevice,
 
     VK_CHECK_RESULT( vkCreateDevice( physicalDevice.GetHandle(), &deviceCreateInfo, nullptr, &m_Device ) )
 
-    vkGetDeviceQueue( m_Device, queueFamilyIndices.Graphics, 0, &m_GraphicsQueue );
-    vkGetDeviceQueue( m_Device, queueFamilyIndices.Compute, 0, &m_ComputeQueue );
-    vkGetDeviceQueue( m_Device, queueFamilyIndices.Transfer, 0, &m_TransferQueue );
+    vkGetDeviceQueue( m_Device, queueFamilyIndices.Graphics, 0, &m_graphicsQueue );
+    vkGetDeviceQueue( m_Device, queueFamilyIndices.Compute, 0, &m_computeQueue );
+    vkGetDeviceQueue( m_Device, queueFamilyIndices.Transfer, 0, &m_transferQueue );
 }
 
 Device::~Device() {
