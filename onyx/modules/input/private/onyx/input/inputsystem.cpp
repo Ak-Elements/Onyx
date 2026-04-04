@@ -16,12 +16,12 @@ void InputSystem::update() {
     m_MouseDelta = m_MousePosition - m_LastMousePosition;
     m_LastMousePosition = m_MousePosition;
 
-    m_MouseWheelDelta = m_MouseScroll - m_LastMouseScroll;
-    m_LastMouseScroll = m_MouseScroll;
+    m_MouseWheelDelta = m_MouseScroll;
+    m_MouseScroll = 0;
 }
 
 int32_t InputSystem::GetAxisValue1D( uint32_t deviceIndex, InputID id ) const {
-    switch ( id.ID ) {
+    switch( id.ID ) {
     case enums::toIntegral( MouseAxis::X ):
         return m_MousePosition.X;
     case enums::toIntegral( MouseAxis::Y ):
@@ -46,7 +46,7 @@ int32_t InputSystem::GetAxisValue1D( uint32_t deviceIndex, InputID id ) const {
 }
 
 Vector2s32 InputSystem::GetAxisValue2D( uint32_t deviceIndex, InputID id ) const {
-    switch ( id.ID ) {
+    switch( id.ID ) {
     case enums::toIntegral( MouseAxis::XY ):
         return m_MousePosition;
     case enums::toIntegral( MouseAxis::DeltaXY ):
@@ -64,13 +64,13 @@ Vector2s32 InputSystem::GetAxisValue2D( uint32_t deviceIndex, InputID id ) const
 }
 
 bool InputSystem::IsButtonDown( InputID id ) const {
-    if ( IsMouseButton( id ) ) {
+    if( IsMouseButton( id ) ) {
         return IsButtonDown( static_cast< MouseButton >( id.ID ) );
     }
-    if ( IsKeyboardKey( id ) ) {
+    if( IsKeyboardKey( id ) ) {
         return IsButtonDown( static_cast< Key >( id.ID ) );
     }
-    if ( IsGameControllerButton( id ) ) {
+    if( IsGameControllerButton( id ) ) {
         return IsButtonDown( static_cast< GameControllerButton >( id.ID ), 0 );
     }
 
@@ -86,7 +86,7 @@ bool InputSystem::IsButtonDown( Key key ) const {
 }
 
 bool InputSystem::IsButtonDown( GameControllerButton button, uint8_t deviceIndex ) const {
-    if ( deviceIndex >= m_Gamepads.size() )
+    if( deviceIndex >= m_Gamepads.size() )
         return false;
 
     constexpr uint16_t first = enums::toIntegral( GameControllerButton::First );
@@ -98,7 +98,7 @@ bool InputSystem::IsButtonDown( GameControllerButton button, uint8_t deviceIndex
 }
 
 void InputSystem::SetMousePosition( const Vector2s32& mousePos ) {
-    if ( m_MousePosition != mousePos ) {
+    if( m_MousePosition != mousePos ) {
         m_MousePosition = mousePos;
 
         // MouseEvent event;
@@ -110,7 +110,7 @@ void InputSystem::SetMousePosition( const Vector2s32& mousePos ) {
 
 int32_t InputSystem::GetControllerAxisValue( uint32_t controllerIndex, GameControllerAxis axis ) const {
     // TODO: 0.5.0 fix this for controllers
-    if ( controllerIndex >= m_Gamepads.size() )
+    if( controllerIndex >= m_Gamepads.size() )
         return 0;
 
     ONYX_ASSERT( controllerIndex < m_Gamepads.size() );
@@ -128,20 +128,20 @@ void InputSystem::EnableSystemMouseCapture( bool /*enable*/ ) {
 }
 
 void InputSystem::UpdateMouse( uint8_t queueIndex ) {
-    if ( m_MouseAxisInputQueue[ queueIndex ].has_value() ) {
+    if( m_MouseAxisInputQueue[ queueIndex ].has_value() ) {
         MouseAxisEvent event = m_MouseAxisInputQueue[ queueIndex ].value();
         m_MouseScroll = event.Value;
         m_MouseAxisSignal.Dispatch( event );
         m_MouseAxisInputQueue[ queueIndex ].reset();
     }
 
-    for ( const MouseButtonEvent& event : m_MouseButtonInputQueue[ queueIndex ] ) {
+    for( const MouseButtonEvent& event : m_MouseButtonInputQueue[ queueIndex ] ) {
         m_MouseButtonStates[ ToIndex( event.Button ) ] = event.State != ButtonState::Up;
         m_MouseButtonSignal.Dispatch( event );
     }
     m_MouseButtonInputQueue[ queueIndex ].clear();
 
-    if ( m_MousePositionInputQueue[ queueIndex ].has_value() ) {
+    if( m_MousePositionInputQueue[ queueIndex ].has_value() ) {
         MousePositionEvent event = m_MousePositionInputQueue[ queueIndex ].value();
         m_MousePosition = event.Position;
         m_MousePositionSignal.Dispatch( event );
@@ -150,7 +150,7 @@ void InputSystem::UpdateMouse( uint8_t queueIndex ) {
 }
 
 void InputSystem::UpdateKeyboard( uint8_t queueIndex ) {
-    for ( const KeyboardEvent& event : m_KeyboardInputQueue[ queueIndex ] ) {
+    for( const KeyboardEvent& event : m_KeyboardInputQueue[ queueIndex ] ) {
         m_KeyState[ ToIndex( event.Key ) ] = event.State != ButtonState::Up;
         m_KeySignal.Dispatch( event );
     }
@@ -158,18 +158,18 @@ void InputSystem::UpdateKeyboard( uint8_t queueIndex ) {
 }
 
 void InputSystem::UpdateGameControllers( uint8_t queueIndex ) {
-    for ( const GameControllerAxisEvent& event : m_ControllerAxisInputQueue[ queueIndex ] ) {
+    for( const GameControllerAxisEvent& event : m_ControllerAxisInputQueue[ queueIndex ] ) {
         GameController& controller = m_Gamepads[ event.ControllerIndex ];
         controller.m_AxisValues[ ToIndex( ( event.Axis ) ) ] = event.Value;
         m_ControllerAxisSignal.Dispatch( event );
     }
     m_ControllerAxisInputQueue[ queueIndex ].clear();
 
-    for ( const GameControllerButtonEvent& event : m_ControllerButtonInputQueue[ queueIndex ] ) {
+    for( const GameControllerButtonEvent& event : m_ControllerButtonInputQueue[ queueIndex ] ) {
         GameController& controller = m_Gamepads[ event.ControllerIndex ];
 
         uint32_t buttonMask = 1 << ToIndex( event.Button );
-        if ( event.State == ButtonState::Up ) {
+        if( event.State == ButtonState::Up ) {
             controller.ButtonStates &= ~buttonMask;
         } else {
             controller.ButtonStates |= buttonMask;

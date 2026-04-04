@@ -1096,6 +1096,9 @@ void ImGuiSystem::OnMouseAxisChange( const input::MouseAxisEvent& event ) {
 }
 
 void ImGuiSystem::OnMouseButton( const input::MouseButtonEvent& event ) {
+    if( static_cast< int32_t >( event.Button ) >= ImGuiMouseButton_COUNT )
+        return;
+
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseButtonEvent( static_cast< int32_t >( event.Button ) - 1, event.State == input::ButtonState::Down );
 }

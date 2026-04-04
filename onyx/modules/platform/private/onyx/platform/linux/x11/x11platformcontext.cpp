@@ -22,17 +22,23 @@ namespace onyx::platform::x11 {
 
 namespace {
 
+constexpr uint8_t XcbButtonMouse4 = 8;
+constexpr uint8_t XcbMouseButton5 = 9;
+constexpr int16_t ScrollValue = 3;
+
 input::MouseButton getMouseButton( xcb_button_t button ) {
-    switch ( button ) {
+    ONYX_ASSERT( button < XCB_BUTTON_INDEX_4 || button > XCB_BUTTON_INDEX_5 );
+
+    switch( button ) {
     case XCB_BUTTON_INDEX_1:
         return input::MouseButton::Button_1; // left button
     case XCB_BUTTON_INDEX_2:
         return input::MouseButton::Button_3; // middle button
     case XCB_BUTTON_INDEX_3:
         return input::MouseButton::Button_2; // right button
-    case XCB_BUTTON_INDEX_4:
+    case XcbButtonMouse4:
         return input::MouseButton::Button_4;
-    case XCB_BUTTON_INDEX_5:
+    case XcbMouseButton5:
         return input::MouseButton::Button_5;
     }
 
@@ -56,13 +62,13 @@ void handleXkbEvent( X11PlatformContext& context,
                      input::InputSystem& inputSystem,
                      const xcb_generic_event_t& event ) {
     auto& xkbEvent = reinterpret_cast< const xcb_xkb_state_notify_event_t& >( event );
-    switch ( xkbEvent.xkbType ) {
+    switch( xkbEvent.xkbType ) {
     case XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY: { // full rebuild only when keyboard device changes
         break;
     }
     case XCB_XKB_EVENT_TYPE_MAP_NOTIFY: {
         auto& xkbMapEvent = reinterpret_cast< const xcb_xkb_map_notify_event_t& >( event );
-        if ( ( xkbMapEvent.changed & ( XCB_XKB_MAP_PART_KEY_SYMS ) ) == 0 )
+        if( ( xkbMapEvent.changed & ( XCB_XKB_MAP_PART_KEY_SYMS ) ) == 0 )
             break;
 
         initKeyboard( context.getConnectionHandle(), xkb );
@@ -86,17 +92,17 @@ void handleEvents( PlatformSystem& platformSystem,
                    input::InputSystem& inputSystem,
                    const xcb_generic_event_t& event ) {
     const uint8_t eventType = event.response_type & 0x7f;
-    if ( eventType == context.getXkbFirstEvent() ) {
+    if( eventType == context.getXkbFirstEvent() ) {
         handleXkbEvent( context, xkb, inputSystem, event );
         return;
     }
 
-    switch ( eventType ) {
+    switch( eventType ) {
     case XCB_CLIENT_MESSAGE: {
         auto& clientEvent = reinterpret_cast< const xcb_client_message_event_t& >( event );
 
         ONYX_LOG_INFO( "atom delete" );
-        if ( clientEvent.data.data32[ 0 ] == context.getAtomDelete().atom ) {
+        if( clientEvent.data.data32[ 0 ] == context.getAtomDelete().atom ) {
             Window& window = platformSystem.GetWindow( clientEvent.window );
             window.SetState( WindowState::Closed );
             // clientEvent.window; Look for window with that id and close it
@@ -111,19 +117,28 @@ void handleEvents( PlatformSystem& platformSystem,
     }
     case XCB_BUTTON_PRESS: {
         auto& buttonEvent = reinterpret_cast< const xcb_button_press_event_t& >( event );
-        input::MouseButtonEvent event{ getMouseButton( buttonEvent.detail ), input::ButtonState::Down };
-        inputSystem.AddEvent( event );
+        if( ( buttonEvent.detail == XCB_BUTTON_INDEX_4 ) || ( buttonEvent.detail == XCB_BUTTON_INDEX_5 ) ) {
+            int16_t scrollDirection = ( buttonEvent.detail == XCB_BUTTON_INDEX_4 ) ? int16_t( 1 ) : int16_t( -1 );
+            input::MouseAxisEvent event{ static_cast< int16_t >( ScrollValue * scrollDirection ) };
+            inputSystem.AddEvent( event );
+        } else {
+            input::MouseButtonEvent event{ getMouseButton( buttonEvent.detail ), input::ButtonState::Down };
+            inputSystem.AddEvent( event );
+        }
         break;
     }
     case XCB_BUTTON_RELEASE: {
         auto& buttonEvent = reinterpret_cast< const xcb_button_press_event_t& >( event );
+        if( ( buttonEvent.detail == XCB_BUTTON_INDEX_4 ) || ( buttonEvent.detail == XCB_BUTTON_INDEX_5 ) ) {
+            break;
+        }
         input::MouseButtonEvent event{ getMouseButton( buttonEvent.detail ), input::ButtonState::Up };
         inputSystem.AddEvent( event );
         break;
     }
     case XCB_KEY_PRESS:
     case XCB_KEY_RELEASE: {
-        if ( xkb.getState() == nullptr )
+        if( xkb.getState() == nullptr )
             break;
 
         auto& keyEvent = reinterpret_cast< const xcb_key_press_event_t& >( event );
@@ -156,7 +171,7 @@ void handleEvents( PlatformSystem& platformSystem,
 
 X11PlatformContext::X11PlatformContext( PlatformSystem& platformSystem )
     : m_platformSystem( &platformSystem ) {
-    if ( initConnection() ) {
+    if( initConnection() ) {
         /* Magic code that will send notification when window is destroyed */
         m_atomWmDeleteWindow = queryAtom( m_connection, false, "WM_DELETE_WINDOW" );
 
@@ -170,9 +185,9 @@ input::InputSystem& PlatformContext::getInputSystem() {
 }
 
 void X11PlatformContext::onUpdate() {
-    while ( isRunning() ) {
+    while( isRunning() ) {
         xcb_generic_event_t* event;
-        while ( ( event = xcb_poll_for_event( m_connection ) ) ) {
+        while( ( event = xcb_poll_for_event( m_connection ) ) ) {
             handleEvents( *m_platformSystem, *this, m_xkb, getInputSystem(), *event );
             free( event );
         }
@@ -186,14 +201,14 @@ bool X11PlatformContext::initConnection() {
 
     m_connection = xcb_connect( nullptr, &scr );
     ONYX_ASSERT( m_connection != nullptr );
-    if ( xcb_connection_has_error( m_connection ) ) {
+    if( xcb_connection_has_error( m_connection ) ) {
         ONYX_LOG_ERROR( "Could not create xcb connection." );
         return false;
     }
 
     setup = xcb_get_setup( m_connection );
     iter = xcb_setup_roots_iterator( setup );
-    while ( scr-- > 0 )
+    while( scr-- > 0 )
         xcb_screen_next( &iter );
     m_screen = iter.data;
 

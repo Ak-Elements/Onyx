@@ -104,7 +104,6 @@ class InputSystem : public IEngineSystem {
     Vector2s32 m_LastMousePosition = { 0, 0 };
 
     int16_t m_MouseScroll;
-    int16_t m_LastMouseScroll;
     int16_t m_MouseWheelDelta = 0;
     // #endif
     DynamicArray< GameController > m_Gamepads;
