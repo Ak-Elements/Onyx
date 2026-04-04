@@ -16,20 +16,20 @@
 
 namespace onyx::ui::property_grid {
 namespace {
-Stack< ImGuiID > loc_PropertyGridIdStack;
-String loc_PropertyGridTooltip;
+Stack< ImGuiID > g_locPropertyGridIdStack;
+String g_locPropertyGridTooltip;
 
-constexpr uint32_t BACKGROUND_CHANNEL = 0;
-constexpr uint32_t FOREGROUND_CHANNEL = 1;
+constexpr uint32_t BackgroundChannel = 0;
+constexpr uint32_t ForegroundChannel = 1;
 
-float32 loc_SplitterMinX;
+float32 g_locSplitterMinX;
 
-void DrawSplitter() {
-    ImGuiID propertyGridID = loc_PropertyGridIdStack.top();
+void drawSplitter() {
+    ImGuiID propertyGridID = g_locPropertyGridIdStack.top();
 
     ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
     uint32_t splitterId = imguiStateStorage->GetInt( propertyGridID );
-    float& storedSplitterPosX = *imguiStateStorage->GetFloatRef( splitterId, loc_SplitterMinX );
+    float& storedSplitterPosX = *imguiStateStorage->GetFloatRef( splitterId, g_locSplitterMinX );
 
     const ImGuiStyle& style = ImGui::GetStyle();
     ImVec2 size = ImGui::GetItemRectSize();
@@ -51,22 +51,22 @@ void DrawSplitter() {
     ImGui::ButtonBehavior( interactionBB, splitterButtonId, &isHovered, &isHeld, ImGuiButtonFlags_FlattenChildren );
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    drawList->ChannelsSetCurrent( BACKGROUND_CHANNEL );
+    drawList->ChannelsSetCurrent( BackgroundChannel );
 
     const uint32_t splitterColor = isHeld ? ImGui::GetColorU32( ImGuiCol_SeparatorActive )
                                           : ( isHovered ? ImGui::GetColorU32( ImGuiCol_SeparatorHovered )
                                                         : ImGui::GetColorU32( ImGuiCol_Separator ) );
     drawList->AddRectFilled( visualBB.Min, visualBB.Max, splitterColor );
 
-    drawList->ChannelsSetCurrent( FOREGROUND_CHANNEL );
+    drawList->ChannelsSetCurrent( ForegroundChannel );
     // Handle dragging the splitter
-    if ( isHeld ) {
+    if( isHeld ) {
         // Update splitter position as the user drags it
-        storedSplitterPosX = std::max( storedSplitterPosX + ImGui::GetIO().MouseDelta.x, loc_SplitterMinX );
+        storedSplitterPosX = std::max( storedSplitterPosX + ImGui::GetIO().MouseDelta.x, g_locSplitterMinX );
     }
 
     // Change cursor on hover to indicate it's resizable
-    if ( isHovered ) {
+    if( isHovered ) {
         ImGui::SetMouseCursor( ImGuiMouseCursor_ResizeEW );
     }
 }
@@ -75,12 +75,12 @@ void DrawSplitter() {
 void beginPropertyGrid( StringView propertyGrid, float32 splitMinX ) {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     drawList->ChannelsSplit( 2 );
-    drawList->ChannelsSetCurrent( FOREGROUND_CHANNEL );
+    drawList->ChannelsSetCurrent( ForegroundChannel );
 
     ImGui::BeginGroup();
 
-    loc_PropertyGridIdStack.push( ImGui::GetID( propertyGrid.data() ) );
-    ImGuiID id = loc_PropertyGridIdStack.top();
+    g_locPropertyGridIdStack.push( ImGui::GetID( propertyGrid.data() ) );
+    ImGuiID id = g_locPropertyGridIdStack.top();
 
     ImGui::PushID( id );
     ImGui::BeginGroup();
@@ -91,25 +91,25 @@ void beginPropertyGrid( StringView propertyGrid, float32 splitMinX ) {
 
     ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
     imguiStateStorage->SetInt( id, static_cast< int32_t >( splitterPositionXId ) );
-    loc_SplitterMinX = splitMinX;
+    g_locSplitterMinX = splitMinX;
 }
 
 void endPropertyGrid() {
     ImGui::EndGroup();
     ImGui::PopID();
 
-    DrawSplitter();
+    drawSplitter();
 
     ImGui::EndGroup();
 
-    loc_PropertyGridIdStack.pop();
+    g_locPropertyGridIdStack.pop();
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     drawList->ChannelsMerge();
 }
 
 void drawPropertyName( StringView propertyName ) {
-    ImGuiID propertyGridID = loc_PropertyGridIdStack.top();
+    ImGuiID propertyGridID = g_locPropertyGridIdStack.top();
 
     ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
     uint32_t splitterId = imguiStateStorage->GetInt( propertyGridID );
@@ -152,8 +152,8 @@ void drawPropertyName( StringView propertyName ) {
     ImGui::PopFont();
 
     // move into name group
-    const bool hasTooltip = loc_PropertyGridTooltip.empty() == false;
-    if ( hasTooltip ) {
+    const bool hasTooltip = g_locPropertyGridTooltip.empty() == false;
+    if( hasTooltip ) {
         auto cursorPos = ImGui::GetCursorPos();
         ImGui::PushClipRect( label_pos, label_pos_max, true );
         DrawInfoIcon( ImGui::GetWindowDrawList(),
@@ -167,12 +167,12 @@ void drawPropertyName( StringView propertyName ) {
     ImGui::Dummy( ImVec2( splitterPosX - indendation + style.DockingSeparatorSize + 2 * style.ItemInnerSpacing.x,
                           ImGui::GetFrameHeightWithSpacing() ) );
 
-    if ( hasTooltip && ImGui::BeginItemTooltip() ) {
-        ImGui::TextEx( loc_PropertyGridTooltip.c_str() );
+    if( hasTooltip && ImGui::BeginItemTooltip() ) {
+        ImGui::TextEx( g_locPropertyGridTooltip.c_str() );
         ImGui::EndTooltip();
     }
 
-    loc_PropertyGridTooltip.clear();
+    g_locPropertyGridTooltip.clear();
 }
 
 void drawPropertyValue( const InplaceFunction< void(), 64 >& functor ) {
@@ -199,7 +199,7 @@ bool beginPropertyGroup( StringView propertyName, const InplaceFunction< bool() 
     bool showGroup = customHeader();
     ImGui::EndHorizontal();
 
-    if ( showGroup ) {
+    if( showGroup ) {
         ImGui::Indent();
         ImGui::BeginGroup();
     } else {
@@ -216,7 +216,7 @@ bool beginCollapsiblePropertyGroup( StringView propertyName, ImGuiTreeNodeFlags 
         { ImGuiStyleVar_FrameBorderSize, 0.0f },
     };
 
-    if ( ContextMenuHeader( propertyName.data(), flags | ImGuiTreeNodeFlags_Framed ) ) {
+    if( ContextMenuHeader( propertyName.data(), flags | ImGuiTreeNodeFlags_Framed ) ) {
         ImGui::Indent();
         ImGui::BeginGroup();
         return true;
@@ -235,7 +235,7 @@ bool beginCollapsiblePropertyGroup( StringView propertyName,
         { ImGuiStyleVar_FrameBorderSize, 0.0f },
     };
 
-    if ( ContextMenuHeader( propertyName.data(), customHeader, flags | ImGuiTreeNodeFlags_Framed ) ) {
+    if( ContextMenuHeader( propertyName.data(), customHeader, flags | ImGuiTreeNodeFlags_Framed ) ) {
         ImGui::Indent();
         ImGui::BeginGroup();
         return true;
@@ -253,7 +253,7 @@ void endPropertyGroup() {
 }
 
 void setNextPropertyTooltip( const String& tooltip ) {
-    loc_PropertyGridTooltip = tooltip;
+    g_locPropertyGridTooltip = tooltip;
 }
 
 bool drawButton( StringView propertyName ) {
@@ -336,7 +336,7 @@ bool drawColorProperty( StringView propertyName, Vector3f32& inOutColor ) {
     bool hasModified = false;
     // float color[3] = { inOutColor[0], inOutColor[1], inOutColor[2] };
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if ( ui::ColorInput( "##inputColor", inOutColor ) ) {
+    if( ui::ColorInput( "##inputColor", inOutColor ) ) {
         hasModified = true;
         // inOutColor[0] = color[0];
         // inOutColor[1] = color[1];
@@ -355,9 +355,9 @@ bool drawColorProperty( StringView propertyName, Vector4f32& inOutColor ) {
     bool hasModified = false;
     float color[ 4 ] = { inOutColor[ 0 ], inOutColor[ 1 ], inOutColor[ 2 ], inOutColor[ 3 ] };
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if ( ImGui::ColorEdit4( "##inputColor",
-                            color,
-                            ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf ) ) {
+    if( ImGui::ColorEdit4( "##inputColor",
+                           color,
+                           ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreviewHalf ) ) {
         hasModified = true;
         inOutColor[ 0 ] = color[ 0 ];
         inOutColor[ 1 ] = color[ 1 ];
@@ -374,7 +374,7 @@ bool drawColorProperty( StringView propertyName, Vector4u8& inOutColor ) {
                       numericCast< float32 >( inOutColor[ 1 ] ) / 255.0f,
                       numericCast< float32 >( inOutColor[ 2 ] ) / 255.0f,
                       numericCast< float32 >( inOutColor[ 3 ] ) / 255.0f };
-    if ( drawColorProperty( propertyName, color ) ) {
+    if( drawColorProperty( propertyName, color ) ) {
         inOutColor[ 0 ] = numericCast< uint8_t >( color[ 0 ] * 255.0f );
         inOutColor[ 1 ] = numericCast< uint8_t >( color[ 1 ] * 255.0f );
         inOutColor[ 2 ] = numericCast< uint8_t >( color[ 2 ] * 255.0f );
