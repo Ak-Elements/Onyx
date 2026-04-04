@@ -88,7 +88,7 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
                         // manually clear style
                         style.Reset();
 
-                        ui::property_grid::beginPropertyGrid( "Properties", 80.0f );
+                        ui::property_grid::beginPropertyGrid( "Properties", 180.0f );
 
                         void* componentPtr = componentStorage.value( selectedEntity );
 

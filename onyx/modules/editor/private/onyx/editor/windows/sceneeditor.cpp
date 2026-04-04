@@ -65,7 +65,7 @@ void SceneEditorWindow::onOpen() {
     ImGuiID dockspaceID = ImGui::GetID( format::format( "SceneEditorDockspace{}", m_windowId ) );
 
     // TODO: should those be somewhere defined as default sizes? And should be based on window size not main view port
-    float compPanelRatio = 0.20f;
+    float compPanelRatio = 0.26f;
     float entitiesPanelRatio = 0.20f;
 
     // split other direction - command history on the right
