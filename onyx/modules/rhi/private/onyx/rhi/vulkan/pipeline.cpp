@@ -12,7 +12,7 @@
 namespace onyx::rhi::vulkan {
 namespace {
 VkVertexInputRate ToVulkanInputRate( VertexStreamInputRate rate ) {
-    switch ( rate ) {
+    switch( rate ) {
     case VertexStreamInputRate::Vertex:
         return VK_VERTEX_INPUT_RATE_VERTEX;
     case VertexStreamInputRate::Instance:
@@ -24,7 +24,7 @@ VkVertexInputRate ToVulkanInputRate( VertexStreamInputRate rate ) {
 }
 
 VkPrimitiveTopology ToVulkanTopology( PrimitiveTopology topology ) {
-    switch ( topology ) {
+    switch( topology ) {
     case PrimitiveTopology::Point:
         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
     case PrimitiveTopology::Line:
@@ -46,7 +46,7 @@ VkPrimitiveTopology ToVulkanTopology( PrimitiveTopology topology ) {
 }
 
 VkBlendFactor ToVulkanBlendFactor( Blend factor ) {
-    switch ( factor ) {
+    switch( factor ) {
     case Blend::Zero:
         return VK_BLEND_FACTOR_ZERO;
     case Blend::One:
@@ -94,7 +94,7 @@ VkBlendFactor ToVulkanBlendFactor( Blend factor ) {
 }
 
 VkBlendOp ToVulkanBlendOpration( BlendOperation operation ) {
-    switch ( operation ) {
+    switch( operation ) {
     case BlendOperation::Add:
         return VK_BLEND_OP_ADD;
     case BlendOperation::Subtract:
@@ -112,7 +112,7 @@ VkBlendOp ToVulkanBlendOpration( BlendOperation operation ) {
 }
 
 VkCompareOp ToVulkanCompareOp( CompareOperation operation ) {
-    switch ( operation ) {
+    switch( operation ) {
     case CompareOperation::Never:
         return VK_COMPARE_OP_NEVER;
     case CompareOperation::Less:
@@ -136,7 +136,7 @@ VkCompareOp ToVulkanCompareOp( CompareOperation operation ) {
 }
 
 VkStencilOp ToVkStencilOperation( StencilOperation operation ) {
-    switch ( operation ) {
+    switch( operation ) {
     case StencilOperation::Keep:
         return VK_STENCIL_OP_KEEP;
     case StencilOperation::Zero:
@@ -172,7 +172,7 @@ VkStencilOpState ToVulkanStencilOpState( const StencilOperationState& stencilOpe
 }
 
 VkCullModeFlags ToVulkanCullMode( CullMode mode ) {
-    switch ( mode ) {
+    switch( mode ) {
     case CullMode::None:
         return VK_CULL_MODE_NONE;
     case CullMode::Front:
@@ -181,7 +181,7 @@ VkCullModeFlags ToVulkanCullMode( CullMode mode ) {
         return VK_CULL_MODE_BACK_BIT;
     }
 
-    if ( enums::all( mode, CullMode::Front | CullMode::Back ) )
+    if( enums::all( mode, CullMode::Front | CullMode::Back ) )
         return VK_CULL_MODE_FRONT_AND_BACK;
 
     ONYX_ASSERT( false, "Unhandeled cull mode {}", enums::toString( mode ) );
@@ -189,7 +189,7 @@ VkCullModeFlags ToVulkanCullMode( CullMode mode ) {
 }
 
 VkPolygonMode ToVulkanFillMode( FillMode mode ) {
-    switch ( mode ) {
+    switch( mode ) {
     case FillMode::Wireframe:
         return VK_POLYGON_MODE_LINE;
     case FillMode::Solid:
@@ -206,28 +206,28 @@ VkPolygonMode ToVulkanFillMode( FillMode mode ) {
 Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& properties, ShaderHandle& shader )
     : rhi::Pipeline( properties )
     , m_Api( &api )
-	, m_shader( shader.getHandle().raw() ) {
+    , m_shader( shader.getHandle().raw() ) {
     shader->getOnLoadedEvent().Connect< &Pipeline::OnShaderLoaded >( *this );
-    if ( shader->isLoaded() ) {
+    if( shader->isLoaded() ) {
         CreatePipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
-        SetResourceName( m_Api->GetDevice().GetHandle(),
-                         VK_OBJECT_TYPE_PIPELINE,
-                         (uint64_t)m_Pipeline,
-                         shader.getId().getPath() );
+        StringView name = shader.getId().getPath();
+        if( name.empty() ) {
+            breakpoint();
+        }
+        SetResourceName( m_Api->GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
 #endif
     }
 }
 
 Pipeline::~Pipeline() {
-    if ( m_Pipeline != nullptr ) {
+    if( m_Pipeline != nullptr ) {
         vkDestroyPipeline( m_Api->GetDevice().GetHandle(), m_Pipeline, nullptr );
         m_Pipeline = nullptr;
     }
 
-    if( m_shader != nullptr )
-    {
-	    m_shader->getOnLoadedEvent().Disconnect( this );
+    if( m_shader != nullptr ) {
+        m_shader->getOnLoadedEvent().Disconnect( this );
     }
 
     m_PipelineLayout.reset();
@@ -236,7 +236,7 @@ Pipeline::~Pipeline() {
 void Pipeline::CreatePipeline( const Shader& shader ) {
     m_PipelineLayout = makeUnique< PipelineLayout >( *m_Api, shader );
 
-    if ( shader.IsComputeShader() ) {
+    if( shader.IsComputeShader() ) {
         m_BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
         const DynamicArray< VkPipelineShaderStageCreateInfo >&
             pipelineStageCreateInfos = shader.GetPipelineShaderStageCreateInfos();
@@ -267,9 +267,9 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         DynamicArray< VkFormat > colorTargetFormats{};
         VkFormat depthStencilFormat = VK_FORMAT_UNDEFINED;
 
-        for ( const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments ) {
+        for( const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments ) {
             TextureFormat format = enums::toEnum< TextureFormat >( attachment.m_Format );
-            if ( Utils::IsDepthFormat( format ) ) {
+            if( Utils::IsDepthFormat( format ) ) {
                 ONYX_ASSERT( depthStencilFormat == VK_FORMAT_UNDEFINED );
                 depthStencilFormat = VulkanTextureStorage::GetFormat( format );
             } else {
@@ -304,12 +304,12 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         DynamicArray< VkVertexInputBindingDescription > vertexBindingDescriptions;
         DynamicArray< VkVertexInputAttributeDescription > vertexAttributeDescriptions;
 
-        if ( vertexAttributesCount != 0 ) {
+        if( vertexAttributesCount != 0 ) {
             vertexAttributeDescriptions.reserve( vertexAttributesCount );
 
             uint32_t stride = 0;
             uint32_t offset = 0;
-            for ( const VertexInput& input : vertexInputs ) {
+            for( const VertexInput& input : vertexInputs ) {
                 vertexAttributeDescriptions.emplace_back( input.Location,
                                                           0,
                                                           VulkanTextureStorage::GetFormat( input.Format ),
@@ -347,14 +347,14 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         InplaceArray< VkPipelineColorBlendAttachmentState, 8 > colorBlendAttachment;
 
         const InplaceArray< BlendState, MAX_RENDERPASS_ATTACHMENTS >& blendStates = properties.BlendStates;
-        if ( blendStates.empty() == false ) {
+        if( blendStates.empty() == false ) {
             ONYX_ASSERT( blendStates.size() == colorTargetsCount,
                          "Blend states (count: {}) mismatch with output targets (count {})!If blend states are active, "
                          "they must be defined for all outputs",
                          properties.BlendStates.size(),
                          colorTargetsCount );
 
-            for ( uint8_t i = 0; i < blendStates.size(); i++ ) {
+            for( uint8_t i = 0; i < blendStates.size(); i++ ) {
                 const BlendState& blend_state = blendStates[ i ];
 
                 colorBlendAttachment[ i ].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
@@ -364,8 +364,8 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
                 colorBlendAttachment[ i ].dstColorBlendFactor = ToVulkanBlendFactor( blend_state.DestinationColor );
                 colorBlendAttachment[ i ].colorBlendOp = ToVulkanBlendOpration( blend_state.ColorOperation );
 
-                if ( ( blend_state.SourceAlpha != Blend::Invalid ) ||
-                     ( blend_state.DestinationAlpha != Blend::Invalid ) ) {
+                if( ( blend_state.SourceAlpha != Blend::Invalid ) ||
+                    ( blend_state.DestinationAlpha != Blend::Invalid ) ) {
                     colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blend_state.SourceAlpha );
                     colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blend_state.DestinationAlpha );
                     colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blend_state.AlphaOperation );
@@ -377,7 +377,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
             }
         } else {
             // Default non blended state
-            for ( uint8_t i = 0; i < colorTargetsCount; ++i ) {
+            for( uint8_t i = 0; i < colorTargetsCount; ++i ) {
                 colorBlendAttachment[ i ] = {};
                 colorBlendAttachment[ i ].blendEnable = VK_FALSE;
                 colorBlendAttachment[ i ].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
@@ -411,7 +411,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         depthStencil.maxDepthBounds = 1.0f;
         depthStencil.pNext = nullptr;
 
-        if ( properties.DepthStencil.IsStencilEnabled ) {
+        if( properties.DepthStencil.IsStencilEnabled ) {
             depthStencil.front = ToVulkanStencilOpState( properties.DepthStencil.Front );
             depthStencil.back = ToVulkanStencilOpState( properties.DepthStencil.Back );
         } else {
@@ -469,10 +469,10 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         //// Render Pass
         VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-        if ( m_Api->IsDynamicRenderingEnabled() ) {
+        if( m_Api->IsDynamicRenderingEnabled() ) {
             pipelineRenderingCreateInfo.viewMask = 0;
 
-            if ( colorTargetsCount != 0 ) {
+            if( colorTargetsCount != 0 ) {
                 pipelineRenderingCreateInfo.colorAttachmentCount = colorTargetsCount;
                 pipelineRenderingCreateInfo.pColorAttachmentFormats = colorTargetFormats.data();
             } else {
@@ -517,10 +517,11 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 void Pipeline::OnShaderLoaded( const ShaderHandle& shader ) {
     CreatePipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
-    SetResourceName( m_Api->GetDevice().GetHandle(),
-                     VK_OBJECT_TYPE_PIPELINE,
-                     (uint64_t)m_Pipeline,
-                     shader.getId().getPath() );
+    StringView name = shader.getId().getPath();
+    if( name.empty() ) {
+        breakpoint();
+    }
+    SetResourceName( m_Api->GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
 #endif
 }
 

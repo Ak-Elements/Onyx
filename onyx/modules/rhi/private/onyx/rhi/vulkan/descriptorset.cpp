@@ -31,6 +31,7 @@ DescriptorSet::DescriptorSet( const Device& device, uint8_t set, VkDescriptorSet
     VK_CHECK_RESULT( vkAllocateDescriptorSets( m_Device.GetHandle(), &allocInfo, &m_DescriptorSet ) )
 }
 
+#if !ONYX_IS_RETAIL
 DescriptorSet::DescriptorSet( const Device& device,
                               const DescriptorPool& pool,
                               const DescriptorSetLayout& descriptorSetLayout,
@@ -38,6 +39,7 @@ DescriptorSet::DescriptorSet( const Device& device,
     : DescriptorSet( device, pool, descriptorSetLayout ) {
     SetResourceName( device.GetHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t)m_DescriptorSet, debugName );
 }
+#endif
 
 void DescriptorSet::Bind( const TextureHandle& textureHandle, const String& bindingName ) {
     const VulkanTexture& texture = textureHandle.Texture.as< VulkanTexture >();
@@ -52,7 +54,7 @@ void DescriptorSet::Bind( const TextureHandle& textureHandle, const String& bind
 
 HashSet< String > DescriptorSet::GetBindingIds() const {
     HashSet< String > bindingIds;
-    for ( const String& id : ( m_WriteDescriptorSets | std::ranges::views::keys ) ) {
+    for( const String& id : ( m_WriteDescriptorSets | std::ranges::views::keys ) ) {
         bindingIds.emplace( id );
     }
 
@@ -64,7 +66,7 @@ void DescriptorSet::Bind( const BufferHandle& bufferHandle, const String& bindin
 
     // Currently we return here if a binding does not exist because we bind resources for synchronization reasons and
     // not because they are needed
-    if ( m_WriteDescriptorSets.contains( bindingName ) == false )
+    if( m_WriteDescriptorSets.contains( bindingName ) == false )
         return;
 
     ONYX_ASSERT( m_WriteDescriptorSets.contains( bindingName ), "Unknown binding name." );
@@ -75,7 +77,7 @@ void DescriptorSet::Bind( const BufferHandle& bufferHandle, const String& bindin
                pendingDescriptorSet.dstBinding == writeDescriptorSet.dstBinding;
     } );
 
-    if ( it == m_PendingDescriptorUpdates.end() ) {
+    if( it == m_PendingDescriptorUpdates.end() ) {
         writeDescriptorSet.dstSet = m_DescriptorSet;
         writeDescriptorSet.pBufferInfo = &buffer.GetDescriptorInfo();
         m_PendingDescriptorUpdates.push_back( writeDescriptorSet );
@@ -85,7 +87,7 @@ void DescriptorSet::Bind( const BufferHandle& bufferHandle, const String& bindin
 }
 
 void DescriptorSet::UpdateDescriptors() {
-    if ( m_PendingDescriptorUpdates.empty() )
+    if( m_PendingDescriptorUpdates.empty() )
         return;
 
     vkUpdateDescriptorSets( m_Device.GetHandle(),

@@ -13,6 +13,11 @@ class DescriptorSetLayout : public NonCopyable {
   public:
     DescriptorSetLayout( const Device& device, uint8_t set, const VkDescriptorSetLayoutCreateInfo& createInfo );
     DescriptorSetLayout( const Device& device, const ShaderDescriptorSet& descriptorSet );
+
+#if !ONYX_IS_RETAIL
+    DescriptorSetLayout( const Device& device, const ShaderDescriptorSet& descriptorSet, StringView debugName );
+#endif
+
     ~DescriptorSetLayout();
 
     uint8_t GetSet() const { return m_Set; }

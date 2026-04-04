@@ -113,7 +113,7 @@ class GraphicsSystem : public IEngineSystem {
     void CreateBuffer( BufferHandle& outBuffer, const BufferProperties& properties );
     BufferHandle GetTransientBuffer( const BufferProperties& properties );
 
-    DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader, StringView debugName ) const;
+    DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader ) const;
 
     uint8_t GetFrameIndex() const { return m_FrameIndex; }
     FrameContext& GetFrameContext() { return m_FrameContext[ m_FrameIndex ]; }

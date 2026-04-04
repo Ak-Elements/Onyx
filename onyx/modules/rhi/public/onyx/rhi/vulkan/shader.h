@@ -56,6 +56,15 @@ class Shader : public rhi::Shader {
         return m_PipelineShaderStageCreateInfos;
     }
 
+#if !ONYX_IS_RETAIL
+  public:
+    StringView getPath() const override { return m_path; }
+    void setPath( const String& path ) override { m_path = path; }
+
+  private:
+    String m_path;
+#endif
+
   private:
     uint64_t m_ShaderHash = 0;
 

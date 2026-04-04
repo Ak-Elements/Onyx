@@ -7,10 +7,10 @@
 #include <onyx/rhi/graphicstypes.h>
 
 namespace onyx::graphics::render_graph_nodes {
-static constexpr uint8_t CLUSTER_X = 16;
-static constexpr uint8_t CLUSTER_Y = 9;
-static constexpr uint8_t CLUSTER_Z = 24;
-static constexpr uint32_t MAX_LIGHTS_PER_CLUSTER = 100;
+static constexpr uint8_t ClusterX = 16;
+static constexpr uint8_t ClusterY = 9;
+static constexpr uint8_t ClusterZ = 24;
+static constexpr uint32_t MaxLightsPerCluster = 100;
 
 class CreateLightClusters : public node_graph::FixedPinNode_1_Out< RenderGraphFixedShaderNode, rhi::BufferHandle > {
   public:
@@ -25,11 +25,11 @@ class CreateLightClusters : public node_graph::FixedPinNode_1_Out< RenderGraphFi
 
   private:
     struct Constants {
-        Matrix4< float32 > InverseProjection;
+        Matrix4x4f32 InverseProjection;
 
         Vector2f32 Viewport;
-        float32 zNear;
-        float32 zFar;
+        float32 ZNear = 0.0f;
+        float32 ZFar = 1.0f;
 
         Vector2u32 ClusterSize;
         Vector2u32 Padding;
@@ -61,7 +61,7 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode_1_In_
 
 #if ONYX_IS_EDITOR
     StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+        switch( pinId ) {
         case InPin::LocalId:
             return "Light Clusters";
         case OutPin0::LocalId:

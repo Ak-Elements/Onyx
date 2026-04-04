@@ -53,8 +53,7 @@ class GraphicsApiInterface : public NonCopyable {
     virtual RenderPassHandle CreateRenderPass( const RenderPassSettings& settings ) = 0;
     virtual FramebufferHandle CreateFramebuffer( const FramebufferSettings& settings ) = 0;
     virtual PipelineHandle CreatePipeline( ShaderHandle& shader, const PipelineProperties& properties ) = 0;
-    virtual DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader,
-                                                                     StringView debugName ) = 0;
+    virtual DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader ) = 0;
 
     virtual void CreateTexture( TextureHandle& outTexture,
                                 const TextureStorageProperties& storageProperties,

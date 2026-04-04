@@ -19,7 +19,7 @@ ShaderModule::ShaderModule( VulkanGraphicsApi& api, Shader::ByteCode byteCode )
 }
 
 ShaderModule::~ShaderModule() {
-    if ( m_Module != nullptr ) {
+    if( m_Module != nullptr ) {
         vkDestroyShaderModule( m_Api.GetDevice().GetHandle(), m_Module, nullptr );
     }
 }
@@ -33,7 +33,7 @@ bool Shader::AddStage( GraphicsSystem& graphicsSystem, ShaderStage stage, const 
 
     const uint8_t stageIndex = enums::toIntegral( stage );
 #if ONYX_ASSERT_ENABLED
-    if ( stage == ShaderStage::Compute )
+    if( stage == ShaderStage::Compute )
         ONYX_ASSERT( ( HasStage( ShaderStage::Vertex ) == false ) && ( HasStage( ShaderStage::Fragment ) == false ),
                      "Vertex/Fragment shader does not support compute stage." );
     else
@@ -71,10 +71,16 @@ bool Shader::UpdateReflectionData( GraphicsSystem& graphicsSystem, ShaderReflect
     m_ReflectionInfo = reflectionInfo;
 
     const uint8_t descriptorSetCount = numericCast< uint8_t >( reflectionInfo.shaderDescriptorSets.size() );
-    for ( uint8_t i = 0; i < descriptorSetCount; ++i ) {
+    for( uint8_t i = 0; i < descriptorSetCount; ++i ) {
         const ShaderDescriptorSet& shaderDescriptorSet = reflectionInfo.shaderDescriptorSets[ i ];
-        m_DescriptorSetLayouts.emplace(
-            makeUnique< DescriptorSetLayout >( vulkanApi.GetDevice(), shaderDescriptorSet ) );
+
+#if ONYX_IS_RETAIL
+        auto layout = makeUnique< DescriptorSetLayout >( vulkanApi.GetDevice(), shaderDescriptorSet );
+#else
+        String name = file_system::path::getFileName( getPath() );
+        auto layout = makeUnique< DescriptorSetLayout >( vulkanApi.GetDevice(), shaderDescriptorSet, name );
+#endif
+        m_DescriptorSetLayouts.emplace( std::move( layout ) );
     }
 
     return true;

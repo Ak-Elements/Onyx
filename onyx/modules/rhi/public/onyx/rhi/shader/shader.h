@@ -279,6 +279,11 @@ class Shader : public assets::Asset< Shader > {
 
     virtual bool IsComputeShader() const = 0;
     virtual bool HasDescriptorSetLayout() const = 0;
+
+#if !ONYX_IS_RETAIL
+    virtual StringView getPath() const = 0;
+    virtual void setPath( const String& path ) = 0;
+#endif
 };
 
 DynamicArray< FilePath > GetShaderDirectories();

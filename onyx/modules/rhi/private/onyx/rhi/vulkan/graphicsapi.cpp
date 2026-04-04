@@ -990,18 +990,24 @@ PipelineHandle VulkanGraphicsApi::CreatePipeline( ShaderHandle& shader, const Pi
     return Reference< Pipeline >::create( *this, properties, shader );
 }
 
-DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::CreateDescriptorSet( const ShaderHandle& shader,
-                                                                            StringView debugName ) {
-    DynamicArray< DescriptorSetHandle > descriptorSets;
+DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::CreateDescriptorSet( const ShaderHandle& shader ) {
+    DynamicArray< DescriptorSetHandle > sets;
 
     const Shader& vulkanShader = shader.as< Shader >();
     const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >&
         descriptorSetLayouts = vulkanShader.GetDescriptorSetLayouts();
+
     for( const UniquePtr< DescriptorSetLayout >& layout : descriptorSetLayouts ) {
-        descriptorSets.push_back(
-            Reference< DescriptorSet >::create( *m_Device, *m_DescriptorPool, *layout, debugName ) );
+#if ONYX_IS_RETAIL
+        descriptorSets.emplace_back( Reference< DescriptorSet >::create( *m_Device, *m_DescriptorPool, *layout ) );
+#else
+        StringView shaderName = shader.getId().getPath();
+        StringView debugName = format::format( "{}(set = {})", shaderName, layout->GetSet() );
+
+        sets.emplace_back( Reference< DescriptorSet >::create( *m_Device, *m_DescriptorPool, *layout, debugName ) );
+#endif
     }
 
-    return descriptorSets;
+    return sets;
 }
 } // namespace onyx::rhi::vulkan

@@ -36,7 +36,7 @@ template < typename T > class AssetHandle {
         , m_handle( std::move( other.m_handle ) ) {}
 
     AssetHandle& operator=( const AssetHandle& other ) {
-        if ( this == &other )
+        if( this == &other )
             return *this;
 
         m_id = other.m_id;
@@ -61,7 +61,7 @@ template < typename T > class AssetHandle {
     }
 
     AssetHandle& operator=( AssetHandle&& other ) noexcept {
-        if ( this == &other )
+        if( this == &other )
             return *this;
 
         m_id = other.m_id;
@@ -102,9 +102,12 @@ template < typename T > class AssetHandle {
     T& operator*() { return *m_handle; }
     const T& operator*() const { return *m_handle; }
 
-    ONYX_NO_DISCARD AssetId getId() const { return m_id; }
-    void setId( AssetId id ) {
-        if ( id != m_id ) {
+    // AssetId should be returned by value here (as it is the same size as uint64_t in non debug builds
+    // the problem is that we currently store the debug string in the assetId so returning a tmp
+    // can break the returned StringView - AssetId should implement a similar mechanism to StringId
+    ONYX_NO_DISCARD const AssetId& getId() const { return m_id; }
+    void setId( const AssetId& id ) {
+        if( id != m_id ) {
             m_id = id;
             m_handle.reset();
         }
@@ -125,7 +128,7 @@ template < typename U > struct Serialization< assets::AssetHandle< U > > {
     }
     static bool deserialize( const Deserializer& deserializer, assets::AssetHandle< U >& outAssetHandle ) {
         assets::AssetId assetId;
-        if ( deserializer.read< "assetId" >( assetId ) ) {
+        if( deserializer.read< "assetId" >( assetId ) ) {
             outAssetHandle.setId( assetId );
             return true;
         }

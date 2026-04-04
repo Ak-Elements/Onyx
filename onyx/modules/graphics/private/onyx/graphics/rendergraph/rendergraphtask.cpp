@@ -545,6 +545,8 @@ void RenderGraphFixedShaderNode::Render( RenderGraphContext& context, rhi::Comma
         commandBuffer.setScissor();
     }
 
+    m_ShaderInstance->PreDraw( context.FrameContext.FrameIndex );
+
     commandBuffer.bindShaderEffect( m_ShaderInstance );
 
     OnRender( context, commandBuffer );

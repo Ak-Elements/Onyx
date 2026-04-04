@@ -99,8 +99,7 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
 
     PipelineHandle CreatePipeline( ShaderHandle& shader, const PipelineProperties& properties ) override;
 
-    DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader,
-                                                             StringView debugName ) override;
+    DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader ) override;
 
     void CreateTexture( TextureHandle& outTexture,
                         const TextureStorageProperties& storageProperties,

@@ -100,7 +100,7 @@ GraphicsSystem::~GraphicsSystem() {
     m_RenderPassCache.Clear();
 
     m_PsoCache.Clear();
-    m_ShaderCache.Clear();
+    m_ShaderCache.clear();
 
     m_DepthImages.clear();
     m_ViewConstantsUniformBuffers.clear();
@@ -298,9 +298,8 @@ BufferHandle GraphicsSystem::GetTransientBuffer( const BufferProperties& propert
     return m_GraphicsSystem->GetTransientBuffer( m_FrameIndex, properties );
 }
 
-DynamicArray< DescriptorSetHandle > GraphicsSystem::CreateDescriptorSet( const ShaderHandle& shader,
-                                                                         StringView debugName ) const {
-    return m_GraphicsSystem->CreateDescriptorSet( shader, debugName );
+DynamicArray< DescriptorSetHandle > GraphicsSystem::CreateDescriptorSet( const ShaderHandle& shader ) const {
+    return m_GraphicsSystem->CreateDescriptorSet( shader );
 }
 
 ShaderInstanceHandle GraphicsSystem::CreateShaderInstance( assets::AssetId shaderAssetId ) {
@@ -311,8 +310,18 @@ ShaderInstanceHandle GraphicsSystem::CreateShaderInstance( assets::AssetId shade
 ShaderInstanceHandle GraphicsSystem::CreateShaderInstance( assets::AssetId shaderAssetId,
                                                            const PipelineProperties& properties ) {
     ONYX_ASSERT( m_AssetSystem != nullptr );
+
+#if !ONYX_IS_RETAIL
+    if( shaderAssetId.getPath().empty() ) {
+        // retrieve asset name in case it's loaded with the hash only for better debugging
+        const assets::AssetMetaData& meta = m_AssetSystem->getAssetMeta( shaderAssetId );
+        shaderAssetId = assets::AssetId( shaderAssetId.get(), meta.getName() );
+    }
+#endif
+
     ShaderHandle shader;
     m_AssetSystem->getAsset( shaderAssetId, shader );
+
     PipelineHandle pipelineHandle = m_GraphicsSystem->CreatePipeline( shader, properties );
 
     return ShaderInstanceHandle::create( *this, pipelineHandle, shader );

@@ -17,7 +17,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
     : m_Device( device )
     , m_Set( descriptorSet.Set ) {
     DynamicArray< VkDescriptorSetLayoutBinding > layoutBindings;
-    for ( const auto& [ binding, uniformBuffer ] : descriptorSet.UniformBuffers ) {
+    for( const auto& [ binding, uniformBuffer ] : descriptorSet.UniformBuffers ) {
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         layoutBinding.descriptorCount = 1;
@@ -36,7 +36,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         writeDescriptorSet.dstBinding = layoutBinding.binding;
     }
 
-    for ( auto& [ binding, storageBuffer ] : descriptorSet.StorageBuffers ) {
+    for( auto& [ binding, storageBuffer ] : descriptorSet.StorageBuffers ) {
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         layoutBinding.descriptorCount = 1;
@@ -57,7 +57,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         writeDescriptorSet.dstBinding = layoutBinding.binding;
     }
 
-    for ( auto& [ binding, imageSampler ] : descriptorSet.ImageSamplers ) {
+    for( auto& [ binding, imageSampler ] : descriptorSet.ImageSamplers ) {
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
@@ -81,7 +81,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         writeDescriptorSet.dstBinding = layoutBinding.binding;
     }
 
-    for ( auto& [ binding, imageSampler ] : descriptorSet.SeparateTextures ) {
+    for( auto& [ binding, imageSampler ] : descriptorSet.SeparateTextures ) {
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
@@ -107,7 +107,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         writeDescriptorSet.dstBinding = layoutBinding.binding;
     }
 
-    for ( auto& [ binding, imageSampler ] : descriptorSet.SeparateSamplers ) {
+    for( auto& [ binding, imageSampler ] : descriptorSet.SeparateSamplers ) {
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
@@ -135,7 +135,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         writeDescriptorSet.dstBinding = layoutBinding.binding;
     }
 
-    for ( auto& [ bindingAndSet, imageSampler ] : descriptorSet.StorageImages ) {
+    for( auto& [ bindingAndSet, imageSampler ] : descriptorSet.StorageImages ) {
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
@@ -177,8 +177,17 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         vkCreateDescriptorSetLayout( m_Device.GetHandle(), &descriptorLayoutCreateInfo, nullptr, &m_Layout ) )
 }
 
+#if !ONYX_IS_RETAIL
+DescriptorSetLayout::DescriptorSetLayout( const Device& device,
+                                          const ShaderDescriptorSet& descriptorSet,
+                                          StringView debugName )
+    : DescriptorSetLayout( device, descriptorSet ) {
+    SetResourceName( device.GetHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t)m_Layout, debugName );
+}
+#endif
+
 DescriptorSetLayout::~DescriptorSetLayout() {
-    if ( m_Layout != nullptr ) {
+    if( m_Layout != nullptr ) {
         vkDestroyDescriptorSetLayout( m_Device.GetHandle(), m_Layout, nullptr );
         m_Layout = nullptr;
     }

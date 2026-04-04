@@ -14,12 +14,12 @@
 
 namespace onyx::graphics::render_graph_nodes {
 void CreateLightClusters::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
-    constexpr uint32_t clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
+    constexpr uint32_t ClusterCount = ClusterX * ClusterY * ClusterZ;
 
     for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
         rhi::BufferProperties ssboBufferProps;
         ssboBufferProps.m_DebugName = "LightClusterAABBs";
-        ssboBufferProps.m_Size = sizeof( rhi::LightClusterAABB ) * clusterCount;
+        ssboBufferProps.m_Size = sizeof( rhi::LightClusterAABB ) * ClusterCount;
         ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage );
         ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
@@ -47,32 +47,32 @@ void CreateLightClusters::OnRender( RenderGraphContext& context, rhi::CommandBuf
 
     Constants constants;
     constants.InverseProjection = viewConstants.InverseProjectionMatrix;
-    constants.ClusterSize[ 0 ] = (uint32_t)std::ceil( viewConstants.Viewport[ 0 ] / CLUSTER_X );
-    constants.ClusterSize[ 1 ] = (uint32_t)std::ceil( viewConstants.Viewport[ 1 ] / CLUSTER_Y );
+    constants.ClusterSize[ 0 ] = (uint32_t)std::ceil( viewConstants.Viewport[ 0 ] / ClusterX );
+    constants.ClusterSize[ 1 ] = (uint32_t)std::ceil( viewConstants.Viewport[ 1 ] / ClusterY );
 
-    constants.zNear = viewConstants.Near;
-    constants.zFar = viewConstants.Far;
+    constants.ZNear = viewConstants.Near;
+    constants.ZFar = viewConstants.Far;
     constants.Viewport = viewConstants.Viewport;
 
     // TODO: Fix barrier
     commandBuffer.globalBarrier( 0, 0x00000040 );
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
-    commandBuffer.dispatch( CLUSTER_X, CLUSTER_Y, CLUSTER_Z );
+    commandBuffer.dispatch( ClusterX, ClusterY, ClusterZ );
 
     commandBuffer.globalBarrier( 0x00000040, 0x00000020 | 0x00000040 );
 }
 
 void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
-    constexpr uint32_t clusterCount = CLUSTER_X * CLUSTER_Y * CLUSTER_Z;
+    constexpr uint32_t ClusterCount = ClusterX * ClusterY * ClusterZ;
 
     rhi::BufferProperties ssboBufferProps;
     ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage );
 
     ssboBufferProps.m_IsWritable = true;
     for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
-        constexpr uint32_t maxLightsPerTile = MAX_LIGHTS_PER_CLUSTER;
-        constexpr uint32_t totalLightsPerTile = clusterCount * maxLightsPerTile;
+        constexpr uint32_t maxLightsPerTile = MaxLightsPerCluster;
+        constexpr uint32_t totalLightsPerTile = ClusterCount * maxLightsPerTile;
 
         // * 2 for point and spot lights
         ssboBufferProps.m_DebugName = "Light Index List";
@@ -82,7 +82,7 @@ void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, Rende
         api.CreateBuffer( m_LightIndexListSSBO[ i ], ssboBufferProps );
 
         ssboBufferProps.m_DebugName = "Light Grid";
-        ssboBufferProps.m_Size = static_cast< uint32_t >( clusterCount * sizeof( Vector4u32 ) );
+        ssboBufferProps.m_Size = static_cast< uint32_t >( ClusterCount * sizeof( Vector4u32 ) );
         api.CreateBuffer( m_LightGridSSBO[ i ], ssboBufferProps );
 
         // * 2 for point and spot lights
@@ -130,14 +130,14 @@ void UpdateLightClustersRenderGraphNode::OnBeginFrame( RenderGraphContext& conte
 
     m_LightsStorageBuffers[ frameIndex ].Buffer->SetData( 0, &lighting, sizeof( rhi::Lighting ) );
     context.Graph.GetResource( globalId ).Handle = m_LightsStorageBuffers[ frameIndex ];
+
+    m_ShaderInstance->Bind( m_LightGridSSBO[ frameIndex ], "sbo_lightgrid", frameIndex );
+    m_ShaderInstance->Bind( m_LightsStorageBuffers[ frameIndex ], "globalindexcountssbo", frameIndex );
 }
 
 void UpdateLightClustersRenderGraphNode::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
-    const rhi::FrameContext& frameContext = context.FrameContext;
-    const uint8_t frameIndex = frameContext.FrameIndex;
-
     struct PushConstants {
-        Matrix4< float32 > ViewMatrix;
+        Matrix4x4f32 ViewMatrix;
     };
 
     // TODO: Fix barrier
@@ -146,8 +146,6 @@ void UpdateLightClustersRenderGraphNode::OnRender( RenderGraphContext& context, 
     PushConstants constants{ context.FrameContext.ViewConstants.ViewMatrix };
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
-
-    commandBuffer.bind( m_LightIndexGlobalCountSSBO[ frameIndex ], "globalindexcountssbo" );
 
 #if BATCHED
     commandBuffer.dispatch( 1, 1, 6 );

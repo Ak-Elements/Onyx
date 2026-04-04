@@ -18,10 +18,14 @@ class DescriptorSet : public rhi::DescriptorSet {
   public:
     DescriptorSet( const Device& device, uint8_t set, VkDescriptorSetAllocateInfo allocateInfo );
     DescriptorSet( const Device& device, const DescriptorPool& pool, const DescriptorSetLayout& descriptorSetLayout );
+
+#if !ONYX_IS_RETAIL
     DescriptorSet( const Device& device,
                    const DescriptorPool& pool,
                    const DescriptorSetLayout& descriptorSetLayout,
                    StringView debugName );
+#endif
+
     // Don't need to be cleaned up as they will be cleaned up when the pool is destroyed
     // vkFreeDescriptorSets()
     ~DescriptorSet() override = default;

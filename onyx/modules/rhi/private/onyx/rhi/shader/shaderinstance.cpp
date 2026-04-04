@@ -11,7 +11,7 @@ ShaderInstance::ShaderInstance( const GraphicsSystem& api, const PipelineHandle&
     , m_Shader( shader )
     , m_Pipeline( pipeline ) {
     m_Shader->getOnLoadedEvent().Connect< &ShaderInstance::OnShaderLoaded >( *this );
-    if ( m_Shader->isLoaded() ) {
+    if( m_Shader->isLoaded() ) {
         OnShaderLoaded( m_Shader );
     }
 }
@@ -51,11 +51,11 @@ void ShaderInstance::Bind( const BufferHandle& buffer, const String& bindingName
 }
 
 void ShaderInstance::PreDraw( uint8_t frameIndex ) {
-    if ( m_DescriptorSets.empty() )
+    if( m_DescriptorSets.empty() )
         return;
 
-    for ( DescriptorSetHandle& descriptorSet : m_DescriptorSets[ frameIndex ] ) {
-        if ( descriptorSet->HasPendingUpdates() ) {
+    for( DescriptorSetHandle& descriptorSet : m_DescriptorSets[ frameIndex ] ) {
+        if( descriptorSet->HasPendingUpdates() ) {
             descriptorSet->UpdateDescriptors();
         }
     }
@@ -73,22 +73,20 @@ const DescriptorSetHandle& ShaderInstance::GetDescriptorSet( uint8_t frameIndex,
     return descriptorSets[ descriptorSetIndex ];
 }
 
-void ShaderInstance::OnShaderLoaded( assets::AssetHandle< Shader > /*shader*/ ) {
-    if ( m_Shader->HasDescriptorSetLayout() ) {
-        StringView debugName;
-        debugName = "";
-        for ( uint8_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; ++frameIndex ) {
-            m_DescriptorSets[ frameIndex ] = m_Api->CreateDescriptorSet( m_Shader, debugName );
+void ShaderInstance::OnShaderLoaded( assets::AssetHandle< Shader > shader ) {
+    if( m_Shader->HasDescriptorSetLayout() ) {
+        for( uint8_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; ++frameIndex ) {
+            m_DescriptorSets[ frameIndex ] = m_Api->CreateDescriptorSet( m_Shader );
         }
 
         // bindings stay the same between frames so we can just peek at frame 0
-        if ( m_DescriptorSets.empty() == false ) {
+        if( m_DescriptorSets.empty() == false ) {
             const DynamicArray< DescriptorSetHandle >& descriptorSets = m_DescriptorSets[ 0 ];
             const uint8_t descriptorSetsCount = numericCast< uint8_t >( descriptorSets.size() );
-            for ( uint8_t i = 0; i < descriptorSetsCount; ++i ) {
+            for( uint8_t i = 0; i < descriptorSetsCount; ++i ) {
                 const DescriptorSetHandle& descriptorSet = descriptorSets[ i ];
                 HashSet< String > bindingIds = descriptorSet->GetBindingIds();
-                for ( const String& bindingId : bindingIds ) {
+                for( const String& bindingId : bindingIds ) {
                     m_BindingIdToDescriptorSet[ bindingId ] = i;
                 }
             }

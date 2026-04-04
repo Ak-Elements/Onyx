@@ -26,6 +26,12 @@ struct AssetId {
     {
     }
 
+#if !ONYX_IS_RETAIL
+    constexpr explicit AssetId( uint64_t id, StringView path )
+        : m_id( id )
+        , m_path( path ) {}
+#endif
+
     explicit AssetId( const FilePath& path )
         : m_id( path.empty() ? 0 : hash::fnV1aHash< uint64_t >( path.generic_string() ) )
 #if ONYX_IS_DEBUG

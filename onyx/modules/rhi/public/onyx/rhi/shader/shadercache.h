@@ -21,13 +21,13 @@ struct ShaderStageCacheEntry {
 };
 
 struct ShaderCacheEntry {
-    static constexpr uint64_t INVALID_SHADER_HASH = 0;
+    static constexpr uint64_t InvalidShaderHash = 0;
 
     Reference< Shader > Shader;
 
     // do we need this in release?
-    uint64_t PathHash = INVALID_SHADER_HASH;
-    uint64_t ShaderHash = INVALID_SHADER_HASH;
+    uint64_t PathHash = InvalidShaderHash;
+    uint64_t ShaderHash = InvalidShaderHash;
     InplaceArray< ShaderStageCacheEntry, MAX_SHADER_STAGES > Stages;
 
     bool operator==( const ShaderCacheEntry& other ) const noexcept { return ShaderHash == other.ShaderHash; }
@@ -43,30 +43,33 @@ struct ShaderIncludeCacheEntry {
 class ShaderCache {
   public:
     // Shader cache path in temp directory
-    static constexpr StringView SHADER_CACHE_PATH = "tmp:/shaders/cache";
+    static constexpr StringView ShaderCachePath = "tmp:/shaders/cache";
 
     ShaderCache( GraphicsSystem& graphicsSystem );
-    bool GetOrLoadShader( const FilePath& shaderPath, Reference< Shader >& outShader );
-    void Clear();
+    bool getOrLoadShader( const FilePath& shaderPath, Reference< Shader >& outShader );
+    void clear();
 
     // TODO: add logic to switch api type?
   private:
-    bool LoadCacheFromDisk( const FilePath& diskShaderCachePath, ShaderCacheEntry& outEntry );
-    void SaveCacheToDisk( const ShaderCacheEntry& entry,
+    bool loadCacheFromDisk( const FilePath& diskShaderCachePath,
+                            [[maybe_unused]] const FilePath& shaderPath,
+                            ShaderCacheEntry& outEntry );
+
+    void saveCacheToDisk( const ShaderCacheEntry& entry,
                           const FilePath& diskShaderCachePath,
                           const ShaderReflectionInfo& reflectionInfo );
 
-    void OnFileChanged( const FilePath& path, file_system::FileWatcher::FileAction action );
+    void onFileChanged( const FilePath& path, file_system::FileWatcher::FileAction action );
 
-    bool IsEntryUpToDate( const ShaderCacheEntry& entry, uint64_t shaderHash ) const;
-    bool AreIncludesUpToDate( const HashMap< uint64_t, uint64_t >& includeHashes ) const;
+    bool isEntryUpToDate( const ShaderCacheEntry& entry, uint64_t shaderHash ) const;
+    bool areIncludesUpToDate( const HashMap< uint64_t, uint64_t >& includeHashes ) const;
 
   private:
-    GraphicsSystem& m_GraphicsSystem;
-    HashMap< uint64_t, ShaderCacheEntry > m_Cache;
+    GraphicsSystem& m_graphicsSystem;
+    HashMap< uint64_t, ShaderCacheEntry > m_cache;
     // stores a shader include path and the hashed content - used to identify if a shader has changed
-    HashMap< uint64_t, ShaderIncludeCacheEntry > m_IncludesCache;
+    HashMap< uint64_t, ShaderIncludeCacheEntry > m_includesCache;
 
-    file_system::FileWatcher m_DirectoryWatcher;
+    file_system::FileWatcher m_directoryWatcher;
 };
 } // namespace onyx::rhi

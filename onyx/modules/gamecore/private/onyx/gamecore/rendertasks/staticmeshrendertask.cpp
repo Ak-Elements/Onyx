@@ -144,17 +144,17 @@ void StaticMeshRenderGraphNode::PrepareShaderGraph( rhi::CommandBuffer& commandB
     } generalConstants;
 
     const rhi::ViewConstants& viewConstants = frameContext.ViewConstants;
-    generalConstants.LightClusterGridSize = { graphics::render_graph_nodes::CLUSTER_X,
-                                              graphics::render_graph_nodes::CLUSTER_Y,
-                                              graphics::render_graph_nodes::CLUSTER_Z };
+    generalConstants.LightClusterGridSize = { graphics::render_graph_nodes::ClusterX,
+                                              graphics::render_graph_nodes::ClusterY,
+                                              graphics::render_graph_nodes::ClusterZ };
 
     generalConstants.LightClusterSize = {
-        static_cast< uint32_t >( std::ceil( viewConstants.Viewport[ 0 ] / graphics::render_graph_nodes::CLUSTER_X ) ),
-        static_cast< uint32_t >( std::ceil( viewConstants.Viewport[ 1 ] / graphics::render_graph_nodes::CLUSTER_Y ) ) };
+        static_cast< uint32_t >( std::ceil( viewConstants.Viewport[ 0 ] / graphics::render_graph_nodes::ClusterX ) ),
+        static_cast< uint32_t >( std::ceil( viewConstants.Viewport[ 1 ] / graphics::render_graph_nodes::ClusterY ) ) };
 
     const float32 nearFarLog = log2( viewConstants.Far / viewConstants.Near );
-    generalConstants.LightClusterScale = graphics::render_graph_nodes::CLUSTER_Z / nearFarLog;
-    generalConstants.LightClusterBias = -( graphics::render_graph_nodes::CLUSTER_Z * log2( viewConstants.Near ) /
+    generalConstants.LightClusterScale = graphics::render_graph_nodes::ClusterZ / nearFarLog;
+    generalConstants.LightClusterBias = -( graphics::render_graph_nodes::ClusterZ * log2( viewConstants.Near ) /
                                            nearFarLog );
     generalConstants.Debug = 0;
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64, generalConstants );
