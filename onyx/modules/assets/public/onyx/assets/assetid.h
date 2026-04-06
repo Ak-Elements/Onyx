@@ -20,7 +20,7 @@ struct AssetId {
 
     constexpr explicit AssetId( StringView path )
         : m_id( path.empty() ? 0 : hash::fnV1aHash< uint64_t >( path ) )
-#if ONYX_IS_DEBUG
+#if !ONYX_IS_RETAIL
         , m_path( path )
 #endif
     {
@@ -34,7 +34,7 @@ struct AssetId {
 
     explicit AssetId( const FilePath& path )
         : m_id( path.empty() ? 0 : hash::fnV1aHash< uint64_t >( path.generic_string() ) )
-#if ONYX_IS_DEBUG
+#if !ONYX_IS_RETAIL
         , m_path( path.generic_string() )
 #endif
     {
@@ -46,7 +46,7 @@ struct AssetId {
     template < uint64_t N >
     constexpr AssetId& operator=( const char ( &str )[ N ] ) {
         m_id = hash::fnV1aHash< uint64_t >( str );
-#if ONYX_IS_DEBUG
+#if !ONYX_IS_RETAIL
         m_path = String( str );
 #endif
         return *this;
@@ -57,13 +57,13 @@ struct AssetId {
 
     ONYX_NO_DISCARD bool isValid() const { return m_id != 0; }
 
-#if ONYX_IS_DEBUG
+#if !ONYX_IS_RETAIL
     ONYX_NO_DISCARD StringView getPath() const { return StringView( m_path ); }
 #endif
 
   private:
     uint64_t m_id = 0;
-#if ONYX_IS_DEBUG
+#if !ONYX_IS_RETAIL
     String m_path;
 #endif
 };
