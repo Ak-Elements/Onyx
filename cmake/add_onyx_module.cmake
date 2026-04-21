@@ -1,6 +1,6 @@
 function(onyx_add_target TARGET_NAME)
     set(options NO_CODEGEN NO_TOOLS_TARGET)  # No boolean options
-    set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER NAMESPACE_PATH ALIAS)
+    set(oneValueArgs NAMESPACE TARGET_TYPE FOLDER NAMESPACE_PATH ALIAS WORKING_DIRECTORY)
     set(multiValueArgs PUBLIC_DEPENDENCIES PRIVATE_DEPENDENCIES PUBLIC_DEFINES PRIVATE_DEFINES)
      
     cmake_parse_arguments(
@@ -21,6 +21,7 @@ function(onyx_add_target TARGET_NAME)
         TYPE ${arg_TARGET_TYPE}
         FOLDER ${arg_FOLDER}
         ALIAS ${arg_ALIAS}
+        WORKING_DIRECTORY ${arg_WORKING_DIRECTORY}
         BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
         BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}
         PUBLIC_DEFINES ${arg_PUBLIC_DEFINES}
@@ -39,6 +40,7 @@ function(onyx_add_target TARGET_NAME)
             TARGET ${TARGET_NAME}-tools
             NAMESPACE ${arg_NAMESPACE}
             TYPE ${arg_TARGET_TYPE}
+            WORKING_DIRECTORY ${arg_WORKING_DIRECTORY}
             FOLDER tools
             BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools
             BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/tools
@@ -89,6 +91,7 @@ function(onyx_create_target)
         TYPE
         FOLDER
         ALIAS
+        WORKING_DIRECTORY
         BASE_SOURCE_DIR
         BASE_BINARY_DIR
     )
@@ -183,6 +186,12 @@ function(onyx_create_target)
         FOLDER "${arg_FOLDER}"
         EXPORT_NAME "${arg_NAMESPACE}"
     )
+
+    if( arg_WORKING_DIRECTORY )
+        set_target_properties(${arg_TARGET} PROPERTIES
+            DEBUGGER_WORKING_DIRECTORY "${arg_WORKING_DIRECTORY}"
+            VS_DEBUGGER_WORKING_DIRECTORY "${arg_WORKING_DIRECTORY}")
+    endif()
 
     #### Defines ####
     target_compile_definitions(${arg_TARGET} PUBLIC ${ONYX_PUBLIC_DEFINES})
