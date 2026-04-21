@@ -172,7 +172,7 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
 
     // Create descriptors for shader stage
     entry.Shader->SetShaderHash( shaderHash );
-    entry.Shader->setPath( shaderPath );
+    entry.Shader->setPath( shaderPath.generic_string() );
     entry.Shader->UpdateReflectionData( m_graphicsSystem, reflectionInfo );
     entry.ShaderHash = shaderHash;
 
@@ -218,7 +218,7 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
 
     outEntry.Shader->SetShaderHash( outEntry.ShaderHash );
 #if !ONYX_IS_RETAIL
-    outEntry.Shader->setPath( shaderPath );
+    outEntry.Shader->setPath( shaderPath.generic_string() );
 #endif
 
     outEntry.Shader->UpdateReflectionData( m_graphicsSystem, reflectionInfo );

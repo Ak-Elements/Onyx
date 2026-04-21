@@ -103,7 +103,7 @@ void drawScrollWheel( ImDrawList* dl,
                       float32 height,
                       float32 intensity,
                       bool middleDown,
-                      const MouseOverlay::Style& style,
+                      const MouseOverlay::Style& /*style*/,
                       const MouseOverlay::Colors& colors ) {
     const float32 scale = 1.0f;
 

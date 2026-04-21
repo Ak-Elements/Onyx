@@ -20,7 +20,7 @@ void CommandBufferManager::Init( VulkanGraphicsApi& api, uint32_t queueIndex, ui
                                                                 queueIndex,
                                                                 VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 
-        uint8_t frameIndex = commandPoolIndex / threadCount;
+        uint8_t frameIndex = numericCast< uint8_t >( commandPoolIndex / threadCount );
 
 #if !ONYX_IS_RETAIL
         commandPool.setFrameIndex( frameIndex );
