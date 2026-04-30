@@ -3,7 +3,6 @@ set(onyx_TARGET_PCH onyx.h)
 set(onyx_TARGET_PUBLIC_SOURCES
     assert.h
     bitwiseenum.h
-    color.h
     debugging.h
     defines.h
     encoding.h
@@ -23,6 +22,10 @@ set(onyx_TARGET_PUBLIC_SOURCES
     stringid.h
     time.h
     typetraits.h
+    colors/color.h
+    colors/base.h
+    colors/dark.h
+    colors/light.h
     container/directedacyclicgraph.h
     container/inplacearray.h
     container/memorybuffer.h
@@ -83,11 +86,11 @@ set(onyx_TARGET_PUBLIC_SOURCES
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
-    color.cpp
     debugging.cpp
     guid.cpp
     hash.cpp
     stringid.cpp
+    colors/color.cpp
     engine/enginevariable.cpp
     geometry/rectserialization.cpp
     geometry/vectorserialization.cpp

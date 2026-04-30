@@ -52,8 +52,8 @@ void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer
     m_WireframeBoxesBuffer = context.FrameContext.Api->getTransientBuffer( ssboInstanceBuffer );
 
     const DebugDrawQueue& debugQueue = GetGraphInput< DebugDrawQueue >( context.Graph );
-    const Span< const DebugSphere > wireframeSpheres = debugQueue.GetWireframeSpheres();
-    const Span< const DebugBox > wireframeBoxes = debugQueue.GetWireframeBoxes();
+    const Span< const DebugSphere > wireframeSpheres = debugQueue.getWireframeSpheres();
+    const Span< const DebugBox > wireframeBoxes = debugQueue.getWireframeBoxes();
 
     if( wireframeSpheres.empty() == false ) {
         m_WireframeSpheresCount = static_cast< uint32_t >( wireframeSpheres.size() );

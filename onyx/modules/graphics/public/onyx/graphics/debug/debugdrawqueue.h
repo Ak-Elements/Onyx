@@ -5,18 +5,18 @@
 namespace onyx::graphics {
 class DebugDrawQueue {
   public:
-    void addWireframeBox( Vector3f32 positon, Vector3f32 halfExtents, uint32_t color );
-    void addWireframeBox( Vector3f32 positon, Vector3f32 halfExtents, Matrix3x3f32 rotation, uint32_t color );
+    void addWireframeBox( Vector3f32 position, Vector3f32 halfExtents, Color color );
+    void addWireframeBox( Vector3f32 position, Vector3f32 halfExtents, Matrix3x3f32 rotation, Color color );
 
-    void addWireframeSphere( Vector3f32 positon, float32 radius, uint32_t color );
+    void addWireframeSphere( Vector3f32 position, float32 radius, Color color );
 
     void clear();
 
-    Span< const DebugBox > GetWireframeBoxes() const { return Span< const DebugBox >( m_WireframeBoxes ); }
-    Span< const DebugSphere > GetWireframeSpheres() const { return Span< const DebugSphere >( m_WireframeSpheres ); }
+    ONYX_NO_DISCARD Span< const DebugBox > getWireframeBoxes() const { return { m_wireframeBoxes }; }
+    ONYX_NO_DISCARD Span< const DebugSphere > getWireframeSpheres() const { return { m_wireframeSpheres }; }
 
   private:
-    DynamicArray< DebugBox > m_WireframeBoxes;
-    DynamicArray< DebugSphere > m_WireframeSpheres;
+    DynamicArray< DebugBox > m_wireframeBoxes;
+    DynamicArray< DebugSphere > m_wireframeSpheres;
 };
 } // namespace onyx::graphics

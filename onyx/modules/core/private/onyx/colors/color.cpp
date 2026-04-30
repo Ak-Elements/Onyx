@@ -1,4 +1,4 @@
-#include <onyx/color.h>
+#include <onyx/colors/color.h>
 
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>

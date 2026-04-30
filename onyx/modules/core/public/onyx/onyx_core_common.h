@@ -31,7 +31,7 @@
 #include <onyx/assert.h>
 #include <onyx/onyx_types.h>
 #include <onyx/bitwiseenum.h>
-#include <onyx/color.h>
+#include <onyx/colors/color.h>
 #include <onyx/guid.h>
 #include <onyx/hash.h>
 #include <onyx/math.h>
