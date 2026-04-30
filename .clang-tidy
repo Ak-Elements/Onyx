@@ -65,7 +65,6 @@ Checks: >
     cppcoreguidelines-interfaces-global-init,
     cppcoreguidelines-narrowing-conversions,
     cppcoreguidelines-pro-type-member-init,
-    cppcoreguidelines-pro-type-static-cast-downcast,
     cppcoreguidelines-slicing,
     google-default-arguments,
     google-runtime-operator,
