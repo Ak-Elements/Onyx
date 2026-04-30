@@ -303,7 +303,7 @@ bool drawAssetSelector( StringView propertyName, assets::AssetId& outAssetId, as
 
     ImGui::PushID( propertyName.data() );
 
-    bool hasModified = AssetSelector( *g_UiContext.AssetSystem, assetType, outAssetId );
+    bool hasModified = AssetSelector( *g_uiContext.AssetSystem, assetType, outAssetId );
 
     ImGui::PopID();
     ImGui::EndHorizontal();

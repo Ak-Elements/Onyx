@@ -81,7 +81,7 @@ void NodeGraphEditorWindow::onOpen() {
     setName( format::format( "Node Editor###NodeEditor{}", localization::editor::NodeEditor::Title, m_WindowId ) );
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
-    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.GetWindow< EditorMainWindow >();
+    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.getWindow< EditorMainWindow >();
     if( mainWindowOptional.has_value() ) {
         EditorMainWindow& mainWindow = *mainWindowOptional.value();
         ImGui::SetNextWindowDockID( mainWindow.getCenterDockId(), ImGuiCond_FirstUseEver );

@@ -8,8 +8,8 @@
 namespace onyx::rhi::vulkan {
 VulkanBuffer::VulkanBuffer( VulkanGraphicsApi& api, const BufferProperties& properties )
     : rhi::Buffer( properties )
-    , DeviceMemory( api.GetAllocator() )
-    , m_Device( &api.GetDevice() ) {
+    , DeviceMemory( api.getAllocator() )
+    , m_Device( &api.getDevice() ) {
     Init();
 }
 

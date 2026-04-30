@@ -5,6 +5,7 @@
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/input/inputsystem.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/theme/theme.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -44,12 +45,14 @@ void drawLShapeKey( ImDrawList* dl,
                     ImVec2 tl2,
                     ImVec2 br2, // secondary rect
                     bool pressed,
-                    const char* label,
-                    const KeyboardOverlay::Style& style,
-                    const KeyboardOverlay::Colors& colors ) {
-    [[maybe_unused]] const ImU32 fill = ImGui::ColorConvertFloat4ToU32( pressed ? colors.KeyPressed : colors.KeyIdle );
-    const ImU32 outline = ImGui::ColorConvertFloat4ToU32( pressed ? colors.OutlinePressed : colors.OutlineIdle );
-    const ImU32 lblCol = ImGui::ColorConvertFloat4ToU32( pressed ? colors.LabelPressed : colors.LabelIdle );
+                    StringView label ) {
+    const ImU32 fill = pressed ? ImGui::GetColorU32( ImGuiCol_ButtonActive ) : ImGui::GetColorU32( ImGuiCol_Button );
+    const ImU32 outline = pressed ? ImGui::GetColorU32( ImGuiCol_Border ) : ImGui::GetColorU32( ImGuiCol_BorderShadow );
+    const ImU32 lblCol = ImGui::GetColorU32( ImGuiCol_Text );
+
+    const auto& style = ImGui::GetStyle();
+    const float32 frameBorderSize = style.FrameBorderSize;
+    const float32 frameRounding = style.FrameRounding;
 
     // Determine which rect is the "top narrow" part and which is the
     // "bottom wider" part (ISO Enter: top is narrow-right, bottom is wide-left).
@@ -106,47 +109,41 @@ void drawLShapeKey( ImDrawList* dl,
     // Bevel highlight on top edge only
     if( !pressed ) {
         ImU32 bevel = IM_COL32( 255, 255, 255, 18 );
-        dl->AddLine( { poly[ 0 ].x + style.KeyRounding, poly[ 0 ].y + 0.5f },
-                     { poly[ 1 ].x - style.KeyRounding, poly[ 1 ].y + 0.5f },
+        dl->AddLine( { poly[ 0 ].x + frameRounding, poly[ 0 ].y + 0.5f },
+                     { poly[ 1 ].x - frameRounding, poly[ 1 ].y + 0.5f },
                      bevel,
                      1.0f );
     }
 
-    dl->AddPolyline( poly, 6, outline, ImDrawFlags_Closed, style.OutlineThickness );
+    dl->AddPolyline( poly, 6, outline, ImDrawFlags_Closed, frameBorderSize );
 
-    if( style.ShowKeyLabels ) {
+    if( label.empty() == false ) {
         // Label centred in the bounding box of the whole shape
         ImVec2 bbTL = { std::min( r1tl.x, r2tl.x ), r1tl.y };
         ImVec2 bbBR = { std::max( r1br.x, r2br.x ), r2br.y };
-        drawLabel( dl, bbTL, bbBR, label, lblCol );
+        drawLabel( dl, bbTL, bbBR, label.data(), lblCol );
     }
 }
 
-void drawRectKey( ImDrawList* dl,
-                  ImVec2 tl,
-                  ImVec2 br,
-                  bool pressed,
-                  const char* label,
-                  const KeyboardOverlay::Style& style,
-                  const KeyboardOverlay::Colors& colors ) {
-    const ImU32 fill = ImGui::ColorConvertFloat4ToU32( pressed ? colors.KeyPressed : colors.KeyIdle );
-    const ImU32 outline = ImGui::ColorConvertFloat4ToU32( pressed ? colors.OutlinePressed : colors.OutlineIdle );
-    const ImU32 lblCol = ImGui::ColorConvertFloat4ToU32( pressed ? colors.LabelPressed : colors.LabelIdle );
+void drawRectKey( ImDrawList* dl, ImVec2 tl, ImVec2 br, bool pressed, StringView label ) {
+    const ImU32 fill = pressed ? ImGui::GetColorU32( ImGuiCol_ButtonActive ) : ImGui::GetColorU32( ImGuiCol_Button );
+    const ImU32 outline = pressed ? ImGui::GetColorU32( ImGuiCol_Border ) : ImGui::GetColorU32( ImGuiCol_BorderShadow );
+    const ImU32 lblCol = ImGui::GetColorU32( ImGuiCol_Text );
 
-    dl->AddRectFilled( tl, br, fill, style.KeyRounding );
+    const auto& style = ImGui::GetStyle();
+    const float32 frameBorderSize = style.FrameBorderSize;
+    const float32 frameRounding = style.FrameRounding;
+    dl->AddRectFilled( tl, br, fill, frameRounding );
 
     if( !pressed ) {
         ImU32 bevel = IM_COL32( 255, 255, 255, 18 );
-        dl->AddLine( { tl.x + style.KeyRounding, tl.y + 0.5f },
-                     { br.x - style.KeyRounding, tl.y + 0.5f },
-                     bevel,
-                     1.0f );
+        dl->AddLine( { tl.x + frameRounding, tl.y + 0.5f }, { br.x - frameRounding, tl.y + 0.5f }, bevel, 1.0f );
     }
 
-    dl->AddRect( tl, br, outline, style.KeyRounding, 0, style.OutlineThickness );
+    dl->AddRect( tl, br, outline, frameRounding, 0, frameBorderSize );
 
-    if( style.ShowKeyLabels ) {
-        drawLabel( dl, tl, br, label, lblCol );
+    if( label.empty() == false ) {
+        drawLabel( dl, tl, br, label.data(), lblCol );
     }
 }
 
@@ -225,8 +222,8 @@ void KeyboardOverlay::onOpen() {
     //                                      &aspectRatio ); // Aspect ratio
 }
 
-void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
+void KeyboardOverlay::onRender( ui::ImGuiSystem& imguiSystem ) {
+    const input::InputSystem& inputSystem = *ui::g_uiContext.InputSystem;
 
     ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
 
@@ -240,22 +237,25 @@ void KeyboardOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     float totalHeight = 0.0f;
     ImVec2 cursorPos = origin;
 
+    const ImVec2 itemSpacing = { 2, 2 };
+
+    bool showLabels = false;
     for( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
         for( const KeyData& key : keyboardRow ) {
             const bool pressed = inputSystem.IsButtonDown( key.Key );
 
             ImVec2 tl = { cursorPos.x + key.Offset[ 0 ] * unitSize, cursorPos.y + key.Offset[ 1 ] * unitSize };
-            ImVec2 br = { tl.x + key.Size[ 0 ] * unitSize - s_style.KeySpacing,
-                          tl.y + key.Size[ 1 ] * unitSize - s_style.KeySpacing };
+            ImVec2 br = { tl.x + key.Size[ 0 ] * unitSize - itemSpacing.x,
+                          tl.y + key.Size[ 1 ] * unitSize - itemSpacing.y };
 
             if( key.Size2.isZero() ) {
-                drawRectKey( dl, tl, br, pressed, key.Label.c_str(), s_style, s_colors );
+                drawRectKey( dl, tl, br, pressed, showLabels ? key.Label : "" );
             } else {
                 ImVec2 tl2 = { tl.x + key.Offset2[ 0 ] * unitSize, tl.y + key.Offset2[ 1 ] * unitSize };
-                ImVec2 br2 = { tl2.x + key.Size2[ 0 ] * unitSize - s_style.KeySpacing,
-                               tl2.y + key.Size2[ 1 ] * unitSize - s_style.KeySpacing };
+                ImVec2 br2 = { tl2.x + key.Size2[ 0 ] * unitSize - itemSpacing.x,
+                               tl2.y + key.Size2[ 1 ] * unitSize - itemSpacing.y };
 
-                drawLShapeKey( dl, tl, br, tl2, br2, pressed, key.Label.c_str(), s_style, s_colors );
+                drawLShapeKey( dl, tl, br, tl2, br2, pressed, showLabels ? key.Label : "" );
             }
 
             cursorPos.x += ( key.Offset[ 0 ] + key.Size[ 0 ] ) * unitSize;

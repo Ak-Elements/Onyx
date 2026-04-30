@@ -1,0 +1,113 @@
+colors 20
+    crust: #18191BFF // Slate2  - Background
+    mantle: #212225FF // Slate3  - Background (subtle)
+    base: #212225FF // Slate3  - Background (subtle)
+    surface0: #272A2DFF // Slate4  - Interactive background
+    surface1: #2E3135FF // Slate5  - Interactive background (hover)
+    surface2: #363A3FFF // Slate6  - Interactive background (active)
+    surface3: #43484EFF // Slate7  - Border (subtle)
+    text: #EDEEF0FF // Slate12 - Text (high contrast)
+    subtext: #B0B4BAFF // Slate11 - Text
+    border0: #363A3FFF // Slate6  - Border 
+    border1: #43484EFF // Slate7  - Border hovered 
+    border2: #5A6169FF // Slate8  - Border active 
+    accent0: #202248FF // Iris3   - Interactive background
+    accent1: #262A65FF // Iris4   - Interactive background (hover)
+    accent2: #303374FF // Iris5   - Interactive background (active)
+    accent3: #5B5BD6FF // Iris9   - Solid
+    accent4: #6E6ADEFF // Iris10  - Solid (hover)
+    accent5: #B1A9FFFF // Iris11  - Text
+    accent6: #E0DFFEFF // Iris12  - Text (high contrast)
+    overlay: #272A2DFF // Slate4  - Interactive background
+theme 91
+    colors 66
+        text: text
+        text_disabled: subtext
+        window_background: base
+        child_background: base
+        popup_background: mantle
+        border: border1
+        border_shadow: border0
+        frame_background: surface0
+        frame_background_hovered: surface1
+        frame_background_active: surface2
+        title_background: mantle
+        title_background_active: crust
+        title_background_collapsed: surface0
+        scrollbar_background: mantle
+        scrollbar_grab: surface1
+        scrollbar_grab_hovered: surface2
+        scrollbar_grab_active: surface3
+        check_mark: accent5
+        slider_grab: accent3
+        slider_grab_active: accent4
+        button: surface1
+        button_hovered: surface2
+        button_active: accent2
+        header: surface1
+        header_hovered: surface2
+        header_active: surface3
+        separator: border0
+        separator_hovered: accent3
+        separator_active: accent4
+        resize_grip: border0
+        resize_grip_hovered: border2
+        resize_grip_active: accent3
+        tab: surface1
+        tab_hovered: accent4
+        tab_selected: accent3
+        tab_dimmed: crust
+        tab_dimmed_selected: surface1
+        docking_preview: accent2
+        docking_empty_background: base
+        plot_lines: accent5
+        plot_lines_hovered: accent6
+        plot_histogram: accent5
+        plot_histogram_hovered: accent6
+        table_header_background: crust
+        table_border_strong: surface0
+        table_border_light: border_subtle
+        table_row_background: surface0
+        table_row_background_alt: surface0
+        text_selected_background: accent1
+        drag_drop_target: accent4
+        nav_cursor: accent5
+        nav_windowing_highlight: base
+        nav_windowing_dim_background: overlay
+        modal_window_dim_background: overlay
+        mouse_body_background: surface0
+        mouse_body_outline: surface1
+        mouse_divider: surface1
+        mouse_button_idle: surface0
+        mouse_wheel_idle: surface0
+        mouse_left_pressed: accent3
+        mouse_right_pressed: accent3
+        mouse_wheel_pressed: accent3
+        mouse_wheel_scroll_up: accent4
+        mouse_wheel_scroll_down: accent5
+        mouse_wheel_pressed_scroll_up: accent4
+        mouse_wheel_pressed_scroll_down: accent5
+    style 23
+        window_rounding: 4.0
+        frame_rounding: 2.5
+        frame_border_size: 0.0
+        grab_rounding: 4.0
+        tab_border_size: 1.0
+        window_title_align 2
+            0.5
+            0.5
+        window_padding 2
+            8.0
+            8.0
+        frame_padding 2
+            4.0
+            4.0
+        item_spacing 2
+            8.0
+            8.0
+        item_inner_spacing 2
+            4.0
+            4.0
+        indent_spacing: 20.0
+        scrollbar_size: 15.0
+        grab_min_size: 10.0

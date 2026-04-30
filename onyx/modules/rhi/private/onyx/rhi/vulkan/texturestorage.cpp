@@ -17,8 +17,8 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api,
 
 VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, const TextureStorageProperties& properties )
     : TextureStorage( properties )
-    , DeviceMemory( api.GetAllocator() )
-    , m_Device( &api.GetDevice() ) {
+    , DeviceMemory( api.getAllocator() )
+    , m_Device( &api.getDevice() ) {
     const uint32_t arraySizeScale = properties.m_Type == TextureType::TextureCube ? 6 : 1;
 
     VkImageCreateInfo createInfo;
@@ -72,19 +72,19 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, const Textur
 }
 
 VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, VkImage image )
-    : m_Device( &api.GetDevice() )
+    : m_Device( &api.getDevice() )
     , m_Image( image )
 
 {}
 
 VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, VkImage image, StringView name )
-    : m_Device( &api.GetDevice() )
+    : m_Device( &api.getDevice() )
     , m_Image( image ) {
     SetResourceName( m_Device->GetHandle(), VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, name );
 }
 
 void VulkanTextureStorage::Free( VulkanGraphicsApi& api ) {
-    vkDestroyImage( api.GetDevice().GetHandle(), m_Image, nullptr );
+    vkDestroyImage( api.getDevice().GetHandle(), m_Image, nullptr );
     m_Image = nullptr;
 }
 
@@ -247,7 +247,7 @@ void VulkanTextureStorage::UpdateData( VulkanGraphicsApi& api, const Span< uint8
     stagingBuffer.Unmap();
 
     // Copy buffer data to font image
-    api.SubmitInstantCommandBuffer( Context::Graphics, 0, [ & ]( CommandBuffer& commandBuffer ) {
+    api.submitInstantCommandBuffer( Context::Graphics, 0, [ & ]( CommandBuffer& commandBuffer ) {
         VulkanCommandBuffer& vulkanCmdBuffer = static_cast< VulkanCommandBuffer& >( commandBuffer );
         // Copy
         VkBufferImageCopy bufferCopyRegion = {};

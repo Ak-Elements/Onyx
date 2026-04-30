@@ -1,10 +1,10 @@
 #pragma once
 
-#if ONYX_UI_MODULE && ONYX_USE_IMGUI
+#if ONYX_USE_IMGUI
 
-#include <onyx/application/debug/gui/statusbaroverlay.h>
+#include <onyx/ui/windows/statusbaroverlay.h>
 
-namespace onyx::application::debug {
+namespace onyx::ui {
 class FpsStatusBarItem : public StatusBarOverlayItem {
   public:
     StringView getName() override { return "Fps"; }
@@ -16,5 +16,5 @@ class FpsStatusBarItem : public StatusBarOverlayItem {
     float64 m_averageFrameTime = 0.0;
     String m_value;
 };
-} // namespace onyx::application::debug
+} // namespace onyx::ui
 #endif

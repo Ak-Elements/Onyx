@@ -17,9 +17,9 @@ MemoryAllocator::MemoryAllocator( const String& tag, const VulkanGraphicsApi& gr
     // Initialize VulkanMemoryAllocator
     VmaAllocatorCreateInfo allocatorInfo = {};
     allocatorInfo.vulkanApiVersion = Instance::VULKAN_API_VERSION;
-    allocatorInfo.physicalDevice = graphicsApi.GetPhysicalDevice().GetHandle();
-    allocatorInfo.device = graphicsApi.GetDevice().GetHandle();
-    allocatorInfo.instance = graphicsApi.GetInstance().GetHandle();
+    allocatorInfo.physicalDevice = graphicsApi.getPhysicalDevice().GetHandle();
+    allocatorInfo.device = graphicsApi.getDevice().GetHandle();
+    allocatorInfo.instance = graphicsApi.getInstance().GetHandle();
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
 
     vmaCreateAllocator( &allocatorInfo, &m_Allocator );

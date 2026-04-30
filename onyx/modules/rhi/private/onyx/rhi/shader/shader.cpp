@@ -8,7 +8,7 @@
 namespace onyx::rhi {
 Reference< Shader > Shader::create( const IEngine& engine ) {
     const GraphicsSystem& graphicsSystem = engine.getSystem< GraphicsSystem >();
-    switch ( graphicsSystem.GetApiType() ) {
+    switch ( graphicsSystem.getApiType() ) {
         using enum ApiType;
     case Vulkan:
 #if ONYX_USE_VULKAN

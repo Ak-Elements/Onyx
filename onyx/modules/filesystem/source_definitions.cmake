@@ -8,6 +8,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     path.h
     jsonserializer.h
     jsondeserializer.h
+    textserializer.h
+    textdeserializer.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -20,4 +22,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     path.cpp
     jsonserializer.cpp
     jsondeserializer.cpp
+    textserializer.cpp
+    textdeserializer.cpp
 )

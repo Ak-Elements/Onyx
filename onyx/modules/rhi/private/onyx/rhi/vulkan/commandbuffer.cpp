@@ -30,8 +30,8 @@ VulkanCommandBuffer::VulkanCommandBuffer( const VulkanGraphicsApi& api,
     allocInfo.level = bufferLevel;
     allocInfo.commandBufferCount = 1;
 
-    VK_CHECK_RESULT( vkAllocateCommandBuffers( api.GetDevice().GetHandle(), &allocInfo, &m_CommandBuffer ) )
-    SetResourceName( api.GetDevice().GetHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_CommandBuffer, debugName );
+    VK_CHECK_RESULT( vkAllocateCommandBuffers( api.getDevice().GetHandle(), &allocInfo, &m_CommandBuffer ) )
+    SetResourceName( api.getDevice().GetHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_CommandBuffer, debugName );
 }
 
 VulkanCommandBuffer::~VulkanCommandBuffer() {
@@ -92,7 +92,7 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
     const VulkanRenderPass& renderPass = renderPassHandle.as< VulkanRenderPass >();
     const VulkanFramebuffer& frameBuffer = framebufferHandle.as< VulkanFramebuffer >();
     const FramebufferSettings& frameBufferSettings = frameBuffer.GetSettings();
-    if( m_Api.IsDynamicRenderingEnabled() ) {
+    if( m_Api.isDynamicRenderingEnabled() ) {
         const RenderPassSettings& renderPassSettings = renderPass.GetSettings();
         DynamicArray< VkRenderingAttachmentInfoKHR > colorAttachmentsInfo;
         colorAttachmentsInfo.reserve( frameBufferSettings.m_ColorTargets.size() );
@@ -126,7 +126,7 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
                 colorAttachmentInfo.imageView = frameBufferSettings.m_ColorTargets[ colorTargetIndex++ ]
                                                     .as< VulkanTexture >()
                                                     .GetHandle();
-                colorAttachmentInfo.imageLayout = m_Api.IsSynchronization2Enabled()
+                colorAttachmentInfo.imageLayout = m_Api.isSynchronization2Enabled()
                                                       ? VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR
                                                       : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 colorAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE;
@@ -190,7 +190,7 @@ void VulkanCommandBuffer::endRenderPass() {
     ONYX_ASSERT( m_IsRecording, "CommandBuffer needs to be recording for this action." );
     ONYX_ASSERT( m_CurrentRenderPass, "RenderPass was not started" );
 
-    if( m_Api.IsDynamicRenderingEnabled() )
+    if( m_Api.isDynamicRenderingEnabled() )
         vkCmdEndRendering( m_CommandBuffer );
     else
         vkCmdEndRenderPass( m_CommandBuffer );
@@ -315,8 +315,8 @@ void VulkanCommandBuffer::BindDescriptorSets( VkPipelineLayout pipelineLayout, V
     uint8_t firstSet = 0;
 
     DynamicArray< VkDescriptorSet > vkDescriptorSets;
-    if( m_Api.IsBindless() ) {
-        const DescriptorSet& bindlessDescriptorSet = m_Api.GetBindlessDescriptorSet();
+    if( m_Api.isBindless() ) {
+        const DescriptorSet& bindlessDescriptorSet = m_Api.getBindlessDescriptorSet();
         vkDescriptorSets.push_back( bindlessDescriptorSet.GetHandle() );
     }
 
@@ -376,7 +376,7 @@ void VulkanCommandBuffer::setViewport() {
         vkViewport.y = static_cast< float32 >( frameBufferSettings.m_Height );
         vkViewport.height = -vkViewport.y;
     } else {
-        const Vector2s32& swapchainExtent = m_Api.GetSwapChain().GetExtent();
+        const Vector2s32& swapchainExtent = m_Api.getSwapChain().GetExtent();
         // TODO: get swap chain size
         vkViewport.width = swapchainExtent[ 0 ] * 1.f;
         // Invert Y with negative height and proper offset - Vulkan has unique Clipping Y.
@@ -409,7 +409,7 @@ void VulkanCommandBuffer::setScissor() {
     vkScissor.offset.x = 0;
     vkScissor.offset.y = 0;
 
-    const Vector2s32& swapchainExtent = m_Api.GetSwapChain().GetExtent();
+    const Vector2s32& swapchainExtent = m_Api.getSwapChain().GetExtent();
     vkScissor.extent.width = swapchainExtent[ 0 ];
     vkScissor.extent.height = swapchainExtent[ 1 ];
 

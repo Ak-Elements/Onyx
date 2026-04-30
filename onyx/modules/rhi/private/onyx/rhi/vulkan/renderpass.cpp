@@ -67,15 +67,15 @@ VkAttachmentDescription2 CreateAttachmentDescription(
 
 namespace onyx::rhi::vulkan {
 void VulkanRenderPass::Init( const VulkanGraphicsApi& api, const RenderPassSettings& settings ) {
-    m_Device = &api.GetDevice();
+    m_Device = &api.getDevice();
     m_Settings = settings;
 
     // if we use dynamic rendering we don't create a vkRenderPass
-    if ( api.IsDynamicRenderingEnabled() )
+    if ( api.isDynamicRenderingEnabled() )
         return;
 
     // TODO: Implement legacy renderpass creation?
-    if ( api.IsRenderPass2ExtensionEnabled() )
+    if ( api.isRenderPass2ExtensionEnabled() )
         CreateRenderPass();
     // else
     //     CreateLegacyRenderPass();

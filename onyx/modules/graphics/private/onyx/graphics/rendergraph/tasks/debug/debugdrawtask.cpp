@@ -44,12 +44,12 @@ void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer
     ssboInstanceBuffer.m_CpuAccess = rhi::CPUAccess::Write;
     ssboInstanceBuffer.m_GpuAccess = rhi::GPUAccess::Read;
 
-    m_WireframeSpheresBuffer = context.FrameContext.Api->GetTransientBuffer( ssboInstanceBuffer );
+    m_WireframeSpheresBuffer = context.FrameContext.Api->getTransientBuffer( ssboInstanceBuffer );
 
     ssboInstanceBuffer.m_DebugName = "TMP DebugBoxes";
     ssboInstanceBuffer.m_Size = sizeof( DebugBox ) * 16; // This should match the size of queued spheres
 
-    m_WireframeBoxesBuffer = context.FrameContext.Api->GetTransientBuffer( ssboInstanceBuffer );
+    m_WireframeBoxesBuffer = context.FrameContext.Api->getTransientBuffer( ssboInstanceBuffer );
 
     const DebugDrawQueue& debugQueue = GetGraphInput< DebugDrawQueue >( context.Graph );
     const Span< const DebugSphere > wireframeSpheres = debugQueue.GetWireframeSpheres();
@@ -79,7 +79,7 @@ void DebugDrawTask::OnRender( RenderGraphContext& context, rhi::CommandBuffer& c
     };
 
     PushConstants constants;
-    constants.ViewConstants = context.FrameContext.Api->GetViewConstantsBuffer().GetGpuAddress();
+    constants.ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().GetGpuAddress();
     constants.WireFrameSpheres = m_WireframeSpheresBuffer.GetGpuAddress();
     constants.WireFrameBoxes = m_WireframeBoxesBuffer.GetGpuAddress();
     constants.WireFrameSpheresCount = m_WireframeSpheresCount;

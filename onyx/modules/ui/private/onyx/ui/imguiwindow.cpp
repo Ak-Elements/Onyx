@@ -15,6 +15,10 @@ void ImGuiWindow::open() {
         return;
     }
 
+    if( m_id.empty() ) {
+        m_id = getWindowId();
+    }
+
     m_state |= ImGuiWindow::State::Opening;
 }
 
@@ -31,7 +35,8 @@ void ImGuiWindow::render( ImGuiSystem& imguiSystem ) {
         return;
     }
 
-    ::ImGuiWindow* window = ImGui::FindWindowByName( m_name.c_str() );
+    const char* id = format::format( "{}##{}", m_name, m_id );
+    ::ImGuiWindow* window = ImGui::FindWindowByName( id );
     enums::set( m_state, State::Docked, ( window != nullptr ) && ( window->DockId != 0 ) );
 
     if( enums::all( m_state, State::Opening ) ) {
@@ -64,14 +69,16 @@ void ImGuiWindow::render( ImGuiSystem& imguiSystem ) {
 }
 
 void ImGuiWindow::bringToFront() {
-    ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( m_name.c_str() );
+    const char* id = format::format( "{}##{}", m_name, m_id );
+    ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( id );
     ::ImGui::BringWindowToDisplayFront( imguiWindow );
 }
 
 void ImGuiWindow::setIsCollapsed( bool isCollapsed ) {
     if( m_isCollapsed != isCollapsed ) {
         m_isCollapsed = isCollapsed;
-        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( m_name.c_str() );
+        const char* id = format::format( "{}##{}", m_name, m_id );
+        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( id );
         ::ImGui::SetWindowCollapsed( imguiWindow, m_isCollapsed, ImGuiCond_Always );
     }
 }
@@ -85,7 +92,8 @@ bool ImGuiWindow::begin() {
     }
 
     bool open = isOpen();
-    bool hasBegun = ::ImGui::Begin( m_name.c_str(), &open, m_flags );
+    const char* id = format::format( "{}##{}", m_name, m_id );
+    bool hasBegun = ::ImGui::Begin( id, &open, m_flags );
     if( open == false ) {
         enums::set( m_state, State::Closing );
     }
@@ -120,14 +128,24 @@ void ImGuiWindow::setDefaultSize( Vector2s32 size ) {
 }
 
 void ImGuiWindow::setDefaultPosition( WindowPosition position ) {
+    const ImGuiStyle style = ImGui::GetStyle();
+
     ImGuiViewport* windowViewport = ImGui::GetWindowViewport();
+    ImVec2 mainWindowPosition = windowViewport->Pos;
+    ImVec2 mainWindowSize = windowViewport->Size;
+
+    if( ImGuiWindow* parent = m_parent.value_or( nullptr ) ) {
+        const char* id = format::format( "{}##{}", parent->m_name, parent->m_id );
+        ::ImGuiWindow* parentWindow = ImGui::FindWindowByName( id );
+        if( parentWindow != nullptr ) {
+            mainWindowPosition = parentWindow->WorkRect.GetTL();
+            mainWindowSize = parentWindow->ContentSize;
+        }
+    }
+
     if( windowViewport == nullptr ) {
         return;
     }
-
-    const ImGuiStyle style = ImGui::GetStyle();
-    ImVec2 mainWindowPosition = windowViewport->Pos;
-    ImVec2 mainWindowSize = windowViewport->Size;
 
     Vector2s32 windowPosition{ numericCast< int32_t >( mainWindowPosition.x ),
                                numericCast< int32_t >( mainWindowPosition.y ) };
@@ -186,7 +204,7 @@ void ImGuiWindow::setDefaultPosition( WindowPosition position ) {
 bool ImGuiWindow::beginMenuBar() const {
     bool hasBegun = true;
     if( ( m_flags & ImGuiWindowFlags_MenuBar ) != ImGuiWindowFlags_MenuBar ) {
-        hasBegun = ImGui::Begin( "MainWindow" );
+        hasBegun = ImGui::Begin( "MainWindow##MainWindow" );
     }
 
     return hasBegun && ImGui::BeginMenuBar();
@@ -201,7 +219,6 @@ void ImGuiWindow::endMenuBar() const {
 }
 
 void ImGuiWindow::onOpen() {}
-// void ImGuiWindow::onPreRender( ui::ImGuiSystem& /*system*/ ) {}
 void ImGuiWindow::onClose() {}
 void ImGuiWindow::onRenderMainMenuBar() {}
 } // namespace onyx::ui

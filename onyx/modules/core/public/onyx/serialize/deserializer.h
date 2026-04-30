@@ -19,7 +19,7 @@ class Deserializer {
 
     template < CompileTimeString Name, typename T >
     bool readOptional( T& outValue ) const {
-        if ( createScope( Name.stringView() ) == false ) {
+        if( createScope( Name.stringView() ) == false ) {
             return true;
         }
 
@@ -30,7 +30,7 @@ class Deserializer {
 
     template < typename T >
     bool readAt( uint32_t i, T& outValue ) const {
-        if ( createScope( i ) == false ) {
+        if( createScope( i ) == false ) {
             return false;
         }
 
@@ -41,16 +41,16 @@ class Deserializer {
 
     template < typename T >
     bool read( T& outValue ) const {
-        if constexpr ( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
+        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
             return doRead( outValue );
-        } else if constexpr ( std::is_same_v< T, String > ) {
+        } else if constexpr( std::is_same_v< T, String > ) {
             StringView stringView;
             bool success = doRead( stringView );
             outValue = stringView;
             return success;
-        } else if constexpr ( std::is_enum_v< T > ) {
+        } else if constexpr( std::is_enum_v< T > ) {
             StringView enumValue;
-            if ( doRead( enumValue ) ) {
+            if( doRead( enumValue ) ) {
                 outValue = enums::fromString< T >( enumValue );
                 return true;
             }
@@ -63,23 +63,23 @@ class Deserializer {
 
     template < typename T >
     bool read( StringView name, T& outValue ) const {
-        if constexpr ( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
+        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
             return doRead( name, outValue );
-        } else if constexpr ( std::is_same_v< T, String > ) {
+        } else if constexpr( std::is_same_v< T, String > ) {
             StringView stringView;
             bool success = doRead( name, stringView );
             outValue = stringView;
             return success;
-        } else if constexpr ( std::is_enum_v< T > ) {
+        } else if constexpr( std::is_enum_v< T > ) {
             StringView enumValue;
-            if ( doRead( name, enumValue ) ) {
+            if( doRead( name, enumValue ) ) {
                 outValue = enums::fromString< T >( enumValue );
                 return true;
             }
 
             return false;
         } else {
-            if ( createScope( name ) == false ) {
+            if( createScope( name ) == false ) {
                 return false;
             }
 
@@ -90,11 +90,11 @@ class Deserializer {
         }
     }
 
-    template < std::integral T >
+    template < Numeric T >
     bool read( T& outValue, uint8_t base ) const {
         return doRead( outValue, base );
     }
-    template < CompileTimeString Name, std::integral T >
+    template < CompileTimeString Name, Numeric T >
     bool read( T& outValue, uint8_t base ) const {
         return doRead( Name.stringView(), outValue, base );
     }
@@ -104,8 +104,8 @@ class Deserializer {
         bool success = false;
         uint32_t count = getItemsCount();
         outValue.reserve( count );
-        for ( uint32_t i = 0; i < count; ++i ) {
-            if ( createScope( i ) == false ) {
+        for( uint32_t i = 0; i < count; ++i ) {
+            if( createScope( i ) == false ) {
                 return false;
             }
 
@@ -122,8 +122,8 @@ class Deserializer {
         bool success = false;
         uint32_t count = getItemsCount();
         outValue.reserve( count );
-        for ( uint32_t i = 0; i < count; ++i ) {
-            if ( createScope( i ) == false ) {
+        for( uint32_t i = 0; i < count; ++i ) {
+            if( createScope( i ) == false ) {
                 return false;
             }
 
@@ -138,15 +138,15 @@ class Deserializer {
     template < CompileTimeString Name, typename T, typename Callable >
     requires std::is_invocable_r_v< bool, Callable, const Deserializer&, T& >
     bool readForEach( DynamicArray< T >& outValue, Callable forEachFunctor ) const {
-        if ( createScope( Name.stringView() ) == false ) {
+        if( createScope( Name.stringView() ) == false ) {
             return false;
         }
 
         bool success = false;
         uint32_t count = getItemsCount();
         outValue.reserve( count );
-        for ( uint32_t i = 0; i < count; ++i ) {
-            if ( createScope( i ) == false ) {
+        for( uint32_t i = 0; i < count; ++i ) {
+            if( createScope( i ) == false ) {
                 return false;
             }
 
@@ -163,8 +163,8 @@ class Deserializer {
     bool readForEach( Callable forEachFunctor ) const {
         bool success = false;
         uint32_t count = getItemsCount();
-        for ( uint32_t i = 0; i < count; ++i ) {
-            if ( createScope( i ) == false ) {
+        for( uint32_t i = 0; i < count; ++i ) {
+            if( createScope( i ) == false ) {
                 return false;
             }
 
@@ -178,7 +178,7 @@ class Deserializer {
     template < CompileTimeString Name, typename Callable >
     requires std::is_invocable_r_v< bool, Callable, const Deserializer& >
     bool readForEach( Callable forEachFunctor ) const {
-        if ( createScope( Name.stringView() ) == false ) {
+        if( createScope( Name.stringView() ) == false ) {
             return false;
         }
 
@@ -192,11 +192,11 @@ class Deserializer {
     bool readForEach( HashMap< KeyT, ValueT >& outMap, Callable forEachFunctor ) const {
         bool success = false;
         uint32_t count = getItemsCount();
-        for ( uint32_t i = 0; i < count; ++i ) {
+        for( uint32_t i = 0; i < count; ++i ) {
             ValueT mapValue;
-            if constexpr ( std::is_integral_v< KeyT > || IsStringId< KeyT > || IsGuid64< KeyT > ) {
-                if ( isSupportingIntegralScopes() ) {
-                    if ( createScope( i ) == false ) {
+            if constexpr( std::is_integral_v< KeyT > || IsStringId< KeyT > || IsGuid64< KeyT > ) {
+                if( isSupportingIntegralScopes() ) {
+                    if( createScope( i ) == false ) {
                         return false;
                     }
 
@@ -207,7 +207,7 @@ class Deserializer {
                     success = forEachFunctor( *this, mapKey, mapValue );
                     success &= endScope();
 
-                    if ( success == false ) {
+                    if( success == false ) {
                         return false;
                     }
 
@@ -216,18 +216,18 @@ class Deserializer {
                 }
             }
 
-            if ( createScope( i ) == false ) {
+            if( createScope( i ) == false ) {
                 return false;
             }
 
             // convert from stringview to key type
             StringView keyString;
             getScopeIdentifier( keyString );
-            KeyT mapKey = stringToScopeKey< KeyT >( keyString );
+            KeyT mapKey{ stringToScopeKey< KeyT >( keyString ) };
 
             success = forEachFunctor( *this, mapKey, mapValue );
             success &= endScope();
-            if ( success == false ) {
+            if( success == false ) {
                 return false;
             }
 
@@ -240,7 +240,7 @@ class Deserializer {
     template < CompileTimeString Name, typename KeyT, typename ValueT, typename Callable >
     requires std::is_invocable_r_v< bool, Callable, const Deserializer&, const KeyT&, ValueT& >
     bool readForEach( HashMap< KeyT, ValueT >& outMap, Callable forEachFunctor ) const {
-        if ( createScope( Name.stringView() ) == false ) {
+        if( createScope( Name.stringView() ) == false ) {
             return false;
         }
 
@@ -251,7 +251,7 @@ class Deserializer {
 
     template < typename T >
     bool read( StringView name, DynamicArray< T >& outValue ) const {
-        if ( createScope( name ) == false ) {
+        if( createScope( name ) == false ) {
             return false;
         }
 
@@ -262,7 +262,7 @@ class Deserializer {
 
     template < typename T, uint8_t Size >
     bool read( StringView name, InplaceArray< T, Size >& outValue ) const {
-        if ( createScope( name ) == false ) {
+        if( createScope( name ) == false ) {
             return false;
         }
 
@@ -275,18 +275,18 @@ class Deserializer {
     bool read( InplaceArray< T, Size >& outValue ) const {
         bool success = true;
         uint8_t count = numericCast< uint8_t >( getItemsCount() );
-        for ( uint8_t i = 0; i < count; ++i ) {
+        for( uint8_t i = 0; i < count; ++i ) {
             T& arrayValue = outValue.emplace();
 
             success &= createScope( static_cast< uint32_t >( i ) );
-            if ( success == false ) {
+            if( success == false ) {
                 break;
             }
 
             success = read( arrayValue );
             success &= endScope();
 
-            if ( success == false ) {
+            if( success == false ) {
                 break;
             }
         }
@@ -298,11 +298,11 @@ class Deserializer {
     bool read( HashMap< KeyT, ValueT >& out, Args&&... additionalArgs ) const {
         bool success = false;
         uint32_t count = getItemsCount();
-        for ( uint32_t i = 0; i < count; ++i ) {
+        for( uint32_t i = 0; i < count; ++i ) {
             ValueT mapValue;
-            if constexpr ( std::is_integral_v< KeyT > || IsStringId< KeyT > || IsGuid64< KeyT > ) {
-                if ( isSupportingIntegralScopes() ) {
-                    if ( createScope( i ) == false ) {
+            if constexpr( std::is_integral_v< KeyT > || IsStringId< KeyT > || IsGuid64< KeyT > ) {
+                if( isSupportingIntegralScopes() ) {
+                    if( createScope( i ) == false ) {
                         return false;
                     }
 
@@ -314,7 +314,7 @@ class Deserializer {
                         std::forward< Args... >( additionalArgs )... );
                     success &= endScope();
 
-                    if ( success == false ) {
+                    if( success == false ) {
                         return false;
                     }
 
@@ -323,19 +323,19 @@ class Deserializer {
                 }
             }
 
-            if ( createScope( i ) == false ) {
+            if( createScope( i ) == false ) {
                 return false;
             }
 
             StringView keyString;
             getScopeIdentifier( keyString );
-            KeyT mapKey = stringToScopeKey< KeyT >( keyString );
+            KeyT mapKey{ stringToScopeKey< KeyT >( keyString ) };
 
             success = Deserializer::template read< ValueT, Args... >( mapValue,
                                                                       std::forward< Args... >( additionalArgs )... );
             success &= endScope();
 
-            if ( success == false ) {
+            if( success == false ) {
                 return false;
             }
 
@@ -384,9 +384,13 @@ class Deserializer {
     virtual bool doRead( StringView name, uint64_t& outValue, uint8_t base ) const = 0;
 
     virtual bool doRead( float32& outValue ) const = 0;
+    virtual bool doRead( float32& outValue, uint8_t base ) const = 0;
     virtual bool doRead( float64& outValue ) const = 0;
+    virtual bool doRead( float64& outValue, uint8_t base ) const = 0;
     virtual bool doRead( StringView name, float32& outValue ) const = 0;
+    virtual bool doRead( StringView name, float32& outValue, uint8_t base ) const = 0;
     virtual bool doRead( StringView name, float64& outValue ) const = 0;
+    virtual bool doRead( StringView name, float64& outValue, uint8_t base ) const = 0;
 
     virtual bool doRead( StringView& outValue ) const = 0;
     virtual bool doRead( StringView name, StringView& outValue ) const = 0;
@@ -408,11 +412,11 @@ class Deserializer {
 
     template < typename T >
     auto getScopeKeyUnderlyingType() const -> decltype( auto ) {
-        if constexpr ( IsStringId< T > ) {
+        if constexpr( IsStringId< T > ) {
             return T::Invalid;
-        } else if constexpr ( IsGuid64< T > ) {
+        } else if constexpr( IsGuid64< T > ) {
             return uint64_t{ 0 };
-        } else if constexpr ( std::is_integral_v< T > ) {
+        } else if constexpr( std::is_integral_v< T > ) {
             return T{ 0 };
         } else {
             return StringView{};
@@ -421,12 +425,12 @@ class Deserializer {
 
     template < typename T >
     auto stringToScopeKey( StringView keyString ) const {
-        if constexpr ( std::is_integral_v< T > || IsStringId< T > || IsGuid64< T > ) {
-            if constexpr ( IsStringId< T > ) {
+        if constexpr( std::is_integral_v< T > || IsStringId< T > || IsGuid64< T > ) {
+            if constexpr( IsStringId< T > ) {
                 typename T::IdType id = 0;
                 std::ignore = std::from_chars( keyString.data(), keyString.data() + keyString.size(), id, 16 );
                 return T{ id };
-            } else if constexpr ( IsGuid64< T > ) {
+            } else if constexpr( IsGuid64< T > ) {
                 uint64_t id = 0;
                 std::ignore = std::from_chars( keyString.data(), keyString.data() + keyString.size(), id, 16 );
                 return T{ id };

@@ -22,7 +22,7 @@ VulkanTexture::VulkanTexture( VulkanGraphicsApi& api,
 }
 
 void VulkanTexture::Init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
-    const Device& device = api.GetDevice();
+    const Device& device = api.getDevice();
     const VulkanTextureStorage* textureStorage = static_cast< const VulkanTextureStorage* >( m_Storage );
 
     const VkImageAspectFlags aspectMask = VulkanTextureStorage::GetAspectFlags( m_Properties.m_Format );
@@ -55,7 +55,7 @@ void VulkanTexture::Init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
                                                                     m_Properties.m_ArrayIndex,
                                                                     arraySize };
 
-    if ( storageProperties.m_Type == TextureType::TextureCube ) {
+    if( storageProperties.m_Type == TextureType::TextureCube ) {
         imageViewCreateInfo.subresourceRange.layerCount *= 6;
         imageViewCreateInfo.viewType = m_Properties.m_IsWriteable || m_Properties.m_AllowCubeMapLoads
                                            ? VK_IMAGE_VIEW_TYPE_2D_ARRAY
@@ -69,32 +69,32 @@ void VulkanTexture::Init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
                      (uint64_t)m_ImageView,
                      m_Properties.m_DebugName.empty() ? "Unnamed Texture" : m_Properties.m_DebugName.c_str() );
 
-    m_Sampler = api.GetSampler( m_Properties.m_Sampler );
+    m_Sampler = api.getSampler( m_Properties.m_Sampler );
     UpdateDescriptorInfo();
 }
 
 VulkanTexture::~VulkanTexture() {
-    if ( m_ImageView != nullptr ) {
-        vkDestroyImageView( m_Api->GetDevice().GetHandle(), m_ImageView, nullptr );
+    if( m_ImageView != nullptr ) {
+        vkDestroyImageView( m_Api->getDevice().GetHandle(), m_ImageView, nullptr );
         m_ImageView = nullptr;
     }
 }
 
 void VulkanTexture::Release() {
-    m_Api->ReleaseTexture( *this );
+    m_Api->releaseTexture( *this );
 }
 
 void VulkanTexture::UpdateDescriptorInfo() {
-    if ( Utils::IsDepthFormat( m_Properties.m_Format ) )
+    if( Utils::IsDepthFormat( m_Properties.m_Format ) )
         m_DescriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-    else if ( m_Properties.m_Usage == TextureUsage::Storage )
+    else if( m_Properties.m_Usage == TextureUsage::Storage )
         m_DescriptorInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
     else
         m_DescriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-    if ( m_Properties.m_Usage == TextureUsage::Storage )
+    if( m_Properties.m_Usage == TextureUsage::Storage )
         m_DescriptorInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-    else if ( m_Properties.m_Usage == TextureUsage::HostRead )
+    else if( m_Properties.m_Usage == TextureUsage::HostRead )
         m_DescriptorInfo.imageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
     m_DescriptorInfo.imageView = m_ImageView;
@@ -102,7 +102,7 @@ void VulkanTexture::UpdateDescriptorInfo() {
 }
 
 VkImageViewType VulkanTexture::GetType( TextureType type, bool isArray ) {
-    switch ( type ) {
+    switch( type ) {
     case TextureType::Texture1D:
         return isArray ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
     case TextureType::Texture2D:

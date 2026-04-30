@@ -19,7 +19,7 @@ void MSDFFontRenderPass::OnInit( rhi::GraphicsSystem& api, graphics::RenderGraph
     vertexBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Vertex );
     vertexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
 
-    api.CreateBuffer( m_VertexBuffer, vertexBufferProps );
+    api.createBuffer( m_VertexBuffer, vertexBufferProps );
 
     rhi::BufferProperties indexBufferProps;
     indexBufferProps.m_Size = static_cast< uint32_t >( MAX_INDICES * sizeof( uint16_t ) );
@@ -40,7 +40,7 @@ void MSDFFontRenderPass::OnInit( rhi::GraphicsSystem& api, graphics::RenderGraph
         offset += 4;
     }
 
-    api.CreateBuffer( m_IndexBuffer, indexBufferProps );
+    api.createBuffer( m_IndexBuffer, indexBufferProps );
     m_IndexBuffer.Buffer->SetData( 0, indices, static_cast< uint32_t >( MAX_INDICES * sizeof( uint16_t ) ) );
 }
 

@@ -15,12 +15,12 @@ ShaderModule::ShaderModule( VulkanGraphicsApi& api, Shader::ByteCode byteCode )
     moduleCreateInfo.pCode = m_ByteCode.data();
     moduleCreateInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkCreateShaderModule( api.GetDevice().GetHandle(), &moduleCreateInfo, NULL, &m_Module ) )
+    VK_CHECK_RESULT( vkCreateShaderModule( api.getDevice().GetHandle(), &moduleCreateInfo, NULL, &m_Module ) )
 }
 
 ShaderModule::~ShaderModule() {
     if( m_Module != nullptr ) {
-        vkDestroyShaderModule( m_Api.GetDevice().GetHandle(), m_Module, nullptr );
+        vkDestroyShaderModule( m_Api.getDevice().GetHandle(), m_Module, nullptr );
     }
 }
 
@@ -29,7 +29,7 @@ Shader::~Shader() {
 }
 
 bool Shader::AddStage( GraphicsSystem& graphicsSystem, ShaderStage stage, const ByteCode& byteCode ) {
-    VulkanGraphicsApi& vulkanApi = graphicsSystem.GetApi< VulkanGraphicsApi >();
+    VulkanGraphicsApi& vulkanApi = graphicsSystem.getApi< VulkanGraphicsApi >();
 
     const uint8_t stageIndex = enums::toIntegral( stage );
 #if ONYX_ASSERT_ENABLED
@@ -66,7 +66,7 @@ void Shader::RemoveStage( ShaderStage stage ) {
 }
 
 bool Shader::UpdateReflectionData( GraphicsSystem& graphicsSystem, ShaderReflectionInfo& reflectionInfo ) {
-    VulkanGraphicsApi& vulkanApi = graphicsSystem.GetApi< VulkanGraphicsApi >();
+    VulkanGraphicsApi& vulkanApi = graphicsSystem.getApi< VulkanGraphicsApi >();
 
     m_ReflectionInfo = reflectionInfo;
 
@@ -78,7 +78,7 @@ bool Shader::UpdateReflectionData( GraphicsSystem& graphicsSystem, ShaderReflect
         auto layout = makeUnique< DescriptorSetLayout >( vulkanApi.GetDevice(), shaderDescriptorSet );
 #else
         String name = file_system::path::getFileName( getPath() );
-        auto layout = makeUnique< DescriptorSetLayout >( vulkanApi.GetDevice(), shaderDescriptorSet, name );
+        auto layout = makeUnique< DescriptorSetLayout >( vulkanApi.getDevice(), shaderDescriptorSet, name );
 #endif
         m_DescriptorSetLayouts.emplace( std::move( layout ) );
     }

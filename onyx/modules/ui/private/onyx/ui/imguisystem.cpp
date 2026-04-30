@@ -9,6 +9,7 @@
 #include <onyx/input/inputsystem.h>
 #include <onyx/ui/imguinotify.h>
 #include <onyx/ui/imguiwindow.h>
+#include <onyx/ui/theme/theme.h>
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/filesystem/filedialog.h>
@@ -27,13 +28,13 @@
 #endif
 
 namespace onyx::ui {
-ImGuiContext g_UiContext;
+ImGuiContext g_uiContext;
 
-namespace Internal {
-bool loc_ReloadLayout = false;
-bool loc_SaveLayout = false;
+namespace internal {
+bool g_locReloadLayout = false;
+bool g_locSaveLayout = false;
 
-ImGuiKey ConvertToImGuiKey( input::Key key ) {
+ImGuiKey convertToImGuiKey( input::Key key ) {
     switch( key ) {
         using enum input::Key;
     case Tab:
@@ -256,392 +257,7 @@ ImGuiKey ConvertToImGuiKey( input::Key key ) {
     return ImGuiKey_None;
 }
 
-void SetupImGuiDarkMaterialStyle() {
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    ImGui::NotificationSettings.Position = ImGuiToastPos::TopRight;
-    ImGui::NotificationSettings.Direction = ImGuiToastDirection::Down;
-    ImGui::NotificationSettings.Order = ImGuiToastOrder::FIFO;
-
-    ImVec4* colors = style.Colors;
-
-    // Main background and window background
-    colors[ ImGuiCol_WindowBg ] = ImVec4( 0.11f, 0.11f, 0.11f, 1.00f );
-    colors[ ImGuiCol_ChildBg ] = ImVec4( 0.13f, 0.13f, 0.13f, 1.00f );
-    colors[ ImGuiCol_PopupBg ] = ImVec4( 0.08f, 0.08f, 0.08f, 0.94f );
-
-    // Border
-    colors[ ImGuiCol_Border ] = ImVec4( 0.28f, 0.28f, 0.28f, 0.50f );
-    colors[ ImGuiCol_BorderShadow ] = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
-
-    // Frame background
-    colors[ ImGuiCol_FrameBg ] = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
-    colors[ ImGuiCol_FrameBgHovered ] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
-    colors[ ImGuiCol_FrameBgActive ] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
-
-    // Title
-    colors[ ImGuiCol_TitleBg ] = ImVec4( 0.09f, 0.09f, 0.09f, 1.00f );
-    colors[ ImGuiCol_TitleBgActive ] = ImVec4( 0.14f, 0.14f, 0.14f, 1.00f );
-    colors[ ImGuiCol_TitleBgCollapsed ] = ImVec4( 0.00f, 0.00f, 0.00f, 0.51f );
-
-    // Menu
-    colors[ ImGuiCol_MenuBarBg ] = ImVec4( 0.14f, 0.14f, 0.14f, 1.00f );
-
-    // Scrollbar
-    colors[ ImGuiCol_ScrollbarBg ] = ImVec4( 0.02f, 0.02f, 0.02f, 0.53f );
-    colors[ ImGuiCol_ScrollbarGrab ] = ImVec4( 0.31f, 0.31f, 0.31f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabHovered ] = ImVec4( 0.41f, 0.41f, 0.41f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabActive ] = ImVec4( 0.51f, 0.51f, 0.51f, 1.00f );
-
-    // Check mark
-    colors[ ImGuiCol_CheckMark ] = ImVec4( 0.23f, 0.77f, 0.42f, 1.00f );
-
-    // Slider
-    colors[ ImGuiCol_SliderGrab ] = ImVec4( 0.31f, 0.31f, 0.31f, 1.00f );
-    colors[ ImGuiCol_SliderGrabActive ] = ImVec4( 0.51f, 0.51f, 0.51f, 1.00f );
-
-    // Buttons
-    colors[ ImGuiCol_Button ] = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
-    colors[ ImGuiCol_ButtonHovered ] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
-    colors[ ImGuiCol_ButtonActive ] = ImVec4( 0.23f, 0.23f, 0.23f, 1.00f );
-
-    // Header
-    colors[ ImGuiCol_Header ] = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
-    colors[ ImGuiCol_HeaderHovered ] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
-    colors[ ImGuiCol_HeaderActive ] = ImVec4( 0.23f, 0.23f, 0.23f, 1.00f );
-
-    // Separator
-    colors[ ImGuiCol_Separator ] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
-    colors[ ImGuiCol_SeparatorHovered ] = ImVec4( 0.41f, 0.41f, 0.41f, 1.00f );
-    colors[ ImGuiCol_SeparatorActive ] = ImVec4( 0.51f, 0.51f, 0.51f, 1.00f );
-
-    // Resize grip
-    colors[ ImGuiCol_ResizeGrip ] = ImVec4( 0.31f, 0.31f, 0.31f, 1.00f );
-    colors[ ImGuiCol_ResizeGripHovered ] = ImVec4( 0.41f, 0.41f, 0.41f, 1.00f );
-    colors[ ImGuiCol_ResizeGripActive ] = ImVec4( 0.51f, 0.51f, 0.51f, 1.00f );
-
-    // Tab
-    colors[ ImGuiCol_Tab ] = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
-    colors[ ImGuiCol_TabHovered ] = ImVec4( 0.28f, 0.28f, 0.28f, 1.00f );
-    colors[ ImGuiCol_TabActive ] = ImVec4( 0.23f, 0.23f, 0.23f, 1.00f );
-    colors[ ImGuiCol_TabUnfocused ] = ImVec4( 0.15f, 0.15f, 0.15f, 1.00f );
-    colors[ ImGuiCol_TabUnfocusedActive ] = ImVec4( 0.20f, 0.20f, 0.20f, 1.00f );
-
-    // Plot
-    colors[ ImGuiCol_PlotLines ] = ImVec4( 0.61f, 0.61f, 0.61f, 1.00f );
-    colors[ ImGuiCol_PlotLinesHovered ] = ImVec4( 1.00f, 0.43f, 0.35f, 1.00f );
-    colors[ ImGuiCol_PlotHistogram ] = ImVec4( 0.90f, 0.70f, 0.00f, 1.00f );
-    colors[ ImGuiCol_PlotHistogramHovered ] = ImVec4( 1.00f, 0.60f, 0.00f, 1.00f );
-
-    // Text
-    colors[ ImGuiCol_Text ] = ImVec4( 0.86f, 0.86f, 0.86f, 1.00f );
-    colors[ ImGuiCol_TextDisabled ] = ImVec4( 0.38f, 0.38f, 0.38f, 1.00f );
-
-    // Tables
-    colors[ ImGuiCol_TableHeaderBg ] = ImVec4( 0.19f, 0.19f, 0.20f, 1.00f );
-    colors[ ImGuiCol_TableBorderStrong ] = ImVec4( 0.31f, 0.31f, 0.35f, 1.00f );
-    colors[ ImGuiCol_TableBorderLight ] = ImVec4( 0.23f, 0.23f, 0.25f, 1.00f );
-    colors[ ImGuiCol_TableRowBg ] = ImVec4( 0.15f, 0.15f, 0.15f, 1.00f );
-    colors[ ImGuiCol_TableRowBgAlt ] = ImVec4( 0.19f, 0.19f, 0.19f, 1.00f );
-
-    // Drag and drop
-    colors[ ImGuiCol_DragDropTarget ] = ImVec4( 1.00f, 0.60f, 0.00f, 0.90f );
-
-    // Nav highlight
-    colors[ ImGuiCol_NavHighlight ] = ImColor( 0xFFFF7929 ).Value;
-
-    // Misc
-    colors[ ImGuiCol_ModalWindowDimBg ] = ImVec4( 0.80f, 0.80f, 0.80f, 0.35f );
-    colors[ ImGuiCol_NavWindowingHighlight ] = ImVec4( 1.00f, 1.00f, 1.00f, 0.70f );
-    colors[ ImGuiCol_NavWindowingDimBg ] = ImVec4( 0.80f, 0.80f, 0.80f, 0.20f );
-
-    style.FrameRounding = 2.5f;
-    style.FrameBorderSize = 1.0f;
-    style.GrabRounding = 4.0f;
-
-    style.WindowTitleAlign = ImVec2( 0.5f, 0.5f );
-    style.WindowPadding = ImVec2( 8.0f, 8.0f );
-    style.FramePadding = ImVec2( 4.0f, 4.0f );
-    style.ItemSpacing = ImVec2( 8.0f, 8.0f );
-    style.ItemInnerSpacing = ImVec2( 4.0f, 4.0f );
-    style.IndentSpacing = 20.0f;
-    style.ScrollbarSize = 15.0f;
-    style.GrabMinSize = 10.0f;
-    style.TabBorderSize = 1.0f;
-}
-
-void SetupCatpuccin() {
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4* colors = style.Colors;
-
-    colors[ ImGuiCol_Text ] = ImVec4( 0.91f, 0.89f, 0.84f, 1.00f );         // text (#cdd6f4)
-    colors[ ImGuiCol_TextDisabled ] = ImVec4( 0.63f, 0.61f, 0.65f, 1.00f ); // overlay0 (#7f849c)
-    colors[ ImGuiCol_WindowBg ] = ImVec4( 0.14f, 0.13f, 0.20f, 1.00f );     // base (#1e1e2e)
-    colors[ ImGuiCol_ChildBg ] = ImVec4( 0.14f, 0.13f, 0.20f, 1.00f );      // base
-    colors[ ImGuiCol_PopupBg ] = ImVec4( 0.16f, 0.15f, 0.24f, 1.00f );      // mantle (#181825)
-    colors[ ImGuiCol_Border ] = ImVec4( 0.37f, 0.36f, 0.49f, 0.65f );       // surface1 (#45475a)
-    colors[ ImGuiCol_BorderShadow ] = ImVec4( 0.00f, 0.00f, 0.00f, 0.00f );
-
-    colors[ ImGuiCol_FrameBg ] = ImVec4( 0.23f, 0.22f, 0.33f, 1.00f );        // surface0 (#313244)
-    colors[ ImGuiCol_FrameBgHovered ] = ImVec4( 0.29f, 0.28f, 0.40f, 1.00f ); // surface1 (#45475a)
-    colors[ ImGuiCol_FrameBgActive ] = ImVec4( 0.42f, 0.41f, 0.55f, 1.00f );  // surface2 (#585b70)
-
-    colors[ ImGuiCol_TitleBg ] = ImVec4( 0.16f, 0.15f, 0.24f, 1.00f );       // mantle
-    colors[ ImGuiCol_TitleBgActive ] = ImVec4( 0.19f, 0.18f, 0.27f, 1.00f ); // crust (#11111b)
-    colors[ ImGuiCol_TitleBgCollapsed ] = ImVec4( 0.16f, 0.15f, 0.24f, 0.75f );
-
-    colors[ ImGuiCol_MenuBarBg ] = ImVec4( 0.16f, 0.15f, 0.24f, 1.00f ); // mantle
-    colors[ ImGuiCol_ScrollbarBg ] = ImVec4( 0.16f, 0.15f, 0.24f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrab ] = ImVec4( 0.37f, 0.36f, 0.49f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabHovered ] = ImVec4( 0.42f, 0.41f, 0.55f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabActive ] = ImVec4( 0.56f, 0.55f, 0.67f, 1.00f );
-
-    colors[ ImGuiCol_CheckMark ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );  // mauve (#cba6f7)
-    colors[ ImGuiCol_SliderGrab ] = ImVec4( 0.82f, 0.65f, 0.45f, 1.00f ); // yellow (#f9e2af)
-    colors[ ImGuiCol_SliderGrabActive ] = ImVec4( 0.95f, 0.80f, 0.54f, 1.00f );
-
-    colors[ ImGuiCol_Button ] = ImVec4( 0.29f, 0.28f, 0.40f, 1.00f );        // surface1
-    colors[ ImGuiCol_ButtonHovered ] = ImVec4( 0.42f, 0.41f, 0.55f, 1.00f ); // surface2
-    colors[ ImGuiCol_ButtonActive ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );  // mauve
-
-    colors[ ImGuiCol_Header ] = ImVec4( 0.29f, 0.28f, 0.40f, 1.00f );
-    colors[ ImGuiCol_HeaderHovered ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.80f ); // mauve
-    colors[ ImGuiCol_HeaderActive ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );
-
-    colors[ ImGuiCol_Separator ] = ImVec4( 0.37f, 0.36f, 0.49f, 0.65f );
-    colors[ ImGuiCol_SeparatorHovered ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.78f );
-    colors[ ImGuiCol_SeparatorActive ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );
-
-    colors[ ImGuiCol_ResizeGrip ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.25f );
-    colors[ ImGuiCol_ResizeGripHovered ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.67f );
-    colors[ ImGuiCol_ResizeGripActive ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.95f );
-
-    colors[ ImGuiCol_Tab ] = ImVec4( 0.29f, 0.28f, 0.40f, 1.00f );
-    colors[ ImGuiCol_TabHovered ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.80f );
-    colors[ ImGuiCol_TabActive ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );
-    colors[ ImGuiCol_TabUnfocused ] = ImVec4( 0.19f, 0.18f, 0.27f, 1.00f );
-    colors[ ImGuiCol_TabUnfocusedActive ] = ImVec4( 0.29f, 0.28f, 0.40f, 1.00f );
-
-    colors[ ImGuiCol_DockingPreview ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.70f );
-    colors[ ImGuiCol_DockingEmptyBg ] = ImVec4( 0.14f, 0.13f, 0.20f, 1.00f );
-
-    colors[ ImGuiCol_PlotLines ] = ImVec4( 0.82f, 0.65f, 0.45f, 1.00f );            // yellow
-    colors[ ImGuiCol_PlotLinesHovered ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );     // mauve
-    colors[ ImGuiCol_PlotHistogram ] = ImVec4( 0.82f, 0.65f, 0.45f, 1.00f );        // yellow
-    colors[ ImGuiCol_PlotHistogramHovered ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f ); // mauve
-
-    colors[ ImGuiCol_TableHeaderBg ] = ImVec4( 0.19f, 0.18f, 0.27f, 1.00f );
-    colors[ ImGuiCol_TableBorderStrong ] = ImVec4( 0.23f, 0.22f, 0.33f, 1.00f );
-    colors[ ImGuiCol_TableBorderLight ] = ImVec4( 0.23f, 0.22f, 0.33f, 0.50f );
-    colors[ ImGuiCol_TableRowBg ] = ImVec4( 0.14f, 0.13f, 0.20f, 0.00f );
-    colors[ ImGuiCol_TableRowBgAlt ] = ImVec4( 0.14f, 0.13f, 0.20f, 0.06f );
-
-    colors[ ImGuiCol_TextSelectedBg ] = ImVec4( 0.90f, 0.53f, 0.79f, 0.35f );
-    colors[ ImGuiCol_DragDropTarget ] = ImVec4( 0.95f, 0.80f, 0.54f, 1.00f ); // yellow
-
-    colors[ ImGuiCol_NavHighlight ] = ImVec4( 0.90f, 0.53f, 0.79f, 1.00f );
-    colors[ ImGuiCol_NavWindowingHighlight ] = ImVec4( 1.00f, 1.00f, 1.00f, 0.70f );
-    colors[ ImGuiCol_NavWindowingDimBg ] = ImVec4( 0.14f, 0.13f, 0.20f, 0.50f );
-    colors[ ImGuiCol_ModalWindowDimBg ] = ImVec4( 0.14f, 0.13f, 0.20f, 0.50f );
-
-    // Optional tweaks for rounding/shadows
-    style.FrameRounding = 6.0f;
-    style.GrabRounding = 4.0f;
-    style.WindowRounding = 8.0f;
-}
-
-void SetCatppuccinMochaBlue() {
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4* colors = style.Colors;
-
-    // Base text & backgrounds
-    colors[ ImGuiCol_Text ] = ImVec4( 0.804f, 0.839f, 0.957f, 1.00f );         // Text (#cdd6f4)
-    colors[ ImGuiCol_TextDisabled ] = ImVec4( 0.498f, 0.518f, 0.611f, 1.00f ); // Overlay1 (#7f849c)
-    colors[ ImGuiCol_WindowBg ] = ImVec4( 0.118f, 0.118f, 0.180f, 1.00f );     // Base (#1e1e2e)
-    colors[ ImGuiCol_ChildBg ] = colors[ ImGuiCol_WindowBg ];
-    colors[ ImGuiCol_PopupBg ] = ImVec4( 0.094f, 0.094f, 0.145f, 1.00f ); // Mantle (#181825)
-    colors[ ImGuiCol_Border ] = ImVec4( 0.271f, 0.278f, 0.353f, 0.65f );  // Surface1 (#45475a)
-    colors[ ImGuiCol_BorderShadow ] = ImVec4( 0, 0, 0, 0 );
-
-    // Frames
-    colors[ ImGuiCol_FrameBg ] = ImVec4( 0.192f, 0.196f, 0.267f, 1.00f );        // Surface0 (#313244)
-    colors[ ImGuiCol_FrameBgHovered ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f ); // Surface1
-    colors[ ImGuiCol_FrameBgActive ] = ImVec4( 0.345f, 0.357f, 0.439f, 1.00f );  // Surface2 (#585b70)
-
-    // Titles
-    colors[ ImGuiCol_TitleBg ] = ImVec4( 0.094f, 0.094f, 0.145f, 1.00f );       // Mantle
-    colors[ ImGuiCol_TitleBgActive ] = ImVec4( 0.067f, 0.067f, 0.106f, 1.00f ); // Crust (#11111b)
-    colors[ ImGuiCol_TitleBgCollapsed ] = ImVec4( 0.094f, 0.094f, 0.145f, 0.75f );
-
-    // Scrollbar
-    colors[ ImGuiCol_ScrollbarBg ] = colors[ ImGuiCol_PopupBg ];
-    colors[ ImGuiCol_ScrollbarGrab ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabHovered ] = ImVec4( 0.345f, 0.357f, 0.439f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabActive ] = ImVec4( 0.498f, 0.518f, 0.611f, 1.00f );
-
-    // Accent = Periwinkle (Blue-shifted Mauve, HSV [220�, 0.32, 0.969])
-    ImVec4 periwinkle = ImVec4( 0.667f, 0.710f, 0.969f, 1.00f ); // approx RGB from HSV
-
-    colors[ ImGuiCol_CheckMark ] = periwinkle;
-    colors[ ImGuiCol_SliderGrab ] = ImVec4( 0.976f, 0.886f, 0.686f, 1.00f );       // Yellow (#f9e2af)
-    colors[ ImGuiCol_SliderGrabActive ] = ImVec4( 0.980f, 0.702f, 0.529f, 1.00f ); // Peach (#fab387)
-
-    colors[ ImGuiCol_Button ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f );        // Surface1
-    colors[ ImGuiCol_ButtonHovered ] = ImVec4( 0.345f, 0.357f, 0.439f, 1.00f ); // Surface2
-    colors[ ImGuiCol_ButtonActive ] = periwinkle;
-
-    colors[ ImGuiCol_Header ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f );
-    colors[ ImGuiCol_HeaderHovered ] = periwinkle;
-    colors[ ImGuiCol_HeaderActive ] = periwinkle;
-
-    colors[ ImGuiCol_Separator ] = ImVec4( 0.271f, 0.278f, 0.353f, 0.65f );
-    colors[ ImGuiCol_SeparatorHovered ] = periwinkle;
-    colors[ ImGuiCol_SeparatorActive ] = periwinkle;
-
-    colors[ ImGuiCol_ResizeGrip ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.25f );
-    colors[ ImGuiCol_ResizeGripHovered ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.67f );
-    colors[ ImGuiCol_ResizeGripActive ] = periwinkle;
-
-    colors[ ImGuiCol_Tab ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f );
-    colors[ ImGuiCol_TabHovered ] = ImVec4( 0.533f, 0.569f, 0.773f, 1.0f );
-    colors[ ImGuiCol_TabActive ] = ImVec4( 0.467f, 0.498f, 0.678f, 1.0f );
-    colors[ ImGuiCol_TabUnfocused ] = ImVec4( 0.067f, 0.067f, 0.106f, 1.00f );
-    colors[ ImGuiCol_TabUnfocusedActive ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f );
-
-    colors[ ImGuiCol_DockingPreview ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.70f );
-    colors[ ImGuiCol_DockingEmptyBg ] = colors[ ImGuiCol_WindowBg ];
-
-    colors[ ImGuiCol_PlotLines ] = ImVec4( 0.976f, 0.886f, 0.686f, 1.00f ); // Yellow
-    colors[ ImGuiCol_PlotLinesHovered ] = periwinkle;
-    colors[ ImGuiCol_PlotHistogram ] = ImVec4( 0.976f, 0.886f, 0.686f, 1.00f ); // Yellow
-    colors[ ImGuiCol_PlotHistogramHovered ] = periwinkle;
-
-    colors[ ImGuiCol_TableHeaderBg ] = ImVec4( 0.067f, 0.067f, 0.106f, 1.00f );     // Crust
-    colors[ ImGuiCol_TableBorderStrong ] = ImVec4( 0.192f, 0.196f, 0.267f, 1.00f ); // Surface0
-    colors[ ImGuiCol_TableBorderLight ] = ImVec4( 0.192f, 0.196f, 0.267f, 0.50f );
-    colors[ ImGuiCol_TableRowBg ] = ImVec4( 0, 0, 0, 0 );
-    colors[ ImGuiCol_TableRowBgAlt ] = ImVec4( 1, 1, 1, 0.06f );
-
-    colors[ ImGuiCol_TextSelectedBg ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.35f );
-    colors[ ImGuiCol_DragDropTarget ] = ImVec4( 0.976f, 0.886f, 0.686f, 1.00f ); // Yellow
-
-    colors[ ImGuiCol_NavHighlight ] = periwinkle;
-    colors[ ImGuiCol_NavWindowingHighlight ] = ImVec4( 1, 1, 1, 0.70f );
-    colors[ ImGuiCol_NavWindowingDimBg ] = ImVec4( 0.118f, 0.118f, 0.180f, 0.50f );
-    colors[ ImGuiCol_ModalWindowDimBg ] = ImVec4( 0.118f, 0.118f, 0.180f, 0.50f );
-
-    // Optional style tweaks
-    style.FrameRounding = 6.0f;
-    style.GrabRounding = 4.0f;
-    style.WindowRounding = 8.0f;
-}
-
-void SetCatppuccinMochaGraphite() {
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4* colors = style.Colors;
-
-    // Base text & backgrounds
-    colors[ ImGuiCol_Text ] = ImVec4( 0.902f, 0.910f, 0.922f, 1.00f );         // Text (#e6e8eb)
-    colors[ ImGuiCol_TextDisabled ] = ImVec4( 0.588f, 0.596f, 0.627f, 1.00f ); // Subtext0 (#9698a0)
-    colors[ ImGuiCol_WindowBg ] = ImVec4( 0.118f, 0.118f, 0.137f, 1.00f );     // Base (#1e1e23)
-    colors[ ImGuiCol_ChildBg ] = colors[ ImGuiCol_WindowBg ];
-    colors[ ImGuiCol_PopupBg ] = ImVec4( 0.098f, 0.098f, 0.114f, 1.00f ); // Mantle (#19191d)
-    colors[ ImGuiCol_Border ] = ImVec4( 0.271f, 0.278f, 0.314f, 0.65f );  // Surface1 (#454851)
-    colors[ ImGuiCol_BorderShadow ] = ImVec4( 0, 0, 0, 0 );
-
-    // Frames
-    colors[ ImGuiCol_FrameBg ] = ImVec4( 0.204f, 0.208f, 0.231f, 1.00f );        // Surface0 (#34363b)
-    colors[ ImGuiCol_FrameBgHovered ] = ImVec4( 0.271f, 0.278f, 0.314f, 1.00f ); // Surface1
-    colors[ ImGuiCol_FrameBgActive ] = ImVec4( 0.345f, 0.357f, 0.392f, 1.00f );  // Surface2 (#585b64)
-
-    // Titles
-    colors[ ImGuiCol_TitleBg ] = ImVec4( 0.098f, 0.098f, 0.114f, 1.00f );       // Mantle
-    colors[ ImGuiCol_TitleBgActive ] = ImVec4( 0.067f, 0.067f, 0.078f, 1.00f ); // Crust (#111114)
-    colors[ ImGuiCol_TitleBgCollapsed ] = ImVec4( 0.098f, 0.098f, 0.114f, 0.75f );
-
-    // Scrollbar
-    colors[ ImGuiCol_ScrollbarBg ] = colors[ ImGuiCol_PopupBg ];
-    colors[ ImGuiCol_ScrollbarGrab ] = ImVec4( 0.271f, 0.278f, 0.314f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabHovered ] = ImVec4( 0.345f, 0.357f, 0.392f, 1.00f );
-    colors[ ImGuiCol_ScrollbarGrabActive ] = ImVec4( 0.498f, 0.518f, 0.588f, 1.00f );
-
-    // Accent = Periwinkle blue
-    ImVec4 periwinkle = ImVec4( 0.667f, 0.710f, 0.969f, 1.00f ); // #aab5f7
-
-    colors[ ImGuiCol_CheckMark ] = periwinkle;
-    colors[ ImGuiCol_SliderGrab ] = ImVec4( 0.820f, 0.875f, 0.957f, 1.00f );       // Pale blue (#d1dff4)
-    colors[ ImGuiCol_SliderGrabActive ] = ImVec4( 0.667f, 0.710f, 0.969f, 1.00f ); // Periwinkle
-
-    // Buttons
-    colors[ ImGuiCol_Button ] = ImVec4( 0.271f, 0.278f, 0.314f, 1.00f );        // Surface1
-    colors[ ImGuiCol_ButtonHovered ] = ImVec4( 0.345f, 0.357f, 0.392f, 1.00f ); // Surface2
-    colors[ ImGuiCol_ButtonActive ] = periwinkle;
-
-    // Headers
-    colors[ ImGuiCol_Header ] = ImVec4( 0.271f, 0.278f, 0.353f, 1.00f );       // Surface1
-    colors[ ImGuiCol_HeaderHovered ] = ImVec4( 0.533f, 0.569f, 0.773f, 1.0f ); // lighter periwinkle
-    colors[ ImGuiCol_HeaderActive ] = ImVec4( 0.467f, 0.498f, 0.678f, 1.0f );  // darker periwinkle
-
-    // Separators
-    colors[ ImGuiCol_Separator ] = ImVec4( 0.271f, 0.278f, 0.314f, 0.65f );
-    colors[ ImGuiCol_SeparatorHovered ] = periwinkle;
-    colors[ ImGuiCol_SeparatorActive ] = periwinkle;
-
-    // Resize grips
-    colors[ ImGuiCol_ResizeGrip ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.25f );
-    colors[ ImGuiCol_ResizeGripHovered ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.67f );
-    colors[ ImGuiCol_ResizeGripActive ] = periwinkle;
-
-    // Tabs
-    colors[ ImGuiCol_Tab ] = ImVec4( 0.271f, 0.278f, 0.314f, 1.00f );
-    colors[ ImGuiCol_TabHovered ] = ImVec4( 0.533f, 0.569f, 0.773f, 1.0f );
-    colors[ ImGuiCol_TabActive ] = ImVec4( 0.365f, 0.392f, 0.553f, 1.0f ); // darker periwinkle
-    colors[ ImGuiCol_TabUnfocused ] = ImVec4( 0.067f, 0.067f, 0.078f, 1.00f );
-    colors[ ImGuiCol_TabUnfocusedActive ] = ImVec4( 0.271f, 0.278f, 0.314f, 1.00f );
-
-    // Docking
-    colors[ ImGuiCol_DockingPreview ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.70f );
-    colors[ ImGuiCol_DockingEmptyBg ] = colors[ ImGuiCol_WindowBg ];
-
-    // Plots
-    colors[ ImGuiCol_PlotLines ] = ImVec4( 0.667f, 0.710f, 0.969f, 1.00f );        // Periwinkle
-    colors[ ImGuiCol_PlotLinesHovered ] = ImVec4( 0.820f, 0.875f, 0.957f, 1.00f ); // Pale blue
-    colors[ ImGuiCol_PlotHistogram ] = ImVec4( 0.667f, 0.710f, 0.969f, 1.00f );
-    colors[ ImGuiCol_PlotHistogramHovered ] = ImVec4( 0.820f, 0.875f, 0.957f, 1.00f );
-
-    // Tables
-    colors[ ImGuiCol_TableHeaderBg ] = ImVec4( 0.067f, 0.067f, 0.078f, 1.00f );     // Crust
-    colors[ ImGuiCol_TableBorderStrong ] = ImVec4( 0.204f, 0.208f, 0.231f, 1.00f ); // Surface0
-    colors[ ImGuiCol_TableBorderLight ] = ImVec4( 0.204f, 0.208f, 0.231f, 0.50f );
-    colors[ ImGuiCol_TableRowBg ] = ImVec4( 0, 0, 0, 0 );
-    colors[ ImGuiCol_TableRowBgAlt ] = ImVec4( 1, 1, 1, 0.06f );
-
-    // Misc
-    colors[ ImGuiCol_TextSelectedBg ] = ImVec4( periwinkle.x, periwinkle.y, periwinkle.z, 0.35f );
-    colors[ ImGuiCol_DragDropTarget ] = periwinkle;
-
-    colors[ ImGuiCol_NavHighlight ] = periwinkle;
-    colors[ ImGuiCol_NavWindowingHighlight ] = ImVec4( 1, 1, 1, 0.70f );
-    colors[ ImGuiCol_NavWindowingDimBg ] = ImVec4( 0.118f, 0.118f, 0.137f, 0.50f );
-    colors[ ImGuiCol_ModalWindowDimBg ] = ImVec4( 0.118f, 0.118f, 0.137f, 0.50f );
-
-    style.WindowRounding = 4.0f;
-    style.FrameRounding = 2.5f;
-    style.FrameBorderSize = 0.0f;
-    style.GrabRounding = 4.0f;
-
-    style.WindowTitleAlign = ImVec2( 0.5f, 0.5f );
-    style.WindowPadding = ImVec2( 8.0f, 8.0f );
-    style.FramePadding = ImVec2( 4.0f, 4.0f );
-    style.ItemSpacing = ImVec2( 8.0f, 8.0f );
-    style.ItemInnerSpacing = ImVec2( 4.0f, 4.0f );
-    style.IndentSpacing = 20.0f;
-    style.ScrollbarSize = 15.0f;
-    style.GrabMinSize = 10.0f;
-    style.TabBorderSize = 1.0f;
-}
-
-} // namespace Internal
+} // namespace internal
 
 ImGuiSystem::ImGuiSystem( IEngine& engine,
                           assets::AssetSystem& assetSystem,
@@ -649,9 +265,9 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
                           localization::LocalizationModule& localizationSystem,
                           rhi::GraphicsSystem& graphicsSystem,
                           platform::PlatformSystem& platformSystem )
-    : m_Engine( &engine )
-    , m_PlatformSystem( &platformSystem )
-    , m_InputSystem( &inputSystem ) {
+    : m_engine( &engine )
+    , m_platformSystem( &platformSystem )
+    , m_inputSystem( &inputSystem ) {
     ImGui::CreateContext();
     ImPlot::CreateContext();
     ImPlot3D::CreateContext();
@@ -661,7 +277,10 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    Internal::SetCatppuccinMochaGraphite(); // ImGui::StyleColorsDark();
+
+    assets::AssetHandle< onyx::ui::Theme > theme;
+    assetSystem.getAsset( "engine:/themes/catppuccin-mocha/theme.nyx", theme );
+    theme->getOnLoadedEvent().Connect< &ImGuiSystem::onThemeLoaded >( *this );
 
     FilePath settingsPath = file_system::path::getFullPath( "tmp:imgui.ini" );
     if( file_system::path::exists( settingsPath ) == false ) {
@@ -672,24 +291,24 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
 
     ImFontConfig fontConfig;
     fontConfig.FontDataOwnedByAtlas = false;
-    constexpr StringId64 fontHash( "fonts/Roboto-Regular.ttf" );
+    constexpr StringId64 FontHash( "fonts/Roboto-Regular.ttf" );
 
     FilePath fontPath = file_system::path::getFullPath( "engine:/fonts/Roboto-Regular.ttf" );
-    auto [ it, _ ] = m_Fonts.emplace( fontHash,
+    auto [ it, _ ] = m_fonts.emplace( FontHash,
                                       io.Fonts->AddFontFromFileTTF( fontPath.string().data(), 16.0f, &fontConfig ) );
-    m_Fonts.emplace( fontHash, io.Fonts->AddFontFromFileTTF( fontPath.string().data(), 36.0f, &fontConfig ) );
+    m_fonts.emplace( FontHash, io.Fonts->AddFontFromFileTTF( fontPath.string().data(), 36.0f, &fontConfig ) );
 
     io.FontDefault = it->second;
-    InitRenderBuffers( graphicsSystem );
+    initRenderBuffers( graphicsSystem );
 
-    inputSystem.OnMouseAxisChange().Connect< &ImGuiSystem::OnMouseAxisChange >( this );
-    inputSystem.OnMouseButton().Connect< &ImGuiSystem::OnMouseButton >( this );
-    inputSystem.OnMousePositionChange().Connect< &ImGuiSystem::OnMousePositionChange >( this );
-    inputSystem.OnKey().Connect< &ImGuiSystem::OnKey >( this );
+    inputSystem.OnMouseAxisChange().Connect< &ImGuiSystem::onMouseAxisChange >( this );
+    inputSystem.OnMouseButton().Connect< &ImGuiSystem::onMouseButton >( this );
+    inputSystem.OnMousePositionChange().Connect< &ImGuiSystem::onMousePositionChange >( this );
+    inputSystem.OnKey().Connect< &ImGuiSystem::onKey >( this );
 
-    g_UiContext.AssetSystem = &assetSystem;
-    g_UiContext.InputSystem = &inputSystem;
-    g_UiContext.LocalizationSystem = &localizationSystem;
+    g_uiContext.AssetSystem = &assetSystem;
+    g_uiContext.InputSystem = &inputSystem;
+    g_uiContext.LocalizationSystem = &localizationSystem;
 
     rhi::PipelineProperties pipelineProperties;
     pipelineProperties.Shader = assets::AssetId( "engine:/shaders/imgui.oshader" );
@@ -710,14 +329,14 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     renderPassSettings.m_Attachments.add( attachment );
 
     subpass.m_AttachmentAccesses.emplace( rhi::RenderPassSettings::AttachmentAccess::RenderTarget );
-    pipelineProperties.RenderPass = graphicsSystem.GetOrCreateRenderPass( renderPassSettings );
+    pipelineProperties.RenderPass = graphicsSystem.getOrCreateRenderPass( renderPassSettings );
 
-    m_ImguiShader = graphicsSystem.CreateShaderInstance( pipelineProperties.Shader, pipelineProperties );
+    m_imguiShader = graphicsSystem.createShaderInstance( pipelineProperties.Shader, pipelineProperties );
 
-    platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
-    mainWindow.OnResize().Connect< &ImGuiSystem::OnWindowResize >( this );
+    platform::Window& mainWindow = m_platformSystem->GetMainWindow();
+    mainWindow.OnResize().Connect< &ImGuiSystem::onWindowResize >( this );
 
-    RegisterWindow< EngineVariablesWindow >();
+    registerWindow< EngineVariablesWindow >();
 }
 
 ImGuiSystem::~ImGuiSystem() {
@@ -725,57 +344,58 @@ ImGuiSystem::~ImGuiSystem() {
     ImGui::SaveIniSettingsToDisk( settingsPath.string().data() );
 
     // m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-    m_InputSystem->OnMouseAxisChange().Disconnect( this );
-    m_InputSystem->OnMouseButton().Disconnect( this );
-    m_InputSystem->OnMousePositionChange().Disconnect( this );
-    m_InputSystem->OnKey().Disconnect( this );
+    m_inputSystem->OnMouseAxisChange().Disconnect( this );
+    m_inputSystem->OnMouseButton().Disconnect( this );
+    m_inputSystem->OnMousePositionChange().Disconnect( this );
+    m_inputSystem->OnKey().Disconnect( this );
 
     ImPlot::DestroyContext();
     ImPlot3D::DestroyContext();
     ImGui::DestroyContext();
 }
 
-void ImGuiSystem::update( rhi::GraphicsSystem& system, DeltaGameTime deltaTime ) {
+void ImGuiSystem::update( rhi::GraphicsSystem& graphicsSystem, DeltaGameTime deltaTime ) {
     ImGuiIO& io = ImGui::GetIO();
 
-    g_UiContext.GraphicsSystem = &system;
+    g_uiContext.GraphicsSystem = &graphicsSystem;
     io.DeltaTime = std::max( numericCast< float32 >( deltaTime.DeltaMilliseconds ) * 0.001f, 0.001f );
 
-    io.DisplaySize = ImVec2( numericCast< float32 >( m_PlatformSystem->GetMainWindow().GetWidth() ),
-                             numericCast< float32 >( m_PlatformSystem->GetMainWindow().GetHeight() ) );
+    io.DisplaySize = ImVec2( numericCast< float32 >( m_platformSystem->GetMainWindow().GetWidth() ),
+                             numericCast< float32 >( m_platformSystem->GetMainWindow().GetHeight() ) );
     io.DisplayFramebufferScale = ImVec2( 1.0f, 1.0f );
 
     //// this is an index based loop on purpose as windows might be added during rendering by other windows
-    const uint32_t windowsCount = numericCast< uint32_t >( m_Windows.size() );
+    const uint32_t windowsCount = numericCast< uint32_t >( m_windows.size() );
     for( uint32_t i = 0; i < windowsCount; ++i ) {
-        const UniquePtr< ImGuiWindow >& imguiWindow = m_Windows[ i ];
+        const UniquePtr< ImGuiWindow >& imguiWindow = m_windows[ i ];
         imguiWindow->render( *this );
     }
 
-    g_UiContext.GraphicsSystem = nullptr;
+    ImGui::ShowDemoWindow();
+
+    g_uiContext.GraphicsSystem = nullptr;
 }
 
-void ImGuiSystem::OnBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
+void ImGuiSystem::onBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
     ImGuiIO& io = ImGui::GetIO();
     // TODO: Fix
-    auto& mainWindow = m_PlatformSystem->GetMainWindow();
+    auto& mainWindow = m_platformSystem->GetMainWindow();
     auto framebufferSize = mainWindow.GetFrameBufferSize();
     io.DisplaySize = ImVec2( static_cast< float32 >( framebufferSize.X ), static_cast< float32 >( framebufferSize.Y ) );
 
     io.DisplayFramebufferScale = ImVec2( 1.0f, 1.0f );
 
-    if( Internal::loc_ReloadLayout ) {
-        Internal::loc_ReloadLayout = false;
+    if( internal::g_locReloadLayout ) {
+        internal::g_locReloadLayout = false;
         /*FilePath settingsPath = file_system::path::GetDataDirectory() / "layouts/default_2.ini";
         ImGui::LoadIniSettingsFromDisk(settingsPath.string().data());*/
     }
 
-    if( Internal::loc_SaveLayout ) {
-        Internal::loc_SaveLayout = false;
+    if( internal::g_locSaveLayout ) {
+        internal::g_locSaveLayout = false;
         FilePath savePath;
-        file_system::FileDialog saveDialog;
         DynamicArray< StringView > extensions{ "ini" };
-        if( saveDialog.SaveFileDialog( savePath, "Ini File", extensions ) ) {
+        if( onyx::file_system::FileDialog::SaveFileDialog( savePath, "Ini File", extensions ) ) {
             ImGui::SaveIniSettingsToDisk( savePath.string().data() );
         }
     }
@@ -789,30 +409,30 @@ void ImGuiSystem::OnBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
     ImGuizmo::BeginFrame();
 }
 
-void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
-    if( m_ImguiShader.isValid() == false )
+void ImGuiSystem::onRenderFrame( const rhi::FrameContext& frameContext ) {
+    if( m_imguiShader.isValid() == false )
         return;
 
     ImGui::Render();
 
-    UpdateDrawBuffers( frameContext );
+    updateDrawBuffers( frameContext );
 
-    rhi::CommandBuffer& commandBuffer = frameContext.Api->GetCommandBuffer( frameContext.FrameIndex, true );
+    rhi::CommandBuffer& commandBuffer = frameContext.Api->getCommandBuffer( frameContext.FrameIndex, true );
 
-    const Reference< rhi::Pipeline >& pipeline = m_ImguiShader->GetPipeline();
+    const Reference< rhi::Pipeline >& pipeline = m_imguiShader->GetPipeline();
     const rhi::PipelineProperties& properties = pipeline->GetProperties();
 
     rhi::FramebufferSettings framebufferSettings;
     framebufferSettings.m_RenderPass = properties.RenderPass;
 
-    const Vector2s32& swapchainExtent = frameContext.Api->GetSwapchainExtent();
+    const Vector2s32& swapchainExtent = frameContext.Api->getSwapchainExtent();
     framebufferSettings.m_Width = swapchainExtent.X;
     framebufferSettings.m_Height = swapchainExtent.Y;
 
-    rhi::TextureHandle swapchainImage = frameContext.Api->GetAcquiredSwapChainImage();
+    rhi::TextureHandle swapchainImage = frameContext.Api->getAcquiredSwapChainImage();
     framebufferSettings.m_ColorTargets.add( swapchainImage.Texture );
 
-    rhi::FramebufferHandle frameBuffer = frameContext.Api->GetOrCreateFramebuffer( framebufferSettings );
+    rhi::FramebufferHandle frameBuffer = frameContext.Api->getOrCreateFramebuffer( framebufferSettings );
 
     // TODO: Do a proper barrier here for the rendergraph to be finished and the imgui pass to start
     commandBuffer.transitionLayout( swapchainImage,
@@ -825,13 +445,13 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
                                  0x00000001ULL );
     commandBuffer.beginRenderPass( properties.RenderPass, frameBuffer );
     commandBuffer.setViewport();
-    commandBuffer.bindShaderEffect( m_ImguiShader );
+    commandBuffer.bindShaderEffect( m_imguiShader );
 
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
-    int32_t fb_width = numericCast< int32_t >( imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x );
-    int32_t fb_height = numericCast< int32_t >( imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y );
-    if( fb_width <= 0 || fb_height <= 0 )
+    int32_t fbWidth = numericCast< int32_t >( imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x );
+    int32_t fbHeight = numericCast< int32_t >( imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y );
+    if( fbWidth <= 0 || fbHeight <= 0 )
         return;
 
     if( ( !imDrawData ) || ( imDrawData->CmdListsCount == 0 ) ) {
@@ -842,29 +462,29 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
     int32_t indexOffset = 0;
 
     const uint8_t frameIndex = frameContext.FrameIndex;
-    const rhi::BufferHandle& vertexBuffer = m_VertexBuffers[ frameIndex ];
-    const rhi::BufferHandle& indexBuffer = m_IndexBuffers[ frameIndex ];
+    const rhi::BufferHandle& vertexBuffer = m_vertexBuffers[ frameIndex ];
+    const rhi::BufferHandle& indexBuffer = m_indexBuffers[ frameIndex ];
     commandBuffer.bindVertexBuffer( vertexBuffer, 0, 0 );
     commandBuffer.bindIndexBuffer( indexBuffer, 0, rhi::IndexType::uint16 );
 
     struct PushConstants {
-        Vector2f32 scale;
-        Vector2f32 translate;
+        Vector2f32 Scale;
+        Vector2f32 Translate;
     } constants;
 
-    constants.scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
-    constants.translate = { -1.0f - imDrawData->DisplayPos.x * constants.scale[ 0 ],
-                            1.0f - imDrawData->DisplayPos.y * constants.scale[ 1 ] };
+    constants.Scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
+    constants.Translate = { -1.0f - imDrawData->DisplayPos.x * constants.Scale[ 0 ],
+                            1.0f - imDrawData->DisplayPos.y * constants.Scale[ 1 ] };
     commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, constants );
 
     // Will project scissor/clipping rectangles into framebuffer space
-    ImVec2 clip_off = imDrawData->DisplayPos;         // (0,0) unless using multi-viewports
-    ImVec2 clip_scale = imDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
+    ImVec2 clipOff = imDrawData->DisplayPos;         // (0,0) unless using multi-viewports
+    ImVec2 clipScale = imDrawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
 
     for( int32_t i = 0; i < imDrawData->CmdListsCount; i++ ) {
-        const ImDrawList* cmd_list = imDrawData->CmdLists[ i ];
-        for( int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++ ) {
-            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[ j ];
+        const ImDrawList* cmdList = imDrawData->CmdLists[ i ];
+        for( int32_t j = 0; j < cmdList->CmdBuffer.Size; j++ ) {
+            const ImDrawCmd* pcmd = &cmdList->CmdBuffer[ j ];
             if( pcmd->UserCallback != nullptr ) {
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer
@@ -873,29 +493,29 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
                 //    commandBuffer.BindPushConstants(Graphics::ShaderStage::Vertex, 0, sizeof(PushConstants),
                 //    &constants);
                 // else
-                pcmd->UserCallback( cmd_list, pcmd );
+                pcmd->UserCallback( cmdList, pcmd );
             } else {
                 ImTextureID textureId = pcmd->TextureId;
 
-                ImVec4 clip_rect;
-                clip_rect.x = ( pcmd->ClipRect.x - clip_off.x ) * clip_scale.x;
-                clip_rect.y = ( pcmd->ClipRect.y - clip_off.y ) * clip_scale.y;
-                clip_rect.z = ( pcmd->ClipRect.z - clip_off.x ) * clip_scale.x;
-                clip_rect.w = ( pcmd->ClipRect.w - clip_off.y ) * clip_scale.y;
+                ImVec4 clipRect;
+                clipRect.x = ( pcmd->ClipRect.x - clipOff.x ) * clipScale.x;
+                clipRect.y = ( pcmd->ClipRect.y - clipOff.y ) * clipScale.y;
+                clipRect.z = ( pcmd->ClipRect.z - clipOff.x ) * clipScale.x;
+                clipRect.w = ( pcmd->ClipRect.w - clipOff.y ) * clipScale.y;
 
-                if( clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0f && clip_rect.w >= 0.0f ) {
+                if( clipRect.x < fbWidth && clipRect.y < fbHeight && clipRect.z >= 0.0f && clipRect.w >= 0.0f ) {
                     // Negative offsets are illegal for vkCmdSetScissor
-                    if( clip_rect.x < 0.0f )
-                        clip_rect.x = 0.0f;
-                    if( clip_rect.y < 0.0f )
-                        clip_rect.y = 0.0f;
+                    if( clipRect.x < 0.0f )
+                        clipRect.x = 0.0f;
+                    if( clipRect.y < 0.0f )
+                        clipRect.y = 0.0f;
 
                     // Apply scissor/clipping rectangle
                     Rect2s16 scissor;
-                    scissor.Position[ 0 ] = (int16_t)( clip_rect.x );
-                    scissor.Position[ 1 ] = (int16_t)( clip_rect.y );
-                    scissor.Extents[ 0 ] = (int16_t)( std::abs( clip_rect.z - clip_rect.x ) );
-                    scissor.Extents[ 1 ] = (int16_t)( std::abs( clip_rect.w - clip_rect.y ) );
+                    scissor.Position[ 0 ] = (int16_t)( clipRect.x );
+                    scissor.Position[ 1 ] = (int16_t)( clipRect.y );
+                    scissor.Extents[ 0 ] = (int16_t)( std::abs( clipRect.z - clipRect.x ) );
+                    scissor.Extents[ 1 ] = (int16_t)( std::abs( clipRect.w - clipRect.y ) );
                     // vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
                     commandBuffer.setScissor( scissor );
@@ -909,19 +529,19 @@ void ImGuiSystem::OnRenderFrame( const rhi::FrameContext& frameContext ) {
             }
         }
 
-        vertexOffset += cmd_list->VtxBuffer.Size;
-        indexOffset += cmd_list->IdxBuffer.Size;
+        vertexOffset += cmdList->VtxBuffer.Size;
+        indexOffset += cmdList->IdxBuffer.Size;
 
         Rect2s16 scissor;
         scissor.Position = { 0, 0 };
-        scissor.Extents = { (int16_t)fb_width, (int16_t)fb_height };
+        scissor.Extents = { (int16_t)fbWidth, (int16_t)fbHeight };
         commandBuffer.setScissor( scissor );
     }
 
     commandBuffer.endRenderPass();
 }
 
-void ImGuiSystem::OnEndFrame( const rhi::FrameContext& /*frameContext*/ ) {
+void ImGuiSystem::onEndFrame( const rhi::FrameContext& /*frameContext*/ ) {
 #if ONYX_IS_WINDOWS
     // if (ImGui::GetMouseCursor() != ImGuiMouseCursor_None)
     //{
@@ -954,19 +574,23 @@ void ImGuiSystem::OnEndFrame( const rhi::FrameContext& /*frameContext*/ ) {
     ImGui::EndFrame();
 }
 
-Optional< ImGuiWindow* > ImGuiSystem::GetWindow( StringId32 windowId ) {
-    auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+Optional< ImGuiWindow* > ImGuiSystem::getWindow( StringId32 windowId ) {
+    auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
         return StringId32( window->getWindowId() ) == windowId;
     } );
 
-    if( it == m_Windows.end() ) {
+    if( it == m_windows.end() ) {
         return {};
     }
 
     return it->get();
 }
 
-void ImGuiSystem::InitRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
+const ui::Theme& ImGuiSystem::getTheme() const {
+    return *m_activeTheme;
+}
+
+void ImGuiSystem::initRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
     ImGuiIO& io = ImGui::GetIO();
 
     //// Create font texture
@@ -996,8 +620,8 @@ void ImGuiSystem::InitRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
 
     Span< uint8_t > fontTexData{ fontData, uploadSize };
 
-    graphicsSystem.CreateTexture( m_FontImage, storageProps, textureProps, fontTexData );
-    io.Fonts->TexID = m_FontImage.Texture->GetIndex();
+    graphicsSystem.createTexture( m_fontImage, storageProps, textureProps, fontTexData );
+    io.Fonts->TexID = m_fontImage.Texture->GetIndex();
 
     rhi::BufferProperties vertexBufferProps;
     vertexBufferProps.m_Size = 400000 * sizeof( ImDrawVert );
@@ -1012,17 +636,17 @@ void ImGuiSystem::InitRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
     indexBufferProps.m_DebugName = "ImGui Indices";
 
     for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
-        rhi::BufferHandle& vertexBuffer = m_VertexBuffers[ i ];
-        graphicsSystem.CreateBuffer( vertexBuffer, vertexBufferProps );
-        m_VertexCounts.add( 400000 );
+        rhi::BufferHandle& vertexBuffer = m_vertexBuffers[ i ];
+        graphicsSystem.createBuffer( vertexBuffer, vertexBufferProps );
+        m_vertexCounts.add( 400000 );
 
-        rhi::BufferHandle& indexBuffer = m_IndexBuffers[ i ];
-        graphicsSystem.CreateBuffer( indexBuffer, indexBufferProps );
-        m_IndexCounts.add( 200000 );
+        rhi::BufferHandle& indexBuffer = m_indexBuffers[ i ];
+        graphicsSystem.createBuffer( indexBuffer, indexBufferProps );
+        m_indexCounts.add( 200000 );
     }
 }
 
-void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
+void ImGuiSystem::updateDrawBuffers( const rhi::FrameContext& frameContext ) {
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
     if( ( !imDrawData ) || ( imDrawData->CmdListsCount == 0 ) ) {
@@ -1045,25 +669,25 @@ void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
 
     // Vertex buffer
     const uint8_t frameIndex = frameContext.FrameIndex;
-    rhi::BufferHandle& vertexBuffer = m_VertexBuffers[ frameIndex ];
+    rhi::BufferHandle& vertexBuffer = m_vertexBuffers[ frameIndex ];
     if( ( vertexBuffer.Buffer.isValid() == false ) || ( vertexBuffer.Buffer->IsMapped() == false ) ||
-        ( m_VertexCounts[ frameIndex ] < imDrawData->TotalVtxCount ) ) {
+        ( m_vertexCounts[ frameIndex ] < imDrawData->TotalVtxCount ) ) {
         rhi::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
         vertexBufferProps.m_Size = vertexBufferSize;
 
-        frameContext.Api->CreateBuffer( vertexBuffer, vertexBufferProps );
-        m_VertexCounts[ frameIndex ] = imDrawData->TotalVtxCount;
+        frameContext.Api->createBuffer( vertexBuffer, vertexBufferProps );
+        m_vertexCounts[ frameIndex ] = imDrawData->TotalVtxCount;
     }
 
     // Index buffer
-    rhi::BufferHandle& indexBuffer = m_IndexBuffers[ frameIndex ];
+    rhi::BufferHandle& indexBuffer = m_indexBuffers[ frameIndex ];
     if( ( indexBuffer.Buffer.isValid() == false ) || ( indexBuffer.Buffer->IsMapped() == false ) ||
-        ( m_IndexCounts[ frameIndex ] < imDrawData->TotalIdxCount ) ) {
+        ( m_indexCounts[ frameIndex ] < imDrawData->TotalIdxCount ) ) {
         rhi::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
         indexBufferProps.m_Size = indexBufferSize;
 
-        frameContext.Api->CreateBuffer( indexBuffer, indexBufferProps );
-        m_IndexCounts[ frameIndex ] = imDrawData->TotalIdxCount;
+        frameContext.Api->createBuffer( indexBuffer, indexBufferProps );
+        m_indexCounts[ frameIndex ] = imDrawData->TotalIdxCount;
     }
 
     // Upload data
@@ -1084,18 +708,18 @@ void ImGuiSystem::UpdateDrawBuffers( const rhi::FrameContext& frameContext ) {
     }
 }
 
-void ImGuiSystem::OnWindowResize( Vector2s32 size ) {
+void ImGuiSystem::onWindowResize( Vector2s32 size ) {
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2( numericCast< float32 >( size.X ), numericCast< float32 >( size.Y ) );
     io.DisplayFramebufferScale = ImVec2( 1.0f, 1.0f );
 }
 
-void ImGuiSystem::OnMouseAxisChange( const input::MouseAxisEvent& event ) {
+void ImGuiSystem::onMouseAxisChange( const input::MouseAxisEvent& event ) {
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseWheelEvent( 0, event.Value );
 }
 
-void ImGuiSystem::OnMouseButton( const input::MouseButtonEvent& event ) {
+void ImGuiSystem::onMouseButton( const input::MouseButtonEvent& event ) {
     if( static_cast< int32_t >( event.Button ) >= ImGuiMouseButton_COUNT )
         return;
 
@@ -1103,12 +727,12 @@ void ImGuiSystem::OnMouseButton( const input::MouseButtonEvent& event ) {
     io.AddMouseButtonEvent( static_cast< int32_t >( event.Button ) - 1, event.State == input::ButtonState::Down );
 }
 
-void ImGuiSystem::OnMousePositionChange( const input::MousePositionEvent& event ) {
+void ImGuiSystem::onMousePositionChange( const input::MousePositionEvent& event ) {
     ImGuiIO& io = ImGui::GetIO();
     io.AddMousePosEvent( numericCast< float32 >( event.Position[ 0 ] ), numericCast< float32 >( event.Position[ 1 ] ) );
 }
 
-void ImGuiSystem::OnKey( const input::KeyboardEvent& keyboardEvent ) {
+void ImGuiSystem::onKey( const input::KeyboardEvent& keyboardEvent ) {
     ImGuiIO& io = ImGui::GetIO();
 
     bool isDown = keyboardEvent.State == input::ButtonState::Down;
@@ -1140,15 +764,20 @@ void ImGuiSystem::OnKey( const input::KeyboardEvent& keyboardEvent ) {
         }
     }
 
-    io.AddKeyEvent( Internal::ConvertToImGuiKey( keyboardEvent.Key ), isDown );
+    io.AddKeyEvent( internal::convertToImGuiKey( keyboardEvent.Key ), isDown );
 
     if( isDown && ( keyboardEvent.Char != 0 ) )
         io.AddInputCharacterUTF16( keyboardEvent.Char );
 }
 
-void ImGuiSystem::OnControllerAxisChange( const input::GameControllerAxisEvent& /*event*/ ) {}
+void ImGuiSystem::onControllerAxisChange( const input::GameControllerAxisEvent& /*event*/ ) {}
 
-void ImGuiSystem::OnControllerButton( const input::GameControllerButtonEvent& /*event*/ ) {}
+void ImGuiSystem::onControllerButton( const input::GameControllerButtonEvent& /*event*/ ) {}
+
+void ImGuiSystem::onThemeLoaded( assets::AssetHandle< Theme > loadedTheme ) {
+    m_activeTheme = std::move( loadedTheme );
+    m_activeTheme->apply();
+}
 } // namespace onyx::ui
 
 #endif

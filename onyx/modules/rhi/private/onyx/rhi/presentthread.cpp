@@ -46,8 +46,8 @@ void PresentThread::onStart() {
 void PresentThread::onStop() {}
 
 void PresentThread::onUpdate() {
-    vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->GetApi< vulkan::VulkanGraphicsApi >();
-    SetRefreshRate( m_GraphicsSystem->GetRefreshRate() );
+    vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->getApi< vulkan::VulkanGraphicsApi >();
+    SetRefreshRate( m_GraphicsSystem->getRefreshRate() );
 
     while ( isRunning() ) {
         ONYX_PROFILE_SECTION( PresentLoop );
@@ -68,7 +68,7 @@ void PresentThread::onUpdate() {
 
         {
             ONYX_PROFILE_SECTION( Present );
-            vulkan::SwapChain& swapChain = vulkan.GetSwapChain();
+            vulkan::SwapChain& swapChain = vulkan.getSwapChain();
             bool hasPresented = swapChain.Present( presentInfo.BackbufferImageIndex );
             if ( hasPresented == false ) {
                 ClearQueue();

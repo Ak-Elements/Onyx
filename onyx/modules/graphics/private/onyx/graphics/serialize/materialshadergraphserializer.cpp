@@ -90,7 +90,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
 
     rhi::PipelineProperties pipelineProperties;
     pipelineProperties.Shader = assets::AssetId( shaderPath );
-    pipelineProperties.RenderPass = graphicsSystem.GetOrCreateRenderPass( renderPassSettings );
+    pipelineProperties.RenderPass = graphicsSystem.getOrCreateRenderPass( renderPassSettings );
 
     pipelineProperties.Rasterization.CullMode = rhi::CullMode::Back;
     pipelineProperties.DepthStencil.IsDepthEnabled = true;
@@ -107,7 +107,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     blendState.AlphaOperation = rhi::BlendOperation::Add;
 
     rhi::ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
-    shaderEffect = graphicsSystem.CreateShaderInstance( assets::AssetId( shaderPath ), pipelineProperties );
+    shaderEffect = graphicsSystem.createShaderInstance( assets::AssetId( shaderPath ), pipelineProperties );
 
     return true;
 }

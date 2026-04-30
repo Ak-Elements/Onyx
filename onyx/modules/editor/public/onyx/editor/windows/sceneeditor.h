@@ -66,8 +66,6 @@ class SceneEditorWindow : public ui::ImGuiWindow {
     void onSceneLoaded( const assets::AssetHandle< game_core::Scene >& sceneAsset );
 
   private:
-    enum class GizmoType : uint8_t { Translate, Rotate, Scale };
-
     CommandGraph< ecs::EntityRegistry > m_commandStack;
 
     Atomic< bool > m_isLoading = false;
@@ -79,15 +77,10 @@ class SceneEditorWindow : public ui::ImGuiWindow {
     assets::AssetHandle< input_actions::InputActionsContext > m_levelEditorActions;
     ecs::EntityId m_editorCameraEntity = ecs::EntityId( 0 );
 
-    bool m_hasSelectedEntity = false;
-    GizmoType m_currentGizmo = GizmoType::Translate;
-
     String m_sceneViewPanelId;
     String m_entitiesPanelId;
     String m_componentsPanelId;
 
     uint32_t m_windowId;
-
-    Rect2s16 m_viewportBounds;
 };
 } // namespace onyx::editor

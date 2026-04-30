@@ -24,7 +24,7 @@ SwapChain::SwapChain( VulkanGraphicsApi& api, const Surface& surface, const plat
     : m_GraphicsApi( api )
     , m_Window( &window )
     , m_Surface( surface )
-    , m_Device( api.GetDevice() ) {
+    , m_Device( api.getDevice() ) {
     m_Window->OnResize().Connect< &SwapChain::OnWindowResize >( this );
     Init();
 }
@@ -82,7 +82,7 @@ bool SwapChain::Present( uint32_t imageIndex ) {
 
     {
         std::lock_guard lock( mutex );
-        std::lock_guard queueLock = m_GraphicsApi.LockGraphicsQueue();
+        std::lock_guard queueLock = m_GraphicsApi.lockGraphicsQueue();
         VkResult result = vkQueuePresentKHR( m_Device.getGraphicsQueue(), &presentInfo );
         if( result == VK_ERROR_OUT_OF_DATE_KHR ) {
             m_ShouldRecreateSwapchain = true;
@@ -99,7 +99,7 @@ void SwapChain::Init() {
     m_ShouldRecreateSwapchain = false;
     bool hasSwapchain = m_SwapChain != nullptr;
 
-    const PhysicalDevice& physicalDevice = m_GraphicsApi.GetPhysicalDevice();
+    const PhysicalDevice& physicalDevice = m_GraphicsApi.getPhysicalDevice();
 
     const SupportDetails details = QuerySwapChainSupport( physicalDevice, m_Surface );
     ONYX_ASSERT( !details.Formats.empty(), "empty swap chain support" );

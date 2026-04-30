@@ -21,7 +21,7 @@
 namespace onyx::editor {
 PrimitivesTerrainTool::PrimitivesTerrainTool( rhi::GraphicsSystem& graphicsSystem )
     : m_CreateVolumeSourceShader(
-          graphicsSystem.CreateShaderInstance( "engine:/shaders/compute/volume/createvolumeprimitive.oshader" ) ) {}
+          graphicsSystem.createShaderInstance( "engine:/shaders/compute/volume/createvolumeprimitive.oshader" ) ) {}
 
 StringView PrimitivesTerrainTool::GetTitle() {
     return "Primitives";

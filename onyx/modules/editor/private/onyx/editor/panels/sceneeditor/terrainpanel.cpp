@@ -676,7 +676,7 @@ void TerrainPanel::onOpen() {
                                                            rhi::BufferUsage::Conditional );
     ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
     ssboBufferProps.m_IsWritable = true;
-    graphicsSystem.CreateBuffer( m_HitBuffer, ssboBufferProps );
+    graphicsSystem.createBuffer( m_HitBuffer, ssboBufferProps );
 
     ssboBufferProps.m_DebugName = "Terrain Brush Hit Readback";
     ssboBufferProps.m_Size = sizeof( Vector3f32 ) + sizeof( uint32_t );
@@ -684,7 +684,7 @@ void TerrainPanel::onOpen() {
     ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Staging;
     // ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Read;
     ssboBufferProps.m_IsWritable = true;
-    graphicsSystem.CreateBuffer( m_HitReadbackBuffer, ssboBufferProps );
+    graphicsSystem.createBuffer( m_HitReadbackBuffer, ssboBufferProps );
 
     ssboBufferProps.m_DebugName = "Split Update Request";
     ssboBufferProps.m_Size = sizeof( uint64_t ) + 2 * sizeof( uint32_t );
@@ -692,7 +692,7 @@ void TerrainPanel::onOpen() {
                                                            rhi::BufferUsage::DeviceAddress );
     ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
     ssboBufferProps.m_IsWritable = true;
-    graphicsSystem.CreateBuffer( m_SplitRequestsBuffer, ssboBufferProps );
+    graphicsSystem.createBuffer( m_SplitRequestsBuffer, ssboBufferProps );
 
     ssboBufferProps.m_DebugName = "Collapse Update Request";
     ssboBufferProps.m_Size = sizeof( uint64_t ) + 2 * sizeof( uint32_t );
@@ -700,7 +700,7 @@ void TerrainPanel::onOpen() {
                                                            rhi::BufferUsage::DeviceAddress );
     ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
     ssboBufferProps.m_IsWritable = true;
-    graphicsSystem.CreateBuffer( m_CollapseRequestsBuffer, ssboBufferProps );
+    graphicsSystem.createBuffer( m_CollapseRequestsBuffer, ssboBufferProps );
 
     if( m_Tools.empty() ) {
         m_Tools.push_back( makeUnique< SculptTerrainTool >( graphicsSystem ) );
@@ -772,7 +772,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                             sceneViewWindow->Viewport->Size.y };
 
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
-    rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer( graphicsSystem.GetFrameIndex(), true );
+    rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.getCommandBuffer( graphicsSystem.getFrameIndex(), true );
     TraceTerrain( computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport );
 
     bool hasClickedLeft = ImGui::IsMouseClicked( ImGuiMouseButton_Left );
@@ -882,7 +882,7 @@ void TerrainPanel::TraceTerrain( rhi::CommandBuffer& computeCommandBuffer,
     constants.MousePosition[ 1 ] = ( ( ( mousePos.y - sceneViewport.Position[ 1 ] ) / sceneViewport.Extents[ 1 ] ) *
                                          -2.0f +
                                      1.0f );
-    constants.ViewConstantsAddress = graphicsSystem.GetViewConstantsBuffer().GetGpuAddress();
+    constants.ViewConstantsAddress = graphicsSystem.getViewConstantsBuffer().GetGpuAddress();
     constants.HitBufferAddress = m_HitBuffer.GetGpuAddress();
     constants.VolumeSourcesList = terrainOctree.VolumeObjects.GetGpuAddress();
     constants.VolumeSourcesData = terrainOctree.VolumeObjectsData.GetGpuAddress();

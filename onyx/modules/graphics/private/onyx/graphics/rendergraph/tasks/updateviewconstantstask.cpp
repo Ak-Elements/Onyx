@@ -16,7 +16,7 @@ void GetViewConstantsNode::BeginFrame( RenderGraphContext& context ) {
     const rhi::FrameContext& frameContext = context.FrameContext;
 
     uint64_t outputGlobalPinId = GetOutputPin( 0 )->GetGlobalId().get();
-    context.Graph.GetResource( outputGlobalPinId ).Handle = frameContext.Api->GetViewConstantsBuffer();
+    context.Graph.GetResource( outputGlobalPinId ).Handle = frameContext.Api->getViewConstantsBuffer();
 }
 
 } // namespace onyx::graphics::render_graph_nodes

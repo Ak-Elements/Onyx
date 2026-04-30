@@ -23,7 +23,7 @@ void CreateLightClusters::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceC
         ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage );
         ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_IsWritable = true;
-        api.CreateBuffer( m_LightClustersStorageBuffers[ i ], ssboBufferProps );
+        api.createBuffer( m_LightClustersStorageBuffers[ i ], ssboBufferProps );
     }
 
     uint64_t globalId = GetOutputPin( 0 )->GetGlobalId().get();
@@ -79,22 +79,22 @@ void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, Rende
         ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboBufferProps.m_CpuAccess = rhi::CPUAccess::None;
         ssboBufferProps.m_Size = static_cast< uint32_t >( totalLightsPerTile * sizeof( uint32_t ) * 2 );
-        api.CreateBuffer( m_LightIndexListSSBO[ i ], ssboBufferProps );
+        api.createBuffer( m_LightIndexListSSBO[ i ], ssboBufferProps );
 
         ssboBufferProps.m_DebugName = format::format( "Light Grid_{}", i );
         ssboBufferProps.m_Size = static_cast< uint32_t >( ClusterCount * sizeof( Vector4u32 ) );
-        api.CreateBuffer( m_LightGridSSBO[ i ], ssboBufferProps );
+        api.createBuffer( m_LightGridSSBO[ i ], ssboBufferProps );
 
         // * 2 for point and spot lights
         ssboBufferProps.m_DebugName = format::format( "Light Global Index Count_{}", i );
         ssboBufferProps.m_Size = static_cast< uint32_t >( sizeof( uint32_t ) * 2 );
-        api.CreateBuffer( m_LightIndexGlobalCountSSBO[ i ], ssboBufferProps );
+        api.createBuffer( m_LightIndexGlobalCountSSBO[ i ], ssboBufferProps );
 
         // lights ssbo (light information, e.g.: position, color etc.)
         ssboBufferProps.m_DebugName = format::format( "Lights_{}", i );
         ssboBufferProps.m_Size = sizeof( rhi::Lighting );
         ssboBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
-        api.CreateBuffer( m_LightsStorageBuffers[ i ], ssboBufferProps );
+        api.createBuffer( m_LightsStorageBuffers[ i ], ssboBufferProps );
     }
 
     // Refactor resource cache to work with pins

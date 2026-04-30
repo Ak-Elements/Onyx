@@ -41,6 +41,7 @@ class PlatformSystem;
 
 namespace ui {
 class ImGuiWindow;
+class Theme;
 
 template < typename T >
 concept IsImGuiWindow = requires( T& window ) {
@@ -57,7 +58,7 @@ struct ImGuiContext {
     localization::LocalizationModule* LocalizationSystem = nullptr;
 };
 
-extern ImGuiContext g_UiContext;
+extern ImGuiContext g_uiContext;
 
 class ImGuiSystem : public IEngineSystem {
   public:
@@ -73,116 +74,116 @@ class ImGuiSystem : public IEngineSystem {
 
     ~ImGuiSystem() override;
 
-    void update( rhi::GraphicsSystem& api, DeltaGameTime deltaTime );
+    void update( rhi::GraphicsSystem& graphicsSystem, DeltaGameTime deltaTime );
 
-    void OnBeginFrame( const rhi::FrameContext& frameContext );
-    void OnRenderFrame( const rhi::FrameContext& frameContext );
-    void OnEndFrame( const rhi::FrameContext& frameContext );
+    void onBeginFrame( const rhi::FrameContext& frameContext );
+    void onRenderFrame( const rhi::FrameContext& frameContext );
+    void onEndFrame( const rhi::FrameContext& frameContext );
 
     template < IsImGuiWindow T >
-    void RegisterWindow() {
-        constexpr StringId32 windowTypeId( T::WindowId );
-        ONYX_ASSERT( m_WindowFactory.contains( windowTypeId ) == false );
-        m_WindowFactory[ windowTypeId ] = [ & ]() {
+    void registerWindow() {
+        constexpr StringId32 WindowTypeId( T::WindowId );
+        ONYX_ASSERT( m_windowFactory.contains( WindowTypeId ) == false );
+        m_windowFactory[ WindowTypeId ] = [ & ]() {
             auto newWindow = makeUnique< T >();
-            newWindow->setEngine( *m_Engine );
+            newWindow->setEngine( *m_engine );
             newWindow->setName( String( newWindow->getWindowId() ) );
             return newWindow;
         };
 
-        constexpr StringId32 windowCategory( T::WindowCategory );
-        HashSet< StringId32 >& windowsInCategory = m_WindowsPerCategory[ windowCategory ];
-        windowsInCategory.emplace( windowTypeId );
+        constexpr StringId32 WindowCategory( T::WindowCategory );
+        HashSet< StringId32 >& windowsInCategory = m_windowsPerCategory[ WindowCategory ];
+        windowsInCategory.emplace( WindowTypeId );
     }
 
     template < IsImGuiWindow T >
-    T& OpenWindow( ImGuiWindow& parent ) {
+    T& openWindow( ImGuiWindow& parent ) {
         // find first non open window matching the id and reuse
-        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+        auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
             return ( window->isOpen() == false ) && ( window->getWindowId() == T::WindowId );
         } );
 
-        if( it != m_Windows.end() ) {
+        if( it != m_windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
             imguiWindow->setParent( parent );
             imguiWindow->open();
             return static_cast< T& >( *imguiWindow );
         }
 
-        constexpr StringId32 windowTypeId( T::WindowId );
-        auto factoryIt = m_WindowFactory.find( windowTypeId );
+        constexpr StringId32 WindowTypeId( T::WindowId );
+        auto factoryIt = m_windowFactory.find( WindowTypeId );
 
-        if( factoryIt == m_WindowFactory.end() ) {
-            RegisterWindow< T >();
-            factoryIt = m_WindowFactory.find( windowTypeId );
+        if( factoryIt == m_windowFactory.end() ) {
+            registerWindow< T >();
+            factoryIt = m_windowFactory.find( WindowTypeId );
         }
 
-        UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        UniquePtr< ImGuiWindow >& newWindow = m_windows.emplace_back( factoryIt->second() );
         newWindow->setParent( parent );
         newWindow->open();
         return static_cast< T& >( *newWindow );
     }
 
     template < IsImGuiWindow T >
-    T& OpenWindow() {
+    T& openWindow() {
         // find first non open window matching the id and reuse
-        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+        auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
             return ( window->isOpen() == false ) && ( window->getWindowId() == T::WindowId );
         } );
 
-        if( it != m_Windows.end() ) {
+        if( it != m_windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
             imguiWindow->open();
             return static_cast< T& >( *imguiWindow );
         }
 
-        constexpr StringId32 windowTypeId( T::WindowId );
-        auto factoryIt = m_WindowFactory.find( windowTypeId );
-        if( factoryIt == m_WindowFactory.end() ) {
-            RegisterWindow< T >();
-            factoryIt = m_WindowFactory.find( windowTypeId );
+        constexpr StringId32 WindowTypeId( T::WindowId );
+        auto factoryIt = m_windowFactory.find( WindowTypeId );
+        if( factoryIt == m_windowFactory.end() ) {
+            registerWindow< T >();
+            factoryIt = m_windowFactory.find( WindowTypeId );
         }
 
-        uint32_t index = static_cast< uint32_t >( m_Windows.size() );
-        UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        uint32_t index = static_cast< uint32_t >( m_windows.size() );
+        UniquePtr< ImGuiWindow >& newWindow = m_windows.emplace_back( factoryIt->second() );
         newWindow->open();
-        return static_cast< T& >( *m_Windows[ index ] );
+        return static_cast< T& >( *m_windows[ index ] );
     }
 
     template < IsImGuiWindow T >
-    T& OpenUniqueWindow() {
+    T& openUniqueWindow() {
         // check if the window is already opened if it is, bring it to the front
-        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+        auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
             return ( window->getWindowId() == T::WindowId );
         } );
 
-        if( it != m_Windows.end() ) {
+        if( it != m_windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
             imguiWindow->open();
             return static_cast< T& >( *imguiWindow );
         }
 
         // create window as its not opened yet
-        constexpr StringId32 windowTypeId( T::WindowId );
-        auto factoryIt = m_WindowFactory.find( windowTypeId );
-        if( factoryIt == m_WindowFactory.end() ) {
-            RegisterWindow< T >();
-            factoryIt = m_WindowFactory.find( windowTypeId );
+        constexpr StringId32 WindowTypeId( T::WindowId );
+        auto factoryIt = m_windowFactory.find( WindowTypeId );
+        if( factoryIt == m_windowFactory.end() ) {
+            registerWindow< T >();
+            factoryIt = m_windowFactory.find( WindowTypeId );
         }
 
-        UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        UniquePtr< ImGuiWindow >& newWindow = m_windows.emplace_back( factoryIt->second() );
         newWindow->open();
         return static_cast< T& >( *newWindow );
     }
 
     template < IsImGuiWindow T >
-    T& OpenUniqueWindow( ImGuiWindow& parent ) {
+    T& openUniqueWindow( ImGuiWindow& parent ) {
         // check if the window is already opened if it is, bring it to the front
-        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+        auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
             return ( window->getWindowId() == T::WindowId );
         } );
 
-        if( it != m_Windows.end() ) {
+        if( it != m_windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
             imguiWindow->setParent( parent );
             imguiWindow->open();
@@ -190,120 +191,125 @@ class ImGuiSystem : public IEngineSystem {
         }
 
         // create window as its not opened yet
-        constexpr StringId32 windowTypeId( T::WindowId );
-        auto factoryIt = m_WindowFactory.find( windowTypeId );
-        if( factoryIt == m_WindowFactory.end() ) {
-            RegisterWindow< T >();
-            factoryIt = m_WindowFactory.find( windowTypeId );
+        constexpr StringId32 WindowTypeId( T::WindowId );
+        auto factoryIt = m_windowFactory.find( WindowTypeId );
+        if( factoryIt == m_windowFactory.end() ) {
+            registerWindow< T >();
+            factoryIt = m_windowFactory.find( WindowTypeId );
         }
 
-        UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        UniquePtr< ImGuiWindow >& newWindow = m_windows.emplace_back( factoryIt->second() );
         newWindow->setParent( parent );
         newWindow->open();
         return static_cast< T& >( *newWindow );
     }
 
-    void OpenWindow( StringId32 windowId ) {
+    void openWindow( StringId32 windowId ) {
         // find first non open window matching the id and reuse
-        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+        auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
             return ( window->isOpen() == false ) && ( StringId32( window->getWindowId() ) == windowId );
         } );
 
-        if( it != m_Windows.end() ) {
+        if( it != m_windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
             imguiWindow->open();
             return;
         }
 
-        auto factoryIt = m_WindowFactory.find( windowId );
-        if( factoryIt != m_WindowFactory.end() ) {
-            UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        auto factoryIt = m_windowFactory.find( windowId );
+        if( factoryIt != m_windowFactory.end() ) {
+            UniquePtr< ImGuiWindow >& newWindow = m_windows.emplace_back( factoryIt->second() );
             newWindow->open();
         }
     }
 
-    void OpenWindow( ImGuiWindow& parent, StringId32 windowId ) {
+    void openWindow( ImGuiWindow& parent, StringId32 windowId ) {
         // find first non open window matching the id and reuse
-        auto it = std::ranges::find_if( m_Windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
+        auto it = std::ranges::find_if( m_windows, [ & ]( const UniquePtr< ImGuiWindow >& window ) {
             return ( window->isOpen() == false ) && ( StringId32( window->getWindowId() ) == windowId );
         } );
 
-        if( it != m_Windows.end() ) {
+        if( it != m_windows.end() ) {
             UniquePtr< ImGuiWindow >& imguiWindow = *it;
             imguiWindow->setParent( parent );
             imguiWindow->open();
             return;
         }
 
-        auto factoryIt = m_WindowFactory.find( windowId );
-        if( factoryIt != m_WindowFactory.end() ) {
-            UniquePtr< ImGuiWindow >& newWindow = m_Windows.emplace_back( factoryIt->second() );
+        auto factoryIt = m_windowFactory.find( windowId );
+        if( factoryIt != m_windowFactory.end() ) {
+            UniquePtr< ImGuiWindow >& newWindow = m_windows.emplace_back( factoryIt->second() );
             newWindow->setParent( parent );
             newWindow->open();
         }
     }
 
-    void CloseWindow( StringId32 windowId ) {
-        ImGuiWindow* window = GetWindow( windowId ).value_or( nullptr );
+    void closeWindow( StringId32 windowId ) {
+        ImGuiWindow* window = getWindow( windowId ).value_or( nullptr );
         if( window ) {
             window->close();
         }
     }
 
     template < IsImGuiWindow T >
-    void CloseWindow() {
-        CloseWindow( T::WindowId );
+    void closeWindow() {
+        closeWindow( T::WindowId );
     }
 
     template < IsImGuiWindow T >
-    Optional< T* > GetWindow() {
-        Optional< T* > imguiWindow = static_cast< T* >( GetWindow( T::WindowId ).value_or( nullptr ) );
+    Optional< T* > getWindow() {
+        Optional< T* > imguiWindow = static_cast< T* >( getWindow( T::WindowId ).value_or( nullptr ) );
         return imguiWindow;
     }
 
-    Optional< ImGuiWindow* > GetWindow( StringId32 windowName );
+    Optional< ImGuiWindow* > getWindow( StringId32 windowName );
 
-    const HashSet< StringId32 >& GetRegisteredWindows( StringId32 category ) {
-        return m_WindowsPerCategory.at( category );
+    const HashSet< StringId32 >& getRegisteredWindows( StringId32 category ) {
+        return m_windowsPerCategory.at( category );
     }
-    const HashSet< StringId32 >& GetRegisteredWindows( StringId32 category ) const {
-        return m_WindowsPerCategory.at( category );
+    const HashSet< StringId32 >& getRegisteredWindows( StringId32 category ) const {
+        return m_windowsPerCategory.at( category );
     }
+
+    const Theme& getTheme() const;
 
   private:
-    void InitRenderBuffers( rhi::GraphicsSystem& graphicsSystem );
-    void UpdateDrawBuffers( const rhi::FrameContext& frameContext );
+    void initRenderBuffers( rhi::GraphicsSystem& graphicsSystem );
+    void updateDrawBuffers( const rhi::FrameContext& frameContext );
 
-    void OnWindowResize( Vector2s32 size );
+    void onWindowResize( Vector2s32 size );
 
-    void OnMouseAxisChange( const input::MouseAxisEvent& event );
-    void OnMouseButton( const input::MouseButtonEvent& event );
-    void OnMousePositionChange( const input::MousePositionEvent& event );
+    void onMouseAxisChange( const input::MouseAxisEvent& event );
+    void onMouseButton( const input::MouseButtonEvent& event );
+    void onMousePositionChange( const input::MousePositionEvent& event );
 
-    void OnKey( const input::KeyboardEvent& event );
+    void onKey( const input::KeyboardEvent& event );
 
-    void OnControllerAxisChange( const input::GameControllerAxisEvent& event );
-    void OnControllerButton( const input::GameControllerButtonEvent& event );
+    void onControllerAxisChange( const input::GameControllerAxisEvent& event );
+    void onControllerButton( const input::GameControllerButtonEvent& event );
+
+    void onThemeLoaded( assets::AssetHandle< Theme > loadedTheme );
 
   private:
-    Reference< rhi::ShaderInstance > m_ImguiShader;
+    Reference< rhi::ShaderInstance > m_imguiShader;
+    assets::AssetHandle< Theme > m_activeTheme;
 
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_VertexBuffers;
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_IndexBuffers;
-    rhi::TextureHandle m_FontImage;
+    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_vertexBuffers;
+    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_indexBuffers;
+    rhi::TextureHandle m_fontImage;
 
-    InplaceArray< int32_t, rhi::MAX_FRAMES_IN_FLIGHT > m_VertexCounts;
-    InplaceArray< int32_t, rhi::MAX_FRAMES_IN_FLIGHT > m_IndexCounts;
+    InplaceArray< int32_t, rhi::MAX_FRAMES_IN_FLIGHT > m_vertexCounts;
+    InplaceArray< int32_t, rhi::MAX_FRAMES_IN_FLIGHT > m_indexCounts;
 
-    HashMap< StringId64, ImFont* > m_Fonts;
+    HashMap< StringId64, ImFont* > m_fonts;
 
-    HashMap< StringId32, InplaceFunction< UniquePtr< ImGuiWindow >(), 64 > > m_WindowFactory;
-    DynamicArray< UniquePtr< ImGuiWindow > > m_Windows;
-    HashMap< StringId32, HashSet< StringId32 > > m_WindowsPerCategory;
+    HashMap< StringId32, InplaceFunction< UniquePtr< ImGuiWindow >(), 64 > > m_windowFactory;
+    DynamicArray< UniquePtr< ImGuiWindow > > m_windows;
+    HashMap< StringId32, HashSet< StringId32 > > m_windowsPerCategory;
 
-    IEngine* m_Engine = nullptr;
-    platform::PlatformSystem* m_PlatformSystem = nullptr;
-    input::InputSystem* m_InputSystem = nullptr;
+    IEngine* m_engine = nullptr;
+    platform::PlatformSystem* m_platformSystem = nullptr;
+    input::InputSystem* m_inputSystem = nullptr;
 };
 } // namespace ui
 } // namespace onyx

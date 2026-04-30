@@ -536,7 +536,7 @@ void DrawStampIcon( ImVec2 topLeft, float size, ImU32 col ) {
 
 SculptTerrainTool::SculptTerrainTool( rhi::GraphicsSystem& graphicsSystem )
     : m_CreateVolumeSourceShader(
-          graphicsSystem.CreateShaderInstance( "engine:/shaders/compute/volume/createvolumebrush.oshader" ) ) {}
+          graphicsSystem.createShaderInstance( "engine:/shaders/compute/volume/createvolumebrush.oshader" ) ) {}
 
 StringView SculptTerrainTool::GetTitle() {
     return "Sculpt";

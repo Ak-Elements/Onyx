@@ -20,7 +20,7 @@ bool ShaderSerializer::deserialize( assets::AssetHandle< assets::AssetInterface 
 
     Reference< rhi::Shader > shaderRef( asset.getHandle().raw() );
 
-    rhi::ShaderCache& shaderCache = graphicsSystem.GetShaderCache();
+    rhi::ShaderCache& shaderCache = graphicsSystem.getShaderCache();
     shaderCache.getOrLoadShader( meta.Path, shaderRef );
 
     return asset.isValid();

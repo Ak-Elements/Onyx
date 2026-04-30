@@ -12,19 +12,19 @@ class JsonDeserializer : public Deserializer {
 
   private:
     template < typename T >
-    bool DoGenericRead( T& outValue ) const;
+    bool doGenericRead( T& outValue ) const;
 
-    template < std::integral T >
-    bool DoGenericRead( T& outValue, uint8_t base ) const;
+    template < Numeric T >
+    bool doGenericRead( T& outValue, uint8_t base ) const;
 
     template < typename T >
-    bool DoGenericRead( StringView name, T& outValue ) const;
+    bool doGenericRead( StringView name, T& outValue ) const;
 
-    template < std::integral T >
-    bool DoGenericRead( StringView name, T& outValue, uint8_t base ) const;
+    template < Numeric T >
+    bool doGenericRead( StringView name, T& outValue, uint8_t base ) const;
 
-    nlohmann::ordered_json& GetCurrent();
-    nlohmann::ordered_json& GetCurrent() const;
+    nlohmann::ordered_json& getCurrent();
+    nlohmann::ordered_json& getCurrent() const;
 
   private:
     // Serializer interface
@@ -66,9 +66,13 @@ class JsonDeserializer : public Deserializer {
     bool doRead( StringView name, uint64_t& outValue, uint8_t base ) const override;
 
     bool doRead( float32& outValue ) const override;
+    bool doRead( float32& outValue, uint8_t base ) const override;
     bool doRead( float64& outValue ) const override;
+    bool doRead( float64& outValue, uint8_t base ) const override;
     bool doRead( StringView name, float32& outValue ) const override;
+    bool doRead( StringView name, float32& outValue, uint8_t base ) const override;
     bool doRead( StringView name, float64& outValue ) const override;
+    bool doRead( StringView name, float64& outValue, uint8_t base ) const override;
 
     bool doRead( StringView& outValue ) const override;
     bool doRead( StringView name, StringView& outValue ) const override;

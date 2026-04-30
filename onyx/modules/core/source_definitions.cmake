@@ -3,6 +3,7 @@ set(onyx_TARGET_PCH onyx.h)
 set(onyx_TARGET_PUBLIC_SOURCES
     assert.h
     bitwiseenum.h
+    color.h
     debugging.h
     defines.h
     encoding.h
@@ -82,6 +83,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
+    color.cpp
     debugging.cpp
     guid.cpp
     hash.cpp

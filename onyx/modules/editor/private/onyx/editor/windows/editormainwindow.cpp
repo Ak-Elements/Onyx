@@ -62,11 +62,11 @@ void EditorMainWindow::onRenderMainMenuBar() {
 
     if( ImGui::BeginMenu( format::format( "{}###View", localization::editor::MainMenubar::View::Label ) ) ) {
         if( ImGui::MenuItem( localization::editor::windows::StartupTitle.Get().data() ) ) {
-            imguiSystem.OpenWindow< StartupWindow >();
+            imguiSystem.openWindow< StartupWindow >();
         }
 
         if( ImGui::MenuItem( localization::editor::SceneEditor::Title.Get().data() ) ) {
-            imguiSystem.OpenWindow< SceneEditorWindow >();
+            imguiSystem.openWindow< SceneEditorWindow >();
         }
 
         if( ImGui::MenuItem( localization::editor::windows::NodeEditorTitle.Get().data() ) ) {
@@ -74,26 +74,26 @@ void EditorMainWindow::onRenderMainMenuBar() {
         }
 
         if( ImGui::MenuItem( localization::editor::windows::ShaderGraphEditorTitle.Get().data() ) ) {
-            ONYX_ASSERT( ui::g_UiContext.AssetSystem != nullptr );
-            ONYX_ASSERT( ui::g_UiContext.GraphicsSystem != nullptr );
+            ONYX_ASSERT( ui::g_uiContext.AssetSystem != nullptr );
+            ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
-            NodeGraphEditorWindow& window = imguiSystem.OpenWindow< NodeGraphEditorWindow >();
-            window.SetContext( makeUnique< ShaderGraphEditorContext >( *ui::g_UiContext.AssetSystem,
-                                                                       *ui::g_UiContext.GraphicsSystem ) );
+            NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
+            window.SetContext( makeUnique< ShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
+                                                                       *ui::g_uiContext.GraphicsSystem ) );
         }
 
         if( ImGui::MenuItem( localization::editor::windows::RenderGraphEditorTitle.Get().data() ) ) {
-            NodeGraphEditorWindow& window = imguiSystem.OpenWindow< NodeGraphEditorWindow >();
+            NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
             window.SetContext( makeUnique< RenderGraphEditorContext >() );
         }
 
         if( ImGui::MenuItem( localization::editor::windows::VolumeShaderGraphEditorTitle.Get().data() ) ) {
-            ONYX_ASSERT( ui::g_UiContext.AssetSystem != nullptr );
-            ONYX_ASSERT( ui::g_UiContext.GraphicsSystem != nullptr );
+            ONYX_ASSERT( ui::g_uiContext.AssetSystem != nullptr );
+            ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
-            NodeGraphEditorWindow& window = imguiSystem.OpenWindow< NodeGraphEditorWindow >();
-            window.SetContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_UiContext.AssetSystem,
-                                                                             *ui::g_UiContext.GraphicsSystem ) );
+            NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
+            window.SetContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
+                                                                             *ui::g_uiContext.GraphicsSystem ) );
         }
 
         if( ImGui::BeginMenu( localization::editor::MainMenubar::View::Layouts::Label.Get().data() ) ) {
@@ -113,7 +113,7 @@ void EditorMainWindow::onRenderMainMenuBar() {
 
     if( ImGui::BeginMenu( format::format( "{}###Project", localization::editor::MainMenubar::Project::Label ) ) ) {
         if( ImGui::MenuItem( localization::editor::InputActionSettings::Title.Get().data() ) ) {
-            imguiSystem.OpenUniqueWindow< InputActionSettingsWindow >();
+            imguiSystem.openUniqueWindow< InputActionSettingsWindow >();
             // UniquePtr<EditorWindow>& window =
             // m_ActiveWindows.emplace_back(MakeUnique<InputActionSettingsWindow>(m_Application.GetAssetSystem(),
             // m_Application.GetModule<Application::InputSystem>())); window->Open();
@@ -123,17 +123,17 @@ void EditorMainWindow::onRenderMainMenuBar() {
     }
 
     if( ImGui::BeginMenu( format::format( "{}###Debug", localization::editor::MainMenubar::Debug::Label ) ) ) {
-        const HashSet< StringId32 >& debugWindows = imguiSystem.GetRegisteredWindows( "Debug" );
+        const HashSet< StringId32 >& debugWindows = imguiSystem.getRegisteredWindows( "Debug" );
         for( StringId32 windowId : debugWindows ) {
             // TODO: Translate window name
             StringView windowName = windowId.getString();
-            ImGuiWindow* window = imguiSystem.GetWindow( windowId ).value_or( nullptr );
+            ImGuiWindow* window = imguiSystem.getWindow( windowId ).value_or( nullptr );
             bool isOpen = window != nullptr && window->isOpen();
             if( ImGui::Checkbox( windowName.data(), &isOpen ) ) {
                 if( isOpen ) {
-                    imguiSystem.OpenWindow( windowId );
+                    imguiSystem.openWindow( windowId );
                 } else {
-                    imguiSystem.CloseWindow( windowId );
+                    imguiSystem.closeWindow( windowId );
                 }
 
                 // UniquePtr<EditorWindow>& window =

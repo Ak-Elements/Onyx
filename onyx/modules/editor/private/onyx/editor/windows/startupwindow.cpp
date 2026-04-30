@@ -18,7 +18,7 @@ void StartupWindow::onOpen() {
                                                    // ImGuiWindowFlags_NoMove;
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
-    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.GetWindow< EditorMainWindow >();
+    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.getWindow< EditorMainWindow >();
     if( mainWindowOptional.has_value() ) {
         EditorMainWindow& mainWindow = *mainWindowOptional.value();
         setDockId( mainWindow.getCenterDockId() );
@@ -33,33 +33,33 @@ void StartupWindow::onRender( ui::ImGuiSystem& system ) {
     }
 
     if( ui::Button( localization::editor::windows::ShaderGraphEditorTitle, Vector2f32( 200, 50 ) ) ) {
-        ONYX_ASSERT( ui::g_UiContext.AssetSystem != nullptr );
-        ONYX_ASSERT( ui::g_UiContext.GraphicsSystem != nullptr );
+        ONYX_ASSERT( ui::g_uiContext.AssetSystem != nullptr );
+        ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
-        NodeGraphEditorWindow& window = system.OpenWindow< NodeGraphEditorWindow >();
+        NodeGraphEditorWindow& window = system.openWindow< NodeGraphEditorWindow >();
         window.SetContext(
-            makeUnique< ShaderGraphEditorContext >( *ui::g_UiContext.AssetSystem, *ui::g_UiContext.GraphicsSystem ) );
+            makeUnique< ShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem, *ui::g_uiContext.GraphicsSystem ) );
         close();
     }
 
     if( ui::Button( localization::editor::windows::RenderGraphEditorTitle, Vector2f32( 200, 50 ) ) ) {
-        NodeGraphEditorWindow& window = system.OpenWindow< NodeGraphEditorWindow >();
+        NodeGraphEditorWindow& window = system.openWindow< NodeGraphEditorWindow >();
         window.SetContext( makeUnique< RenderGraphEditorContext >() );
         close();
     }
 
     if( ui::Button( localization::editor::windows::VolumeShaderGraphEditorTitle, Vector2f32( 200, 50 ) ) ) {
-        ONYX_ASSERT( ui::g_UiContext.AssetSystem != nullptr );
-        ONYX_ASSERT( ui::g_UiContext.GraphicsSystem != nullptr );
+        ONYX_ASSERT( ui::g_uiContext.AssetSystem != nullptr );
+        ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
-        NodeGraphEditorWindow& window = system.OpenWindow< NodeGraphEditorWindow >();
-        window.SetContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_UiContext.AssetSystem,
-                                                                         *ui::g_UiContext.GraphicsSystem ) );
+        NodeGraphEditorWindow& window = system.openWindow< NodeGraphEditorWindow >();
+        window.SetContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
+                                                                         *ui::g_uiContext.GraphicsSystem ) );
         close();
     }
 
     if( ui::Button( localization::editor::SceneEditor::Title, Vector2f32( 200, 50 ) ) ) {
-        system.OpenWindow< SceneEditorWindow >();
+        system.openWindow< SceneEditorWindow >();
         close();
     }
 }

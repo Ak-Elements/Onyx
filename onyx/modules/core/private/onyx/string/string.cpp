@@ -4,7 +4,7 @@ namespace onyx {
 DynamicArray< String > split( StringView string, StringView delimiters ) {
     DynamicArray< String > result;
 
-    if ( string.empty() )
+    if( string.empty() )
         return result;
 
     const uint64_t length = string.length();
@@ -12,14 +12,14 @@ DynamicArray< String > split( StringView string, StringView delimiters ) {
 
     result.emplace_back();
     uint32_t currentTokenIndex = 0;
-    for ( uint64_t i = 0; i < length; ++i ) {
-        if ( string[ i ] == '\\' ) {
+    for( uint64_t i = 0; i < length; ++i ) {
+        if( string[ i ] == '\\' ) {
             isEscaped = !isEscaped;
             continue;
         }
 
-        if ( ( isEscaped == false ) && delimiters.find( string[ i ] ) != StringView::npos ) {
-            if ( result[ currentTokenIndex ].empty() == false ) {
+        if( ( isEscaped == false ) && delimiters.find( string[ i ] ) != StringView::npos ) {
+            if( result[ currentTokenIndex ].empty() == false ) {
                 result.emplace_back();
                 ++currentTokenIndex;
             }
@@ -50,7 +50,7 @@ StringView::size_type ignoreCaseFind( StringView string, StringView searchString
     auto it = std::ranges::search( string, searchString, []( char lhs, char rhs ) {
                   return std::tolower( lhs ) == std::tolower( rhs );
               } ).begin();
-    if ( it != string.end() )
+    if( it != string.end() )
         return it - string.begin();
     else
         return StringView::npos;
@@ -74,13 +74,13 @@ String toLower( StringView str ) {
 }
 
 StringView trim( StringView str ) {
-    if ( str.empty() )
+    if( str.empty() )
         return str;
 
     StringView::size_type start = str.find_first_not_of( "\n\r\t " );
     StringView::size_type end = str.find_last_not_of( "\n\r\t " );
 
-    if ( ( start == StringView::npos ) && ( end == StringView::npos ) ) {
+    if( ( start == StringView::npos ) && ( end == StringView::npos ) ) {
         return "";
     }
 
@@ -88,12 +88,12 @@ StringView trim( StringView str ) {
 }
 
 StringView trimLeft( StringView str ) {
-    if ( str.empty() )
+    if( str.empty() )
         return str;
 
-    StringView::size_type start = str.find_first_not_of( "\n\r\t " );
+    StringView::size_type start = str.find_first_not_of( " \n\r\t" );
 
-    if ( start == StringView::npos ) {
+    if( start == StringView::npos ) {
         return str;
     }
 

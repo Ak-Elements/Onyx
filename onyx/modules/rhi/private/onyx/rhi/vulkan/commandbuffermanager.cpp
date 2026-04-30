@@ -16,7 +16,7 @@ void CommandBufferManager::Init( VulkanGraphicsApi& api, uint32_t queueIndex, ui
     m_SecondaryBuffers.reserve( totalPoolCount * SECONDARY_COMMAND_BUFFERS_PER_THREAD );
 
     for( uint32_t commandPoolIndex = 0; commandPoolIndex < totalPoolCount; ++commandPoolIndex ) {
-        CommandPool& commandPool = m_CommandPools.emplace_back( api.GetDevice(),
+        CommandPool& commandPool = m_CommandPools.emplace_back( api.getDevice(),
                                                                 queueIndex,
                                                                 VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT );
 

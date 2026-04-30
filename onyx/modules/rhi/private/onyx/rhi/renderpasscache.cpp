@@ -16,7 +16,7 @@ RenderPassHandle RenderPassCache::GetOrCreateRenderPass( const RenderPassSetting
     if ( it != m_Cache.end() )
         return it->second;
 
-    RenderPassHandle renderPassHandle = m_GraphicsSystem.CreateRenderPass( settings );
+    RenderPassHandle renderPassHandle = m_GraphicsSystem.createRenderPass( settings );
     m_Cache[ renderPassHash ] = renderPassHandle;
     return renderPassHandle;
 }

@@ -3,6 +3,7 @@
 
 #include <onyx/rhi/framebuffercache.h>
 #include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphiclimits.h>
 #include <onyx/rhi/graphicsettings.h>
 #include <onyx/rhi/graphicshandles.h>
 #include <onyx/rhi/presentthread.h>
@@ -61,135 +62,139 @@ class GraphicsSystem : public IEngineSystem {
                     platform::PlatformSystem& platformSystem );
     ~GraphicsSystem() override;
 
-    bool BeginFrame();
-    void Render();
-    void EndFrame();
+    bool beginFrame();
+    void render();
+    void endFrame();
 
-    ApiType GetApiType() const { return m_Settings.Api; }
-    GraphicSettings& GetSettings() { return m_Settings; }
-    const GraphicSettings& GetSettings() const { return m_Settings; }
+    ApiType getApiType() const { return m_settings.Api; }
+    GraphicSettings& getSettings() { return m_settings; }
+    const GraphicSettings& getSettings() const { return m_settings; }
+
+    GraphicLimits& getLimits() { return m_limits; }
+    const GraphicLimits& getLimits() const { return m_limits; }
 
     template < typename T >
-    T& GetApi() {
-        return *static_cast< T* >( m_GraphicsSystem.get() );
+    T& getApi() {
+        return *static_cast< T* >( m_graphicsSystem.get() );
     }
     template < typename T >
-    const T& GetApi() const {
-        return *static_cast< const T* >( m_GraphicsSystem.get() );
+    const T& getApi() const {
+        return *static_cast< const T* >( m_graphicsSystem.get() );
     }
 
-    uint16_t GetRefreshRate() const;
+    uint16_t getRefreshRate() const;
 
-    void SetCamera( const Camera& camera ) { m_QueuedCamera = &camera; }
-    void ResetCamera() { m_QueuedCamera = nullptr; }
+    void setCamera( const Camera& camera ) { m_queuedCamera = &camera; }
+    void resetCamera() { m_queuedCamera = nullptr; }
 
-    const TextureHandle& GetAcquiredSwapChainImage() const;
-    TextureFormat GetSwapchainTextureFormat() const;
-    const Vector2s32& GetSwapchainExtent() const;
+    const TextureHandle& getAcquiredSwapChainImage() const;
+    TextureFormat getSwapchainTextureFormat() const;
+    const Vector2s32& getSwapchainExtent() const;
 
-    const TextureHandle& GetDepthImage() const;
-    TextureFormat GetDepthTextureFormat() const { return m_DepthTextureFormat; }
-    const Vector2s32& GetDepthTextureExtent() const { return m_DepthTextureExtent; }
+    const TextureHandle& getDepthImage() const;
+    TextureFormat getDepthTextureFormat() const { return m_depthTextureFormat; }
+    const Vector2s32& getDepthTextureExtent() const { return m_depthTextureExtent; }
 
-    ShaderCache& GetShaderCache() { return m_ShaderCache; }
+    ShaderCache& getShaderCache() { return m_shaderCache; }
 
-    RenderPassHandle GetOrCreateRenderPass( const RenderPassSettings& settings );
-    FramebufferHandle GetOrCreateFramebuffer( const FramebufferSettings& settings );
-    ShaderInstanceHandle CreateShaderInstance( assets::AssetId shaderAssetId );
-    ShaderInstanceHandle CreateShaderInstance( assets::AssetId shaderAssetId, const PipelineProperties& properties );
+    RenderPassHandle getOrCreateRenderPass( const RenderPassSettings& settings );
+    FramebufferHandle getOrCreateFramebuffer( const FramebufferSettings& settings );
+    ShaderInstanceHandle createShaderInstance( assets::AssetId shaderAssetId );
+    ShaderInstanceHandle createShaderInstance( assets::AssetId shaderAssetId, const PipelineProperties& properties );
 
-    void CreateTexture( TextureHandle& outTexture,
+    void createTexture( TextureHandle& outTexture,
                         const TextureStorageProperties& storageProperties,
                         const TextureProperties& properties );
-    void CreateTexture( TextureHandle& outTexture,
+    void createTexture( TextureHandle& outTexture,
                         const TextureStorageProperties& storageProperties,
                         const TextureProperties& properties,
                         const Span< uint8_t >& initialData );
-    void CreateAlias( TextureHandle& outTexture,
+    void createAlias( TextureHandle& outTexture,
                       TextureStorageHandle& storageHandle,
                       const TextureStorageProperties& aliasStorageProperties,
                       const TextureProperties& aliasTextureProperties );
 
-    void CreateBuffer( BufferHandle& outBuffer, const BufferProperties& properties );
-    BufferHandle GetTransientBuffer( const BufferProperties& properties );
+    void createBuffer( BufferHandle& outBuffer, const BufferProperties& properties );
+    BufferHandle getTransientBuffer( const BufferProperties& properties );
 
-    DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader ) const;
+    DynamicArray< DescriptorSetHandle > createDescriptorSet( const ShaderHandle& shader ) const;
 
-    uint8_t GetFrameIndex() const { return m_FrameIndex; }
-    FrameContext& GetFrameContext() { return m_FrameContext[ m_FrameIndex ]; }
-    const FrameContext& GetFrameContext() const { return m_FrameContext[ m_FrameIndex ]; }
-    const ViewConstants& GetViewContsants() const { return m_FrameContext[ m_FrameIndex ].ViewConstants; }
-    const BufferHandle& GetViewConstantsBuffer() const { return m_ViewConstantsUniformBuffers[ m_FrameIndex ]; }
+    uint8_t getFrameIndex() const { return m_frameIndex; }
+    FrameContext& getFrameContext() { return m_frameContext[ m_frameIndex ]; }
+    const FrameContext& getFrameContext() const { return m_frameContext[ m_frameIndex ]; }
+    const ViewConstants& getViewContsants() const { return m_frameContext[ m_frameIndex ].ViewConstants; }
+    const BufferHandle& getViewConstantsBuffer() const { return m_viewConstantsUniformBuffers[ m_frameIndex ]; }
 
-    CommandBuffer& GetCommandBuffer( uint8_t frameIndex );
-    CommandBuffer& GetCommandBuffer( uint8_t frameIndex, bool shouldBegin );
-    CommandBuffer& GetComputeCommandBuffer( uint8_t frameIndex );
-    CommandBuffer& GetComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin );
+    CommandBuffer& getCommandBuffer( uint8_t frameIndex );
+    CommandBuffer& getCommandBuffer( uint8_t frameIndex, bool shouldBegin );
+    CommandBuffer& getComputeCommandBuffer( uint8_t frameIndex );
+    CommandBuffer& getComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin );
 
-    void SubmitInstantCommandBuffer( Context context, InplaceFunction< void( CommandBuffer& ) >&& functor );
-    const BlendState& GetDefaultBlendState() const;
+    void submitInstantCommandBuffer( Context context, InplaceFunction< void( CommandBuffer& ) >&& functor );
+    const BlendState& getDefaultBlendState() const;
 
-    bool IsBindless() const;
+    bool isBindless() const;
 #if !ONYX_IS_RETAIL
-    bool IsShaderDebugEnabled() const { return m_Settings.IsShaderDebugEnabled; }
+    bool isShaderDebugEnabled() const { return m_settings.IsShaderDebugEnabled; }
 #endif
-    void WaitIdle();
+    void waitIdle();
 
-    Sink< BeginFrameSignalT > OnBeginFrame() { return Sink{ m_BeginFrameSignal }; }
-    Sink< BeginFrameSignalT > OnRenderFrame() { return Sink{ m_RenderFrameSignal }; }
-    Sink< BeginFrameSignalT > OnEndFrame() { return Sink{ m_EndFrameSignal }; }
+    Sink< BeginFrameSignalT > onBeginFrame() { return Sink{ m_beginFrameSignal }; }
+    Sink< BeginFrameSignalT > onRenderFrame() { return Sink{ m_renderFrameSignal }; }
+    Sink< BeginFrameSignalT > onEndFrame() { return Sink{ m_endFrameSignal }; }
 
   protected:
-    void LoadSettings();
+    void loadSettings();
 
   private:
-    void OnWindowCreate( const platform::Window& window );
-    void OnWindowDestroy( const platform::Window& window );
+    void onWindowCreate( const platform::Window& window );
+    void onWindowDestroy( const platform::Window& window );
 
-    void CreateDepthImages( Vector2s32 extents );
-    void CreateViewConstantBuffers();
+    void createDepthImages( Vector2s32 extents );
+    void createViewConstantBuffers();
 
-    void OnWindowResize( Vector2s32 extents );
+    void onWindowResize( Vector2s32 extents );
 
-    RenderPassHandle CreateRenderPass( const RenderPassSettings& settings );
-    FramebufferHandle CreateFramebuffer( const FramebufferSettings& settings );
+    RenderPassHandle createRenderPass( const RenderPassSettings& settings );
+    FramebufferHandle createFramebuffer( const FramebufferSettings& settings );
 
   private:
-    std::mutex m_Mutex;
-    assets::AssetSystem* m_AssetSystem = nullptr;
-    platform::PlatformSystem* m_PlatformSystem = nullptr;
+    std::mutex m_mutex;
+    assets::AssetSystem* m_assetSystem = nullptr;
+    platform::PlatformSystem* m_platformSystem = nullptr;
 
-    GraphicSettings m_Settings;
+    GraphicLimits m_limits;
+    GraphicSettings m_settings;
 
-    PresentThread m_PresentThread{ *this };
+    PresentThread m_presentThread{ *this };
 
-    const Camera* m_QueuedCamera = nullptr;
-    const Camera* m_Camera = nullptr; // non owning pointer
+    const Camera* m_queuedCamera = nullptr;
+    const Camera* m_camera = nullptr; // non owning pointer
 
-    UniquePtr< GraphicsApiInterface > m_GraphicsSystem;
+    UniquePtr< GraphicsApiInterface > m_graphicsSystem;
 
-    uint8_t m_FrameIndex = 0;
-    InplaceArray< FrameContext, MAX_FRAMES_IN_FLIGHT > m_FrameContext;
+    uint8_t m_frameIndex = 0;
+    InplaceArray< FrameContext, MAX_FRAMES_IN_FLIGHT > m_frameContext;
 
-    TextureFormat m_DepthTextureFormat = TextureFormat::Invalid;
-    Vector2s32 m_DepthTextureExtent;
+    TextureFormat m_depthTextureFormat = TextureFormat::Invalid;
+    Vector2s32 m_depthTextureExtent;
 
-    InplaceArray< TextureHandle, MAX_FRAMES_IN_FLIGHT > m_DepthImages;
-    InplaceArray< BufferHandle, MAX_FRAMES_IN_FLIGHT > m_ViewConstantsUniformBuffers;
+    InplaceArray< TextureHandle, MAX_FRAMES_IN_FLIGHT > m_depthImages;
+    InplaceArray< BufferHandle, MAX_FRAMES_IN_FLIGHT > m_viewConstantsUniformBuffers;
 
-    ShaderCache m_ShaderCache{ *this };
-    PsoCache m_PsoCache;
-    RenderPassCache m_RenderPassCache{ *this };
-    FramebufferCache m_FramebufferCache{ *this };
+    ShaderCache m_shaderCache{ *this };
+    PsoCache m_psoCache;
+    RenderPassCache m_renderPassCache{ *this };
+    FramebufferCache m_framebufferCache{ *this };
 
-    HashMap< StringId32, BlendState > m_BlendStates;
+    HashMap< StringId32, BlendState > m_blendStates;
 
-    BeginFrameSignalT m_BeginFrameSignal;
-    RenderFrameSignalT m_RenderFrameSignal;
-    EndFrameSignalT m_EndFrameSignal;
+    BeginFrameSignalT m_beginFrameSignal;
+    RenderFrameSignalT m_renderFrameSignal;
+    EndFrameSignalT m_endFrameSignal;
 
-    bool m_HasComputeWork = false;
-    bool m_HasWindowResized = false;
+    bool m_hasComputeWork = false;
+    bool m_hasWindowResized = false;
 };
 } // namespace onyx::rhi
 

@@ -7,7 +7,7 @@ Device::Device( const PhysicalDevice& physicalDevice,
                 VkPhysicalDeviceFeatures2& physicalFeatures,
                 VkQueueFlags requestedQueueTypes ) {
     // Find the queues.
-    const QueueFamilyIndices& queueFamilyIndices = physicalDevice.GetQueueFamilyIndices();
+    const QueueFamilyIndices& queueFamilyIndices = physicalDevice.getQueueFamilyIndices();
 
     // Queues can be the same
     HashSet< int32_t > uniqueQueueFamilies;
@@ -57,7 +57,7 @@ Device::Device( const PhysicalDevice& physicalDevice,
     DynamicArray< const char* > deviceExtensions( enabledExtensions );
 
     // Enable the debug marker extension if it is present (likely meaning a debugging tool is present)
-    if( physicalDevice.IsExtensionSupported( VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) ) {
+    if( physicalDevice.isExtensionSupported( VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) ) {
         deviceExtensions.push_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
         m_enableDebugMarkers = true;
     }
@@ -65,7 +65,7 @@ Device::Device( const PhysicalDevice& physicalDevice,
     // enable extensions
     if( deviceExtensions.empty() == false ) {
         for( const char* enabledExtension : deviceExtensions ) {
-            if( physicalDevice.IsExtensionSupported( enabledExtension ) == false )
+            if( physicalDevice.isExtensionSupported( enabledExtension ) == false )
                 ONYX_LOG_WARNING( "Enabled device extension {} is not supported.", enabledExtension );
             else
                 ONYX_LOG_INFO( "Enabled device extension: {}", enabledExtension );

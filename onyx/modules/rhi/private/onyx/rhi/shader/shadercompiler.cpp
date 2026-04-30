@@ -156,11 +156,11 @@ shaderc::CompileOptions SetupShaderOptions( const GraphicsSystem& graphicsSystem
     CompileOptions shaderCOptions;
     shaderCOptions.SetTargetEnvironment( shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3 );
     shaderCOptions.SetWarningsAsErrors();
-    shaderCOptions.AddMacroDefinition( "ONYX_IS_BINDLESS", graphicsSystem.IsBindless() ? "1" : "0" );
+    shaderCOptions.AddMacroDefinition( "ONYX_IS_BINDLESS", graphicsSystem.isBindless() ? "1" : "0" );
 
 #if !ONYX_IS_RETAIL
-    if ( graphicsSystem.IsShaderDebugEnabled() ) {
-        shaderCOptions.AddMacroDefinition( "ONYX_IS_DEBUG", graphicsSystem.IsShaderDebugEnabled() ? "1" : "0" );
+    if ( graphicsSystem.isShaderDebugEnabled() ) {
+        shaderCOptions.AddMacroDefinition( "ONYX_IS_DEBUG", graphicsSystem.isShaderDebugEnabled() ? "1" : "0" );
         shaderCOptions.SetGenerateDebugInfo();
     }
 #endif

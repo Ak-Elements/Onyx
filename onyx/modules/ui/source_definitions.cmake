@@ -21,7 +21,11 @@ set(onyx_TARGET_PUBLIC_SOURCES
     controls/treeview.h
     controls/vectorcontrol.h
     layout/imguilayout.h
+    theme/theme.h
+    theme/themeserializer.h
     windows/enginevariableswindow.h
+    windows/fpsstatusbaritem.h
+    windows/statusbaroverlay.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -45,5 +49,9 @@ set(onyx_TARGET_PRIVATE_SOURCES
     controls/treeview.cpp
     controls/vectorcontrol.cpp
     layout/imguilayout.cpp
+    theme/theme.cpp
+    theme/themeserializer.cpp
     windows/enginevariableswindow.cpp
+    windows/fpsstatusbaritem.cpp
+    windows/statusbaroverlay.cpp
 )

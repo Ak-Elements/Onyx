@@ -120,9 +120,9 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
         graphNode.Compile( graphicsSystem, m_ResourceCache );
     }
 
-    graphicsSystem.OnBeginFrame().Connect< &RenderGraph::OnBeginFrame >( this );
-    graphicsSystem.OnRenderFrame().Connect< &RenderGraph::OnRenderFrame >( this );
-    graphicsSystem.OnEndFrame().Connect< &RenderGraph::OnEndFrame >( this );
+    graphicsSystem.onBeginFrame().Connect< &RenderGraph::OnBeginFrame >( this );
+    graphicsSystem.onRenderFrame().Connect< &RenderGraph::OnRenderFrame >( this );
+    graphicsSystem.onEndFrame().Connect< &RenderGraph::OnEndFrame >( this );
 
     m_IsInitialized = true;
 }
@@ -139,9 +139,9 @@ void RenderGraph::Shutdown( rhi::GraphicsSystem& graphicsSystem ) {
     m_ResourceCache.clear();
     m_Graph.Clear();
 
-    graphicsSystem.OnBeginFrame().Disconnect( this );
-    graphicsSystem.OnRenderFrame().Disconnect( this );
-    graphicsSystem.OnEndFrame().Disconnect( this );
+    graphicsSystem.onBeginFrame().Disconnect( this );
+    graphicsSystem.onRenderFrame().Disconnect( this );
+    graphicsSystem.onEndFrame().Disconnect( this );
 
     m_IsInitialized = false;
 }
@@ -150,18 +150,18 @@ void RenderGraph::OnBeginFrame( const rhi::FrameContext& frameContext ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    const rhi::TextureHandle& swapchainTarget = frameContext.Api->GetAcquiredSwapChainImage();
+    const rhi::TextureHandle& swapchainTarget = frameContext.Api->getAcquiredSwapChainImage();
     RenderGraphResource& swapchainResource = m_ResourceCache[ SWAPCHAIN_RESOURCE_ID ];
     swapchainResource.Handle = swapchainTarget;
 
-    const rhi::TextureHandle& depthTarget = frameContext.Api->GetDepthImage();
+    const rhi::TextureHandle& depthTarget = frameContext.Api->getDepthImage();
     RenderGraphResource& depthResource = m_ResourceCache[ DEPTH_RESOURCE_ID ];
     depthResource.Handle = depthTarget;
 
     // TODO: move to OnResize
     RenderGraphTextureResourceInfo& resourceInfo = std::get< RenderGraphTextureResourceInfo >(
         swapchainResource.Properties );
-    resourceInfo.Size = Vector3s32( frameContext.Api->GetSwapchainExtent(), 0 );
+    resourceInfo.Size = Vector3s32( frameContext.Api->getSwapchainExtent(), 0 );
 
     RenderGraphContext graphContext{ frameContext, *this };
     for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
@@ -181,7 +181,7 @@ void RenderGraph::OnRenderFrame( const rhi::FrameContext& context ) {
 
     // kickoff root tasks
     RenderGraphContext graphContext{ context, *this };
-    rhi::CommandBuffer& commandBuffer = context.Api->GetCommandBuffer( context.FrameIndex, true );
+    rhi::CommandBuffer& commandBuffer = context.Api->getCommandBuffer( context.FrameIndex, true );
 
     for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
         IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
@@ -214,7 +214,7 @@ void RenderGraph::OnEndFrame( const rhi::FrameContext& frameContext ) {
 
     rhi::TextureHandle finalTexture = std::get< rhi::TextureHandle >( m_ResourceCache.at( m_FinalTextureId ).Handle );
     if( finalTexture.IsValid() ) {
-        auto& commandBuffer = frameContext.Api->GetCommandBuffer( frameContext.FrameIndex, true );
+        auto& commandBuffer = frameContext.Api->getCommandBuffer( frameContext.FrameIndex, true );
         commandBuffer.transitionLayout( finalTexture,
                                         rhi::Context::Graphics,
                                         rhi::Access::ShaderRead,
@@ -263,7 +263,7 @@ bool RenderGraph::CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
     const RenderGraphTextureResourceInfo& resourceInfo = std::get< RenderGraphTextureResourceInfo >(
         resource.Properties );
 
-    const Vector2s32& swapChainExtent = graphicsSystem.GetSwapchainExtent();
+    const Vector2s32& swapChainExtent = graphicsSystem.getSwapchainExtent();
 
     rhi::TextureStorageProperties storageProperties;
     storageProperties.m_Size = resourceInfo.HasSize ? resourceInfo.Size : Vector3s32( swapChainExtent, 1 );
@@ -302,14 +302,14 @@ bool RenderGraph::CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
 #if ONYX_IS_DEBUG
         texProp.m_DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.m_DebugName;
 #endif
-        graphicsSystem.CreateAlias( std::get< rhi::TextureHandle >( resource.Handle ),
+        graphicsSystem.createAlias( std::get< rhi::TextureHandle >( resource.Handle ),
                                     freeTexture.Storage,
                                     storageProperties,
                                     texProp );
         return true;
     }
 
-    graphicsSystem.CreateTexture( std::get< rhi::TextureHandle >( resource.Handle ), storageProperties, texProp );
+    graphicsSystem.createTexture( std::get< rhi::TextureHandle >( resource.Handle ), storageProperties, texProp );
     return true;
 }
 

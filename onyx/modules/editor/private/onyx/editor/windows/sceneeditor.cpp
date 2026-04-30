@@ -4,6 +4,7 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/entity.h>
 #include <onyx/filesystem/filedialog.h>
+
 #include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
@@ -13,17 +14,22 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
+
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
+
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
+
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/windows/statusbaroverlay.h>
 
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/panels/sceneeditor/componentspanel.h>
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 #include <onyx/editor/windows/commandhistorywindow.h>
 #include <onyx/editor/windows/editormainwindow.h>
+#include <onyx/editor/windows/sceneviewport.h>
 
 #include <onyx/graphics/assets/meshasset.h>
 
@@ -50,7 +56,7 @@ void SceneEditorWindow::onOpen() {
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
 
-    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.GetWindow< EditorMainWindow >();
+    Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.getWindow< EditorMainWindow >();
     if( mainWindowOptional.has_value() ) {
         EditorMainWindow& mainWindow = *mainWindowOptional.value();
         setDockId( mainWindow.getCenterDockId() );
@@ -79,7 +85,7 @@ void SceneEditorWindow::onOpen() {
                      m_windowClass,
                      { { ui::DockSplitDirection::Left, 1.0f - compPanelRatio, "", m_componentsPanelId },
                        { ui::DockSplitDirection::Left, entitiesPanelRatio, m_entitiesPanelId, m_sceneViewPanelId },
-                       { ui::DockSplitDirection::Down, 0.3f, "CommandHistory", "" } } );
+                       { ui::DockSplitDirection::Down, 0.3f, "CommandHistory##CommandHistory", "" } } );
 
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionSystem.SetCurrentInputActionMap( StringId32( "sceneeditor" ) );
@@ -97,19 +103,24 @@ void SceneEditorWindow::onOpen() {
         }
     }
 
-    scene_editor::EntitiesPanel& entitiesPanel = imguiSystem.OpenWindow< scene_editor::EntitiesPanel >( *this );
+    SceneViewportWindow& mainViewport = imguiSystem.openWindow< SceneViewportWindow >( *this );
+    mainViewport.setWindowId( m_sceneViewPanelId );
+    mainViewport.setWindowClass( m_windowClass );
+    mainViewport.setCommandGraph( m_commandStack );
+
+    scene_editor::EntitiesPanel& entitiesPanel = imguiSystem.openWindow< scene_editor::EntitiesPanel >( *this );
     entitiesPanel.setWindowId( m_entitiesPanelId );
     entitiesPanel.setName( m_entitiesPanelId );
     entitiesPanel.setWindowClass( m_windowClass );
     entitiesPanel.setCommandGraph( m_commandStack );
 
-    scene_editor::ComponentsPanel& componentsPanel = imguiSystem.OpenWindow< scene_editor::ComponentsPanel >( *this );
+    scene_editor::ComponentsPanel& componentsPanel = imguiSystem.openWindow< scene_editor::ComponentsPanel >( *this );
     componentsPanel.setWindowId( m_componentsPanelId );
     componentsPanel.setName( m_componentsPanelId );
     componentsPanel.setWindowClass( m_windowClass );
     componentsPanel.SetCommandGraph( m_commandStack );
 
-    CommandHistoryWindow& history = imguiSystem.OpenUniqueWindow< CommandHistoryWindow >( *this );
+    CommandHistoryWindow& history = imguiSystem.openUniqueWindow< CommandHistoryWindow >( *this );
     history.setWindowClass( m_windowClass );
     history.SetCommandQueue( m_commandStack );
 }
@@ -132,11 +143,6 @@ void SceneEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     if( ImGui::IsWindowAppearing() ) {
         ImGui::BringWindowToFocusFront( ImGui::GetCurrentWindow() );
     }
-
-    if( isLoading() )
-        return;
-
-    renderSceneViewport();
 }
 
 void SceneEditorWindow::onRenderMainMenuBar() {
@@ -172,152 +178,6 @@ void SceneEditorWindow::onRenderMainMenuBar() {
 
         ImGui::EndMenu();
     }
-}
-
-void SceneEditorWindow::renderSceneViewport() {
-    // TODO TEMP: expose final pin to the outside
-    if( m_scene->HasRenderGraph() == false )
-        return;
-
-    const rhi::TextureHandle finalSceneTexture = m_scene->GetRenderGraph().GetFinalTexture();
-    if( finalSceneTexture.IsValid() == false ) {
-        return;
-    }
-
-    const rhi::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
-    ImVec2 sceneTextureExtents = { static_cast< float32 >( sceneTextureProperties.m_Size[ 0 ] ),
-                                   static_cast< float32 >( sceneTextureProperties.m_Size[ 1 ] ) };
-
-    ImGui::SetNextWindowClass( m_windowClass );
-    // ImGui::SetNextWindowDockID(dockspace);
-    if( ImGui::Begin(
-            format::format( "{}{}", localization::editor::SceneEditor::SceneViewport, m_sceneViewPanelId ) ) ) {
-        m_viewportBounds.Position = { static_cast< int16_t >( ImGui::GetCursorPos().x ),
-                                      static_cast< int16_t >( ImGui::GetCursorPos().y ) };
-        m_viewportBounds.Extents = {
-            static_cast< int16_t >( sceneTextureProperties.m_Size[ 0 ] ),
-            static_cast< int16_t >(
-                sceneTextureProperties
-                    .m_Size[ 1 ] ) }; // = Vector2s16{ static_cast<int16_t>(ImGui::GetContentRegionAvail().x),
-                                      // static_cast<int16_t>(ImGui::GetContentRegionAvail().y) } -
-                                      // m_ViewportBounds.Position;
-
-        ImGui::SetNextItemAllowOverlap();
-        Vector2f32 pos{ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y };
-        ImGui::Image( finalSceneTexture.Texture->GetIndex(), sceneTextureExtents );
-
-        renderImGuizmo( pos,
-                        Vector2f32( static_cast< float32 >( sceneTextureProperties.m_Size[ 0 ] ),
-                                    static_cast< float32 >( sceneTextureProperties.m_Size[ 1 ] ) ) );
-    }
-
-    ImGui::End();
-}
-
-void SceneEditorWindow::renderImGuizmo( const Vector2f32& viewportPosition, const Vector2f32& viewportExtents ) {
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
-    auto selectedEntitesView = registry.GetView< SelectedComponent >();
-
-    m_hasSelectedEntity = false;
-    if( selectedEntitesView.empty() == false ) {
-        ecs::EntityId selectedEntity = *selectedEntitesView.begin();
-        // draw gizmos
-        m_hasSelectedEntity = selectedEntity != entt::null;
-        if( m_hasSelectedEntity ) {
-            game_core::TransformComponent& transformComponent = registry.GetComponent< game_core::TransformComponent >(
-                selectedEntity );
-
-            ImGuizmo::SetAlternativeWindow( ImGui::GetCurrentWindow() );
-            ImGuizmo::SetOrthographic( false );
-            ImGuizmo::SetDrawlist();
-
-            ImGuizmo::SetRect( viewportPosition.X, viewportPosition.Y, viewportExtents[ 0 ], viewportExtents[ 1 ] );
-            ImGuizmo::SetGizmoSizeClipSpace( 0.05f );
-            game_core::CameraComponent& editorCamera = registry.GetComponent< game_core::CameraComponent >(
-                m_editorCameraEntity );
-
-            const Vector3f32& cameraPos = Vector3f32( editorCamera.Camera.GetViewMatrixInverse()[ 3 ] );
-            const Vector3f32& entityPos = transformComponent.Translation;
-
-            float distance = ( entityPos - cameraPos ).length();
-
-            float desiredWorldSize = 50.0f;
-            float halfFovRadians = quantityCast< units::Radians, units::Degrees >( 45.0f ) * 0.5f;
-            float clipSize = ( desiredWorldSize / distance ) / std::tan( halfFovRadians );
-
-            ImGuizmo::SetGizmoSizeClipSpace( std::max( clipSize, 0.03f ) );
-            Matrix4< float32 > projectionMatrix = editorCamera.Camera.GetProjectionMatrix();
-            const Matrix4x4f32& viewMatrix = editorCamera.Camera.GetViewMatrix();
-
-            Matrix4x4f32 transformMatrix = game_core::world_transform::GetTransform( transformComponent );
-
-            ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
-            if( m_currentGizmo == GizmoType::Rotate )
-                operation = ImGuizmo::ROTATE;
-            else if( m_currentGizmo == GizmoType::Scale )
-                operation = ImGuizmo::SCALE;
-
-            if( ImGuizmo::Manipulate( &( viewMatrix[ 0 ][ 0 ] ),
-                                      &( projectionMatrix[ 0 ][ 0 ] ),
-                                      operation,
-                                      ImGuizmo::LOCAL,
-                                      &( transformMatrix[ 0 ][ 0 ] ) ) ) {
-                Vector3f32 translation, scale;
-                Rotor3f32 rotationRotor;
-                transformMatrix.decompose( translation, rotationRotor, scale );
-
-                switch( m_currentGizmo ) {
-                case GizmoType::Translate: {
-                    transformComponent.Translation = translation;
-                    break;
-                }
-                case GizmoType::Rotate: {
-                    constexpr float32 PI = std::numbers::pi_v< float32 >;
-                    constexpr float32 TWO_PI = 2.0f * PI;
-                    Vector3f32 originalRotation = transformComponent.RotationEuler;
-
-                    originalRotation[ 0 ] = std::fmod( originalRotation[ 0 ] + PI, TWO_PI ) - PI;
-                    originalRotation[ 1 ] = std::fmod( originalRotation[ 1 ] + PI, TWO_PI ) - PI;
-                    originalRotation[ 2 ] = std::fmod( originalRotation[ 2 ] + PI, TWO_PI ) - PI;
-
-                    Vector3f32 deltaRotation = rotationRotor.toEulerAngles() - originalRotation;
-
-                    if( isZero( deltaRotation[ 0 ], 0.001f ) )
-                        deltaRotation[ 0 ] = 0.0f;
-                    if( isZero( deltaRotation[ 1 ], 0.001f ) )
-                        deltaRotation[ 1 ] = 0.0f;
-                    if( isZero( deltaRotation[ 2 ], 0.001f ) )
-                        deltaRotation[ 2 ] = 0.0f;
-
-                    game_core::world_transform::Rotate( transformComponent, deltaRotation );
-                    break;
-                }
-                case GizmoType::Scale: {
-                    transformComponent.Scale = scale;
-                    break;
-                }
-                }
-            }
-        }
-    }
-}
-
-void SceneEditorWindow::onGizmoModeAction( const input_actions::InputActionEvent& inputActionContext ) {
-    if( m_hasSelectedEntity == false )
-        return;
-
-    constexpr StringId64 GIZMO_TRANSLATE_ACTION_ID( "GizmoTranslate" );
-    constexpr StringId64 GIZMO_ROTATE_ACTION_ID( "GizmoRotate" );
-
-    if( inputActionContext.GetId() == GIZMO_TRANSLATE_ACTION_ID ) {
-        m_currentGizmo = GizmoType::Translate;
-        return;
-    } else if( inputActionContext.GetId() == GIZMO_ROTATE_ACTION_ID ) {
-        m_currentGizmo = GizmoType::Rotate;
-        return;
-    }
-
-    m_currentGizmo = GizmoType::Scale;
 }
 
 void SceneEditorWindow::onCameraMoveInput( const input_actions::InputActionEvent& inputActionContext ) {
@@ -407,7 +267,7 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
 
     // TODO: Should be viewport extents
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
-    camera.Camera.SetViewportExtents( graphicsSystem.GetSwapchainExtent() );
+    camera.Camera.SetViewportExtents( graphicsSystem.getSwapchainExtent() );
     const game_core::FreeCameraControllerComponent&
         freeCameraController = registry.AddComponent< game_core::FreeCameraControllerComponent >(
             m_editorCameraEntity );
@@ -415,7 +275,7 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
         runtimeComponent = registry.AddComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
     runtimeComponent.Velocity = freeCameraController.BaseVelocity;
 
-    graphicsSystem.SetCamera( camera.Camera );
+    graphicsSystem.setCamera( camera.Camera );
 
     m_commandStack.SetBase( registry );
     m_commandStack.SetHead( registry );
@@ -426,9 +286,5 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     inputActionsSystem.OnInput< &SceneEditorWindow::onCameraSpeedInput >( "CameraSpeed"_id64, this );
     inputActionsSystem.OnInput< &SceneEditorWindow::onCameraSlowDown >( "CameraSlowDown"_id64, this );
     inputActionsSystem.OnInput< &SceneEditorWindow::onCameraSpeedUp >( "CameraSpeedUp"_id64, this );
-
-    inputActionsSystem.OnInput< &SceneEditorWindow::onGizmoModeAction >( "GizmoTranslate"_id64, this );
-    inputActionsSystem.OnInput< &SceneEditorWindow::onGizmoModeAction >( "GizmoRotate"_id64, this );
-    inputActionsSystem.OnInput< &SceneEditorWindow::onGizmoModeAction >( "GizmoScale"_id64, this );
 }
 } // namespace onyx::editor

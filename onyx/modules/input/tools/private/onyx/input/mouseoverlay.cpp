@@ -4,12 +4,14 @@
 
 #include <onyx/input/inputsystem.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/theme/theme.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
 
 namespace onyx::input::tools {
 namespace {
+
 void addRectFilledMultiColor( ImDrawList* drawList,
                               const ImVec2& pMin,
                               const ImVec2& pMax,
@@ -102,18 +104,17 @@ void drawScrollWheel( ImDrawList* dl,
                       float32 width,
                       float32 height,
                       float32 intensity,
-                      bool middleDown,
-                      const MouseOverlay::Style& /*style*/,
-                      const MouseOverlay::Colors& colors ) {
+                      bool middleDown ) {
     const float32 scale = 1.0f;
 
     const bool isScrollUp = intensity > 0.0f;
     const bool isScrollDown = intensity < 0.0f;
 
-    ImVec4 baseColor = middleDown ? colors.WheelPressed : colors.WheelIdle;
+    ImVec4 baseColor = middleDown ? ImGui::GetStyleColorVec4( ImGuiCol_ButtonActive )
+                                  : ImGui::GetStyleColorVec4( ImGuiCol_Button );
 
     // Choose which scroll colour is the "lit" tip
-    ImVec4 tipColor = isScrollUp ? colors.WheelPressedScrollUp : colors.WheelPressedScrollDown;
+    ImVec4 tipColor = ImGui::GetStyleColorVec4( ImGuiCol_SliderGrabActive );
 
     auto lerp4 = []( const ImVec4& a, const ImVec4& b, float32 t ) -> ImVec4 {
         return { a.x + ( b.x - a.x ) * t, a.y + ( b.y - a.y ) * t, a.z + ( b.z - a.z ) * t, a.w + ( b.w - a.w ) * t };
@@ -139,7 +140,7 @@ void drawScrollWheel( ImDrawList* dl,
 
     dl->AddRect( wheelTopLeft,
                  wheelBottomRight,
-                 ImGui::ColorConvertFloat4ToU32( colors.BodyOutline ),
+                 ImGui::GetColorU32( ImGuiCol_Border ),
                  3.0f,
                  ImDrawFlags_RoundCornersAll,
                  1.4f * scale );
@@ -175,20 +176,21 @@ void MouseOverlay::onOpen() {
     //                                      &aspectRatio ); // Aspect ratio
 }
 
-void MouseOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    const input::InputSystem& inputSystem = *ui::g_UiContext.InputSystem;
+void MouseOverlay::onRender( ui::ImGuiSystem& imguiSystem ) {
+    const input::InputSystem& inputSystem = *ui::g_uiContext.InputSystem;
 
+    const ui::Theme& theme = imguiSystem.getTheme();
     ImGui::BringWindowToDisplayFront( ImGui::GetCurrentWindow() );
 
     const float32 scale = 1.0f; // cfg.ScaleMultiplier;
-    const float32 width = s_style.Width * scale;
-    const float32 height = s_style.Height * scale;
-    const float32 bodyRounding = s_style.BodyRounding * scale;
-    const float32 buttonRounding = s_style.ButtonRounding * scale;
-    const float32 buttonHeight = s_style.ButtonHeight * scale;
+    const float32 width = theme.Style.MouseOverlayWidth * scale;
+    const float32 height = theme.Style.MouseOverlayHeight * scale;
+    const float32 bodyRounding = theme.Style.MouseOverlayBodyRounding * scale;
+    const float32 buttonRounding = theme.Style.MouseOverlayButtonRounding * scale;
+    const float32 buttonHeight = theme.Style.MouseOverlayButtonHeight * scale;
 
-    const float32 wheelWidth = s_style.WheelWidth * scale;
-    const float32 wheelHeight = s_style.WheelHeight * scale;
+    const float32 wheelWidth = theme.Style.MouseOverlayWheelWidth * scale;
+    const float32 wheelHeight = theme.Style.MouseOverlayWheelHeight * scale;
 
     const bool leftDown = inputSystem.IsButtonDown( MouseButton::Button_1 );
     const bool rightDown = inputSystem.IsButtonDown( MouseButton::Button_2 );
@@ -198,44 +200,45 @@ void MouseOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
 
     // Body
+    uint32_t outlineColor = ImGui::GetColorU32( ImGuiCol_Border );
     dl->AddRectFilled( { cursorPosition.x, cursorPosition.y },
                        { cursorPosition.x + width, cursorPosition.y + height },
-                       ImGui::ColorConvertFloat4ToU32( s_colors.BodyBg ),
+                       ImGui::GetColorU32( ImGuiCol_FrameBg ),
                        bodyRounding );
 
     dl->AddRect( { cursorPosition.x, cursorPosition.y },
                  { cursorPosition.x + width, cursorPosition.y + height },
-                 ImGui::ColorConvertFloat4ToU32( s_colors.BodyOutline ),
+                 outlineColor,
                  bodyRounding,
                  0,
                  1.8f * scale );
 
     // Left button
-    ImVec4 lCol = leftDown ? s_colors.LeftPressed : s_colors.ButtonIdle;
+    uint32_t lCol = leftDown ? ImGui::GetColorU32( ImGuiCol_ButtonActive ) : ImGui::GetColorU32( ImGuiCol_FrameBg );
     dl->AddRectFilled( { cursorPosition.x, cursorPosition.y },
                        { cursorPosition.x + width / 2.f, cursorPosition.y + buttonHeight },
-                       ImGui::ColorConvertFloat4ToU32( lCol ),
+                       lCol,
                        buttonRounding,
                        ImDrawFlags_RoundCornersTopLeft );
 
     dl->AddRect( { cursorPosition.x, cursorPosition.y },
                  { cursorPosition.x + width / 2.f, cursorPosition.y + buttonHeight },
-                 ImGui::ColorConvertFloat4ToU32( s_colors.BodyOutline ),
+                 outlineColor,
                  buttonRounding,
                  ImDrawFlags_RoundCornersTopLeft,
                  1.2f * scale );
 
     // Right button
-    ImVec4 rCol = rightDown ? s_colors.RightPressed : s_colors.ButtonIdle;
+    uint32_t rCol = rightDown ? ImGui::GetColorU32( ImGuiCol_ButtonActive ) : ImGui::GetColorU32( ImGuiCol_FrameBg );
     dl->AddRectFilled( { cursorPosition.x + width / 2.f, cursorPosition.y },
                        { cursorPosition.x + width, cursorPosition.y + buttonHeight },
-                       ImGui::ColorConvertFloat4ToU32( rCol ),
+                       rCol,
                        buttonRounding,
                        ImDrawFlags_RoundCornersTopRight );
 
     dl->AddRect( { cursorPosition.x + width / 2.f, cursorPosition.y },
                  { cursorPosition.x + width, cursorPosition.y + buttonHeight },
-                 ImGui::ColorConvertFloat4ToU32( s_colors.BodyOutline ),
+                 outlineColor,
                  buttonRounding,
                  ImDrawFlags_RoundCornersTopRight,
                  1.2f * scale );
@@ -243,7 +246,7 @@ void MouseOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // Centre divider
     dl->AddLine( { cursorPosition.x + width / 2.f, cursorPosition.y },
                  { cursorPosition.x + width / 2.f, cursorPosition.y + buttonHeight },
-                 ImGui::ColorConvertFloat4ToU32( s_colors.Divider ),
+                 ImGui::GetColorU32( ImGuiCol_Separator ),
                  1.5f * scale );
 
     // Scroll wheel
@@ -266,7 +269,7 @@ void MouseOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
             m_scrollIntensity = 0.0f;
     }
 
-    drawScrollWheel( dl, { whlX, whlY }, wheelWidth, wheelHeight, m_scrollIntensity, isMiddleDown, s_style, s_colors );
+    drawScrollWheel( dl, { whlX, whlY }, wheelWidth, wheelHeight, m_scrollIntensity, isMiddleDown );
 
     ImGui::Dummy( { width, height } );
 }

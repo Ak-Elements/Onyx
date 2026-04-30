@@ -117,7 +117,7 @@ void InputActionSettingsWindow::onOpen() {
     inputActionSystem.OnInput< &InputActionSettingsWindow::onDeleteAction >( "Delete"_id64, this );
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
-    CommandHistoryWindow& history = imguiSystem.OpenWindow< CommandHistoryWindow >( *this );
+    CommandHistoryWindow& history = imguiSystem.openWindow< CommandHistoryWindow >( *this );
     // history.SetWindowClass(m_WindowClass);
     history.SetCommandQueue( m_commandsHistory );
 }
@@ -137,7 +137,7 @@ void InputActionSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     //    if ( isOpen() == false )
     //        return;
 
-    //const String& assetName = "None";
+    // const String& assetName = "None";
 
     // setWindowFlags( ImGuiWindowFlags_MenuBar );
 

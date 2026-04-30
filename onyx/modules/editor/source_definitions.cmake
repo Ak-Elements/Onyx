@@ -49,6 +49,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     windows/editormainwindow.h
     windows/nodegrapheditor.h
     windows/sceneeditor.h
+    windows/sceneviewport.h
     windows/startupwindow.h
     windows/settings/inputactionsettingswindow.h
 )
@@ -105,6 +106,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     windows/editormainwindow.cpp
     windows/nodegrapheditor.cpp
     windows/sceneeditor.cpp
+    windows/sceneviewport.cpp
     windows/startupwindow.cpp
     windows/settings/inputactionsettingswindow.cpp
 )

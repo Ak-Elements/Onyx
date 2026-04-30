@@ -145,7 +145,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     vertexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
     vertexBufferProps.m_DebugName = "static mesh vertices";
 
-    graphics.CreateBuffer( meshAsset.m_VertexBuffer, vertexBufferProps );
+    graphics.createBuffer( meshAsset.m_VertexBuffer, vertexBufferProps );
     meshAsset.m_VertexBuffer.Buffer->SetData( 0, vertices.data(), static_cast< uint32_t >( vertexBufferProps.m_Size ) );
 
     rhi::BufferProperties indexBufferProps;
@@ -154,7 +154,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     indexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
     indexBufferProps.m_DebugName = "static mesh Indices";
 
-    graphics.CreateBuffer( meshAsset.m_IndexBuffer, indexBufferProps );
+    graphics.createBuffer( meshAsset.m_IndexBuffer, indexBufferProps );
     meshAsset.m_IndexBuffer.Buffer->SetData( 0, indices.data(), static_cast< uint32_t >( indexBufferProps.m_Size ) );
 
     return true;

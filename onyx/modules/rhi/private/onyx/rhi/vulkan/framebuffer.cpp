@@ -9,11 +9,11 @@
 
 namespace onyx::rhi::vulkan {
 void VulkanFramebuffer::Init( const VulkanGraphicsApi& api, const FramebufferSettings& settings ) {
-    m_Device = &api.GetDevice();
+    m_Device = &api.getDevice();
     m_Settings = settings;
 
     // Don't create a framebuffer if we use dynamic rendering
-    if ( api.IsDynamicRenderingEnabled() )
+    if ( api.isDynamicRenderingEnabled() )
         return;
 
     VkFramebufferCreateInfo createInfo;

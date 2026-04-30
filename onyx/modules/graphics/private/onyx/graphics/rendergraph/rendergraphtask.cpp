@@ -247,7 +247,7 @@ bool RenderGraphShaderNode::OnDeserialize( const Deserializer& deserializer ) {
 void RenderGraphShaderNode::OnSwapChainResized( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
     ONYX_PROFILE_FUNCTION;
 
-    const Vector3s32 swapChainExtent{ api.GetSwapchainExtent(), 1 };
+    const Vector3s32 swapChainExtent{ api.getSwapchainExtent(), 1 };
 
     uint32_t outputPinCount = GetOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
@@ -287,7 +287,7 @@ void RenderGraphShaderNode::OnSwapChainResized( rhi::GraphicsSystem& api, Render
 #endif
 
             // In-place construct the resized attachment
-            api.CreateTexture( attachment, storageProperties, texProp );
+            api.createTexture( attachment, storageProperties, texProp );
         }
     }
 }
@@ -364,7 +364,7 @@ void RenderGraphShaderNode::CreateRenderPass( rhi::GraphicsSystem& api, RenderGr
         }
     }
 
-    m_RenderPass = api.GetOrCreateRenderPass( renderPassSettings );
+    m_RenderPass = api.getOrCreateRenderPass( renderPassSettings );
 }
 
 void RenderGraphShaderNode::UpdateFramebuffer( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
@@ -376,7 +376,7 @@ void RenderGraphShaderNode::UpdateFramebuffer( rhi::GraphicsSystem& api, RenderG
     framebufferSettings.m_Width = 0;
     framebufferSettings.m_Height = 0;
 
-    const Vector2s32& swapChainExtent = api.GetSwapchainExtent();
+    const Vector2s32& swapChainExtent = api.getSwapchainExtent();
 
     // TODO: Refactor to common function that takes a lambda? e.g.: ForEachParameter(m_Outputs, []...)
     uint32_t outputPinCount = GetOutputPinCount();
@@ -444,7 +444,7 @@ void RenderGraphShaderNode::UpdateFramebuffer( rhi::GraphicsSystem& api, RenderG
     // if (m_Framebuffer && m_Framebuffer->GetSettings() == framebufferSettings)
     //     return;
 
-    m_Framebuffer = api.GetOrCreateFramebuffer( framebufferSettings );
+    m_Framebuffer = api.getOrCreateFramebuffer( framebufferSettings );
 }
 
 void RenderGraphShaderNode::BindResources( rhi::ShaderInstanceHandle shaderInstance,
@@ -527,7 +527,7 @@ void RenderGraphFixedShaderNode::Compile( rhi::GraphicsSystem& api, RenderGraphR
     RenderGraphShaderNode::Compile( api, resourceCache );
 
     m_PipelineProperties.RenderPass = m_RenderPass;
-    m_ShaderInstance = api.CreateShaderInstance( m_PipelineProperties.Shader, m_PipelineProperties );
+    m_ShaderInstance = api.createShaderInstance( m_PipelineProperties.Shader, m_PipelineProperties );
 }
 
 void RenderGraphFixedShaderNode::BeginFrame( RenderGraphContext& context ) {

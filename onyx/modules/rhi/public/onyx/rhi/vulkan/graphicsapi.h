@@ -27,150 +27,150 @@ class SwapChain;
 class VulkanTexture;
 class VulkanTextureStorage;
 
-static constexpr uint32_t BINDLESS_TEXTURE_BINDING = 0;
+static constexpr uint32_t BindlessTextureBinding = 0;
 
 class VulkanGraphicsApi : public GraphicsApiInterface {
-    static constexpr uint8_t COMMAND_BUFFER_COUNT = 8;
+    static constexpr uint8_t CommandBufferCount = 8;
 
   public:
     VulkanGraphicsApi();
     ~VulkanGraphicsApi() override;
 
-    void Init( const GraphicSettings& settings ) override;
-    void Shutdown() override;
+    void init( GraphicLimits& limits, const GraphicSettings& settings ) override;
+    void shutdown() override;
 
-    bool BeginFrame( const FrameContext& context ) override;
-    bool EndFrame( const FrameContext& context ) override;
+    bool beginFrame( const FrameContext& context ) override;
+    bool endFrame( const FrameContext& context ) override;
 
-    const Instance& GetInstance() const { return *m_Instance; }
-    const PhysicalDevice& GetPhysicalDevice() const { return *m_PhysicalDevice; }
-    const Device& GetDevice() const { return *m_Device; }
+    const Instance& getInstance() const { return *m_instance; }
+    const PhysicalDevice& getPhysicalDevice() const { return *m_physicalDevice; }
+    const Device& getDevice() const { return *m_device; }
 
-    SwapChain& GetSwapChain() { return *m_SwapChain; }
-    const SwapChain& GetSwapChain() const { return *m_SwapChain; }
+    SwapChain& getSwapChain() { return *m_swapChain; }
+    const SwapChain& getSwapChain() const { return *m_swapChain; }
 
-    MemoryAllocator& GetAllocator() { return *m_Allocator; }
-    const MemoryAllocator& GetAllocator() const { return *m_Allocator; }
+    MemoryAllocator& getAllocator() { return *m_allocator; }
+    const MemoryAllocator& getAllocator() const { return *m_allocator; }
 
     // TODO: turn into own settings object instead of storing on device
-    bool IsBindless() const override { return m_IsBindlessEnabled; }
-    bool IsDynamicRenderingEnabled() const { return m_IsDynamicRenderingEnabled; }
-    bool IsSynchronization2Enabled() const { return m_IsSynchronization2Enabled; }
-    bool IsTimelineSemaphoreEnabled() const { return m_IsTimelineSemaphoreEnabled; }
-    bool IsRenderPass2ExtensionEnabled() const { return m_IsRenderPass2ExtensionEnabled; }
-    bool IsUnifiedImageLayoutSupported() const { return m_IsUnifiedImageLayoutSupported; }
+    bool isBindless() const override { return m_isBindlessEnabled; }
+    bool isDynamicRenderingEnabled() const { return m_isDynamicRenderingEnabled; }
+    bool isSynchronization2Enabled() const { return m_isSynchronization2Enabled; }
+    bool isTimelineSemaphoreEnabled() const { return m_isTimelineSemaphoreEnabled; }
+    bool isRenderPass2ExtensionEnabled() const { return m_isRenderPass2ExtensionEnabled; }
+    bool isUnifiedImageLayoutSupported() const { return m_isUnifiedImageLayoutSupported; }
 
-    CommandBuffer& GetCommandBuffer( uint8_t frameIndex ) override;
-    CommandBuffer& GetCommandBuffer( uint8_t frameIndex, bool shouldBegin ) override;
-    CommandBuffer& GetComputeCommandBuffer( uint8_t frameIndex ) override;
-    CommandBuffer& GetComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin ) override;
+    CommandBuffer& getCommandBuffer( uint8_t frameIndex ) override;
+    CommandBuffer& getCommandBuffer( uint8_t frameIndex, bool shouldBegin ) override;
+    CommandBuffer& getComputeCommandBuffer( uint8_t frameIndex ) override;
+    CommandBuffer& getComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin ) override;
 
-    void SubmitInstantCommandBuffer( Context context,
+    void submitInstantCommandBuffer( Context context,
                                      uint8_t frameIndex,
                                      InplaceFunction< void( CommandBuffer& ) >&& functor ) override;
 
-    const DescriptorPool& GetDescriptorPool() const { return *m_DescriptorPool; }
-    Reference< rhi::Sampler > GetSampler( SamplerProperties properties ) const;
+    const DescriptorPool& getDescriptorPool() const { return *m_descriptorPool; }
+    Reference< rhi::Sampler > getSampler( SamplerProperties properties ) const;
 
-    const DescriptorSetLayout& GetBindlessDescriptorSetLayout() const {
-        ONYX_ASSERT( m_BindlessDescriptorSetLayout != nullptr );
-        return *m_BindlessDescriptorSetLayout;
+    const DescriptorSetLayout& getBindlessDescriptorSetLayout() const {
+        ONYX_ASSERT( m_bindlessDescriptorSetLayout != nullptr );
+        return *m_bindlessDescriptorSetLayout;
     }
-    const DescriptorSet& GetBindlessDescriptorSet() const {
-        ONYX_ASSERT( m_BindlessDescriptorSets != nullptr );
-        return *m_BindlessDescriptorSets;
+    const DescriptorSet& getBindlessDescriptorSet() const {
+        ONYX_ASSERT( m_bindlessDescriptorSets != nullptr );
+        return *m_bindlessDescriptorSets;
     }
-    void ReleaseTexture( const VulkanTexture& texture );
-    std::lock_guard< std::mutex > LockGraphicsQueue();
+    void releaseTexture( const VulkanTexture& texture );
+    std::lock_guard< std::mutex > lockGraphicsQueue();
 
   private:
-    void WaitIdle() const override;
-    void CreateSwapchain( const platform::Window& window ) override;
+    void waitIdle() const override;
+    void createSwapchain( const platform::Window& window ) override;
 
-    TextureHandle& GetAcquiredSwapChainImage() override;
-    const TextureHandle& GetAcquiredSwapChainImage() const override;
-    uint32_t GetAcquiredBackbufferIndex() const override;
+    TextureHandle& getAcquiredSwapChainImage() override;
+    const TextureHandle& getAcquiredSwapChainImage() const override;
+    uint32_t getAcquiredBackbufferIndex() const override;
 
-    TextureFormat GetSwapchainTextureFormat() const override;
-    const Vector2s32& GetSwapchainExtent() const override;
+    TextureFormat getSwapchainTextureFormat() const override;
+    const Vector2s32& getSwapchainExtent() const override;
 
-    RenderPassHandle CreateRenderPass( const RenderPassSettings& renderPassSettings ) override;
-    FramebufferHandle CreateFramebuffer( const FramebufferSettings& settings ) override;
+    RenderPassHandle createRenderPass( const RenderPassSettings& renderPassSettings ) override;
+    FramebufferHandle createFramebuffer( const FramebufferSettings& settings ) override;
 
-    PipelineHandle CreatePipeline( ShaderHandle& shader, const PipelineProperties& properties ) override;
+    PipelineHandle createPipeline( ShaderHandle& shader, const PipelineProperties& properties ) override;
 
-    DynamicArray< DescriptorSetHandle > CreateDescriptorSet( const ShaderHandle& shader ) override;
+    DynamicArray< DescriptorSetHandle > createDescriptorSet( const ShaderHandle& shader ) override;
 
-    void CreateTexture( TextureHandle& outTexture,
+    void createTexture( TextureHandle& outTexture,
                         const TextureStorageProperties& storageProperties,
                         const TextureProperties& properties ) override;
-    void CreateTexture( TextureHandle& outTexture,
+    void createTexture( TextureHandle& outTexture,
                         const TextureStorageProperties& storageProperties,
                         const TextureProperties& properties,
                         const Span< uint8_t >& initialData ) override;
-    void CreateTextureView( TextureHandle& handle,
+    void createTextureView( TextureHandle& handle,
                             const Reference< VulkanTextureStorage >& textureStorage,
                             const TextureProperties& properties );
-    void CreateAlias( TextureHandle& outTexture,
+    void createAlias( TextureHandle& outTexture,
                       TextureStorageHandle& storageHandle,
                       const TextureStorageProperties& aliasStorageProperties,
                       const TextureProperties& aliasTextureProperties ) override;
 
-    void CreateBuffer( BufferHandle& outBuffer, const BufferProperties& properties ) override;
-    BufferHandle GetTransientBuffer( uint8_t frameIndex, const BufferProperties& properties ) override;
+    void createBuffer( BufferHandle& outBuffer, const BufferProperties& properties ) override;
+    BufferHandle getTransientBuffer( uint8_t frameIndex, const BufferProperties& properties ) override;
 
   private:
-    std::mutex m_GraphicsMutex;
+    std::mutex m_graphicsMutex;
 
-    UniquePtr< Instance > m_Instance;
-    UniquePtr< PhysicalDevice > m_PhysicalDevice;
-    UniquePtr< Device > m_Device;
-    UniquePtr< DebugUtilsMessenger > m_DebugUtilsMessenger;
-    UniquePtr< Surface > m_Surface;
-    UniquePtr< SwapChain > m_SwapChain;
-    UniquePtr< MemoryAllocator > m_Allocator;
+    UniquePtr< Instance > m_instance;
+    UniquePtr< PhysicalDevice > m_physicalDevice;
+    UniquePtr< Device > m_device;
+    UniquePtr< DebugUtilsMessenger > m_debugUtilsMessenger;
+    UniquePtr< Surface > m_surface;
+    UniquePtr< SwapChain > m_swapChain;
+    UniquePtr< MemoryAllocator > m_allocator;
 
     // can this be moved into a descriptor manager?
-    UniquePtr< DescriptorPool > m_DescriptorPool;
-    UniquePtr< DescriptorPool > m_BindlessDescriptorPool;
-    UniquePtr< DescriptorSetLayout > m_BindlessDescriptorSetLayout;
-    UniquePtr< DescriptorSet > m_BindlessDescriptorSets;
+    UniquePtr< DescriptorPool > m_descriptorPool;
+    UniquePtr< DescriptorPool > m_bindlessDescriptorPool;
+    UniquePtr< DescriptorSetLayout > m_bindlessDescriptorSetLayout;
+    UniquePtr< DescriptorSet > m_bindlessDescriptorSets;
 
-    UniquePtr< CommandBufferManager > m_CommandBufferManager;
-    UniquePtr< CommandBufferManager > m_ComputeCommandBufferManager;
+    UniquePtr< CommandBufferManager > m_commandBufferManager;
+    UniquePtr< CommandBufferManager > m_computeCommandBufferManager;
 
     // TODO: Move to seperate class?
-    InplaceArray< BufferHandle, MAX_FRAMES_IN_FLIGHT > m_RingBuffer;
+    InplaceArray< BufferHandle, MAX_FRAMES_IN_FLIGHT > m_ringBuffer;
     uint64_t m_currentRingBufferSize = 0;
 
-    UniquePtr< Semaphore > m_GraphicsSemaphore;
-    UniquePtr< Semaphore > m_ComputeSemaphore;
+    UniquePtr< Semaphore > m_graphicsSemaphore;
+    UniquePtr< Semaphore > m_computeSemaphore;
 
-    UniquePtr< Fence > m_GraphicsSingleSubmitFence;
-    UniquePtr< Fence > m_ComputeSingleSubmitFence;
+    UniquePtr< Fence > m_graphicsSingleSubmitFence;
+    UniquePtr< Fence > m_computeSingleSubmitFence;
 
-    HashMap< uint32_t, Reference< rhi::Sampler > > m_Samplers;
+    HashMap< uint32_t, Reference< rhi::Sampler > > m_samplers;
 
     // TODO Move to command buffer manager
-    InplaceArray< CommandBuffer*, COMMAND_BUFFER_COUNT > m_QueuedCommandBuffer;
-    InplaceArray< CommandBuffer*, COMMAND_BUFFER_COUNT > m_QueuedComputeCommandBuffer;
+    InplaceArray< CommandBuffer*, CommandBufferCount > m_queuedCommandBuffer;
+    InplaceArray< CommandBuffer*, CommandBufferCount > m_queuedComputeCommandBuffer;
 
-    bool m_IsBindlessEnabled = false;
-    bool m_IsDynamicRenderingEnabled = false;
-    bool m_IsSynchronization2Enabled = false;
-    bool m_IsTimelineSemaphoreEnabled = false;
-    bool m_IsRenderPass2ExtensionEnabled = false;
-    bool m_IsUnifiedImageLayoutSupported = false;
+    bool m_isBindlessEnabled = false;
+    bool m_isDynamicRenderingEnabled = false;
+    bool m_isSynchronization2Enabled = false;
+    bool m_isTimelineSemaphoreEnabled = false;
+    bool m_isRenderPass2ExtensionEnabled = false;
+    bool m_isUnifiedImageLayoutSupported = false;
 
     struct TextureUpdate {
         uint32_t Index;
         VulkanTexture* Texture;
     };
 
-    DynamicArray< TextureUpdate > m_BindlessTexturesToUpdate;
-    DynamicArray< InplaceFunction< bool(), 48 > > m_DeletionQueue;
+    DynamicArray< TextureUpdate > m_bindlessTexturesToUpdate;
+    DynamicArray< InplaceFunction< bool(), 48 > > m_deletionQueue;
 
-    GraphicsResourcePool< VulkanTexture, 1024 > m_Textures;
+    GraphicsResourcePool< VulkanTexture, 1024 > m_textures;
 };
 } // namespace vulkan
 } // namespace onyx::rhi

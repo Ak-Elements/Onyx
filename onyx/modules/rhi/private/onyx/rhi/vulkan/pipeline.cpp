@@ -215,14 +215,14 @@ Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& prop
         if( name.empty() ) {
             breakpoint();
         }
-        SetResourceName( m_Api->GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
+        SetResourceName( m_Api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
 #endif
     }
 }
 
 Pipeline::~Pipeline() {
     if( m_Pipeline != nullptr ) {
-        vkDestroyPipeline( m_Api->GetDevice().GetHandle(), m_Pipeline, nullptr );
+        vkDestroyPipeline( m_Api->getDevice().GetHandle(), m_Pipeline, nullptr );
         m_Pipeline = nullptr;
     }
 
@@ -247,7 +247,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
         pipelineCreateInfo.pNext = nullptr;
 
-        VK_CHECK_RESULT( vkCreateComputePipelines( m_Api->GetDevice().GetHandle(),
+        VK_CHECK_RESULT( vkCreateComputePipelines( m_Api->getDevice().GetHandle(),
                                                    nullptr,
                                                    1,
                                                    &pipelineCreateInfo,
@@ -469,7 +469,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         //// Render Pass
         VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-        if( m_Api->IsDynamicRenderingEnabled() ) {
+        if( m_Api->isDynamicRenderingEnabled() ) {
             pipelineRenderingCreateInfo.viewMask = 0;
 
             if( colorTargetsCount != 0 ) {
@@ -500,7 +500,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 
         pipelineCreateInfo.pDynamicState = &dynamicStatesInfo;
 
-        VkDevice deviceHandle = m_Api->GetDevice().GetHandle();
+        VkDevice deviceHandle = m_Api->getDevice().GetHandle();
         VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
         pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
         VK_CHECK_RESULT( vkCreatePipelineCache( deviceHandle, &pipelineCacheCreateInfo, nullptr, &pipelineCache ) );
@@ -521,7 +521,7 @@ void Pipeline::OnShaderLoaded( const ShaderHandle& shader ) {
     if( name.empty() ) {
         breakpoint();
     }
-    SetResourceName( m_Api->GetDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
+    SetResourceName( m_Api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
 #endif
 }
 

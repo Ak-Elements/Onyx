@@ -15,6 +15,8 @@
 
 #if ONYX_USE_VULKAN
 #include <onyx/rhi/vulkan/graphicsapi.h>
+
+#include <utility>
 #endif
 
 namespace onyx {
@@ -58,68 +60,68 @@ namespace onyx::rhi {
 GraphicsSystem::GraphicsSystem( const GraphicSettings& settings,
                                 assets::AssetSystem& assetSystem,
                                 platform::PlatformSystem& platformSystem )
-    : m_AssetSystem( &assetSystem )
-    , m_PlatformSystem( &platformSystem )
-    , m_Settings( settings )
-    , m_DepthTextureFormat( TextureFormat::DEPTH_FLOAT32 ) {
-    constexpr StringId32 defaultBlendStateId( "default" );
-    constexpr StringId32 noBlendStateId( "noblend" );
-    BlendState& defaultBlendState = m_BlendStates[ defaultBlendStateId ];
+    : m_assetSystem( &assetSystem )
+    , m_platformSystem( &platformSystem )
+    , m_settings( settings )
+    , m_depthTextureFormat( TextureFormat::DEPTH_FLOAT32 ) {
+    constexpr StringId32 DefaultBlendStateId( "default" );
+    constexpr StringId32 NoBlendStateId( "noblend" );
+    BlendState& defaultBlendState = m_blendStates[ DefaultBlendStateId ];
     defaultBlendState.IsBlendEnabled = true;
     defaultBlendState.SourceColor = Blend::SrcAlpha;
     defaultBlendState.DestinationColor = Blend::OneMinusSrcAlpha;
 
-    BlendState& noBlendState = m_BlendStates[ noBlendStateId ];
+    BlendState& noBlendState = m_blendStates[ NoBlendStateId ];
     noBlendState.IsBlendEnabled = false;
 
     for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
-        m_FrameContext[ i ].Api = this;
+        m_frameContext[ i ].Api = this;
     }
 
-    m_PlatformSystem->onWindowCreate< &GraphicsSystem::OnWindowCreate >( this );
-    m_PlatformSystem->onWindowDestroy< &GraphicsSystem::OnWindowDestroy >( this );
+    m_platformSystem->onWindowCreate< &GraphicsSystem::onWindowCreate >( this );
+    m_platformSystem->onWindowDestroy< &GraphicsSystem::onWindowDestroy >( this );
 
-    m_GraphicsSystem = makeUnique< vulkan::VulkanGraphicsApi >();
-    m_GraphicsSystem->Init( m_Settings );
+    m_graphicsSystem = makeUnique< vulkan::VulkanGraphicsApi >();
+    m_graphicsSystem->init( m_limits, m_settings );
 
-    for( const UniquePtr< platform::Window >& window : m_PlatformSystem->GetWindows() ) {
-        OnWindowCreate( *window );
+    for( const UniquePtr< platform::Window >& window : m_platformSystem->GetWindows() ) {
+        onWindowCreate( *window );
     }
 
-    m_PresentThread.start();
+    m_presentThread.start();
 }
 
 GraphicsSystem::~GraphicsSystem() {
-    WaitIdle();
+    waitIdle();
 
-    m_PresentThread.Shutdown();
+    m_presentThread.Shutdown();
 
-    m_FrameContext.clear();
+    m_frameContext.clear();
 
-    m_FramebufferCache.Clear();
-    m_RenderPassCache.Clear();
+    m_framebufferCache.Clear();
+    m_renderPassCache.Clear();
 
-    m_PsoCache.Clear();
-    m_ShaderCache.clear();
+    m_psoCache.Clear();
+    m_shaderCache.clear();
 
-    m_DepthImages.clear();
-    m_ViewConstantsUniformBuffers.clear();
+    m_depthImages.clear();
+    m_viewConstantsUniformBuffers.clear();
 
-    m_GraphicsSystem->Shutdown();
+    m_graphicsSystem->shutdown();
 
-    m_PlatformSystem->DisconnectSignals( this );
+    m_platformSystem->DisconnectSignals( this );
 }
 
-void GraphicsSystem::CreateDepthImages( Vector2s32 extents ) {
-    if( extents == m_DepthTextureExtent ) {
+void GraphicsSystem::createDepthImages( Vector2s32 extents ) {
+    if( extents == m_depthTextureExtent ) {
         return;
     }
 
-    m_DepthTextureExtent = extents;
+    m_depthTextureExtent = extents;
 
     TextureStorageProperties depthTargetStorageProperties;
-    depthTargetStorageProperties.m_Size = Vector3s32{ m_DepthTextureExtent, 1 };
-    depthTargetStorageProperties.m_Format = m_DepthTextureFormat;
+    depthTargetStorageProperties.m_Size = Vector3s32{ m_depthTextureExtent, 1 };
+    depthTargetStorageProperties.m_Format = m_depthTextureFormat;
     depthTargetStorageProperties.m_IsTexture = true;
     depthTargetStorageProperties.m_IsFrameBuffer = true;
 
@@ -130,11 +132,11 @@ void GraphicsSystem::CreateDepthImages( Vector2s32 extents ) {
         depthTargetStorageProperties.m_DebugName = format::format( "Depth Storage {}", i );
         depthTargetViewProperties.m_DebugName = format::format( "Depth Image {}", i );
 
-        CreateTexture( m_DepthImages[ i ], depthTargetStorageProperties, depthTargetViewProperties );
+        createTexture( m_depthImages[ i ], depthTargetStorageProperties, depthTargetViewProperties );
     }
 }
 
-void GraphicsSystem::CreateViewConstantBuffers() {
+void GraphicsSystem::createViewConstantBuffers() {
     BufferProperties uniformBufferProps;
     uniformBufferProps.m_Size = sizeof( ViewConstants );
     uniformBufferProps.m_UsageFlags = static_cast< uint8_t >( BufferUsage::Uniform | BufferUsage::DeviceAddress );
@@ -142,72 +144,72 @@ void GraphicsSystem::CreateViewConstantBuffers() {
 
     for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
         uniformBufferProps.m_DebugName = format::format( "ViewConstants-{}", i );
-        CreateBuffer( m_ViewConstantsUniformBuffers[ i ], uniformBufferProps );
+        createBuffer( m_viewConstantsUniformBuffers[ i ], uniformBufferProps );
     }
 }
 
-bool GraphicsSystem::BeginFrame() {
+bool GraphicsSystem::beginFrame() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
-    platform::Window& mainWindow = m_PlatformSystem->GetMainWindow();
+    platform::Window& mainWindow = m_platformSystem->GetMainWindow();
     if( mainWindow.IsMinimized() )
         return false;
 
-    if( m_Camera != m_QueuedCamera )
-        m_Camera = m_QueuedCamera;
+    if( m_camera != m_queuedCamera )
+        m_camera = m_queuedCamera;
 
-    m_HasComputeWork = false;
+    m_hasComputeWork = false;
 
-    FrameContext& currentFrameContext = GetFrameContext();
-    bool hasBegunFrame = m_GraphicsSystem->BeginFrame( currentFrameContext );
+    FrameContext& currentFrameContext = getFrameContext();
+    bool hasBegunFrame = m_graphicsSystem->beginFrame( currentFrameContext );
     if( hasBegunFrame == false ) {
         return false;
     }
 
     ONYX_PROFILE_MARK_FRAME_START( GPU_FRAME_NAME );
 
-    if( m_Camera != nullptr ) {
+    if( m_camera != nullptr ) {
         ViewConstants& viewConstants = currentFrameContext.ViewConstants;
-        viewConstants.ProjectionMatrix = m_Camera->GetProjectionMatrix();
-        viewConstants.InverseProjectionMatrix = m_Camera->GetProjectionMatrixInverse();
-        viewConstants.ViewMatrix = m_Camera->GetViewMatrix();
-        viewConstants.InverseViewMatrix = m_Camera->GetViewMatrixInverse();
-        viewConstants.ViewProjectionMatrix = m_Camera->GetViewProjectionMatrix();
-        viewConstants.InverseViewProjectionMatrix = m_Camera->GetViewProjectionMatrixInverse();
+        viewConstants.ProjectionMatrix = m_camera->GetProjectionMatrix();
+        viewConstants.InverseProjectionMatrix = m_camera->GetProjectionMatrixInverse();
+        viewConstants.ViewMatrix = m_camera->GetViewMatrix();
+        viewConstants.InverseViewMatrix = m_camera->GetViewMatrixInverse();
+        viewConstants.ViewProjectionMatrix = m_camera->GetViewProjectionMatrix();
+        viewConstants.InverseViewProjectionMatrix = m_camera->GetViewProjectionMatrixInverse();
         viewConstants.CameraPosition = Vector3f32( viewConstants.InverseViewMatrix[ 3 ] );
-        viewConstants.CameraDirection = m_Camera->GetDirection();
-        viewConstants.Viewport = Vector2f32{ m_Camera->GetViewportExtents() };
-        viewConstants.Near = m_Camera->GetNear();
-        viewConstants.Far = m_Camera->GetFar();
+        viewConstants.CameraDirection = m_camera->GetDirection();
+        viewConstants.Viewport = Vector2f32{ m_camera->GetViewportExtents() };
+        viewConstants.Near = m_camera->GetNear();
+        viewConstants.Far = m_camera->GetFar();
     }
 
-    m_ViewConstantsUniformBuffers[ m_FrameIndex ].Buffer->SetData( 0,
+    m_viewConstantsUniformBuffers[ m_frameIndex ].Buffer->SetData( 0,
                                                                    &currentFrameContext.ViewConstants,
                                                                    sizeof( ViewConstants ) );
 
-    m_BeginFrameSignal.Dispatch( currentFrameContext );
+    m_beginFrameSignal.Dispatch( currentFrameContext );
 
     return true;
 }
 
-void GraphicsSystem::Render() {
+void GraphicsSystem::render() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
 
-    m_RenderFrameSignal.Dispatch( GetFrameContext() );
+    m_renderFrameSignal.Dispatch( getFrameContext() );
 }
 
-void GraphicsSystem::EndFrame() {
+void GraphicsSystem::endFrame() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
 
-    FrameContext& currentFrameContext = m_FrameContext[ m_FrameIndex ];
+    FrameContext& currentFrameContext = m_frameContext[ m_frameIndex ];
 
-    m_EndFrameSignal.Dispatch( currentFrameContext );
+    m_endFrameSignal.Dispatch( currentFrameContext );
 
     // Transition image to present
-    TextureHandle& swapchainTarget = m_GraphicsSystem->GetAcquiredSwapChainImage();
-    CommandBuffer& commandBuffer = GetCommandBuffer( m_FrameIndex, true );
+    TextureHandle& swapchainTarget = m_graphicsSystem->getAcquiredSwapChainImage();
+    CommandBuffer& commandBuffer = getCommandBuffer( m_frameIndex, true );
 
     // If not in editor
     // blit the final image on the swapchain
@@ -215,196 +217,196 @@ void GraphicsSystem::EndFrame() {
 
     commandBuffer.transitionLayout( swapchainTarget, Context::Graphics, Access::None, ImageLayout::Present );
 
-    m_GraphicsSystem->EndFrame( currentFrameContext );
+    m_graphicsSystem->endFrame( currentFrameContext );
 
-    m_PresentThread.QueuePresent( m_FrameIndex, m_GraphicsSystem->GetAcquiredBackbufferIndex() );
+    m_presentThread.QueuePresent( m_frameIndex, m_graphicsSystem->getAcquiredBackbufferIndex() );
 
     ONYX_PROFILE_MARK_FRAME_END( GPU_FRAME_NAME );
 
-    m_FrameIndex = ( m_FrameIndex + 1 ) % MAX_FRAMES_IN_FLIGHT;
-    FrameContext& nextFrameContext = m_FrameContext[ m_FrameIndex ];
-    nextFrameContext.FrameIndex = m_FrameIndex;
+    m_frameIndex = ( m_frameIndex + 1 ) % MAX_FRAMES_IN_FLIGHT;
+    FrameContext& nextFrameContext = m_frameContext[ m_frameIndex ];
+    nextFrameContext.FrameIndex = m_frameIndex;
     nextFrameContext.AbsoluteFrame = currentFrameContext.AbsoluteFrame + 1;
-    if( m_HasComputeWork )
+    if( m_hasComputeWork )
         nextFrameContext.ComputeFrame = currentFrameContext.ComputeFrame + 1;
 }
 
-uint16_t GraphicsSystem::GetRefreshRate() const {
-    return m_Settings.RefreshRate;
+uint16_t GraphicsSystem::getRefreshRate() const {
+    return m_settings.RefreshRate;
 }
 
-const TextureHandle& GraphicsSystem::GetAcquiredSwapChainImage() const {
-    return m_GraphicsSystem->GetAcquiredSwapChainImage();
+const TextureHandle& GraphicsSystem::getAcquiredSwapChainImage() const {
+    return m_graphicsSystem->getAcquiredSwapChainImage();
 }
 
-TextureFormat GraphicsSystem::GetSwapchainTextureFormat() const {
-    return m_GraphicsSystem->GetSwapchainTextureFormat();
+TextureFormat GraphicsSystem::getSwapchainTextureFormat() const {
+    return m_graphicsSystem->getSwapchainTextureFormat();
 }
 
-const Vector2s32& GraphicsSystem::GetSwapchainExtent() const {
-    return m_GraphicsSystem->GetSwapchainExtent();
+const Vector2s32& GraphicsSystem::getSwapchainExtent() const {
+    return m_graphicsSystem->getSwapchainExtent();
 }
 
-const TextureHandle& GraphicsSystem::GetDepthImage() const {
-    return m_DepthImages[ m_FrameIndex ];
+const TextureHandle& GraphicsSystem::getDepthImage() const {
+    return m_depthImages[ m_frameIndex ];
 }
 
-RenderPassHandle GraphicsSystem::GetOrCreateRenderPass( const RenderPassSettings& settings ) {
-    return m_RenderPassCache.GetOrCreateRenderPass( settings );
+RenderPassHandle GraphicsSystem::getOrCreateRenderPass( const RenderPassSettings& settings ) {
+    return m_renderPassCache.GetOrCreateRenderPass( settings );
 }
 
-FramebufferHandle GraphicsSystem::GetOrCreateFramebuffer( const FramebufferSettings& settings ) {
-    return m_FramebufferCache.GetOrCreateFramebuffer( settings );
+FramebufferHandle GraphicsSystem::getOrCreateFramebuffer( const FramebufferSettings& settings ) {
+    return m_framebufferCache.GetOrCreateFramebuffer( settings );
 }
 
-void GraphicsSystem::CreateTexture( TextureHandle& outTexture,
+void GraphicsSystem::createTexture( TextureHandle& outTexture,
                                     const TextureStorageProperties& storageProperties,
                                     const TextureProperties& properties ) {
-    std::lock_guard lock( m_Mutex );
-    m_GraphicsSystem->CreateTexture( outTexture, storageProperties, properties );
+    std::lock_guard lock( m_mutex );
+    m_graphicsSystem->createTexture( outTexture, storageProperties, properties );
 }
 
-void GraphicsSystem::CreateTexture( TextureHandle& outTexture,
+void GraphicsSystem::createTexture( TextureHandle& outTexture,
                                     const TextureStorageProperties& storageProperties,
                                     const TextureProperties& properties,
                                     const Span< uint8_t >& initialData ) {
-    std::lock_guard lock( m_Mutex );
+    std::lock_guard lock( m_mutex );
     if( initialData.empty() == false ) {
-        const FrameContext& currentFrameContext = m_FrameContext[ m_FrameIndex ];
+        const FrameContext& currentFrameContext = m_frameContext[ m_frameIndex ];
         ONYX_LOG_INFO( "Submitting instant in frame {}", currentFrameContext.AbsoluteFrame );
     }
 
-    m_GraphicsSystem->CreateTexture( outTexture, storageProperties, properties, initialData );
+    m_graphicsSystem->createTexture( outTexture, storageProperties, properties, initialData );
 }
 
-void GraphicsSystem::CreateAlias( TextureHandle& outTextrue,
+void GraphicsSystem::createAlias( TextureHandle& outTexture,
                                   TextureStorageHandle& storageHandle,
                                   const TextureStorageProperties& aliasStorageProperties,
                                   const TextureProperties& aliasTextureProperties ) {
-    std::lock_guard lock( m_Mutex );
-    m_GraphicsSystem->CreateAlias( outTextrue, storageHandle, aliasStorageProperties, aliasTextureProperties );
+    std::lock_guard lock( m_mutex );
+    m_graphicsSystem->createAlias( outTexture, storageHandle, aliasStorageProperties, aliasTextureProperties );
 }
 
-void GraphicsSystem::CreateBuffer( BufferHandle& outBuffer, const BufferProperties& properties ) {
-    return m_GraphicsSystem->CreateBuffer( outBuffer, properties );
+void GraphicsSystem::createBuffer( BufferHandle& outBuffer, const BufferProperties& properties ) {
+    return m_graphicsSystem->createBuffer( outBuffer, properties );
 }
 
-BufferHandle GraphicsSystem::GetTransientBuffer( const BufferProperties& properties ) {
-    return m_GraphicsSystem->GetTransientBuffer( m_FrameIndex, properties );
+BufferHandle GraphicsSystem::getTransientBuffer( const BufferProperties& properties ) {
+    return m_graphicsSystem->getTransientBuffer( m_frameIndex, properties );
 }
 
-DynamicArray< DescriptorSetHandle > GraphicsSystem::CreateDescriptorSet( const ShaderHandle& shader ) const {
-    return m_GraphicsSystem->CreateDescriptorSet( shader );
+DynamicArray< DescriptorSetHandle > GraphicsSystem::createDescriptorSet( const ShaderHandle& shader ) const {
+    return m_graphicsSystem->createDescriptorSet( shader );
 }
 
-ShaderInstanceHandle GraphicsSystem::CreateShaderInstance( assets::AssetId shaderAssetId ) {
+ShaderInstanceHandle GraphicsSystem::createShaderInstance( assets::AssetId shaderAssetId ) {
     PipelineProperties properties;
-    return CreateShaderInstance( shaderAssetId, properties );
+    return createShaderInstance( std::move( shaderAssetId ), properties );
 }
 
-ShaderInstanceHandle GraphicsSystem::CreateShaderInstance( assets::AssetId shaderAssetId,
+ShaderInstanceHandle GraphicsSystem::createShaderInstance( assets::AssetId shaderAssetId,
                                                            const PipelineProperties& properties ) {
-    ONYX_ASSERT( m_AssetSystem != nullptr );
+    ONYX_ASSERT( m_assetSystem != nullptr );
 
 #if !ONYX_IS_RETAIL
     if( shaderAssetId.getPath().empty() ) {
         // retrieve asset name in case it's loaded with the hash only for better debugging
-        const assets::AssetMetaData& meta = m_AssetSystem->getAssetMeta( shaderAssetId );
+        const assets::AssetMetaData& meta = m_assetSystem->getAssetMeta( shaderAssetId );
         shaderAssetId = assets::AssetId( shaderAssetId.get(), meta.getName() );
     }
 #endif
 
     ShaderHandle shader;
-    m_AssetSystem->getAsset( shaderAssetId, shader );
+    m_assetSystem->getAsset( shaderAssetId, shader );
 
-    PipelineHandle pipelineHandle = m_GraphicsSystem->CreatePipeline( shader, properties );
+    PipelineHandle pipelineHandle = m_graphicsSystem->createPipeline( shader, properties );
 
     return ShaderInstanceHandle::create( *this, pipelineHandle, shader );
 }
 
-CommandBuffer& GraphicsSystem::GetCommandBuffer( uint8_t frameIndex ) {
-    return m_GraphicsSystem->GetCommandBuffer( frameIndex );
+CommandBuffer& GraphicsSystem::getCommandBuffer( uint8_t frameIndex ) {
+    return m_graphicsSystem->getCommandBuffer( frameIndex );
 }
 
-CommandBuffer& GraphicsSystem::GetCommandBuffer( uint8_t frameIndex, bool shouldBegin ) {
-    return m_GraphicsSystem->GetCommandBuffer( frameIndex, shouldBegin );
+CommandBuffer& GraphicsSystem::getCommandBuffer( uint8_t frameIndex, bool shouldBegin ) {
+    return m_graphicsSystem->getCommandBuffer( frameIndex, shouldBegin );
 }
 
-CommandBuffer& GraphicsSystem::GetComputeCommandBuffer( uint8_t frameIndex ) {
-    m_HasComputeWork = true;
-    return m_GraphicsSystem->GetComputeCommandBuffer( frameIndex );
+CommandBuffer& GraphicsSystem::getComputeCommandBuffer( uint8_t frameIndex ) {
+    m_hasComputeWork = true;
+    return m_graphicsSystem->getComputeCommandBuffer( frameIndex );
 }
 
-CommandBuffer& GraphicsSystem::GetComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin ) {
-    m_HasComputeWork = true;
-    return m_GraphicsSystem->GetComputeCommandBuffer( frameIndex, shouldBegin );
+CommandBuffer& GraphicsSystem::getComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin ) {
+    m_hasComputeWork = true;
+    return m_graphicsSystem->getComputeCommandBuffer( frameIndex, shouldBegin );
 }
 
-void GraphicsSystem::SubmitInstantCommandBuffer( Context context,
+void GraphicsSystem::submitInstantCommandBuffer( Context context,
                                                  InplaceFunction< void( CommandBuffer& ) >&& functor ) {
-    const FrameContext& currentFrameContext = m_FrameContext[ m_FrameIndex ];
+    const FrameContext& currentFrameContext = m_frameContext[ m_frameIndex ];
     ONYX_LOG_INFO( "Submitting instant in frame {}", currentFrameContext.AbsoluteFrame );
-    return m_GraphicsSystem->SubmitInstantCommandBuffer(
+    return m_graphicsSystem->submitInstantCommandBuffer(
         context,
-        m_FrameIndex,
+        m_frameIndex,
         std::forward< InplaceFunction< void( CommandBuffer& ) > >( functor ) );
 }
 
-const BlendState& GraphicsSystem::GetDefaultBlendState() const {
-    constexpr StringId32 defaultBlendStateKey( "default" );
-    return m_BlendStates.at( defaultBlendStateKey );
+const BlendState& GraphicsSystem::getDefaultBlendState() const {
+    constexpr StringId32 DefaultBlendStateKey( "default" );
+    return m_blendStates.at( DefaultBlendStateKey );
 }
 
-bool GraphicsSystem::IsBindless() const {
-    return m_GraphicsSystem->IsBindless();
+bool GraphicsSystem::isBindless() const {
+    return m_graphicsSystem->isBindless();
 }
 
-void GraphicsSystem::WaitIdle() {
+void GraphicsSystem::waitIdle() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
 
-    m_GraphicsSystem->WaitIdle();
+    m_graphicsSystem->waitIdle();
 }
 
-void GraphicsSystem::OnWindowResize( Vector2s32 /*extents*/ ) {
+void GraphicsSystem::onWindowResize( Vector2s32 /*extents*/ ) {
     // if (m_Window->IsMinimized())
     //{
     //     return;
     // }
 
     // m_HasWindowResized = true;
-    m_PresentThread.ClearQueue();
-    m_HasWindowResized = true;
+    m_presentThread.ClearQueue();
+    m_hasWindowResized = true;
 }
 
-void GraphicsSystem::LoadSettings() {}
+void GraphicsSystem::loadSettings() {}
 
-void GraphicsSystem::OnWindowCreate( const platform::Window& window ) {
+void GraphicsSystem::onWindowCreate( const platform::Window& window ) {
     // TODO: Add support for multiple windows
 
-    window.OnResize().Connect< &GraphicsSystem::OnWindowResize >( this );
-    m_GraphicsSystem->CreateSwapchain( window );
+    window.OnResize().Connect< &GraphicsSystem::onWindowResize >( this );
+    m_graphicsSystem->createSwapchain( window );
 
     // TODO: Remove depth images from graphics system -> move into render graph
-    CreateDepthImages( window.GetFrameBufferSize() );
-    CreateViewConstantBuffers();
+    createDepthImages( window.GetFrameBufferSize() );
+    createViewConstantBuffers();
 }
 
-void GraphicsSystem::OnWindowDestroy( const platform::Window& /*window*/ ) {
+void GraphicsSystem::onWindowDestroy( const platform::Window& /*window*/ ) {
     // TODO: For multiple windows we need to destroy the swapchain / surface here
 }
 
-RenderPassHandle GraphicsSystem::CreateRenderPass( const RenderPassSettings& settings ) {
+RenderPassHandle GraphicsSystem::createRenderPass( const RenderPassSettings& settings ) {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
 
-    return m_GraphicsSystem->CreateRenderPass( settings );
+    return m_graphicsSystem->createRenderPass( settings );
 }
 
-FramebufferHandle GraphicsSystem::CreateFramebuffer( const FramebufferSettings& settings ) {
+FramebufferHandle GraphicsSystem::createFramebuffer( const FramebufferSettings& settings ) {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
 
-    return m_GraphicsSystem->CreateFramebuffer( settings );
+    return m_graphicsSystem->createFramebuffer( settings );
 }
 } // namespace onyx::rhi

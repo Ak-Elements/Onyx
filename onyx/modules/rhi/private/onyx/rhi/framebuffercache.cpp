@@ -21,7 +21,7 @@ FramebufferHandle FramebufferCache::GetOrCreateFramebuffer( const FramebufferSet
     if ( it != m_Cache.end() )
         return it->second;
 
-    FramebufferHandle framebufferHandle = m_GraphicsSystem.CreateFramebuffer( framebufferSettings );
+    FramebufferHandle framebufferHandle = m_GraphicsSystem.createFramebuffer( framebufferSettings );
     m_Cache[ framebufferHash ] = framebufferHandle;
     return framebufferHandle;
 }

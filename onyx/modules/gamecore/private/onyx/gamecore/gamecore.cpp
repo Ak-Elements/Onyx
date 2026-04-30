@@ -88,7 +88,7 @@ void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graph
     }
 
     // TODO: Can we find a cleaner / better solution for this?
-    rhi::FrameContext& frameContext = graphicsSystem.GetFrameContext();
+    rhi::FrameContext& frameContext = graphicsSystem.getFrameContext();
     if ( frameContext.FrameData == nullptr )
         frameContext.FrameData = makeUnique< SceneFrameData >();
 
@@ -111,7 +111,7 @@ onyx::physics::PhysicsWorld& onyx::ecs::DependantFunctionArg< onyx::physics::Phy
 onyx::rhi::FrameContext& onyx::ecs::DependantFunctionArg< onyx::rhi::FrameContext >::Get(
     const ECSExecutionContext& context ) {
     rhi::GraphicsSystem& graphicsSystem = context.Engine.getSystem< rhi::GraphicsSystem >();
-    return graphicsSystem.GetFrameContext();
+    return graphicsSystem.getFrameContext();
 }
 
 onyx::graphics::DebugDrawQueue& onyx::ecs::DependantFunctionArg< onyx::graphics::DebugDrawQueue >::Get(

@@ -76,7 +76,7 @@ const DescriptorSetHandle& ShaderInstance::GetDescriptorSet( uint8_t frameIndex,
 void ShaderInstance::OnShaderLoaded( assets::AssetHandle< Shader > /*shader*/ ) {
     if( m_Shader->HasDescriptorSetLayout() ) {
         for( uint8_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; ++frameIndex ) {
-            m_DescriptorSets[ frameIndex ] = m_Api->CreateDescriptorSet( m_Shader );
+            m_DescriptorSets[ frameIndex ] = m_Api->createDescriptorSet( m_Shader );
         }
 
         // bindings stay the same between frames so we can just peek at frame 0

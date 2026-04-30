@@ -17,7 +17,7 @@ bool JsonSerializer::DoGenericWrite( T value ) {
 template < std::integral T >
 bool JsonSerializer::DoGenericWrite( T value, uint8_t base ) {
     StringView valueAsBaseString;
-    switch ( base ) {
+    switch( base ) {
     case 2:
         valueAsBaseString = format::format( "{:b}", value );
         break;
@@ -49,7 +49,7 @@ bool JsonSerializer::DoGenericWrite( StringView name, T value ) {
 template < std::integral T >
 bool JsonSerializer::DoGenericWrite( StringView name, T value, uint8_t base ) {
     StringView valueAsBaseString;
-    switch ( base ) {
+    switch( base ) {
     case 2:
         valueAsBaseString = format::format( "{:b}", value );
         break;
@@ -234,7 +234,7 @@ bool JsonSerializer::doWrite( StringView name, StringView value ) {
 
 bool JsonSerializer::createScope( uint32_t index ) {
     nlohmann::ordered_json& current = GetCurrent();
-    if ( current.is_object() ) {
+    if( current.is_object() ) {
         StringView scopeKey = format::format( "{:x}", index );
         return createScope( scopeKey );
     } else {
@@ -245,7 +245,7 @@ bool JsonSerializer::createScope( uint32_t index ) {
 
 bool JsonSerializer::createScope( uint64_t index ) {
     nlohmann::ordered_json& current = GetCurrent();
-    if ( current.is_object() ) {
+    if( current.is_object() ) {
         StringView scopeKey = format::format( "{:x}", index );
         return createScope( scopeKey );
     } else {

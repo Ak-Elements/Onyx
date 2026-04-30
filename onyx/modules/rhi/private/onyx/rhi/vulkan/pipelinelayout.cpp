@@ -7,7 +7,7 @@
 
 namespace onyx::rhi::vulkan {
 PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const DescriptorSetLayout& descriptorSetLayout )
-    : m_Device( api.GetDevice() ) {
+    : m_Device( api.getDevice() ) {
     VkDescriptorSetLayout descriptorSetLayouts[] = { descriptorSetLayout.GetHandle() };
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -21,7 +21,7 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const DescriptorSe
 }
 
 PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shader )
-    : m_Device( api.GetDevice() ) {
+    : m_Device( api.getDevice() ) {
     //// Descriptor set layouts
     const auto& descriptorSetLayouts = shader.GetDescriptorSetLayouts();
     const uint32_t descriptorSetLayoutsCount = static_cast< uint32_t >( descriptorSetLayouts.size() );
@@ -30,11 +30,11 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
     DynamicArray< VkDescriptorSetLayout > vkDescriptorSetLayouts;
     vkDescriptorSetLayouts.reserve( descriptorSetLayoutsCount + 1 );
 
-    if ( api.IsBindless() )
-        vkDescriptorSetLayouts.push_back( api.GetBindlessDescriptorSetLayout().GetHandle() );
+    if( api.isBindless() )
+        vkDescriptorSetLayouts.push_back( api.getBindlessDescriptorSetLayout().GetHandle() );
 
-    for ( const UniquePtr< DescriptorSetLayout >& descriptorSetLayout : descriptorSetLayouts ) {
-        if ( descriptorSetLayout == nullptr )
+    for( const UniquePtr< DescriptorSetLayout >& descriptorSetLayout : descriptorSetLayouts ) {
+        if( descriptorSetLayout == nullptr )
             continue;
 
         vkDescriptorSetLayouts.push_back( descriptorSetLayout->GetHandle() );
@@ -44,7 +44,7 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
     const uint32_t pushConstantRangesCount = static_cast< uint32_t >( pushConstantRanges.size() );
 
     DynamicArray< VkPushConstantRange > vkPushConstantRanges;
-    for ( const auto& pushConstantRange : pushConstantRanges )
+    for( const auto& pushConstantRange : pushConstantRanges )
         vkPushConstantRanges.emplace_back( ToVulkanStage( pushConstantRange.Stage ),
                                            pushConstantRange.Offset,
                                            pushConstantRange.Size );
@@ -62,7 +62,7 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
 }
 
 PipelineLayout::~PipelineLayout() {
-    if ( m_PipelineLayout != nullptr ) {
+    if( m_PipelineLayout != nullptr ) {
         vkDestroyPipelineLayout( m_Device.GetHandle(), m_PipelineLayout, nullptr );
         m_PipelineLayout = nullptr;
     }

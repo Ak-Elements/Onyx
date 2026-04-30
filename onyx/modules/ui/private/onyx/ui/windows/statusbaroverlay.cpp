@@ -1,6 +1,4 @@
-#include <onyx/application/debug/gui/statusbaroverlay.h>
-
-#if ONYX_UI_MODULE
+#include <onyx/ui/windows/statusbaroverlay.h>
 
 #include <onyx/ui/controls/button.h>
 
@@ -8,20 +6,15 @@
 #include <imgui_internal.h>
 #include <imgui_stacklayout.h>
 
-namespace onyx::application::debug {
-void StatusBarOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    ::ImGuiWindow* window = ImGui::FindWindowByName( "SceneView" );
-    if( window != nullptr ) {
-        ImGui::SetNextWindowPos( window->InnerRect.Min + ImGui::GetStyle().FramePadding );
-        ImGui::SetNextWindowSize( window->Size );
-    } else {
-        return;
-    }
+namespace onyx::ui {
+void StatusBarOverlay::onOpen() {
+    setWindowFlags( ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration |
+                    ImGuiWindowFlags_NoNav );
 
-    ImGui::Begin( "##debugOverlay",
-                  nullptr,
-                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav );
+    setDefaultPosition( WindowPosition::TopLeft );
+}
 
+void StatusBarOverlay::onRender( ImGuiSystem& /*imguiSystem*/ ) {
     ImGui::BeginHorizontal( "items" );
 
     bool hasOverlayClosed = false;
@@ -40,12 +33,8 @@ void StatusBarOverlay::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     ImGui::EndHorizontal();
 
-    ImGui::End();
-
     if( hasOverlayClosed ) {
         std::erase_if( m_items, []( const UniquePtr< StatusBarOverlayItem >& overlay ) { return overlay == nullptr; } );
     }
 }
-} // namespace onyx::application::debug
-
-#endif
+} // namespace onyx::ui

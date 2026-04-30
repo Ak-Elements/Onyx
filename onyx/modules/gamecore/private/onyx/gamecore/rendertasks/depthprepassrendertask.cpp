@@ -13,17 +13,17 @@ void DepthPrePassRenderGraphNode::OnInit( rhi::GraphicsSystem& api,
     depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
     graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get< graphics::RenderGraphTextureResourceInfo >(
         depthResource.Properties );
-    resourceInfo.Format = api.GetDepthTextureFormat();
+    resourceInfo.Format = api.getDepthTextureFormat();
     resourceInfo.LoadOp = rhi::RenderPassSettings::LoadOp::Clear;
 
-    resourceCache[ GetOutputPin().GetGlobalId().get() ].Handle = api.GetDepthImage();
+    resourceCache[ GetOutputPin().GetGlobalId().get() ].Handle = api.getDepthImage();
 }
 
 void DepthPrePassRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
     context.Graph.GetResourceCache()[ GetOutputPin().GetGlobalId().get() ].Handle = context.FrameContext.Api
-                                                                                        ->GetDepthImage();
+                                                                                        ->getDepthImage();
 }
 
 void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {

@@ -71,12 +71,12 @@ struct typelist_to_tuple_ref {
 // Invokes the functor with every type, this code generation is done at compile time
 template < typename Sequence, typename F >
 constexpr void ForEach( F&& f ) {
-    Detail::TypeVisitor< Sequence >::template Visit( std::forward< F >( f ) );
+    Detail::TypeVisitor< Sequence >::template Visit< F >( std::forward< F >( f ) );
 }
 
 template < typename Sequence, typename F >
 constexpr auto ForEachAndCollect( F&& f ) {
-    return Detail::TypeVisitor< Sequence >::template Collect( std::forward< F >( f ) );
+    return Detail::TypeVisitor< Sequence >::template Collect< F >( std::forward< F >( f ) );
 }
 
 template < typename TypeList >

@@ -1,8 +1,8 @@
-#include <onyx/application/debug/gui/fpsstatusbaritem.h>
+#include <onyx/ui/windows/fpsstatusbaritem.h>
 
-#if ONYX_UI_MODULE && ONYX_USE_IMGUI
+#if ONYX_USE_IMGUI
 
-namespace onyx::application::debug {
+namespace onyx::ui {
 
 void FpsStatusBarItem::update( uint64_t deltaTime ) {
     m_averageFrameTime += ( numericCast< float64 >( deltaTime ) - m_averageFrameTime ) * 0.03f;
@@ -10,6 +10,6 @@ void FpsStatusBarItem::update( uint64_t deltaTime ) {
     m_value = format::format( "{}({:.2} ms)", avgFps, m_averageFrameTime );
 }
 
-} // namespace onyx::application::debug
+} // namespace onyx::ui
 
 #endif
