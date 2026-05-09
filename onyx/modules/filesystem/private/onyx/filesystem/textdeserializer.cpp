@@ -369,17 +369,20 @@ void TextDeserializer::updateScope() const {
                 continue;
             }
 
+            // TODO: We probably need to handle strings here properly
+            uint64_t commentOrStringStartIndex = trimmedLine.find_first_of( "\"'/" );
+            if( commentOrStringStartIndex != StringView::npos ) {
+                if( trimmedLine[ commentOrStringStartIndex ] == '/' &&
+                    trimmedLine[ std::min( commentOrStringStartIndex + 1, scopeEndIndex ) ] == '/' ) {
+                    trimmedLine = trimRight( trimmedLine.substr( 0, commentOrStringStartIndex ) );
+                }
+            }
+
             uint64_t propertyNameEndIndex = trimmedLine.find_first_of( " \t\n\r" );
             if( propertyNameEndIndex == StringView::npos ) {
                 propertyNameEndIndex = splitIndex;
             }
             StringView propertyName = trim( trimmedLine.substr( 0, propertyNameEndIndex ) );
-            if( propertyName.empty() ) {
-                ONYX_LOG_WARNING( "t" );
-            }
-            if( propertyName == "colors" ) {
-                ONYX_LOG_WARNING( "t" );
-            }
 
             uint64_t scopeLineCount = 1;
             if( propertyNameEndIndex != splitIndex ) {

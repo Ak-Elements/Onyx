@@ -110,7 +110,7 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
 
             float distance = ( entityPos - cameraPos ).length();
 
-            float desiredWorldSize = 50.0f;
+            float desiredWorldSize = 10.0f;
             float halfFovRadians = quantityCast< units::Radians, units::Degrees >( 45.0f ) * 0.5f;
             float clipSize = ( desiredWorldSize / distance ) / std::tan( halfFovRadians );
 

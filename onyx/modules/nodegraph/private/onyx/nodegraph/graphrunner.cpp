@@ -5,45 +5,45 @@
 
 namespace onyx::node_graph {
 void GraphRunner::Prepare() {
-    const HashMap< Guid64, std::any >& constantPinData = m_Graph->GetConstantPinData();
+    const HashMap< Guid64, std::any >& constantPinData = m_Graph->getConstantPinData();
 
-    const DynamicArray< int8_t >& executionOrder = m_Graph->GetTopologicalOrder();
+    const DynamicArray< int8_t >& executionOrder = m_Graph->getTopologicalOrder();
 
     // collect pin meta information first
     HashSet< Guid64 > connectedPins;
-    for ( int8_t localNodeId : executionOrder ) {
-        const Node& node = m_Graph->GetNode( localNodeId );
+    for( int8_t localNodeId : executionOrder ) {
+        const Node& node = m_Graph->getNode( localNodeId );
 
         const uint32_t inputPinCount = node.GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const PinBase* inputPin = node.GetInputPin( i );
-            if ( inputPin->IsConnected() ) {
+            if( inputPin->IsConnected() ) {
                 connectedPins.emplace( inputPin->GetLinkedPinGlobalId() );
             }
         }
 
         const uint32_t outputPinCount = node.GetOutputPinCount();
-        for ( uint32_t i = 0; i < outputPinCount; ++i ) {
+        for( uint32_t i = 0; i < outputPinCount; ++i ) {
             const PinBase* outputPin = node.GetOutputPin( i );
-            if ( outputPin->IsConnected() ) {
+            if( outputPin->IsConnected() ) {
                 connectedPins.emplace( outputPin->GetLinkedPinGlobalId() );
             }
         }
     }
 
-    for ( int8_t localNodeId : executionOrder ) {
-        const Node& node = m_Graph->GetNode( localNodeId );
+    for( int8_t localNodeId : executionOrder ) {
+        const Node& node = m_Graph->getNode( localNodeId );
         node.Prepare( m_PrepareContext );
 
         // setup execution context
         ExecutionContext::NodeContext context;
 
         const uint32_t inputPinCount = node.GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const PinBase* inputPin = node.GetInputPin( i );
             Guid64 globalPinId = inputPin->GetGlobalId();
 
-            if ( constantPinData.contains( globalPinId ) ) {
+            if( constantPinData.contains( globalPinId ) ) {
                 context.PinData[ inputPin->GetLocalId() ] = constantPinData.at( globalPinId );
             } else {
                 context.PinData[ inputPin->GetLocalId() ] = inputPin->CreateDefault();
@@ -55,7 +55,7 @@ void GraphRunner::Prepare() {
         }
 
         const uint32_t outputPinCount = node.GetOutputPinCount();
-        for ( uint32_t i = 0; i < outputPinCount; ++i ) {
+        for( uint32_t i = 0; i < outputPinCount; ++i ) {
             const PinBase* outputPin = node.GetOutputPin( i );
             context.PinData[ outputPin->GetLocalId() ] = outputPin->CreateDefault();
 
@@ -71,25 +71,25 @@ void GraphRunner::Prepare() {
 void GraphRunner::Update( uint64_t deltaTime ) {
     ONYX_UNUSED( deltaTime );
 
-    const DynamicArray< int8_t >& executionOrder = m_Graph->GetTopologicalOrder();
-    for ( int8_t localNodeId : executionOrder ) {
-        const Node& node = m_Graph->GetNode( localNodeId );
+    const DynamicArray< int8_t >& executionOrder = m_Graph->getTopologicalOrder();
+    for( int8_t localNodeId : executionOrder ) {
+        const Node& node = m_Graph->getNode( localNodeId );
 
         ExecutionContext::NodeContext& currentContext = m_ExecutionContext.SetCurrentNode( node.GetId() );
 
         const uint32_t inputPinCount = node.GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const PinBase* inputPin = node.GetInputPin( i );
-            if ( inputPin->IsConnected() ) {
+            if( inputPin->IsConnected() ) {
                 Guid64 linkedPinId = inputPin->GetLinkedPinGlobalId();
-                const Node& connectedNode = m_Graph->GetNodeForPinId( linkedPinId );
+                const Node& connectedNode = m_Graph->getNodeForPinId( linkedPinId );
                 const ExecutionContext::NodeContext& dependantNodeContext = m_ExecutionContext.GetNodeContext(
                     connectedNode.GetId() );
 
                 const uint32_t outputPinCount = connectedNode.GetOutputPinCount();
-                for ( uint32_t outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex ) {
+                for( uint32_t outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex ) {
                     const PinBase* outputPin = connectedNode.GetOutputPin( outputPinIndex );
-                    if ( outputPin->GetGlobalId() == linkedPinId ) {
+                    if( outputPin->GetGlobalId() == linkedPinId ) {
                         currentContext.PinData[ inputPin->GetLocalId() ] = dependantNodeContext.PinData.at(
                             outputPin->GetLocalId() );
                         break;

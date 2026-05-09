@@ -9,6 +9,7 @@ String toLower( StringView str );
 
 StringView trim( StringView str );
 StringView trimLeft( StringView str );
+StringView trimRight( StringView str );
 
 int ignoreCaseCompare( StringView lhs, StringView rhs );
 bool ignoreCaseEqual( StringView lhs, StringView rhs );

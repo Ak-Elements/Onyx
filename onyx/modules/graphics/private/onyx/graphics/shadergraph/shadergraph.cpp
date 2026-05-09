@@ -18,7 +18,7 @@ uint32_t ShaderGraphTextures::AddTexture( const rhi::TextureHandle& texture ) {
         return bindlessTextureIndex == textureIndex;
     } );
 
-    if ( textureIt != Textures.end() ) {
+    if( textureIt != Textures.end() ) {
         return *textureIt;
     }
 
@@ -50,7 +50,7 @@ uint32_t ShaderGraphTextures::AddTexture( const rhi::TextureHandle& texture ) {
 bool ShaderGraph::serialize( Serializer& serializer ) const {
     bool success = node_graph::serialize( serializer, Graph );
 
-    if ( success ) {
+    if( success ) {
         success = OnSerialize( serializer );
     }
 
@@ -59,11 +59,11 @@ bool ShaderGraph::serialize( Serializer& serializer ) const {
 
 bool ShaderGraph::deserialize( const Deserializer& deserializer ) {
     ShaderGraphNodeFactory factory;
-    if ( node_graph::deserialize( deserializer, Graph, factory ) == false ) {
+    if( node_graph::deserialize( deserializer, Graph, factory ) == false ) {
         return false;
     }
 
-    if ( OnDeserialize( deserializer ) == false ) {
+    if( OnDeserialize( deserializer ) == false ) {
         return false;
     }
 
@@ -73,9 +73,9 @@ bool ShaderGraph::deserialize( const Deserializer& deserializer ) {
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
 
 bool ShaderGraph::GenerateShader( rhi::ShaderGenerator& generator ) {
-    bool hasCompiled = Graph.Compile();
+    bool hasCompiled = Graph.compile();
 
-    if ( hasCompiled == false )
+    if( hasCompiled == false )
         return false;
 
     node_graph::GraphRunner runner( Graph );
@@ -87,10 +87,10 @@ bool ShaderGraph::GenerateShader( rhi::ShaderGenerator& generator ) {
     runner.Update( 0 );
 
     ShaderGraphNodeFactory factory;
-    const DynamicArray< int8_t >& executionOrder = Graph.GetTopologicalOrder();
+    const DynamicArray< int8_t >& executionOrder = Graph.getTopologicalOrder();
     node_graph::ExecutionContext& executionContext = runner.GetContext();
-    for ( int8_t localNodeId : executionOrder ) {
-        const ShaderGraphNode& node = Graph.GetNode< ShaderGraphNode >( localNodeId );
+    for( int8_t localNodeId : executionOrder ) {
+        const ShaderGraphNode& node = Graph.getNode< ShaderGraphNode >( localNodeId );
         executionContext.SetCurrentNode( node.GetId() );
 
         generator.SetStage( rhi::ShaderStage::Fragment ); // TODO: Add support for other stages

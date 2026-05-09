@@ -13,7 +13,7 @@ namespace onyx::editor {
 class RenderGraphEditorContext
     : public TypedNodeGraphEditorContext< graphics::RenderGraph, graphics::RenderGraphNodeFactory > {
   public:
-    bool Compile() override;
-    uint32_t GetCanvasBackgroundColor() const override { return 0xFF50463C; }
+    bool compile() override;
+    uint32_t getCanvasBackgroundColor() const override { return 0xFF50463C; }
 };
 } // namespace onyx::editor

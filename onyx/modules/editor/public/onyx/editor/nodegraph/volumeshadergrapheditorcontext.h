@@ -10,12 +10,12 @@ class VolumeShaderGraphEditorContext
   public:
     VolumeShaderGraphEditorContext( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem );
 
-    bool Compile() override;
+    bool compile() override;
 
-    uint32_t GetCanvasBackgroundColor() const override { return 0xFF503C46; }
+    uint32_t getCanvasBackgroundColor() const override { return 0xFF503C46; }
 
   private:
-    void OnNodeChanged( const Node& newNode ) override;
+    void onNodeChanged( const Node& newNode ) override;
 
   private:
     assets::AssetSystem* m_AssetSystem = nullptr;

@@ -43,7 +43,7 @@ theme 91
         slider_grab_active: accent4
         button: surface1
         button_hovered: surface2
-        button_active: accent2
+        button_active: accent3
         header: surface1
         header_hovered: surface2
         header_active: surface3
@@ -69,7 +69,7 @@ theme 91
         table_border_light: border_subtle
         table_row_background: surface0
         table_row_background_alt: surface0
-        text_selected_background: accent1
+        text_selected_background: accent3
         drag_drop_target: accent4
         nav_cursor: accent5
         nav_windowing_highlight: base

@@ -12,8 +12,8 @@ namespace onyx::node_graph {
 bool serialize( Serializer& serializer, const NodeGraph& nodeGraph ) {
 #if ONYX_IS_EDITOR
     // serialize
-    DynamicArray< const Node* > nodes = nodeGraph.GetNodesSorted();
-    const HashMap< Guid64, std::any >& constantPinData = nodeGraph.GetConstantPinData();
+    DynamicArray< const Node* > nodes = nodeGraph.getNodesSorted();
+    const HashMap< Guid64, std::any >& constantPinData = nodeGraph.getConstantPinData();
 
     serializer.writeForEach< "graph" >( nodes, []( Serializer& scopedSerializer, const Node* node ) {
         return node->serialize( scopedSerializer );
@@ -22,7 +22,7 @@ bool serialize( Serializer& serializer, const NodeGraph& nodeGraph ) {
     serializer.writeForEach< "data" >(
         constantPinData,
         [ & ]( Serializer& scopedSerializer, const Guid64& globalPinId, const std::any& value ) {
-            const PinBase& pin = nodeGraph.GetPinById( globalPinId );
+            const PinBase& pin = nodeGraph.getPinById( globalPinId );
             const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.GetType() );
             return typeMeta.serialize( scopedSerializer, value );
         } );
@@ -37,55 +37,63 @@ bool serialize( Serializer& serializer, const NodeGraph& nodeGraph ) {
 
 bool deserialize( const Deserializer& deserializer, NodeGraph& outNodeGraph, const INodeFactory& nodeFactory ) {
     HashMap< Guid64, Guid64 > edges;
-    HashMap< Guid64, std::any >& constantPinData = outNodeGraph.GetConstantPinData();
+    HashMap< Guid64, std::any >& constantPinData = outNodeGraph.getConstantPinData();
 
     bool success = deserializer.readForEach< "graph" >( [ & ]( const Deserializer& scopedDeserializer ) {
         StringId32 typeId;
-        if ( scopedDeserializer.read< "typeId" >( typeId ) == false ) {
+        if( scopedDeserializer.read< "typeId" >( typeId ) == false ) {
             return false;
         }
 
         UniquePtr< Node > node = nodeFactory.CreateNode( typeId );
-        if ( node->deserialize( scopedDeserializer ) == false ) {
+        if( node->deserialize( scopedDeserializer ) == false ) {
             return false;
         }
 
         const uint32_t inputPinCount = node->GetInputPinCount();
-        for ( uint32_t inputPinIndex = 0; inputPinIndex < inputPinCount; ++inputPinIndex ) {
+        for( uint32_t inputPinIndex = 0; inputPinIndex < inputPinCount; ++inputPinIndex ) {
             PinBase* pin = node->GetInputPin( inputPinIndex );
-            if ( pin->IsConnected() ) {
+            if( pin->IsConnected() ) {
                 edges[ pin->GetGlobalId() ] = pin->GetLinkedPinGlobalId();
             }
         }
 
         const uint32_t outputPinCount = node->GetOutputPinCount();
-        for ( uint32_t outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex ) {
+        for( uint32_t outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex ) {
             PinBase* pin = node->GetOutputPin( outputPinIndex );
-            if ( pin->IsConnected() ) {
+            if( pin->IsConnected() ) {
                 edges[ pin->GetGlobalId() ] = pin->GetLinkedPinGlobalId();
             }
         }
 
-        outNodeGraph.Emplace( std::move( node ) );
+        outNodeGraph.emplace( std::move( node ) );
         return true;
     } );
 
-    if ( success == false ) {
+    if( success == false ) {
         return false;
     }
 
     deserializer.readForEach< "data" >(
         constantPinData,
         [ & ]( const Deserializer& scopedDeserializer, const Guid64& globalPinId, std::any& outValue ) {
-            const PinBase& pin = outNodeGraph.GetPinById( globalPinId );
+            const PinBase& pin = outNodeGraph.getPinById( globalPinId );
             const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.GetType() );
             return typeMeta.deserialize( scopedDeserializer, outValue );
         } );
 
-    for ( auto&& [ fromPinId, toPinId ] : edges ) {
-        bool isEdgeValid = outNodeGraph.AddEdge( toPinId, fromPinId );
+    for( auto&& [ fromPinId, toPinId ] : edges ) {
+#if ONYX_IS_EDITOR
+        const bool hasFromPin = outNodeGraph.hasPin( fromPinId );
+        const bool hasToPin = outNodeGraph.hasPin( toPinId );
+        if( ( hasFromPin == false ) || ( hasToPin == false ) ) {
+            ONYX_LOG_WARNING( "Trying to add invalid edge, there is an error in the saved graph" );
+            continue;
+        }
+#endif
+        bool isEdgeValid = outNodeGraph.addEdge( toPinId, fromPinId );
 
-        if ( isEdgeValid == false ) {
+        if( isEdgeValid == false ) {
             ONYX_ASSERT( false, "Trying to add invalid edge, there is an error in the saved graph" );
             return false;
         }

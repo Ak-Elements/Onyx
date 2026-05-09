@@ -10,24 +10,23 @@
 namespace onyx::ui {
 template < typename T >
 struct PropertyInspector< EngineVariable< T > > {
-    static bool Draw( EngineVariable< T >& variable, bool /*forceDraw*/ ) {
+    static bool draw( EngineVariable< T >& variable, bool /*forceDraw*/ ) {
         StringView localizedPath = g_uiContext.LocalizationSystem->TryGetLocalized( variable.getId() )
-                                       .value_or( variable.getId().GetString() );
+                                       .value_or( variable.getId().getString() );
 
         StringView label = localizedPath;
-        StringView::size_type index = localizedPath.find_last_of(
-            EngineVariablesWindow::ENGINE_VARIABLE_PATH_SEPERATOR );
+        StringView::size_type index = localizedPath.find_last_of( EngineVariablesWindow::EngineVariablePathSeperator );
         if( index != StringView::npos ) {
             label = localizedPath.substr( index + 1 );
         }
 
         if constexpr( Numeric< T > && !std::is_same_v< T, bool > ) {
             T value = variable.get();
-            if( property_grid::drawProperty( label, value, { variable.GetMin(), variable.GetMax() } ) ) {
+            if( property_grid::drawProperty( label, value, { variable.getMin(), variable.getMax() } ) ) {
                 variable.set( value );
                 return true;
             }
-        } else if constexpr( Invokable< T > ) {
+        } else if constexpr( std::is_invocable_v< T > ) {
             if( property_grid::drawButton( label ) ) {
                 variable.Invoke();
             }

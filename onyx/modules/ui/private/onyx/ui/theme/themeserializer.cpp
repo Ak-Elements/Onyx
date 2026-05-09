@@ -106,6 +106,11 @@ struct Serialization< onyx::ui::Theme::Palette > {
         readColor< "nav_windowing_dim_background" >( deserializer, outColors.NavWindowingDimBackground );
         readColor< "modal_window_dim_background" >( deserializer, outColors.ModalWindowDimBackground );
 
+        readColor< "axis_x" >( deserializer, outColors.AxisX );
+        readColor< "axis_y" >( deserializer, outColors.AxisY );
+        readColor< "axis_z" >( deserializer, outColors.AxisZ );
+        readColor< "axis_w" >( deserializer, outColors.AxisW );
+
         return true;
     }
 };

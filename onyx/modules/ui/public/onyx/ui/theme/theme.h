@@ -85,6 +85,11 @@ class Theme : public assets::Asset< Theme > {
         Color NavWindowingHighlight{ 0xFFFFFFB3 };
         Color NavWindowingDimBackground{ 0xCCCCCC33 };
         Color ModalWindowDimBackground{ 0xCCCCCC59 };
+
+        Color AxisX{ 170, 68, 68, 255 };
+        Color AxisY{ 68, 170, 68, 255 };
+        Color AxisZ{ 68, 68, 170, 255 };
+        Color AxisW{ 128, 128, 128, 255 };
     };
 
     struct Layout {

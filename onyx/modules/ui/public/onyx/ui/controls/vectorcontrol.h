@@ -3,9 +3,11 @@
 #if ONYX_IS_EDITOR
 
 #include <onyx/ui/controls/button.h>
+#include <onyx/ui/imguisystem.h>
 #include <onyx/ui/scopedcolor.h>
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/scopedstyle.h>
+#include <onyx/ui/theme/theme.h>
 #include <onyx/ui/widgets.h>
 
 #include <imgui.h>
@@ -15,19 +17,17 @@
 namespace onyx::ui {
 class VectorControl {
   public:
-    static constexpr uint32_t BACKGROUND_COLOR_X_COMPONENT = 0xFF4444AA;
-    static constexpr uint32_t BACKGROUND_COLOR_Y_COMPONENT = 0xFF44AA44;
-    static constexpr uint32_t BACKGROUND_COLOR_Z_COMPONENT = 0xFFAA4444;
-    static constexpr uint32_t BACKGROUND_COLOR_W_COMPONENT = 0xFF808080;
-
     template < typename ScalarT >
-    static bool VectorInput( Vector2< ScalarT >& vector ) {
+    static bool vectorInput( Vector2< ScalarT >& vector ) {
         ImGui::BeginHorizontal( "##vec2Inputs" );
 
-        constexpr ImGuiDataType dataType = GetImGuiDataType< ScalarT >();
+        constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
 
-        bool hasModified = VectorComponentInput( "X", vector[ 0 ], dataType, 50.0f, BACKGROUND_COLOR_X_COMPONENT );
-        hasModified |= VectorComponentInput( "Y", vector[ 1 ], dataType, 50.0f, BACKGROUND_COLOR_Y_COMPONENT );
+        ImGuiSystem* imguiSystem = static_cast< ImGuiSystem* >( ImGui::GetIO().UserData );
+        const Theme& theme = imguiSystem->getTheme();
+
+        bool hasModified = vectorComponentInput( "X", vector[ 0 ], DataType, 50.0f, theme.Colors.AxisX.toABGR() );
+        hasModified |= vectorComponentInput( "Y", vector[ 1 ], DataType, 50.0f, theme.Colors.AxisY.toABGR() );
 
         ImGui::EndHorizontal();
 
@@ -35,56 +35,59 @@ class VectorControl {
     }
 
     template < typename ScalarT >
-    static bool VectorInput( Vector3< ScalarT >& outVector ) {
-        constexpr Vector3< ScalarT > minValue{ std::numeric_limits< ScalarT >::lowest() };
-        return VectorInput( outVector, minValue );
+    static bool vectorInput( Vector3< ScalarT >& outVector ) {
+        constexpr Vector3< ScalarT > MinValue{ std::numeric_limits< ScalarT >::lowest() };
+        return vectorInput( outVector, MinValue );
     }
 
     template < typename ScalarT >
-    static bool VectorInput( Vector3< ScalarT >& outVector, const Vector3< ScalarT >& minValue ) {
-        constexpr InplaceArray< StringView, 3 > labels{ "X", "Y", "Z" };
-        return VectorInput( outVector, minValue, labels );
+    static bool vectorInput( Vector3< ScalarT >& outVector, const Vector3< ScalarT >& minValue ) {
+        constexpr InplaceArray< StringView, 3 > Labels{ "X", "Y", "Z" };
+        return vectorInput( outVector, minValue, Labels );
     }
 
     template < typename ScalarT >
-    static bool VectorInput( Vector3< ScalarT >& outVector, const InplaceArray< StringView, 3 >& labels ) {
-        constexpr Vector3< ScalarT > minValue{ std::numeric_limits< ScalarT >::lowest() };
-        return VectorInput( outVector, minValue, labels );
+    static bool vectorInput( Vector3< ScalarT >& outVector, const InplaceArray< StringView, 3 >& labels ) {
+        constexpr Vector3< ScalarT > MinValue{ std::numeric_limits< ScalarT >::lowest() };
+        return vectorInput( outVector, MinValue, labels );
     }
 
     template < typename ScalarT >
-    static bool VectorInput( Vector3< ScalarT >& outVector,
+    static bool vectorInput( Vector3< ScalarT >& outVector,
                              const Vector3< ScalarT >& minValue,
                              const InplaceArray< StringView, 3 >& labels ) {
         // float32 framePaddingX = ImGui::GetStyle().FramePadding.x;
 
         float32 componentInputSize = 50.0f;
 
+        ImGuiSystem* imguiSystem = static_cast< ImGuiSystem* >( ImGui::GetIO().UserData );
+        const Theme& theme = imguiSystem->getTheme();
+
         ScopedImGuiStyle style( ImGuiStyleVar_ItemSpacing, ImVec2( 10.0f, 0.0f ) );
         ImGui::BeginHorizontal( "##vec3Inputs" );
 
-        constexpr ImGuiDataType dataType = GetImGuiDataType< ScalarT >();
+        constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
 
         // TODO: show error tooltip or error effect on UI when clamping (red flash)
-        bool hasModified = VectorComponentInput( labels[ 0 ],
+        bool hasModified = vectorComponentInput( labels[ 0 ],
                                                  outVector.X,
-                                                 dataType,
+                                                 DataType,
                                                  componentInputSize,
-                                                 BACKGROUND_COLOR_X_COMPONENT );
+                                                 theme.Colors.AxisX.toABGR() );
         outVector.X = std::max( outVector.X, minValue.X );
 
-        hasModified |= VectorComponentInput( labels[ 1 ],
+        hasModified |= vectorComponentInput( labels[ 1 ],
                                              outVector.Y,
-                                             dataType,
+                                             DataType,
                                              componentInputSize,
-                                             BACKGROUND_COLOR_Y_COMPONENT );
+                                             theme.Colors.AxisY.toABGR() );
         outVector.Y = std::max( outVector.Y, minValue.Y );
 
-        hasModified |= VectorComponentInput( labels[ 2 ],
+        hasModified |= vectorComponentInput( labels[ 2 ],
                                              outVector.Z,
-                                             dataType,
+                                             DataType,
                                              componentInputSize,
-                                             BACKGROUND_COLOR_Z_COMPONENT );
+                                             theme.Colors.AxisZ.toABGR() );
         outVector.Z = std::max( outVector.Z, minValue.Z );
 
         ImGui::EndHorizontal();
@@ -95,37 +98,40 @@ class VectorControl {
     }
 
     template < typename ScalarT >
-    static bool VectorInput( Vector4< ScalarT >& outVector ) {
-        constexpr InplaceArray< StringView, 4 > labels{ "X", "Y", "Z", "W" };
-        return VectorInput( outVector, labels );
+    static bool vectorInput( Vector4< ScalarT >& outVector ) {
+        constexpr InplaceArray< StringView, 4 > Labels{ "X", "Y", "Z", "W" };
+        return vectorInput( outVector, Labels );
     }
 
     template < typename ScalarT >
-    static bool VectorInput( Vector4< ScalarT >& outVector, const InplaceArray< StringView, 4 >& labels ) {
+    static bool vectorInput( Vector4< ScalarT >& outVector, const InplaceArray< StringView, 4 >& labels ) {
+        ImGuiSystem* imguiSystem = static_cast< ImGuiSystem* >( ImGui::GetIO().UserData );
+        const Theme& theme = imguiSystem->getTheme();
+
         ImGui::BeginHorizontal( "##vec4Inputs" );
 
-        constexpr ImGuiDataType dataType = GetImGuiDataType< ScalarT >();
+        constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
 
-        bool hasModified = VectorComponentInput( labels[ 0 ],
+        bool hasModified = vectorComponentInput( labels[ 0 ],
                                                  outVector[ 0 ],
-                                                 dataType,
+                                                 DataType,
                                                  50.0f,
-                                                 BACKGROUND_COLOR_X_COMPONENT );
-        hasModified |= VectorComponentInput( labels[ 1 ],
+                                                 theme.Colors.AxisX.toABGR() );
+        hasModified |= vectorComponentInput( labels[ 1 ],
                                              outVector[ 1 ],
-                                             dataType,
+                                             DataType,
                                              50.0f,
-                                             BACKGROUND_COLOR_Y_COMPONENT );
-        hasModified |= VectorComponentInput( labels[ 2 ],
+                                             theme.Colors.AxisY.toABGR() );
+        hasModified |= vectorComponentInput( labels[ 2 ],
                                              outVector[ 2 ],
-                                             dataType,
+                                             DataType,
                                              50.0f,
-                                             BACKGROUND_COLOR_Z_COMPONENT );
-        hasModified |= VectorComponentInput( labels[ 3 ],
+                                             theme.Colors.AxisZ.toABGR() );
+        hasModified |= vectorComponentInput( labels[ 3 ],
                                              outVector[ 3 ],
-                                             dataType,
+                                             DataType,
                                              50.0f,
-                                             BACKGROUND_COLOR_W_COMPONENT );
+                                             theme.Colors.AxisW.toABGR() );
 
         ImGui::EndHorizontal();
 
@@ -133,7 +139,7 @@ class VectorControl {
     }
 
     template < typename ScalarT >
-    static bool VectorComponentInput( StringView label,
+    static bool vectorComponentInput( StringView label,
                                       ScalarT& value,
                                       ImGuiDataType dataType,
                                       float32 valueColumnMinWidth,
@@ -141,8 +147,8 @@ class VectorControl {
         // constexpr uint32_t INPUT_HOVERED_COLOR = 0xFFCCB399;
         // constexpr uint32_t INPUT_ACTIVE_COLOR = 0xFFCC884D;
         ScopedImGuiId scopedId( label );
-        constexpr StringView inputIdString = "##hiddenInput";
-        const ImGuiID inputId = ImGui::GetID( inputIdString.data() );
+        constexpr StringView InputIdString = "##hiddenInput";
+        const ImGuiID inputId = ImGui::GetID( InputIdString.data() );
 
         bool isHovered = inputId == ImGui::GetHoveredID();
         bool isFocused = inputId == ImGui::GetActiveID();
@@ -157,7 +163,7 @@ class VectorControl {
                 { ImGuiStyleVar_FrameBorderSize, 0.0f },
             };
 
-            auto DrawColoredLabel =
+            auto drawColoredLabel =
                 [ & ]( const char* text, uint32_t backgroundColor, const ImVec2& size, ImFont* font ) {
                     ImGui::PushFont( font );
                     // Calculate the size of the text
@@ -189,9 +195,9 @@ class VectorControl {
                 };
 
             ImGui::BeginGroup();
-            DrawColoredLabel( label.data(), backgroundColorARGB, labelSize, GImGui->Font );
-            modified = CustomInput( inputId,
-                                    inputIdString,
+            drawColoredLabel( label.data(), backgroundColorARGB, labelSize, GImGui->Font );
+            modified = customInput( inputId,
+                                    InputIdString,
                                     value,
                                     dataType,
                                     ImVec2( valueColumnMinWidth, lineHeight ) );
@@ -212,7 +218,7 @@ class VectorControl {
 
   private:
     template < typename T >
-    static bool RenderContextMenu( T& vector ) {
+    static bool renderContextMenu( T& vector ) {
         bool hasModified = false;
         if( ImGui::BeginPopupContextItem( "##ContextMenu", ImGuiPopupFlags_MouseButtonRight ) ) {
             if( ui::Button( "Reset" ) ) {
@@ -228,7 +234,7 @@ class VectorControl {
     }
 
     template < typename ScalarT >
-    static bool CustomInput( ImGuiID id,
+    static bool customInput( ImGuiID id,
                              StringView idString,
                              ScalarT& value,
                              ImGuiDataType dataType,

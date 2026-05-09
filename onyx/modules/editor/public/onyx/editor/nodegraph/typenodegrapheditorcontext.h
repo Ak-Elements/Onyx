@@ -10,72 +10,72 @@ namespace onyx::editor {
 template < typename GraphAssetT, typename NodeFactoryT >
 class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
   public:
-    TypedNodeGraphEditorContext() {
-        // Graph = assets::AssetSystem::Create<GraphAssetT>();
-    }
+    TypedNodeGraphEditorContext();
 
-    DynamicArray< StringView > GetExtensions() const override {
+    DynamicArray< StringView > getExtensions() const override {
         return assets::AssetSystem::getExtensions< GraphAssetT >();
     }
-    StringView GetLocalizedAssetTypeName() const override {
-        return GetLocalizationModule().TryGetLocalized( GraphAssetT::TypeId ).value_or( "Unknown" );
+    StringView getLocalizedAssetTypeName() const override {
+        return getLocalizationModule().TryGetLocalized( GraphAssetT::TypeId ).value_or( "Unknown" );
     }
 
   protected:
-    node_graph::NodeGraph& GetNodeGraph() override { return Graph->GetNodeGraph(); }
-    const node_graph::NodeGraph& GetNodeGraph() const override { return Graph->GetNodeGraph(); }
+    node_graph::NodeGraph& getNodeGraph() override { return m_graph->GetNodeGraph(); }
+    const node_graph::NodeGraph& getNodeGraph() const override { return m_graph->GetNodeGraph(); }
 
   private:
-    const node_graph::INodeFactory& GetNodeFactory() const override { return NodeFactory; }
-    void OnLoad( assets::AssetSystem& assetSystem, const FilePath& path ) override {
+    const node_graph::INodeFactory& getNodeFactory() const override { return m_nodeFactory; }
+    void onLoad( assets::AssetSystem& assetSystem, const FilePath& path ) override {
         const assets::AssetId assetId( path );
         // want to queue meta data loading
-        m_CurrentAssetMetaData = assetSystem.getAssetMeta( assetId );
+        m_currentAssetMetaData = assetSystem.getAssetMeta( assetId );
 
         assets::AssetHandle< GraphAssetT > graphAsset;
         assetSystem.getAssetUnmanaged( assetId, graphAsset );
-        if ( graphAsset.isValid() && graphAsset->isLoaded() ) {
+        if( graphAsset.isValid() && graphAsset->isLoaded() ) {
             assets::AssetHandle< typename GraphAssetT::AssetT > baseAsset( graphAsset );
-            OnAssetLoaded( baseAsset );
+            onAssetLoaded( baseAsset );
         } else {
-            graphAsset->getOnLoadedEvent().template Connect< &TypedNodeGraphEditorContext::OnAssetLoaded >( this );
+            graphAsset->getOnLoadedEvent().template Connect< &TypedNodeGraphEditorContext::onAssetLoaded >( this );
         }
     }
 
-    void OnSave( assets::AssetSystem& assetSystem, const assets::AssetMetaData& metaData ) override {
-        assetSystem.saveAssetAs( metaData.Path, Graph );
+    void onSave( assets::AssetSystem& assetSystem, const assets::AssetMetaData& metaData ) override {
+        assetSystem.saveAssetAs( metaData.Path, m_graph );
     }
 
-    void OnAssetLoaded( assets::AssetHandle< typename GraphAssetT::AssetT > loadedGraph ) {
-        Clear();
-        Graph = loadedGraph;
+    void onAssetLoaded( assets::AssetHandle< typename GraphAssetT::AssetT > loadedGraph ) {
+        clear();
+        m_graph = loadedGraph;
 
-        const auto& graphNodes = Graph->GetNodeGraph().GetNodes();
+        const auto& graphNodes = m_graph->GetNodeGraph().getNodes();
 
-        DynamicArray< Node >& nodes = GetNodes();
+        DynamicArray< Node >& nodes = getNodes();
         nodes.reserve( graphNodes.size() );
 
-        for ( auto&& [ id, nodeContainer ] : graphNodes ) {
+        for( auto&& [ id, nodeContainer ] : graphNodes ) {
             const UniquePtr< node_graph::Node >& node = nodeContainer.Data;
 
             String nodeName( node->GetName() );
-            if ( nodeName.empty() ) {
-                nodeName = GetLocalizationModule().GetLocalized( node->GetTypeId() ).Get();
+            if( nodeName.empty() ) {
+                nodeName = getLocalizationModule().GetLocalized( node->GetTypeId() ).Get();
             }
 
             Node& nodeEditorMeta = nodes.emplace_back( node->GetId(), nodeName );
             nodeEditorMeta.LocalId = id;
 
-            UpdateEditorNodeData( nodeEditorMeta, *node );
+            updateEditorNodeData( nodeEditorMeta, *node );
         }
 
-        FinishLoading( m_CurrentAssetMetaData );
+        finishLoading( m_currentAssetMetaData );
     }
 
   protected:
-    assets::AssetHandle< GraphAssetT > Graph;
-    NodeFactoryT NodeFactory;
+    assets::AssetHandle< GraphAssetT > m_graph;
+    NodeFactoryT m_nodeFactory;
     // TODO: Not ideal to save asset meta data here
-    assets::AssetMetaData m_CurrentAssetMetaData;
+    assets::AssetMetaData m_currentAssetMetaData;
 };
+template < typename GraphAssetT, typename NodeFactoryT >
+inline TypedNodeGraphEditorContext< GraphAssetT, NodeFactoryT >::TypedNodeGraphEditorContext() = default;
 } // namespace onyx::editor

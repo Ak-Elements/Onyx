@@ -1,35 +1,44 @@
 #pragma once
 
-#include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
-#include <onyx/graphics/rendergraph/rendergraph.h> // TODO: REMOVE
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
+#include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
+#include <onyx/rhi/graphicshandles.h>
 
-namespace onyx
-{
-    class GridRenderGraphNode : public node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>
-    {
-    public:
-        static constexpr StringId32 TypeId = "onyx::editor::render_graph_nodes::EditorSceneGridPass";
-        StringId32 GetTypeId() const override { return TypeId; }
+namespace onyx {
+class GridRenderGraphNode : public node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphFixedShaderNode,
+                                                                        rhi::TextureHandle,
+                                                                        rhi::BufferHandle,
+                                                                        rhi::TextureHandle > {
+  public:
+    static constexpr StringId32 TypeId = "onyx::editor::render_graph_nodes::EditorSceneGridPass";
+    StringId32 GetTypeId() const override { return TypeId; }
 
-    private:
-        using Super = node_graph::FixedPinNode_1_In_1_Out<graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle>;
+    GridRenderGraphNode();
 
-        void OnRender(graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer) override;
+  private:
+    using Super = node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphFixedShaderNode,
+                                                       rhi::TextureHandle,
+                                                       rhi::BufferHandle,
+                                                       rhi::TextureHandle >;
+
+    void OnBeginFrame( graphics::RenderGraphContext& context ) override;
+    void OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
-    private:
-        StringView GetPinName(StringId32 pinId) const override
-        {
-            switch (pinId)
-            {
-            case Super::InPin::LocalId: return "ViewConstants";
-            case Super::OutPin::LocalId: return "GridTexture";
-            }
-
-            ONYX_ASSERT(false, "Invalid pin id");
-            return "";
+  private:
+    StringView GetPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
+        case Super::InPin0::LocalId:
+            return "Render Target";
+        case Super::InPin1::LocalId:
+            return "ViewConstants";
+        case Super::OutPin::LocalId:
+            return "Render Target";
         }
+
+        ONYX_ASSERT( false, "Invalid pin id" );
+        return "";
+    }
 #endif
-    };
-}
+};
+} // namespace onyx

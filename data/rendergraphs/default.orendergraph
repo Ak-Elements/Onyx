@@ -3,7 +3,7 @@
         {
             "id": "ba4fcc11a401001",
             "typeId": {
-                "id": "0cc16c94",
+                "id": "cc16c94",
                 "string": "onyx::graphics::render_graph_nodes::CreateLightClusters"
             },
             "outputs": [
@@ -383,74 +383,6 @@
             ]
         },
         {
-            "id": "b8e0fd536001001",
-            "typeId": {
-                "id": "40d6a6d9",
-                "string": "onyx::editor::render_graph_nodes::EditorSceneGridPass"
-            },
-            "inputs": [
-                {
-                    "id": "b8e0fd536001002",
-                    "localId": {
-                        "id": "46c2a1b5",
-                        "string": "InPin"
-                    },
-                    "typeId": {
-                        "id": "166ca8ba",
-                        "string": "onyx::rhi::BufferHandle"
-                    },
-                    "linkedPin": "ba2926a5c001002"
-                }
-            ],
-            "outputs": [
-                {
-                    "id": "b8e0fd536001003",
-                    "localId": {
-                        "id": "938dd456",
-                        "string": "OutPin"
-                    },
-                    "typeId": {
-                        "id": "24ad81fb",
-                        "string": "onyx::rhi::TextureHandle"
-                    }
-                }
-            ],
-            "shader": "d0d43ce65db97aa1",
-            "pipeline": {
-                "depthstencil": {
-                    "enabled": false,
-                    "write": false,
-                    "stencil": false,
-                    "compare": "Always"
-                },
-                "rasterization": {
-                    "cull": "None",
-                    "fill": "Solid",
-                    "frontfacing": false
-                }
-            },
-            "output_attachments": [
-                {
-                    "type": "Attachment",
-                    "external": false,
-                    "format": "BGRA_UNORM8",
-                    "loadOp": "Clear",
-                    "hassize": false,
-                    "size": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "clearcolor": [
-                        0,
-                        0,
-                        0,
-                        0
-                    ]
-                }
-            ]
-        },
-        {
             "id": "ba68b013b801000",
             "typeId": {
                 "id": "136f92cf",
@@ -737,8 +669,7 @@
                     "typeId": {
                         "id": "24ad81fb",
                         "string": "onyx::rhi::TextureHandle"
-                    },
-                    "linkedPin": "b8e0fd536001003"
+                    }
                 },
                 {
                     "id": "b8e0fdab7c01002",
@@ -914,6 +845,84 @@
                     }
                 }
             ],
+            "shader": "d4093b3efdc1c8a6",
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                },
+                "blend": [
+                    {
+                        "enabled": true,
+                        "colormask": "RGBA",
+                        "srccolor": "One",
+                        "dstcolor": "OneMinusSrcAlpha",
+                        "colorop": "Add",
+                        "srcalpha": "One",
+                        "dstalpha": "OneMinusSrcAlpha",
+                        "alphaop": "Add"
+                    }
+                ]
+            },
+            "output_attachments": [
+                {
+                    "type": "Reference"
+                }
+            ]
+        },
+        {
+            "id": "e22311b81001000",
+            "typeId": {
+                "id": "40d6a6d9",
+                "string": "onyx::editor::render_graph_nodes::EditorSceneGridPass"
+            },
+            "inputs": [
+                {
+                    "id": "e22311b81001001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    },
+                    "linkedPin": "ddca30f8dc01002"
+                },
+                {
+                    "id": "e22311b81001002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "e22311b81001003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    }
+                }
+            ],
+            "shader": "445164399d26b3a9",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -945,5 +954,8 @@
                 }
             ]
         }
-    ]
+    ],
+    "data": {
+        "ba68b0d91801004": null
+    }
 }

@@ -5,7 +5,7 @@
 namespace onyx::ui {
 class EngineVariablesWindow : public ImGuiWindow {
   public:
-    static constexpr char ENGINE_VARIABLE_PATH_SEPERATOR = '/';
+    static constexpr char EngineVariablePathSeperator = '/';
 
   private:
     struct EngineVariableGraphNode {
@@ -23,17 +23,17 @@ class EngineVariablesWindow : public ImGuiWindow {
     void onOpen() override;
     void onRender( ImGuiSystem& imguiSystem ) override;
 
-    void RenderGraphNode( const EngineVariableGraphNode& group ) const;
+    void renderGraphNode( const EngineVariableGraphNode& graphNode ) const;
 
-    void RebuildVariableGraph();
+    void rebuildVariableGraph();
 
-    EngineVariableGraphNode& GetOrCreateParent( StringView nodePath );
+    EngineVariableGraphNode& getOrCreateParent( StringView nodePath );
 
   private:
     // building a graph of nodes based on their id and sepeartors '/'
-    String m_Search;
-    bool m_SearchBarIsFocused = true;
+    String m_search;
+    bool m_searchBarIsFocused = true;
 
-    EngineVariableGraphNode m_Root;
+    EngineVariableGraphNode m_root;
 };
 } // namespace onyx::ui

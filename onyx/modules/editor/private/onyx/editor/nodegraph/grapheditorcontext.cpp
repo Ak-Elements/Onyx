@@ -3,55 +3,55 @@
 #include <onyx/editor/nodegraph/grapheditorcontext.h>
 
 namespace onyx::editor {
-void GraphEditorContext::SetLocalizationModule( const localization::LocalizationModule& localizationModule ) {
-    m_LocalizationModule = &localizationModule;
+void GraphEditorContext::setLocalizationModule( const localization::LocalizationModule& localizationModule ) {
+    m_localizationModule = &localizationModule;
 }
 
-const localization::LocalizationModule& GraphEditorContext::GetLocalizationModule() const {
-    ONYX_ASSERT( m_LocalizationModule != nullptr );
-    return *m_LocalizationModule;
+const localization::LocalizationModule& GraphEditorContext::getLocalizationModule() const {
+    ONYX_ASSERT( m_localizationModule != nullptr );
+    return *m_localizationModule;
 }
 
-void GraphEditorContext::Clear() {
-    m_Nodes.clear();
-    m_Links.clear();
+void GraphEditorContext::clear() {
+    m_nodes.clear();
+    m_links.clear();
 }
 
-GraphEditorContext::Node& GraphEditorContext::CreateNewNode( StringId32 nodeTypeId ) {
+GraphEditorContext::Node& GraphEditorContext::createNewNode( StringId32 nodeTypeId ) {
     Guid64 newNodeId = Guid64Generator::getGuid();
     Node tmpNode( newNodeId );
-    bool hasSucceeded = OnNodeCreate( tmpNode, nodeTypeId );
+    bool hasSucceeded = onNodeCreate( tmpNode, nodeTypeId );
 
-    if ( hasSucceeded == false ) {
+    if( hasSucceeded == false ) {
         ONYX_ASSERT( false, "Failed creating node" );
-        return m_Nodes.back();
+        return m_nodes.back();
     }
 
-    Node& newNode = m_Nodes.emplace_back( std::move( tmpNode ) );
-    if ( OnNodeCreated ) {
+    Node& newNode = m_nodes.emplace_back( std::move( tmpNode ) );
+    if( OnNodeCreated ) {
         OnNodeCreated( newNode );
     }
 
     return newNode;
 }
 
-void GraphEditorContext::DeleteNode( Guid64 nodeId ) {
-    auto it = std::ranges::find_if( m_Nodes, [ & ]( const Node& node ) { return node.Id == nodeId; } );
+void GraphEditorContext::deleteNode( Guid64 nodeId ) {
+    auto it = std::ranges::find_if( m_nodes, [ & ]( const Node& node ) { return node.Id == nodeId; } );
 
-    if ( it == m_Nodes.end() )
+    if( it == m_nodes.end() )
         return;
 
-    for ( auto linksIt = m_Links.begin(); linksIt != m_Links.end(); ) {
+    for( auto linksIt = m_links.begin(); linksIt != m_links.end(); ) {
         const Link& link = *linksIt;
-        if ( link.FromNodeId == nodeId ) {
-            OnLinkDelete( link );
-            linksIt = m_Links.erase( linksIt );
+        if( link.FromNodeId == nodeId ) {
+            onLinkDelete( link );
+            linksIt = m_links.erase( linksIt );
             continue;
         }
 
-        if ( link.ToNodeId == nodeId ) {
-            OnLinkDelete( link );
-            linksIt = m_Links.erase( linksIt );
+        if( link.ToNodeId == nodeId ) {
+            onLinkDelete( link );
+            linksIt = m_links.erase( linksIt );
             continue;
         }
 
@@ -59,199 +59,213 @@ void GraphEditorContext::DeleteNode( Guid64 nodeId ) {
     }
 
     Node& editorNode = *it;
-    OnNodeDelete( editorNode );
+    onNodeDelete( editorNode );
 
-    if ( OnNodeDeleted ) {
+    if( OnNodeDeleted ) {
         OnNodeDeleted( editorNode );
     }
 
-    m_Nodes.erase( it );
+    m_nodes.erase( it );
 }
 
-GraphEditorContext::Node& GraphEditorContext::GetNode( Guid64 nodeId ) {
-    auto it = std::ranges::find_if( m_Nodes, [ & ]( Node& node ) { return node.Id == nodeId; } );
+GraphEditorContext::Node& GraphEditorContext::getNode( Guid64 nodeId ) {
+    auto it = std::ranges::find_if( m_nodes, [ & ]( Node& node ) { return node.Id == nodeId; } );
 
     return *it;
 }
 
-const GraphEditorContext::Node& GraphEditorContext::GetNode( Guid64 nodeId ) const {
-    auto it = std::find_if( m_Nodes.begin(), m_Nodes.end(), [ & ]( const Node& node ) { return node.Id == nodeId; } );
+const GraphEditorContext::Node& GraphEditorContext::getNode( Guid64 nodeId ) const {
+    auto it = std::find_if( m_nodes.begin(), m_nodes.end(), [ & ]( const Node& node ) { return node.Id == nodeId; } );
 
     return *it;
 }
 
-GraphEditorContext::Node& GraphEditorContext::GetNodeForPin( Guid64 pinId ) {
-    for ( Node& node : m_Nodes ) {
-        for ( Pin& inputPin : node.Inputs ) {
-            if ( inputPin.Id == pinId )
+GraphEditorContext::Node& GraphEditorContext::getNodeForPin( Guid64 pinId ) {
+    for( Node& node : m_nodes ) {
+        for( Pin& inputPin : node.Inputs ) {
+            if( inputPin.Id == pinId )
                 return node;
         }
 
-        for ( Pin& outputPin : node.Outputs ) {
-            if ( outputPin.Id == pinId )
+        for( Pin& outputPin : node.Outputs ) {
+            if( outputPin.Id == pinId )
                 return node;
         }
     }
 
     ONYX_ASSERT( false, "Failed finding pin with ID {}", pinId.get() );
-    return m_Nodes[ 0 ];
+    return m_nodes[ 0 ];
 }
 
-const GraphEditorContext::Node& GraphEditorContext::GetNodeForPin( Guid64 pinId ) const {
-    for ( const Node& node : m_Nodes ) {
-        for ( const Pin& inputPin : node.Inputs ) {
-            if ( inputPin.Id == pinId )
+const GraphEditorContext::Node& GraphEditorContext::getNodeForPin( Guid64 pinId ) const {
+    for( const Node& node : m_nodes ) {
+        for( const Pin& inputPin : node.Inputs ) {
+            if( inputPin.Id == pinId )
                 return node;
         }
 
-        for ( const Pin& outputPin : node.Outputs ) {
-            if ( outputPin.Id == pinId )
+        for( const Pin& outputPin : node.Outputs ) {
+            if( outputPin.Id == pinId )
                 return node;
         }
     }
 
     ONYX_ASSERT( false, "Failed finding pin with ID {}", pinId.get() );
-    return m_Nodes[ 0 ];
+    return m_nodes[ 0 ];
 }
 
-void GraphEditorContext::SetNodeName( Guid64 nodeId, const String& name ) {
-    Node& node = GetNode( nodeId );
+void GraphEditorContext::setNodeName( Guid64 nodeId, const String& name ) {
+    Node& node = getNode( nodeId );
     node.Name = name;
 }
 
-void GraphEditorContext::SetNodePosition( Guid64 nodeId, const Vector2f32& position ) {
-    Node& node = GetNode( nodeId );
+void GraphEditorContext::setNodePosition( Guid64 nodeId, const Vector2f32& position ) {
+    Node& node = getNode( nodeId );
 
-    if ( node.Position != position ) {
+    if( node.Position != position ) {
         node.Position = position;
         node.HasUpdatedPosition = true;
     }
 }
 
-GraphEditorContext::Link& GraphEditorContext::CreateNewLink( Guid64 fromPinId, Guid64 toPinId ) {
+GraphEditorContext::Link& GraphEditorContext::createNewLink( Guid64 fromPinId, Guid64 toPinId ) {
     Link newLink( Guid64Generator::getGuid(),
                   fromPinId,
                   toPinId,
-                  GetNodeForPin( fromPinId ).Id,
-                  GetNodeForPin( toPinId ).Id,
-                  GetPin( fromPinId ).Color );
+                  getNodeForPin( fromPinId ).Id,
+                  getNodeForPin( toPinId ).Id,
+                  getPin( fromPinId ).Color );
 
-    OnLinkCreate( newLink );
+    onLinkCreate( newLink );
 
-    if ( OnLinkCreated ) {
+    if( OnLinkCreated ) {
         OnLinkCreated( newLink );
     }
 
-    return m_Links.emplace_back( newLink );
+    return m_links.emplace_back( newLink );
 }
 
-void GraphEditorContext::DeleteLink( Guid64 linkId ) {
-    auto it = std::find_if( m_Links.begin(), m_Links.end(), [ & ]( const Link& link ) { return link.Id == linkId; } );
+void GraphEditorContext::deleteLink( Guid64 linkId ) {
+    auto it = std::find_if( m_links.begin(), m_links.end(), [ & ]( const Link& link ) { return link.Id == linkId; } );
 
-    if ( it == m_Links.end() )
+    if( it == m_links.end() )
         return;
 
     const Link& link = *it;
 
-    OnLinkDelete( link );
+    onLinkDelete( link );
 
-    if ( OnLinkDeleted ) {
+    if( OnLinkDeleted ) {
         OnLinkDeleted( link );
     }
 
-    m_Links.erase( it );
+    m_links.erase( it );
 }
 
-void GraphEditorContext::DeleteLink( Guid64 fromPinId, Guid64 toPinId ) {
-    auto it = std::find_if( m_Links.begin(), m_Links.end(), [ & ]( const Link& link ) {
+void GraphEditorContext::deleteLink( Guid64 fromPinId, Guid64 toPinId ) {
+    auto it = std::find_if( m_links.begin(), m_links.end(), [ & ]( const Link& link ) {
         return ( link.FromPinId == fromPinId ) && ( link.ToPinId == toPinId );
     } );
 
-    if ( it == m_Links.end() )
+    if( it == m_links.end() )
         return;
 
     const Link& link = *it;
 
-    OnLinkDelete( link );
+    onLinkDelete( link );
 
-    if ( OnLinkDeleted ) {
+    if( OnLinkDeleted ) {
         OnLinkDeleted( link );
     }
 
-    m_Links.erase( it );
+    m_links.erase( it );
 }
 
-GraphEditorContext::Pin& GraphEditorContext::GetPin( Guid64 pinId ) {
-    for ( Node& node : m_Nodes ) {
-        for ( Pin& inputPin : node.Inputs ) {
-            if ( inputPin.Id == pinId )
+GraphEditorContext::Pin& GraphEditorContext::getPin( Guid64 pinId ) {
+    for( Node& node : m_nodes ) {
+        for( Pin& inputPin : node.Inputs ) {
+            if( inputPin.Id == pinId )
                 return inputPin;
         }
 
-        for ( Pin& outputPin : node.Outputs ) {
-            if ( outputPin.Id == pinId )
+        for( Pin& outputPin : node.Outputs ) {
+            if( outputPin.Id == pinId )
                 return outputPin;
         }
     }
 
     ONYX_ASSERT( false, "Failed getting pin for id" );
-    return m_Nodes[ 0 ].Inputs[ 0 ];
+    return m_nodes[ 0 ].Inputs[ 0 ];
 }
 
-const GraphEditorContext::Pin& GraphEditorContext::GetPin( Guid64 pinId ) const {
-    for ( const Node& node : m_Nodes ) {
-        for ( const Pin& inputPin : node.Inputs ) {
-            if ( inputPin.Id == pinId )
+const GraphEditorContext::Pin& GraphEditorContext::getPin( Guid64 pinId ) const {
+    for( const Node& node : m_nodes ) {
+        for( const Pin& inputPin : node.Inputs ) {
+            if( inputPin.Id == pinId )
                 return inputPin;
         }
 
-        for ( const Pin& outputPin : node.Outputs ) {
-            if ( outputPin.Id == pinId )
+        for( const Pin& outputPin : node.Outputs ) {
+            if( outputPin.Id == pinId )
                 return outputPin;
         }
     }
 
     ONYX_ASSERT( false, "Failed getting pin for id" );
-    return m_Nodes[ 0 ].Inputs[ 0 ];
+    return m_nodes[ 0 ].Inputs[ 0 ];
 }
 
-bool GraphEditorContext::IsPinLinked( Guid64 pindId ) const {
-    return std::ranges::any_of( m_Links, [ & ]( const Link& link ) {
+bool GraphEditorContext::hasPin( Guid64 pinId ) const {
+    for( const Node& node : m_nodes ) {
+        if( std::ranges::any_of( node.Inputs, [ & ]( const Pin& pin ) { return pin.Id == pinId; } ) ) {
+            return true;
+        }
+
+        if( std::ranges::any_of( node.Outputs, [ & ]( const Pin& pin ) { return pin.Id == pinId; } ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool GraphEditorContext::isPinLinked( Guid64 pindId ) const {
+    return std::ranges::any_of( m_links, [ & ]( const Link& link ) {
         return ( link.FromPinId == pindId ) || ( link.ToPinId == pindId );
     } );
 }
 
-void GraphEditorContext::DrawNode( const Node& node ) {
-    OnDrawNode( node );
+void GraphEditorContext::drawNode( const Node& node ) {
+    onDrawNode( node );
 }
 
-void GraphEditorContext::DrawNodeBackground( const Node& node ) {
-    OnDrawNodeBackground( node );
+void GraphEditorContext::drawNodeBackground( const Node& node ) {
+    onDrawNodeBackground( node );
 }
 
-void GraphEditorContext::Load( assets::AssetSystem& assetSystem, const FilePath& path ) {
-    m_IsLoading = true;
-    OnLoad( assetSystem, path );
+void GraphEditorContext::load( assets::AssetSystem& assetSystem, const FilePath& path ) {
+    m_isLoading = true;
+    onLoad( assetSystem, path );
 }
 
-void GraphEditorContext::Save( assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta ) {
-    OnSave( assetSystem, assetMeta );
+void GraphEditorContext::save( assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta ) {
+    onSave( assetSystem, assetMeta );
 
-    if ( SaveEditorMetaDataFunctor ) {
+    if( SaveEditorMetaDataFunctor ) {
         SaveEditorMetaDataFunctor( assetMeta.Path );
     }
 
     OnSaved();
 }
 
-void GraphEditorContext::FinishLoading( const assets::AssetMetaData& assetMeta ) {
-    if ( LoadEditorMetaDataFunctor ) {
+void GraphEditorContext::finishLoading( const assets::AssetMetaData& assetMeta ) {
+    if( LoadEditorMetaDataFunctor ) {
         LoadEditorMetaDataFunctor( assetMeta.Path );
     }
 
-    m_IsLoading = false;
+    m_isLoading = false;
     OnLoaded();
 }
 
-void GraphEditorContext::OnNodeChanged( const Node& /*newNode*/ ) {}
+void GraphEditorContext::onNodeChanged( const Node& /*newNode*/ ) {}
 } // namespace onyx::editor

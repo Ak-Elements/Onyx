@@ -99,4 +99,17 @@ StringView trimLeft( StringView str ) {
 
     return str.substr( start );
 }
+
+StringView trimRight( StringView str ) {
+    if( str.empty() )
+        return str;
+
+    StringView::size_type end = str.find_last_not_of( " \n\r\t" );
+
+    if( end == StringView::npos ) {
+        return str;
+    }
+
+    return str.substr( 0, end );
+}
 } // namespace onyx

@@ -78,13 +78,13 @@ void EditorMainWindow::onRenderMainMenuBar() {
             ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
             NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
-            window.SetContext( makeUnique< ShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
+            window.setContext( makeUnique< ShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
                                                                        *ui::g_uiContext.GraphicsSystem ) );
         }
 
         if( ImGui::MenuItem( localization::editor::windows::RenderGraphEditorTitle.Get().data() ) ) {
             NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
-            window.SetContext( makeUnique< RenderGraphEditorContext >() );
+            window.setContext( makeUnique< RenderGraphEditorContext >() );
         }
 
         if( ImGui::MenuItem( localization::editor::windows::VolumeShaderGraphEditorTitle.Get().data() ) ) {
@@ -92,7 +92,7 @@ void EditorMainWindow::onRenderMainMenuBar() {
             ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
             NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
-            window.SetContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
+            window.setContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
                                                                              *ui::g_uiContext.GraphicsSystem ) );
         }
 

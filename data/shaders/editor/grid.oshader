@@ -1,0 +1,239 @@
+#version 460 core
+
+#include "includes/common.h"
+#include "includes/viewconstants.h"
+
+vertex
+{
+    void main()
+    {
+        vec2 texCoord = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(texCoord * 2.0f + -1.0f, 0.0f, 1.0f);
+	    gl_Position.y = -gl_Position.y;
+    }
+}
+
+fragment
+{
+    layout(location = 0) out vec4 outColor;
+
+    const float AntiAliasingFactor = 1.5f;
+
+    const uint LockScaleFlag = 1;
+
+    layout(push_constant) uniform Constants
+    {
+        uint GridCellCount;
+        uint GridScale;
+
+        float AxisLineWidth;
+        float MajorLineWidth;
+        float MinorLineWidth;
+
+        uint MajorLineColor; 
+        uint MinorLineColor; 
+
+        uint X_AxisColor;
+        uint Y_AxisColor;
+        uint Z_AxisColor;
+        uint Flags;
+
+    } u_Constants;
+    
+    vec4 toVec4Color( uint color )
+    {
+        return vec4(
+                ( uint8_t( color ) / 255.0f ),
+                ( uint8_t( color >> 8 ) / 255.0f ),
+                ( uint8_t( color >> 16 ) / 255.0f ),
+                ( uint8_t( color >> 24 ) / 255.0f ) );
+    }
+
+    vec3 getRayDirection( vec2 fragCoord )
+    {
+        vec2 ndc = vec2(
+            ( fragCoord.x / u_ViewConstants.Viewport.x ) * 2.0f - 1.0f,
+            ( fragCoord.y / u_ViewConstants.Viewport.y ) * -2.0f + 1.0f);
+
+        vec4 clipPos = vec4( ndc, 0.0f, 1.0f ); 
+        vec4 ray = u_ViewConstants.InverseProjectionMatrix * clipPos;
+        ray /= ray.w;
+ 
+        return normalize( ( u_ViewConstants.InverseViewMatrix * vec4( ray.xyz, 0.0 ) ).xyz);
+    }
+
+    bool intersectPlane(vec3 rayOrigin, vec3 rayDirection, vec3 planeNormal, float planeOffset, out vec3 outHitPosition)
+    { 
+        //TODO: add offset
+        float t = dot(-rayOrigin, planeNormal) * safeReciprocal( dot(rayDirection, planeNormal) );
+        outHitPosition = rayOrigin + rayDirection * t;
+        return t > 0.0f;
+    }
+
+    float computeGridLineFactor( vec2 uv, vec2 uvDerivatives, float lineWidth, vec2 offset, vec2 axisLines )
+    {
+        bool invertLine = lineWidth > 0.5f;
+        float targetWidth= invertLine ? 1.0f - lineWidth : lineWidth;
+        vec2 drawWidth = clamp( vec2( targetWidth ), uvDerivatives, vec2( 0.5f ) );
+        vec2 lineAA = uvDerivatives * AntiAliasingFactor;
+        vec2 gridUV = 1.0f - abs( fract( uv ) * 2.0f - 1.0f );
+        gridUV += offset;
+
+        vec2 gridLines = smoothstep( drawWidth + lineAA,
+                                     drawWidth - lineAA,
+                                     gridUV );
+
+        gridLines *= clamp( ( targetWidth /  drawWidth ), 0.0f, 1.0f );
+        gridLines = clamp( gridLines - axisLines, 0.0f, 1.0f );
+        gridLines = mix( gridLines, vec2( targetWidth ), clamp( ( uvDerivatives * 2.0f - 1.0f ), 0.0f, 1.0f ) );
+        gridLines = invertLine ? 1.0f - gridLines : gridLines;
+
+        return mix( gridLines.x, 1.0f, gridLines.y);
+    }
+
+    float computeNormalAxisLineFactor( vec2 hitPosition, vec2 ddxHitPosition, vec2 ddyHitPosition, float scale, float lineWidth )
+    {
+        float inverseScale = safeReciprocal( scale );
+        float distance = length( hitPosition ) * inverseScale;
+
+        vec2 radialDirection = hitPosition * safeReciprocal( distance );
+
+        float ddxDistance = dot( ddxHitPosition - hitPosition, radialDirection ) * inverseScale;
+        float ddyDistance = dot( ddyHitPosition - hitPosition, radialDirection ) * inverseScale;
+        float derivate = length( vec2( ddxDistance, ddyDistance ) ) * inverseScale;
+
+        float drawWidth = max(lineWidth, derivate );
+        float lineAA = derivate * AntiAliasingFactor;
+        float lineFactor = smoothstep( drawWidth + lineAA,
+                                       drawWidth - lineAA,
+                                       distance * 2.0f );
+        lineFactor *= clamp( lineWidth / drawWidth, 0.0f, 1.0f );
+        return lineFactor;
+    }
+
+    void main()
+    { 
+        vec4 finalColor = vec4( 0.0f );
+
+        uint flags = u_Constants.Flags;
+        bool isScaleLocked = ( flags & LockScaleFlag ) == LockScaleFlag;
+
+        vec4 minorLineColor = toVec4Color( u_Constants.MinorLineColor );
+        vec4 majorLineColor = toVec4Color( u_Constants.MajorLineColor );
+        vec4 aAxisColor = toVec4Color( u_Constants.X_AxisColor );
+        vec4 bAxisColor = toVec4Color( u_Constants.Z_AxisColor );
+        vec4 cAxisColor = toVec4Color( u_Constants.Y_AxisColor );
+
+        vec3 rayOriginWorld = u_ViewConstants.CameraPosition;
+        vec3 rayDirection = getRayDirection( gl_FragCoord.xy );
+        vec3 ddxRayDirection = getRayDirection( vec2( gl_FragCoord.x + 1.0f, gl_FragCoord.y ) );
+        vec3 ddyRayDirection = getRayDirection( vec2( gl_FragCoord.x, gl_FragCoord.y + 1.0f ) );
+
+        float planeCenter = 0.0f;
+        vec3 planeNormal = vec3(0, 1, 0);
+
+        float cameraHeight = abs( u_ViewConstants.CameraPosition.y );
+        float scaleFactor = isScaleLocked ? u_Constants.GridScale : log( cameraHeight ) / log(10);
+        float fractionalScaleFactor = fract( scaleFactor );
+        float blendFactor = isScaleLocked ? 0.0f : ( 1.0f - smoothstep( 0.05, 0.95, fractionalScaleFactor ) );
+
+        float minorCellSize = max( pow( 10, floor( scaleFactor ) - 1.0f ), 0.1f );
+        float previousMinorCellSize = minorCellSize / u_Constants.GridCellCount;
+        float majorCellSize = minorCellSize * u_Constants.GridCellCount;
+        float axisLineWidth = mix( u_Constants.AxisLineWidth, u_Constants.AxisLineWidth / u_Constants.GridCellCount, blendFactor );
+
+        vec2 cameraCenteringOffset = floor( rayOriginWorld.xz / majorCellSize ) * majorCellSize; 
+        vec3 rayOriginLocal = rayOriginWorld - vec3( cameraCenteringOffset.x, 0, cameraCenteringOffset.y );
+
+        // intersect plane that is normal / orthogonal to the grid plane for the 3rd axis line
+        vec3 normalAxisPlaneNormal = normalize(vec3( rayOriginWorld.x, 0, rayOriginWorld.z ) );
+        vec3 normalAxisHitPositionWorld, normalAxisDdxHitPositionWorld, normalAxisDdyHitPositionWorld;
+        // 0.1f should be the axis line draw width 
+        bool hasNormalPlaneHit = dot( rayOriginWorld.xz, rayOriginWorld.xz ) > 0.1f &&
+            intersectPlane( rayOriginWorld, rayDirection, normalAxisPlaneNormal, planeCenter, normalAxisHitPositionWorld ) &&
+            intersectPlane( rayOriginWorld, ddxRayDirection, normalAxisPlaneNormal, planeCenter, normalAxisDdxHitPositionWorld ) &&
+            intersectPlane( rayOriginWorld, ddyRayDirection, normalAxisPlaneNormal, planeCenter, normalAxisDdyHitPositionWorld );
+
+        float normalAxisLineFactor = 0.0f;
+        // draw normal axis below grid plane (e.g Y axis for XZ plane )
+        if ( hasNormalPlaneHit )
+        {
+            normalAxisLineFactor = computeNormalAxisLineFactor( normalAxisHitPositionWorld.xz,
+                normalAxisDdxHitPositionWorld.xz,
+                normalAxisDdyHitPositionWorld.xz,
+                minorCellSize,
+                axisLineWidth );
+        }
+
+        if( normalAxisHitPositionWorld.y < 0 )
+        {
+            vec4 cAxisColor = toVec4Color( u_Constants.Y_AxisColor );
+            finalColor = mix( finalColor, cAxisColor, cAxisColor.a * normalAxisLineFactor );
+        }
+
+        // grid visualization
+        vec3 hitPositionLocal, ddxHitPositionLocal, ddyHitPositionLocal;
+        if( intersectPlane( rayOriginLocal, rayDirection, planeNormal, planeCenter, hitPositionLocal ) &&
+            intersectPlane( rayOriginLocal, ddxRayDirection, planeNormal, planeCenter, ddxHitPositionLocal ) &&
+            intersectPlane( rayOriginLocal, ddyRayDirection, planeNormal, planeCenter, ddyHitPositionLocal ) )
+        {
+            vec3 hitPositionWorld = hitPositionLocal + vec3( cameraCenteringOffset.x, 0, cameraCenteringOffset.y );
+
+            vec2 centeredUV = ( hitPositionLocal.xz ) / minorCellSize;
+            vec2 worldUV = hitPositionWorld.xz / minorCellSize;
+
+            // Use analytical derivatives from the ray intersection
+            vec2 ddx_centered = ( ddxHitPositionLocal.xz / minorCellSize ) - centeredUV;
+            vec2 ddy_centered = ( ddyHitPositionLocal.xz / minorCellSize ) - centeredUV;
+
+            vec2 uvDerivatives = vec2( length( vec2( ddx_centered.x, ddy_centered.x ) ),
+                                       length( vec2( ddx_centered.y, ddy_centered.y ) ) );
+
+            // grid main axis lines ( X / Y or Z depending on the grid plane )
+            vec2 axisDrawWidth = max( vec2( axisLineWidth ), uvDerivatives );
+            vec2 axisLineAA = uvDerivatives * AntiAliasingFactor;
+            vec2 axisLines = smoothstep( axisDrawWidth + axisLineAA,
+                                         axisDrawWidth - axisLineAA,
+                                         abs( worldUV * 2.0f ) );
+            axisLines *= clamp( axisLineWidth / axisDrawWidth, 0.0f, 1.0f );
+
+            float majorLineWidth = mix( u_Constants.MajorLineWidth, u_Constants.MinorLineWidth, blendFactor ) / u_Constants.GridCellCount;
+            vec2 majorUV = centeredUV / u_Constants.GridCellCount;
+            vec2 majorUVDerivatives = uvDerivatives / u_Constants.GridCellCount;
+            vec2 majorAxisOffset = ( 1.0f - clamp( abs( worldUV / u_Constants.GridCellCount * 2.0f ), 0.0f, 1.0f ) ) * 2.0f;
+            float majorGridLineFactor = computeGridLineFactor(majorUV, majorUVDerivatives, majorLineWidth, majorAxisOffset, axisLines );
+
+            // minor lines
+            float minorLineWidth = mix( u_Constants.MinorLineWidth, ( u_Constants.MajorLineWidth / u_Constants.GridCellCount ), blendFactor );
+            vec2 minorAxisOffset = ( 1.0f - clamp((1.0f - abs( fract( majorUV ) * 2.0f - 1.0f )) * u_Constants.GridCellCount, 0.0f, 1.0f ) ) * 2.0f;
+            float minorGridLineFactor = computeGridLineFactor( centeredUV, uvDerivatives, minorLineWidth, minorAxisOffset, axisLines );
+
+            // previous level minor lines - this is just for a smoother look when zooming in / out
+            if( isScaleLocked == false )
+            {
+                float previousMinorBlendFactor = 1.0f - smoothstep( 0.0f, 0.3f, fractionalScaleFactor );
+                vec2 previousMinorUV = centeredUV * u_Constants.GridCellCount;
+                vec2 previousMinorUVDerivatives = uvDerivatives * u_Constants.GridCellCount;
+                vec2 previousMinorAxisOffset = ( 1.0f - clamp((1.0f - abs( fract( centeredUV ) * 2.0f - 1.0f )) * u_Constants.GridCellCount, 0.0f, 1.0f ) ) * 2.0f;
+                float previousMinorGridLineFactor = computeGridLineFactor( previousMinorUV, previousMinorUVDerivatives, u_Constants.MinorLineWidth, previousMinorAxisOffset, axisLines );
+                
+                finalColor = mix( finalColor, minorLineColor, previousMinorGridLineFactor * minorLineColor.a * previousMinorBlendFactor );
+            }
+
+            vec4 axisLineColor = mix( aAxisColor * axisLines.y, bAxisColor, axisLines.x );
+
+            // coloring grid lines
+            finalColor = mix( finalColor, minorLineColor, minorGridLineFactor * minorLineColor.a );
+            finalColor = mix( finalColor, majorLineColor, majorGridLineFactor * majorLineColor.a );
+            finalColor = finalColor * ( 1.0f - axisLineColor.a ) + axisLineColor;
+        }
+
+        // draw normal axis above grid plane (e.g Y axis for XZ plane )
+        if( normalAxisHitPositionWorld.y > 0 )
+        {
+            finalColor = mix( finalColor, cAxisColor, cAxisColor.a * normalAxisLineFactor );
+        }
+
+        outColor = finalColor;
+    }
+}

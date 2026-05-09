@@ -118,7 +118,8 @@ fragment
             sat = 1.4;
         }
 
-        color = pow(color * slope + offset, power);
+        color = max( color * slope + offset, vec3( 0.0f ) );
+        color = pow(color, power);
         return luma + sat * (color - luma);
     }
 

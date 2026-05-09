@@ -16,7 +16,7 @@ bool MaterialShaderGraphSerializer::serialize( const assets::AssetHandle< assets
                                                Serializer& serializer,
                                                const IEngine& /*engine*/ ) const {
     const MaterialShaderGraph& shaderGraph = asset.as< MaterialShaderGraph >();
-    if ( shader_graph_serializer::serialize( shaderGraph, serializer ) == false )
+    if( shader_graph_serializer::serialize( shaderGraph, serializer ) == false )
         return false;
 
     // save shader to file
@@ -38,7 +38,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
 
     MaterialShaderGraph& shaderGraph = asset.as< MaterialShaderGraph >();
 
-    if ( shader_graph_serializer::deserialize( shaderGraph, deserializer ) == false )
+    if( shader_graph_serializer::deserialize( shaderGraph, deserializer ) == false )
         return false;
 
     const FilePath& shaderPath = file_system::path::replaceExtension( meta.Path, "oshader" );
@@ -48,7 +48,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
     // TODO: Add shader generator factory here to create unlit shader
     rhi::PBRShaderGenerator shaderGenerator;
-    if ( shaderGraph.GenerateShader( shaderGenerator ) == false )
+    if( shaderGraph.GenerateShader( shaderGenerator ) == false )
         return false;
 
     // const uint64_t shaderCodeHash = hash::FNV1aHash<uint64_t>(shaderGraph.GetShaderCode(),
@@ -68,7 +68,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
 
     // call on changed on nodes to queue dependency loading (e.g. textures)
     node_graph::NodeGraph& nodeGraph = shaderGraph.GetNodeGraph();
-    for ( auto& node : ( nodeGraph.GetNodes() | std::views::values ) ) {
+    for( auto& node : ( nodeGraph.getNodes() | std::views::values ) ) {
         ShaderGraphNode& shaderGraphNode = static_cast< ShaderGraphNode& >( *node.Data );
         shaderGraphNode.OnNodeChanged( assetSystem );
     }

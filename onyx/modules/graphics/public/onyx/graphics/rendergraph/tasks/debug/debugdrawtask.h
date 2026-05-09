@@ -21,7 +21,7 @@ class DebugDrawTask
 #if ONYX_IS_EDITOR
   private:
     StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+        switch( pinId ) {
         case InPin::LocalId:
             return "Render Target";
         case OutPin::LocalId:
@@ -33,10 +33,10 @@ class DebugDrawTask
     }
 #endif
   private:
-    rhi::BufferHandle m_WireframeSpheresBuffer;
-    rhi::BufferHandle m_WireframeBoxesBuffer;
+    rhi::BufferHandle m_wireframeSpheresBuffer;
+    rhi::BufferHandle m_wireframeBoxesBuffer;
 
-    uint32_t m_WireframeSpheresCount = 0;
-    uint32_t m_WireframeBoxesCount = 0;
+    uint32_t m_wireframeSpheresCount = 0;
+    uint32_t m_wireframeBoxesCount = 0;
 };
 } // namespace onyx::graphics::render_graph_nodes

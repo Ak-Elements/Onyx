@@ -7,6 +7,8 @@
 
 #include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
+#include <onyx/gamecore/components/idcomponent.gen.h>
+#include <onyx/gamecore/components/namecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/components/transientcomponent.gen.h>
@@ -256,11 +258,14 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     ecs::EcsBuilder ecsBuilder = gameCoreSystem.GetEcsBuilder();
     ecsBuilder.RegisterComponent< game_core::TransientComponent >();
 
-    registry.AddComponent< game_core::TransientComponent >( m_editorCameraEntity );
+    // registry.AddComponent< game_core::TransientComponent >( m_editorCameraEntity );
+    registry.AddComponent< game_core::IdComponent >( m_editorCameraEntity, 1000 );
+    registry.AddComponent< game_core::NameComponent >( m_editorCameraEntity, "Editor Camera" );
     game_core::TransformComponent& transform = registry.AddComponent< game_core::TransformComponent >(
         m_editorCameraEntity );
-    transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
-    transform.RotationEuler = Vector3f32( 0, 0, 0 );
+    // transform.Translation = Vector3f32{ 14000.0f, 100.0f, 0000.0f };
+    transform.Translation = Vector3f32{ 0.0f, 100.0f, 0.0f };
+    transform.RotationEuler = Vector3f32{ 0.0f, 0.0f, 0.0f };
     game_core::CameraComponent& camera = registry.AddComponent< game_core::CameraComponent >( m_editorCameraEntity );
 
     camera.Camera.SetPerspective( 45.0f, 0.1f, 65536 );

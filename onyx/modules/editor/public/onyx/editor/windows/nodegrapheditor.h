@@ -32,16 +32,16 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
     StringView getWindowId() override { return WindowId; }
 
     template < typename T >
-    void SetContext( T&& context ) {
-        m_EditorContext = std::forward< T >( context );
-        m_EditorContext->SetLocalizationModule( getEngineSystem< localization::LocalizationModule >() );
-        m_EditorContext->OnLoaded.Connect< &NodeGraphEditorWindow::OnGraphLoaded >( this );
-        m_EditorContext->OnSaved.Connect< &NodeGraphEditorWindow::OnGraphSaved >( this );
-        m_EditorContext->LoadEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::LoadEditorMetaData >( this );
-        m_EditorContext->SaveEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::SaveEditorMetaData >( this );
-        m_EditorContext->OnNodeCreated.Connect< &NodeGraphEditorWindow::OnNodeCreated >( this );
-        m_ShouldFocus = true;
-        m_FocusDuration = 0.0f;
+    void setContext( T&& context ) {
+        m_editorContext = std::forward< T >( context );
+        m_editorContext->setLocalizationModule( getEngineSystem< localization::LocalizationModule >() );
+        m_editorContext->OnLoaded.Connect< &NodeGraphEditorWindow::onGraphLoaded >( this );
+        m_editorContext->OnSaved.Connect< &NodeGraphEditorWindow::onGraphSaved >( this );
+        m_editorContext->LoadEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::loadEditorMetaData >( this );
+        m_editorContext->SaveEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::saveEditorMetaData >( this );
+        m_editorContext->OnNodeCreated.Connect< &NodeGraphEditorWindow::onNodeCreated >( this );
+        m_shouldFocus = true;
+        m_focusDuration = 0.0f;
     }
 
   private:
@@ -63,13 +63,13 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
         Guid64 OutputPinId;
 
         Guid64 InteractionPinId; // Pin to connect and create connections
-        GraphEditorContext::PinDirection ActivePinDirection;
+        GraphEditorContext::PinDirection ActivePinDirection{ GraphEditorContext::PinDirection::Invalid };
 
-        node_graph::PinTypeId PinTypeId;
-        uint32_t Color;
+        node_graph::PinTypeId PinTypeId{ node_graph::PinTypeId::Invalid };
+        uint32_t Color = 0;
 
         Vector2f32 Position;
-        bool HasUpdatedPosition;
+        bool HasUpdatedPosition = false;
     };
 
     struct RerouteLink {
@@ -78,52 +78,52 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
         Guid64 FromInputPinId;
         Guid64 ToOutputPinId;
 
-        node_graph::PinTypeId PinTypeId;
-        uint32_t Color;
+        node_graph::PinTypeId PinTypeId{ node_graph::PinTypeId::Invalid };
+        uint32_t Color = 0;
     };
 
-    void OnUpdate( uint64_t deltaTime );
+    void onUpdate( uint64_t deltaTime );
 
-    void DrawCanvas();
+    void drawCanvas();
 
-    void DrawNode( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
-    void DrawNodeHeader( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
-    void DrawNodeInputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
-    void DrawNodeOutputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void drawNode( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void drawNodeHeader( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void drawNodeInputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
+    void drawNodeOutputs( const GraphEditorContext::Node& node, BlueprintNodeBuilder& builder );
 
-    void DrawRerouteNode( RerouteNode& node );
+    void drawRerouteNode( RerouteNode& node );
 
-    void DrawNodeLinks() const;
+    void drawNodeLinks() const;
 
-    void DrawContextMenu();
+    void drawContextMenu();
 
-    void DrawCreateLink();
-    void DrawCreateNode();
+    void drawCreateLink();
+    void drawCreateNode();
 
-    void DrawPropertiesPanel();
+    void drawPropertiesPanel();
 
-    void FilterNodeListContextMenu( StringView searchString );
+    void filterNodeListContextMenu( StringView searchString );
 
-    void Save();
-    void SaveEditorMetaData( const FilePath& path );
-    void Load();
-    void LoadEditorMetaData( const FilePath& path );
+    void save();
+    void saveEditorMetaData( const FilePath& path );
+    void load();
+    void loadEditorMetaData( const FilePath& path );
 
-    void OnGraphLoaded();
-    void OnGraphSaved();
+    void onGraphLoaded();
+    void onGraphSaved();
 
-    void OnCopyAction( const input_actions::InputActionEvent& inputActionContext );
-    void OnPasteAction( const input_actions::InputActionEvent& inputActionContext );
-    void OnDeleteAction( const input_actions::InputActionEvent& inputActionContext );
+    void onCopyAction( const input_actions::InputActionEvent& inputActionContext );
+    void onPasteAction( const input_actions::InputActionEvent& inputActionContext );
+    void onDeleteAction( const input_actions::InputActionEvent& inputActionContext );
 
-    void OnNodeCreated( const GraphEditorContext::Node& node );
+    void onNodeCreated( const GraphEditorContext::Node& node );
 
-    void OnLinkDoubleClicked( Guid64 linkId );
+    void onLinkDoubleClicked( Guid64 linkId );
 
-    const RerouteNode* GetRerouteNodeById( Guid64 nodeId ) const;
-    const RerouteNode* GetRerouteNodeByPinId( Guid64 pinId ) const;
+    ONYX_NO_DISCARD const RerouteNode* getRerouteNodeById( Guid64 nodeId ) const;
+    ONYX_NO_DISCARD const RerouteNode* getRerouteNodeByPinId( Guid64 pinId ) const;
 
-    void FindRerouteDestinations( Guid64 reroutePinId, DynamicArray< Guid64 >& outDestinationPinIds );
+    void findRerouteDestinations( Guid64 reroutePinId, DynamicArray< Guid64 >& outDestinationPinIds );
 
   private:
     struct CreateNewNodeData {
@@ -132,24 +132,24 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
         GraphEditorContext::PinDirection Direction;
     };
 
-    CreateNewNodeData m_CreateNodeData;
+    CreateNewNodeData m_createNodeData;
 
-    ax::NodeEditor::EditorContext* m_Context = nullptr;
-    UniquePtr< GraphEditorContext > m_EditorContext;
+    ax::NodeEditor::EditorContext* m_context = nullptr;
+    UniquePtr< GraphEditorContext > m_editorContext;
 
-    DynamicArray< RerouteNode > m_RerouteNodes;
-    DynamicArray< RerouteLink > m_RerouteLinks;
+    DynamicArray< RerouteNode > m_rerouteNodes;
+    DynamicArray< RerouteLink > m_rerouteLinks;
 
-    float32 m_FocusDuration = 0.0f;
+    float32 m_focusDuration = 0.0f;
 
-    bool m_ShouldFocus = false;
-    bool m_ShowLinkDirections = false;
+    bool m_shouldFocus = false;
+    bool m_showLinkDirections = false;
 
-    GraphEditorContext::PinDirection m_ForcedReroutePinDirection;
+    GraphEditorContext::PinDirection m_forcedReroutePinDirection{ GraphEditorContext::PinDirection::Invalid };
 
-    String m_CanvasPanelId;
-    String m_PropertiesPanelId;
+    String m_canvasPanelId;
+    String m_propertiesPanelId;
 
-    uint32_t m_WindowId;
+    uint32_t m_windowId;
 };
 } // namespace onyx::editor

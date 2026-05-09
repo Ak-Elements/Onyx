@@ -62,7 +62,7 @@ bool drawAssetSelector( StringView propertyName, assets::AssetId& outAssetId, as
 template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
 bool drawProperty( StringView propertyName, assets::AssetHandle< T >& outAsset ) {
     assets::AssetId assetId = outAsset.getId();
-    if ( drawAssetSelector( propertyName, assetId, static_cast< assets::AssetType >( T::TypeId.getId() ) ) ) {
+    if( drawAssetSelector( propertyName, assetId, static_cast< assets::AssetType >( T::TypeId.getId() ) ) ) {
         outAsset.setId( assetId );
         return true;
     }
@@ -95,29 +95,29 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
     constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
     bool hasModified = false;
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if ( flags == ScalarInputFlag::None ) {
+    if( flags == ScalarInputFlag::None ) {
         bool hasMin = options.Min.has_value();
         bool hasMax = options.Max.has_value();
-        if ( hasMin || hasMax ) {
+        if( hasMin || hasMax ) {
             ScalarT minValue = options.Min.value_or( std::numeric_limits< ScalarT >::lowest() );
             ScalarT maxValue = options.Max.value_or( std::numeric_limits< ScalarT >::max() );
 
             ScalarT beforeValue = value;
-            if ( DrawScalarInput( "##inoutScalar",
-                                  DataType,
-                                  value,
-                                  nullptr,
-                                  nullptr,
-                                  nullptr,
-                                  ImGuiInputTextFlags_CharsDecimal ) ) {
+            if( DrawScalarInput( "##inoutScalar",
+                                 DataType,
+                                 value,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 ImGuiInputTextFlags_CharsDecimal ) ) {
                 value = std::clamp( value, minValue, maxValue );
                 hasModified = isEqual( beforeValue, value ) == false;
             }
 
             String tooltip;
-            if ( hasMin && hasMax ) {
+            if( hasMin && hasMax ) {
                 tooltip = format::format( "[ {} .. {} ]", minValue, maxValue );
-            } else if ( hasMin ) {
+            } else if( hasMin ) {
                 tooltip = format::format( "[ {} .. ]", minValue );
             } else {
                 tooltip = format::format( "[ .. {} ]", maxValue );
@@ -125,7 +125,7 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
 
             ImGui::SetItemTooltip( "%s", tooltip.c_str() );
         } else {
-            if ( options.IsSlider ) {
+            if( options.IsSlider ) {
                 hasModified = ImGui::DragScalar( "##inoutScalar",
                                                  DataType,
                                                  &value,
@@ -144,12 +144,12 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
                                                ImGuiInputTextFlags_CharsDecimal );
             }
         }
-    } else if ( flags == ScalarInputFlag::PowerOf2 ) {
+    } else if( flags == ScalarInputFlag::PowerOf2 ) {
         // This works but the IsItemDeactivatedAfterEdit fires after losing focus which makes it hard to check if the
         // value actually changed
         // static ScalarT tmpValue = value;
         DrawScalarInput( "##inoutScalar", DataType, value );
-        if ( ImGui::IsItemDeactivatedAfterEdit() ) {
+        if( ImGui::IsItemDeactivatedAfterEdit() ) {
             // if (tmpValue != value)
             //  {
             //      value = tmpValue;
@@ -186,7 +186,7 @@ bool drawProperty( StringView propertyName, Vector2< ScalarT >& vector ) {
     // Draw Value
     ImGui::PushID( propertyName.data() );
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    bool hasModified = VectorControl::VectorInput( vector );
+    bool hasModified = VectorControl::vectorInput( vector );
     ImGui::PopID();
     ImGui::EndHorizontal();
 
@@ -200,7 +200,7 @@ bool drawProperty( StringView propertyName, Vector3< ScalarT >& outVector, const
     // Draw Value
     ImGui::PushID( propertyName.data() );
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    bool hasModified = VectorControl::VectorInput( outVector, minValue );
+    bool hasModified = VectorControl::vectorInput( outVector, minValue );
 
     ImGui::PopID();
     ImGui::EndHorizontal();
@@ -221,7 +221,7 @@ bool drawProperty( StringView propertyName, Vector4< ScalarT >& vector ) {
     // Draw Value
     ImGui::PushID( propertyName.data() );
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    bool hasModified = VectorControl::VectorInput( vector );
+    bool hasModified = VectorControl::vectorInput( vector );
     ImGui::PopID();
     ImGui::EndHorizontal();
 
@@ -236,21 +236,21 @@ bool drawProperty( StringView propertyName, EnumT& currentValue ) {
 
     bool isModified = false;
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if ( ImGui::BeginCombo( "##combo", enums::toString( currentValue ).data() ) ) {
+    if( ImGui::BeginCombo( "##combo", enums::toString( currentValue ).data() ) ) {
         constexpr auto EnumEntries = magic_enum::enum_entries< EnumT >();
-        for ( auto&& [ enumValue, name ] : EnumEntries ) {
+        for( auto&& [ enumValue, name ] : EnumEntries ) {
             // Skip values passed in the variadic args
-            if ( ( ( enumValue == ExcludeEnumTs ) || ... ) )
+            if( ( ( enumValue == ExcludeEnumTs ) || ... ) )
                 continue;
 
             bool isSelected = enumValue == currentValue;
-            if ( ImGui::Selectable( name.data(), isSelected ) ) {
+            if( ImGui::Selectable( name.data(), isSelected ) ) {
                 currentValue = enumValue;
                 isModified = true;
                 break;
             }
 
-            if ( isSelected )
+            if( isSelected )
                 ImGui::SetItemDefaultFocus();
         }
 
@@ -272,21 +272,21 @@ bool drawEnumPropertyFromTo( StringView propertyName, EnumT& currentValue ) {
 
     bool isModified = false;
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if ( ImGui::BeginCombo( "##combo", enums::toString( currentValue ).data() ) ) {
+    if( ImGui::BeginCombo( "##combo", enums::toString( currentValue ).data() ) ) {
         constexpr auto EnumEntries = magic_enum::enum_entries< EnumT >();
-        for ( auto&& [ enumValue, name ] : EnumEntries ) {
-            if ( ( enumValue < FromValue ) || ( enumValue > ToValue ) ) {
+        for( auto&& [ enumValue, name ] : EnumEntries ) {
+            if( ( enumValue < FromValue ) || ( enumValue > ToValue ) ) {
                 continue;
             }
 
             bool isSelected = enumValue == currentValue;
-            if ( ImGui::Selectable( name.data(), isSelected ) ) {
+            if( ImGui::Selectable( name.data(), isSelected ) ) {
                 currentValue = enumValue;
                 isModified = true;
                 break;
             }
 
-            if ( isSelected )
+            if( isSelected )
                 ImGui::SetItemDefaultFocus();
         }
 

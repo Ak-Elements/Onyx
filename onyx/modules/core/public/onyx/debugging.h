@@ -22,7 +22,7 @@ inline void breakpoint() {
 
 inline void breakpointIfDebugging() {
 #if ONYX_IS_DEBUG
-    if ( isDebuggerPresent() ) {
+    if( isDebuggerPresent() ) {
         breakpoint();
     }
 #endif // ^^^ ONYX_IS_DEBUG ^^^

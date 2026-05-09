@@ -1,11 +1,83 @@
 {
     "nodes": [
         {
-            "id": "ddca9d6cfc01000",
+            "id": "ddca30f8dc01000",
             "name": "DebugDrawTask",
             "position": [
                 1546.0,
                 148.0
+            ]
+        },
+        {
+            "id": "baa254787001000",
+            "name": "Tonemap",
+            "position": [
+                1176.0,
+                148.0
+            ]
+        },
+        {
+            "id": "b8e0fd752001000",
+            "name": "Composite",
+            "position": [
+                888.0,
+                148.0
+            ]
+        },
+        {
+            "id": "ba5010b28801001",
+            "name": "Static Mesh Pass",
+            "position": [
+                504.0,
+                180.0
+            ]
+        },
+        {
+            "id": "ba68b0d91801000",
+            "name": "Atmospheric Sky",
+            "position": [
+                152.0,
+                -20.0
+            ]
+        },
+        {
+            "id": "ba68b013b801000",
+            "name": "Compute SkyViewLut",
+            "position": [
+                -431.0,
+                116.0
+            ]
+        },
+        {
+            "id": "ba8c92356401001",
+            "name": "3D MSDF Font Pass",
+            "position": [
+                467.0,
+                436.0
+            ]
+        },
+        {
+            "id": "ba6717196401001",
+            "name": "Depth Pre Pass",
+            "position": [
+                152.0,
+                260.0
+            ]
+        },
+        {
+            "id": "ba68af0af801000",
+            "name": "Compute MultipleScattering",
+            "position": [
+                -826.0,
+                148.0
+            ]
+        },
+        {
+            "id": "ba4fcc713c01000",
+            "name": "Update Light Pass",
+            "position": [
+                56.0,
+                356.0
             ]
         },
         {
@@ -33,195 +105,12 @@
             ]
         },
         {
-            "id": "ba6717196401001",
-            "name": "Depth Pre Pass",
+            "id": "e22311b81001000",
+            "name": "!!!onyx::editor::render_graph_nodes::EditorSceneGridPass:1087809241",
             "position": [
-                152.0,
-                260.0
+                1912.0,
+                144.0
             ]
-        },
-        {
-            "id": "b8e0fd536001001",
-            "name": "Editor Scene Grid",
-            "position": [
-                510.0,
-                84.0
-            ]
-        },
-        {
-            "id": "ba8c92356401001",
-            "name": "3D MSDF Font Pass",
-            "position": [
-                467.0,
-                436.0
-            ]
-        },
-        {
-            "id": "ba68af0af801000",
-            "name": "Compute MultipleScattering",
-            "position": [
-                -826.0,
-                148.0
-            ]
-        },
-        {
-            "id": "ba4fcc713c01000",
-            "name": "Update Light Pass",
-            "position": [
-                56.0,
-                356.0
-            ]
-        },
-        {
-            "id": "ba68b013b801000",
-            "name": "Compute SkyViewLut",
-            "position": [
-                -431.0,
-                116.0
-            ]
-        },
-        {
-            "id": "ba68b0d91801000",
-            "name": "Atmospheric Sky",
-            "position": [
-                148.0,
-                -28.0
-            ]
-        },
-        {
-            "id": "ba5010b28801001",
-            "name": "Static Mesh Pass",
-            "position": [
-                504.0,
-                180.0
-            ]
-        },
-        {
-            "id": "b8e0fd752001000",
-            "name": "Composite",
-            "position": [
-                888.0,
-                148.0
-            ]
-        },
-        {
-            "id": "baa254787001000",
-            "name": "Tonemap",
-            "position": [
-                1176.0,
-                148.0
-            ]
-        }
-    ],
-    "hiddenlinks": [
-        {
-            "frominputpin": "ba6717196401102",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "b8e0fd536001002",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba8c92356401002",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba68b013b801001",
-            "tooutputpin": "ba68ae7a0001002"
-        },
-        {
-            "frominputpin": "ba68b0d91801001",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "frominputpin": "ba68b0d91801002",
-            "tooutputpin": "ba68ae7a0001002"
-        },
-        {
-            "frominputpin": "ba5010b28801002",
-            "tooutputpin": "ba2926a5c001002"
-        }
-    ],
-    "reroutenodes": [
-        {
-            "id": "bb20c9977801000",
-            "inputpin": "bb20c9977801001",
-            "outputpin": "bb20c9977801002",
-            "position": [
-                -518.0,
-                48.0
-            ]
-        },
-        {
-            "id": "bb20cf21fc01000",
-            "inputpin": "bb20cf21fc01001",
-            "outputpin": "bb20cf21fc01002",
-            "position": [
-                26.0,
-                224.0
-            ]
-        },
-        {
-            "id": "bb20d245ec01000",
-            "inputpin": "bb20d245ec01001",
-            "outputpin": "bb20d245ec01002",
-            "position": [
-                346.0,
-                224.0
-            ]
-        }
-    ],
-    "reroutelinks": [
-        {
-            "id": "bb20c9977801004",
-            "frominputpin": "bb20c9977801001",
-            "tooutputpin": "ba68ae7a0001002"
-        },
-        {
-            "id": "bb20c9977801005",
-            "frominputpin": "ba68b0d91801002",
-            "tooutputpin": "bb20c9977801002"
-        },
-        {
-            "id": "bb20ca173001001",
-            "frominputpin": "ba68b013b801001",
-            "tooutputpin": "bb20c9977801002"
-        },
-        {
-            "id": "bb20ce177c01001",
-            "frominputpin": "ba68b0d91801001",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "id": "bb20cf21fc01004",
-            "frominputpin": "bb20cf21fc01001",
-            "tooutputpin": "ba2926a5c001002"
-        },
-        {
-            "id": "bb20d245ec01004",
-            "frominputpin": "bb20d245ec01001",
-            "tooutputpin": "bb20cf21fc01002"
-        },
-        {
-            "id": "bb20d245ec01005",
-            "frominputpin": "ba5010b28801002",
-            "tooutputpin": "bb20d245ec01002"
-        },
-        {
-            "id": "bb20d2995c01001",
-            "frominputpin": "ba8c92356401002",
-            "tooutputpin": "bb20d245ec01002"
-        },
-        {
-            "id": "bb20fce35801000",
-            "frominputpin": "ba6717196401102",
-            "tooutputpin": "bb20cf21fc01002"
-        },
-        {
-            "id": "bb20fed74c01000",
-            "frominputpin": "b8e0fd536001002",
-            "tooutputpin": "bb20d245ec01002"
         }
     ]
 }

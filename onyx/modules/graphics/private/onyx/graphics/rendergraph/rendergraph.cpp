@@ -19,7 +19,7 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE_FUNCTION;
 
     // allocate all resources and descriptors?
-    m_Graph.Compile();
+    m_Graph.compile();
 
     // Allocating resources
     DynamicArray< RenderGraphResourceId > allocations;
@@ -30,9 +30,9 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
     DynamicArray< RenderGraphResourceId > freeList;
 
     // Create render, framebuffers & pso's
-    const auto topologicalOrder = m_Graph.GetTopologicalOrder();
+    const auto topologicalOrder = m_Graph.getTopologicalOrder();
     for( const LocalNodeId nodeId : topologicalOrder ) {
-        IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
         const uint32_t inputPinCount = graphNode.GetInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
@@ -46,7 +46,7 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
     for( const LocalNodeId nodeId : topologicalOrder ) {
         const bool isLastNode = nodeId == topologicalOrder[ ( topologicalOrder.size() - 1 ) ];
 
-        IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
         // remove resource cache
         graphNode.Init( graphicsSystem, m_ResourceCache );
 
@@ -116,7 +116,7 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
 
     // create renderpass and framebuffer
     for( const LocalNodeId nodeId : topologicalOrder ) {
-        IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
         graphNode.Compile( graphicsSystem, m_ResourceCache );
     }
 
@@ -131,13 +131,13 @@ void RenderGraph::Shutdown( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    for( const LocalNodeId nodeId : m_Graph.GetTopologicalOrder() ) {
-        IRenderGraphNode& graphNode = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+    for( const LocalNodeId nodeId : m_Graph.getTopologicalOrder() ) {
+        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
         graphNode.Shutdown( graphicsSystem );
     }
 
     m_ResourceCache.clear();
-    m_Graph.Clear();
+    m_Graph.clear();
 
     graphicsSystem.onBeginFrame().Disconnect( this );
     graphicsSystem.onRenderFrame().Disconnect( this );
@@ -164,8 +164,8 @@ void RenderGraph::OnBeginFrame( const rhi::FrameContext& frameContext ) {
     resourceInfo.Size = Vector3s32( frameContext.Api->getSwapchainExtent(), 0 );
 
     RenderGraphContext graphContext{ frameContext, *this };
-    for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+    for( int8_t nodeId : m_Graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
 
         if( node.IsEnabled() == false ) {
             continue;
@@ -183,8 +183,8 @@ void RenderGraph::OnRenderFrame( const rhi::FrameContext& context ) {
     RenderGraphContext graphContext{ context, *this };
     rhi::CommandBuffer& commandBuffer = context.Api->getCommandBuffer( context.FrameIndex, true );
 
-    for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+    for( int8_t nodeId : m_Graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
 
         if( node.HasBegunFrame() == false ) {
             continue;
@@ -202,8 +202,8 @@ void RenderGraph::OnEndFrame( const rhi::FrameContext& frameContext ) {
 
     // wait for tasks
     RenderGraphContext graphContext{ frameContext, *this };
-    for( int8_t nodeId : m_Graph.GetTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+    for( int8_t nodeId : m_Graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
 
         if( node.HasBegunFrame() == false ) {
             continue;
@@ -239,8 +239,8 @@ void RenderGraph::OnSwapChainResized( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    for( LocalNodeId nodeId : m_Graph.GetTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.GetNode< IRenderGraphNode >( nodeId );
+    for( LocalNodeId nodeId : m_Graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
         node.OnSwapChainResized( graphicsSystem, m_ResourceCache );
     }
 }

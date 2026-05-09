@@ -44,15 +44,12 @@ fragment
     {
 #if ONYX_IS_BINDLESS
         vec4 color = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[0])], vTexCoord.xy);
-        vec4 grid = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[1])], vTexCoord.xy);
         vec4 fontTex = texture(BindlessTextures[nonuniformEXT(PushConstants.Textures[2])], vTexCoord.xy);
 #else
         vec4 color = texture(colorTexture, vTexCoord.xy);
-        vec4 grid = texture(gridTexture, vTexCoord.xy);
         vec4 fontTex = texture(fontUiTexture, vTexCoord.xy);
 #endif
-        vec4 finalColor =  alphaBlendColor(color, grid);
-        finalColor = alphaBlendColor(fontTex, finalColor);
+        vec4 finalColor = alphaBlendColor(fontTex, color);
         out_color = finalColor;
     }
 }

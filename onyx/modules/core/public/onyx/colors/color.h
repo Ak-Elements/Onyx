@@ -38,7 +38,7 @@ class Color {
             return Color{ uint8_t( v ), uint8_t( v >> 8 ), uint8_t( v >> 16 ), uint8_t( v >> 24 ) };
     }
 
-    ONYX_NO_DISCARD uint32_t toRGBA() const {
+    ONYX_NO_DISCARD constexpr uint32_t toRGBA() const {
         if constexpr( std::endian::native == std::endian::little ) {
             return std::bit_cast< uint32_t >( *this );
         } else {
@@ -46,7 +46,7 @@ class Color {
         }
     }
 
-    ONYX_NO_DISCARD uint32_t toARGB() const {
+    ONYX_NO_DISCARD constexpr uint32_t toARGB() const {
         if constexpr( std::endian::native == std::endian::little ) {
             return std::bit_cast< uint32_t >( *this );
         } else {
@@ -54,7 +54,7 @@ class Color {
         }
     }
 
-    ONYX_NO_DISCARD uint32_t toBGRA() const {
+    ONYX_NO_DISCARD constexpr uint32_t toBGRA() const {
         if constexpr( std::endian::native == std::endian::little ) {
             return std::bit_cast< uint32_t >( *this );
         } else {
@@ -62,7 +62,7 @@ class Color {
         }
     }
 
-    ONYX_NO_DISCARD uint32_t toABGR() const {
+    ONYX_NO_DISCARD constexpr uint32_t toABGR() const {
         if constexpr( std::endian::native == std::endian::big ) {
             return std::bit_cast< uint32_t >( *this );
         } else {
@@ -71,9 +71,9 @@ class Color {
         }
     }
 
-    ONYX_NO_DISCARD uint32_t toRGB() const { return ( R << 16 ) | ( G << 8 ) | B; }
+    ONYX_NO_DISCARD constexpr uint32_t toRGB() const { return ( R << 16 ) | ( G << 8 ) | B; }
 
-    ONYX_NO_DISCARD uint32_t toBGR() const { return ( B << 16 ) | ( G << 8 ) | R; }
+    ONYX_NO_DISCARD constexpr uint32_t toBGR() const { return ( B << 16 ) | ( G << 8 ) | R; }
 };
 
 template <>

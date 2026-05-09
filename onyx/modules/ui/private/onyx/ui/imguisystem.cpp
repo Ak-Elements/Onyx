@@ -122,6 +122,7 @@ ImGuiKey convertToImGuiKey( input::Key key ) {
         return ImGuiKey_Keypad9;
     case NumPad_Period:
         return ImGuiKey_KeypadDecimal;
+
     case NumPad_Divide:
         return ImGuiKey_KeypadDivide;
     case NumPad_Multiply:
@@ -273,15 +274,17 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     ImPlot3D::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
+    io.UserData = this;
     io.IniFilename = nullptr;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     assets::AssetHandle< onyx::ui::Theme > theme;
-    assetSystem.getAsset( "engine:/themes/catppuccin-mocha/theme.nyx", theme );
+    assetSystem.getAsset( "engine:/themes/dark.nyx", theme );
     theme->getOnLoadedEvent().Connect< &ImGuiSystem::onThemeLoaded >( *this );
 
+    // TODO: Move this loading into async loader
     FilePath settingsPath = file_system::path::getFullPath( "tmp:imgui.ini" );
     if( file_system::path::exists( settingsPath ) == false ) {
         settingsPath = file_system::path::getFullPath( "engine:/layouts/default.ini" );
@@ -336,6 +339,9 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     platform::Window& mainWindow = m_platformSystem->GetMainWindow();
     mainWindow.OnResize().Connect< &ImGuiSystem::onWindowResize >( this );
 
+    onyx::ui::PropertyInspectors::registerInspector< EngineVariable< uint32_t > >();
+    onyx::ui::PropertyInspectors::registerInspector< EngineVariable< bool > >();
+
     registerWindow< EngineVariablesWindow >();
 }
 
@@ -370,8 +376,6 @@ void ImGuiSystem::update( rhi::GraphicsSystem& graphicsSystem, DeltaGameTime del
         const UniquePtr< ImGuiWindow >& imguiWindow = m_windows[ i ];
         imguiWindow->render( *this );
     }
-
-    ImGui::ShowDemoWindow();
 
     g_uiContext.GraphicsSystem = nullptr;
 }
@@ -695,16 +699,16 @@ void ImGuiSystem::updateDrawBuffers( const rhi::FrameContext& frameContext ) {
     int32_t indexCopyOffset = 0;
 
     for( int n = 0; n < imDrawData->CmdListsCount; n++ ) {
-        const ImDrawList* cmd_list = imDrawData->CmdLists[ n ];
+        const ImDrawList* cmdList = imDrawData->CmdLists[ n ];
         vertexBuffer.Buffer->SetData( vertexCopyOffset,
-                                      cmd_list->VtxBuffer.Data,
-                                      cmd_list->VtxBuffer.Size * sizeof( ImDrawVert ) );
+                                      cmdList->VtxBuffer.Data,
+                                      cmdList->VtxBuffer.Size * sizeof( ImDrawVert ) );
         indexBuffer.Buffer->SetData( indexCopyOffset,
-                                     cmd_list->IdxBuffer.Data,
-                                     cmd_list->IdxBuffer.Size * sizeof( ImDrawIdx ) );
+                                     cmdList->IdxBuffer.Data,
+                                     cmdList->IdxBuffer.Size * sizeof( ImDrawIdx ) );
 
-        vertexCopyOffset += cmd_list->VtxBuffer.Size * sizeof( ImDrawVert );
-        indexCopyOffset += cmd_list->IdxBuffer.Size * sizeof( ImDrawIdx );
+        vertexCopyOffset += cmdList->VtxBuffer.Size * sizeof( ImDrawVert );
+        indexCopyOffset += cmdList->IdxBuffer.Size * sizeof( ImDrawIdx );
     }
 }
 
