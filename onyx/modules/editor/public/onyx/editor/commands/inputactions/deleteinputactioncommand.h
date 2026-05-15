@@ -2,18 +2,16 @@
 
 #include <onyx/editor/commands/inputactions/inputactioncommand.h>
 
-namespace onyx::editor
-{
-    class InputActionSettingsWindow;
+namespace onyx::editor {
+class InputActionSettingsWindow;
 
-    struct DeleteInputActionCommand : public InputActionCommand
-    {
-    public:
-        DeleteInputActionCommand(StringId64 actionId, InputActionSettingsWindow& inputSettingsWindow);
+struct DeleteInputActionCommand : public InputActionCommand {
+  public:
+    DeleteInputActionCommand( StringId64 actionId, InputActionSettingsWindow& inputSettingsWindow );
 
-        void Execute() override;
+    void execute() override;
 
-    private:
-        StringId64 m_ActionId;
-    };
-}
+  private:
+    StringId64 m_ActionId;
+};
+} // namespace onyx::editor

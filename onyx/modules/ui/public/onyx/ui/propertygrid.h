@@ -30,6 +30,11 @@ struct ScalarOptions {
     bool IsSlider = false;
 };
 
+template < typename T >
+struct ComboOption {
+    String Label;
+    T Value;
+};
 namespace property_grid {
 void setAssetSystem( assets::AssetSystem& assetSystem );
 
@@ -92,7 +97,7 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
 
     // Draw Value
     ImGui::PushID( propertyName.data() );
-    constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
+    constexpr ImGuiDataType DataType = getImGuiDataType< ScalarT >();
     bool hasModified = false;
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
     if( flags == ScalarInputFlag::None ) {
@@ -103,7 +108,7 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
             ScalarT maxValue = options.Max.value_or( std::numeric_limits< ScalarT >::max() );
 
             ScalarT beforeValue = value;
-            if( DrawScalarInput( "##inoutScalar",
+            if( drawScalarInput( "##inoutScalar",
                                  DataType,
                                  value,
                                  nullptr,
@@ -135,7 +140,7 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
                                                  nullptr,
                                                  ImGuiSliderFlags_None );
             } else {
-                hasModified = DrawScalarInput( "##inoutScalar",
+                hasModified = drawScalarInput( "##inoutScalar",
                                                DataType,
                                                value,
                                                nullptr,
@@ -145,10 +150,9 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
             }
         }
     } else if( flags == ScalarInputFlag::PowerOf2 ) {
-        // This works but the IsItemDeactivatedAfterEdit fires after losing focus which makes it hard to check if the
-        // value actually changed
-        // static ScalarT tmpValue = value;
-        DrawScalarInput( "##inoutScalar", DataType, value );
+        // This works but the IsItemDeactivatedAfterEdit fires after losing focus which makes it hard to check if
+        // the value actually changed static ScalarT tmpValue = value;
+        drawScalarInput( "##inoutScalar", DataType, value );
         if( ImGui::IsItemDeactivatedAfterEdit() ) {
             // if (tmpValue != value)
             //  {
@@ -162,6 +166,27 @@ bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flag
     ImGui::EndHorizontal();
 
     return hasModified;
+}
+
+template < typename DisplayUnitsT, typename StorageUnitsT, typename ScalarT > requires IsRatio< DisplayUnitsT >
+bool drawProperty( StringView propertyName,
+                   Quantity< ScalarT, StorageUnitsT >& value,
+                   ScalarOptions< ScalarT > options ) {
+    using StorageQuanityT = Quantity< ScalarT, StorageUnitsT >;
+    using DisplayQuanityT = Quantity< ScalarT, DisplayUnitsT >;
+
+    ScalarT underlyingValue = quantityCast< DisplayUnitsT, StorageUnitsT >( value.count() );
+    if( drawProperty( propertyName, underlyingValue, ScalarInputFlag::None, options ) ) {
+        value = quantityCast< StorageQuanityT >( DisplayQuanityT( underlyingValue ) );
+        return true;
+    }
+
+    return false;
+}
+
+template < typename DisplayUnitsT, typename StorageUnitsT, typename ScalarT > requires IsRatio< DisplayUnitsT >
+bool drawProperty( StringView propertyName, Quantity< ScalarT, StorageUnitsT >& value ) {
+    return drawProperty< DisplayUnitsT >( propertyName, value, ScalarOptions< ScalarT >{} );
 }
 
 template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
@@ -226,6 +251,39 @@ bool drawProperty( StringView propertyName, Vector4< ScalarT >& vector ) {
     ImGui::EndHorizontal();
 
     return hasModified;
+}
+
+template < typename T, uint8_t N >
+bool drawComboProperty( StringView propertyName,
+                        InplaceArray< ComboOption< T >, N >& options,
+                        int32_t& selectedIndex ) {
+    drawPropertyName( propertyName );
+
+    ImGui::PushID( propertyName.data() );
+
+    bool isModified = false;
+    ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
+
+    if( ImGui::BeginCombo( "##combo", options[ selectedIndex ].Label.c_str() ) ) {
+        for( int32_t i = 0; i < numericCast< int32_t >( options.size() ); ++i ) {
+            const bool isSelected = selectedIndex == i;
+            if( ImGui::Selectable( options[ i ].Label.c_str(), isSelected ) ) {
+                selectedIndex = i;
+                isModified = isSelected == false;
+                break;
+            }
+
+            if( isSelected )
+                ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGui::PopID();
+    ImGui::EndHorizontal();
+
+    return isModified;
 }
 
 template < typename EnumT, EnumT... ExcludeEnumTs > requires std::is_enum_v< EnumT >

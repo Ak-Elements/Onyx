@@ -6,9 +6,11 @@ namespace onyx::ui {
 struct ScopedImGuiColor {
   public:
     ScopedImGuiColor( int32_t colorId, uint32_t color );
+    ScopedImGuiColor( int32_t colorId, Color color );
 
     // list of color vars
     ScopedImGuiColor( std::initializer_list< std::pair< int32_t, uint32_t > > colorVars );
+    ScopedImGuiColor( std::initializer_list< std::pair< int32_t, Color > > colorVars );
 
     ~ScopedImGuiColor();
 

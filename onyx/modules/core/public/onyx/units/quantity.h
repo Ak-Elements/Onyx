@@ -1,7 +1,10 @@
 #pragma once
+
+#include <onyx/geometry/vector.h>
 #include <onyx/units/ratio.h>
 
 namespace onyx {
+
 template < typename T >
 concept StorageQuantity = requires( const T& obj ) {
     typename T::RepresentType;
@@ -34,7 +37,7 @@ struct Quantity {
     requires( std::is_floating_point_v< RepresentType > or
               ( RatioDivide< Period2, Period >::Denominator == 1 and not std::is_floating_point_v< Rep2 > ) )
     constexpr explicit Quantity( const Quantity< Rep2, Period2 >& quantity ) noexcept
-        : m_rep( quantityCast< quantity >( quantity ).Count() ) {}
+        : m_rep( quantityCast< Quantity >( quantity ).count() ) {}
 
     ONYX_NO_DISCARD constexpr auto count() const noexcept -> RepresentType { return m_rep; }
 
@@ -127,8 +130,8 @@ ONYX_NO_DISCARD constexpr auto quantityCast( const TFrom& quantity ) noexcept ->
     constexpr bool NumIsOne = CalRatioType::Numerator == 1;
     constexpr bool DenIsOne = CalRatioType::Denominator == 1;
 
-    if constexpr ( DenIsOne ) {
-        if constexpr ( NumIsOne ) {
+    if constexpr( DenIsOne ) {
+        if constexpr( NumIsOne ) {
             return static_cast< TTo >( static_cast< ToRepresentType >( quantity.count() ) );
         } else {
             return static_cast< TTo >(
@@ -136,7 +139,7 @@ ONYX_NO_DISCARD constexpr auto quantityCast( const TFrom& quantity ) noexcept ->
                                                 static_cast< CommonRepType >( CalRatioType::Numerator ) ) );
         }
     } else {
-        if constexpr ( NumIsOne ) {
+        if constexpr( NumIsOne ) {
             return static_cast< TTo >(
                 static_cast< ToRepresentType >( static_cast< CommonRepType >( quantity.count() ) /
                                                 static_cast< CommonRepType >( CalRatioType::Denominator ) ) );
@@ -164,10 +167,10 @@ ONYX_NO_DISCARD constexpr auto quantityCast( VectorT value ) noexcept -> VectorT
     using FromQuantity = Quantity< typename VectorT::ScalarT, FromPeriod >;
     using ToQuantity = Quantity< typename VectorT::ScalarT, ToPeriod >;
 
-    if constexpr ( IsVector2< VectorT > ) {
+    if constexpr( IsVector2< VectorT > ) {
         return VectorT{ quantityCast< ToQuantity >( FromQuantity{ value.X } ).count(),
                         quantityCast< ToQuantity >( FromQuantity{ value.Y } ).count() };
-    } else if constexpr ( IsVector3< VectorT > ) {
+    } else if constexpr( IsVector3< VectorT > ) {
         return VectorT{ quantityCast< ToQuantity >( FromQuantity{ value.X } ).count(),
                         quantityCast< ToQuantity >( FromQuantity{ value.Y } ).count(),
                         quantityCast< ToQuantity >( FromQuantity{ value.Z } ).count() };
@@ -198,9 +201,9 @@ template < typename TRep, typename TPeriod >
 ONYX_NO_DISCARD constexpr auto clamp( const Quantity< TRep, TPeriod >& quantity,
                                       const Quantity< TRep, TPeriod >& min,
                                       const Quantity< TRep, TPeriod >& max ) noexcept -> Quantity< TRep, TPeriod > {
-    if ( quantity.count() < min.count() )
+    if( quantity.count() < min.count() )
         return min;
-    else if ( quantity.count() > max.count() )
+    else if( quantity.count() > max.count() )
         return max;
     else
         return quantity;

@@ -12,7 +12,7 @@ void EngineVariablesWindow::onOpen() {
 }
 
 void EngineVariablesWindow::onRender( ImGuiSystem& /*imguiSystem*/ ) {
-    bool hasSearchChanged = DrawSearchBar( m_search, "Search", m_searchBarIsFocused );
+    bool hasSearchChanged = drawSearchBar( m_search, "Search", m_searchBarIsFocused );
     if( hasSearchChanged ) {
         rebuildVariableGraph();
     }

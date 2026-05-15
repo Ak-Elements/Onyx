@@ -52,16 +52,16 @@ struct Vector3 {
   public:
     using ScalarT = Scalar;
     using FloatingPointScalarT = typename decltype( [] {
-        if constexpr ( sizeof( ScalarT ) <= sizeof( float32 ) )
+        if constexpr( sizeof( ScalarT ) <= sizeof( float32 ) )
             return std::type_identity< float32 >();
         else
             return std::type_identity< float64 >();
     }() )::type;
 
     using DotT = typename decltype( [] {
-        if constexpr ( std::is_floating_point_v< ScalarT > )
+        if constexpr( std::is_floating_point_v< ScalarT > )
             return std::type_identity< float64 >();
-        else if constexpr ( std::is_signed_v< ScalarT > )
+        else if constexpr( std::is_signed_v< ScalarT > )
             return std::type_identity< int64_t >();
         else
             return std::type_identity< uint64_t >();
@@ -147,7 +147,7 @@ struct Vector3 {
 
     constexpr Vector3< FloatingPointScalarT > normalized() const {
         const FloatingPointScalarT len = length();
-        if ( onyx::isZero( len ) )
+        if( onyx::isZero( len ) )
             return Vector3< FloatingPointScalarT >::zero();
 
         ONYX_ASSERT( onyx::isZero( len ) == false, "Can not normalize a vector of length 0" );

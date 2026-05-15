@@ -1,5 +1,7 @@
 #pragma once
 
+#include <onyx/units/units.h>
+
 namespace onyx {
 template < typename ScalarT >
 struct Matrix4;
@@ -18,23 +20,21 @@ class Rotor3 {
      * Construct a rotor3 from 3 euler angles in radians
      * x - Pitch angle to rotate around X axis
      * y - Yaw angle to rotate around Y axis
-     * z - Roll angle to rotate around Z axis
      */
-    static Rotor3 fromEulerAngles( const Vector3< ScalarT >& eulerAngles ) {
-        Vector3< ScalarT > cos{ std::cos( eulerAngles[ 0 ] * ScalarT( 0.5 ) ),
-                                std::cos( eulerAngles[ 1 ] * ScalarT( 0.5 ) ),
-                                std::cos( eulerAngles[ 2 ] * ScalarT( 0.5 ) ) };
-        Vector3< ScalarT > sin = { std::sin( eulerAngles[ 0 ] * ScalarT( 0.5 ) ),
-                                   std::sin( eulerAngles[ 1 ] * ScalarT( 0.5 ) ),
-                                   std::sin( eulerAngles[ 2 ] * ScalarT( 0.5 ) ) };
+    static Rotor3 fromEulerAngles( Vector3f32 pitchYawRoll ) {
+        const ScalarT cp = std::cos( pitchYawRoll.X * ScalarT( 0.5 ) );
+        const ScalarT cy = std::cos( pitchYawRoll.Y * ScalarT( 0.5 ) );
+        const ScalarT cr = std::cos( pitchYawRoll.Z * ScalarT( 0.5 ) );
+        const ScalarT sp = std::sin( pitchYawRoll.X * ScalarT( 0.5 ) );
+        const ScalarT sy = std::sin( pitchYawRoll.Y * ScalarT( 0.5 ) );
+        const ScalarT sr = std::sin( pitchYawRoll.Z * ScalarT( 0.5 ) );
 
         Rotor3 rotor;
-        rotor.m_scalar = cos[ 0 ] * cos[ 1 ] * cos[ 2 ] + sin[ 0 ] * sin[ 1 ] * sin[ 2 ];
-        rotor.m_bivector[ 0 ] = sin[ 0 ] * cos[ 1 ] * cos[ 2 ] - cos[ 0 ] * sin[ 1 ] * sin[ 2 ];
-        rotor.m_bivector[ 1 ] = cos[ 0 ] * sin[ 1 ] * cos[ 2 ] + sin[ 0 ] * cos[ 1 ] * sin[ 2 ];
-        rotor.m_bivector[ 2 ] = cos[ 0 ] * cos[ 1 ] * sin[ 2 ] - sin[ 0 ] * sin[ 1 ] * cos[ 2 ];
-
-        return rotor;
+        rotor.m_scalar = cp * cy * cr - sp * sy * sr;
+        rotor.m_bivector[ 0 ] = -( cp * cy * sr + sp * sy * cr ); // XY - Roll
+        rotor.m_bivector[ 1 ] = ( cp * sy * cr - sp * cy * sr );  // XZ - Yaw
+        rotor.m_bivector[ 2 ] = -( sp * cy * cr + cp * sy * sr ); // YZ - Pitch
+        return rotor.normalized();
     }
 
     /*
@@ -43,12 +43,12 @@ class Rotor3 {
      * Yaw - Angle to rotate around Y axis
      * Roll - Angle to rotate around Z axis
      */
-    static Rotor3 fromEulerAnglesDegrees( ScalarT pitch, ScalarT yaw, ScalarT roll ) {
-        Rotor3 rotationX( numericCast< ScalarT >( ToRadians( pitch ) ), Bivector3< ScalarT >::yzUnit() );
-        Rotor3 rotationY( numericCast< ScalarT >( ToRadians( yaw ) ), Bivector3< ScalarT >::zxUnit() );
-        Rotor3 rotationZ( numericCast< ScalarT >( ToRadians( roll ) ), Bivector3< ScalarT >::xyUnit() );
+    static Rotor3 fromEulerAnglesDegrees( units::DegreesF32 pitch, units::DegreesF32 yaw, units::DegreesF32 roll ) {
+        Rotor3 rotationX( quantityCast< units::RadiansF32 >( pitch ).count(), Bivector3< ScalarT >::yzUnit() );
+        Rotor3 rotationY( quantityCast< units::RadiansF32 >( yaw ).count(), Bivector3< ScalarT >::zxUnit() );
+        Rotor3 rotationZ( quantityCast< units::RadiansF32 >( roll ).count(), Bivector3< ScalarT >::xyUnit() );
 
-        return rotationX * rotationY * rotationZ;
+        return ( rotationX * rotationY * rotationZ ).normalized();
     }
 
     /*
@@ -62,7 +62,7 @@ class Rotor3 {
         Rotor3 rotationY( yaw, Bivector3< ScalarT >::zxUnit() );
         Rotor3 rotationZ( roll, Bivector3< ScalarT >::xyUnit() );
 
-        return ( rotationX * rotationY * rotationZ ).Normalized();
+        return ( rotationX * rotationY * rotationZ ).normalized();
     }
 
     static Rotor3 angleAxis( ScalarT angle, const Vector3< ScalarT >& vec ) {
@@ -114,28 +114,43 @@ class Rotor3 {
     }
 
     Matrix3< ScalarT > toMatrix3() const {
+        // Vector3< ScalarT > v0 = rotate( Vector3< ScalarT >( 1, 0, 0 ) );
+        // Vector3< ScalarT > v1 = rotate( Vector3< ScalarT >( 0, 1, 0 ) );
+        // Vector3< ScalarT > v2 = rotate( Vector3< ScalarT >( 0, 0, 1 ) );
+        // return Matrix3< ScalarT >( v0, v1, v2 );
+        return toMatrix3x3();
+    }
+
+    Matrix3< ScalarT > toMatrix3x3() const {
+        const ScalarT a = m_scalar;
+
+        const ScalarT bx = -m_bivector[ 2 ]; // YZ
+        const ScalarT by = m_bivector[ 1 ];  // XZ
+        const ScalarT bz = -m_bivector[ 0 ]; // XY
+
+        const ScalarT a2 = a * a;
+
+        const ScalarT bx2 = bx * bx;
+        const ScalarT by2 = by * by;
+        const ScalarT bz2 = bz * bz;
+
+        const ScalarT b2 = bx2 + by2 + bz2;
+        const ScalarT s = a2 - b2;
+        const ScalarT k = ScalarT( 2 );
+
         Matrix3< ScalarT > result;
-        ScalarT qxx( m_bivector[ 0 ] * m_bivector[ 0 ] );
-        ScalarT qyy( m_bivector[ 1 ] * m_bivector[ 1 ] );
-        ScalarT qzz( m_bivector[ 2 ] * m_bivector[ 2 ] );
-        ScalarT qxz( m_bivector[ 0 ] * m_bivector[ 2 ] );
-        ScalarT qxy( m_bivector[ 0 ] * m_bivector[ 1 ] );
-        ScalarT qyz( m_bivector[ 1 ] * m_bivector[ 2 ] );
-        ScalarT qwx( m_scalar * m_bivector[ 0 ] );
-        ScalarT qwy( m_scalar * m_bivector[ 1 ] );
-        ScalarT qwz( m_scalar * m_bivector[ 2 ] );
 
-        result[ 0 ][ 0 ] = ScalarT( 1 ) - ScalarT( 2 ) * ( qyy + qzz );
-        result[ 0 ][ 1 ] = ScalarT( 2 ) * ( qxy + qwz );
-        result[ 0 ][ 2 ] = ScalarT( 2 ) * ( qxz - qwy );
+        result[ 0 ][ 0 ] = s + k * bx2;
+        result[ 1 ][ 0 ] = k * ( bx * by - a * bz );
+        result[ 2 ][ 0 ] = k * ( bx * bz + a * by );
 
-        result[ 1 ][ 0 ] = ScalarT( 2 ) * ( qxy - qwz );
-        result[ 1 ][ 1 ] = ScalarT( 1 ) - ScalarT( 2 ) * ( qxx + qzz );
-        result[ 1 ][ 2 ] = ScalarT( 2 ) * ( qyz + qwx );
+        result[ 0 ][ 1 ] = k * ( bx * by + a * bz );
+        result[ 1 ][ 1 ] = s + k * by2;
+        result[ 2 ][ 1 ] = k * ( by * bz - a * bx );
 
-        result[ 2 ][ 0 ] = ScalarT( 2 ) * ( qxz + qwy );
-        result[ 2 ][ 1 ] = ScalarT( 2 ) * ( qyz - qwx );
-        result[ 2 ][ 2 ] = ScalarT( 1 ) - ScalarT( 2 ) * ( qxx + qyy );
+        result[ 0 ][ 2 ] = k * ( bx * bz - a * by );
+        result[ 1 ][ 2 ] = k * ( by * bz + a * bx );
+        result[ 2 ][ 2 ] = s + k * bz2;
 
         return result;
     }
@@ -143,26 +158,45 @@ class Rotor3 {
     Matrix4< ScalarT > toMatrix4() const;
 
     Vector3< ScalarT > toEulerAngles() const {
-        ScalarT const y = static_cast< ScalarT >( 2 ) *
-                          ( m_bivector[ 1 ] * m_bivector[ 2 ] + m_scalar * m_bivector[ 0 ] );
-        ScalarT const x = m_scalar * m_scalar - m_bivector[ 0 ] * m_bivector[ 0 ] - m_bivector[ 1 ] * m_bivector[ 1 ] +
-                          m_bivector[ 2 ] * m_bivector[ 2 ];
+        // Rotor -> standard quaternion mapping
+        const ScalarT w = m_scalar;
 
-        ScalarT pitch = isZero( x ) && isZero( y ) ? static_cast< ScalarT >( static_cast< ScalarT >( 2 ) *
-                                                                             std::atan2( m_bivector[ 0 ], m_scalar ) )
-                                                   : static_cast< ScalarT >( std::atan2( y, x ) );
-        ScalarT yaw = std::asin( std::clamp( static_cast< ScalarT >( -2 ) *
-                                                 ( m_bivector[ 0 ] * m_bivector[ 2 ] - m_scalar * m_bivector[ 1 ] ),
-                                             static_cast< ScalarT >( -1 ),
-                                             static_cast< ScalarT >( 1 ) ) );
-        ScalarT roll = static_cast< ScalarT >( std::atan2(
-            static_cast< ScalarT >( 2 ) * ( m_bivector[ 0 ] * m_bivector[ 1 ] + m_scalar * m_bivector[ 2 ] ),
-            m_scalar * m_scalar + m_bivector[ 0 ] * m_bivector[ 0 ] - m_bivector[ 1 ] * m_bivector[ 1 ] -
-                m_bivector[ 2 ] * m_bivector[ 2 ] ) );
+        const ScalarT x = -m_bivector[ 2 ]; // pitch (X)
+        const ScalarT y = -m_bivector[ 1 ]; // yaw   (Y)
+        const ScalarT z = -m_bivector[ 0 ]; // roll  (Z)
+
+        //
+        // Matches:
+        // R = Rx(pitch) * Ry(yaw) * Rz(roll)
+        //
+
+        // =========================
+        // Pitch (X)
+        // =========================
+        const ScalarT sinPitch = ScalarT( 2 ) * ( w * x + y * z );
+
+        const ScalarT cosPitch = ScalarT( 1 ) - ScalarT( 2 ) * ( x * x + y * y );
+
+        const ScalarT pitch = std::atan2( sinPitch, cosPitch );
+
+        // =========================
+        // Yaw (Y)
+        // =========================
+        const ScalarT sinYaw = ScalarT( -2 ) * ( w * y - z * x );
+
+        const ScalarT yaw = std::asin( std::clamp( sinYaw, ScalarT( -1 ), ScalarT( 1 ) ) );
+
+        // =========================
+        // Roll (Z)
+        // =========================
+        const ScalarT sinRoll = ScalarT( 2 ) * ( w * z + x * y );
+
+        const ScalarT cosRoll = ScalarT( 1 ) - ScalarT( 2 ) * ( y * y + z * z );
+
+        const ScalarT roll = std::atan2( sinRoll, cosRoll );
 
         return { pitch, yaw, roll };
     }
-
     ScalarT lengthSquared() const {
         return m_scalar * m_scalar + m_bivector[ 0 ] * m_bivector[ 0 ] + m_bivector[ 1 ] * m_bivector[ 1 ] +
                m_bivector[ 2 ] * m_bivector[ 2 ];
@@ -188,7 +222,7 @@ class Rotor3 {
         return isEqual( m_scalar, rhs.m_scalar ) && ( m_bivector == rhs.m_bivector );
     }
 
-  private:
+  public:
     ScalarT m_scalar = 1;
     Bivector3< ScalarT > m_bivector;
 };

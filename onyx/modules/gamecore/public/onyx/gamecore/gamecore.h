@@ -46,18 +46,18 @@ class GameCoreSystem : public IEngineSystem {
 
     void update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graphicsSystem, IEngine& engine );
 
-    void SetScene( assets::AssetHandle< Scene >& scene ) { m_Scene = scene; }
-    assets::AssetHandle< Scene >& GetScene() { return m_Scene; }
-    const assets::AssetHandle< Scene >& GetScene() const { return m_Scene; }
+    void setScene( assets::AssetHandle< Scene >& scene ) { m_scene = scene; }
+    assets::AssetHandle< Scene >& getScene() { return m_scene; }
+    const assets::AssetHandle< Scene >& getScene() const { return m_scene; }
 
-    ecs::ComponentFactory& GetComponentFactory() { return m_ComponentFactory; }
-    const ecs::ComponentFactory& GetComponentFactory() const { return m_ComponentFactory; }
+    ecs::ComponentFactory& getComponentFactory() { return m_componentFactory; }
+    const ecs::ComponentFactory& getComponentFactory() const { return m_componentFactory; }
 
-    ecs::EcsBuilder GetEcsBuilder() { return { m_ComponentFactory, m_ECSGraph }; }
+    ecs::EcsBuilder getEcsBuilder() { return { m_componentFactory, m_ecsGraph }; }
 
   private:
-    assets::AssetHandle< Scene > m_Scene;
-    ecs::ComponentFactory m_ComponentFactory;
-    ecs::EntityComponentSystemsGraph m_ECSGraph;
+    assets::AssetHandle< Scene > m_scene;
+    ecs::ComponentFactory m_componentFactory;
+    ecs::EntityComponentSystemsGraph m_ecsGraph;
 };
 } // namespace onyx::game_core

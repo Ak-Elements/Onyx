@@ -39,6 +39,8 @@
 #include <onyx/stringid.h>
 #include <onyx/time.h>
 #include <onyx/typetraits.h>
+#include <onyx/geometry/common.h>
+#include <onyx/units/units.h>
 #include <onyx/inplacefunction.h>
 #include <onyx/log/logger.h>
 #include <onyx/container/inplacearray.h>
@@ -47,7 +49,5 @@
 #include <onyx/engine/enginevariable.h>
 #include <onyx/function/callback.h>
 #include <onyx/function/signal.h>
-#include <onyx/geometry/common.h>
 #include <onyx/string/inplacestring.h>
 #include <onyx/string/string.h>
-#include <onyx/units/units.h>

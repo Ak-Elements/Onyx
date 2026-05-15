@@ -13,7 +13,7 @@ AddInputTriggerCommand::AddInputTriggerCommand( StringId32 triggerTypeId,
     , m_BindingIndex( inputSettingsWindow.getSelectedBindingIndex() )
     , m_TriggerTypeId( triggerTypeId ) {}
 
-void AddInputTriggerCommand::Execute() {
+void AddInputTriggerCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
     if( input_actions::InputAction* action = context.GetAction( m_ActionId ).value_or( nullptr ) ) {
         DynamicArray< UniquePtr< input_actions::InputBinding > >& bindings = action->GetBindings();

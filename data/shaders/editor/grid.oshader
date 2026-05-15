@@ -23,8 +23,13 @@ fragment
 
     layout(push_constant) uniform Constants
     {
+        // 3x3 rotation matrix values
+        float Rotation00, Rotation10, Rotation20;
+        float Rotation01, Rotation11, Rotation21;
+        float Rotation02, Rotation12, Rotation22;
+
         uint GridCellCount;
-        uint GridScale;
+        float LodLevel;
 
         float AxisLineWidth;
         float MajorLineWidth;
@@ -37,7 +42,6 @@ fragment
         uint Y_AxisColor;
         uint Z_AxisColor;
         uint Flags;
-
     } u_Constants;
     
     vec4 toVec4Color( uint color )
@@ -67,7 +71,7 @@ fragment
         //TODO: add offset
         float t = dot(-rayOrigin, planeNormal) * safeReciprocal( dot(rayDirection, planeNormal) );
         outHitPosition = rayOrigin + rayDirection * t;
-        return t > 0.0f;
+        return t > 0.0f && t <= u_ViewConstants.Far;
     }
 
     float computeGridLineFactor( vec2 uv, vec2 uvDerivatives, float lineWidth, vec2 offset, vec2 axisLines )
@@ -124,20 +128,23 @@ fragment
         vec4 bAxisColor = toVec4Color( u_Constants.Z_AxisColor );
         vec4 cAxisColor = toVec4Color( u_Constants.Y_AxisColor );
 
-        vec3 rayOriginWorld = u_ViewConstants.CameraPosition;
-        vec3 rayDirection = getRayDirection( gl_FragCoord.xy );
-        vec3 ddxRayDirection = getRayDirection( vec2( gl_FragCoord.x + 1.0f, gl_FragCoord.y ) );
-        vec3 ddyRayDirection = getRayDirection( vec2( gl_FragCoord.x, gl_FragCoord.y + 1.0f ) );
+        mat3 inverseRotation = mat3( 
+                u_Constants.Rotation00, u_Constants.Rotation01, u_Constants.Rotation02,
+                u_Constants.Rotation10, u_Constants.Rotation11, u_Constants.Rotation12,
+                u_Constants.Rotation20, u_Constants.Rotation21, u_Constants.Rotation22 );
+                
+        vec3 rayOriginWorld = inverseRotation * u_ViewConstants.CameraPosition;
+        vec3 rayDirection = inverseRotation * getRayDirection( gl_FragCoord.xy );
+        vec3 ddxRayDirection = inverseRotation * getRayDirection( vec2( gl_FragCoord.x + 1.0f, gl_FragCoord.y ) );
+        vec3 ddyRayDirection = inverseRotation * getRayDirection( vec2( gl_FragCoord.x, gl_FragCoord.y + 1.0f ) );
 
         float planeCenter = 0.0f;
         vec3 planeNormal = vec3(0, 1, 0);
 
-        float cameraHeight = abs( u_ViewConstants.CameraPosition.y );
-        float scaleFactor = isScaleLocked ? u_Constants.GridScale : log( cameraHeight ) / log(10);
-        float fractionalScaleFactor = fract( scaleFactor );
+        float fractionalScaleFactor = fract( u_Constants.LodLevel );
         float blendFactor = isScaleLocked ? 0.0f : ( 1.0f - smoothstep( 0.05, 0.95, fractionalScaleFactor ) );
 
-        float minorCellSize = max( pow( 10, floor( scaleFactor ) - 1.0f ), 0.1f );
+        float minorCellSize = max( pow( 10, floor( u_Constants.LodLevel ) - 1.0f ), 0.01f );
         float previousMinorCellSize = minorCellSize / u_Constants.GridCellCount;
         float majorCellSize = minorCellSize * u_Constants.GridCellCount;
         float axisLineWidth = mix( u_Constants.AxisLineWidth, u_Constants.AxisLineWidth / u_Constants.GridCellCount, blendFactor );

@@ -32,7 +32,7 @@ int32_t PhysicalDevice::getPresentQueueIndex( const Surface& surface ) const {
                                           m_queueFamilyIndices.Graphics,
                                           surface.GetHandle(),
                                           &supportsPresent );
-    if ( supportsPresent ) {
+    if( supportsPresent ) {
         return m_queueFamilyIndices.Graphics;
     }
 
@@ -44,16 +44,17 @@ void PhysicalDevice::selectPhysicalDevice( const Instance& instance ) {
     const std::vector< VkPhysicalDevice >& physicalDevices = instance.GetPhysicalDevices();
 
     VkPhysicalDevice physicalDevice = nullptr;
-    VkPhysicalDeviceProperties2 properties2;
-    VkPhysicalDeviceMaintenance4Properties maintenanceProperties { .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES };
+    VkPhysicalDeviceProperties2 properties2{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
+    VkPhysicalDeviceMaintenance4Properties maintenanceProperties{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES };
     maintenanceProperties.maxBufferSize = 0;
     properties2.pNext = &maintenanceProperties;
 
-    for ( size_t i = 0; i < physicalDevices.size(); i++ ) {
+    for( size_t i = 0; i < physicalDevices.size(); i++ ) {
         physicalDevice = physicalDevices[ i ];
         vkGetPhysicalDeviceProperties2( physicalDevice, &properties2 );
 
-        if ( properties2.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ) {
+        if( properties2.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ) {
             m_PhysicalDevice = physicalDevice;
             m_properties = properties2.properties;
             m_maxBufferSize = maintenanceProperties.maxBufferSize;
@@ -72,14 +73,12 @@ void PhysicalDevice::retrieveSupportedExtensions() {
     // Get list of supported extensions
     uint32_t extenstionsCount = 0;
     vkEnumerateDeviceExtensionProperties( m_PhysicalDevice, nullptr, &extenstionsCount, nullptr );
-    if ( extenstionsCount > 0 ) {
+    if( extenstionsCount > 0 ) {
         std::vector< VkExtensionProperties > extensions( extenstionsCount );
-        if ( vkEnumerateDeviceExtensionProperties( m_PhysicalDevice,
-                                                   nullptr,
-                                                   &extenstionsCount,
-                                                   &extensions.front() ) == VK_SUCCESS ) {
+        if( vkEnumerateDeviceExtensionProperties( m_PhysicalDevice, nullptr, &extenstionsCount, &extensions.front() ) ==
+            VK_SUCCESS ) {
             m_supportedExtensions.reserve( extenstionsCount );
-            for ( const VkExtensionProperties& extension : extensions ) {
+            for( const VkExtensionProperties& extension : extensions ) {
                 m_supportedExtensions.emplace( extension.extensionName );
             }
         }
@@ -89,10 +88,10 @@ void PhysicalDevice::retrieveSupportedExtensions() {
 uint32_t PhysicalDevice::getMemoryType( uint32_t typeBits,
                                         VkMemoryPropertyFlags requiredPropertyFlags,
                                         VkMemoryPropertyFlags /*preferredPropertyFlags*/ ) const {
-    for ( uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++ ) {
-        if ( ( typeBits & 1 ) == 1 ) {
-            if ( ( m_memoryProperties.memoryTypes[ i ].propertyFlags & requiredPropertyFlags ) ==
-                 requiredPropertyFlags ) {
+    for( uint32_t i = 0; i < m_memoryProperties.memoryTypeCount; i++ ) {
+        if( ( typeBits & 1 ) == 1 ) {
+            if( ( m_memoryProperties.memoryTypes[ i ].propertyFlags & requiredPropertyFlags ) ==
+                requiredPropertyFlags ) {
                 return i;
             }
         }
@@ -108,28 +107,28 @@ void PhysicalDevice::retrieveQueueFamilyIndices() {
     int32_t ComputeFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
     int32_t TransferFlagsCount = VK_QUEUE_FLAG_BITS_MAX_ENUM;
 
-    for ( int32_t i = 0; i < static_cast< int32_t >( m_queueFamilyProperties.size() ); ++i ) {
+    for( int32_t i = 0; i < static_cast< int32_t >( m_queueFamilyProperties.size() ); ++i ) {
         const VkQueueFamilyProperties& queueFamily = m_queueFamilyProperties[ i ];
-        if ( queueFamily.queueCount == 0 )
+        if( queueFamily.queueCount == 0 )
             continue;
 
         const int32_t bitCount = std::popcount( queueFamily.queueFlags );
-        if ( ( queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT ) != 0 ) {
-            if ( bitCount < GraphicsFlagsCount ) {
+        if( ( queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT ) != 0 ) {
+            if( bitCount < GraphicsFlagsCount ) {
                 GraphicsFlagsCount = bitCount;
                 m_queueFamilyIndices.Graphics = i;
             }
         }
 
-        if ( ( queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT ) != 0 ) {
-            if ( bitCount < ComputeFlagsCount ) {
+        if( ( queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT ) != 0 ) {
+            if( bitCount < ComputeFlagsCount ) {
                 ComputeFlagsCount = bitCount;
                 m_queueFamilyIndices.Compute = i;
             }
         }
 
-        if ( ( queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT ) != 0 ) {
-            if ( bitCount < TransferFlagsCount ) {
+        if( ( queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT ) != 0 ) {
+            if( bitCount < TransferFlagsCount ) {
                 TransferFlagsCount = bitCount;
                 m_queueFamilyIndices.Transfer = i;
             }
@@ -148,13 +147,13 @@ VkFormat PhysicalDevice::getSupportedDepthFormat( bool checkSamplingSupport ) co
                                              VK_FORMAT_D24_UNORM_S8_UINT,
                                              VK_FORMAT_D16_UNORM_S8_UINT,
                                              VK_FORMAT_D16_UNORM };
-    for ( auto& format : depthFormats ) {
+    for( auto& format : depthFormats ) {
         VkFormatProperties formatProperties;
         vkGetPhysicalDeviceFormatProperties( m_PhysicalDevice, format, &formatProperties );
         // Format must support depth stencil attachment for optimal tiling
-        if ( formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT ) {
-            if ( checkSamplingSupport ) {
-                if ( !( formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT ) ) {
+        if( formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT ) {
+            if( checkSamplingSupport ) {
+                if( !( formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT ) ) {
                     continue;
                 }
             }
@@ -169,22 +168,22 @@ VkFormat PhysicalDevice::getSupportedDepthFormat( bool checkSamplingSupport ) co
 VkSampleCountFlagBits PhysicalDevice::getMaxUsableSampleCount() const {
     VkSampleCountFlags counts = std::min< VkSampleCountFlags >( m_properties.limits.framebufferColorSampleCounts,
                                                                 m_properties.limits.framebufferDepthSampleCounts );
-    if ( counts & VK_SAMPLE_COUNT_64_BIT ) {
+    if( counts & VK_SAMPLE_COUNT_64_BIT ) {
         return VK_SAMPLE_COUNT_64_BIT;
     }
-    if ( counts & VK_SAMPLE_COUNT_32_BIT ) {
+    if( counts & VK_SAMPLE_COUNT_32_BIT ) {
         return VK_SAMPLE_COUNT_32_BIT;
     }
-    if ( counts & VK_SAMPLE_COUNT_16_BIT ) {
+    if( counts & VK_SAMPLE_COUNT_16_BIT ) {
         return VK_SAMPLE_COUNT_16_BIT;
     }
-    if ( counts & VK_SAMPLE_COUNT_8_BIT ) {
+    if( counts & VK_SAMPLE_COUNT_8_BIT ) {
         return VK_SAMPLE_COUNT_8_BIT;
     }
-    if ( counts & VK_SAMPLE_COUNT_4_BIT ) {
+    if( counts & VK_SAMPLE_COUNT_4_BIT ) {
         return VK_SAMPLE_COUNT_4_BIT;
     }
-    if ( counts & VK_SAMPLE_COUNT_2_BIT ) {
+    if( counts & VK_SAMPLE_COUNT_2_BIT ) {
         return VK_SAMPLE_COUNT_2_BIT;
     }
     return VK_SAMPLE_COUNT_1_BIT;

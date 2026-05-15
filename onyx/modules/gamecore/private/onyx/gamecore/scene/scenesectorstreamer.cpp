@@ -15,15 +15,15 @@ SceneSectorStreamer::SceneSectorStreamer( Scene& scene )
 void SceneSectorStreamer::Update( const Vector3f32& loadCenter ) {
     // TODO: if entities change position this would need to adapt
     // This only works for static entities currently
-    for ( SceneSector& sector : m_Sectors ) {
-        for ( SectorEntity& sectorEntity : sector.Entities ) {
+    for( SceneSector& sector : m_Sectors ) {
+        for( SectorEntity& sectorEntity : sector.Entities ) {
             const float64 distance = ( loadCenter - sectorEntity.Position ).lengthSquared();
 
             bool isInStreamDistance = ( distance - sectorEntity.BoundsRadiusSquared ) < m_CloseStreamInDistance;
             bool isStreamOutDistance = ( distance - sectorEntity.BoundsRadiusSquared ) > m_CloseStreamOutDistance;
-            if ( isInStreamDistance && sectorEntity.Entity == entt::null ) {
+            if( isInStreamDistance && sectorEntity.Entity == entt::null ) {
                 LoadSectorEntity( sector, sectorEntity );
-            } else if ( isStreamOutDistance && ( sectorEntity.Entity != entt::null ) ) {
+            } else if( isStreamOutDistance && ( sectorEntity.Entity != entt::null ) ) {
                 UnloadSectorEntity( sector, sectorEntity );
             }
         }
@@ -31,7 +31,7 @@ void SceneSectorStreamer::Update( const Vector3f32& loadCenter ) {
 }
 
 void SceneSectorStreamer::AddEntity( ecs::EntityId entity ) {
-    if ( m_Sectors.empty() ) {
+    if( m_Sectors.empty() ) {
         // emplace 0,0,0 sector
         m_Sectors.emplace_back();
     }
@@ -40,10 +40,10 @@ void SceneSectorStreamer::AddEntity( ecs::EntityId entity ) {
                             m_Sectors[ 0 ].Entities.end(),
                             [ & ]( const SectorEntity& sectorEntity ) { return sectorEntity.Entity == entity; } );
 
-    if ( it != m_Sectors[ 0 ].Entities.end() )
+    if( it != m_Sectors[ 0 ].Entities.end() )
         return;
 
-    const ecs::EntityRegistry& registry = m_Scene->GetRegistry();
+    const ecs::EntityRegistry& registry = m_Scene->getRegistry();
     const TransformComponent& transformComponent = registry.GetComponent< TransformComponent >( entity );
 
     SectorEntity newSectorEntity;

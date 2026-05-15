@@ -1,151 +1,56 @@
 #pragma once
 
+#include <onyx/geometry/vector2.h>
+#include <onyx/geometry/vector3.h>
+#include <onyx/geometry/vector4.h>
+
 namespace onyx {
-enum class VectorComponentMask : uint8_t {
-    None = 0,
-    X = 1 << 0,
-    Y = 1 << 2,
-    Z = 1 << 3,
-    W = 1 << 4,
-    XY = X | Y,
-    XZ = X | Z,
-    YZ = Y | Z,
-    XYZ = X | Y | Z,
-    All = X | Y | Z | W
-};
+template < typename T >
+concept IsVector2 = is_specialization_of_v< Vector2, T >;
 
-enum class SwizzleMask : uint8_t {
-    //// 2D Out
+using Vector2f32 = Vector2< float32 >;
+using Vector2f64 = Vector2< float64 >;
+using Vector2s8 = Vector2< int8_t >;
+using Vector2s16 = Vector2< int16_t >;
+using Vector2s32 = Vector2< int32_t >;
+using Vector2s64 = Vector2< int64_t >;
+using Vector2u8 = Vector2< uint8_t >;
+using Vector2u16 = Vector2< uint16_t >;
+using Vector2u32 = Vector2< uint32_t >;
+using Vector2u64 = Vector2< uint64_t >;
 
-    // 2D In
-    XY,
-    YX,
-    XX,
-    YY,
+template < typename T >
+concept IsVector3 = is_specialization_of_v< Vector3, T >;
 
-    // 3D In
-    XZ,
-    YZ,
-    ZX,
-    ZY,
-    ZZ,
+using Vector3f32 = Vector3< float32 >;
+using Vector3f64 = Vector3< float64 >;
+using Vector3s8 = Vector3< int8_t >;
+using Vector3s16 = Vector3< int16_t >;
+using Vector3s32 = Vector3< int32_t >;
+using Vector3s64 = Vector3< int64_t >;
+using Vector3u8 = Vector3< uint8_t >;
+using Vector3u16 = Vector3< uint16_t >;
+using Vector3u32 = Vector3< uint32_t >;
+using Vector3u64 = Vector3< uint64_t >;
 
-    // 4D In
-    XW,
-    YW,
-    ZW,
-    WX,
-    WY,
-    WZ,
-    WW,
+template < typename T >
+concept IsVector4 = is_specialization_of_v< Vector4, T >;
 
-    //// 3D Out
+template < typename T >
+concept IsVector = IsVector2< T > || IsVector3< T > || IsVector4< T >;
 
-    // 2D In
-    XXX,
-    XXY,
-    XYX,
-    XYY,
+using Vector4f32 = Vector4< float32 >;
+using Vector4f64 = Vector4< float64 >;
+using Vector4s8 = Vector4< int8_t >;
+using Vector4s16 = Vector4< int16_t >;
+using Vector4s32 = Vector4< int32_t >;
+using Vector4s64 = Vector4< int64_t >;
+using Vector4u8 = Vector4< uint8_t >;
+using Vector4u16 = Vector4< uint16_t >;
+using Vector4u32 = Vector4< uint32_t >;
+using Vector4u64 = Vector4< uint64_t >;
 
-    YXX,
-    YYX,
-    YXY,
-    YYY,
+using Bivector3f32 = Bivector3< float32 >;
+using Bivector3f64 = Bivector3< float64 >;
 
-    // 3D In
-    XYZ,
-
-    YXZ,
-    XZY,
-    XXZ,
-    XZX,
-    XZZ,
-
-    YZX,
-    YZY,
-    YYZ,
-    YZZ,
-
-    ZYX,
-    ZXY,
-    ZZX,
-    ZZY,
-    ZXZ,
-    ZYZ,
-    ZZZ,
-
-    // 4D In
-    XYW,
-    XWZ,
-    XWW,
-    XXW,
-
-    YXW,
-    YZW,
-    YWX,
-    YWZ,
-    YYW,
-
-    ZXW,
-    ZYW,
-    ZZW,
-    ZWX,
-    ZWY,
-
-    WXY,
-    WXZ,
-    WYX,
-    WYZ,
-    WZY,
-    WWX,
-    WWY,
-    WWZ,
-    WWW,
-
-    //// 4D Out
-
-    // 2D In
-    XXXX,
-    XXXY,
-    XXYY,
-    XYYY,
-    XYXY,
-
-    YYYX,
-    YYXX,
-    YXXX,
-    YXYX,
-    YYYY,
-
-    // 3D In
-    XXYZ,
-    XZXZ,
-    XXZZ,
-    XYZZ,
-    XZZZ,
-
-    YYXZ,
-    YZYZ,
-    YXZZ,
-    YYZX,
-    YYZY,
-
-    ZXYZ,
-    ZYYZ,
-    ZYXZ,
-    ZZXX,
-    ZZYY,
-    ZZZZ,
-    // add more 3d swizzles if needed
-
-    // 4D In
-    XYZW,
-    WZYX,
-    XXWW,
-    YYWW,
-    ZZWW,
-    WWWW
-
-    // add more 4d swizzles if needed
-};
 } // namespace onyx

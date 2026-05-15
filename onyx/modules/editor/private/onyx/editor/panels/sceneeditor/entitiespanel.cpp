@@ -66,7 +66,7 @@ void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
             ImGui::TableSetColumnIndex( 1 );
             ImGui::TableHeader( localization::generic::Visibility.Get().data() );
 
-            ecs::EntityRegistry& registry = parent.getScene().GetRegistry();
+            ecs::EntityRegistry& registry = parent.getScene().getRegistry();
 
             // TODO: sorting
             /*registry.GetRegistry().sort<ecs::IdComponent>([](const ecs::EntityId lhs, const ecs::EntityId rhs) {
@@ -121,8 +121,8 @@ void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
                     ImGui::SetNextItemAllowOverlap();
                     String previousName = entityName;
-                    if( ui::DrawRenameInput( "name", entityName, ImVec2( -1, 0 ), isSelected ) ) {
-                        m_commandGraph->Push< RenameEntityCommand >( m_selectedEntity,
+                    if( ui::drawRenameInput( "name", entityName, ImVec2( -1, 0 ), isSelected ) ) {
+                        m_commandGraph->push< RenameEntityCommand >( m_selectedEntity,
                                                                      entityName,
                                                                      parent.getSceneId(),
                                                                      getEngineSystem< game_core::GameCoreSystem >() );
@@ -165,7 +165,7 @@ void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
             if( ImGui::BeginPopupContextWindow( "CreateEntityPopUp", ImGuiPopupFlags_MouseButtonRight ) ) {
                 if( ImGui::MenuItem( localization::generic::Create.Get().data() ) ) {
-                    m_commandGraph->Push< CreateEntityCommand >( parent.getSceneId(),
+                    m_commandGraph->push< CreateEntityCommand >( parent.getSceneId(),
                                                                  getEngineSystem< game_core::GameCoreSystem >() );
                     ImGui::CloseCurrentPopup();
                 }
@@ -210,7 +210,7 @@ void EntitiesPanel::deleteEntity( ecs::EntityId entity ) {
     }
 
     SceneEditorWindow& parent = *( getParent< SceneEditorWindow >().value() );
-    m_commandGraph->Push< DeleteEntityCommand >( entity,
+    m_commandGraph->push< DeleteEntityCommand >( entity,
                                                  parent.getSceneId(),
                                                  getEngineSystem< game_core::GameCoreSystem >() );
 }
@@ -219,7 +219,7 @@ void EntitiesPanel::setSelectedEntity( ecs::EntityId entity ) {
     if( m_selectedEntity != entity ) {
         SceneEditorWindow& parent = *getParent< SceneEditorWindow >().value();
 
-        ecs::EntityRegistry& registry = parent.getScene().GetRegistry();
+        ecs::EntityRegistry& registry = parent.getScene().getRegistry();
         if( m_selectedEntity != ecs::EntityId::Invalid )
             registry.RemoveComponent< SelectedComponent >( m_selectedEntity );
 

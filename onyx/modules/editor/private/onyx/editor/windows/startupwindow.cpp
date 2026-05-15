@@ -1,6 +1,6 @@
-#include <onyx/editor/editor_localization.h>
 #include <onyx/editor/windows/startupwindow.h>
 
+#include <onyx/editor/editor_localization.h>
 #include <onyx/editor/nodegraph/rendergrapheditorcontext.h>
 #include <onyx/editor/nodegraph/shadergrapheditorcontext.h>
 #include <onyx/editor/nodegraph/volumeshadergrapheditorcontext.h>
@@ -8,8 +8,10 @@
 #include <onyx/editor/windows/nodegrapheditor.h>
 #include <onyx/editor/windows/sceneeditor.h>
 
+#include <onyx/colors/dark.h>
 #include <onyx/ui/controls/button.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/widgets.h>
 
 namespace onyx::editor {
 

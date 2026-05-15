@@ -14,11 +14,11 @@
 struct ImGuiWindowClass;
 
 namespace onyx {
-namespace GameCore {
+namespace game_core {
 class GameCoreSystem;
 }
 
-namespace Assets {
+namespace assets {
 class AssetSystem;
 }
 } // namespace onyx

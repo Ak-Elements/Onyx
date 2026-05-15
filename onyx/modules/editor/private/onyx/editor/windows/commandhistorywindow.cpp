@@ -25,11 +25,11 @@ void CommandHistoryWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ImGui::BeginVertical( "##content" );
 
     uint32_t i = 0;
-    for ( const UniquePtr< ICommand >& command : m_CommandStack->GetCommands() ) {
+    for( const UniquePtr< ICommand >& command : m_CommandStack->getCommands() ) {
         ImGui::BeginHorizontal( format::format( "##item{}", i++ ) );
         ImGui::Text( "t    " );
-        if ( ImGui::Selectable( command->GetCommandId().getString().data() ) ) {
-            m_CommandStack->Reset( *command );
+        if( ImGui::Selectable( command->getCommandId().getString().data() ) ) {
+            m_CommandStack->reset( *command );
         }
         ImGui::EndHorizontal();
     }
@@ -43,25 +43,25 @@ void CommandHistoryWindow::OnUndo( const input_actions::InputActionEvent& undoAc
     const ui::ImGuiWindow* parent = getParent< ImGuiWindow >().value_or( nullptr );
     ONYX_ASSERT( parent != nullptr );
 
-    if ( ( isFocused() == false ) && ( parent->isFocused() == false ) )
+    if( ( isFocused() == false ) && ( parent->isFocused() == false ) )
         return;
 
-    if ( undoAction.GetData< bool >() == false )
+    if( undoAction.GetData< bool >() == false )
         return;
 
-    m_CommandStack->MoveBack();
+    m_CommandStack->moveBack();
 }
 
 void CommandHistoryWindow::OnRedo( const input_actions::InputActionEvent& redoAction ) {
     const ui::ImGuiWindow* parent = getParent< ImGuiWindow >().value_or( nullptr );
     ONYX_ASSERT( parent != nullptr );
 
-    if ( ( isFocused() == false ) && ( parent->isFocused() == false ) )
+    if( ( isFocused() == false ) && ( parent->isFocused() == false ) )
         return;
 
-    if ( redoAction.GetData< bool >() == false )
+    if( redoAction.GetData< bool >() == false )
         return;
 
-    m_CommandStack->MoveForward();
+    m_CommandStack->moveForward();
 }
 } // namespace onyx::editor

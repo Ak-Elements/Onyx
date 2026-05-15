@@ -100,7 +100,7 @@ void SceneEditorWindow::onOpen() {
         } else {
             assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
             m_scene = assetSystem.create< game_core::Scene >();
-            assetSystem.getAsset( "engine:/rendergraphs/default.orendergraph", m_scene->GetRenderGraphRef() );
+            assetSystem.getAsset( "engine:/rendergraphs/default.orendergraph", m_scene->getRenderGraphRef() );
             onSceneLoaded( m_scene );
         }
     }
@@ -140,7 +140,7 @@ void SceneEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     // TODO: Is this needed?
     game_core::GameCoreSystem& gameCore = getEngineSystem< game_core::GameCoreSystem >();
-    gameCore.SetScene( m_scene );
+    gameCore.setScene( m_scene );
 
     if( ImGui::IsWindowAppearing() ) {
         ImGui::BringWindowToFocusFront( ImGui::GetCurrentWindow() );
@@ -185,7 +185,7 @@ void SceneEditorWindow::onRenderMainMenuBar() {
 void SceneEditorWindow::onCameraMoveInput( const input_actions::InputActionEvent& inputActionContext ) {
     const Vector3f32& direction = inputActionContext.GetData< Vector3f32 >();
 
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
+    ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
         cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
     cameraRuntimeComponent.InputDirection = direction;
@@ -194,50 +194,46 @@ void SceneEditorWindow::onCameraMoveInput( const input_actions::InputActionEvent
 void SceneEditorWindow::onCameraRotationInput( const input_actions::InputActionEvent& inputActionContext ) {
     const Vector2f32& rotationDelta = inputActionContext.GetData< Vector2f32 >();
 
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
+    ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
         cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
     cameraRuntimeComponent.InputRotation = { rotationDelta[ 0 ] * 0.003f, rotationDelta[ 1 ] * 0.003f, 0.0f };
 }
 
 void SceneEditorWindow::onCameraSpeedInput( const input_actions::InputActionEvent& inputActionContext ) {
-    float32 speedValue = inputActionContext.GetData< float32 >();
+    float32 inputValue = inputActionContext.GetData< float32 >();
+    if( isZero( inputValue ) )
+        return;
 
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
-    game_core::FreeCameraControllerComponent&
-        cameraControllerComponent = registry.GetComponent< game_core::FreeCameraControllerComponent >(
-            m_editorCameraEntity );
+    int32_t step = inputValue > 0.0f ? 1 : -1;
+
+    ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
         cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
-    cameraRuntimeComponent.Velocity += speedValue * cameraControllerComponent.VelocityIncrementFactor *
-                                       cameraControllerComponent.BaseVelocity;
+    cameraRuntimeComponent.SpeedStep += step;
 }
 
 void SceneEditorWindow::onCameraSpeedUp( const input_actions::InputActionEvent& inputActionContext ) {
     bool isSpeedUp = inputActionContext.GetData< bool >();
 
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
+    ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
         cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
-    if( isSpeedUp )
-        cameraRuntimeComponent.Velocity *= 10.0f;
-    else
-        cameraRuntimeComponent.Velocity *= 0.1f;
+    int32_t step = isSpeedUp ? 1 : -1;
+    cameraRuntimeComponent.SpeedStep += step;
 }
 
 void SceneEditorWindow::onCameraSlowDown( const input_actions::InputActionEvent& inputActionContext ) {
     bool isSlowdown = inputActionContext.GetData< bool >();
 
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
+    ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
         cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
-    if( isSlowdown )
-        cameraRuntimeComponent.Velocity *= 0.1f;
-    else
-        cameraRuntimeComponent.Velocity *= 10.0f;
+    int32_t step = isSlowdown ? 1 : -1;
+    cameraRuntimeComponent.SpeedStep -= step;
 }
 
 void SceneEditorWindow::loadScene( assets::AssetId sceneAssetId ) {
@@ -251,39 +247,31 @@ void SceneEditorWindow::loadScene( assets::AssetId sceneAssetId ) {
 void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Scene >& sceneAsset ) {
     m_scene = sceneAsset;
 
-    ecs::EntityRegistry& registry = m_scene->GetRegistry();
+    ecs::EntityRegistry& registry = m_scene->getRegistry();
     m_editorCameraEntity = registry.CreateEntity();
 
     game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
-    ecs::EcsBuilder ecsBuilder = gameCoreSystem.GetEcsBuilder();
-    ecsBuilder.RegisterComponent< game_core::TransientComponent >();
+    ecs::EcsBuilder ecsBuilder = gameCoreSystem.getEcsBuilder();
 
-    // registry.AddComponent< game_core::TransientComponent >( m_editorCameraEntity );
-    registry.AddComponent< game_core::IdComponent >( m_editorCameraEntity, 1000 );
-    registry.AddComponent< game_core::NameComponent >( m_editorCameraEntity, "Editor Camera" );
+    registry.AddComponent< game_core::TransientComponent >( m_editorCameraEntity );
     game_core::TransformComponent& transform = registry.AddComponent< game_core::TransformComponent >(
         m_editorCameraEntity );
-    // transform.Translation = Vector3f32{ 14000.0f, 100.0f, 0000.0f };
-    transform.Translation = Vector3f32{ 0.0f, 100.0f, 0.0f };
+    transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
     transform.RotationEuler = Vector3f32{ 0.0f, 0.0f, 0.0f };
     game_core::CameraComponent& camera = registry.AddComponent< game_core::CameraComponent >( m_editorCameraEntity );
 
-    camera.Camera.SetPerspective( 45.0f, 0.1f, 65536 );
+    camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65536 );
 
     // TODO: Should be viewport extents
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
-    camera.Camera.SetViewportExtents( graphicsSystem.getSwapchainExtent() );
-    const game_core::FreeCameraControllerComponent&
-        freeCameraController = registry.AddComponent< game_core::FreeCameraControllerComponent >(
-            m_editorCameraEntity );
-    game_core::FreeCameraRuntimeComponent&
-        runtimeComponent = registry.AddComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
-    runtimeComponent.Velocity = freeCameraController.BaseVelocity;
+    camera.Camera.setViewportExtents( graphicsSystem.getSwapchainExtent() );
+    registry.AddComponent< game_core::FreeCameraControllerComponent >( m_editorCameraEntity );
+    registry.AddComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
     graphicsSystem.setCamera( camera.Camera );
 
-    m_commandStack.SetBase( registry );
-    m_commandStack.SetHead( registry );
+    m_commandStack.setBase( registry );
+    m_commandStack.setHead( registry );
 
     input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionsSystem.OnInput< &SceneEditorWindow::onCameraMoveInput >( "CameraMovement"_id64, this );

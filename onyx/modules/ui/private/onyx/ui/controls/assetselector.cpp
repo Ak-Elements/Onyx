@@ -45,7 +45,7 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
 
     ScopedImGuiStyle styleOverride{ ImGuiStyleVar_FrameBorderSize, 1.0f };
     if( BeginCombobox( "##selector", assetName ) ) {
-        DrawSearchBar( loc_SearchString, onyx::localization::generic::Search.Get(), loc_HasFocus );
+        drawSearchBar( loc_SearchString, onyx::localization::generic::Search.Get(), loc_HasFocus );
         StringView searchString = trim( loc_SearchString );
 
         if( availableAssets.empty() ) {
@@ -101,7 +101,7 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
     uint32_t lidColor = state == ButtonState::Held      ? 0xFFFF7929
                         : state == ButtonState::Hovered ? 0xFFFF7929
                                                         : 0xFF888888;
-    DrawFolderIcon( ImGui::GetForegroundDrawList(), style.FramePadding, buttonSize.x, 1.0f, folderColor, lidColor );
+    drawFolderIcon( ImGui::GetForegroundDrawList(), style.FramePadding, buttonSize.x, 1.0f, folderColor, lidColor );
 
     ImGui::SetNextWindowSize( ImVec2( 800, 600 ), ImGuiCond_Appearing );
     bool isOpen = true;

@@ -11,7 +11,7 @@ struct DeleteInputBindingCommand : public InputActionCommand {
                                int32_t bindingIndex,
                                InputActionSettingsWindow& inputSettingsWindow );
 
-    void Execute() override;
+    void execute() override;
 
   private:
     StringId64 m_ActionId = StringId64::Invalid;

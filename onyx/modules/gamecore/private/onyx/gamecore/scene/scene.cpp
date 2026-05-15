@@ -13,51 +13,51 @@
 namespace onyx::game_core {
 Reference< Scene > Scene::create( IEngine& engine ) {
     GameCoreSystem& gameCoreSystem = engine.getSystem< GameCoreSystem >();
-    return Reference< Scene >::create( gameCoreSystem.GetComponentFactory() );
+    return Reference< Scene >::create( gameCoreSystem.getComponentFactory() );
 }
 
 Scene::Scene( ecs::ComponentFactory& factory )
-    : m_Registry( factory ) {
-    m_Registry.GetRegistry().on_construct< TransformComponent >().connect< &Scene::OnTransformComponentConstructed >(
+    : m_registry( factory ) {
+    m_registry.GetRegistry().on_construct< TransformComponent >().connect< &Scene::onTransformComponentConstructed >(
         this );
-    m_Registry.GetRegistry().on_destroy< TransformComponent >().connect< &Scene::OnTransformComponentDestroyed >(
+    m_registry.GetRegistry().on_destroy< TransformComponent >().connect< &Scene::onTransformComponentDestroyed >(
         this );
 }
 
-void Scene::SetLoadCenter( const Vector3f32& loadCenter ) {
-    if ( loadCenter != m_LoadCenter ) {
-        m_LoadCenter = loadCenter;
+void Scene::setLoadCenter( const Vector3f32& loadCenter ) {
+    if( loadCenter != m_loadCenter ) {
+        m_loadCenter = loadCenter;
     }
 }
 
-void Scene::SetStreamInDistance( float64 distance ) {
-    m_SectorStreamer.SetStreamInDistance( distance );
+void Scene::setStreamInDistance( float64 distance ) {
+    m_sectorStreamer.SetStreamInDistance( distance );
 }
 
-void Scene::SetStreamOutDistance( float64 distance ) {
-    m_SectorStreamer.SetStreamOutDistance( distance );
+void Scene::setStreamOutDistance( float64 distance ) {
+    m_sectorStreamer.SetStreamOutDistance( distance );
 }
 
-void Scene::Copy( const Reference< Scene >& fromScene ) {
-    m_Registry.Clear();
+void Scene::copy( const Reference< Scene >& fromScene ) {
+    m_registry.Clear();
 
     // all entities
-    const ecs::EntityRegistry& fromRegistry = fromScene->GetRegistry();
-    for ( ecs::EntityId sourceEntityId : fromRegistry.GetView< ecs::EntityId >() ) {
-        ecs::EntityId targetEntity = m_Registry.CreateEntity();
+    const ecs::EntityRegistry& fromRegistry = fromScene->getRegistry();
+    for( ecs::EntityId sourceEntityId : fromRegistry.GetView< ecs::EntityId >() ) {
+        ecs::EntityId targetEntity = m_registry.CreateEntity();
         // create a copy of an entity component by component
-        for ( auto&& componentStorageIt : fromRegistry.GetStorage() ) {
-            if ( auto& componentStorage = componentStorageIt.second; componentStorage.contains( sourceEntityId ) ) {
+        for( auto&& componentStorageIt : fromRegistry.GetStorage() ) {
+            if( auto& componentStorage = componentStorageIt.second; componentStorage.contains( sourceEntityId ) ) {
                 entt::meta_type metaClass = entt::resolve( componentStorageIt.first );
 
-                if ( !metaClass ) {
+                if( !metaClass ) {
                     ONYX_LOG_ERROR( "Failed copying component of entity during scene copy." );
                     continue;
                 }
 
                 const entt::meta_any componentHandle = metaClass.from_void( componentStorage.value( sourceEntityId ) );
 
-                std::ignore = metaClass.construct( entt::forward_as_meta( m_Registry.GetRegistry() ),
+                std::ignore = metaClass.construct( entt::forward_as_meta( m_registry.GetRegistry() ),
                                                    targetEntity,
                                                    componentHandle );
             }
@@ -65,45 +65,45 @@ void Scene::Copy( const Reference< Scene >& fromScene ) {
     }
 }
 
-void Scene::Update( uint64_t /*deltaTime*/ ) {
-    m_SectorStreamer.Update( m_LoadCenter );
+void Scene::update( uint64_t /*deltaTime*/ ) {
+    m_sectorStreamer.Update( m_loadCenter );
 }
 
-String Scene::GetUniqueEntityName( const String& preferredName ) {
-    auto namesView = m_Registry.GetView< const NameComponent >();
+String Scene::getUniqueEntityName( const String& preferredName ) {
+    auto namesView = m_registry.GetView< const NameComponent >();
 
     uint32_t count = 0;
-    for ( ecs::EntityId entityId : namesView ) {
+    for( ecs::EntityId entityId : namesView ) {
         const NameComponent& nameComponent = namesView.get< const NameComponent >( entityId );
 
-        if ( nameComponent.Name.starts_with( preferredName ) ) {
+        if( nameComponent.Name.starts_with( preferredName ) ) {
             ++count;
         }
     }
 
-    if ( count > 0 ) {
+    if( count > 0 ) {
         return format::format( "{}_{}", preferredName, count );
     }
 
     return preferredName;
 }
 
-void Scene::OnTransformComponentConstructed( ecs::EntityRegistry::EntityRegistryT& /*registry*/,
+void Scene::onTransformComponentConstructed( ecs::EntityRegistry::EntityRegistryT& /*registry*/,
                                              ecs::EntityId entity ) {
     // if (m_Registry.HasComponents<TransientComponent>(entity))
     //{
     //     return;
     // }
 
-    m_SectorStreamer.AddEntity( entity );
+    m_sectorStreamer.AddEntity( entity );
 }
 
-void Scene::OnTransformComponentDestroyed( ecs::EntityRegistry::EntityRegistryT& /*registry*/, ecs::EntityId entity ) {
+void Scene::onTransformComponentDestroyed( ecs::EntityRegistry::EntityRegistryT& /*registry*/, ecs::EntityId entity ) {
     // if (m_Registry.HasComponents<TransientComponent>(entity))
     //{
     //     return;
     // }
 
-    m_SectorStreamer.RemoveEntity( entity );
+    m_sectorStreamer.RemoveEntity( entity );
 }
 } // namespace onyx::game_core

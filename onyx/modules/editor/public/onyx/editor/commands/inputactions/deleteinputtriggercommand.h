@@ -12,7 +12,7 @@ struct DeleteInputTriggerCommand : public InputActionCommand {
                                int32_t triggerIndex,
                                InputActionSettingsWindow& inputSettingsWindow );
 
-    void Execute() override;
+    void execute() override;
 
   private:
     StringId64 m_ActionId = StringId64::Invalid;

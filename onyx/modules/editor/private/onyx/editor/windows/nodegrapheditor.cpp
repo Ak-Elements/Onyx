@@ -253,7 +253,7 @@ void NodeGraphEditorWindow::drawContextMenu() {
             hasChanged = true;
         }
 
-        hasChanged |= ui::DrawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
+        hasChanged |= ui::drawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
         if( hasChanged ) {
             if( s_SearchString.empty() && ( m_createNodeData.PinId.isValid() == false ) )
                 m_editorContext->clearNodeListFilter();

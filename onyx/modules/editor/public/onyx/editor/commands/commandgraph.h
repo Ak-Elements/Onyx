@@ -6,104 +6,109 @@ namespace onyx::editor {
 class ICommandGraph {
   public:
     virtual ~ICommandGraph() = default;
-    virtual void MoveForward() = 0;
-    virtual void MoveBack() = 0;
-    virtual void Reset( const ICommand& command ) = 0;
+    virtual void moveForward() = 0;
+    virtual void moveBack() = 0;
+    virtual void reset( const ICommand& command ) = 0;
 
     template < typename U, typename... Args > requires std::is_base_of_v< ICommand, U >
-    void Push( Args&&... args ) {
-        DoPush( makeUnique< U >( std::forward< Args >( args )... ) );
+    void push( Args&&... args ) {
+        doPush( makeUnique< U >( std::forward< Args >( args )... ) );
     }
 
-    virtual const DynamicArray< UniquePtr< ICommand > >& GetCommands() const = 0;
+    [[nodiscard]] virtual const DynamicArray< UniquePtr< ICommand > >& getCommands() const = 0;
 
   private:
-    virtual void DoPush( UniquePtr< ICommand >&& command ) = 0;
+    virtual void doPush( UniquePtr< ICommand >&& command ) = 0;
 };
 
 template < typename T > // requires std::is_trivially_copyable_v<T>
 class CommandGraph : public ICommandGraph {
-    struct Branch {
-        DynamicArray< UniquePtr< ICommand > > m_Commands;
-        int32_t m_CurrentCommandIndex = InvalidIndex32;
+    class Branch {
+      public:
+        [[nodiscard]] const DynamicArray< UniquePtr< ICommand > >& getCommands() const { return m_commands; }
+        int32_t getCount() { return numericCast< int32_t >( m_commands.size() ); }
 
-        int32_t GetCount() { return numericCast< int32_t >( m_Commands.size() ); }
-
-        void Push( UniquePtr< ICommand >&& command ) {
-            command->Execute();
-            m_Commands.emplace_back( std::move( command ) );
-            ++m_CurrentCommandIndex;
+        void push( UniquePtr< ICommand >&& command ) {
+            command->execute();
+            m_commands.emplace_back( std::move( command ) );
+            ++m_currentCommandIndex;
         }
 
-        void Reset( const ICommand& command, const T& base, T& head ) {
-            ONYX_ASSERT( m_Commands.empty() == false );
+        void reset( const ICommand& command, const T& base, T& head ) {
+            ONYX_ASSERT( m_commands.empty() == false );
 
-            auto it = std::ranges::find_if( m_Commands,
+            auto it = std::ranges::find_if( m_commands,
                                             [ & ]( const UniquePtr< ICommand >& c ) { return &command == c.get(); } );
 
-            ONYX_ASSERT( it != m_Commands.end() );
-            int32_t index = numericCast< int32_t >( std::distance( m_Commands.begin(), it ) );
+            ONYX_ASSERT( it != m_commands.end() );
+            int32_t index = numericCast< int32_t >( std::distance( m_commands.begin(), it ) );
 
-            if ( index > m_CurrentCommandIndex ) {
-                MoveForward( index - m_CurrentCommandIndex );
+            if( index > m_currentCommandIndex ) {
+                moveForward( index - m_currentCommandIndex );
             } else {
-                MoveBack( ( m_CurrentCommandIndex - index ), base, head );
+                moveBack( ( m_currentCommandIndex - index ), base, head );
             }
         }
 
-        void MoveForward( int32_t count ) {
-            ONYX_ASSERT( ( m_CurrentCommandIndex + count ) <= ( GetCount() - 1 ) );
+        void moveForward( int32_t count ) {
+            ONYX_ASSERT( ( m_currentCommandIndex + count ) <= ( getCount() - 1 ) );
 
-            for ( int32_t i = 1; i <= count; ++i ) {
-                const UniquePtr< ICommand >& command = m_Commands[ m_CurrentCommandIndex + i ];
-                command->Execute();
+            for( int32_t i = 1; i <= count; ++i ) {
+                const UniquePtr< ICommand >& command = m_commands[ m_currentCommandIndex + i ];
+                command->execute();
             }
 
-            m_CurrentCommandIndex += count;
+            m_currentCommandIndex += count;
         }
 
-        void MoveBack( int32_t count, const T& base, T& head ) {
-            ONYX_ASSERT( ( m_CurrentCommandIndex - count ) >= InvalidIndex32 );
+        void moveBack( int32_t count, const T& base, T& head ) {
+            ONYX_ASSERT( ( m_currentCommandIndex - count ) >= InvalidIndex32 );
 
             head = base;
-            m_CurrentCommandIndex -= count;
-            for ( int32_t i = 0; i <= m_CurrentCommandIndex; ++i ) {
-                const UniquePtr< ICommand >& command = m_Commands[ i ];
-                command->Execute();
+            m_currentCommandIndex -= count;
+            for( int32_t i = 0; i <= m_currentCommandIndex; ++i ) {
+                const UniquePtr< ICommand >& command = m_commands[ i ];
+                command->execute();
             }
         }
+
+      private:
+        DynamicArray< UniquePtr< ICommand > > m_commands;
+        int32_t m_currentCommandIndex = InvalidIndex32;
     };
 
   public:
     ~CommandGraph() override = default;
 
-    void MoveForward() override {
-        ONYX_ASSERT( m_Head != nullptr );
-        m_Current.MoveForward( 1 );
+    void moveForward() override {
+        ONYX_ASSERT( m_head != nullptr );
+        m_current.moveForward( 1 );
     }
 
-    void MoveBack() override {
-        ONYX_ASSERT( m_Head != nullptr );
-        m_Current.MoveBack( 1, m_Base, *m_Head );
+    void moveBack() override {
+        ONYX_ASSERT( m_head != nullptr );
+        m_current.moveBack( 1, m_base, *m_head );
     }
 
-    void Reset( const ICommand& command ) override {
-        ONYX_ASSERT( m_Head != nullptr );
-        m_Current.Reset( command, m_Base, *m_Head );
+    void reset( const ICommand& command ) override {
+        ONYX_ASSERT( m_head != nullptr );
+        m_current.reset( command, m_base, *m_head );
     }
 
-    const DynamicArray< UniquePtr< ICommand > >& GetCommands() const override { return m_Current.m_Commands; }
+    [[nodiscard]] const DynamicArray< UniquePtr< ICommand > >& getCommands() const override {
+        return m_current.getCommands();
+    }
 
-    void SetBase( const T& base ) { m_Base = base; }
-    void SetHead( T& head ) { m_Head = &head; }
+    void setBase( const T& base ) { m_base = base; }
+    void setHead( T& head ) { m_head = &head; }
 
   private:
-    void DoPush( UniquePtr< ICommand >&& command ) override { m_Current.Push( std::move( command ) ); }
+    void doPush( UniquePtr< ICommand >&& command ) override { m_current.push( std::move( command ) ); }
 
   private:
-    Branch m_Current;
+    Branch m_current;
 
-    T* m_Head = nullptr;
-    T m_Base;
+    T* m_head = nullptr;
+    T m_base;
 };
 } // namespace onyx::editor

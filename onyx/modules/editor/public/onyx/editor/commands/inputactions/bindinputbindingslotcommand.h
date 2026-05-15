@@ -14,7 +14,7 @@ struct BindInputBindingSlotCommand : public InputActionCommand {
                                  input::InputID inputId,
                                  InputActionSettingsWindow& inputSettingsWindow );
 
-    void Execute() override;
+    void execute() override;
 
   private:
     StringId64 m_ActionId = StringId64::Invalid;

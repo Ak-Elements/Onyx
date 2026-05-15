@@ -21,7 +21,7 @@ class VectorControl {
     static bool vectorInput( Vector2< ScalarT >& vector ) {
         ImGui::BeginHorizontal( "##vec2Inputs" );
 
-        constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
+        constexpr ImGuiDataType DataType = getImGuiDataType< ScalarT >();
 
         ImGuiSystem* imguiSystem = static_cast< ImGuiSystem* >( ImGui::GetIO().UserData );
         const Theme& theme = imguiSystem->getTheme();
@@ -66,7 +66,7 @@ class VectorControl {
         ScopedImGuiStyle style( ImGuiStyleVar_ItemSpacing, ImVec2( 10.0f, 0.0f ) );
         ImGui::BeginHorizontal( "##vec3Inputs" );
 
-        constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
+        constexpr ImGuiDataType DataType = getImGuiDataType< ScalarT >();
 
         // TODO: show error tooltip or error effect on UI when clamping (red flash)
         bool hasModified = vectorComponentInput( labels[ 0 ],
@@ -110,7 +110,7 @@ class VectorControl {
 
         ImGui::BeginHorizontal( "##vec4Inputs" );
 
-        constexpr ImGuiDataType DataType = GetImGuiDataType< ScalarT >();
+        constexpr ImGuiDataType DataType = getImGuiDataType< ScalarT >();
 
         bool hasModified = vectorComponentInput( labels[ 0 ],
                                                  outVector[ 0 ],
@@ -174,7 +174,6 @@ class VectorControl {
                     ImVec2 rectScreenStartPos = ImGui::GetCursorScreenPos();
                     ImVec2 rectScreenEndPos = ImVec2( rectScreenStartPos.x + size.x, rectScreenStartPos.y + size.y );
 
-                    ImGui::ItemAdd( ImRect( rectScreenStartPos, rectScreenEndPos ), ImGui::GetID( "##labelBg" ) );
                     ImGui::GetWindowDrawList()->AddRectFilled( rectScreenStartPos,
                                                                rectScreenEndPos,
                                                                backgroundColor,
@@ -282,9 +281,6 @@ class VectorControl {
                                  frameRounding - borderSize,
                                  ImDrawFlags_RoundCornersRight );
 
-        // Move the cursor to where the input should start using relative coordinates
-        // ImGui::SetCursorScreenPos(ImVec2(screenPos.x + horizontalPadding, screenPos.y));
-
         StringView format = "{}";
         if constexpr( std::is_floating_point_v< ScalarT > ) {
             if( isEqual( std::floor( value ), value ) && ( isFocused == false ) ) {
@@ -305,7 +301,7 @@ class VectorControl {
             { ImGuiCol_Border, 0x00000000 },
         };
 
-        bool changed = DrawScalarInput( idString.data(), dataType, value, nullptr, nullptr, format.data(), flags );
+        bool changed = drawScalarInput( idString.data(), dataType, value, nullptr, nullptr, format.data(), flags );
         return changed;
     }
 };

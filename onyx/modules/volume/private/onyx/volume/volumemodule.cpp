@@ -8,18 +8,16 @@
 #include <onyx/volume/systems/volumerendersystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
-namespace onyx::volume
-{
-    VolumeModule::VolumeModule(game_core::GameCoreSystem& gameCore)
-    {
-        ecs::EcsBuilder ecsBuilder = gameCore.GetEcsBuilder();
-        terrain::Register(ecsBuilder);
-        rendering::Register(ecsBuilder);
+namespace onyx::volume {
+VolumeModule::VolumeModule( game_core::GameCoreSystem& gameCore ) {
+    ecs::EcsBuilder ecsBuilder = gameCore.getEcsBuilder();
+    terrain::Register( ecsBuilder );
+    rendering::Register( ecsBuilder );
 
-        ecsBuilder.RegisterComponent<CubeComponent>();
-        ecsBuilder.RegisterComponent<PlaneComponent>();
-        ecsBuilder.RegisterComponent<SphereComponent>();
-    }
-
-    VolumeModule::~VolumeModule() = default;
+    ecsBuilder.RegisterComponent< CubeComponent >();
+    ecsBuilder.RegisterComponent< PlaneComponent >();
+    ecsBuilder.RegisterComponent< SphereComponent >();
 }
+
+VolumeModule::~VolumeModule() = default;
+} // namespace onyx::volume

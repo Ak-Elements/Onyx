@@ -13,9 +13,9 @@ DeleteInputTriggerCommand::DeleteInputTriggerCommand( StringId64 actionId,
     , m_BindingIndex( bindingIndex )
     , m_TriggerIndex( triggerIndex ) {}
 
-void DeleteInputTriggerCommand::Execute() {
+void DeleteInputTriggerCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
-    if ( input_actions::InputAction* action = context.GetAction( m_ActionId ).value_or( nullptr ) ) {
+    if( input_actions::InputAction* action = context.GetAction( m_ActionId ).value_or( nullptr ) ) {
         DynamicArray< UniquePtr< input_actions::InputBinding > >& bindings = action->GetBindings();
         input_actions::InputBinding& binding = *bindings[ m_BindingIndex ];
         binding.RemoveTrigger( m_TriggerIndex );

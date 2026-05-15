@@ -156,7 +156,7 @@ void drawPropertyName( StringView propertyName ) {
     if( hasTooltip ) {
         auto cursorPos = ImGui::GetCursorPos();
         ImGui::PushClipRect( label_pos, label_pos_max, true );
-        DrawInfoIcon( ImGui::GetWindowDrawList(),
+        drawInfoIcon( ImGui::GetWindowDrawList(),
                       ImVec2( label_size.x + style.ItemSpacing.x, verticalOffset ),
                       ImGui::GetTextLineHeight() / 2.0f,
                       0x33FFFFFF );
@@ -216,7 +216,7 @@ bool beginCollapsiblePropertyGroup( StringView propertyName, ImGuiTreeNodeFlags 
         { ImGuiStyleVar_FrameBorderSize, 0.0f },
     };
 
-    if( ContextMenuHeader( propertyName.data(), flags | ImGuiTreeNodeFlags_Framed ) ) {
+    if( contextMenuHeader( propertyName.data(), flags | ImGuiTreeNodeFlags_Framed ) ) {
         ImGui::Indent();
         ImGui::BeginGroup();
         return true;
@@ -235,7 +235,7 @@ bool beginCollapsiblePropertyGroup( StringView propertyName,
         { ImGuiStyleVar_FrameBorderSize, 0.0f },
     };
 
-    if( ContextMenuHeader( propertyName.data(), customHeader, flags | ImGuiTreeNodeFlags_Framed ) ) {
+    if( contextMenuHeader( propertyName.data(), customHeader, flags | ImGuiTreeNodeFlags_Framed ) ) {
         ImGui::Indent();
         ImGui::BeginGroup();
         return true;
@@ -272,7 +272,7 @@ bool drawProperty( StringView propertyName, StringView readOnlyValue ) {
     {
         ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
         ScopedImGuiDisabled disabled;
-        hasModified = DrawStringInput( format::format( "##{}", propertyName ),
+        hasModified = drawStringInput( format::format( "##{}", propertyName ),
                                        readOnlyValue,
                                        ImVec2( 0, 0 ),
                                        ImGuiInputTextFlags_ReadOnly );
@@ -291,7 +291,7 @@ bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags t
     drawPropertyName( propertyName );
 
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    bool hasModified = DrawStringInput( format::format( "##{}", propertyName ), value, ImVec2( 0, 0 ), textFlags );
+    bool hasModified = drawStringInput( format::format( "##{}", propertyName ), value, ImVec2( 0, 0 ), textFlags );
 
     ImGui::EndHorizontal();
 

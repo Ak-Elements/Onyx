@@ -16,7 +16,7 @@ struct RenameEntityCommand : public SceneCommand {
                          assets::AssetId sceneId,
                          game_core::GameCoreSystem& gameCoreSystem );
 
-    void Execute() override;
+    void execute() override;
 
   private:
     String m_Name;

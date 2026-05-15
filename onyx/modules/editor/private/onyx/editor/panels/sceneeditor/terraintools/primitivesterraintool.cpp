@@ -85,7 +85,7 @@ void PrimitivesTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
 void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
                                                    const ecs::ComponentFactory& componentFactory,
                                                    const Vector3f32& hitPosition ) {
-    ecs::EntityRegistry& registry = scene.GetRegistry();
+    ecs::EntityRegistry& registry = scene.getRegistry();
     ecs::EntityId newEntity = registry.CreateEntity();
 
     componentFactory.TryCreateComponent< game_core::TransformComponent >( registry, newEntity, hitPosition );
@@ -97,12 +97,12 @@ void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
     switch( m_Type ) {
     case Primitives::Sphere: {
         componentFactory.TryCreateComponent< volume::SphereComponent >( registry, newEntity, m_BrushSize.X );
-        name = scene.GetUniqueEntityName( "VolumeSource_Sphere" );
+        name = scene.getUniqueEntityName( "VolumeSource_Sphere" );
         break;
     }
     case Primitives::Cube: {
         componentFactory.TryCreateComponent< volume::CubeComponent >( registry, newEntity );
-        name = scene.GetUniqueEntityName( "VolumeSource_Cube" );
+        name = scene.getUniqueEntityName( "VolumeSource_Cube" );
         break;
     }
     case Primitives::Ellipsoid: {
@@ -125,14 +125,14 @@ void PrimitivesTerrainTool::RenderProperties() {
     ImGui::Spring();
     uint32_t color = m_Operation == Operation::Union ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                                                      : ImGui::GetColorU32( ImGuiCol_Button );
-    onyx::ui::DrawPlusIcon( drawList, ImVec2( -16, -16 ), 32.0f, color );
+    onyx::ui::drawPlusIcon( drawList, ImVec2( -16, -16 ), 32.0f, color );
     if( ImGui::InvisibleButton( "plus", ImVec2( 32.0f, 32.0f ) ) ) {
         m_Operation = Operation::Union;
     }
 
     color = m_Operation == Operation::Subtract ? ImGui::GetColorU32( ImGuiCol_ButtonActive )
                                                : ImGui::GetColorU32( ImGuiCol_Button );
-    onyx::ui::DrawMinusIcon( drawList, ImVec2( -16, -16 ), 32.0f, color );
+    onyx::ui::drawMinusIcon( drawList, ImVec2( -16, -16 ), 32.0f, color );
     if( ImGui::InvisibleButton( "minus", ImVec2( 32.0f, 32.0f ) ) ) {
         m_Operation = Operation::Subtract;
     }

@@ -11,7 +11,7 @@ DeleteInputBindingCommand::DeleteInputBindingCommand( StringId64 actionId,
     , m_ActionId( actionId )
     , m_BindingIndex( bindingIndex ) {}
 
-void DeleteInputBindingCommand::Execute() {
+void DeleteInputBindingCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
     Optional< input_actions::InputAction* > actionOptional = context.GetAction( m_ActionId );
     ONYX_ASSERT( actionOptional.has_value() );

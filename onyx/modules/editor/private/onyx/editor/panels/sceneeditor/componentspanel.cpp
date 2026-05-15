@@ -40,7 +40,7 @@ void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     SceneEditorWindow& parent = *getParent< SceneEditorWindow >().value();
     game_core::Scene& scene = parent.getScene();
 
-    ecs::EntityRegistry& registry = scene.GetRegistry();
+    ecs::EntityRegistry& registry = scene.getRegistry();
 
     DrawSelectedEntityComponents( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
 
@@ -56,7 +56,7 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
                                                     assets::AssetId sceneId,
                                                     game_core::GameCoreSystem& gameCoreSystem,
                                                     const localization::LocalizationModule& localizationModule ) {
-    const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
+    const ecs::ComponentFactory& componentFactory = gameCoreSystem.getComponentFactory();
     auto selectedEntities = registry.GetView< SelectedComponent >();
 
     for( ecs::EntityId selectedEntity : selectedEntities ) {
@@ -79,7 +79,7 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
 
                     onyx::localization::LocalizationId localizationId( componentTypeId );
                     localization::LocalizedString componentName = localizationModule.GetLocalized( localizationId );
-                    if( ui::ContextMenuHeader( componentName,
+                    if( ui::contextMenuHeader( componentName,
                                                ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
                         ImGui::BeginChild( "Panel",
                                            ImVec2( 0, 0 ),
@@ -99,7 +99,7 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
                         if( hasModified ) {
                             std::any component;
                             componentMeta->copy( componentPtr, component );
-                            m_CommandGraph->Push< ModifyComponentCommand >( selectedEntity,
+                            m_CommandGraph->push< ModifyComponentCommand >( selectedEntity,
                                                                             componentTypeId,
                                                                             std::move( component ),
                                                                             sceneId,
@@ -136,7 +136,7 @@ void ComponentsPanel::DrawCreateComponentContextMenu( ecs::EntityRegistry& regis
             s_SearchString.clear();
         }
 
-        ui::DrawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
+        ui::drawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
 
         if( ImGui::BeginChild( "##ScrollList", ImVec2( 350.0f, 350.0f ) ) ) {
             ui::TreeViewFlags flags = isAppearing ? ui::TreeViewFlags::ForceCloseAll
@@ -162,7 +162,7 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
                                                   game_core::GameCoreSystem& gameCoreSystem,
                                                   const localization::LocalizationModule& localizationModule ) const {
     ui::TreeItem root;
-    const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
+    const ecs::ComponentFactory& componentFactory = gameCoreSystem.getComponentFactory();
     for( auto&& [ componentTypeId, componentMeta ] : componentFactory.GetComponentMeta() ) {
         if( componentMeta->isTransient() || ( componentMeta->isCodeOnly() ) ) {
             continue;
@@ -189,7 +189,7 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
                     auto size = selectedEntities.size();
                     ONYX_UNUSED( size );
                     for( ecs::EntityId selectedEntity : selectedEntities ) {
-                        m_CommandGraph->Push< AddComponentCommand >( selectedEntity,
+                        m_CommandGraph->push< AddComponentCommand >( selectedEntity,
                                                                      componentTypeId,
                                                                      sceneId,
                                                                      gameCoreSystem );

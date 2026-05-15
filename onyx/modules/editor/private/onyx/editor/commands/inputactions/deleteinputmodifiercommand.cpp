@@ -13,9 +13,9 @@ DeleteInputModifierCommand::DeleteInputModifierCommand( StringId64 actionId,
     , m_BindingIndex( bindingIndex )
     , m_ModifierIndex( modifierIndex ) {}
 
-void DeleteInputModifierCommand::Execute() {
+void DeleteInputModifierCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
-    if ( input_actions::InputAction* action = context.GetAction( m_ActionId ).value_or( nullptr ) ) {
+    if( input_actions::InputAction* action = context.GetAction( m_ActionId ).value_or( nullptr ) ) {
         DynamicArray< UniquePtr< input_actions::InputBinding > >& bindings = action->GetBindings();
         input_actions::InputBinding& binding = *bindings[ m_BindingIndex ];
         binding.RemoveModifier( m_ModifierIndex );

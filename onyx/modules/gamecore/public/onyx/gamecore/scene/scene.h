@@ -27,43 +27,43 @@ class Scene : public assets::Asset< Scene > {
 
     StringId32 GetTypeId() const { return TypeId; }
 
-    ecs::EntityRegistry& GetRegistry() { return m_Registry; }
-    const ecs::EntityRegistry& GetRegistry() const { return m_Registry; }
+    ecs::EntityRegistry& getRegistry() { return m_registry; }
+    const ecs::EntityRegistry& getRegistry() const { return m_registry; }
 
-    const SceneSectorStreamer& GetSectorStreamer() const { return m_SectorStreamer; }
+    const SceneSectorStreamer& getSectorStreamer() const { return m_sectorStreamer; }
 
-    void SetLoadCenter( const Vector3f32& loadCenter );
-    void SetStreamInDistance( float64 distance );
-    void SetStreamOutDistance( float64 distance );
+    void setLoadCenter( const Vector3f32& loadCenter );
+    void setStreamInDistance( float64 distance );
+    void setStreamOutDistance( float64 distance );
 
-    void Copy( const Reference< Scene >& scene );
+    void copy( const Reference< Scene >& scene );
 
-    void Update( uint64_t deltaTime );
+    void update( uint64_t deltaTime );
 
-    bool HasRenderGraph() { return m_SceneRenderGraph.isValid() && m_SceneRenderGraph->IsInitialized(); }
+    bool hasRenderGraph() { return m_sceneRenderGraph.isValid() && m_sceneRenderGraph->IsInitialized(); }
 
-    assets::AssetHandle< graphics::RenderGraph >& GetRenderGraphRef() { return m_SceneRenderGraph; }
-    graphics::RenderGraph& GetRenderGraph() { return *m_SceneRenderGraph; }
-    const graphics::RenderGraph& GetRenderGraph() const { return *m_SceneRenderGraph; }
+    assets::AssetHandle< graphics::RenderGraph >& getRenderGraphRef() { return m_sceneRenderGraph; }
+    graphics::RenderGraph& getRenderGraph() { return *m_sceneRenderGraph; }
+    const graphics::RenderGraph& getRenderGraph() const { return *m_sceneRenderGraph; }
 
-    onyx::physics::PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
+    onyx::physics::PhysicsWorld& getPhysicsWorld() { return m_physicsWorld; }
 
 #if ONYX_IS_EDITOR
-    String GetUniqueEntityName( const String& preferredName );
+    String getUniqueEntityName( const String& preferredName );
 #endif
 
   private:
     // only needed in editor most likely
-    void OnTransformComponentConstructed( ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity );
-    void OnTransformComponentDestroyed( ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity );
+    void onTransformComponentConstructed( ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity );
+    void onTransformComponentDestroyed( ecs::EntityRegistry::EntityRegistryT& registry, ecs::EntityId entity );
 
   private:
-    Vector3f32 m_LoadCenter; // center position of the streaming
+    Vector3f32 m_loadCenter; // center position of the streaming
 
-    SceneSectorStreamer m_SectorStreamer{ *this };
-    ecs::EntityRegistry m_Registry;
-    onyx::physics::PhysicsWorld m_PhysicsWorld;
+    SceneSectorStreamer m_sectorStreamer{ *this };
+    ecs::EntityRegistry m_registry;
+    onyx::physics::PhysicsWorld m_physicsWorld;
 
-    assets::AssetHandle< graphics::RenderGraph > m_SceneRenderGraph;
+    assets::AssetHandle< graphics::RenderGraph > m_sceneRenderGraph;
 };
 } // namespace onyx::game_core

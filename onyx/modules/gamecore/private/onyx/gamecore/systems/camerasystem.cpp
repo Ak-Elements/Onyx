@@ -22,7 +22,7 @@ void system( CameraEntity entity ) {
     Vector3f32 forwardDirection = worldRotation.rotate( -Vector3f32::zUnit() );
     Vector3f32 upDirection = worldRotation.rotate( Vector3f32::yUnit() );
 
-    cameraComponent.Camera.LookAt( transform.Translation, transform.Translation + forwardDirection, upDirection );
+    cameraComponent.Camera.lookAt( transform.Translation, transform.Translation + forwardDirection, upDirection );
 }
 } // namespace UpdatePositions
 

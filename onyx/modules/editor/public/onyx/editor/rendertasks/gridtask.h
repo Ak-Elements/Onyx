@@ -5,6 +5,14 @@
 #include <onyx/rhi/graphicshandles.h>
 
 namespace onyx {
+struct GridSettings {
+    Vector3f32 Rotation;
+    float32 Offset{ 0.0f };
+    int32_t LodLevel{ 0 };
+    uint32_t Cells{ 10 };
+    bool UseAutoLod{ true };
+};
+
 class GridRenderGraphNode : public node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphFixedShaderNode,
                                                                         rhi::TextureHandle,
                                                                         rhi::BufferHandle,

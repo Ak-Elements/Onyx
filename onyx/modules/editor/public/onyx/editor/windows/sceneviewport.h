@@ -40,6 +40,8 @@ class SceneViewportWindow : public ui::ImGuiWindow {
                          const Vector2f32& viewportPosition,
                          const Vector2f32& viewportExtents );
 
+    void renderViewportControls( game_core::Scene& scene, Vector2f32 topLeftCorner );
+
     void onGizmoModeAction( const input_actions::InputActionEvent& inputActionContext );
 
   private:

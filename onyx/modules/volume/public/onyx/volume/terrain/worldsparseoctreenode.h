@@ -1,5 +1,7 @@
 #pragma once
 
+#include <onyx/rhi/vertex.h>
+
 namespace onyx::volume::terrain {
 struct WorldChunksOctreeNode {
     uint64_t ChildMask : 8;
@@ -9,9 +11,10 @@ struct WorldChunksOctreeNode {
 };
 
 struct WorldOctreeChunk {
-    uint64_t MortonIndex;
-    uint32_t Depth;
-    uint32_t ChunkIndex;
+    uint32_t MortonIndex[ 2 ];
+    // 8 bits for depth
+    // 24 bits for octree node index
+    uint32_t PackedDepthNodeIndex;
 };
 
 struct WorldOctreeSplitRequest {
@@ -25,4 +28,10 @@ struct IsoSurfaceRequest {
     uint32_t Depth;
     uint32_t ChunkIndex;
 };
+
+constexpr uint32_t MeshBufferVertexCount = 8;
+struct MeshBufferMemoryBlock {
+    float32 Data[ 8 * MeshBufferVertexCount ];
+};
+
 } // namespace onyx::volume::terrain

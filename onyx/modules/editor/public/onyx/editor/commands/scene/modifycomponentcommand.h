@@ -21,7 +21,7 @@ struct ModifyComponentCommand : public SceneCommand {
                             assets::AssetId sceneId,
                             game_core::GameCoreSystem& gameCoreSystem );
 
-    void Execute() override;
+    void execute() override;
 
   private:
     std::any m_component;

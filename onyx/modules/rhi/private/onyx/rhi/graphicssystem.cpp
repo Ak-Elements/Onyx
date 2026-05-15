@@ -170,17 +170,17 @@ bool GraphicsSystem::beginFrame() {
 
     if( m_camera != nullptr ) {
         ViewConstants& viewConstants = currentFrameContext.ViewConstants;
-        viewConstants.ProjectionMatrix = m_camera->GetProjectionMatrix();
-        viewConstants.InverseProjectionMatrix = m_camera->GetProjectionMatrixInverse();
-        viewConstants.ViewMatrix = m_camera->GetViewMatrix();
-        viewConstants.InverseViewMatrix = m_camera->GetViewMatrixInverse();
-        viewConstants.ViewProjectionMatrix = m_camera->GetViewProjectionMatrix();
-        viewConstants.InverseViewProjectionMatrix = m_camera->GetViewProjectionMatrixInverse();
+        viewConstants.ProjectionMatrix = m_camera->getProjectionMatrix();
+        viewConstants.InverseProjectionMatrix = m_camera->getProjectionMatrixInverse();
+        viewConstants.ViewMatrix = m_camera->getViewMatrix();
+        viewConstants.InverseViewMatrix = m_camera->getViewMatrixInverse();
+        viewConstants.ViewProjectionMatrix = m_camera->getViewProjectionMatrix();
+        viewConstants.InverseViewProjectionMatrix = m_camera->getViewProjectionMatrixInverse();
         viewConstants.CameraPosition = Vector3f32( viewConstants.InverseViewMatrix[ 3 ] );
-        viewConstants.CameraDirection = m_camera->GetDirection();
-        viewConstants.Viewport = Vector2f32{ m_camera->GetViewportExtents() };
-        viewConstants.Near = m_camera->GetNear();
-        viewConstants.Far = m_camera->GetFar();
+        viewConstants.CameraDirection = m_camera->getDirection();
+        viewConstants.Viewport = Vector2f32{ m_camera->getViewportExtents() };
+        viewConstants.Near = m_camera->getNear();
+        viewConstants.Far = m_camera->getFar();
     }
 
     m_viewConstantsUniformBuffers[ m_frameIndex ].Buffer->SetData( 0,

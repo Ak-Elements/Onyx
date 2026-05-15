@@ -1,6 +1,6 @@
-#include <onyx/assets/assetsystem.h>
 #include <onyx/volume/systems/volumeterrainsystem.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycommandbuffer.h>
 #include <onyx/entity/entitycomponentsystem.h>
@@ -13,21 +13,27 @@
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
 #include <onyx/volume/terrain/worldsparseoctreenode.h>
 
+// * GPU Memory pool for vertices is 'created'
+// - add handler for getting memory and releasing memory to pool
+// - Change IsoSurface extraction to request memory and fill buffer
+// - Readback mesh to add as physics object
+// - Use update requests to re-create chunks when they change instead of full rebuild
+
 namespace onyx::volume::terrain {
 namespace {
 // temp buffers should be in the graphics API per frame
-rhi::BufferHandle SplitRequestQueueBuffer0;
-rhi::BufferHandle SplitRequestQueueBuffer1;
+rhi::BufferHandle g_splitRequestQueueBuffer0;
+rhi::BufferHandle g_splitRequestQueueBuffer1;
 
-rhi::BufferHandle IndirectDispatchBuffer0;
-rhi::BufferHandle IndirectDispatchBuffer1;
+rhi::BufferHandle g_indirectDispatchBuffer0;
+rhi::BufferHandle g_indirectDispatchBuffer1;
 
-rhi::BufferHandle IsoSurfaceRequestsBuffer;
+rhi::BufferHandle g_isoSurfaceRequestsBuffer;
 
-rhi::BufferHandle TransientVertexBuffer;
+rhi::BufferHandle g_transientVertexBuffer;
 } // namespace
 
-namespace Init {
+namespace init {
 struct UpdateOctreePushConstants {
     uint64_t OctreeBuffer;
     uint64_t OctreeBufferAllocator;
@@ -45,12 +51,12 @@ struct UpdateOctreePushConstants {
     uint64_t SplitRequestsWriteBuffer;
 
     Vector3f32 CameraPosition;
-    float RootHalfExtents;
+    float32 RootHalfExtents;
 
-    float NodeExtents;
+    float32 NodeExtents;
     uint32_t Offset;
-    float MaxGeometricError;
-    float ComplexSurfaceThreshold;
+    float32 MaxGeometricError;
+    float32 ComplexSurfaceThreshold;
 
     uint32_t Depth;    // Reconsider syncing the mask directly
     uint32_t MaxDepth; // Reconsider syncing the mask directly
@@ -58,7 +64,7 @@ struct UpdateOctreePushConstants {
     float32 Padding;
 };
 
-void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
+void createBuffers( rhi::GraphicsSystem& graphicsSystem,
                     TerrainWorldOctreeComponent& worldOctree,
                     TerrainRuntimeComponent& terrainMesh,
                     uint32_t nodeCount ) {
@@ -70,7 +76,7 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                            rhi::BufferUsage::DeviceAddress );
         ssboVolumeOctreeBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-        graphicsSystem.CreateBuffer( worldOctree.OctreeGpuBuffer, ssboVolumeOctreeBufferProps );
+        graphicsSystem.createBuffer( worldOctree.OctreeGpuBuffer, ssboVolumeOctreeBufferProps );
 
         rhi::BufferProperties ssboVolumeLeafNodesProps;
         ssboVolumeLeafNodesProps.m_DebugName = "Volume-WorldChunks";
@@ -79,7 +85,7 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                         rhi::BufferUsage::DeviceAddress );
         ssboVolumeLeafNodesProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-        graphicsSystem.CreateBuffer( worldOctree.OctreeChunksBuffer, ssboVolumeLeafNodesProps );
+        graphicsSystem.createBuffer( worldOctree.OctreeChunksBuffer, ssboVolumeLeafNodesProps );
 
         // TODO: Fix amount of max sources (100) and data size (vec4)
         rhi::BufferProperties ssboVolumeSourceListProps;
@@ -89,7 +95,7 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                          rhi::BufferUsage::DeviceAddress );
         ssboVolumeSourceListProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboVolumeSourceListProps.m_IsWritable = true;
-        graphicsSystem.CreateBuffer( worldOctree.VolumeObjects, ssboVolumeSourceListProps );
+        graphicsSystem.createBuffer( worldOctree.VolumeObjects, ssboVolumeSourceListProps );
 
         rhi::BufferProperties ssboVolumeSourcesDataProps;
         ssboVolumeSourcesDataProps.m_DebugName = "Volume-SourcesData";
@@ -98,7 +104,7 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                           rhi::BufferUsage::DeviceAddress );
         ssboVolumeSourcesDataProps.m_GpuAccess = rhi::GPUAccess::Write;
         ssboVolumeSourcesDataProps.m_IsWritable = true;
-        graphicsSystem.CreateBuffer( worldOctree.VolumeObjectsData, ssboVolumeSourcesDataProps );
+        graphicsSystem.createBuffer( worldOctree.VolumeObjectsData, ssboVolumeSourcesDataProps );
 
         // create mesh buffer
         rhi::BufferProperties ssboMeshVerticesProps;
@@ -108,7 +114,39 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
             rhi::BufferUsage::Storage | rhi::BufferUsage::Vertex | rhi::BufferUsage::DeviceAddress );
         ssboMeshVerticesProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-        graphicsSystem.CreateBuffer( terrainMesh.MeshVertices, ssboMeshVerticesProps );
+        graphicsSystem.createBuffer( terrainMesh.MeshVertices, ssboMeshVerticesProps );
+
+        const rhi::GraphicLimits& limits = graphicsSystem.getLimits();
+
+        constexpr size_t VertexBufferPoolSize = sizeof( MeshBufferMemoryBlock ) * ( 1 << 22 );
+        if( VertexBufferPoolSize > limits.MaxBufferSize ) {
+            double ratio = static_cast< double >( limits.MaxBufferSize ) /
+                           static_cast< double >( VertexBufferPoolSize );
+
+            uint32_t poolCount = static_cast< uint32_t >( std::ceil( ratio ) );
+            size_t poolMemorySize = VertexBufferPoolSize / poolCount;
+            for( uint32_t i = 0; i < poolCount; ++i ) {
+                rhi::BufferProperties ssboVertexBufferPool;
+                ssboMeshVerticesProps.m_DebugName = format::format( "VolumeVertexBufferPool_{}", i );
+                ssboMeshVerticesProps.m_Size = poolMemorySize;
+                ssboMeshVerticesProps.m_UsageFlags = static_cast< uint8_t >(
+                    rhi::BufferUsage::Storage | rhi::BufferUsage::Vertex | rhi::BufferUsage::DeviceAddress );
+                ssboMeshVerticesProps.m_GpuAccess = rhi::GPUAccess::Write;
+
+                graphicsSystem.createBuffer( terrainMesh.VertexBufferPools[ i ], ssboMeshVerticesProps );
+            }
+
+        } else {
+            rhi::BufferProperties ssboVertexBufferPool;
+            ssboMeshVerticesProps.m_DebugName = "VolumeVertexBufferPool";
+            ssboMeshVerticesProps.m_Size = VertexBufferPoolSize;
+            ssboMeshVerticesProps.m_UsageFlags = static_cast< uint8_t >(
+                rhi::BufferUsage::Storage | rhi::BufferUsage::Vertex | rhi::BufferUsage::DeviceAddress );
+            ssboMeshVerticesProps.m_GpuAccess = rhi::GPUAccess::Write;
+
+            graphicsSystem.createBuffer( terrainMesh.MeshVertices, ssboMeshVerticesProps ); // << REMOVE
+            graphicsSystem.createBuffer( terrainMesh.VertexBufferPools[ 0 ], ssboMeshVerticesProps );
+        }
 
         struct VkDrawIndirectCommand {
             uint32_t VertexCount;
@@ -124,7 +162,7 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
             rhi::BufferUsage::Storage | rhi::BufferUsage::Indirect | rhi::BufferUsage::DeviceAddress );
         ssboIndirectDrawProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-        graphicsSystem.CreateBuffer( terrainMesh.IndirectDrawBuffer, ssboIndirectDrawProps );
+        graphicsSystem.createBuffer( terrainMesh.IndirectDrawBuffer, ssboIndirectDrawProps );
     }
 
     // TEMP - MOVE TO TEMP FRAME BUFFERS
@@ -136,11 +174,11 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
     ssboIndirectDispatchBufferProps.m_UsageFlags = static_cast< uint8_t >(
         rhi::BufferUsage::Storage | rhi::BufferUsage::Indirect | rhi::BufferUsage::DeviceAddress );
     ssboIndirectDispatchBufferProps.m_GpuAccess = rhi::GPUAccess::Write;
-    IndirectDispatchBuffer0 = graphicsSystem.GetTransientBuffer( ssboIndirectDispatchBufferProps );
+    g_indirectDispatchBuffer0 = graphicsSystem.getTransientBuffer( ssboIndirectDispatchBufferProps );
     // graphicsApi.CreateBuffer(IndirectDispatchBuffer0, ssboIndirectDispatchBufferProps);
 
     ssboIndirectDispatchBufferProps.m_DebugName = "TMP Volume-IndirectDispatch1";
-    IndirectDispatchBuffer1 = graphicsSystem.GetTransientBuffer( ssboIndirectDispatchBufferProps );
+    g_indirectDispatchBuffer1 = graphicsSystem.getTransientBuffer( ssboIndirectDispatchBufferProps );
     // graphicsApi.CreateBuffer(IndirectDispatchBuffer1, ssboIndirectDispatchBufferProps);
 
     // queue
@@ -151,10 +189,10 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                       rhi::BufferUsage::DeviceAddress );
     ssboVolumeCreateQueueProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-    SplitRequestQueueBuffer0 = graphicsSystem.GetTransientBuffer( ssboVolumeCreateQueueProps );
+    g_splitRequestQueueBuffer0 = graphicsSystem.getTransientBuffer( ssboVolumeCreateQueueProps );
 
     ssboVolumeCreateQueueProps.m_DebugName = "VolumeOctree-SplitRequests1";
-    SplitRequestQueueBuffer1 = graphicsSystem.GetTransientBuffer( ssboVolumeCreateQueueProps );
+    g_splitRequestQueueBuffer1 = graphicsSystem.getTransientBuffer( ssboVolumeCreateQueueProps );
 
     // iso surface requests
     rhi::BufferProperties ssboIsoSurfaceRequestsProps;
@@ -164,9 +202,9 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                        rhi::BufferUsage::DeviceAddress );
     ssboIsoSurfaceRequestsProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-    IsoSurfaceRequestsBuffer = graphicsSystem.GetTransientBuffer( ssboIsoSurfaceRequestsProps );
+    g_isoSurfaceRequestsBuffer = graphicsSystem.getTransientBuffer( ssboIsoSurfaceRequestsProps );
 
-    // create transient vertex buffer
+    // create transient vertex buffer - PROBABLY CAN BE REMOVED
     rhi::BufferProperties ssboMeshVerticesProps;
     ssboMeshVerticesProps.m_DebugName = "Transient VolumeMesh Vertices";
     ssboMeshVerticesProps.m_Size = ( sizeof( Vector3f32 ) + sizeof( Vector3f32 ) ) * ( 1 << 22 );
@@ -174,10 +212,10 @@ void CreateBuffers( rhi::GraphicsSystem& graphicsSystem,
                                                                  rhi::BufferUsage::DeviceAddress );
     ssboMeshVerticesProps.m_GpuAccess = rhi::GPUAccess::Write;
 
-    TransientVertexBuffer = graphicsSystem.GetTransientBuffer( ssboMeshVerticesProps );
+    g_transientVertexBuffer = graphicsSystem.getTransientBuffer( ssboMeshVerticesProps );
 }
 
-void LoadShaders( assets::AssetSystem& assetSystem,
+void loadShaders( assets::AssetSystem& assetSystem,
                   rhi::GraphicsSystem& graphicsSystem,
                   const TerrainSettingsComponent& terrainSettings,
                   VolumeGenerationComponent& generationComponent ) {
@@ -199,51 +237,49 @@ void LoadShaders( assets::AssetSystem& assetSystem,
     }
 
     rhi::PipelineProperties properties;
-    // properties.DebugName = "Terrain Reset Buffers";
     properties.Shader = assets::AssetId( "engine:/shaders/compute/volume/reset_buffers.oshader" );
-    generationComponent.ResetBuffersShader = graphicsSystem.CreateShaderInstance( properties.Shader, properties );
+    generationComponent.ResetBuffersShader = graphicsSystem.createShaderInstance( properties.Shader, properties );
 
-    // properties.m_DebugName = "Fill generation mesh indirect dispatch";
     properties.Shader = assets::AssetId( "engine:/shaders/compute/volume/init_volume.oshader" );
-    generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+    generationComponent.SetupDispatchGenerateMeshShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                                properties );
 
     if( generationComponent.VolumeGraph.hasAssetId() ) {
         properties.Shader = generationComponent.VolumeGraph->GetBuildOctreeShader();
-        generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+        generationComponent.UpdateWorldOctreeShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                            properties );
 
         properties.Shader = generationComponent.VolumeGraph->GetFindOctreeNodeShader();
-        generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+        generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                                  properties );
 
         properties.Shader = generationComponent.VolumeGraph->GetGenerateVolumeMeshShader();
-        generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance( properties.Shader, properties );
+        generationComponent.GenerateMeshShader = graphicsSystem.createShaderInstance( properties.Shader, properties );
 
         properties.Shader = generationComponent.VolumeGraph->GetRaytraceTerrainShader();
-        generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+        generationComponent.RayTraceTerrainShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                          properties );
     } else {
         properties.Shader = assets::AssetId( "engine:/shaders/compute/volume/build_world_octree.oshader" );
-        generationComponent.UpdateWorldOctreeShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+        generationComponent.UpdateWorldOctreeShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                            properties );
 
         properties.Shader = assets::AssetId( "engine:/shaders/compute/volume/find_ray_traced_octreenode.oshader" );
-        generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+        generationComponent.FindRayTracedOctreeNodeShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                                  properties );
 
         properties.Shader = assets::AssetId( "engine:/shaders/compute/volume/generate_volume.oshader" );
-        generationComponent.GenerateMeshShader = graphicsSystem.CreateShaderInstance( properties.Shader, properties );
+        generationComponent.GenerateMeshShader = graphicsSystem.createShaderInstance( properties.Shader, properties );
 
         properties.Shader = assets::AssetId( "engine:/shaders/compute/volume/ray_trace_terrain.oshader" );
-        generationComponent.RayTraceTerrainShader = graphicsSystem.CreateShaderInstance( properties.Shader,
+        generationComponent.RayTraceTerrainShader = graphicsSystem.createShaderInstance( properties.Shader,
                                                                                          properties );
     }
 
     generationComponent.HasLoadedShaders = true;
 }
 
-void ResetBuffers( rhi::CommandBuffer& computeCommandBuffer,
+void resetBuffers( rhi::CommandBuffer& computeCommandBuffer,
                    const VolumeGenerationComponent& volumeGeneration,
                    rhi::BufferHandle& surfaceRequests,
                    rhi::BufferHandle& indirectDraw,
@@ -257,11 +293,12 @@ void ResetBuffers( rhi::CommandBuffer& computeCommandBuffer,
         uint64_t SplitRequests;
     };
 
-    ResetConstants constants;
-    constants.SurfaceReq = surfaceRequests.GetGpuAddress();
-    constants.IndirectDraw = indirectDraw.GetGpuAddress();
-    constants.IndirectDispatch = indirectDispatch.GetGpuAddress();
-    constants.SplitRequests = splitRequests.GetGpuAddress();
+    ResetConstants constants{
+        .SurfaceReq = surfaceRequests.GetGpuAddress(),
+        .IndirectDraw = indirectDraw.GetGpuAddress(),
+        .IndirectDispatch = indirectDispatch.GetGpuAddress(),
+        .SplitRequests = splitRequests.GetGpuAddress(),
+    };
 
     computeCommandBuffer.barrier( surfaceRequests, rhi::Context::Compute, rhi::Access::ShaderWrite );
     computeCommandBuffer.barrier( indirectDraw, rhi::Context::Compute, rhi::Access::ShaderWrite );
@@ -273,7 +310,7 @@ void ResetBuffers( rhi::CommandBuffer& computeCommandBuffer,
     computeCommandBuffer.dispatch( 1, 1, 1 );
 }
 
-void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
+void buildWorldOctree( rhi::CommandBuffer& commandBuffer,
                        const TerrainSettingsComponent& terrainSettings,
                        const VolumeGenerationComponent& generationComponent,
                        TerrainWorldOctreeComponent& terrainWorldOctree,
@@ -297,8 +334,8 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
     pushConstants.VolumeSourcesList = terrainWorldOctree.VolumeObjects.GetGpuAddress();
     pushConstants.VolumeSourcesData = terrainWorldOctree.VolumeObjectsData.GetGpuAddress();
 
-    pushConstants.SurfaceRequestsBuffer = IsoSurfaceRequestsBuffer.GetGpuAddress();
-    pushConstants.IndirectDispatchBuffer = IndirectDispatchBuffer0.GetGpuAddress();
+    pushConstants.SurfaceRequestsBuffer = g_isoSurfaceRequestsBuffer.GetGpuAddress();
+    pushConstants.IndirectDispatchBuffer = g_indirectDispatchBuffer0.GetGpuAddress();
     pushConstants.Depth = 0;
     pushConstants.MaxDepth = terrainWorldOctree.MaxDepth;
     pushConstants.ChunkMaxDepth = terrainWorldOctree.ChunkMaxDepth;
@@ -307,8 +344,8 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
 
     pushConstants.CameraPosition = cameraPosition;
 
-    pushConstants.SplitRequestsReadBuffer = SplitRequestQueueBuffer1.GetGpuAddress();
-    pushConstants.SplitRequestsWriteBuffer = SplitRequestQueueBuffer0.GetGpuAddress();
+    pushConstants.SplitRequestsReadBuffer = g_splitRequestQueueBuffer1.GetGpuAddress();
+    pushConstants.SplitRequestsWriteBuffer = g_splitRequestQueueBuffer0.GetGpuAddress();
 
     pushConstants.RootHalfExtents = terrainWorldOctree.RootSize * 0.5f;
     pushConstants.NodeExtents = terrainWorldOctree.RootSize;
@@ -316,21 +353,21 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
 
     commandBuffer.bindShaderEffect( generationComponent.UpdateWorldOctreeShader );
     commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, pushConstants );
-    commandBuffer.barrier( IndirectDispatchBuffer0,
+    commandBuffer.barrier( g_indirectDispatchBuffer0,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.barrier( IndirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
-    commandBuffer.barrier( SplitRequestQueueBuffer0,
+    commandBuffer.barrier( g_indirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
+    commandBuffer.barrier( g_splitRequestQueueBuffer0,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.barrier( SplitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.barrier( IsoSurfaceRequestsBuffer,
+    commandBuffer.barrier( g_splitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( g_isoSurfaceRequestsBuffer,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
     commandBuffer.dispatch( 1, 1, 1 );
 
-    uint64_t dispatchBufferRead = IndirectDispatchBuffer0.GetGpuAddress();
-    uint64_t dispatchBufferWrite = IndirectDispatchBuffer1.GetGpuAddress();
+    uint64_t dispatchBufferRead = g_indirectDispatchBuffer0.GetGpuAddress();
+    uint64_t dispatchBufferWrite = g_indirectDispatchBuffer1.GetGpuAddress();
 
     for( uint32_t depth = 1; depth <= terrainWorldOctree.MaxDepth; ++depth ) {
         std::swap( pushConstants.SplitRequestsReadBuffer, pushConstants.SplitRequestsWriteBuffer );
@@ -349,28 +386,28 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
         commandBuffer.barrier( terrainWorldOctree.OctreeChunksBuffer,
                                rhi::Context::Compute,
                                rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-        commandBuffer.barrier( IsoSurfaceRequestsBuffer,
+        commandBuffer.barrier( g_isoSurfaceRequestsBuffer,
                                rhi::Context::Compute,
                                rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
 
-        if( dispatchBufferRead == IndirectDispatchBuffer0.GetGpuAddress() ) {
-            commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
-            commandBuffer.barrier( SplitRequestQueueBuffer0, rhi::Context::Compute, rhi::Access::ShaderRead );
-            commandBuffer.barrier( SplitRequestQueueBuffer1,
+        if( dispatchBufferRead == g_indirectDispatchBuffer0.GetGpuAddress() ) {
+            commandBuffer.barrier( g_indirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
+            commandBuffer.barrier( g_splitRequestQueueBuffer0, rhi::Context::Compute, rhi::Access::ShaderRead );
+            commandBuffer.barrier( g_splitRequestQueueBuffer1,
                                    rhi::Context::Compute,
                                    rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-            commandBuffer.barrier( IndirectDispatchBuffer1,
+            commandBuffer.barrier( g_indirectDispatchBuffer1,
                                    rhi::Context::Compute,
                                    rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-            commandBuffer.dispatchIndirect( IndirectDispatchBuffer0 );
+            commandBuffer.dispatchIndirect( g_indirectDispatchBuffer0 );
         } else {
-            commandBuffer.barrier( SplitRequestQueueBuffer0,
+            commandBuffer.barrier( g_splitRequestQueueBuffer0,
                                    rhi::Context::Compute,
                                    rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-            commandBuffer.barrier( SplitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
-            commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
-            commandBuffer.barrier( IndirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
-            commandBuffer.dispatchIndirect( IndirectDispatchBuffer1 );
+            commandBuffer.barrier( g_splitRequestQueueBuffer1, rhi::Context::Compute, rhi::Access::ShaderRead );
+            commandBuffer.barrier( g_indirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
+            commandBuffer.barrier( g_indirectDispatchBuffer1, rhi::Context::Compute, rhi::Access::IndirectRead );
+            commandBuffer.dispatchIndirect( g_indirectDispatchBuffer1 );
         }
 
         std::swap( dispatchBufferRead, dispatchBufferWrite );
@@ -386,7 +423,7 @@ void BuildWorldOctree( rhi::CommandBuffer& commandBuffer,
     commandBuffer.barrier( terrainWorldOctree.OctreeChunksBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
 }
 
-void ExtractIsoSurface( rhi::CommandBuffer& commandBuffer,
+void extractIsoSurface( rhi::CommandBuffer& commandBuffer,
                         const VolumeGenerationComponent& generationComponent,
                         const TerrainWorldOctreeComponent& worldOctree,
                         TerrainRuntimeComponent& terrainMesh ) {
@@ -397,14 +434,16 @@ void ExtractIsoSurface( rhi::CommandBuffer& commandBuffer,
         uint64_t IndirectDrawBuffer;
     };
 
-    InitIsoSurfaceExtractionConstants initIsoSurfaceConstants;
-    initIsoSurfaceConstants.SurfaceRequests = IsoSurfaceRequestsBuffer.GetGpuAddress();
-    initIsoSurfaceConstants.IndirectDispatchBuffer = IndirectDispatchBuffer0.GetGpuAddress();
-    initIsoSurfaceConstants.IndirectDrawBuffer = terrainMesh.IndirectDrawBuffer.GetGpuAddress();
+    InitIsoSurfaceExtractionConstants initIsoSurfaceConstants{
+        .SurfaceRequests = g_isoSurfaceRequestsBuffer.GetGpuAddress(),
+        .IndirectDispatchBuffer = g_indirectDispatchBuffer0.GetGpuAddress(),
+        .IndirectDrawBuffer = terrainMesh.IndirectDrawBuffer.GetGpuAddress(),
+    };
+
     commandBuffer.bindShaderEffect( generationComponent.SetupDispatchGenerateMeshShader );
 
-    commandBuffer.barrier( IsoSurfaceRequestsBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( g_isoSurfaceRequestsBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.barrier( g_indirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::ShaderWrite );
     commandBuffer.barrier( terrainMesh.IndirectDrawBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
     commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, initIsoSurfaceConstants );
     commandBuffer.dispatch( 1, 1, 1 );
@@ -421,28 +460,29 @@ void ExtractIsoSurface( rhi::CommandBuffer& commandBuffer,
         float RootHalfExtents;
     };
 
-    IsoSurfaceExtractionConstants isoSurfaceConstants;
-    isoSurfaceConstants.SurfaceRequests = IsoSurfaceRequestsBuffer.GetGpuAddress();
-    isoSurfaceConstants.IndirectDrawBuffer = terrainMesh.IndirectDrawBuffer.GetGpuAddress();
-    isoSurfaceConstants.VertexBuffer = TransientVertexBuffer.GetGpuAddress();
-    isoSurfaceConstants.RootSize = worldOctree.RootSize;
-    isoSurfaceConstants.RootHalfExtents = worldOctree.RootSize * 0.5f;
-    isoSurfaceConstants.VolumeSourcesList = worldOctree.VolumeObjects.GetGpuAddress();
-    isoSurfaceConstants.VolumeSourcesData = worldOctree.VolumeObjectsData.GetGpuAddress();
+    IsoSurfaceExtractionConstants isoSurfaceConstants{
+        .SurfaceRequests = g_isoSurfaceRequestsBuffer.GetGpuAddress(),
+        .VertexBuffer = g_transientVertexBuffer.GetGpuAddress(),
+        .VolumeSourcesList = worldOctree.VolumeObjects.GetGpuAddress(),
+        .VolumeSourcesData = worldOctree.VolumeObjectsData.GetGpuAddress(),
+        .IndirectDrawBuffer = terrainMesh.IndirectDrawBuffer.GetGpuAddress(),
+        .RootSize = worldOctree.RootSize,
+        .RootHalfExtents = worldOctree.RootSize * 0.5f,
+    };
 
-    commandBuffer.barrier( TransientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
+    commandBuffer.barrier( g_transientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderWrite );
     commandBuffer.barrier( terrainMesh.IndirectDrawBuffer,
                            rhi::Context::Compute,
                            rhi::Access::ShaderRead | rhi::Access::ShaderWrite );
-    commandBuffer.barrier( IndirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
+    commandBuffer.barrier( g_indirectDispatchBuffer0, rhi::Context::Compute, rhi::Access::IndirectRead );
 
     commandBuffer.bindShaderEffect( generationComponent.GenerateMeshShader );
     commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, isoSurfaceConstants );
-    commandBuffer.dispatchIndirect( IndirectDispatchBuffer0 );
+    commandBuffer.dispatchIndirect( g_indirectDispatchBuffer0 );
 
     commandBuffer.barrier( terrainMesh.MeshVertices, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.barrier( TransientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
-    commandBuffer.copy( TransientVertexBuffer, terrainMesh.MeshVertices );
+    commandBuffer.barrier( g_transientVertexBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
+    commandBuffer.copy( g_transientVertexBuffer, terrainMesh.MeshVertices );
 
     commandBuffer.barrier( terrainMesh.MeshVertices, rhi::Context::Graphics, rhi::Access::VertexRead );
     commandBuffer.barrier( terrainMesh.IndirectDrawBuffer, rhi::Context::Graphics, rhi::Access::IndirectRead );
@@ -456,57 +496,57 @@ using TerrainEntity = TerrainAccess::AsEntity;
 using CameraAccess = ecs::Access::Read< game_core::TransformComponent, game_core::FreeCameraRuntimeComponent >;
 using CameraQuery = CameraAccess::AsQuery;
 
-void System( TerrainEntity terrainEntity,
+void system( TerrainEntity terrainEntity,
              const CameraQuery& cameraQuery,
              assets::AssetSystem& assetSystem,
              rhi::GraphicsSystem& graphicsSystem,
              ecs::EntityCommandBuffer entityCommandBuffer ) {
     auto&& [ terrainSettings, generationComponent, terrainWorldOctree, terrainRuntime ] = terrainEntity;
 
-    LoadShaders( assetSystem, graphicsSystem, terrainSettings, generationComponent );
+    loadShaders( assetSystem, graphicsSystem, terrainSettings, generationComponent );
 
     if( ( generationComponent.HasLoadedShaders == false ) || !generationComponent.UpdateWorldOctreeShader.isValid() ||
         !generationComponent.ResetBuffersShader.isValid() || !generationComponent.GenerateMeshShader.isValid() ||
         !generationComponent.SetupDispatchGenerateMeshShader.isValid() )
         return;
 
-    constexpr uint32_t nodeCount = ( 1 << 19 );
+    constexpr uint32_t NodeCount = ( 1 << 19 );
 
-    CreateBuffers( graphicsSystem, terrainWorldOctree, terrainRuntime, nodeCount );
+    createBuffers( graphicsSystem, terrainWorldOctree, terrainRuntime, NodeCount );
 
-    rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.GetCommandBuffer( graphicsSystem.GetFrameIndex(), true );
+    rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.getCommandBuffer( graphicsSystem.getFrameIndex(), true );
 
     ecs::EntityId cameraEntity = cameraQuery.GetView().front();
     const game_core::TransformComponent&
         cameraTransform = cameraQuery.GetView().get< const game_core::TransformComponent >( cameraEntity );
 
-    ResetBuffers( computeCommandBuffer,
+    resetBuffers( computeCommandBuffer,
                   generationComponent,
-                  IsoSurfaceRequestsBuffer,
+                  g_isoSurfaceRequestsBuffer,
                   terrainRuntime.IndirectDrawBuffer,
-                  IndirectDispatchBuffer0,
-                  SplitRequestQueueBuffer0 );
-    float32 farPlane = graphicsSystem.GetViewContsants().Far;
-    BuildWorldOctree( computeCommandBuffer,
+                  g_indirectDispatchBuffer0,
+                  g_splitRequestQueueBuffer0 );
+    float32 farPlane = graphicsSystem.getViewContsants().Far;
+    buildWorldOctree( computeCommandBuffer,
                       terrainSettings,
                       generationComponent,
                       terrainWorldOctree,
                       cameraTransform.Translation,
                       farPlane );
-    ExtractIsoSurface( computeCommandBuffer, generationComponent, terrainWorldOctree, terrainRuntime );
+    extractIsoSurface( computeCommandBuffer, generationComponent, terrainWorldOctree, terrainRuntime );
 
     entityCommandBuffer.RemoveComponent< InitTerrainFlag >( terrainEntity.GetId() );
 }
-} // namespace Init
+} // namespace init
 
-namespace Streaming {
+namespace streaming {
 using TerrainAccess = ecs::Access ::Write< TerrainWorldOctreeComponent, TerrainRuntimeComponent >;
 using TerrainEntity = TerrainAccess::AsEntity;
 
 using CameraAccess = ecs::Access::Read< game_core::TransformComponent, game_core::FreeCameraRuntimeComponent >;
 using CameraQuery = CameraAccess::AsQuery;
 
-void System( TerrainEntity terrainEntity,
+void system( TerrainEntity terrainEntity,
              const CameraQuery& cameraQuery,
              ecs::EntityCommandBuffer entityCommandBuffer ) {
     // TODO: make smarter instead of updates every 50 meters of movement
@@ -514,14 +554,14 @@ void System( TerrainEntity terrainEntity,
     const game_core::TransformComponent&
         cameraTransform = cameraQuery.GetView().get< const game_core::TransformComponent >( cameraEntity );
 
-    static Vector3f32 lastPosition = cameraTransform.Translation;
-    if( ( lastPosition - cameraTransform.Translation ).lengthSquared() > ( 50 * 50 ) ) {
-        lastPosition = cameraTransform.Translation;
+    static Vector3f32 LastPosition = cameraTransform.Translation;
+    if( ( LastPosition - cameraTransform.Translation ).lengthSquared() > ( 50 * 50 ) ) {
+        LastPosition = cameraTransform.Translation;
         ecs::EntityId terrainEntityId = terrainEntity.GetId();
         entityCommandBuffer.AddComponent< InitTerrainFlag >( terrainEntityId );
     }
 }
-} // namespace Streaming
+} // namespace streaming
 
 void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, TerrainSettingsComponent&& volumeTerrainComponent ) {
     // compare if resolution or chunksize changed if entity already has the component
@@ -536,7 +576,7 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, TerrainSettin
 void Register( ecs::EcsBuilder& ecsBuilder ) {
     ecsBuilder.RegisterComponent< TerrainSettingsComponent >( factory );
 
-    ecsBuilder.RegisterSystem( Streaming::System );
-    ecsBuilder.RegisterSystem( Init::System );
+    ecsBuilder.RegisterSystem( streaming::system );
+    ecsBuilder.RegisterSystem( init::system );
 }
 } // namespace onyx::volume::terrain

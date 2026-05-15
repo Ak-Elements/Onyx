@@ -47,28 +47,28 @@ void system( MeshEntity entity, rhi::FrameContext& frameContext, assets::AssetSy
 
     auto&& [ staticMesh, transform, materialComponent ] = entity;
 
-    if ( !staticMesh.Mesh.isLoaded() )
+    if( !staticMesh.Mesh.isLoaded() )
         return;
 
-    if ( staticMesh.Mesh->GetVertices().empty() )
+    if( staticMesh.Mesh->GetVertices().empty() )
         return;
 
-    if ( materialComponent.Material.hasAssetId() == false )
+    if( materialComponent.Material.hasAssetId() == false )
         return;
 
-    if ( materialComponent.Material.hasHandle() == false ) {
-        if ( materialComponent.Material.hasAssetId() ) {
+    if( materialComponent.Material.hasHandle() == false ) {
+        if( materialComponent.Material.hasAssetId() ) {
             // this should be moved to the component create
             assetSystem.getAsset( materialComponent.Material.getId(), materialComponent.Material );
             return;
         }
     }
 
-    if ( ( materialComponent.Material.isValid() == false ) )
+    if( ( materialComponent.Material.isValid() == false ) )
         return;
 
     game_core::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
-    drawCall.Transforms.emplace_back( world_transform::GetTransform( transform ) );
+    drawCall.Transforms.emplace_back( world_transform::getTransform( transform ) );
     drawCall.VertexData = staticMesh.Mesh->GetVertexBuffer();
     drawCall.Indices = staticMesh.Mesh->GetIndexBuffer();
     drawCall.Material = materialComponent.Material;

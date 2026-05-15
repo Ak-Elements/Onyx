@@ -20,16 +20,16 @@ bool SceneSerializer::serialize( const assets::AssetHandle< assets::AssetInterfa
                                  const IEngine& engine ) const {
     const Scene& scene = asset.as< Scene >();
 
-    serializer.write< "renderGraph" >( scene.m_SceneRenderGraph.getId() );
+    serializer.write< "renderGraph" >( scene.m_sceneRenderGraph.getId() );
 
     // Serialize each sector
-    const SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
+    const SceneSectorStreamer& sectorStreamer = scene.m_sectorStreamer;
     const DynamicArray< SceneSector >& sectors = sectorStreamer.m_Sectors;
 
     const GameCoreSystem& gameCoreSystem = engine.getSystem< GameCoreSystem >();
-    const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
+    const ecs::ComponentFactory& componentFactory = gameCoreSystem.getComponentFactory();
 
-    bool hasSucceeded = serializeSectorsToJson( scene.m_Registry,
+    bool hasSucceeded = serializeSectorsToJson( scene.m_registry,
                                                 componentFactory,
                                                 sectors,
                                                 file_system::path::getFullPath( meta.Path ).parent_path() );
@@ -88,18 +88,18 @@ bool SceneSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
     assets::AssetSystem& assetSystem = engine.getSystem< assets::AssetSystem >();
 
     Scene& scene = asset.as< Scene >();
-    ecs::EntityRegistry& registry = scene.GetRegistry();
+    ecs::EntityRegistry& registry = scene.getRegistry();
     registry.Clear();
 
     assets::AssetId renderGraphAssetId = "engine:/rendergraphs/default.orendergraph";
     deserializer.read< "renderGraph" >( renderGraphAssetId );
-    assetSystem.getAsset( renderGraphAssetId, scene.m_SceneRenderGraph );
+    assetSystem.getAsset( renderGraphAssetId, scene.m_sceneRenderGraph );
 
     FilePath sceneDirectoryPath = file_system::path::getFullPath( meta.Path.parent_path() );
-    SceneSectorStreamer& sectorStreamer = scene.m_SectorStreamer;
+    SceneSectorStreamer& sectorStreamer = scene.m_sectorStreamer;
     DynamicArray< SceneSector >& sectors = sectorStreamer.m_Sectors;
     const GameCoreSystem& gameCoreSystem = engine.getSystem< GameCoreSystem >();
-    const ecs::ComponentFactory& componentFactory = gameCoreSystem.GetComponentFactory();
+    const ecs::ComponentFactory& componentFactory = gameCoreSystem.getComponentFactory();
     bool hasSucceeded = deserializeSectorsFromJson( scene, componentFactory, sectors, sceneDirectoryPath );
 
     return hasSucceeded;
@@ -141,8 +141,8 @@ bool SceneSerializer::deserializeSectorFromJson( Scene& scene,
             scopeDeserializer.read< "radius" >( outEntity.BoundsRadius );
             outEntity.BoundsRadiusSquared = outEntity.BoundsRadius * outEntity.BoundsRadius;
 
-            outEntity.Entity = scene.GetRegistry().CreateEntity();
-            return deserializeEntity( scopeDeserializer, scene.GetRegistry(), componentFactory, outEntity.Entity );
+            outEntity.Entity = scene.getRegistry().CreateEntity();
+            return deserializeEntity( scopeDeserializer, scene.getRegistry(), componentFactory, outEntity.Entity );
         } );
 
     return hasSucceeded;

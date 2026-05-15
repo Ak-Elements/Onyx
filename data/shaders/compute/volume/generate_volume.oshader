@@ -29,6 +29,8 @@ compute
         WorldVolumeSourcesList VolumeSourcesList;
         WorldVolumeSources VolumeSourcesData;
 
+        //TODO: Octree & Chunk buffers
+
         IndirectDrawBuffer IndirectDraw;
         float RootSize;
         float RootHalfExtents;
@@ -46,6 +48,10 @@ compute
         IsoSurfaceRequest surfaceRequest = u_Constants.Requests.Requests[flatIndex];
         uint64_t depthMask = ((1ul << (3ul * surfaceRequest.Depth)) - 1);
         uint64_t mortonIndexAtDepth = surfaceRequest.Morton & depthMask;
+
+        // TODO: Get chunk from iso surface request
+        // from the chunk -> world octree node
+        // from the octree node -> mesh buffer
 
         float nodeExtents = u_Constants.RootSize / float(1 << surfaceRequest.Depth);
         vec3 leafCoordinate = vec3(DecodeMorton(mortonIndexAtDepth)) + vec3(0.5f);

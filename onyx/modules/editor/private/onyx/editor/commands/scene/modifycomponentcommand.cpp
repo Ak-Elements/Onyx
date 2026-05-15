@@ -5,20 +5,22 @@
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
 
+#include <utility>
+
 namespace onyx::editor {
 ModifyComponentCommand::ModifyComponentCommand( ecs::EntityId entity,
                                                 StringId32 componentTypeId,
                                                 std::any&& component,
                                                 assets::AssetId sceneId,
                                                 game_core::GameCoreSystem& gameCoreSystem )
-    : SceneCommand( "ModifyComponent", sceneId, gameCoreSystem )
+    : SceneCommand( "ModifyComponent", std::move( sceneId ), gameCoreSystem )
     , m_component( std::move( component ) )
     , m_entityId( entity )
     , m_componentTypeId( componentTypeId ) {}
 
-void ModifyComponentCommand::Execute() {
+void ModifyComponentCommand::execute() {
     const ecs::ComponentFactory& componentFactory = GetComponentFactory();
-    ecs::EntityRegistry& registry = GetScene().GetRegistry();
+    ecs::EntityRegistry& registry = GetScene().getRegistry();
 
     const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta( m_componentTypeId )
                                                    .value_or( nullptr );

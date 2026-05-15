@@ -1,5 +1,7 @@
-#include "onyx/editor/commands/scene/modifycomponentcommand.h"
 #include <onyx/editor/windows/sceneviewport.h>
+
+#include <onyx/colors/dark.h>
+#include <onyx/colors/light.h>
 
 #include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
@@ -7,10 +9,15 @@
 #include <onyx/gamecore/gamecore.h>
 
 #include <onyx/editor/commands/commandgraph.h>
+#include <onyx/editor/commands/scene/modifycomponentcommand.h>
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/windows/sceneeditor.h>
+#include <onyx/editor/windows/settings/camerasettingswindow.h>
+#include <onyx/editor/windows/settings/gridsettingswindow.h>
 
+#include <onyx/ui/controls/vectorcontrol.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/widgets.h>
 #include <onyx/ui/windows/fpsstatusbaritem.h>
 #include <onyx/ui/windows/statusbaroverlay.h>
 
@@ -49,37 +56,39 @@ void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     assets::AssetId sceneId = parent.getSceneId();
     game_core::Scene& scene = parent.getScene();
-    if( scene.HasRenderGraph() == false )
+    if( scene.hasRenderGraph() == false )
         return;
 
-    const rhi::TextureHandle finalSceneTexture = scene.GetRenderGraph().GetFinalTexture();
+    const rhi::TextureHandle finalSceneTexture = scene.getRenderGraph().GetFinalTexture();
     if( finalSceneTexture.IsValid() == false ) {
         return;
     }
 
     fpsOverlay->update( ImGui::GetIO().DeltaTime * 1000 );
 
+    Vector2f32 topLeftCorner{ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y };
+
     const rhi::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
     ImVec2 sceneTextureExtents = { static_cast< float32 >( sceneTextureProperties.m_Size[ 0 ] ),
                                    static_cast< float32 >( sceneTextureProperties.m_Size[ 1 ] ) };
 
     ImGui::SetNextItemAllowOverlap();
-    Vector2f32 pos{ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y };
     ImGui::Image( finalSceneTexture.Texture->GetIndex(), sceneTextureExtents );
 
     renderImGuizmo( sceneId,
                     scene,
-                    pos,
+                    topLeftCorner,
                     Vector2f32( static_cast< float32 >( sceneTextureProperties.m_Size[ 0 ] ),
                                 static_cast< float32 >( sceneTextureProperties.m_Size[ 1 ] ) ) );
+
+    renderViewportControls( scene, topLeftCorner );
 }
 
-//    ImGui::End();
 void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
                                           game_core::Scene& scene,
                                           const Vector2f32& viewportPosition,
                                           const Vector2f32& viewportExtents ) {
-    ecs::EntityRegistry& registry = scene.GetRegistry();
+    ecs::EntityRegistry& registry = scene.getRegistry();
     auto selectedEntitesView = registry.GetView< SelectedComponent >();
     auto cameraView = registry.GetView< const game_core::CameraComponent, const game_core::TransformComponent >();
 
@@ -87,7 +96,6 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
         return;
 
     const auto& cameraComponent = cameraView.get< const game_core::CameraComponent >( *cameraView.begin() );
-    // const auto& transformComponent = cameraView.get< const game_core::TransformComponent >( *cameraView.begin() );
 
     m_hasSelectedEntity = false;
     if( selectedEntitesView.empty() == false ) {
@@ -101,25 +109,24 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
             ImGuizmo::SetAlternativeWindow( ImGui::GetCurrentWindow() );
             ImGuizmo::SetOrthographic( false );
             ImGuizmo::SetDrawlist();
-
             ImGuizmo::SetRect( viewportPosition.X, viewportPosition.Y, viewportExtents[ 0 ], viewportExtents[ 1 ] );
-            ImGuizmo::SetGizmoSizeClipSpace( 0.05f );
 
-            const Vector3f32& cameraPos = Vector3f32( cameraComponent.Camera.GetViewMatrixInverse()[ 3 ] );
+            const Vector3f32& cameraPos = Vector3f32( cameraComponent.Camera.getViewMatrixInverse()[ 3 ] );
             const Vector3f32& entityPos = transformComponent.Translation;
 
-            float distance = ( entityPos - cameraPos ).length();
+            float32 distance = ( entityPos - cameraPos ).length();
 
-            float desiredWorldSize = 10.0f;
-            float halfFovRadians = quantityCast< units::Radians, units::Degrees >( 45.0f ) * 0.5f;
-            float clipSize = ( desiredWorldSize / distance ) / std::tan( halfFovRadians );
+            float32 desiredWorldSize = 10.0f;
+            float32 halfFovRadians = cameraComponent.Camera.getFieldOfView().count() * 0.5f;
+            float32 clipSize = ( desiredWorldSize / distance ) / std::tan( halfFovRadians );
 
             ImGuizmo::SetGizmoSizeClipSpace( std::max( clipSize, 0.03f ) );
-            Matrix4< float32 > projectionMatrix = cameraComponent.Camera.GetProjectionMatrix();
-            const Matrix4x4f32& viewMatrix = cameraComponent.Camera.GetViewMatrix();
+            Matrix4< float32 > projectionMatrix = cameraComponent.Camera.getProjectionMatrix();
+            const Matrix4x4f32& viewMatrix = cameraComponent.Camera.getViewMatrix();
 
-            Matrix4x4f32 transformMatrix = game_core::world_transform::GetTransform( transformComponent );
-
+            Matrix4x4f32 transformMatrix = game_core::world_transform::getTransform( transformComponent );
+            Matrix4x4f32 deltaMatrix;
+            ImGuizmo::AllowAxisFlip( false );
             ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
             if( m_currentGizmo == GizmoType::Rotate )
                 operation = ImGuizmo::ROTATE;
@@ -131,35 +138,20 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
                                       &( projectionMatrix[ 0 ][ 0 ] ),
                                       operation,
                                       ImGuizmo::LOCAL,
-                                      &( transformMatrix[ 0 ][ 0 ] ) ) ) {
+                                      &( transformMatrix[ 0 ][ 0 ] ),
+                                      &( deltaMatrix[ 0 ][ 0 ] ) ) ) {
                 Vector3f32 translation, scale;
                 Rotor3f32 rotationRotor;
-                transformMatrix.decompose( translation, rotationRotor, scale );
+                deltaMatrix.decompose( translation, rotationRotor, scale );
 
                 switch( m_currentGizmo ) {
                 case GizmoType::Translate: {
-                    transformComponent.Translation = translation;
+                    transformComponent.Translation += translation;
                     break;
                 }
                 case GizmoType::Rotate: {
-                    constexpr float32 PI = std::numbers::pi_v< float32 >;
-                    constexpr float32 TWO_PI = 2.0f * PI;
-                    Vector3f32 originalRotation = transformComponent.RotationEuler;
-
-                    originalRotation[ 0 ] = std::fmod( originalRotation[ 0 ] + PI, TWO_PI ) - PI;
-                    originalRotation[ 1 ] = std::fmod( originalRotation[ 1 ] + PI, TWO_PI ) - PI;
-                    originalRotation[ 2 ] = std::fmod( originalRotation[ 2 ] + PI, TWO_PI ) - PI;
-
-                    Vector3f32 deltaRotation = rotationRotor.toEulerAngles() - originalRotation;
-
-                    if( isZero( deltaRotation[ 0 ], 0.001f ) )
-                        deltaRotation[ 0 ] = 0.0f;
-                    if( isZero( deltaRotation[ 1 ], 0.001f ) )
-                        deltaRotation[ 1 ] = 0.0f;
-                    if( isZero( deltaRotation[ 2 ], 0.001f ) )
-                        deltaRotation[ 2 ] = 0.0f;
-
-                    game_core::world_transform::Rotate( transformComponent, deltaRotation );
+                    game_core::world_transform::setRotation( transformComponent,
+                                                             rotationRotor * transformComponent.Rotation );
                     break;
                 }
                 case GizmoType::Scale: {
@@ -171,13 +163,66 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
 
             if( isUsing && ImGuizmo::IsUsing() == false ) {
                 game_core::TransformComponent newTransform{ transformComponent };
-                m_commandGraph->Push< ModifyComponentCommand >( selectedEntity,
+                m_commandGraph->push< ModifyComponentCommand >( selectedEntity,
                                                                 game_core::TransformComponent::TypeId,
                                                                 newTransform,
                                                                 sceneId,
                                                                 getEngineSystem< game_core::GameCoreSystem >() );
             }
         }
+    }
+}
+
+void SceneViewportWindow::renderViewportControls( game_core::Scene& scene, Vector2f32 topLeftCorner ) {
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    const ImGuiStyle& style = ImGui::GetStyle();
+
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImVec2 topLeft = ImGui::GetCurrentWindow()->ClipRect.GetTL();
+
+    ImVec2 contentSize = ImGui::GetContentRegionAvail() - style.WindowPadding;
+
+    ImGui::SetCursorScreenPos( ImVec2( topLeft.x, topLeft.y ) + style.WindowPadding + style.FramePadding );
+    ImGui::BeginHorizontal( "##viewportControls", ImVec2( contentSize.x, 0 ), 1.0f );
+    ImGui::Spring();
+
+    float size = 24.0f;
+    auto toolbarButton = [ & ]( const char* id, auto drawIconFn ) -> bool {
+        ImGui::SetNextItemAllowOverlap();
+        ui::ScopedImGuiColor buttonColor{ { ImGuiCol_Button, colors::dark::SlateA5 },
+                                          { ImGuiCol_ButtonHovered, colors::dark::SlateA8 },
+                                          { ImGuiCol_ButtonActive, colors::dark::IndigoA8 } };
+        auto cursor = ImGui::GetCursorScreenPos();
+        ImGui::GetWindowDrawList()->AddRect( cursor,
+                                             cursor + ImVec2( size, size ),
+                                             colors::dark::SlateA7.toABGR(),
+                                             1.0f );
+        ImGui::Button( id, ImVec2( size, size ) );
+        bool clicked = ImGui::IsItemClicked();
+        auto afterButton = ImGui::GetCursorScreenPos();
+        ImGui::SetCursorScreenPos( cursor );
+
+        drawIconFn();
+        ImGui::SetCursorScreenPos( afterButton );
+        return clicked;
+    };
+    Color iconColor = colors::dark::SlateA11;
+
+    bool gridClicked = toolbarButton( "##grid",
+                                      [ & ] { ui::drawGridIcon( drawList, ImVec2( 4, 4 ), 16.0f, 1.0f, iconColor ); } );
+
+    bool camClicked = toolbarButton( "##cam", [ & ] {
+        ui::drawMovieCameraIcon( drawList, ImVec2( 4, 4 ), 16.0f, iconColor, iconColor );
+    } );
+
+    ImGui::EndHorizontal();
+    ImGui::SetCursorScreenPos( cursorPos );
+    if( camClicked ) {
+        getEngineSystem< ui::ImGuiSystem >().openUniqueWindow< CameraSettingsWindow >();
+    }
+    if( gridClicked ) {
+        getEngineSystem< ui::ImGuiSystem >().openUniqueWindow< GridSettingsWindow >();
     }
 }
 

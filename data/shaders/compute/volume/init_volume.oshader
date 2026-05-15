@@ -30,3 +30,9 @@ compute
         u_Constants.IndirectDraw.Draw.FirstVertex = 0;
         u_Constants.IndirectDraw.Draw.FirstInstance = 0;
     }
+}
+
+// Run over requests and count vertices
+// Prefix sum on vertex count per chunk
+// Allocate buffer range per chunk << 
+// Generate triangles into buffer range per request

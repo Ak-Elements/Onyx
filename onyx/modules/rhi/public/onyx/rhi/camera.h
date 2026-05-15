@@ -3,7 +3,7 @@
 namespace onyx::rhi {
 
 class Camera {
-    enum class ProjectionType {
+    enum class ProjectionType : uint8_t {
         Perspective,
         Orthographic,
     };
@@ -11,53 +11,63 @@ class Camera {
   public:
     virtual ~Camera() = default;
 
-    void LookAt( const Vector3f32& cameraPosition, const Vector3f32& lookAtPosition, const Vector3f32& upDirection );
+    void lookAt( const Vector3f32& cameraPosition, const Vector3f32& lookAtPosition, const Vector3f32& upDirection );
 
-    void SetPerspective( float32 fovInDegrees );
-    void SetPerspective( float32 fovInDegrees, float32 near );
-    void SetPerspective( float32 fovInDegrees, float32 near, float32 far );
+    void setPerspective( units::DegreesF32 fieldOfView );
+    void setPerspective( units::DegreesF32 fieldOfView, float32 near );
+    void setPerspective( units::DegreesF32 fieldOfView, float32 near, float32 far );
 
-    void SetOrthographic( float32 size );
-    void SetOrthographic( float32 size, float32 near );
-    void SetOrthographic( float32 size, float32 near, float32 far );
+    void setPerspective( units::RadiansF32 fieldOfView );
+    void setPerspective( units::RadiansF32 fieldOfView, float32 near );
+    void setPerspective( units::RadiansF32 fieldOfView, float32 near, float32 far );
 
-    void SetViewMatrix( const Matrix4x4f32& matrix );
-    void SetViewportExtents( const Vector2s32& extents );
+    void setOrthographic( float32 size );
+    void setOrthographic( float32 size, float32 near );
+    void setOrthographic( float32 size, float32 near, float32 far );
 
-    const Matrix4x4f32& GetProjectionMatrix() const { return projectionMatrix; }
-    const Matrix4x4f32& GetProjectionMatrixInverse() const { return inverseProjectionMatrix; }
-    const Matrix4x4f32& GetViewMatrix() const { return viewMatrix; }
-    const Matrix4x4f32& GetViewMatrixInverse() const { return inverseViewMatrix; }
-    const Matrix4x4f32& GetViewProjectionMatrix() const { return viewProjectionMatrix; }
-    const Matrix4x4f32& GetViewProjectionMatrixInverse() const { return inverseViewProjectionMatrix; }
+    void setViewMatrix( const Matrix4x4f32& matrix );
+    void setViewportExtents( const Vector2s32& extents );
 
-    const Vector3f32& GetDirection() const { return direction; }
-    const Vector2s32& GetViewportExtents() const { return viewportExtents; }
+    [[nodiscard]] const Matrix4x4f32& getProjectionMatrix() const { return m_projectionMatrix; }
+    [[nodiscard]] const Matrix4x4f32& getProjectionMatrixInverse() const { return m_inverseProjectionMatrix; }
+    [[nodiscard]] const Matrix4x4f32& getViewMatrix() const { return m_viewMatrix; }
+    [[nodiscard]] const Matrix4x4f32& getViewMatrixInverse() const { return m_inverseViewMatrix; }
+    [[nodiscard]] const Matrix4x4f32& getViewProjectionMatrix() const { return m_viewProjectionMatrix; }
+    [[nodiscard]] const Matrix4x4f32& getViewProjectionMatrixInverse() const { return m_inverseViewProjectionMatrix; }
 
-    float32 GetNear() const { return nearPlane; }
-    float32 GetFar() const { return farPlane; }
+    [[nodiscard]] const Vector3f32& getDirection() const { return m_direction; }
+    [[nodiscard]] const Vector2s32& getViewportExtents() const { return m_viewportExtents; }
+
+    [[nodiscard]] float32 getNear() const { return m_nearPlane; }
+    [[nodiscard]] float32 getFar() const { return m_farPlane; }
+    [[nodiscard]] units::RadiansF32 getFieldOfView() const { return m_perspectiveFov; }
+
+    [[nodiscard]] ProjectionType getType() const { return m_type; }
 
   protected:
-    Matrix4x4f32 projectionMatrix{ 0 };
-    Matrix4x4f32 inverseProjectionMatrix{ 0 };
+    void updatePerspectiveMatrix();
 
-    Matrix4x4f32 viewMatrix{ 0 };
-    Matrix4x4f32 inverseViewMatrix{ 0 };
+  protected:
+    Matrix4x4f32 m_projectionMatrix{ 0 };
+    Matrix4x4f32 m_inverseProjectionMatrix{ 0 };
 
-    Matrix4x4f32 viewProjectionMatrix{ 0 };
-    Matrix4x4f32 inverseViewProjectionMatrix{ 0 };
+    Matrix4x4f32 m_viewMatrix{ 0 };
+    Matrix4x4f32 m_inverseViewMatrix{ 0 };
 
-    Vector3f32 direction;
+    Matrix4x4f32 m_viewProjectionMatrix{ 0 };
+    Matrix4x4f32 m_inverseViewProjectionMatrix{ 0 };
 
-    ProjectionType type = ProjectionType::Perspective;
+    Vector3f32 m_direction;
 
-    float32 perspectiveFOV = 45.0f; // Degrees
-    float32 orthographicSize = 1.0f;
+    ProjectionType m_type = ProjectionType::Perspective;
 
-    Vector2s32 viewportExtents;
+    units::RadiansF32 m_perspectiveFov{ units::DegreesF32( 45.0 ) };
+    float32 m_orthographicSize = 1.0f;
 
-    float32 nearPlane = 0.0f;
-    float32 farPlane = 1.0f;
+    Vector2s32 m_viewportExtents;
+
+    float32 m_nearPlane = 0.0f;
+    float32 m_farPlane = 1.0f;
 };
 
 } // namespace onyx::rhi

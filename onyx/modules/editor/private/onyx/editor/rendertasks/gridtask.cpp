@@ -1,3 +1,4 @@
+#include <onyx/colors/dark.h>
 #include <onyx/editor/rendertasks/gridtask.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
@@ -8,11 +9,6 @@
 #include <onyx/profiler/profiler.h>
 
 namespace onyx {
-
-namespace {
-EngineVariable< uint32_t > g_gridScale{ "Editor/Grid/Scale", 1, 1 };
-EngineVariable< bool > g_lockGrid{ "Editor/Grid/Lock", false };
-} // namespace
 
 GridRenderGraphNode::GridRenderGraphNode() {
     m_PipelineProperties.Shader = "engine:/shaders/editor/grid.oshader";
@@ -33,12 +29,14 @@ void GridRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& context ) 
         outResource.Handle = inputResource.Handle;
     }
 }
-void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& /*context*/, rhi::CommandBuffer& commandBuffer ) {
+void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     struct Constants {
-        uint32_t GridCellCount;
-        uint GridScale;
+        Matrix3x3f32 Rotation;
+
+        uint32_t CellCount;
+        float32 LodLevel;
         float32 AxisLineWidth;
         float32 MajorLineWidth;
         float32 MinorLineWidth;
@@ -52,19 +50,31 @@ void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& /*context*/, r
         uint32_t Flags;
     };
 
-    Constants constants{ .GridCellCount = 10,
-                         .GridScale = g_gridScale.get(),
-                         .AxisLineWidth = 0.15f,
+    GridSettings& settings = context.Graph.GetInput< GridSettings >();
+    auto rotation = Rotor3f32::fromEulerAngles( settings.Rotation ).toMatrix3();
+    rotation.inverse();
+
+    float32 gridLodLevel = numericCast< float32 >( settings.LodLevel );
+    if( settings.UseAutoLod ) {
+        const float32 log10 = std::log( 10.0f );
+        Vector3f32 cameraPositionGridSpace = rotation * context.FrameContext.ViewConstants.CameraPosition;
+        gridLodLevel = std::log( std::abs( cameraPositionGridSpace.Y ) ) / log10;
+    }
+
+    Constants constants{ .Rotation = rotation,
+                         .CellCount = settings.Cells,
+                         .LodLevel = gridLodLevel,
+                         .AxisLineWidth = 0.2f,
                          .MajorLineWidth = 0.15f,
                          .MinorLineWidth = 0.02f,
 
                          .MajorLineColor = onyx::colors::White.toRGBA(),
                          .MinorLineColor = onyx::colors::White.toRGBA(),
 
-                         .XAxisColor = onyx::colors::Red.toRGBA(),
-                         .YAxisColor = onyx::colors::Green.toRGBA(),
-                         .ZAxisColor = onyx::colors::Blue.toRGBA(),
-                         .Flags = g_lockGrid.get() ? uint32_t( 1 ) : uint32_t( 0 ) };
+                         .XAxisColor = colors::dark::Red9.toRGBA(),
+                         .YAxisColor = colors::dark::Grass9.toRGBA(),
+                         .ZAxisColor = colors::dark::Indigo10.toRGBA(),
+                         .Flags = settings.UseAutoLod ? uint32_t( 0 ) : uint32_t( 1 ) };
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );

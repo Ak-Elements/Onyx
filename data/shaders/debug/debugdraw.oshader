@@ -207,6 +207,12 @@ fragment
             wireThickness = GetWireThickness( sphere, rayOrigin, rayDirection, hitT );
         }
 
+        if( ( hitT < u_Constants.ViewConstantsBuffer.Near ) ||
+            ( hitT > u_Constants.ViewConstantsBuffer.Far ) )
+        {
+            return false;
+        }
+
         if ( ( hitT < closestT ) && wireThickness > EPSILON)
         {
             closestT = hitT;
@@ -255,6 +261,12 @@ fragment
             wireThickness = GetWireThickness( box, rayOriginBoxSpace, rayDirectionBoxSpace, hitT, hitNormalBoxSpaceExit );
         }
 
+        if( ( hitT < u_Constants.ViewConstantsBuffer.Near ) ||
+            ( hitT > u_Constants.ViewConstantsBuffer.Far ) )
+        {
+            return false;
+        }
+
         if ( ( hitT < closestT ) && wireThickness > EPSILON)
         {
             closestT = hitT;
@@ -293,7 +305,7 @@ fragment
                 hasHit = true;
             } 
         }
-        
+
         for(int i = 0; i < u_Constants.WireframeBoxesCount; ++i)
         {
             DebugBox box = u_Constants.WireframeBoxes.Boxes[i];

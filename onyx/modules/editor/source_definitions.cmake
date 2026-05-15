@@ -51,6 +51,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     windows/sceneeditor.h
     windows/sceneviewport.h
     windows/startupwindow.h
+    windows/settings/camerasettingswindow.h
+    windows/settings/gridsettingswindow.h
     windows/settings/inputactionsettingswindow.h
 )
 
@@ -108,5 +110,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     windows/sceneeditor.cpp
     windows/sceneviewport.cpp
     windows/startupwindow.cpp
+    windows/settings/camerasettingswindow.cpp
+    windows/settings/gridsettingswindow.cpp
     windows/settings/inputactionsettingswindow.cpp
 )

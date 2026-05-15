@@ -64,7 +64,7 @@ bool renderCreatePopup( InputActionSettingsWindow& inputSettingsWindow,
                                                      localization::generic::Add,
                                                      localizationSystem.GetLocalized( typeId ) );
             if( ImGui::MenuItem( buttonLabel.data() ) ) {
-                commandsHistory.Push< CommandT >( typeId, inputSettingsWindow );
+                commandsHistory.push< CommandT >( typeId, inputSettingsWindow );
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -231,7 +231,7 @@ void InputActionSettingsWindow::onMouseButton( const input::MouseButtonEvent& ev
         return;
     }
 
-    m_commandsHistory.Push< BindInputBindingSlotCommand >( m_selectedActionId,
+    m_commandsHistory.push< BindInputBindingSlotCommand >( m_selectedActionId,
                                                            m_selectedBindingIndex,
                                                            m_selectedBindingSlotIndex,
                                                            event.Button,
@@ -250,7 +250,7 @@ void InputActionSettingsWindow::onKey( const input::KeyboardEvent& event ) {
         return;
     }
 
-    m_commandsHistory.Push< BindInputBindingSlotCommand >( m_selectedActionId,
+    m_commandsHistory.push< BindInputBindingSlotCommand >( m_selectedActionId,
                                                            m_selectedBindingIndex,
                                                            m_selectedBindingSlotIndex,
                                                            event.Key,
@@ -267,7 +267,7 @@ void InputActionSettingsWindow::onControllerAxisChange( const input::GameControl
         return;
     }
 
-    m_commandsHistory.Push< BindInputBindingSlotCommand >( m_selectedActionId,
+    m_commandsHistory.push< BindInputBindingSlotCommand >( m_selectedActionId,
                                                            m_selectedBindingIndex,
                                                            m_selectedBindingSlotIndex,
                                                            event.Axis,
@@ -284,7 +284,7 @@ void InputActionSettingsWindow::onControllerButton( const input::GameControllerB
         return;
     }
 
-    m_commandsHistory.Push< BindInputBindingSlotCommand >( m_selectedActionId,
+    m_commandsHistory.push< BindInputBindingSlotCommand >( m_selectedActionId,
                                                            m_selectedBindingIndex,
                                                            m_selectedBindingSlotIndex,
                                                            event.Button,
@@ -302,7 +302,7 @@ void InputActionSettingsWindow::renderInputActions() {
 
         if( ImGui::BeginPopupContextItem( "###CreateInputAction", ImGuiPopupFlags_MouseButtonRight ) ) {
             if( ui::Button( localization::generic::Add ) ) {
-                m_commandsHistory.Push< AddInputActionCommand >( *this );
+                m_commandsHistory.push< AddInputActionCommand >( *this );
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
@@ -322,8 +322,8 @@ void InputActionSettingsWindow::renderInputActions() {
 
             auto customHeader = [ & ]() {
                 String name( action.GetId().getString() );
-                if( ui::DrawRenameInput( itemIdString, name, ImVec2( -1, 0 ), isSelected ) ) {
-                    m_commandsHistory.Push< RenameInputActionCommand >( action.GetId(), StringId64( name ), *this );
+                if( ui::drawRenameInput( itemIdString, name, ImVec2( -1, 0 ), isSelected ) ) {
+                    m_commandsHistory.push< RenameInputActionCommand >( action.GetId(), StringId64( name ), *this );
                 }
 
                 return renderCreatePopup< input_actions::InputBindingsFactory, AddInputBindingCommand >(
@@ -335,7 +335,7 @@ void InputActionSettingsWindow::renderInputActions() {
             ui::ScopedImGuiColor color( ImGuiCol_FrameBg, 0x0 );
 
             bool wasOpen = ImGui::TreeNodeGetOpen( itemId );
-            if( ui::ContextMenuHeader( itemIdString, customHeader, treeNodeFlags ) ) {
+            if( ui::contextMenuHeader( itemIdString, customHeader, treeNodeFlags ) ) {
                 ImGui::Indent();
 
                 DynamicArray< UniquePtr< input_actions::InputBinding > >& bindings = action.GetBindings();
@@ -394,7 +394,7 @@ void InputActionSettingsWindow::renderBinding( bool& isSelected,
         ImGuiID headerId = ImGui::GetID( label.data() );
 
         bool wasOpen = ImGui::TreeNodeGetOpen( headerId );
-        if( ui::ContextMenuHeader( label, treeNodeFlags ) ) {
+        if( ui::contextMenuHeader( label, treeNodeFlags ) ) {
             if( wasOpen == false ) {
                 isSelected = true;
                 isBindingSelected = true;
@@ -442,7 +442,7 @@ void InputActionSettingsWindow::renderActionProperties() {
     if( ui::property_grid::drawProperty< input_actions::ActionType,
                                          input_actions::ActionType::Invalid,
                                          input_actions::ActionType::Count >( "Value Type", actionType ) ) {
-        m_commandsHistory.Push< ModifyInputActionCommand >( m_selectedActionId, actionType, *this );
+        m_commandsHistory.push< ModifyInputActionCommand >( m_selectedActionId, actionType, *this );
     }
 }
 
@@ -452,8 +452,8 @@ void InputActionSettingsWindow::onInputAssetLoaded(
 
     m_openInputContext = inputActionsAsset->GetMaps().begin()->second;
 
-    m_commandsHistory.SetBase( m_openInputContext );
-    m_commandsHistory.SetHead( m_openInputContext );
+    m_commandsHistory.setBase( m_openInputContext );
+    m_commandsHistory.setHead( m_openInputContext );
 
     m_mapsSelectedStates.clear();
     m_mapsSelectedStates.resize( 1, false );
@@ -503,7 +503,7 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
                 ImGui::Spring();
 
                 if( ui::Button( "-" ) ) {
-                    m_commandsHistory.Push< DeleteInputModifierCommand >( m_selectedActionId,
+                    m_commandsHistory.push< DeleteInputModifierCommand >( m_selectedActionId,
                                                                           m_selectedBindingIndex,
                                                                           index,
                                                                           *this );
@@ -534,7 +534,7 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
                 ImGui::Spring();
 
                 if( ui::Button( "-" ) ) {
-                    m_commandsHistory.Push< DeleteInputTriggerCommand >( m_selectedActionId,
+                    m_commandsHistory.push< DeleteInputTriggerCommand >( m_selectedActionId,
                                                                          m_selectedBindingIndex,
                                                                          index,
                                                                          *this );
@@ -580,7 +580,7 @@ void InputActionSettingsWindow::onDeleteAction( const input_actions::InputAction
         DynamicArray< input_actions::InputAction >& availableActions = selectedMap.GetActions();
         input_actions::InputAction& selectedAction = availableActions[ m_selectedActionIndex ];
 
-        m_commandsHistory.Push< DeleteInputBindingCommand >( selectedAction.GetId(), m_selectedBindingIndex, *this );
+        m_commandsHistory.push< DeleteInputBindingCommand >( selectedAction.GetId(), m_selectedBindingIndex, *this );
 
         m_selectedBindingIndex = InvalidIndex32;
         m_selectedBindingSlotIndex = InvalidIndex32;
@@ -589,7 +589,7 @@ void InputActionSettingsWindow::onDeleteAction( const input_actions::InputAction
         DynamicArray< input_actions::InputAction >& availableActions = selectedMap.GetActions();
         input_actions::InputAction& selectedAction = availableActions[ m_selectedActionIndex ];
 
-        m_commandsHistory.Push< DeleteInputActionCommand >( selectedAction.GetId(), *this );
+        m_commandsHistory.push< DeleteInputActionCommand >( selectedAction.GetId(), *this );
 
         m_selectedActionIndex = InvalidIndex32;
         m_selectedActionId = StringId32::Invalid;

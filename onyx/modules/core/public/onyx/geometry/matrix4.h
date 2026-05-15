@@ -179,11 +179,11 @@ struct ONYX_ALIGN( 16 ) Matrix4 {
         Matrix4 localMatrix( m_columns[ 0 ], m_columns[ 1 ], m_columns[ 2 ], m_columns[ 3 ] );
 
         // Normalize the matrix.
-        if ( isZero( localMatrix[ 3 ][ 3 ] ) )
+        if( isZero( localMatrix[ 3 ][ 3 ] ) )
             return false;
 
-        for ( uint8_t i = 0; i < 4; ++i ) {
-            for ( uint8_t j = 0; j < 4; ++j ) {
+        for( uint8_t i = 0; i < 4; ++i ) {
+            for( uint8_t j = 0; j < 4; ++j ) {
                 localMatrix[ i ][ j ] /= localMatrix[ 3 ][ 3 ];
             }
         }
@@ -197,8 +197,8 @@ struct ONYX_ALIGN( 16 ) Matrix4 {
         // Vector3<Scalar> Skew;
         Vector3< Scalar > row[ 3 ];
 
-        for ( uint8_t i = 0; i < 3; ++i ) {
-            for ( uint8_t j = 0; j < 3; ++j ) {
+        for( uint8_t i = 0; i < 3; ++i ) {
+            for( uint8_t j = 0; j < 3; ++j ) {
                 row[ i ][ j ] = localMatrix[ i ][ j ];
             }
         }
@@ -220,34 +220,50 @@ struct ONYX_ALIGN( 16 ) Matrix4 {
         Scalar root, trace = row[ 0 ][ 0 ] + row[ 1 ][ 1 ] + row[ 2 ][ 2 ];
 
         Bivector3< Scalar > bivector;
-        if ( trace > static_cast< Scalar >( 0 ) ) {
+        if( trace > static_cast< Scalar >( 0 ) ) {
             root = sqrt( trace + static_cast< Scalar >( 1 ) );
             outRotation.m_scalar = static_cast< Scalar >( 0.5 ) * root;
+            root = static_cast< Scalar >( 0.5 ) / root; // root = 1/(4*scalar)
 
-            root = static_cast< Scalar >( 0.5 ) / root;
-            bivector[ 0 ] = root * ( row[ 1 ][ 2 ] - row[ 2 ][ 1 ] );
+            // antisymmetric differences with correct index order
+            bivector[ 0 ] = root * ( row[ 1 ][ 0 ] - row[ 0 ][ 1 ] );
             bivector[ 1 ] = root * ( row[ 2 ][ 0 ] - row[ 0 ][ 2 ] );
-            bivector[ 2 ] = root * ( row[ 0 ][ 1 ] - row[ 1 ][ 0 ] );
+            bivector[ 2 ] = root * ( row[ 2 ][ 1 ] - row[ 1 ][ 2 ] );
             outRotation.m_bivector = bivector;
         } else {
-            int i, j, k = 0;
             static const uint8_t Next[ 3 ] = { 1, 2, 0 };
-            i = 0;
-            if ( row[ 1 ][ 1 ] > row[ 0 ][ 0 ] )
+            // Maps standard cyclic slot (e23=0, e31=1, e12=2) to bivector index
+            constexpr uint8_t Slot[ 3 ] = { 2, 1, 0 };
+            // Sign correction for bivector layout vs standard
+            constexpr Scalar Sign[ 3 ] = { Scalar( 1 ), Scalar( -1 ), Scalar( 1 ) };
+
+            int i = 0;
+            if( row[ 1 ][ 1 ] > row[ 0 ][ 0 ] )
                 i = 1;
-            if ( row[ 2 ][ 2 ] > row[ i ][ i ] )
+            if( row[ 2 ][ 2 ] > row[ i ][ i ] )
                 i = 2;
-            j = Next[ i ];
-            k = Next[ j ];
+            int j = Next[ i ];
+            int k = Next[ j ];
 
-            root = sqrt( row[ i ][ i ] - row[ j ][ j ] - row[ k ][ k ] + static_cast< Scalar >( 1.0 ) );
-
-            bivector[ i ] = static_cast< Scalar >( 0.5 ) * root;
+            root = sqrt( row[ i ][ i ] - row[ j ][ j ] - row[ k ][ k ] + static_cast< Scalar >( 1 ) );
+            bivector[ Slot[ i ] ] = Sign[ i ] * static_cast< Scalar >( 0.5 ) * root;
             root = static_cast< Scalar >( 0.5 ) / root;
-            bivector[ j ] = root * ( row[ i ][ j ] + row[ j ][ i ] );
-            bivector[ k ] = root * ( row[ i ][ k ] + row[ k ][ i ] );
-            outRotation.m_scalar = root * ( row[ j ][ k ] - row[ k ][ j ] );
+
+            bivector[ Slot[ j ] ] = Sign[ j ] * root * ( row[ i ][ j ] + row[ j ][ i ] );
+            bivector[ Slot[ k ] ] = Sign[ k ] * root * ( row[ i ][ k ] + row[ k ][ i ] );
+
+            outRotation.m_scalar = ( i == 1 ) ? root * ( row[ j ][ k ] - row[ k ][ j ] )
+                                              : root * ( row[ k ][ j ] - row[ j ][ k ] );
+
             outRotation.m_bivector = bivector;
+        }
+
+        // R and -R represent the same rotation; keep scalar non-negative for canonical form
+        if( outRotation.m_scalar < static_cast< Scalar >( 0 ) ) {
+            outRotation.m_scalar = -outRotation.m_scalar;
+            outRotation.m_bivector[ 0 ] = -outRotation.m_bivector[ 0 ];
+            outRotation.m_bivector[ 1 ] = -outRotation.m_bivector[ 1 ];
+            outRotation.m_bivector[ 2 ] = -outRotation.m_bivector[ 2 ];
         }
 
         return true;

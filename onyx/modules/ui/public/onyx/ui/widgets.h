@@ -15,7 +15,7 @@ struct ImVec2;
 namespace onyx::ui {
 // TODO maybe move to a common gui file?
 template < typename T >
-static constexpr ImGuiDataType GetImGuiDataType() {
+static constexpr ImGuiDataType getImGuiDataType() {
     if constexpr( std::is_same_v< T, int8_t > )
         return ImGuiDataType_S8;
     else if constexpr( std::is_same_v< T, int16_t > )
@@ -40,43 +40,58 @@ static constexpr ImGuiDataType GetImGuiDataType() {
     return ImGuiDataType_COUNT;
 }
 
-void DrawItemBackground( float32 rounding, float32 borderThickness, uint32_t color );
-void DrawItemBorder( float32 thickness, float32 rounding, uint32_t color );
+void drawCustomWindowTitleBar( StringView title, const InplaceFunction< void() >& customFunctor );
+void drawPinnableWindowTitleBar( StringView title, bool& isPinned );
 
-bool DrawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus );
+void drawItemBackground( float32 rounding, float32 borderThickness, uint32_t color );
+void drawItemBorder( float32 thickness, float32 rounding, uint32_t color );
 
-bool ContextMenuHeader( const localization::LocalizedString& label, ImGuiTreeNodeFlags flags = 0 );
-bool ContextMenuHeader( StringView label, ImGuiTreeNodeFlags flags = 0 );
-bool ContextMenuHeader( StringView label, const InplaceFunction< bool() >& customHeader, ImGuiTreeNodeFlags flags = 0 );
+bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus );
 
-bool DrawStringInput( StringView id, StringView hint, String& value );
-bool DrawStringInput( StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags );
-bool DrawStringInput( StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags );
-bool DrawStringInput( StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags );
-void DrawMultilineText( StringView text, ImVec2 bounds, bool showEllipsis );
+bool contextMenuHeader( const localization::LocalizedString& label, ImGuiTreeNodeFlags flags = 0 );
+bool contextMenuHeader( StringView label, ImGuiTreeNodeFlags flags = 0 );
+bool contextMenuHeader( StringView label, const InplaceFunction< bool() >& customHeader, ImGuiTreeNodeFlags flags = 0 );
 
-bool DrawRenameInput( StringView id, String& outName, const ImVec2& size, bool& isSelected );
+bool drawStringInput( StringView id, StringView hint, String& value );
+bool drawStringInput( StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags );
+bool drawStringInput( StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags );
+bool drawStringInput( StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags );
+void drawMultilineText( StringView text, ImVec2 bounds, bool showEllipsis );
 
-void DrawPlusIcon( ImDrawList* draw_list, ImVec2 pos, float32 size, uint32_t color );
-void DrawMinusIcon( ImDrawList* draw_list, ImVec2 pos, float32 size, uint32_t color );
-void DrawXIcon( ImDrawList* draw_list, ImVec2 pos, float32 size, uint32_t color );
-void DrawDivisionIcon( ImDrawList* draw_list, ImVec2 pos, float32 size, uint32_t color );
-void DrawInfoIcon( ImDrawList* draw_list, ImVec2 pos, float32 radius, uint32_t color );
-void DrawSearchIcon( ImDrawList* draw_list, ImVec2 offset, float32 radius, uint32_t color );
-bool DrawCloseButton( ImDrawList* draw_list, ImVec2 pos, float32 size, uint32_t color );
-void DrawFolderIcon( ImDrawList* draw_list,
+bool drawRenameInput( StringView id, String& outName, const ImVec2& size, bool& isSelected );
+
+void drawPlusIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color );
+void drawMinusIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color );
+void drawXIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color );
+void drawDivisionIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color );
+void drawInfoIcon( ImDrawList* drawList, ImVec2 offset, float32 radius, uint32_t color );
+void drawSearchIcon( ImDrawList* drawList, ImVec2 offset, float32 radius, uint32_t color );
+bool drawCloseButton( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color );
+void drawFolderIcon( ImDrawList* drawList,
                      ImVec2 offset,
                      float32 size,
                      float32 rounding,
-                     uint32_t color_folder,
-                     uint32_t color_folder_lid );
+                     uint32_t colorFolder,
+                     uint32_t colorFolderLid );
+
+void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color );
+void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color );
+
+void drawMovieCameraIcon( ImDrawList* drawList, ImVec2 offset, float32 size, Color color, Color accent );
+void drawSimpleMovieCameraIcon( ImDrawList* drawList,
+                                ImVec2 offset,
+                                float32 size,
+                                Color bodyColor,
+                                Color innerBodyColor,
+                                Color lensColor );
+void drawGridIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color );
 
 template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
-bool DrawScalarInput( StringView label,
-                      ImGuiDataType data_type,
+bool drawScalarInput( StringView label,
+                      ImGuiDataType dataType,
                       ScalarT& data,
-                      const void* p_step = nullptr,
-                      const void* p_step_fast = nullptr,
+                      const void* pStep = nullptr,
+                      const void* pStepFast = nullptr,
                       const char* format = nullptr,
                       ImGuiInputTextFlags flags = ImGuiInputTextFlags_None ) {
     ::ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -89,16 +104,16 @@ bool DrawScalarInput( StringView label,
                0 ); // Not supported by InputScalar(). Please open an issue if you this would be useful to you.
                     // Otherwise use IsItemDeactivatedAfterEdit()!
 
-    if( format == NULL )
+    if( format == nullptr )
         format = "{}";
 
-    void* p_data_default = ( g.NextItemData.HasFlags & ImGuiNextItemDataFlags_HasRefVal ) ? &g.NextItemData.RefVal
-                                                                                          : &g.DataTypeZeroValue;
-    ScalarT data_default = *static_cast< ScalarT* >( p_data_default );
+    void* pDataDefault = ( g.NextItemData.HasFlags & ImGuiNextItemDataFlags_HasRefVal ) ? &g.NextItemData.RefVal
+                                                                                        : &g.DataTypeZeroValue;
+    ScalarT dataDefault = *static_cast< ScalarT* >( pDataDefault );
 
     InplaceString< 64 > buf;
     if( ( flags & ImGuiInputTextFlags_DisplayEmptyRefVal ) &&
-        ImGui::DataTypeCompare( data_type, &data, p_data_default ) == 0 )
+        ImGui::DataTypeCompare( dataType, &data, pDataDefault ) == 0 )
         buf[ 0 ] = 0;
     else
         format::formatTo2( buf, format, data );
@@ -106,11 +121,12 @@ bool DrawScalarInput( StringView label,
     // Disable the MarkItemEdited() call in InputText but keep ImGuiItemStatusFlags_Edited.
     // We call MarkItemEdited() ourselves by comparing the actual data rather than the string.
     g.NextItemData.ItemFlags |= ImGuiItemFlags_NoMarkEdited;
-    flags |= ImGuiInputTextFlags_AutoSelectAll | (ImGuiInputTextFlags)ImGuiInputTextFlags_LocalizeDecimalPoint;
+    flags |= ImGuiInputTextFlags_AutoSelectAll | (ImGuiInputTextFlags)ImGuiInputTextFlags_LocalizeDecimalPoint |
+             ImGuiInputTextFlags_CharsDecimal;
 
-    bool value_changed = false;
-    ScalarT newValue = data_default;
-    if( p_step == NULL ) {
+    bool valueChanged = false;
+    ScalarT newValue = dataDefault;
+    if( pStep == nullptr ) {
         if( ImGui::InputText( label.data(), buf.getData(), 64, flags ) ) {
             if( buf.empty() == false ) {
                 std::from_chars( buf.getData(), buf.getData() + buf.getLength(), newValue );
@@ -118,17 +134,17 @@ bool DrawScalarInput( StringView label,
 
             if( newValue != data ) {
                 data = newValue;
-                value_changed = true;
+                valueChanged = true;
             }
         }
     } else {
-        const float button_size = ImGui::GetFrameHeight();
+        const float buttonSize = ImGui::GetFrameHeight();
 
         ImGui::BeginGroup(); // The only purpose of the group here is to allow the caller to query item data e.g.
                              // IsItemActive()
         ImGui::PushID( label.data() );
         ImGui::SetNextItemWidth(
-            ImMax( 1.0f, ImGui::CalcItemWidth() - ( button_size + style.ItemInnerSpacing.x ) * 2 ) );
+            ImMax( 1.0f, ImGui::CalcItemWidth() - ( buttonSize + style.ItemInnerSpacing.x ) * 2 ) );
         if( ImGui::InputText( "",
                               buf.getData(),
                               buf.getLength(),
@@ -140,7 +156,7 @@ bool DrawScalarInput( StringView label,
 
             if( newValue != data ) {
                 data = newValue;
-                value_changed = true;
+                valueChanged = true;
             }
         }
         IMGUI_TEST_ENGINE_ITEM_INFO( g.LastItemData.ID,
@@ -148,20 +164,20 @@ bool DrawScalarInput( StringView label,
                                      g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Inputable );
 
         // Step buttons
-        const ImVec2 backup_frame_padding = style.FramePadding;
+        const ImVec2 backupFramePadding = style.FramePadding;
         style.FramePadding.x = style.FramePadding.y;
         if( flags & ImGuiInputTextFlags_ReadOnly )
             ImGui::BeginDisabled();
         ImGui::PushItemFlag( ImGuiItemFlags_ButtonRepeat, true );
         ImGui::SameLine( 0, style.ItemInnerSpacing.x );
-        if( ImGui::ButtonEx( "-", ImVec2( button_size, button_size ) ) ) {
-            ImGui::DataTypeApplyOp( data_type, '-', &data, &data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step );
-            value_changed = true;
+        if( ImGui::ButtonEx( "-", ImVec2( buttonSize, buttonSize ) ) ) {
+            ImGui::DataTypeApplyOp( dataType, '-', &data, &data, g.IO.KeyCtrl && pStepFast ? pStepFast : pStep );
+            valueChanged = true;
         }
         ImGui::SameLine( 0, style.ItemInnerSpacing.x );
-        if( ImGui::ButtonEx( "+", ImVec2( button_size, button_size ) ) ) {
-            ImGui::DataTypeApplyOp( data_type, '+', &data, &data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step );
-            value_changed = true;
+        if( ImGui::ButtonEx( "+", ImVec2( buttonSize, buttonSize ) ) ) {
+            ImGui::DataTypeApplyOp( dataType, '+', &data, &data, g.IO.KeyCtrl && pStepFast ? pStepFast : pStep );
+            valueChanged = true;
         }
         ImGui::PopItemFlag();
         if( flags & ImGuiInputTextFlags_ReadOnly )
@@ -173,22 +189,22 @@ bool DrawScalarInput( StringView label,
         // ImGuiSliderFlags_None); if (value_changed)
         //     ImGui::MarkItemEdited(id);
 
-        const char* label_end = ImGui::FindRenderedTextEnd( label.data() );
-        if( label != label_end ) {
+        const char* labelEnd = ImGui::FindRenderedTextEnd( label.data() );
+        if( label != labelEnd ) {
             ImGui::SameLine( 0, style.ItemInnerSpacing.x );
-            ImGui::TextEx( label.data(), label_end );
+            ImGui::TextEx( label.data(), labelEnd );
         }
-        style.FramePadding = backup_frame_padding;
+        style.FramePadding = backupFramePadding;
 
         ImGui::PopID();
         ImGui::EndGroup();
     }
 
     g.LastItemData.ItemFlags &= ~ImGuiItemFlags_NoMarkEdited;
-    if( value_changed )
+    if( valueChanged )
         ImGui::MarkItemEdited( g.LastItemData.ID );
 
-    return value_changed;
+    return valueChanged;
 }
 } // namespace onyx::ui
 #endif

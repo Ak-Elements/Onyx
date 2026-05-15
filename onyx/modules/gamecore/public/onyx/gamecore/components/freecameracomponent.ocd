@@ -1,11 +1,7 @@
 component FreeCameraControllerComponent
 {
-    float32 BaseVelocity = 0.15
-    float32 MinVelocity = 0.001
-    float32 MaxVelocity = 0.5
-
-    float32 RotationVelocity = 0.3
-    float32 VelocityIncrementFactor = 0.3
+    float32 Speed = 0.2
+    float32 RotationSpeed = 0.3
 }
 
 [Transient, Hidden]
@@ -14,8 +10,7 @@ component FreeCameraRuntimeComponent
     Vector3f32 InputDirection
     Vector3f32 InputRotation
 
-    float32 Velocity = 0.0
-
+    int32_t SpeedStep = 0
     float32 Pitch = 0.0
     float32 Yaw = 0.0
 

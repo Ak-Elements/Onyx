@@ -2,8 +2,17 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 
 namespace onyx::game_core::world_transform {
-void SetRotation( TransformComponent& transformComponent, const Rotor3f32& rotation ) {
-    if ( transformComponent.Rotation == rotation ) {
+void setRotation( TransformComponent& transformComponent, const Rotor3f32& rotation, const Vector3f32& eulerAngles ) {
+    if( transformComponent.Rotation == rotation ) {
+        return;
+    }
+
+    transformComponent.Rotation = rotation;
+    transformComponent.RotationEuler = eulerAngles;
+}
+
+void setRotation( TransformComponent& transformComponent, const Rotor3f32& rotation ) {
+    if( transformComponent.Rotation == rotation ) {
         return;
     }
 
@@ -11,20 +20,20 @@ void SetRotation( TransformComponent& transformComponent, const Rotor3f32& rotat
     transformComponent.RotationEuler = transformComponent.Rotation.toEulerAngles();
 }
 
-void SetRotation( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {
-    if ( transformComponent.RotationEuler == eulerAngles )
+void setRotation( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {
+    if( transformComponent.RotationEuler == eulerAngles )
         return;
 
     transformComponent.RotationEuler = eulerAngles;
     transformComponent.Rotation = Rotor3f32::fromEulerAngles( eulerAngles );
 }
 
-void Rotate( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {
+void rotate( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {
     const Vector3f32& newEuler = transformComponent.RotationEuler + eulerAngles;
-    SetRotation( transformComponent, newEuler );
+    setRotation( transformComponent, newEuler );
 }
 
-Matrix3< float32 > GetScaleMatrix( const TransformComponent& transformComponent ) {
+Matrix3< float32 > getScaleMatrix( const TransformComponent& transformComponent ) {
     Vector3< float32 > column0{ 1, 0, 0 };
     Vector3< float32 > column1{ 0, 1, 0 };
     Vector3< float32 > column2{ 0, 0, 1 };
@@ -34,7 +43,7 @@ Matrix3< float32 > GetScaleMatrix( const TransformComponent& transformComponent 
                     column2 * transformComponent.Scale.Z };
 }
 
-Matrix4< float32 > GetTransform( const TransformComponent& transformComponent ) {
+Matrix4< float32 > getTransform( const TransformComponent& transformComponent ) {
     // Translation matrix from Translation
     // * Rotation (quaternion / rotor3d)
     // * Scale matrix
@@ -44,7 +53,7 @@ Matrix4< float32 > GetTransform( const TransformComponent& transformComponent ) 
                            transformMatrix[ 1 ] * transformComponent.Translation[ 1 ] +
                            transformMatrix[ 2 ] * transformComponent.Translation[ 2 ] + transformMatrix[ 3 ];
 
-    Matrix3< float32 > scaleMatrix = GetScaleMatrix( transformComponent );
+    Matrix3< float32 > scaleMatrix = getScaleMatrix( transformComponent );
     Matrix4< float32 > scaleMatrix4d{ Vector4( scaleMatrix[ 0 ], 0.0f ),
                                       Vector4( scaleMatrix[ 1 ], 0.0f ),
                                       Vector4( scaleMatrix[ 2 ], 0.0f ),

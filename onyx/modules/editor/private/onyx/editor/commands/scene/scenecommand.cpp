@@ -13,13 +13,13 @@ SceneCommand::SceneCommand( StringId32 id, assets::AssetId sceneId, game_core::G
 
 game_core::Scene& SceneCommand::GetScene() {
     ONYX_ASSERT( m_GameCoreSystem != nullptr );
-    assets::AssetHandle< game_core::Scene > scene = m_GameCoreSystem->GetScene();
+    assets::AssetHandle< game_core::Scene > scene = m_GameCoreSystem->getScene();
     ONYX_ASSERT( scene.getId() == m_SceneId, "Active scene does not match." );
     return *scene;
 }
 
 const ecs::ComponentFactory& SceneCommand::GetComponentFactory() {
     ONYX_ASSERT( m_GameCoreSystem != nullptr );
-    return m_GameCoreSystem->GetComponentFactory();
+    return m_GameCoreSystem->getComponentFactory();
 }
 } // namespace onyx::editor

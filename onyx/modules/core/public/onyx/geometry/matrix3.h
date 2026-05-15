@@ -65,7 +65,7 @@ struct Matrix3 {
                      m_columns[ 0 ][ 2 ] *
                          ( m_columns[ 1 ][ 0 ] * m_columns[ 2 ][ 1 ] - m_columns[ 1 ][ 1 ] * m_columns[ 2 ][ 0 ] );
 
-        if ( isZero( det ) ) // Check for singular matrix
+        if( isZero( det ) ) // Check for singular matrix
         {
             throw std::runtime_error( "Matrix is not invertible (determinant is zero)" );
         }
