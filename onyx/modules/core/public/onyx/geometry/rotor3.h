@@ -55,18 +55,19 @@ class Rotor3 {
      * Rotation order is YXZ
      */
     constexpr Rotor3( units::Radians< ScalarT > pitch, units::Radians< ScalarT > yaw, units::Radians< ScalarT > roll ) {
-        Rotor3 rotationX( pitch.count(), Bivector3< ScalarT >::yzUnit() );
-        Rotor3 rotationY( yaw.count(), Bivector3< ScalarT >::zxUnit() );
-        Rotor3 rotationZ( roll.count(), Bivector3< ScalarT >::xyUnit() );
+        // TODO: Change to the inlined constructor once we run a bunch of tests to verify they are 100% the same
+        Rotor3 rotationX( pitch, Bivector3< ScalarT >::yzUnit() );
+        Rotor3 rotationY( yaw, Bivector3< ScalarT >::zxUnit() );
+        Rotor3 rotationZ( roll, Bivector3< ScalarT >::xyUnit() );
 
         auto rotor = ( rotationY * rotationX * rotationZ ).normalized();
         m_scalar = rotor.m_scalar;
         m_bivector = rotor.m_bivector;
     }
 
-    constexpr Rotor3( ScalarT angle, const Bivector3< ScalarT > bivector )
-        : m_scalar( std::cos( angle * 0.5f ) ) {
-        ScalarT sina = std::sin( angle * 0.5f );
+    constexpr Rotor3( units::Radians< ScalarT > angle, const Bivector3< ScalarT > bivector )
+        : m_scalar( std::cos( angle.count() * 0.5f ) ) {
+        ScalarT sina = std::sin( angle.count() * 0.5f );
 
         m_bivector.XY = -sina * bivector.XY;
         m_bivector.XZ = -sina * bivector.XZ;

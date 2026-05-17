@@ -68,9 +68,9 @@ void system( CameraEntity cameraEntity, DeltaGameTime deltaTime ) {
         rotationEuler.X = normalizeAngle( rotationEuler.X - freeCameraRuntime.PitchDelta );
         rotationEuler.Y = normalizeAngle( rotationEuler.Y - freeCameraRuntime.YawDelta );
 
-        Rotor3f32 pitchRotor( rotationEuler.X, Bivector3f32::yzUnit() );
-        Rotor3f32 yawRotor( rotationEuler.Y, Bivector3f32::zxUnit() );
-        Rotor3f32 roll( rotationEuler.Z, Bivector3f32::xyUnit() );
+        Rotor3f32 pitchRotor( units::RadiansF32( rotationEuler.X ), Bivector3f32::yzUnit() );
+        Rotor3f32 yawRotor( units::RadiansF32( rotationEuler.Y ), Bivector3f32::zxUnit() );
+        Rotor3f32 roll( units::RadiansF32( rotationEuler.Z ), Bivector3f32::xyUnit() );
 
         Rotor3f32 newRotation = ( yawRotor * pitchRotor * roll ).normalized();
         game_core::world_transform::setRotation( transformComponent, newRotation, rotationEuler );
