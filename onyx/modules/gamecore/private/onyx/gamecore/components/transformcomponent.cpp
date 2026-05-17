@@ -25,7 +25,7 @@ void setRotation( TransformComponent& transformComponent, const Vector3f32& eule
         return;
 
     transformComponent.RotationEuler = eulerAngles;
-    transformComponent.Rotation = Rotor3f32::fromEulerAngles( eulerAngles );
+    transformComponent.Rotation = Rotor3f32( eulerAngles );
 }
 
 void rotate( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {

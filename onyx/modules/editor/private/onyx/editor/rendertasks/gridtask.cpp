@@ -51,7 +51,7 @@ void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::
     };
 
     GridSettings& settings = context.Graph.GetInput< GridSettings >();
-    auto rotation = Rotor3f32::fromEulerAngles( settings.Rotation ).toMatrix3();
+    auto rotation = Rotor3f32( settings.Rotation ).toMatrix3();
     rotation.inverse();
 
     float32 gridLodLevel = numericCast< float32 >( settings.LodLevel );

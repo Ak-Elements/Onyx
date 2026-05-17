@@ -4,14 +4,23 @@
 #include <onyx/units/ratio.h>
 
 namespace onyx::units {
+namespace ratios {
+
 using Radians = Ratio< 1, 1 >;
 using Degrees = Ratio< 3141592653589793, 180000000000000000 >;
 
-using RadiansF32 = Quantity< float32, Radians >;
-using DegreesF32 = Quantity< float32, Degrees >;
+} // namespace ratios
 
-using RadiansF64 = Quantity< float64, Radians >;
-using DegreesF64 = Quantity< float64, Degrees >;
+template < typename Scalar >
+using Radians = Quantity< Scalar, ratios::Radians >;
+
+using RadiansF32 = Radians< float32 >;
+using RadiansF64 = Radians< float64 >;
+
+template < typename Scalar >
+using Degrees = Quantity< Scalar, ratios::Degrees >;
+using DegreesF32 = Degrees< float32 >;
+using DegreesF64 = Degrees< float64 >;
 
 namespace literals {
 constexpr DegreesF32 operator""_deg32( long double deg ) {

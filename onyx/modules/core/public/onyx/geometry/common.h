@@ -24,6 +24,13 @@ struct Rect2;
 using Rect2s16 = Rect2< int16_t >;
 using Rect2f32 = Rect2< float32 >;
 
+template < typename ScalarT >
+constexpr ScalarT normalizeAngle( ScalarT angle ) {
+    constexpr ScalarT Pi = std::numbers::pi_v< ScalarT >;
+    constexpr ScalarT Tau = ScalarT( 2 ) * Pi;
+    return angle - ( Tau * std::floor( ( angle + Pi ) / Tau ) );
+}
+
 constexpr Vector4u8 convertMaskToVector( SwizzleMask mask ) {
     switch( mask ) {
         // 2D Swizzle

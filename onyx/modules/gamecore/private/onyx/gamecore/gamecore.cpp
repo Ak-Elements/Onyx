@@ -33,7 +33,7 @@ void registerComponents( ecs::EcsBuilder& ecsBuilder ) {
     ecsBuilder.RegisterComponent< IdComponent >();
     ecsBuilder.RegisterComponent< TransformComponent >(
         []( ecs::EntityRegistry& registry, ecs::EntityId entity, TransformComponent&& transform ) {
-            transform.Rotation = Rotor3f32::fromEulerAngles( transform.RotationEuler );
+            transform.Rotation = Rotor3f32( transform.RotationEuler );
             registry.AddComponent< TransformComponent >( entity, transform );
         } );
 

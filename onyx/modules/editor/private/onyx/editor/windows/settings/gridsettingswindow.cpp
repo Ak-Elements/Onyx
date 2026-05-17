@@ -41,9 +41,9 @@ void GridSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     ui::property_grid::drawProperty( "Offset", gridSettings.Offset );
 
-    auto displayUnit = quantityCast< units::Degrees, units::Radians >( gridSettings.Rotation );
+    auto displayUnit = quantityCast< units::ratios::Degrees, units::ratios::Radians >( gridSettings.Rotation );
     if( ui::property_grid::drawProperty( "Rotation", displayUnit ) ) {
-        gridSettings.Rotation = quantityCast< units::Radians, units::Degrees >( displayUnit );
+        gridSettings.Rotation = quantityCast< units::ratios::Radians, units::ratios::Degrees >( displayUnit );
     }
 
     int32_t lodLevel = gridSettings.LodLevel;

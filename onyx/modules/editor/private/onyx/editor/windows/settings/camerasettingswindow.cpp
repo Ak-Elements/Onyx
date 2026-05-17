@@ -55,10 +55,12 @@ void CameraSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ui::property_grid::beginPropertyGrid( "Editor Camera", 95.0f );
     ui::property_grid::drawProperty( "Position", transformComponent.Translation );
 
-    auto rotationDegrees = quantityCast< units::Degrees, units::Radians >( transformComponent.RotationEuler );
+    auto rotationDegrees = quantityCast< units::ratios::Degrees, units::ratios::Radians >(
+        transformComponent.RotationEuler );
     if( ui::property_grid::drawProperty( "Rotation", rotationDegrees ) ) {
-        game_core::world_transform::setRotation( transformComponent,
-                                                 quantityCast< units::Radians, units::Degrees >( rotationDegrees ) );
+        game_core::world_transform::setRotation(
+            transformComponent,
+            quantityCast< units::ratios::Radians, units::ratios::Degrees >( rotationDegrees ) );
     }
 
     ui::property_grid::drawProperty( "Speed", cameraControllerComponent.Speed, { .Min = 0.001f } );
@@ -68,9 +70,9 @@ void CameraSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     float32 far = cameraComponent.Camera.getFar();
     units::RadiansF32 fieldOfView = cameraComponent.Camera.getFieldOfView();
 
-    bool hasModifiedCamera = ui::property_grid::drawProperty< units::Degrees >( "Field of View",
-                                                                                fieldOfView,
-                                                                                { .Min = 1.0f, .Max = 90.0f } );
+    bool hasModifiedCamera = ui::property_grid::drawProperty< units::ratios::Degrees >( "Field of View",
+                                                                                        fieldOfView,
+                                                                                        { .Min = 1.0f, .Max = 90.0f } );
     hasModifiedCamera |= ui::property_grid::drawProperty( "Near", near, { .Min = 0.01f } );
     hasModifiedCamera |= ui::property_grid::drawProperty( "Far", far, { .Min = 1.0f } );
 
