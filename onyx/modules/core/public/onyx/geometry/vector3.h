@@ -1,51 +1,17 @@
 #pragma once
 
+#include <onyx/geometry/bivector3.h>
 #include <onyx/geometry/vector2.h>
 
 namespace onyx {
+template < typename Scalar >
+class Rotor3;
+
 template < typename Scalar >
 struct Vector4;
 
 template < typename Scalar >
 struct Vector3;
-
-template < typename Scalar >
-struct Bivector3 {
-  public:
-    static constexpr Bivector3 xyUnit();
-    static constexpr Bivector3 zxUnit();
-    static constexpr Bivector3 yzUnit();
-
-    constexpr Bivector3() = default;
-
-    constexpr explicit Bivector3( Scalar scalar )
-        : m_components{ scalar, scalar, scalar } {}
-
-    constexpr Bivector3( Scalar x, Scalar y, Scalar z )
-        : m_components{ x, y, z } {}
-
-    template < typename U >
-    constexpr explicit Bivector3( const Bivector3< U >& vec )
-        : m_components{ vec[ 0 ], vec[ 1 ], vec[ 2 ] } {}
-
-    constexpr Scalar& operator[]( uint32_t index ) {
-        ONYX_ASSERT( index < 3, "Axis index out of bounds." );
-        return m_components[ index ];
-    }
-    constexpr Scalar operator[]( uint32_t index ) const {
-        ONYX_ASSERT( index < 3, "Axis index out of bounds." );
-        return m_components[ index ];
-    }
-
-    constexpr bool operator==( const Bivector3& rhs ) const {
-        return isEqual( m_components[ 0 ], rhs.m_components[ 0 ] ) &&
-               isEqual( m_components[ 1 ], rhs.m_components[ 1 ] ) &&
-               isEqual( m_components[ 2 ], rhs.m_components[ 2 ] );
-    }
-
-  private:
-    Scalar m_components[ 3 ]{ Scalar( 0 ), Scalar( 0 ), Scalar( 0 ) };
-};
 
 template < typename Scalar >
 struct Vector3 {
@@ -171,28 +137,8 @@ struct Vector3 {
     constexpr void rotate( float64 radians, const Bivector3< ScalarT >& bivector )
         requires std::is_floating_point_v< Scalar >
     {
-        // TODO: Replace with Rotor3 (game project)
-        ScalarT sina = numericCast< ScalarT >( std::sin( radians / 2.0 ) );
-        ScalarT a = numericCast< ScalarT >( std::cos( radians / 2.0 ) );
-        // the left side of the products have b a, not a b
-        ScalarT b01 = -sina * bivector[ 0 ];
-        ScalarT b02 = -sina * bivector[ 1 ];
-        ScalarT b12 = -sina * bivector[ 2 ];
-
-        // q = P x
-        Vector3 q;
-        q.X = a * X + Y * b01 + Z * b02;
-        q.Y = a * Y - X * b01 + Z * b12;
-        q.Z = a * Z - X * b02 - Y * b12;
-
-        ScalarT q012 = X * b12 - Y * b02 + Z * b01; // trivector
-
-        // r = q P*
-        X = a * q.X + q.Y * b01 + q.Z * b02 + q012 * b12;
-        Y = a * q.Y - q.X * b01 - q012 * b02 + q.Z * b12;
-        Z = a * q.Z + q012 * b01 - q.X * b02 - q.Y * b12;
-
-        // trivector part of the result is always zero!
+        Rotor3< ScalarT > rotor( radians, bivector );
+        return rotor.rotate( *this );
     }
 
     constexpr auto rotatedAroundX( float64 radians ) const
@@ -217,64 +163,16 @@ struct Vector3 {
                                                        const Bivector3< FloatingPointScalarT >& bivector ) const
         requires( std::is_floating_point_v< ScalarT > || std::is_signed_v< ScalarT > )
     {
-        const FloatingPointScalarT halfRadians = numericCast< FloatingPointScalarT >( radians / 2.0 );
-        FloatingPointScalarT sina = std::sin( halfRadians );
-        FloatingPointScalarT a = std::cos( halfRadians );
-
-        // the left side of the products have b a, not a b
-        FloatingPointScalarT b01 = -sina * bivector[ 0 ];
-        FloatingPointScalarT b02 = -sina * bivector[ 1 ];
-        FloatingPointScalarT b12 = -sina * bivector[ 2 ];
-
-        // q = P x
-        const FloatingPointScalarT q0 = a * X + Y * b01 + Z * b02;
-        const FloatingPointScalarT q1 = a * Y - X * b01 + Z * b12;
-        const FloatingPointScalarT q2 = a * Z - X * b02 - Y * b12;
-
-        FloatingPointScalarT q012 = X * b12 - Y * b02 + Z * b01; // trivector
-
-        // r = q P*
-        // trivector part of the result is always zero!
-        return Vector3< FloatingPointScalarT >{
-            numericCast< FloatingPointScalarT >( a * q0 + q1 * b01 + q2 * b02 + q012 * b12 ),
-            numericCast< FloatingPointScalarT >( a * q1 - q0 * b01 - q012 * b02 + q2 * b12 ),
-            numericCast< FloatingPointScalarT >( a * q2 + q012 * b01 - q0 * b02 - q1 * b12 ),
-        };
+        Rotor3 rotor( radians, bivector );
+        return rotor.rotate( *this );
     }
 
     constexpr Vector3< FloatingPointScalarT > rotatedTo( Vector3 to ) const {
         const Vector3< FloatingPointScalarT >& fromNormalized = normalized();
         const Vector3< FloatingPointScalarT >& toNormalized = to.normalized();
 
-        FloatingPointScalarT a = static_cast< FloatingPointScalarT >( 1 + toNormalized.dot( fromNormalized ) );
-        Bivector3< FloatingPointScalarT > bivector = toNormalized.wedge( fromNormalized );
-
-        FloatingPointScalarT lengthSquared = ( a * a ) + ( bivector[ 0 ] * bivector[ 0 ] ) +
-                                             ( bivector[ 1 ] * bivector[ 1 ] ) + ( bivector[ 2 ] * bivector[ 2 ] );
-        FloatingPointScalarT length = std::sqrt( lengthSquared );
-
-        a /= length;
-        bivector[ 0 ] /= length;
-        bivector[ 1 ] /= length;
-        bivector[ 2 ] /= length;
-
-        const FloatingPointScalarT b01 = bivector[ 0 ];
-        const FloatingPointScalarT b02 = bivector[ 1 ];
-        const FloatingPointScalarT b12 = bivector[ 2 ];
-
-        const FloatingPointScalarT q0 = a * X + Y * b01 + Z * b02;
-        const FloatingPointScalarT q1 = a * Y - X * b01 + Z * b12;
-        const FloatingPointScalarT q2 = a * Z - X * b02 - Y * b12;
-
-        FloatingPointScalarT q012 = X * b12 - Y * b02 + Z * b01; // trivector
-
-        // r = q P*
-        // trivector part of the result is always zero!
-        return Vector3< FloatingPointScalarT >{
-            numericCast< FloatingPointScalarT >( a * q0 + q1 * b01 + q2 * b02 + q012 * b12 ),
-            numericCast< FloatingPointScalarT >( a * q1 - q0 * b01 - q012 * b02 + q2 * b12 ),
-            numericCast< FloatingPointScalarT >( a * q2 + q012 * b01 - q0 * b02 - q1 * b12 ),
-        };
+        Rotor3 rotor( fromNormalized, toNormalized );
+        return rotor.rotate( *this );
     }
 
     constexpr Bivector3< ScalarT > wedge( const Vector3& rhs ) const {
@@ -455,21 +353,6 @@ constexpr Vector3< Scalar > operator/( Scalar lhs, const Vector3< Scalar >& rhs 
     ONYX_ASSERT( IsDivisionSafe( lhs, rhs.Z ) );
 
     return Vector3< Scalar >( lhs / rhs.X, lhs / rhs.Y, lhs / rhs.Z );
-}
-
-template < typename Scalar >
-constexpr Bivector3< Scalar > Bivector3< Scalar >::xyUnit() {
-    return Vector3< Scalar >::xUnit().wedge( Vector3< Scalar >::yUnit() );
-}
-
-template < typename Scalar >
-constexpr Bivector3< Scalar > Bivector3< Scalar >::zxUnit() {
-    return Vector3< Scalar >::zUnit().wedge( Vector3< Scalar >::xUnit() );
-}
-
-template < typename Scalar >
-constexpr Bivector3< Scalar > Bivector3< Scalar >::yzUnit() {
-    return Vector3< Scalar >::yUnit().wedge( Vector3< Scalar >::zUnit() );
 }
 
 template < typename Scalar >

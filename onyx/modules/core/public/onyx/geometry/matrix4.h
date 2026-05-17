@@ -20,7 +20,7 @@ Vector3< Scalar > scale( const Vector3< Scalar >& v, Scalar desiredLength ) {
 template < typename Scalar >
 struct ONYX_ALIGN( 16 ) Matrix4 {
   public:
-    Matrix4()
+    constexpr Matrix4()
         : m_columns{
               Vector4< Scalar >( 1, 0, 0, 0 ),
               Vector4< Scalar >( 0, 1, 0, 0 ),
@@ -274,7 +274,7 @@ struct ONYX_ALIGN( 16 ) Matrix4 {
 };
 
 template < typename ScalarT >
-Matrix4< ScalarT > Rotor3< ScalarT >::toMatrix4() const {
+constexpr Matrix4< ScalarT > Rotor3< ScalarT >::toMatrix4() const {
     return Matrix4{ toMatrix3() };
 }
 
