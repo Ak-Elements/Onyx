@@ -1,5 +1,6 @@
 #pragma once
 
+#include <onyx/graphics/shadergraph/materialshadergraph.h> // would not be needed with a constructor/destructor for StaticMeshIndirectDrawCall in a cpp
 #include <onyx/rhi/framecontext.h>
 #include <onyx/rhi/graphicshandles.h>
 

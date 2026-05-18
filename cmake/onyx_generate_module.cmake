@@ -55,28 +55,22 @@ function(onyx_add_codegen_for_target)
         file(MAKE_DIRECTORY "${pub_dir}")
         file(MAKE_DIRECTORY "${priv_dir}")
 
-        file(TOUCH "${gen_h}")
-        file(TOUCH "${gen_cpp}")
-
         list(APPEND generated_public_sources  "${gen_h}")
         list(APPEND generated_private_sources "${gen_cpp}")
 
         if (TARGET ${arg_TARGET}-tools)
             cmake_path(GET relative_file_path PARENT_PATH relative_file_path_dir)
-           
+
             cmake_path(APPEND tools_gen_public_dir "${relative_file_path_dir}" OUTPUT_VARIABLE tools_gen_file_public_dir)
             cmake_path(APPEND tools_gen_private_dir "${relative_file_path_dir}" OUTPUT_VARIABLE tools_gen_file_private_dir)
 
             cmake_path(GET ocd_file STEM out_file_name)
-            
+
             cmake_path(APPEND tools_gen_file_public_dir "${out_file_name}inspector.gen.h" OUTPUT_VARIABLE tools_gen_h)
             cmake_path(APPEND tools_gen_file_private_dir "${out_file_name}inspector.gen.cpp" OUTPUT_VARIABLE tools_gen_cpp)
 
             file(MAKE_DIRECTORY ${tools_gen_file_public_dir})
             file(MAKE_DIRECTORY ${tools_gen_file_private_dir})
-            
-            file(TOUCH ${tools_gen_h})
-            file(TOUCH ${tools_gen_cpp})
 
             target_sources(${arg_TARGET}-tools PUBLIC
                 FILE_SET HEADERS
@@ -95,15 +89,11 @@ function(onyx_add_codegen_for_target)
     set(module_header "${public_gen_dir}/${arg_TARGET}.gen.h")
     set(module_cpp "${private_gen_dir}/${arg_TARGET}.gen.cpp")
 
-    file(TOUCH "${module_header}")
-    file(TOUCH "${module_cpp}")
-
     list(APPEND generated_public_sources  "${module_header}")
     list(APPEND generated_private_sources "${module_cpp}")
 
     if (target_type STREQUAL "EXECUTABLE")
         set(init_cpp "${private_gen_dir}/init.gen.cpp")
-        file(TOUCH "${init_cpp}")
         list(APPEND generated_private_sources "${init_cpp}")
     endif()
 
