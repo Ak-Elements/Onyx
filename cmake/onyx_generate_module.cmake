@@ -101,6 +101,9 @@ function(onyx_add_codegen_for_target)
 
     set(config "${gen_root}/codegen-config.toml")
 
+    # add generated path to include directories manually as its added after the custom command
+    list(APPEND include_dirs "${gen_root}/public" )
+
     onyx_generate_codegen_config("${config}"
         TARGET ${arg_TARGET}
         RUNTIME_TARGET ${arg_RUNTIME_TARGET}
