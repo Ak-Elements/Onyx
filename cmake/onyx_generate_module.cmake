@@ -33,6 +33,8 @@ function(onyx_add_codegen_for_target)
 
     set(generated_public_sources "")
     set(generated_private_sources "")
+    set(generated_public_tool_sources "")
+    set(generated_private_tool_sources "")
 
     cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "tools" "${arg_GENERATED_DIR_SUFFIX}" "public" "${target_ns_path}" OUTPUT_VARIABLE tools_gen_public_dir)
     cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR "tools" "${arg_GENERATED_DIR_SUFFIX}" "private" "${target_ns_path}" OUTPUT_VARIABLE tools_gen_private_dir)
@@ -55,9 +57,6 @@ function(onyx_add_codegen_for_target)
         file(MAKE_DIRECTORY "${pub_dir}")
         file(MAKE_DIRECTORY "${priv_dir}")
 
-        file(TOUCH "${gen_h}")
-        file(TOUCH "${gen_cpp}")
-
         list(APPEND generated_public_sources  "${gen_h}")
         list(APPEND generated_private_sources "${gen_cpp}")
 
@@ -75,19 +74,8 @@ function(onyx_add_codegen_for_target)
             file(MAKE_DIRECTORY ${tools_gen_file_public_dir})
             file(MAKE_DIRECTORY ${tools_gen_file_private_dir})
 
-            file(TOUCH ${tools_gen_h})
-            file(TOUCH ${tools_gen_cpp})
-
-            target_sources(${arg_TARGET}-tools PUBLIC
-                FILE_SET HEADERS
-                BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/tools/${arg_GENERATED_DIR_SUFFIX}/public"
-                FILES ${tools_gen_h}
-            )
-            source_group(TREE ${tools_gen_public_dir} FILES ${tools_gen_h})
-
-            target_sources(${arg_TARGET}-tools PRIVATE ${tools_gen_cpp})
-            source_group(TREE ${tools_gen_private_dir} FILES ${tools_gen_cpp})
-
+            list(APPEND generated_public_tool_sources "${tools_gen_h}")
+            list(APPEND generated_private_tool_sources "${tools_gen_cpp}")
         endif()
     endforeach()
 
@@ -95,28 +83,13 @@ function(onyx_add_codegen_for_target)
     set(module_header "${public_gen_dir}/${arg_TARGET}.gen.h")
     set(module_cpp "${private_gen_dir}/${arg_TARGET}.gen.cpp")
 
-    file(TOUCH "${module_header}")
-    file(TOUCH "${module_cpp}")
-
     list(APPEND generated_public_sources  "${module_header}")
     list(APPEND generated_private_sources "${module_cpp}")
 
     if (target_type STREQUAL "EXECUTABLE")
         set(init_cpp "${private_gen_dir}/init.gen.cpp")
-        file(TOUCH "${init_cpp}")
         list(APPEND generated_private_sources "${init_cpp}")
     endif()
-
-    #### Attach sources to target ####
-    target_sources(${arg_TARGET} PUBLIC
-        FILE_SET HEADERS
-        BASE_DIRS "${gen_root}/public"
-        FILES ${generated_public_sources}
-    )
-    source_group(TREE ${public_gen_dir} FILES ${generated_public_sources})
-
-    target_sources(${arg_TARGET} PRIVATE ${generated_private_sources})
-    source_group(TREE ${private_gen_dir} FILES ${generated_private_sources})
 
     #### Codegen config ####
     build_include_list_for_target(
@@ -142,7 +115,7 @@ function(onyx_add_codegen_for_target)
 
     #### Codegen command ####
     add_custom_command(
-        OUTPUT ${generated_public_sources} ${generated_private_sources}
+        OUTPUT ${generated_public_sources} ${generated_private_sources} ${generated_public_tool_sources} ${generated_private_tool_sources}
         COMMAND ${ONYX_CODEGEN} "${config}"
         DEPENDS
             "${target_public_sources}"
@@ -151,6 +124,29 @@ function(onyx_add_codegen_for_target)
         COMMENT "Running Onyx codegen for ${arg_TARGET}"
         VERBATIM
     )
+
+    #### Attach sources to target ####
+    target_sources(${arg_TARGET} PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS "${gen_root}/public"
+        FILES ${generated_public_sources}
+    )
+    source_group(TREE ${public_gen_dir} FILES ${generated_public_sources})
+
+    target_sources(${arg_TARGET} PRIVATE ${generated_private_sources})
+    source_group(TREE ${private_gen_dir} FILES ${generated_private_sources})
+
+    if (TARGET ${arg_TARGET}-tools)
+        target_sources(${arg_TARGET}-tools PUBLIC
+            FILE_SET HEADERS
+            BASE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/tools/${arg_GENERATED_DIR_SUFFIX}/public"
+            FILES ${generated_public_tool_sources}
+        )
+        source_group(TREE ${tools_gen_public_dir} FILES ${generated_public_tool_sources})
+
+        target_sources(${arg_TARGET}-tools PRIVATE ${generated_private_tool_sources})
+        source_group(TREE ${tools_gen_private_dir} FILES ${generated_private_tool_sources})
+    endif()
 endfunction()
 
 function(onyx_generate_codegen_config outPath)
