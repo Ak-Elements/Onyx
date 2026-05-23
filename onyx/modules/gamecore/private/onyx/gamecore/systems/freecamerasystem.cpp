@@ -50,23 +50,25 @@ void system( CameraEntity cameraEntity, DeltaGameTime deltaTime ) {
 
         transformComponent.Translation = worldPosition;
 
-        freeCameraRuntime.YawDelta += std::clamp( yawSign * freeCameraRuntime.InputRotation[ 0 ] *
-                                                      freeCameraController.RotationSpeed,
-                                                  -MaxRotationSpeed,
-                                                  MaxRotationSpeed );
-        freeCameraRuntime.PitchDelta += std::clamp( freeCameraRuntime.InputRotation[ 1 ] *
-                                                        freeCameraController.RotationSpeed,
-                                                    -MaxRotationSpeed,
-                                                    MaxRotationSpeed );
+        freeCameraRuntime.YawDelta += units::RadiansF32(
+            std::clamp( yawSign * freeCameraRuntime.InputRotation[ 0 ] * freeCameraController.RotationSpeed,
+                        -MaxRotationSpeed,
+                        MaxRotationSpeed ) );
+        freeCameraRuntime.PitchDelta += units::RadiansF32(
+            std::clamp( freeCameraRuntime.InputRotation[ 1 ] * freeCameraController.RotationSpeed,
+                        -MaxRotationSpeed,
+                        MaxRotationSpeed ) );
     }
 
     freeCameraRuntime.YawDelta *= 0.6f;
     freeCameraRuntime.PitchDelta *= 0.6f;
 
     if( ( isZero( freeCameraRuntime.YawDelta ) == false ) || ( isZero( freeCameraRuntime.PitchDelta ) == false ) ) {
-        Vector3f32 rotationEuler = transformComponent.RotationEuler;
-        rotationEuler.X = normalizeAngle( rotationEuler.X - freeCameraRuntime.PitchDelta );
-        rotationEuler.Y = normalizeAngle( rotationEuler.Y - freeCameraRuntime.YawDelta );
+        EulerRadiansF32 rotationEuler = transformComponent.RotationEuler;
+        rotationEuler.X = units::RadiansF32(
+            normalizeAngle( ( rotationEuler.X - freeCameraRuntime.PitchDelta ).count() ) );
+        rotationEuler.Y = units::RadiansF32(
+            normalizeAngle( ( rotationEuler.Y - freeCameraRuntime.YawDelta ).count() ) );
 
         Rotor3f32 pitchRotor( units::RadiansF32( rotationEuler.X ), Bivector3f32::yzUnit() );
         Rotor3f32 yawRotor( units::RadiansF32( rotationEuler.Y ), Bivector3f32::zxUnit() );

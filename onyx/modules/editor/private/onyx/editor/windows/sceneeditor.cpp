@@ -257,7 +257,7 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     game_core::TransformComponent& transform = registry.AddComponent< game_core::TransformComponent >(
         m_editorCameraEntity );
     transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
-    transform.RotationEuler = Vector3f32{ 0.0f, 0.0f, 0.0f };
+    transform.RotationEuler = EulerRadiansF32::zero();
     game_core::CameraComponent& camera = registry.AddComponent< game_core::CameraComponent >( m_editorCameraEntity );
 
     camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65536 );

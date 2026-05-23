@@ -38,13 +38,8 @@ void GridSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     // TODO: Localization
     ui::property_grid::beginPropertyGrid( "GridSettings", 80.0f );
-
     ui::property_grid::drawProperty( "Offset", gridSettings.Offset );
-
-    auto displayUnit = quantityCast< units::ratios::Degrees, units::ratios::Radians >( gridSettings.Rotation );
-    if( ui::property_grid::drawProperty( "Rotation", displayUnit ) ) {
-        gridSettings.Rotation = quantityCast< units::ratios::Radians, units::ratios::Degrees >( displayUnit );
-    }
+    ui::property_grid::drawProperty< units::ratios::Degrees >( "Rotation", gridSettings.Rotation );
 
     int32_t lodLevel = gridSettings.LodLevel;
     InplaceArray< ui::ComboOption< int32_t >, 7 > options;

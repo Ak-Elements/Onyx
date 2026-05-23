@@ -1,5 +1,7 @@
 #pragma once
 
+#include <onyx/geometry/vector3.h>
+
 namespace onyx {
 template < typename Scalar >
 struct Vector4 {
@@ -59,7 +61,7 @@ struct Vector4 {
         // TODO assert
         const float32 len = length();
 
-        if ( len > std::numeric_limits< Scalar >::epsilon() ) {
+        if( len > std::numeric_limits< Scalar >::epsilon() ) {
             const float32 invLength = ( 1 / len );
             X *= invLength;
             Y *= invLength;
@@ -72,7 +74,7 @@ struct Vector4 {
         static_assert( this != Vector4::zero() );
 
         const float32 len = length();
-        if ( len > std::numeric_limits< Scalar >::epsilon() ) {
+        if( len > std::numeric_limits< Scalar >::epsilon() ) {
             const float32 invLength = ( 1 / len );
             return Vector4( X * invLength, Y * invLength, Z * invLength, W * invLength );
         }

@@ -55,12 +55,9 @@ void CameraSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ui::property_grid::beginPropertyGrid( "Editor Camera", 95.0f );
     ui::property_grid::drawProperty( "Position", transformComponent.Translation );
 
-    auto rotationDegrees = quantityCast< units::ratios::Degrees, units::ratios::Radians >(
-        transformComponent.RotationEuler );
-    if( ui::property_grid::drawProperty( "Rotation", rotationDegrees ) ) {
-        game_core::world_transform::setRotation(
-            transformComponent,
-            quantityCast< units::ratios::Radians, units::ratios::Degrees >( rotationDegrees ) );
+    auto rotation = transformComponent.RotationEuler;
+    if( ui::property_grid::drawProperty< units::ratios::Degrees >( "Rotation", rotation ) ) {
+        game_core::world_transform::setRotation( transformComponent, rotation );
     }
 
     ui::property_grid::drawProperty( "Speed", cameraControllerComponent.Speed, { .Min = 0.001f } );

@@ -36,13 +36,17 @@ set(onyx_TARGET_PUBLIC_SOURCES
     engine/gametime.h
     function/callback.h
     function/signal.h
+    geometry/bivector3.h
     geometry/common.h
+    geometry/componentmask.h
+    geometry/eulerangles.h
     geometry/matrix2.h
     geometry/matrix3.h
     geometry/matrix4.h
     geometry/rect2.h
     geometry/rotor3.h
     geometry/sat.h
+    geometry/swizzlemask.h
     geometry/vector.h
     geometry/vector2.h
     geometry/vector3.h
@@ -92,6 +96,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     stringid.cpp
     colors/color.cpp
     engine/enginevariable.cpp
+    geometry/eulerangles.cpp
     geometry/rectserialization.cpp
     geometry/vectorserialization.cpp
     log/logger.cpp

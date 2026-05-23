@@ -31,6 +31,8 @@
 #include <onyx/assert.h>
 #include <onyx/onyx_types.h>
 #include <onyx/bitwiseenum.h>
+#include <onyx/container/inplacearray.h>
+#include <onyx/container/typelist.h>
 #include <onyx/colors/color.h>
 #include <onyx/guid.h>
 #include <onyx/hash.h>
@@ -43,8 +45,6 @@
 #include <onyx/units/units.h>
 #include <onyx/inplacefunction.h>
 #include <onyx/log/logger.h>
-#include <onyx/container/inplacearray.h>
-#include <onyx/container/typelist.h>
 #include <onyx/engine/gametime.h>
 #include <onyx/engine/enginevariable.h>
 #include <onyx/function/callback.h>

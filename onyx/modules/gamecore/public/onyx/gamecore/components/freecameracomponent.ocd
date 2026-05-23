@@ -11,9 +11,7 @@ component FreeCameraRuntimeComponent
     Vector3f32 InputRotation
 
     int32_t SpeedStep = 0
-    float32 Pitch = 0.0
-    float32 Yaw = 0.0
 
-    float32 PitchDelta = 0.0
-    float32 YawDelta = 0.0
+    RadiansF32 PitchDelta = 0.0
+    RadiansF32 YawDelta = 0.0
 }

@@ -2,8 +2,8 @@ component TransformComponent
 {
     Vector3f32 Translation
 
-    [Name(Rotation), Unit(Unit = Radians, DisplayUnit = Degrees)]
-    Vector3f32 RotationEuler
+    [Name(Rotation), Unit(DisplayUnit = Degrees)]
+    EulerRadiansF32 RotationEuler
 
     Vector3f32 Scale = { 1.0, 1.0, 1.0 }
 

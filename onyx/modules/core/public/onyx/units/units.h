@@ -22,6 +22,10 @@ using Degrees = Quantity< Scalar, ratios::Degrees >;
 using DegreesF32 = Degrees< float32 >;
 using DegreesF64 = Degrees< float64 >;
 
+template < typename T >
+concept Angle = StorageQuantity< T > && ( std::same_as< typename T::PeriodType, units::ratios::Radians::Type > ||
+                                          std::same_as< typename T::PeriodType, units::ratios::Degrees::Type > );
+
 namespace literals {
 constexpr DegreesF32 operator""_deg32( long double deg ) {
     return DegreesF32( numericCast< float32 >( deg ) );

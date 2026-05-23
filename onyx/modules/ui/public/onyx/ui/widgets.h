@@ -132,7 +132,7 @@ bool drawScalarInput( StringView label,
                 std::from_chars( buf.getData(), buf.getData() + buf.getLength(), newValue );
             }
 
-            if( newValue != data ) {
+            if( isEqual( newValue, data ) == false ) {
                 data = newValue;
                 valueChanged = true;
             }
@@ -154,7 +154,7 @@ bool drawScalarInput( StringView label,
                 std::from_chars( buf.getData(), buf.getData() + buf.getLength(), newValue );
             }
 
-            if( newValue != data ) {
+            if( isEqual( newValue, data ) == false ) {
                 data = newValue;
                 valueChanged = true;
             }

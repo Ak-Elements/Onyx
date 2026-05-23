@@ -3,6 +3,9 @@
 #include <onyx/geometry/vector.h>
 #include <onyx/units/ratio.h>
 
+#include <onyx/serialize/deserializer.h>
+#include <onyx/serialize/serializer.h>
+
 namespace onyx {
 
 template < typename T >
@@ -208,4 +211,20 @@ ONYX_NO_DISCARD constexpr auto clamp( const Quantity< TRep, TPeriod >& quantity,
     else
         return quantity;
 }
+
+template < typename TRep, typename TPeriod >
+struct Serialization< Quantity< TRep, TPeriod > > {
+    static bool serialize( Serializer& serializer, const Quantity< TRep, TPeriod >& value ) {
+        return serializer.write( value.count() );
+    }
+    static bool deserialize( const Deserializer& deserializer, Quantity< TRep, TPeriod >& outValue ) {
+        TRep value;
+        if( deserializer.read( value ) ) {
+            outValue = Quantity< TRep, TPeriod >( value );
+            return true;
+        }
+
+        return false;
+    }
+};
 } // namespace onyx

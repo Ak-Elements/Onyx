@@ -1,7 +1,7 @@
 #pragma once
 
+#include <onyx/geometry/eulerangles.h>
 #include <onyx/units/units.h>
-
 namespace onyx {
 template < typename ScalarT >
 struct Matrix3;
@@ -26,13 +26,17 @@ class Rotor3 {
      * y - Yaw angle to rotate around Y axis
      * z - Roll angle to rotate around Z axis
      */
-    constexpr Rotor3( Vector3< ScalarT > pitchYawRoll ) {
-        const ScalarT cp = std::cos( pitchYawRoll.X * ScalarT( 0.5 ) );
-        const ScalarT cy = std::cos( pitchYawRoll.Y * ScalarT( 0.5 ) );
-        const ScalarT cr = std::cos( pitchYawRoll.Z * ScalarT( 0.5 ) );
-        const ScalarT sp = std::sin( pitchYawRoll.X * ScalarT( 0.5 ) );
-        const ScalarT sy = std::sin( pitchYawRoll.Y * ScalarT( 0.5 ) );
-        const ScalarT sr = std::sin( pitchYawRoll.Z * ScalarT( 0.5 ) );
+    constexpr Rotor3( EulerAngles< units::Radians< ScalarT > > pitchYawRoll ) {
+        const ScalarT pitch = pitchYawRoll.X.count();
+        const ScalarT yaw = pitchYawRoll.Y.count();
+        const ScalarT roll = pitchYawRoll.Z.count();
+
+        const ScalarT cp = std::cos( pitch * ScalarT( 0.5 ) );
+        const ScalarT cy = std::cos( yaw * ScalarT( 0.5 ) );
+        const ScalarT cr = std::cos( roll * ScalarT( 0.5 ) );
+        const ScalarT sp = std::sin( pitch * ScalarT( 0.5 ) );
+        const ScalarT sy = std::sin( yaw * ScalarT( 0.5 ) );
+        const ScalarT sr = std::sin( roll * ScalarT( 0.5 ) );
 
         Rotor3 rotor;
         m_scalar = cp * cy * cr + sp * sy * sr;
@@ -146,7 +150,7 @@ class Rotor3 {
 
     constexpr Matrix4< ScalarT > toMatrix4() const;
 
-    constexpr Vector3< ScalarT > toEulerAngles() const {
+    constexpr EulerAngles< units::Radians< ScalarT > > toEulerAngles() const {
         const ScalarT w = m_scalar;
 
         const ScalarT x = m_bivector.YZ; // pitch (X)
@@ -167,7 +171,9 @@ class Rotor3 {
 
         const ScalarT roll = std::atan2( sinRoll, cosRoll );
 
-        return { pitch, yaw, roll };
+        return { units::Radians< ScalarT >( pitch ),
+                 units::Radians< ScalarT >( yaw ),
+                 units::Radians< ScalarT >( roll ) };
     }
 
     constexpr ScalarT lengthSquared() const {

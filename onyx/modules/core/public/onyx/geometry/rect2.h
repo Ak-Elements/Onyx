@@ -29,4 +29,8 @@ struct Rect2 {
     Vector2< ScalarT > getBottomRight() const { return { getRight(), getBottom() }; }
     Vector2< ScalarT > getBottomLeft() const { return { getLeft(), getBottom() }; }
 };
+
+using Rect2s16 = Rect2< int16_t >;
+using Rect2f32 = Rect2< float32 >;
+
 } // namespace onyx

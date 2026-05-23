@@ -22,10 +22,10 @@ enum class ScalarInputFlag : uint8_t {
     PowerOf2,
 };
 
-template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
+template < typename T > requires( std::is_arithmetic_v< T > || IsVector< T > )
 struct ScalarOptions {
-    Optional< ScalarT > Min;
-    Optional< ScalarT > Max;
+    Optional< T > Min;
+    Optional< T > Max;
 
     bool IsSlider = false;
 };
@@ -219,13 +219,18 @@ bool drawProperty( StringView propertyName, Vector2< ScalarT >& vector ) {
 }
 
 template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
-bool drawProperty( StringView propertyName, Vector3< ScalarT >& outVector, const Vector3< ScalarT >& minValue ) {
+bool drawProperty( StringView propertyName,
+                   Vector3< ScalarT >& outVector,
+                   ScalarOptions< Vector3< ScalarT > > options ) {
     drawPropertyName( propertyName );
 
     // Draw Value
     ImGui::PushID( propertyName.data() );
     ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    bool hasModified = VectorControl::vectorInput( outVector, minValue );
+
+    const Vector3< ScalarT > min = options.Min.value_or(
+        Vector3< ScalarT >( std::numeric_limits< ScalarT >::lowest() ) );
+    bool hasModified = VectorControl::vectorInput( outVector, min );
 
     ImGui::PopID();
     ImGui::EndHorizontal();
@@ -235,8 +240,7 @@ bool drawProperty( StringView propertyName, Vector3< ScalarT >& outVector, const
 
 template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
 bool drawProperty( StringView propertyName, Vector3< ScalarT >& outVector ) {
-    constexpr Vector3< ScalarT > Min{ std::numeric_limits< ScalarT >::lowest() };
-    return drawProperty( propertyName, outVector, Min );
+    return drawProperty( propertyName, outVector, ScalarOptions< Vector3< ScalarT > >{} );
 }
 
 template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
@@ -251,6 +255,33 @@ bool drawProperty( StringView propertyName, Vector4< ScalarT >& vector ) {
     ImGui::EndHorizontal();
 
     return hasModified;
+}
+
+template < typename DisplayUnitsT, units::Angle T > requires IsRatio< DisplayUnitsT >
+bool drawProperty( StringView propertyName,
+                   EulerAngles< T >& value,
+                   ScalarOptions< Vector3< typename T::RepresentType > > options ) {
+    using StorageUnitsT = typename T::PeriodType;
+    using ScalarT = typename T::RepresentType;
+    Vector3< ScalarT > displayValue{ quantityCast< DisplayUnitsT, StorageUnitsT >( value.X.count() ),
+                                     quantityCast< DisplayUnitsT, StorageUnitsT >( value.Y.count() ),
+                                     quantityCast< DisplayUnitsT, StorageUnitsT >( value.Z.count() ) };
+
+    if( drawProperty( propertyName, displayValue, options ) ) {
+        value.X = T( quantityCast< StorageUnitsT, DisplayUnitsT >( displayValue.X ) );
+        value.Y = T( quantityCast< StorageUnitsT, DisplayUnitsT >( displayValue.Y ) );
+        value.Z = T( quantityCast< StorageUnitsT, DisplayUnitsT >( displayValue.Z ) );
+        return true;
+    }
+
+    return false;
+}
+
+template < typename DisplayUnitsT, units::Angle T > requires IsRatio< DisplayUnitsT >
+bool drawProperty( StringView propertyName, EulerAngles< T >& value ) {
+    return drawProperty< DisplayUnitsT >( propertyName,
+                                          value,
+                                          ScalarOptions< Vector3< typename T::RepresentType > >{} );
 }
 
 template < typename T, uint8_t N >

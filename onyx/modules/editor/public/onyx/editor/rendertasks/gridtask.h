@@ -6,7 +6,7 @@
 
 namespace onyx {
 struct GridSettings {
-    Vector3f32 Rotation;
+    EulerRadiansF32 Rotation;
     float32 Offset{ 0.0f };
     int32_t LodLevel{ 0 };
     uint32_t Cells{ 10 };

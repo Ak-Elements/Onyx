@@ -2,7 +2,9 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 
 namespace onyx::game_core::world_transform {
-void setRotation( TransformComponent& transformComponent, const Rotor3f32& rotation, const Vector3f32& eulerAngles ) {
+void setRotation( TransformComponent& transformComponent,
+                  const Rotor3f32& rotation,
+                  const EulerRadiansF32& eulerAngles ) {
     if( transformComponent.Rotation == rotation ) {
         return;
     }
@@ -20,7 +22,7 @@ void setRotation( TransformComponent& transformComponent, const Rotor3f32& rotat
     transformComponent.RotationEuler = transformComponent.Rotation.toEulerAngles();
 }
 
-void setRotation( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {
+void setRotation( TransformComponent& transformComponent, const EulerRadiansF32& eulerAngles ) {
     if( transformComponent.RotationEuler == eulerAngles )
         return;
 
@@ -28,8 +30,8 @@ void setRotation( TransformComponent& transformComponent, const Vector3f32& eule
     transformComponent.Rotation = Rotor3f32( eulerAngles );
 }
 
-void rotate( TransformComponent& transformComponent, const Vector3f32& eulerAngles ) {
-    const Vector3f32& newEuler = transformComponent.RotationEuler + eulerAngles;
+void rotate( TransformComponent& transformComponent, const EulerRadiansF32& eulerAngles ) {
+    const EulerRadiansF32& newEuler = transformComponent.RotationEuler + eulerAngles;
     setRotation( transformComponent, newEuler );
 }
 
