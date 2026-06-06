@@ -1,6 +1,6 @@
 #pragma once
 
-#define ONYX_UNUSED(v) (void)v
+#define ONYX_UNUSED(v) std::ignore = v
 #define ONYX_SAFE_DELETE(ptr)   \
     delete ptr;                 \
     ptr = nullptr

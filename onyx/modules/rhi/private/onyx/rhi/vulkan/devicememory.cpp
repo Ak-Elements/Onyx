@@ -11,7 +11,7 @@ DeviceMemory::DeviceMemory( MemoryAllocator& allocator )
     : m_Allocator( &allocator ) {}
 
 DeviceMemory::~DeviceMemory() {
-    if ( m_Memory != nullptr )
+    if( m_Memory != nullptr )
         m_Allocator->Free( m_Memory );
 }
 
@@ -43,7 +43,7 @@ void DeviceMemory::GetMemoryRange( VkMappedMemoryRange& range ) const {
     ONYX_ASSERT( m_Memory != nullptr );
     range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 
-    if ( m_Memory ) {
+    if( m_Memory ) {
         const VmaAllocationInfo& allocInfo = m_Allocator->GetAllocationInfo( m_Memory );
         range.memory = allocInfo.deviceMemory;
         range.offset = allocInfo.offset;
@@ -52,11 +52,10 @@ void DeviceMemory::GetMemoryRange( VkMappedMemoryRange& range ) const {
 }
 
 void DeviceMemory::GetMemoryPropertyFlags( const CPUAccess& cpuAccess,
-                                           const GPUAccess& gpuAccess,
+                                           [[maybe_unused]] const GPUAccess& gpuAccess,
                                            VkMemoryPropertyFlags& outRequired,
                                            VkMemoryPropertyFlags& outPreferred ) {
-    ONYX_UNUSED( gpuAccess );
-    switch ( cpuAccess ) {
+    switch( cpuAccess ) {
     case CPUAccess::None:
     case CPUAccess::UpdateKeep:
         outRequired = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;

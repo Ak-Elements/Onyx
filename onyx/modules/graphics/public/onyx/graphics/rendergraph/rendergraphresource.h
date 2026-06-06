@@ -81,9 +81,7 @@ struct RenderGraphResource {
     Variant< rhi::TextureHandle, rhi::BufferHandle > Handle;
     Variant< RenderGraphTextureResourceInfo, RenderGraphBufferResourceInfo > Properties;
 
-    bool DrawPinInPropertyGrid( StringView name, RenderGraphResource& value ) {
-        ONYX_UNUSED( name );
-        ONYX_UNUSED( value );
+    bool DrawPinInPropertyGrid( [[maybe_unused]] StringView name, [[maybe_unused]] RenderGraphResource& value ) {
         return true;
     }
 

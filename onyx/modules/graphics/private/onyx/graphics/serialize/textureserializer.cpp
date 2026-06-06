@@ -11,13 +11,10 @@
 #include <onyx/graphics/textureasset.h>
 
 namespace onyx::graphics {
-bool TextureSerializer::serialize( const assets::AssetHandle< assets::AssetInterface >& asset,
-                                   const assets::AssetMetaData& meta,
-                                   Serializer& serializer,
-                                   const IEngine& /*engine*/ ) const {
-    ONYX_UNUSED( asset );
-    ONYX_UNUSED( meta );
-    ONYX_UNUSED( serializer );
+bool TextureSerializer::serialize( [[maybe_unused]] const assets::AssetHandle< assets::AssetInterface >& asset,
+                                   [[maybe_unused]] const assets::AssetMetaData& meta,
+                                   [[maybe_unused]] Serializer& serializer,
+                                   [[maybe_unused]] const IEngine& engine ) const {
     return false;
 }
 

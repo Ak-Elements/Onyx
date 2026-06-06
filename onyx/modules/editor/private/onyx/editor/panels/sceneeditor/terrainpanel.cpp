@@ -951,13 +951,9 @@ void TerrainPanel::FindWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer
     computeCommandBuffer.dispatch( 1, 1, 1 );
 }
 
-void TerrainPanel::UpdateTerrainMesh( const rhi::CommandBuffer& commandBuffer,
-                                      const volume::TerrainSettingsComponent& terrainSettings,
-                                      volume::TerrainWorldOctreeComponent& terrainOctree ) {
-    ONYX_UNUSED( commandBuffer );
-    ONYX_UNUSED( terrainSettings );
-    ONYX_UNUSED( terrainOctree );
-}
+void TerrainPanel::UpdateTerrainMesh( [[maybe_unused]] const rhi::CommandBuffer& commandBuffer,
+                                      [[maybe_unused]] const volume::TerrainSettingsComponent& terrainSettings,
+                                      [[maybe_unused]] volume::TerrainWorldOctreeComponent& terrainOctree ) {}
 
 void TerrainPanel::OnTerrainPanelBrushSizeInput( const input_actions::InputActionEvent& inputEvent ) {
     float32 inputValue = inputEvent.GetData< float32 >();

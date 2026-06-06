@@ -64,9 +64,9 @@ class TerrainPanel : public ui::ImGuiWindow {
                               const volume::TerrainSettingsComponent& terrainSettings,
                               volume::TerrainWorldOctreeComponent& terrainOctree,
                               const volume::VolumeGenerationComponent& volumeGenerationComponent );
-    void UpdateTerrainMesh( const rhi::CommandBuffer& command_buffer,
-                            const volume::TerrainSettingsComponent& terrainSettings,
-                            volume::TerrainWorldOctreeComponent& terrainOctree );
+    void UpdateTerrainMesh( [[maybe_unused]] const rhi::CommandBuffer& command_buffer,
+                            [[maybe_unused]] const volume::TerrainSettingsComponent& terrainSettings,
+                            [[maybe_unused]] volume::TerrainWorldOctreeComponent& terrainOctree );
 
     void OnTerrainPanelBrushSizeInput( const input_actions::InputActionEvent& inputEvent );
 

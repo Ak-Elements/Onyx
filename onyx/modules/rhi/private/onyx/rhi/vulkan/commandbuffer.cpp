@@ -222,15 +222,11 @@ void VulkanCommandBuffer::bindVertexBuffer( const BufferHandle& bufferHandle, ui
     vkCmdBindVertexBuffers( m_CommandBuffer, binding, 1, buffer.GetHandlePtr(), offsets );
 }
 
-void VulkanCommandBuffer::bindVertexBuffers( const InplaceArray< BufferHandle, 8 >& bufferHandles,
-                                             const InplaceArray< uint32_t, 8 > bufferOffsets,
-                                             uint32_t firstBinding,
-                                             uint32_t bindingCount ) {
+void VulkanCommandBuffer::bindVertexBuffers( [[maybe_unused]] const InplaceArray< BufferHandle, 8 >& bufferHandles,
+                                             [[maybe_unused]] const InplaceArray< uint32_t, 8 > bufferOffsets,
+                                             [[maybe_unused]] uint32_t firstBinding,
+                                             [[maybe_unused]] uint32_t bindingCount ) {
     // TODO: find way to pass buffers as const ref, maybe use std::reference_wrapper
-    ONYX_UNUSED( bufferHandles );
-    ONYX_UNUSED( bufferOffsets );
-    ONYX_UNUSED( firstBinding );
-    ONYX_UNUSED( bindingCount );
 }
 
 void VulkanCommandBuffer::bindIndexBuffer( const BufferHandle& bufferHandle, uint32_t offset, IndexType indexType ) {
@@ -427,21 +423,14 @@ void VulkanCommandBuffer::setScissor( Rect2s16 scissorRect ) {
     vkCmdSetScissor( m_CommandBuffer, 0, 1, &vkScissor );
 }
 
-void VulkanCommandBuffer::clearColor( float32 red,
-                                      float32 green,
-                                      float32 blue,
-                                      float32 alpha,
-                                      uint32_t attachmentIndex ) {
-    ONYX_UNUSED( red );
-    ONYX_UNUSED( green );
-    ONYX_UNUSED( blue );
-    ONYX_UNUSED( alpha );
-    ONYX_UNUSED( attachmentIndex );
+void VulkanCommandBuffer::clearColor( [[maybe_unused]] float32 red,
+                                      [[maybe_unused]] float32 green,
+                                      [[maybe_unused]] float32 blue,
+                                      [[maybe_unused]] float32 alpha,
+                                      [[maybe_unused]] uint32_t attachmentIndex ) {
 }
 
-void VulkanCommandBuffer::clearDepthStencil( float32 depth, uint8_t stencil ) {
-    ONYX_UNUSED( depth );
-    ONYX_UNUSED( stencil );
+void VulkanCommandBuffer::clearDepthStencil( [[maybe_unused]] float32 depth, [[maybe_unused]] uint8_t stencil ) {
 }
 
 void VulkanCommandBuffer::draw( PrimitiveTopology /*topology*/,

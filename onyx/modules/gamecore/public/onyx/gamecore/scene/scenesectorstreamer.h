@@ -30,8 +30,8 @@ class SceneSectorStreamer {
     void RemoveEntity( ecs::EntityId entity );
 
   private:
-    void LoadSectorEntity( const SceneSector& sector, SectorEntity& entity );
-    void UnloadSectorEntity( SceneSector& sector, SectorEntity& entity );
+    void LoadSectorEntity( [[maybe_unused]] const SceneSector& sector, [[maybe_unused]] SectorEntity& entity );
+    void UnloadSectorEntity( [[maybe_unused]] SceneSector& sector, [[maybe_unused]] SectorEntity& entity );
 
   private:
     Scene* m_Scene;

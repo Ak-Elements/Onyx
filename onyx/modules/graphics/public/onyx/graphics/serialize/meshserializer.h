@@ -8,10 +8,10 @@ class MeshAsset;
 struct MeshSerializer : public assets::AssetSerializer< MeshAsset > {
     static constexpr Array< StringView, 2 > Extensions{ "obj" };
 
-    bool serialize( const assets::AssetHandle< assets::AssetInterface >& asset,
-                    const assets::AssetMetaData& meta,
-                    Serializer& serializer,
-                    const IEngine& engine ) const override;
+    bool serialize( [[maybe_unused]] const assets::AssetHandle< assets::AssetInterface >& asset,
+                    [[maybe_unused]] const assets::AssetMetaData& meta,
+                    [[maybe_unused]] Serializer& serializer,
+                    [[maybe_unused]] const IEngine& engine ) const override;
     bool deserialize( assets::AssetHandle< assets::AssetInterface >& asset,
                       const assets::AssetMetaData& meta,
                       const Deserializer& deserializer,

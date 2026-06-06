@@ -125,15 +125,11 @@ struct PinMetaObject< rhi::BufferHandle > {
     static bool DrawPinInPropertyGrid( StringView name, rhi::BufferHandle& value );
     static constexpr uint32_t GetPinTypeColor() { return 0xFF5C5CCD; /* Indian Red */ }
 #endif
-    static bool serialize( file_system::JsonValue& json, const rhi::BufferHandle& handle ) {
-        ONYX_UNUSED( json );
-        ONYX_UNUSED( handle );
+    static bool serialize( [[maybe_unused]] file_system::JsonValue& json, [[maybe_unused]] const rhi::BufferHandle& handle ) {
         return true;
     }
 
-    static bool deserialize( const file_system::JsonValue& json, rhi::BufferHandle& handle ) {
-        ONYX_UNUSED( json );
-        ONYX_UNUSED( handle );
+    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json, [[maybe_unused]] rhi::BufferHandle& handle ) {
         return true;
     }
 };
@@ -145,15 +141,11 @@ struct PinMetaObject< rhi::TextureHandle > {
     static constexpr uint32_t GetPinTypeColor() { return 0xFFB48246; /*Steel Blue*/ }
 #endif
 
-    static bool serialize( file_system::JsonValue& json, const rhi::TextureHandle& handle ) {
-        ONYX_UNUSED( json );
-        ONYX_UNUSED( handle );
+    static bool serialize( [[maybe_unused]] file_system::JsonValue& json, [[maybe_unused]] const rhi::TextureHandle& handle ) {
         return true;
     }
 
-    static bool deserialize( const file_system::JsonValue& json, rhi::TextureHandle& handle ) {
-        ONYX_UNUSED( json );
-        ONYX_UNUSED( handle );
+    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json, [[maybe_unused]] rhi::TextureHandle& handle ) {
         return true;
     }
 };

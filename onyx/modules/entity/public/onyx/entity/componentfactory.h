@@ -12,7 +12,7 @@ class ComponentFactory {
     void Register() {
         if( const IComponentMeta* componentMeta = GetComponentMeta< T >().value_or( nullptr ) ) {
             // TODO add some sanity check that the components registered are indeed the same
-            ONYX_UNUSED( componentMeta );
+           std::ignore =  componentMeta;
             return;
         }
 
@@ -24,7 +24,7 @@ class ComponentFactory {
     void Register( ComponentFactoryFunction< T > factory ) {
         if( const IComponentMeta* componentMeta = GetComponentMeta< T >().value_or( nullptr ) ) {
             // TODO add some sanity check that the components registered are indeed the same
-            ONYX_UNUSED( componentMeta );
+            std::ignore = componentMeta;
             return;
         }
 

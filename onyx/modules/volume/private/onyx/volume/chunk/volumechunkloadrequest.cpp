@@ -72,12 +72,12 @@ struct Component {
     DynamicArray< Vertex > Vertices;
 };
 
-void ExtractMesh( const Vector3f32& octreeRootPosition,
+void ExtractMesh( [[maybe_unused]] const Vector3f32& octreeRootPosition,
                   const OctreeNode< UniquePtr< VolumeDataContainer > >& octreeNode,
                   const VolumeBase& csgSource,
                   CubicalMarchingSquares::MarchingSquares< float32 > cubicalMarchingSquares,
                   MeshBuilder& meshBuilder ) {
-    const UniquePtr< VolumeDataContainer >& octreeData = octreeNode.GetData();
+    std::ignore /* const UniquePtr< VolumeDataContainer >& octreeData */ = octreeNode.GetData();
     /*const Vector3f CORNER_0(-1.0f, -1.0f, -1.0f);
     const Vector3f CORNER_1(1.0f, -1.0f, -1.0f);
     const Vector3f CORNER_2(1.0f, -1.0f, 1.0f);
@@ -85,10 +85,7 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
     const Vector3f CORNER_4(-1.0f, 1.0f, -1.0f);
     const Vector3f CORNER_5(1.0f, 1.0f, -1.0f);
     const Vector3f CORNER_6(1.0f, 1.0f, 1.0f);
-    const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);*/
-
-    ONYX_UNUSED( octreeRootPosition );
-    ONYX_UNUSED( octreeData );
+    const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);*/    
 
     const Vector3f32 nodePosition;  // octreeRootPosition + octreeData->Position;
     const float halfExtents = 4.0f; // octreeData->HalfExtent;
@@ -139,7 +136,7 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
     onyx::InplaceArray< onyx::Vector4f32, 4 > hermiteData;
 
     InplaceArray< uint8_t, 6 > faceCases;
-    for ( uint8_t faceIndex = 0; faceIndex < 6; ++faceIndex ) {
+    for( uint8_t faceIndex = 0; faceIndex < 6; ++faceIndex ) {
         faceCorners[ 0 ] = corners[ FACE_VERTICES[ faceIndex ][ 0 ] ];
         faceCorners[ 1 ] = corners[ FACE_VERTICES[ faceIndex ][ 1 ] ];
         faceCorners[ 2 ] = corners[ FACE_VERTICES[ faceIndex ][ 2 ] ];
@@ -155,7 +152,7 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
 
     // useless copy
     DynamicArray< LineSegment > segments;
-    for ( const LineSegment& lineSegment : outLineSegements ) {
+    for( const LineSegment& lineSegment : outLineSegements ) {
         segments.push_back( lineSegment );
     }
 
@@ -163,34 +160,34 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
     DynamicArray< Component > components;
     uint8_t edgeIndex = 0;
 
-    while ( segments.empty() == false ) {
+    while( segments.empty() == false ) {
         Component& lineStrip = components.emplace_back();
         const LineSegment& segment = segments.back();
 
         edgeIndex = segment.GetToEdgeIndex();
 
-        for ( const auto& linePoint : segment.LinePoints ) {
+        for( const auto& linePoint : segment.LinePoints ) {
             lineStrip.Vertices.push_back( linePoint );
         }
 
         segments.pop_back();
 
         bool hasAdded = true;
-        while ( hasAdded ) {
+        while( hasAdded ) {
             hasAdded = false;
-            for ( int32_t i = static_cast< int32_t >( segments.size() ) - 1; i >= 0; --i ) {
+            for( int32_t i = static_cast< int32_t >( segments.size() ) - 1; i >= 0; --i ) {
                 const LineSegment& lineSegment = segments[ i ];
 
-                if ( lineSegment.GetFromEdgeIndex() == edgeIndex ) {
-                    for ( const auto& linePoint : lineSegment.LinePoints ) {
+                if( lineSegment.GetFromEdgeIndex() == edgeIndex ) {
+                    for( const auto& linePoint : lineSegment.LinePoints ) {
                         lineStrip.Vertices.push_back( linePoint );
                     }
 
                     hasAdded = true;
                     edgeIndex = lineSegment.GetToEdgeIndex();
                     segments.erase( segments.begin() + i );
-                } else if ( lineSegment.GetToEdgeIndex() == edgeIndex ) {
-                    for ( int32_t j = static_cast< int32_t >( lineSegment.LinePoints.size() ); j >= 0; --j ) {
+                } else if( lineSegment.GetToEdgeIndex() == edgeIndex ) {
+                    for( int32_t j = static_cast< int32_t >( lineSegment.LinePoints.size() ); j >= 0; --j ) {
                         lineStrip.Vertices.push_back( lineSegment.LinePoints[ static_cast< uint8_t >( j ) ] );
                     }
 
@@ -201,25 +198,25 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
             }
         }
 
-        while ( lineStrip.Vertices.front() == lineStrip.Vertices.back() ) {
+        while( lineStrip.Vertices.front() == lineStrip.Vertices.back() ) {
             lineStrip.Vertices.erase( lineStrip.Vertices.begin() );
 
-            if ( lineStrip.Vertices.empty() )
+            if( lineStrip.Vertices.empty() )
                 break;
         }
 
-        if ( lineStrip.Vertices.empty() ) {
+        if( lineStrip.Vertices.empty() ) {
             break;
         }
 
         // ONYX_ASSERT(lineStrip.Vertices.size() > 2);
     }
 
-    for ( Component& component : components ) {
-        if ( component.Vertices.empty() )
+    for( Component& component : components ) {
+        if( component.Vertices.empty() )
             continue;
 
-        if ( component.Vertices.size() == 3 ) {
+        if( component.Vertices.size() == 3 ) {
             const Vertex& v0 = component.Vertices[ 0 ];
             const Vertex& v1 = component.Vertices[ 2 ];
             const Vertex& v2 = component.Vertices[ 1 ];
@@ -231,7 +228,7 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
 
             Vector3f32 triangleFanCenter;
             Vector3f32 triangleFanCenterNormal;
-            for ( const Vertex& vertex : component.Vertices ) {
+            for( const Vertex& vertex : component.Vertices ) {
                 triangleFanCenter += vertex.Position;
                 triangleFanCenterNormal += vertex.Normal;
             }
@@ -240,8 +237,8 @@ void ExtractMesh( const Vector3f32& octreeRootPosition,
             triangleFanCenterNormal /= static_cast< float32 >( vertexCount );
 
             uint32_t lastVertexIndex = ( vertexCount - 1 );
-            for ( uint32_t i = 0; i < vertexCount; ++i ) {
-                if ( i == lastVertexIndex ) {
+            for( uint32_t i = 0; i < vertexCount; ++i ) {
+                if( i == lastVertexIndex ) {
                     meshBuilder.AddVertexAndNormal( component.Vertices[ 0 ].Position, component.Vertices[ 0 ].Normal );
                     meshBuilder.AddVertexAndNormal( component.Vertices[ i ].Position, component.Vertices[ i ].Normal );
                     meshBuilder.AddVertexAndNormal( triangleFanCenter, triangleFanCenterNormal );
@@ -266,7 +263,7 @@ void VolumeChunkLoadRequest::Load() {
     AsyncTask< void() > loadingTask( [ this ]() { LoadChunk(); } );
     m_LoadingTaskFuture = loadingTask.getFuture();
     m_LoadingTaskFuture.then( [ this ]() {
-        if ( m_FinishedCallback )
+        if( m_FinishedCallback )
             m_FinishedCallback( m_LoadRequestData );
     } );
 
@@ -274,7 +271,7 @@ void VolumeChunkLoadRequest::Load() {
 }
 
 void VolumeChunkLoadRequest::Cancel( bool waitForCancel /* = false */ ) {
-    if ( m_LoadingTaskFuture )
+    if( m_LoadingTaskFuture )
         m_LoadingTaskFuture.cancel( waitForCancel );
 }
 
@@ -284,12 +281,12 @@ void VolumeChunkLoadRequest::LoadChunk() {
 
     const VolumeBase& volumeBase = *m_LoadRequestData.m_VolumeSource;
 
-    if ( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::CMS ) {
+    if( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::CMS ) {
         GenerateOctree( volumeOctree );
 
         volume::CubicalMarchingSquares::MarchingSquares cubicalMarchingSquares( 1.0f );
 
-        for ( auto leafIt = volumeOctree.leaf_begin(); leafIt != volumeOctree.leaf_end(); ++leafIt ) {
+        for( auto leafIt = volumeOctree.leaf_begin(); leafIt != volumeOctree.leaf_end(); ++leafIt ) {
             const OctreeNode< UniquePtr< VolumeDataContainer > >* node = leafIt.GetCurrentOctreeNode();
             ExtractMesh( m_LoadRequestData.m_Position,
                          *node,
@@ -319,7 +316,7 @@ void VolumeChunkLoadRequest::LoadChunk() {
 
 void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& octree ) {
     UniquePtr< OctreeSplitPolicy< float32 > > splitPolicy = nullptr;
-    if ( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DMC ) {
+    if( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DMC ) {
         auto policy = makeUnique< DMCOctreeSplitPolicy< float32 > >( m_LoadRequestData.m_MaxOctreeLevel,
                                                                      m_LoadRequestData.m_Size,
                                                                      m_LoadRequestData.m_MaxGeometricError,
@@ -330,7 +327,7 @@ void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& oct
         policy->SetUseEdgeAmbiguity( false );
 
         splitPolicy = std::move( policy );
-    } else if ( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DMC_WITH_CMS_ERROR_METRIC ) {
+    } else if( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DMC_WITH_CMS_ERROR_METRIC ) {
         auto policy = makeUnique< DMCOctreeSplitPolicy< float32 > >( m_LoadRequestData.m_MaxOctreeLevel,
                                                                      m_LoadRequestData.m_Size,
                                                                      m_LoadRequestData.m_MaxGeometricError,
@@ -341,7 +338,7 @@ void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& oct
         policy->SetUseEdgeAmbiguity( true );
 
         splitPolicy = std::move( policy );
-    } else if ( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::CMS ) {
+    } else if( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::CMS ) {
         splitPolicy = makeUnique< CMSOctreeSplitPolicy< float32 > >( m_LoadRequestData.m_MaxOctreeLevel,
                                                                      m_LoadRequestData.m_Size,
                                                                      m_LoadRequestData.m_SampleResolution,
@@ -352,14 +349,14 @@ void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& oct
     float32 rootNodeSize = m_LoadRequestData.m_Size;
     Vector3< float32 > rootNodePosition = m_LoadRequestData.m_Position;
 
-    for ( auto it = octree.leaf_begin(); it != octree.leaf_end(); ++it ) {
+    for( auto it = octree.leaf_begin(); it != octree.leaf_end(); ++it ) {
         VolumeChunk::VolumeChunkOctree::OctreeNodeT& node = *it.GetCurrentOctreeNode();
         VolumeChunk::VolumeChunkOctree::OctreeKeyT key = it.GetCurrentOctreeKey();
         uint8_t depth = it.GetCurrentOctreeDepth();
 
         uint8_t nodeLevel = ( VolumeChunk::VolumeChunkOctree::OctreeKeyT::MaxDepth - 1 ) - depth;
         float32 cellSize = rootNodeSize;
-        if ( nodeLevel > 0 )
+        if( nodeLevel > 0 )
             cellSize /= ( 1 << nodeLevel );
 
         Vector3< float32 > nodeLocalPosition = key.GetNodeRealPosition( rootNodeSize, depth );
@@ -374,11 +371,11 @@ void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& oct
 
         const VolumeBase& volumeBase = *m_LoadRequestData.m_VolumeSource;
 
-        if ( splitPolicy->ShouldSplit( node, nodeWorldPosition, nodeData->HalfExtent, depth ) ) {
+        if( splitPolicy->ShouldSplit( node, nodeWorldPosition, nodeData->HalfExtent, depth ) ) {
             node.Subdivide();
         } else {
             Vector4f32& centerValue = node.GetData()->Gradient;
-            if ( centerValue.isZero() ) {
+            if( centerValue.isZero() ) {
                 centerValue = volumeBase.GetValueAndGradient( node.GetData()->Position );
 
 #if USE_ANALYTICAL_NORMAL
@@ -397,24 +394,24 @@ VolumeOctreeNodeMetaData VolumeChunkLoadRequest::GetNodeMetaData( const Vector3f
     const Vector3f32 from = nodeLocalPosition - Vector3f32{ nodeHalfExtents };
     const Vector3f32 to = nodeLocalPosition + Vector3f32{ nodeHalfExtents };
 
-    if ( isEqual( from[ 0 ], -rootNodeHalfExtent ) ) {
+    if( isEqual( from[ 0 ], -rootNodeHalfExtent ) ) {
         metaData |= VolumeOctreeNodeMetaData::BorderLeft;
     }
-    if ( isEqual( to[ 0 ], rootNodeHalfExtent ) ) {
+    if( isEqual( to[ 0 ], rootNodeHalfExtent ) ) {
         metaData |= VolumeOctreeNodeMetaData::BorderRight;
     }
 
-    if ( isEqual( from[ 1 ], -rootNodeHalfExtent ) ) {
+    if( isEqual( from[ 1 ], -rootNodeHalfExtent ) ) {
         metaData |= VolumeOctreeNodeMetaData::BorderBottom;
     }
-    if ( isEqual( to[ 1 ], rootNodeHalfExtent ) ) {
+    if( isEqual( to[ 1 ], rootNodeHalfExtent ) ) {
         metaData |= VolumeOctreeNodeMetaData::BorderTop;
     }
 
-    if ( isEqual( from[ 2 ], -rootNodeHalfExtent ) ) {
+    if( isEqual( from[ 2 ], -rootNodeHalfExtent ) ) {
         metaData |= VolumeOctreeNodeMetaData::BorderBack;
     }
-    if ( isEqual( to[ 2 ], rootNodeHalfExtent ) ) {
+    if( isEqual( to[ 2 ], rootNodeHalfExtent ) ) {
         metaData |= VolumeOctreeNodeMetaData::BorderFront;
     }
 

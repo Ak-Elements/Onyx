@@ -51,7 +51,7 @@ class Window {
 
     void SetCursor( void* /*cursor*/ ) {}
 
-    void EnableSystemMouseCapture( bool enable ) { ONYX_UNUSED( enable ); }
+    void EnableSystemMouseCapture( [[maybe_unused]] bool enable ) {}
     X11PlatformContext& GetContext() const { return *m_context; }
     uint32_t GetSurfaceHandle() const { return m_window; }
 

@@ -43,28 +43,18 @@ WaylandPointer::~WaylandPointer() {
     }
 }
 
-/*static*/ void WaylandPointer::OnEnterSurface( void* instance,
-                                                wl_pointer* pointer,
-                                                uint32_t serial,
-                                                wl_surface* surface,
-                                                wl_fixed_t x,
-                                                wl_fixed_t y ) {
-    ONYX_UNUSED( instance );
-    ONYX_UNUSED( pointer );
-    ONYX_UNUSED( serial );
-    ONYX_UNUSED( x );
-    ONYX_UNUSED( y );
+/*static*/ void WaylandPointer::OnEnterSurface( [[maybe_unused]] void* instance,
+                                                [[maybe_unused]] wl_pointer* pointer,
+                                                [[maybe_unused]] uint32_t serial,
+                                                [[maybe_unused]] wl_surface* surface,
+                                                [[maybe_unused]] wl_fixed_t x,
+                                                [[maybe_unused]] wl_fixed_t y ) {
 }
 
-/*static*/ void WaylandPointer::OnLeaveSurface( void* instance,
-                                                wl_pointer* pointer,
-                                                uint32_t serial,
-                                                wl_surface* surface ) {
-    ONYX_UNUSED( instance );
-    ONYX_UNUSED( pointer );
-    ONYX_UNUSED( serial );
-    ONYX_UNUSED( serial );
-    ONYX_UNUSED( surface );
+/*static*/ void WaylandPointer::OnLeaveSurface( [[maybe_unused]] void* instance,
+                                                [[maybe_unused]] wl_pointer* pointer,
+                                                [[maybe_unused]] uint32_t serial,
+                                                [[maybe_unused]] wl_surface* surface ) {
 }
 
 /*static*/ void WaylandPointer::OnMove( void* instance,

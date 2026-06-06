@@ -37,8 +37,8 @@ bool RenderGraphSerializer::serialize( const assets::AssetHandle< assets::AssetI
     const RenderGraph& renderGraph = asset.as< RenderGraph >();
     return serializer.write( renderGraph );
 #else
-    ONYX_UNUSED( asset );
-    ONYX_UNUSED( serializer );
+    std::ignore = asset;
+    std::ignore = serializer;
     return false;
 #endif
 }

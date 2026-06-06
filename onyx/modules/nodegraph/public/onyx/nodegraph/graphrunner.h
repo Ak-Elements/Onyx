@@ -11,7 +11,7 @@ class GraphRunner {
         : m_Graph( &graph ) {}
 
     void Prepare();
-    void Update( uint64_t deltaTime );
+    void Update( [[maybe_unused]] uint64_t deltaTime );
     void Shutdown();
 
     PrepareContext& GetPrepareContext() { return m_PrepareContext; }

@@ -153,25 +153,16 @@ WaylandKeyboard::~WaylandKeyboard() {
     xkb.NumLockIndex = ::xkb_keymap_mod_get_index( keymap, "Mod2" );
 }
 
-/*static*/ void WaylandKeyboard::OnEnterSurface( void* instance,
-                                                 wl_keyboard* keyboard,
-                                                 uint32_t serial,
-                                                 wl_surface* surface,
-                                                 wl_array* /*keys*/ ) {
-    ONYX_UNUSED( instance );
-    ONYX_UNUSED( keyboard );
-    ONYX_UNUSED( serial );
-    ONYX_UNUSED( surface );
-}
+/*static*/ void WaylandKeyboard::OnEnterSurface( [[maybe_unused]] void* instance,
+                                                 [[maybe_unused]] wl_keyboard* keyboard,
+                                                 [[maybe_unused]] uint32_t serial,
+                                                 [[maybe_unused]] wl_surface* surface,
+                                                 [[maybe_unused]] wl_array* keys ) {}
 
-/*static*/ void WaylandKeyboard::OnLeaveSurface( void* instance,
-                                                 wl_keyboard* keyboard,
-                                                 uint32_t serial,
-                                                 wl_surface* surface ) {
-    ONYX_UNUSED( instance );
-    ONYX_UNUSED( keyboard );
-    ONYX_UNUSED( serial );
-    ONYX_UNUSED( surface );
+/*static*/ void WaylandKeyboard::OnLeaveSurface( [[maybe_unused]] void* instance,
+                                                 [[maybe_unused]] wl_keyboard* keyboard,
+                                                 [[maybe_unused]] uint32_t serial,
+                                                 [[maybe_unused]] wl_surface* surface ) {
 }
 
 /*static*/ void WaylandKeyboard::OnKeyChange( void* instance,

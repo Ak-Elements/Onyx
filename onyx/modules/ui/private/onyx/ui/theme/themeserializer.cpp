@@ -169,25 +169,18 @@ struct Serialization< onyx::ui::Theme > {
 
 namespace onyx::ui {
 
-bool ThemeSerializer::serialize( const assets::AssetHandle< assets::AssetInterface >& asset,
-                                 const assets::AssetMetaData& meta,
-                                 Serializer& serializer,
-                                 const IEngine& engine ) const {
-    ONYX_UNUSED( asset );
-    ONYX_UNUSED( meta );
-    ONYX_UNUSED( serializer );
-    ONYX_UNUSED( engine );
+bool ThemeSerializer::serialize( [[maybe_unused]] const assets::AssetHandle< assets::AssetInterface >& asset,
+    [[maybe_unused]] const assets::AssetMetaData& meta,
+    [[maybe_unused]] Serializer& serializer,
+    [[maybe_unused]] const IEngine& engine ) const {
     return true;
 }
 
 bool ThemeSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >& asset,
                                    const assets::AssetMetaData& meta,
-                                   const Deserializer& deserializer,
-                                   IEngine& engine ) const {
+                                   [[maybe_unused]] const Deserializer& deserializer,
+                                   [[maybe_unused]] IEngine& engine ) const {
     g_colors.clear();
-    ONYX_UNUSED( meta );
-    ONYX_UNUSED( deserializer );
-    ONYX_UNUSED( engine );
     Theme& theme = asset.as< Theme >();
 
     String content;

@@ -17,9 +17,8 @@ class FixedPinNode_1_In : public NodeType {
     }
 
 #if ONYX_IS_EDITOR
-    std::any CreateDefaultForPin( StringId32 pinId ) const override {
+    std::any CreateDefaultForPin( [[maybe_unused]] StringId32 pinId ) const override {
         ONYX_ASSERT( m_Input.GetLocalId() == pinId );
-        ONYX_UNUSED( pinId );
         return m_Input.CreateDefault();
     }
 #endif

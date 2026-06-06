@@ -23,8 +23,8 @@ bool serialize( const ShaderGraph& graph, Serializer& serializer ) {
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
     return serializer.write( graph );
 #else
-    ONYX_UNUSED( graph );
-    ONYX_UNUSED( serializer );
+    std::ignore = graph;
+    std::ignore = serializer;
     return true;
 #endif
 }
@@ -33,8 +33,8 @@ bool deserialize( ShaderGraph& graph, const Deserializer& deserializer ) {
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
     return deserializer.read( graph );
 #else
-    ONYX_UNUSED( graph );
-    ONYX_UNUSED( deserializer );
+    std::ignore = graph;
+    std::ignore = deserializer;
     return true;
 #endif
 }

@@ -56,7 +56,7 @@ class Window {
 
     void SetCursor( void* /*cursor*/ ) {}
 
-    void EnableSystemMouseCapture( bool enable ) { ONYX_UNUSED( enable ); }
+    void EnableSystemMouseCapture( [[maybe_unused]] bool enable ) {}
     WaylandPlatformContext& GetContext() const { return *m_Context; }
     wl_surface* GetSurfaceHandle() const { return m_Surface; }
 
