@@ -9,6 +9,7 @@
 #include <onyx/platform/linux/wayland/waylandplatformcontext.h>
 #include <onyx/platform/linux/xkb.h>
 
+#include <unistd.h>
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon-keysyms.h>
 #include <xkbcommon/xkbcommon.h>
