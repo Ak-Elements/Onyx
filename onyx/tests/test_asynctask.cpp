@@ -125,8 +125,6 @@ TEST_CASE( "AsyncTask continuation", "[threading][async]" ) {
     ThreadPool executor;
     AsyncTask< void() > task( []() { std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) ); } );
 
-    uint32_t size = (uint32_t)sizeof( task );
-    ONYX_UNUSED( size );
     Future< void > future = task.GetFuture();
     AsyncTask< int32_t() > task2( []() {
         std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );

@@ -40,7 +40,6 @@ void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& contex
 
     uint32_t instanceOffset = 0;
     for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
-        ONYX_UNUSED( drawCall );
         // TODO: Batch instances per mesh/material and send transforms via SBO
         // const uint32_t instanceCount = static_cast<uint32_t>(drawCall.m_Transforms.size());
         const uint32_t instanceCount = 1;

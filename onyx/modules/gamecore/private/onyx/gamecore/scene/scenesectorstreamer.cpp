@@ -59,18 +59,16 @@ void SceneSectorStreamer::RemoveEntity( ecs::EntityId entity ) {
                    [ & ]( const SectorEntity& sectorEntity ) { return sectorEntity.Entity == entity; } );
 }
 
-void SceneSectorStreamer::LoadSectorEntity( const SceneSector& sector, SectorEntity& entity ) {
-    ONYX_UNUSED( sector );
-    ONYX_UNUSED( entity );
+void SceneSectorStreamer::LoadSectorEntity( [[maybe_unused]] const SceneSector& sector,
+                                            [[maybe_unused]] SectorEntity& entity ) {
     /*ecs::EntityRegistry& registry = m_Scene->GetRegistry();
     const file_system::JsonValue& entityJsonData = sector.m_EntitiesData[entity.EntityDataPosition];
 
     */
 }
 
-void SceneSectorStreamer::UnloadSectorEntity( SceneSector& sector, SectorEntity& entity ) {
-    ONYX_UNUSED( sector );
-    ONYX_UNUSED( entity );
+void SceneSectorStreamer::UnloadSectorEntity( [[maybe_unused]] SceneSector& sector,
+                                              [[maybe_unused]] SectorEntity& entity ) {
     /*ecs::EntityRegistry& registry = m_Scene->GetRegistry();
     registry.DeleteEntity(entity.Entity);
     entity.Entity = entt::null;*/

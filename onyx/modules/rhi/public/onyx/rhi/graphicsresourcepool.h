@@ -11,8 +11,6 @@ class MemoryPool {
         , m_Capacity( capacity )
 #endif
     {
-        ONYX_UNUSED( capacity );
-
         m_Data = new uint8_t[ dataSize * capacity ];
         m_FreeIndices = new uint32_t[ capacity ];
 

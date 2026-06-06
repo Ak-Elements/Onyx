@@ -244,24 +244,15 @@ bool Window::GetRequiredExtensions( std::vector< const char* >& outExtensions ) 
     windowInstance.close();
 }
 
-/*static*/ void Window::HandleTopLevelDecorationConfigure( void* data,
-                                                           zxdg_toplevel_decoration_v1* zxdg_toplevel_decoration_v1,
-                                                           uint32_t mode ) {
-    ONYX_UNUSED( data );
-    ONYX_UNUSED( zxdg_toplevel_decoration_v1 );
-    ONYX_UNUSED( mode );
+/*static*/ void Window::HandleTopLevelDecorationConfigure( [[maybe_unused]] void* data,
+                                                           [[maybe_unused]] zxdg_toplevel_decoration_v1* zxdg_toplevel_decoration_v1,
+                                                           [[maybe_unused]] uint32_t mode ) {
 }
 
-/*static*/ void Window::HandleSurfaceEnter( void* data, wl_surface* surface, wl_output* output ) {
-    ONYX_UNUSED( data );
-    ONYX_UNUSED( surface );
-    ONYX_UNUSED( output );
+/*static*/ void Window::HandleSurfaceEnter( [[maybe_unused]] void* data, [[maybe_unused]] wl_surface* surface, [[maybe_unused]] wl_output* output ) {
 }
 
-/*static*/ void Window::HandleSurfaceLeave( void* data, wl_surface* surface, wl_output* output ) {
-    ONYX_UNUSED( data );
-    ONYX_UNUSED( surface );
-    ONYX_UNUSED( output );
+/*static*/ void Window::HandleSurfaceLeave( [[maybe_unused]] void* data, [[maybe_unused]] wl_surface* surface, [[maybe_unused]] wl_output* output ) {
 }
 
 } // namespace onyx::platform::wayland

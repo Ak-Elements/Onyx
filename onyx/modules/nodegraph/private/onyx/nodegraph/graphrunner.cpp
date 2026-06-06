@@ -68,9 +68,7 @@ void GraphRunner::Prepare() {
     }
 }
 
-void GraphRunner::Update( uint64_t deltaTime ) {
-    ONYX_UNUSED( deltaTime );
-
+void GraphRunner::Update( [[maybe_unused]] uint64_t deltaTime ) {
     const DynamicArray< int8_t >& executionOrder = m_Graph->getTopologicalOrder();
     for( int8_t localNodeId : executionOrder ) {
         const Node& node = m_Graph->getNode( localNodeId );

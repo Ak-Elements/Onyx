@@ -9,8 +9,6 @@ namespace onyx::graphics::render_graph_nodes {
 void SkyViewLutRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    ONYX_UNUSED( context );
-
     const uint64_t transmittanceGlobalId = GetInputPin0().GetLinkedPinGlobalId().get();
     const RenderGraphResource& transmittanceResource = context.Graph.GetResource( transmittanceGlobalId );
 

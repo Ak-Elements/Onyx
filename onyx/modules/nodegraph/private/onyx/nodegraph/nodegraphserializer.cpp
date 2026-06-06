@@ -29,8 +29,8 @@ bool serialize( Serializer& serializer, const NodeGraph& nodeGraph ) {
 
     return true;
 #else
-    ONYX_UNUSED( serializer );
-    ONYX_UNUSED( nodeGraph );
+    std::ignore = serializer;
+    std::ignore = nodeGraph;
     return false;
 #endif
 }

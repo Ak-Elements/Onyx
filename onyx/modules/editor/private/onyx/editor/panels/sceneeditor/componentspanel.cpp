@@ -186,8 +186,6 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
                 menuItem.Label = currentToken;
                 menuItem.OnSelected = [ & ]() {
                     auto selectedEntities = registry.GetView< SelectedComponent >();
-                    auto size = selectedEntities.size();
-                    ONYX_UNUSED( size );
                     for( ecs::EntityId selectedEntity : selectedEntities ) {
                         m_CommandGraph->push< AddComponentCommand >( selectedEntity,
                                                                      componentTypeId,

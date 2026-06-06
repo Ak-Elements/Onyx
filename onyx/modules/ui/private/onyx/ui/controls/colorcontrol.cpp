@@ -1009,10 +1009,7 @@ bool ColorInput( StringView id, Vector3u8& rgb ) {
     return false;
 }
 
-bool ColorInput( StringView id, Vector4u8& rgba ) {
-    ONYX_UNUSED( id );
-    ONYX_UNUSED( rgba );
-
+bool ColorInput( [[maybe_unused]] StringView id, [[maybe_unused]] Vector4u8& rgba ) {
     return true;
 }
 
@@ -1026,9 +1023,7 @@ bool ColorInput( StringView id, Vector3f32& hsv ) {
     return false;
 }
 
-bool ColorInput( StringView id, Vector4f32& hsva ) {
-    ONYX_UNUSED( id );
-    ONYX_UNUSED( hsva );
+bool ColorInput( [[maybe_unused]] StringView id, [[maybe_unused]] Vector4f32& hsva ) {
     return true;
 }
 } // namespace onyx::ui

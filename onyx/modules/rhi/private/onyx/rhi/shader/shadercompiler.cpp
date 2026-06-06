@@ -387,7 +387,6 @@ bool Reflect( ShaderStage shaderStage,
               const PreprocessedShader& preprocessedShader,
               const DynamicArray< uint32_t >& shaderByteCode,
               ShaderReflectionInfo& outReflectionInfo ) {
-    ONYX_UNUSED( preprocessedShader );
     // TODO: Clean up & add support for alignment calculation for push constants for example
     using namespace spirv_cross;
 

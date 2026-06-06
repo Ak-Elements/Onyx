@@ -57,8 +57,8 @@ void MSDFFontRenderPass::OnPreRender( graphics::RenderGraphContext& context, rhi
     if( frameContext.FrameData == nullptr )
         return;
 
-    const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
-    ONYX_UNUSED( sceneFrameData );
+    std::ignore /*const SceneFrameData& sceneFrameData*/ = static_cast< const SceneFrameData& >(
+        *frameContext.FrameData );
     // uint32_t vertexOffset = 0;
     /*for (const TextDrawCall& drawCall : sceneFrameData.m_TextDrawCalls)
     {
@@ -78,7 +78,8 @@ void MSDFFontRenderPass::OnRender( graphics::RenderGraphContext& context, rhi::C
     if( frameContext.FrameData == nullptr )
         return;
 
-    const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
+    std::ignore /*const SceneFrameData& sceneFrameData*/ = static_cast< const SceneFrameData& >(
+        *frameContext.FrameData );
 
     commandBuffer.bindVertexBuffer( m_VertexBuffer, 0, 0 );
     commandBuffer.bindIndexBuffer( m_IndexBuffer, 0, rhi::IndexType::uint16 );
@@ -87,9 +88,9 @@ void MSDFFontRenderPass::OnRender( graphics::RenderGraphContext& context, rhi::C
         Matrix4< float32 > Transform;
     };
 
-    PushConstants constants;
-    ONYX_UNUSED( constants );
-    ONYX_UNUSED( sceneFrameData );
+    // PushConstants constants;
+    // ONYX_UNUSED( constants );
+    // ONYX_UNUSED( sceneFrameData );
     /*for (const TextDrawCall& drawCall : sceneFrameData.m_TextDrawCalls)
     {
         for (auto&& [textureIndex, vertices] : drawCall.VertexData)

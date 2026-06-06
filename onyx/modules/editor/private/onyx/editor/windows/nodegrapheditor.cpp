@@ -951,13 +951,11 @@ void NodeGraphEditorWindow::onGraphLoaded() {
 
 void NodeGraphEditorWindow::onGraphSaved() {}
 
-void NodeGraphEditorWindow::onCopyAction( const input_actions::InputActionEvent& inputActionContext ) {
-    ONYX_UNUSED( inputActionContext );
-}
+// clang-format off
+void NodeGraphEditorWindow::onCopyAction( [[maybe_unused]] const input_actions::InputActionEvent& inputActionContext ) {}
 
-void NodeGraphEditorWindow::onPasteAction( const input_actions::InputActionEvent& inputActionContext ) {
-    ONYX_UNUSED( inputActionContext );
-}
+void NodeGraphEditorWindow::onPasteAction([[maybe_unused]] const input_actions::InputActionEvent& inputActionContext ) {}
+// clang-format on
 
 void NodeGraphEditorWindow::onDeleteAction( const input_actions::InputActionEvent& /*inputActionContext*/ ) {
     ax::NodeEditor::SetCurrentEditor( m_context );

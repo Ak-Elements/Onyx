@@ -169,20 +169,16 @@ uint32_t MemoryAllocator::GetAllocatedBytes() const {
     return static_cast< uint32_t >( stats.allocationBytes );
 }
 
-void MemoryAllocator::OnVmaAllocateMemory( VmaAllocator allocator,
-                                           uint32_t memoryType,
+void MemoryAllocator::OnVmaAllocateMemory( [[maybe_unused]] VmaAllocator allocator,
+                                           [[maybe_unused]] uint32_t memoryType,
                                            VkDeviceMemory memory,
-                                           VkDeviceSize size,
+                                           [[maybe_unused]] VkDeviceSize size,
                                            void* userData ) {
     ONYX_ASSERT( userData != nullptr );
     MemoryAllocator* memoryAllocator = static_cast< MemoryAllocator* >( userData );
     ONYX_ASSERT( memoryAllocator->m_Allocator == allocator );
 
     memoryAllocator->m_VmaAllocationDeviceMemory = memory;
-
-    ONYX_UNUSED( allocator );
-    ONYX_UNUSED( memoryType );
-    ONYX_UNUSED( size );
 }
 
 void MemoryAllocator::InitPool() {

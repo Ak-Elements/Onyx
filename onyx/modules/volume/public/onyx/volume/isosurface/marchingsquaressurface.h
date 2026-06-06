@@ -125,12 +125,9 @@ class MarchingSquaresSurface : public IsoSurface< T > {
         }
     }
 
-    void AddTriangles( const Vector3< T > corners[],
-                       const Vector4< T > volumeValues[],
-                       const Vector3< T > valuesAnalyticalNormals[] ) const override {
-        ONYX_UNUSED( corners );
-        ONYX_UNUSED( volumeValues );
-        ONYX_UNUSED( valuesAnalyticalNormals );
+    void AddTriangles( [[maybe_unused]] const Vector3< T > corners[],
+                       [[maybe_unused]] const Vector4< T > volumeValues[],
+                       [[maybe_unused]] const Vector3< T > valuesAnalyticalNormals[] ) const override {
     }
 
   private:

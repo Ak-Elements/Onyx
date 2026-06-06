@@ -51,10 +51,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
         light.IsShadowCasting = lightComponent.IsShadowCasting;
 
         auto viewSpacePos = frameContext.ViewConstants.ViewMatrix * Vector4f32( light.Position, 1.0f );
-        auto distance = ( Vector3f32( viewSpacePos ) - frameContext.ViewConstants.CameraPosition ).length();
-
-        ONYX_UNUSED( viewSpacePos );
-        ONYX_UNUSED( distance );
+        std::ignore/*auto distance*/ = ( Vector3f32( viewSpacePos ) - frameContext.ViewConstants.CameraPosition ).length();
     }
 
     frameContext.Lighting.PointLightsCount = pointLightIndex;

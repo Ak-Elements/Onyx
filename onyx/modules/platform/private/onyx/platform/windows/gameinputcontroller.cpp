@@ -140,8 +140,7 @@ void Gameinput::Update() {
             float* axisStates = new float[ inputDevice.m_Info->controllerAxisCount ]{ 0.0f };
 
             reading->GetControllerButtonState( inputDevice.m_Info->controllerButtonCount, buttonStates );
-            const uint32_t axisCount = reading->GetControllerAxisCount();
-            ONYX_UNUSED( axisCount );
+            std::ignore/*const uint32_t axisCount*/ = reading->GetControllerAxisCount();
 
             // Update button states
             uint32_t buttonsPressedMask = 0;
@@ -177,14 +176,11 @@ bool Gameinput::AddInputDevice( IGameInputDevice& device ) {
         connection = ConnectionType::USB;
     }
 
-    uint16_t vendorId = deviceInfo->vendorId;
-    uint16_t productId = deviceInfo->productId;
-    uint16_t version = ( deviceInfo->firmwareVersion.major << 8 ) | deviceInfo->firmwareVersion.minor;
+    std::ignore /*uint16_t vendorId*/ = deviceInfo->vendorId;
+    std::ignore /*uint16_t productId*/ = deviceInfo->productId;
+    std::ignore /*uint16_t version*/ = ( deviceInfo->firmwareVersion.major << 8 ) | deviceInfo->firmwareVersion.minor;
 
-    ONYX_UNUSED( connection );
-    ONYX_UNUSED( vendorId );
-    ONYX_UNUSED( productId );
-    ONYX_UNUSED( version );
+    std::ignore = connection;
 
     // Check if the device is handled by another input api
 
@@ -289,8 +285,8 @@ void Gameinput::OnDeviceCallback( GameInputCallbackToken,
                                   uint64_t timestamp,
                                   GameInputDeviceStatus currentStatus,
                                   GameInputDeviceStatus previousStatus ) {
-    ONYX_UNUSED( timestamp );
-    ONYX_UNUSED( previousStatus );
+    std::ignore = timestamp;
+    std::ignore = previousStatus;
 
     GameInput* gameInput = static_cast< GameInput* >( context );
 

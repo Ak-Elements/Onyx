@@ -99,7 +99,7 @@ Guid CreateGuid() {
     GUID gidReference;
     HRESULT hCreateGuid = ::CoCreateGuid( &gidReference );
     ONYX_ASSERT( hCreateGuid == SEVERITY_SUCCESS );
-    ONYX_UNUSED( hCreateGuid );
+    std::ignore = hCreateGuid;
 
     return {
         static_cast< uint64_t >( gidReference.Data4[ 7 ] ) << 7 |

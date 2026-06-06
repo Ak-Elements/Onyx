@@ -28,8 +28,6 @@ FileStream::FileStream( const FilePath& path, OpenMode openMode ) {
     if ( isGood && enums::any( openMode, OpenMode::Read ) ) {
         m_Stream->seekg( 0, std::ios::end );
         m_Size = m_Stream->tellg();
-        auto errorState = m_Stream->rdstate();
-        ONYX_UNUSED( errorState );
         m_Stream->seekg( 0, std::ios::beg );
     }
 }

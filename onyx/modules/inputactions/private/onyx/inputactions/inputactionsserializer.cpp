@@ -148,8 +148,8 @@ bool InputActionsSerializer::serialize( const assets::AssetHandle< assets::Asset
         return false;
     }
 #else
-    ONYX_UNUSED( asset );
-    ONYX_UNUSED( serializer );
+    std::ignore = asset;
+    std::ignore = serializer;
 #endif
     return true;
 }
