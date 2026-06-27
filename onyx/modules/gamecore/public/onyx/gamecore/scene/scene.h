@@ -20,12 +20,11 @@ class Scene : public assets::Asset< Scene > {
 
   public:
     static constexpr StringId32 TypeId{ "onyx::game_core::assets::Scene" };
+    static StringId32 getTypeId() { return TypeId; }
 
     static Reference< Scene > create( IEngine& engine );
 
     Scene( ecs::ComponentFactory& factory );
-
-    StringId32 GetTypeId() const { return TypeId; }
 
     ecs::EntityRegistry& getRegistry() { return m_registry; }
     const ecs::EntityRegistry& getRegistry() const { return m_registry; }
@@ -40,7 +39,7 @@ class Scene : public assets::Asset< Scene > {
 
     void update( uint64_t deltaTime );
 
-    bool hasRenderGraph() { return m_sceneRenderGraph.isValid() && m_sceneRenderGraph->IsInitialized(); }
+    bool hasRenderGraph() { return m_sceneRenderGraph.isValid() && m_sceneRenderGraph->isInitialized(); }
 
     assets::AssetHandle< graphics::RenderGraph >& getRenderGraphRef() { return m_sceneRenderGraph; }
     graphics::RenderGraph& getRenderGraph() { return *m_sceneRenderGraph; }

@@ -16,8 +16,8 @@ class AtmosphericSkyRenderGraphNode : public node_graph::FixedPinNode3In1Out< Re
     ONYX_NO_DISCARD StringId32 GetTypeId() const override { return TypeId; }
 
   private:
-    void OnBeginFrame( RenderGraphContext& context ) override;
-    void OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( RenderGraphContext& context ) override;
+    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
     Vector3f32 GetSunDirection( float32 timeOfDay ) const;
 

@@ -32,7 +32,7 @@ void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // setName( String( getWindowId() ) );
     //  begin();
 
-    ImGui::Checkbox( localization::editor::ComponentsPanel::ShowAll.Get().data(), &m_ShowAll );
+    ImGui::Checkbox( localization::editor::ComponentsPanel::ShowAll.Get().data(), &m_showAll );
 
     game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
     const localization::LocalizationModule& localizationModule = getEngineSystem< localization::LocalizationModule >();
@@ -42,17 +42,17 @@ void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     ecs::EntityRegistry& registry = scene.getRegistry();
 
-    DrawSelectedEntityComponents( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
+    drawSelectedEntityComponents( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
 
     auto selectedEntities = registry.GetView< SelectedComponent >();
     if( selectedEntities.empty() == false ) {
-        DrawCreateComponentContextMenu( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
+        drawCreateComponentContextMenu( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
     }
 
     // end();
 }
 
-void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registry,
+void ComponentsPanel::drawSelectedEntityComponents( ecs::EntityRegistry& registry,
                                                     assets::AssetId sceneId,
                                                     game_core::GameCoreSystem& gameCoreSystem,
                                                     const localization::LocalizationModule& localizationModule ) {
@@ -94,12 +94,12 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
 
                         bool hasModified = ui::PropertyInspectors::draw( componentMeta->getRuntimeTypeId(),
                                                                          componentPtr,
-                                                                         m_ShowAll );
+                                                                         m_showAll );
 
                         if( hasModified ) {
                             std::any component;
                             componentMeta->copy( componentPtr, component );
-                            m_CommandGraph->push< ModifyComponentCommand >( selectedEntity,
+                            m_commandGraph->push< ModifyComponentCommand >( selectedEntity,
                                                                             componentTypeId,
                                                                             std::move( component ),
                                                                             sceneId,
@@ -121,28 +121,28 @@ void ComponentsPanel::DrawSelectedEntityComponents( ecs::EntityRegistry& registr
     }
 }
 
-void ComponentsPanel::DrawCreateComponentContextMenu( ecs::EntityRegistry& registry,
+void ComponentsPanel::drawCreateComponentContextMenu( ecs::EntityRegistry& registry,
                                                       assets::AssetId sceneId,
                                                       game_core::GameCoreSystem& gameCoreSystem,
                                                       const localization::LocalizationModule& localizationModule ) {
     if( ImGui::BeginPopupContextWindow( "AddComponentModal", ImGuiPopupFlags_MouseButtonRight ) ) {
-        static String s_SearchString;
-        static bool s_HasFocus = false;
+        static String SearchString;
+        static bool HasFocus = false;
 
         const bool isAppearing = ImGui::IsWindowAppearing();
-        s_HasFocus |= isAppearing;
+        HasFocus |= isAppearing;
 
         if( isAppearing ) {
-            s_SearchString.clear();
+            SearchString.clear();
         }
 
-        ui::drawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
+        ui::drawSearchBar( SearchString, localization::generic::Search.Get(), HasFocus );
 
         if( ImGui::BeginChild( "##ScrollList", ImVec2( 350.0f, 350.0f ) ) ) {
             ui::TreeViewFlags flags = isAppearing ? ui::TreeViewFlags::ForceCloseAll
-                                                  : ( s_SearchString.empty() ? ui::TreeViewFlags::None
-                                                                             : ui::TreeViewFlags::ForceOpenAll );
-            ui::TreeItem root = BuildComponentTree( s_SearchString,
+                                                  : ( SearchString.empty() ? ui::TreeViewFlags::None
+                                                                           : ui::TreeViewFlags::ForceOpenAll );
+            ui::TreeItem root = buildComponentTree( SearchString,
                                                     registry,
                                                     sceneId,
                                                     gameCoreSystem,
@@ -156,7 +156,7 @@ void ComponentsPanel::DrawCreateComponentContextMenu( ecs::EntityRegistry& regis
     }
 }
 
-ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
+ui::TreeItem ComponentsPanel::buildComponentTree( StringView searchString,
                                                   ecs::EntityRegistry& registry,
                                                   assets::AssetId sceneId,
                                                   game_core::GameCoreSystem& gameCoreSystem,
@@ -175,8 +175,8 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
             continue;
         }
 
-        constexpr char delimiter = '/';
-        DynamicArray< String > parts = split( componentName, delimiter );
+        constexpr char Delimiter = '/';
+        DynamicArray< String > parts = split( componentName, Delimiter );
 
         ui::TreeItem* currentParent = &root;
         for( uint32_t i = 0; i < parts.size(); ++i ) {
@@ -187,7 +187,7 @@ ui::TreeItem ComponentsPanel::BuildComponentTree( StringView searchString,
                 menuItem.OnSelected = [ & ]() {
                     auto selectedEntities = registry.GetView< SelectedComponent >();
                     for( ecs::EntityId selectedEntity : selectedEntities ) {
-                        m_CommandGraph->push< AddComponentCommand >( selectedEntity,
+                        m_commandGraph->push< AddComponentCommand >( selectedEntity,
                                                                      componentTypeId,
                                                                      sceneId,
                                                                      gameCoreSystem );

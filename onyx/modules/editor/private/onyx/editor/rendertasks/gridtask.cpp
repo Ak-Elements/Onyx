@@ -11,25 +11,25 @@
 namespace onyx {
 
 GridRenderGraphNode::GridRenderGraphNode() {
-    m_PipelineProperties.Shader = "engine:/shaders/editor/grid.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/editor/grid.oshader";
 
-    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
     gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
 }
 
-void GridRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& context ) {
+void GridRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) {
     uint64_t outputGlobalId = GetOutputPin().GetGlobalId().get();
 
     const node_graph::PinBase& gbufferRenderTargetPin = GetInputPin0();
     if( gbufferRenderTargetPin.IsConnected() ) {
-        const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
             gbufferRenderTargetPin.GetLinkedPinGlobalId().get() );
-        graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
+        graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
 }
-void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     struct Constants {
@@ -50,7 +50,7 @@ void GridRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::
         uint32_t Flags;
     };
 
-    GridSettings& settings = context.Graph.GetInput< GridSettings >();
+    GridSettings& settings = context.Graph.getInput< GridSettings >();
     auto rotation = Rotor3f32( settings.Rotation ).toMatrix3();
 
     float32 gridLodLevel = numericCast< float32 >( settings.LodLevel );

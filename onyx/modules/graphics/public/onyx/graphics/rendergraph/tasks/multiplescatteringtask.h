@@ -12,8 +12,8 @@ class ComputeMultipleScatteringRenderGraphNode
     StringId32 GetTypeId() const override { return TypeId; }
 
   private:
-    void OnBeginFrame( RenderGraphContext& context ) override;
-    void OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( RenderGraphContext& context ) override;
+    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:

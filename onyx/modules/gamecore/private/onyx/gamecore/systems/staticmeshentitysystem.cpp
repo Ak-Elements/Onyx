@@ -50,7 +50,7 @@ void system( MeshEntity entity, rhi::FrameContext& frameContext, assets::AssetSy
     if( !staticMesh.Mesh.isLoaded() )
         return;
 
-    if( staticMesh.Mesh->GetVertices().empty() )
+    if( staticMesh.Mesh->getVertices().empty() )
         return;
 
     if( materialComponent.Material.hasAssetId() == false )
@@ -69,8 +69,8 @@ void system( MeshEntity entity, rhi::FrameContext& frameContext, assets::AssetSy
 
     game_core::StaticMeshDrawCall& drawCall = sceneFrameData.m_StaticMeshDrawCalls.emplace_back();
     drawCall.Transforms.emplace_back( world_transform::getTransform( transform ) );
-    drawCall.VertexData = staticMesh.Mesh->GetVertexBuffer();
-    drawCall.Indices = staticMesh.Mesh->GetIndexBuffer();
+    drawCall.VertexData = staticMesh.Mesh->getVertexBuffer();
+    drawCall.Indices = staticMesh.Mesh->getIndexBuffer();
     drawCall.Material = materialComponent.Material;
 }
 } // namespace QueueRender

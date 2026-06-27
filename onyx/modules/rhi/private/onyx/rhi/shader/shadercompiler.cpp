@@ -20,37 +20,37 @@ ShaderDataType GetShaderDataType( spirv_cross::SPIRType::BaseType type,
                                   uint32_t vectorSize,
                                   uint32_t /*componentSize*/ ) {
     using namespace spirv_cross;
-    switch ( type ) {
+    switch( type ) {
     case SPIRType::Boolean:
         return ShaderDataType::Bool;
     case SPIRType::SByte: {
-        if ( vectorSize == 4 )
+        if( vectorSize == 4 )
             return ShaderDataType::Byte;
 
         return ShaderDataType::Byte4;
     }
     case SPIRType::UByte: {
-        if ( vectorSize == 4 )
+        if( vectorSize == 4 )
             return ShaderDataType::UByte4;
 
         return ShaderDataType::UByte;
     }
     case SPIRType::UInt: {
-        if ( vectorSize == 4 )
+        if( vectorSize == 4 )
             return ShaderDataType::UInt4;
-        if ( vectorSize == 3 )
+        if( vectorSize == 3 )
             return ShaderDataType::UInt3;
-        if ( vectorSize == 2 )
+        if( vectorSize == 2 )
             return ShaderDataType::UInt2;
 
         return ShaderDataType::UInt;
     }
     case SPIRType::Float: {
-        if ( vectorSize == 4 )
+        if( vectorSize == 4 )
             return ShaderDataType::Float4;
-        if ( vectorSize == 3 )
+        if( vectorSize == 3 )
             return ShaderDataType::Float3;
-        if ( vectorSize == 2 )
+        if( vectorSize == 2 )
             return ShaderDataType::Float2;
 
         return ShaderDataType::Float;
@@ -62,7 +62,7 @@ ShaderDataType GetShaderDataType( spirv_cross::SPIRType::BaseType type,
 }
 
 TextureFormat GetDefaultFormat( ShaderDataType type ) {
-    switch ( type ) {
+    switch( type ) {
     case ShaderDataType::Bool:
         return TextureFormat::R_UINT8;
     case ShaderDataType::Float:
@@ -102,7 +102,7 @@ TextureFormat GetDefaultFormat( ShaderDataType type ) {
 }
 
 uint32_t GetComponentSize( TextureFormat format ) {
-    switch ( format ) {
+    switch( format ) {
     case TextureFormat::R_UNORM8:
     case TextureFormat::R_UINT8:
     case TextureFormat::RGB_UNORM8:
@@ -134,7 +134,7 @@ bool IsReservedResourceName( const String& resourceName ) {
 }
 
 StringView GetShaderExtension( ShaderStage stage ) {
-    switch ( stage ) {
+    switch( stage ) {
     case ShaderStage::Vertex:
         return "vert";
     case ShaderStage::Fragment:
@@ -159,7 +159,7 @@ shaderc::CompileOptions SetupShaderOptions( const GraphicsSystem& graphicsSystem
     shaderCOptions.AddMacroDefinition( "ONYX_IS_BINDLESS", graphicsSystem.isBindless() ? "1" : "0" );
 
 #if !ONYX_IS_RETAIL
-    if ( graphicsSystem.isShaderDebugEnabled() ) {
+    if( graphicsSystem.isShaderDebugEnabled() ) {
         shaderCOptions.AddMacroDefinition( "ONYX_IS_DEBUG", graphicsSystem.isShaderDebugEnabled() ? "1" : "0" );
         shaderCOptions.SetGenerateDebugInfo();
     }
@@ -170,7 +170,7 @@ shaderc::CompileOptions SetupShaderOptions( const GraphicsSystem& graphicsSystem
 
 UniquePtr< ShaderIncluder > SetupShaderIncluder() {
     UniquePtr< ShaderIncluder > includer = makeUnique< ShaderIncluder >();
-    for ( const FilePath& shaderDirectory : GetShaderDirectories() ) {
+    for( const FilePath& shaderDirectory : getShaderDirectories() ) {
         includer->AddIncludeDirectory( shaderDirectory.generic_string().c_str() );
     }
 
@@ -193,7 +193,7 @@ bool Preprocess( const GraphicsSystem& api,
     shaderCOptions.SetIncluder( std::move( shaderIncluderPtr ) );
 
     shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
-    switch ( stage ) {
+    switch( stage ) {
     case ShaderStage::Vertex:
         shaderKind = shaderc_vertex_shader;
         break;
@@ -215,7 +215,7 @@ bool Preprocess( const GraphicsSystem& api,
         shaderKind,
         sourcePath.string().c_str(),
         shaderCOptions );
-    if ( preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success ) {
+    if( preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success ) {
         ONYX_LOG_ERROR( "Failed to pre-process {} (Stage: {}) shader.\nError: {}",
                         sourcePath,
                         enums::toString( stage ),
@@ -225,7 +225,7 @@ bool Preprocess( const GraphicsSystem& api,
 
     outPreprocessedSource.assign( preProcessingResult.begin(), preProcessingResult.end() );
 
-    for ( const String& include : shaderIncluder->GetIncludes() ) {
+    for( const String& include : shaderIncluder->GetIncludes() ) {
         outIncludes.emplace( include );
     }
 
@@ -245,7 +245,7 @@ bool Compile( const GraphicsSystem& api,
     // shaderCOptions.SetIncluder(std::move(shaderIncluderPtr));
 
     shaderc_shader_kind shaderKind = shaderc_glsl_default_vertex_shader;
-    switch ( stage ) {
+    switch( stage ) {
     case ShaderStage::Vertex:
         shaderKind = shaderc_vertex_shader;
         break;
@@ -280,7 +280,7 @@ bool Compile( const GraphicsSystem& api,
                                                                             sourcePath.string().c_str(),
                                                                             shaderCOptions );
 
-    if ( module.GetCompilationStatus() != shaderc_compilation_status_success ) {
+    if( module.GetCompilationStatus() != shaderc_compilation_status_success ) {
         String test = module.GetErrorMessage();
         ONYX_LOG_ERROR( "Failed to compile {} shader at stage: {}.\nError: {}",
                         sourcePath,
@@ -331,7 +331,7 @@ bool Preprocess( const GraphicsSystem& api,
                  ShaderStage stage,
                  String& outPreprocessedCode,
                  HashSet< String >& outIncludes ) {
-    switch ( language ) {
+    switch( language ) {
     case ShaderLanguage::GLSL:
         return Glsl::Preprocess( api, sourcePath, code, stage, outPreprocessedCode, outIncludes );
     case ShaderLanguage::Invalid:
@@ -358,7 +358,7 @@ bool Compile( const GraphicsSystem& api,
 #endif
 
     const String shaderLanguageString = toLower( enums::toString( language ) );
-    for ( ShaderStage s = ShaderStage::Vertex; s < ShaderStage::All; ++s ) {
+    for( ShaderStage s = ShaderStage::Vertex; s < ShaderStage::All; ++s ) {
         String shaderStageString = toLower( enums::toString( s ) );
 
         const FilePath tempSourceDirectory = file_system::path::getFullPath( SHADER_SOURCE_TMP_PATH );
@@ -370,7 +370,7 @@ bool Compile( const GraphicsSystem& api,
 
 #endif
 
-    switch ( language ) {
+    switch( language ) {
     case ShaderLanguage::GLSL:
         return Glsl::Compile( api, sourcePath, preprocessedCode, stage, outByteCode );
     case ShaderLanguage::Invalid:
@@ -393,9 +393,9 @@ bool Reflect( ShaderStage shaderStage,
     Compiler compiler( shaderByteCode );
     const ShaderResources& resources = compiler.get_shader_resources();
 
-    if ( shaderStage == ShaderStage::Vertex ) {
+    if( shaderStage == ShaderStage::Vertex ) {
         DynamicArray< VertexInput > inputs;
-        for ( const spirv_cross::Resource& resource : resources.stage_inputs ) {
+        for( const spirv_cross::Resource& resource : resources.stage_inputs ) {
             const String& name = resource.name;
             const SPIRType& inputType = compiler.get_type( resource.base_type_id );
 
@@ -405,24 +405,24 @@ bool Reflect( ShaderStage shaderStage,
             uint32_t componentSize = inputType.width;
             TextureFormat format = TextureFormat::Invalid;
             auto keyValueIt = preprocessedShader.m_Formats.find( id );
-            if ( keyValueIt != preprocessedShader.m_Formats.end() ) {
+            if( keyValueIt != preprocessedShader.m_Formats.end() ) {
                 format = keyValueIt->second;
                 componentSize = GetComponentSize( format );
             }
 
-            if ( format == TextureFormat::Invalid ) {
+            if( format == TextureFormat::Invalid ) {
                 ShaderDataType type = GetShaderDataType( inputType.basetype, inputType.vecsize, componentSize );
                 format = GetDefaultFormat( type );
             }
 
-            outReflectionInfo.vertexInput.Add( location, format );
+            outReflectionInfo.VertexInput.add( location, format );
         }
     }
 
     // Get out format for pixel shader
-    if ( shaderStage == ShaderStage::Fragment ) {
+    if( shaderStage == ShaderStage::Fragment ) {
         // DynamicArray<VertexInput> inputs;
-        for ( const spirv_cross::Resource& resource : resources.stage_outputs ) {
+        for( const spirv_cross::Resource& resource : resources.stage_outputs ) {
             const String& name = resource.name;
 
             const SPIRType& inputType = compiler.get_type( resource.base_type_id );
@@ -433,12 +433,12 @@ bool Reflect( ShaderStage shaderStage,
             uint32_t componentSize = inputType.width;
             TextureFormat format = TextureFormat::Invalid;
             auto keyValueIt = preprocessedShader.m_Formats.find( id );
-            if ( keyValueIt != preprocessedShader.m_Formats.end() ) {
+            if( keyValueIt != preprocessedShader.m_Formats.end() ) {
                 format = keyValueIt->second;
                 componentSize = GetComponentSize( format );
             }
 
-            if ( format == TextureFormat::Invalid ) {
+            if( format == TextureFormat::Invalid ) {
                 ShaderDataType type = GetShaderDataType( inputType.basetype, inputType.vecsize, componentSize );
                 format = GetDefaultFormat( type );
             }
@@ -447,10 +447,10 @@ bool Reflect( ShaderStage shaderStage,
         }
     }
 
-    for ( const spirv_cross::Resource& resource : resources.uniform_buffers ) {
+    for( const spirv_cross::Resource& resource : resources.uniform_buffers ) {
         const SmallVector< BufferRange >& activeBuffers = compiler.get_active_buffer_ranges( resource.id );
         // Discard unused buffers from headers
-        if ( activeBuffers.empty() == false ) {
+        if( activeBuffers.empty() == false ) {
             const String& name = resource.name;
             const String& alias = compiler.get_name( resource.id );
             const SPIRType& bufferType = compiler.get_type( resource.base_type_id );
@@ -459,8 +459,8 @@ bool Reflect( ShaderStage shaderStage,
             uint8_t descriptorSet = numericCast< uint8_t >(
                 compiler.get_decoration( resource.id, spv::DecorationDescriptorSet ) );
             uint32_t size = static_cast< uint32_t >( compiler.get_declared_struct_size( bufferType ) );
-            if ( IsReservedDescriptorSet( descriptorSet ) ) {
-                if ( IsReservedResourceName( name ) == false ) {
+            if( IsReservedDescriptorSet( descriptorSet ) ) {
+                if( IsReservedResourceName( name ) == false ) {
                     ONYX_LOG_ERROR( "Found a resource that is using the a reserved name and descriptor set. Name: {}",
                                     name );
                 }
@@ -481,10 +481,10 @@ bool Reflect( ShaderStage shaderStage,
         }
     }
 
-    for ( const spirv_cross::Resource& resource : resources.storage_buffers ) {
+    for( const spirv_cross::Resource& resource : resources.storage_buffers ) {
         const SmallVector< BufferRange >& activeBuffers = compiler.get_active_buffer_ranges( resource.id );
         // Discard unused buffers from headers
-        if ( activeBuffers.empty() == false ) {
+        if( activeBuffers.empty() == false ) {
             const String& name = resource.name;
             const String& alias = compiler.get_name( resource.id );
             const SPIRType& bufferType = compiler.get_type( resource.base_type_id );
@@ -493,8 +493,8 @@ bool Reflect( ShaderStage shaderStage,
                 compiler.get_decoration( resource.id, spv::DecorationDescriptorSet ) );
             uint32_t size = static_cast< uint32_t >( compiler.get_declared_struct_size( bufferType ) );
 
-            if ( IsReservedDescriptorSet( descriptorSet ) ) {
-                if ( IsReservedResourceName( name ) == false ) {
+            if( IsReservedDescriptorSet( descriptorSet ) ) {
+                if( IsReservedResourceName( name ) == false ) {
                     ONYX_LOG_ERROR( "Found a resource that is using the a reserved name and descriptor set. Name: {}",
                                     name );
                 }
@@ -514,28 +514,28 @@ bool Reflect( ShaderStage shaderStage,
         }
     }
 
-    for ( const spirv_cross::Resource& resource : resources.push_constant_buffers ) {
+    for( const spirv_cross::Resource& resource : resources.push_constant_buffers ) {
         const String& bufferName = resource.name;
         const SPIRType& bufferType = compiler.get_type( resource.base_type_id );
         uint32_t bufferSize = static_cast< uint32_t >( compiler.get_declared_struct_size( bufferType ) );
         uint32_t memberCount = static_cast< uint32_t >( bufferType.member_types.size() );
         uint32_t bufferOffset = 0;
 
-        if ( outReflectionInfo.pushConstantRanges.empty() == false ) {
-            const PushConstantRange& last = outReflectionInfo.pushConstantRanges.back();
+        if( outReflectionInfo.PushConstantRanges.empty() == false ) {
+            const PushConstantRange& last = outReflectionInfo.PushConstantRanges.back();
             bufferOffset = last.Offset + last.Size;
         }
 
-        PushConstantRange& pushConstantRange = outReflectionInfo.pushConstantRanges.emplace_back();
+        PushConstantRange& pushConstantRange = outReflectionInfo.PushConstantRanges.emplace_back();
         pushConstantRange.Stage = shaderStage;
         pushConstantRange.Size = bufferSize - bufferOffset;
         pushConstantRange.Offset = bufferOffset;
 
-        ShaderBuffer& buffer = outReflectionInfo.constantBuffers[ bufferName ];
+        ShaderBuffer& buffer = outReflectionInfo.ConstantBuffers[ bufferName ];
         buffer.Name = bufferName;
         buffer.Size = bufferSize - bufferOffset;
 
-        for ( uint32_t i = 0; i < memberCount; i++ ) {
+        for( uint32_t i = 0; i < memberCount; i++ ) {
             const String& memberName = compiler.get_member_name( bufferType.self, i );
 
             uint32_t size = static_cast< uint32_t >( compiler.get_declared_struct_member_size( bufferType, i ) );
@@ -546,7 +546,7 @@ bool Reflect( ShaderStage shaderStage,
         }
     }
 
-    for ( const spirv_cross::Resource& resource : resources.sampled_images ) {
+    for( const spirv_cross::Resource& resource : resources.sampled_images ) {
         const String& name = resource.name;
         const SPIRType& baseType = compiler.get_type( resource.base_type_id );
         const SPIRType& type = compiler.get_type( resource.type_id );
@@ -556,8 +556,8 @@ bool Reflect( ShaderStage shaderStage,
         uint32_t dimension = baseType.image.dim;
         uint32_t arraySize = type.array.empty() ? 1 : type.array[ 0 ];
 
-        if ( IsReservedDescriptorSet( descriptorSet ) ) {
-            if ( IsReservedResourceName( name ) == false ) {
+        if( IsReservedDescriptorSet( descriptorSet ) ) {
+            if( IsReservedResourceName( name ) == false ) {
                 ONYX_LOG_ERROR( "Found a resource that is using the a reserved name and descriptor set. Name: {}",
                                 name );
             }
@@ -576,10 +576,10 @@ bool Reflect( ShaderStage shaderStage,
         imageSampler.Dimension = dimension;
         imageSampler.ArraySize = arraySize;
 
-        outReflectionInfo.shaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
+        outReflectionInfo.ShaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
     }
 
-    for ( const spirv_cross::Resource& resource : resources.separate_images ) {
+    for( const spirv_cross::Resource& resource : resources.separate_images ) {
         const String& name = resource.name;
         const SPIRType& baseType = compiler.get_type( resource.base_type_id );
         const SPIRType& type = compiler.get_type( resource.type_id );
@@ -589,8 +589,8 @@ bool Reflect( ShaderStage shaderStage,
         uint32_t dimension = baseType.image.dim;
         uint32_t arraySize = type.array.empty() ? 1 : type.array[ 0 ];
 
-        if ( IsReservedDescriptorSet( descriptorSet ) ) {
-            if ( IsReservedResourceName( name ) == false ) {
+        if( IsReservedDescriptorSet( descriptorSet ) ) {
+            if( IsReservedResourceName( name ) == false ) {
                 ONYX_LOG_ERROR( "Found a resource that is using the a reserved name and descriptor set. Name: {}",
                                 name );
             }
@@ -609,10 +609,10 @@ bool Reflect( ShaderStage shaderStage,
         imageSampler.Dimension = dimension;
         imageSampler.ArraySize = arraySize;
 
-        outReflectionInfo.shaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
+        outReflectionInfo.ShaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
     }
 
-    for ( const spirv_cross::Resource& resource : resources.separate_samplers ) {
+    for( const spirv_cross::Resource& resource : resources.separate_samplers ) {
         const String& name = resource.name;
         const SPIRType& baseType = compiler.get_type( resource.base_type_id );
         const SPIRType& type = compiler.get_type( resource.type_id );
@@ -622,8 +622,8 @@ bool Reflect( ShaderStage shaderStage,
         uint32_t dimension = baseType.image.dim;
         uint32_t arraySize = type.array.empty() ? 1 : type.array[ 0 ];
 
-        if ( IsReservedDescriptorSet( descriptorSet ) ) {
-            if ( IsReservedResourceName( name ) == false ) {
+        if( IsReservedDescriptorSet( descriptorSet ) ) {
+            if( IsReservedResourceName( name ) == false ) {
                 ONYX_LOG_ERROR( "Found a resource that is using the a reserved name and descriptor set. Name: {}",
                                 name );
             }
@@ -642,10 +642,10 @@ bool Reflect( ShaderStage shaderStage,
         imageSampler.Dimension = dimension;
         imageSampler.ArraySize = arraySize;
 
-        outReflectionInfo.shaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
+        outReflectionInfo.ShaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
     }
 
-    for ( const spirv_cross::Resource& resource : resources.storage_images ) {
+    for( const spirv_cross::Resource& resource : resources.storage_images ) {
         const String& name = resource.name;
         const SPIRType& type = compiler.get_type( resource.type_id );
         uint32_t binding = compiler.get_decoration( resource.id, spv::DecorationBinding );
@@ -654,8 +654,8 @@ bool Reflect( ShaderStage shaderStage,
         uint32_t dimension = type.image.dim;
         uint32_t arraySize = type.array.empty() ? 1 : type.array[ 0 ];
 
-        if ( IsReservedDescriptorSet( descriptorSet ) ) {
-            if ( IsReservedResourceName( name ) == false ) {
+        if( IsReservedDescriptorSet( descriptorSet ) ) {
+            if( IsReservedResourceName( name ) == false ) {
                 ONYX_LOG_ERROR( "Found a resource that is using the a reserved name and descriptor set. Name: {}",
                                 name );
             }
@@ -674,7 +674,7 @@ bool Reflect( ShaderStage shaderStage,
         imageSampler.ArraySize = arraySize;
         imageSampler.Stage = shaderStage;
 
-        outReflectionInfo.shaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
+        outReflectionInfo.ShaderResources[ name ] = ShaderResourceDeclaration( name, descriptorSet, binding, 1 );
     }
 
     return true;
@@ -685,15 +685,15 @@ bool IsReservedDescriptorSet( uint8_t set ) {
 }
 
 ShaderDescriptorSet& GetOrCreateShaderDescriptorSet( uint8_t setIndex, ShaderReflectionInfo& reflectionInfo ) {
-    auto it = std::find_if( reflectionInfo.shaderDescriptorSets.begin(),
-                            reflectionInfo.shaderDescriptorSets.end(),
+    auto it = std::find_if( reflectionInfo.ShaderDescriptorSets.begin(),
+                            reflectionInfo.ShaderDescriptorSets.end(),
                             [ & ]( ShaderDescriptorSet& descriptorSet ) { return setIndex == descriptorSet.Set; } );
 
-    if ( it != reflectionInfo.shaderDescriptorSets.end() ) {
+    if( it != reflectionInfo.ShaderDescriptorSets.end() ) {
         return *it;
     }
 
-    return reflectionInfo.shaderDescriptorSets.emplace_back( setIndex );
+    return reflectionInfo.ShaderDescriptorSets.emplace_back( setIndex );
 }
 
 bool ValidateCode( const GraphicsSystem& graphicsSystem, const String& shaderSourceCode ) {
@@ -706,7 +706,7 @@ bool ValidateCode( const GraphicsSystem& graphicsSystem, const String& shaderSou
         shaderc_glsl_default_vertex_shader,
         "validation",
         shaderCOptions );
-    if ( preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success ) {
+    if( preProcessingResult.GetCompilationStatus() != shaderc_compilation_status_success ) {
         ONYX_LOG_ERROR( "Validation for shader source failed. \nError: {}", preProcessingResult.GetErrorMessage() );
         return false;
     }

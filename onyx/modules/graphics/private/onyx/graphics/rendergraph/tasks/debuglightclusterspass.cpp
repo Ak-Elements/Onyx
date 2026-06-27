@@ -6,25 +6,25 @@
 
 namespace onyx::graphics::render_graph_nodes {
 DebugLightClustersRenderPass::DebugLightClustersRenderPass() {
-    m_PipelineProperties.Shader = "engine:/shaders/debug/renderlightclusters.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/debug/renderlightclusters.oshader";
 
-    RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+    RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = RenderGraphResourceType::Attachment;
 
-    m_PipelineProperties.Topology = rhi::PrimitiveTopology::LineStrip;
+    m_pipelineProperties.Topology = rhi::PrimitiveTopology::LineStrip;
 }
 
-void DebugLightClustersRenderPass::OnBeginFrame( RenderGraphContext& context ) {
+void DebugLightClustersRenderPass::onBeginFrame( RenderGraphContext& context ) {
     uint64_t outputGlobalId = m_output.GetGlobalId().get();
 
-    if ( m_input0.IsConnected() ) {
-        const RenderGraphResource& inputResource = context.Graph.GetResource( m_input0.GetLinkedPinGlobalId().get() );
-        RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
+    if( m_input0.IsConnected() ) {
+        const RenderGraphResource& inputResource = context.Graph.getResource( m_input0.GetLinkedPinGlobalId().get() );
+        RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
 }
 
-void DebugLightClustersRenderPass::OnRender( RenderGraphContext& /*context*/, rhi::CommandBuffer& /*commandBuffer*/ ) {
+void DebugLightClustersRenderPass::onRender( RenderGraphContext& /*context*/, rhi::CommandBuffer& /*commandBuffer*/ ) {
     ONYX_PROFILE_FUNCTION;
     // commandBuffer.Draw(PrimitiveTopology::Point, 0, 24, 0, CLUSTER_X * CLUSTER_Y * CLUSTER_Z);
 }

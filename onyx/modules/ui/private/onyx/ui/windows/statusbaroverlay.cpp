@@ -22,7 +22,7 @@ void StatusBarOverlay::onRender( ImGuiSystem& /*imguiSystem*/ ) {
         const StringView overlayName = overlay->getName();
         const StringView value = overlay->getValue();
 
-        bool hasClicked = ui::Button( value.data(), Vector2f32( 100, 0 ) );
+        bool hasClicked = ui::button( value.data(), Vector2f32( 100, 0 ) );
 
         if( hasClicked ) {
             bool open = true;

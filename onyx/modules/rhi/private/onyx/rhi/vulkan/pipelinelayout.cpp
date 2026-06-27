@@ -23,7 +23,7 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const DescriptorSe
 PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shader )
     : m_Device( api.getDevice() ) {
     //// Descriptor set layouts
-    const auto& descriptorSetLayouts = shader.GetDescriptorSetLayouts();
+    const auto& descriptorSetLayouts = shader.getDescriptorSetLayouts();
     const uint32_t descriptorSetLayoutsCount = static_cast< uint32_t >( descriptorSetLayouts.size() );
 
     // + 1 for bindless
@@ -40,7 +40,7 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
         vkDescriptorSetLayouts.push_back( descriptorSetLayout->GetHandle() );
     }
     //// Push constant ranges
-    const DynamicArray< PushConstantRange >& pushConstantRanges = shader.GetPushConstantRanges();
+    const DynamicArray< PushConstantRange >& pushConstantRanges = shader.getPushConstantRanges();
     const uint32_t pushConstantRangesCount = static_cast< uint32_t >( pushConstantRanges.size() );
 
     DynamicArray< VkPushConstantRange > vkPushConstantRanges;

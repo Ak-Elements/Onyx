@@ -156,7 +156,7 @@ class Theme : public assets::Asset< Theme > {
     };
 
     static constexpr StringId32 TypeId{ "onyx::ui::assets::Theme" };
-    StringId32 GetTypeId() const { return TypeId; }
+    static StringId32 getTypeId() { return TypeId; }
 
     void apply();
 

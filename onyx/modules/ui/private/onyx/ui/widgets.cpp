@@ -76,14 +76,18 @@ void drawPinnableWindowTitleBar( StringView title, bool& isPinned ) {
 }
 
 void drawItemBackground( float32 rounding, float32 borderThickness, uint32_t color ) {
+    ImVec2 rectMin = ImGui::GetItemRectMin();
+    ImVec2 rectMax = ImGui::GetItemRectMax();
+    drawItemBackground( rectMin, rectMax, rounding, borderThickness, color );
+}
+
+void drawItemBackground( ImVec2 rectMin, ImVec2 rectMax, float32 rounding, float32 borderThickness, uint32_t color ) {
     ::ImGuiWindow* window = ImGui::GetCurrentWindow();
     if( window->SkipItems )
         return;
 
     // ImGuiContext& g = *GImGui;
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    ImVec2 rectMin = ImGui::GetItemRectMin();
-    ImVec2 rectMax = ImGui::GetItemRectMax();
 
     float32 spacing = 0.0f;
     rectMin.x += borderThickness + spacing;
@@ -128,6 +132,78 @@ void drawItemBorder( float32 thickness, float32 rounding, uint32_t color ) {
     drawList->AddRect( rect.Min, rect.Max, color, rounding, ImDrawFlags_None, thickness );
 }
 
+bool drawMultiSelect( StringView id, const DynamicArray< StringView >& items, HashSet< uint32_t >& selectedIndices ) {
+    ScopedImGuiId scopedId( id );
+
+    ImGuiStorage* stateStorage = ImGui::GetStateStorage();
+    ImGuiID searchStringId = ImGui::GetID( "searchString" );
+    bool shouldFocus = ImGui::IsWindowAppearing();
+
+    String* searchStringPtr = static_cast< String* >( stateStorage->GetVoidPtr( searchStringId ) );
+    if( searchStringPtr == nullptr ) {
+        searchStringPtr = new String();
+        stateStorage->SetVoidPtr( searchStringId, searchStringPtr );
+    }
+
+    String& searchString = *searchStringPtr;
+    bool modified = false;
+    drawSearchBar( searchString, "Search...", shouldFocus );
+
+    constexpr ImGuiWindowFlags ListFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                                           ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |
+                                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav |
+                                           ImGuiWindowFlags_NoBackground;
+
+    if( ImGui::BeginChild( "##ScrollList",
+                           ImVec2( 0, ImGui::GetTextLineHeightWithSpacing() * 10 ),
+                           ImGuiChildFlags_FrameStyle | ImGuiChildFlags_NavFlattened,
+                           ListFlags ) ) {
+        int32_t itemsCount = numericCast< int32_t >( items.size() );
+        for( int32_t i = 0; i < itemsCount; ++i ) {
+            StringView item = items[ i ];
+            if( !searchString.empty() && ignoreCaseFind( item, searchString ) == StringView::npos )
+                continue;
+
+            ScopedImGuiId scopedItemId( i );
+            bool isSelected = selectedIndices.contains( i );
+            bool itemModified = false;
+
+            // Full-width selectable behind the checkbox
+            const ImVec2 rowStart = ImGui::GetCursorScreenPos();
+            if( ImGui::Selectable( "##sel",
+                                   isSelected,
+                                   (uint32_t)ImGuiSelectableFlags_SelectOnClick | ImGuiSelectableFlags_AllowOverlap |
+                                       ImGuiSelectableFlags_SpanAllColumns,
+                                   ImVec2( 0, ImGui::GetFrameHeight() ) ) ) {
+                isSelected = !isSelected;
+                itemModified = true;
+            }
+
+            // Overlay checkbox flush to the left of the row
+            ImGui::SameLine( 0, 0 );
+            ImGui::SetCursorScreenPos( rowStart );
+            if( ImGui::Checkbox( "##chk", &isSelected ) )
+                itemModified = true;
+
+            // Label to the right of the checkbox
+            ImGui::SameLine();
+            ImGui::TextUnformatted( item.data() );
+
+            if( itemModified ) {
+                ImGui::ClearActiveID();
+
+                if( isSelected )
+                    selectedIndices.emplace( i );
+                else
+                    selectedIndices.erase( i );
+                modified = true;
+            }
+        }
+    }
+    ImGui::EndChild();
+    return modified;
+}
+
 bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus ) {
     bool modified = false;
     // Unique identifier for the input text field
@@ -138,32 +214,37 @@ bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus 
     ImGuiID searchInputId;
     // Push a unique ID for the search bar
     ImGui::PushID( SearchBarId++ );
-
+    ImGui::BeginGroup();
+    ImGui::SuspendLayout();
     // Adjust the size to account for border and drop shadow
-    ImVec2 searchBarSize = ImVec2( ImGui::GetContentRegionAvail().x - dropShadowSize,
-                                   ImGui::GetTextLineHeightWithSpacing() + 2 * borderSize );
+    float32 width = ImGui::CalcItemWidth();
+    ImVec2 searchBarSize = ImVec2( width - dropShadowSize, ImGui::GetTextLineHeightWithSpacing() + 2 * borderSize );
 
-    ImVec2 cursorPos = ImGui::GetCursorPos();
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
 
     // Adjust the size to account for border and drop shadow
     ImGui::SetNextItemAllowOverlap();
     if( ImGui::InvisibleButton( "##searchBarInteraction", ImVec2( searchBarSize.x, searchBarSize.y ) ) ) {
         grabFocus = true;
     }
-    ImGui::SetCursorPos( cursorPos );
+    ImGui::SetCursorScreenPos( cursorPos );
 
-    drawItemBackground( 3.0f, borderSize, 0xFF333333 );
-
-    ImGui::BeginHorizontal( "##searchBar", searchBarSize );
-
+    drawItemBackground( cursorPos,
+                        cursorPos + searchBarSize,
+                        3.0f,
+                        borderSize,
+                        ImGui::GetColorU32( ImGuiCol_FrameBg ) );
     const float32 framePaddingY = ImGui::GetStyle().FramePadding.y;
 
     // Search icon
     const float32 iconSize = ImGui::GetTextLineHeightWithSpacing() - framePaddingY / 2.0f;
     const float32 halfIconSize = iconSize / 2.0f;
 
-    drawSearchIcon( ImGui::GetWindowDrawList(), ImVec2( 0, 0 ), halfIconSize, ImGui::GetColorU32( ImGuiCol_Button ) );
-    ImGui::SetCursorPosX( ImGui::GetCursorPosX() + spacingX );
+    drawSearchIcon( ImGui::GetWindowDrawList(),
+                    ImVec2( 0, framePaddingY * 0.5f ),
+                    halfIconSize,
+                    ImGui::GetColorU32( ImGuiCol_TextDisabled ) );
+    ImGui::SetCursorScreenPos( ImGui::GetCursorScreenPos() + ImVec2( spacingX, 0 ) );
 
     {
         ScopedImGuiColor scopedColors{ { ImGuiCol_FrameBg, 0x00000000 },
@@ -171,6 +252,7 @@ bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus 
                                        { ImGuiCol_FrameBgActive, 0x00000000 },
                                        { ImGuiCol_Border, 0x00000000 } };
 
+        // ImGui::SameLine();
         ImGui::SetNextItemWidth( searchBarSize.x - 2 * iconSize - 2 * spacingX );
         searchInputId = ImGui::GetID( "##searchbarinput" );
         if( ui::drawStringInput( "##searchbarinput", hintLabel, searchString ) ) {
@@ -189,35 +271,29 @@ bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus 
             grabFocus = false;
     }
 
-    ImGui::Spring();
-
+    // ImGui::Spring();
+    ImGui::SameLine();
     bool isSearching = searchString.empty() == false;
     if( isSearching ) {
         if( drawCloseButton( ImGui::GetWindowDrawList(),
-                             ImVec2( 0.0f, 0.0f ),
+                             ImVec2( 0.0f, ( iconSize - halfIconSize + framePaddingY ) * 0.5f ),
                              halfIconSize,
-                             ImGui::GetColorU32( ImGuiCol_Button ) ) ) {
+                             ImGui::GetColorU32( ImGuiCol_TextDisabled ) ) ) {
             searchString.clear();
             grabFocus = true; // grab focus in next update
             modified = true;
         }
     }
 
-    ImGui::Spring( -1.0f, spacingX * 2.0f );
-
-    ImGui::EndHorizontal();
-
+    ImGui::ResumeLayout();
+    ImGui::EndGroup();
     bool isActive = searchInputId == ImGui::GetActiveID();
     drawItemBorder( borderSize,
                     3.0f,
                     isActive ? ImGui::GetColorU32( ImGuiCol_ButtonActive ) : ImGui::GetColorU32( ImGuiCol_Border ) );
-
-    ImGui::SetCursorPosY( ImGui::GetCursorPosY() - 1.0f );
-
     // Pop the ID
     ImGui::PopID();
     --SearchBarId;
-
     return modified;
 }
 
@@ -470,7 +546,7 @@ void drawSearchIcon( ImDrawList* drawList, ImVec2 offset, float32 radius, uint32
 
     drawList->AddLine( handleStart, handleEnd, color, handleWidth );
 
-    ImGui::SetCursorPosX( ImGui::GetCursorPosX() + offset.x + 2 * radius );
+    ImGui::SetCursorScreenPos( cursorPos + ImVec2( offset.x + 2 * radius, 0 ) );
 }
 
 bool drawCloseButton( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color ) {
@@ -481,7 +557,9 @@ bool drawCloseButton( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_
     ImGui::PushID( "uniqueCloseButton" );
 
     // Create a button
+    ImGui::SetCursorScreenPos( cursorPos + ImVec2( offset.x, offset.y ) );
     bool pressed = ImGui::InvisibleButton( "##close_button", ImVec2( size, size ) );
+    ImGui::SetCursorScreenPos( cursorPos );
 
     if( ImGui::IsMouseHoveringRect( ImGui::GetItemRectMin(), ImGui::GetItemRectMax() ) )
         ImGui::SetMouseCursor( ImGuiMouseCursor_Arrow );
@@ -502,7 +580,7 @@ bool drawCloseButton( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_
 
     ImGui::PopID();
 
-    ImGui::SetCursorPosX( ImGui::GetCursorPosX() + offset.x + size );
+    ImGui::SetCursorScreenPos( cursorPos + ImVec2( offset.x + size, 0 ) );
 
     return pressed;
 }
@@ -539,7 +617,6 @@ void drawFolderIcon( ImDrawList* drawList,
                               topLeft + ImVec2( 0, tabHeight ) };
 
     drawList->PathClear();
-
     drawList->PathArcToFast( lidPoints[ 0 ] + ImVec2( rounding, rounding ), rounding, 6, 9 );
     drawList->PathLineTo( lidPoints[ 1 ] );
 
@@ -548,8 +625,45 @@ void drawFolderIcon( ImDrawList* drawList,
     drawList->PathLineTo( lidPoints[ 4 ] );
     drawList->PathLineTo( lidPoints[ 0 ] );
     drawList->PathFillConvex( colorFolderLid );
+}
 
-    // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
+void drawFileIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color ) {
+    const float foldSize = size * 0.25f;
+    const float fullH = size * 1.25f;
+
+    ImVec2 pos = ImGui::GetCursorScreenPos() + offset;
+    const ImVec2 topLeft = pos;
+    const ImVec2 bottomRight = pos + ImVec2( size, fullH );
+
+    const ImVec2 foldStart( bottomRight.x - foldSize, topLeft.y );
+    const ImVec2 foldTip( bottomRight.x, topLeft.y + foldSize );
+
+    drawList->PathClear();
+    drawList->PathLineTo( topLeft );                                // TL
+    drawList->PathLineTo( foldStart );                              // cut start
+    drawList->PathLineTo( foldTip );                                // cut end
+    drawList->PathLineTo( ImVec2( bottomRight.x, bottomRight.y ) ); // BR
+    if( rounding > 0.0f ) {
+        drawList->PathArcToFast( ImVec2( topLeft.x + rounding, bottomRight.y - rounding ), rounding, 3, 6 );
+        drawList->PathArcToFast( ImVec2( topLeft.x + rounding, topLeft.y + rounding ), rounding, 6, 9 );
+    } else {
+        drawList->PathLineTo( ImVec2( topLeft.x, bottomRight.y ) ); // BL
+        drawList->PathLineTo( topLeft );                            // back to TL
+    }
+    drawList->PathStroke( color.toABGR() );
+
+    // Fold triangle — the dog-ear flap
+    drawList->AddTriangle( foldStart, foldTip, ImVec2( foldStart.x, foldTip.y ), color.toABGR() );
+
+    // // Optional: a couple of faint lines to suggest text on the page
+    // const uint32_t lineColor = ( color.toABGR() & 0x00FFFFFF ) | 0x28000000; // 16% alpha of body color
+    // const float lineX0 = topLeft.x + size * 0.15f;
+    // const float lineX1 = bottomRight.x - size * 0.15f;
+    // const float lineStep = fullH * 0.15f;
+    // for( int i = 0; i < 3; ++i ) {
+    //     const float y = topLeft.y + foldSize + lineStep * ( i + 1 );
+    //     drawList->AddLine( ImVec2( lineX0, y ), ImVec2( lineX1, y ), lineColor, 1.0f );
+    // }
 }
 
 void drawPlusIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color ) {
@@ -646,8 +760,6 @@ void drawXIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t colo
     drawList->PathLineTo( p3 );
     drawList->PathLineTo( p4 );
     drawList->PathFillConvex( color );
-
-    // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
 }
 
 void drawDivisionIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color ) {
@@ -670,13 +782,21 @@ void drawDivisionIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32
     // Bottom dot
     ImVec2 bottomDotCenter = ImVec2( center.x, center.y + size * 0.4f );
     drawList->AddCircleFilled( bottomDotCenter, dotRadius, color );
-
-    // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
 }
+
+// void drawFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color ) {
+//     // ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+//     // ImVec2 center = cursorPos - offset;
+//     // uint32_t colorARGB = color.toABGR();
+//
+//
+//
+// }
 
 void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color ) {
     drawPinIcon( drawList, offset, size, rounding, color.toABGR() );
 }
+
 void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color ) {
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
     float32 halfSize = size * 0.5f;
@@ -699,6 +819,47 @@ void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rou
     drawList->AddLine( ImVec2( center.x, needleTop ), ImVec2( center.x, needleBottom ), color, lineThickness );
 
     ImGui::SetCursorPosX( ImGui::GetCursorPosX() + offset.x + size );
+}
+
+void drawFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color ) {
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImVec2 base = ImVec2( cursorPos.x + offset.x, cursorPos.y + offset.y );
+
+    // All points relative to size, matching the funnel shape
+    const float32 lineThickness = std::max( 1.0f, std::round( size * 0.05f ) );
+
+    ImVec2 pts[ 6 ] = {
+        { base.x + size * 0.00f, base.y + size * 0.00f }, // top-left
+        { base.x + size * 1.00f, base.y + size * 0.00f }, // top-right
+        { base.x + size * 0.62f, base.y + size * 0.50f }, // mid-right
+        { base.x + size * 0.62f, base.y + size * 1.00f }, // bottom-right stem
+        { base.x + size * 0.38f, base.y + size * 0.75f }, // bottom-left stem
+        { base.x + size * 0.38f, base.y + size * 0.50f }, // mid-left
+    };
+
+    drawList->PathClear();
+    for( const auto& p : pts )
+        drawList->PathLineTo( p );
+    drawList->PathStroke( color, ImDrawFlags_Closed, lineThickness );
+}
+
+void drawFilledFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color ) {
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImVec2 base = ImVec2( cursorPos.x + offset.x, cursorPos.y + offset.y );
+
+    ImVec2 pts[ 6 ] = {
+        { base.x + size * 0.00f, base.y + size * 0.00f }, // top-left
+        { base.x + size * 1.00f, base.y + size * 0.00f }, // top-right
+        { base.x + size * 0.62f, base.y + size * 0.50f }, // mid-right
+        { base.x + size * 0.62f, base.y + size * 1.00f }, // bottom-right stem
+        { base.x + size * 0.38f, base.y + size * 0.75f }, // bottom-left stem
+        { base.x + size * 0.38f, base.y + size * 0.50f }, // mid-left
+    };
+
+    drawList->PathClear();
+    for( const auto& p : pts )
+        drawList->PathLineTo( p );
+    drawList->PathFillConcave( color );
 }
 
 void drawMovieCameraIcon( ImDrawList* drawList, ImVec2 offset, float32 size, Color color, Color accent ) {

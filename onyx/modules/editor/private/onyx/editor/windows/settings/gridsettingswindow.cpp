@@ -34,7 +34,7 @@ void GridSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     game_core::Scene& currentScene = *currentSceneHandle;
     graphics::RenderGraph& renderGraph = currentScene.getRenderGraph();
 
-    GridSettings& gridSettings = renderGraph.GetInput< GridSettings >();
+    GridSettings& gridSettings = renderGraph.getInput< GridSettings >();
 
     // TODO: Localization
     ui::property_grid::beginPropertyGrid( "GridSettings", 80.0f );

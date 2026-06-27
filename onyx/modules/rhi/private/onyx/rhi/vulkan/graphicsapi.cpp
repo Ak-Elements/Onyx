@@ -1007,7 +1007,7 @@ DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::createDescriptorSet( cons
 
     const Shader& vulkanShader = shader.as< Shader >();
     const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >&
-        descriptorSetLayouts = vulkanShader.GetDescriptorSetLayouts();
+        descriptorSetLayouts = vulkanShader.getDescriptorSetLayouts();
 
     for( const UniquePtr< DescriptorSetLayout >& layout : descriptorSetLayouts ) {
 #if ONYX_IS_RETAIL

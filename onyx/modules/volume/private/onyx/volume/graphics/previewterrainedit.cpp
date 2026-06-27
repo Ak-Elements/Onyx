@@ -15,31 +15,31 @@ uint16_t PreviewTerrainEditPass::BrushType = 0;
 uint16_t PreviewTerrainEditPass::BrushOperation = 0;
 
 PreviewTerrainEditPass::PreviewTerrainEditPass() {
-    m_PipelineProperties.Shader = "engine:/shaders/volume/render_terrain_brush.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/volume/render_terrain_brush.oshader";
 
-    m_InputAttachmentInfos.emplace_back(); // buffer
-    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+    m_inputAttachmentInfos.emplace_back(); // buffer
+    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
 }
 
-void PreviewTerrainEditPass::OnBeginFrame( graphics::RenderGraphContext& context ) {
+void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
     uint64_t outputGlobalId = GetOutputPin( 0 )->GetGlobalId().get();
 
     const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId( InPin1::LocalId );
     if( gbufferRenderTargetPin->IsConnected() ) {
-        const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
             gbufferRenderTargetPin->GetLinkedPinGlobalId().get() );
-        graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
+        graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
 }
 
-void PreviewTerrainEditPass::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    if( context.Graph.HasResource( HIT_BUFFER_RESOURCE_ID ) == false ) {
+    if( context.Graph.hasResource( HIT_BUFFER_RESOURCE_ID ) == false ) {
         return;
     }
 
@@ -53,12 +53,11 @@ void PreviewTerrainEditPass::OnRender( graphics::RenderGraphContext& context, rh
     };
 
     PushConstants constants;
-    const graphics::RenderGraphResource& hitBufferResource = context.Graph.GetResource( HIT_BUFFER_RESOURCE_ID );
+    const graphics::RenderGraphResource& hitBufferResource = context.Graph.getResource( HIT_BUFFER_RESOURCE_ID );
     const rhi::BufferHandle& buffer = std::get< rhi::BufferHandle >( hitBufferResource.Handle );
     constants.HitPositionBuffer = buffer.Buffer->GetGpuAddress();
 
-    const graphics::RenderGraphResource& depthTextureResource = context.Graph.GetResource(
-        graphics::DEPTH_RESOURCE_ID );
+    const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
     const rhi::TextureHandle& depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
     constants.DepthTextureIndex = depthTexture.Texture->GetIndex();
 

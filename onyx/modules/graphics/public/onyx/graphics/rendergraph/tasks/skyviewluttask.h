@@ -14,8 +14,8 @@ class SkyViewLutRenderGraphNode : public node_graph::FixedPinNode_2_In_1_Out< Re
     StringId32 GetTypeId() const override { return TypeId; }
 
   private:
-    void OnBeginFrame( RenderGraphContext& context ) override;
-    void OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( RenderGraphContext& context ) override;
+    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
     Vector3f32 GetSunDirection( float timeOfDay ) const;
 

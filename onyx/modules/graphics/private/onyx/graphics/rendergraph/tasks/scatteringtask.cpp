@@ -3,7 +3,7 @@
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx::graphics::render_graph_nodes {
-void CreateTransmittanceRenderGraphNode::OnRender( RenderGraphContext& /*context*/,
+void CreateTransmittanceRenderGraphNode::onRender( RenderGraphContext& /*context*/,
                                                    rhi::CommandBuffer& commandBuffer ) {
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }

@@ -24,7 +24,7 @@ bool MaterialShaderGraphSerializer::serialize( const assets::AssetHandle< assets
         file_system::path::getFullPath( file_system::path::replaceExtension( meta.Path, "oshader" ) ) );
     file_system::FileStream shaderOutStream = shaderOutFile.OpenStream( file_system::OpenMode::Write |
                                                                         file_system::OpenMode::Text );
-    shaderOutStream.writeRaw( shaderGraph.GetShaderCode().data(), shaderGraph.GetShaderCode().size() );
+    shaderOutStream.writeRaw( shaderGraph.getShaderCode().data(), shaderGraph.getShaderCode().size() );
 
     return true;
 }
@@ -48,7 +48,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
     // TODO: Add shader generator factory here to create unlit shader
     rhi::PBRShaderGenerator shaderGenerator;
-    if( shaderGraph.GenerateShader( shaderGenerator ) == false )
+    if( shaderGraph.generateShader( shaderGenerator ) == false )
         return false;
 
     // const uint64_t shaderCodeHash = hash::FNV1aHash<uint64_t>(shaderGraph.GetShaderCode(),
@@ -67,7 +67,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     }*/
 
     // call on changed on nodes to queue dependency loading (e.g. textures)
-    node_graph::NodeGraph& nodeGraph = shaderGraph.GetNodeGraph();
+    node_graph::NodeGraph& nodeGraph = shaderGraph.getNodeGraph();
     for( auto& node : ( nodeGraph.getNodes() | std::views::values ) ) {
         ShaderGraphNode& shaderGraphNode = static_cast< ShaderGraphNode& >( *node.Data );
         shaderGraphNode.OnNodeChanged( assetSystem );
@@ -106,7 +106,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     blendState.DestinationAlpha = rhi::Blend::OneMinusSrcAlpha;
     blendState.AlphaOperation = rhi::BlendOperation::Add;
 
-    rhi::ShaderInstanceHandle& shaderEffect = shaderGraph.GetShader();
+    rhi::ShaderInstanceHandle& shaderEffect = shaderGraph.getShader();
     shaderEffect = graphicsSystem.createShaderInstance( assets::AssetId( shaderPath ), pipelineProperties );
 
     return true;

@@ -17,7 +17,7 @@ ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
         file_system::path::createDirectory( shaderCacheDirectory );
     }
 
-    for( const FilePath& shaderDirectory : GetShaderDirectories() ) {
+    for( const FilePath& shaderDirectory : getShaderDirectories() ) {
         m_directoryWatcher.addPath( shaderDirectory, true );
 
         file_system::path::enumerateFiles( shaderDirectory, [ & ]( const FilePath& path ) {
@@ -142,7 +142,7 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
                                              stage,
                                              stageCacheEntry.ByteCode ) &&
                     ShaderCompiler::Reflect( stage, preprocessedShader, stageCacheEntry.ByteCode, reflectionInfo ) ) {
-                    entry.Shader->AddStage( m_graphicsSystem, stage, stageCacheEntry.ByteCode );
+                    entry.Shader->addStage( m_graphicsSystem, stage, stageCacheEntry.ByteCode );
                 } else {
                     // failed compiling early out
                     ONYX_LOG_ERROR( "Failed compiling shader stage {}. ({})",
@@ -161,7 +161,7 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
         {
             ONYX_ASSERT( entry.Shader.isValid(), "Can't remove stage from invalid shader handle" );
             entry.Stages[ i ].Hash = 0;
-            entry.Shader->RemoveStage( enums::toEnum< ShaderStage >( i ) );
+            entry.Shader->removeStage( enums::toEnum< ShaderStage >( i ) );
         }
     }
 
@@ -171,9 +171,9 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
     // }
 
     // Create descriptors for shader stage
-    entry.Shader->SetShaderHash( shaderHash );
+    entry.Shader->setShaderHash( shaderHash );
     entry.Shader->setPath( shaderPath.generic_string() );
-    entry.Shader->UpdateReflectionData( m_graphicsSystem, reflectionInfo );
+    entry.Shader->updateReflectionData( m_graphicsSystem, reflectionInfo );
     entry.ShaderHash = shaderHash;
 
     // save out to disk
@@ -210,18 +210,18 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
         stream.readRaw( stageEntry.ByteCode );
         stream.readRaw( stageEntry.IncludeHashes );
 
-        outEntry.Shader->AddStage( m_graphicsSystem, enums::toEnum< ShaderStage >( i ), stageEntry.ByteCode );
+        outEntry.Shader->addStage( m_graphicsSystem, enums::toEnum< ShaderStage >( i ), stageEntry.ByteCode );
     }
 
     ShaderReflectionInfo reflectionInfo;
     stream.read( reflectionInfo );
 
-    outEntry.Shader->SetShaderHash( outEntry.ShaderHash );
+    outEntry.Shader->setShaderHash( outEntry.ShaderHash );
 #if !ONYX_IS_RETAIL
     outEntry.Shader->setPath( shaderPath.generic_string() );
 #endif
 
-    outEntry.Shader->UpdateReflectionData( m_graphicsSystem, reflectionInfo );
+    outEntry.Shader->updateReflectionData( m_graphicsSystem, reflectionInfo );
     return true;
 }
 

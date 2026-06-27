@@ -10,32 +10,32 @@
 
 namespace onyx::graphics::render_graph_nodes {
 DebugDrawTask::DebugDrawTask() {
-    m_PipelineProperties.Shader = "engine:/shaders/debug/debugdraw.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/debug/debugdraw.oshader";
 
-    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
     gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
 }
 
-void DebugDrawTask::OnBeginFrame( RenderGraphContext& context ) {
+void DebugDrawTask::onBeginFrame( RenderGraphContext& context ) {
     uint64_t outputGlobalId = GetOutputPin().GetGlobalId().get();
 
     const node_graph::PinBase& gbufferRenderTargetPin = GetInputPin();
     if( gbufferRenderTargetPin.IsConnected() ) {
-        const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
             gbufferRenderTargetPin.GetLinkedPinGlobalId().get() );
-        graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
+        graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
 
-    DebugDrawQueue& debugQueue = GetGraphInput< DebugDrawQueue >( context.Graph );
+    DebugDrawQueue& debugQueue = getGraphInput< DebugDrawQueue >( context.Graph );
     debugQueue.clear();
 
     m_wireframeSpheresCount = 0;
     m_wireframeBoxesCount = 0;
 }
 
-void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/ ) {
+void DebugDrawTask::onPreRender( RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/ ) {
     rhi::BufferProperties ssboInstanceBuffer;
     ssboInstanceBuffer.m_DebugName = "TMP DebugSpheres";
     ssboInstanceBuffer.m_Size = sizeof( DebugSphere ) * 16; // This should match the size of queued spheres
@@ -51,7 +51,7 @@ void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer
 
     m_wireframeBoxesBuffer = context.FrameContext.Api->getTransientBuffer( ssboInstanceBuffer );
 
-    const DebugDrawQueue& debugQueue = GetGraphInput< DebugDrawQueue >( context.Graph );
+    const DebugDrawQueue& debugQueue = getGraphInput< DebugDrawQueue >( context.Graph );
     const Span< const DebugSphere > wireframeSpheres = debugQueue.getWireframeSpheres();
     const Span< const DebugBox > wireframeBoxes = debugQueue.getWireframeBoxes();
 
@@ -66,7 +66,7 @@ void DebugDrawTask::OnPreRender( RenderGraphContext& context, rhi::CommandBuffer
     }
 }
 
-void DebugDrawTask::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void DebugDrawTask::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     struct PushConstants {

@@ -18,10 +18,10 @@ class CreateLightClusters : public node_graph::FixedPinNode_1_Out< RenderGraphFi
     StringId32 GetTypeId() const override { return TypeId; }
 
   private:
-    void OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void onInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
 
-    void OnBeginFrame( RenderGraphContext& context ) override;
-    void OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( RenderGraphContext& context ) override;
+    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
   private:
     struct Constants {
@@ -54,10 +54,10 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode_1_In_
                                                        rhi::BufferHandle,
                                                        rhi::BufferHandle >;
 
-    void OnInit( rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache ) override;
+    void onInit( rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache ) override;
 
-    void OnBeginFrame( RenderGraphContext& context ) override;
-    void OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( RenderGraphContext& context ) override;
+    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
     StringView GetPinName( StringId32 pinId ) const override {

@@ -20,8 +20,8 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
     }
 
   protected:
-    node_graph::NodeGraph& getNodeGraph() override { return m_graph->GetNodeGraph(); }
-    const node_graph::NodeGraph& getNodeGraph() const override { return m_graph->GetNodeGraph(); }
+    node_graph::NodeGraph& getNodeGraph() override { return m_graph->getNodeGraph(); }
+    const node_graph::NodeGraph& getNodeGraph() const override { return m_graph->getNodeGraph(); }
 
   private:
     const node_graph::INodeFactory& getNodeFactory() const override { return m_nodeFactory; }
@@ -48,7 +48,7 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
         clear();
         m_graph = loadedGraph;
 
-        const auto& graphNodes = m_graph->GetNodeGraph().getNodes();
+        const auto& graphNodes = m_graph->getNodeGraph().getNodes();
 
         DynamicArray< Node >& nodes = getNodes();
         nodes.reserve( graphNodes.size() );

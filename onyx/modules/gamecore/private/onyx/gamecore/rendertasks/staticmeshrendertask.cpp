@@ -11,7 +11,7 @@
 #include <onyx/profiler/profiler.h>
 
 namespace onyx::game_core {
-bool hasBegun = false;
+bool g_hasBegun = false;
 
 StaticMeshRenderGraphNode::StaticMeshRenderGraphNode() {
     AddInPin< ViewConstantsInPin >();
@@ -23,26 +23,26 @@ StaticMeshRenderGraphNode::StaticMeshRenderGraphNode() {
 
     AddOutPin< OutPin >();
 
-    m_InputAttachmentInfos.emplace_back();
-    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_InputAttachmentInfos.emplace_back();
+    m_inputAttachmentInfos.emplace_back();
+    graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
     gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
 
-    graphics::RenderGraphTextureResourceInfo& depthtextureInfo = m_InputAttachmentInfos.emplace_back();
+    graphics::RenderGraphTextureResourceInfo& depthtextureInfo = m_inputAttachmentInfos.emplace_back();
     depthtextureInfo.Type = graphics::RenderGraphResourceType::Attachment;
 }
 
-void StaticMeshRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& context ) {
-    hasBegun = false;
+void StaticMeshRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) {
+    g_hasBegun = false;
     ONYX_PROFILE_FUNCTION;
 
     uint64_t outputGlobalId = GetOutputPin( 0 )->GetGlobalId().get();
 
     const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId( GBufferTargetInPin::LocalId );
     if( gbufferRenderTargetPin->IsConnected() ) {
-        const graphics::RenderGraphResource& inputResource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
             gbufferRenderTargetPin->GetLinkedPinGlobalId().get() );
-        graphics::RenderGraphResource& outResource = context.Graph.GetResource( outputGlobalId );
+        graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
 
@@ -53,22 +53,22 @@ void StaticMeshRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& cont
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
     for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
         const graphics::MaterialShaderGraph& shaderGraph = *drawCall.Material;
-        const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
+        const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.getShader();
 
-        BindResources( shaderInstance, context.Graph.GetResourceCache(), context.FrameContext );
-        hasBegun = true;
+        bindResources( shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
+        g_hasBegun = true;
     }
 
     for( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
         const graphics::MaterialShaderGraph& shaderGraph = *indirectDrawCall.Material;
-        const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.GetShader();
+        const rhi::ShaderInstanceHandle& shaderInstance = shaderGraph.getShader();
 
-        BindResources( shaderInstance, context.Graph.GetResourceCache(), context.FrameContext );
-        hasBegun = true;
+        bindResources( shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
+        g_hasBegun = true;
     }
 }
 
-void StaticMeshRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void StaticMeshRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::FrameContext& frameContext = context.FrameContext;
@@ -76,13 +76,13 @@ void StaticMeshRenderGraphNode::OnRender( graphics::RenderGraphContext& context,
     if( frameContext.FrameData == nullptr )
         return;
 
-    if( hasBegun == false )
+    if( g_hasBegun == false )
         return;
 
     const SceneFrameData& sceneFrameData = static_cast< const SceneFrameData& >( *frameContext.FrameData );
 
     for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
-        PrepareShaderGraph( commandBuffer, context.FrameContext, *drawCall.Material );
+        prepareShaderGraph( commandBuffer, context.FrameContext, *drawCall.Material );
 
         const uint32_t instanceCount = 1;
 
@@ -107,7 +107,7 @@ void StaticMeshRenderGraphNode::OnRender( graphics::RenderGraphContext& context,
         return;
 
     const StaticMeshIndirectDrawCall& first = sceneFrameData.m_StaticMeshIndirectDrawCalls.front();
-    PrepareShaderGraph( commandBuffer, context.FrameContext, *first.Material );
+    prepareShaderGraph( commandBuffer, context.FrameContext, *first.Material );
 
     for( const StaticMeshIndirectDrawCall& indirectDrawCall : sceneFrameData.m_StaticMeshIndirectDrawCalls ) {
         commandBuffer.bindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
@@ -119,20 +119,20 @@ void StaticMeshRenderGraphNode::OnRender( graphics::RenderGraphContext& context,
     }
 }
 
-void StaticMeshRenderGraphNode::PrepareShaderGraph( rhi::CommandBuffer& commandBuffer,
+void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandBuffer,
                                                     const rhi::FrameContext& frameContext,
                                                     const graphics::ShaderGraph& shaderGraph ) {
-    node_graph::GraphRunner runner( shaderGraph.GetNodeGraph() );
+    node_graph::GraphRunner runner( shaderGraph.getNodeGraph() );
     runner.Prepare();
     runner.Update( 0 );
 
     // TODO: Fix for other types
     const graphics::MaterialShaderGraph& materialShader = static_cast< const graphics::MaterialShaderGraph& >(
         shaderGraph );
-    commandBuffer.bindShaderEffect( materialShader.GetShader() );
+    commandBuffer.bindShaderEffect( materialShader.getShader() );
 
     const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get< graphics::ShaderGraphTextures >();
-    const DynamicArray< uint32_t >& textureIndices = shaderTextures.GetTextures();
+    const DynamicArray< uint32_t >& textureIndices = shaderTextures.getTextures();
 
     struct PushConstants {
         Vector3u32 LightClusterGridSize;
@@ -163,7 +163,7 @@ void StaticMeshRenderGraphNode::PrepareShaderGraph( rhi::CommandBuffer& commandB
     }
 }
 
-bool StaticMeshRenderGraphNode::IsEnabled() {
+bool StaticMeshRenderGraphNode::isEnabled() const {
     return true;
 }
 } // namespace onyx::game_core

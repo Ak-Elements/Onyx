@@ -23,6 +23,8 @@ class ShaderInstance : public RefCounted {
                     const Reference< Pipeline >& pipeline,
                     const assets::AssetHandle< Shader >& shader );
 
+    ~ShaderInstance() override;
+
     const Reference< Pipeline >& GetPipeline() const { return m_Pipeline; }
     DynamicArray< Reference< DescriptorSet > >& GetDescriptorSets( uint8_t frameIndex );
     const DynamicArray< Reference< DescriptorSet > >& GetDescriptorSets( uint8_t frameIndex ) const;

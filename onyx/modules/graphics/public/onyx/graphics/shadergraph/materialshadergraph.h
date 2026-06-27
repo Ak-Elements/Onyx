@@ -1,25 +1,23 @@
 #pragma once
 #include <onyx/graphics/shadergraph/shadergraph.h>
 
-namespace onyx::graphics
-{
-    class MaterialShaderGraph : public ShaderGraph
-    {
-    public:
-        static constexpr StringId32 TypeId{ "onyx::graphics::assets::MaterialShaderGraph" };
-        StringId32 GetTypeId() const { return TypeId; }
+namespace onyx::graphics {
+class MaterialShaderGraph : public ShaderGraph {
+  public:
+    static constexpr StringId32 TypeId{ "onyx::graphics::assets::MaterialShaderGraph" };
+    static StringId32 getTypeId() { return TypeId; }
 
-        ShadingModel GetShadingModel() const { return m_ShadingModel; }
-        void SetShadingModel(ShadingModel model) { m_ShadingModel = model; }
+    ShadingModel getShadingModel() const { return m_shadingModel; }
+    void setShadingModel( ShadingModel model ) { m_shadingModel = model; }
 
-        rhi::ShaderInstanceHandle& GetShader() { return m_Shader; }
-        const rhi::ShaderInstanceHandle& GetShader() const { return m_Shader; }
+    rhi::ShaderInstanceHandle& getShader() { return m_shader; }
+    const rhi::ShaderInstanceHandle& getShader() const { return m_shader; }
 
-        bool IsValid() const { return m_Shader.isValid(); }
+    bool isValid() const { return m_shader.isValid(); }
 
-    private:
-        ShadingModel m_ShadingModel = ShadingModel::Lit;
+  private:
+    ShadingModel m_shadingModel = ShadingModel::Lit;
 
-        rhi::ShaderInstanceHandle m_Shader;
-    };
-}
+    rhi::ShaderInstanceHandle m_shader;
+};
+} // namespace onyx::graphics

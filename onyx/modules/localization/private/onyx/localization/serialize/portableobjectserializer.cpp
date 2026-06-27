@@ -223,24 +223,24 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
     String fileContent;
     bool hasSucceeded = file_system::OnyxFile::ReadAll( path, fileContent );
 
-    if ( hasSucceeded == false ) {
+    if( hasSucceeded == false ) {
         return false;
     }
 
     StringStream stringStream( fileContent );
-    if ( stringStream.isEof() )
+    if( stringStream.isEof() )
         return true;
 
     // use english as default
     auto pluralFunction = PluralFunctions[ 1 ].Function;
 
-    if ( stringStream.readConditional( PO_HEADER_MSG_ID ) && stringStream.readConditional( PO_HEADER_MSG_STR ) ) {
+    if( stringStream.readConditional( PO_HEADER_MSG_ID ) && stringStream.readConditional( PO_HEADER_MSG_STR ) ) {
         StringView headerLine;
-        while ( stringStream.isEof() == false ) {
+        while( stringStream.isEof() == false ) {
             stringStream.readLine( headerLine );
             // reached end of header if an empty line is reached
             headerLine = trim( headerLine );
-            if ( headerLine.empty() ) {
+            if( headerLine.empty() ) {
                 break;
             }
 
@@ -249,7 +249,7 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
             headerLine.remove_suffix( 1 );
 
             // implement parsing of plural form instead of that static lookup?
-            if ( ignoreCaseStartsWith( headerLine, PO_HEADER_PLURAL_FORMS ) ) {
+            if( ignoreCaseStartsWith( headerLine, PO_HEADER_PLURAL_FORMS ) ) {
                 headerLine.remove_prefix( PO_HEADER_PLURAL_FORMS.size() );
 
                 String pluralForm( headerLine );
@@ -257,7 +257,7 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
 
                 auto it = std::ranges::find_if( PluralFunctions,
                                                 [ & ]( const PluralRule& rule ) { return rule.Rule == pluralForm; } );
-                if ( ( pluralFunction == nullptr ) && ( it == PluralFunctions.end() ) ) {
+                if( ( pluralFunction == nullptr ) && ( it == PluralFunctions.end() ) ) {
                     ONYX_LOG_WARNING( "Failed finding language plural rule for {}", pluralForm );
                 } else {
                     pluralFunction = it->Function;
@@ -266,9 +266,9 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
         }
     }
 
-    outLocalizationMap.SetPluralFunction( pluralFunction );
+    outLocalizationMap.setPluralFunction( pluralFunction );
 
-    HashMap< LocalizationId, DynamicArray< String > >& localeDatabase = outLocalizationMap.GetDatabase();
+    HashMap< LocalizationId, DynamicArray< String > >& localeDatabase = outLocalizationMap.getDatabase();
     localeDatabase.clear();
 
     StringView localizationIdString;
@@ -278,36 +278,36 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
     char peek;
 
     LocalizationId localizationId;
-    while ( stringStream.isEof() == false ) {
+    while( stringStream.isEof() == false ) {
         stringStream.peek( peek );
-        if ( peek == '#' ) {
+        if( peek == '#' ) {
             StringView line;
             stringStream.readLine( line );
             continue;
         }
 
-        if ( stringStream.readConditional( "msgid_plural" ) ) {
+        if( stringStream.readConditional( "msgid_plural" ) ) {
             // for now we ignore it, not sure if we actually need the plural id
             stringStream.readString( localizationPluralIdString );
-        } else if ( stringStream.readConditional( "msgid" ) ) {
+        } else if( stringStream.readConditional( "msgid" ) ) {
             stringStream.readString( localizationIdString );
-            if ( localizationId.Id.isValid() ) {
+            if( localizationId.Id.isValid() ) {
                 localizationId.Context.reset();
             }
 
             localizationId.Id = localizationIdString;
         }
 
-        if ( stringStream.readConditional( "msgctx" ) ) {
+        if( stringStream.readConditional( "msgctx" ) ) {
             stringStream.readString( contextIdString );
             localizationId.Context = contextIdString;
             localizationId.Id.reset();
         }
 
-        if ( ( localizationId.Id.isValid() ) && stringStream.readConditional( "msgstr" ) ) {
+        if( ( localizationId.Id.isValid() ) && stringStream.readConditional( "msgstr" ) ) {
             stringStream.peek( peek );
             int32_t index = -1;
-            if ( peek == '[' ) {
+            if( peek == '[' ) {
                 stringStream.skip(); // skip opening
                 stringStream.readType( index );
                 stringStream.skip(); // skip closing
@@ -318,10 +318,10 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
             stringStream.readString( localizedText );
 
             DynamicArray< String >& localizedTexts = localeDatabase[ localizationId ];
-            if ( index >= static_cast< int32_t >( localizedTexts.size() ) ) {
+            if( index >= static_cast< int32_t >( localizedTexts.size() ) ) {
                 localizedTexts.resize( index + 1 );
             } else {
-                if ( localizedTexts[ index ].empty() == false ) {
+                if( localizedTexts[ index ].empty() == false ) {
                     ONYX_LOG_WARNING(
                         "Duplicated entry for plural form found in localization file for id{} at plural index{}.",
                         localizationIdString,

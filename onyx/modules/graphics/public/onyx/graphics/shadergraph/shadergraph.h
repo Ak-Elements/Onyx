@@ -15,14 +15,14 @@ namespace onyx::graphics {
 class TextureAsset;
 class ShaderGraphNode;
 
-enum class ShaderPass {
+enum class ShaderPass : uint8_t {
     Surface, // PBR Material
     PostProcess,
     UI,
     // Volume, Light etc.
 };
 
-enum class ShadingModel {
+enum class ShadingModel : uint8_t {
     Lit,
     Unlit,
     // Subsurface scattering etc.
@@ -30,37 +30,37 @@ enum class ShadingModel {
 
 class ShaderGraphTextures {
   public:
-    uint32_t AddTexture( const rhi::TextureHandle& texture );
-    const DynamicArray< uint32_t >& GetTextures() const { return Textures; }
+    uint32_t addTexture( const rhi::TextureHandle& texture );
+    [[nodiscard]] const DynamicArray< uint32_t >& getTextures() const { return m_textures; }
 
   private:
-    DynamicArray< uint32_t > Textures;
+    DynamicArray< uint32_t > m_textures;
 };
 
 class ShaderGraph : public assets::Asset< ShaderGraph > {
   public:
-    node_graph::NodeGraph& GetNodeGraph() { return Graph; }
-    const node_graph::NodeGraph& GetNodeGraph() const { return Graph; }
+    node_graph::NodeGraph& getNodeGraph() { return m_graph; }
+    const node_graph::NodeGraph& getNodeGraph() const { return m_graph; }
 
     //  void Render(const FrameContext& context, CommandBuffer& commandBuffer) const;
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
-    const String& GetShaderCode() const { return ShaderCode; }
-    bool GenerateShader( rhi::ShaderGenerator& generator );
+    const String& getShaderCode() const { return m_shaderCode; }
+    bool generateShader( rhi::ShaderGenerator& generator );
 #endif
 
     bool serialize( Serializer& serializer ) const;
     bool deserialize( const Deserializer& deserializer );
 
   private:
-    virtual bool OnSerialize( Serializer& /*serializer*/ ) const { return true; }
-    virtual bool OnDeserialize( const Deserializer& /*deserializer*/ ) { return true; }
+    virtual bool onSerialize( Serializer& /*serializer*/ ) const { return true; }
+    virtual bool onDeserialize( const Deserializer& /*deserializer*/ ) { return true; }
 
   private:
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
-    String ShaderCode;
+    String m_shaderCode;
 #endif
 
-    node_graph::NodeGraph Graph;
+    node_graph::NodeGraph m_graph;
 };
 } // namespace onyx::graphics

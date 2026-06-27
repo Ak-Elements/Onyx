@@ -6,14 +6,14 @@
 #include <onyx/rhi/framecontext.h>
 
 namespace onyx::graphics::render_graph_nodes {
-void AtmosphericSkyRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) {
+void AtmosphericSkyRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
     uint64_t transmittanceGlobalId = GetInputPin1().GetLinkedPinGlobalId().get();
-    const RenderGraphResource& transmittanceResource = context.Graph.GetResource( transmittanceGlobalId );
+    const RenderGraphResource& transmittanceResource = context.Graph.getResource( transmittanceGlobalId );
 
     uint64_t skyViewLutGlobalId = GetInputPin2().GetLinkedPinGlobalId().get();
-    const RenderGraphResource& skyViewLutResource = context.Graph.GetResource( skyViewLutGlobalId );
+    const RenderGraphResource& skyViewLutResource = context.Graph.getResource( skyViewLutGlobalId );
 
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
         transmittanceResource.Handle );
@@ -22,11 +22,11 @@ void AtmosphericSkyRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) 
     m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
     m_SkyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
 
-    RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+    RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
 }
 
-void AtmosphericSkyRenderGraphNode::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void AtmosphericSkyRenderGraphNode::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::FrameContext& frameContext = context.FrameContext;

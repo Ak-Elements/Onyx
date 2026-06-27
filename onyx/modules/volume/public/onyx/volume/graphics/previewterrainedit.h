@@ -31,13 +31,13 @@ class PreviewTerrainEditPass : public node_graph::FixedPinNode_2_In_1_Out< graph
                                                        rhi::TextureHandle,
                                                        rhi::TextureHandle >;
 
-    void OnBeginFrame( graphics::RenderGraphContext& ) override;
-    void OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( graphics::RenderGraphContext& ) override;
+    void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:
     StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+        switch( pinId ) {
         case Super::InPin0::LocalId:
             return "View Constants";
         case Super::InPin1::LocalId:

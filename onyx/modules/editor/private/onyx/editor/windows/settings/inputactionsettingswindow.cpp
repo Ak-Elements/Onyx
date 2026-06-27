@@ -90,7 +90,7 @@ bool renderAddHeader( InputActionSettingsWindow& inputSettingsWindow,
     bool shouldOpen = false;
     ImGui::Spring();
 
-    if( ui::Button( "+" ) ) {
+    if( ui::button( "+" ) ) {
         ImGui::OpenPopupEx( ImGui::GetItemID(), ImGuiWindowFlags_NoTitleBar );
     }
 
@@ -301,7 +301,7 @@ void InputActionSettingsWindow::renderInputActions() {
         input_actions::InputActionsMap& selectedMap = m_openInputContext;
 
         if( ImGui::BeginPopupContextItem( "###CreateInputAction", ImGuiPopupFlags_MouseButtonRight ) ) {
-            if( ui::Button( localization::generic::Add ) ) {
+            if( ui::button( localization::generic::Add ) ) {
                 m_commandsHistory.push< AddInputActionCommand >( *this );
                 ImGui::CloseCurrentPopup();
             }
@@ -422,7 +422,7 @@ void InputActionSettingsWindow::renderBinding( bool& isSelected,
 
         StringView inputBindingSlotLabel = format::format( "{} [ {} ]", boundInputLabel, bindingInputTypeLabel );
 
-        if( ui::Selectable( inputBindingSlotLabel, isBindingSlotSelected ) ) {
+        if( ui::selectable( inputBindingSlotLabel, isBindingSlotSelected ) ) {
             isSelected = true;
             m_selectedBindingIndex = bindingIndex;
             m_selectedBindingSlotIndex = slotIndex;
@@ -450,7 +450,7 @@ void InputActionSettingsWindow::onInputAssetLoaded(
     assets::AssetHandle< input_actions::InputActionsContext > inputActionsAsset ) {
     m_isDirty = false;
 
-    m_openInputContext = inputActionsAsset->GetMaps().begin()->second;
+    m_openInputContext = inputActionsAsset->getMaps().begin()->second;
 
     m_commandsHistory.setBase( m_openInputContext );
     m_commandsHistory.setHead( m_openInputContext );
@@ -502,7 +502,7 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
             const auto removeFunctor = [ &, index = i ]() {
                 ImGui::Spring();
 
-                if( ui::Button( "-" ) ) {
+                if( ui::button( "-" ) ) {
                     m_commandsHistory.push< DeleteInputModifierCommand >( m_selectedActionId,
                                                                           m_selectedBindingIndex,
                                                                           index,
@@ -533,7 +533,7 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
             const auto removeFunctor = [ &, index = i ]() {
                 ImGui::Spring();
 
-                if( ui::Button( "-" ) ) {
+                if( ui::button( "-" ) ) {
                     m_commandsHistory.push< DeleteInputTriggerCommand >( m_selectedActionId,
                                                                          m_selectedBindingIndex,
                                                                          index,
@@ -556,7 +556,7 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
         ui::property_grid::endPropertyGroup();
     }
 
-    if( ui::Button( localization::editor::InputActionSettings::Bindings::Listen ) ) {
+    if( ui::button( localization::editor::InputActionSettings::Bindings::Listen ) ) {
         m_isListeningOnInput = true;
     }
 

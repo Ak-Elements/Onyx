@@ -44,7 +44,8 @@ struct BufferHandle {
     Reference< Buffer > Buffer;
     int8_t Alias = InvalidIndex8;
 
-    operator bool() const { return Buffer.isValid(); }
+    bool isValid() const { return Buffer.isValid(); }
+    operator bool() const { return isValid(); }
 
     uint64_t GetGpuAddress() const { return Buffer->GetGpuAddress() + GetOffset(); }
     uint64_t GetOffset() const { return Alias == InvalidIndex8 ? 0 : Buffer->GetAliasOffset( Alias ); }
@@ -57,7 +58,9 @@ struct BufferHandle {
 
     template < typename T >
     void SetData( Span< T > span ) {
-        Buffer->SetData( static_cast< uint32_t >( GetOffset() ), span.data(), static_cast< int32_t >( span.size() * sizeof( T ) ) );
+        Buffer->SetData( static_cast< uint32_t >( GetOffset() ),
+                         span.data(),
+                         static_cast< int32_t >( span.size() * sizeof( T ) ) );
     }
 
     friend bool operator==( const BufferHandle& lhs, const BufferHandle& rhs ) {

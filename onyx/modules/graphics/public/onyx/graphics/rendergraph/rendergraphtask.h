@@ -24,144 +24,144 @@ struct RenderGraphPolicy {
     using RenderGraphResourceCache = HashMap< RenderGraphResourceId, RenderGraphResource >;
 
   public:
-    virtual void Init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
-    virtual void Shutdown( onyx::rhi::GraphicsSystem& api ) = 0;
+    virtual void init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
+    virtual void shutdown( onyx::rhi::GraphicsSystem& api ) = 0;
 
-    virtual void Compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
+    virtual void compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
 
-    virtual void BeginFrame( RenderGraphContext& context ) = 0;
+    virtual void beginFrame( RenderGraphContext& context ) = 0;
 
-    virtual void PreRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) = 0;
-    virtual void Render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) = 0;
-    virtual void PostRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) = 0;
+    virtual void preRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) = 0;
+    virtual void render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) = 0;
+    virtual void postRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) = 0;
 
-    virtual void EndFrame( RenderGraphContext& context ) = 0;
+    virtual void endFrame( RenderGraphContext& context ) = 0;
 
     // TODO: Find better names for both. IsEnabled -> should this node be started this frame
     // HasBegunFrame - Has this node started this frame
-    virtual bool IsEnabled() = 0;
-    virtual bool HasBegunFrame() = 0;
+    [[nodiscard]] virtual bool isEnabled() const = 0;
+    [[nodiscard]] virtual bool hasBegunFrame() const = 0;
 
-    virtual void OnSwapChainResized( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
+    virtual void onSwapChainResized( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
 };
 
 class IRenderGraphNode : public node_graph::NodeWithPolicy< RenderGraphPolicy > {
   public:
-    void Init( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override {}
-    void Shutdown( onyx::rhi::GraphicsSystem& /*api*/ ) override {}
-    void Compile( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override {}
-    void BeginFrame( RenderGraphContext& /*context*/ ) override {}
-    void PreRender( RenderGraphContext& /*context*/, onyx::rhi::CommandBuffer& /*commandBuffer*/ ) override {}
-    void Render( RenderGraphContext& /*context*/, onyx::rhi::CommandBuffer& /*commandBuffer*/ ) override {}
-    void PostRender( RenderGraphContext& /*context*/, onyx::rhi::CommandBuffer& /*commandBuffer*/ ) override {}
-    void EndFrame( RenderGraphContext& /*context*/ ) override {}
+    void init( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override {}
+    void shutdown( onyx::rhi::GraphicsSystem& /*api*/ ) override {}
+    void compile( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override {}
+    void beginFrame( RenderGraphContext& /*context*/ ) override {}
+    void preRender( RenderGraphContext& /*context*/, onyx::rhi::CommandBuffer& /*commandBuffer*/ ) override {}
+    void render( RenderGraphContext& /*context*/, onyx::rhi::CommandBuffer& /*commandBuffer*/ ) override {}
+    void postRender( RenderGraphContext& /*context*/, onyx::rhi::CommandBuffer& /*commandBuffer*/ ) override {}
+    void endFrame( RenderGraphContext& /*context*/ ) override {}
 
-    bool IsEnabled() override { return false; }
-    bool HasBegunFrame() override { return false; }
+    [[nodiscard]] bool isEnabled() const override { return false; }
+    [[nodiscard]] bool hasBegunFrame() const override { return false; }
 
-    void OnSwapChainResized( onyx::rhi::GraphicsSystem& /*api*/,
+    void onSwapChainResized( onyx::rhi::GraphicsSystem& /*api*/,
                              RenderGraphResourceCache& /*resourceCache*/ ) override {}
 
   protected:
     template < typename T >
-    T& GetGraphInput( RenderGraph& renderGraph ) {
-        return renderGraph.GetInput< T >();
+    T& getGraphInput( RenderGraph& renderGraph ) {
+        return renderGraph.getInput< T >();
     }
 
     template < typename T >
-    const T& GetGraphInput( RenderGraph& renderGraph ) const {
-        return renderGraph.GetInput< T >();
+    const T& getGraphInput( RenderGraph& renderGraph ) const {
+        return renderGraph.getInput< T >();
     }
 
     template < typename T >
-    void AddGraphInput( RenderGraph& renderGraph ) {
-        renderGraph.AddInput< T >();
+    void addGraphInput( RenderGraph& renderGraph ) {
+        renderGraph.addInput< T >();
     }
 };
 
 class RenderGraphShaderNode : public IRenderGraphNode {
   public:
-    void Init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
-    void Shutdown( onyx::rhi::GraphicsSystem& api ) final;
+    void init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void shutdown( onyx::rhi::GraphicsSystem& api ) final;
 
-    void Compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
 
-    void BeginFrame( RenderGraphContext& context ) override;
+    void beginFrame( RenderGraphContext& context ) override;
 
-    void PreRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) final;
-    void Render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) override;
-    void PostRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) final;
+    void preRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) final;
+    void render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) override;
+    void postRender( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) final;
 
-    void EndFrame( RenderGraphContext& context ) final;
+    void endFrame( RenderGraphContext& context ) final;
 
     bool OnSerialize( Serializer& serializer ) const override;
     bool OnDeserialize( const Deserializer& deserializer ) override;
 
-    const RenderGraphTextureResourceInfo& GetInputResourceInfo( uint32_t pinIndex ) {
-        return pinIndex >= m_InputAttachmentInfos.size() ? m_InputAttachmentInfos.emplace_back()
-                                                         : m_InputAttachmentInfos[ pinIndex ];
+    const RenderGraphTextureResourceInfo& getInputResourceInfo( uint32_t pinIndex ) {
+        return pinIndex >= m_inputAttachmentInfos.size() ? m_inputAttachmentInfos.emplace_back()
+                                                         : m_inputAttachmentInfos[ pinIndex ];
     }
-    const RenderGraphTextureResourceInfo& GetOuputResourceInfo( uint32_t pinIndex ) {
-        return pinIndex >= m_OutputAttachmentInfos.size() ? m_OutputAttachmentInfos.emplace_back()
-                                                          : m_OutputAttachmentInfos[ pinIndex ];
+    const RenderGraphTextureResourceInfo& getOuputResourceInfo( uint32_t pinIndex ) {
+        return pinIndex >= m_outputAttachmentInfos.size() ? m_outputAttachmentInfos.emplace_back()
+                                                          : m_outputAttachmentInfos[ pinIndex ];
     }
 
-    void OnSwapChainResized( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override;
+    void onSwapChainResized( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override;
 
-    virtual bool IsComputeTask() const { return false; }
+    virtual bool isComputeTask() const { return false; }
 
-    bool HasBegunFrame() override { return m_HasBegunFrame; }
+    bool hasBegunFrame() const override { return m_hasBegunFrame; }
 
   protected:
 #if ONYX_IS_EDITOR
     bool OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
 #endif
 
-    void BindResources( rhi::ShaderInstanceHandle shaderInstance,
+    void bindResources( rhi::ShaderInstanceHandle shaderInstance,
                         const RenderGraphResourceCache& resourceCache,
                         const onyx::rhi::FrameContext& frameContext );
 
   protected:
-    virtual void OnInit( onyx::rhi::GraphicsSystem&, RenderGraphResourceCache& ) {}
-    virtual void OnShutdown( onyx::rhi::GraphicsSystem& ) {}
+    virtual void onInit( onyx::rhi::GraphicsSystem&, RenderGraphResourceCache& ) {}
+    virtual void onShutdown( onyx::rhi::GraphicsSystem& ) {}
 
-    virtual void OnBeginFrame( RenderGraphContext& ) {}
+    virtual void onBeginFrame( RenderGraphContext& ) {}
 
-    virtual void OnPreRender( RenderGraphContext&, onyx::rhi::CommandBuffer& ) {}
-    virtual void OnRender( RenderGraphContext&, onyx::rhi::CommandBuffer& ) {}
-    virtual void OnPostRender( RenderGraphContext&, onyx::rhi::CommandBuffer& ) {}
+    virtual void onPreRender( RenderGraphContext&, onyx::rhi::CommandBuffer& ) {}
+    virtual void onRender( RenderGraphContext&, onyx::rhi::CommandBuffer& ) {}
+    virtual void onPostRender( RenderGraphContext&, onyx::rhi::CommandBuffer& ) {}
 
-    virtual void OnEndFrame( RenderGraphContext& ) {}
+    virtual void onEndFrame( RenderGraphContext& ) {}
 
-    void CreateRenderPass( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache );
-    void UpdateFramebuffer( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache );
+    void createRenderPass( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache );
+    void updateFramebuffer( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache );
 
   protected:
-    rhi::RenderPassHandle m_RenderPass;
-    rhi::FramebufferHandle m_Framebuffer;
+    rhi::RenderPassHandle m_renderPass;
+    rhi::FramebufferHandle m_framebuffer;
 
-    DynamicArray< RenderGraphTextureResourceInfo > m_InputAttachmentInfos;
+    DynamicArray< RenderGraphTextureResourceInfo > m_inputAttachmentInfos;
 
-    DynamicArray< RenderGraphTextureResourceInfo > m_OutputAttachmentInfos;
-    DynamicArray< RenderGraphBufferResourceInfo > m_OutputBufferInfos;
+    DynamicArray< RenderGraphTextureResourceInfo > m_outputAttachmentInfos;
+    DynamicArray< RenderGraphBufferResourceInfo > m_outputBufferInfos;
 
-    bool m_HasBegunFrame = false;
+    bool m_hasBegunFrame = false;
 };
 
 class RenderGraphFixedShaderNode : public RenderGraphShaderNode {
   public:
-    void Init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) final;
+    void init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) final;
 
-    void Compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
 
-    void BeginFrame( RenderGraphContext& context ) final;
-    void Render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) override;
+    void beginFrame( RenderGraphContext& context ) final;
+    void render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) override;
 
-    bool IsComputeTask() const override {
-        ONYX_ASSERT( m_ShaderInstance.isValid() );
-        return m_ShaderInstance->IsCompute();
+    bool isComputeTask() const override {
+        ONYX_ASSERT( m_shaderInstance.isValid() );
+        return m_shaderInstance->IsCompute();
     }
-    bool IsEnabled() override { return m_ShaderInstance.isValid(); }
+    bool isEnabled() const override { return m_shaderInstance.isValid(); }
 
     bool OnSerialize( Serializer& serializer ) const override;
     bool OnDeserialize( const Deserializer& deserializer ) override;
@@ -171,8 +171,8 @@ class RenderGraphFixedShaderNode : public RenderGraphShaderNode {
     bool OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
 #endif
   protected:
-    rhi::PipelineProperties m_PipelineProperties;
-    rhi::ShaderInstanceHandle m_ShaderInstance;
+    rhi::PipelineProperties m_pipelineProperties;
+    rhi::ShaderInstanceHandle m_shaderInstance;
 };
 
 } // namespace onyx::graphics

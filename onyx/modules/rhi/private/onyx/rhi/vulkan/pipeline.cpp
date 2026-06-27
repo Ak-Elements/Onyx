@@ -236,10 +236,10 @@ Pipeline::~Pipeline() {
 void Pipeline::CreatePipeline( const Shader& shader ) {
     m_PipelineLayout = makeUnique< PipelineLayout >( *m_Api, shader );
 
-    if( shader.IsComputeShader() ) {
+    if( shader.isComputeShader() ) {
         m_BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
         const DynamicArray< VkPipelineShaderStageCreateInfo >&
-            pipelineStageCreateInfos = shader.GetPipelineShaderStageCreateInfos();
+            pipelineStageCreateInfos = shader.getPipelineShaderStageCreateInfos();
 
         VkComputePipelineCreateInfo pipelineCreateInfo{};
         pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
@@ -258,7 +258,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 
         const PipelineProperties& properties = GetProperties();
         const DynamicArray< VkPipelineShaderStageCreateInfo >&
-            pipelineStageCreateInfos = shader.GetPipelineShaderStageCreateInfos();
+            pipelineStageCreateInfos = shader.getPipelineShaderStageCreateInfos();
 
         VkPipelineCache pipelineCache = nullptr;
 
@@ -291,7 +291,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
 
         //// Vertex layout
-        const Set< VertexInput >& vertexInputs = shader.GetVertexInputs();
+        const Set< VertexInput >& vertexInputs = shader.getVertexInputs();
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo;
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

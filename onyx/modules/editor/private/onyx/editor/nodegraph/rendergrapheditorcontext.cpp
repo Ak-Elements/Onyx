@@ -5,7 +5,7 @@
 namespace onyx::editor {
 
 bool RenderGraphEditorContext::compile() {
-    m_graph->GetNodeGraph().compile();
+    m_graph->getNodeGraph().compile();
     return true;
 }
 } // namespace onyx::editor

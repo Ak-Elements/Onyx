@@ -12,22 +12,22 @@
 namespace onyx::graphics {
 bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
     uint32_t inputPinCount = GetInputPinCount();
-    for ( uint32_t i = 0; i < inputPinCount; ++i ) {
+    for( uint32_t i = 0; i < inputPinCount; ++i ) {
         node_graph::PinBase* inputPin = GetInputPin( i );
 
-        if ( inputPin->GetType() == node_graph::PinTypeId::Execute )
+        if( inputPin->GetType() == node_graph::PinTypeId::Execute )
             continue;
 
         ui::ScopedImGuiId id( inputPin->GetLocalIdString() );
 
-        if ( i >= m_InputAttachmentInfos.size() )
-            m_InputAttachmentInfos.emplace_back();
+        if( i >= m_inputAttachmentInfos.size() )
+            m_inputAttachmentInfos.emplace_back();
 
-        RenderGraphTextureResourceInfo& info = m_InputAttachmentInfos[ i ];
+        RenderGraphTextureResourceInfo& info = m_inputAttachmentInfos[ i ];
 
-        if ( inputPin->IsConnected() ) {
+        if( inputPin->IsConnected() ) {
             bool isAttachment = info.Type == RenderGraphResourceType::Attachment;
-            if ( ui::property_grid::drawProperty( "Attachment", isAttachment ) ) {
+            if( ui::property_grid::drawProperty( "Attachment", isAttachment ) ) {
                 info.Type = isAttachment ? RenderGraphResourceType::Attachment : RenderGraphResourceType::Texture;
             }
 
@@ -35,7 +35,7 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
         }
 
         const Guid64 globalId = inputPin->GetGlobalId();
-        if ( constantPinData.contains( globalId ) == false )
+        if( constantPinData.contains( globalId ) == false )
             constantPinData[ globalId ] = CreateDefaultForPin( inputPin->GetLocalId() );
         ;
 
@@ -45,21 +45,21 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
         ui::property_grid::drawPropertyName( GetPinName( inputPin->GetLocalId() ) );
         ui::property_grid::drawPropertyValue( [ & ]() {
             String type;
-            if ( isTexture ) {
+            if( isTexture ) {
                 type = "Texture";
             } else {
                 type = "Buffer";
             }
 
-            if ( ImGui::BeginCombo( "##type", type.data() ) ) {
-                if ( ImGui::Selectable( "Texture", isTexture ) ) {
+            if( ImGui::BeginCombo( "##type", type.data() ) ) {
+                if( ImGui::Selectable( "Texture", isTexture ) ) {
                     // RemoveInputPinAt(i);
                     // AddInputPinAt<TextureHandle>(i);
                     isTexture = true;
                     inputPin = GetInputPin( i );
                 }
 
-                if ( ImGui::Selectable( "Buffer", !isTexture ) ) {
+                if( ImGui::Selectable( "Buffer", !isTexture ) ) {
                     // RemoveInputPinAt(i);
                     // AddInputPinAt<BufferHandle>(i);
                     isTexture = false;
@@ -71,7 +71,7 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
         } );
 
         // TODO: Fix in 0.5.0
-        if ( isTexture ) {
+        if( isTexture ) {
             String rgba;
             Vector3f32 size;
 
@@ -88,32 +88,32 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
     }
 
     uint32_t outputPinCount = GetOutputPinCount();
-    for ( uint32_t i = 0; i < outputPinCount; ++i ) {
+    for( uint32_t i = 0; i < outputPinCount; ++i ) {
         node_graph::PinBase* outputPin = GetOutputPin( i );
 
         ui::ScopedImGuiId imguiScopedId( outputPin->GetLocalIdString().data() );
 
         const Guid64 globalId = outputPin->GetGlobalId();
-        if ( constantPinData.contains( globalId ) == false )
+        if( constantPinData.contains( globalId ) == false )
             constantPinData[ globalId ] = CreateDefaultForPin( outputPin->GetLocalId() );
         ;
 
         node_graph::PinTypeId typeId = outputPin->GetType();
         bool isTexture = typeId == static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() );
 
-        if ( ui::property_grid::beginCollapsiblePropertyGroup( GetPinName( outputPin->GetLocalId() ) ) ) {
-            if ( isTexture ) {
-                if ( i >= m_OutputAttachmentInfos.size() )
-                    m_OutputAttachmentInfos.emplace_back();
+        if( ui::property_grid::beginCollapsiblePropertyGroup( GetPinName( outputPin->GetLocalId() ) ) ) {
+            if( isTexture ) {
+                if( i >= m_outputAttachmentInfos.size() )
+                    m_outputAttachmentInfos.emplace_back();
 
-                RenderGraphTextureResourceInfo& info = m_OutputAttachmentInfos[ i ];
+                RenderGraphTextureResourceInfo& info = m_outputAttachmentInfos[ i ];
 
                 bool isReference = info.Type == RenderGraphResourceType::Reference;
-                if ( ui::property_grid::drawProperty( "Reference", isReference ) ) {
+                if( ui::property_grid::drawProperty( "Reference", isReference ) ) {
                     info.Type = isReference ? RenderGraphResourceType::Reference : RenderGraphResourceType::Attachment;
                 }
 
-                if ( isReference == false ) {
+                if( isReference == false ) {
                     ui::property_grid::drawProperty( "External", info.IsExternal );
 
                     // if (info.IsExternal)
@@ -125,24 +125,24 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
                         ui::property_grid::drawProperty( "Format", info.Format );
 
                         bool shouldClear = ( info.LoadOp == rhi::RenderPassSettings::LoadOp::Clear );
-                        if ( ui::property_grid::drawProperty( "Clear", shouldClear ) ) {
+                        if( ui::property_grid::drawProperty( "Clear", shouldClear ) ) {
                             info.LoadOp = shouldClear ? rhi::RenderPassSettings::LoadOp::Clear
                                                       : rhi::RenderPassSettings::LoadOp::DontCare;
                         }
 
-                        if ( shouldClear ) {
+                        if( shouldClear ) {
                             ui::property_grid::drawColorProperty( "Clear Color", info.ClearColor );
                         }
 
                         bool shouldLoad = ( info.LoadOp == rhi::RenderPassSettings::LoadOp::Load );
-                        if ( ui::property_grid::drawProperty( "Load", shouldLoad ) ) {
+                        if( ui::property_grid::drawProperty( "Load", shouldLoad ) ) {
                             info.LoadOp = shouldLoad ? rhi::RenderPassSettings::LoadOp::Load
                                                      : rhi::RenderPassSettings::LoadOp::DontCare;
                         }
 
                         ui::property_grid::drawProperty( "Explicit Size", info.HasSize );
 
-                        if ( info.HasSize ) {
+                        if( info.HasSize ) {
                             ui::property_grid::drawProperty( "Size", info.Size );
                         }
                     }
@@ -163,9 +163,9 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
 }
 
 bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-    if ( ui::property_grid::drawAssetSelector( "Shader",
-                                               m_PipelineProperties.Shader,
-                                               static_cast< assets::AssetType >( rhi::Shader::TypeId.getId() ) ) ) {
+    if( ui::property_grid::drawAssetSelector( "Shader",
+                                              m_pipelineProperties.Shader,
+                                              static_cast< assets::AssetType >( rhi::Shader::TypeId.getId() ) ) ) {
         // TODO: remove shaderPath and change m_Shader to be an asset
         // shaderHandle.isLoaded?
         // adjust pins
@@ -173,8 +173,8 @@ bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any
         return true;
     }
 
-    const uint8_t blendStatesCount = m_PipelineProperties.BlendStates.size();
-    const uint8_t capacity = m_PipelineProperties.BlendStates.capacity();
+    const uint8_t blendStatesCount = m_pipelineProperties.BlendStates.size();
+    const uint8_t capacity = m_pipelineProperties.BlendStates.capacity();
 
     auto AddBlendFunctor = [ & ]() {
         ui::ScopedImGuiStyle style{
@@ -188,8 +188,8 @@ bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any
         bool shouldOpen = false;
         ImGui::BeginDisabled( canAddBlendState == false );
         ImGui::Spring();
-        if ( ui::Button( "+" ) ) {
-            rhi::BlendState& state = m_PipelineProperties.BlendStates.emplace();
+        if( ui::button( "+" ) ) {
+            rhi::BlendState& state = m_pipelineProperties.BlendStates.emplace();
             state.IsBlendEnabled = true;
             shouldOpen = true;
         }
@@ -197,16 +197,16 @@ bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any
         return shouldOpen;
     };
 
-    if ( ui::property_grid::beginCollapsiblePropertyGroup( "Blend", AddBlendFunctor ) ) {
-        for ( int8_t i = 0; i < blendStatesCount; ++i ) {
-            rhi::BlendState& blendState = m_PipelineProperties.BlendStates[ i ];
+    if( ui::property_grid::beginCollapsiblePropertyGroup( "Blend", AddBlendFunctor ) ) {
+        for( int8_t i = 0; i < blendStatesCount; ++i ) {
+            rhi::BlendState& blendState = m_pipelineProperties.BlendStates[ i ];
 
-            if ( ui::property_grid::beginCollapsiblePropertyGroup( format::format( "{}", i ),
-                                                                   ImGuiTreeNodeFlags_DefaultOpen ) ) {
+            if( ui::property_grid::beginCollapsiblePropertyGroup( format::format( "{}", i ),
+                                                                  ImGuiTreeNodeFlags_DefaultOpen ) ) {
                 ui::property_grid::drawProperty( "Enabled", blendState.IsBlendEnabled );
                 ui::property_grid::drawProperty( "Color Mask", blendState.ColorWriteMask );
 
-                if ( ui::property_grid::beginCollapsiblePropertyGroup( "Color" ) ) {
+                if( ui::property_grid::beginCollapsiblePropertyGroup( "Color" ) ) {
                     ui::property_grid::drawProperty( "Source", blendState.SourceColor );
                     ui::property_grid::drawProperty( "Destination", blendState.DestinationColor );
                     ui::property_grid::drawProperty( "Operation", blendState.ColorOperation );
@@ -214,7 +214,7 @@ bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any
                     ui::property_grid::endPropertyGroup();
                 }
 
-                if ( ui::property_grid::beginCollapsiblePropertyGroup( "Alpha" ) ) {
+                if( ui::property_grid::beginCollapsiblePropertyGroup( "Alpha" ) ) {
                     ui::property_grid::drawProperty( "Source", blendState.SourceAlpha );
                     ui::property_grid::drawProperty( "Destination", blendState.DestinationAlpha );
                     ui::property_grid::drawProperty( "Operation", blendState.AlphaOperation );
@@ -229,28 +229,28 @@ bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any
         ui::property_grid::endPropertyGroup();
     }
 
-    if ( ui::property_grid::beginCollapsiblePropertyGroup( "Rasterization" ) ) {
-        ui::property_grid::drawProperty( "Front facing", m_PipelineProperties.Rasterization.IsFrontFacing );
-        ui::property_grid::drawProperty( "Fill Mode", m_PipelineProperties.Rasterization.FillMode );
-        ui::property_grid::drawProperty( "Cull Mode", m_PipelineProperties.Rasterization.CullMode );
+    if( ui::property_grid::beginCollapsiblePropertyGroup( "Rasterization" ) ) {
+        ui::property_grid::drawProperty( "Front facing", m_pipelineProperties.Rasterization.IsFrontFacing );
+        ui::property_grid::drawProperty( "Fill Mode", m_pipelineProperties.Rasterization.FillMode );
+        ui::property_grid::drawProperty( "Cull Mode", m_pipelineProperties.Rasterization.CullMode );
 
         ui::property_grid::endPropertyGroup();
     }
 
-    if ( ui::property_grid::beginCollapsiblePropertyGroup( "Depth Stencil" ) ) {
-        bool isDepthEnabled = m_PipelineProperties.DepthStencil.IsDepthEnabled;
+    if( ui::property_grid::beginCollapsiblePropertyGroup( "Depth Stencil" ) ) {
+        bool isDepthEnabled = m_pipelineProperties.DepthStencil.IsDepthEnabled;
         ui::property_grid::drawProperty( "Enabled", isDepthEnabled );
-        m_PipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
+        m_pipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
 
-        bool isDepthWriteEnabled = m_PipelineProperties.DepthStencil.IsDepthWriteEnabled;
+        bool isDepthWriteEnabled = m_pipelineProperties.DepthStencil.IsDepthWriteEnabled;
         ui::property_grid::drawProperty( "Write", isDepthWriteEnabled );
-        m_PipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
+        m_pipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
 
-        bool isStencilEnabled = m_PipelineProperties.DepthStencil.IsStencilEnabled;
+        bool isStencilEnabled = m_pipelineProperties.DepthStencil.IsStencilEnabled;
         ui::property_grid::drawProperty( "Stencil", isStencilEnabled );
-        m_PipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
+        m_pipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
 
-        ui::property_grid::drawProperty( "Compare", m_PipelineProperties.DepthStencil.Compare );
+        ui::property_grid::drawProperty( "Compare", m_pipelineProperties.DepthStencil.Compare );
 
         // if (ui::property_grid::BeginCollapsiblePropertyGroup("Front Operation"))
         //{

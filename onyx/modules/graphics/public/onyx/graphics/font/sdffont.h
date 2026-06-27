@@ -23,7 +23,7 @@ struct SDFFontMetrics {
 };
 
 struct SDFFontGlyphData {
-    uint32_t KeyCode;
+    uint32_t KeyCode = 0;
     float32 Advance = 0.0f;
 
     Rect2f32 PlaneBounds;
@@ -33,21 +33,21 @@ struct SDFFontGlyphData {
 class SDFFont : public assets::Asset< SDFFont > {
   public:
     static constexpr StringId32 TypeId{ "onyx::graphics::assets::SDFFont" };
-    StringId32 GetTypeId() const { return TypeId; }
+    static StringId32 getTypeId() { return TypeId; }
 
-    void SetTexture( const assets::AssetHandle< TextureAsset >& fontTexture ) { m_FontTexture = fontTexture; }
-    const assets::AssetHandle< TextureAsset >& GetTexture() const { return m_FontTexture; }
+    void setTexture( const assets::AssetHandle< TextureAsset >& fontTexture ) { m_fontTexture = fontTexture; }
+    const assets::AssetHandle< TextureAsset >& getTexture() const { return m_fontTexture; }
 
-    SDFFontMetrics& GetMetrics() { return m_Metrics; }
-    const SDFFontMetrics& GetMetrics() const { return m_Metrics; }
+    SDFFontMetrics& getMetrics() { return m_metrics; }
+    const SDFFontMetrics& getMetrics() const { return m_metrics; }
 
-    HashMap< uint32_t, SDFFontGlyphData >& GetGlyphs() { return m_Glyphs; }
-    const HashMap< uint32_t, SDFFontGlyphData >& GetGlyphs() const { return m_Glyphs; }
+    HashMap< uint32_t, SDFFontGlyphData >& getGlyphs() { return m_glyphs; }
+    const HashMap< uint32_t, SDFFontGlyphData >& getGlyphs() const { return m_glyphs; }
 
   private:
-    HashMap< uint32_t, SDFFontGlyphData > m_Glyphs;
-    SDFFontMetrics m_Metrics;
+    HashMap< uint32_t, SDFFontGlyphData > m_glyphs;
+    SDFFontMetrics m_metrics;
 
-    assets::AssetHandle< TextureAsset > m_FontTexture;
+    assets::AssetHandle< TextureAsset > m_fontTexture;
 };
 } // namespace onyx::graphics

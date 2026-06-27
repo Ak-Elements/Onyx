@@ -74,8 +74,8 @@ void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graph
 
     if( m_scene->getRenderGraphRef().hasAssetId() ) {
         graphics::RenderGraph& sceneRenderGraph = m_scene->getRenderGraph();
-        if( sceneRenderGraph.isLoaded() && sceneRenderGraph.IsInitialized() == false ) {
-            sceneRenderGraph.Init( graphicsSystem );
+        if( sceneRenderGraph.isLoaded() && sceneRenderGraph.isInitialized() == false ) {
+            sceneRenderGraph.init( graphicsSystem );
         }
     }
 
@@ -111,6 +111,6 @@ onyx::graphics::DebugDrawQueue& onyx::ecs::DependantFunctionArg< onyx::graphics:
     game_core::GameCoreSystem& gameCoreSystem = context.Engine.getSystem< game_core::GameCoreSystem >();
     assets::AssetHandle< game_core::Scene >& activeScene = gameCoreSystem.getScene();
     graphics::RenderGraph& renderGraph = activeScene->getRenderGraph();
-    graphics::DebugDrawQueue& debugQueue = renderGraph.GetInput< graphics::DebugDrawQueue >();
+    graphics::DebugDrawQueue& debugQueue = renderGraph.getInput< graphics::DebugDrawQueue >();
     return debugQueue;
 }

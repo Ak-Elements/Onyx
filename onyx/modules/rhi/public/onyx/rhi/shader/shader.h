@@ -19,7 +19,7 @@ struct UniformBuffer {
     TextureFormat Format = TextureFormat::Invalid;
     ShaderStage Stage = ShaderStage::Invalid;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Id );
         outStream.write( BindingPoint );
         outStream.write( Size );
@@ -27,7 +27,7 @@ struct UniformBuffer {
         outStream.write( Stage );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Id );
         inStream.read( BindingPoint );
         inStream.read( Size );
@@ -42,14 +42,14 @@ struct StorageBuffer {
     uint32_t Size = 0;
     ShaderStage Stage = ShaderStage::Invalid;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Id );
         outStream.write( BindingPoint );
         outStream.write( Size );
         outStream.write( Stage );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Id );
         inStream.read( BindingPoint );
         inStream.read( Size );
@@ -65,7 +65,7 @@ struct ImageSampler {
     String Name;
     ShaderStage Stage = ShaderStage::Invalid;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( BindingPoint );
         outStream.write( DescriptorSet );
         outStream.write( ArraySize );
@@ -74,7 +74,7 @@ struct ImageSampler {
         outStream.write( Stage );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( BindingPoint );
         inStream.read( DescriptorSet );
         inStream.read( ArraySize );
@@ -89,13 +89,13 @@ struct PushConstantRange {
     uint32_t Offset = 0;
     uint32_t Size = 0;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Stage );
         outStream.write( Offset );
         outStream.write( Size );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Stage );
         inStream.read( Offset );
         inStream.read( Size );
@@ -107,13 +107,13 @@ struct ShaderUniform {
     uint32_t Size = 0;
     uint32_t Offset = 0;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Name );
         outStream.write( Size );
         outStream.write( Offset );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Name );
         inStream.read( Size );
         inStream.read( Offset );
@@ -125,13 +125,13 @@ struct ShaderBuffer {
     uint32_t Size = 0;
     HashMap< String, ShaderUniform > Uniforms;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Name );
         outStream.write( Size );
         outStream.write( Uniforms );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Name );
         inStream.read( Size );
         inStream.read( Uniforms );
@@ -144,14 +144,14 @@ struct ShaderResourceDeclaration {
     uint32_t Register = 0;
     uint32_t Count = 0;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Name );
         outStream.write( Set );
         outStream.write( Register );
         outStream.write( Count );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Name );
         inStream.read( Set );
         inStream.read( Register );
@@ -169,7 +169,7 @@ struct ShaderDescriptorSet {
     HashMap< uint32_t, ImageSampler > SeparateTextures; // Not really an image sampler.
     HashMap< uint32_t, ImageSampler > SeparateSamplers;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Set );
         outStream.write( UniformBuffers );
         outStream.write( StorageBuffers );
@@ -179,7 +179,7 @@ struct ShaderDescriptorSet {
         outStream.write( SeparateSamplers );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( Set );
         inStream.read( UniformBuffers );
         inStream.read( StorageBuffers );
@@ -196,65 +196,65 @@ struct VertexInput {
 
     bool operator<( const VertexInput& other ) const { return Location < other.Location; }
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( Format );
         outStream.write( Location );
     }
 
-    void Deserialize( const Stream& outStream ) {
+    void deserialize( const Stream& outStream ) {
         outStream.read( Format );
         outStream.read( Location );
     }
 };
 
 struct VertexInputStream {
-    uint32_t GetStride() const { return m_Stride; }
-    const Set< VertexInput >& GetInputs() const { return m_Inputs; }
-    void Add( uint32_t location, TextureFormat format ) { m_Inputs.emplace( format, location ); }
+    [[nodiscard]] uint32_t getStride() const { return m_stride; }
+    [[nodiscard]] const Set< VertexInput >& getInputs() const { return m_inputs; }
+    void add( uint32_t location, TextureFormat format ) { m_inputs.emplace( format, location ); }
 
-    void Serialize( Stream& outStream ) const {
-        outStream.write( m_Stride );
-        outStream.write< Set >( m_Inputs );
+    void serialize( Stream& outStream ) const {
+        outStream.write( m_stride );
+        outStream.write< Set >( m_inputs );
     }
 
-    void Deserialize( const Stream& outStream ) {
-        outStream.read( m_Stride );
-        outStream.read( m_Inputs );
+    void deserialize( const Stream& outStream ) {
+        outStream.read( m_stride );
+        outStream.read( m_inputs );
     }
 
   private:
-    uint32_t m_Stride = 0;
-    Set< VertexInput > m_Inputs;
+    uint32_t m_stride = 0;
+    Set< VertexInput > m_inputs;
 };
 
 struct ShaderReflectionInfo {
     bool IsUsingBindless = false;
 
-    VertexInputStream vertexInput;
-    DynamicArray< ShaderDescriptorSet > shaderDescriptorSets;
-    DynamicArray< PushConstantRange > pushConstantRanges;
+    VertexInputStream VertexInput;
+    DynamicArray< ShaderDescriptorSet > ShaderDescriptorSets;
+    DynamicArray< PushConstantRange > PushConstantRanges;
 
     // TODO: Do we need the string here or could this be a hash?
-    HashMap< String, ShaderResourceDeclaration > shaderResources;
-    HashMap< String, ShaderBuffer > constantBuffers;
+    HashMap< String, ShaderResourceDeclaration > ShaderResources;
+    HashMap< String, ShaderBuffer > ConstantBuffers;
     HashMap< String, TextureFormat > OutputAttachments;
 
-    void Serialize( Stream& outStream ) const {
+    void serialize( Stream& outStream ) const {
         outStream.write( IsUsingBindless );
-        outStream.write( vertexInput );
-        outStream.write< DynamicArray >( shaderDescriptorSets );
-        outStream.write< DynamicArray >( pushConstantRanges );
-        outStream.write( shaderResources );
-        outStream.write( constantBuffers );
+        outStream.write( VertexInput );
+        outStream.write< DynamicArray >( ShaderDescriptorSets );
+        outStream.write< DynamicArray >( PushConstantRanges );
+        outStream.write( ShaderResources );
+        outStream.write( ConstantBuffers );
     }
 
-    void Deserialize( const Stream& inStream ) {
+    void deserialize( const Stream& inStream ) {
         inStream.read( IsUsingBindless );
-        inStream.read( vertexInput );
-        inStream.read< DynamicArray >( shaderDescriptorSets );
-        inStream.read< DynamicArray >( pushConstantRanges );
-        inStream.read( shaderResources );
-        inStream.read( constantBuffers );
+        inStream.read( VertexInput );
+        inStream.read< DynamicArray >( ShaderDescriptorSets );
+        inStream.read< DynamicArray >( PushConstantRanges );
+        inStream.read( ShaderResources );
+        inStream.read( ConstantBuffers );
     }
 };
 
@@ -262,29 +262,29 @@ class Shader : public assets::Asset< Shader > {
   public:
     static Reference< Shader > create( const IEngine& engine );
 
-    static constexpr StringId32 TypeId{ "onyx::Graphics::assets::Shader" };
-    StringId32 GetTypeId() const { return TypeId; }
+    static constexpr StringId32 TypeId{ "onyx::graphics::assets::Shader" };
+    static StringId32 getTypeId() { return TypeId; }
 
     using ByteCode = DynamicArray< uint32_t >;
     using PerStageByteCodes = InplaceArray< ByteCode, MAX_SHADER_STAGES >;
 
-    virtual bool AddStage( GraphicsSystem& api, ShaderStage stage, const ByteCode& byteCode ) = 0;
-    virtual void RemoveStage( ShaderStage stage ) = 0;
+    virtual bool addStage( GraphicsSystem& api, ShaderStage stage, const ByteCode& byteCode ) = 0;
+    virtual void removeStage( ShaderStage stage ) = 0;
 
-    virtual const ShaderReflectionInfo& GetReflectionData() const = 0;
-    virtual bool UpdateReflectionData( GraphicsSystem& api, ShaderReflectionInfo& reflectionInfo ) = 0;
+    [[nodiscard]] virtual const ShaderReflectionInfo& getReflectionData() const = 0;
+    virtual bool updateReflectionData( GraphicsSystem& api, ShaderReflectionInfo& reflectionInfo ) = 0;
 
-    virtual uint64_t GetShaderHash() const = 0;
-    virtual void SetShaderHash( uint64_t hash ) = 0;
+    [[nodiscard]] virtual uint64_t getShaderHash() const = 0;
+    virtual void setShaderHash( uint64_t hash ) = 0;
 
-    virtual bool IsComputeShader() const = 0;
-    virtual bool HasDescriptorSetLayout() const = 0;
+    [[nodiscard]] virtual bool isComputeShader() const = 0;
+    [[nodiscard]] virtual bool hasDescriptorSetLayout() const = 0;
 
 #if !ONYX_IS_RETAIL
-    virtual StringView getPath() const = 0;
+    [[nodiscard]] virtual StringView getPath() const = 0;
     virtual void setPath( const String& path ) = 0;
 #endif
 };
 
-DynamicArray< FilePath > GetShaderDirectories();
+DynamicArray< FilePath > getShaderDirectories();
 } // namespace onyx::rhi

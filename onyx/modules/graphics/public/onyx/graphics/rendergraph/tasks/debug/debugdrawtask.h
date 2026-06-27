@@ -14,9 +14,9 @@ class DebugDrawTask
     DebugDrawTask();
 
   private:
-    void OnBeginFrame( RenderGraphContext& context ) override;
-    void OnPreRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
-    void OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( RenderGraphContext& context ) override;
+    void onPreRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:

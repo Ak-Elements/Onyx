@@ -120,7 +120,7 @@ void SceneEditorWindow::onOpen() {
     componentsPanel.setWindowId( m_componentsPanelId );
     componentsPanel.setName( m_componentsPanelId );
     componentsPanel.setWindowClass( m_windowClass );
-    componentsPanel.SetCommandGraph( m_commandStack );
+    componentsPanel.setCommandGraph( m_commandStack );
 
     CommandHistoryWindow& history = imguiSystem.openUniqueWindow< CommandHistoryWindow >( *this );
     history.setWindowClass( m_windowClass );

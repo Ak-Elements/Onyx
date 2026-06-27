@@ -6,16 +6,16 @@ namespace onyx::localization {
 class GetTextLocalizationDatabase : public assets::Asset< GetTextLocalizationDatabase > {
   public:
     static constexpr StringId32 TypeId{ "onyx::localization::assets::GetTextLocalizationDatabase" };
-    StringId32 GetTypeId() const { return TypeId; }
+    static StringId32 getTypeId() { return TypeId; }
 
-    HashMap< LocalizationId, DynamicArray< String > >& GetDatabase() { return m_LocaleDatabase; }
-    const HashMap< LocalizationId, DynamicArray< String > >& GetDatabase() const { return m_LocaleDatabase; }
+    HashMap< LocalizationId, DynamicArray< String > >& getDatabase() { return m_localeDatabase; }
+    const HashMap< LocalizationId, DynamicArray< String > >& getDatabase() const { return m_localeDatabase; }
 
-    void SetPluralFunction( int32_t( pluralFunction )( int32_t ) ) { m_PluralFunction = pluralFunction; }
-    const InplaceFunction< int32_t( int32_t ) >& GetPluralFunction() const { return m_PluralFunction; }
+    void setPluralFunction( int32_t( pluralFunction )( int32_t ) ) { m_pluralFunction = pluralFunction; }
+    const InplaceFunction< int32_t( int32_t ) >& getPluralFunction() const { return m_pluralFunction; }
 
   private:
-    HashMap< LocalizationId, DynamicArray< String > > m_LocaleDatabase;
-    InplaceFunction< int32_t( int32_t ) > m_PluralFunction;
+    HashMap< LocalizationId, DynamicArray< String > > m_localeDatabase;
+    InplaceFunction< int32_t( int32_t ) > m_pluralFunction;
 };
 } // namespace onyx::localization

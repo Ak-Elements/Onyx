@@ -731,7 +731,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     if( renderGraph.isValid() == false )
         return;
 
-    graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->GetResourceCache();
+    graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->getResourceCache();
 
     if( isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo ) {
         renderGraphResourceCache.erase( HIT_BUFFER_RESOURCE_ID );

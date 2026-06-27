@@ -9,7 +9,7 @@
 #include <onyx/profiler/profiler.h>
 
 namespace onyx::game_core {
-void MSDFFontRenderPass::OnInit( rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& /*resourceCache*/ ) {
+void MSDFFontRenderPass::onInit( rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& /*resourceCache*/ ) {
     constexpr uint32_t MAX_QUADS = 10000;
     constexpr uint32_t MAX_VERTICES = MAX_QUADS * 4;
     constexpr uint32_t MAX_INDICES = MAX_QUADS * 6;
@@ -44,12 +44,12 @@ void MSDFFontRenderPass::OnInit( rhi::GraphicsSystem& api, graphics::RenderGraph
     m_IndexBuffer.Buffer->SetData( 0, indices, static_cast< uint32_t >( MAX_INDICES * sizeof( uint16_t ) ) );
 }
 
-void MSDFFontRenderPass::OnShutdown( rhi::GraphicsSystem& /*api*/ ) {
+void MSDFFontRenderPass::onShutdown( rhi::GraphicsSystem& /*api*/ ) {
     m_VertexBuffer.Buffer.reset();
     m_IndexBuffer.Buffer.reset();
 }
 
-void MSDFFontRenderPass::OnPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/ ) {
+void MSDFFontRenderPass::onPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/ ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::FrameContext& frameContext = context.FrameContext;
@@ -70,7 +70,7 @@ void MSDFFontRenderPass::OnPreRender( graphics::RenderGraphContext& context, rhi
     }*/
 }
 
-void MSDFFontRenderPass::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void MSDFFontRenderPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::FrameContext& frameContext = context.FrameContext;

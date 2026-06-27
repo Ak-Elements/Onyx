@@ -46,17 +46,19 @@ class AssetSystem : public IEngineSystem {
 
     static DynamicArray< StringView > getExtensions( AssetType type ) {
         DynamicArray< StringView > extensions;
-        for ( auto&& [ extension, assetType ] : s_extensionToAssetType ) {
-            if ( assetType == type ) {
+        for( auto&& [ extension, assetType ] : s_extensionToAssetType ) {
+            if( assetType == type ) {
                 extensions.emplace_back( extension );
             }
         }
         return extensions;
     }
 
+    auto getAssetTypes() { return s_registeredAssets | std::views::keys; }
+
     Optional< const AssetMetaData* > tryGetAssetMeta( AssetId id ) const {
         auto it = m_assetsMetaData.find( id );
-        if ( it == m_assetsMetaData.end() )
+        if( it == m_assetsMetaData.end() )
             return std::nullopt;
 
         return &it->second;
@@ -68,9 +70,9 @@ class AssetSystem : public IEngineSystem {
         DynamicArray< AssetMetaData > availableAssets;
         availableAssets.reserve( m_assetsMetaData.size() );
 
-        for ( const AssetMetaData& assetMeta : ( m_assetsMetaData | std::views::values ) ) {
+        for( const AssetMetaData& assetMeta : ( m_assetsMetaData | std::views::values ) ) {
             String extension( assetMeta.getExtension() );
-            if ( ( type != AssetType::Invalid ) && ( s_extensionToAssetType[ extension ] != type ) ) {
+            if( ( type != AssetType::Invalid ) && ( s_extensionToAssetType[ extension ] != type ) ) {
                 continue;
             }
 
@@ -87,8 +89,8 @@ class AssetSystem : public IEngineSystem {
         DynamicArray< AssetMetaData > availableAssets;
         availableAssets.reserve( m_assetsMetaData.size() );
 
-        for ( const AssetMetaData& assetMeta : ( m_assetsMetaData | std::views::values ) ) {
-            if ( assetMeta.Type == Type ) {
+        for( const AssetMetaData& assetMeta : ( m_assetsMetaData | std::views::values ) ) {
+            if( assetMeta.Type == Type ) {
                 availableAssets.push_back( assetMeta );
             }
         }
@@ -135,7 +137,7 @@ class AssetSystem : public IEngineSystem {
         s_registeredSerializer[ SerializerT::AssetT::TypeId ] = makeUnique< SerializerT >(
             std::forward< Args >( args )... );
 
-        for ( StringView extension : SerializerT::Extensions ) {
+        for( StringView extension : SerializerT::Extensions ) {
             s_extensionToAssetType[ extension ] = static_cast< AssetType >( SerializerT::AssetT::TypeId.getId() );
         }
 
@@ -160,9 +162,10 @@ class AssetSystem : public IEngineSystem {
 template < typename AssetT >
 requires std::is_base_of_v< AssetInterface, AssetT >
 inline constexpr bool AssetSystem::registerAsset() {
-	ONYX_ASSERT( s_registeredAssets.contains(  AssetT::TypeId ) == false, "Asset with that type is already registered." );
-    if constexpr ( (std::is_abstract_v< AssetT >) || HasStaticCreate< AssetT > ) {
-        s_registeredAssets[  AssetT::TypeId ] = []( IEngine& engine ) -> Reference< AssetInterface > {
+    ONYX_ASSERT( s_registeredAssets.contains( AssetT::TypeId ) == false,
+                 "Asset with that type is already registered." );
+    if constexpr( (std::is_abstract_v< AssetT >) || HasStaticCreate< AssetT > ) {
+        s_registeredAssets[ AssetT::TypeId ] = []( IEngine& engine ) -> Reference< AssetInterface > {
             return AssetT::create( engine );
         };
     } else {
@@ -178,14 +181,14 @@ template < typename T >
 bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAsset, bool forceLoad ) {
     auto assetIt = m_assetsMetaData.find( id );
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    if ( assetIt == m_assetsMetaData.end() ) {
+    if( assetIt == m_assetsMetaData.end() ) {
         ONYX_LOG_ERROR( "Missing asset with id:{}.", id.get() );
         return false;
     }
 #endif
 
     AssetMetaData& metaData = assetIt->second;
-    if ( ( metaData.Handle != InvalidIndex64 ) && ( forceLoad == false ) ) {
+    if( ( metaData.Handle != InvalidIndex64 ) && ( forceLoad == false ) ) {
         outAsset = m_loadedAssets[ metaData.Handle ];
         return true;
     }
@@ -193,10 +196,10 @@ bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAsset, bool forceLo
     constexpr StringId32 AssetTypeHash = T::TypeId;
     metaData.Type = static_cast< AssetType >( AssetTypeHash.getId() );
 
-    if constexpr ( HasAssetFormat< T > )
+    if constexpr( HasAssetFormat< T > )
         metaData.Format = T::Format;
 
-    if ( ( metaData.Handle != InvalidIndex64 ) && forceLoad ) {
+    if( ( metaData.Handle != InvalidIndex64 ) && forceLoad ) {
         AssetHandle< AssetInterface >& reloadAsset = m_loadedAssets[ metaData.Handle ];
         {
             std::lock_guard lock( m_mutex );
@@ -220,7 +223,7 @@ bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAsset, bool forceLo
 
     {
         std::lock_guard lock( m_mutex );
-        if ( metaData.Handle == InvalidIndex64 ) {
+        if( metaData.Handle == InvalidIndex64 ) {
             metaData.Handle = static_cast< int64_t >( m_loadedAssets.size() );
             m_loadedAssets.emplace_back( id, std::move( newAsset ) );
             m_ioHandler.requestLoad( metaData, newAssetHandle, serializer, m_engine );
@@ -234,14 +237,14 @@ template < typename T >
 bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAssetReference ) const {
     const auto assetIt = m_assetsMetaData.find( id );
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    if ( assetIt == m_assetsMetaData.end() ) {
+    if( assetIt == m_assetsMetaData.end() ) {
         ONYX_LOG_ERROR( "Missing asset with id:{}.", id.get() );
         return false;
     }
 #endif
 
     const AssetMetaData& metaData = assetIt->second;
-    if ( metaData.Handle == InvalidIndex64 ) {
+    if( metaData.Handle == InvalidIndex64 ) {
         return false;
     }
 
@@ -254,7 +257,7 @@ template < typename T >
 bool AssetSystem::getAssetUnmanaged( AssetId id, AssetHandle< T >& outAssetReference ) {
     const auto assetIt = m_assetsMetaData.find( id );
 
-    if ( assetIt == m_assetsMetaData.end() ) {
+    if( assetIt == m_assetsMetaData.end() ) {
         ONYX_LOG_ERROR( "Missing asset with id:{}.", id.get() );
         return false;
     }
@@ -282,13 +285,13 @@ bool AssetSystem::saveAsset( const AssetHandle< T >& asset ) {
     AssetId assetId = asset.getId();
     const auto assetIt = m_assetsMetaData.find( assetId );
 
-    if ( assetIt == m_assetsMetaData.end() ) {
+    if( assetIt == m_assetsMetaData.end() ) {
         ONYX_LOG_ERROR( "Missing asset with id:{}.", assetId.get() );
         return false;
     }
 
     const AssetMetaData& metaData = assetIt->second;
-    if ( metaData.Handle == InvalidIndex64 ) {
+    if( metaData.Handle == InvalidIndex64 ) {
         return false;
     }
 

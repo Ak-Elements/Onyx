@@ -6,14 +6,14 @@
 #include <onyx/rhi/framecontext.h>
 
 namespace onyx::graphics::render_graph_nodes {
-void SkyViewLutRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) {
+void SkyViewLutRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
     const uint64_t transmittanceGlobalId = GetInputPin0().GetLinkedPinGlobalId().get();
-    const RenderGraphResource& transmittanceResource = context.Graph.GetResource( transmittanceGlobalId );
+    const RenderGraphResource& transmittanceResource = context.Graph.getResource( transmittanceGlobalId );
 
     const uint64_t multipleScatteringLutGlobalId = GetInputPin1().GetLinkedPinGlobalId().get();
-    const RenderGraphResource& multipleScatteringResource = context.Graph.GetResource( multipleScatteringLutGlobalId );
+    const RenderGraphResource& multipleScatteringResource = context.Graph.getResource( multipleScatteringLutGlobalId );
 
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
         transmittanceResource.Handle );
@@ -23,11 +23,11 @@ void SkyViewLutRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) {
     m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
     m_MultipleScatteringTextureIndex = multipleScatteringTextureHandle.Texture->GetIndex();
 
-    RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+    RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
 }
 
-void SkyViewLutRenderGraphNode::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void SkyViewLutRenderGraphNode::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::FrameContext& frameContext = context.FrameContext;

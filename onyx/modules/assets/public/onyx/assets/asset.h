@@ -26,18 +26,19 @@ struct AssetMetaData {
     FilePath Path;
     AssetId Id;
     AssetType Type = AssetType::Invalid;
+
     AssetFormat Format = AssetFormat::Json;
 
     int64_t Handle = InvalidIndex64;
 
     uint32_t Version = 0; // Maybe not needed
 
-    ONYX_NO_DISCARD String getName() const { return Path.stem().string(); }
+    [[nodiscard]] String getName() const { return Path.stem().string(); }
 
-    ONYX_NO_DISCARD String getExtension() const {
+    [[nodiscard]] String getExtension() const {
         // TODO: remove extension once we have meta data stored on disk
         String extension = Path.extension().string();
-        if ( extension.empty() == false ) {
+        if( extension.empty() == false ) {
             return extension.substr( 1 ); // ignore .
         }
 
@@ -58,8 +59,8 @@ class AssetInterface : public RefCounted {
   public:
     void setState( AssetState state ) { m_state = state; }
 
-    bool isLoading() const { return m_state == AssetState::Loading; }
-    bool isLoaded() const { return m_state == AssetState::Loaded; }
+    [[nodiscard]] bool isLoading() const { return m_state == AssetState::Loading; }
+    [[nodiscard]] bool isLoaded() const { return m_state == AssetState::Loaded; }
 
   private:
     virtual void onLoadFinished( AssetId id, AssetState state ) = 0;
@@ -88,7 +89,7 @@ template < typename T > class Asset : public AssetInterface {
 
   private:
     void onLoadFinished( AssetId id, AssetState state ) override {
-        if ( state == AssetState::Loaded ) {
+        if( state == AssetState::Loaded ) {
             Reference< AssetT > ref( this );
             m_loadedSignal.Dispatch( AssetHandle< AssetT >( id, ref ) );
         }
@@ -107,6 +108,7 @@ template < typename T > class Asset : public AssetInterface {
   private:
     LoadedSignalT m_loadedSignal;
 #if ONYX_IS_EDITOR
+
     SavedSignalT m_savedSignal;
 #endif
 };

@@ -29,7 +29,7 @@ class ComponentsPanel : public ui::ImGuiWindow {
     static constexpr StringView WindowId = "ComponentsPanel";
     static constexpr StringView WindowCategory = "Panel";
 
-    void SetCommandGraph( ICommandGraph& commandGraph ) { m_CommandGraph = &commandGraph; }
+    void setCommandGraph( ICommandGraph& commandGraph ) { m_commandGraph = &commandGraph; }
 
   private:
     void onOpen() override;
@@ -37,26 +37,25 @@ class ComponentsPanel : public ui::ImGuiWindow {
 
     void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
-    void DrawSelectedEntityComponents( ecs::EntityRegistry& registry,
+    void drawSelectedEntityComponents( ecs::EntityRegistry& registry,
                                        assets::AssetId sceneId,
                                        game_core::GameCoreSystem& gameCoreSystem,
                                        const localization::LocalizationModule& localizationModule );
 
-    void DrawCreateComponentContextMenu( ecs::EntityRegistry& registry,
+    void drawCreateComponentContextMenu( ecs::EntityRegistry& registry,
                                          assets::AssetId sceneId,
                                          game_core::GameCoreSystem& gameCoreSystem,
                                          const localization::LocalizationModule& localizationModule );
 
-    ui::TreeItem BuildComponentTree( StringView searchString,
+    ui::TreeItem buildComponentTree( StringView searchString,
                                      ecs::EntityRegistry& registry,
                                      assets::AssetId sceneId,
                                      game_core::GameCoreSystem& gameCoreSystem,
                                      const localization::LocalizationModule& localizationModule ) const;
 
   private:
-    ui::TreeItem m_ContextMenuTreeRoot;
-    ICommandGraph* m_CommandGraph = nullptr;
+    ICommandGraph* m_commandGraph = nullptr;
 
-    bool m_ShowAll = false;
+    bool m_showAll = false;
 };
 } // namespace onyx::editor::scene_editor

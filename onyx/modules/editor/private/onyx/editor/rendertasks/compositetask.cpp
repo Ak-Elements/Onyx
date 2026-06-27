@@ -5,7 +5,7 @@
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx {
-void CompositeRenderGraphNode::OnInit( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) {
+void CompositeRenderGraphNode::onInit( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) {
     /*Graphics::RenderGraphResourceInfo& input = m_Inputs.emplace_back();
     input.Id = hash::FNV1aHash32("grid");
     input.Name = "grid";
@@ -28,7 +28,7 @@ void CompositeRenderGraphNode::OnInit( rhi::GraphicsSystem& /*api*/, RenderGraph
 #if ONYX_IS_EDITOR
 
 #endif
-void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     struct PushConstant {
@@ -38,7 +38,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
 
     const node_graph::PinBase* gridTextureInPin = GetInputPin( 0 );
     if( gridTextureInPin->IsConnected() ) {
-        const graphics::RenderGraphResource& resource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& resource = context.Graph.getResource(
             gridTextureInPin->GetLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gridTextureHandle = std::get< rhi::TextureHandle >( resource.Handle );
         constants.TextureIndices[ 1 ] = gridTextureHandle.Texture->GetIndex();
@@ -47,7 +47,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
 
     const node_graph::PinBase* gbufferTextureInPin = GetInputPin( 1 );
     if( gbufferTextureInPin->IsConnected() ) {
-        const graphics::RenderGraphResource& gbufferResource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& gbufferResource = context.Graph.getResource(
             gbufferTextureInPin->GetLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gbufferTextureHandle = std::get< rhi::TextureHandle >( gbufferResource.Handle );
         constants.TextureIndices[ 0 ] = gbufferTextureHandle.Texture->GetIndex();
@@ -56,7 +56,7 @@ void CompositeRenderGraphNode::OnRender( graphics::RenderGraphContext& context, 
 
     const node_graph::PinBase* fontTextureInPin = GetInputPin( 2 );
     if( fontTextureInPin->IsConnected() ) {
-        const graphics::RenderGraphResource& font3dResource = context.Graph.GetResource(
+        const graphics::RenderGraphResource& font3dResource = context.Graph.getResource(
             fontTextureInPin->GetLinkedPinGlobalId().get() );
         const rhi::TextureHandle& font3dTextureHandle = std::get< rhi::TextureHandle >( font3dResource.Handle );
         constants.TextureIndices[ 2 ] = font3dTextureHandle.Texture->GetIndex();

@@ -8,7 +8,7 @@
 namespace onyx::rhi {
 Reference< Shader > Shader::create( const IEngine& engine ) {
     const GraphicsSystem& graphicsSystem = engine.getSystem< GraphicsSystem >();
-    switch ( graphicsSystem.getApiType() ) {
+    switch( graphicsSystem.getApiType() ) {
         using enum ApiType;
     case Vulkan:
 #if ONYX_USE_VULKAN
@@ -24,14 +24,14 @@ Reference< Shader > Shader::create( const IEngine& engine ) {
     return nullptr;
 }
 
-DynamicArray< FilePath > GetShaderDirectories() {
+DynamicArray< FilePath > getShaderDirectories() {
     DynamicArray< FilePath > shaderDirectories;
-    for ( const file_system::MountPoint& mountPoint : ( file_system::path::getMountPoints() | std::views::values ) ) {
-        if ( mountPoint.Prefix == file_system::path::TmpMountPointId.getString() )
+    for( const file_system::MountPoint& mountPoint : ( file_system::path::getMountPoints() | std::views::values ) ) {
+        if( mountPoint.Prefix == file_system::path::TmpMountPointId.getString() )
             continue;
 
         const FilePath shaderIncludePath = mountPoint.Path / "shaders/";
-        if ( file_system::path::exists( shaderIncludePath ) ) {
+        if( file_system::path::exists( shaderIncludePath ) ) {
             shaderDirectories.emplace_back( shaderIncludePath );
         }
     }

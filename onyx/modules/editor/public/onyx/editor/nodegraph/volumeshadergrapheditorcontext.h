@@ -18,8 +18,8 @@ class VolumeShaderGraphEditorContext
     void onNodeChanged( const Node& newNode ) override;
 
   private:
-    assets::AssetSystem* m_AssetSystem = nullptr;
-    rhi::GraphicsSystem* m_GraphicsSystem = nullptr;
+    assets::AssetSystem* m_assetSystem = nullptr;
+    rhi::GraphicsSystem* m_graphicsSystem = nullptr;
 };
 
 } // namespace onyx::editor

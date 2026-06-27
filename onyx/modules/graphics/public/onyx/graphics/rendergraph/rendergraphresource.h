@@ -12,20 +12,14 @@ class RenderGraph;
 struct RenderGraphContext {
     const rhi::FrameContext& FrameContext;
     RenderGraph& Graph;
-
-    template < typename T >
-    T GetPinData( uint32_t /*localPinId*/ ) {
-        return T();
-        // return Graph.GetResource(localPinId);
-    }
 };
 
 using RenderGraphResourceId = uint64_t;
 
-constexpr RenderGraphResourceId INVALID_RESOURCE_ID = 0;
-constexpr RenderGraphResourceId SWAPCHAIN_RESOURCE_ID = hash::fnV1aHash< uint32_t >( "swapchain" );
-constexpr RenderGraphResourceId DEPTH_RESOURCE_ID = hash::fnV1aHash< uint32_t >( "depth" );
-constexpr RenderGraphResourceId VIEW_CONSTANTS_RESOURCE_ID = hash::fnV1aHash< uint32_t >( "u_viewconstants" );
+constexpr RenderGraphResourceId InvalidResourceId = 0;
+constexpr RenderGraphResourceId SwapchainResourceId = hash::fnV1aHash< uint32_t >( "swapchain" );
+constexpr RenderGraphResourceId DepthResourceId = hash::fnV1aHash< uint32_t >( "depth" );
+constexpr RenderGraphResourceId ViewConstantsResourceId = hash::fnV1aHash< uint32_t >( "u_viewconstants" );
 
 enum class RenderGraphResourceType {
     Invalid,
@@ -54,7 +48,7 @@ struct RenderGraphBufferResourceInfo {
 
 struct RenderGraphResourceInfo {
     RenderGraphResourceType Type = RenderGraphResourceType::Invalid;
-    RenderGraphResourceId Id = INVALID_RESOURCE_ID;
+    RenderGraphResourceId Id = InvalidResourceId;
 
     // #if ONYX_IS_DEBUG TODO: should be a hash in Release
     String Name;
@@ -85,9 +79,9 @@ struct RenderGraphResource {
         return true;
     }
 
-    constexpr bool operator==( RenderGraphResource& other ) {
+    constexpr bool operator==( RenderGraphResource& other ) const {
         return ( Info.Id == other.Info.Id ) /*&& (Handle == other.Handle)*/;
     }
-    constexpr bool operator!=( RenderGraphResource& other ) { return !( *this == other ); }
+    constexpr bool operator!=( RenderGraphResource& other ) const { return !( *this == other ); }
 };
 } // namespace onyx::graphics

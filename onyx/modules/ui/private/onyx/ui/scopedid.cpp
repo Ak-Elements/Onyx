@@ -13,6 +13,10 @@ ScopedImGuiId::ScopedImGuiId( int32_t id ) {
     ImGui::PushID( id );
 }
 
+ScopedImGuiId::ScopedImGuiId( uint32_t id ) {
+    ImGui::PushID( numericCast< int32_t >( id ) );
+}
+
 ScopedImGuiId::~ScopedImGuiId() {
     ImGui::PopID();
 }

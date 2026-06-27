@@ -5,12 +5,12 @@ class Stream;
 
 template < typename T >
 concept HasSerialize = requires( const T& obj, Stream& outStream ) {
-    { obj.Serialize( outStream ) } -> std::same_as< void >;
+    { obj.serialize( outStream ) } -> std::same_as< void >;
 };
 
 template < typename T >
 concept HasDeserialize = requires( T& obj, const Stream& inStream ) {
-    { obj.Deserialize( inStream ) } -> std::same_as< void >;
+    { obj.deserialize( inStream ) } -> std::same_as< void >;
 };
 
 class Stream {
@@ -48,8 +48,8 @@ class Stream {
     // Read Raw interface
     template < typename T >
     void read( T& out ) const {
-        if constexpr ( HasDeserialize< T > )
-            out.Deserialize( *this );
+        if constexpr( HasDeserialize< T > )
+            out.deserialize( *this );
         else
             readRaw( out );
     }
@@ -74,10 +74,10 @@ class Stream {
 
     template < typename T >
     void read( DynamicArray< T >& array, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
+        if( length != 0 ) {
             array.resize( length );
             doRead( reinterpret_cast< char* >( array.data() ), sizeof( T ) * length );
         }
@@ -85,12 +85,12 @@ class Stream {
 
     template < template < typename > typename Container, typename T >
     void read( Container< T >& array, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
+        if( length != 0 ) {
             array.resize( length );
-            for ( uint64_t i = 0; i < length; ++i ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 read( array[ i ] );
             }
         }
@@ -98,11 +98,11 @@ class Stream {
 
     template < typename T >
     void read( Set< T >& set, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
-            for ( uint64_t i = 0; i < length; ++i ) {
+        if( length != 0 ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 T element;
                 read( element );
                 set.emplace( element );
@@ -112,11 +112,11 @@ class Stream {
 
     template < typename T >
     void read( HashSet< T >& set, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
-            for ( uint64_t i = 0; i < length; ++i ) {
+        if( length != 0 ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 T element;
                 read( element );
                 set.emplace( element );
@@ -126,12 +126,12 @@ class Stream {
 
     template < typename KeyT, typename ValueT >
     void read( HashMap< KeyT, ValueT >& map, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
+        if( length != 0 ) {
             KeyT key{};
-            for ( uint64_t i = 0; i < length; ++i ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 read( key );
                 read( map[ key ] );
             }
@@ -148,12 +148,12 @@ class Stream {
 
     template < typename T >
     void readRaw( DynamicArray< T >& array, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
+        if( length != 0 ) {
             array.resize( length );
-            for ( uint64_t i = 0; i < length; ++i ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 readRaw( array[ i ] );
             }
         }
@@ -161,11 +161,11 @@ class Stream {
 
     template < typename T, uint8_t Size >
     void readRaw( InplaceArray< T, Size >& array, uint64_t length = 0 ) {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
-            for ( uint64_t i = 0; i < length; ++i ) {
+        if( length != 0 ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 readRaw( array[ i ] );
             }
         }
@@ -173,13 +173,13 @@ class Stream {
 
     template < typename KeyT, typename ValueT >
     void readRaw( HashMap< KeyT, ValueT >& map, uint64_t length = 0 ) const {
-        if ( length == 0 )
+        if( length == 0 )
             read( length );
 
-        if ( length != 0 ) {
+        if( length != 0 ) {
             // map.reserve(length);
             KeyT key;
-            for ( uint64_t i = 0; i < length; ++i ) {
+            for( uint64_t i = 0; i < length; ++i ) {
                 readRaw( key );
                 readRaw( map[ key ] );
             }
@@ -189,8 +189,8 @@ class Stream {
     // Write interface
     template < typename T >
     void write( const T& val ) {
-        if constexpr ( HasSerialize< T > )
-            val.Serialize( *this );
+        if constexpr( HasSerialize< T > )
+            val.serialize( *this );
         else
             writeRaw( val );
     }
@@ -208,11 +208,11 @@ class Stream {
 
     template < template < typename > typename Container, typename T >
     void write( const Container< T >& array, bool writeSize = true ) {
-        if ( writeSize )
+        if( writeSize )
             write( static_cast< uint64_t >( array.size() ) );
 
-        if ( array.empty() == false ) {
-            for ( const T& element : array ) {
+        if( array.empty() == false ) {
+            for( const T& element : array ) {
                 write( element );
             }
         }
@@ -220,11 +220,11 @@ class Stream {
 
     template < typename T >
     void write( const HashSet< T >& set, bool writeSize = true ) {
-        if ( writeSize )
+        if( writeSize )
             write( static_cast< uint64_t >( set.size() ) );
 
-        if ( set.empty() == false ) {
-            for ( const T& element : set ) {
+        if( set.empty() == false ) {
+            for( const T& element : set ) {
                 write( element );
             }
         }
@@ -232,10 +232,10 @@ class Stream {
 
     template < typename KeyT, typename ValueT >
     void write( const HashMap< KeyT, ValueT >& map, bool writeSize = true ) {
-        if ( writeSize )
+        if( writeSize )
             write( static_cast< uint64_t >( map.size() ) );
 
-        for ( const auto& [ key, value ] : map ) {
+        for( const auto& [ key, value ] : map ) {
             write( key );
             write( value );
         }
@@ -251,28 +251,28 @@ class Stream {
 
     template < typename T >
     void writeRaw( const DynamicArray< T >& array, bool writeSize = true ) {
-        if ( writeSize )
+        if( writeSize )
             write( static_cast< uint64_t >( array.size() ) );
 
-        if ( array.empty() == false )
+        if( array.empty() == false )
             doWrite( reinterpret_cast< const char* >( array.data() ), sizeof( T ) * array.size() );
     }
 
     template < typename T, uint8_t Size >
     void writeRaw( const InplaceArray< T, Size >& array, bool writeSize = true ) {
-        if ( writeSize )
+        if( writeSize )
             write( static_cast< uint64_t >( array.size() ) );
 
-        if ( array.empty() == false )
+        if( array.empty() == false )
             doWrite( reinterpret_cast< const char* >( array.data() ), sizeof( T ) * array.size() );
     }
 
     template < typename KeyT, typename ValueT >
     void writeRaw( const HashMap< KeyT, ValueT >& map, bool writeSize = true ) {
-        if ( writeSize )
+        if( writeSize )
             write( static_cast< int64_t >( map.size() ) );
 
-        for ( const auto& [ key, value ] : map ) {
+        for( const auto& [ key, value ] : map ) {
             writeRaw( key );
             writeRaw( value );
         }

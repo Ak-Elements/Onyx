@@ -9,23 +9,23 @@ class MeshAsset : public assets::Asset< MeshAsset > {
     friend struct MeshSerializer;
 
   public:
-    static constexpr StringId32 TypeId{ "onyx::graphics::assets::MeshAsset" };
-    StringId32 GetTypeId() const { return TypeId; }
+    static constexpr StringId32 TypeId{ "onyx::graphics::assets::Mesh" };
+    static StringId32 getTypeId() { return TypeId; }
 
-    DynamicArray< rhi::Vertex >& GetVertices() { return m_Vertices; }
-    const DynamicArray< rhi::Vertex >& GetVertices() const { return m_Vertices; }
+    DynamicArray< rhi::Vertex >& getVertices() { return m_vertices; }
+    const DynamicArray< rhi::Vertex >& getVertices() const { return m_vertices; }
 
-    DynamicArray< uint32_t >& GetIndices() { return m_Indices; }
-    const DynamicArray< uint32_t >& GetIndices() const { return m_Indices; }
+    DynamicArray< uint32_t >& getIndices() { return m_indices; }
+    const DynamicArray< uint32_t >& getIndices() const { return m_indices; }
 
-    rhi::BufferHandle GetVertexBuffer() const { return m_VertexBuffer; }
-    rhi::BufferHandle GetIndexBuffer() const { return m_IndexBuffer; }
+    rhi::BufferHandle getVertexBuffer() const { return m_vertexBuffer; }
+    rhi::BufferHandle getIndexBuffer() const { return m_indexBuffer; }
 
   private:
-    DynamicArray< rhi::Vertex > m_Vertices;
-    DynamicArray< uint32_t > m_Indices;
+    DynamicArray< rhi::Vertex > m_vertices;
+    DynamicArray< uint32_t > m_indices;
 
-    rhi::BufferHandle m_VertexBuffer;
-    rhi::BufferHandle m_IndexBuffer;
+    rhi::BufferHandle m_vertexBuffer;
+    rhi::BufferHandle m_indexBuffer;
 };
 } // namespace onyx::graphics

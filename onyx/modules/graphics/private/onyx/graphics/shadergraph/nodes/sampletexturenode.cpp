@@ -25,14 +25,14 @@ SampleTextureNode::~SampleTextureNode() = default;
 
 void SampleTextureNode::OnUpdate( node_graph::ExecutionContext& context ) const {
     const TextureInPin& inputPin = static_cast< const TextureInPin& >( *GetInputPin( 0 ) );
-    if ( ( inputPin.IsConnected() == false ) && Texture.isValid() && Texture->isLoaded() ) {
+    if( ( inputPin.IsConnected() == false ) && Texture.isValid() && Texture->isLoaded() ) {
         ShaderGraphTextures& textures = context.Get< ShaderGraphTextures >();
-        textures.AddTexture( Texture->GetTextureHandle() );
+        textures.addTexture( Texture->getTextureHandle() );
     }
 }
 
 bool SampleTextureNode::OnSerialize( Serializer& serializer ) const {
-    if ( Texture.hasAssetId() ) {
+    if( Texture.hasAssetId() ) {
         // TODO: Add asset id serializer
         serializer.write< "sampleTextureId" >( Texture.getId().get() );
     }
@@ -42,7 +42,7 @@ bool SampleTextureNode::OnSerialize( Serializer& serializer ) const {
 
 bool SampleTextureNode::OnDeserialize( const Deserializer& deserializer ) {
     uint64_t assetId;
-    if ( deserializer.read< "sampleTextureId" >( assetId ) ) {
+    if( deserializer.read< "sampleTextureId" >( assetId ) ) {
         Texture.setId( assets::AssetId( assetId ) );
     }
 
@@ -51,14 +51,14 @@ bool SampleTextureNode::OnDeserialize( const Deserializer& deserializer ) {
 
 void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& context,
                                           rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.GetStage() != rhi::ShaderStage::Fragment )
         return;
 
     const TextureInPin& inputPin = static_cast< const TextureInPin& >( *GetInputPin( 0 ) );
 
     int32_t textureIndex;
     // const ShaderGraphTextures& shaderGraphTextures = context.Get<ShaderGraphTextures>();
-    if ( inputPin.IsConnected() ) {
+    if( inputPin.IsConnected() ) {
         textureIndex = generator.GetTextureIndex( inputPin.GetLinkedPinGlobalId().get() );
     } else {
         // TODO: we need to get the texture from the asset here to store it similar to OnUpdate and avoid adding
@@ -67,7 +67,7 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
         textureIndex = generator.AddTexture( Texture.getId().get() );
     }
 
-    if ( textureIndex == InvalidIndex32 ) {
+    if( textureIndex == InvalidIndex32 ) {
         ONYX_LOG_WARNING( "Missing texture for texture sample node ({:x})", GetId().get() );
         // TODO: return bool
     }
@@ -93,7 +93,7 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
     // Outputs
     bool isAnyOutPinConnected = false;
     Optional< const RGBOutPin* > rgbOutputPin = GetOutputPinByLocalId< RGBOutPin >();
-    if ( rgbOutputPin && context.IsPinConnected< RGBOutPin >() ) {
+    if( rgbOutputPin && context.IsPinConnected< RGBOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "vec3 pin_{:x} = {}.xyz; // rgb \n",
                                              rgbOutputPin.value()->GetGlobalId().get(),
@@ -101,7 +101,7 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
     }
 
     Optional< const RGBAOutPin* > rgbaOutputPin = GetOutputPinByLocalId< RGBAOutPin >();
-    if ( rgbaOutputPin && context.IsPinConnected< RGBAOutPin >() ) {
+    if( rgbaOutputPin && context.IsPinConnected< RGBAOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "vec4 pin_{:x} = {}.xyzw; // rgba \n",
                                              rgbaOutputPin.value()->GetGlobalId().get(),
@@ -109,7 +109,7 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
     }
 
     Optional< const RedOutPin* > redOutputPin = GetOutputPinByLocalId< RedOutPin >();
-    if ( redOutputPin && context.IsPinConnected< RedOutPin >() ) {
+    if( redOutputPin && context.IsPinConnected< RedOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.x; // red \n",
                                              redOutputPin.value()->GetGlobalId().get(),
@@ -117,7 +117,7 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
     }
 
     Optional< const GreenOutPin* > greenOutputPin = GetOutputPinByLocalId< GreenOutPin >();
-    if ( greenOutputPin && context.IsPinConnected< GreenOutPin >() ) {
+    if( greenOutputPin && context.IsPinConnected< GreenOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.y; // green \n",
                                              greenOutputPin.value()->GetGlobalId().get(),
@@ -125,7 +125,7 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
     }
 
     Optional< const BlueOutPin* > blueOutputPin = GetOutputPinByLocalId< BlueOutPin >();
-    if ( blueOutputPin && context.IsPinConnected< BlueOutPin >() ) {
+    if( blueOutputPin && context.IsPinConnected< BlueOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.z; // blue \n",
                                              blueOutputPin.value()->GetGlobalId().get(),
@@ -133,21 +133,21 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
     }
 
     Optional< const AlphaOutPin* > alphaOutputPin = GetOutputPinByLocalId< AlphaOutPin >();
-    if ( alphaOutputPin && context.IsPinConnected< AlphaOutPin >() ) {
+    if( alphaOutputPin && context.IsPinConnected< AlphaOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.w; // alpha \n",
                                              alphaOutputPin.value()->GetGlobalId().get(),
                                              textureSampleVariable );
     }
 
-    if ( isAnyOutPinConnected ) {
+    if( isAnyOutPinConnected ) {
         generator.AppendCode( textureSampleCode );
     }
 }
 
 void SampleTextureNode::OnChanged( assets::AssetSystem& assetSystem ) {
-    if ( Texture.hasAssetId() ) {
-        if ( Texture.isValid() == false ) {
+    if( Texture.hasAssetId() ) {
+        if( Texture.isValid() == false ) {
             assetSystem.getAsset( Texture.getId(), Texture );
         }
     } else {
@@ -157,7 +157,7 @@ void SampleTextureNode::OnChanged( assets::AssetSystem& assetSystem ) {
 
 #if ONYX_IS_EDITOR
 StringView SampleTextureNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+    switch( pinId ) {
     case TextureInPin::LocalId:
         return "Texture";
     case UVInPin::LocalId:
@@ -181,7 +181,7 @@ StringView SampleTextureNode::GetPinName( StringId32 pinId ) const {
 }
 
 node_graph::PinVisibility SampleTextureNode::DoGetPinVisibility( StringId32 localPinId ) const {
-    switch ( localPinId ) {
+    switch( localPinId ) {
     case TextureInPin::LocalId:
         return node_graph::PinVisibility::InNode;
     default:

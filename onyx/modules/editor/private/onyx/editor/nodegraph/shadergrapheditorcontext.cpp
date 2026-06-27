@@ -17,8 +17,8 @@ bool ShaderGraphEditorContext::compile() {
     ONYX_ASSERT( m_graphicsSystem != nullptr );
 
     rhi::PBRShaderGenerator generator;
-    bool hasGenerated = m_graph->GenerateShader( generator );
-    return hasGenerated && rhi::ShaderCompiler::ValidateCode( *m_graphicsSystem, m_graph->GetShaderCode() );
+    bool hasGenerated = m_graph->generateShader( generator );
+    return hasGenerated && rhi::ShaderCompiler::ValidateCode( *m_graphicsSystem, m_graph->getShaderCode() );
 }
 
 void ShaderGraphEditorContext::onNodeChanged( const Node& newNode ) {

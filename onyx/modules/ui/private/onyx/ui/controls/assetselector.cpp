@@ -59,7 +59,7 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
             }
 
             bool isSelected = assetMeta.Id == outAssetId;
-            if( Selectable( assetMeta.getName(), isSelected, true ) ) {
+            if( selectable( assetMeta.getName(), isSelected, true ) ) {
                 hasModified = outAssetId != assetMeta.Id;
                 outAssetId = assetMeta.Id;
                 loc_HasFocus = true;
@@ -80,7 +80,7 @@ bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType as
     // currentPos.y += currentHeight * 0.5f - buttonSize.y * 0.5f;
     ImRect bb( ImGui::GetCursorScreenPos() + style.FramePadding,
                ImGui::GetCursorScreenPos() + buttonSize + style.FramePadding );
-    ButtonState state = ui::ButtonBehavior( browseButtonId, bb );
+    ButtonState state = ui::buttonBehavior( browseButtonId, bb );
 
     if( state == ButtonState::Pressed ) {
         ImGui::OpenPopup( "###AssetBrowser" );

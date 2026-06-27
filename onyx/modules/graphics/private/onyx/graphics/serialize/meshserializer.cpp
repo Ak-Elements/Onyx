@@ -21,8 +21,8 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
                                   IEngine& engine ) const {
     MeshAsset& meshAsset = asset.as< MeshAsset >();
 
-    DynamicArray< rhi::Vertex >& vertices = meshAsset.GetVertices();
-    DynamicArray< uint32_t >& indices = meshAsset.GetIndices();
+    DynamicArray< rhi::Vertex >& vertices = meshAsset.getVertices();
+    DynamicArray< uint32_t >& indices = meshAsset.getIndices();
 
     file_system::OnyxFile meshSource(
         file_system::path::replaceExtension( file_system::path::getFullPath( meta.Path ), "obj" ) );
@@ -41,52 +41,52 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     DynamicArray< Vector2f32 > tempTexCoords;
 
     // TODO fix mesh asset import
-    while ( stringStream.isEof() == false ) {
+    while( stringStream.isEof() == false ) {
         stringStream.readLine( line );
 
-        if ( line.starts_with( "vn" ) ) {
+        if( line.starts_with( "vn" ) ) {
             line.remove_prefix( 4 );
             float32 coords[ 3 ];
             DynamicArray< String > parts = split( line, " " );
             int32_t i = -1;
-            for ( const String& token : parts ) {
+            for( const String& token : parts ) {
                 std::from_chars( token.data(), token.data() + token.size(), coords[ ++i ] );
             }
 
             tempNormals.emplace_back( coords[ 0 ], coords[ 1 ], coords[ 2 ] );
-        } else if ( line.starts_with( "vt" ) ) {
+        } else if( line.starts_with( "vt" ) ) {
             line.remove_prefix( 4 );
             float32 coords[ 2 ];
             DynamicArray< String > parts = split( line, " " );
             int32_t i = -1;
-            for ( const String& token : parts ) {
+            for( const String& token : parts ) {
                 std::from_chars( token.data(), token.data() + token.size(), coords[ ++i ] );
             }
 
             tempTexCoords.emplace_back( coords[ 0 ], coords[ 1 ] );
         }
-        if ( line.starts_with( "v" ) ) {
+        if( line.starts_with( "v" ) ) {
             line.remove_prefix( 2 );
             float32 coords[ 3 ];
             DynamicArray< String > parts = split( line, " " );
             int32_t i = -1;
-            for ( const String& token : parts ) {
+            for( const String& token : parts ) {
                 std::from_chars( token.data(), token.data() + token.size(), coords[ ++i ] );
             }
 
             tempVertices.emplace_back( coords[ 0 ], coords[ 1 ], coords[ 2 ] );
-        } else if ( line.starts_with( "f" ) ) {
+        } else if( line.starts_with( "f" ) ) {
             line.remove_prefix( 2 );
             uint32_t localIndices[ 12 ];
 
             DynamicArray< String > parts = split( line, " /" );
             int32_t i = -1;
-            for ( const String& token : parts ) {
+            for( const String& token : parts ) {
                 std::from_chars( token.data(), token.data() + token.size(), localIndices[ ++i ] );
             }
 
-            vertexIndices.push_back( localIndices [ 0 ] );
-            uvIndices.push_back( localIndices [ 1 ] );
+            vertexIndices.push_back( localIndices[ 0 ] );
+            uvIndices.push_back( localIndices[ 1 ] );
             normalIndices.push_back( localIndices[ 2 ] );
 
             vertexIndices.push_back( localIndices[ 3 ] );
@@ -97,7 +97,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
             uvIndices.push_back( localIndices[ 7 ] );
             normalIndices.push_back( localIndices[ 8 ] );
 
-            if ( parts.size() > 9 ) {
+            if( parts.size() > 9 ) {
                 vertexIndices.push_back( localIndices[ 9 ] );
                 uvIndices.push_back( localIndices[ 10 ] );
                 normalIndices.push_back( localIndices[ 11 ] );
@@ -113,7 +113,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
         }
     }
 
-    for ( uint32_t i = 0; i < vertexIndices.size(); i++ ) {
+    for( uint32_t i = 0; i < vertexIndices.size(); i++ ) {
         uint32_t vertexIndex = vertexIndices[ i ];
         uint32_t texCoordIndex = uvIndices[ i ];
         uint32_t normalIndex = normalIndices[ i ];
@@ -123,7 +123,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
             return Vector3f32( v.PositionX, v.PositionY, v.PositionZ ) == vertex;
         } );
 
-        if ( it != vertices.end() ) {
+        if( it != vertices.end() ) {
             indices.push_back( static_cast< uint32_t >( std::distance( vertices.begin(), it ) ) );
         } else {
             indices.push_back( static_cast< uint32_t >( vertices.size() ) );
@@ -142,8 +142,8 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     vertexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
     vertexBufferProps.m_DebugName = "static mesh vertices";
 
-    graphics.createBuffer( meshAsset.m_VertexBuffer, vertexBufferProps );
-    meshAsset.m_VertexBuffer.Buffer->SetData( 0, vertices.data(), static_cast< uint32_t >( vertexBufferProps.m_Size ) );
+    graphics.createBuffer( meshAsset.m_vertexBuffer, vertexBufferProps );
+    meshAsset.m_vertexBuffer.Buffer->SetData( 0, vertices.data(), static_cast< uint32_t >( vertexBufferProps.m_Size ) );
 
     rhi::BufferProperties indexBufferProps;
     indexBufferProps.m_Size = static_cast< uint32_t >( indices.size() ) * sizeof( uint32_t );
@@ -151,8 +151,8 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     indexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
     indexBufferProps.m_DebugName = "static mesh Indices";
 
-    graphics.createBuffer( meshAsset.m_IndexBuffer, indexBufferProps );
-    meshAsset.m_IndexBuffer.Buffer->SetData( 0, indices.data(), static_cast< uint32_t >( indexBufferProps.m_Size ) );
+    graphics.createBuffer( meshAsset.m_indexBuffer, indexBufferProps );
+    meshAsset.m_indexBuffer.Buffer->SetData( 0, indices.data(), static_cast< uint32_t >( indexBufferProps.m_Size ) );
 
     return true;
 }

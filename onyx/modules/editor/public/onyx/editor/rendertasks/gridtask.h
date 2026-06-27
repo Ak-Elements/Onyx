@@ -29,8 +29,8 @@ class GridRenderGraphNode : public node_graph::FixedPinNode_2_In_1_Out< graphics
                                                        rhi::BufferHandle,
                                                        rhi::TextureHandle >;
 
-    void OnBeginFrame( graphics::RenderGraphContext& context ) override;
-    void OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onBeginFrame( graphics::RenderGraphContext& context ) override;
+    void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:

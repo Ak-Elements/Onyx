@@ -12,18 +12,18 @@
 #include <onyx/serialize/serializer.h>
 
 namespace onyx::graphics {
-uint32_t ShaderGraphTextures::AddTexture( const rhi::TextureHandle& texture ) {
+uint32_t ShaderGraphTextures::addTexture( const rhi::TextureHandle& texture ) {
     uint32_t bindlessTextureIndex = texture.Texture->GetIndex();
-    auto textureIt = std::ranges::find_if( Textures, [ bindlessTextureIndex ]( uint32_t textureIndex ) {
+    auto textureIt = std::ranges::find_if( m_textures, [ bindlessTextureIndex ]( uint32_t textureIndex ) {
         return bindlessTextureIndex == textureIndex;
     } );
 
-    if( textureIt != Textures.end() ) {
+    if( textureIt != m_textures.end() ) {
         return *textureIt;
     }
 
-    uint32_t textureEntryIndex = static_cast< uint32_t >( Textures.size() ); // index in the texture constant buffer
-    Textures.emplace_back( texture.Texture->GetIndex() );
+    uint32_t textureEntryIndex = static_cast< uint32_t >( m_textures.size() ); // index in the texture constant buffer
+    m_textures.emplace_back( texture.Texture->GetIndex() );
     return textureEntryIndex;
 }
 
@@ -48,10 +48,10 @@ uint32_t ShaderGraphTextures::AddTexture( const rhi::TextureHandle& texture ) {
 // }
 
 bool ShaderGraph::serialize( Serializer& serializer ) const {
-    bool success = node_graph::serialize( serializer, Graph );
+    bool success = node_graph::serialize( serializer, m_graph );
 
     if( success ) {
-        success = OnSerialize( serializer );
+        success = onSerialize( serializer );
     }
 
     return success;
@@ -59,11 +59,11 @@ bool ShaderGraph::serialize( Serializer& serializer ) const {
 
 bool ShaderGraph::deserialize( const Deserializer& deserializer ) {
     ShaderGraphNodeFactory factory;
-    if( node_graph::deserialize( deserializer, Graph, factory ) == false ) {
+    if( node_graph::deserialize( deserializer, m_graph, factory ) == false ) {
         return false;
     }
 
-    if( OnDeserialize( deserializer ) == false ) {
+    if( onDeserialize( deserializer ) == false ) {
         return false;
     }
 
@@ -72,13 +72,13 @@ bool ShaderGraph::deserialize( const Deserializer& deserializer ) {
 
 #if !ONYX_IS_RELEASE || ONYX_IS_EDITOR
 
-bool ShaderGraph::GenerateShader( rhi::ShaderGenerator& generator ) {
-    bool hasCompiled = Graph.compile();
+bool ShaderGraph::generateShader( rhi::ShaderGenerator& generator ) {
+    bool hasCompiled = m_graph.compile();
 
     if( hasCompiled == false )
         return false;
 
-    node_graph::GraphRunner runner( Graph );
+    node_graph::GraphRunner runner( m_graph );
 
     // prepare nodes so data is setup
     runner.Prepare();
@@ -87,10 +87,10 @@ bool ShaderGraph::GenerateShader( rhi::ShaderGenerator& generator ) {
     runner.Update( 0 );
 
     ShaderGraphNodeFactory factory;
-    const DynamicArray< int8_t >& executionOrder = Graph.getTopologicalOrder();
+    const DynamicArray< int8_t >& executionOrder = m_graph.getTopologicalOrder();
     node_graph::ExecutionContext& executionContext = runner.GetContext();
     for( int8_t localNodeId : executionOrder ) {
-        const ShaderGraphNode& node = Graph.getNode< ShaderGraphNode >( localNodeId );
+        const ShaderGraphNode& node = m_graph.getNode< ShaderGraphNode >( localNodeId );
         executionContext.SetCurrentNode( node.GetId() );
 
         generator.SetStage( rhi::ShaderStage::Fragment ); // TODO: Add support for other stages
@@ -99,7 +99,7 @@ bool ShaderGraph::GenerateShader( rhi::ShaderGenerator& generator ) {
         node.GenerateShader( executionContext, generator );
     }
 
-    ShaderCode = generator.GenerateShader();
+    m_shaderCode = generator.GenerateShader();
     return true;
 }
 

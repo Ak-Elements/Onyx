@@ -4,7 +4,7 @@
 #include <onyx/rhi/graphicssystem.h>
 
 namespace onyx::graphics::render_graph_nodes {
-void GetViewConstantsNode::Init( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache ) {
+void GetViewConstantsNode::init( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache ) {
     uint64_t outputGlobalPinId = GetOutputPin( 0 )->GetGlobalId().get();
     RenderGraphResource& resource = resourceCache[ outputGlobalPinId ];
     resource.Info.Name = "u_viewconstants";
@@ -12,11 +12,11 @@ void GetViewConstantsNode::Init( rhi::GraphicsSystem& /*api*/, RenderGraphResour
     resource.IsExternal = true;
 }
 
-void GetViewConstantsNode::BeginFrame( RenderGraphContext& context ) {
+void GetViewConstantsNode::beginFrame( RenderGraphContext& context ) {
     const rhi::FrameContext& frameContext = context.FrameContext;
 
     uint64_t outputGlobalPinId = GetOutputPin( 0 )->GetGlobalId().get();
-    context.Graph.GetResource( outputGlobalPinId ).Handle = frameContext.Api->getViewConstantsBuffer();
+    context.Graph.getResource( outputGlobalPinId ).Handle = frameContext.Api->getViewConstantsBuffer();
 }
 
 } // namespace onyx::graphics::render_graph_nodes

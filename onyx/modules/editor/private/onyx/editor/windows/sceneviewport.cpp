@@ -59,7 +59,7 @@ void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     if( scene.hasRenderGraph() == false )
         return;
 
-    const rhi::TextureHandle finalSceneTexture = scene.getRenderGraph().GetFinalTexture();
+    const rhi::TextureHandle finalSceneTexture = scene.getRenderGraph().getFinalTexture();
     if( finalSceneTexture.IsValid() == false ) {
         return;
     }

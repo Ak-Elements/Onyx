@@ -9,25 +9,25 @@
 
 namespace onyx::volume {
 namespace {
-constexpr StringView BUILD_OCTREE_SHADER_FILENAME = "build_octree.oshader";
-constexpr StringView FIND_OCTREE_NODE_SHADER_FILENAME = "find_octree_node.oshader";
-constexpr StringView GENERATE_VOLUME_MESH_SHADER_FILENAME = "generate_volume.oshader";
-constexpr StringView RAYTRACE_TERRAIN_SHADER_FILENAME = "raytrace_terrain.oshader";
+constexpr StringView BuildOctreeShaderFilename = "build_octree.oshader";
+constexpr StringView FindOctreeNodeShaderFilename = "find_octree_node.oshader";
+constexpr StringView GenerateVolumeMeshShaderFilename = "generate_volume.oshader";
+constexpr StringView RaytraceTerrainShaderFilename = "raytrace_terrain.oshader";
 
-bool WriteFile( const FilePath& path, StringView content ) {
+bool writeFile( const FilePath& path, StringView content ) {
     file_system::FileStream outFileStream( path, file_system::OpenMode::Write | file_system::OpenMode::Text );
 
-    if ( outFileStream.isValid() == false )
+    if( outFileStream.isValid() == false )
         return false;
 
     outFileStream.writeRaw( content.data(), content.size() );
     return true;
 }
 
-bool WriteTemplateFile( const FilePath& path, StringView templateCode, FilePath volumeHeaderFileName ) {
+bool writeTemplateFile( const FilePath& path, StringView templateCode, const FilePath& volumeHeaderFileName ) {
     String shaderCode = replace( templateCode, "@VERSION@", "1" );
     shaderCode = replace( shaderCode, "@BASE_TERRAIN_SDF_SHADER@", volumeHeaderFileName.generic_string() );
-    WriteFile( path, shaderCode );
+    writeFile( path, shaderCode );
     return true;
 }
 } // namespace
@@ -37,28 +37,24 @@ bool VolumeShaderGraphSerializer::serialize( const assets::AssetHandle< assets::
                                              Serializer& serializer,
                                              const IEngine& /*engine*/ ) const {
     const VolumeShaderGraph& shaderGraph = asset.as< VolumeShaderGraph >();
-    if ( graphics::shader_graph_serializer::serialize( shaderGraph, serializer ) == false )
+    if( graphics::shader_graph_serializer::serialize( shaderGraph, serializer ) == false )
         return false;
 
     FilePath volumeShaderPath = file_system::path::replaceExtension( meta.Path, "h" );
     FilePath volumeShaderGraphHeaderPath = file_system::path::getFullPath( volumeShaderPath );
 
     // write out header
-    WriteFile( volumeShaderGraphHeaderPath, shaderGraph.GetShaderCode() );
+    writeFile( volumeShaderGraphHeaderPath, shaderGraph.getShaderCode() );
 
     FilePath directoryPath = volumeShaderGraphHeaderPath.parent_path();
     FilePath volumeHeaderFileName = volumeShaderPath.filename();
 
-    WriteTemplateFile( directoryPath / BUILD_OCTREE_SHADER_FILENAME, BUILD_OCTREE_SHADER, volumeHeaderFileName );
-    WriteTemplateFile( directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME,
-                       FIND_OCTREE_NODE_SHADER,
+    writeTemplateFile( directoryPath / BuildOctreeShaderFilename, BuildOctreeShader, volumeHeaderFileName );
+    writeTemplateFile( directoryPath / FindOctreeNodeShaderFilename, FindOctreeNodeShader, volumeHeaderFileName );
+    writeTemplateFile( directoryPath / GenerateVolumeMeshShaderFilename,
+                       GenerateVolumeMeshShader,
                        volumeHeaderFileName );
-    WriteTemplateFile( directoryPath / GENERATE_VOLUME_MESH_SHADER_FILENAME,
-                       GENERATE_VOLUME_MESH_SHADER,
-                       volumeHeaderFileName );
-    WriteTemplateFile( directoryPath / RAYTRACE_TERRAIN_SHADER_FILENAME,
-                       RAYTRACE_TERRAIN_SHADER,
-                       volumeHeaderFileName );
+    writeTemplateFile( directoryPath / RaytraceTerrainShaderFilename, RaytraceTerrainShader, volumeHeaderFileName );
 
     return true;
 }
@@ -68,14 +64,14 @@ bool VolumeShaderGraphSerializer::deserialize( assets::AssetHandle< assets::Asse
                                                const Deserializer& deserializer,
                                                IEngine& /*engine*/ ) const {
     VolumeShaderGraph& shaderGraph = asset.as< VolumeShaderGraph >();
-    if ( graphics::shader_graph_serializer::deserialize( shaderGraph, deserializer ) == false )
+    if( graphics::shader_graph_serializer::deserialize( shaderGraph, deserializer ) == false )
         return false;
 
     FilePath directoryPath = file_system::path::convertToMountPath( meta.Path ).parent_path();
-    shaderGraph.m_BuildOctreeShader = assets::AssetId( directoryPath / BUILD_OCTREE_SHADER_FILENAME );
-    shaderGraph.m_FindOctreeNodeShader = assets::AssetId( directoryPath / FIND_OCTREE_NODE_SHADER_FILENAME );
-    shaderGraph.m_GenerateVolumeMeshShader = assets::AssetId( directoryPath / GENERATE_VOLUME_MESH_SHADER_FILENAME );
-    shaderGraph.m_RaytraceTerrainShader = assets::AssetId( directoryPath / RAYTRACE_TERRAIN_SHADER_FILENAME );
+    shaderGraph.m_buildOctreeShader = assets::AssetId( directoryPath / BuildOctreeShaderFilename );
+    shaderGraph.m_findOctreeNodeShader = assets::AssetId( directoryPath / FindOctreeNodeShaderFilename );
+    shaderGraph.m_generateVolumeMeshShader = assets::AssetId( directoryPath / GenerateVolumeMeshShaderFilename );
+    shaderGraph.m_raytraceTerrainShader = assets::AssetId( directoryPath / RaytraceTerrainShaderFilename );
 
     return true;
 }

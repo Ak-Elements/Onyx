@@ -5,20 +5,20 @@
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx::graphics::render_graph_nodes {
-void ComputeMultipleScatteringRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) {
+void ComputeMultipleScatteringRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    RenderGraphResource& transmittanceResource = context.Graph.GetResource(
+    RenderGraphResource& transmittanceResource = context.Graph.getResource(
         GetInputPin().GetLinkedPinGlobalId().get() );
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
         transmittanceResource.Handle );
     m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
 
-    RenderGraphTextureResourceInfo& transmittanceInfo = m_InputAttachmentInfos.emplace_back();
+    RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
 }
 
-void ComputeMultipleScatteringRenderGraphNode::OnRender( RenderGraphContext& /*context*/,
+void ComputeMultipleScatteringRenderGraphNode::onRender( RenderGraphContext& /*context*/,
                                                          rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 

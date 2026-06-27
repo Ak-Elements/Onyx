@@ -17,8 +17,8 @@ class ShaderModule {
     ~ShaderModule();
 
   private:
-    VulkanGraphicsApi& m_Api;
-    DynamicArray< uint32_t > m_ByteCode;
+    VulkanGraphicsApi& m_api;
+    DynamicArray< uint32_t > m_byteCode;
     VULKAN_HANDLE( VkShaderModule, Module, nullptr );
 };
 
@@ -29,31 +29,31 @@ class Shader : public rhi::Shader {
     Shader() = default;
     ~Shader() override;
 
-    bool AddStage( GraphicsSystem& graphicsSystem,
+    bool addStage( GraphicsSystem& graphicsSystem,
                    ShaderStage stage,
                    const DynamicArray< uint32_t >& byteCode ) override;
-    void RemoveStage( ShaderStage stage ) override;
-    bool UpdateReflectionData( GraphicsSystem& graphicsSystem, ShaderReflectionInfo& reflectionInfo ) override;
-    const ShaderReflectionInfo& GetReflectionData() const override { return m_ReflectionInfo; }
+    void removeStage( ShaderStage stage ) override;
+    bool updateReflectionData( GraphicsSystem& graphicsSystem, ShaderReflectionInfo& reflectionInfo ) override;
+    const ShaderReflectionInfo& getReflectionData() const override { return m_reflectionInfo; }
 
-    uint64_t GetShaderHash() const override { return m_ShaderHash; }
-    void SetShaderHash( uint64_t hash ) override { m_ShaderHash = hash; }
+    uint64_t getShaderHash() const override { return m_shaderHash; }
+    void setShaderHash( uint64_t hash ) override { m_shaderHash = hash; }
 
-    const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >& GetDescriptorSetLayouts()
+    const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >& getDescriptorSetLayouts()
         const {
-        return m_DescriptorSetLayouts;
+        return m_descriptorSetLayouts;
     }
-    const Set< VertexInput >& GetVertexInputs() const { return m_ReflectionInfo.vertexInput.GetInputs(); }
-    const DynamicArray< PushConstantRange >& GetPushConstantRanges() const {
-        return m_ReflectionInfo.pushConstantRanges;
+    const Set< VertexInput >& getVertexInputs() const { return m_reflectionInfo.VertexInput.getInputs(); }
+    const DynamicArray< PushConstantRange >& getPushConstantRanges() const {
+        return m_reflectionInfo.PushConstantRanges;
     }
 
-    bool IsComputeShader() const override { return HasStage( ShaderStage::Compute ); }
-    bool HasStage( ShaderStage stage ) const { return m_Stages[ enums::toIntegral( stage ) ] != nullptr; }
-    bool HasDescriptorSetLayout() const override { return m_DescriptorSetLayouts.empty() == false; }
+    bool isComputeShader() const override { return hasStage( ShaderStage::Compute ); }
+    bool hasStage( ShaderStage stage ) const { return m_stages[ enums::toIntegral( stage ) ] != nullptr; }
+    bool hasDescriptorSetLayout() const override { return m_descriptorSetLayouts.empty() == false; }
 
-    const DynamicArray< VkPipelineShaderStageCreateInfo >& GetPipelineShaderStageCreateInfos() const {
-        return m_PipelineShaderStageCreateInfos;
+    const DynamicArray< VkPipelineShaderStageCreateInfo >& getPipelineShaderStageCreateInfos() const {
+        return m_pipelineShaderStageCreateInfos;
     }
 
 #if !ONYX_IS_RETAIL
@@ -66,12 +66,12 @@ class Shader : public rhi::Shader {
 #endif
 
   private:
-    uint64_t m_ShaderHash = 0;
+    uint64_t m_shaderHash = 0;
 
-    DynamicArray< VkPipelineShaderStageCreateInfo > m_PipelineShaderStageCreateInfos;
-    InplaceArray< UniquePtr< ShaderModule >, MAX_SHADER_STAGES > m_Stages;
+    DynamicArray< VkPipelineShaderStageCreateInfo > m_pipelineShaderStageCreateInfos;
+    InplaceArray< UniquePtr< ShaderModule >, MAX_SHADER_STAGES > m_stages;
 
-    ShaderReflectionInfo m_ReflectionInfo;
-    InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS > m_DescriptorSetLayouts;
+    ShaderReflectionInfo m_reflectionInfo;
+    InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS > m_descriptorSetLayouts;
 };
 } // namespace onyx::rhi::vulkan

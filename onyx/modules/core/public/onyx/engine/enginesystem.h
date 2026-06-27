@@ -10,7 +10,7 @@ class Deserializer;
 
 class IEngineSystem : public NonCopyable {
   public:
-    ONYX_NO_DISCARD virtual StringId32 getTypeId() const = 0;
+    [[nodiscard]] virtual StringId32 getTypeId() const = 0;
 };
 
 template < typename T >
@@ -19,25 +19,25 @@ concept EngineSystem = std::is_base_of_v< IEngineSystem, T >;
 class IEngine : public NonCopyable {
   public:
     template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
-    ONYX_NO_DISCARD bool hasSystem() const {
+    [[nodiscard]] bool hasSystem() const {
         return hasSystem( T::TypeId );
     }
 
     template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
-    ONYX_NO_DISCARD T& getSystem() {
+    [[nodiscard]] T& getSystem() {
         ONYX_ASSERT( hasSystem( T::TypeId ), "System is not registered." );
         return static_cast< T& >( getSystem( T::TypeId ) );
     }
 
     template < typename T > // requires std::is_base_of_v<IEngineSystem, T>
-    ONYX_NO_DISCARD const T& getSystem() const {
+    [[nodiscard]] const T& getSystem() const {
         ONYX_ASSERT( hasSystem( T::TypeId ), "System is not registered." );
         return static_cast< const T& >( getSystem( T::TypeId ) );
     }
 
-    ONYX_NO_DISCARD virtual bool hasSystem( StringId32 systemId ) const = 0;
+    [[nodiscard]] virtual bool hasSystem( StringId32 systemId ) const = 0;
     virtual IEngineSystem& getSystem( StringId32 systemId ) = 0;
-    ONYX_NO_DISCARD virtual const IEngineSystem& getSystem( StringId32 systemId ) const = 0;
+    [[nodiscard]] virtual const IEngineSystem& getSystem( StringId32 systemId ) const = 0;
 
     static const EngineVariablesRegistry& getVariablesRegistry() { return s_engineVariables; }
 
@@ -86,12 +86,12 @@ struct EngineSystemUpdateContext {
     }
 
     template < typename T > requires std::is_same_v< DeltaGameTime, T >
-    ONYX_NO_DISCARD DeltaGameTime get() const {
+    [[nodiscard]] DeltaGameTime get() const {
         return Delta;
     }
 
     template < typename T > requires std::is_same_v< GameTime, T >
-    ONYX_NO_DISCARD GameTime get() const {
+    [[nodiscard]] GameTime get() const {
         return Time;
     }
 };

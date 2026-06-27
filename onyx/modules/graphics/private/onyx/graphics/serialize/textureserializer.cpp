@@ -45,7 +45,7 @@ bool TextureSerializer::deserialize( assets::AssetHandle< assets::AssetInterface
     textureProps.m_DebugName = format::format( "{} Texture", meta.getName() );
     const Span< uint8_t >& imageData = file.GetData();
 
-    graphicsSystem.createTexture( textureAsset.m_Texture, storageProps, textureProps, imageData );
+    graphicsSystem.createTexture( textureAsset.m_texture, storageProps, textureProps, imageData );
     return true;
 }
 } // namespace onyx::graphics

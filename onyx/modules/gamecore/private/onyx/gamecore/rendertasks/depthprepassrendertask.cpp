@@ -7,7 +7,7 @@
 #include <onyx/rhi/graphicssystem.h>
 
 namespace onyx::game_core {
-void DepthPrePassRenderGraphNode::OnInit( rhi::GraphicsSystem& api,
+void DepthPrePassRenderGraphNode::onInit( rhi::GraphicsSystem& api,
                                           graphics::RenderGraphResourceCache& resourceCache ) {
     graphics::RenderGraphResource& depthResource = resourceCache[ GetOutputPin().GetGlobalId().get() ];
     depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
@@ -19,14 +19,14 @@ void DepthPrePassRenderGraphNode::OnInit( rhi::GraphicsSystem& api,
     resourceCache[ GetOutputPin().GetGlobalId().get() ].Handle = api.getDepthImage();
 }
 
-void DepthPrePassRenderGraphNode::OnBeginFrame( graphics::RenderGraphContext& context ) {
+void DepthPrePassRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    context.Graph.GetResourceCache()[ GetOutputPin().GetGlobalId().get() ].Handle = context.FrameContext.Api
+    context.Graph.getResourceCache()[ GetOutputPin().GetGlobalId().get() ].Handle = context.FrameContext.Api
                                                                                         ->getDepthImage();
 }
 
-void DepthPrePassRenderGraphNode::OnRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void DepthPrePassRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::FrameContext& frameContext = context.FrameContext;

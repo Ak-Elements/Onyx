@@ -9,12 +9,12 @@ namespace onyx::localization {
 namespace {}
 void GetTextLocalizationBackend::Init( assets::AssetSystem& assetSystem,
                                        const LocalizationSettings& localizationSettings ) {
-    if ( localizationSettings.Database.isValid() ) {
+    if( localizationSettings.Database.isValid() ) {
         assetSystem.getAsset( localizationSettings.Database, m_MainDatabase );
     }
 
 #if !ONYX_IS_RETAIL
-    for ( const assets::AssetId& secondaryDatabaseId : localizationSettings.SecondaryDatabases ) {
+    for( const assets::AssetId& secondaryDatabaseId : localizationSettings.SecondaryDatabases ) {
         assets::AssetHandle< GetTextLocalizationDatabase > secondaryDb;
         assetSystem.getAsset( secondaryDatabaseId, secondaryDb );
         AddSecondaryDatabase( secondaryDb );
@@ -28,21 +28,21 @@ Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId 
     return localization;
 #else
     Optional< StringView > localization;
-    if ( IsInitialized() ) {
+    if( IsInitialized() ) {
         localization = GetLocalized( id, *m_MainDatabase );
     } else {
         // TODO: Add unique log
         // ONYX_LOG_WARNING("Missing main localization file for project.");
     }
 
-    if ( localization.has_value() == false ) {
-        for ( const auto& secondaryDb : m_SecondaryDatabases ) {
-            if ( ( secondaryDb.isValid() == false ) || ( secondaryDb->isLoaded() == false ) ) {
+    if( localization.has_value() == false ) {
+        for( const auto& secondaryDb : m_SecondaryDatabases ) {
+            if( ( secondaryDb.isValid() == false ) || ( secondaryDb->isLoaded() == false ) ) {
                 continue;
             }
 
             localization = GetLocalized( id, *secondaryDb );
-            if ( localization.has_value() ) {
+            if( localization.has_value() ) {
                 break;
             }
         }
@@ -58,21 +58,21 @@ Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId 
     return localization;
 #else
     Optional< StringView > localization;
-    if ( IsInitialized() ) {
+    if( IsInitialized() ) {
         localization = GetLocalized( id, count, *m_MainDatabase );
     } else {
         // TODO: Add unique log
         // ONYX_LOG_WARNING("Missing main localization file for project.");
     }
 
-    if ( localization.has_value() == false ) {
-        for ( const auto& secondaryDb : m_SecondaryDatabases ) {
-            if ( ( secondaryDb.isValid() == false ) || ( secondaryDb->isLoaded() == false ) ) {
+    if( localization.has_value() == false ) {
+        for( const auto& secondaryDb : m_SecondaryDatabases ) {
+            if( ( secondaryDb.isValid() == false ) || ( secondaryDb->isLoaded() == false ) ) {
                 continue;
             }
 
             localization = GetLocalized( id, count, *secondaryDb );
-            if ( localization.has_value() ) {
+            if( localization.has_value() ) {
                 break;
             }
         }
@@ -84,9 +84,9 @@ Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId 
 
 Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId id,
                                                                  const GetTextLocalizationDatabase& database ) const {
-    const HashMap< LocalizationId, DynamicArray< String > >& databaseMap = database.GetDatabase();
+    const HashMap< LocalizationId, DynamicArray< String > >& databaseMap = database.getDatabase();
     auto it = databaseMap.find( id );
-    if ( it == databaseMap.end() ) {
+    if( it == databaseMap.end() ) {
         return std::nullopt;
     }
 
@@ -96,15 +96,15 @@ Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId 
 Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId id,
                                                                  int32_t count,
                                                                  const GetTextLocalizationDatabase& database ) const {
-    const HashMap< LocalizationId, DynamicArray< String > >& databaseMap = database.GetDatabase();
+    const HashMap< LocalizationId, DynamicArray< String > >& databaseMap = database.getDatabase();
     auto it = databaseMap.find( id );
-    if ( it == databaseMap.end() ) {
+    if( it == databaseMap.end() ) {
         return std::nullopt;
     }
 
-    int32_t index = database.GetPluralFunction()( count );
+    int32_t index = database.getPluralFunction()( count );
     const DynamicArray< String >& localizedTexts = it->second;
-    if ( index > static_cast< int32_t >( localizedTexts.size() ) ) {
+    if( index > static_cast< int32_t >( localizedTexts.size() ) ) {
         return std::nullopt;
     }
 
@@ -114,7 +114,7 @@ Optional< StringView > GetTextLocalizationBackend::GetLocalized( LocalizationId 
 #if !ONYX_IS_RETAIL
 void GetTextLocalizationBackend::AddSecondaryDatabase(
     const assets::AssetHandle< GetTextLocalizationDatabase >& database ) {
-    if ( m_MainDatabase.isValid() && ( database == m_MainDatabase ) ) {
+    if( m_MainDatabase.isValid() && ( database == m_MainDatabase ) ) {
         return;
     }
 
@@ -123,7 +123,7 @@ void GetTextLocalizationBackend::AddSecondaryDatabase(
                                         return secondaryDb == database;
                                     } );
 
-    if ( it != m_SecondaryDatabases.end() ) {
+    if( it != m_SecondaryDatabases.end() ) {
         return;
     }
 

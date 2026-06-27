@@ -220,7 +220,7 @@ class VectorControl {
     static bool renderContextMenu( T& vector ) {
         bool hasModified = false;
         if( ImGui::BeginPopupContextItem( "##ContextMenu", ImGuiPopupFlags_MouseButtonRight ) ) {
-            if( ui::Button( "Reset" ) ) {
+            if( ui::button( "Reset" ) ) {
                 vector = T::Zero();
                 ImGui::CloseCurrentPopup();
                 hasModified = true;
@@ -283,7 +283,10 @@ class VectorControl {
 
         StringView format = "{}";
         if constexpr( std::is_floating_point_v< ScalarT > ) {
-            if( isEqual( std::floor( value ), value ) && ( isFocused == false ) ) {
+            if( isZero( value, ScalarT( 0.001 ) ) ) {
+                value = 0.0f;
+                format = "{:.1f}";
+            } else if( isEqual( std::floor( value ), value ) && ( isFocused == false ) ) {
                 format = "{:.1f}";
             } else {
                 format = "{:2.6g}";

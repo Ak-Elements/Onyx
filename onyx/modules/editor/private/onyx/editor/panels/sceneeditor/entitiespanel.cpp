@@ -95,7 +95,7 @@ void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
                 ImGui::PushClipRect( rowAreaMin, rowAreaMax, false );
                 ImGuiID id = ImGui::GetID( "rowSelection" );
-                ui::ButtonState state = ui::ButtonBehavior(
+                ui::ButtonState state = ui::buttonBehavior(
                     id,
                     ImRect( rowAreaMin, rowAreaMax ),
                     ImGuiButtonFlags_AllowOverlap | ImGuiButtonFlags_PressedOnClickRelease |

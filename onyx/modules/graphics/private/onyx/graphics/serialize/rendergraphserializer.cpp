@@ -14,14 +14,14 @@ class UIRenderGraphNode;
 template <>
 struct Serialization< graphics::RenderGraph > {
     static bool serialize( Serializer& serializer, const graphics::RenderGraph& renderGraph ) {
-        const node_graph::NodeGraph& nodeGraph = renderGraph.GetNodeGraph();
+        const node_graph::NodeGraph& nodeGraph = renderGraph.getNodeGraph();
         node_graph::serialize( serializer, nodeGraph );
         return true;
     }
 
     static bool deserialize( const Deserializer& deserializer, graphics::RenderGraph& outRenderGraph ) {
         graphics::RenderGraphNodeFactory factory;
-        node_graph::NodeGraph& outGraph = outRenderGraph.GetNodeGraph();
+        node_graph::NodeGraph& outGraph = outRenderGraph.getNodeGraph();
         node_graph::deserialize( deserializer, outGraph, factory );
         return true;
     }
@@ -50,8 +50,8 @@ bool RenderGraphSerializer::deserialize( assets::AssetHandle< assets::AssetInter
     RenderGraph& renderGraph = asset.as< RenderGraph >();
 
     RenderGraphNodeFactory factory;
-    node_graph::NodeGraph& outGraph = renderGraph.GetNodeGraph();
-    if ( node_graph::deserialize( deserializer, outGraph, factory ) == false ) {
+    node_graph::NodeGraph& outGraph = renderGraph.getNodeGraph();
+    if( node_graph::deserialize( deserializer, outGraph, factory ) == false ) {
         return false;
     }
 

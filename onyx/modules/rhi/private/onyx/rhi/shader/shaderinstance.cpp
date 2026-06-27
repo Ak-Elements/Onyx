@@ -16,6 +16,12 @@ ShaderInstance::ShaderInstance( const GraphicsSystem& api, const PipelineHandle&
     }
 }
 
+ShaderInstance::~ShaderInstance() {
+    if( m_Shader.isValid() ) {
+        m_Shader->getOnLoadedEvent().Disconnect( this );
+    }
+}
+
 DynamicArray< DescriptorSetHandle >& ShaderInstance::GetDescriptorSets( uint8_t frameIndex ) {
     ONYX_ASSERT( frameIndex < m_DescriptorSets.size(),
                  "Frame index ({}) out of descriptor set bounds ({})",
@@ -33,7 +39,7 @@ const DynamicArray< DescriptorSetHandle >& ShaderInstance::GetDescriptorSets( ui
 }
 
 bool ShaderInstance::IsCompute() const {
-    return m_Shader.isValid() && m_Shader->IsComputeShader();
+    return m_Shader.isValid() && m_Shader->isComputeShader();
 }
 
 bool ShaderInstance::IsValid() const {
@@ -74,7 +80,7 @@ const DescriptorSetHandle& ShaderInstance::GetDescriptorSet( uint8_t frameIndex,
 }
 
 void ShaderInstance::OnShaderLoaded( assets::AssetHandle< Shader > /*shader*/ ) {
-    if( m_Shader->HasDescriptorSetLayout() ) {
+    if( m_Shader->hasDescriptorSetLayout() ) {
         for( uint8_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; ++frameIndex ) {
             m_DescriptorSets[ frameIndex ] = m_Api->createDescriptorSet( m_Shader );
         }

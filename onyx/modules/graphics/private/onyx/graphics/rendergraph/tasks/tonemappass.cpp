@@ -7,15 +7,15 @@
 
 namespace onyx::graphics::render_graph_nodes {
 ToneMapPass::ToneMapPass() {
-    m_PipelineProperties.Shader = "engine:/shaders/post/tonemap.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/post/tonemap.oshader";
 }
 
-void ToneMapPass::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void ToneMapPass::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     uint64_t texturePinGlobalId = GetInputPin().GetLinkedPinGlobalId().get();
 
-    const RenderGraphResource& inTextureResource = context.Graph.GetResourceCache()[ texturePinGlobalId ];
+    const RenderGraphResource& inTextureResource = context.Graph.getResourceCache()[ texturePinGlobalId ];
     const rhi::TextureHandle& inTextureHandle = std::get< rhi::TextureHandle >( inTextureResource.Handle );
 
     struct PushConstants {

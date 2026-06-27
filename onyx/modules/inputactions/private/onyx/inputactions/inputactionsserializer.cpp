@@ -21,15 +21,15 @@ struct Serialization< input_actions::InputAction > {
     }
 
     static bool deserialize( const Deserializer& deserializer, input_actions::InputAction& outAction ) {
-        if ( deserializer.read< "id" >( outAction.m_Id ) == false ) {
+        if( deserializer.read< "id" >( outAction.m_Id ) == false ) {
             return false;
         }
 
-        if ( deserializer.read< "type" >( outAction.m_Type ) == false ) {
+        if( deserializer.read< "type" >( outAction.m_Type ) == false ) {
             return false;
         }
 
-        if ( outAction.m_Type == input_actions::ActionType::Invalid ) {
+        if( outAction.m_Type == input_actions::ActionType::Invalid ) {
             ONYX_LOG_ERROR( "Input action is missing action type." );
             return false;
         }
@@ -56,11 +56,11 @@ struct Serialization< UniquePtr< input_actions::InputBinding > > {
     static bool serialize( Serializer& serializer, const UniquePtr< input_actions::InputBinding >& binding ) {
         serializer.write< "typeId" >( binding->GetTypeId() );
 
-        if ( serializer.write< "triggers" >( binding->GetTriggers() ) == false ) {
+        if( serializer.write< "triggers" >( binding->GetTriggers() ) == false ) {
             return false;
         }
 
-        if ( serializer.write< "modifiers" >( binding->GetModifiers() ) == false ) {
+        if( serializer.write< "modifiers" >( binding->GetModifiers() ) == false ) {
             return false;
         }
 
@@ -77,11 +77,11 @@ struct Serialization< UniquePtr< input_actions::InputBinding > > {
             metaData = input_actions::InputBindingsFactory::GetMetaData( typeId );
         outBinding = metaData.CreateFunctor();
 
-        if ( deserializer.readOptional< "triggers" >( outBinding->GetTriggers() ) == false ) {
+        if( deserializer.readOptional< "triggers" >( outBinding->GetTriggers() ) == false ) {
             return false;
         }
 
-        if ( deserializer.readOptional< "modifiers" >( outBinding->GetModifiers() ) == false ) {
+        if( deserializer.readOptional< "modifiers" >( outBinding->GetModifiers() ) == false ) {
             return false;
         }
 
@@ -141,10 +141,10 @@ bool InputActionsSerializer::serialize( const assets::AssetHandle< assets::Asset
                                         const IEngine& /*engine*/ ) const {
 #if ONYX_IS_EDITOR
     const InputActionsContext& inputActionsAsset = asset.as< InputActionsContext >();
-    const HashMap< StringId32, InputActionsMap >& contexts = inputActionsAsset.GetMaps();
+    const HashMap< StringId32, InputActionsMap >& contexts = inputActionsAsset.getMaps();
 
     bool success = serializer.write( contexts );
-    if ( success == false ) {
+    if( success == false ) {
         return false;
     }
 #else
@@ -160,10 +160,10 @@ bool InputActionsSerializer::deserialize( assets::AssetHandle< assets::AssetInte
                                           IEngine& /*engine*/ ) const {
     InputActionsContext& inputAsset = asset.as< InputActionsContext >();
 
-    HashMap< StringId32, InputActionsMap >& contexts = inputAsset.GetMaps();
+    HashMap< StringId32, InputActionsMap >& contexts = inputAsset.getMaps();
 
     contexts.clear();
-    inputAsset.SetName( meta.getName() );
+    inputAsset.setName( meta.getName() );
     return deserializer.read( contexts );
 }
 } // namespace onyx::input_actions

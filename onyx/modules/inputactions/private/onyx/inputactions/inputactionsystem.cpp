@@ -18,7 +18,7 @@ InputActionSystem::InputActionSystem( const InputActionSystemSettings& settings,
     assets::AssetHandle< InputActionsContext > defaultInputActionsMap;
     assetSystem.getAsset( settings.InputActionId, defaultInputActionsMap );
     defaultInputActionsMap->getOnLoadedEvent().Connect< &InputActionSystem::SetActionsMapAsset >( this );
-    if ( defaultInputActionsMap.isValid() && defaultInputActionsMap.isLoaded() ) {
+    if( defaultInputActionsMap.isValid() && defaultInputActionsMap.isLoaded() ) {
         SetActionsMapAsset( defaultInputActionsMap );
     }
 }
@@ -26,23 +26,23 @@ InputActionSystem::InputActionSystem( const InputActionSystemSettings& settings,
 InputActionSystem::~InputActionSystem() = default;
 
 void InputActionSystem::update() {
-    if ( m_ContextId.isValid() == false )
+    if( m_ContextId.isValid() == false )
         return;
 
-    UpdateContext( m_InputActionsAsset->GetContext( m_ContextId ) );
+    UpdateContext( m_InputActionsAsset->getContext( m_ContextId ) );
 }
 
 void InputActionSystem::SetActionsMapAsset( assets::AssetHandle< InputActionsContext > inputAsset ) {
     inputAsset->getOnLoadedEvent().Disconnect( this );
 
-    if ( m_InputActionsAsset != inputAsset ) {
+    if( m_InputActionsAsset != inputAsset ) {
         StringId32 newContextId = m_ContextId;
         m_InputActionsAsset = inputAsset;
         m_ContextId = 0;
 
-        if ( m_InputActionsAsset.isValid() && ( m_InputActionsAsset->GetMaps().empty() == false ) ) {
-            if ( ( newContextId.isValid() == false ) || ( m_InputActionsAsset->HasContext( newContextId ) == false ) ) {
-                newContextId = m_InputActionsAsset->GetMaps().begin()->first;
+        if( m_InputActionsAsset.isValid() && ( m_InputActionsAsset->getMaps().empty() == false ) ) {
+            if( ( newContextId.isValid() == false ) || ( m_InputActionsAsset->hasContext( newContextId ) == false ) ) {
+                newContextId = m_InputActionsAsset->getMaps().begin()->first;
             }
 
             SetCurrentInputActionMap( newContextId );
@@ -53,14 +53,14 @@ void InputActionSystem::SetActionsMapAsset( assets::AssetHandle< InputActionsCon
 }
 
 void InputActionSystem::SetCurrentInputActionMap( StringId32 id ) {
-    if ( id != m_ContextId ) {
+    if( id != m_ContextId ) {
         m_CurrentActionStates.clear();
 
         // should we clear input signals not in the map anymore?
 
         m_ContextId = id;
 
-        if ( id.isValid() && m_InputActionsAsset.isValid() ) {
+        if( id.isValid() && m_InputActionsAsset.isValid() ) {
             InitContext();
         }
     }
@@ -71,7 +71,7 @@ Optional< const InputActionState* > InputActionSystem::GetActionState( StringId6
                             m_CurrentActionStates.end(),
                             [ & ]( const InputActionState& state ) { return state.ActionId == actionId; } );
 
-    if ( it == m_CurrentActionStates.end() )
+    if( it == m_CurrentActionStates.end() )
         return std::nullopt;
 
     const InputActionState& actionState = *it;
@@ -83,7 +83,7 @@ Optional< InputActionState* > InputActionSystem::GetActionState( StringId64 acti
                             m_CurrentActionStates.end(),
                             [ & ]( const InputActionState& state ) { return state.ActionId == actionId; } );
 
-    if ( it == m_CurrentActionStates.end() )
+    if( it == m_CurrentActionStates.end() )
         return std::nullopt;
 
     InputActionState& actionState = *it;
@@ -91,7 +91,7 @@ Optional< InputActionState* > InputActionSystem::GetActionState( StringId64 acti
 }
 
 bool InputActionSystem::IsActionTriggered( StringId64 actionId ) const {
-    if ( const InputActionState* state = GetActionState( actionId ).value_or( nullptr ) ) {
+    if( const InputActionState* state = GetActionState( actionId ).value_or( nullptr ) ) {
         return isZero( state->Value ) == false;
     }
 
@@ -99,15 +99,15 @@ bool InputActionSystem::IsActionTriggered( StringId64 actionId ) const {
 }
 
 void InputActionSystem::InitContext() {
-    const InputActionsMap& context = m_InputActionsAsset->GetContext( m_ContextId );
+    const InputActionsMap& context = m_InputActionsAsset->getContext( m_ContextId );
 
     m_CurrentActionStates.reserve( context.GetActions().size() );
-    for ( const InputAction& action : context.GetActions() ) {
+    for( const InputAction& action : context.GetActions() ) {
         auto it = std::find_if( m_CurrentActionStates.begin(),
                                 m_CurrentActionStates.end(),
                                 [ & ]( const InputActionState& state ) { return state.ActionId == action.GetId(); } );
 
-        if ( it != m_CurrentActionStates.end() )
+        if( it != m_CurrentActionStates.end() )
             continue;
 
         m_CurrentActionStates.emplace_back( action.GetId() );
@@ -118,7 +118,7 @@ void InputActionSystem::UpdateContext( InputActionsMap& context ) {
     DynamicArray< InputAction >& actions = context.GetActions();
     const uint32_t actionsCount = static_cast< uint32_t >( actions.size() );
 
-    for ( uint32_t actionIndex = 0; actionIndex < actionsCount; ++actionIndex ) {
+    for( uint32_t actionIndex = 0; actionIndex < actionsCount; ++actionIndex ) {
         InputAction& action = actions[ actionIndex ];
         StringId64 actionId = action.GetId();
 
@@ -132,13 +132,13 @@ void InputActionSystem::UpdateContext( InputActionsMap& context ) {
 
         bool hasTriggered = false;
         Vector3f32 newInputValue( std::numeric_limits< float32 >::lowest() );
-        for ( uint32_t bindingIndex = 0; bindingIndex < bindingsCount; ++bindingIndex ) {
+        for( uint32_t bindingIndex = 0; bindingIndex < bindingsCount; ++bindingIndex ) {
             InputBinding& binding = *bindings[ bindingIndex ];
 
             Vector3f32 bindingInputValue;
             bool isTriggered = binding.Update( *m_InputSystem, *this, bindingInputValue );
 
-            if ( isTriggered ) {
+            if( isTriggered ) {
                 hasTriggered = true;
                 newInputValue.X = std::max( newInputValue.X, bindingInputValue.X );
                 newInputValue.Y = std::max( newInputValue.Y, bindingInputValue.Y );
@@ -146,11 +146,11 @@ void InputActionSystem::UpdateContext( InputActionsMap& context ) {
             }
         }
 
-        if ( hasTriggered == false ) {
+        if( hasTriggered == false ) {
             newInputValue = Vector3f32::zero();
         }
 
-        if ( actionState.Value != newInputValue ) {
+        if( actionState.Value != newInputValue ) {
             actionState.Value = newInputValue;
             InputActionEvent event{ actionId, actionState.Value };
             m_InputActionSignals[ actionId ].Dispatch( event );
@@ -170,7 +170,7 @@ bool Serialization< input_actions::InputActionSystemSettings >::deserialize(
     const Deserializer& deserializer,
     input_actions::InputActionSystemSettings& outSettings ) {
     StringView inputMapPath;
-    if ( deserializer.read< "inputmap" >( inputMapPath ) ) {
+    if( deserializer.read< "inputmap" >( inputMapPath ) ) {
         outSettings.InputActionId = assets::AssetId( FilePath( inputMapPath ) );
     }
 

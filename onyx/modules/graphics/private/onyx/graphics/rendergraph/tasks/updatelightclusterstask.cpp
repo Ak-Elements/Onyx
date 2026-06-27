@@ -13,7 +13,7 @@
 #define BATCHED 1
 
 namespace onyx::graphics::render_graph_nodes {
-void CreateLightClusters::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
+void CreateLightClusters::onInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
     constexpr uint32_t ClusterCount = ClusterX * ClusterY * ClusterZ;
 
     for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
@@ -33,14 +33,14 @@ void CreateLightClusters::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceC
     resourceCache[ globalId ].Handle = m_LightClustersStorageBuffers[ 0 ];
 }
 
-void CreateLightClusters::OnBeginFrame( RenderGraphContext& context ) {
+void CreateLightClusters::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
     uint64_t globalId = GetOutputPin( 0 )->GetGlobalId().get();
-    context.Graph.GetResource( globalId ).Handle = m_LightClustersStorageBuffers[ context.FrameContext.FrameIndex ];
+    context.Graph.getResource( globalId ).Handle = m_LightClustersStorageBuffers[ context.FrameContext.FrameIndex ];
 }
 
-void CreateLightClusters::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void CreateLightClusters::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
     const rhi::ViewConstants& viewConstants = context.FrameContext.ViewConstants;
@@ -63,7 +63,7 @@ void CreateLightClusters::OnRender( RenderGraphContext& context, rhi::CommandBuf
     commandBuffer.globalBarrier( 0x00000040, 0x00000020 | 0x00000040 );
 }
 
-void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
+void UpdateLightClustersRenderGraphNode::onInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
     constexpr uint32_t ClusterCount = ClusterX * ClusterY * ClusterZ;
 
     rhi::BufferProperties ssboBufferProps;
@@ -117,24 +117,24 @@ void UpdateLightClustersRenderGraphNode::OnInit( rhi::GraphicsSystem& api, Rende
     resourceCache[ globalId ].Handle = m_LightsStorageBuffers[ 0 ];
 }
 
-void UpdateLightClustersRenderGraphNode::OnBeginFrame( RenderGraphContext& context ) {
+void UpdateLightClustersRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     const uint8_t frameIndex = context.FrameContext.FrameIndex;
     uint64_t globalId = GetOutputPin0().GetGlobalId().get();
-    context.Graph.GetResource( globalId ).Handle = m_LightIndexListSSBO[ frameIndex ];
+    context.Graph.getResource( globalId ).Handle = m_LightIndexListSSBO[ frameIndex ];
 
     globalId = GetOutputPin1().GetGlobalId().get();
-    context.Graph.GetResource( globalId ).Handle = m_LightGridSSBO[ frameIndex ];
+    context.Graph.getResource( globalId ).Handle = m_LightGridSSBO[ frameIndex ];
 
     globalId = GetOutputPin2().GetGlobalId().get();
     const rhi::Lighting& lighting = context.FrameContext.Lighting;
 
     m_LightsStorageBuffers[ frameIndex ].Buffer->SetData( 0, &lighting, sizeof( rhi::Lighting ) );
-    context.Graph.GetResource( globalId ).Handle = m_LightsStorageBuffers[ frameIndex ];
+    context.Graph.getResource( globalId ).Handle = m_LightsStorageBuffers[ frameIndex ];
 
-    m_ShaderInstance->Bind( m_LightsStorageBuffers[ frameIndex ], "globalindexcountssbo", frameIndex );
+    m_shaderInstance->Bind( m_LightsStorageBuffers[ frameIndex ], "globalindexcountssbo", frameIndex );
 }
 
-void UpdateLightClustersRenderGraphNode::OnRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+void UpdateLightClustersRenderGraphNode::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     struct PushConstants {
         Matrix4x4f32 ViewMatrix;
     };

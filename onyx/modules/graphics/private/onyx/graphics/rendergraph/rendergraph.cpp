@@ -14,12 +14,12 @@
 ONYX_PROFILE_CREATE_TAG( RenderGraph, 0x3ed694 );
 
 namespace onyx::graphics {
-void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
+void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
     // allocate all resources and descriptors?
-    m_Graph.compile();
+    m_graph.compile();
 
     // Allocating resources
     DynamicArray< RenderGraphResourceId > allocations;
@@ -30,9 +30,9 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
     DynamicArray< RenderGraphResourceId > freeList;
 
     // Create render, framebuffers & pso's
-    const auto topologicalOrder = m_Graph.getTopologicalOrder();
+    const auto topologicalOrder = m_graph.getTopologicalOrder();
     for( const LocalNodeId nodeId : topologicalOrder ) {
-        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
+        IRenderGraphNode& graphNode = m_graph.getNode< IRenderGraphNode >( nodeId );
         const uint32_t inputPinCount = graphNode.GetInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
@@ -46,28 +46,28 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
     for( const LocalNodeId nodeId : topologicalOrder ) {
         const bool isLastNode = nodeId == topologicalOrder[ ( topologicalOrder.size() - 1 ) ];
 
-        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
+        IRenderGraphNode& graphNode = m_graph.getNode< IRenderGraphNode >( nodeId );
         // remove resource cache
-        graphNode.Init( graphicsSystem, m_ResourceCache );
+        graphNode.init( graphicsSystem, m_resourceCache );
 
         uint32_t outputPinCount = graphNode.GetOutputPinCount();
         for( uint32_t i = 0; i < outputPinCount; ++i ) {
             const node_graph::PinBase* outputPin = graphNode.GetOutputPin( i );
-            RenderGraphResource& output = m_ResourceCache[ outputPin->GetGlobalId().get() ];
+            RenderGraphResource& output = m_resourceCache[ outputPin->GetGlobalId().get() ];
 
             if( outputPin->GetType() == static_cast< node_graph::PinTypeId >( TypeHash< rhi::BufferHandle >() ) )
                 continue;
 
             // TODO: Improve handling of final texture Id as this is very error prone
             if( isLastNode ) {
-                m_FinalTextureId = outputPin->GetGlobalId().get();
+                m_finalTextureId = outputPin->GetGlobalId().get();
             }
 
             RenderGraphTextureResourceInfo& textureInfo = std::get< RenderGraphTextureResourceInfo >(
                 output.Properties );
             if( textureInfo.Type == RenderGraphResourceType::Reference ) {
                 RenderGraphTextureResourceInfo& linkedTextureInfo = std::get< RenderGraphTextureResourceInfo >(
-                    m_ResourceCache[ 0xba68b0d91801004 ].Properties );
+                    m_resourceCache[ 0xba68b0d91801004 ].Properties );
                 textureInfo.Format = linkedTextureInfo.Format;
                 textureInfo.Size = linkedTextureInfo.Size;
                 textureInfo.HasSize = linkedTextureInfo.HasSize;
@@ -79,7 +79,7 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
                 continue;
             }
 
-            if( CreateAttachment( graphicsSystem, output, freeList ) == false ) {
+            if( createAttachment( graphicsSystem, output, freeList ) == false ) {
                 // TODO: Add info for node / which output resource etc.
                 ONYX_LOG_WARNING( "Failed creating output attachment for graph resource." );
                 continue;
@@ -96,7 +96,7 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
             Guid64 id = inputPin->GetLinkedPinGlobalId();
             --resourceRefCounts[ id.get() ];
 
-            RenderGraphResource& input = m_ResourceCache[ id.get() ];
+            RenderGraphResource& input = m_resourceCache[ id.get() ];
             if( ( input.IsExternal == false ) && ( resourceRefCounts[ input.Info.Id ] == 0 ) ) {
                 // deallocations.
                 //  Track deallocations?
@@ -116,46 +116,46 @@ void RenderGraph::Init( rhi::GraphicsSystem& graphicsSystem ) {
 
     // create renderpass and framebuffer
     for( const LocalNodeId nodeId : topologicalOrder ) {
-        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
-        graphNode.Compile( graphicsSystem, m_ResourceCache );
+        IRenderGraphNode& graphNode = m_graph.getNode< IRenderGraphNode >( nodeId );
+        graphNode.compile( graphicsSystem, m_resourceCache );
     }
 
-    graphicsSystem.onBeginFrame().Connect< &RenderGraph::OnBeginFrame >( this );
-    graphicsSystem.onRenderFrame().Connect< &RenderGraph::OnRenderFrame >( this );
-    graphicsSystem.onEndFrame().Connect< &RenderGraph::OnEndFrame >( this );
+    graphicsSystem.onBeginFrame().Connect< &RenderGraph::onBeginFrame >( this );
+    graphicsSystem.onRenderFrame().Connect< &RenderGraph::onRenderFrame >( this );
+    graphicsSystem.onEndFrame().Connect< &RenderGraph::onEndFrame >( this );
 
-    m_IsInitialized = true;
+    m_isInitialized = true;
 }
 
-void RenderGraph::Shutdown( rhi::GraphicsSystem& graphicsSystem ) {
+void RenderGraph::shutdown( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    for( const LocalNodeId nodeId : m_Graph.getTopologicalOrder() ) {
-        IRenderGraphNode& graphNode = m_Graph.getNode< IRenderGraphNode >( nodeId );
-        graphNode.Shutdown( graphicsSystem );
+    for( const LocalNodeId nodeId : m_graph.getTopologicalOrder() ) {
+        IRenderGraphNode& graphNode = m_graph.getNode< IRenderGraphNode >( nodeId );
+        graphNode.shutdown( graphicsSystem );
     }
 
-    m_ResourceCache.clear();
-    m_Graph.clear();
+    m_resourceCache.clear();
+    m_graph.clear();
 
     graphicsSystem.onBeginFrame().Disconnect( this );
     graphicsSystem.onRenderFrame().Disconnect( this );
     graphicsSystem.onEndFrame().Disconnect( this );
 
-    m_IsInitialized = false;
+    m_isInitialized = false;
 }
 
-void RenderGraph::OnBeginFrame( const rhi::FrameContext& frameContext ) {
+void RenderGraph::onBeginFrame( const rhi::FrameContext& frameContext ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
     const rhi::TextureHandle& swapchainTarget = frameContext.Api->getAcquiredSwapChainImage();
-    RenderGraphResource& swapchainResource = m_ResourceCache[ SWAPCHAIN_RESOURCE_ID ];
+    RenderGraphResource& swapchainResource = m_resourceCache[ SwapchainResourceId ];
     swapchainResource.Handle = swapchainTarget;
 
     const rhi::TextureHandle& depthTarget = frameContext.Api->getDepthImage();
-    RenderGraphResource& depthResource = m_ResourceCache[ DEPTH_RESOURCE_ID ];
+    RenderGraphResource& depthResource = m_resourceCache[ DepthResourceId ];
     depthResource.Handle = depthTarget;
 
     // TODO: move to OnResize
@@ -164,18 +164,18 @@ void RenderGraph::OnBeginFrame( const rhi::FrameContext& frameContext ) {
     resourceInfo.Size = Vector3s32( frameContext.Api->getSwapchainExtent(), 0 );
 
     RenderGraphContext graphContext{ frameContext, *this };
-    for( int8_t nodeId : m_Graph.getTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
+    for( int8_t nodeId : m_graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_graph.getNode< IRenderGraphNode >( nodeId );
 
-        if( node.IsEnabled() == false ) {
+        if( node.isEnabled() == false ) {
             continue;
         }
 
-        node.BeginFrame( graphContext );
+        node.beginFrame( graphContext );
     }
 }
 
-void RenderGraph::OnRenderFrame( const rhi::FrameContext& context ) {
+void RenderGraph::onRenderFrame( const rhi::FrameContext& context ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
@@ -183,36 +183,36 @@ void RenderGraph::OnRenderFrame( const rhi::FrameContext& context ) {
     RenderGraphContext graphContext{ context, *this };
     rhi::CommandBuffer& commandBuffer = context.Api->getCommandBuffer( context.FrameIndex, true );
 
-    for( int8_t nodeId : m_Graph.getTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
+    for( int8_t nodeId : m_graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_graph.getNode< IRenderGraphNode >( nodeId );
 
-        if( node.HasBegunFrame() == false ) {
+        if( node.hasBegunFrame() == false ) {
             continue;
         }
 
-        node.PreRender( graphContext, commandBuffer );
-        node.Render( graphContext, commandBuffer );
-        node.PostRender( graphContext, commandBuffer );
+        node.preRender( graphContext, commandBuffer );
+        node.render( graphContext, commandBuffer );
+        node.postRender( graphContext, commandBuffer );
     }
 }
 
-void RenderGraph::OnEndFrame( const rhi::FrameContext& frameContext ) {
+void RenderGraph::onEndFrame( const rhi::FrameContext& frameContext ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
     // wait for tasks
     RenderGraphContext graphContext{ frameContext, *this };
-    for( int8_t nodeId : m_Graph.getTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
+    for( int8_t nodeId : m_graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_graph.getNode< IRenderGraphNode >( nodeId );
 
-        if( node.HasBegunFrame() == false ) {
+        if( node.hasBegunFrame() == false ) {
             continue;
         }
 
-        node.EndFrame( graphContext );
+        node.endFrame( graphContext );
     }
 
-    rhi::TextureHandle finalTexture = std::get< rhi::TextureHandle >( m_ResourceCache.at( m_FinalTextureId ).Handle );
+    rhi::TextureHandle finalTexture = std::get< rhi::TextureHandle >( m_resourceCache.at( m_finalTextureId ).Handle );
     if( finalTexture.IsValid() ) {
         auto& commandBuffer = frameContext.Api->getCommandBuffer( frameContext.FrameIndex, true );
         commandBuffer.transitionLayout( finalTexture,
@@ -222,39 +222,39 @@ void RenderGraph::OnEndFrame( const rhi::FrameContext& frameContext ) {
     }
 }
 
-bool RenderGraph::HasResource( RenderGraphResourceId id ) const {
-    return m_ResourceCache.contains( id );
+bool RenderGraph::hasResource( RenderGraphResourceId id ) const {
+    return m_resourceCache.contains( id );
 }
 
-const RenderGraphResource& RenderGraph::GetResource( RenderGraphResourceId id ) const {
+const RenderGraphResource& RenderGraph::getResource( RenderGraphResourceId id ) const {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
     // TODO: Add default missing texture
-    ONYX_ASSERT( m_ResourceCache.contains( id ), "Invalid resource" );
-    return m_ResourceCache.at( id );
+    ONYX_ASSERT( m_resourceCache.contains( id ), "Invalid resource" );
+    return m_resourceCache.at( id );
 }
 
-void RenderGraph::OnSwapChainResized( rhi::GraphicsSystem& graphicsSystem ) {
+void RenderGraph::onSwapChainResized( rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
-    for( LocalNodeId nodeId : m_Graph.getTopologicalOrder() ) {
-        IRenderGraphNode& node = m_Graph.getNode< IRenderGraphNode >( nodeId );
-        node.OnSwapChainResized( graphicsSystem, m_ResourceCache );
+    for( LocalNodeId nodeId : m_graph.getTopologicalOrder() ) {
+        IRenderGraphNode& node = m_graph.getNode< IRenderGraphNode >( nodeId );
+        node.onSwapChainResized( graphicsSystem, m_resourceCache );
     }
 }
 
-RenderGraphResource& RenderGraph::GetResource( RenderGraphResourceId id ) {
+RenderGraphResource& RenderGraph::getResource( RenderGraphResourceId id ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
     // TODO: Add default missing texture
-    ONYX_ASSERT( m_ResourceCache.contains( id ), "Invalid resource" );
-    return m_ResourceCache.at( id );
+    ONYX_ASSERT( m_resourceCache.contains( id ), "Invalid resource" );
+    return m_resourceCache.at( id );
 }
 
-bool RenderGraph::CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
+bool RenderGraph::createAttachment( rhi::GraphicsSystem& graphicsSystem,
                                     RenderGraphResource& resource,
                                     DynamicArray< RenderGraphResourceId >& freeList ) {
     ONYX_PROFILE( RenderGraph );
@@ -287,7 +287,7 @@ bool RenderGraph::CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
     // first check if we have a resource in the free list that we can use
     for( uint32_t freeIndex = 0; freeIndex < freeList.size(); ++freeIndex ) {
         RenderGraphResourceId id = freeList[ freeIndex ];
-        RenderGraphResource& freeResource = m_ResourceCache[ id ];
+        RenderGraphResource& freeResource = m_resourceCache[ id ];
 
         rhi::TextureHandle& freeTexture = std::get< rhi::TextureHandle >( freeResource.Handle );
         const rhi::TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->GetProperties();

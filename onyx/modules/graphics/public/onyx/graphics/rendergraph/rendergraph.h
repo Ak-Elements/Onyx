@@ -26,65 +26,65 @@ class RenderGraph : public assets::Asset< RenderGraph > {
 
   public:
     static constexpr StringId32 TypeId{ "onyx::graphics::assets::RenderGraph" };
-    StringId32 GetTypeId() const { return TypeId; }
+    static StringId32 getTypeId() { return TypeId; }
 
     RenderGraph() = default;
     ~RenderGraph() override = default;
 
-    void Init( rhi::GraphicsSystem& graphicsSystem );
-    void Shutdown( rhi::GraphicsSystem& graphicsSystem );
+    void init( rhi::GraphicsSystem& graphicsSystem );
+    void shutdown( rhi::GraphicsSystem& graphicsSystem );
 
-    bool HasResource( RenderGraphResourceId id ) const;
-    RenderGraphResource& GetResource( RenderGraphResourceId id );
-    const RenderGraphResource& GetResource( RenderGraphResourceId id ) const;
+    bool hasResource( RenderGraphResourceId id ) const;
+    RenderGraphResource& getResource( RenderGraphResourceId id );
+    const RenderGraphResource& getResource( RenderGraphResourceId id ) const;
 
-    const rhi::TextureHandle& GetFinalTexture() const {
-        return std::get< rhi::TextureHandle >( m_ResourceCache.at( m_FinalTextureId ).Handle );
+    const rhi::TextureHandle& getFinalTexture() const {
+        return std::get< rhi::TextureHandle >( m_resourceCache.at( m_finalTextureId ).Handle );
     }
 
-    void OnSwapChainResized( rhi::GraphicsSystem& graphicsSystem );
+    void onSwapChainResized( rhi::GraphicsSystem& graphicsSystem );
 
     // TODO: Remove this
-    RenderGraphResourceCache& GetResourceCache() { return m_ResourceCache; }
+    RenderGraphResourceCache& getResourceCache() { return m_resourceCache; }
 
-    node_graph::NodeGraph& GetNodeGraph() { return m_Graph; }
-    const node_graph::NodeGraph& GetNodeGraph() const { return m_Graph; }
+    node_graph::NodeGraph& getNodeGraph() { return m_graph; }
+    const node_graph::NodeGraph& getNodeGraph() const { return m_graph; }
 
     template < typename T >
-    T& GetInput() {
+    T& getInput() {
         constexpr uint32_t id = TypeHash< T >();
         // ONYX_ASSERT(m_Inputs.contains(id), "Input is not registered");
-        if ( m_Inputs.contains( id ) == false ) {
-            m_Inputs[ id ] = T();
+        if( m_inputs.contains( id ) == false ) {
+            m_inputs[ id ] = T();
         }
-        return std::any_cast< T& >( m_Inputs.at( id ) );
+        return std::any_cast< T& >( m_inputs.at( id ) );
     }
 
-    bool IsInitialized() const { return m_IsInitialized; }
+    bool isInitialized() const { return m_isInitialized; }
 
   private:
-    void OnBeginFrame( const rhi::FrameContext& frameContext );
-    void OnRenderFrame( const rhi::FrameContext& context );
-    void OnEndFrame( const rhi::FrameContext& frameContext );
+    void onBeginFrame( const rhi::FrameContext& frameContext );
+    void onRenderFrame( const rhi::FrameContext& context );
+    void onEndFrame( const rhi::FrameContext& frameContext );
 
-    bool CreateAttachment( rhi::GraphicsSystem& graphicsSystem,
+    bool createAttachment( rhi::GraphicsSystem& graphicsSystem,
                            RenderGraphResource& resource,
                            DynamicArray< RenderGraphResourceId >& freeList );
 
     template < typename T >
-    void AddInput() {
+    void addInput() {
         constexpr uint32_t id = TypeHash< T >();
-        m_Inputs.try_emplace( id, T() );
+        m_inputs.try_emplace( id, T() );
     }
 
   private:
-    bool m_IsInitialized = false;
+    bool m_isInitialized = false;
 
-    node_graph::NodeGraph m_Graph;
-    RenderGraphResourceCache m_ResourceCache;
-    HashMap< uint32_t, std::any > m_Inputs;
+    node_graph::NodeGraph m_graph;
+    RenderGraphResourceCache m_resourceCache;
+    HashMap< uint32_t, std::any > m_inputs;
 
-    RenderGraphResourceId m_FinalTextureId;
+    RenderGraphResourceId m_finalTextureId = 0;
 };
 
 } // namespace onyx::graphics

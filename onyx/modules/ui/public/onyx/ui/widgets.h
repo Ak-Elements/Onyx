@@ -44,8 +44,10 @@ void drawCustomWindowTitleBar( StringView title, const InplaceFunction< void() >
 void drawPinnableWindowTitleBar( StringView title, bool& isPinned );
 
 void drawItemBackground( float32 rounding, float32 borderThickness, uint32_t color );
+void drawItemBackground( ImVec2 rectMin, ImVec2 rectMax, float32 rounding, float32 borderThickness, uint32_t color );
 void drawItemBorder( float32 thickness, float32 rounding, uint32_t color );
 
+bool drawMultiSelect( StringView id, const DynamicArray< StringView >& items, HashSet< uint32_t >& selectedIndices );
 bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus );
 
 bool contextMenuHeader( const localization::LocalizedString& label, ImGuiTreeNodeFlags flags = 0 );
@@ -73,9 +75,12 @@ void drawFolderIcon( ImDrawList* drawList,
                      float32 rounding,
                      uint32_t colorFolder,
                      uint32_t colorFolderLid );
+void drawFileIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color );
 
 void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color );
 void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color );
+void drawFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color );
+void drawFilledFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color );
 
 void drawMovieCameraIcon( ImDrawList* drawList, ImVec2 offset, float32 size, Color color, Color accent );
 void drawSimpleMovieCameraIcon( ImDrawList* drawList,

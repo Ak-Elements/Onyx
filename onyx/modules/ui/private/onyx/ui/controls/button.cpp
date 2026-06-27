@@ -5,65 +5,65 @@
 #include <onyx/ui/controls/button.h>
 
 namespace onyx::ui {
-bool Button( const localization::LocalizedString& localizedLabel ) {
-    return Button( localizedLabel.Get() );
+bool button( const localization::LocalizedString& localizedLabel ) {
+    return button( localizedLabel.Get() );
 }
 
-bool Button( const localization::LocalizedString& localizedLabel, Vector2f32 size ) {
-    return Button( localizedLabel.Get(), size );
+bool button( const localization::LocalizedString& localizedLabel, Vector2f32 size ) {
+    return button( localizedLabel.Get(), size );
 }
 
-bool Button( StringView label ) {
+bool button( StringView label ) {
     return ImGui::Button( label.data() );
 }
 
-bool Button( StringView label, Vector2f32 size ) {
+bool button( StringView label, Vector2f32 size ) {
     return ImGui::Button( label.data(), ImVec2( size[ 0 ], size[ 1 ] ) );
 }
 
-bool Selectable( const localization::LocalizedString& localizedLabel, bool isSelected ) {
-    return Selectable( localizedLabel.Get(), isSelected, false, ImGuiSelectableFlags_None );
+bool selectable( const localization::LocalizedString& localizedLabel, bool isSelected ) {
+    return selectable( localizedLabel.Get(), isSelected, false, ImGuiSelectableFlags_None );
 }
 
-bool Selectable( const localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelected ) {
-    return Selectable( localizedLabel.Get(), isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None );
+bool selectable( const localization::LocalizedString& localizedLabel, bool isSelected, bool shouldFocusOnSelected ) {
+    return selectable( localizedLabel.Get(), isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None );
 }
 
-bool Selectable( StringView label, bool isSelected ) {
-    return Selectable( label, isSelected, false, ImGuiSelectableFlags_None );
+bool selectable( StringView label, bool isSelected ) {
+    return selectable( label, isSelected, false, ImGuiSelectableFlags_None );
 }
 
-bool Selectable( StringView label, bool isSelected, bool shouldFocusOnSelected ) {
-    return Selectable( label, isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None );
+bool selectable( StringView label, bool isSelected, bool shouldFocusOnSelected ) {
+    return selectable( label, isSelected, shouldFocusOnSelected, ImGuiSelectableFlags_None );
 }
 
-bool Selectable( StringView label, bool isSelected, bool shouldFocusOnSelected, int32_t flags ) {
+bool selectable( StringView label, bool isSelected, bool shouldFocusOnSelected, int32_t flags ) {
     isSelected = ImGui::Selectable( label.data(), isSelected, flags );
 
-    if ( isSelected && shouldFocusOnSelected ) {
+    if( isSelected && shouldFocusOnSelected ) {
         ImGui::SetItemDefaultFocus();
     }
 
     return isSelected;
 }
 
-ButtonState ButtonBehavior( int32_t id, const ImRect& boundingBox ) {
+ButtonState buttonBehavior( int32_t id, const ImRect& boundingBox ) {
     ImVec2 min = boundingBox.GetBL();
     ImVec2 size = boundingBox.GetSize();
-    return ButtonBehavior( id, Rect2f32{ min.x, min.y, size.x, size.y }, ImGuiButtonFlags_None );
+    return buttonBehavior( id, Rect2f32{ min.x, min.y, size.x, size.y }, ImGuiButtonFlags_None );
 }
 
-ButtonState ButtonBehavior( int32_t id, const ImRect& boundingBox, int32_t flags ) {
+ButtonState buttonBehavior( int32_t id, const ImRect& boundingBox, int32_t flags ) {
     ImVec2 min = boundingBox.GetBL();
     ImVec2 size = boundingBox.GetSize();
-    return ButtonBehavior( id, Rect2f32{ min.x, min.y, size.x, size.y }, flags );
+    return buttonBehavior( id, Rect2f32{ min.x, min.y, size.x, size.y }, flags );
 }
 
-ButtonState ButtonBehavior( int32_t id, const Rect2f32& boundingBox ) {
-    return ButtonBehavior( id, boundingBox, ImGuiButtonFlags_None );
+ButtonState buttonBehavior( int32_t id, const Rect2f32& boundingBox ) {
+    return buttonBehavior( id, boundingBox, ImGuiButtonFlags_None );
 }
 
-ButtonState ButtonBehavior( int32_t id, const Rect2f32& boundingBox, int32_t flags ) {
+ButtonState buttonBehavior( int32_t id, const Rect2f32& boundingBox, int32_t flags ) {
     bool isHeld = false;
     bool isHovered = false;
 
