@@ -2,8 +2,6 @@
 
 #include <onyx/assets/asset.h>
 
-#include <imgui.h>
-
 namespace onyx::ui {
 class Theme : public assets::Asset< Theme > {
   public:
