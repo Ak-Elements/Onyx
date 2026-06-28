@@ -1,9 +1,8 @@
 #pragma once
 
-namespace onyx::volume
-{
+namespace onyx::volume {
 
-inline constexpr StringView BUILD_OCTREE_SHADER = R"(
+inline constexpr StringView BuildOctreeShader = R"(
 
 #version 460 core 
 
@@ -246,7 +245,7 @@ compute
 
 )";
 
-inline constexpr const char* FIND_OCTREE_NODE_SHADER = R"(
+inline constexpr const char* FindOctreeNodeShader = R"(
 
 #version 460 core 
 
@@ -438,7 +437,7 @@ compute
 
 )";
 
-inline constexpr const char* GENERATE_VOLUME_MESH_SHADER = R"(
+inline constexpr const char* GenerateVolumeMeshShader = R"(
 
 #version 460 core 
 
@@ -625,7 +624,7 @@ compute
 
 )";
 
-inline constexpr const char* RAYTRACE_TERRAIN_SHADER = R"(
+inline constexpr const char* RaytraceTerrainShader = R"(
 
 #version 460 core 
 
@@ -725,4 +724,4 @@ compute
 }
 
 )";
-}
+} // namespace onyx::volume

@@ -4,6 +4,7 @@ set(onyx_TARGET_PUBLIC_DEPENDENCIES
     onyx-filesystem
     onyx-physics
     onyx-entity
+    onyx-inputactions
     onyx-graphics
     onyx-nodegraph
     onyx-ui

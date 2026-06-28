@@ -80,8 +80,8 @@ void system( CameraEntity cameraEntity, DeltaGameTime deltaTime ) {
 }
 
 void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, FreeCameraControllerComponent&& controller ) {
-    registry.AddComponent< FreeCameraControllerComponent >( entity, controller );
-    registry.AddComponent< FreeCameraRuntimeComponent >( entity );
+    registry.addComponent< FreeCameraControllerComponent >( entity, controller );
+    registry.addComponent< FreeCameraRuntimeComponent >( entity );
 }
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {

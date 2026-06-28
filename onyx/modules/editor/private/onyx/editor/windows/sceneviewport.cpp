@@ -89,8 +89,8 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
                                           const Vector2f32& viewportPosition,
                                           const Vector2f32& viewportExtents ) {
     ecs::EntityRegistry& registry = scene.getRegistry();
-    auto selectedEntitesView = registry.GetView< SelectedComponent >();
-    auto cameraView = registry.GetView< const game_core::CameraComponent, const game_core::TransformComponent >();
+    auto selectedEntitesView = registry.getView< SelectedComponent >();
+    auto cameraView = registry.getView< const game_core::CameraComponent, const game_core::TransformComponent >();
 
     if( cameraView.size_hint() == 0 )
         return;
@@ -103,7 +103,7 @@ void SceneViewportWindow::renderImGuizmo( assets::AssetId sceneId,
         // draw gizmos
         m_hasSelectedEntity = selectedEntity != entt::null;
         if( m_hasSelectedEntity ) {
-            game_core::TransformComponent& transformComponent = registry.GetComponent< game_core::TransformComponent >(
+            game_core::TransformComponent& transformComponent = registry.getComponent< game_core::TransformComponent >(
                 selectedEntity );
 
             ImGuizmo::SetAlternativeWindow( ImGui::GetCurrentWindow() );

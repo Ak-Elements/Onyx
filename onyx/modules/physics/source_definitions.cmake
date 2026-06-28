@@ -1,13 +1,35 @@
 set(onyx_TARGET_PUBLIC_SOURCES
+    bodyid.h
     broadphaselayers.h
+    character.h
+    characterfwd.h
+    characterid.h
+    charactermode.h
     collisionlayers.h
+    motiontype.h
+    movementstate.h
     physicssystem.h
+    physicsworld3d.h
+    physicsworld3dfwd.h
+    jolt/joltcharacter.h
     jolt/joltphysicssystem.h
     jolt/joltbroadphaseinterface.h
     jolt/joltcollisionfilter.h
+    jolt/joltsdfcollision.h
+    jolt/joltsdfshape.h
+    jolt/physicsworld3d.h
+    shapes/sdfshape.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
     physicssystem.cpp
+    character.cpp
     jolt/joltphysicssystem.cpp
+    jolt/joltcharacter.cpp
+    jolt/joltbroadphaseinterface.cpp
+    jolt/joltcollisionfilter.cpp
+    jolt/joltsdfcollision.cpp
+    jolt/joltsdfshape.cpp
+    jolt/physicsworld3d.cpp
+    shapes/sdfshape.cpp
 )

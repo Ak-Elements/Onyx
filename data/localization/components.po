@@ -44,8 +44,20 @@ msgstr "Volume/Terrain Settings"
 msgid "onyx::game_core::FreeCameraControllerComponent"
 msgstr "Camera/Free Camera Controller"
 
-msgid "onyx::game_core::BoxColliderComponent"
-msgstr "Collision/Box Collider"
+msgid "onyx::game_core::BoxShapeComponent"
+msgstr "Collision/Box Shape"
 
-msgid "onyx::game_core::SphereColliderComponent"
-msgstr "Collision/Sphere Collider"
+msgid "onyx::game_core::SphereShapeComponent"
+msgstr "Collision/Sphere Shape"
+
+msgid "onyx::game_core::CapsuleShapeComponent"
+msgstr "Collision/Capsule Shape"
+
+msgid "onyx::game_core::RigidBodyComponent"
+msgstr "Physics/RigidBody3d"
+
+msgid "onyx::game_core::CharacterControllerComponent"
+msgstr "Character/Character Controller"
+
+msgid "onyx::game_core::StaticMeshComponent"
+msgstr "Rendering/Static Mesh"

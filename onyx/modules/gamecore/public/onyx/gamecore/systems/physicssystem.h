@@ -5,14 +5,23 @@ class EcsBuilder;
 }
 
 namespace onyx::physics {
-enum class PhysicsBodyId : uint32_t;
-}
+enum class BodyId : uint32_t;
+enum class CharacterId : uint32_t;
+} // namespace onyx::physics
 
 namespace onyx::game_core::physics {
 namespace components {
-struct PhysicsBodyId {
-    onyx::physics::PhysicsBodyId BodyId;
+struct BodyId {
+    onyx::physics::BodyId Id;
 };
+struct CharacterId {
+    onyx::physics::CharacterId Id;
+};
+
+struct StaticBody {};
+struct DynamicBody {};
+struct KinematicBody {};
+
 } // namespace components
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder );

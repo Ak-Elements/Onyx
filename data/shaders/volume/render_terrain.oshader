@@ -1,0 +1,192 @@
+
+#version 460 core
+
+#include "includes/common.h"
+#include "includes/volume/volumesources.h"
+#include "includes/volume/sample_terrain.h"
+#include "includes/debug/print.h"
+
+#include "includes/volume/default_terrain.h"
+
+vertex
+{
+    void main()
+    {
+        vec2 texCoord = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+        gl_Position = vec4(texCoord * 2.0f + -1.0f, 0.0f, 1.0f);
+	    gl_Position.y = -gl_Position.y;
+    }
+}
+
+fragment
+{
+
+// #include "includes/lighting.h"
+    layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer ViewConstants
+    {
+        mat4 ProjectionMatrix;
+        mat4 InverseProjectionMatrix;
+        mat4 ViewMatrix;
+        mat4 InverseViewMatrix;
+        mat4 ViewProjectionMatrix;
+        mat4 InverseViewProjectionMatrix;
+
+        vec2 Viewport;
+        float Near;
+        float Far;
+
+        vec3 CameraPosition;
+        float Padding;
+
+        vec3 CameraDirection;
+        float Padding2;
+    };
+
+    layout(push_constant) uniform Constants
+    {
+        ViewConstants ViewConstantsBuffer; 
+
+        WorldVolumeSourcesList VolumeSourcesList;
+        WorldVolumeSources VolumeSourcesData;
+
+        float LightClusterScale;
+
+        uvec2 LightClusterSize;
+        float LightClusterBias;
+    } u_Constants;
+    
+    float checker( vec2 p )
+    {
+        p = mod(floor(p),2.0);
+        return mod(p.x + p.y, 2.0) < 1.0 ? .25 : 0.1;
+    }
+
+    float checkersTextureGradBox( in vec2 p, in vec2 ddx, in vec2 ddy )
+    {
+        // filter kernel
+        vec2 w = max(abs(ddx), abs(ddy)) + 0.01;  
+        // analytical integral (box filter)
+        vec2 i = 2.0*(abs(fract((p-0.5*w)/2.0)-0.5)-abs(fract((p+0.5*w)/2.0)-0.5))/w;
+        // xor pattern
+        return 0.5 - 0.5*i.x*i.y;                  
+    }
+
+    float triplanarChecker(
+        vec3 position,
+        vec3 normal,
+        vec3 ddx_pos,
+        vec3 ddy_pos)
+    {
+        // Sharpness of blend between planes (higher = harder edges)
+        const float blendSharpness = 32.0;
+
+        // Blend weights from absolute normal, raised to sharpness power
+        vec3 blend = pow(abs(normal), vec3(blendSharpness));
+        blend /= dot( blend, vec3( 1.0f, 1.0f, 1.0f ) );   // normalise to sum == 1
+
+        const float scale = 10.0;
+
+        // ── XZ plane (top/bottom faces, was the original single projection) ──
+        vec2 uv_xz     = position.xz   / scale;
+        vec2 ddx_uv_xz = ddx_pos.xz    / scale - uv_xz;
+        vec2 ddy_uv_xz = ddy_pos.xz    / scale - uv_xz;
+        float check_xz = checkersTextureGradBox(uv_xz, ddx_uv_xz, ddy_uv_xz);
+
+        // ── XY plane (front/back faces) ──
+        vec2 uv_xy     = position.xy   / scale;
+        vec2 ddx_uv_xy = ddx_pos.xy    / scale - uv_xy;
+        vec2 ddy_uv_xy = ddy_pos.xy    / scale - uv_xy;
+        float check_xy = checkersTextureGradBox(uv_xy, ddx_uv_xy, ddy_uv_xy);
+
+        // ── YZ plane (left/right faces) ──
+        vec2 uv_yz     = position.yz   / scale;
+        vec2 ddx_uv_yz = ddx_pos.yz    / scale - uv_yz;
+        vec2 ddy_uv_yz = ddy_pos.yz    / scale - uv_yz;
+        float check_yz = checkersTextureGradBox(uv_yz, ddx_uv_yz, ddy_uv_yz);
+
+        return check_xz * blend.y
+             + check_xy * blend.z
+             + check_yz * blend.x;
+    }
+
+    vec3 computeRayDirection(vec2 fragCoord, mat4 invProj, mat4 invView, vec2 viewport) {
+        vec2 ndc = vec2(
+            (fragCoord.x / viewport.x) * 2.0f - 1.0f,
+            (fragCoord.y / viewport.y) * -2.0f + 1.0f);
+        vec4 viewSpace  = invProj * vec4(ndc, 0.0f, 1.0f);
+        viewSpace      /= viewSpace.w;
+        viewSpace.w     = 0.0f;
+        return normalize((invView * viewSpace).xyz);
+    }
+
+    layout(location = 0) out vec4 OutColor;
+
+    void main()
+    {
+        mat4 invProj = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix;
+        mat4 invView = u_Constants.ViewConstantsBuffer.InverseViewMatrix;
+        vec2 viewport = u_Constants.ViewConstantsBuffer.Viewport;
+        vec3 rayOrigin = u_Constants.ViewConstantsBuffer.CameraPosition;
+
+        // Three rays — center, right, up
+        vec3 rayDirection = computeRayDirection(gl_FragCoord.xy,              invProj, invView, viewport);
+        vec3 ddx_rd = computeRayDirection(gl_FragCoord.xy + vec2(1, 0), invProj, invView, viewport);
+        vec3 ddy_rd = computeRayDirection(gl_FragCoord.xy + vec2(0, 1), invProj, invView, viewport);
+
+        float far = u_Constants.ViewConstantsBuffer.Far;
+
+        bool hasHit = false;
+        vec3 hitPosition;
+        vec3 hitNormal;
+        float distance = 0.0f;
+        uint i = 0;
+        for(; i < 512; ++i)
+        {
+            vec3 position = rayOrigin + rayDirection * distance;
+            vec4 sampleValue = SampleTerrain(position, u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData);
+            float epsilon = distance * 0.0001f;
+            if( abs( sampleValue.w ) <= epsilon )
+            {
+                hasHit = true;
+                hitPosition = position;
+                hitNormal = sampleValue.xyz;
+                break;
+            }
+            distance += sampleValue.w;
+            if (distance > far) break;
+        }
+
+        if (hasHit)
+        {
+            // Intersect neighbouring rays with tangent plane at hit point
+            // tangent plane: dot(p - hitPosition, normal) = 0
+            vec3 ddx_pos = rayOrigin - ddx_rd * dot(rayOrigin - hitPosition, hitNormal) / dot(ddx_rd, hitNormal);
+            vec3 ddy_pos = rayOrigin - ddy_rd * dot(rayOrigin - hitPosition, hitNormal) / dot(ddy_rd, hitNormal);
+
+            float check = triplanarChecker(hitPosition, hitNormal, ddx_pos, ddy_pos);
+        
+            vec3 pin_d4bb268c9001004 = vec3(check);
+            vec4 clip = u_Constants.ViewConstantsBuffer.ViewProjectionMatrix *
+                        vec4(hitPosition, 1.0);
+            gl_FragDepth = clip.z / clip.w;
+
+            //  0xd4bb261b3801000 
+
+            // PBRMaterial material;
+            // material.Albedo = pin_d4bb268c9001004;
+            // material.Normal = vec3(0, 0, 0);
+            // material.Metalness = 0.000000;
+            // material.Roughness = 0.500000;
+            // vec3 worldPosition = WorldPosition;
+            // vec3 worldNormal = WorldNormal;
+            // uint clusterIndex = GetClusterIndex(gl_FragCoord, LightClusterGridSize, LightClusterSize, LightClusterScale, LightClusterBias); 
+            // uint debug = 0;
+            // outColor = vec4(CalculatePBRLighting(WorldPosition, WorldNormal, u_ViewConstants.CameraPosition, gl_FragCoord, LightClusterScale, LightClusterBias, clusterIndex, material, debug), 1.0); 
+            OutColor = vec4(pin_d4bb268c9001004, 1.0f );
+        }
+        else
+        {
+            discard;
+        }
+    }
+}

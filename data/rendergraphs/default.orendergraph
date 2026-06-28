@@ -555,6 +555,57 @@
             ]
         },
         {
+            "id": "e43ddcab9801000",
+            "typeId": {
+                "id": "3470a08e",
+                "string": "onyx::volume::render_graph::VolumeTerrainPass"
+            },
+            "inputs": [
+                {
+                    "id": "e43ddcab9801001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    },
+                    "linkedPin": "ba68b0d91801004"
+                },
+                {
+                    "id": "e43ddcab9801002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    },
+                    "linkedPin": "ba6717196401002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "e43ddcab9801003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    }
+                }
+            ],
+            "output_attachments": [
+                {
+                    "type": "Reference"
+                }
+            ]
+        },
+        {
             "id": "ba5010b28801001",
             "typeId": {
                 "id": "febb1770",
@@ -583,7 +634,7 @@
                         "id": "24ad81fb",
                         "string": "onyx::rhi::TextureHandle"
                     },
-                    "linkedPin": "ba68b0d91801004"
+                    "linkedPin": "e43ddcab9801003"
                 },
                 {
                     "id": "ba5010b28801042",
@@ -956,6 +1007,11 @@
         }
     ],
     "data": {
+        "ba6717196401002": null,
+        "e43ddcab9801003": null,
+        "ba68ae7a0001002": null,
+        "ba68af0af801002": null,
+        "ba68b013b801003": null,
         "ba68b0d91801004": null
     }
 }

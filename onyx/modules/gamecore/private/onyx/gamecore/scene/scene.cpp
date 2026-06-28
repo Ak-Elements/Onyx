@@ -9,18 +9,21 @@
 #include <onyx/engine/enginesystem.h>
 #include <onyx/entity/componentfactory.h>
 #include <onyx/gamecore/gamecore.h>
+#include <onyx/physics/physicssystem.h>
 
 namespace onyx::game_core {
 Reference< Scene > Scene::create( IEngine& engine ) {
     GameCoreSystem& gameCoreSystem = engine.getSystem< GameCoreSystem >();
-    return Reference< Scene >::create( gameCoreSystem.getComponentFactory() );
+    physics::PhysicsSystem& physicsSystem = engine.getSystem< physics::PhysicsSystem >();
+    return Reference< Scene >::create( gameCoreSystem.getComponentFactory(), physicsSystem );
 }
 
-Scene::Scene( ecs::ComponentFactory& factory )
-    : m_registry( factory ) {
-    m_registry.GetRegistry().on_construct< TransformComponent >().connect< &Scene::onTransformComponentConstructed >(
+Scene::Scene( ecs::ComponentFactory& factory, onyx::physics::PhysicsSystem& physicsSystem )
+    : m_registry( factory )
+    , m_physicsWorld( physicsSystem.createPhysicsWorld3d() ) {
+    m_registry.getRegistry().on_construct< TransformComponent >().connect< &Scene::onTransformComponentConstructed >(
         this );
-    m_registry.GetRegistry().on_destroy< TransformComponent >().connect< &Scene::onTransformComponentDestroyed >(
+    m_registry.getRegistry().on_destroy< TransformComponent >().connect< &Scene::onTransformComponentDestroyed >(
         this );
 }
 
@@ -39,14 +42,14 @@ void Scene::setStreamOutDistance( float64 distance ) {
 }
 
 void Scene::copy( const Reference< Scene >& fromScene ) {
-    m_registry.Clear();
+    m_registry.clear();
 
     // all entities
     const ecs::EntityRegistry& fromRegistry = fromScene->getRegistry();
-    for( ecs::EntityId sourceEntityId : fromRegistry.GetView< ecs::EntityId >() ) {
-        ecs::EntityId targetEntity = m_registry.CreateEntity();
+    for( ecs::EntityId sourceEntityId : fromRegistry.getView< ecs::EntityId >() ) {
+        ecs::EntityId targetEntity = m_registry.createEntity();
         // create a copy of an entity component by component
-        for( auto&& componentStorageIt : fromRegistry.GetStorage() ) {
+        for( auto&& componentStorageIt : fromRegistry.getStorage() ) {
             if( auto& componentStorage = componentStorageIt.second; componentStorage.contains( sourceEntityId ) ) {
                 entt::meta_type metaClass = entt::resolve( componentStorageIt.first );
 
@@ -57,7 +60,7 @@ void Scene::copy( const Reference< Scene >& fromScene ) {
 
                 const entt::meta_any componentHandle = metaClass.from_void( componentStorage.value( sourceEntityId ) );
 
-                std::ignore = metaClass.construct( entt::forward_as_meta( m_registry.GetRegistry() ),
+                std::ignore = metaClass.construct( entt::forward_as_meta( m_registry.getRegistry() ),
                                                    targetEntity,
                                                    componentHandle );
             }
@@ -70,7 +73,7 @@ void Scene::update( uint64_t /*deltaTime*/ ) {
 }
 
 String Scene::getUniqueEntityName( const String& preferredName ) {
-    auto namesView = m_registry.GetView< const NameComponent >();
+    auto namesView = m_registry.getView< const NameComponent >();
 
     uint32_t count = 0;
     for( ecs::EntityId entityId : namesView ) {

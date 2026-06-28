@@ -8,8 +8,8 @@ class CSGUnion : public CSGOperation {
     CSGUnion();
     CSGUnion( VolumeBase* first, VolumeBase* second );
 
-    virtual Vector4f32 GetValueAndGradient( const Vector3f32& position ) const override;
+    [[nodiscard]] Vector4f32 GetValueAndGradient( const Vector3f32& position ) const override;
 
-    virtual float32 GetValue( const Vector3f32& position ) const override;
+    [[nodiscard]] float32 GetValue( const Vector3f32& position ) const override;
 };
 } // namespace onyx::volume

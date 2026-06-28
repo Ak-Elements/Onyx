@@ -44,7 +44,7 @@ void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     drawSelectedEntityComponents( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
 
-    auto selectedEntities = registry.GetView< SelectedComponent >();
+    auto selectedEntities = registry.getView< SelectedComponent >();
     if( selectedEntities.empty() == false ) {
         drawCreateComponentContextMenu( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
     }
@@ -57,10 +57,10 @@ void ComponentsPanel::drawSelectedEntityComponents( ecs::EntityRegistry& registr
                                                     game_core::GameCoreSystem& gameCoreSystem,
                                                     const localization::LocalizationModule& localizationModule ) {
     const ecs::ComponentFactory& componentFactory = gameCoreSystem.getComponentFactory();
-    auto selectedEntities = registry.GetView< SelectedComponent >();
+    auto selectedEntities = registry.getView< SelectedComponent >();
 
     for( ecs::EntityId selectedEntity : selectedEntities ) {
-        for( auto&& componentStorageIt : registry.GetStorage() ) {
+        for( auto&& componentStorageIt : registry.getStorage() ) {
             // if the component storage contains the entity we know that the entity has this component
             if( entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
                 componentStorage.contains( selectedEntity ) ) {
@@ -185,7 +185,7 @@ ui::TreeItem ComponentsPanel::buildComponentTree( StringView searchString,
                 ui::TreeItem& menuItem = currentParent->Children[ currentToken ];
                 menuItem.Label = currentToken;
                 menuItem.OnSelected = [ & ]() {
-                    auto selectedEntities = registry.GetView< SelectedComponent >();
+                    auto selectedEntities = registry.getView< SelectedComponent >();
                     for( ecs::EntityId selectedEntity : selectedEntities ) {
                         m_commandGraph->push< AddComponentCommand >( selectedEntity,
                                                                      componentTypeId,

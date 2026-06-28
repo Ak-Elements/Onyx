@@ -14,6 +14,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     dualgrid/dualgrid.hpp
     dualmarchingcubes/dmcoctreesplitpolicy.h
     graphics/previewterrainedit.h
+    graphics/volumeterrainpass.h
     isosurface/isosurface.h
     isosurface/marchingcubessurface.h
     isosurface/marchingcubestable.h
@@ -36,6 +37,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     octree/octreenode.hpp
     octree/octreesearch.h
     octree/octreesplitpolicy.h
+    physics/volumeterrainshape.h
     shader/generators/volumeshadergraphgenerator.h
     shader/generators/templates/volumeshadertemplates.h
     shadergraph/volumeshadergraph.h
@@ -87,9 +89,11 @@ set(onyx_TARGET_PRIVATE_SOURCES
     chunk/volumechunkloader.cpp
     chunk/volumechunkloadrequest.cpp
     graphics/previewterrainedit.cpp
+    graphics/volumeterrainpass.cpp
     isosurface/isosurface.cpp
     isosurface/marchingcubessurface.cpp
     isosurface/marchingsquaressurface.cpp
+    physics/volumeterrainshape.cpp
     shader/generators/volumeshadergraphgenerator.cpp
     shadergraph/nodes/operations/sdfdifferencevolumeshadergraphnode.cpp
     shadergraph/nodes/operations/sdfintersectvolumeshadergraphnode.cpp

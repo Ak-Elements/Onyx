@@ -2,6 +2,7 @@
 
 #include <onyx/physics/physicssystem.h>
 
+#include <onyx/physics/character.h> //TODO: Forward declare only
 #include <onyx/physics/jolt/joltbroadphaseinterface.h>
 #include <onyx/physics/jolt/joltcollisionfilter.h>
 
@@ -12,6 +13,8 @@ namespace JPH {
 class PhysicsSystem;
 class TempAllocator;
 class JobSystemThreadPool;
+class DefaultBroadPhaseLayerFilter;
+class DefaultObjectLayerFilter;
 } // namespace JPH
 
 namespace onyx::physics::jolt {
@@ -20,32 +23,16 @@ class JoltBroadPhaseInterface;
 class JoltPhysicsSystem : public IPhysicsSystem {
   public:
     JoltPhysicsSystem();
-    ~JoltPhysicsSystem();
+    ~JoltPhysicsSystem() override;
 
-    void Update() override;
+    PhysicsWorld3d createPhysicsWorld3d() override;
 
-    Vector3f32 GetPosition( PhysicsBodyId id ) const override;
-
-    PhysicsBodyId CreateSphereCollider( const Vector3f32& position,
-                                        const Rotor3f32& rotation,
-                                        float32 radius,
-                                        MotionType motion,
-                                        CollisionLayer layer ) override;
-    PhysicsBodyId CreateBoxCollider( const Vector3f32& position,
-                                     const Rotor3f32& rotation,
-                                     const Vector3f32& halfExtents,
-                                     MotionType motion,
-                                     CollisionLayer layer ) override;
+    JPH::TempAllocator& getTemporaryAllocator() { return *m_temporaryAllocator; }
 
   private:
-    JPH::PhysicsSystem m_System;
-    UniquePtr< JPH::TempAllocator > m_Allocator;
-
-    JoltBroadPhaseInterface m_BroadPhase;
-    JoltObjectLayerPairFilterImpl m_ObjectToObjectFilter;
-    JoltObjectVsBroadPhaseLayerFilterImpl m_ObjectToBroadhPhaseFilter;
+    UniquePtr< JPH::TempAllocator > m_temporaryAllocator;
 
     // use our own system
-    JPH::JobSystemThreadPool* job_system = nullptr;
+    JPH::JobSystemThreadPool* m_jobSystem = nullptr;
 };
 } // namespace onyx::physics::jolt

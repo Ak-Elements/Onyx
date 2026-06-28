@@ -57,7 +57,7 @@ bool SceneSerializer::serializeSectorToJson( const ecs::EntityRegistry& registry
     file_system::JsonSerializer serializer;
     serializer.writeForEach( sector.Entities, [ & ]( Serializer& scopeSerializer, const SectorEntity& sectorEntity ) {
         if( ( sectorEntity.Entity != entt::null ) &&
-            ( registry.HasComponents< TransientComponent >( sectorEntity.Entity ) == false ) ) {
+            ( registry.hasComponents< TransientComponent >( sectorEntity.Entity ) == false ) ) {
             return scopeSerializer.write< "position" >( sectorEntity.Position ) &&
                    scopeSerializer.write< "radius" >( sectorEntity.BoundsRadius ) &&
                    serializeEntity( scopeSerializer, registry, componentFactory, sectorEntity.Entity );
@@ -89,7 +89,7 @@ bool SceneSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
 
     Scene& scene = asset.as< Scene >();
     ecs::EntityRegistry& registry = scene.getRegistry();
-    registry.Clear();
+    registry.clear();
 
     assets::AssetId renderGraphAssetId = "engine:/rendergraphs/default.orendergraph";
     deserializer.read< "renderGraph" >( renderGraphAssetId );
@@ -141,7 +141,7 @@ bool SceneSerializer::deserializeSectorFromJson( Scene& scene,
             scopeDeserializer.read< "radius" >( outEntity.BoundsRadius );
             outEntity.BoundsRadiusSquared = outEntity.BoundsRadius * outEntity.BoundsRadius;
 
-            outEntity.Entity = scene.getRegistry().CreateEntity();
+            outEntity.Entity = scene.getRegistry().createEntity();
             return deserializeEntity( scopeDeserializer, scene.getRegistry(), componentFactory, outEntity.Entity );
         } );
 
@@ -155,7 +155,7 @@ bool SceneSerializer::serializeEntity( Serializer& serializer,
     // iterate all component storages and save out the components for the entity
     uint32_t index = 0;
 
-    for( auto componentStorageIt : registry.GetStorage() ) {
+    for( auto componentStorageIt : registry.getStorage() ) {
         // if the component storage contains the entity we know that the entity has this component
         if( const entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
             componentStorage.contains( entityId ) ) {

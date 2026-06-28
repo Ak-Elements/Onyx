@@ -39,7 +39,7 @@ void CameraSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     game_core::Scene& currentScene = *currentSceneHandle;
     ecs::EntityRegistry& registry = currentScene.getRegistry();
 
-    auto cameraView = registry.GetView< game_core::CameraComponent,
+    auto cameraView = registry.getView< game_core::CameraComponent,
                                         game_core::FreeCameraControllerComponent,
                                         game_core::FreeCameraRuntimeComponent,
                                         game_core::TransformComponent >();

@@ -74,13 +74,13 @@ void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                 });
             */
 
-            auto entitiesView = registry.GetRegistry().view< game_core::IdComponent, game_core::NameComponent >();
+            auto entitiesView = registry.getRegistry().view< game_core::IdComponent, game_core::NameComponent >();
 
             for( ecs::EntityId entity : entitiesView ) {
                 bool isSelected = m_selectedEntity == entity;
 
-                if( isSelected && registry.HasComponents< SelectedComponent >( m_selectedEntity ) == false ) {
-                    registry.AddComponent< SelectedComponent >( m_selectedEntity );
+                if( isSelected && registry.hasComponents< SelectedComponent >( m_selectedEntity ) == false ) {
+                    registry.addComponent< SelectedComponent >( m_selectedEntity );
                 }
 
                 ImGui::TableNextRow( ImGuiTableRowFlags_None, rowHeight );
@@ -221,11 +221,11 @@ void EntitiesPanel::setSelectedEntity( ecs::EntityId entity ) {
 
         ecs::EntityRegistry& registry = parent.getScene().getRegistry();
         if( m_selectedEntity != ecs::EntityId::Invalid )
-            registry.RemoveComponent< SelectedComponent >( m_selectedEntity );
+            registry.removeComponent< SelectedComponent >( m_selectedEntity );
 
         m_selectedEntity = entity;
         if( m_selectedEntity != ecs::EntityId::Invalid ) {
-            registry.AddComponent< SelectedComponent >( m_selectedEntity );
+            registry.addComponent< SelectedComponent >( m_selectedEntity );
         }
     }
 }

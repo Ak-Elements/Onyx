@@ -11,12 +11,14 @@ namespace onyx::physics::jolt {
 /// Class that determines if two object layers can collide
 class JoltObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilter {
   public:
-    bool ShouldCollide( JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2 ) const override {
-        switch ( enums::toEnum< CollisionLayer >( inObject1 ) ) {
-        case CollisionLayer::STATIC:
+    [[nodiscard]] bool ShouldCollide( JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2 ) const override {
+        switch( enums::toEnum< CollisionLayer >( inObject1 ) ) {
+        case CollisionLayer::Static:
             return enums::toEnum< CollisionLayer >( inObject2 ) ==
-                   CollisionLayer::DYNAMIC; // Non moving only collides with moving
-        case CollisionLayer::DYNAMIC:
+                   CollisionLayer::Dynamic; // Non moving only collides with moving
+        case CollisionLayer::Dynamic:
+            return true; // Moving collides with everything
+        case CollisionLayer::Player:
             return true; // Moving collides with everything
         default:
             JPH_ASSERT( false );
@@ -28,11 +30,16 @@ class JoltObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilter {
 /// Class that determines if an object layer can collide with a broadphase layer
 class JoltObjectVsBroadPhaseLayerFilterImpl : public JPH::ObjectVsBroadPhaseLayerFilter {
   public:
-    bool ShouldCollide( JPH::ObjectLayer objectLayer, JPH::BroadPhaseLayer broadPhaseLayer ) const override {
-        switch ( enums::toEnum< CollisionLayer >( objectLayer ) ) {
-        case CollisionLayer::STATIC:
-            return enums::toEnum< BroadPhaseLayer >( broadPhaseLayer.GetValue() ) == BroadPhaseLayer::DYNAMIC;
-        case CollisionLayer::DYNAMIC:
+    [[nodiscard]] bool ShouldCollide( JPH::ObjectLayer objectLayer,
+                                      JPH::BroadPhaseLayer broadPhaseLayer ) const override {
+        switch( enums::toEnum< CollisionLayer >( objectLayer ) ) {
+        case CollisionLayer::Static: {
+            const BroadPhaseLayer layer = enums::toEnum< BroadPhaseLayer >( broadPhaseLayer.GetValue() );
+            return layer == BroadPhaseLayer::DYNAMIC;
+        }
+        case CollisionLayer::Dynamic:
+            return true;
+        case CollisionLayer::Player:
             return true;
         default:
             JPH_ASSERT( false );

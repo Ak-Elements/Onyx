@@ -24,9 +24,9 @@ class DependantFunctionArg< rhi::FrameContext > {
 };
 
 template <>
-class DependantFunctionArg< physics::PhysicsWorld > {
+class DependantFunctionArg< physics::PhysicsWorld3d > {
   public:
-    static physics::PhysicsWorld& Get( const ECSExecutionContext& context );
+    static physics::PhysicsWorld3d& Get( const ECSExecutionContext& context );
 };
 
 template <>

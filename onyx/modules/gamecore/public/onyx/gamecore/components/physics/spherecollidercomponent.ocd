@@ -1,7 +1,0 @@
-component SphereColliderComponent
-{
-    CollisionLayer Layer
-    MotionType MotionType
-
-    float32 Radius = 1.0
-}

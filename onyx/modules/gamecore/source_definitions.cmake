@@ -1,13 +1,16 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     gamecore.h
+    components/character/charactercontrollercomponent.ocd
+    components/collision/boxshapecomponent.ocd
+    components/collision/capsuleshapecomponent.ocd
+    components/collision/sphereshapecomponent.ocd
     components/graphics/directionallightcomponent.ocd
     components/graphics/materialcomponent.ocd
     components/graphics/pointlightcomponent.ocd
     components/graphics/spotlightcomponent.ocd
     components/graphics/staticmeshcomponent.ocd
     components/graphics/textcomponent.ocd
-    components/physics/boxcollidercomponent.ocd
-    components/physics/spherecollidercomponent.ocd
+    components/physics/rigidbodycomponent.ocd
     components/cameracomponent.ocd
     components/freecameracomponent.ocd
     components/idcomponent.ocd
@@ -23,9 +26,11 @@ set(onyx_TARGET_PUBLIC_SOURCES
     scene/scenesector.h
     scene/scenesectorstreamer.h
     serialize/sceneserializer.h
+    systems/charactersystem.h
     systems/camerasystem.h
     systems/freecamerasystem.h
     systems/lightingsystem.h
+    systems/movementsystem.h
     systems/physicssystem.h
     systems/staticmeshentitysystem.h
 )
@@ -40,9 +45,11 @@ set(onyx_TARGET_PRIVATE_SOURCES
     scene/scene.cpp
     scene/scenesectorstreamer.cpp
     serialize/sceneserializer.cpp
+    systems/charactersystem.cpp
     systems/camerasystem.cpp
     systems/freecamerasystem.cpp
     systems/lightingsystem.cpp
+    systems/movementsystem.cpp
     systems/physicssystem.cpp
     systems/staticmeshentitysystem.cpp
 )

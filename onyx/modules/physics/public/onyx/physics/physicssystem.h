@@ -1,54 +1,29 @@
 #pragma once
 
 #include <onyx/engine/enginesystem.h>
+#include <onyx/physics/characterfwd.h>
+#include <onyx/physics/physicsworld3dfwd.h>
 
 namespace onyx::physics {
-enum class MotionType : uint8_t;
-enum class CollisionLayer : uint16_t;
-
-enum class PhysicsBodyId : uint32_t { Invalid = std::numeric_limits< uint32_t >::max() };
 
 class IPhysicsSystem {
   public:
     virtual ~IPhysicsSystem() = default;
-
-    virtual void Update() = 0;
-
-    virtual Vector3f32 GetPosition( PhysicsBodyId id ) const = 0;
-
-    virtual PhysicsBodyId CreateSphereCollider( const Vector3f32& position,
-                                                const Rotor3f32& rotation,
-                                                float32 radius,
-                                                MotionType motion,
-                                                CollisionLayer layer ) = 0;
-    virtual PhysicsBodyId CreateBoxCollider( const Vector3f32& position,
-                                             const Rotor3f32& rotation,
-                                             const Vector3f32& halfExtents,
-                                             MotionType motion,
-                                             CollisionLayer layer ) = 0;
+    virtual PhysicsWorld3d createPhysicsWorld3d() = 0;
 };
 
-class PhysicsWorld {
+class PhysicsSystem : public IEngineSystem {
   public:
-    PhysicsWorld();
-    ~PhysicsWorld();
+    static constexpr StringId32 TypeId = "onyx::physics::PhysicsSystem";
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
-    void Update();
+    PhysicsSystem();
+    ~PhysicsSystem();
 
-    Vector3f32 GetPosition( PhysicsBodyId id );
-
-    PhysicsBodyId CreateSphereCollider( const Vector3f32& position,
-                                        const Rotor3f32& rotation,
-                                        float32 radius,
-                                        MotionType motion,
-                                        CollisionLayer layer );
-    PhysicsBodyId CreateBoxCollider( const Vector3f32& position,
-                                     const Rotor3f32& rotation,
-                                     const Vector3f32& halfExtents,
-                                     MotionType motion,
-                                     CollisionLayer layer );
+    PhysicsWorld3d createPhysicsWorld3d();
 
   private:
-    UniquePtr< IPhysicsSystem > m_System;
+    UniquePtr< IPhysicsSystem > m_system;
 };
+
 } // namespace onyx::physics

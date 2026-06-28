@@ -63,6 +63,9 @@ msgstr "Project"
 msgid "editor.windows.startup.title"
 msgstr "Startup"
 
+msgid "editor.mainmenubar.debug"
+msgstr "Debug"
+
 msgid "editor.windows.shadergrapheditor.title"
 msgid_plural "editor.windows.shadergrapheditor.titles"
 msgstr[0] "Shader Graph Editor"

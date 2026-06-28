@@ -82,13 +82,13 @@ struct ComponentMeta : public IComponentMeta {
 
     void create( EntityRegistry& registry, EntityId entity ) const override {
         if constexpr( details::IsFlagComponent< T > ) {
-            registry.AddComponent< T >( entity );
+            registry.addComponent< T >( entity );
         } else if constexpr( Deserializable< T > ) {
             T component{};
             if( m_factory ) {
                 m_factory( registry, entity, std::move( component ) );
             } else {
-                registry.AddComponent< T >( entity, component );
+                registry.addComponent< T >( entity, component );
             }
         } else {
             ONYX_ASSERT( false, "Not supported for component" );
@@ -98,13 +98,13 @@ struct ComponentMeta : public IComponentMeta {
     template < typename... Args >
     void create( EntityRegistry& registry, EntityId entity, [[maybe_unused]] Args&&... args ) const {
         if constexpr( details::IsFlagComponent< T > ) {
-            registry.AddComponent< T >( entity );
+            registry.addComponent< T >( entity );
         } else if constexpr( Deserializable< T > ) {
             T component( std::forward< Args >( args )... );
             if( m_factory ) {
                 m_factory( registry, entity, std::move( component ) );
             } else {
-                registry.AddComponent< T >( entity, component );
+                registry.addComponent< T >( entity, component );
             }
         } else {
             ONYX_ASSERT( false, "Not supported for component" );
@@ -113,7 +113,7 @@ struct ComponentMeta : public IComponentMeta {
 
     void create( EntityRegistry& registry, EntityId entity, const Deserializer& deserializer ) const override {
         if constexpr( details::IsFlagComponent< T > ) {
-            registry.AddComponent< T >( entity );
+            registry.addComponent< T >( entity );
         } else if constexpr( Deserializable< T > ) {
             T component{};
             Serialization< T >::deserialize( deserializer, component );
@@ -121,7 +121,7 @@ struct ComponentMeta : public IComponentMeta {
             if( m_factory ) {
                 m_factory( registry, entity, std::move( component ) );
             } else {
-                registry.AddComponent< T >( entity, component );
+                registry.addComponent< T >( entity, component );
             }
         } else {
             ONYX_ASSERT( false, "Not supported for component" );
@@ -135,14 +135,14 @@ struct ComponentMeta : public IComponentMeta {
 
     void copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const override {
         if constexpr( details::IsFlagComponent< T > ) {
-            registry.AddComponent< T >( entity );
+            registry.addComponent< T >( entity );
         } else {
             const T* component = static_cast< const T* >( componentPtr );
             if( m_factory ) {
                 T copied = *component;
                 m_factory( registry, entity, std::move( copied ) );
             } else {
-                registry.AddComponent< T >( entity, *component );
+                registry.addComponent< T >( entity, *component );
             }
         }
     }

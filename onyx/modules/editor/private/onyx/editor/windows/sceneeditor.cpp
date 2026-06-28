@@ -187,7 +187,7 @@ void SceneEditorWindow::onCameraMoveInput( const input_actions::InputActionEvent
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
-        cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
+        cameraRuntimeComponent = registry.getComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
     cameraRuntimeComponent.InputDirection = direction;
 }
 
@@ -196,7 +196,7 @@ void SceneEditorWindow::onCameraRotationInput( const input_actions::InputActionE
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
-        cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
+        cameraRuntimeComponent = registry.getComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
     cameraRuntimeComponent.InputRotation = { rotationDelta[ 0 ] * 0.003f, rotationDelta[ 1 ] * 0.003f, 0.0f };
 }
 
@@ -209,7 +209,7 @@ void SceneEditorWindow::onCameraSpeedInput( const input_actions::InputActionEven
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
-        cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
+        cameraRuntimeComponent = registry.getComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
     cameraRuntimeComponent.SpeedStep += step;
 }
@@ -219,7 +219,7 @@ void SceneEditorWindow::onCameraSpeedUp( const input_actions::InputActionEvent& 
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
-        cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
+        cameraRuntimeComponent = registry.getComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
     int32_t step = isSpeedUp ? 1 : -1;
     cameraRuntimeComponent.SpeedStep += step;
@@ -230,7 +230,7 @@ void SceneEditorWindow::onCameraSlowDown( const input_actions::InputActionEvent&
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
-        cameraRuntimeComponent = registry.GetComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
+        cameraRuntimeComponent = registry.getComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
     int32_t step = isSlowdown ? 1 : -1;
     cameraRuntimeComponent.SpeedStep -= step;
@@ -248,25 +248,25 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     m_scene = sceneAsset;
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
-    m_editorCameraEntity = registry.CreateEntity();
+    m_editorCameraEntity = registry.createEntity();
 
     game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
     ecs::EcsBuilder ecsBuilder = gameCoreSystem.getEcsBuilder();
 
-    registry.AddComponent< game_core::TransientComponent >( m_editorCameraEntity );
-    game_core::TransformComponent& transform = registry.AddComponent< game_core::TransformComponent >(
+    registry.addComponent< game_core::TransientComponent >( m_editorCameraEntity );
+    game_core::TransformComponent& transform = registry.addComponent< game_core::TransformComponent >(
         m_editorCameraEntity );
     transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
     transform.RotationEuler = EulerRadiansF32::zero();
-    game_core::CameraComponent& camera = registry.AddComponent< game_core::CameraComponent >( m_editorCameraEntity );
+    game_core::CameraComponent& camera = registry.addComponent< game_core::CameraComponent >( m_editorCameraEntity );
 
     camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65536 );
 
     // TODO: Should be viewport extents
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
     camera.Camera.setViewportExtents( graphicsSystem.getSwapchainExtent() );
-    registry.AddComponent< game_core::FreeCameraControllerComponent >( m_editorCameraEntity );
-    registry.AddComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
+    registry.addComponent< game_core::FreeCameraControllerComponent >( m_editorCameraEntity );
+    registry.addComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );
 
     graphicsSystem.setCamera( camera.Camera );
 

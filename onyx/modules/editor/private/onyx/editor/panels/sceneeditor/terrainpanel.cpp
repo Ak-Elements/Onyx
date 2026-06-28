@@ -739,7 +739,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     }
 
     ecs::EntityRegistry& registry = m_CurrentScene->getRegistry();
-    auto runtimeComponentsView = registry.GetView< volume::TerrainSettingsComponent,
+    auto runtimeComponentsView = registry.getView< volume::TerrainSettingsComponent,
                                                    volume::TerrainWorldOctreeComponent,
                                                    const volume::VolumeGenerationComponent >();
 
@@ -803,7 +803,7 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
             m_Tools[ m_SelectedTab ]->OnHitPositionReadback( *m_CurrentScene,
                                                              gameCoreSystem.getComponentFactory(),
                                                              hitData->HitPositon );
-            registry.AddComponent< volume::terrain::InitTerrainFlag >( runtimeComponentsView.front() );
+            registry.addComponent< volume::terrain::InitTerrainFlag >( runtimeComponentsView.front() );
         }
     }
 

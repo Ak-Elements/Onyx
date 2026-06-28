@@ -1,0 +1,4 @@
+component BoxShapeComponent
+{
+    Vector3f32 HalfExtents;
+}

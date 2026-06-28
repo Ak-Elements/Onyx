@@ -19,8 +19,8 @@ struct LoadMesh {};
 
 namespace Init {
 void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, StaticMeshComponent&& staticMeshComponent ) {
-    registry.AddComponent< LoadMesh >( entity );
-    registry.AddComponent< StaticMeshComponent >( entity, staticMeshComponent );
+    registry.addComponent< LoadMesh >( entity );
+    registry.addComponent< StaticMeshComponent >( entity, staticMeshComponent );
 }
 } // namespace Init
 
@@ -33,7 +33,7 @@ void system( MeshEntity entity, onyx::assets::AssetSystem& assetSystem, ecs::Ent
     auto&& [ staticMesh ] = entity;
 
     assetSystem.getAsset( staticMesh.Mesh.getId(), staticMesh.Mesh );
-    entityCommandBuffer.RemoveComponent< LoadMesh >( entity );
+    entityCommandBuffer.removeComponent< LoadMesh >( entity );
 }
 } // namespace StreamIn
 

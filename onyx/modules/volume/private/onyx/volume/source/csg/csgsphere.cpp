@@ -10,14 +10,14 @@ Vector4f32 CSGSphere::GetValueAndGradient( const Vector3f32& position ) const {
     Vector3f32 gradient = position - Center;
 
     float32 length = 0.0f;
-    if ( gradient.isZero() == false ) {
+    if( gradient.isZero() == false ) {
         length = numericCast< float32 >( gradient.length() );
-        if ( length > 0.0f ) {
+        if( length > 0.0f ) {
             gradient = gradient * ( 1.0f / length );
         }
     }
 
-    return Vector4f32( gradient[ 0 ], gradient[ 1 ], gradient[ 2 ], Radius - length );
+    return { gradient[ 0 ], gradient[ 1 ], gradient[ 2 ], length - Radius };
 }
 
 float32 CSGSphere::GetValue( const Vector3f32& position ) const {

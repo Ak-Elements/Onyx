@@ -86,7 +86,7 @@ void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
                                                    const ecs::ComponentFactory& componentFactory,
                                                    const Vector3f32& hitPosition ) {
     ecs::EntityRegistry& registry = scene.getRegistry();
-    ecs::EntityId newEntity = registry.CreateEntity();
+    ecs::EntityId newEntity = registry.createEntity();
 
     componentFactory.TryCreateComponent< game_core::TransformComponent >( registry, newEntity, hitPosition );
     componentFactory.TryCreateComponent< game_core::IdComponent >( registry,

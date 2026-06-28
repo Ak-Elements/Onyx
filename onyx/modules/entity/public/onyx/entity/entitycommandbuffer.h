@@ -8,53 +8,53 @@
 namespace onyx::ecs {
 struct EntityCommandBuffer {
     explicit EntityCommandBuffer( EntityRegistry& registry )
-        : m_Registry( &registry ) {}
+        : m_registry( &registry ) {}
 
     // TODO: they should probably be run at the end of the frame not at the end of the system call
     ~EntityCommandBuffer() {
-        for ( const auto& queuedCommand : m_QueuedCommands ) {
+        for( const auto& queuedCommand : m_queuedCommands ) {
             queuedCommand();
         }
     }
 
     template < typename T >
-    void AddComponent( EntityId entityId ) {
-        m_QueuedCommands.push_back(
-            [ registry = m_Registry, entityId ]() { registry->AddComponent< T >( entityId ); } );
+    void addComponent( EntityId entityId ) {
+        m_queuedCommands.push_back(
+            [ registry = m_registry, entityId ]() { registry->addComponent< T >( entityId ); } );
     }
 
     template < typename T, typename... Args >
-    void AddComponent( EntityId entityId, Args&&... args ) {
-        m_QueuedCommands.push_back(
-            [ registry = m_Registry, entityId, ... args = std::forward< Args >( args ) ]() mutable {
-                registry->AddComponent< T >( entityId, std::forward< Args >( args )... );
+    void addComponent( EntityId entityId, Args&&... args ) {
+        m_queuedCommands.push_back(
+            [ registry = m_registry, entityId, ... args = std::forward< Args >( args ) ]() mutable {
+                registry->addComponent< T >( entityId, std::forward< Args >( args )... );
             } );
     }
 
     template < typename T, typename EntityAccessT, typename... Args >
     requires is_specialization_of_v< Entity, EntityAccessT >
-    void AddComponent( EntityAccessT entity, Args&&... args ) {
-        m_QueuedCommands.push_back(
-            [ registry = m_Registry, entityId = entity.GetId(), ... args = std::forward< Args >( args ) ]() mutable {
-                registry->AddComponent< T >( entityId, std::forward< Args >( args )... );
+    void addComponent( EntityAccessT entity, Args&&... args ) {
+        m_queuedCommands.push_back(
+            [ registry = m_registry, entityId = entity.getId(), ... args = std::forward< Args >( args ) ]() mutable {
+                registry->addComponent< T >( entityId, std::forward< Args >( args )... );
             } );
     }
 
     template < typename T >
-    void RemoveComponent( EntityId entityId ) {
-        m_QueuedCommands.push_back(
-            [ registry = m_Registry, entityId ]() { registry->RemoveComponent< T >( entityId ); } );
+    void removeComponent( EntityId entityId ) {
+        m_queuedCommands.push_back(
+            [ registry = m_registry, entityId ]() { registry->removeComponent< T >( entityId ); } );
     }
 
     template < typename T, typename EntityAccessT > requires is_specialization_of_v< Entity, EntityAccessT >
-    void RemoveComponent( EntityAccessT entity ) {
-        m_QueuedCommands.push_back(
-            [ registry = m_Registry, entityId = entity.GetId() ]() { registry->RemoveComponent< T >( entityId ); } );
+    void removeComponent( EntityAccessT entity ) {
+        m_queuedCommands.push_back(
+            [ registry = m_registry, entityId = entity.getId() ]() { registry->removeComponent< T >( entityId ); } );
     }
 
   private:
-    EntityRegistry* m_Registry = nullptr;
-    DynamicArray< InplaceFunction< void() > > m_QueuedCommands;
+    EntityRegistry* m_registry = nullptr;
+    DynamicArray< InplaceFunction< void() > > m_queuedCommands;
 };
 
 template <>

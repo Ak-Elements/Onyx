@@ -13,13 +13,13 @@ void CreateEntityCommand::execute() {
     ecs::EntityRegistry& registry = GetScene().getRegistry();
 
     if( m_EntityId == ecs::EntityId::Invalid ) {
-        m_EntityId = registry.CreateEntity();
+        m_EntityId = registry.createEntity();
     } else {
-        std::ignore = registry.CreateEntity( m_EntityId );
+        std::ignore = registry.createEntity( m_EntityId );
     }
 
-    registry.AddComponent< game_core::IdComponent >( m_EntityId );
-    registry.AddComponent< game_core::NameComponent >( m_EntityId, "New Entity" );
-    registry.AddComponent< game_core::TransformComponent >( m_EntityId );
+    registry.addComponent< game_core::IdComponent >( m_EntityId );
+    registry.addComponent< game_core::NameComponent >( m_EntityId, "New Entity" );
+    registry.addComponent< game_core::TransformComponent >( m_EntityId );
 }
 } // namespace onyx::editor

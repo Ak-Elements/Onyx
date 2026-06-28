@@ -2,11 +2,35 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);"
 
-msgid "onyx::Graphics::Assets::RenderGraph"
+msgid "onyx::input_actions::InputActionsContext"
+msgstr "Input Actions Context"
+
+msgid "onyx::graphics::assets::RenderGraph"
 msgstr "Render Graph"
 
-msgid "onyx::Graphics::Assets::MaterialShaderGraph"
+msgid "onyx::graphics::assets::MaterialShaderGraph"
 msgstr "Material Shader Graph"
 
-msgid "onyx::volume::Assets::VolumeShaderGraph"
+msgid "onyx::graphics::assets::SDFFont"
+msgstr "SDF Font"
+
+msgid "onyx::graphics::assets::Mesh"
+msgstr "Mesh"
+
+msgid "onyx::game_core::assets::Scene"
+msgstr "Scene"
+
+msgid "onyx::graphics::assets::Texture"
+msgstr "Scene"
+
+msgid "onyx::ui::assets::Theme"
+msgstr "Editor Theme"
+
+msgid "onyx::localization::assets::GetTextLocalizationDatabase"
+msgstr "GetText Localization"
+
+msgid "onyx::graphics::assets::Shader"
+msgstr "Shader"
+
+msgid "onyx::volume::assets::VolumeShaderGraph"
 msgstr "Volume Graph"

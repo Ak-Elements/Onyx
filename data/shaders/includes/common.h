@@ -37,3 +37,7 @@ vec4 ToLinearFromSRGB( vec4 sRGB ) {
 float safeReciprocal( float value ) {
     return value == 0.0f ? 0.0f : ( 1.0f / value );
 }
+
+vec2 safeReciprocal( vec2 value ) {
+    return vec2( safeReciprocal( value.x ), safeReciprocal( value.y ) );
+}

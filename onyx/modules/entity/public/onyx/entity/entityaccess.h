@@ -95,12 +95,13 @@ template < typename... ComponentAccessDefinitions >
 struct EntityQuery {
   private:
     template < typename... Included, typename... Excluded >
-    static consteval auto MakeViewType( std::tuple< Included... >, std::tuple< Excluded... > ) {
-        return entt::basic_view< entt::get_t< EntityRegistry::EntityRegistryT::storage_for_type<
-                                     std::conditional_t< Included::Access == Access::MemoryAccess::Write,
-                                                         typename Included::Type,
-                                                         const typename Included::Type > >... >,
-                                 entt::exclude_t< typename Excluded::Type... > >();
+    static consteval auto makeViewType( std::tuple< Included... >, std::tuple< Excluded... > ) {
+        return entt::basic_view<
+            entt::get_t< EntityRegistry::EntityRegistryT::storage_for_type<
+                std::conditional_t< Included::Access == Access::MemoryAccess::Write,
+                                    typename Included::Type,
+                                    const typename Included::Type > >... >,
+            entt::exclude_t< EntityRegistry::EntityRegistryT::storage_for_type< typename Excluded::Type >... > >();
     }
 
   public:
@@ -114,35 +115,35 @@ struct EntityQuery {
                             std::tuple< ComponentAccessDefinitions >,
                             std::tuple<> >{}... ) );
 
-    using ViewT = decltype( MakeViewType( IncludedComponents{}, ExcludedComponents{} ) );
+    using ViewT = decltype( makeViewType( IncludedComponents{}, ExcludedComponents{} ) );
 
     EntityQuery( const EntityQuery& ) = delete;
     EntityQuery& operator=( const EntityQuery& ) = delete;
 
     EntityQuery( EntityRegistry& registry )
-        : m_View( MakeView( registry, IncludedComponents{}, ExcludedComponents{} ) )
-        , m_EntityRegistry( &registry ) {}
+        : m_view( makeView( registry, IncludedComponents{}, ExcludedComponents{} ) )
+        , m_entityRegistry( &registry ) {}
 
-    ViewT& GetView() { return m_View; }
-    const ViewT& GetView() const { return m_View; }
+    ViewT& getView() { return m_view; }
+    const ViewT& getView() const { return m_view; }
 
-    EntityRegistry* GetRegistry() { return m_EntityRegistry; }
+    EntityRegistry* getRegistry() { return m_entityRegistry; }
 
-    ViewT::iterator begin() { return m_View.begin(); }
-    ViewT::iterator end() { return m_View.end(); }
+    ViewT::iterator begin() { return m_view.begin(); }
+    ViewT::iterator end() { return m_view.end(); }
 
   private:
     template < typename... Included, typename... Excluded >
-    static ViewT MakeView( EntityRegistry& registry, std::tuple< Included... >, std::tuple< Excluded... > ) {
-        return registry.GetView< std::conditional_t< Included::Access == Access::MemoryAccess::Write, // Condition
+    static ViewT makeView( EntityRegistry& registry, std::tuple< Included... >, std::tuple< Excluded... > ) {
+        return registry.getView< std::conditional_t< Included::Access == Access::MemoryAccess::Write, // Condition
                                                      typename Included::Type,
                                                      const typename Included::Type >... > // Type
             ( entt::exclude_t< typename Excluded::Type... >{} );
     }
 
   private:
-    ViewT m_View;
-    EntityRegistry* m_EntityRegistry = nullptr;
+    ViewT m_view;
+    EntityRegistry* m_entityRegistry = nullptr;
 };
 
 template < typename... ComponentAccessDefinitions >
@@ -155,8 +156,8 @@ struct Entity {
         std::tuple < >> {}... ) );
 
     Entity( EntityQuery< ComponentAccessDefinitions... >& query, EntityId entityId )
-        : m_Query( query )
-        , m_EntityId( entityId ) {}
+        : m_query( query )
+        , m_entityId( entityId ) {}
 
     template < std::size_t I >
     decltype( auto ) get() {
@@ -165,39 +166,43 @@ struct Entity {
                                                typename ComponentAccessDefinition::Type,
                                                const typename ComponentAccessDefinition::Type >;
 
-        return m_Query.GetView().template get< ComponentT >( m_EntityId );
+        return m_query.getView().template get< ComponentT >( m_entityId );
     }
 
-    EntityId GetId() const { return m_EntityId; }
+    [[nodiscard]] EntityId getId() const;
 
     template < typename T > requires( ( std::is_same_v< T, typename ComponentAccessDefinitions::Type > &&
                                         ComponentAccessDefinitions::Filter == Access::Filter::Maybe &&
                                         ComponentAccessDefinitions::Access == Access::MemoryAccess::Write ) ||
                                       ... )
-    T* TryGetComponent() {
-        return m_Query.GetRegistry()->template TryGetComponent< T >( m_EntityId );
+    T* tryGetComponent() {
+        return m_query.getRegistry()->template tryGetComponent< T >( m_entityId );
     }
 
     template < typename T > requires( ( std::is_same_v< T, typename ComponentAccessDefinitions::Type > &&
                                         ComponentAccessDefinitions::Filter == Access::Filter::Maybe &&
                                         ComponentAccessDefinitions::Access == Access::MemoryAccess::Read ) ||
                                       ... )
-    const T* TryGetComponent() const {
-        return m_Query.GetRegistry()->template TryGetComponent< T >( m_EntityId );
+    const T* tryGetComponent() const {
+        return m_query.getRegistry()->template tryGetComponent< T >( m_entityId );
     }
 
     template < typename T > requires( ( std::is_same_v< T, typename ComponentAccessDefinitions::Type > &&
                                         ComponentAccessDefinitions::Filter == Access::Filter::Maybe &&
                                         ComponentAccessDefinitions::Access == Access::MemoryAccess::None ) ||
                                       ... )
-    bool HasComponent() const {
-        return m_Query.GetRegistry()->template HasComponent< T >( m_EntityId );
+    [[nodiscard]] bool hasComponent() const {
+        return m_query.getRegistry()->template hasComponent< T >( m_entityId );
     }
 
   private:
-    EntityQuery< ComponentAccessDefinitions... >& m_Query;
-    EntityId m_EntityId;
+    EntityQuery< ComponentAccessDefinitions... >& m_query;
+    EntityId m_entityId;
 };
+template < typename... ComponentAccessDefinitions >
+inline EntityId Entity< ComponentAccessDefinitions... >::getId() const {
+    return m_entityId;
+}
 
 template < typename... ComponentAccessDefinitions >
 class DependantFunctionArg< EntityQuery< ComponentAccessDefinitions... > > {
@@ -208,6 +213,7 @@ class DependantFunctionArg< EntityQuery< ComponentAccessDefinitions... > > {
 };
 } // namespace onyx::ecs
 
+// NOLINTBEGIN
 namespace std {
 template < typename... ComponentAccessDefintions >
 struct tuple_size< onyx::ecs::Entity< ComponentAccessDefintions... > >
@@ -225,4 +231,6 @@ struct tuple_element< I, onyx::ecs::Entity< ComponentAccessDefintions... > > {
                                      typename ComponentAccessDefinition::Type,
                                      const typename ComponentAccessDefinition::Type >;
 };
+// NOLINTEND
+
 } // namespace std

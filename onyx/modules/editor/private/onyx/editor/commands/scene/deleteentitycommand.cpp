@@ -14,6 +14,6 @@ DeleteEntityCommand::DeleteEntityCommand( ecs::EntityId entityId,
 
 void DeleteEntityCommand::execute() {
     ecs::EntityRegistry& registry = GetScene().getRegistry();
-    registry.DeleteEntity( m_EntityId );
+    registry.deleteEntity( m_EntityId );
 }
 } // namespace onyx::editor

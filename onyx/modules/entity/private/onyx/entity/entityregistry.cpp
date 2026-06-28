@@ -5,59 +5,59 @@
 
 namespace onyx::ecs {
 EntityRegistry::EntityRegistry( ComponentFactory& factory )
-    : m_ComponentFactory( &factory ) {}
+    : m_componentFactory( &factory ) {}
 
 EntityRegistry::EntityRegistry( const EntityRegistry& other )
-    : m_ComponentFactory( other.m_ComponentFactory ) {
-    m_Registry.clear();
-    other.Copy( *this );
+    : m_componentFactory( other.m_componentFactory ) {
+    m_registry.clear();
+    other.copy( *this );
 }
 
-EntityRegistry::EntityRegistry( EntityRegistry&& other )
-    : m_Registry( std::move( other.m_Registry ) )
-    , m_ComponentFactory( other.m_ComponentFactory ) {}
+EntityRegistry::EntityRegistry( EntityRegistry&& other ) noexcept
+    : m_registry( std::move( other.m_registry ) )
+    , m_componentFactory( other.m_componentFactory ) {}
 
 EntityRegistry& EntityRegistry::operator=( const EntityRegistry& other ) {
     if( this == &other )
         return *this;
 
-    m_Registry.clear();
-    m_ComponentFactory = other.m_ComponentFactory;
-    other.Copy( *this );
+    m_registry.clear();
+    m_componentFactory = other.m_componentFactory;
+    other.copy( *this );
 
     return *this;
 }
 
-EntityRegistry& EntityRegistry::operator=( EntityRegistry&& other ) {
+EntityRegistry& EntityRegistry::operator=( EntityRegistry&& other ) noexcept {
     if( this == &other )
         return *this;
 
-    other.m_Registry.swap( m_Registry );
-    m_ComponentFactory = other.m_ComponentFactory;
+    other.m_registry.swap( m_registry );
+    m_componentFactory = other.m_componentFactory;
 
     return *this;
 }
 
-EntityId EntityRegistry::CreateEntity() {
-    return m_Registry.create();
+EntityId EntityRegistry::createEntity() {
+    return m_registry.create();
 }
 
-EntityId EntityRegistry::CreateEntity( EntityId entity ) {
+EntityId EntityRegistry::createEntity( EntityId entity ) {
     ONYX_ASSERT( entity != EntityId::Invalid );
-    return m_Registry.create( entity );
+    return m_registry.create( entity );
 }
 
-void EntityRegistry::DeleteEntity( EntityId entity ) {
+void EntityRegistry::deleteEntity( EntityId entity ) {
     ONYX_ASSERT( entity != EntityId::Invalid );
-    m_Registry.destroy( entity );
+    m_registry.destroy( entity );
 }
 
-EntityId EntityRegistry::CopyEntity( EntityId entity ) {
+EntityId EntityRegistry::copyEntity( EntityId entity ) {
     ONYX_ASSERT( entity != EntityId::Invalid );
-    EntityId newEntity = CreateEntity();
+    EntityId newEntity = createEntity();
 
     // create a copy of an entity component by component
-    for( const auto&& componentStorageIt : GetStorage() ) {
+    for( const auto&& componentStorageIt : getStorage() ) {
         if( auto& componentStorage = componentStorageIt.second; componentStorage.contains( entity ) ) {
             componentStorage.push( newEntity, componentStorage.value( entity ) );
         }
@@ -66,40 +66,40 @@ EntityId EntityRegistry::CopyEntity( EntityId entity ) {
     return newEntity;
 }
 
-EntityRegistry::EntityRegistryT::iterable EntityRegistry::GetStorage() {
-    return m_Registry.storage();
+EntityRegistry::EntityRegistryT::iterable EntityRegistry::getStorage() {
+    return m_registry.storage();
 }
 
-EntityRegistry::EntityRegistryT::const_iterable EntityRegistry::GetStorage() const {
-    return m_Registry.storage();
+EntityRegistry::EntityRegistryT::const_iterable EntityRegistry::getStorage() const {
+    return m_registry.storage();
 }
 
-EntityRegistry::EntityRegistryT::common_type* EntityRegistry::GetStorage( entt::id_type runtimeTypeId ) {
-    return m_Registry.storage( runtimeTypeId );
+EntityRegistry::EntityRegistryT::common_type* EntityRegistry::getStorage( entt::id_type runtimeTypeId ) {
+    return m_registry.storage( runtimeTypeId );
 }
 
-EntityRegistry::EntityRegistryT& EntityRegistry::GetRegistry() {
-    return m_Registry;
+EntityRegistry::EntityRegistryT& EntityRegistry::getRegistry() {
+    return m_registry;
 }
 
-const EntityRegistry::EntityRegistryT& EntityRegistry::GetRegistry() const {
-    return m_Registry;
+const EntityRegistry::EntityRegistryT& EntityRegistry::getRegistry() const {
+    return m_registry;
 }
 
-void EntityRegistry::Copy( EntityRegistry& toRegistry ) const {
-    ONYX_ASSERT( m_ComponentFactory != nullptr );
+void EntityRegistry::copy( EntityRegistry& toRegistry ) const {
+    ONYX_ASSERT( m_componentFactory != nullptr );
 
     // ONYX_ASSERT(toRegistry.IsEmpty(), "Registry to copy to has to be empty.");
     //  create a copy of an entity component by component
-    for( const auto&& componentStorageIt : GetStorage() ) {
-        const IComponentMeta* componentMeta = m_ComponentFactory->GetComponentMeta( componentStorageIt.first )
+    for( const auto&& componentStorageIt : getStorage() ) {
+        const IComponentMeta* componentMeta = m_componentFactory->GetComponentMeta( componentStorageIt.first )
                                                   .value_or( nullptr );
         if( componentMeta == nullptr )
             continue;
 
         for( EntityId entityId : componentStorageIt.second ) {
-            if( toRegistry.HasEntity( entityId ) == false ) {
-                [[maybe_unused]] EntityId newEntityId = toRegistry.CreateEntity( entityId );
+            if( toRegistry.hasEntity( entityId ) == false ) {
+                [[maybe_unused]] EntityId newEntityId = toRegistry.createEntity( entityId );
                 ONYX_ASSERT( newEntityId == entityId );
             }
 
@@ -109,8 +109,8 @@ void EntityRegistry::Copy( EntityRegistry& toRegistry ) const {
     }
 }
 
-void EntityRegistry::Clear() {
-    m_Registry.clear();
+void EntityRegistry::clear() {
+    m_registry.clear();
 }
 
 const EntityRegistry& DependantFunctionArg< EntityRegistry >::Get( const ECSExecutionContext& context ) {

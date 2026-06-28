@@ -26,7 +26,7 @@ void ModifyComponentCommand::execute() {
                                                    .value_or( nullptr );
     ONYX_ASSERT( componentMeta != nullptr );
 
-    if( entt::basic_sparse_set< ecs::EntityId >* componentStorage = registry.GetStorage(
+    if( entt::basic_sparse_set< ecs::EntityId >* componentStorage = registry.getStorage(
             componentMeta->getRuntimeTypeId() ) ) {
         void* componentPtr = componentStorage->value( m_entityId );
         if( componentPtr == nullptr )

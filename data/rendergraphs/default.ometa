@@ -1,10 +1,98 @@
 {
     "nodes": [
         {
-            "id": "ddca30f8dc01000",
-            "name": "DebugDrawTask",
+            "id": "e22311b81001000",
+            "name": "!!!onyx::editor::render_graph_nodes::EditorSceneGridPass:1087809241",
             "position": [
-                1546.0,
+                1912.0,
+                144.0
+            ]
+        },
+        {
+            "id": "ba4fcc11a401001",
+            "name": "Create Light Clusters",
+            "position": [
+                -176.0,
+                356.0
+            ]
+        },
+        {
+            "id": "ba68ae7a0001001",
+            "name": "Create Transmittance",
+            "position": [
+                -1584.0,
+                52.0
+            ]
+        },
+        {
+            "id": "ba2926a5c001001",
+            "name": "Get View Constants",
+            "position": [
+                -707.0,
+                20.0
+            ]
+        },
+        {
+            "id": "ba4fcc713c01000",
+            "name": "Update Light Pass",
+            "position": [
+                56.0,
+                356.0
+            ]
+        },
+        {
+            "id": "ba68af0af801000",
+            "name": "Compute MultipleScattering",
+            "position": [
+                -1334.0,
+                196.0
+            ]
+        },
+        {
+            "id": "ba6717196401001",
+            "name": "Depth Pre Pass",
+            "position": [
+                -296.0,
+                236.0
+            ]
+        },
+        {
+            "id": "ba8c92356401001",
+            "name": "3D MSDF Font Pass",
+            "position": [
+                467.0,
+                436.0
+            ]
+        },
+        {
+            "id": "ba68b013b801000",
+            "name": "Compute SkyViewLut",
+            "position": [
+                -939.0,
+                164.0
+            ]
+        },
+        {
+            "id": "ba68b0d91801000",
+            "name": "Atmospheric Sky",
+            "position": [
+                -356.0,
+                28.0
+            ]
+        },
+        {
+            "id": "ba5010b28801001",
+            "name": "Static Mesh Pass",
+            "position": [
+                504.0,
+                180.0
+            ]
+        },
+        {
+            "id": "b8e0fd752001000",
+            "name": "Composite",
+            "position": [
+                888.0,
                 148.0
             ]
         },
@@ -17,99 +105,19 @@
             ]
         },
         {
-            "id": "b8e0fd752001000",
-            "name": "Composite",
+            "id": "ddca30f8dc01000",
+            "name": "DebugDrawTask",
             "position": [
-                888.0,
+                1546.0,
                 148.0
             ]
         },
         {
-            "id": "ba5010b28801001",
-            "name": "Static Mesh Pass",
+            "id": "e43ddcab9801000",
+            "name": "!!!onyx::volume::render_graph::VolumeTerrainPass:879796366",
             "position": [
-                504.0,
-                180.0
-            ]
-        },
-        {
-            "id": "ba68b0d91801000",
-            "name": "Atmospheric Sky",
-            "position": [
-                152.0,
-                -20.0
-            ]
-        },
-        {
-            "id": "ba68b013b801000",
-            "name": "Compute SkyViewLut",
-            "position": [
-                -431.0,
-                116.0
-            ]
-        },
-        {
-            "id": "ba8c92356401001",
-            "name": "3D MSDF Font Pass",
-            "position": [
-                467.0,
-                436.0
-            ]
-        },
-        {
-            "id": "ba6717196401001",
-            "name": "Depth Pre Pass",
-            "position": [
-                152.0,
-                260.0
-            ]
-        },
-        {
-            "id": "ba68af0af801000",
-            "name": "Compute MultipleScattering",
-            "position": [
-                -826.0,
-                148.0
-            ]
-        },
-        {
-            "id": "ba4fcc713c01000",
-            "name": "Update Light Pass",
-            "position": [
-                56.0,
-                356.0
-            ]
-        },
-        {
-            "id": "ba2926a5c001001",
-            "name": "Get View Constants",
-            "position": [
-                -199.0,
-                -28.0
-            ]
-        },
-        {
-            "id": "ba68ae7a0001001",
-            "name": "Create Transmittance",
-            "position": [
-                -1076.0,
-                4.0
-            ]
-        },
-        {
-            "id": "ba4fcc11a401001",
-            "name": "Create Light Clusters",
-            "position": [
-                -176.0,
-                356.0
-            ]
-        },
-        {
-            "id": "e22311b81001000",
-            "name": "!!!onyx::editor::render_graph_nodes::EditorSceneGridPass:1087809241",
-            "position": [
-                1912.0,
-                144.0
+                8.0,
+                128.0
             ]
         }
     ]

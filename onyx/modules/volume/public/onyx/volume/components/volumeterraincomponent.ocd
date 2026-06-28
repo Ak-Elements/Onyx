@@ -37,6 +37,7 @@ component VolumeGenerationComponent
     ShaderInstanceHandle GenerateMeshShader
     ShaderInstanceHandle RayTraceTerrainShader
     ShaderInstanceHandle FindRayTracedOctreeNodeShader
+    ShaderInstanceHandle RenderTerrainShader
 
     assets::AssetHandle<VolumeShaderGraph> VolumeGraph
 

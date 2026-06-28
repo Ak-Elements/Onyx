@@ -21,16 +21,16 @@ void System( TerrainEntity entity, rhi::FrameContext& frameContext, assets::Asse
 
     auto&& [ volumeTerrainSettings, volumeTerrain, materialComponent ] = entity;
 
-    if ( volumeTerrain.MeshVertices == false )
+    if( volumeTerrain.MeshVertices == false )
         return;
 
-    if ( materialComponent.Material.isValid() == false ) {
+    if( materialComponent.Material.isValid() == false ) {
         // this should be moved to the component create
         assetSystem.getAsset( materialComponent.Material.getId(), materialComponent.Material );
         return;
     }
 
-    if ( ( materialComponent.Material.isValid() == false ) )
+    if( ( materialComponent.Material.isValid() == false ) )
         return;
 
     Matrix4x4f32 transform;

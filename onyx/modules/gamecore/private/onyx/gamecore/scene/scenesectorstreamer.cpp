@@ -44,7 +44,7 @@ void SceneSectorStreamer::AddEntity( ecs::EntityId entity ) {
         return;
 
     const ecs::EntityRegistry& registry = m_Scene->getRegistry();
-    const TransformComponent& transformComponent = registry.GetComponent< TransformComponent >( entity );
+    const TransformComponent& transformComponent = registry.getComponent< TransformComponent >( entity );
 
     SectorEntity newSectorEntity;
     newSectorEntity.Entity = entity;

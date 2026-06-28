@@ -4,7 +4,7 @@
 #include <onyx/gamecore/scene/scenesectorstreamer.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
-#include <onyx/physics/physicssystem.h>
+#include <onyx/physics/physicsworld3d.h>
 
 namespace onyx::graphics {
 class RenderGraph;
@@ -12,6 +12,10 @@ class RenderGraph;
 
 namespace onyx::ecs {
 class ComponentFactory;
+}
+
+namespace onyx::physics {
+class PhysicsSystem;
 }
 
 namespace onyx::game_core {
@@ -24,7 +28,7 @@ class Scene : public assets::Asset< Scene > {
 
     static Reference< Scene > create( IEngine& engine );
 
-    Scene( ecs::ComponentFactory& factory );
+    Scene( ecs::ComponentFactory& factory, onyx::physics::PhysicsSystem& physicsSystem );
 
     ecs::EntityRegistry& getRegistry() { return m_registry; }
     const ecs::EntityRegistry& getRegistry() const { return m_registry; }
@@ -45,7 +49,7 @@ class Scene : public assets::Asset< Scene > {
     graphics::RenderGraph& getRenderGraph() { return *m_sceneRenderGraph; }
     const graphics::RenderGraph& getRenderGraph() const { return *m_sceneRenderGraph; }
 
-    onyx::physics::PhysicsWorld& getPhysicsWorld() { return m_physicsWorld; }
+    onyx::physics::PhysicsWorld3d& getPhysicsWorld3d() { return m_physicsWorld; }
 
 #if ONYX_IS_EDITOR
     String getUniqueEntityName( const String& preferredName );
@@ -61,7 +65,7 @@ class Scene : public assets::Asset< Scene > {
 
     SceneSectorStreamer m_sectorStreamer{ *this };
     ecs::EntityRegistry m_registry;
-    onyx::physics::PhysicsWorld m_physicsWorld;
+    onyx::physics::PhysicsWorld3d m_physicsWorld;
 
     assets::AssetHandle< graphics::RenderGraph > m_sceneRenderGraph;
 };

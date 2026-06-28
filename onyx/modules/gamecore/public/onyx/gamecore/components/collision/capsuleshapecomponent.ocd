@@ -1,0 +1,5 @@
+component CapsuleShapeComponent
+{
+    float32 Radius = 1.0f;
+    float32 HalfHeight = 0.5f;
+}

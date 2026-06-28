@@ -1,7 +1,0 @@
-component BoxColliderComponent
-{
-    CollisionLayer Layer;
-    MotionType MotionType;
-
-    Vector3f32 HalfExtents;
-}

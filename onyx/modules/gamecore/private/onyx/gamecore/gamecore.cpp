@@ -19,8 +19,10 @@
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/gamecore/systems/camerasystem.h>
+#include <onyx/gamecore/systems/charactersystem.h>
 #include <onyx/gamecore/systems/freecamerasystem.h>
 #include <onyx/gamecore/systems/lightingsystem.h>
+#include <onyx/gamecore/systems/movementsystem.h>
 #include <onyx/gamecore/systems/physicssystem.h>
 #include <onyx/gamecore/systems/staticmeshentitysystem.h>
 #include <onyx/graphics/font/sdffont.h>
@@ -34,7 +36,7 @@ void registerComponents( ecs::EcsBuilder& ecsBuilder ) {
     ecsBuilder.RegisterComponent< TransformComponent >(
         []( ecs::EntityRegistry& registry, ecs::EntityId entity, TransformComponent&& transform ) {
             transform.Rotation = Rotor3f32( transform.RotationEuler );
-            registry.AddComponent< TransformComponent >( entity, transform );
+            registry.addComponent< TransformComponent >( entity, transform );
         } );
 
 #if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
@@ -58,6 +60,8 @@ void registerEntitySystems( ecs::EcsBuilder& ecsBuilder ) {
     static_mesh::registerSystems( ecsBuilder );
 
     physics::registerSystems( ecsBuilder );
+    character_system::init( ecsBuilder );
+    movement_system::init( ecsBuilder );
 }
 } // namespace GameCoreInit
 
@@ -94,10 +98,10 @@ void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graph
 }
 } // namespace onyx::game_core
 
-onyx::physics::PhysicsWorld& onyx::ecs::DependantFunctionArg< onyx::physics::PhysicsWorld >::Get(
+onyx::physics::PhysicsWorld3d& onyx::ecs::DependantFunctionArg< onyx::physics::PhysicsWorld3d >::Get(
     const ECSExecutionContext& context ) {
     game_core::GameCoreSystem& gameCoreSystem = context.Engine.getSystem< game_core::GameCoreSystem >();
-    return gameCoreSystem.getScene()->getPhysicsWorld();
+    return gameCoreSystem.getScene()->getPhysicsWorld3d();
 }
 
 onyx::rhi::FrameContext& onyx::ecs::DependantFunctionArg< onyx::rhi::FrameContext >::Get(

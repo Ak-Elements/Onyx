@@ -14,6 +14,6 @@ RenameEntityCommand::RenameEntityCommand( ecs::EntityId entity,
 
 void RenameEntityCommand::execute() {
     ecs::EntityRegistry& registry = GetScene().getRegistry();
-    registry.AddComponent< game_core::NameComponent >( m_Entity, m_Name );
+    registry.addComponent< game_core::NameComponent >( m_Entity, m_Name );
 }
 } // namespace onyx::editor

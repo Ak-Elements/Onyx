@@ -32,7 +32,7 @@ struct TerrainRuntimeComponent {
     rhi::BufferHandle WorldChunksOctree;
 
     rhi::BufferHandle MeshVertices;
-    InplaceArray<rhi::BufferHandle, 4> VertexBufferPools;
+    InplaceArray< rhi::BufferHandle, 4 > VertexBufferPools;
     rhi::BufferHandle IndirectDrawBuffer;
 
     // Graphics::BufferHandle ActiveChunks;
