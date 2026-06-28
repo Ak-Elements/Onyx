@@ -1,5 +1,7 @@
 #include <onyx/ui/theme/theme.h>
 
+#include <imgui.h>
+
 namespace onyx::ui {
 void Theme::apply() {
     ImGuiStyle& style = ImGui::GetStyle();
