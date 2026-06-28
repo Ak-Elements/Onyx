@@ -44,26 +44,23 @@ void Scene::setStreamOutDistance( float64 distance ) {
 void Scene::copy( const Reference< Scene >& fromScene ) {
     m_registry.clear();
 
-    // all entities
     const ecs::EntityRegistry& fromRegistry = fromScene->getRegistry();
     for( ecs::EntityId sourceEntityId : fromRegistry.getView< ecs::EntityId >() ) {
         ecs::EntityId targetEntity = m_registry.createEntity();
         // create a copy of an entity component by component
-        for( auto&& componentStorageIt : fromRegistry.getStorage() ) {
-            if( auto& componentStorage = componentStorageIt.second; componentStorage.contains( sourceEntityId ) ) {
-                entt::meta_type metaClass = entt::resolve( componentStorageIt.first );
+        for( auto&& [ componentId, componentStorage ] : fromRegistry.getComponents( sourceEntityId ) ) {
+            entt::meta_type metaClass = entt::resolve( componentId );
 
-                if( !metaClass ) {
-                    ONYX_LOG_ERROR( "Failed copying component of entity during scene copy." );
-                    continue;
-                }
-
-                const entt::meta_any componentHandle = metaClass.from_void( componentStorage.value( sourceEntityId ) );
-
-                std::ignore = metaClass.construct( entt::forward_as_meta( m_registry.getRegistry() ),
-                                                   targetEntity,
-                                                   componentHandle );
+            if( !metaClass ) {
+                ONYX_LOG_ERROR( "Failed copying component of entity during scene copy." );
+                continue;
             }
+
+            const entt::meta_any componentHandle = metaClass.from_void( componentStorage.value( sourceEntityId ) );
+
+            std::ignore = metaClass.construct( entt::forward_as_meta( m_registry.getRegistry() ),
+                                               targetEntity,
+                                               componentHandle );
         }
     }
 }

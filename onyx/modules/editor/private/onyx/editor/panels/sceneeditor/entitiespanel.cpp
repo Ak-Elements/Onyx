@@ -74,7 +74,7 @@ void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                 });
             */
 
-            auto entitiesView = registry.getRegistry().view< game_core::IdComponent, game_core::NameComponent >();
+            auto entitiesView = registry.getView< game_core::IdComponent, game_core::NameComponent >();
 
             for( ecs::EntityId entity : entitiesView ) {
                 bool isSelected = m_selectedEntity == entity;

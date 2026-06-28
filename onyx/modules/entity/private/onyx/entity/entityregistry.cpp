@@ -4,6 +4,7 @@
 #include <onyx/entity/ecsexecutioncontext.h>
 
 namespace onyx::ecs {
+
 EntityRegistry::EntityRegistry( ComponentFactory& factory )
     : m_componentFactory( &factory ) {}
 
@@ -66,16 +67,20 @@ EntityId EntityRegistry::copyEntity( EntityId entity ) {
     return newEntity;
 }
 
+EntityRegistry::ComponentView EntityRegistry::getComponents( ecs::EntityId entity ) {
+    return { m_registry.storage(), entity };
+}
+
+EntityRegistry::ConstComponentView EntityRegistry::getComponents( ecs::EntityId entity ) const {
+    return { m_registry.storage(), entity };
+}
+
 EntityRegistry::EntityRegistryT::iterable EntityRegistry::getStorage() {
     return m_registry.storage();
 }
 
 EntityRegistry::EntityRegistryT::const_iterable EntityRegistry::getStorage() const {
     return m_registry.storage();
-}
-
-EntityRegistry::EntityRegistryT::common_type* EntityRegistry::getStorage( entt::id_type runtimeTypeId ) {
-    return m_registry.storage( runtimeTypeId );
 }
 
 EntityRegistry::EntityRegistryT& EntityRegistry::getRegistry() {

@@ -60,61 +60,57 @@ void ComponentsPanel::drawSelectedEntityComponents( ecs::EntityRegistry& registr
     auto selectedEntities = registry.getView< SelectedComponent >();
 
     for( ecs::EntityId selectedEntity : selectedEntities ) {
-        for( auto&& componentStorageIt : registry.getStorage() ) {
+        for( auto&& [ componentId, componentStorage ] : registry.getComponents( selectedEntity ) ) {
             // if the component storage contains the entity we know that the entity has this component
-            if( entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
-                componentStorage.contains( selectedEntity ) ) {
-                if( const ecs::IComponentMeta* componentMeta = componentFactory
-                                                                   .GetComponentMeta( componentStorageIt.first )
-                                                                   .value_or( nullptr ) ) {
-                    if( ui::PropertyInspectors::isTypeRegistered( componentMeta->getRuntimeTypeId() ) == false ) {
-                        continue;
+            if( const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta( componentId )
+                                                               .value_or( nullptr ) ) {
+                if( ui::PropertyInspectors::isTypeRegistered( componentMeta->getRuntimeTypeId() ) == false ) {
+                    continue;
+                }
+
+                const StringId32 componentTypeId = componentMeta->getTypeId();
+                ui::ScopedImGuiId id( static_cast< int32_t >( componentTypeId.getId() ) );
+                ui::ScopedImGuiStyle style{ { ImGuiStyleVar_FrameBorderSize, 0.0f },
+                                            { ImGuiStyleVar_ItemSpacing, ImVec2( 0.0, 0.0f ) },
+                                            { ImGuiStyleVar_ItemInnerSpacing, ImVec2( 0.0, 0.0f ) } };
+
+                onyx::localization::LocalizationId localizationId( componentTypeId );
+                localization::LocalizedString componentName = localizationModule.GetLocalized( localizationId );
+                if( ui::contextMenuHeader( componentName,
+                                           ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
+                    ImGui::BeginChild( "Panel",
+                                       ImVec2( 0, 0 ),
+                                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY );
+
+                    // manually clear style
+                    style.Reset();
+
+                    ui::property_grid::beginPropertyGrid( "Properties", 180.0f );
+
+                    void* componentPtr = componentStorage.value( selectedEntity );
+
+                    bool hasModified = ui::PropertyInspectors::draw( componentMeta->getRuntimeTypeId(),
+                                                                     componentPtr,
+                                                                     m_showAll );
+
+                    if( hasModified ) {
+                        std::any component;
+                        componentMeta->copy( componentPtr, component );
+                        m_commandGraph->push< ModifyComponentCommand >( selectedEntity,
+                                                                        componentTypeId,
+                                                                        std::move( component ),
+                                                                        sceneId,
+                                                                        gameCoreSystem );
                     }
 
-                    const StringId32 componentTypeId = componentMeta->getTypeId();
-                    ui::ScopedImGuiId id( static_cast< int32_t >( componentTypeId.getId() ) );
-                    ui::ScopedImGuiStyle style{ { ImGuiStyleVar_FrameBorderSize, 0.0f },
-                                                { ImGuiStyleVar_ItemSpacing, ImVec2( 0.0, 0.0f ) },
-                                                { ImGuiStyleVar_ItemInnerSpacing, ImVec2( 0.0, 0.0f ) } };
+                    // TODO: Needed for now to not auto extend if component is empty
+                    ImGui::Dummy( ImVec2( 1, 1 ) );
 
-                    onyx::localization::LocalizationId localizationId( componentTypeId );
-                    localization::LocalizedString componentName = localizationModule.GetLocalized( localizationId );
-                    if( ui::contextMenuHeader( componentName,
-                                               ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
-                        ImGui::BeginChild( "Panel",
-                                           ImVec2( 0, 0 ),
-                                           ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY );
-
-                        // manually clear style
-                        style.Reset();
-
-                        ui::property_grid::beginPropertyGrid( "Properties", 180.0f );
-
-                        void* componentPtr = componentStorage.value( selectedEntity );
-
-                        bool hasModified = ui::PropertyInspectors::draw( componentMeta->getRuntimeTypeId(),
-                                                                         componentPtr,
-                                                                         m_showAll );
-
-                        if( hasModified ) {
-                            std::any component;
-                            componentMeta->copy( componentPtr, component );
-                            m_commandGraph->push< ModifyComponentCommand >( selectedEntity,
-                                                                            componentTypeId,
-                                                                            std::move( component ),
-                                                                            sceneId,
-                                                                            gameCoreSystem );
-                        }
-
-                        // TODO: Needed for now to not auto extend if component is empty
-                        ImGui::Dummy( ImVec2( 1, 1 ) );
-
-                        ui::property_grid::endPropertyGrid();
-                        ImGui::EndChild();
-                    } else {
-                        style.Reset();
-                        ImGui::Spacing();
-                    }
+                    ui::property_grid::endPropertyGrid();
+                    ImGui::EndChild();
+                } else {
+                    style.Reset();
+                    ImGui::Spacing();
                 }
             }
         }

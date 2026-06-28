@@ -26,18 +26,14 @@ void ModifyComponentCommand::execute() {
                                                    .value_or( nullptr );
     ONYX_ASSERT( componentMeta != nullptr );
 
-    if( entt::basic_sparse_set< ecs::EntityId >* componentStorage = registry.getStorage(
-            componentMeta->getRuntimeTypeId() ) ) {
-        void* componentPtr = componentStorage->value( m_entityId );
-        if( componentPtr == nullptr )
-            return;
+    if( registry.hasComponent( m_entityId, componentMeta->getRuntimeTypeId() ) == false )
+        return;
 
-        bool hasCopied = componentFactory.TryCreateComponent( registry, m_entityId, m_componentTypeId, m_component );
-        if( hasCopied == false ) {
-            ONYX_LOG_WARNING( "Failed modifying component({}) on entity {}",
-                              m_componentTypeId,
-                              static_cast< uint32_t >( m_entityId ) );
-        }
+    bool hasCopied = componentFactory.TryCreateComponent( registry, m_entityId, m_componentTypeId, m_component );
+    if( hasCopied == false ) {
+        ONYX_LOG_WARNING( "Failed modifying component({}) on entity {}",
+                          m_componentTypeId,
+                          static_cast< uint32_t >( m_entityId ) );
     }
 }
 } // namespace onyx::editor

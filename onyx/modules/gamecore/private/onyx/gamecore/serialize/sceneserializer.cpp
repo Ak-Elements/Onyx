@@ -155,26 +155,22 @@ bool SceneSerializer::serializeEntity( Serializer& serializer,
     // iterate all component storages and save out the components for the entity
     uint32_t index = 0;
 
-    for( auto componentStorageIt : registry.getStorage() ) {
+    for( auto&& [ componentId, componentStorage ] : registry.getComponents( entityId ) ) {
         // if the component storage contains the entity we know that the entity has this component
-        if( const entt::basic_sparse_set< ecs::EntityId >& componentStorage = componentStorageIt.second;
-            componentStorage.contains( entityId ) ) {
-            entt::id_type runtimeTypeId = componentStorageIt.first;
+        entt::id_type runtimeTypeId = componentId;
 
-            if( const ecs::IComponentMeta* meta = componentFactory.GetComponentMeta( runtimeTypeId )
-                                                      .value_or( nullptr ) ) {
-                if( meta->isTransient() )
-                    continue;
+        if( const ecs::IComponentMeta* meta = componentFactory.GetComponentMeta( runtimeTypeId ).value_or( nullptr ) ) {
+            if( meta->isTransient() )
+                continue;
 
-                SerializationScope scope = serializer.enterScope< "components" >();
-                {
-                    SerializationScope arrayIndexScope = serializer.enterScope( index++ );
+            SerializationScope scope = serializer.enterScope< "components" >();
+            {
+                SerializationScope arrayIndexScope = serializer.enterScope( index++ );
 
-                    const StringId32 typeId = meta->getTypeId();
-                    serializer.write< "typeId" >( typeId );
-                    if( meta->isFlag() == false ) {
-                        meta->serialize( componentStorage.value( entityId ), serializer );
-                    }
+                const StringId32 typeId = meta->getTypeId();
+                serializer.write< "typeId" >( typeId );
+                if( meta->isFlag() == false ) {
+                    meta->serialize( componentStorage.value( entityId ), serializer );
                 }
             }
         }
