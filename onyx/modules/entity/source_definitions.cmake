@@ -2,6 +2,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     componentfactory.h
     componentmeta.h
     componentmeta.hpp
+    componentsview.h
     dependantfunctionargument.h
     ecsbuilder.h
     ecsexecutioncontext.h
