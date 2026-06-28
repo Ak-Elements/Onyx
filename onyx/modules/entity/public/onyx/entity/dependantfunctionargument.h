@@ -10,7 +10,7 @@ template < EngineSystem T >
 class DependantFunctionArg< T > {
   public:
     template < typename ContextT >
-    static decltype( auto ) Get( const ContextT& context ) {
+    static decltype( auto ) get( const ContextT& context ) {
         return context.Engine.template getSystem< T >();
     }
 };

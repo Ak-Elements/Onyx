@@ -30,7 +30,7 @@ void system( MovementEntity entity, const onyx::input_actions::InputActionSystem
 } // namespace handle_input
 
 void init( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( handle_input::system );
+    ecsBuilder.registerSystem( handle_input::system );
 }
 
 } // namespace onyx::game_core::movement_system

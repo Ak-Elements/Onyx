@@ -76,9 +76,9 @@ void system( MeshEntity entity, rhi::FrameContext& frameContext, assets::AssetSy
 } // namespace QueueRender
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( StreamIn::system );
-    ecsBuilder.RegisterSystem( QueueRender::system );
+    ecsBuilder.registerSystem( StreamIn::system );
+    ecsBuilder.registerSystem( QueueRender::system );
 
-    ecsBuilder.RegisterComponent< StaticMeshComponent >( Init::factory );
+    ecsBuilder.registerComponent< StaticMeshComponent >( Init::factory );
 }
 } // namespace onyx::game_core::static_mesh

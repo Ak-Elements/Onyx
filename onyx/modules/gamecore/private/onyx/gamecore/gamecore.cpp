@@ -32,23 +32,23 @@
 namespace onyx::game_core {
 namespace GameCoreInit {
 void registerComponents( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterComponent< IdComponent >();
-    ecsBuilder.RegisterComponent< TransformComponent >(
+    ecsBuilder.registerComponent< IdComponent >();
+    ecsBuilder.registerComponent< TransformComponent >(
         []( ecs::EntityRegistry& registry, ecs::EntityId entity, TransformComponent&& transform ) {
             transform.Rotation = Rotor3f32( transform.RotationEuler );
             registry.addComponent< TransformComponent >( entity, transform );
         } );
 
 #if !ONYX_IS_RETAIL || ONYX_IS_EDITOR
-    ecsBuilder.RegisterComponent< NameComponent >();
+    ecsBuilder.registerComponent< NameComponent >();
 #endif
 
-    ecsBuilder.RegisterComponent< DirectionalLightComponent >();
-    ecsBuilder.RegisterComponent< PointLightComponent >();
-    ecsBuilder.RegisterComponent< SpotLightComponent >();
-    ecsBuilder.RegisterComponent< MaterialComponent >();
-    ecsBuilder.RegisterComponent< TextComponent >();
-    ecsBuilder.RegisterComponent< CameraComponent >();
+    ecsBuilder.registerComponent< DirectionalLightComponent >();
+    ecsBuilder.registerComponent< PointLightComponent >();
+    ecsBuilder.registerComponent< SpotLightComponent >();
+    ecsBuilder.registerComponent< MaterialComponent >();
+    ecsBuilder.registerComponent< TextComponent >();
+    ecsBuilder.registerComponent< CameraComponent >();
 }
 
 void registerEntitySystems( ecs::EcsBuilder& ecsBuilder ) {
@@ -94,23 +94,23 @@ void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graph
     sceneFrameData.m_VoxelChunksToInit.clear();
 
     ecs::ECSExecutionContext context{ deltaTime, m_scene->getRegistry(), engine };
-    m_ecsGraph.Update( context );
+    m_ecsGraph.update( context );
 }
 } // namespace onyx::game_core
 
-onyx::physics::PhysicsWorld3d& onyx::ecs::DependantFunctionArg< onyx::physics::PhysicsWorld3d >::Get(
+onyx::physics::PhysicsWorld3d& onyx::ecs::DependantFunctionArg< onyx::physics::PhysicsWorld3d >::get(
     const ECSExecutionContext& context ) {
     game_core::GameCoreSystem& gameCoreSystem = context.Engine.getSystem< game_core::GameCoreSystem >();
     return gameCoreSystem.getScene()->getPhysicsWorld3d();
 }
 
-onyx::rhi::FrameContext& onyx::ecs::DependantFunctionArg< onyx::rhi::FrameContext >::Get(
+onyx::rhi::FrameContext& onyx::ecs::DependantFunctionArg< onyx::rhi::FrameContext >::get(
     const ECSExecutionContext& context ) {
     rhi::GraphicsSystem& graphicsSystem = context.Engine.getSystem< rhi::GraphicsSystem >();
     return graphicsSystem.getFrameContext();
 }
 
-onyx::graphics::DebugDrawQueue& onyx::ecs::DependantFunctionArg< onyx::graphics::DebugDrawQueue >::Get(
+onyx::graphics::DebugDrawQueue& onyx::ecs::DependantFunctionArg< onyx::graphics::DebugDrawQueue >::get(
     const ECSExecutionContext& context ) {
     game_core::GameCoreSystem& gameCoreSystem = context.Engine.getSystem< game_core::GameCoreSystem >();
     assets::AssetHandle< game_core::Scene >& activeScene = gameCoreSystem.getScene();

@@ -161,17 +161,17 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, RigidBodyComp
 }
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( stream_in::system );
+    ecsBuilder.registerSystem( stream_in::system );
 
-    ecsBuilder.RegisterSystem( simulate::system );
-    ecsBuilder.RegisterSystem( post_physics::system );
+    ecsBuilder.registerSystem( simulate::system );
+    ecsBuilder.registerSystem( post_physics::system );
 
-    ecsBuilder.RegisterSystem( debug_draw::system );
+    ecsBuilder.registerSystem( debug_draw::system );
 
-    ecsBuilder.RegisterComponent< RigidBodyComponent >( factory );
+    ecsBuilder.registerComponent< RigidBodyComponent >( factory );
 
-    ecsBuilder.RegisterComponent< BoxShapeComponent >();
-    ecsBuilder.RegisterComponent< CapsuleShapeComponent >();
-    ecsBuilder.RegisterComponent< SphereShapeComponent >();
+    ecsBuilder.registerComponent< BoxShapeComponent >();
+    ecsBuilder.registerComponent< CapsuleShapeComponent >();
+    ecsBuilder.registerComponent< SphereShapeComponent >();
 }
 } // namespace onyx::game_core::physics

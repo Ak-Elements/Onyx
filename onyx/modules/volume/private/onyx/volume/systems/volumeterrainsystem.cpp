@@ -760,9 +760,9 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, TerrainSettin
 }
 
 void Register( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterComponent< TerrainSettingsComponent >( factory );
+    ecsBuilder.registerComponent< TerrainSettingsComponent >( factory );
 
-    ecsBuilder.RegisterSystem( init::system );
-    ecsBuilder.RegisterSystem( render::system );
+    ecsBuilder.registerSystem( init::system );
+    ecsBuilder.registerSystem( render::system );
 }
 } // namespace onyx::volume::terrain

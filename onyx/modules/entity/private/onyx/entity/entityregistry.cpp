@@ -113,7 +113,7 @@ void EntityRegistry::clear() {
     m_registry.clear();
 }
 
-const EntityRegistry& DependantFunctionArg< EntityRegistry >::Get( const ECSExecutionContext& context ) {
+const EntityRegistry& DependantFunctionArg< EntityRegistry >::get( const ECSExecutionContext& context ) {
     return context.Registry;
 }
 } // namespace onyx::ecs

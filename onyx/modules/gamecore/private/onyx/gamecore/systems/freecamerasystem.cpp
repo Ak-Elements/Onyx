@@ -85,9 +85,9 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, FreeCameraCon
 }
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( free_camera::system );
+    ecsBuilder.registerSystem( free_camera::system );
 
-    ecsBuilder.RegisterComponent< FreeCameraControllerComponent >( free_camera::factory );
-    ecsBuilder.RegisterComponent< FreeCameraRuntimeComponent >();
+    ecsBuilder.registerComponent< FreeCameraControllerComponent >( free_camera::factory );
+    ecsBuilder.registerComponent< FreeCameraRuntimeComponent >();
 }
 } // namespace onyx::game_core::free_camera

@@ -14,9 +14,9 @@ VolumeModule::VolumeModule( game_core::GameCoreSystem& gameCore ) {
     terrain::Register( ecsBuilder );
     rendering::Register( ecsBuilder );
 
-    ecsBuilder.RegisterComponent< CubeComponent >();
-    ecsBuilder.RegisterComponent< PlaneComponent >();
-    ecsBuilder.RegisterComponent< SphereComponent >();
+    ecsBuilder.registerComponent< CubeComponent >();
+    ecsBuilder.registerComponent< PlaneComponent >();
+    ecsBuilder.registerComponent< SphereComponent >();
 }
 
 VolumeModule::~VolumeModule() = default;

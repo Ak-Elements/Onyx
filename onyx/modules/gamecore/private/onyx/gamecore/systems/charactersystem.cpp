@@ -167,10 +167,10 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, CharacterCont
 }
 
 void init( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( stream_in::system );
-    ecsBuilder.RegisterSystem( update_controller::system );
-    ecsBuilder.RegisterSystem( debug_draw::system );
+    ecsBuilder.registerSystem( stream_in::system );
+    ecsBuilder.registerSystem( update_controller::system );
+    ecsBuilder.registerSystem( debug_draw::system );
 
-    ecsBuilder.RegisterComponent< CharacterControllerComponent >( factory );
+    ecsBuilder.registerComponent< CharacterControllerComponent >( factory );
 }
 } // namespace onyx::game_core::character_system

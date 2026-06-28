@@ -27,7 +27,7 @@ void system( CameraEntity entity ) {
 } // namespace UpdatePositions
 
 void camera::registerSystems( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( UpdatePositions::system );
+    ecsBuilder.registerSystem( UpdatePositions::system );
 }
 
 } // namespace game_core

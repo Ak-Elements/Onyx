@@ -60,7 +60,7 @@ struct EntityCommandBuffer {
 template <>
 class DependantFunctionArg< EntityCommandBuffer > {
   public:
-    static EntityCommandBuffer Get( const ECSExecutionContext& context ) {
+    static EntityCommandBuffer get( const ECSExecutionContext& context ) {
         return EntityCommandBuffer( context.Registry );
     }
 };

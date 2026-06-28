@@ -207,7 +207,7 @@ inline EntityId Entity< ComponentAccessDefinitions... >::getId() const {
 template < typename... ComponentAccessDefinitions >
 class DependantFunctionArg< EntityQuery< ComponentAccessDefinitions... > > {
   public:
-    static EntityQuery< ComponentAccessDefinitions... > Get( const ECSExecutionContext& context ) {
+    static EntityQuery< ComponentAccessDefinitions... > get( const ECSExecutionContext& context ) {
         return EntityQuery< ComponentAccessDefinitions... >( context.Registry );
     }
 };

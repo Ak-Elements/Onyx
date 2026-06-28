@@ -18,7 +18,7 @@ using LightsQuery = LightAccess::AsQuery;
 void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
     // Directional lights
     uint32_t directionalLightIndex = 0;
-    for ( auto lightEntity : lightEntities ) {
+    for( auto lightEntity : lightEntities ) {
         auto&& [ lightComponent, transformComponent ] = LightAccess::AsEntity( lightEntities, lightEntity );
 
         rhi::DirectionalLight& light = frameContext.Lighting.DirectionalLights[ directionalLightIndex++ ];
@@ -39,7 +39,7 @@ using LightsQuery = LightAccess::AsQuery;
 
 void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
     uint32_t pointLightIndex = 0;
-    for ( ecs::EntityId lightEntity : lightEntities ) {
+    for( ecs::EntityId lightEntity : lightEntities ) {
         auto&& [ lightComponent, transformComponent ] = LightAccess::AsEntity( lightEntities, lightEntity );
 
         rhi::PointLight& light = frameContext.Lighting.PointLights[ pointLightIndex++ ];
@@ -51,7 +51,8 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
         light.IsShadowCasting = lightComponent.IsShadowCasting;
 
         auto viewSpacePos = frameContext.ViewConstants.ViewMatrix * Vector4f32( light.Position, 1.0f );
-        std::ignore/*auto distance*/ = ( Vector3f32( viewSpacePos ) - frameContext.ViewConstants.CameraPosition ).length();
+        std::ignore /*auto distance*/ = ( Vector3f32( viewSpacePos ) - frameContext.ViewConstants.CameraPosition )
+                                            .length();
     }
 
     frameContext.Lighting.PointLightsCount = pointLightIndex;
@@ -64,7 +65,7 @@ using LightsQuery = LightAccess::AsQuery;
 
 void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
     uint32_t spotLightIndex = 0;
-    for ( ecs::EntityId lightEntity : lightEntities ) {
+    for( ecs::EntityId lightEntity : lightEntities ) {
         auto&& [ lightComponent, transformComponent ] = LightAccess::AsEntity( lightEntities, lightEntity );
 
         rhi::SpotLight& light = frameContext.Lighting.SpotLights[ spotLightIndex++ ];
@@ -84,8 +85,8 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
 } // namespace spot_lights
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( directional_lights::system );
-    ecsBuilder.RegisterSystem( point_lights::system );
-    ecsBuilder.RegisterSystem( spot_lights::system );
+    ecsBuilder.registerSystem( directional_lights::system );
+    ecsBuilder.registerSystem( point_lights::system );
+    ecsBuilder.registerSystem( spot_lights::system );
 }
 } // namespace onyx::game_core::lighting

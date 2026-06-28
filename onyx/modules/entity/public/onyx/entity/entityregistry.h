@@ -131,6 +131,6 @@ class EntityRegistry {
 template <>
 class DependantFunctionArg< EntityRegistry > {
   public:
-    static const EntityRegistry& Get( const ECSExecutionContext& context );
+    static const EntityRegistry& get( const ECSExecutionContext& context );
 };
 } // namespace onyx::ecs

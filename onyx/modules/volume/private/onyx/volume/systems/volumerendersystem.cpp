@@ -43,6 +43,6 @@ void System( TerrainEntity entity, rhi::FrameContext& frameContext, assets::Asse
 }
 
 void Register( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.RegisterSystem( System );
+    ecsBuilder.registerSystem( System );
 }
 } // namespace onyx::volume::rendering

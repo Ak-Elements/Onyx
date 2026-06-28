@@ -20,19 +20,19 @@ namespace onyx::ecs {
 template <>
 class DependantFunctionArg< rhi::FrameContext > {
   public:
-    static rhi::FrameContext& Get( const ECSExecutionContext& context );
+    static rhi::FrameContext& get( const ECSExecutionContext& context );
 };
 
 template <>
 class DependantFunctionArg< physics::PhysicsWorld3d > {
   public:
-    static physics::PhysicsWorld3d& Get( const ECSExecutionContext& context );
+    static physics::PhysicsWorld3d& get( const ECSExecutionContext& context );
 };
 
 template <>
 class DependantFunctionArg< graphics::DebugDrawQueue > {
   public:
-    static graphics::DebugDrawQueue& Get( const ECSExecutionContext& context );
+    static graphics::DebugDrawQueue& get( const ECSExecutionContext& context );
 };
 } // namespace onyx::ecs
 
