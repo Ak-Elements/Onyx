@@ -11,12 +11,12 @@ AddComponentCommand::AddComponentCommand( ecs::EntityId entity,
                                           assets::AssetId sceneId,
                                           game_core::GameCoreSystem& gameCoreSystem )
     : SceneCommand( "AddComponent", sceneId, gameCoreSystem )
-    , m_EntityId( entity )
-    , m_ComponentTypeId( componentTypeId ) {}
+    , m_entityId( entity )
+    , m_componentTypeId( componentTypeId ) {}
 
 void AddComponentCommand::execute() {
     const ecs::ComponentFactory& componentFactory = GetComponentFactory();
     ecs::EntityRegistry& registry = GetScene().getRegistry();
-    componentFactory.TryCreateComponent( registry, m_EntityId, m_ComponentTypeId );
+    componentFactory.tryCreateComponent( registry, m_entityId, m_componentTypeId );
 }
 } // namespace onyx::editor

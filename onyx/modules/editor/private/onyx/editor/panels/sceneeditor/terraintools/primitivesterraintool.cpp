@@ -88,20 +88,20 @@ void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
     ecs::EntityRegistry& registry = scene.getRegistry();
     ecs::EntityId newEntity = registry.createEntity();
 
-    componentFactory.TryCreateComponent< game_core::TransformComponent >( registry, newEntity, hitPosition );
-    componentFactory.TryCreateComponent< game_core::IdComponent >( registry,
+    componentFactory.tryCreateComponent< game_core::TransformComponent >( registry, newEntity, hitPosition );
+    componentFactory.tryCreateComponent< game_core::IdComponent >( registry,
                                                                    newEntity,
                                                                    static_cast< uint64_t >( newEntity ) );
 
     String name;
     switch( m_Type ) {
     case Primitives::Sphere: {
-        componentFactory.TryCreateComponent< volume::SphereComponent >( registry, newEntity, m_BrushSize.X );
+        componentFactory.tryCreateComponent< volume::SphereComponent >( registry, newEntity, m_BrushSize.X );
         name = scene.getUniqueEntityName( "VolumeSource_Sphere" );
         break;
     }
     case Primitives::Cube: {
-        componentFactory.TryCreateComponent< volume::CubeComponent >( registry, newEntity );
+        componentFactory.tryCreateComponent< volume::CubeComponent >( registry, newEntity );
         name = scene.getUniqueEntityName( "VolumeSource_Cube" );
         break;
     }
@@ -110,7 +110,7 @@ void PrimitivesTerrainTool::OnHitPositionReadback( game_core::Scene& scene,
     }
     }
 
-    componentFactory.TryCreateComponent< game_core::NameComponent >( registry, newEntity, name );
+    componentFactory.tryCreateComponent< game_core::NameComponent >( registry, newEntity, name );
 }
 
 void PrimitivesTerrainTool::OnBrushSizeInput( float32 value ) {

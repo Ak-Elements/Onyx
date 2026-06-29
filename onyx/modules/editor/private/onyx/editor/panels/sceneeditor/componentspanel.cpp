@@ -62,7 +62,7 @@ void ComponentsPanel::drawSelectedEntityComponents( ecs::EntityRegistry& registr
     for( ecs::EntityId selectedEntity : selectedEntities ) {
         for( auto&& [ componentId, componentStorage ] : registry.getComponents( selectedEntity ) ) {
             // if the component storage contains the entity we know that the entity has this component
-            if( const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta( componentId )
+            if( const ecs::IComponentMeta* componentMeta = componentFactory.getComponentMeta( componentId )
                                                                .value_or( nullptr ) ) {
                 if( ui::PropertyInspectors::isTypeRegistered( componentMeta->getRuntimeTypeId() ) == false ) {
                     continue;
@@ -159,7 +159,7 @@ ui::TreeItem ComponentsPanel::buildComponentTree( StringView searchString,
                                                   const localization::LocalizationModule& localizationModule ) const {
     ui::TreeItem root;
     const ecs::ComponentFactory& componentFactory = gameCoreSystem.getComponentFactory();
-    for( auto&& [ componentTypeId, componentMeta ] : componentFactory.GetComponentMeta() ) {
+    for( auto&& [ componentTypeId, componentMeta ] : componentFactory.getComponentMeta() ) {
         if( componentMeta->isTransient() || ( componentMeta->isCodeOnly() ) ) {
             continue;
         }

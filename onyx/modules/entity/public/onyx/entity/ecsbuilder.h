@@ -20,12 +20,12 @@ class EcsBuilder : public NonCopyable {
 
     template < typename ComponentT >
     void registerComponent() const {
-        m_componentFactory->Register< ComponentT >();
+        m_componentFactory->registerComponent< ComponentT >();
     }
 
     template < typename ComponentT >
     void registerComponent( ComponentFactoryFunction< ComponentT > factory ) const {
-        m_componentFactory->Register< ComponentT >( factory );
+        m_componentFactory->registerComponent< ComponentT >( factory );
     }
 
   private:

@@ -1,4 +1,3 @@
 component RigidBodyComponent {
     CollisionLayer Layer
-    MotionType MotionType
 }

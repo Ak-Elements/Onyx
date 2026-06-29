@@ -18,10 +18,6 @@ struct CharacterId {
     onyx::physics::CharacterId Id;
 };
 
-struct StaticBody {};
-struct DynamicBody {};
-struct KinematicBody {};
-
 } // namespace components
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder );

@@ -1,4 +1,0 @@
-component CharacterControllerComponent
-{
-    CharacterMode Mode;
-}

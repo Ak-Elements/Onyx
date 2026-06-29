@@ -3,10 +3,12 @@
 #include <onyx/colors/base.h>
 #include <onyx/entity/entitycommandbuffer.h>
 #include <onyx/entity/entitycomponentsystem.h>
-#include <onyx/gamecore/components/collision/boxshapecomponent.gen.h>
-#include <onyx/gamecore/components/collision/capsuleshapecomponent.gen.h>
-#include <onyx/gamecore/components/collision/sphereshapecomponent.gen.h>
+#include <onyx/gamecore/components/physics/kinematicbodycomponent.gen.h>
 #include <onyx/gamecore/components/physics/rigidbodycomponent.gen.h>
+#include <onyx/gamecore/components/physics/staticbodycomponent.gen.h>
+#include <onyx/gamecore/components/shapes/boxshapecomponent.gen.h>
+#include <onyx/gamecore/components/shapes/capsuleshapecomponent.gen.h>
+#include <onyx/gamecore/components/shapes/sphereshapecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/scene/scene.h>
@@ -17,24 +19,72 @@
 #include <onyx/physics/physicsworld3d.h>
 
 namespace onyx::game_core::physics {
-namespace {
-template < typename T >
-void removeIfPresent( ecs::EntityRegistry& registry, ecs::EntityId entity ) {
-    if( registry.hasComponent< T >( entity ) ) {
-        registry.removeComponent< T >( entity );
-    }
-}
-
-template < typename Add, typename... Remove >
-void addMotionTypeTag( ecs::EntityRegistry& registry, ecs::EntityId entity ) {
-    registry.addComponent< Add >( entity );
-    ( removeIfPresent< Remove >( registry, entity ), ... );
-}
-} // namespace
 
 struct InitPhysics {};
 
 namespace stream_in {
+
+template < typename EntityAccessT >
+void initPhysicsEntity( ecs::EntityCommandBuffer& commandBuffer,
+                        onyx::physics::PhysicsWorld3d& physicsWorld,
+                        EntityAccessT entity,
+                        const TransformComponent& transform,
+                        onyx::physics::CollisionLayer layer,
+                        onyx::physics::MotionType motionType ) {
+    auto physicsBodyID = entity.template tryGetComponent< components::BodyId >();
+    if( physicsBodyID ) {
+        physicsWorld.removeCollider( physicsBodyID->Id );
+    }
+
+    // TODO: how do we prevent the presence of multiple shape components
+    onyx::physics::BodyId bodyId{ onyx::physics::BodyId::Invalid };
+    if( const auto* sphere = entity.template tryGetComponent< SphereShapeComponent >() ) {
+        bodyId = physicsWorld.createSphereCollider( transform.Translation,
+                                                    transform.Rotation,
+                                                    sphere->Radius,
+                                                    onyx::physics::MotionType::Dynamic,
+                                                    layer );
+    } else if( const auto* box = entity.template tryGetComponent< BoxShapeComponent >() ) {
+        bodyId = physicsWorld.createBoxCollider( transform.Translation,
+                                                 transform.Rotation,
+                                                 box->HalfExtents,
+                                                 onyx::physics::MotionType::Dynamic,
+                                                 layer );
+    } else if( const auto* capsule = entity.template tryGetComponent< CapsuleShapeComponent >() ) {
+        bodyId = physicsWorld.createCapsuleCollider( transform.Translation,
+                                                     transform.Rotation,
+                                                     capsule->Radius,
+                                                     capsule->HalfHeight,
+                                                     onyx::physics::MotionType::Dynamic,
+                                                     layer );
+    }
+    ONYX_ASSERT( bodyId != onyx::physics::BodyId::Invalid );
+
+    commandBuffer.addComponent< components::BodyId >( entity, bodyId );
+    commandBuffer.removeComponent< InitPhysics >( entity );
+}
+
+// clang-format off
+using KinematicBodyAccess = ecs::Access
+    ::Read< TransformComponent >
+    ::ReadIfExists< BoxShapeComponent, CapsuleShapeComponent, SphereShapeComponent >
+    ::ReadIfExists< components::BodyId >
+    ::With< KinematicBodyComponent, InitPhysics >;
+// clang-format on
+
+using KinematicBodyEntity = KinematicBodyAccess::AsEntity;
+
+void streamInKinematicBodies( KinematicBodyEntity entity,
+                              onyx::physics::PhysicsWorld3d& physicsWorld,
+                              ecs::EntityCommandBuffer entityCommandBuffer ) {
+    auto&& [ transform ] = entity;
+    initPhysicsEntity( entityCommandBuffer,
+                       physicsWorld,
+                       entity,
+                       transform,
+                       onyx::physics::CollisionLayer::Static,
+                       onyx::physics::MotionType::Kinematic );
+}
 
 // clang-format off
 using RigidBodyAccess = ecs::Access
@@ -47,44 +97,39 @@ using RigidBodyAccess = ecs::Access
 
 using RigidBodyEntity = RigidBodyAccess::AsEntity;
 
-void system( RigidBodyEntity entity,
-             onyx::physics::PhysicsWorld3d& physicsSystem,
-             ecs::EntityCommandBuffer entityCommandBuffer ) {
-    auto&& [ transform, rigidbody ] = entity;
-
-    auto physicsBodyID = entity.tryGetComponent< components::BodyId >();
-    if( physicsBodyID ) {
-        physicsSystem.removeCollider( physicsBodyID->Id );
-    }
-
-    // TODO: how do we prevent the presence of multiple shape components
-    onyx::physics::BodyId bodyId{ onyx::physics::BodyId::Invalid };
-    if( const auto* sphere = entity.tryGetComponent< SphereShapeComponent >() ) {
-        bodyId = physicsSystem.createSphereCollider( transform.Translation,
-                                                     transform.Rotation,
-                                                     sphere->Radius,
-                                                     rigidbody.MotionType,
-                                                     rigidbody.Layer );
-    } else if( const auto* box = entity.tryGetComponent< BoxShapeComponent >() ) {
-        bodyId = physicsSystem.createBoxCollider( transform.Translation,
-                                                  transform.Rotation,
-                                                  box->HalfExtents,
-                                                  rigidbody.MotionType,
-                                                  rigidbody.Layer );
-    } else if( const auto* capsule = entity.tryGetComponent< CapsuleShapeComponent >() ) {
-        bodyId = physicsSystem.createCapsuleCollider( transform.Translation,
-                                                      transform.Rotation,
-                                                      capsule->Radius,
-                                                      capsule->HalfHeight,
-                                                      rigidbody.MotionType,
-                                                      rigidbody.Layer );
-    }
-    ONYX_ASSERT( bodyId != onyx::physics::BodyId::Invalid );
-
-    entityCommandBuffer.addComponent< components::BodyId >( entity, bodyId );
-    entityCommandBuffer.removeComponent< InitPhysics >( entity );
+void streamInRigidBodies( RigidBodyEntity entity,
+                          onyx::physics::PhysicsWorld3d& physicsWorld,
+                          ecs::EntityCommandBuffer entityCommandBuffer ) {
+    auto&& [ transform, rigidBody ] = entity;
+    initPhysicsEntity( entityCommandBuffer,
+                       physicsWorld,
+                       entity,
+                       transform,
+                       rigidBody.Layer,
+                       onyx::physics::MotionType::Dynamic );
 }
 
+// clang-format off
+using StaticBodyAccess = ecs::Access
+    ::Read< TransformComponent >
+    ::ReadIfExists< BoxShapeComponent, CapsuleShapeComponent, SphereShapeComponent >
+    ::ReadIfExists< components::BodyId >
+    ::With< StaticBodyComponent, InitPhysics >;
+// clang-format on
+
+using StaticBodyEntity = StaticBodyAccess::AsEntity;
+
+void streamInStaticBodies( StaticBodyEntity entity,
+                           onyx::physics::PhysicsWorld3d& physicsWorld,
+                           ecs::EntityCommandBuffer entityCommandBuffer ) {
+    auto&& [ transform ] = entity;
+    initPhysicsEntity( entityCommandBuffer,
+                       physicsWorld,
+                       entity,
+                       transform,
+                       onyx::physics::CollisionLayer::Static,
+                       onyx::physics::MotionType::Static );
+}
 } // namespace stream_in
 
 namespace simulate {
@@ -94,9 +139,15 @@ void system( onyx::physics::PhysicsWorld3d& physicsSystem ) {
 } // namespace simulate
 
 namespace post_physics {
-using Access = ecs::Access::Read< components::BodyId >::Write< TransformComponent >::With< components::DynamicBody >;
+
+// clang-format off
+using Access = ecs::Access
+    ::Read< components::BodyId >
+    ::Write< TransformComponent >
+    ::With< RigidBodyComponent >;
 
 using PhysiscsEntity = Access::AsEntity;
+// clang-format on
 
 void system( PhysiscsEntity entity, onyx::physics::PhysicsWorld3d& physicsSystem ) {
     auto&& [ physicsBody, transform ] = entity;
@@ -105,10 +156,15 @@ void system( PhysiscsEntity entity, onyx::physics::PhysicsWorld3d& physicsSystem
 } // namespace post_physics
 
 namespace debug_draw {
-using Access = ecs::Access ::Read< TransformComponent >::
-    ReadIfExists< BoxShapeComponent, CapsuleShapeComponent, SphereShapeComponent >::With< components::BodyId >;
+
+// clang-format off
+using Access = ecs::Access
+    ::Read< TransformComponent >
+    ::ReadIfExists< BoxShapeComponent, CapsuleShapeComponent, SphereShapeComponent >
+    ::With< components::BodyId >;
 
 using ColliderEntity = Access::AsEntity;
+// clang-format on
 
 void system( ColliderEntity entity, onyx::graphics::DebugDrawQueue& debugDraw ) {
     auto&& [ transform ] = entity;
@@ -134,41 +190,40 @@ void system( ColliderEntity entity, onyx::graphics::DebugDrawQueue& debugDraw ) 
 
 } // namespace debug_draw
 
-void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, RigidBodyComponent&& rigidbody ) {
-    switch( rigidbody.MotionType ) {
-        using enum onyx::physics::MotionType;
-    case Static: {
-        addMotionTypeTag< components::StaticBody, components::KinematicBody, components::DynamicBody >( registry,
-                                                                                                        entity );
-        break;
-    }
-    case Kinematic: {
-        addMotionTypeTag< components::KinematicBody, components::StaticBody, components::DynamicBody >( registry,
-                                                                                                        entity );
+void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, KinematicBodyComponent&& staticBody ) {
+    registry.removeIfExists< StaticBodyComponent >( entity );
+    registry.removeIfExists< RigidBodyComponent >( entity );
+    registry.addComponent< KinematicBodyComponent >( entity );
+    registry.addComponent< InitPhysics >( entity );
+}
 
-        break;
-    }
-    case Dynamic: {
-        addMotionTypeTag< components::DynamicBody, components::StaticBody, components::KinematicBody >( registry,
-                                                                                                        entity );
+void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, RigidBodyComponent&& rigidBody ) {
+    registry.removeIfExists< KinematicBodyComponent >( entity );
+    registry.removeIfExists< StaticBodyComponent >( entity );
+    registry.addComponent< RigidBodyComponent >( entity, rigidBody );
+    registry.addComponent< InitPhysics >( entity );
+}
 
-        break;
-    }
-    }
-
-    registry.addComponent< RigidBodyComponent >( entity, rigidbody );
+void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, StaticBodyComponent&& staticBody ) {
+    registry.removeIfExists< KinematicBodyComponent >( entity );
+    registry.removeIfExists< RigidBodyComponent >( entity );
+    registry.addComponent< StaticBodyComponent >( entity );
     registry.addComponent< InitPhysics >( entity );
 }
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
-    ecsBuilder.registerSystem( stream_in::system );
+    ecsBuilder.registerSystem( stream_in::streamInKinematicBodies );
+    ecsBuilder.registerSystem( stream_in::streamInRigidBodies );
+    ecsBuilder.registerSystem( stream_in::streamInStaticBodies );
 
     ecsBuilder.registerSystem( simulate::system );
     ecsBuilder.registerSystem( post_physics::system );
 
     ecsBuilder.registerSystem( debug_draw::system );
 
+    ecsBuilder.registerComponent< KinematicBodyComponent >( factory );
     ecsBuilder.registerComponent< RigidBodyComponent >( factory );
+    ecsBuilder.registerComponent< StaticBodyComponent >( factory );
 
     ecsBuilder.registerComponent< BoxShapeComponent >();
     ecsBuilder.registerComponent< CapsuleShapeComponent >();

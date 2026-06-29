@@ -1,18 +1,20 @@
 #include <onyx/entity/componentfactory.h>
 
 namespace onyx::ecs {
-bool ComponentFactory::TryCreateComponent( EntityRegistry& registry, EntityId entity, StringId32 componentId ) const {
-    Optional< const IComponentMeta* > componentMetaOptional = GetComponentMeta( componentId );
+bool ComponentFactory::tryCreateComponent( EntityRegistry& registry,
+                                           EntityId entity,
+                                           StringId32 componentTypeId ) const {
+    Optional< const IComponentMeta* > componentMetaOptional = getComponentMeta( componentTypeId );
     const IComponentMeta* componentMeta = *componentMetaOptional;
     componentMeta->create( registry, entity );
     return true;
 }
 
-bool ComponentFactory::TryCreateComponent( EntityRegistry& registry,
+bool ComponentFactory::tryCreateComponent( EntityRegistry& registry,
                                            EntityId entity,
                                            StringId32 componentTypeId,
                                            const Deserializer& deserializer ) const {
-    const IComponentMeta* componentMeta = GetComponentMeta( componentTypeId ).value_or( nullptr );
+    const IComponentMeta* componentMeta = getComponentMeta( componentTypeId ).value_or( nullptr );
     if( componentMeta != nullptr ) {
         componentMeta->create( registry, entity, deserializer );
         return true;
@@ -21,11 +23,11 @@ bool ComponentFactory::TryCreateComponent( EntityRegistry& registry,
     return false;
 }
 
-bool ComponentFactory::TryCopyComponent( EntityRegistry& registry,
+bool ComponentFactory::tryCopyComponent( EntityRegistry& registry,
                                          EntityId entityId,
                                          StringId32 componentTypeId,
                                          void* fromComponentPtr ) const {
-    const IComponentMeta* componentMeta = GetComponentMeta( componentTypeId ).value_or( nullptr );
+    const IComponentMeta* componentMeta = getComponentMeta( componentTypeId ).value_or( nullptr );
     if( componentMeta != nullptr ) {
         componentMeta->copy( registry, entityId, fromComponentPtr );
         return true;
@@ -34,11 +36,11 @@ bool ComponentFactory::TryCopyComponent( EntityRegistry& registry,
     return false;
 }
 
-bool ComponentFactory::TryCreateComponent( EntityRegistry& registry,
+bool ComponentFactory::tryCreateComponent( EntityRegistry& registry,
                                            EntityId entityId,
                                            StringId32 componentTypeId,
                                            const std::any& component ) const {
-    const IComponentMeta* componentMeta = GetComponentMeta( componentTypeId ).value_or( nullptr );
+    const IComponentMeta* componentMeta = getComponentMeta( componentTypeId ).value_or( nullptr );
     if( componentMeta != nullptr ) {
         componentMeta->create( registry, entityId, component );
         return true;

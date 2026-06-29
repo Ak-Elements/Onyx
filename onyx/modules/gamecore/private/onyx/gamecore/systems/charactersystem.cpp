@@ -3,10 +3,10 @@
 #include <onyx/colors/base.h>
 #include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycommandbuffer.h>
-#include <onyx/gamecore/components/character/charactercontrollercomponent.gen.h>
-#include <onyx/gamecore/components/collision/boxshapecomponent.gen.h>
-#include <onyx/gamecore/components/collision/capsuleshapecomponent.gen.h>
-#include <onyx/gamecore/components/collision/sphereshapecomponent.gen.h>
+#include <onyx/gamecore/components/physics/characterbodycomponent.gen.h>
+#include <onyx/gamecore/components/shapes/boxshapecomponent.gen.h>
+#include <onyx/gamecore/components/shapes/capsuleshapecomponent.gen.h>
+#include <onyx/gamecore/components/shapes/sphereshapecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/gamecore/systems/movementsystem.h>
@@ -25,7 +25,7 @@ namespace stream_in {
 
 // clang-format off
 using CharacterControllerAccess = ecs::Access
-    ::Read< TransformComponent, CharacterControllerComponent >
+    ::Read< TransformComponent, CharacterBodyComponent >
     ::ReadIfExists< physics::components::CharacterId >
     ::ReadIfExists< BoxShapeComponent, CapsuleShapeComponent, SphereShapeComponent >
     ::With< StreamIn >;
@@ -78,7 +78,7 @@ namespace update_controller {
 using CharacterControllerAccess = ecs::Access
     ::Read< physics::components::CharacterId, movement_system::components::MovementRequest >
     ::Write< TransformComponent >
-    ::With< components::Virtual>
+    ::With< CharacterBodyComponent, components::Virtual>
     ::Without< StreamIn >;
 // clang-format on
 
@@ -146,8 +146,8 @@ void system( CharacterEntity entity, onyx::graphics::DebugDrawQueue& debugDraw )
 
 } // namespace debug_draw
 
-void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, CharacterControllerComponent&& controller ) {
-    registry.addComponent< CharacterControllerComponent >( entity, controller );
+void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, CharacterBodyComponent&& controller ) {
+    registry.addComponent< CharacterBodyComponent >( entity, controller );
     switch( controller.Mode ) {
         using enum onyx::physics::CharacterMode;
     case Simulated: {
@@ -171,6 +171,6 @@ void init( ecs::EcsBuilder& ecsBuilder ) {
     ecsBuilder.registerSystem( update_controller::system );
     ecsBuilder.registerSystem( debug_draw::system );
 
-    ecsBuilder.registerComponent< CharacterControllerComponent >( factory );
+    ecsBuilder.registerComponent< CharacterBodyComponent >( factory );
 }
 } // namespace onyx::game_core::character_system

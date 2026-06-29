@@ -22,14 +22,14 @@ void ModifyComponentCommand::execute() {
     const ecs::ComponentFactory& componentFactory = GetComponentFactory();
     ecs::EntityRegistry& registry = GetScene().getRegistry();
 
-    const ecs::IComponentMeta* componentMeta = componentFactory.GetComponentMeta( m_componentTypeId )
+    const ecs::IComponentMeta* componentMeta = componentFactory.getComponentMeta( m_componentTypeId )
                                                    .value_or( nullptr );
     ONYX_ASSERT( componentMeta != nullptr );
 
     if( registry.hasComponent( m_entityId, componentMeta->getRuntimeTypeId() ) == false )
         return;
 
-    bool hasCopied = componentFactory.TryCreateComponent( registry, m_entityId, m_componentTypeId, m_component );
+    bool hasCopied = componentFactory.tryCreateComponent( registry, m_entityId, m_componentTypeId, m_component );
     if( hasCopied == false ) {
         ONYX_LOG_WARNING( "Failed modifying component({}) on entity {}",
                           m_componentTypeId,

@@ -15,13 +15,13 @@ msgid "onyx::game_core::CameraComponent"
 msgstr "Camera/Camera Settings"
 
 msgid "onyx::game_core::DirectionalLightComponent"
-msgstr "Lights/Directional Light"
+msgstr "Rendering/Lights/Directional Light"
 
 msgid "onyx::game_core::PointLightComponent"
-msgstr "Lights/Point Light"
+msgstr "Rendering/Lights/Point Light"
 
 msgid "onyx::game_core::SpotLightComponent"
-msgstr "Lights/Spot Light"
+msgstr "Rendering/Lights/Spot Light"
 
 msgid "onyx::game_core::TextComponent"
 msgstr "Rendering/3D Text"
@@ -39,25 +39,31 @@ msgid "onyx::volume::SphereComponent"
 msgstr "Volume/Geometry/Sphere"
 
 msgid "onyx::volume::TerrainSettingsComponent"
-msgstr "Volume/Terrain Settings"
+msgstr "Terrain/Volumetric Terrain"
 
 msgid "onyx::game_core::FreeCameraControllerComponent"
 msgstr "Camera/Free Camera Controller"
 
 msgid "onyx::game_core::BoxShapeComponent"
-msgstr "Collision/Box Shape"
+msgstr "Shapes/Box"
 
 msgid "onyx::game_core::SphereShapeComponent"
-msgstr "Collision/Sphere Shape"
+msgstr "Shapes/Sphere"
 
 msgid "onyx::game_core::CapsuleShapeComponent"
-msgstr "Collision/Capsule Shape"
+msgstr "Shapes/Capsule"
+
+msgid "onyx::game_core::KinematicBodyComponent"
+msgstr "Physics 3D/Bodies/Kinematic Body"
 
 msgid "onyx::game_core::RigidBodyComponent"
-msgstr "Physics/RigidBody3d"
+msgstr "Physics 3D/Bodies/Rigid Body"
 
-msgid "onyx::game_core::CharacterControllerComponent"
-msgstr "Character/Character Controller"
+msgid "onyx::game_core::StaticBodyComponent"
+msgstr "Physics 3D/Bodies/Static Body"
+
+msgid "onyx::game_core::CharacterBodyComponent"
+msgstr "Physics 3D/Bodies/Character Body"
 
 msgid "onyx::game_core::StaticMeshComponent"
 msgstr "Rendering/Static Mesh"

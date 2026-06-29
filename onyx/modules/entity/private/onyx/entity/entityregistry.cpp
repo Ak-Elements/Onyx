@@ -97,7 +97,7 @@ void EntityRegistry::copy( EntityRegistry& toRegistry ) const {
     // ONYX_ASSERT(toRegistry.IsEmpty(), "Registry to copy to has to be empty.");
     //  create a copy of an entity component by component
     for( const auto&& componentStorageIt : getStorage() ) {
-        const IComponentMeta* componentMeta = m_componentFactory->GetComponentMeta( componentStorageIt.first )
+        const IComponentMeta* componentMeta = m_componentFactory->getComponentMeta( componentStorageIt.first )
                                                   .value_or( nullptr );
         if( componentMeta == nullptr )
             continue;

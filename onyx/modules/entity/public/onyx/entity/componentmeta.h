@@ -65,11 +65,11 @@ struct ComponentMeta : public IComponentMeta {
     ComponentMeta( ComponentFactoryFunction< T > factory )
         : m_factory( factory ) {}
 
-    constexpr bool isTransient() const override { return details::IsTransient< T >; }
-    constexpr bool isCodeOnly() const override { return details::IsCodeOnly< T >; }
-    constexpr bool isFlag() const override { return details::IsFlagComponent< T >; }
+    [[nodiscard]] constexpr bool isTransient() const override { return details::IsTransient< T >; }
+    [[nodiscard]] constexpr bool isCodeOnly() const override { return details::IsCodeOnly< T >; }
+    [[nodiscard]] constexpr bool isFlag() const override { return details::IsFlagComponent< T >; }
 
-    constexpr StringId32 getTypeId() const override {
+    [[nodiscard]] constexpr StringId32 getTypeId() const override {
         if constexpr( HasTypeId< T > ) {
             return T::TypeId;
         } else {
@@ -78,11 +78,16 @@ struct ComponentMeta : public IComponentMeta {
         }
     }
 
-    constexpr uint32_t getRuntimeTypeId() const override { return TypeHash< T >(); }
+    [[nodiscard]] constexpr uint32_t getRuntimeTypeId() const override { return TypeHash< T >(); }
 
     void create( EntityRegistry& registry, EntityId entity ) const override {
         if constexpr( details::IsFlagComponent< T > ) {
-            registry.addComponent< T >( entity );
+            if( m_factory ) {
+                T component{};
+                m_factory( registry, entity, std::move( component ) );
+            } else {
+                registry.addComponent< T >( entity );
+            }
         } else if constexpr( Deserializable< T > ) {
             T component{};
             if( m_factory ) {
@@ -95,11 +100,9 @@ struct ComponentMeta : public IComponentMeta {
         }
     }
 
-    template < typename... Args >
+    template < typename... Args > requires( !details::IsFlagComponent< T > )
     void create( EntityRegistry& registry, EntityId entity, [[maybe_unused]] Args&&... args ) const {
-        if constexpr( details::IsFlagComponent< T > ) {
-            registry.addComponent< T >( entity );
-        } else if constexpr( Deserializable< T > ) {
+        if constexpr( Deserializable< T > ) {
             T component( std::forward< Args >( args )... );
             if( m_factory ) {
                 m_factory( registry, entity, std::move( component ) );
@@ -130,12 +133,21 @@ struct ComponentMeta : public IComponentMeta {
 
     void create( EntityRegistry& registry, EntityId entity, const std::any& component ) const override {
         const T& typedComponent = std::any_cast< const T >( component );
-        create( registry, entity, typedComponent );
+        if constexpr( details::IsFlagComponent< T > ) {
+            create( registry, entity );
+        } else {
+            create( registry, entity, typedComponent );
+        }
     }
 
     void copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const override {
         if constexpr( details::IsFlagComponent< T > ) {
-            registry.addComponent< T >( entity );
+            if( m_factory ) {
+                T flagComponent{};
+                m_factory( registry, entity, std::move( flagComponent ) );
+            } else {
+                registry.addComponent< T >( entity );
+            }
         } else {
             const T* component = static_cast< const T* >( componentPtr );
             if( m_factory ) {

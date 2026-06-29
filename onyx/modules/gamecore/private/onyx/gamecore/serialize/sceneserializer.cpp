@@ -159,7 +159,7 @@ bool SceneSerializer::serializeEntity( Serializer& serializer,
         // if the component storage contains the entity we know that the entity has this component
         entt::id_type runtimeTypeId = componentId;
 
-        if( const ecs::IComponentMeta* meta = componentFactory.GetComponentMeta( runtimeTypeId ).value_or( nullptr ) ) {
+        if( const ecs::IComponentMeta* meta = componentFactory.getComponentMeta( runtimeTypeId ).value_or( nullptr ) ) {
             if( meta->isTransient() )
                 continue;
 
@@ -187,7 +187,7 @@ bool SceneSerializer::deserializeEntity( const Deserializer& deserializer,
         StringId32 componentTypeId;
         scopeDeserializer.read< "typeId" >( componentTypeId );
 
-        bool hasCreated = componentFactory.TryCreateComponent( registry, entityId, componentTypeId, scopeDeserializer );
+        bool hasCreated = componentFactory.tryCreateComponent( registry, entityId, componentTypeId, scopeDeserializer );
         if( hasCreated == false ) {
             ONYX_LOG_WARNING( "Failed deserializing component. Unkown component {}", componentTypeId );
         }

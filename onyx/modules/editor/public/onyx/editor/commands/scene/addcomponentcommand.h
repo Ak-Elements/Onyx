@@ -23,7 +23,7 @@ struct AddComponentCommand : public SceneCommand {
     void execute() override;
 
   private:
-    ecs::EntityId m_EntityId;
-    StringId32 m_ComponentTypeId;
+    ecs::EntityId m_entityId;
+    StringId32 m_componentTypeId;
 };
 } // namespace onyx::editor

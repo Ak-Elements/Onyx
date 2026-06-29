@@ -1,16 +1,18 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     gamecore.h
-    components/character/charactercontrollercomponent.ocd
-    components/collision/boxshapecomponent.ocd
-    components/collision/capsuleshapecomponent.ocd
-    components/collision/sphereshapecomponent.ocd
+    components/shapes/boxshapecomponent.ocd
+    components/shapes/capsuleshapecomponent.ocd
+    components/shapes/sphereshapecomponent.ocd
     components/graphics/directionallightcomponent.ocd
     components/graphics/materialcomponent.ocd
     components/graphics/pointlightcomponent.ocd
     components/graphics/spotlightcomponent.ocd
     components/graphics/staticmeshcomponent.ocd
     components/graphics/textcomponent.ocd
+    components/physics/characterbodycomponent.ocd
+    components/physics/kinematicbodycomponent.ocd
     components/physics/rigidbodycomponent.ocd
+    components/physics/staticbodycomponent.ocd
     components/cameracomponent.ocd
     components/freecameracomponent.ocd
     components/idcomponent.ocd
