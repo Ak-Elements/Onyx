@@ -1,6 +1,7 @@
 
 #version 460 core
 
+// All intersect functions are based on https://iquilezles.org/articles/intersectors
 #include "includes/common.h"
 
 vertex
@@ -42,6 +43,16 @@ fragment
         vec3 HalfExtents;
     };
 
+    struct DebugCapsule
+    {
+        vec3 Position;
+        uint Color;
+
+        mat3 Rotation;
+        float Radius;
+        float HalfHeight;
+    };
+
     layout(scalar, buffer_reference, buffer_reference_align = 8) buffer SphereList
     {
         DebugSphere Spheres[];
@@ -50,6 +61,11 @@ fragment
     layout(scalar, buffer_reference, buffer_reference_align = 8) buffer BoxList
     {
         DebugBox Boxes[];
+    };
+
+    layout(scalar, buffer_reference, buffer_reference_align = 8) buffer CapsuleList
+    {
+        DebugCapsule Capsules[];
     };
 
     layout(std430, buffer_reference, buffer_reference_align = 8) readonly buffer ViewConstants
@@ -76,11 +92,13 @@ fragment
     {
         ViewConstants ViewConstantsBuffer; 
 
-        SphereList WireframeSpheres;
         BoxList WireframeBoxes;
+        CapsuleList WireframeCapsules;
+        SphereList WireframeSpheres;
 
-        uint WireframeSpheresCount;
         uint WireframeBoxesCount;
+        uint WireframeCapsulesCount;
+        uint WireframeSpheresCount;
     } u_Constants;
     
     layout(location = 0) out vec4 OutColor;
@@ -100,8 +118,8 @@ fragment
 
     vec2 RayIntersect( in vec3 rayOrigin, in vec3 rayDirection, in DebugBox box, out vec3 hitNormalEntry, out vec3 hitNormalExit )
     {
-        vec3 m = 1.0 / rayDirection; // can precompute if traversing a set of aligned boxes
-        vec3 n = m * rayOrigin;   // can precompute if traversing a set of aligned boxes
+        vec3 m = 1.0 / rayDirection;
+        vec3 n = m * rayOrigin;
         vec3 k = abs(m) * box.HalfExtents;
         vec3 t1 = -n - k;
         vec3 t2 = -n + k;
@@ -118,6 +136,93 @@ fragment
         hitNormalExit =  step(t2,vec3(tF)) * raySign;
 
         return vec2(tN, tF);
+    }
+
+    vec3 capsuleCapNormal( in vec3 pos, in vec3 a, in vec3 b, in float r )
+    {
+        vec3  ba = b - a;
+        vec3  pa = pos - a;
+        float h = clamp(dot(pa,ba)/dot(ba,ba), 0.0, 1.0);
+        return (pa - h*ba) / r;
+    }
+
+    bool RayIntersect( in vec3 rayOrigin, in vec3 rayDirection, in DebugCapsule capsule, out vec2 hitT, out vec3 hitNormalEntry, out vec3 hitNormalExit )
+    {
+        vec3 pa = vec3(0.0f, -capsule.HalfHeight, 0.0f);
+        vec3 pb = vec3(0.0f,  capsule.HalfHeight, 0.0f);
+        float r = capsule.Radius;
+
+        vec3  ba = rayOrigin - rayOrigin;
+        ba = pb - pa;
+        vec3  oa = rayOrigin - pa;
+        float baba = dot(ba,ba);
+        float bard = dot(ba,rayDirection);
+        float baoa = dot(ba,oa);
+        float rdoa = dot(rayDirection,oa);
+        float oaoa = dot(oa,oa);
+        float a = baba      - bard*bard;
+        float b = baba*rdoa - baoa*bard;
+        float c = baba*oaoa - baoa*baoa - r*r*baba;
+        float h = b*b - a*c;
+
+        hitT = vec2(-1.0f);
+        hitNormalEntry = vec3(0.0f);
+        hitNormalExit = vec3(0.0f);
+
+        if( h < 0.0f )
+            return false;
+
+        float sh = sqrt(h);
+
+        float tNear = -1.0f;
+        {
+            float t = (-b - sh) / a;
+            float y = baoa + t * bard;
+            if( y > 0.0f && y < baba )
+            {
+                tNear = t;
+            }
+            else
+            {
+                vec3 oc = (y <= 0.0f) ? oa : rayOrigin - pb;
+                float bb = dot(rayDirection, oc);
+                float cc = dot(oc, oc) - r * r;
+                float hh = bb * bb - cc;
+                if( hh > 0.0f )
+                    tNear = -bb - sqrt(hh);
+            }
+        }
+
+        float tFar = -1.0f;
+        {
+            float t = (-b + sh) / a;
+            float y = baoa + t * bard;
+            if( y > 0.0f && y < baba )
+            {
+                tFar = t;
+            }
+            else
+            {
+                vec3 oc = (y <= 0.0f) ? oa : rayOrigin - pb;
+                float bb = dot(rayDirection, oc);
+                float cc = dot(oc, oc) - r * r;
+                float hh = bb * bb - cc;
+                if( hh > 0.0f )
+                    tFar = -bb + sqrt(hh);
+            }
+        }
+
+        if( tNear < 0.0f && tFar < 0.0f )
+            return false;
+
+        hitT = vec2(tNear, tFar);
+
+        if( tNear >= 0.0f )
+            hitNormalEntry = capsuleCapNormal( rayOrigin + rayDirection * tNear, pa, pb, r );
+        if( tFar >= 0.0f )
+            hitNormalExit = capsuleCapNormal( rayOrigin + rayDirection * tFar, pa, pb, r );
+
+        return hitT.y >= 0.0f;
     }
 
     float GetWirteThicknessSilhouette( vec3 hitNormal, vec3 rayDirection )
@@ -165,6 +270,35 @@ fragment
         float edge = min(edgeDistance.x, edgeDistance.y);    
 
         float wireThickness = smoothstep( WIRE_THICKNESS, 0.0f, edge); 
+        return max(GetWirteThicknessSilhouette( hitNormal, rayDirection ), wireThickness);
+    }
+    
+    float GetWireThickness( in DebugCapsule capsule, in vec3 rayOrigin, in vec3 rayDirection, in float hitT, in vec3 hitNormal )
+    {
+        vec3 hitPos = rayOrigin + rayDirection * hitT;
+        float wireThickness;
+
+        if( abs(hitPos.y) <= capsule.HalfHeight + EPSILON )
+        {
+            float phi = atan(hitNormal.z, hitNormal.x);
+            float longitude = (phi / (2.0f * PI)) * GRID_SIZE;
+            float longitudeWeight = abs( fract(longitude + 0.5f) - 0.5f );
+
+            wireThickness = smoothstep( WIRE_THICKNESS, 0.0f, longitudeWeight );
+        }
+        else
+        {
+            float phi = atan(hitNormal.z, hitNormal.x);
+            float theta = asin(clamp(hitNormal.y, -1.0f, 1.0f));
+
+            float latitude = (phi / (2.0f * PI)) * GRID_SIZE;
+            float longitude = ((theta / PI) + 0.5f) * GRID_SIZE;
+
+            float latitudeWeight = abs( fract(latitude + 0.5f) - 0.5f );
+            float longitudeWeight = abs( fract(longitude + 0.5f) - 0.5f );
+            wireThickness = smoothstep( WIRE_THICKNESS, 0.0f, min(latitudeWeight, longitudeWeight) );
+        }
+
         return max(GetWirteThicknessSilhouette( hitNormal, rayDirection ), wireThickness);
     }
 
@@ -278,6 +412,56 @@ fragment
         return false; 
     }
 
+    bool Intersect(in vec3 rayOrigin, in vec3 rayDirection, in DebugCapsule capsule, inout float closestT, inout vec4 finalColor )
+    {
+        mat3 worldToLocal = transpose(capsule.Rotation);
+
+        vec3 rayOriginLocal = worldToLocal * (rayOrigin - capsule.Position);
+        vec3 rayDirectionLocal = worldToLocal * rayDirection;
+
+        vec2 hits;
+        vec3 hitNormalLocalEntry;
+        vec3 hitNormalLocalExit;
+        bool hasHit = RayIntersect( rayOriginLocal, rayDirectionLocal, capsule, hits, hitNormalLocalEntry, hitNormalLocalExit );
+        if( hasHit == false )
+            return false;
+
+        float wireThickness = 0.0f;
+        float hitT = -1.0f;
+
+        if ( hits.x >= 0.0f )
+        {
+            hitT = hits.x;
+            wireThickness = GetWireThickness( capsule, rayOriginLocal, rayDirectionLocal, hitT, hitNormalLocalEntry );
+            if (wireThickness < EPSILON)
+            {
+                hitT = hits.y;
+                wireThickness = GetWireThickness( capsule, rayOriginLocal, rayDirectionLocal, hitT, hitNormalLocalExit );
+            }
+        }
+        else
+        {
+            hitT = hits.y;
+            wireThickness = GetWireThickness( capsule, rayOriginLocal, rayDirectionLocal, hitT, hitNormalLocalExit );
+        }
+
+        if( ( hitT < u_Constants.ViewConstantsBuffer.Near ) ||
+            ( hitT > u_Constants.ViewConstantsBuffer.Far ) )
+        {
+            return false;
+        }
+
+        if ( ( hitT < closestT ) && wireThickness > EPSILON)
+        {
+            closestT = hitT;
+            vec4 shapeColor = GetColor( capsule.Color );
+            finalColor = mix( finalColor, shapeColor, wireThickness );
+            return true;
+        }
+
+        return false;
+    }
+
     void main()
     {
         vec2 ndc = vec2(
@@ -310,6 +494,16 @@ fragment
         {
             DebugBox box = u_Constants.WireframeBoxes.Boxes[i];
             bool hit = Intersect(rayOrigin, rayDirection, box, closestT, finalColor );
+            if (hit)
+            {
+                hasHit = true;
+            } 
+        }
+
+        for(int i = 0; i < u_Constants.WireframeCapsulesCount; ++i)
+        {
+            DebugCapsule capsule = u_Constants.WireframeCapsules.Capsules[i];
+            bool hit = Intersect(rayOrigin, rayDirection, capsule, closestT, finalColor );
             if (hit)
             {
                 hasHit = true;

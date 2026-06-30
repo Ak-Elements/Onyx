@@ -31,8 +31,9 @@ void DebugDrawTask::onBeginFrame( RenderGraphContext& context ) {
     DebugDrawQueue& debugQueue = getGraphInput< DebugDrawQueue >( context.Graph );
     debugQueue.clear();
 
-    m_wireframeSpheresCount = 0;
     m_wireframeBoxesCount = 0;
+    m_wireframeCapsulesCount = 0;
+    m_wireframeSpheresCount = 0;
 }
 
 void DebugDrawTask::onPreRender( RenderGraphContext& context, rhi::CommandBuffer& /*commandBuffer*/ ) {
@@ -48,12 +49,16 @@ void DebugDrawTask::onPreRender( RenderGraphContext& context, rhi::CommandBuffer
 
     ssboInstanceBuffer.m_DebugName = "TMP DebugBoxes";
     ssboInstanceBuffer.m_Size = sizeof( DebugBox ) * 16; // This should match the size of queued spheres
-
     m_wireframeBoxesBuffer = context.FrameContext.Api->getTransientBuffer( ssboInstanceBuffer );
+
+    ssboInstanceBuffer.m_DebugName = "TMP DebugCapsules";
+    ssboInstanceBuffer.m_Size = sizeof( DebugCapsule ) * 16; // This should match the size of queued spheres
+    m_wireframeCapsulesBuffer = context.FrameContext.Api->getTransientBuffer( ssboInstanceBuffer );
 
     const DebugDrawQueue& debugQueue = getGraphInput< DebugDrawQueue >( context.Graph );
     const Span< const DebugSphere > wireframeSpheres = debugQueue.getWireframeSpheres();
     const Span< const DebugBox > wireframeBoxes = debugQueue.getWireframeBoxes();
+    const Span< const DebugCapsule > wireframeCapsules = debugQueue.getWireframeCapsules();
 
     if( wireframeSpheres.empty() == false ) {
         m_wireframeSpheresCount = static_cast< uint32_t >( wireframeSpheres.size() );
@@ -64,6 +69,11 @@ void DebugDrawTask::onPreRender( RenderGraphContext& context, rhi::CommandBuffer
         m_wireframeBoxesCount = static_cast< uint32_t >( wireframeBoxes.size() );
         m_wireframeBoxesBuffer.SetData( wireframeBoxes );
     }
+
+    if( wireframeCapsules.empty() == false ) {
+        m_wireframeCapsulesCount = static_cast< uint32_t >( wireframeCapsules.size() );
+        m_wireframeCapsulesBuffer.SetData( wireframeCapsules );
+    }
 }
 
 void DebugDrawTask::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
@@ -71,18 +81,23 @@ void DebugDrawTask::onRender( RenderGraphContext& context, rhi::CommandBuffer& c
 
     struct PushConstants {
         uint64_t ViewConstants;
-        uint64_t WireFrameSpheres;
-        uint64_t WireFrameBoxes;
 
-        uint32_t WireFrameSpheresCount;
+        uint64_t WireFrameBoxes;
+        uint64_t WireFrameCapsules;
+        uint64_t WireFrameSpheres;
+
         uint32_t WireFrameBoxesCount;
+        uint32_t WireFrameCapsulesCount;
+        uint32_t WireFrameSpheresCount;
     };
 
     PushConstants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().GetGpuAddress(),
-                             .WireFrameSpheres = m_wireframeSpheresBuffer.GetGpuAddress(),
                              .WireFrameBoxes = m_wireframeBoxesBuffer.GetGpuAddress(),
-                             .WireFrameSpheresCount = m_wireframeSpheresCount,
-                             .WireFrameBoxesCount = m_wireframeBoxesCount };
+                             .WireFrameCapsules = m_wireframeCapsulesBuffer.GetGpuAddress(),
+                             .WireFrameSpheres = m_wireframeSpheresBuffer.GetGpuAddress(),
+                             .WireFrameBoxesCount = m_wireframeBoxesCount,
+                             .WireFrameCapsulesCount = m_wireframeCapsulesCount,
+                             .WireFrameSpheresCount = m_wireframeSpheresCount };
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );

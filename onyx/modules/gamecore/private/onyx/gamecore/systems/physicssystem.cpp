@@ -181,10 +181,11 @@ void system( ColliderEntity entity, onyx::graphics::DebugDrawQueue& debugDraw ) 
     }
 
     if( const auto* capsule = entity.tryGetComponent< CapsuleShapeComponent >() ) {
-        debugDraw.addWireframeBox( transform.Translation,
-                                   { capsule->Radius, capsule->HalfHeight + capsule->Radius, capsule->Radius },
-                                   transform.Rotation.toMatrix3(),
-                                   onyx::colors::Red );
+        debugDraw.addWireframeCapsule( transform.Translation,
+                                       capsule->Radius,
+                                       capsule->HalfHeight,
+                                       transform.Rotation.toMatrix3(),
+                                       onyx::colors::Red );
     }
 }
 

@@ -33,10 +33,12 @@ class DebugDrawTask
     }
 #endif
   private:
-    rhi::BufferHandle m_wireframeSpheresBuffer;
     rhi::BufferHandle m_wireframeBoxesBuffer;
+    rhi::BufferHandle m_wireframeCapsulesBuffer;
+    rhi::BufferHandle m_wireframeSpheresBuffer;
 
-    uint32_t m_wireframeSpheresCount = 0;
     uint32_t m_wireframeBoxesCount = 0;
+    uint32_t m_wireframeCapsulesCount = 0;
+    uint32_t m_wireframeSpheresCount = 0;
 };
 } // namespace onyx::graphics::render_graph_nodes

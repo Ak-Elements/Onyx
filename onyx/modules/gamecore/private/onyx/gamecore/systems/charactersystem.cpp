@@ -137,10 +137,11 @@ void system( CharacterEntity entity, onyx::graphics::DebugDrawQueue& debugDraw )
 
     if( const auto* capsule = entity.tryGetComponent< CapsuleShapeComponent >() ) {
         Vector3f32 offset{ 0.0f, capsule->HalfHeight + capsule->Radius, 0.0f };
-        debugDraw.addWireframeBox( transform.Translation + offset,
-                                   { capsule->Radius, capsule->HalfHeight + capsule->Radius, capsule->Radius },
-                                   transform.Rotation.toMatrix3(),
-                                   onyx::colors::Red );
+        debugDraw.addWireframeCapsule( transform.Translation + offset,
+                                       capsule->Radius,
+                                       capsule->HalfHeight,
+                                       transform.Rotation.toMatrix3(),
+                                       onyx::colors::Red );
     }
 }
 
