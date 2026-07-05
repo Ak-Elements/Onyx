@@ -65,13 +65,7 @@ template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
 bool drawProperty( StringView propertyName, assets::AssetHandle< T >& outAsset ) {
     assets::AssetId assetId = outAsset.getId();
     drawPropertyName( propertyName );
-
-    bool hasModified = false;
-    if( internal::drawPropertyValue( propertyName, assetId, static_cast< assets::AssetType >( T::TypeId.getId() ) ) ) {
-        outAsset.setId( assetId );
-        hasModified = true;
-    }
-
+    bool hasModified = internal::drawPropertyValue( propertyName, outAsset );
     ImGui::EndHorizontal();
 
     return hasModified;

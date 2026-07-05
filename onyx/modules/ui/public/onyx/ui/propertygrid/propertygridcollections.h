@@ -326,6 +326,14 @@ inline bool drawProperty( StringView propertyName, DynamicArray< StringView >& c
     return details::drawCollectionProperty( propertyName, collection, {}, drawEntryFunctor, drawEntryFunctor );
 }
 
+template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
+bool drawProperty( StringView propertyName, DynamicArray< assets::AssetHandle< T > >& collection ) {
+    auto drawEntryFunctor = [ & ]( StringView id, assets::AssetHandle< T >& value ) {
+        return internal::drawPropertyValue( id, value );
+    };
+    return details::drawCollectionProperty( propertyName, collection, {}, drawEntryFunctor, drawEntryFunctor );
+}
+
 template < typename ScalarT > requires( std::is_arithmetic_v< ScalarT > )
 bool drawProperty( StringView propertyName, DynamicArray< ScalarT >& collection ) {
     auto drawEntryFunctor = [ & ]( StringView id, ScalarT& value ) {

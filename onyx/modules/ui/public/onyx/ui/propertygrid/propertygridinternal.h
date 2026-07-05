@@ -2,6 +2,9 @@
 
 #if ONYX_IS_EDITOR
 
+#include <onyx/assets/asset.h>
+#include <onyx/ui/controls/assetselector.h>
+#include <onyx/ui/imguisystem.h>
 #include <onyx/ui/scalarinputoptions.h>
 #include <onyx/ui/scopeddisable.h>
 #include <onyx/ui/scopedid.h>
@@ -24,7 +27,11 @@ void setSplitterPositionX( int32_t position );
 ImGuiID beginPropertyGrid( StringView id, int32_t splitterMinX );
 void endPropertyGrid();
 
-bool drawPropertyValue( StringView propertyName, assets::AssetId& outAssetId, assets::AssetType assetType );
+template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
+bool drawPropertyValue( StringView propertyName, assets::AssetHandle< T >& outAsset ) {
+    ScopedImGuiId id( propertyName );
+    return assetSelector( *g_uiContext.AssetSystem, outAsset );
+}
 
 bool drawPropertyValue( StringView id, StringView value );
 bool drawPropertyValue( StringView id, StringView value, ImGuiInputTextFlags flags );

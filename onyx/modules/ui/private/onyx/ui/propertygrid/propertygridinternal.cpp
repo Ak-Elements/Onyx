@@ -59,12 +59,6 @@ ImGuiID getPropertyGridId() {
     return g_locPropertyGridIdStack.top();
 }
 
-bool drawPropertyValue( StringView propertyName, assets::AssetId& outAssetId, assets::AssetType assetType ) {
-    ScopedImGuiId id( propertyName );
-    bool hasModified = assetSelector( *g_uiContext.AssetSystem, assetType, outAssetId );
-    return hasModified;
-}
-
 bool drawPropertyValue( StringView id, StringView value ) {
     return drawPropertyValue( id, value, ImGuiInputTextFlags_None );
 }
