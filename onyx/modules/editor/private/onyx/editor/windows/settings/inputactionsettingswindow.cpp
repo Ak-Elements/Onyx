@@ -1,22 +1,6 @@
 #include <onyx/editor/windows/settings/inputactionsettingswindow.h>
 
-#include <onyx/input/inputid.h>
-#include <onyx/input/inputsystem.h>
-#include <onyx/inputactions/bindings/inputbindingsfactory.h>
-#include <onyx/inputactions/inputaction.h>
-#include <onyx/inputactions/inputactionsmap.h>
-#include <onyx/inputactions/inputactionsserializer.h>
-#include <onyx/inputactions/inputactionsystem.h>
-#include <onyx/inputactions/modifiers/inputmodifier.h>
-#include <onyx/inputactions/modifiers/inputmodifiersfactory.h>
-#include <onyx/inputactions/triggers/inputtrigger.h>
-#include <onyx/inputactions/triggers/inputtriggersfactory.h>
-
 #include <onyx/assets/assetsystem.h>
-
-#include <onyx/editor/windows/commandhistorywindow.h>
-#include <onyx/ui/imguisystem.h>
-
 #include <onyx/editor/commands/inputactions/addinputactioncommand.h>
 #include <onyx/editor/commands/inputactions/addinputbindingcommand.h>
 #include <onyx/editor/commands/inputactions/addinputmodifiercommand.h>
@@ -28,23 +12,32 @@
 #include <onyx/editor/commands/inputactions/deleteinputtriggercommand.h>
 #include <onyx/editor/commands/inputactions/modifyinputactioncommand.h>
 #include <onyx/editor/commands/inputactions/renameinputactioncommand.h>
-
+#include <onyx/editor/editor_localization.h>
+#include <onyx/editor/windows/commandhistorywindow.h>
 #include <onyx/filesystem/filedialog.h>
-
-#include <onyx/ui/propertyinspector.h>
+#include <onyx/input/inputid.h>
+#include <onyx/input/inputsystem.h>
+#include <onyx/inputactions/bindings/inputbindingsfactory.h>
+#include <onyx/inputactions/inputaction.h>
+#include <onyx/inputactions/inputactionsmap.h>
+#include <onyx/inputactions/inputactionsserializer.h>
+#include <onyx/inputactions/inputactionsystem.h>
+#include <onyx/inputactions/modifiers/inputmodifier.h>
+#include <onyx/inputactions/modifiers/inputmodifiersfactory.h>
+#include <onyx/inputactions/triggers/inputtrigger.h>
+#include <onyx/inputactions/triggers/inputtriggersfactory.h>
+#include <onyx/localization/localization.h>
+#include <onyx/localization/localizationmodule.h>
+#include <onyx/ui/controls/button.h>
+#include <onyx/ui/controls/combobox.h>
+#include <onyx/ui/imguisystem.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
+#include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/scopedcolor.h>
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/scopedindent.h>
 #include <onyx/ui/scopedstyle.h>
 #include <onyx/ui/widgets.h>
-
-#include <onyx/editor/editor_localization.h>
-
-#include <onyx/localization/localization.h>
-#include <onyx/localization/localizationmodule.h>
-#include <onyx/ui/controls/button.h>
-#include <onyx/ui/controls/combobox.h>
-#include <onyx/ui/propertygrid.h>
 
 #include <imgui_internal.h>
 

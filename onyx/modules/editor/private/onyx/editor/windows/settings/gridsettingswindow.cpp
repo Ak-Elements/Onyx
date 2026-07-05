@@ -4,7 +4,7 @@
 
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/ui/controls/vectorcontrol.h>
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 
 #include <imgui.h>
 #include <imgui_stacklayout.h>

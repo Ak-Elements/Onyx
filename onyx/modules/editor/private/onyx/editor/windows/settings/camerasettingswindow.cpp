@@ -6,12 +6,11 @@
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/gamecore.h>
 #include <onyx/ui/controls/vectorcontrol.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/ui/widgets.h>
 
 #include <imgui.h>
 #include <imgui_stacklayout.h>
-#include <onyx/ui/propertygrid.h>
-
 namespace onyx::editor {
 namespace {} // namespace
 

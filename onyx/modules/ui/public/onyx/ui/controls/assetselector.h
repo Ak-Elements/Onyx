@@ -8,6 +8,6 @@ class AssetSystem;
 } // namespace onyx::assets
 
 namespace onyx::ui {
-bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType assetType, assets::AssetId& outAssetId );
+bool assetSelector( const assets::AssetSystem& assetSystem, assets::AssetType assetType, assets::AssetId& outAssetId );
 }
 #endif

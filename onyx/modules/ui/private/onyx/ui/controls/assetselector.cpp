@@ -24,7 +24,7 @@ bool loc_HasFocus = true;
 String loc_SearchString;
 } // namespace
 
-bool AssetSelector( const assets::AssetSystem& assetSystem, assets::AssetType assetType, assets::AssetId& outAssetId ) {
+bool assetSelector( const assets::AssetSystem& assetSystem, assets::AssetType assetType, assets::AssetId& outAssetId ) {
     bool hasModified = false;
     DynamicArray< assets::AssetMetaData > availableAssets;
 

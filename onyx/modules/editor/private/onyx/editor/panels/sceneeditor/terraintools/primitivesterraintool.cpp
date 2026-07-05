@@ -8,7 +8,7 @@
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/ui/widgets.h>
 #include <onyx/volume/components/csg/cubecomponent.gen.h>
 #include <onyx/volume/components/csg/spherecomponent.gen.h>

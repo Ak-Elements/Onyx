@@ -13,18 +13,20 @@
 #include <onyx/entity/entity.h>
 #include <onyx/entity/entityregistry.h>
 
+#include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/localizedstring.h>
-#include <onyx/ui/propertygrid.h>
+
+#include <onyx/ui/controls/treeview.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
+#include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/scopedid.h>
 
 #include <imgui_internal.h>
-#include <onyx/localization/localization.h>
-#include <onyx/ui/controls/treeview.h>
-#include <onyx/ui/propertyinspector.h>
-
 namespace onyx::editor::scene_editor {
-void ComponentsPanel::onOpen() {}
+void ComponentsPanel::onOpen() {
+    setWindowFlags( ImGuiWindowFlags_HorizontalScrollbar );
+}
 
 void ComponentsPanel::onClose() {}
 

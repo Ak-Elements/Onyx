@@ -3,7 +3,7 @@
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/ui/controls/button.h>
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/ui/scopedcolor.h>
 #include <onyx/ui/scopedid.h>
 
@@ -163,9 +163,7 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
 }
 
 bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-    if( ui::property_grid::drawAssetSelector( "Shader",
-                                              m_pipelineProperties.Shader,
-                                              static_cast< assets::AssetType >( rhi::Shader::TypeId.getId() ) ) ) {
+    if( ui::property_grid::drawProperty( "Shader", m_pipelineProperties.Shader ) ) {
         // TODO: remove shaderPath and change m_Shader to be an asset
         // shaderHandle.isLoaded?
         // adjust pins

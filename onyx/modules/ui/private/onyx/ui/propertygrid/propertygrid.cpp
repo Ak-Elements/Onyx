@@ -1,13 +1,13 @@
 
-#include <onyx/ui/controls/colorcontrol.h>
-#include <onyx/ui/propertygrid.h>
-#include <onyx/ui/scopeddisable.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 
 #if ONYX_IS_EDITOR
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/ui/controls/assetselector.h>
+#include <onyx/ui/controls/colorcontrol.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/scopeddisable.h>
 #include <onyx/ui/scopedid.h>
 #include <onyx/ui/widgets.h>
 
@@ -16,20 +16,13 @@
 
 namespace onyx::ui::property_grid {
 namespace {
-Stack< ImGuiID > g_locPropertyGridIdStack;
 String g_locPropertyGridTooltip;
 
 constexpr uint32_t BackgroundChannel = 0;
 constexpr uint32_t ForegroundChannel = 1;
 
-float32 g_locSplitterMinX;
-
 void drawSplitter() {
-    ImGuiID propertyGridID = g_locPropertyGridIdStack.top();
-
-    ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
-    uint32_t splitterId = imguiStateStorage->GetInt( propertyGridID );
-    float& storedSplitterPosX = *imguiStateStorage->GetFloatRef( splitterId, g_locSplitterMinX );
+    float32 storedSplitterPosX = numericCast< float32 >( internal::getSplitterPositionX() );
 
     const ImGuiStyle& style = ImGui::GetStyle();
     ImVec2 size = ImGui::GetItemRectSize();
@@ -41,8 +34,8 @@ void drawSplitter() {
     visualBB.Max = ImVec2( screenPos.x + storedSplitterPosX, screenPos.y - style.FramePadding.y );
 
     ImRect interactionBB = visualBB;
-    interactionBB.Min.x -= 1.0f;
-    interactionBB.Max.x += 1.0f;
+    interactionBB.Min.x -= 2.0f;
+    interactionBB.Max.x += 2.0f;
 
     bool isHovered = false;
     bool isHeld = false;
@@ -59,28 +52,24 @@ void drawSplitter() {
     drawList->AddRectFilled( visualBB.Min, visualBB.Max, splitterColor );
 
     drawList->ChannelsSetCurrent( ForegroundChannel );
-    // Handle dragging the splitter
     if( isHeld ) {
-        // Update splitter position as the user drags it
-        storedSplitterPosX = std::max( storedSplitterPosX + ImGui::GetIO().MouseDelta.x, g_locSplitterMinX );
+        internal::setSplitterPositionX( std::round( storedSplitterPosX + ImGui::GetIO().MouseDelta.x ) );
     }
 
-    // Change cursor on hover to indicate it's resizable
     if( isHovered ) {
         ImGui::SetMouseCursor( ImGuiMouseCursor_ResizeEW );
     }
 }
 } // namespace
 
-void beginPropertyGrid( StringView propertyGrid, float32 splitMinX ) {
+void beginPropertyGrid( StringView propertyGrid, int32_t splitMinX ) {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     drawList->ChannelsSplit( 2 );
     drawList->ChannelsSetCurrent( ForegroundChannel );
 
     ImGui::BeginGroup();
 
-    g_locPropertyGridIdStack.push( ImGui::GetID( propertyGrid.data() ) );
-    ImGuiID id = g_locPropertyGridIdStack.top();
+    ImGuiID id = internal::beginPropertyGrid( propertyGrid, splitMinX );
 
     ImGui::PushID( id );
     ImGui::BeginGroup();
@@ -91,7 +80,6 @@ void beginPropertyGrid( StringView propertyGrid, float32 splitMinX ) {
 
     ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
     imguiStateStorage->SetInt( id, static_cast< int32_t >( splitterPositionXId ) );
-    g_locSplitterMinX = splitMinX;
 }
 
 void endPropertyGrid() {
@@ -102,52 +90,47 @@ void endPropertyGrid() {
 
     ImGui::EndGroup();
 
-    g_locPropertyGridIdStack.pop();
+    internal::endPropertyGrid();
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     drawList->ChannelsMerge();
 }
 
 void drawPropertyName( StringView propertyName ) {
-    ImGuiID propertyGridID = g_locPropertyGridIdStack.top();
-
-    ImGuiStorage* imguiStateStorage = ImGui::GetStateStorage();
-    uint32_t splitterId = imguiStateStorage->GetInt( propertyGridID );
-    float32 splitterPosX = imguiStateStorage->GetFloat( splitterId );
-
+    float32 splitterPositionX = numericCast< float32 >( internal::getSplitterPositionX() );
     const ImGuiStyle& style = ImGui::GetStyle();
     ::ImGuiWindow* window = ImGui::GetCurrentWindow();
 
     ImGui::BeginHorizontal( propertyName.data() );
 
     const char* label = propertyName.data();
-    const char* label_end = ImGui::FindRenderedTextEnd( label );
-    ImVec2 label_size = ImGui::CalcTextSize( label, label_end, true );
-    ImVec2 label_pos = window->DC.CursorPos;
+    const char* labelEnd = ImGui::FindRenderedTextEnd( label );
+    ImVec2 labelSize = ImGui::CalcTextSize( label, labelEnd, true );
+    ImVec2 labelPos = window->DC.CursorPos + ImVec2( window->DC.Indent.x, 0.0f );
     float32 indendation = window->DC.Indent.x;
 
     // Determine the height of the cell
     float cellHeight = ImGui::GetTextLineHeightWithSpacing();
 
     // Calculate vertical alignment offset to center the text
-    float verticalOffset = ( cellHeight - label_size.y ) * 0.5f;
+    float verticalOffset = ( cellHeight - labelSize.y ) * 0.5f;
 
     // Adjust position for centered text
-    label_pos.y += verticalOffset;
+    labelPos.y += verticalOffset;
 
-    float32 ellipsis_max = label_pos.x + splitterPosX - style.ItemSpacing.x - indendation;
-    ImVec2 label_pos_max = ImVec2( ellipsis_max, label_pos.y + label_size.y );
+    float32 ellipsisMax = labelPos.x + splitterPositionX - 2 * style.ItemSpacing.x - indendation;
+    ImVec2 labelPosMax = ImVec2( ellipsisMax, labelPos.y + labelSize.y );
     ImGui::PushFont( ImGui::GetDefaultFont() );
 
     // Render the text with ellipsis if it exceeds the available width
     ImGui::RenderTextEllipsis( ImGui::GetWindowDrawList(),
-                               label_pos,
-                               label_pos_max,
-                               ellipsis_max,
-                               ellipsis_max,
+                               labelPos,
+                               labelPosMax,
+                               ellipsisMax,
+                               ellipsisMax,
                                label,
-                               label_end,
-                               &label_size );
+                               labelEnd,
+                               &labelSize );
 
     ImGui::PopFont();
 
@@ -155,22 +138,24 @@ void drawPropertyName( StringView propertyName ) {
     const bool hasTooltip = g_locPropertyGridTooltip.empty() == false;
     if( hasTooltip ) {
         auto cursorPos = ImGui::GetCursorPos();
-        ImGui::PushClipRect( label_pos, label_pos_max, true );
+        ImGui::PushClipRect( labelPos, labelPosMax, true );
         drawInfoIcon( ImGui::GetWindowDrawList(),
-                      ImVec2( label_size.x + style.ItemSpacing.x, verticalOffset ),
+                      ImVec2( labelSize.x + style.ItemSpacing.x, verticalOffset ),
                       ImGui::GetTextLineHeight() / 2.0f,
                       0x33FFFFFF );
         ImGui::PopClipRect();
         ImGui::SetCursorPos( cursorPos );
     }
 
-    ImGui::Dummy( ImVec2( splitterPosX - indendation + style.DockingSeparatorSize + 2 * style.ItemInnerSpacing.x,
-                          ImGui::GetFrameHeightWithSpacing() ) );
+    ImGui::InvisibleButton(
+        "##propertyName",
+        ImVec2( splitterPositionX - indendation - style.FramePadding.x, ImGui::GetFrameHeightWithSpacing() ) );
 
     if( hasTooltip && ImGui::BeginItemTooltip() ) {
         ImGui::TextEx( g_locPropertyGridTooltip.c_str() );
         ImGui::EndTooltip();
     }
+    ImGui::Spacing();
 
     g_locPropertyGridTooltip.clear();
 }
@@ -267,47 +252,19 @@ bool drawButton( StringView propertyName ) {
 
 bool drawProperty( StringView propertyName, StringView readOnlyValue ) {
     drawPropertyName( propertyName );
-
-    bool hasModified = false;
-    {
-        ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-        ScopedImGuiDisabled disabled;
-        hasModified = drawStringInput( format::format( "##{}", propertyName ),
-                                       readOnlyValue,
-                                       ImVec2( 0, 0 ),
-                                       ImGuiInputTextFlags_ReadOnly );
-    }
-
+    std::ignore = internal::drawPropertyValue( propertyName, readOnlyValue );
     ImGui::EndHorizontal();
-
-    return hasModified;
+    return false;
 }
 
 bool drawProperty( StringView propertyName, String& value ) {
     return drawProperty( propertyName, value, ImGuiInputTextFlags_None );
 }
 
-bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags textFlags ) {
+bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags flags ) {
     drawPropertyName( propertyName );
-
-    ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    bool hasModified = drawStringInput( format::format( "##{}", propertyName ), value, ImVec2( 0, 0 ), textFlags );
-
+    bool hasModified = internal::drawPropertyValue( propertyName, value, flags );
     ImGui::EndHorizontal();
-
-    return hasModified;
-}
-
-bool drawAssetSelector( StringView propertyName, assets::AssetId& outAssetId, assets::AssetType assetType ) {
-    drawPropertyName( propertyName );
-
-    ImGui::PushID( propertyName.data() );
-
-    bool hasModified = AssetSelector( *g_uiContext.AssetSystem, assetType, outAssetId );
-
-    ImGui::PopID();
-    ImGui::EndHorizontal();
-
     return hasModified;
 }
 

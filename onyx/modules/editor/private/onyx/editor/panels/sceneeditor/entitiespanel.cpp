@@ -26,6 +26,8 @@
 
 namespace onyx::editor::scene_editor {
 void EntitiesPanel::onOpen() {
+    setWindowFlags( ImGuiWindowFlags_HorizontalScrollbar );
+
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     inputActionSystem.OnInput< &EntitiesPanel::onDeleteAction >( "Delete"_id64, this );
 }

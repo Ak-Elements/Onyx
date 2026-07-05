@@ -14,9 +14,9 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/platform/platformsystem.h>
-#include <onyx/ui/propertygrid.h>
 #include <onyx/ui/propertygrid/inspectors/enginevariableinspector.h>
-#include <onyx/ui/propertyinspector.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
+#include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/windows/enginevariableswindow.h>
 
 #include <ImGuizmo.h>

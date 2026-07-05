@@ -54,6 +54,27 @@ msgstr "Default"
 msgid "generic.visibility"
 msgstr "Visibility"
 
+msgid "generic.move_up"
+msgstr "Move up"
+
+msgid "generic.move_down"
+msgstr "Move down"
+
+msgid "generic.insert_before"
+msgstr "Insert before"
+
+msgid "generic.insert_after"
+msgstr "Insert after"
+
+msgid "generic.collection.entry"
+msgstr "Entry {}"
+
+msgid "generic.collection.add"
+msgstr "Add Entry"
+
+msgid "generic.collection.size"
+msgstr "{} Entries"
+
 msgid "editor.mainmenubar.view"
 msgstr "View"
 

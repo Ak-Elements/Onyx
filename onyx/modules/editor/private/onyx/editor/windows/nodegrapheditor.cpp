@@ -12,19 +12,19 @@
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/ui/widgets.h>
 
-#include <onyx/ui/imguisystem.h>
-
-#include <imgui_internal.h>
-#include <imgui_node_editor.h>
 #include <onyx/editor/editor_localization.h>
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
+#include <onyx/ui/imguisystem.h>
 
 #include <onyx/inputactions/inputactionsystem.h>
+
+#include <imgui_internal.h>
+#include <imgui_node_editor.h>
 
 namespace onyx::editor {
 namespace {

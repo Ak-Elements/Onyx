@@ -5,8 +5,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     imguisystem.h
     imguiwindow.h
     notificationsystem.h
-    propertygrid.h
-    propertyinspector.h
     scopedcolor.h
     scopeddisable.h
     scopedid.h
@@ -21,6 +19,11 @@ set(onyx_TARGET_PUBLIC_SOURCES
     controls/treeview.h
     controls/vectorcontrol.h
     layout/imguilayout.h
+    propertygrid/propertygrid.h
+    propertygrid/propertygridinternal.h
+    propertygrid/propertygridcollections.h
+    propertygrid/propertyinspector.h
+    propertygrid/inspectors/enginevariableinspector.h
     theme/theme.h
     theme/themeserializer.h
     windows/enginevariableswindow.h
@@ -34,7 +37,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     imguisystem.cpp
     imguiwindow.cpp
     notificationsystem.cpp
-    propertygrid.cpp
     scopedcolor.cpp
     scopeddisable.cpp
     scopedid.cpp
@@ -49,6 +51,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     controls/treeview.cpp
     controls/vectorcontrol.cpp
     layout/imguilayout.cpp
+    propertygrid/propertygrid.cpp
+    propertygrid/propertygridinternal.cpp
     theme/theme.cpp
     theme/themeserializer.cpp
     windows/enginevariableswindow.cpp

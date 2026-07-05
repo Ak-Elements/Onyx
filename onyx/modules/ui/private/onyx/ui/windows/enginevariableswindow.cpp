@@ -2,8 +2,8 @@
 
 #include <onyx/localization/localizationmodule.h>
 
-#include <onyx/ui/propertygrid.h>
-#include <onyx/ui/propertyinspector.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
+#include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/widgets.h>
 
 namespace onyx::ui {

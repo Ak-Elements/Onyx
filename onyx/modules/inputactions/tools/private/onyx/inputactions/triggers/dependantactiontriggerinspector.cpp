@@ -1,6 +1,6 @@
 #include <onyx/inputactions/triggers/dependantactiontriggerinspector.h>
 
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 
 namespace onyx::ui {
 /*static*/ bool PropertyInspector< input_actions::DependantActionInputTrigger >::draw(
@@ -8,7 +8,7 @@ namespace onyx::ui {
     bool /*forceShow*/ ) {
     bool isModified = false;
     String actionId( trigger.GetActionId().getString() );
-    if ( property_grid::drawProperty( "Action", actionId ) ) {
+    if( property_grid::drawProperty( "Action", actionId ) ) {
         trigger.SetActionId( StringId64( actionId ) );
         isModified = true;
     }

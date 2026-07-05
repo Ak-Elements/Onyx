@@ -132,7 +132,7 @@ void drawItemBorder( float32 thickness, float32 rounding, uint32_t color ) {
     drawList->AddRect( rect.Min, rect.Max, color, rounding, ImDrawFlags_None, thickness );
 }
 
-bool drawMultiSelect( StringView id, const DynamicArray< StringView >& items, HashSet< uint32_t >& selectedIndices ) {
+bool drawComboBox( StringView id, const DynamicArray< StringView >& items, HashSet< uint32_t >& selectedIndices ) {
     ScopedImGuiId scopedId( id );
 
     ImGuiStorage* stateStorage = ImGui::GetStateStorage();
@@ -151,12 +151,11 @@ bool drawMultiSelect( StringView id, const DynamicArray< StringView >& items, Ha
 
     constexpr ImGuiWindowFlags ListFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                                            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |
-                                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav |
-                                           ImGuiWindowFlags_NoBackground;
+                                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBackground;
 
     if( ImGui::BeginChild( "##ScrollList",
                            ImVec2( 0, ImGui::GetTextLineHeightWithSpacing() * 10 ),
-                           ImGuiChildFlags_FrameStyle | ImGuiChildFlags_NavFlattened,
+                           ImGuiChildFlags_FrameStyle,
                            ListFlags ) ) {
         int32_t itemsCount = numericCast< int32_t >( items.size() );
         for( int32_t i = 0; i < itemsCount; ++i ) {
@@ -190,8 +189,6 @@ bool drawMultiSelect( StringView id, const DynamicArray< StringView >& items, Ha
             ImGui::TextUnformatted( item.data() );
 
             if( itemModified ) {
-                ImGui::ClearActiveID();
-
                 if( isSelected )
                     selectedIndices.emplace( i );
                 else
@@ -428,14 +425,16 @@ bool drawStringInput( StringView id, StringView hint, String& value, const ImVec
     InputTextCallbackPayload payload{};
     payload.Str = &value;
 
-    return ImGui::InputTextEx( id.data(),
-                               hint.data(),
-                               value.data(),
-                               static_cast< int32_t >( value.capacity() + 1 ),
-                               size,
-                               flags | ImGuiInputTextFlags_CallbackResize,
-                               textInputCallback,
-                               &payload );
+    ImGui::InputTextEx( id.data(),
+                        hint.data(),
+                        value.data(),
+                        static_cast< int32_t >( value.capacity() + 1 ),
+                        size,
+                        flags | ImGuiInputTextFlags_CallbackResize,
+                        textInputCallback,
+                        &payload );
+
+    return ImGui::IsItemDeactivatedAfterEdit() && ( ImGui::IsKeyPressed( ImGuiKey_Escape ) == false );
 }
 
 bool drawStringInput( StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags ) {
@@ -760,6 +759,8 @@ void drawXIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t colo
     drawList->PathLineTo( p3 );
     drawList->PathLineTo( p4 );
     drawList->PathFillConvex( color );
+
+    // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
 }
 
 void drawDivisionIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32_t color ) {
@@ -782,21 +783,13 @@ void drawDivisionIcon( ImDrawList* drawList, ImVec2 offset, float32 size, uint32
     // Bottom dot
     ImVec2 bottomDotCenter = ImVec2( center.x, center.y + size * 0.4f );
     drawList->AddCircleFilled( bottomDotCenter, dotRadius, color );
-}
 
-// void drawFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color ) {
-//     // ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-//     // ImVec2 center = cursorPos - offset;
-//     // uint32_t colorARGB = color.toABGR();
-//
-//
-//
-// }
+    // ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset.x + size);
+}
 
 void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, Color color ) {
     drawPinIcon( drawList, offset, size, rounding, color.toABGR() );
 }
-
 void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color ) {
     ImVec2 cursorPos = ImGui::GetCursorScreenPos();
     float32 halfSize = size * 0.5f;
@@ -819,47 +812,6 @@ void drawPinIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rou
     drawList->AddLine( ImVec2( center.x, needleTop ), ImVec2( center.x, needleBottom ), color, lineThickness );
 
     ImGui::SetCursorPosX( ImGui::GetCursorPosX() + offset.x + size );
-}
-
-void drawFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color ) {
-    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-    ImVec2 base = ImVec2( cursorPos.x + offset.x, cursorPos.y + offset.y );
-
-    // All points relative to size, matching the funnel shape
-    const float32 lineThickness = std::max( 1.0f, std::round( size * 0.05f ) );
-
-    ImVec2 pts[ 6 ] = {
-        { base.x + size * 0.00f, base.y + size * 0.00f }, // top-left
-        { base.x + size * 1.00f, base.y + size * 0.00f }, // top-right
-        { base.x + size * 0.62f, base.y + size * 0.50f }, // mid-right
-        { base.x + size * 0.62f, base.y + size * 1.00f }, // bottom-right stem
-        { base.x + size * 0.38f, base.y + size * 0.75f }, // bottom-left stem
-        { base.x + size * 0.38f, base.y + size * 0.50f }, // mid-left
-    };
-
-    drawList->PathClear();
-    for( const auto& p : pts )
-        drawList->PathLineTo( p );
-    drawList->PathStroke( color, ImDrawFlags_Closed, lineThickness );
-}
-
-void drawFilledFilterIcon( ImDrawList* drawList, ImVec2 offset, float32 size, float32 rounding, uint32_t color ) {
-    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-    ImVec2 base = ImVec2( cursorPos.x + offset.x, cursorPos.y + offset.y );
-
-    ImVec2 pts[ 6 ] = {
-        { base.x + size * 0.00f, base.y + size * 0.00f }, // top-left
-        { base.x + size * 1.00f, base.y + size * 0.00f }, // top-right
-        { base.x + size * 0.62f, base.y + size * 0.50f }, // mid-right
-        { base.x + size * 0.62f, base.y + size * 1.00f }, // bottom-right stem
-        { base.x + size * 0.38f, base.y + size * 0.75f }, // bottom-left stem
-        { base.x + size * 0.38f, base.y + size * 0.50f }, // mid-left
-    };
-
-    drawList->PathClear();
-    for( const auto& p : pts )
-        drawList->PathLineTo( p );
-    drawList->PathFillConcave( color );
 }
 
 void drawMovieCameraIcon( ImDrawList* drawList, ImVec2 offset, float32 size, Color color, Color accent ) {

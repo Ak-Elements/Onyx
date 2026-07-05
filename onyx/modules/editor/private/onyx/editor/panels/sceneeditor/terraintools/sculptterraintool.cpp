@@ -2,7 +2,7 @@
 
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/volume/components/volumeterraincomponent.gen.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 

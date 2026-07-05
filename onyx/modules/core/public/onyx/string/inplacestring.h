@@ -15,14 +15,14 @@ class InplaceStringBase {
     explicit InplaceStringBase( const CharT* str, uint32_t length ) { setData( str, length ); }
 
     void setData( const CharT* str ) {
-        if ( str == nullptr )
+        if( str == nullptr )
             clear();
         else
             strcpy_s( &m_data[ 0 ], Size, str );
     }
 
     void setData( const CharT* str, uint32_t length ) {
-        if ( str == nullptr )
+        if( str == nullptr )
             clear();
         else
             setData( std::basic_string_view< CharT >( str, length ) );
@@ -46,6 +46,8 @@ class InplaceStringBase {
 
     CharT* getData() { return &m_data[ 0 ]; }
     const CharT* getData() const { return &m_data[ 0 ]; }
+
+    StringView stringView() { return { getData(), getLength() }; }
 
   private:
     CharT m_data[ Size ];

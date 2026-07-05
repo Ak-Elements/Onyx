@@ -2,7 +2,7 @@
 #include <onyx/nodegraph/pins/pinmeta.hpp>
 #include <onyx/rhi/graphicshandles.h>
 
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 
 namespace onyx::node_graph {
 void PinMetaObject< ExecutePin >::Register() {

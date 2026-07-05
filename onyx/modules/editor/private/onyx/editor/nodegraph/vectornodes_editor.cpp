@@ -1,30 +1,30 @@
 #include <onyx/graphics/shadergraph/nodes/math/vectornodes.h>
-#include <onyx/ui/propertygrid.h>
+#include <onyx/ui/propertygrid/propertygrid.h>
 
 namespace onyx::editor {
 namespace {
 template < typename InVectorT, typename OutVectorT >
 constexpr auto GetSwizzleMaskRange() {
-    if constexpr ( IsVector2< OutVectorT > ) {
-        if constexpr ( IsVector2< InVectorT > )
+    if constexpr( IsVector2< OutVectorT > ) {
+        if constexpr( IsVector2< InVectorT > )
             return std::pair{ SwizzleMask::XY, SwizzleMask::YY };
-        if constexpr ( IsVector3< InVectorT > )
+        if constexpr( IsVector3< InVectorT > )
             return std::pair{ SwizzleMask::XY, SwizzleMask::ZZ };
-        if constexpr ( IsVector4< InVectorT > )
+        if constexpr( IsVector4< InVectorT > )
             return std::pair{ SwizzleMask::XY, SwizzleMask::WW };
-    } else if constexpr ( IsVector3< OutVectorT > ) {
-        if constexpr ( IsVector2< InVectorT > )
+    } else if constexpr( IsVector3< OutVectorT > ) {
+        if constexpr( IsVector2< InVectorT > )
             return std::pair{ SwizzleMask::XXX, SwizzleMask::YYY };
-        if constexpr ( IsVector3< InVectorT > )
+        if constexpr( IsVector3< InVectorT > )
             return std::pair{ SwizzleMask::XXX, SwizzleMask::ZZZ };
-        if constexpr ( IsVector4< InVectorT > )
+        if constexpr( IsVector4< InVectorT > )
             return std::pair{ SwizzleMask::XXX, SwizzleMask::WWW };
-    } else if constexpr ( IsVector4< OutVectorT > ) {
-        if constexpr ( IsVector2< InVectorT > )
+    } else if constexpr( IsVector4< OutVectorT > ) {
+        if constexpr( IsVector2< InVectorT > )
             return std::pair{ SwizzleMask::XXXX, SwizzleMask::YYYY };
-        if constexpr ( IsVector3< InVectorT > )
+        if constexpr( IsVector3< InVectorT > )
             return std::pair{ SwizzleMask::XXXX, SwizzleMask::ZZZZ };
-        if constexpr ( IsVector4< InVectorT > )
+        if constexpr( IsVector4< InVectorT > )
             return std::pair{ SwizzleMask::XXXX, SwizzleMask::WWWW };
     }
 }
@@ -40,7 +40,7 @@ bool DrawSwizzleEnumPropertyGrid( SwizzleMask& currentMask ) {
 
 // Float
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f32, Vector2f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector2f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector2f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -48,7 +48,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f32, Vector2f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f32, Vector3f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector3f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector3f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -56,7 +56,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f32, Vector3f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f32, Vector4f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector4f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector4f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -64,7 +64,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f32, Vector4f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f32, Vector2f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3f32, Vector2f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3f32, Vector2f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -72,7 +72,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f32, Vector2f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f32, Vector3f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3f32, Vector3f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3f32, Vector3f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -80,7 +80,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f32, Vector3f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f32, Vector4f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector4f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f32, Vector4f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -88,7 +88,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f32, Vector4f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f32, Vector2f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4f32, Vector2f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4f32, Vector2f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -96,7 +96,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f32, Vector2f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f32, Vector3f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4f32, Vector3f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4f32, Vector3f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -104,7 +104,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f32, Vector3f32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f32, Vector4f32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4f32, Vector4f32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4f32, Vector4f32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -113,7 +113,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f32, Vector4f32 >::Draw
 
 // Double
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f64, Vector2f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f64, Vector2f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f64, Vector2f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -121,7 +121,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f64, Vector2f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f64, Vector3f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f64, Vector3f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f64, Vector3f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -129,7 +129,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f64, Vector3f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f64, Vector4f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2f64, Vector4f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2f64, Vector4f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -137,7 +137,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2f64, Vector4f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f64, Vector2f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3f64, Vector2f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3f64, Vector2f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -145,7 +145,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f64, Vector2f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f64, Vector3f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3f64, Vector3f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3f64, Vector3f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -153,7 +153,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f64, Vector3f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f64, Vector4f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3f64, Vector4f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3f64, Vector4f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -161,7 +161,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3f64, Vector4f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f64, Vector2f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4f64, Vector2f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4f64, Vector2f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -169,7 +169,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f64, Vector2f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f64, Vector3f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4f64, Vector3f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4f64, Vector3f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -177,7 +177,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f64, Vector3f64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f64, Vector4f64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4f64, Vector4f64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4f64, Vector4f64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -186,7 +186,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4f64, Vector4f64 >::Draw
 
 // S32
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s32, Vector2s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2s32, Vector2s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2s32, Vector2s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -194,7 +194,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s32, Vector2s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s32, Vector3s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2s32, Vector3s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2s32, Vector3s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -202,7 +202,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s32, Vector3s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s32, Vector4s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2s32, Vector4s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2s32, Vector4s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -210,7 +210,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s32, Vector4s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s32, Vector2s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3s32, Vector2s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3s32, Vector2s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -218,7 +218,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s32, Vector2s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s32, Vector3s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3s32, Vector3s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3s32, Vector3s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -226,7 +226,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s32, Vector3s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s32, Vector4s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3s32, Vector4s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3s32, Vector4s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -234,7 +234,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s32, Vector4s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s32, Vector2s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4s32, Vector2s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4s32, Vector2s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -242,7 +242,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s32, Vector2s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s32, Vector3s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4s32, Vector3s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4s32, Vector3s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -250,7 +250,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s32, Vector3s32 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s32, Vector4s32 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4s32, Vector4s32 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4s32, Vector4s32 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -259,7 +259,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s32, Vector4s32 >::Draw
 
 // S64
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s64, Vector2s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2s64, Vector2s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2s64, Vector2s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -267,7 +267,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s64, Vector2s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s64, Vector3s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2s64, Vector3s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2s64, Vector3s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -275,7 +275,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s64, Vector3s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s64, Vector4s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector2s64, Vector4s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector2s64, Vector4s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -283,7 +283,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector2s64, Vector4s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s64, Vector2s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3s64, Vector2s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3s64, Vector2s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -291,7 +291,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s64, Vector2s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s64, Vector3s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3s64, Vector3s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3s64, Vector3s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -299,7 +299,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s64, Vector3s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s64, Vector4s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector3s64, Vector4s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector3s64, Vector4s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -307,7 +307,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector3s64, Vector4s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s64, Vector2s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4s64, Vector2s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4s64, Vector2s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -315,7 +315,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s64, Vector2s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s64, Vector3s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4s64, Vector3s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4s64, Vector3s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 
@@ -323,7 +323,7 @@ Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s64, Vector3s64 >::Draw
 }
 
 Optional< Vector4u8 > EditorSwizzleVectorControl< Vector4s64, Vector4s64 >::Draw( SwizzleMask& currentMask ) {
-    if ( DrawSwizzleEnumPropertyGrid< Vector4s64, Vector4s64 >( currentMask ) ) {
+    if( DrawSwizzleEnumPropertyGrid< Vector4s64, Vector4s64 >( currentMask ) ) {
         return convertMaskToVector( currentMask );
     }
 

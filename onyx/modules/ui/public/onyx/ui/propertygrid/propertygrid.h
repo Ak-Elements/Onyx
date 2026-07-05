@@ -2,6 +2,11 @@
 
 #if ONYX_IS_EDITOR
 
+#include <onyx/localization/localization.h>
+#include <onyx/ui/scalarinputoptions.h>
+#include <onyx/ui/scopeddisable.h>
+#include <onyx/ui/scopedindent.h>
+
 #include <onyx/assets/assethandle.h>
 #include <onyx/assets/assetid.h>
 #include <onyx/ui/controls/vectorcontrol.h>
@@ -17,28 +22,22 @@ enum class AssetType : uint32_t;
 } // namespace onyx::assets
 
 namespace onyx::ui {
-enum class ScalarInputFlag : uint8_t {
-    None,
-    PowerOf2,
-};
-
-template < typename T > requires( std::is_arithmetic_v< T > || IsVector< T > )
-struct ScalarOptions {
-    Optional< T > Min;
-    Optional< T > Max;
-
-    bool IsSlider = false;
-};
 
 template < typename T >
 struct ComboOption {
     String Label;
     T Value;
 };
-namespace property_grid {
+} // namespace onyx::ui
+
+#include <onyx/ui/propertygrid/propertygridinternal.h>
+
+namespace onyx::ui::property_grid {
 void setAssetSystem( assets::AssetSystem& assetSystem );
 
-void beginPropertyGrid( StringView propertyGrid, float32 splitMinX );
+ImVec2 getPropertyValuePosition();
+
+void beginPropertyGrid( StringView propertyGrid, int32_t splitMinX );
 void endPropertyGrid();
 
 void drawPropertyName( StringView propertyName );
@@ -60,19 +59,22 @@ bool drawButton( StringView propertyName );
 
 bool drawProperty( StringView propertyName, StringView readOnlyValue );
 bool drawProperty( StringView propertyName, String& value );
-bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags textFlags );
-
-bool drawAssetSelector( StringView propertyName, assets::AssetId& outAssetId, assets::AssetType assetType );
+bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags flags );
 
 template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
 bool drawProperty( StringView propertyName, assets::AssetHandle< T >& outAsset ) {
     assets::AssetId assetId = outAsset.getId();
-    if( drawAssetSelector( propertyName, assetId, static_cast< assets::AssetType >( T::TypeId.getId() ) ) ) {
+    drawPropertyName( propertyName );
+
+    bool hasModified = false;
+    if( internal::drawPropertyValue( propertyName, assetId, static_cast< assets::AssetType >( T::TypeId.getId() ) ) ) {
         outAsset.setId( assetId );
-        return true;
+        hasModified = true;
     }
 
-    return false;
+    ImGui::EndHorizontal();
+
+    return hasModified;
 }
 
 /* returns true if the value was modified */
@@ -94,77 +96,8 @@ bool drawProperty( StringView propertyName, T& ) {
 template < typename ScalarT > requires std::is_arithmetic_v< ScalarT >
 bool drawProperty( StringView propertyName, ScalarT& value, ScalarInputFlag flags, ScalarOptions< ScalarT > options ) {
     drawPropertyName( propertyName );
-
-    // Draw Value
-    ImGui::PushID( propertyName.data() );
-    constexpr ImGuiDataType DataType = getImGuiDataType< ScalarT >();
-    bool hasModified = false;
-    ScopedImGuiStyle style{ ImGuiStyleVar_FrameBorderSize, 1.0f };
-    if( flags == ScalarInputFlag::None ) {
-        bool hasMin = options.Min.has_value();
-        bool hasMax = options.Max.has_value();
-        if( hasMin || hasMax ) {
-            ScalarT minValue = options.Min.value_or( std::numeric_limits< ScalarT >::lowest() );
-            ScalarT maxValue = options.Max.value_or( std::numeric_limits< ScalarT >::max() );
-
-            ScalarT beforeValue = value;
-            if( drawScalarInput( "##inoutScalar",
-                                 DataType,
-                                 value,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 ImGuiInputTextFlags_CharsDecimal ) ) {
-                value = std::clamp( value, minValue, maxValue );
-                hasModified = isEqual( beforeValue, value ) == false;
-            }
-
-            String tooltip;
-            if( hasMin && hasMax ) {
-                tooltip = format::format( "[ {} .. {} ]", minValue, maxValue );
-            } else if( hasMin ) {
-                tooltip = format::format( "[ {} .. ]", minValue );
-            } else {
-                tooltip = format::format( "[ .. {} ]", maxValue );
-            }
-
-            ImGui::SetItemTooltip( "%s", tooltip.c_str() );
-        } else {
-            if( options.IsSlider ) {
-                hasModified = ImGui::DragScalar( "##inoutScalar",
-                                                 DataType,
-                                                 &value,
-                                                 10,
-                                                 &options.Min,
-                                                 &options.Max,
-                                                 nullptr,
-                                                 ImGuiSliderFlags_None );
-            } else {
-                hasModified = drawScalarInput( "##inoutScalar",
-                                               DataType,
-                                               value,
-                                               nullptr,
-                                               nullptr,
-                                               nullptr,
-                                               ImGuiInputTextFlags_CharsDecimal );
-            }
-        }
-    } else if( flags == ScalarInputFlag::PowerOf2 ) {
-        // This works but the IsItemDeactivatedAfterEdit fires after losing focus which makes it hard to check if
-        // the value actually changed static ScalarT tmpValue = value;
-        drawScalarInput( "##inoutScalar", DataType, value );
-        if( ImGui::IsItemDeactivatedAfterEdit() ) {
-            // if (tmpValue != value)
-            //  {
-            //      value = tmpValue;
-            hasModified = true;
-            //  }
-        }
-    }
-
-    ImGui::PopID();
+    bool hasModified = internal::drawPropertyValue( propertyName, value, flags, options, ImGuiInputTextFlags_None );
     ImGui::EndHorizontal();
-
     return hasModified;
 }
 
@@ -387,6 +320,9 @@ bool drawEnumPropertyFromTo( StringView propertyName, EnumT& currentValue ) {
 
     return isModified;
 }
-}; // namespace property_grid
-} // namespace onyx::ui
+
+}; // namespace onyx::ui::property_grid
+
+#include <onyx/ui/propertygrid/propertygridcollections.h>
+
 #endif
