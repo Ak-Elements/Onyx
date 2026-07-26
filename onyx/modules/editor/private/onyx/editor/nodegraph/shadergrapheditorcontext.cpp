@@ -10,19 +10,21 @@
 namespace onyx::editor {
 ShaderGraphEditorContext::ShaderGraphEditorContext( assets::AssetSystem& assetSystem,
                                                     rhi::GraphicsSystem& graphicsSystem )
-    : m_AssetSystem( &assetSystem )
-    , m_graphicsSystem( &graphicsSystem ) {}
+    : m_assetSystem( &assetSystem )
+    , m_graphicsSystem( &graphicsSystem ) {
+    m_graph = assetSystem.create< graphics::MaterialShaderGraph >();
+}
 
 bool ShaderGraphEditorContext::compile() {
     ONYX_ASSERT( m_graphicsSystem != nullptr );
 
     rhi::PBRShaderGenerator generator;
     bool hasGenerated = m_graph->generateShader( generator );
-    return hasGenerated && rhi::ShaderCompiler::ValidateCode( *m_graphicsSystem, m_graph->getShaderCode() );
+    return hasGenerated && rhi::shader_compiler::validateCode( *m_graphicsSystem, m_graph->getShaderCode() );
 }
 
 void ShaderGraphEditorContext::onNodeChanged( const Node& newNode ) {
     graphics::ShaderGraphNode& node = getNodeGraph().getNode< graphics::ShaderGraphNode >( newNode.LocalId );
-    node.OnNodeChanged( *m_AssetSystem );
+    node.OnNodeChanged( *m_assetSystem );
 }
 } // namespace onyx::editor

@@ -22,7 +22,7 @@ class ShaderGraphEditorContext
     void onNodeChanged( const Node& newNode ) override;
 
   private:
-    assets::AssetSystem* m_AssetSystem = nullptr;
+    assets::AssetSystem* m_assetSystem = nullptr;
     rhi::GraphicsSystem* m_graphicsSystem = nullptr;
 };
 
