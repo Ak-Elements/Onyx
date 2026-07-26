@@ -278,12 +278,12 @@ void RenderGraphShaderNode::onSwapChainResized( rhi::GraphicsSystem& api, Render
 #endif
             //[Aaron] do we really want to create the view here?
             rhi::TextureProperties texProp;
-            texProp.m_Format = resourceInfo.Format;
-            texProp.m_AllowCubeMapLoads = false;
-            texProp.m_MaxMipLevel = storageProperties.m_MaxMipLevel;
-            texProp.m_ArraySize = storageProperties.m_ArraySize;
+            texProp.Format = resourceInfo.Format;
+            texProp.AllowCubeMapLoads = false;
+            texProp.MaxMipLevel = storageProperties.m_MaxMipLevel;
+            texProp.ArraySize = storageProperties.m_ArraySize;
 #if ONYX_IS_DEBUG
-            texProp.m_DebugName = output.Info.Name + " View";
+            texProp.DebugName = output.Info.Name + " View";
 #endif
 
             // In-place construct the resized attachment

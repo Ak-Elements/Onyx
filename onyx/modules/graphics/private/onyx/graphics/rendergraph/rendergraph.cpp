@@ -276,12 +276,12 @@ bool RenderGraph::createAttachment( rhi::GraphicsSystem& graphicsSystem,
 #endif
     //[Aaron] do we really want to create the view here?
     rhi::TextureProperties texProp;
-    texProp.m_Format = resourceInfo.Format;
-    texProp.m_AllowCubeMapLoads = false;
-    texProp.m_MaxMipLevel = storageProperties.m_MaxMipLevel;
-    texProp.m_ArraySize = storageProperties.m_ArraySize;
+    texProp.Format = resourceInfo.Format;
+    texProp.AllowCubeMapLoads = false;
+    texProp.MaxMipLevel = storageProperties.m_MaxMipLevel;
+    texProp.ArraySize = storageProperties.m_ArraySize;
 #if ONYX_IS_DEBUG
-    texProp.m_DebugName = resource.Info.Name + " View";
+    texProp.DebugName = resource.Info.Name + " View";
 #endif
 
     // first check if we have a resource in the free list that we can use
@@ -300,7 +300,7 @@ bool RenderGraph::createAttachment( rhi::GraphicsSystem& graphicsSystem,
         // Add logic for handling already aliased textures?
 
 #if ONYX_IS_DEBUG
-        texProp.m_DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.m_DebugName;
+        texProp.DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.m_DebugName;
 #endif
         graphicsSystem.createAlias( std::get< rhi::TextureHandle >( resource.Handle ),
                                     freeTexture.Storage,

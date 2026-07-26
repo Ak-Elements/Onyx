@@ -19,22 +19,22 @@ class VulkanTexture : public rhi::Texture {
                    int8_t aliasIndex );
     ~VulkanTexture() override;
 
-    const VkDescriptorImageInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
+    [[nodiscard]]
+    const VkDescriptorImageInfo& getDescriptorInfo() const {
+        return m_descriptorInfo;
+    }
 
   private:
-    void Init( const VulkanGraphicsApi& api, int8_t aliasIndex );
-    void UpdateDescriptorInfo();
-
-    static VkImageViewType GetType( TextureType type, bool isArray );
-    TextureFormat ResolveTextureFormat( TextureFormat viewFormat, TextureFormat storageFormat );
+    void init( const VulkanGraphicsApi& api, int8_t aliasIndex );
+    static VkImageViewType getType( TextureType type, bool isArray );
+    TextureFormat resolveTextureFormat( TextureFormat viewFormat, TextureFormat storageFormat );
 
     void Release() override;
 
   private:
-    VulkanGraphicsApi* m_Api = nullptr;
-
+    VulkanGraphicsApi* m_api = nullptr;
     VULKAN_HANDLE( VkImageView, ImageView, nullptr );
 
-    VkDescriptorImageInfo m_DescriptorInfo;
+    VkDescriptorImageInfo m_descriptorInfo;
 };
 } // namespace onyx::rhi::vulkan

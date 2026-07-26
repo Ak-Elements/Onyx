@@ -48,7 +48,7 @@ void DescriptorSet::Bind( const TextureHandle& textureHandle, const String& bind
 
     VkWriteDescriptorSet writeDescriptorSet = m_WriteDescriptorSets[ bindingName ];
     writeDescriptorSet.dstSet = m_DescriptorSet;
-    writeDescriptorSet.pImageInfo = &texture.GetDescriptorInfo();
+    writeDescriptorSet.pImageInfo = &texture.getDescriptorInfo();
     m_PendingDescriptorUpdates.push_back( writeDescriptorSet );
 }
 

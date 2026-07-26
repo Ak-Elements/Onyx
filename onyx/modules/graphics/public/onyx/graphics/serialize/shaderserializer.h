@@ -9,7 +9,7 @@ class Shader;
 
 namespace onyx::graphics {
 struct ShaderSerializer : public assets::AssetSerializer< rhi::Shader > {
-    static constexpr Array< StringView, 1 > Extensions{ "oshader" };
+    static constexpr Array< StringView, 1 > Extensions{ "slang" };
     static constexpr assets::AssetFormat Format = assets::AssetFormat::Text;
 
     bool serialize( const assets::AssetHandle< assets::AssetInterface >& asset,

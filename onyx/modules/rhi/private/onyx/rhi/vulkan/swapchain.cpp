@@ -174,7 +174,7 @@ void SwapChain::Init() {
     m_SwapchainBuffers.resize( m_ImageCount );
 
     TextureProperties textureProps;
-    textureProps.m_Format = TextureFormat::BGRA_UNORM8;
+    textureProps.Format = TextureFormat::BGRA_UNORM8;
 
     for( uint32_t i = 0; i < m_ImageCount; ++i ) {
         TextureHandle& texture = m_SwapchainBuffers[ i ];
@@ -185,7 +185,7 @@ void SwapChain::Init() {
             format::format( "Swapchain Image {}", i ) );
 
         texture.Storage = textureStorage;
-        textureProps.m_DebugName = format::format( "Swapchain ImageView {}", i );
+        textureProps.DebugName = format::format( "Swapchain ImageView {}", i );
 
         texture.Texture = Reference< VulkanTexture, TextureDeleter >::create( m_GraphicsApi,
                                                                               textureProps,

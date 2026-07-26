@@ -2,8 +2,7 @@ import includes.bindless;
 import includes.textureformat;
 import includes.textureformatattribute;
 
-struct PushConstants
-{
+struct PushConstants {
     float2 Scale;
     float2 Translation;
 };
@@ -11,27 +10,24 @@ struct PushConstants
 [ push_constant ]
 PushConstants Constants;
 
-struct VSInput
-{
+struct VSInput {
     float2 Position;
     float2 Uv;
 
-    [Format( TextureFormat::RGBA_UNORM8 )]
+    [ Format( TextureFormat::RGBA_UNORM8 ) ]
     float4 Color;
 };
 
-struct VSOutput
-{
+struct VSOutput {
     float4 Position : SV_Position;
     float2 Uv;
     float4 Color;
-    
+
     nointerpolation uint TextureIndex;
 };
 
-[shader("vertex")]
-VSOutput vertexMain( VSInput input, uint instanceID : SV_InstanceID, uint baseInstance : SV_StartInstanceLocation )
-{
+[ shader( "vertex" ) ]
+VSOutput vertexMain( VSInput input, uint instanceID: SV_InstanceID, uint baseInstance: SV_StartInstanceLocation ) {
     VSOutput output;
 
     output.Uv = input.Uv;
@@ -43,9 +39,9 @@ VSOutput vertexMain( VSInput input, uint instanceID : SV_InstanceID, uint baseIn
     return output;
 }
 
-[shader("fragment")]
-float4 fragmentMain(VSOutput input) : SV_Target
-{
+[ shader( "fragment" ) ]
+float4 fragmentMain( VSOutput input )
+    : SV_Target {
     float4 sampledTexture = linearSample( input.TextureIndex, input.Uv );
     return input.Color * sampledTexture;
 }

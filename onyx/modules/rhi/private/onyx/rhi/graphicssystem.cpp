@@ -126,11 +126,11 @@ void GraphicsSystem::createDepthImages( Vector2s32 extents ) {
     depthTargetStorageProperties.m_IsFrameBuffer = true;
 
     TextureProperties depthTargetViewProperties;
-    depthTargetViewProperties.m_Format = depthTargetStorageProperties.m_Format;
+    depthTargetViewProperties.Format = depthTargetStorageProperties.m_Format;
 
     for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
         depthTargetStorageProperties.m_DebugName = format::format( "Depth Storage {}", i );
-        depthTargetViewProperties.m_DebugName = format::format( "Depth Image {}", i );
+        depthTargetViewProperties.DebugName = format::format( "Depth Image {}", i );
 
         createTexture( m_depthImages[ i ], depthTargetStorageProperties, depthTargetViewProperties );
     }

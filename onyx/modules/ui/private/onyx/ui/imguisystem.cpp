@@ -618,9 +618,9 @@ void ImGuiSystem::initRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
     storageProps.m_DebugName = "ImGui Font Texture Storage";
 
     rhi::TextureProperties textureProps;
-    textureProps.m_Format = rhi::TextureFormat::RGBA_UNORM8;
-    textureProps.m_AllowCubeMapLoads = false;
-    textureProps.m_DebugName = "ImGui Font Texture";
+    textureProps.Format = rhi::TextureFormat::RGBA_UNORM8;
+    textureProps.AllowCubeMapLoads = false;
+    textureProps.DebugName = "ImGui Font Texture";
 
     Span< uint8_t > fontTexData{ fontData, uploadSize };
 

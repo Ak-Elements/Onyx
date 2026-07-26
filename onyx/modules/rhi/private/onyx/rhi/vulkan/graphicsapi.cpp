@@ -443,7 +443,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
             descriptorWrite.dstSet = m_bindlessDescriptorSets->GetHandle();
             descriptorWrite.dstBinding = Bindless::SampledImageBinding;
-            descriptorWrite.pImageInfo = &( textureUpdate.Texture->GetDescriptorInfo() );
+            descriptorWrite.pImageInfo = &( textureUpdate.Texture->getDescriptorInfo() );
 
             ++currentIndex;
         }
