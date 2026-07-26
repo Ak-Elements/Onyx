@@ -41,8 +41,8 @@ bool TextureSerializer::deserialize( assets::AssetHandle< assets::AssetInterface
     storageProps.m_DebugName = format::format( "{} Texture Storage", meta.getName() );
 
     rhi::TextureProperties textureProps;
-    textureProps.m_Format = storageProps.m_Format;
-    textureProps.m_DebugName = format::format( "{} Texture", meta.getName() );
+    textureProps.Format = storageProps.m_Format;
+    textureProps.DebugName = format::format( "{} Texture", meta.getName() );
     const Span< uint8_t >& imageData = file.GetData();
 
     graphicsSystem.createTexture( textureAsset.m_texture, storageProps, textureProps, imageData );
