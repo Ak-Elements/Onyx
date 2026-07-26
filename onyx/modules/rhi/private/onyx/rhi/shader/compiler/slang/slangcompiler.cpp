@@ -4,7 +4,7 @@
 #include <onyx/rhi/shader/shader.h>
 #include <onyx/rhi/shader/shadercache.h>
 #include <onyx/rhi/vulkan/shader.h>
-//
+
 // clang-format off
 #include <slang.h>
 #include <slang-com-ptr.h>
