@@ -16,7 +16,7 @@ void SdfUnionVolumeShaderGraphNode::DoGenerateShader( const node_graph::Executio
          ( context.IsPinConnected< OutPinIsoValue >() == false ) )
         return;
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/operations/union.h" );
+    generator.AddInclude( "includes/volume/csg/operations/union.h" );
 
     String unionVariableName = format::format( "unionNode_{:x}", GetId().get() );
 

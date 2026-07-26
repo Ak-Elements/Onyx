@@ -18,7 +18,7 @@ void SdfPlaneVolumeShaderGraphNode::DoGenerateShader( const node_graph::Executio
     const InPin0& inputPin0 = GetInputPin0();
     const InPin1& inputPin1 = GetInputPin1();
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/plane.h" );
+    generator.AddInclude( "includes/volume/csg/plane.h" );
 
     String planeVariableName = format::format( "planeNode_{:x}", GetId().get() );
     String sampleVariableName = format::format( "planeSample_{:x}", GetId().get() );

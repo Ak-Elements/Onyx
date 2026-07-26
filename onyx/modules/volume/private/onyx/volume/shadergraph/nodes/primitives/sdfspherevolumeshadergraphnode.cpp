@@ -18,7 +18,7 @@ void SdfSphereVolumeShaderGraphNode::DoGenerateShader( const node_graph::Executi
     const InPin0& inputPin0 = GetInputPin0();
     const InPin1& inputPin1 = GetInputPin1();
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/sphere.h" );
+    generator.AddInclude( "includes/volume/csg/sphere.h" );
 
     String sphereVariableName = format::format( "sphereNode_{:x}", GetId().get() );
     String sampleVariableName = format::format( "sphereSample_{:x}", GetId().get() );

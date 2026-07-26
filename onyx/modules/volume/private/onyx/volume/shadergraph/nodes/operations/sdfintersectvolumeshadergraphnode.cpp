@@ -16,7 +16,7 @@ void SdfIntersectVolumeShaderGraphNode::DoGenerateShader( const node_graph::Exec
          ( context.IsPinConnected< OutPinIsoValue >() == false ) )
         return;
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/operations/intersect.h" );
+    generator.AddInclude( "includes/volume/csg/operations/intersect.h" );
 
     String intersectVariableName = format::format( "intersectNode_{:x}", GetId().get() );
 

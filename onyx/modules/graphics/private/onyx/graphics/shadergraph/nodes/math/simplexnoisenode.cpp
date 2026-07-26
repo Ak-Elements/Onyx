@@ -17,7 +17,7 @@ void SimplexNoise2DNode::DoGenerateShader( const node_graph::ExecutionContext& c
 
     const InPin& inputPin0 = GetInputPin();
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/math/psrdnoise2d.h" );
+    generator.AddInclude( "includes/math/psrdnoise2d.h" );
 
     String noiseVariable = format::format( "noiseNode_{:x}", GetId().get() );
     String noiseValueOutVariableName = format::format( "pin_{:x}", GetOutputPin0().GetGlobalId().get() );
@@ -61,7 +61,7 @@ void SimplexNoise3DNode::DoGenerateShader( const node_graph::ExecutionContext& c
 
     const InPin& inputPin0 = GetInputPin();
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/math/psrdnoise2d.h" );
+    generator.AddInclude( "includes/math/psrdnoise2d.h" );
 
     String noiseVariable = format::format( "noiseNode_{:x}", GetId().get() );
     String noiseValueOutVariableName = format::format( "pin_{:x}", GetOutputPin0().GetGlobalId().get() );

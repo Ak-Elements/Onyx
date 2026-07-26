@@ -18,7 +18,7 @@ void SdfEllipsoidVolumeShaderGraphNode::DoGenerateShader( const node_graph::Exec
     const InPin0& inputPin0 = GetInputPin0();
     const InPin1& inputPin1 = GetInputPin1();
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/ellipsoid.h" );
+    generator.AddInclude( "includes/volume/csg/ellipsoid.h" );
 
     String ellipsoidVariableName = format::format( "ellipsoidNode_{:x}", GetId().get() );
     String sampleVariableName = format::format( "ellipsoidSample_{:x}", GetId().get() );

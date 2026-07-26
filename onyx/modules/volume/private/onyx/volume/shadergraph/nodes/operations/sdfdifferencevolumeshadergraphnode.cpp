@@ -16,7 +16,7 @@ void SdfDifferenceVolumeShaderGraphNode::DoGenerateShader( const node_graph::Exe
          ( context.IsPinConnected< OutPinIsoValue >() == false ) )
         return;
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/operations/difference.h" );
+    generator.AddInclude( "includes/volume/csg/operations/difference.h" );
 
     String differenceVariableName = format::format( "differenceNode_{:x}", GetId().get() );
 

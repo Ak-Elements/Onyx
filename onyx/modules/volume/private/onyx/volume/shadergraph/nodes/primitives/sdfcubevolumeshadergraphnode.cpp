@@ -18,7 +18,7 @@ void SdfCubeVolumeShaderGraphNode::DoGenerateShader( const node_graph::Execution
     const InPin0& inputPin0 = GetInputPin0();
     const InPin1& inputPin1 = GetInputPin1();
 
-    generator.AddInclude( rhi::ShaderStage::All, "includes/volume/csg/cube.h" );
+    generator.AddInclude( "includes/volume/csg/cube.h" );
 
     String cubeVariableName = format::format( "cubeNode_{:x}", GetId().get() );
     String sampleVariableName = format::format( "cubeSample_{:x}", GetId().get() );
