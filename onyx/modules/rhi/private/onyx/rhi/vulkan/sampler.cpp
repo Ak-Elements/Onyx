@@ -5,7 +5,7 @@
 namespace onyx::rhi::vulkan {
 namespace {
 VkSamplerAddressMode ToVulkanAddressMode( SamplerAddressMode mode ) {
-    switch ( mode ) {
+    switch( mode ) {
     case SamplerAddressMode::Repeat:
         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
     case SamplerAddressMode::MirroredRepeat:
@@ -23,7 +23,7 @@ VkSamplerAddressMode ToVulkanAddressMode( SamplerAddressMode mode ) {
 }
 
 VkFilter ToVulkanSamplerFilter( SamplerFilter mode ) {
-    switch ( mode ) {
+    switch( mode ) {
     case SamplerFilter::Nearest:
         return VK_FILTER_NEAREST;
     case SamplerFilter::Linear:
@@ -37,7 +37,7 @@ VkFilter ToVulkanSamplerFilter( SamplerFilter mode ) {
 }
 
 VkSamplerMipmapMode ToVulkanSamplerMipMapMode( SamplerMipMapMode mode ) {
-    switch ( mode ) {
+    switch( mode ) {
     case SamplerMipMapMode::Nearest:
         return VK_SAMPLER_MIPMAP_MODE_NEAREST;
     case SamplerMipMapMode::Linear:
@@ -50,7 +50,7 @@ VkSamplerMipmapMode ToVulkanSamplerMipMapMode( SamplerMipMapMode mode ) {
 } // namespace
 
 Sampler::Sampler( const Device& device, const SamplerProperties& properties )
-    : m_Device( device ) {
+    : m_device( device ) {
     VkSamplerCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.addressModeU = ToVulkanAddressMode( properties.AddressModeU );
@@ -69,11 +69,13 @@ Sampler::Sampler( const Device& device, const SamplerProperties& properties )
     createInfo.pNext = nullptr;
 
     VK_CHECK_RESULT( vkCreateSampler( device.GetHandle(), &createInfo, nullptr, &m_Sampler ) )
+
+    m_descriptorInfo.sampler = m_Sampler;
 }
 
 Sampler::~Sampler() {
-    if ( m_Sampler ) {
-        vkDestroySampler( m_Device.GetHandle(), m_Sampler, nullptr );
+    if( m_Sampler ) {
+        vkDestroySampler( m_device.GetHandle(), m_Sampler, nullptr );
     }
 }
 } // namespace onyx::rhi::vulkan

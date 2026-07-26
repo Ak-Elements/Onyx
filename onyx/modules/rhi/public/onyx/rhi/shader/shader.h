@@ -229,6 +229,7 @@ struct VertexInputStream {
 
 struct ShaderReflectionInfo {
     bool IsUsingBindless = false;
+    ShaderStage Stages = ShaderStage::Invalid;
 
     VertexInputStream VertexInput;
     DynamicArray< ShaderDescriptorSet > ShaderDescriptorSets;
@@ -238,6 +239,18 @@ struct ShaderReflectionInfo {
     HashMap< String, ShaderResourceDeclaration > ShaderResources;
     HashMap< String, ShaderBuffer > ConstantBuffers;
     HashMap< String, TextureFormat > OutputAttachments;
+
+    PushConstantRange& getPushConstantRange( ShaderStage stage ) {
+        auto it = std::ranges::find_if( PushConstantRanges, [ stage ]( PushConstantRange& pushConstantRange ) {
+            return pushConstantRange.Stage == stage;
+        } );
+
+        if( it != PushConstantRanges.end() ) {
+            return *it;
+        }
+
+        return PushConstantRanges.emplace_back( stage );
+    }
 
     void serialize( Stream& outStream ) const {
         outStream.write( IsUsingBindless );
@@ -265,20 +278,18 @@ class Shader : public assets::Asset< Shader > {
     static constexpr StringId32 TypeId{ "onyx::graphics::assets::Shader" };
     static StringId32 getTypeId() { return TypeId; }
 
-    using ByteCode = DynamicArray< uint32_t >;
-    using PerStageByteCodes = InplaceArray< ByteCode, MAX_SHADER_STAGES >;
-
-    virtual bool addStage( GraphicsSystem& api, ShaderStage stage, const ByteCode& byteCode ) = 0;
-    virtual void removeStage( ShaderStage stage ) = 0;
+    using ByteCode = DynamicArray< uint8_t* >;
 
     [[nodiscard]] virtual const ShaderReflectionInfo& getReflectionData() const = 0;
-    virtual bool updateReflectionData( GraphicsSystem& api, ShaderReflectionInfo& reflectionInfo ) = 0;
 
     [[nodiscard]] virtual uint64_t getShaderHash() const = 0;
     virtual void setShaderHash( uint64_t hash ) = 0;
 
     [[nodiscard]] virtual bool isComputeShader() const = 0;
     [[nodiscard]] virtual bool hasDescriptorSetLayout() const = 0;
+
+    [[nodiscard]] virtual bool loadFromDisk( GraphicsSystem& graphicsSystem, Stream& stream ) = 0;
+    [[nodiscard]] virtual bool write( Stream& stream ) const = 0;
 
 #if !ONYX_IS_RETAIL
     [[nodiscard]] virtual StringView getPath() const = 0;

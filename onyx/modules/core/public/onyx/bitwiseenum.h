@@ -46,6 +46,11 @@ constexpr bool all( T flags, Enum contains ) {
 }
 
 template < typename Enum, typename T >
+constexpr bool isSet( T flags, Enum contains ) {
+    return all( flags, contains );
+}
+
+template < typename Enum, typename T >
 constexpr bool any( T flags, Enum contains ) {
     return ( static_cast< std::underlying_type_t< Enum > >( flags ) & ( toIntegral( contains ) ) ) != 0;
 }
@@ -152,3 +157,14 @@ constexpr Enum operator--( Enum& value, int ) // postfix decrement
     value = static_cast< Enum >( val - 1 );
     return tmp;
 }
+
+namespace std {
+
+template < typename EnumT > requires is_scoped_enum_v< EnumT >
+struct formatter< EnumT > : std::formatter< std::string > {
+    auto format( EnumT value, format_context& ctx ) const {
+        return std::format_to( ctx.out(), "{}", onyx::enums::toString( value ) );
+    }
+};
+
+} // namespace std

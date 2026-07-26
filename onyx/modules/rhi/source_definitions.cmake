@@ -31,10 +31,9 @@ set(onyx_TARGET_PUBLIC_SOURCES
     shader/shadercache.h	
     shader/shadercompiler.h
     shader/shaderinstance.h
-    shader/shaderincluder.h
     shader/shader.h
     shader/shaderpass.h
-    shader/shaderpreprocessor.h
+    shader/compiler/slang/slangcompiler.h
     shader/generators/shadergenerator.h
     vulkan/buffer.h
     vulkan/commandbuffer.h
@@ -81,8 +80,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     shader/shadercache.cpp
     shader/shadercompiler.cpp
     shader/shaderinstance.cpp
-    shader/shaderincluder.cpp
-    shader/shaderpreprocessor.cpp
+    shader/compiler/slang/slangcompiler.cpp
     shader/generators/shadergenerator.cpp
     vulkan/buffer.cpp
     vulkan/commandbuffer.cpp

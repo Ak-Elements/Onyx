@@ -11,8 +11,15 @@ inline constexpr uint8_t MAX_DESCRIPTOR_SET_LAYOUTS = 8;
 // keep in sync with ShaderStage enum in Graphics::ShaderModule
 inline constexpr uint8_t MAX_SHADER_STAGES = 5;
 
-inline constexpr uint8_t BINDLESS_SET = 0;
-inline constexpr uint32_t MAX_BINDLESS_RESOURCES = 1024;
+struct Bindless {
+    static constexpr uint8_t Set = 0;
+    static constexpr uint32_t MaxSamplers = 128;
+    static constexpr uint32_t MaxResources = 1024;
+
+    static constexpr uint32_t SamplerBinding = 0;
+    static constexpr uint32_t CombinedImageBinding = 1;
+    static constexpr uint32_t SampledImageBinding = 2;
+};
 
 enum class ApiType : uint8_t { None, Dx12, Vulkan };
 
@@ -157,6 +164,8 @@ struct BlendState {
     bool IsBlendEnabled = false;
 };
 
+// NOLINTBEGIN
+// This has to match the list in data/shaders/include/textureformat.slang
 enum class TextureFormat : uint8_t {
     Invalid = 0,
     R_UNORM8,
@@ -182,18 +191,32 @@ enum class TextureFormat : uint8_t {
     DEPTH_STENCIL_UNORM16_8UINT,
     STENCIL_UINT8,
 };
+// NOLINTEND
 
-enum class ShaderLanguage : uint8_t {
-    Invalid,
-    GLSL,
-    HLSL,
-    // SLANG,?
-    Count
-};
+enum class ShaderLanguage : uint8_t { Invalid, Glsl, Hlsl, Slang, Count };
 
 static constexpr uint32_t ShaderCoreVersion = 460;
 
-enum class ShaderStage : uint8_t { Invalid, Vertex, Fragment, Compute, All, Count };
+enum class ShaderStage : uint16_t {
+    Invalid = 0,
+    Vertex = 1 << 0,
+    Fragment = 1 << 1,
+    Compute = 1 << 2,
+    Hull = 1 << 3,
+    Domain = 1 << 4,
+    Geometry = 1 << 5,
+    RayGeneration = 1 << 6,
+    Intersection = 1 << 7,
+    AnyHit = 1 << 8,
+    ClosestHit = 1 << 9,
+    Miss = 1 << 10,
+    Callable = 1 << 11,
+    Mesh = 1 << 12,
+    Amplification = 1 << 13,
+    Dispatch = 1 << 14,
+    Count = 16,
+    All = std::numeric_limits< uint16_t >::max()
+};
 
 enum class ShaderDataType : uint8_t {
     Bool,
@@ -222,7 +245,7 @@ enum class VertexStreamInputRate { Vertex, Instance };
 
 inline uint32_t GetShaderTypeByteSize( TextureFormat format ) {
     // Size is bytes per channel * channel
-    switch ( format ) {
+    switch( format ) {
     case TextureFormat::R_UINT8:
     case TextureFormat::R_UNORM8:
         return 1;
@@ -312,7 +335,7 @@ template <>
 struct std::formatter< onyx::rhi::ShaderDataType > : std::formatter< std::string > {
     auto format( onyx::rhi::ShaderDataType type, format_context& ctx ) const {
         onyx::StringView typeStr;
-        switch ( type ) {
+        switch( type ) {
         case onyx::rhi::ShaderDataType::Bool:
             typeStr = "bool";
             break;

@@ -55,7 +55,7 @@ struct TextureDeleter {
 
     void operator()( T* texture ) const {
         // if no index is set the texture is not from the bindless pool delete normally
-        if ( texture->GetIndex() == std::numeric_limits< uint32_t >::max() ) {
+        if( texture->GetIndex() == std::numeric_limits< uint32_t >::max() ) {
             ONYX_SAFE_DELETE( texture );
         } else {
             texture->Release();
@@ -84,7 +84,7 @@ inline bool HasStencil( TextureFormat format ) {
 }
 
 inline uint32_t GetImageFormatBPP( TextureFormat format ) {
-    switch ( format ) {
+    switch( format ) {
     case TextureFormat::R_UNORM8:
         return 1;
     case TextureFormat::R_UINT8:
@@ -132,7 +132,7 @@ inline uint32_t GetImageFormatBPP( TextureFormat format ) {
 }
 
 inline bool IsIntegerBased( const TextureFormat format ) {
-    switch ( format ) {
+    switch( format ) {
     case TextureFormat::R_UINT8:
     case TextureFormat::R_UINT16:
     case TextureFormat::R_UINT32:

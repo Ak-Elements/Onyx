@@ -14,12 +14,6 @@ class GraphicsSystem;
 struct ShaderReflectionInfo;
 class Shader;
 
-struct ShaderStageCacheEntry {
-    uint64_t Hash;
-    HashMap< uint64_t, uint64_t > IncludeHashes; // path to include content hash
-    DynamicArray< uint32_t > ByteCode;
-};
-
 struct ShaderCacheEntry {
     static constexpr uint64_t InvalidShaderHash = 0;
 
@@ -28,7 +22,8 @@ struct ShaderCacheEntry {
     // do we need this in release?
     uint64_t PathHash = InvalidShaderHash;
     uint64_t ShaderHash = InvalidShaderHash;
-    InplaceArray< ShaderStageCacheEntry, MAX_SHADER_STAGES > Stages;
+
+    HashMap< uint64_t, uint64_t > IncludeHashes; // path to include content hash
 
     bool operator==( const ShaderCacheEntry& other ) const noexcept { return ShaderHash == other.ShaderHash; }
 };
@@ -55,9 +50,7 @@ class ShaderCache {
                             [[maybe_unused]] const FilePath& shaderPath,
                             ShaderCacheEntry& outEntry );
 
-    void saveCacheToDisk( const ShaderCacheEntry& entry,
-                          const FilePath& diskShaderCachePath,
-                          const ShaderReflectionInfo& reflectionInfo );
+    void saveCacheToDisk( const ShaderCacheEntry& entry, const FilePath& diskShaderCachePath );
 
     void onFileChanged( const FilePath& path, file_system::FileWatcher::FileAction action );
 

@@ -24,17 +24,17 @@ void ShaderGenerator::GenerateVertexShader() {
     m_VertexOutputs.emplace_back( "WorldNormal", ShaderDataType::Float3 );
 
     uint32_t locationIndex = 0;
-    for ( const ShaderVariable& vertexInput : m_VertexInputs ) {
+    for( const ShaderVariable& vertexInput : m_VertexInputs ) {
         vertexShaderCode += format::format( "layout (location = {}) in {} {};\n",
                                             locationIndex++,
                                             vertexInput.Type,
                                             vertexInput.Name );
     }
 
-    if ( m_VertexOutputs.empty() == false ) {
+    if( m_VertexOutputs.empty() == false ) {
         vertexShaderCode += "struct OutStruct\n{\n";
 
-        for ( const ShaderVariable& vertexOutput : m_VertexOutputs ) {
+        for( const ShaderVariable& vertexOutput : m_VertexOutputs ) {
             vertexShaderCode += format::format( "{} {};\n", vertexOutput.Type, vertexOutput.Name );
         }
 
@@ -87,27 +87,23 @@ void ShaderGenerator::AddPushConstant( ShaderStage stage, StringView name, Shade
 }
 
 void ShaderGenerator::AddInclude( String include ) {
-    AddInclude( m_CurrentStage, include );
-}
-
-void ShaderGenerator::AddInclude( ShaderStage stage, String include ) {
-    m_ShaderStagesIncludes[ enums::toIntegral( stage ) ].emplace( include );
+    m_ShaderIncludes.emplace( include );
 }
 
 void ShaderGenerator::GeneratePushConstants( String& stageCode ) {
     // TODO: Probably need to add padding
 
     const DynamicArray< ShaderVariable >& stagePushConstants = m_PushConstants[ enums::toIntegral( m_CurrentStage ) ];
-    if ( ( ( m_CurrentStage == ShaderStage::Vertex ) && stagePushConstants.empty() ) ||
-         ( ( m_CurrentStage == ShaderStage::Fragment ) && stagePushConstants.empty() && m_Textures.empty() ) ) {
+    if( ( ( m_CurrentStage == ShaderStage::Vertex ) && stagePushConstants.empty() ) ||
+        ( ( m_CurrentStage == ShaderStage::Fragment ) && stagePushConstants.empty() && m_Textures.empty() ) ) {
         return;
     }
 
     stageCode += "layout( push_constant ) uniform PushConstants \n";
     stageCode += "{ \n";
 
-    for ( const ShaderVariable& variable : stagePushConstants ) {
-        if ( variable.Offset == 0 ) {
+    for( const ShaderVariable& variable : stagePushConstants ) {
+        if( variable.Offset == 0 ) {
             stageCode += format::format( "{} {};\n", variable.Type, variable.Name );
         } else {
             stageCode += format::format( "layout(offset = {}) {} {};\n",
@@ -118,7 +114,7 @@ void ShaderGenerator::GeneratePushConstants( String& stageCode ) {
     }
 
     // Check if enough space for texture indices
-    if ( ( m_CurrentStage == ShaderStage::Fragment ) && ( m_Textures.empty() == false ) ) {
+    if( ( m_CurrentStage == ShaderStage::Fragment ) && ( m_Textures.empty() == false ) ) {
         ONYX_ASSERT( static_cast< uint8_t >( m_Textures.size() ) <= MAX_TEXTURES );
         stageCode += "uint TextureIndices[8]; \n";
     }
@@ -127,7 +123,7 @@ void ShaderGenerator::GeneratePushConstants( String& stageCode ) {
 }
 
 void ShaderGenerator::GenerateIncludes( String& stageCode ) {
-    for ( const String& include : m_ShaderStagesIncludes[ enums::toIntegral( m_CurrentStage ) ] ) {
+    for( const String& include : m_ShaderIncludes ) {
         stageCode += format::format( "#include \"{}\"\n", include );
     }
 
@@ -141,10 +137,10 @@ void ShaderGenerator::GenerateFragmentShader() {
 
     GenerateIncludes( fragmentShaderCode );
 
-    if ( m_VertexOutputs.empty() == false ) {
+    if( m_VertexOutputs.empty() == false ) {
         fragmentShaderCode += "layout(location = 0) in InStruct \n{\n";
 
-        for ( const ShaderVariable& vertexOutput : m_VertexOutputs ) {
+        for( const ShaderVariable& vertexOutput : m_VertexOutputs ) {
             String typeAsString = vertexOutput.Type == ShaderDataType::Float3 ? "vec3" : "vec2";
             fragmentShaderCode += format::format( "{} {};\n", typeAsString, vertexOutput.Name );
         }
@@ -168,7 +164,7 @@ String ShaderGenerator::GenerateShader() {
     GenerateFragmentShader();
 
     String commonIncludes;
-    for ( const String& include : m_ShaderStagesIncludes[ enums::toIntegral( ShaderStage::All ) ] ) {
+    for( const String& include : m_ShaderIncludes ) {
         commonIncludes += format::format( "#include \"{}\"\n", include );
     }
 
@@ -179,10 +175,10 @@ String ShaderGenerator::GenerateShader() {
 }
 
 PBRShaderGenerator::PBRShaderGenerator() {
-    AddInclude( ShaderStage::All, "includes/common.h" );
-    AddInclude( ShaderStage::All, "includes/viewconstants.h" );
+    AddInclude( "includes/common.h" );
+    AddInclude( "includes/viewconstants.h" );
 
-    AddInclude( ShaderStage::Fragment, "includes/lighting.h" );
+    AddInclude( "includes/lighting.h" );
 
     AddPushConstant( ShaderStage::Vertex, "Model", ShaderDataType::Mat4 );
 

@@ -131,7 +131,7 @@ void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandB
         shaderGraph );
     commandBuffer.bindShaderEffect( materialShader.getShader() );
 
-    const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get< graphics::ShaderGraphTextures >();
+    const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().get< graphics::ShaderGraphTextures >();
     const DynamicArray< uint32_t >& textureIndices = shaderTextures.getTextures();
 
     struct PushConstants {

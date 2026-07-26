@@ -13,6 +13,54 @@ CPMAddPackage(SPIRV-Cross
         "SPIRV_CROSS_ENABLE_TESTS OFF"
 )
 
+# SLANG
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(SLANG_VERSION "2026.13.1")
+  set(Slang_URL https://github.com/shader-slang/slang/releases/download/v${SLANG_VERSION}/slang-${SLANG_VERSION}-windows-x86_64.tar.gz)
+  set(Slang_SHA_256 )
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(SLANG_VERSION "2026.13.1")
+  set(Slang_URL https://github.com/shader-slang/slang/releases/download/v${SLANG_VERSION}/slang-${SLANG_VERSION}-linux-x86_64.tar.gz)
+  set(Slang_SHA_256 c1ed948af94c6fd2034cc0f82f6892b8b287d5362939758cb4955676f26d893e)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  message("Use find_package(slang) for Android platform")
+else ()
+  message(FATAL_ERROR "Unsupported platform")
+endif ()
+
+if (Slang_URL AND Slang_SHA_256)
+  CPMAddPackage(
+    NAME slang_download
+    VERSION ${SLANG_VERSION}
+    URL ${Slang_URL}
+    URL_HASH SHA256=${Slang_SHA_256}
+    DOWNLOAD_ONLY
+  )
+
+  if (slang_download_ADDED)
+    set(slang_DIR "${slang_download_SOURCE_DIR}/lib/cmake/slang")
+    if(NOT EXISTS ${slang_DIR})
+      message(FATAL_ERROR "slang install directory not found: \"${slang_DIR}\"")
+    endif()
+  
+    find_package(slang REQUIRED NO_DEFAULT_PATH)
+
+  else ()
+    message(FATAL_ERROR "Unable to add slang from \"${Slang_URL}\"")
+  endif ()
+endif ()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  set(slang_INSTALL ${slang_BUILD}/android-${ANDROID_ABI})
+  set(slang_DIR "${slang_INSTALL}/lib/cmake/slang")
+  if(NOT EXISTS ${slang_DIR})
+    message(FATAL_ERROR "slang install directory not found: \"${slang_DIR}\"")
+  endif()
+  
+
+  find_package(slang REQUIRED)
+endif ()
+
 set(onyx_TARGET_PUBLIC_DEPENDENCIES
     onyx-platform
     onyx-assets
@@ -27,6 +75,7 @@ set(onyx_TARGET_PRIVATE_DEPENDENCIES
     Vulkan::shaderc_combined
     spirv-cross-core
     spirv-cross-glsl
+    slang::slang
 )
 
 find_package(glslang CONFIG QUIET)

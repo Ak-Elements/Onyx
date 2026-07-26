@@ -1,0 +1,28 @@
+
+// This has to match the list in rhi/graphictypes.h
+enum TextureFormat : uint8_t {
+    Invalid = 0,
+    R_UNORM8,
+    R_UINT8,
+    R_UINT16,
+    R_UINT32,
+    R_FLOAT32,
+    RG_UNORM8,
+    RG_FLOAT16,
+    RG_FLOAT32,
+    RGB_FLOAT32,
+    RGB_UNORM8,
+    RGBA_UNORM8,
+    BGRA_UNORM8,
+    RGBA_FLOAT16,
+    RGBA_FLOAT32,
+    RGB_UFLOAT32_PACKED_11_11_10,
+    SRGB_UNORM8,
+    DEPTH_STENCIL_FLOAT32_8UINT,
+    DEPTH_UNORM16,
+    DEPTH_FLOAT32,
+    DEPTH_STENCIL_UNORM24_8UINT,
+    DEPTH_STENCIL_UNORM16_8UINT,
+    STENCIL_UINT8,
+};
+

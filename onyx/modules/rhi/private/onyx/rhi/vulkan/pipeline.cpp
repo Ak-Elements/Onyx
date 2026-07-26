@@ -238,8 +238,8 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 
     if( shader.isComputeShader() ) {
         m_BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
-        const DynamicArray< VkPipelineShaderStageCreateInfo >&
-            pipelineStageCreateInfos = shader.getPipelineShaderStageCreateInfos();
+        DynamicArray< VkPipelineShaderStageCreateInfo >
+            pipelineStageCreateInfos = shader.createPipelineShaderStageCreateInfos();
 
         VkComputePipelineCreateInfo pipelineCreateInfo{};
         pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
@@ -257,8 +257,8 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
         const PipelineProperties& properties = GetProperties();
-        const DynamicArray< VkPipelineShaderStageCreateInfo >&
-            pipelineStageCreateInfos = shader.getPipelineShaderStageCreateInfos();
+        DynamicArray< VkPipelineShaderStageCreateInfo >
+            pipelineStageCreateInfos = shader.createPipelineShaderStageCreateInfos();
 
         VkPipelineCache pipelineCache = nullptr;
 
@@ -355,24 +355,24 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
                          colorTargetsCount );
 
             for( uint8_t i = 0; i < blendStates.size(); i++ ) {
-                const BlendState& blend_state = blendStates[ i ];
+                const BlendState& blendState = blendStates[ i ];
 
                 colorBlendAttachment[ i ].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-                colorBlendAttachment[ i ].blendEnable = blend_state.IsBlendEnabled ? VK_TRUE : VK_FALSE;
-                colorBlendAttachment[ i ].srcColorBlendFactor = ToVulkanBlendFactor( blend_state.SourceColor );
-                colorBlendAttachment[ i ].dstColorBlendFactor = ToVulkanBlendFactor( blend_state.DestinationColor );
-                colorBlendAttachment[ i ].colorBlendOp = ToVulkanBlendOpration( blend_state.ColorOperation );
+                colorBlendAttachment[ i ].blendEnable = blendState.IsBlendEnabled ? VK_TRUE : VK_FALSE;
+                colorBlendAttachment[ i ].srcColorBlendFactor = ToVulkanBlendFactor( blendState.SourceColor );
+                colorBlendAttachment[ i ].dstColorBlendFactor = ToVulkanBlendFactor( blendState.DestinationColor );
+                colorBlendAttachment[ i ].colorBlendOp = ToVulkanBlendOpration( blendState.ColorOperation );
 
-                if( ( blend_state.SourceAlpha != Blend::Invalid ) ||
-                    ( blend_state.DestinationAlpha != Blend::Invalid ) ) {
-                    colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blend_state.SourceAlpha );
-                    colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blend_state.DestinationAlpha );
-                    colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blend_state.AlphaOperation );
+                if( ( blendState.SourceAlpha != Blend::Invalid ) ||
+                    ( blendState.DestinationAlpha != Blend::Invalid ) ) {
+                    colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blendState.SourceAlpha );
+                    colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blendState.DestinationAlpha );
+                    colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blendState.AlphaOperation );
                 } else {
-                    colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blend_state.SourceColor );
-                    colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blend_state.DestinationColor );
-                    colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blend_state.ColorOperation );
+                    colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blendState.SourceColor );
+                    colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blendState.DestinationColor );
+                    colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blendState.ColorOperation );
                 }
             }
         } else {
@@ -458,13 +458,13 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         // pipelineCreateInfo.pTessellationState;
 
         //// Viewport state
-        VkPipelineViewportStateCreateInfo viewport_state{};
-        viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewport_state.viewportCount = 1;
-        viewport_state.scissorCount = 1;
-        viewport_state.pNext = nullptr;
+        VkPipelineViewportStateCreateInfo viewportState{};
+        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportState.viewportCount = 1;
+        viewportState.scissorCount = 1;
+        viewportState.pNext = nullptr;
 
-        pipelineCreateInfo.pViewportState = &viewport_state;
+        pipelineCreateInfo.pViewportState = &viewportState;
 
         //// Render Pass
         VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo{};
@@ -506,7 +506,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         VK_CHECK_RESULT( vkCreatePipelineCache( deviceHandle, &pipelineCacheCreateInfo, nullptr, &pipelineCache ) );
 
         VK_CHECK_RESULT(
-            vkCreateGraphicsPipelines( deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline ) )
+            vkCreateGraphicsPipelines( deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline ) );
 
         m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 

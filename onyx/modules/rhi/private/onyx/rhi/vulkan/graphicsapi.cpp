@@ -202,29 +202,37 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
                                                      MaxPoolElements );
     if( isBindless() ) {
         pools = {
-            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, rhi::MAX_BINDLESS_RESOURCES },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, rhi::MAX_BINDLESS_RESOURCES },
+            { VK_DESCRIPTOR_TYPE_SAMPLER, Bindless::MaxSamplers },
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Bindless::MaxResources },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, Bindless::MaxResources },
+            // { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, rhi::MAX_BINDLESS_RESOURCES },
         };
         m_bindlessDescriptorPool = makeUnique< DescriptorPool >( *m_device,
                                                                  pools,
                                                                  VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT,
-                                                                 rhi::MAX_BINDLESS_RESOURCES );
+                                                                 Bindless::MaxResources );
 
         const uint32_t poolCount = static_cast< uint32_t >( pools.size() );
 
         // change to static array?
         InplaceArray< VkDescriptorSetLayoutBinding, 4 > descriptorSetBindings;
         VkDescriptorSetLayoutBinding& imageSamplerBinding = descriptorSetBindings[ 0 ];
-        imageSamplerBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        imageSamplerBinding.descriptorCount = rhi::MAX_BINDLESS_RESOURCES;
-        imageSamplerBinding.binding = rhi::vulkan::BindlessTextureBinding;
+        imageSamplerBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+        imageSamplerBinding.descriptorCount = Bindless::MaxSamplers;
+        imageSamplerBinding.binding = Bindless::SamplerBinding;
         imageSamplerBinding.stageFlags = VK_SHADER_STAGE_ALL;
 
-        VkDescriptorSetLayoutBinding& storageImageBinding = descriptorSetBindings[ 1 ];
-        storageImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-        storageImageBinding.descriptorCount = rhi::MAX_BINDLESS_RESOURCES;
-        storageImageBinding.binding = rhi::vulkan::BindlessTextureBinding + 1;
-        storageImageBinding.stageFlags = VK_SHADER_STAGE_ALL;
+        VkDescriptorSetLayoutBinding& combinedImageBinding = descriptorSetBindings[ 1 ];
+        combinedImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        combinedImageBinding.descriptorCount = Bindless::MaxResources;
+        combinedImageBinding.binding = Bindless::CombinedImageBinding;
+        combinedImageBinding.stageFlags = VK_SHADER_STAGE_ALL;
+
+        VkDescriptorSetLayoutBinding& sampledImageBinding = descriptorSetBindings[ 2 ];
+        sampledImageBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        sampledImageBinding.descriptorCount = Bindless::MaxResources;
+        sampledImageBinding.binding = Bindless::SampledImageBinding;
+        sampledImageBinding.stageFlags = VK_SHADER_STAGE_ALL;
 
         VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
         descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -241,6 +249,7 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
 
         descriptorBindingFlags[ 0 ] = bindlessFlags;
         descriptorBindingFlags[ 1 ] = bindlessFlags;
+        descriptorBindingFlags[ 2 ] = bindlessFlags;
 
         VkDescriptorSetLayoutBindingFlagsCreateInfoEXT extendedInfo;
         extendedInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
@@ -262,14 +271,14 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
 
         VkDescriptorSetVariableDescriptorCountAllocateInfoEXT countInfo;
         countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
-        uint32_t maxBinding = rhi::MAX_BINDLESS_RESOURCES - 1;
+        uint32_t maxBinding = rhi::Bindless::MaxResources - 1;
         countInfo.descriptorSetCount = 1;
         // This number is the max allocatable count
         countInfo.pDescriptorCounts = &maxBinding;
         countInfo.pNext = nullptr;
 
         descriptorSetAllocInfo.pNext = &countInfo;
-        m_bindlessDescriptorSets = makeUnique< DescriptorSet >( *m_device, BINDLESS_SET, descriptorSetAllocInfo );
+        m_bindlessDescriptorSets = makeUnique< DescriptorSet >( *m_device, Bindless::Set, descriptorSetAllocInfo );
     }
 
     BufferProperties tempFrameBuffer;
@@ -299,36 +308,28 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
     m_graphicsSingleSubmitFence = makeUnique< Fence >( *m_device, false );
     m_computeSingleSubmitFence = makeUnique< Fence >( *m_device, false );
 
+    // linear sampler
     SamplerProperties samplerCreateInfo{};
-    samplerCreateInfo.MinFilter = SamplerFilter::Linear;
-    samplerCreateInfo.MagFilter = SamplerFilter::Linear;
-    samplerCreateInfo.MipFilter = SamplerMipMapMode::Linear;
-    samplerCreateInfo.AddressModeU = SamplerAddressMode::Repeat;
-    samplerCreateInfo.AddressModeV = SamplerAddressMode::Repeat;
-    samplerCreateInfo.AddressModeW = SamplerAddressMode::Repeat;
+    createSampler( samplerCreateInfo );
 
-    uint32_t defaultSamplerHash = samplerCreateInfo.Hash();
-    m_samplers[ defaultSamplerHash ] = Reference< Sampler >::create( *m_device, samplerCreateInfo );
-
+    // linear clamp UV
     samplerCreateInfo.AddressModeU = SamplerAddressMode::ClampToEdge;
     samplerCreateInfo.AddressModeV = SamplerAddressMode::ClampToEdge;
     samplerCreateInfo.MipFilter = SamplerMipMapMode::Nearest;
-    uint32_t samplerHash = samplerCreateInfo.Hash();
-    m_samplers[ samplerHash ] = Reference< Sampler >::create( *m_device, samplerCreateInfo );
+    createSampler( samplerCreateInfo );
 
+    // linear clamp UVW
     samplerCreateInfo.AddressModeW = SamplerAddressMode::ClampToEdge;
-    samplerHash = samplerCreateInfo.Hash();
-    m_samplers[ samplerHash ] = Reference< Sampler >::create( *m_device, samplerCreateInfo );
+    createSampler( samplerCreateInfo );
 
+    // point sampler
     samplerCreateInfo.MinFilter = SamplerFilter::Nearest;
     samplerCreateInfo.MagFilter = SamplerFilter::Nearest;
     samplerCreateInfo.MipFilter = SamplerMipMapMode::Nearest;
     samplerCreateInfo.AddressModeU = SamplerAddressMode::ClampToEdge;
     samplerCreateInfo.AddressModeV = SamplerAddressMode::ClampToEdge;
     samplerCreateInfo.AddressModeW = SamplerAddressMode::ClampToEdge;
-
-    uint32_t pointSamplerHash = samplerCreateInfo.Hash();
-    m_samplers[ pointSamplerHash ] = Reference< Sampler >::create( *m_device, samplerCreateInfo );
+    createSampler( samplerCreateInfo );
 }
 
 void VulkanGraphicsApi::shutdown() {
@@ -425,7 +426,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
     uint32_t currentIndex = 0;
     if( m_bindlessTexturesToUpdate.empty() == false ) {
         DynamicArray< VkWriteDescriptorSet > bindlessDescriptorWrites;
-        bindlessDescriptorWrites.reserve( MAX_BINDLESS_RESOURCES );
+        bindlessDescriptorWrites.reserve( Bindless::MaxResources );
 
         int32_t count = static_cast< int32_t >( m_bindlessTexturesToUpdate.size() );
         for( int32_t i = 0; i < count; ++i ) {
@@ -439,9 +440,9 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrite.descriptorCount = 1;
             descriptorWrite.dstArrayElement = textureUpdate.Index;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
             descriptorWrite.dstSet = m_bindlessDescriptorSets->GetHandle();
-            descriptorWrite.dstBinding = BindlessTextureBinding;
+            descriptorWrite.dstBinding = Bindless::SampledImageBinding;
             descriptorWrite.pImageInfo = &( textureUpdate.Texture->GetDescriptorInfo() );
 
             ++currentIndex;
@@ -451,6 +452,34 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             vkUpdateDescriptorSets( m_device->GetHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
 
         m_bindlessTexturesToUpdate.clear();
+    }
+
+    currentIndex = 0;
+    if( m_bindlessSamplersToUpdate.empty() == false ) {
+        DynamicArray< VkWriteDescriptorSet > bindlessDescriptorWrites;
+        bindlessDescriptorWrites.clear();
+        bindlessDescriptorWrites.reserve( Bindless::MaxSamplers );
+
+        int32_t count = static_cast< int32_t >( m_bindlessSamplersToUpdate.size() );
+        for( int32_t i = 0; i < count; ++i ) {
+            SamplerUpdate& samplerUpdate = m_bindlessSamplersToUpdate[ i ];
+
+            VkWriteDescriptorSet& descriptorWrite = bindlessDescriptorWrites.emplace_back();
+            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.dstArrayElement = samplerUpdate.Index;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+            descriptorWrite.dstSet = m_bindlessDescriptorSets->GetHandle();
+            descriptorWrite.dstBinding = Bindless::SamplerBinding;
+            descriptorWrite.pImageInfo = &( samplerUpdate.Sampler->getDescriptorInfo() );
+
+            ++currentIndex;
+        }
+
+        if( currentIndex != 0 )
+            vkUpdateDescriptorSets( m_device->GetHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
+
+        m_bindlessSamplersToUpdate.clear();
     }
 
     uint8_t backBufferIndex = numericCast< uint8_t >( m_swapChain->GetAcquiredBackbufferIndex() );
@@ -700,7 +729,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
 }
 
 Reference< rhi::Sampler > VulkanGraphicsApi::getSampler( SamplerProperties properties ) const {
-    uint32_t hash = properties.Hash();
+    uint32_t hash = properties.hash();
     if( m_samplers.contains( hash ) == false ) {
         //, "Unknown sampler");
         return {};
@@ -1022,4 +1051,16 @@ DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::createDescriptorSet( cons
 
     return sets;
 }
+
+void VulkanGraphicsApi::createSampler( const SamplerProperties& properties ) {
+    const uint32_t samplerHash = properties.hash();
+    if( m_samplers.contains( samplerHash ) )
+        return;
+
+    const uint32_t samplerIndex = numericCast< uint32_t >( m_samplers.size() );
+    auto sampler = Reference< Sampler >::create( *m_device, properties );
+    m_samplers[ samplerHash ] = sampler;
+    m_bindlessSamplersToUpdate.emplace_back( samplerIndex, sampler.raw() );
+}
+
 } // namespace onyx::rhi::vulkan

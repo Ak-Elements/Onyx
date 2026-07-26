@@ -24,10 +24,9 @@ class MemoryAllocator;
 class PhysicalDevice;
 class Surface;
 class SwapChain;
+class Sampler;
 class VulkanTexture;
 class VulkanTextureStorage;
-
-static constexpr uint32_t BindlessTextureBinding = 0;
 
 class VulkanGraphicsApi : public GraphicsApiInterface {
     static constexpr uint8_t CommandBufferCount = 8;
@@ -116,6 +115,8 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
                       const TextureStorageProperties& aliasStorageProperties,
                       const TextureProperties& aliasTextureProperties ) override;
 
+    void createSampler( const SamplerProperties& properties );
+
     void createBuffer( BufferHandle& outBuffer, const BufferProperties& properties ) override;
     BufferHandle getTransientBuffer( uint8_t frameIndex, const BufferProperties& properties ) override;
 
@@ -167,7 +168,12 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
         VulkanTexture* Texture;
     };
 
+    struct SamplerUpdate {
+        uint32_t Index;
+        Sampler* Sampler;
+    };
     DynamicArray< TextureUpdate > m_bindlessTexturesToUpdate;
+    DynamicArray< SamplerUpdate > m_bindlessSamplersToUpdate;
     DynamicArray< InplaceFunction< bool(), 48 > > m_deletionQueue;
 
     GraphicsResourcePool< VulkanTexture, 1024 > m_textures;

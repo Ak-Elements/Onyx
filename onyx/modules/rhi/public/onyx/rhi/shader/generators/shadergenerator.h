@@ -28,13 +28,13 @@ class ShaderGenerator {
 
     template < typename T >
     static String GenerateShaderValue( const T& value ) {
-        if constexpr ( is_specialization_of_v< Vector4, T > ) {
+        if constexpr( is_specialization_of_v< Vector4, T > ) {
             return String( format::format( "vec4({}, {}, {}, {})", value[ 0 ], value[ 1 ], value[ 2 ], value[ 3 ] ) );
-        } else if constexpr ( is_specialization_of_v< Vector3, T > ) {
+        } else if constexpr( is_specialization_of_v< Vector3, T > ) {
             return String( format::format( "vec3({}, {}, {})", value[ 0 ], value[ 1 ], value[ 2 ] ) );
-        } else if constexpr ( is_specialization_of_v< Vector2, T > ) {
+        } else if constexpr( is_specialization_of_v< Vector2, T > ) {
             return String( format::format( "vec2({}, {})", value[ 0 ], value[ 1 ] ) );
-        } else if constexpr ( std::is_integral_v< T > || std::is_floating_point_v< T > ) {
+        } else if constexpr( std::is_integral_v< T > || std::is_floating_point_v< T > ) {
             return std::to_string( value );
         } else
             return "";
@@ -42,15 +42,15 @@ class ShaderGenerator {
 
     template < typename T >
     static String GetTypeAsShaderTypeString() {
-        if constexpr ( is_specialization_of_v< Vector4, T > ) {
+        if constexpr( is_specialization_of_v< Vector4, T > ) {
             return "vec4";
-        } else if constexpr ( is_specialization_of_v< Vector3, T > ) {
+        } else if constexpr( is_specialization_of_v< Vector3, T > ) {
             return "vec3";
-        } else if constexpr ( is_specialization_of_v< Vector2, T > ) {
+        } else if constexpr( is_specialization_of_v< Vector2, T > ) {
             return "vec2";
-        } else if constexpr ( std::is_floating_point_v< T > ) {
+        } else if constexpr( std::is_floating_point_v< T > ) {
             return "float";
-        } else if constexpr ( std::is_integral_v< T > ) {
+        } else if constexpr( std::is_integral_v< T > ) {
             return std::is_signed_v< T > ? "int" : "uint";
         } else
             return "";
@@ -58,7 +58,7 @@ class ShaderGenerator {
 
     int32_t AddTexture( uint64_t textureId ) {
         int32_t index = GetTextureIndex( textureId );
-        if ( index != InvalidIndex32 ) {
+        if( index != InvalidIndex32 ) {
             return index;
         }
 
@@ -70,7 +70,7 @@ class ShaderGenerator {
     int32_t GetTextureIndex( uint64_t textureId ) {
         auto it = std::ranges::find_if( m_Textures,
                                         [ & ]( const ShaderTexture& texture ) { return texture.Id == textureId; } );
-        if ( it == m_Textures.end() ) {
+        if( it == m_Textures.end() ) {
             return InvalidIndex32;
         }
 
@@ -90,7 +90,6 @@ class ShaderGenerator {
     void AddPushConstant( ShaderStage stage, StringView name, ShaderDataType type, uint32_t offset );
 
     void AddInclude( String include );
-    void AddInclude( ShaderStage stage, String include );
 
     // TODO: Do not submit and fix shader generator isntead of hacking it like that
     virtual String GenerateShader();
@@ -114,7 +113,7 @@ class ShaderGenerator {
     DynamicArray< ShaderVariable > m_VertexOutputs;
 
     ShaderStage m_CurrentStage = ShaderStage::Invalid;
-    InplaceArray< HashSet< String >, MAX_SHADER_STAGES > m_ShaderStagesIncludes;
+    HashSet< String > m_ShaderIncludes;
     InplaceArray< String, MAX_SHADER_STAGES > m_ShaderStagesCode;
 };
 

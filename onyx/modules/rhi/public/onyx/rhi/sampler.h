@@ -17,7 +17,7 @@ enum class SamplerAddressMode : uint8_t {
 enum class SamplerReductionMode : uint8_t { WeightedAverage, Min, Max, WeightedAverageClamp, Count };
 
 struct SamplerProperties {
-    uint32_t Hash() {
+    [[nodiscard]] uint32_t hash() const {
         uint32_t hash = 0;
         hash = hash::fnV1aHash( MinFilter, hash );
         hash = hash::fnV1aHash( MagFilter, hash );

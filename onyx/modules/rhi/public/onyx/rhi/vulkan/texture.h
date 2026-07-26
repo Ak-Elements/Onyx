@@ -21,8 +21,6 @@ class VulkanTexture : public rhi::Texture {
 
     const VkDescriptorImageInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 
-    bool HasSampler() const { return m_Sampler.isValid(); }
-
   private:
     void Init( const VulkanGraphicsApi& api, int8_t aliasIndex );
     void UpdateDescriptorInfo();
@@ -36,8 +34,6 @@ class VulkanTexture : public rhi::Texture {
     VulkanGraphicsApi* m_Api = nullptr;
 
     VULKAN_HANDLE( VkImageView, ImageView, nullptr );
-
-    Reference< rhi::Sampler > m_Sampler;
 
     VkDescriptorImageInfo m_DescriptorInfo;
 };
