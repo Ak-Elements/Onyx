@@ -214,22 +214,9 @@ Optional< ShaderReflectionInfo > reflect( ::slang::IComponentType& linkedShader 
         ONYX_ASSERT( parameter != nullptr );
         ::slang::ParameterCategory category = parameter->getCategory();
 
-        if( category == ::slang::ParameterCategory::DescriptorTableSlot ) {
-            // StringId32 parameterNameHash( toLower( parameter->getName() ) );
-            // if( ignoreCaseEqual( parameter->getName(), "bindlesstextures" ) ) {
-            //     bindlessSpaceIndex = bindingSpace;
-            //     bindlessSlotIndex = parameter->getBindingIndex();
-            //
-            //     ShaderDescriptorSet& descriptorSet = reflectInfo.ShaderDescriptorSets.emplace_back();
-            //     descriptorSet.Set = bindlessSlotIndex;
-            //
-            //     ImageSampler& imageSampler = descriptorSet.ImageSamplers[ bindlessSpaceIndex ];
-            //     imageSampler.Stage = ShaderStage::All;
-            //     imageSampler.Name = parameter->getName();
-            //     imageSampler.BindingPoint = bindlessSlotIndex;
-            //     imageSampler.DescriptorSet = bindlessSpaceIndex;
-            // }
-        }
+        // TODO: Reflect descriptor sets / buffers etc.
+        //  if( category == ::slang::ParameterCategory::DescriptorTableSlot ) {
+        //  }
 
         if( category == ::slang::ParameterCategory::PushConstantBuffer ) {
             auto pushConstantTypeLayout = parameter->getTypeLayout();
@@ -250,15 +237,6 @@ Optional< ShaderReflectionInfo > reflect( ::slang::IComponentType& linkedShader 
             return std::nullopt;
         }
 
-        // bool isBindlessUsed = false;
-        // entryPointMetadata->isParameterLocationUsed( SLANG_PARAMETER_CATEGORY_DESCRIPTOR_TABLE_SLOT,
-        //                                              bindlessSpaceIndex,
-        //                                              0,
-        //                                              isBindlessUsed );
-        // if( isBindlessUsed ) {
-        //     reflectInfo.IsUsingBindless = true;
-        // }
-
         ShaderStage stage = toShaderStage( entryPoint->getStage() );
         reflectInfo.Stages |= stage;
 
@@ -266,6 +244,10 @@ Optional< ShaderReflectionInfo > reflect( ::slang::IComponentType& linkedShader 
         for( uint32_t parameterIndex = 0; parameterIndex < parameterCount; ++parameterIndex ) {
             ::slang::VariableLayoutReflection* parameter = entryPoint->getParameterByIndex( parameterIndex );
             ONYX_ASSERT( parameter != nullptr );
+
+            auto semanticName = parameter->getSemanticName();
+            if( ( semanticName != nullptr ) && ignoreCaseStartsWith( semanticName, "sv_" ) )
+                continue;
 
             [[maybe_unused]] auto category = parameter->getCategory();
             ::slang::TypeLayoutReflection* typeLayout = parameter->getTypeLayout();
@@ -327,17 +309,23 @@ bool init() {
     targetDescription.profile = g_globalSession->findProfile( "glsl_vk" );
 
     ::slang::SessionDesc sessionDescription{};
+    sessionDescription.defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR;
     sessionDescription.targets = &targetDescription;
     sessionDescription.targetCount = 1;
 
-    FilePath engineShaders = file_system::path::getFullPath( "engine:/shaders/" );
-    FilePath projectShaders = file_system::path::getFullPath( "project:/shaders/" );
+    // Filepath needs to be saved as String and then from that string we get the const char* to avoid deallocation
+    const DynamicArray< FilePath > includePaths = getShaderDirectories();
+    DynamicArray< String > includePathStrings;
+    DynamicArray< const char* > rawPaths;
+    includePathStrings.reserve( includePaths.size() );
+    rawPaths.reserve( includePaths.size() );
+    for( const FilePath& path : includePaths ) {
+        const String& pathStr = includePathStrings.emplace_back( path.generic_string() );
+        rawPaths.emplace_back( pathStr.c_str() );
+    }
 
-    const auto includePaths = std::array{ engineShaders.generic_string().c_str(),
-                                          projectShaders.generic_string().c_str() };
-
-    sessionDescription.searchPaths = includePaths.data();
-    sessionDescription.searchPathCount = includePaths.size();
+    sessionDescription.searchPaths = rawPaths.data();
+    sessionDescription.searchPathCount = numericCast< uint32_t >( rawPaths.size() );
 
     // auto nonSemanticInfo = g_globalSession->findCapability( "SPV_KHR_non_semantic_info" );
     DynamicArray< ::slang::CompilerOptionEntry > options{
@@ -380,8 +368,7 @@ bool compile( const GraphicsSystem& graphicsSystem,
 
     if( diagnostics && diagnostics->getBufferSize() > 0 ) {
         StringView str( (const char*)diagnostics->getBufferPointer(), diagnostics->getBufferSize() );
-        ONYX_LOG_ERROR( "Failed loading slang shader" );
-        ONYX_LOG_ERROR( "{}", str.data() );
+        ONYX_LOG_ERROR( "Failed loading slang shader {}", str );
         return false;
     }
 

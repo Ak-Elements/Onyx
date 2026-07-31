@@ -9,6 +9,8 @@ class CompositeRenderGraphNode : public node_graph::FlexiblePinsNode< graphics::
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CompositePass";
     StringId32 GetTypeId() const override { return TypeId; }
 
+    CompositeRenderGraphNode();
+
   private:
     void onInit( rhi::GraphicsSystem&, RenderGraphResourceCache& ) override;
     void onRender( graphics::RenderGraphContext&, rhi::CommandBuffer& ) override;

@@ -9,14 +9,12 @@ struct ViewConstants {
     Matrix4< float32 > ViewProjectionMatrix;
     Matrix4< float32 > InverseViewProjectionMatrix;
 
-    Vector2f32 Viewport;
-    float32 Near;
-    float32 Far;
-
     Vector3f32 CameraPosition;
-    float32 Padding;
+    float32 Near;
 
     Vector3f32 CameraDirection;
-    float32 Padding2;
+    float32 Far;
+
+    Vector2f32 Viewport;
 };
 } // namespace onyx::rhi

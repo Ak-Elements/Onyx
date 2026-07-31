@@ -5,6 +5,7 @@ import includes.textureformatattribute;
 struct PushConstants {
     float2 Scale;
     float2 Translation;
+    uint32_t TextureIndex;
 };
 
 [ push_constant ]
@@ -40,8 +41,7 @@ VSOutput vertexMain( VSInput input, uint instanceID: SV_InstanceID, uint baseIns
 }
 
 [ shader( "fragment" ) ]
-float4 fragmentMain( VSOutput input )
-    : SV_Target {
+float4 fragmentMain( VSOutput input ) : SV_Target {
     float4 sampledTexture = linearSample( input.TextureIndex, input.Uv );
     return input.Color * sampledTexture;
 }

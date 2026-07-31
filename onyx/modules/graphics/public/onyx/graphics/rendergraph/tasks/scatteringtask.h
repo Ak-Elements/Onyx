@@ -10,6 +10,8 @@ class CreateTransmittanceRenderGraphNode
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CreateTransmittance";
     StringId32 GetTypeId() const override { return TypeId; }
 
+    CreateTransmittanceRenderGraphNode();
+
   private:
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 

@@ -53,7 +53,6 @@
                     }
                 }
             ],
-            "shader": "1cca949a7677a790",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -211,7 +210,6 @@
                     }
                 }
             ],
-            "shader": "e1ae7204594cdf58",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -279,7 +277,7 @@
                     }
                 }
             ],
-            "shader": "3e66455f1e717483",
+            "shader": "C5BE87389010542A",
             "pipeline": {
                 "depthstencil": {
                     "enabled": true,
@@ -427,7 +425,6 @@
                     }
                 }
             ],
-            "shader": "fb1515f04032ea28",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -519,7 +516,6 @@
                     }
                 }
             ],
-            "shader": "6432d099996f857e",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -760,7 +756,6 @@
                     }
                 }
             ],
-            "shader": "f87b328e87598ec",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -828,7 +823,6 @@
                     }
                 }
             ],
-            "shader": "de83002f7ba85b2e",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -973,7 +967,6 @@
                     }
                 }
             ],
-            "shader": "445164399d26b3a9",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,

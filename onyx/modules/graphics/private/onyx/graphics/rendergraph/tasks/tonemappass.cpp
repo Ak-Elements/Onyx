@@ -7,7 +7,7 @@
 
 namespace onyx::graphics::render_graph_nodes {
 ToneMapPass::ToneMapPass() {
-    m_pipelineProperties.Shader = "engine:/shaders/post/tonemap.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/post/tonemap.slang";
 }
 
 void ToneMapPass::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
@@ -22,8 +22,7 @@ void ToneMapPass::onRender( RenderGraphContext& context, rhi::CommandBuffer& com
         uint32_t TonemapFunction;
     };
 
-    PushConstants constants;
-    constants.TonemapFunction = context.FrameContext.TonemapFunctor;
+    PushConstants constants{ context.FrameContext.TonemapFunctor };
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, inTextureHandle.Texture->GetIndex(), 1 );

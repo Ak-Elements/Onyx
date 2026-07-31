@@ -3,6 +3,10 @@
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx::graphics::render_graph_nodes {
+CreateTransmittanceRenderGraphNode::CreateTransmittanceRenderGraphNode() {
+    m_pipelineProperties.Shader = "engine:/shaders/atmosphere/computetransmittance.slang";
+}
+
 void CreateTransmittanceRenderGraphNode::onRender( RenderGraphContext& /*context*/,
                                                    rhi::CommandBuffer& commandBuffer ) {
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );

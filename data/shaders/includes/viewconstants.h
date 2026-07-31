@@ -1,8 +1,7 @@
 #include "common.h"
 
 // view constants
-layout(std140, set = GLOBAL_SET, binding = VIEW_CONSTANTS_BINDING) uniform ViewConstants
-{
+layout( std140, set = GLOBAL_SET, binding = VIEW_CONSTANTS_BINDING ) uniform ViewConstants {
     mat4 ProjectionMatrix;
     mat4 InverseProjectionMatrix;
     mat4 ViewMatrix;
@@ -19,10 +18,11 @@ layout(std140, set = GLOBAL_SET, binding = VIEW_CONSTANTS_BINDING) uniform ViewC
 
     vec3 CameraDirection;
     float Padding2;
-} u_ViewConstants;
+}
+u_ViewConstants;
 
-float LinearDepth(float depthSample)
-{
-    float linear = u_ViewConstants.Near * u_ViewConstants.Far / (u_ViewConstants.Far + depthSample * (u_ViewConstants.Near - u_ViewConstants.Far));
+float LinearDepth( float depthSample ) {
+    float linear = u_ViewConstants.Near * u_ViewConstants.Far /
+                   ( u_ViewConstants.Far + depthSample * ( u_ViewConstants.Near - u_ViewConstants.Far ) );
     return linear;
 }

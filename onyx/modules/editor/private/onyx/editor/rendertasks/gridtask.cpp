@@ -11,7 +11,7 @@
 namespace onyx {
 
 GridRenderGraphNode::GridRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/editor/grid.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/editor/grid.slang";
 
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
@@ -33,6 +33,8 @@ void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::
     ONYX_PROFILE_FUNCTION;
 
     struct Constants {
+        uint64_t ViewConstants;
+
         Matrix3x3f32 Rotation;
 
         uint32_t CellCount;
@@ -60,7 +62,8 @@ void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::
         gridLodLevel = std::log( std::abs( cameraPositionGridSpace.Y ) ) / log10;
     }
 
-    Constants constants{ .Rotation = rotation,
+    Constants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().GetGpuAddress(),
+                         .Rotation = rotation,
                          .CellCount = settings.Cells,
                          .LodLevel = gridLodLevel,
                          .AxisLineWidth = 0.2f,
@@ -78,4 +81,5 @@ void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
+
 } // namespace onyx

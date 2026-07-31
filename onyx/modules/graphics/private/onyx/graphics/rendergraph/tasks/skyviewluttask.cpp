@@ -6,6 +6,10 @@
 #include <onyx/rhi/framecontext.h>
 
 namespace onyx::graphics::render_graph_nodes {
+SkyViewLutRenderGraphNode::SkyViewLutRenderGraphNode() {
+    m_pipelineProperties.Shader = "engine:/shaders/atmosphere/computeskyviewlut.slang";
+}
+
 void SkyViewLutRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
@@ -20,8 +24,8 @@ void SkyViewLutRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     const rhi::TextureHandle& multipleScatteringTextureHandle = std::get< rhi::TextureHandle >(
         multipleScatteringResource.Handle );
 
-    m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
-    m_MultipleScatteringTextureIndex = multipleScatteringTextureHandle.Texture->GetIndex();
+    m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
+    m_multipleScatteringTextureIndex = multipleScatteringTextureHandle.Texture->GetIndex();
 
     RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
@@ -42,15 +46,15 @@ void SkyViewLutRenderGraphNode::onRender( RenderGraphContext& context, rhi::Comm
     } pushConstants;
 
     pushConstants.CameraPosition = frameContext.ViewConstants.CameraPosition;
-    pushConstants.TransmittanceTextureIndex = m_TransmittanceTextureIndex;
-    pushConstants.MultipleScatteringTextureIndex = m_MultipleScatteringTextureIndex;
-    pushConstants.SunDirection = GetSunDirection( frameContext.TimeOfDay );
+    pushConstants.TransmittanceTextureIndex = m_transmittanceTextureIndex;
+    pushConstants.MultipleScatteringTextureIndex = m_multipleScatteringTextureIndex;
+    pushConstants.SunDirection = getSunDirection( frameContext.TimeOfDay );
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 
-Vector3f32 SkyViewLutRenderGraphNode::GetSunDirection( float32 timeOfDay ) const {
+Vector3f32 SkyViewLutRenderGraphNode::getSunDirection( float32 timeOfDay ) const {
     const float32 peroidSeconds = 120.0f;
     const float32 halfPeriod = peroidSeconds / 2.0f;
     const float32 sunriseShift = 0.1f;

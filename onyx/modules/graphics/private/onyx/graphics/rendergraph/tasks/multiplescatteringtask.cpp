@@ -5,6 +5,10 @@
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx::graphics::render_graph_nodes {
+ComputeMultipleScatteringRenderGraphNode::ComputeMultipleScatteringRenderGraphNode() {
+    m_pipelineProperties.Shader = "engine:/shaders/atmosphere/computemultiscattering.slang";
+}
+
 void ComputeMultipleScatteringRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
@@ -12,7 +16,7 @@ void ComputeMultipleScatteringRenderGraphNode::onBeginFrame( RenderGraphContext&
         GetInputPin().GetLinkedPinGlobalId().get() );
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
         transmittanceResource.Handle );
-    m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
+    m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
 
     RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
@@ -22,7 +26,7 @@ void ComputeMultipleScatteringRenderGraphNode::onRender( RenderGraphContext& /*c
                                                          rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, m_TransmittanceTextureIndex );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, m_transmittanceTextureIndex );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 

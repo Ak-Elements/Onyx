@@ -1,7 +1,6 @@
-import textureformat;
+import includes.textureformat;
 
-[__AttributeUsage(_AttributeTargets.Var)]
-struct Format
-{
+[ __AttributeUsage( _AttributeTargets.Var ) ]
+struct Format {
     TextureFormat format;
 };

@@ -12,6 +12,8 @@ class DepthPrePassRenderGraphNode : public node_graph::FixedPinNode_1_In_1_Out< 
     static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::DepthPrePass";
     StringId32 GetTypeId() const override { return TypeId; }
 
+    DepthPrePassRenderGraphNode();
+
   private:
     void onInit( rhi::GraphicsSystem& api,
                  HashMap< graphics::RenderGraphResourceId, graphics::RenderGraphResource >& resourceCache ) override;

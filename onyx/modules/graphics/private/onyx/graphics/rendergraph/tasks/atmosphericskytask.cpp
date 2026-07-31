@@ -4,8 +4,13 @@
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/framecontext.h>
+#include <onyx/rhi/graphicssystem.h>
 
 namespace onyx::graphics::render_graph_nodes {
+AtmosphericSkyRenderGraphNode::AtmosphericSkyRenderGraphNode() {
+    m_pipelineProperties.Shader = "engine:/shaders/sky.slang";
+}
+
 void AtmosphericSkyRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
@@ -19,8 +24,8 @@ void AtmosphericSkyRenderGraphNode::onBeginFrame( RenderGraphContext& context ) 
         transmittanceResource.Handle );
     const rhi::TextureHandle& skyViewLutTextureHandle = std::get< rhi::TextureHandle >( skyViewLutResource.Handle );
 
-    m_TransmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
-    m_SkyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
+    m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
+    m_skyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
 
     RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
@@ -39,20 +44,22 @@ void AtmosphericSkyRenderGraphNode::onRender( RenderGraphContext& context, rhi::
         uint32_t SkyViewLutTextureIndex;
 
         Vector3f32 CameraDirection;
+        uint64_t ViewConstants;
 
     } pushConstants;
 
     pushConstants.CameraPosition = frameContext.ViewConstants.CameraPosition;
     pushConstants.CameraDirection = frameContext.ViewConstants.CameraDirection;
-    pushConstants.TransmittanceTextureIndex = m_TransmittanceTextureIndex;
-    pushConstants.SkyViewLutTextureIndex = m_SkyViewLutTextureIndex;
-    pushConstants.SunDirection = GetSunDirection( frameContext.TimeOfDay );
+    pushConstants.TransmittanceTextureIndex = m_transmittanceTextureIndex;
+    pushConstants.SkyViewLutTextureIndex = m_skyViewLutTextureIndex;
+    pushConstants.SunDirection = getSunDirection( frameContext.TimeOfDay );
+    pushConstants.ViewConstants = frameContext.Api->getViewConstantsBuffer().GetGpuAddress();
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 
-Vector3f32 AtmosphericSkyRenderGraphNode::GetSunDirection( float32 timeOfDay ) const {
+Vector3f32 AtmosphericSkyRenderGraphNode::getSunDirection( float32 timeOfDay ) const {
     const float32 peroidSeconds = 120.0f;
     const float32 halfPeriod = peroidSeconds / 2.0f;
     const float32 sunriseShift = 0.1f;

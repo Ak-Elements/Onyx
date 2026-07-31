@@ -5,6 +5,10 @@
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx {
+CompositeRenderGraphNode::CompositeRenderGraphNode() {
+    m_pipelineProperties.Shader = "engine:/shaders/composite.slang";
+}
+
 void CompositeRenderGraphNode::onInit( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) {
     /*Graphics::RenderGraphResourceInfo& input = m_Inputs.emplace_back();
     input.Id = hash::FNV1aHash32("grid");

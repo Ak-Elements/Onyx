@@ -11,6 +11,8 @@ class ComputeMultipleScatteringRenderGraphNode
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::ComputeMultipleScattering";
     StringId32 GetTypeId() const override { return TypeId; }
 
+    ComputeMultipleScatteringRenderGraphNode();
+
   private:
     void onBeginFrame( RenderGraphContext& context ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
@@ -21,6 +23,6 @@ class ComputeMultipleScatteringRenderGraphNode
 #endif
 
   private:
-    uint32_t m_TransmittanceTextureIndex;
+    uint32_t m_transmittanceTextureIndex = 0;
 };
 } // namespace onyx::graphics::render_graph_nodes
