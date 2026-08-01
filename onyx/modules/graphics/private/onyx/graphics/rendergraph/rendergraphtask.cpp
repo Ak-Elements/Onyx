@@ -477,9 +477,9 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
             //                       inputResource.Info.Name,
             //                       frameContext.FrameIndex );
 #else
-            shaderInstance->Bind( std::get< rhi::BufferHandle >( inputResource.Handle ),
-                                  inputResource.Info.Name,
-                                  frameContext.FrameIndex );
+            // shaderInstance->Bind( std::get< rhi::BufferHandle >( inputResource.Handle ),
+            //                       inputResource.Info.Name,
+            //                       frameContext.FrameIndex );
 #endif
             break;
         case RenderGraphResourceType::Invalid:
@@ -509,9 +509,9 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
             //                       outputResource.Info.Name,
             //                       frameContext.FrameIndex );
 #else
-            shaderInstance->Bind( std::get< rhi::BufferHandle >( outputResource.Handle ),
-                                  outputResource.Info.Name,
-                                  frameContext.FrameIndex );
+            // shaderInstance->Bind( std::get< rhi::BufferHandle >( outputResource.Handle ),
+            //                       outputResource.Info.Name,
+            //                       frameContext.FrameIndex );
 #endif
             break;
         case RenderGraphResourceType::Invalid:
@@ -534,8 +534,7 @@ void RenderGraphFixedShaderNode::compile( rhi::GraphicsSystem& api, RenderGraphR
 
 void RenderGraphFixedShaderNode::beginFrame( RenderGraphContext& context ) {
     RenderGraphShaderNode::beginFrame( context );
-    if( isEnabled() )
-        bindResources( m_shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
+    bindResources( m_shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
 }
 
 void RenderGraphFixedShaderNode::render( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
