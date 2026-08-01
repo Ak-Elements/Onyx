@@ -8,8 +8,8 @@ class CSGIntersect : public CSGOperation {
     CSGIntersect();
     CSGIntersect( VolumeBase* first, VolumeBase* second );
 
-    virtual Vector4f32 GetValueAndGradient( const Vector3f32& position ) const override;
+    virtual Vector4f32 getValueAndGradient( const Vector3f32& position ) const override;
 
-    virtual float32 GetValue( const Vector3f32& position ) const override;
+    virtual float32 getValue( const Vector3f32& position ) const override;
 };
 } // namespace onyx::volume

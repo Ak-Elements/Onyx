@@ -21,11 +21,11 @@
 namespace onyx::platform::wayland {
 namespace {
 xkb_keysym_t composeSymbol( linux::Xkb& xkb, xkb_keysym_t sym ) {
-    if ( sym == XKB_KEY_NoSymbol || !xkb.ComposeState )
+    if( sym == XKB_KEY_NoSymbol || !xkb.ComposeState )
         return sym;
-    if ( xkb_compose_state_feed( xkb.ComposeState, sym ) != XKB_COMPOSE_FEED_ACCEPTED )
+    if( xkb_compose_state_feed( xkb.ComposeState, sym ) != XKB_COMPOSE_FEED_ACCEPTED )
         return sym;
-    switch ( xkb_compose_state_get_status( xkb.ComposeState ) ) {
+    switch( xkb_compose_state_get_status( xkb.ComposeState ) ) {
     case XKB_COMPOSE_COMPOSED:
         return xkb_compose_state_get_one_sym( xkb.ComposeState );
     case XKB_COMPOSE_COMPOSING:
@@ -37,14 +37,14 @@ xkb_keysym_t composeSymbol( linux::Xkb& xkb, xkb_keysym_t sym ) {
     }
 }
 
-uint32_t GetInputChar( linux::Xkb& xkb, uint32_t scancode ) {
+uint32_t getInputChar( linux::Xkb& xkb, uint32_t scancode ) {
     const xkb_keysym_t* keysyms;
     const xkb_keycode_t keycode = scancode + 8;
 
-    if ( xkb_state_key_get_syms( xkb.getState(), keycode, &keysyms ) == 1 ) {
+    if( xkb_state_key_get_syms( xkb.getState(), keycode, &keysyms ) == 1 ) {
         const xkb_keysym_t keysym = composeSymbol( xkb, keysyms[ 0 ] );
         const uint32_t codepoint = ::xkb_keysym_to_utf32( keysym );
-        if ( codepoint != 0 ) {
+        if( codepoint != 0 ) {
             // const int mods = _glfw.wl.xkb.modifiers;
             // const int plain = !(mods & (GLFW_MOD_CONTROL | GLFW_MOD_ALT));
             //_glfwInputChar(window, codepoint, mods, plain);
@@ -57,35 +57,35 @@ uint32_t GetInputChar( linux::Xkb& xkb, uint32_t scancode ) {
 } // namespace
 
 WaylandKeyboard::WaylandKeyboard( WaylandInput& input, wl_keyboard* keyboard )
-    : m_Input( &input )
-    , m_Keyboard( keyboard ) {
-    static const struct wl_keyboard_listener keyboard_listener = {
-        OnKeyMap,
-        OnEnterSurface,
-        OnLeaveSurface,
-        OnKeyChange,
-        OnModifierChange,
+    : m_input( &input )
+    , m_keyboard( keyboard ) {
+    static const struct wl_keyboard_listener KeyboardListener = {
+        onKeyMap,
+        onEnterSurface,
+        onLeaveSurface,
+        onKeyChange,
+        onModifierChange,
     };
-    wl_keyboard_add_listener( m_Keyboard, &keyboard_listener, this );
+    wl_keyboard_add_listener( m_keyboard, &KeyboardListener, this );
 }
 
 WaylandKeyboard::~WaylandKeyboard() {
-    if ( m_Keyboard != nullptr ) {
-        wl_keyboard_destroy( m_Keyboard );
+    if( m_keyboard != nullptr ) {
+        wl_keyboard_destroy( m_keyboard );
     }
 }
 
-/*static*/ void WaylandKeyboard::OnKeyMap( void* instance,
+/*static*/ void WaylandKeyboard::onKeyMap( void* instance,
                                            wl_keyboard* keyboard,
                                            uint32_t format,
                                            int32_t fd,
                                            uint32_t size ) {
     WaylandKeyboard& keyboardInstance = *reinterpret_cast< WaylandKeyboard* >( instance );
-    ONYX_ASSERT( keyboardInstance.m_Input != nullptr );
+    ONYX_ASSERT( keyboardInstance.m_input != nullptr );
 
-    WaylandInput& input = *keyboardInstance.m_Input;
-    WaylandPlatformContext& context = input.GetContext();
-    linux::Xkb& xkb = context.GetXkb();
+    WaylandInput& input = *keyboardInstance.m_input;
+    WaylandPlatformContext& context = input.getContext();
+    linux::Xkb& xkb = context.getXkb();
 
     // inspired by glfw
     ::xkb_keymap* keymap;
@@ -96,13 +96,13 @@ WaylandKeyboard::~WaylandKeyboard() {
     char* mapStr;
     const char* locale;
 
-    if ( format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1 ) {
+    if( format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1 ) {
         ::close( fd );
         return;
     }
 
-    mapStr = reinterpret_cast< char* >( ::mmap( NULL, size, PROT_READ, MAP_SHARED, fd, 0 ) );
-    if ( mapStr == MAP_FAILED ) {
+    mapStr = reinterpret_cast< char* >( ::mmap( nullptr, size, PROT_READ, MAP_SHARED, fd, 0 ) );
+    if( mapStr == MAP_FAILED ) {
         ::close( fd );
         return;
     }
@@ -117,25 +117,25 @@ WaylandKeyboard::~WaylandKeyboard() {
     ONYX_ASSERT( keymap != nullptr, "Wayland: Failed to compile keymap" );
 
     state = ::xkb_state_new( keymap );
-    if ( !state ) {
+    if( !state ) {
         ::xkb_keymap_unref( keymap );
         ONYX_ASSERT( false, "Wayland: Failed to create XKB state" );
     }
 
     // Look up the preferred locale, falling back to "C" as default.
     locale = ::getenv( "LC_ALL" );
-    if ( !locale )
+    if( !locale )
         locale = ::getenv( "LC_CTYPE" );
-    if ( !locale )
+    if( !locale )
         locale = ::getenv( "LANG" );
-    if ( !locale )
+    if( !locale )
         locale = "C";
 
     composeTable = ::xkb_compose_table_new_from_locale( xkb.Context, locale, XKB_COMPOSE_COMPILE_NO_FLAGS );
-    if ( composeTable ) {
+    if( composeTable ) {
         composeState = ::xkb_compose_state_new( composeTable, XKB_COMPOSE_STATE_NO_FLAGS );
         ::xkb_compose_table_unref( composeTable );
-        if ( composeState )
+        if( composeState )
             xkb.ComposeState = composeState;
         else
             ONYX_LOG_ERROR( "Wayland: Failed to create XKB compose state" );
@@ -153,40 +153,39 @@ WaylandKeyboard::~WaylandKeyboard() {
     xkb.NumLockIndex = ::xkb_keymap_mod_get_index( keymap, "Mod2" );
 }
 
-/*static*/ void WaylandKeyboard::OnEnterSurface( [[maybe_unused]] void* instance,
+/*static*/ void WaylandKeyboard::onEnterSurface( [[maybe_unused]] void* instance,
                                                  [[maybe_unused]] wl_keyboard* keyboard,
                                                  [[maybe_unused]] uint32_t serial,
                                                  [[maybe_unused]] wl_surface* surface,
                                                  [[maybe_unused]] wl_array* keys ) {}
 
-/*static*/ void WaylandKeyboard::OnLeaveSurface( [[maybe_unused]] void* instance,
+/*static*/ void WaylandKeyboard::onLeaveSurface( [[maybe_unused]] void* instance,
                                                  [[maybe_unused]] wl_keyboard* keyboard,
                                                  [[maybe_unused]] uint32_t serial,
-                                                 [[maybe_unused]] wl_surface* surface ) {
-}
+                                                 [[maybe_unused]] wl_surface* surface ) {}
 
-/*static*/ void WaylandKeyboard::OnKeyChange( void* instance,
+/*static*/ void WaylandKeyboard::onKeyChange( void* instance,
                                               wl_keyboard* keyboard,
                                               uint32_t /*serial*/,
                                               uint32_t /*time*/,
-                                              uint32_t wayland_key,
+                                              uint32_t waylandKey,
                                               uint32_t state ) {
     WaylandKeyboard& keyboardInstance = *reinterpret_cast< WaylandKeyboard* >( instance );
-    ONYX_ASSERT( keyboardInstance.m_Input != nullptr );
+    ONYX_ASSERT( keyboardInstance.m_input != nullptr );
 
-    WaylandInput& input = *keyboardInstance.m_Input;
-    WaylandPlatformContext& context = input.GetContext();
-    onyx::input::InputSystem& inputSystem = context.GetInputSystem();
+    WaylandInput& input = *keyboardInstance.m_input;
+    WaylandPlatformContext& context = input.getContext();
+    onyx::input::InputSystem& inputSystem = context.getInputSystem();
 
-    input::KeyboardEvent keyboardEvent;
+    input::KeyboardEvent keyboardEvent{};
     keyboardEvent.State = state == 0 ? input::ButtonState::Up : input::ButtonState::Down;
-    keyboardEvent.Key = linux::convertKey( wayland_key );
-    keyboardEvent.Char = GetInputChar( context.GetXkb(), wayland_key );
+    keyboardEvent.Key = linux::convertKey( waylandKey );
+    keyboardEvent.Char = getInputChar( context.getXkb(), waylandKey );
 
-    inputSystem.AddEvent( keyboardEvent );
+    inputSystem.addEvent( keyboardEvent );
 }
 
-/*static*/ void WaylandKeyboard::OnModifierChange( void* instance,
+/*static*/ void WaylandKeyboard::onModifierChange( void* instance,
                                                    wl_keyboard* /*keyboard*/,
                                                    uint32_t /*serial*/,
                                                    uint32_t modsDepressed,
@@ -194,12 +193,12 @@ WaylandKeyboard::~WaylandKeyboard() {
                                                    uint32_t modsLocked,
                                                    uint32_t group ) {
     WaylandKeyboard& keyboardInstance = *reinterpret_cast< WaylandKeyboard* >( instance );
-    ONYX_ASSERT( keyboardInstance.m_Input != nullptr );
+    ONYX_ASSERT( keyboardInstance.m_input != nullptr );
 
-    WaylandInput& input = *keyboardInstance.m_Input;
-    WaylandPlatformContext& context = input.GetContext();
+    WaylandInput& input = *keyboardInstance.m_input;
+    WaylandPlatformContext& context = input.getContext();
 
-    linux::Xkb& xkb = context.GetXkb();
+    linux::Xkb& xkb = context.getXkb();
     ::xkb_state* xkbState = xkb.getState();
 
     ::xkb_state_update_mask( xkbState, modsDepressed, modsLatched, modsLocked, 0, 0, group );

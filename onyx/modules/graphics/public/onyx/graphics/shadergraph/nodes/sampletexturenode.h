@@ -28,31 +28,31 @@ class SampleTextureNode : public node_graph::FlexiblePinsNode< ShaderGraphNode >
 
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::SampleTexture";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     SampleTextureNode();
     ~SampleTextureNode() override;
 
-    void OnUpdate( node_graph::ExecutionContext& context ) const override;
+    void onUpdate( node_graph::ExecutionContext& context ) const override;
 
   private:
-    bool OnSerialize( Serializer& serializer ) const override;
-    bool OnDeserialize( const Deserializer& deserializer ) override;
+    bool onSerialize( Serializer& serializer ) const override;
+    bool onDeserialize( const Deserializer& deserializer ) override;
 
-    void DoGenerateShader( const node_graph::ExecutionContext& context,
+    void doGenerateShader( const node_graph::ExecutionContext& context,
                            rhi::ShaderGenerator& generator ) const override;
-    void OnChanged( assets::AssetSystem& assetSystem ) override;
+    void onChanged( assets::AssetSystem& assetSystem ) override;
 
 #if ONYX_IS_EDITOR
   protected:
     // bool OnDrawInPropertyGrid(HashMap<Guid64, std::any>& constantPinData) override;
     // void OnUIDrawNode() override;
-    StringView GetPinName( StringId32 pinId ) const override;
-    node_graph::PinVisibility DoGetPinVisibility( StringId32 localPinId ) const override;
+    StringView getPinName( StringId32 pinId ) const override;
+    node_graph::PinVisibility doGetPinVisibility( StringId32 localPinId ) const override;
 #endif
   private:
     // Texture asset id to use if input pin for texture handle is not connected
-    assets::AssetHandle< TextureAsset > Texture;
+    assets::AssetHandle< TextureAsset > m_texture;
 };
 } // namespace shader_graph_nodes
 } // namespace onyx::graphics

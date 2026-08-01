@@ -37,7 +37,7 @@ void Application::init() {
 
     const FilePath appConfigPath = file_system::path::getWorkingDirectory() / "data/appconfig.oconf";
     file_system::OnyxFile appSettings( appConfigPath );
-    file_system::JsonValue appConfigJson = appSettings.LoadJson();
+    file_system::JsonValue appConfigJson = appSettings.loadJson();
 
     file_system::JsonDeserializer configDeserializer( appConfigJson.Json );
 
@@ -183,7 +183,7 @@ void Application::run() {
 void Application::onWindowDestroy( const platform::Window& window ) {
     // close the application if the main window closes
     const platform::PlatformSystem& platformSystem = getSystem< platform::PlatformSystem >();
-    m_isRunning = platformSystem.GetMainWindow().getId() != window.getId();
+    m_isRunning = platformSystem.getMainWindow().getId() != window.getId();
 }
 
 } // namespace onyx::application

@@ -3,17 +3,17 @@
 namespace onyx::application {
 LogSinkFile::LogSinkFile( StringView mountPath )
     : m_logFile( mountPath )
-    , m_logFileStream( m_logFile.OpenStream( file_system::OpenMode::Text | file_system::OpenMode::Write ) ) {}
+    , m_logFileStream( m_logFile.openStream( file_system::OpenMode::Text | file_system::OpenMode::Write ) ) {}
 
 void LogSinkFile::log( const LogMessage& message ) {
-    if ( m_logFileStream.isValid() == false ) {
+    if( m_logFileStream.isValid() == false ) {
         return;
     }
 
     FilePath relativeFilePath = file_system::path::convertToMountPath( message.FileName );
 
     StringView formattedMessage;
-    if ( message.FileName == nullptr ) {
+    if( message.FileName == nullptr ) {
         formattedMessage = format::format( "{}: {}\n",
                                            getLogLevelName( message.LogLevel ).data(),
                                            message.Message.data() );

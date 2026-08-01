@@ -17,7 +17,7 @@ class CommandPool : public NonCopyable {
 
 #if !ONYX_IS_RETAIL
     void setFrameIndex( uint8_t frameIndex ) { m_frameIndex = frameIndex; }
-    ONYX_NO_DISCARD uint8_t getFrameIndex() const { return m_frameIndex; }
+    [[nodiscard]] uint8_t getFrameIndex() const { return m_frameIndex; }
 #endif
   private:
     const Device* m_device;

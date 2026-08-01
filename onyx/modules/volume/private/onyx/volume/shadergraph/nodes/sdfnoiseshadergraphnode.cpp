@@ -5,70 +5,70 @@
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace onyx::volume {
-void SdfNoise2DShaderGraphNode::OnUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void SdfNoise2DShaderGraphNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
 
-node_graph::PinBase* SdfNoise2DShaderGraphNode::GetInputPin( uint32_t index ) {
-    if ( index == 0 )
-        return &m_NoiseValueInPin;
+node_graph::PinBase* SdfNoise2DShaderGraphNode::getInputPin( uint32_t index ) {
+    if( index == 0 )
+        return &m_noiseValueInPin;
 
-    return &m_NoiseGradientInPin;
+    return &m_noiseGradientInPin;
 }
 
-const node_graph::PinBase* SdfNoise2DShaderGraphNode::GetInputPin( uint32_t index ) const {
-    if ( index == 0 )
-        return &m_NoiseValueInPin;
+const node_graph::PinBase* SdfNoise2DShaderGraphNode::getInputPin( uint32_t index ) const {
+    if( index == 0 )
+        return &m_noiseValueInPin;
 
-    return &m_NoiseGradientInPin;
+    return &m_noiseGradientInPin;
 }
 
-node_graph::PinBase* SdfNoise2DShaderGraphNode::GetOutputPin( uint32_t index ) {
-    if ( index == 0 )
-        return &m_IsoValueOutPin;
+node_graph::PinBase* SdfNoise2DShaderGraphNode::getOutputPin( uint32_t index ) {
+    if( index == 0 )
+        return &m_isoValueOutPin;
 
-    return &m_GradientOutPin;
+    return &m_gradientOutPin;
 }
 
-const node_graph::PinBase* SdfNoise2DShaderGraphNode::GetOutputPin( uint32_t index ) const {
-    if ( index == 0 )
-        return &m_IsoValueOutPin;
+const node_graph::PinBase* SdfNoise2DShaderGraphNode::getOutputPin( uint32_t index ) const {
+    if( index == 0 )
+        return &m_isoValueOutPin;
 
-    return &m_GradientOutPin;
+    return &m_gradientOutPin;
 }
 
-void SdfNoise2DShaderGraphNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void SdfNoise2DShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                   rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    if ( ( context.IsPinConnected< IsoValueOutPin >() == false ) &&
-         ( context.IsPinConnected< GradientOutPin >() == false ) )
+    if( ( context.isPinConnected< IsoValueOutPin >() == false ) &&
+        ( context.isPinConnected< GradientOutPin >() == false ) )
         return;
 
-    String isoValueOutVariableName = format::format( "pin_{:x}", m_IsoValueOutPin.GetGlobalId().get() );
-    String gradientOutVariableName = format::format( "pin_{:x}", m_GradientOutPin.GetGlobalId().get() );
-    String gradientTmpVariableName = format::format( "noiseGradient_{:x}", GetId().get() );
+    String isoValueOutVariableName = format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() );
+    String gradientOutVariableName = format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() );
+    String gradientTmpVariableName = format::format( "noiseGradient_{:x}", getId().get() );
 
-    generator.AppendCode(
-        format::format( "float {} = voxelPosition.y - {};\n",
+    generator.appendCode(
+        format::format( "float {} = worldPosition.y - {};\n",
                         isoValueOutVariableName,
-                        m_NoiseValueInPin.IsConnected()
-                            ? format::format( "pin_{:x}", m_NoiseValueInPin.GetLinkedPinGlobalId().get() )
-                            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< NoiseValueInPin >() ) ) );
-    generator.AppendCode( format::format(
+                        m_noiseValueInPin.isConnected()
+                            ? format::format( "pin_{:x}", m_noiseValueInPin.getLinkedPinGlobalId().get() )
+                            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< NoiseValueInPin >() ) ) );
+    generator.appendCode( format::format(
         "vec2 {} = {};\n",
         gradientTmpVariableName,
-        m_NoiseGradientInPin.IsConnected()
-            ? format::format( "pin_{:x}", m_NoiseGradientInPin.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< NoiseGradientInPin >() ) ) );
+        m_noiseGradientInPin.isConnected()
+            ? format::format( "pin_{:x}", m_noiseGradientInPin.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< NoiseGradientInPin >() ) ) );
 
-    generator.AppendCode( format::format( "vec3 {0} = normalize(vec3({1}.x, 1.0, {1}.y));\n",
+    generator.appendCode( format::format( "vec3 {0} = normalize(vec3({1}.x, 1.0, {1}.y));\n",
                                           gradientOutVariableName,
                                           gradientTmpVariableName ) );
 }
 
 #if ONYX_IS_EDITOR
-StringView SdfNoise2DShaderGraphNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+StringView SdfNoise2DShaderGraphNode::getPinName( StringId32 pinId ) const {
+    switch( pinId ) {
     case NoiseValueInPin::LocalId:
         return "Noise";
     case NoiseGradientInPin::LocalId:
@@ -84,65 +84,65 @@ StringView SdfNoise2DShaderGraphNode::GetPinName( StringId32 pinId ) const {
 }
 #endif
 
-void SdfNoise3DShaderGraphNode::OnUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void SdfNoise3DShaderGraphNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
 
-node_graph::PinBase* SdfNoise3DShaderGraphNode::GetInputPin( uint32_t index ) {
-    if ( index == 0 )
-        return &m_NoiseValueInPin;
+node_graph::PinBase* SdfNoise3DShaderGraphNode::getInputPin( uint32_t index ) {
+    if( index == 0 )
+        return &m_noiseValueInPin;
 
-    return &m_NoiseGradientInPin;
+    return &m_noiseGradientInPin;
 }
 
-const node_graph::PinBase* SdfNoise3DShaderGraphNode::GetInputPin( uint32_t index ) const {
-    if ( index == 0 )
-        return &m_NoiseValueInPin;
+const node_graph::PinBase* SdfNoise3DShaderGraphNode::getInputPin( uint32_t index ) const {
+    if( index == 0 )
+        return &m_noiseValueInPin;
 
-    return &m_NoiseGradientInPin;
+    return &m_noiseGradientInPin;
 }
 
-node_graph::PinBase* SdfNoise3DShaderGraphNode::GetOutputPin( uint32_t index ) {
-    if ( index == 0 )
-        return &m_IsoValueOutPin;
+node_graph::PinBase* SdfNoise3DShaderGraphNode::getOutputPin( uint32_t index ) {
+    if( index == 0 )
+        return &m_isoValueOutPin;
 
-    return &m_GradientOutPin;
+    return &m_gradientOutPin;
 }
 
-const node_graph::PinBase* SdfNoise3DShaderGraphNode::GetOutputPin( uint32_t index ) const {
-    if ( index == 0 )
-        return &m_IsoValueOutPin;
+const node_graph::PinBase* SdfNoise3DShaderGraphNode::getOutputPin( uint32_t index ) const {
+    if( index == 0 )
+        return &m_isoValueOutPin;
 
-    return &m_GradientOutPin;
+    return &m_gradientOutPin;
 }
 
-void SdfNoise3DShaderGraphNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void SdfNoise3DShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                   rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    if ( ( context.IsPinConnected< IsoValueOutPin >() == false ) &&
-         ( context.IsPinConnected< GradientOutPin >() == false ) )
+    if( ( context.isPinConnected< IsoValueOutPin >() == false ) &&
+        ( context.isPinConnected< GradientOutPin >() == false ) )
         return;
 
-    String isoValueOutVariableName = format::format( "pin_{:x}", m_IsoValueOutPin.GetGlobalId().get() );
-    String gradientOutVariableName = format::format( "pin_{:x}", m_GradientOutPin.GetGlobalId().get() );
+    String isoValueOutVariableName = format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() );
+    String gradientOutVariableName = format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() );
 
-    generator.AppendCode(
-        format::format( "float {} = voxelPosition.y - {}.w;\n",
+    generator.appendCode(
+        format::format( "float {} = worldPosition.y - {}.w;\n",
                         isoValueOutVariableName,
-                        m_IsoValueOutPin.IsConnected()
-                            ? format::format( "pin_{:x}", m_IsoValueOutPin.GetLinkedPinGlobalId().get() )
-                            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< IsoValueOutPin >() ) ) );
-    generator.AppendCode( format::format(
+                        m_isoValueOutPin.isConnected()
+                            ? format::format( "pin_{:x}", m_isoValueOutPin.getLinkedPinGlobalId().get() )
+                            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< IsoValueOutPin >() ) ) );
+    generator.appendCode( format::format(
         "vec3 {} = normalize({});\n",
         gradientOutVariableName,
-        m_NoiseGradientInPin.IsConnected()
-            ? format::format( "pin_{:x}", m_NoiseGradientInPin.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< NoiseGradientInPin >() ) ) );
+        m_noiseGradientInPin.isConnected()
+            ? format::format( "pin_{:x}", m_noiseGradientInPin.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< NoiseGradientInPin >() ) ) );
 }
 
 #if ONYX_IS_EDITOR
-StringView SdfNoise3DShaderGraphNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+StringView SdfNoise3DShaderGraphNode::getPinName( StringId32 pinId ) const {
+    switch( pinId ) {
     case NoiseValueInPin::LocalId:
         return "Noise";
     case NoiseGradientInPin::LocalId:

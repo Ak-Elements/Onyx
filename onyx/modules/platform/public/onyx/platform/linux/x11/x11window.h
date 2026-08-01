@@ -17,52 +17,52 @@ class Window {
     Window( uint32_t id, X11PlatformContext& platformContext, WindowSettings setting );
     ~Window();
 
-    void Show();
-    void Hide();
+    void show();
+    void hide();
 
-    void Minimize();
-    void Maximize();
-    void Focus() {}
-    void RequestWindowAttention() {}
+    void minimize();
+    void maximize();
+    void focus() {}
+    void requestWindowAttention() {}
 
-    void ToggleCursor( bool enable ) {}
-    void UpdateCursorImage() {}
+    void toggleCursor( bool enable ) {}
+    void updateCursorImage() {}
 
-    void SetTitle( StringView title ) { m_settings.Title = String( title ); }
-    void SetIcon( const FilePath& path ) {}
+    void setTitle( StringView title ) { m_settings.Title = String( title ); }
+    void setIcon( const FilePath& path ) {}
 
-    Vector2s32 GetFrameBufferSize() const { return m_settings.Size; }
-    uint16_t GetRefreshRate() const { return m_settings.MonitorRefreshRate; }
+    Vector2s32 getFrameBufferSize() const { return m_settings.Size; }
+    uint16_t getRefreshRate() const { return m_settings.MonitorRefreshRate; }
 
-    void SetSize( int32_t width, int32_t height );
-    void SetMinimumSize( const Vector2s32& minSize );
-    void SetMaximumSize( const Vector2s32& maxSize );
-    void SetWindowMode( WindowMode mode );
-    void SetState( WindowState state );
+    void setSize( int32_t width, int32_t height );
+    void setMinimumSize( const Vector2s32& minSize );
+    void setMaximumSize( const Vector2s32& maxSize );
+    void setWindowMode( WindowMode mode );
+    void setState( WindowState state );
 
-    bool GetRequiredExtensions( std::vector< const char* >& outExtensions ) const;
+    bool getRequiredExtensions( std::vector< const char* >& outExtensions ) const;
 
-    bool IsVSyncEnabled() const { return m_settings.UseVsync; }
-    bool IsMinimized() const { return m_state == WindowState::Minimized; }
+    bool isVSyncEnabled() const { return m_settings.UseVsync; }
+    bool isMinimized() const { return m_state == WindowState::Minimized; }
 
     uint32_t getId() const { return m_window; }
-    int32_t GetWidth() const { return m_settings.Size.X; }
-    int32_t GetHeight() const { return m_settings.Size.Y; }
+    int32_t getWidth() const { return m_settings.Size.X; }
+    int32_t getHeight() const { return m_settings.Size.Y; }
 
-    void SetCursor( void* /*cursor*/ ) {}
+    void setCursor( void* /*cursor*/ ) {}
 
-    void EnableSystemMouseCapture( [[maybe_unused]] bool enable ) {}
-    X11PlatformContext& GetContext() const { return *m_context; }
-    uint32_t GetSurfaceHandle() const { return m_window; }
+    void enableSystemMouseCapture( [[maybe_unused]] bool enable ) {}
+    X11PlatformContext& getContext() const { return *m_context; }
+    uint32_t getSurfaceHandle() const { return m_window; }
 
-    WindowSettings& GetSettings() { return m_settings; }
-    const WindowSettings& GetSettings() const { return m_settings; }
+    WindowSettings& getSettings() { return m_settings; }
+    const WindowSettings& getSettings() const { return m_settings; }
 
     WindowState getState() const { return m_state; }
 
-    Sink< ResizeSignalT > OnResize() const { return Sink( m_resizeSignal ); }
-    Sink< FocusSignalT > OnFocus() { return Sink( m_focusSignal ); }
-    Sink< CloseSignalT > OnClose() { return Sink( m_closeSignal ); }
+    Sink< ResizeSignalT > onResize() const { return Sink( m_resizeSignal ); }
+    Sink< FocusSignalT > onFocus() { return Sink( m_focusSignal ); }
+    Sink< CloseSignalT > onClose() { return Sink( m_closeSignal ); }
 
   private:
     bool initConnection();

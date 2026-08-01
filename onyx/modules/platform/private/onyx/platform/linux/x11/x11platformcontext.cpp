@@ -103,8 +103,8 @@ void handleEvents( PlatformSystem& platformSystem,
 
         ONYX_LOG_INFO( "atom delete" );
         if( clientEvent.data.data32[ 0 ] == context.getAtomDelete().atom ) {
-            Window& window = platformSystem.GetWindow( clientEvent.window );
-            window.SetState( WindowState::Closed );
+            Window& window = platformSystem.getWindow( clientEvent.window );
+            window.setState( WindowState::Closed );
             // clientEvent.window; Look for window with that id and close it
             // window.Hide();
         }
@@ -112,7 +112,7 @@ void handleEvents( PlatformSystem& platformSystem,
     }
     case XCB_MOTION_NOTIFY: {
         auto& motionEvent = reinterpret_cast< const xcb_motion_notify_event_t& >( event );
-        inputSystem.AddEvent( input::MousePositionEvent( { motionEvent.event_x, motionEvent.event_y } ) );
+        inputSystem.addEvent( input::MousePositionEvent( { motionEvent.event_x, motionEvent.event_y } ) );
         break;
     }
     case XCB_BUTTON_PRESS: {
@@ -120,10 +120,10 @@ void handleEvents( PlatformSystem& platformSystem,
         if( ( buttonEvent.detail == XCB_BUTTON_INDEX_4 ) || ( buttonEvent.detail == XCB_BUTTON_INDEX_5 ) ) {
             int16_t scrollDirection = ( buttonEvent.detail == XCB_BUTTON_INDEX_4 ) ? int16_t( 1 ) : int16_t( -1 );
             input::MouseAxisEvent event{ static_cast< int16_t >( ScrollValue * scrollDirection ) };
-            inputSystem.AddEvent( event );
+            inputSystem.addEvent( event );
         } else {
             input::MouseButtonEvent event{ getMouseButton( buttonEvent.detail ), input::ButtonState::Down };
-            inputSystem.AddEvent( event );
+            inputSystem.addEvent( event );
         }
         break;
     }
@@ -133,7 +133,7 @@ void handleEvents( PlatformSystem& platformSystem,
             break;
         }
         input::MouseButtonEvent event{ getMouseButton( buttonEvent.detail ), input::ButtonState::Up };
-        inputSystem.AddEvent( event );
+        inputSystem.addEvent( event );
         break;
     }
     case XCB_KEY_PRESS:
@@ -150,7 +150,7 @@ void handleEvents( PlatformSystem& platformSystem,
         keyboardEvent.State = isDown ? input::ButtonState::Down : input::ButtonState::Up;
         keyboardEvent.Key = linux::convertKey( keyEvent.detail - linux::XcbKeyOffset );
         keyboardEvent.Char = ::xkb_state_key_get_utf32( xkb.getState(), keyEvent.detail );
-        inputSystem.AddEvent( keyboardEvent );
+        inputSystem.addEvent( keyboardEvent );
         break;
     }
     case XCB_DESTROY_NOTIFY: {
@@ -159,8 +159,8 @@ void handleEvents( PlatformSystem& platformSystem,
     }
     case XCB_CONFIGURE_NOTIFY: {
         auto& configureEvent = reinterpret_cast< const xcb_configure_notify_event_t& >( event );
-        Window& window = platformSystem.GetWindow( configureEvent.window );
-        window.SetSize( configureEvent.width, configureEvent.height );
+        Window& window = platformSystem.getWindow( configureEvent.window );
+        window.setSize( configureEvent.width, configureEvent.height );
         break;
     }
     default:
@@ -181,7 +181,7 @@ X11PlatformContext::X11PlatformContext( PlatformSystem& platformSystem )
 
 input::InputSystem& PlatformContext::getInputSystem() {
     ONYX_ASSERT( m_platformSystem != nullptr );
-    return m_platformSystem->GetInputSystem();
+    return m_platformSystem->getInputSystem();
 }
 
 void X11PlatformContext::onUpdate() {

@@ -35,11 +35,11 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
     void setContext( T&& context ) {
         m_editorContext = std::forward< T >( context );
         m_editorContext->setLocalizationModule( getEngineSystem< localization::LocalizationModule >() );
-        m_editorContext->OnLoaded.Connect< &NodeGraphEditorWindow::onGraphLoaded >( this );
-        m_editorContext->OnSaved.Connect< &NodeGraphEditorWindow::onGraphSaved >( this );
-        m_editorContext->LoadEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::loadEditorMetaData >( this );
-        m_editorContext->SaveEditorMetaDataFunctor.Connect< &NodeGraphEditorWindow::saveEditorMetaData >( this );
-        m_editorContext->OnNodeCreated.Connect< &NodeGraphEditorWindow::onNodeCreated >( this );
+        m_editorContext->OnLoaded.connect< &NodeGraphEditorWindow::onGraphLoaded >( this );
+        m_editorContext->OnSaved.connect< &NodeGraphEditorWindow::onGraphSaved >( this );
+        m_editorContext->LoadEditorMetaDataFunctor.connect< &NodeGraphEditorWindow::loadEditorMetaData >( this );
+        m_editorContext->SaveEditorMetaDataFunctor.connect< &NodeGraphEditorWindow::saveEditorMetaData >( this );
+        m_editorContext->OnNodeCreated.connect< &NodeGraphEditorWindow::onNodeCreated >( this );
         m_shouldFocus = true;
         m_focusDuration = 0.0f;
     }
@@ -120,8 +120,8 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
 
     void onLinkDoubleClicked( Guid64 linkId );
 
-    ONYX_NO_DISCARD const RerouteNode* getRerouteNodeById( Guid64 nodeId ) const;
-    ONYX_NO_DISCARD const RerouteNode* getRerouteNodeByPinId( Guid64 pinId ) const;
+    [[nodiscard]] const RerouteNode* getRerouteNodeById( Guid64 nodeId ) const;
+    [[nodiscard]] const RerouteNode* getRerouteNodeByPinId( Guid64 pinId ) const;
 
     void findRerouteDestinations( Guid64 reroutePinId, DynamicArray< Guid64 >& outDestinationPinIds );
 

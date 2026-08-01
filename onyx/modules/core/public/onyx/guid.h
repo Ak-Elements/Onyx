@@ -25,9 +25,9 @@ struct Guid64 {
     explicit operator uint64_t() const { return m_id; }
 
     void reset() { m_id = 0; }
-    ONYX_NO_DISCARD uint64_t get() const { return m_id; }
+    [[nodiscard]] uint64_t get() const { return m_id; }
 
-    ONYX_NO_DISCARD bool isValid() const { return m_id != 0; }
+    [[nodiscard]] bool isValid() const { return m_id != 0; }
 
     bool operator==( uint64_t other ) const { return m_id == other; }
     bool operator!=( uint64_t other ) const { return m_id != other; }

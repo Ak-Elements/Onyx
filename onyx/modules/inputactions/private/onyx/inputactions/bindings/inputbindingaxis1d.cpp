@@ -6,7 +6,7 @@
 
 namespace onyx::input_actions {
 bool InputBindingAxis1D::DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) {
-    outInputValue.X = numericCast< float32 >( inputSystem.GetAxisValue1D( 0, m_Axis ) );
+    outInputValue.X = numericCast< float32 >( inputSystem.getAxisValue1D( 0, m_Axis ) );
     return isZero( outInputValue.X ) == false;
 }
 

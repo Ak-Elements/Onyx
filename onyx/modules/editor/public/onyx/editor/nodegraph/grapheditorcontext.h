@@ -75,41 +75,41 @@ class GraphEditorContext {
     };
 
     void setLocalizationModule( const localization::LocalizationModule& localizationModule );
-    ONYX_NO_DISCARD const localization::LocalizationModule& getLocalizationModule() const;
+    [[nodiscard]] const localization::LocalizationModule& getLocalizationModule() const;
 
     DynamicArray< Node >& getNodes() { return m_nodes; }
-    ONYX_NO_DISCARD const DynamicArray< Node >& getNodes() const { return m_nodes; }
+    [[nodiscard]] const DynamicArray< Node >& getNodes() const { return m_nodes; }
     DynamicArray< Link >& getLinks() { return m_links; }
-    ONYX_NO_DISCARD const DynamicArray< Link >& getLinks() const { return m_links; }
+    [[nodiscard]] const DynamicArray< Link >& getLinks() const { return m_links; }
 
     void clear();
 
-    ONYX_NO_DISCARD virtual StringView getLocalizedAssetTypeName() const = 0;
-    ONYX_NO_DISCARD virtual DynamicArray< StringView > getExtensions() const = 0;
-    ONYX_NO_DISCARD virtual uint32_t getCanvasBackgroundColor() const = 0;
+    [[nodiscard]] virtual StringView getLocalizedAssetTypeName() const = 0;
+    [[nodiscard]] virtual DynamicArray< StringView > getExtensions() const = 0;
+    [[nodiscard]] virtual uint32_t getCanvasBackgroundColor() const = 0;
 
     Node& createNewNode( StringId32 nodeTypeId );
     void deleteNode( Guid64 nodeId );
 
     Node& getNode( Guid64 nodeId );
-    ONYX_NO_DISCARD const Node& getNode( Guid64 nodeId ) const;
+    [[nodiscard]] const Node& getNode( Guid64 nodeId ) const;
     Node& getNodeForPin( Guid64 pinId );
-    ONYX_NO_DISCARD const Node& getNodeForPin( Guid64 pinId ) const;
+    [[nodiscard]] const Node& getNodeForPin( Guid64 pinId ) const;
 
     void setNodeName( Guid64 nodeId, const String& name );
     void setNodePosition( Guid64 nodeId, const Vector2f32& position );
 
-    ONYX_NO_DISCARD virtual bool isNewLinkValid( Guid64 fromPinId, Guid64 toPinId ) const = 0;
+    [[nodiscard]] virtual bool isNewLinkValid( Guid64 fromPinId, Guid64 toPinId ) const = 0;
     Link& createNewLink( Guid64 fromPinId, Guid64 toPinId );
     void deleteLink( Guid64 linkId );
     void deleteLink( Guid64 fromPinId, Guid64 toPinId );
 
     Pin& getPin( Guid64 pinId );
-    ONYX_NO_DISCARD const Pin& getPin( Guid64 pinId ) const;
-    ONYX_NO_DISCARD bool hasPin( Guid64 pinId ) const;
-    ONYX_NO_DISCARD bool isPinLinked( Guid64 pindId ) const;
-    ONYX_NO_DISCARD virtual bool arePinTypesCompatible( node_graph::PinTypeId lhsPinType,
-                                                        node_graph::PinTypeId rhsPinType ) const = 0;
+    [[nodiscard]] const Pin& getPin( Guid64 pinId ) const;
+    [[nodiscard]] bool hasPin( Guid64 pinId ) const;
+    [[nodiscard]] bool isPinLinked( Guid64 pindId ) const;
+    [[nodiscard]] virtual bool arePinTypesCompatible( node_graph::PinTypeId lhsPinType,
+                                                      node_graph::PinTypeId rhsPinType ) const = 0;
 
     void drawNode( const Node& node );
     void drawNodeBackground( const Node& node );
@@ -125,7 +125,7 @@ class GraphEditorContext {
 
     void load( assets::AssetSystem& assetSystem, const FilePath& path );
     void save( assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta );
-    ONYX_NO_DISCARD bool isLoading() const { return m_isLoading; };
+    [[nodiscard]] bool isLoading() const { return m_isLoading; };
 
     Callback< void() > OnLoaded;
     Callback< void() > OnSaved;
@@ -139,7 +139,7 @@ class GraphEditorContext {
     Callback< void( const FilePath& ) > SaveEditorMetaDataFunctor;
 
   protected:
-    ONYX_NO_DISCARD virtual const node_graph::INodeFactory& getNodeFactory() const = 0;
+    [[nodiscard]] virtual const node_graph::INodeFactory& getNodeFactory() const = 0;
     void finishLoading( const assets::AssetMetaData& assetMeta );
 
   private:

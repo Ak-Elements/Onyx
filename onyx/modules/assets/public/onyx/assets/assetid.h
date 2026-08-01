@@ -40,7 +40,7 @@ struct AssetId {
     {
     }
 
-    ONYX_NO_DISCARD uint64_t get() const { return m_id; }
+    [[nodiscard]] uint64_t get() const { return m_id; }
     explicit operator uint64_t() const { return m_id; }
 
     template < uint64_t N >
@@ -55,10 +55,10 @@ struct AssetId {
     bool operator==( const AssetId& other ) const { return m_id == other.m_id; }
     bool operator!=( const AssetId& other ) const { return m_id != other.m_id; }
 
-    ONYX_NO_DISCARD bool isValid() const { return m_id != 0; }
+    [[nodiscard]] bool isValid() const { return m_id != 0; }
 
 #if !ONYX_IS_RETAIL
-    ONYX_NO_DISCARD StringView getPath() const { return StringView( m_path ); }
+    [[nodiscard]] StringView getPath() const { return StringView( m_path ); }
 #endif
 
   private:

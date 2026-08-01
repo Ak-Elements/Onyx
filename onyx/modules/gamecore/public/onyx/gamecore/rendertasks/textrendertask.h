@@ -4,16 +4,16 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 
 namespace onyx::game_core {
-class MSDFFontRenderPass : public node_graph::FixedPinNode_1_In_1_Out< graphics::RenderGraphFixedShaderNode,
-                                                                       rhi::BufferHandle,
-                                                                       rhi::TextureHandle > {
+class MSDFFontRenderPass : public node_graph::FixedPinNode1In1Out< graphics::RenderGraphFixedShaderNode,
+                                                                   rhi::BufferHandle,
+                                                                   rhi::TextureHandle > {
   public:
     static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::MSDFFontPass";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
   private:
     using Super = node_graph::
-        FixedPinNode_1_In_1_Out< graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle >;
+        FixedPinNode1In1Out< graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle >;
 
     void onInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
     void onShutdown( rhi::GraphicsSystem& api ) override;
@@ -23,7 +23,7 @@ class MSDFFontRenderPass : public node_graph::FixedPinNode_1_In_1_Out< graphics:
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
+    StringView getPinName( StringId32 pinId ) const override {
         switch( pinId ) {
         case InPin::LocalId:
             return "View Constants";

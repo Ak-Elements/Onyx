@@ -9,7 +9,7 @@
 namespace {
 VkImageLayout GetLayoutFromAttachmentRole( onyx::rhi::RenderPassSettings::AttachmentAccess access ) {
     using namespace onyx::rhi;
-    switch ( access ) {
+    switch( access ) {
     case RenderPassSettings::AttachmentAccess::Input:
         return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     case RenderPassSettings::AttachmentAccess::RenderTarget:
@@ -50,7 +50,7 @@ VkAttachmentDescription2 CreateAttachmentDescription(
 
     outHasLoadOp |= attachmentDescription.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD;
 
-    if ( Utils::HasStencil( format ) ) {
+    if( Utils::HasStencil( format ) ) {
         attachmentDescription.stencilLoadOp = static_cast< VkAttachmentLoadOp >( attachmentSettings.m_LoadOp );
         attachmentDescription.stencilStoreOp = static_cast< VkAttachmentStoreOp >( attachmentSettings.m_StoreOp );
     } else {
@@ -71,11 +71,11 @@ void VulkanRenderPass::Init( const VulkanGraphicsApi& api, const RenderPassSetti
     m_Settings = settings;
 
     // if we use dynamic rendering we don't create a vkRenderPass
-    if ( api.isDynamicRenderingEnabled() )
+    if( api.isDynamicRenderingEnabled() )
         return;
 
     // TODO: Implement legacy renderpass creation?
-    if ( api.isRenderPass2ExtensionEnabled() )
+    if( api.isRenderPass2ExtensionEnabled() )
         CreateRenderPass();
     // else
     //     CreateLegacyRenderPass();
@@ -83,42 +83,42 @@ void VulkanRenderPass::Init( const VulkanGraphicsApi& api, const RenderPassSetti
 
 void VulkanRenderPass::CreateRenderPass() {
     const uint8_t attachmentCount = static_cast< uint8_t >( m_Settings.m_Attachments.size() );
-    ONYX_ASSERT( attachmentCount <= MAX_RENDERPASS_ATTACHMENTS );
+    ONYX_ASSERT( attachmentCount <= MaxRenderpassAttachments );
 
     DynamicArray< VkAttachmentDescription2 > attachmentDescriptions;
-    InplaceArray< VkImageLayout, MAX_RENDERPASS_ATTACHMENTS > initialLayouts;
-    InplaceArray< VkImageLayout, MAX_RENDERPASS_ATTACHMENTS > finalLayouts;
+    InplaceArray< VkImageLayout, MaxRenderpassAttachments > initialLayouts;
+    InplaceArray< VkImageLayout, MaxRenderpassAttachments > finalLayouts;
 
     bool hasLoadOp = false;
 
     attachmentDescriptions.reserve( attachmentCount );
 
     VkImageLayout layout;
-    for ( uint8_t i = 0; i < attachmentCount; ++i ) {
+    for( uint8_t i = 0; i < attachmentCount; ++i ) {
         // Iterate over subpasses to determine attachment layouts
-        for ( const RenderPassSettings::Subpass& subPassSettings : m_Settings.m_SubPasses ) {
+        for( const RenderPassSettings::Subpass& subPassSettings : m_Settings.m_SubPasses ) {
             layout = GetLayoutFromAttachmentRole( subPassSettings.m_AttachmentAccesses[ i ] );
-            if ( layout == VK_IMAGE_LAYOUT_UNDEFINED )
+            if( layout == VK_IMAGE_LAYOUT_UNDEFINED )
                 continue;
 
             finalLayouts[ i ] = layout;
 
-            if ( initialLayouts[ i ] == VK_IMAGE_LAYOUT_UNDEFINED )
+            if( initialLayouts[ i ] == VK_IMAGE_LAYOUT_UNDEFINED )
                 initialLayouts[ i ] = layout;
         }
     }
 
-    for ( uint8_t i = 0; i < attachmentCount; ++i ) {
+    for( uint8_t i = 0; i < attachmentCount; ++i ) {
         attachmentDescriptions.push_back( CreateAttachmentDescription( m_Settings.m_Attachments[ i ],
                                                                        initialLayouts[ i ],
                                                                        finalLayouts[ i ],
                                                                        hasLoadOp ) );
     }
 
-    InplaceArray< VkSubpassDescription2, MAX_SUBPASSES > subPassDescriptions;
+    InplaceArray< VkSubpassDescription2, MaxSubpasses > subPassDescriptions;
 
     const uint8_t subPassCount = m_Settings.m_SubPasses.size();
-    for ( uint8_t subPassIndex = 0; subPassIndex < subPassCount; ++subPassIndex ) {
+    for( uint8_t subPassIndex = 0; subPassIndex < subPassCount; ++subPassIndex ) {
         bool hasDepthAttachment = false;
 
         DynamicArray< VkAttachmentReference2 > colorAttachments;
@@ -131,44 +131,44 @@ void VulkanRenderPass::CreateRenderPass() {
         depthStencilAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 
         const RenderPassSettings::Subpass& subpass = m_Settings.m_SubPasses[ subPassIndex ];
-        for ( uint8_t attachmentIndex = 0; attachmentIndex < attachmentCount; ++attachmentIndex ) {
-            if ( subpass.m_AttachmentAccesses[ attachmentIndex ] == RenderPassSettings::AttachmentAccess::Unused )
+        for( uint8_t attachmentIndex = 0; attachmentIndex < attachmentCount; ++attachmentIndex ) {
+            if( subpass.m_AttachmentAccesses[ attachmentIndex ] == RenderPassSettings::AttachmentAccess::Unused )
                 continue;
 
-            if ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                 RenderPassSettings::AttachmentAccess::RenderTarget ) {
+            if( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                RenderPassSettings::AttachmentAccess::RenderTarget ) {
                 VkAttachmentReference2& ref2 = colorAttachments.emplace_back();
                 ref2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
                 ref2.attachment = attachmentIndex;
                 ref2.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 ref2.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 ref2.pNext = nullptr;
-            } else if ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                        RenderPassSettings::AttachmentAccess::ResolveTarget ) {
+            } else if( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                       RenderPassSettings::AttachmentAccess::ResolveTarget ) {
                 VkAttachmentReference2& ref2 = resolveAttachments.emplace_back();
                 ref2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
                 ref2.attachment = attachmentIndex;
                 ref2.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 ref2.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
                 ref2.pNext = nullptr;
-            } else if ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                        RenderPassSettings::AttachmentAccess::Preserve ) {
+            } else if( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                       RenderPassSettings::AttachmentAccess::Preserve ) {
                 // TODO: Implement
-            } else if ( ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                          RenderPassSettings::AttachmentAccess::Input ) ||
-                        ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                          RenderPassSettings::AttachmentAccess::DepthReadStencilWrite ) ||
-                        ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                          RenderPassSettings::AttachmentAccess::DepthWriteStencilRead ) ||
-                        ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                          RenderPassSettings::AttachmentAccess::DepthReadStencilRead ) ) {
+            } else if( ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                         RenderPassSettings::AttachmentAccess::Input ) ||
+                       ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                         RenderPassSettings::AttachmentAccess::DepthReadStencilWrite ) ||
+                       ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                         RenderPassSettings::AttachmentAccess::DepthWriteStencilRead ) ||
+                       ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                         RenderPassSettings::AttachmentAccess::DepthReadStencilRead ) ) {
                 VkAttachmentReference2& ref2 = inputAttachments.emplace_back();
                 ref2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
                 ref2.attachment = attachmentIndex;
                 ref2.pNext = nullptr;
 
-                if ( Utils::IsDepthFormat(
-                         static_cast< TextureFormat >( m_Settings.m_Attachments[ attachmentIndex ].m_Format ) ) ) {
+                if( Utils::IsDepthFormat(
+                        static_cast< TextureFormat >( m_Settings.m_Attachments[ attachmentIndex ].m_Format ) ) ) {
                     ref2.layout = GetLayoutFromAttachmentRole( subpass.m_AttachmentAccesses[ attachmentIndex ] );
                     ref2.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
                 } else {
@@ -177,14 +177,14 @@ void VulkanRenderPass::CreateRenderPass() {
                 }
             }
 
-            if ( ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                   RenderPassSettings::AttachmentAccess::DepthWriteStencilWrite ) ||
-                 ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                   RenderPassSettings::AttachmentAccess::DepthReadStencilWrite ) ||
-                 ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                   RenderPassSettings::AttachmentAccess::DepthWriteStencilRead ) ||
-                 ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
-                   RenderPassSettings::AttachmentAccess::DepthReadStencilRead ) ) {
+            if( ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                  RenderPassSettings::AttachmentAccess::DepthWriteStencilWrite ) ||
+                ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                  RenderPassSettings::AttachmentAccess::DepthReadStencilWrite ) ||
+                ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                  RenderPassSettings::AttachmentAccess::DepthWriteStencilRead ) ||
+                ( subpass.m_AttachmentAccesses[ attachmentIndex ] ==
+                  RenderPassSettings::AttachmentAccess::DepthReadStencilRead ) ) {
                 ONYX_ASSERT( hasDepthAttachment == false );
 
                 hasDepthAttachment = true;
@@ -211,10 +211,10 @@ void VulkanRenderPass::CreateRenderPass() {
     }
 
     DynamicArray< VkSubpassDependency2 > subPassDependencies;
-    subPassDependencies.reserve( MAX_RENDERPASS_ATTACHMENTS * MAX_SUBPASSES );
+    subPassDependencies.reserve( MaxRenderpassAttachments * MaxSubpasses );
 
     VkAccessFlags vkAccessToClearWhenLoadingSubPass = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    if ( hasLoadOp )
+    if( hasLoadOp )
         vkAccessToClearWhenLoadingSubPass |= VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
 
     VkSubpassDependency2& dependencyExt = subPassDependencies.emplace_back();
@@ -228,7 +228,7 @@ void VulkanRenderPass::CreateRenderPass() {
     dependencyExt.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
     const uint8_t subPassDescriptionsCount = subPassDescriptions.size();
-    for ( uint8_t i = 0; i < ( subPassDescriptionsCount - 1 ); ++i ) {
+    for( uint8_t i = 0; i < ( subPassDescriptionsCount - 1 ); ++i ) {
         VkSubpassDependency2& dependency = subPassDependencies.emplace_back();
         dependency.sType = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2;
         dependency.srcSubpass = i;
@@ -255,7 +255,7 @@ void VulkanRenderPass::CreateRenderPass() {
 }
 
 VulkanRenderPass::~VulkanRenderPass() {
-    if ( m_RenderPass ) {
+    if( m_RenderPass ) {
         vkDestroyRenderPass( m_Device->GetHandle(), m_RenderPass, nullptr );
         m_RenderPass = nullptr;
     }

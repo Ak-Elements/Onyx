@@ -57,7 +57,7 @@ class GraphicsSystem : public IEngineSystem {
     static constexpr StringId32 TypeId{ "onyx::rhi::GraphicsSystem" };
     StringId32 getTypeId() const override { return TypeId; }
 
-    GraphicsSystem( const GraphicSettings& settings,
+    GraphicsSystem( GraphicSettings settings,
                     assets::AssetSystem& assetSystem,
                     platform::PlatformSystem& platformSystem );
     ~GraphicsSystem() override;
@@ -174,13 +174,13 @@ class GraphicsSystem : public IEngineSystem {
     UniquePtr< GraphicsApiInterface > m_graphicsSystem;
 
     uint8_t m_frameIndex = 0;
-    InplaceArray< FrameContext, MAX_FRAMES_IN_FLIGHT > m_frameContext;
+    InplaceArray< FrameContext, MaxFramesInFlight > m_frameContext;
 
     TextureFormat m_depthTextureFormat = TextureFormat::Invalid;
     Vector2s32 m_depthTextureExtent;
 
-    InplaceArray< TextureHandle, MAX_FRAMES_IN_FLIGHT > m_depthImages;
-    InplaceArray< BufferHandle, MAX_FRAMES_IN_FLIGHT > m_viewConstantsUniformBuffers;
+    InplaceArray< TextureHandle, MaxFramesInFlight > m_depthImages;
+    InplaceArray< BufferHandle, MaxFramesInFlight > m_viewConstantsUniformBuffers;
 
     ShaderCache m_shaderCache{ *this };
     PsoCache m_psoCache;

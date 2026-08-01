@@ -72,12 +72,12 @@ template < typename T > class AssetHandle {
     bool operator==( const AssetHandle& other ) const { return m_id == other.m_id; }
     bool operator!=( const AssetHandle& other ) const { return m_id != other.m_id; }
 
-    ONYX_NO_DISCARD bool hasAssetId() const { return m_id.isValid(); }
-    ONYX_NO_DISCARD bool isValid() const { return m_handle.isValid(); }
-    ONYX_NO_DISCARD bool hasHandle() const { return m_handle != Reference< T >::invalid(); }
+    [[nodiscard]] bool hasAssetId() const { return m_id.isValid(); }
+    [[nodiscard]] bool isValid() const { return m_handle.isValid(); }
+    [[nodiscard]] bool hasHandle() const { return m_handle != Reference< T >::invalid(); }
 
-    ONYX_NO_DISCARD bool isLoading() const { return isValid() && m_handle->isLoading(); }
-    ONYX_NO_DISCARD bool isLoaded() const { return isValid() && m_handle->isLoaded(); }
+    [[nodiscard]] bool isLoading() const { return isValid() && m_handle->isLoading(); }
+    [[nodiscard]] bool isLoaded() const { return isValid() && m_handle->isLoaded(); }
 
     void reset() {
         m_id = AssetId::invalid();
@@ -105,7 +105,7 @@ template < typename T > class AssetHandle {
     // AssetId should be returned by value here (as it is the same size as uint64_t in non debug builds
     // the problem is that we currently store the debug string in the assetId so returning a tmp
     // can break the returned StringView - AssetId should implement a similar mechanism to StringId
-    ONYX_NO_DISCARD const AssetId& getId() const { return m_id; }
+    [[nodiscard]] const AssetId& getId() const { return m_id; }
     void setId( const AssetId& id ) {
         if( id != m_id ) {
             m_id = id;

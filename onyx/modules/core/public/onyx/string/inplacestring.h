@@ -30,9 +30,9 @@ class InplaceStringBase {
 
     void clear() { m_data[ 0 ] = 0; }
 
-    ONYX_NO_DISCARD bool empty() const { return m_data[ 0 ] == 0; }
+    [[nodiscard]] bool empty() const { return m_data[ 0 ] == 0; }
 
-    ONYX_NO_DISCARD uint32_t getLength() const { return std::char_traits< CharT >::length( m_data ); }
+    [[nodiscard]] uint32_t getLength() const { return std::char_traits< CharT >::length( m_data ); }
 
     CharT& operator[]( uint32_t index ) {
         // ONYX_ASSERT(index < Size, "Index out of range");

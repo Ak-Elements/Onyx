@@ -12,7 +12,7 @@ struct ShaderVariable {
 };
 
 struct ShaderVariableHash {
-    using is_transparent = void;
+    using IsTransparent = void;
     size_t operator()( const ShaderVariable& variable ) const { return std::hash< String >{}( variable.Name ); }
     size_t operator()( const String& name ) const { return std::hash< String >{}( name ); }
 };
@@ -27,7 +27,7 @@ class ShaderGenerator {
     virtual ~ShaderGenerator() = default;
 
     template < typename T >
-    static String GenerateShaderValue( const T& value ) {
+    static String generateShaderValue( const T& value ) {
         if constexpr( is_specialization_of_v< Vector4, T > ) {
             return String( format::format( "vec4({}, {}, {}, {})", value[ 0 ], value[ 1 ], value[ 2 ], value[ 3 ] ) );
         } else if constexpr( is_specialization_of_v< Vector3, T > ) {
@@ -41,7 +41,7 @@ class ShaderGenerator {
     }
 
     template < typename T >
-    static String GetTypeAsShaderTypeString() {
+    static String getTypeAsShaderTypeString() {
         if constexpr( is_specialization_of_v< Vector4, T > ) {
             return "vec4";
         } else if constexpr( is_specialization_of_v< Vector3, T > ) {
@@ -56,65 +56,65 @@ class ShaderGenerator {
             return "";
     }
 
-    int32_t AddTexture( uint64_t textureId ) {
-        int32_t index = GetTextureIndex( textureId );
+    int32_t addTexture( uint64_t textureId ) {
+        int32_t index = getTextureIndex( textureId );
         if( index != InvalidIndex32 ) {
             return index;
         }
 
-        index = static_cast< int32_t >( m_Textures.size() );
-        m_Textures.emplace_back( textureId );
+        index = static_cast< int32_t >( m_textures.size() );
+        m_textures.emplace_back( textureId );
         return index;
     }
 
-    int32_t GetTextureIndex( uint64_t textureId ) {
-        auto it = std::ranges::find_if( m_Textures,
+    int32_t getTextureIndex( uint64_t textureId ) {
+        auto it = std::ranges::find_if( m_textures,
                                         [ & ]( const ShaderTexture& texture ) { return texture.Id == textureId; } );
-        if( it == m_Textures.end() ) {
+        if( it == m_textures.end() ) {
             return InvalidIndex32;
         }
 
-        return static_cast< int32_t >( std::distance( m_Textures.begin(), it ) );
+        return static_cast< int32_t >( std::distance( m_textures.begin(), it ) );
     }
 
-    void SetStage( ShaderStage stage ) { m_CurrentStage = stage; }
-    ShaderStage GetStage() const { return m_CurrentStage; }
+    void setStage( ShaderStage stage ) { m_currentStage = stage; }
+    ShaderStage getStage() const { return m_currentStage; }
 
-    void AppendCode( StringView code );
+    void appendCode( StringView code );
 
-    bool HasPushConstant( StringView name ) const;
-    bool HasPushConstant( ShaderStage stage, StringView name ) const;
+    bool hasPushConstant( StringView name ) const;
+    bool hasPushConstant( ShaderStage stage, StringView name ) const;
 
-    void AddPushConstant( StringView name, ShaderDataType type );
-    void AddPushConstant( ShaderStage stage, StringView name, ShaderDataType type );
-    void AddPushConstant( ShaderStage stage, StringView name, ShaderDataType type, uint32_t offset );
+    void addPushConstant( StringView name, ShaderDataType type );
+    void addPushConstant( ShaderStage stage, StringView name, ShaderDataType type );
+    void addPushConstant( ShaderStage stage, StringView name, ShaderDataType type, uint32_t offset );
 
-    void AddInclude( String include );
+    void addInclude( String include );
 
     // TODO: Do not submit and fix shader generator isntead of hacking it like that
-    virtual String GenerateShader();
+    virtual String generateShader();
 
   private:
-    void GenerateVertexShader();
-    void GenerateFragmentShader();
+    void generateVertexShader();
+    void generateFragmentShader();
 
-    void GeneratePushConstants( String& stageCode );
-    void GenerateIncludes( String& stageCode );
+    void generatePushConstants( String& stageCode );
+    void generateIncludes( String& stageCode );
 
-    virtual void DoGenerateFragmentMain() {}
+    virtual void doGenerateFragmentMain() {}
 
     // TODO: Do not submit and fix shader generator isntead of hacking it like that
   protected:
-    DynamicArray< ShaderTexture > m_Textures;
+    DynamicArray< ShaderTexture > m_textures;
 
-    InplaceArray< DynamicArray< ShaderVariable >, MAX_SHADER_STAGES > m_PushConstants;
+    InplaceArray< DynamicArray< ShaderVariable >, MaxShaderStages > m_pushConstants;
 
-    DynamicArray< ShaderVariable > m_VertexInputs;
-    DynamicArray< ShaderVariable > m_VertexOutputs;
+    DynamicArray< ShaderVariable > m_vertexInputs;
+    DynamicArray< ShaderVariable > m_vertexOutputs;
 
-    ShaderStage m_CurrentStage = ShaderStage::Invalid;
-    HashSet< String > m_ShaderIncludes;
-    InplaceArray< String, MAX_SHADER_STAGES > m_ShaderStagesCode;
+    ShaderStage m_currentStage = ShaderStage::Invalid;
+    HashSet< String > m_shaderIncludes;
+    InplaceArray< String, MaxShaderStages > m_shaderStagesCode;
 };
 
 class PBRShaderGenerator : public ShaderGenerator {
@@ -122,6 +122,6 @@ class PBRShaderGenerator : public ShaderGenerator {
     PBRShaderGenerator();
 
   protected:
-    void DoGenerateFragmentMain() override;
+    void doGenerateFragmentMain() override;
 };
 } // namespace onyx::rhi

@@ -2,36 +2,38 @@
 
 #include <onyx/nodegraph/pins/pinbase.h>
 
+#include <utility>
+
 namespace onyx::node_graph {
 struct PrepareContext {
   public:
     template < typename T >
-    void Set( T&& data ) {
-        constexpr uint32_t typeId = TypeHash< T >;
-        Data[ typeId ] = std::move( data );
+    void set( T&& data ) {
+        constexpr uint32_t TypeId = TypeHash< T >;
+        m_data[ TypeId ] = std::forward< T >( data );
     }
 
     template < typename T >
-    T& Get() {
-        auto inserted = Data.emplace( TypeHash< T >, T{} );
+    T& get() {
+        auto inserted = m_data.emplace( TypeHash< T >, T{} );
         return std::any_cast< T& >( *inserted.first );
     }
 
     template < typename T >
-    const T& Get() const {
-        constexpr uint32_t typeId = TypeHash< T >;
-        ONYX_ASSERT( Data.contains( typeId ) );
-        return std::any_cast< const T& >( Data.at( typeId ) );
+    const T& get() const {
+        constexpr uint32_t TypeId = TypeHash< T >;
+        ONYX_ASSERT( m_data.contains( TypeId ) );
+        return std::any_cast< const T& >( m_data.at( TypeId ) );
     }
 
   private:
-    HashMap< uint32_t, std::any > Data;
+    HashMap< uint32_t, std::any > m_data;
 };
 
 struct ExecutionContext {
   public:
     ExecutionContext( PrepareContext& prepareContext )
-        : m_PrepareContext( &prepareContext ) {}
+        : m_prepareContext( &prepareContext ) {}
 
     struct PinRuntimeMetaData {
         bool IsConnected = false;
@@ -43,59 +45,59 @@ struct ExecutionContext {
     };
 
     template < PinType Pin >
-    ONYX_NO_DISCARD typename Pin::DataType& GetPinData() {
-        ONYX_ASSERT( m_CurrentNodeContext->PinData.contains( Pin::LocalId ) );
-        return std::any_cast< typename Pin::DataType& >( m_CurrentNodeContext->PinData[ Pin::LocalId ] );
+    [[nodiscard]] typename Pin::DataType& getPinData() {
+        ONYX_ASSERT( m_currentNodeContext->PinData.contains( Pin::LocalId ) );
+        return std::any_cast< typename Pin::DataType& >( m_currentNodeContext->PinData[ Pin::LocalId ] );
     }
 
     template < PinType Pin >
-    ONYX_NO_DISCARD const typename Pin::DataType& GetPinData() const {
-        ONYX_ASSERT( m_CurrentNodeContext->PinData.contains( Pin::LocalId ) );
-        return std::any_cast< const typename Pin::DataType& >( m_CurrentNodeContext->PinData.at( Pin::LocalId ) );
+    [[nodiscard]] const typename Pin::DataType& getPinData() const {
+        ONYX_ASSERT( m_currentNodeContext->PinData.contains( Pin::LocalId ) );
+        return std::any_cast< const typename Pin::DataType& >( m_currentNodeContext->PinData.at( Pin::LocalId ) );
     }
 
     template < PinType Pin >
-    ONYX_NO_DISCARD bool IsPinConnected() const {
-        return m_CurrentNodeContext->PinMetaData.at( Pin::LocalId ).IsConnected;
+    [[nodiscard]] bool isPinConnected() const {
+        return m_currentNodeContext->PinMetaData.at( Pin::LocalId ).IsConnected;
     }
 
-    const PrepareContext& GetPrepareContext() const {
-        ONYX_ASSERT( m_PrepareContext != nullptr );
-        return *m_PrepareContext;
+    const PrepareContext& getPrepareContext() const {
+        ONYX_ASSERT( m_prepareContext != nullptr );
+        return *m_prepareContext;
     }
 
     // debug functions
-    void AddNodeContext( Guid64 id, NodeContext context ) { m_NodeContexts[ id.get() ] = context; }
+    void addNodeContext( Guid64 id, NodeContext context ) { m_nodeContexts[ id.get() ] = std::move( context ); }
 
-    const NodeContext& GetNodeContext( Guid64 nodeId ) const {
-        ONYX_ASSERT( m_NodeContexts.contains( nodeId.get() ) );
-        return m_NodeContexts.at( nodeId.get() );
+    const NodeContext& getNodeContext( Guid64 nodeId ) const {
+        ONYX_ASSERT( m_nodeContexts.contains( nodeId.get() ) );
+        return m_nodeContexts.at( nodeId.get() );
     }
 
-    NodeContext& SetCurrentNode( Guid64 nodeId ) {
-        ONYX_ASSERT( m_NodeContexts.contains( nodeId.get() ) );
-        m_CurrentNodeContext = &( m_NodeContexts.at( nodeId.get() ) );
-        return *m_CurrentNodeContext;
+    NodeContext& setCurrentNode( Guid64 nodeId ) {
+        ONYX_ASSERT( m_nodeContexts.contains( nodeId.get() ) );
+        m_currentNodeContext = &( m_nodeContexts.at( nodeId.get() ) );
+        return *m_currentNodeContext;
     }
 
     template < typename T >
-    T& Get() {
-        auto [ it, _ ] = GraphData.emplace( TypeHash< T >(), T{} );
+    T& get() {
+        auto [ it, _ ] = m_graphData.emplace( TypeHash< T >(), T{} );
         return std::any_cast< T& >( it->second );
     }
 
     template < typename T >
-    const T& Get() const {
-        constexpr uint32_t typeId = TypeHash< T >();
-        ONYX_ASSERT( GraphData.contains( typeId ) );
-        return std::any_cast< const T& >( GraphData.at( typeId ) );
+    const T& get() const {
+        constexpr uint32_t TypeId = TypeHash< T >();
+        ONYX_ASSERT( m_graphData.contains( TypeId ) );
+        return std::any_cast< const T& >( m_graphData.at( TypeId ) );
     }
 
   private:
-    HashMap< uint64_t, NodeContext > m_NodeContexts;
-    HashMap< uint32_t, std::any > GraphData;
+    HashMap< uint64_t, NodeContext > m_nodeContexts;
+    HashMap< uint32_t, std::any > m_graphData;
 
-    PrepareContext* m_PrepareContext = nullptr; // non owning
-    NodeContext* m_CurrentNodeContext = nullptr;
+    PrepareContext* m_prepareContext = nullptr;
+    NodeContext* m_currentNodeContext = nullptr;
 };
 } // namespace onyx::node_graph

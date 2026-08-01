@@ -8,28 +8,28 @@
 
 namespace onyx::localization {
 LocalizationModule::LocalizationModule( const LocalizationSettings& settings, assets::AssetSystem& assetSystem )
-    : m_Settings( settings ) {
-    m_LocalizationBackend = makeUnique< GetTextLocalizationBackend >();
-    m_LocalizationBackend->Init( assetSystem, m_Settings );
+    : m_settings( settings ) {
+    m_localizationBackend = makeUnique< GetTextLocalizationBackend >();
+    m_localizationBackend->Init( assetSystem, m_settings );
 
     InitLocalization( *this );
 }
 
-LocalizedString LocalizationModule::GetLocalized( LocalizationId id ) const {
-    return LocalizedString{ id, *m_LocalizationBackend };
+LocalizedString LocalizationModule::getLocalized( LocalizationId id ) const {
+    return LocalizedString{ id, *m_localizationBackend };
 }
 
-Optional< StringView > LocalizationModule::TryGetLocalized( LocalizationId id ) const {
-    return m_LocalizationBackend->GetLocalized( id );
+Optional< StringView > LocalizationModule::tryGetLocalized( LocalizationId id ) const {
+    return m_localizationBackend->GetLocalized( id );
 }
 
 #if !ONYX_IS_RETAIL
-void LocalizationModule::AddSecondaryDatabase( const assets::AssetHandle< GetTextLocalizationDatabase >& database ) {
-    m_LocalizationBackend->AddSecondaryDatabase( database );
+void LocalizationModule::addSecondaryDatabase( const assets::AssetHandle< GetTextLocalizationDatabase >& database ) {
+    m_localizationBackend->AddSecondaryDatabase( database );
 }
 
-void LocalizationModule::RemoveSecondaryDatabase( const assets::AssetHandle< GetTextLocalizationDatabase >& database ) {
-    m_LocalizationBackend->RemoveSecondaryDatabase( database );
+void LocalizationModule::removeSecondaryDatabase( const assets::AssetHandle< GetTextLocalizationDatabase >& database ) {
+    m_localizationBackend->RemoveSecondaryDatabase( database );
 }
 #endif
 } // namespace onyx::localization

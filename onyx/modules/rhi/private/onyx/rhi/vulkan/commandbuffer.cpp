@@ -22,35 +22,33 @@ VulkanCommandBuffer::VulkanCommandBuffer( const VulkanGraphicsApi& api,
                                           VkCommandBufferLevel bufferLevel,
                                           uint8_t frameIndex,
                                           StringView debugName )
-    : m_Api( api )
-    , m_FrameIndex( frameIndex ) {
+    : m_api( api )
+    , m_frameIndex( frameIndex ) {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool.GetHandle();
     allocInfo.level = bufferLevel;
     allocInfo.commandBufferCount = 1;
 
-    VK_CHECK_RESULT( vkAllocateCommandBuffers( api.getDevice().GetHandle(), &allocInfo, &m_CommandBuffer ) )
-    SetResourceName( api.getDevice().GetHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_CommandBuffer, debugName );
+    VK_CHECK_RESULT( vkAllocateCommandBuffers( api.getDevice().GetHandle(), &allocInfo, &m_commandBuffer ) )
+    SetResourceName( api.getDevice().GetHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_commandBuffer, debugName );
 }
 
-VulkanCommandBuffer::~VulkanCommandBuffer() {
-    // don't need to free it as we free it with the command pool
-}
+VulkanCommandBuffer::~VulkanCommandBuffer() = default;
 
-VulkanCommandBuffer::VulkanCommandBuffer( VulkanCommandBuffer&& ) = default;
+VulkanCommandBuffer::VulkanCommandBuffer( VulkanCommandBuffer&& ) noexcept = default;
 
 void VulkanCommandBuffer::reset() {
-    ONYX_ASSERT( m_IsRecording == false, "CommandBuffer is still recording" );
+    ONYX_ASSERT( m_isRecording == false, "CommandBuffer is still recording" );
 
-    m_CurrentRenderPass = {};
-    m_CurrentFrameBuffer = {};
-    m_CurrentShaderEffect.reset();
+    m_currentRenderPass = {};
+    m_currentFrameBuffer = {};
+    m_currentShaderEffect.reset();
     // reset descriptors
 }
 
 void VulkanCommandBuffer::begin() {
-    ONYX_ASSERT( m_IsRecording == false, "CommandBuffer is already recording" );
+    ONYX_ASSERT( m_isRecording == false, "CommandBuffer is already recording" );
 
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -58,12 +56,12 @@ void VulkanCommandBuffer::begin() {
     beginInfo.pInheritanceInfo = nullptr; // Optional
     beginInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkBeginCommandBuffer( m_CommandBuffer, &beginInfo ) )
-    m_IsRecording = true;
+    VK_CHECK_RESULT( vkBeginCommandBuffer( m_commandBuffer, &beginInfo ) )
+    m_isRecording = true;
 }
 
 void VulkanCommandBuffer::beginSingleSubmit() {
-    ONYX_ASSERT( m_IsRecording == false, "CommandBuffer is already recording" );
+    ONYX_ASSERT( m_isRecording == false, "CommandBuffer is already recording" );
 
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -72,27 +70,27 @@ void VulkanCommandBuffer::beginSingleSubmit() {
     beginInfo.pInheritanceInfo = nullptr; // Optional
     beginInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkBeginCommandBuffer( m_CommandBuffer, &beginInfo ) )
-    m_IsRecording = true;
+    VK_CHECK_RESULT( vkBeginCommandBuffer( m_commandBuffer, &beginInfo ) )
+    m_isRecording = true;
 }
 
 void VulkanCommandBuffer::end() {
-    ONYX_ASSERT( m_IsRecording, "CommandBuffer is not recording" );
-    VK_CHECK_RESULT( vkEndCommandBuffer( m_CommandBuffer ) )
-    m_IsRecording = false;
+    ONYX_ASSERT( m_isRecording, "CommandBuffer is not recording" );
+    VK_CHECK_RESULT( vkEndCommandBuffer( m_commandBuffer ) )
+    m_isRecording = false;
 }
 
 void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHandle,
                                            const FramebufferHandle& framebufferHandle ) {
-    m_IsRecording = true;
+    m_isRecording = true;
 
-    if( m_CurrentRenderPass )
+    if( m_currentRenderPass )
         endRenderPass();
 
     const VulkanRenderPass& renderPass = renderPassHandle.as< VulkanRenderPass >();
     const VulkanFramebuffer& frameBuffer = framebufferHandle.as< VulkanFramebuffer >();
     const FramebufferSettings& frameBufferSettings = frameBuffer.GetSettings();
-    if( m_Api.isDynamicRenderingEnabled() ) {
+    if( m_api.isDynamicRenderingEnabled() ) {
         const RenderPassSettings& renderPassSettings = renderPass.GetSettings();
         DynamicArray< VkRenderingAttachmentInfoKHR > colorAttachmentsInfo;
         colorAttachmentsInfo.reserve( frameBufferSettings.m_ColorTargets.size() );
@@ -126,16 +124,24 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
                 colorAttachmentInfo.imageView = frameBufferSettings.m_ColorTargets[ colorTargetIndex++ ]
                                                     .as< VulkanTexture >()
                                                     .GetHandle();
-                colorAttachmentInfo.imageLayout = m_Api.isSynchronization2Enabled()
+                colorAttachmentInfo.imageLayout = m_api.isSynchronization2Enabled()
                                                       ? VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR
                                                       : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 colorAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE;
                 colorAttachmentInfo.loadOp = static_cast< VkAttachmentLoadOp >( attachment.m_LoadOp );
                 colorAttachmentInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                colorAttachmentInfo.clearValue.color.float32[ 0 ] = attachment.m_ClearColor[ 0 ] / 255.0f;
-                colorAttachmentInfo.clearValue.color.float32[ 1 ] = attachment.m_ClearColor[ 1 ] / 255.0f;
-                colorAttachmentInfo.clearValue.color.float32[ 2 ] = attachment.m_ClearColor[ 2 ] / 255.0f;
-                colorAttachmentInfo.clearValue.color.float32[ 3 ] = attachment.m_ClearColor[ 3 ] / 255.0f;
+                colorAttachmentInfo.clearValue.color.float32[ 0 ] = numericCast< float32 >(
+                                                                        attachment.m_ClearColor[ 0 ] ) /
+                                                                    255.0f;
+                colorAttachmentInfo.clearValue.color.float32[ 1 ] = numericCast< float32 >(
+                                                                        attachment.m_ClearColor[ 1 ] ) /
+                                                                    255.0f;
+                colorAttachmentInfo.clearValue.color.float32[ 2 ] = numericCast< float32 >(
+                                                                        attachment.m_ClearColor[ 2 ] ) /
+                                                                    255.0f;
+                colorAttachmentInfo.clearValue.color.float32[ 3 ] = numericCast< float32 >(
+                                                                        attachment.m_ClearColor[ 3 ] ) /
+                                                                    255.0f;
             }
         }
 
@@ -155,7 +161,7 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
         // TODO: name render pass & framebuffer
         // SetResourceName(m_Api.GetDevice().GetHandle(), VK_OBJECT_TYPE_RENDER_PASS, &renderingInfo, "Test");
 
-        vkCmdBeginRendering( m_CommandBuffer, &renderingInfo );
+        vkCmdBeginRendering( m_commandBuffer, &renderingInfo );
     } else {
         VkRenderPassBeginInfo renderPassBegin{};
         renderPassBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -177,41 +183,41 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
         renderPassBegin.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(
-            m_CommandBuffer,
+            m_commandBuffer,
             &renderPassBegin,
             /*use_secondary ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : */ VK_SUBPASS_CONTENTS_INLINE );
     }
 
-    m_CurrentRenderPass = renderPassHandle;
-    m_CurrentFrameBuffer = framebufferHandle;
+    m_currentRenderPass = renderPassHandle;
+    m_currentFrameBuffer = framebufferHandle;
 }
 
 void VulkanCommandBuffer::endRenderPass() {
-    ONYX_ASSERT( m_IsRecording, "CommandBuffer needs to be recording for this action." );
-    ONYX_ASSERT( m_CurrentRenderPass, "RenderPass was not started" );
+    ONYX_ASSERT( m_isRecording, "CommandBuffer needs to be recording for this action." );
+    ONYX_ASSERT( m_currentRenderPass, "RenderPass was not started" );
 
-    if( m_Api.isDynamicRenderingEnabled() )
-        vkCmdEndRendering( m_CommandBuffer );
+    if( m_api.isDynamicRenderingEnabled() )
+        vkCmdEndRendering( m_commandBuffer );
     else
-        vkCmdEndRenderPass( m_CommandBuffer );
+        vkCmdEndRenderPass( m_commandBuffer );
 
-    m_CurrentRenderPass.reset();
-    m_CurrentFrameBuffer.reset();
+    m_currentRenderPass.reset();
+    m_currentFrameBuffer.reset();
 }
 
 void VulkanCommandBuffer::bindShaderEffect( const ShaderInstanceHandle& shader ) {
-    ONYX_ASSERT( m_IsRecording, "CommandBuffer needs to be recording for this action." );
-    ONYX_ASSERT( m_CurrentRenderPass || shader->IsCompute(), "RenderPass was not started" );
+    ONYX_ASSERT( m_isRecording, "CommandBuffer needs to be recording for this action." );
+    ONYX_ASSERT( m_currentRenderPass || shader->isCompute(), "RenderPass was not started" );
 
-    m_CurrentShaderEffect = shader;
+    m_currentShaderEffect = shader;
 
-    const Pipeline& pipeline = shader->GetPipeline().as< Pipeline >();
+    const Pipeline& pipeline = shader->getPipeline().as< Pipeline >();
     VkPipeline vkPipeline = pipeline.GetHandle();
     VkPipelineLayout vkLayout = pipeline.GetPipelineLayout().GetHandle();
     VkPipelineBindPoint vkBindPoint = pipeline.GetBindPoint();
 
-    vkCmdBindPipeline( m_CommandBuffer, vkBindPoint, vkPipeline );
-    BindDescriptorSets( vkLayout, vkBindPoint );
+    vkCmdBindPipeline( m_commandBuffer, vkBindPoint, vkPipeline );
+    bindDescriptorSets( vkLayout, vkBindPoint );
 }
 
 void VulkanCommandBuffer::bindVertexBuffer( const BufferHandle& bufferHandle, uint32_t binding, uint32_t offset ) {
@@ -219,11 +225,11 @@ void VulkanCommandBuffer::bindVertexBuffer( const BufferHandle& bufferHandle, ui
     VkDeviceSize offsets[] = { offset };
 
     // add support for parent vertex buffers?
-    vkCmdBindVertexBuffers( m_CommandBuffer, binding, 1, buffer.GetHandlePtr(), offsets );
+    vkCmdBindVertexBuffers( m_commandBuffer, binding, 1, buffer.GetHandlePtr(), offsets );
 }
 
 void VulkanCommandBuffer::bindVertexBuffers( [[maybe_unused]] const InplaceArray< BufferHandle, 8 >& bufferHandles,
-                                             [[maybe_unused]] const InplaceArray< uint32_t, 8 > bufferOffsets,
+                                             [[maybe_unused]] const InplaceArray< uint32_t, 8 >& bufferOffsets,
                                              [[maybe_unused]] uint32_t firstBinding,
                                              [[maybe_unused]] uint32_t bindingCount ) {
     // TODO: find way to pass buffers as const ref, maybe use std::reference_wrapper
@@ -255,11 +261,11 @@ void VulkanCommandBuffer::bindIndexBuffer( const BufferHandle& bufferHandle, uin
         break;
     }
 
-    vkCmdBindIndexBuffer( m_CommandBuffer, buffer.GetHandle(), offset, vkIndexType );
+    vkCmdBindIndexBuffer( m_commandBuffer, buffer.GetHandle(), offset, vkIndexType );
 }
 
 void VulkanCommandBuffer::bindPushConstants( ShaderStage stage, uint32_t offset, uint32_t size, const void* data ) {
-    vkCmdPushConstants( m_CommandBuffer, GetPipelineLayout(), ToVulkanStage( stage ), offset, size, data );
+    vkCmdPushConstants( m_commandBuffer, getPipelineLayout(), ToVulkanStage( stage ), offset, size, data );
 }
 
 void VulkanCommandBuffer::beginConditionalRendering( const BufferHandle& conditionalBuffer, uint32_t offset ) {
@@ -273,31 +279,31 @@ void VulkanCommandBuffer::beginConditionalRendering( const BufferHandle& conditi
     conditionalRenderingInfo.flags = 0;
     conditionalRenderingInfo.offset = offset;
 
-    g_vkCmdBeginConditionalRenderingExt( m_CommandBuffer, &conditionalRenderingInfo );
+    g_vkCmdBeginConditionalRenderingExt( m_commandBuffer, &conditionalRenderingInfo );
 }
 
 void VulkanCommandBuffer::endConditionalRendering() {
     ONYX_ASSERT( g_vkCmdEndConditionalRenderingExt != nullptr );
-    g_vkCmdEndConditionalRenderingExt( m_CommandBuffer );
+    g_vkCmdEndConditionalRenderingExt( m_commandBuffer );
 }
 
-VkPipelineLayout VulkanCommandBuffer::GetPipelineLayout() const {
-    ONYX_ASSERT( m_CurrentShaderEffect.isValid() );
-    return m_CurrentShaderEffect->GetPipeline().as< Pipeline >().GetPipelineLayout().GetHandle();
+VkPipelineLayout VulkanCommandBuffer::getPipelineLayout() const {
+    ONYX_ASSERT( m_currentShaderEffect.isValid() );
+    return m_currentShaderEffect->getPipeline().as< Pipeline >().GetPipelineLayout().GetHandle();
 }
 
 void VulkanCommandBuffer::bind( const TextureHandle& texture, const String& bindingName ) {
-    ONYX_ASSERT( m_CurrentShaderEffect, "No ShaderEffect is active." );
-    m_CurrentShaderEffect->Bind( texture, bindingName, m_FrameIndex );
+    ONYX_ASSERT( m_currentShaderEffect, "No ShaderEffect is active." );
+    m_currentShaderEffect->bind( texture, bindingName, m_frameIndex );
 }
 
 void VulkanCommandBuffer::bind( const BufferHandle& buffer, const String& bindingName ) {
-    ONYX_ASSERT( m_CurrentShaderEffect, "No ShaderEffect is active." );
-    m_CurrentShaderEffect->Bind( buffer, bindingName, m_FrameIndex );
+    ONYX_ASSERT( m_currentShaderEffect, "No ShaderEffect is active." );
+    m_currentShaderEffect->bind( buffer, bindingName, m_frameIndex );
 }
 
 void VulkanCommandBuffer::barrier( BufferHandle& buffer, Context newContext, Access newAccess ) {
-    buffer.Buffer->Barrier( *this, newContext, newAccess, buffer.Alias );
+    buffer.Buffer->barrier( *this, newContext, newAccess, buffer.Alias );
 }
 
 void VulkanCommandBuffer::transitionLayout( TextureHandle& texture,
@@ -307,18 +313,18 @@ void VulkanCommandBuffer::transitionLayout( TextureHandle& texture,
     texture.Storage->TransitionLayout( *this, newContext, newAccess, newLayout );
 }
 
-void VulkanCommandBuffer::BindDescriptorSets( VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint ) {
+void VulkanCommandBuffer::bindDescriptorSets( VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint ) {
     uint8_t firstSet = 0;
 
     DynamicArray< VkDescriptorSet > vkDescriptorSets;
-    if( m_Api.isBindless() ) {
-        const DescriptorSet& bindlessDescriptorSet = m_Api.getBindlessDescriptorSet();
+    if( m_api.isBindless() ) {
+        const DescriptorSet& bindlessDescriptorSet = m_api.getBindlessDescriptorSet();
         vkDescriptorSets.push_back( bindlessDescriptorSet.GetHandle() );
     }
 
-    if( m_CurrentShaderEffect->HasDescriptorSets() ) {
-        const DynamicArray< DescriptorSetHandle >& descriptorSets = m_CurrentShaderEffect->GetDescriptorSets(
-            m_FrameIndex );
+    if( m_currentShaderEffect->hasDescriptorSets() ) {
+        const DynamicArray< DescriptorSetHandle >& descriptorSets = m_currentShaderEffect->getDescriptorSets(
+            m_frameIndex );
 
         uint8_t lastSet = 0;
         for( const DescriptorSetHandle& descriptorSet : descriptorSets ) {
@@ -330,7 +336,7 @@ void VulkanCommandBuffer::BindDescriptorSets( VkPipelineLayout pipelineLayout, V
                 vkDescriptorSets.push_back( vulkanDescriptorSet.GetHandle() );
             } else {
                 if( vkDescriptorSets.empty() == false ) {
-                    vkCmdBindDescriptorSets( m_CommandBuffer,
+                    vkCmdBindDescriptorSets( m_commandBuffer,
                                              bindingPoint,
                                              pipelineLayout,
                                              firstSet,
@@ -350,7 +356,7 @@ void VulkanCommandBuffer::BindDescriptorSets( VkPipelineLayout pipelineLayout, V
 
     // push remaining descriptor sets
     if( vkDescriptorSets.empty() == false ) {
-        vkCmdBindDescriptorSets( m_CommandBuffer,
+        vkCmdBindDescriptorSets( m_commandBuffer,
                                  bindingPoint,
                                  pipelineLayout,
                                  firstSet,
@@ -365,25 +371,25 @@ void VulkanCommandBuffer::setViewport() {
     VkViewport vkViewport;
     vkViewport.x = 0.f;
 
-    if( m_CurrentRenderPass ) {
-        const FramebufferSettings& frameBufferSettings = m_CurrentFrameBuffer->GetSettings();
+    if( m_currentRenderPass ) {
+        const FramebufferSettings& frameBufferSettings = m_currentFrameBuffer->GetSettings();
         vkViewport.width = static_cast< float32 >( frameBufferSettings.m_Width );
         // Invert Y with negative height and proper offset - Vulkan has unique Clipping Y.
         vkViewport.y = static_cast< float32 >( frameBufferSettings.m_Height );
         vkViewport.height = -vkViewport.y;
     } else {
-        const Vector2s32& swapchainExtent = m_Api.getSwapChain().GetExtent();
+        const Vector2s32& swapchainExtent = m_api.getSwapChain().GetExtent();
         // TODO: get swap chain size
-        vkViewport.width = swapchainExtent[ 0 ] * 1.f;
+        vkViewport.width = numericCast< float32 >( swapchainExtent.X ) * 1.f;
         // Invert Y with negative height and proper offset - Vulkan has unique Clipping Y.
-        vkViewport.y = swapchainExtent[ 1 ] * 1.f;
-        vkViewport.height = -swapchainExtent[ 1 ] * 1.f;
+        vkViewport.y = numericCast< float32 >( swapchainExtent.Y );
+        vkViewport.height = -vkViewport.y;
     }
 
     vkViewport.minDepth = 0.0f;
     vkViewport.maxDepth = 1.0f;
 
-    vkCmdSetViewport( m_CommandBuffer, 0, 1, &vkViewport );
+    vkCmdSetViewport( m_commandBuffer, 0, 1, &vkViewport );
 }
 
 void VulkanCommandBuffer::setViewport( const Viewport& viewport ) {
@@ -397,7 +403,7 @@ void VulkanCommandBuffer::setViewport( const Viewport& viewport ) {
     vkViewport.minDepth = viewport.MinDepth;
     vkViewport.maxDepth = viewport.MaxDepth;
 
-    vkCmdSetViewport( m_CommandBuffer, 0, 1, &vkViewport );
+    vkCmdSetViewport( m_commandBuffer, 0, 1, &vkViewport );
 }
 
 void VulkanCommandBuffer::setScissor() {
@@ -405,11 +411,11 @@ void VulkanCommandBuffer::setScissor() {
     vkScissor.offset.x = 0;
     vkScissor.offset.y = 0;
 
-    const Vector2s32& swapchainExtent = m_Api.getSwapChain().GetExtent();
+    const Vector2s32& swapchainExtent = m_api.getSwapChain().GetExtent();
     vkScissor.extent.width = swapchainExtent[ 0 ];
     vkScissor.extent.height = swapchainExtent[ 1 ];
 
-    vkCmdSetScissor( m_CommandBuffer, 0, 1, &vkScissor );
+    vkCmdSetScissor( m_commandBuffer, 0, 1, &vkScissor );
 }
 
 void VulkanCommandBuffer::setScissor( Rect2s16 scissorRect ) {
@@ -420,26 +426,24 @@ void VulkanCommandBuffer::setScissor( Rect2s16 scissorRect ) {
     vkScissor.extent.width = scissorRect.Extents[ 0 ];
     vkScissor.extent.height = scissorRect.Extents[ 1 ];
 
-    vkCmdSetScissor( m_CommandBuffer, 0, 1, &vkScissor );
+    vkCmdSetScissor( m_commandBuffer, 0, 1, &vkScissor );
 }
 
 void VulkanCommandBuffer::clearColor( [[maybe_unused]] float32 red,
                                       [[maybe_unused]] float32 green,
                                       [[maybe_unused]] float32 blue,
                                       [[maybe_unused]] float32 alpha,
-                                      [[maybe_unused]] uint32_t attachmentIndex ) {
-}
+                                      [[maybe_unused]] uint32_t attachmentIndex ) {}
 
-void VulkanCommandBuffer::clearDepthStencil( [[maybe_unused]] float32 depth, [[maybe_unused]] uint8_t stencil ) {
-}
+void VulkanCommandBuffer::clearDepthStencil( [[maybe_unused]] float32 depth, [[maybe_unused]] uint8_t stencil ) {}
 
 void VulkanCommandBuffer::draw( PrimitiveTopology /*topology*/,
                                 uint32_t firstVertex,
                                 uint32_t vertexCount,
                                 uint32_t firstInstance,
                                 uint32_t instanceCount ) {
-    PreDraw();
-    vkCmdDraw( m_CommandBuffer, vertexCount, instanceCount, firstVertex, firstInstance );
+    preDraw();
+    vkCmdDraw( m_commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance );
 }
 
 void VulkanCommandBuffer::drawIndexed( PrimitiveTopology /*topology*/,
@@ -448,20 +452,20 @@ void VulkanCommandBuffer::drawIndexed( PrimitiveTopology /*topology*/,
                                        uint32_t firstIndex,
                                        int32_t vertexOffset,
                                        uint32_t firstInstance ) {
-    PreDraw();
-    vkCmdDrawIndexed( m_CommandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance );
+    preDraw();
+    vkCmdDrawIndexed( m_commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance );
 }
 
 void VulkanCommandBuffer::drawIndirect( const BufferHandle& bufferHandle,
                                         uint32_t drawCount,
                                         uint32_t offset,
                                         uint32_t stride ) {
-    PreDraw();
+    preDraw();
 
     const VulkanBuffer& vkBuffer = bufferHandle.Buffer.as< VulkanBuffer >();
 
     VkDeviceSize vkOffset = offset;
-    vkCmdDrawIndirect( m_CommandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride );
+    vkCmdDrawIndirect( m_commandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride );
 }
 
 void VulkanCommandBuffer::drawIndirectCount( const BufferHandle& argumentBufferHandle,
@@ -470,12 +474,12 @@ void VulkanCommandBuffer::drawIndirectCount( const BufferHandle& argumentBufferH
                                              uint32_t countOffset,
                                              uint32_t maxDraws,
                                              uint32_t stride ) {
-    PreDraw();
+    preDraw();
 
     const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.Buffer.as< VulkanBuffer >();
     const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.as< VulkanBuffer >();
 
-    vkCmdDrawIndirectCount( m_CommandBuffer,
+    vkCmdDrawIndirectCount( m_commandBuffer,
                             vkArgumentBuffer.GetHandle(),
                             argumentOffset,
                             vkCountBuffer.GetHandle(),
@@ -488,19 +492,19 @@ void VulkanCommandBuffer::drawIndexedIndirect( const BufferHandle& bufferHandle,
                                                uint32_t drawCount,
                                                uint32_t offset,
                                                uint32_t stride ) {
-    PreDraw();
+    preDraw();
 
     const VulkanBuffer& vkBuffer = bufferHandle.Buffer.as< VulkanBuffer >();
     VkDeviceSize vkOffset = offset;
 
-    vkCmdDrawIndexedIndirect( m_CommandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride );
+    vkCmdDrawIndexedIndirect( m_commandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride );
 }
 
 void VulkanCommandBuffer::drawMeshTask( uint32_t groupX, uint32_t groupY, uint32_t groupZ ) {
-    PreDraw();
+    preDraw();
 
     ONYX_ASSERT( g_vkCmdDrawMeshTasks != nullptr, "Mesh shader extension is not initialized." );
-    g_vkCmdDrawMeshTasks( m_CommandBuffer, groupX, groupY, groupZ );
+    g_vkCmdDrawMeshTasks( m_commandBuffer, groupX, groupY, groupZ );
 }
 
 void VulkanCommandBuffer::drawMeshTaskIndirect( const BufferHandle& argumentBufferHandle,
@@ -509,14 +513,14 @@ void VulkanCommandBuffer::drawMeshTaskIndirect( const BufferHandle& argumentBuff
                                                 uint32_t countOffset,
                                                 uint32_t maxDraws,
                                                 uint32_t stride ) {
-    PreDraw();
+    preDraw();
 
     ONYX_ASSERT( g_vkCmdDrawMeshTasksIndirectCount != nullptr, "Mesh shader extension is not initialized." );
 
     const VulkanBuffer& vkArgumentBuffer = argumentBufferHandle.Buffer.as< VulkanBuffer >();
     const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.as< VulkanBuffer >();
 
-    g_vkCmdDrawMeshTasksIndirectCount( m_CommandBuffer,
+    g_vkCmdDrawMeshTasksIndirectCount( m_commandBuffer,
                                        vkArgumentBuffer.GetHandle(),
                                        argumentOffset,
                                        vkCountBuffer.GetHandle(),
@@ -526,13 +530,13 @@ void VulkanCommandBuffer::drawMeshTaskIndirect( const BufferHandle& argumentBuff
 }
 
 void VulkanCommandBuffer::dispatch( uint32_t groupX, uint32_t groupY, uint32_t groupZ ) {
-    PreDraw();
+    preDraw();
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     // BeginDebugLabel(m_CurrentShaderEffect->GetPipeline()->GetProperties().m_DebugName, Vector4f32{ 1.0f } );
 #endif
 
-    vkCmdDispatch( m_CommandBuffer, groupX, groupY, groupZ );
+    vkCmdDispatch( m_commandBuffer, groupX, groupY, groupZ );
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     // EndDebugLabel();
@@ -549,7 +553,7 @@ void VulkanCommandBuffer::dispatchIndirect( const BufferHandle& bufferHandle, ui
 #endif
 
     const VulkanBuffer& vkBuffer = bufferHandle.Buffer.as< VulkanBuffer >();
-    vkCmdDispatchIndirect( m_CommandBuffer, vkBuffer.GetHandle(), bufferHandle.GetOffset() + offset );
+    vkCmdDispatchIndirect( m_commandBuffer, vkBuffer.GetHandle(), bufferHandle.getOffset() + offset );
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     // EndDebugLabel();
@@ -561,10 +565,10 @@ void VulkanCommandBuffer::copy( const BufferHandle& source, BufferHandle& destin
     VulkanBuffer& vkDestinationBuffer = destination.Buffer.as< VulkanBuffer >();
 
     VkBufferCopy copyRegion{};
-    copyRegion.srcOffset = source.Buffer->GetAliasOffset( source.Alias );
-    copyRegion.size = source.Buffer->GetAliasSize( source.Alias );
+    copyRegion.srcOffset = source.Buffer->getAliasOffset( source.Alias );
+    copyRegion.size = source.Buffer->getAliasSize( source.Alias );
     copyRegion.dstOffset = 0;
-    vkCmdCopyBuffer( m_CommandBuffer, vkSourceBuffer.GetHandle(), vkDestinationBuffer.GetHandle(), 1, &copyRegion );
+    vkCmdCopyBuffer( m_commandBuffer, vkSourceBuffer.GetHandle(), vkDestinationBuffer.GetHandle(), 1, &copyRegion );
 }
 
 void VulkanCommandBuffer::globalBarrier( VkAccessFlagBits2 srcAccess, VkAccessFlagBits2 dstAccess ) {
@@ -576,13 +580,13 @@ void VulkanCommandBuffer::globalBarrier( VkAccessFlagBits2 srcAccess, VkAccessFl
     barrier.dstAccessMask = dstAccess;
     barrier.pNext = nullptr;
 
-    VkDependencyInfoKHR dependency_info{};
-    dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
-    dependency_info.memoryBarrierCount = 1;
-    dependency_info.pMemoryBarriers = &barrier;
-    dependency_info.pNext = nullptr;
+    VkDependencyInfoKHR dependencyInfo{};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+    dependencyInfo.memoryBarrierCount = 1;
+    dependencyInfo.pMemoryBarriers = &barrier;
+    dependencyInfo.pNext = nullptr;
 
-    vkCmdPipelineBarrier2( m_CommandBuffer, &dependency_info );
+    vkCmdPipelineBarrier2( m_commandBuffer, &dependencyInfo );
 }
 
 void VulkanCommandBuffer::globalBarrier( VkAccessFlagBits2 srcAccess,
@@ -597,17 +601,17 @@ void VulkanCommandBuffer::globalBarrier( VkAccessFlagBits2 srcAccess,
     barrier.dstAccessMask = dstAccess;
     barrier.pNext = nullptr;
 
-    VkDependencyInfoKHR dependency_info{};
-    dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
-    dependency_info.memoryBarrierCount = 1;
-    dependency_info.pMemoryBarriers = &barrier;
-    dependency_info.pNext = nullptr;
+    VkDependencyInfoKHR dependencyInfo{};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR;
+    dependencyInfo.memoryBarrierCount = 1;
+    dependencyInfo.pMemoryBarriers = &barrier;
+    dependencyInfo.pNext = nullptr;
 
-    vkCmdPipelineBarrier2( m_CommandBuffer, &dependency_info );
+    vkCmdPipelineBarrier2( m_commandBuffer, &dependencyInfo );
 }
 
-void VulkanCommandBuffer::PreDraw() {
-    m_CurrentShaderEffect->PreDraw( m_FrameIndex );
+void VulkanCommandBuffer::preDraw() {
+    m_currentShaderEffect->preDraw( m_frameIndex );
 }
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
@@ -621,13 +625,13 @@ void VulkanCommandBuffer::beginDebugLabel( StringView label, const Vector4f32& c
         vkDebugLabel.color[ 2 ] = color[ 2 ];
         vkDebugLabel.color[ 3 ] = color[ 3 ];
         vkDebugLabel.pNext = nullptr;
-        g_vkCmdBeginDebugUtilsLabelExt( m_CommandBuffer, &vkDebugLabel );
+        g_vkCmdBeginDebugUtilsLabelExt( m_commandBuffer, &vkDebugLabel );
     }
 }
 
 void VulkanCommandBuffer::endDebugLabel() {
     if( g_vkCmdEndDebugUtilsLabelExt != nullptr )
-        g_vkCmdEndDebugUtilsLabelExt( m_CommandBuffer );
+        g_vkCmdEndDebugUtilsLabelExt( m_commandBuffer );
 }
 
 #endif

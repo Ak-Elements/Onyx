@@ -47,8 +47,8 @@ T* Reference< T, D >::release() {
 
 template < typename T, typename D >
 bool Reference< T, D >::isValid() const {
-    if constexpr ( HasIsValid< T > )
-        return m_object != nullptr && static_cast< const T* >( m_object )->IsValid();
+    if constexpr( HasIsValid< T > )
+        return m_object != nullptr && static_cast< const T* >( m_object )->isValid();
     else
         return m_object != nullptr;
 }
@@ -88,14 +88,14 @@ constexpr Reference< T, D > Reference< T, D >::invalid() {
 
 template < typename T, typename D >
 void Reference< T, D >::increaseRefCount() const {
-    if ( m_object )
+    if( m_object )
         m_object->addReference();
 }
 
 template < typename T, typename D >
 void Reference< T, D >::decreaseRefCount() const {
     ONYX_ASSERT( ( m_object == nullptr ) || ( m_object->m_refCount != 0 ) );
-    if ( m_object && m_object->removeReference() ) {
+    if( m_object && m_object->removeReference() ) {
         m_deleter( std::remove_const_t< T* >( raw() ) );
         m_object = nullptr;
     }

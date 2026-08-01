@@ -46,9 +46,9 @@ void PrimitivesTerrainTool::Render() {
 
     RenderProperties();
 
-    volume::PreviewTerrainEditPass::BrushSize = m_BrushSize;
-    volume::PreviewTerrainEditPass::BrushType = static_cast< uint16_t >( enums::toIntegral( m_Type ) );
-    volume::PreviewTerrainEditPass::BrushOperation = static_cast< uint16_t >( enums::toIntegral( m_Operation ) );
+    volume::PreviewTerrainEditPass::s_brushSize = m_BrushSize;
+    volume::PreviewTerrainEditPass::s_brushType = static_cast< uint16_t >( enums::toIntegral( m_Type ) );
+    volume::PreviewTerrainEditPass::s_brushOperation = static_cast< uint16_t >( enums::toIntegral( m_Operation ) );
 }
 
 void PrimitivesTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
@@ -68,9 +68,9 @@ void PrimitivesTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
 
     CreateVolumeSourcePushConstants createVolumeSourceConstants;
 
-    createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.GetGpuAddress();
-    createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
-    createVolumeSourceConstants.HitBufferAddress = hitBuffer.GetGpuAddress();
+    createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.getGpuAddress();
+    createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.getGpuAddress();
+    createVolumeSourceConstants.HitBufferAddress = hitBuffer.getGpuAddress();
     createVolumeSourceConstants.BrushSize = m_BrushSize;
     createVolumeSourceConstants.BrushType = enums::toIntegral( m_Type );
     createVolumeSourceConstants.BrushOperation = enums::toIntegral( m_Operation );

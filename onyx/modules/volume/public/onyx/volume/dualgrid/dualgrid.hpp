@@ -25,7 +25,7 @@ void Dualgrid< OctreeNodeT >::GenerateDualgrid( const OctreeNodeT& root,
     NodeProc( root );
 
     // Build up a minimal dualgrid for octrees without children.
-    if ( root.IsSubdivided() == false ) {
+    if( root.IsSubdivided() == false ) {
         const Vector3f32 CORNER_0( -1.0f, -1.0f, -1.0f );
         const Vector3f32 CORNER_1( 1.0f, -1.0f, -1.0f );
         const Vector3f32 CORNER_2( 1.0f, -1.0f, 1.0f );
@@ -134,7 +134,7 @@ void Dualgrid< OctreeNodeT >::GenerateDualgrid( const OctreeNodeT& root,
 
 template < typename OctreeNodeT >
 void Dualgrid< OctreeNodeT >::NodeProc( const OctreeNodeT& node ) {
-    if ( node.IsSubdivided() ) {
+    if( node.IsSubdivided() ) {
         const OctreeNodeT& c0 = node.GetChild( Nodes[ 0 ] );
         const OctreeNodeT& c1 = node.GetChild( Nodes[ 1 ] );
         const OctreeNodeT& c2 = node.GetChild( Nodes[ 2 ] );
@@ -191,7 +191,7 @@ void Dualgrid< OctreeNodeT >::EdgeProcX( const OctreeNodeT& node0,
     const bool n2Subdivided = node2.IsSubdivided();
     const bool n3Subdivided = node3.IsSubdivided();
 
-    if ( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided ) {
+    if( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided ) {
         const OctreeNodeT& c0 = n0Subdivided ? node0.GetChild( Nodes[ 7 ] ) : node0;
         const OctreeNodeT& c1 = n0Subdivided ? node0.GetChild( Nodes[ 6 ] ) : node0;
         const OctreeNodeT& c2 = n1Subdivided ? node1.GetChild( Nodes[ 5 ] ) : node1;
@@ -218,7 +218,7 @@ void Dualgrid< OctreeNodeT >::EdgeProcY( const OctreeNodeT& node0,
     const bool n2Subdivided = node2.IsSubdivided();
     const bool n3Subdivided = node3.IsSubdivided();
 
-    if ( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided ) {
+    if( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided ) {
         const OctreeNodeT& c0 = n0Subdivided ? node0.GetChild( Nodes[ 2 ] ) : node0;
         const OctreeNodeT& c1 = n1Subdivided ? node1.GetChild( Nodes[ 3 ] ) : node1;
         const OctreeNodeT& c2 = n2Subdivided ? node2.GetChild( Nodes[ 0 ] ) : node2;
@@ -245,7 +245,7 @@ void Dualgrid< OctreeNodeT >::EdgeProcZ( const OctreeNodeT& node0,
     const bool n2Subdivided = node2.IsSubdivided();
     const bool n3Subdivided = node3.IsSubdivided();
 
-    if ( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided ) {
+    if( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided ) {
         const OctreeNodeT& c0 = n3Subdivided ? node3.GetChild( Nodes[ 5 ] ) : node3;
         const OctreeNodeT& c1 = n2Subdivided ? node2.GetChild( Nodes[ 4 ] ) : node2;
         const OctreeNodeT& c2 = n2Subdivided ? node2.GetChild( Nodes[ 7 ] ) : node2;
@@ -266,7 +266,7 @@ template < typename OctreeNodeT >
 void Dualgrid< OctreeNodeT >::FaceProcXY( const OctreeNodeT& node0, const OctreeNodeT& node1 ) {
     const bool n0Subdivided = node0.IsSubdivided();
     const bool n1Subdivided = node1.IsSubdivided();
-    if ( n0Subdivided || n1Subdivided ) {
+    if( n0Subdivided || n1Subdivided ) {
         const OctreeNodeT& child0 = n0Subdivided ? node0.GetChild( Nodes[ 3 ] ) : node0;
         const OctreeNodeT& child1 = n0Subdivided ? node0.GetChild( Nodes[ 2 ] ) : node0;
         const OctreeNodeT& child2 = n1Subdivided ? node1.GetChild( Nodes[ 1 ] ) : node1;
@@ -296,7 +296,7 @@ template < typename OctreeNodeT >
 void Dualgrid< OctreeNodeT >::FaceProcZY( const OctreeNodeT& node0, const OctreeNodeT& node1 ) {
     const bool n0Subdivided = node0.IsSubdivided();
     const bool n1Subdivided = node1.IsSubdivided();
-    if ( n0Subdivided || n1Subdivided ) {
+    if( n0Subdivided || n1Subdivided ) {
         const OctreeNodeT& child0 = n0Subdivided ? node0.GetChild( Nodes[ 1 ] ) : node0;
         const OctreeNodeT& child1 = n1Subdivided ? node1.GetChild( Nodes[ 0 ] ) : node1;
         const OctreeNodeT& child2 = n1Subdivided ? node1.GetChild( Nodes[ 3 ] ) : node1;
@@ -326,7 +326,7 @@ template < typename OctreeNodeT >
 void Dualgrid< OctreeNodeT >::FaceProcXZ( const OctreeNodeT& node0, const OctreeNodeT& node1 ) {
     const bool n0Subdivided = node0.IsSubdivided();
     const bool n1Subdivided = node1.IsSubdivided();
-    if ( n0Subdivided || n1Subdivided ) {
+    if( n0Subdivided || n1Subdivided ) {
         const OctreeNodeT& child0 = n1Subdivided ? node1.GetChild( Nodes[ 4 ] ) : node1;
         const OctreeNodeT& child1 = n1Subdivided ? node1.GetChild( Nodes[ 5 ] ) : node1;
         const OctreeNodeT& child2 = n1Subdivided ? node1.GetChild( Nodes[ 6 ] ) : node1;
@@ -370,8 +370,8 @@ void Dualgrid< OctreeNodeT >::VertexProc( const OctreeNodeT& node0,
     const bool n6Subdivided = node6.IsSubdivided();
     const bool n7Subdivided = node7.IsSubdivided();
 
-    if ( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided || n4Subdivided || n5Subdivided || n6Subdivided ||
-         n7Subdivided ) {
+    if( n0Subdivided || n1Subdivided || n2Subdivided || n3Subdivided || n4Subdivided || n5Subdivided || n6Subdivided ||
+        n7Subdivided ) {
         const OctreeNodeT& c0 = n0Subdivided ? node0.GetChild( Nodes[ 6 ] ) : node0;
         const OctreeNodeT& c1 = n1Subdivided ? node1.GetChild( Nodes[ 7 ] ) : node1;
         const OctreeNodeT& c2 = n2Subdivided ? node2.GetChild( Nodes[ 4 ] ) : node2;
@@ -458,7 +458,7 @@ void Dualgrid< OctreeNodeT >::AddDualCell( const OctreeNodeT& node0,
     analyticalNormals[ 7 ] = Vector3f32( node7.GetData()->Gradient );
 #endif
 
-    m_IsoSurface->AddTriangles( corners, values, analyticalNormals );
+    m_IsoSurface->addTriangles( corners, values, analyticalNormals );
 
     // const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
     // const float32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;
@@ -551,10 +551,10 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
         return position;
     };
 
-    if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBack ) &&
-         IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBack ) &&
-         IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderBack ) &&
-         IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderBack ) ) {
+    if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBack ) &&
+        IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBack ) &&
+        IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderBack ) &&
+        IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderBack ) ) {
         AddBorderDualCell( GetNodePosition( node0, FACE_BACK ),
                            GetNodePosition( node1, FACE_BACK ),
                            GetNodePosition( node1 ),
@@ -564,8 +564,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                            GetNodePosition( node5 ),
                            GetNodePosition( node4 ) );
 
-        if ( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderTop ) &&
-             IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderTop ) ) {
+        if( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderTop ) &&
+            IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderTop ) ) {
             AddBorderDualCell( GetNodePosition( node4, FACE_BACK ),
                                GetNodePosition( node5, FACE_BACK ),
                                GetNodePosition( node5 ),
@@ -576,7 +576,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node4, FACE_TOP ) );
 
             // Generate back top corner cells
-            if ( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderLeft ) ) {
+            if( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderLeft ) ) {
                 AddBorderDualCell( GetNodePosition( node4, CENTER_BACK_LEFT ),
                                    GetNodePosition( node4, FACE_BACK ),
                                    GetNodePosition( node4 ),
@@ -586,7 +586,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                    GetNodePosition( node4, FACE_TOP ),
                                    GetNodePosition( node4, CENTER_LEFT_TOP ) );
             }
-            if ( IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderRight ) ) {
+            if( IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderRight ) ) {
                 AddBorderDualCell( GetNodePosition( node5, FACE_BACK ),
                                    GetNodePosition( node5, CENTER_BACK_RIGHT ),
                                    GetNodePosition( node5, FACE_RIGHT ),
@@ -597,8 +597,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                    GetNodePosition( node5, FACE_TOP ) );
             }
         }
-        if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBottom ) &&
-             IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBottom ) ) {
+        if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBottom ) &&
+            IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBottom ) ) {
             AddBorderDualCell( GetNodePosition( node0, CENTER_BACK_BOTTOM ),
                                GetNodePosition( node1, CENTER_BACK_BOTTOM ),
                                GetNodePosition( node1, FACE_BOTTOM ),
@@ -609,7 +609,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node0 ) );
 
             // Generate back bottom corner cells
-            if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderLeft ) ) {
+            if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderLeft ) ) {
                 AddBorderDualCell( GetNodePosition( node0, CORNER_0 ),
                                    GetNodePosition( node0, CENTER_BACK_BOTTOM ),
                                    GetNodePosition( node0, FACE_BOTTOM ),
@@ -619,7 +619,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                    GetNodePosition( node0 ),
                                    GetNodePosition( node0, FACE_LEFT ) );
             }
-            if ( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderRight ) ) {
+            if( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderRight ) ) {
                 AddBorderDualCell( GetNodePosition( node1, CENTER_BACK_BOTTOM ),
                                    GetNodePosition( node1, CORNER_1 ),
                                    GetNodePosition( node1, CENTER_RIGHT_BOTTOM ),
@@ -632,10 +632,10 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
         }
     }
 
-    if ( IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderFront ) &&
-         IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderFront ) &&
-         IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderFront ) &&
-         IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderFront ) ) {
+    if( IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderFront ) &&
+        IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderFront ) &&
+        IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderFront ) &&
+        IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderFront ) ) {
         AddBorderDualCell( GetNodePosition( node3 ),
                            GetNodePosition( node2 ),
                            GetNodePosition( node2, FACE_FRONT ),
@@ -646,8 +646,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                            GetNodePosition( node7, FACE_FRONT ) );
 
         // Generate front edge border cells
-        if ( IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderTop ) &&
-             IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderTop ) ) {
+        if( IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderTop ) &&
+            IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderTop ) ) {
             AddBorderDualCell( GetNodePosition( node7 ),
                                GetNodePosition( node6 ),
                                GetNodePosition( node6, FACE_FRONT ),
@@ -657,7 +657,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node6, CENTER_FRONT_TOP ),
                                GetNodePosition( node7, CENTER_FRONT_TOP ) );
             // Generate back bottom corner cells
-            if ( IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderLeft ) ) {
+            if( IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderLeft ) ) {
                 AddBorderDualCell( GetNodePosition( node7, FACE_LEFT ),
                                    GetNodePosition( node7 ),
                                    GetNodePosition( node7, FACE_FRONT ),
@@ -667,7 +667,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                    GetNodePosition( node7, CENTER_FRONT_TOP ),
                                    GetNodePosition( node7, CORNER_7 ) );
             }
-            if ( IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderRight ) ) {
+            if( IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderRight ) ) {
                 AddBorderDualCell( GetNodePosition( node6 ),
                                    GetNodePosition( node6, FACE_RIGHT ),
                                    GetNodePosition( node6, CENTER_FRONT_RIGHT ),
@@ -678,8 +678,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                    GetNodePosition( node6, CENTER_FRONT_TOP ) );
             }
         }
-        if ( IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderBottom ) &&
-             IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderBottom ) ) {
+        if( IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderBottom ) &&
+            IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderBottom ) ) {
             AddBorderDualCell( GetNodePosition( node3, FACE_BOTTOM ),
                                GetNodePosition( node2, FACE_BOTTOM ),
                                GetNodePosition( node2, CENTER_FRONT_BOTTOM ),
@@ -690,7 +690,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node3, FACE_FRONT ) );
 
             // Generate back bottom corner cells
-            if ( IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderLeft ) ) {
+            if( IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderLeft ) ) {
                 AddBorderDualCell( GetNodePosition( node3, CENTER_LEFT_BOTTOM ),
                                    GetNodePosition( node3, FACE_BOTTOM ),
                                    GetNodePosition( node3, CENTER_FRONT_BOTTOM ),
@@ -700,7 +700,7 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                    GetNodePosition( node3, FACE_FRONT ),
                                    GetNodePosition( node3, CENTER_FRONT_LEFT ) );
             }
-            if ( IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderRight ) ) {
+            if( IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderRight ) ) {
                 AddBorderDualCell( GetNodePosition( node2, FACE_BOTTOM ),
                                    GetNodePosition( node2, CENTER_RIGHT_BOTTOM ),
                                    GetNodePosition( node2, CORNER_2 ),
@@ -713,10 +713,10 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
         }
     }
 
-    if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderLeft ) &&
-         IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderLeft ) &&
-         IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderLeft ) &&
-         IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderLeft ) ) {
+    if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderLeft ) &&
+        IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderLeft ) &&
+        IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderLeft ) &&
+        IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderLeft ) ) {
         AddBorderDualCell( GetNodePosition( node0, FACE_LEFT ),
                            GetNodePosition( node0 ),
                            GetNodePosition( node3 ),
@@ -727,8 +727,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                            GetNodePosition( node7, FACE_LEFT ) );
 
         // Generate left edge border cells
-        if ( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderTop ) &&
-             IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderTop ) ) {
+        if( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderTop ) &&
+            IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderTop ) ) {
             AddBorderDualCell( GetNodePosition( node4, FACE_LEFT ),
                                GetNodePosition( node4 ),
                                GetNodePosition( node7 ),
@@ -738,8 +738,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node7, FACE_TOP ),
                                GetNodePosition( node7, CENTER_LEFT_TOP ) );
         }
-        if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBottom ) &&
-             IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderBottom ) ) {
+        if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBottom ) &&
+            IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderBottom ) ) {
             AddBorderDualCell( GetNodePosition( node0, CENTER_LEFT_BOTTOM ),
                                GetNodePosition( node0, FACE_BOTTOM ),
                                GetNodePosition( node3, FACE_BOTTOM ),
@@ -749,8 +749,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node3 ),
                                GetNodePosition( node3, FACE_LEFT ) );
         }
-        if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBack ) &&
-             IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderBack ) ) {
+        if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBack ) &&
+            IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderBack ) ) {
             AddBorderDualCell( GetNodePosition( node0, CENTER_BACK_LEFT ),
                                GetNodePosition( node0, FACE_BACK ),
                                GetNodePosition( node0 ),
@@ -760,8 +760,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node4 ),
                                GetNodePosition( node4, FACE_LEFT ) );
         }
-        if ( IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderFront ) &&
-             IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderFront ) ) {
+        if( IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderFront ) &&
+            IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderFront ) ) {
             AddBorderDualCell( GetNodePosition( node3, FACE_LEFT ),
                                GetNodePosition( node3 ),
                                GetNodePosition( node3, FACE_FRONT ),
@@ -773,10 +773,10 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
         }
     }
 
-    if ( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderRight ) &&
-         IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderRight ) &&
-         IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderRight ) &&
-         IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderRight ) ) {
+    if( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderRight ) &&
+        IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderRight ) &&
+        IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderRight ) &&
+        IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderRight ) ) {
         AddBorderDualCell( GetNodePosition( node1 ),
                            GetNodePosition( node1, FACE_RIGHT ),
                            GetNodePosition( node2, FACE_RIGHT ),
@@ -787,8 +787,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                            GetNodePosition( node6 ) );
 
         // Generate right edge border cells
-        if ( IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderTop ) &&
-             IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderTop ) ) {
+        if( IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderTop ) &&
+            IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderTop ) ) {
             AddBorderDualCell( GetNodePosition( node5 ),
                                GetNodePosition( node5, FACE_RIGHT ),
                                GetNodePosition( node6, FACE_RIGHT ),
@@ -798,8 +798,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node6, CENTER_RIGHT_TOP ),
                                GetNodePosition( node6, FACE_TOP ) );
         }
-        if ( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBottom ) &&
-             IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderBottom ) ) {
+        if( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBottom ) &&
+            IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderBottom ) ) {
             AddBorderDualCell( GetNodePosition( node1, FACE_BOTTOM ),
                                GetNodePosition( node1, CENTER_RIGHT_BOTTOM ),
                                GetNodePosition( node2, CENTER_RIGHT_BOTTOM ),
@@ -809,8 +809,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node2, FACE_RIGHT ),
                                GetNodePosition( node2 ) );
         }
-        if ( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBack ) &&
-             IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderBack ) ) {
+        if( IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBack ) &&
+            IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderBack ) ) {
             AddBorderDualCell( GetNodePosition( node1, FACE_BACK ),
                                GetNodePosition( node1, CENTER_BACK_RIGHT ),
                                GetNodePosition( node1, FACE_RIGHT ),
@@ -820,8 +820,8 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                                GetNodePosition( node5, FACE_RIGHT ),
                                GetNodePosition( node5 ) );
         }
-        if ( IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderFront ) &&
-             IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderFront ) ) {
+        if( IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderFront ) &&
+            IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderFront ) ) {
             AddBorderDualCell( GetNodePosition( node2 ),
                                GetNodePosition( node2, FACE_RIGHT ),
                                GetNodePosition( node2, CENTER_FRONT_RIGHT ),
@@ -833,10 +833,10 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
         }
     }
 
-    if ( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderTop ) &&
-         IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderTop ) &&
-         IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderTop ) &&
-         IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderTop ) ) {
+    if( IsFlagSet( node4, VolumeOctreeNodeMetaData::BorderTop ) &&
+        IsFlagSet( node5, VolumeOctreeNodeMetaData::BorderTop ) &&
+        IsFlagSet( node6, VolumeOctreeNodeMetaData::BorderTop ) &&
+        IsFlagSet( node7, VolumeOctreeNodeMetaData::BorderTop ) ) {
         AddBorderDualCell( GetNodePosition( node4 ),
                            GetNodePosition( node5 ),
                            GetNodePosition( node6 ),
@@ -847,10 +847,10 @@ void Dualgrid< OctreeNodeT >::CreateBorderCell( const OctreeNodeT& node0,
                            GetNodePosition( node7, FACE_TOP ) );
     }
 
-    if ( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBottom ) &&
-         IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBottom ) &&
-         IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderBottom ) &&
-         IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderBottom ) ) {
+    if( IsFlagSet( node0, VolumeOctreeNodeMetaData::BorderBottom ) &&
+        IsFlagSet( node1, VolumeOctreeNodeMetaData::BorderBottom ) &&
+        IsFlagSet( node2, VolumeOctreeNodeMetaData::BorderBottom ) &&
+        IsFlagSet( node3, VolumeOctreeNodeMetaData::BorderBottom ) ) {
         AddBorderDualCell( GetNodePosition( node0, FACE_BOTTOM ),
                            GetNodePosition( node1, FACE_BOTTOM ),
                            GetNodePosition( node2, FACE_BOTTOM ),
@@ -876,14 +876,14 @@ void Dualgrid< OctreeNodeT >::AddBorderDualCell( const Vector3f32& position0,
 
     Vector3f32 corners[ 8 ]{ position0, position1, position2, position3, position4, position5, position6, position7 };
 
-    Vector4f32 values[ 8 ]{ m_Volume->GetValueAndGradient( position0 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position1 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position2 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position3 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position4 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position5 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position6 + m_OctreeRootWorldPosition ),
-                            m_Volume->GetValueAndGradient( position7 + m_OctreeRootWorldPosition ) };
+    Vector4f32 values[ 8 ]{ m_Volume->getValueAndGradient( position0 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position1 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position2 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position3 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position4 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position5 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position6 + m_OctreeRootWorldPosition ),
+                            m_Volume->getValueAndGradient( position7 + m_OctreeRootWorldPosition ) };
 
 #if USE_ANALYTICAL_NORMAL
     const SimplexNoiseSource* noiseSource = static_cast< const SimplexNoiseSource* >( m_Volume );
@@ -910,7 +910,7 @@ void Dualgrid< OctreeNodeT >::AddBorderDualCell( const Vector3f32& position0,
     analyticalNormals[ 7 ] = Vector3f32( values[ 7 ] );
 #endif
 
-    m_IsoSurface->AddTriangles( corners, values, analyticalNormals );
+    m_IsoSurface->addTriangles( corners, values, analyticalNormals );
 
     // const Vector3f32 rootPosition = m_OctreeRoot->GetData()->Position;
     // const float32 halfExtents = m_OctreeRoot->GetData()->HalfExtent;

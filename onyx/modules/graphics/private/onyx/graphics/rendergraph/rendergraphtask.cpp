@@ -72,15 +72,15 @@ void RenderGraphShaderNode::init( rhi::GraphicsSystem& api, RenderGraphResourceC
     // This is very confusing and should be cleaned up and sanitized
     ONYX_PROFILE_FUNCTION;
 
-    const uint32_t outputPinCount = GetOutputPinCount();
+    const uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const node_graph::PinBase* outputPin = GetOutputPin( i );
+        const node_graph::PinBase* outputPin = getOutputPin( i );
         const RenderGraphTextureResourceInfo& outputInfo = getOuputResourceInfo( i );
 
-        RenderGraphResource& resource = resourceCache[ outputPin->GetGlobalId().get() ];
+        RenderGraphResource& resource = resourceCache[ outputPin->getGlobalId().get() ];
         resource.Properties = outputInfo;
 #if ONYX_IS_EDITOR // TODO: This is wrong, we should get the name / hash all the time not only in editor builds
-        resource.Info.Name = GetPinName( outputPin->GetLocalId() );
+        resource.Info.Name = getPinName( outputPin->getLocalId() );
 #endif
         resource.IsExternal = outputInfo.IsExternal || ( outputInfo.Type == RenderGraphResourceType::Reference );
 
@@ -98,14 +98,16 @@ void RenderGraphShaderNode::beginFrame( RenderGraphContext& context ) {
     // move this down again below UpdateFramebuffer
     onBeginFrame( context );
 
-    if( isComputeTask() == false ) {
-        /* TODO: This is mostly done for framebuffers that change per frameIndex (e.g: Swapchain)
-         * Might be better to have an array of framebuffers pre-created and just iterate
-         */
-        updateFramebuffer( *context.FrameContext.Api, context.Graph.getResourceCache() );
-    }
+    if( isEnabled() ) {
+        if( isComputeTask() == false ) {
+            /* TODO: This is mostly done for framebuffers that change per frameIndex (e.g: Swapchain)
+             * Might be better to have an array of framebuffers pre-created and just iterate
+             */
+            updateFramebuffer( *context.FrameContext.Api, context.Graph.getResourceCache() );
+        }
 
-    m_hasBegunFrame = true;
+        m_hasBegunFrame = true;
+    }
 }
 
 void RenderGraphShaderNode::shutdown( rhi::GraphicsSystem& api ) {
@@ -133,19 +135,19 @@ void RenderGraphShaderNode::preRender( RenderGraphContext& context, rhi::Command
     ONYX_PROFILE_FUNCTION;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    commandBuffer.beginDebugLabel( GetTypeId().getString(), Vector4f32{ 1.0f } );
+    commandBuffer.beginDebugLabel( getTypeId().getString(), Vector4f32{ 1.0f } );
 #endif
     // vulkan::VulkanCommandBuffer& cmdBuffer = static_cast<vulkan::VulkanCommandBuffer&>(commandBuffer);
-    uint32_t inputPinCount = GetInputPinCount();
+    uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const node_graph::PinBase* inputPin = GetInputPin( i );
-        if( inputPin->IsConnected() == false )
+        const node_graph::PinBase* inputPin = getInputPin( i );
+        if( inputPin->isConnected() == false )
             continue;
 
-        if( inputPin->GetType() != static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() ) )
+        if( inputPin->getType() != static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() ) )
             continue;
 
-        RenderGraphResource& input = context.Graph.getResource( inputPin->GetLinkedPinGlobalId().get() );
+        RenderGraphResource& input = context.Graph.getResource( inputPin->getLinkedPinGlobalId().get() );
 
         if( input.IsExternal ) {
             continue;
@@ -170,9 +172,9 @@ void RenderGraphShaderNode::preRender( RenderGraphContext& context, rhi::Command
         }
     }
 
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        RenderGraphResource& output = context.Graph.getResource( GetOutputPin( i )->GetGlobalId().get() );
+        RenderGraphResource& output = context.Graph.getResource( getOutputPin( i )->getGlobalId().get() );
 
         if( output.Info.Type == RenderGraphResourceType::Attachment ) {
             rhi::TextureHandle& textureHandle = std::get< rhi::TextureHandle >( output.Handle );
@@ -231,13 +233,13 @@ void RenderGraphShaderNode::endFrame( RenderGraphContext& context ) {
     m_hasBegunFrame = false;
 }
 
-bool RenderGraphShaderNode::OnSerialize( Serializer& serializer ) const {
+bool RenderGraphShaderNode::onSerialize( Serializer& serializer ) const {
     ONYX_PROFILE_FUNCTION;
     return serializer.write< "output_attachments" >( m_outputAttachmentInfos ) &&
            serializer.write< "output_buffers" >( m_outputBufferInfos );
 }
 
-bool RenderGraphShaderNode::OnDeserialize( const Deserializer& deserializer ) {
+bool RenderGraphShaderNode::onDeserialize( const Deserializer& deserializer ) {
     ONYX_PROFILE_FUNCTION;
 
     return deserializer.readOptional< "output_attachments" >( m_outputAttachmentInfos ) &&
@@ -249,9 +251,9 @@ void RenderGraphShaderNode::onSwapChainResized( rhi::GraphicsSystem& api, Render
 
     const Vector3s32 swapChainExtent{ api.getSwapchainExtent(), 1 };
 
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const node_graph::PinBase* outputPin = GetOutputPin( i );
+        const node_graph::PinBase* outputPin = getOutputPin( i );
         const RenderGraphTextureResourceInfo& outputInfo = getOuputResourceInfo( i );
 
         if( outputInfo.IsExternal )
@@ -261,7 +263,7 @@ void RenderGraphShaderNode::onSwapChainResized( rhi::GraphicsSystem& api, Render
             continue;
 
         if( outputInfo.Type == RenderGraphResourceType::Attachment ) {
-            RenderGraphResource& output = resourceCache[ outputPin->GetGlobalId().get() ];
+            RenderGraphResource& output = resourceCache[ outputPin->getGlobalId().get() ];
             rhi::TextureHandle& attachment = std::get< rhi::TextureHandle >( output.Handle );
 
             const RenderGraphTextureResourceInfo& resourceInfo = std::get< RenderGraphTextureResourceInfo >(
@@ -299,12 +301,12 @@ void RenderGraphShaderNode::createRenderPass( rhi::GraphicsSystem& api, RenderGr
     rhi::RenderPassSettings::Subpass& subpass = renderPassSettings.m_SubPasses.emplace();
 
     // handle outputs
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const node_graph::PinBase* outputPin = GetOutputPin( i );
+        const node_graph::PinBase* outputPin = getOutputPin( i );
         const RenderGraphTextureResourceInfo& outputInfo = getOuputResourceInfo( i );
         if( outputInfo.Type == RenderGraphResourceType::Attachment ) {
-            const RenderGraphResource& output = resourceCache[ outputPin->GetGlobalId().get() ];
+            const RenderGraphResource& output = resourceCache[ outputPin->getGlobalId().get() ];
             const RenderGraphTextureResourceInfo& properties = std::get< RenderGraphTextureResourceInfo >(
                 output.Properties );
             // TODO: add more granularity for only stencil or only depth write
@@ -336,12 +338,12 @@ void RenderGraphShaderNode::createRenderPass( rhi::GraphicsSystem& api, RenderGr
     }
 
     // handle inputs
-    uint32_t inputPinCount = GetInputPinCount();
+    uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const node_graph::PinBase* inputPin = GetInputPin( i );
+        const node_graph::PinBase* inputPin = getInputPin( i );
         const RenderGraphTextureResourceInfo& inputInfo = getInputResourceInfo( i );
         if( inputInfo.Type == RenderGraphResourceType::Attachment ) {
-            const RenderGraphResource& inputResource = resourceCache[ inputPin->GetLinkedPinGlobalId().get() ];
+            const RenderGraphResource& inputResource = resourceCache[ inputPin->getLinkedPinGlobalId().get() ];
             const RenderGraphTextureResourceInfo& properties = std::get< RenderGraphTextureResourceInfo >(
                 inputResource.Properties );
             // TODO: add more granularity for only stencil or only depth write
@@ -379,15 +381,15 @@ void RenderGraphShaderNode::updateFramebuffer( rhi::GraphicsSystem& api, RenderG
     const Vector2s32& swapChainExtent = api.getSwapchainExtent();
 
     // TODO: Refactor to common function that takes a lambda? e.g.: ForEachParameter(m_Outputs, []...)
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const node_graph::PinBase* outputPin = GetOutputPin( i );
+        const node_graph::PinBase* outputPin = getOutputPin( i );
         const RenderGraphTextureResourceInfo& outputResourceInfo = getOuputResourceInfo( i );
 
         if( outputResourceInfo.Type != RenderGraphResourceType::Attachment )
             continue;
 
-        const RenderGraphResource& output = resourceCache[ outputPin->GetGlobalId().get() ];
+        const RenderGraphResource& output = resourceCache[ outputPin->getGlobalId().get() ];
         const RenderGraphTextureResourceInfo& properties = std::get< RenderGraphTextureResourceInfo >(
             output.Properties );
 
@@ -410,14 +412,14 @@ void RenderGraphShaderNode::updateFramebuffer( rhi::GraphicsSystem& api, RenderG
     }
 
     // inputs
-    uint32_t inputPinCount = GetInputPinCount();
+    uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const node_graph::PinBase* inputPin = GetInputPin( i );
+        const node_graph::PinBase* inputPin = getInputPin( i );
         const RenderGraphTextureResourceInfo& inputResourceInfo = getInputResourceInfo( i );
         if( inputResourceInfo.Type != RenderGraphResourceType::Attachment )
             continue;
 
-        const RenderGraphResource& inputResource = resourceCache[ inputPin->GetLinkedPinGlobalId().get() ];
+        const RenderGraphResource& inputResource = resourceCache[ inputPin->getLinkedPinGlobalId().get() ];
         const RenderGraphTextureResourceInfo& properties = std::get< RenderGraphTextureResourceInfo >(
             inputResource.Properties );
         Vector3s32 inputSize = properties.HasSize ? properties.Size : Vector3s32{ swapChainExtent, 1 };
@@ -454,13 +456,13 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
     ONYX_PROFILE_FUNCTION;
 
     //// Inputs
-    uint32_t inputPinCount = GetInputPinCount();
+    uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const node_graph::PinBase* inputPin = GetInputPin( i );
-        if( inputPin->IsConnected() == false )
+        const node_graph::PinBase* inputPin = getInputPin( i );
+        if( inputPin->isConnected() == false )
             continue;
 
-        const RenderGraphResource& inputResource = resourceCache.at( inputPin->GetLinkedPinGlobalId().get() );
+        const RenderGraphResource& inputResource = resourceCache.at( inputPin->getLinkedPinGlobalId().get() );
         // if (input.Type == RenderGraphResourceType::Attachment)
         //     continue;
 
@@ -471,9 +473,9 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
             break;
         case RenderGraphResourceType::Buffer:
 #if ONYX_IS_DEBUG
-            shaderInstance->Bind( std::get< rhi::BufferHandle >( inputResource.Handle ),
-                                  inputResource.Info.Name,
-                                  frameContext.FrameIndex );
+            // shaderInstance->Bind( std::get< rhi::BufferHandle >( inputResource.Handle ),
+            //                       inputResource.Info.Name,
+            //                       frameContext.FrameIndex );
 #else
             shaderInstance->Bind( std::get< rhi::BufferHandle >( inputResource.Handle ),
                                   inputResource.Info.Name,
@@ -486,13 +488,13 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
         }
     }
 
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const node_graph::PinBase* outputPin = GetOutputPin( i );
+        const node_graph::PinBase* outputPin = getOutputPin( i );
         // if (outputPin->IsConnected() == false)
         //     continue;
 
-        const RenderGraphResource& outputResource = resourceCache.at( outputPin->GetGlobalId().get() );
+        const RenderGraphResource& outputResource = resourceCache.at( outputPin->getGlobalId().get() );
         if( outputResource.Info.Type == RenderGraphResourceType::Attachment )
             continue;
 
@@ -503,9 +505,9 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
             break;
         case RenderGraphResourceType::Buffer:
 #if ONYX_IS_DEBUG
-            shaderInstance->Bind( std::get< rhi::BufferHandle >( outputResource.Handle ),
-                                  outputResource.Info.Name,
-                                  frameContext.FrameIndex );
+            // shaderInstance->Bind( std::get< rhi::BufferHandle >( outputResource.Handle ),
+            //                       outputResource.Info.Name,
+            //                       frameContext.FrameIndex );
 #else
             shaderInstance->Bind( std::get< rhi::BufferHandle >( outputResource.Handle ),
                                   outputResource.Info.Name,
@@ -532,7 +534,8 @@ void RenderGraphFixedShaderNode::compile( rhi::GraphicsSystem& api, RenderGraphR
 
 void RenderGraphFixedShaderNode::beginFrame( RenderGraphContext& context ) {
     RenderGraphShaderNode::beginFrame( context );
-    bindResources( m_shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
+    if( isEnabled() )
+        bindResources( m_shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
 }
 
 void RenderGraphFixedShaderNode::render( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
@@ -554,21 +557,21 @@ void RenderGraphFixedShaderNode::render( RenderGraphContext& context, rhi::Comma
     }
 }
 
-bool RenderGraphFixedShaderNode::OnSerialize( Serializer& serializer ) const {
+bool RenderGraphFixedShaderNode::onSerialize( Serializer& serializer ) const {
     if( ( m_pipelineProperties.Shader.isValid() ) &&
         ( serializer.write< "shader" >( m_pipelineProperties.Shader ) == false ) ) {
         return false;
     }
 
-    return serializer.write< "pipeline" >( m_pipelineProperties ) && RenderGraphShaderNode::OnSerialize( serializer );
+    return serializer.write< "pipeline" >( m_pipelineProperties ) && RenderGraphShaderNode::onSerialize( serializer );
 }
 
-bool RenderGraphFixedShaderNode::OnDeserialize( const Deserializer& deserializer ) {
+bool RenderGraphFixedShaderNode::onDeserialize( const Deserializer& deserializer ) {
     assets::AssetId shaderAssetId( m_pipelineProperties.Shader );
     if( deserializer.readOptional< "shader" >( shaderAssetId ) )
         m_pipelineProperties.Shader = shaderAssetId;
 
     return deserializer.readOptional< "pipeline" >( m_pipelineProperties ) &&
-           RenderGraphShaderNode::OnDeserialize( deserializer );
+           RenderGraphShaderNode::onDeserialize( deserializer );
 }
 } // namespace onyx::graphics

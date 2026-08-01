@@ -12,7 +12,7 @@ namespace onyx::rhi::vulkan {
 Surface::Surface( const Instance& instance, const platform::Window& window )
     : m_Instance( instance ) {
 #if ONYX_USE_SDL2
-    if ( !SDL_Vulkan_CreateSurface( window.GetWindowHandle(), instance.GetHandle(), &m_Surface ) ) {
+    if( !SDL_Vulkan_CreateSurface( window.GetWindowHandle(), instance.GetHandle(), &m_Surface ) ) {
         ONYX_LOG_ERROR( "Failed creating SDL surface" );
     }
 #elif ONYX_IS_WINDOWS
@@ -24,14 +24,14 @@ Surface::Surface( const Instance& instance, const platform::Window& window )
 #elif ONYX_IS_UNIX && ONYX_USE_WAYLAND
     VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo = {};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.display = window.GetContext().GetDisplayHandle();
-    surfaceCreateInfo.surface = window.GetSurfaceHandle();
+    surfaceCreateInfo.display = window.getContext().getDisplayHandle();
+    surfaceCreateInfo.surface = window.getSurfaceHandle();
     VK_CHECK_RESULT( vkCreateWaylandSurfaceKHR( instance.GetHandle(), &surfaceCreateInfo, nullptr, &m_Surface ) );
 #elif ONYX_IS_UNIX && ONYX_USE_X11
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.connection = window.GetContext().getConnectionHandle();
-    surfaceCreateInfo.window = window.GetSurfaceHandle();
+    surfaceCreateInfo.connection = window.getContext().getConnectionHandle();
+    surfaceCreateInfo.window = window.getSurfaceHandle();
     VK_CHECK_RESULT( vkCreateXcbSurfaceKHR( instance.GetHandle(), &surfaceCreateInfo, nullptr, &m_Surface ) );
 #else
     static_assert( "Unhandled window for surface creation." );

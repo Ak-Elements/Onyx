@@ -19,12 +19,12 @@ GridRenderGraphNode::GridRenderGraphNode() {
 }
 
 void GridRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) {
-    uint64_t outputGlobalId = GetOutputPin().GetGlobalId().get();
+    uint64_t outputGlobalId = getOutputPin().getGlobalId().get();
 
-    const node_graph::PinBase& gbufferRenderTargetPin = GetInputPin0();
-    if( gbufferRenderTargetPin.IsConnected() ) {
+    const node_graph::PinBase& gbufferRenderTargetPin = getInputPin0();
+    if( gbufferRenderTargetPin.isConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
-            gbufferRenderTargetPin.GetLinkedPinGlobalId().get() );
+            gbufferRenderTargetPin.getLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
@@ -62,7 +62,7 @@ void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::
         gridLodLevel = std::log( std::abs( cameraPositionGridSpace.Y ) ) / log10;
     }
 
-    Constants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().GetGpuAddress(),
+    Constants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().getGpuAddress(),
                          .Rotation = rotation,
                          .CellCount = settings.Cells,
                          .LodLevel = gridLodLevel,

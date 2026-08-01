@@ -29,61 +29,61 @@ class Node {
 
     // REMOVE TODO: Node should be data / pins only and the logic should be inferred by CRTP?
   public:
-    void Prepare( PrepareContext& context ) const { OnPrepare( context ); }
-    void Update( ExecutionContext& context ) const { OnUpdate( context ); }
-    void Finish() { OnFinished(); }
+    void prepare( PrepareContext& context ) const { onPrepare( context ); }
+    void update( ExecutionContext& context ) const { onUpdate( context ); }
+    void finish() { onFinished(); }
 
     bool serialize( Serializer& serialize ) const;
     bool deserialize( const Deserializer& deserializer );
 
   private:
-    virtual void OnPrepare( PrepareContext& /*context*/ ) const {}
-    virtual void OnUpdate( ExecutionContext& /*context*/ ) const {}
-    virtual void OnFinished() {}
+    virtual void onPrepare( PrepareContext& /*context*/ ) const {}
+    virtual void onUpdate( ExecutionContext& /*context*/ ) const {}
+    virtual void onFinished() {}
 
     virtual bool serializePins( Serializer& serializer ) const;
     virtual bool deserializePins( const Deserializer& deserializer );
 
   public:
     // REMOVE
-    const Guid64& GetId() const { return m_Id; }
-    void SetId( Guid64 id ) { m_Id = id; }
+    [[nodiscard]] const Guid64& getId() const { return m_id; }
+    void setId( Guid64 id ) { m_id = id; }
 
-    virtual StringId32 GetTypeId() const = 0;
+    [[nodiscard]] virtual StringId32 getTypeId() const = 0;
 
-    PinBase* GetPinById( Guid64 globalPinId );
-    const PinBase* GetPinById( Guid64 globalPinId ) const;
-    bool HasPin( Guid64 globalPinId ) const;
+    PinBase* getPinById( Guid64 globalPinId );
+    [[nodiscard]] const PinBase* getPinById( Guid64 globalPinId ) const;
+    [[nodiscard]] bool hasPin( Guid64 globalPinId ) const;
 
     // TODO: Improve this interface potentially?
-    virtual uint32_t GetInputPinCount() const { return 0; }
-    virtual uint32_t GetOutputPinCount() const { return 0; }
+    [[nodiscard]] virtual uint32_t getInputPinCount() const { return 0; }
+    [[nodiscard]] virtual uint32_t getOutputPinCount() const { return 0; }
 
-    virtual PinBase* GetInputPin( uint32_t /*index*/ ) {
+    virtual PinBase* getInputPin( uint32_t /*index*/ ) {
         ONYX_ASSERT( false, "Not implemenented." );
         return nullptr;
     }
-    virtual const PinBase* GetInputPin( uint32_t /*index*/ ) const {
+    [[nodiscard]] virtual const PinBase* getInputPin( uint32_t /*index*/ ) const {
         ONYX_ASSERT( false, "Not implemenented." );
         return nullptr;
     }
-    virtual PinBase* GetOutputPin( uint32_t /*index*/ ) {
+    virtual PinBase* getOutputPin( uint32_t /*index*/ ) {
         ONYX_ASSERT( false, "Not implemenented." );
         return nullptr;
     }
-    virtual const PinBase* GetOutputPin( uint32_t /*index*/ ) const {
+    [[nodiscard]] virtual const PinBase* getOutputPin( uint32_t /*index*/ ) const {
         ONYX_ASSERT( false, "Not implemenented." );
         return nullptr;
     }
 
   protected:
-    virtual bool OnSerialize( Serializer& /*serializer*/ ) const { return true; }
-    virtual bool OnDeserialize( const Deserializer& /*deserializer*/ ) { return true; }
+    virtual bool onSerialize( Serializer& /*serializer*/ ) const { return true; }
+    virtual bool onDeserialize( const Deserializer& /*deserializer*/ ) { return true; }
 
     template < typename PinT > // requires is_specialization_of_v<Pin, PinT>
-    Optional< PinT* > GetInputPinByLocalId() {
-        PinBase* inputPin = GetInputPinByLocalId( PinT::LocalId );
-        if ( inputPin != nullptr ) {
+    Optional< PinT* > getInputPinByLocalId() {
+        PinBase* inputPin = getInputPinByLocalId( PinT::LocalId );
+        if( inputPin != nullptr ) {
             return static_cast< PinT* >( inputPin );
         }
 
@@ -91,9 +91,9 @@ class Node {
     }
 
     template < typename PinT > // requires is_specialization_of_v<Pin, PinT>
-    Optional< const PinT* > GetInputPinByLocalId() const {
-        const PinBase* inputPin = GetInputPinByLocalId( PinT::LocalId );
-        if ( inputPin != nullptr ) {
+    Optional< const PinT* > getInputPinByLocalId() const {
+        const PinBase* inputPin = getInputPinByLocalId( PinT::LocalId );
+        if( inputPin != nullptr ) {
             return static_cast< const PinT* >( inputPin );
         }
 
@@ -101,9 +101,9 @@ class Node {
     }
 
     template < typename PinT > // requires is_specialization_of_v<Pin, PinT>
-    Optional< PinT* > GetOutputPinByLocalId() {
-        PinBase* outputPin = GetOutputPinByLocalId( PinT::LocalId );
-        if ( outputPin != nullptr ) {
+    Optional< PinT* > getOutputPinByLocalId() {
+        PinBase* outputPin = getOutputPinByLocalId( PinT::LocalId );
+        if( outputPin != nullptr ) {
             return static_cast< PinT& >( *outputPin );
         }
 
@@ -111,76 +111,80 @@ class Node {
     }
 
     template < typename PinT > // requires is_specialization_of_v<Pin, PinT>
-    Optional< const PinT* > GetOutputPinByLocalId() const {
-        const PinBase* outputPin = GetOutputPinByLocalId( PinT::LocalId );
-        if ( outputPin != nullptr ) {
+    Optional< const PinT* > getOutputPinByLocalId() const {
+        const PinBase* outputPin = getOutputPinByLocalId( PinT::LocalId );
+        if( outputPin != nullptr ) {
             return static_cast< const PinT* >( outputPin );
         }
 
         return {};
     }
 
-    PinBase* GetInputPinByLocalId( StringId32 localPinId );
-    const PinBase* GetInputPinByLocalId( StringId32 localPinId ) const;
+    PinBase* getInputPinByLocalId( StringId32 localPinId );
+    [[nodiscard]] const PinBase* getInputPinByLocalId( StringId32 localPinId ) const;
 
-    PinBase* GetOutputPinByLocalId( StringId32 localPinId );
-    const PinBase* GetOutputPinByLocalId( StringId32 localPinId ) const;
+    PinBase* getOutputPinByLocalId( StringId32 localPinId );
+    [[nodiscard]] const PinBase* getOutputPinByLocalId( StringId32 localPinId ) const;
 
   public:
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    StringView GetName() const { return m_DebugName; }
-    void SetName( const String& name ) { m_DebugName = name; }
+    [[nodiscard]] StringView getName() const { return m_debugName; }
+    void setName( const String& name ) { m_debugName = name; }
 #endif
 
 #if ONYX_IS_EDITOR
-    bool DrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-        return OnDrawInPropertyGrid( constantPinData );
+    bool drawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
+        return onDrawInPropertyGrid( constantPinData );
     }
 
-    PinVisibility GetPinVisibility( StringId32 localPinId ) const { return DoGetPinVisibility( localPinId ); }
+    [[nodiscard]] PinVisibility getPinVisibility( StringId32 localPinId ) const {
+        return doGetPinVisibility( localPinId );
+    }
 
-    void UIDrawNode() { OnUIDrawNode(); }
-    void UIDrawNodeBackground() { OnUIDrawNodeBackground(); }
+    void uiDrawNode() { onUiDrawNode(); }
+    void uiDrawNodeBackground() { onUiDrawNodeBackground(); }
 
-    virtual StringView GetPinName( StringId32 /*localPinId*/ ) const;
-    virtual PinVisibility DoGetPinVisibility( StringId32 /*localPinId*/ ) const { return PinVisibility::Default; }
+    [[nodiscard]] virtual StringView getPinName( StringId32 /*localPinId*/ ) const;
+    [[nodiscard]] virtual PinVisibility doGetPinVisibility( StringId32 /*localPinId*/ ) const {
+        return PinVisibility::Default;
+    }
 
-    virtual std::any CreateDefaultForPin( StringId32 pinId ) const = 0;
+    [[nodiscard]] virtual std::any createDefaultForPin( StringId32 pinId ) const = 0;
 
   protected:
-    virtual bool OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
+    virtual bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
         bool modified = false;
-        const uint32_t inputPinCount = GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
-            PinBase* inputPin = GetInputPin( i );
-            if ( inputPin->GetType() == PinTypeId::Execute )
+        const uint32_t inputPinCount = getInputPinCount();
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
+            PinBase* inputPin = getInputPin( i );
+            if( inputPin->getType() == PinTypeId::Execute )
                 continue;
 
-            if ( enums::none( GetPinVisibility( inputPin->GetLocalId() ), PinVisibility::InPropertyGrid ) )
+            if( enums::none( getPinVisibility( inputPin->getLocalId() ), PinVisibility::InPropertyGrid ) )
                 continue;
 
-            if ( inputPin->IsConnected() )
+            if( inputPin->isConnected() )
                 continue;
 
-            const Guid64 globalId = inputPin->GetGlobalId();
-            if ( constantPinData.contains( globalId ) == false )
-                constantPinData[ globalId ] = CreateDefaultForPin( inputPin->GetLocalId() );
+            const Guid64 globalId = inputPin->getGlobalId();
+            if( constantPinData.contains( globalId ) == false )
+                constantPinData[ globalId ] = createDefaultForPin( inputPin->getLocalId() );
 
-            inputPin->DrawPropertyPanel( GetPinName( inputPin->GetLocalId() ), constantPinData[ globalId ] );
+            inputPin->drawPropertyPanel( getPinName( inputPin->getLocalId() ), constantPinData[ globalId ] );
         }
 
         return modified;
     }
 
-    virtual void OnUIDrawNode() {}
-    virtual void OnUIDrawNodeBackground() {}
+    virtual void onUiDrawNode() {}
+    virtual void onUiDrawNodeBackground() {}
 #endif
 
   protected:
-    Guid64 m_Id;
+    Guid64 m_id;
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    String m_DebugName;
+    String m_debugName;
 #endif
 };
 

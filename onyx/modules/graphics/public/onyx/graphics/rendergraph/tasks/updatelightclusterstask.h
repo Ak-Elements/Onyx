@@ -12,47 +12,21 @@ static constexpr uint8_t ClusterY = 9;
 static constexpr uint8_t ClusterZ = 24;
 static constexpr uint32_t MaxLightsPerCluster = 100;
 
-class CreateLightClusters : public node_graph::FixedPinNode_1_Out< RenderGraphFixedShaderNode, rhi::BufferHandle > {
-  public:
-    static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CreateLightClusters";
-    StringId32 GetTypeId() const override { return TypeId; }
-
-  private:
-    void onInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
-
-    void onBeginFrame( RenderGraphContext& context ) override;
-    void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
-
-  private:
-    struct Constants {
-        Matrix4x4f32 InverseProjection;
-
-        Vector2f32 Viewport;
-        float32 ZNear = 0.0f;
-        float32 ZFar = 1.0f;
-
-        Vector2u32 ClusterSize;
-        Vector2u32 Padding;
-    };
-
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_LightClustersStorageBuffers;
-};
-
-class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode_1_In_3_Out< RenderGraphFixedShaderNode,
-                                                                                       rhi::BufferHandle,
-                                                                                       rhi::BufferHandle,
-                                                                                       rhi::BufferHandle,
-                                                                                       rhi::BufferHandle > {
+class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode1In3Out< RenderGraphFixedShaderNode,
+                                                                                   rhi::BufferHandle,
+                                                                                   rhi::BufferHandle,
+                                                                                   rhi::BufferHandle,
+                                                                                   rhi::BufferHandle > {
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::UpdateLightClusters";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    using Super = node_graph::FixedPinNode_1_In_3_Out< RenderGraphFixedShaderNode,
-                                                       rhi::BufferHandle,
-                                                       rhi::BufferHandle,
-                                                       rhi::BufferHandle,
-                                                       rhi::BufferHandle >;
+    using Super = node_graph::FixedPinNode1In3Out< RenderGraphFixedShaderNode,
+                                                   rhi::BufferHandle,
+                                                   rhi::BufferHandle,
+                                                   rhi::BufferHandle,
+                                                   rhi::BufferHandle >;
 
     void onInit( rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache ) override;
 
@@ -60,7 +34,7 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode_1_In_
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
-    StringView GetPinName( StringId32 pinId ) const override {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
         switch( pinId ) {
         case InPin::LocalId:
             return "Light Clusters";
@@ -78,11 +52,13 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode_1_In_
 #endif
 
   private:
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_LightIndexListSSBO;
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_LightGridSSBO;
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_LightIndexGlobalCountSSBO;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightIndexListSsbo;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightGridSsbo;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightIndexGlobalCountSsbo;
 
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_LightsStorageBuffers;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_directionalLightsSsbo;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_pointLightsSsbo;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_spotLightsSsbo;
 };
 
 } // namespace onyx::graphics::render_graph_nodes

@@ -87,7 +87,7 @@ class SwapChain : public NonCopyable {
 
     // 1 semaphore per swapchain image
     DynamicArray< UniquePtr< Semaphore > > m_RenderCompleteSemaphores;
-    InplaceArray< UniquePtr< Semaphore >, MAX_FRAMES_IN_FLIGHT > m_ImageAcquiredSemaphores;
+    InplaceArray< UniquePtr< Semaphore >, MaxFramesInFlight > m_ImageAcquiredSemaphores;
 
     // InplaceArray<SyncObject, MAX_FRAMES_IN_FLIGHT> m_FrameSyncObjects;
     DynamicArray< TextureHandle > m_SwapchainBuffers;

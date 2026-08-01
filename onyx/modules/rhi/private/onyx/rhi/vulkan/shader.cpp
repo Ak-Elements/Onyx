@@ -96,7 +96,9 @@ DynamicArray< VkPipelineShaderStageCreateInfo > Shader::createPipelineShaderStag
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         createInfo.stage = ToVulkanStage( stage );
         createInfo.module = m_module->GetHandle();
-        createInfo.pName = stage == ShaderStage::Vertex ? "vertexMain" : "fragmentMain";
+        createInfo.pName = stage == ShaderStage::Compute  ? "main"
+                           : stage == ShaderStage::Vertex ? "vertexMain"
+                                                          : "fragmentMain";
     }
 
     return pipelineCreateInfos;

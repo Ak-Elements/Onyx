@@ -13,10 +13,10 @@ SkyViewLutRenderGraphNode::SkyViewLutRenderGraphNode() {
 void SkyViewLutRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    const uint64_t transmittanceGlobalId = GetInputPin0().GetLinkedPinGlobalId().get();
+    const uint64_t transmittanceGlobalId = getInputPin0().getLinkedPinGlobalId().get();
     const RenderGraphResource& transmittanceResource = context.Graph.getResource( transmittanceGlobalId );
 
-    const uint64_t multipleScatteringLutGlobalId = GetInputPin1().GetLinkedPinGlobalId().get();
+    const uint64_t multipleScatteringLutGlobalId = getInputPin1().getLinkedPinGlobalId().get();
     const RenderGraphResource& multipleScatteringResource = context.Graph.getResource( multipleScatteringLutGlobalId );
 
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
@@ -65,7 +65,7 @@ Vector3f32 SkyViewLutRenderGraphNode::getSunDirection( float32 timeOfDay ) const
 }
 
 #if ONYX_IS_EDITOR
-StringView SkyViewLutRenderGraphNode::GetPinName( StringId32 pinId ) const {
+StringView SkyViewLutRenderGraphNode::getPinName( StringId32 pinId ) const {
     switch( pinId ) {
     case InPin0::LocalId:
         return "Transmittance";

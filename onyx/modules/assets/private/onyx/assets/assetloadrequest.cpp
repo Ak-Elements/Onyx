@@ -15,7 +15,7 @@ void AssetLoadRequest::start( threading::ThreadPool& loaderPool ) {
     threading::AsyncTask< void() > loadingTask( [ this ]() { load(); } );
     m_future = loadingTask.getFuture();
     m_future.then( [ this ]() {
-        if ( OnLoadFinished )
+        if( OnLoadFinished )
             OnLoadFinished( Asset );
     } );
 
@@ -41,13 +41,13 @@ void AssetLoadRequest::load() {
 
     bool succeeded = false;
     file_system::OnyxFile assetFile( path );
-    switch ( MetaData.Format ) {
+    switch( MetaData.Format ) {
     case AssetFormat::Text:
         break;
     case AssetFormat::Binary:
         break;
     case AssetFormat::Json: {
-        const file_system::JsonValue& inputConfigData = assetFile.LoadJson();
+        const file_system::JsonValue& inputConfigData = assetFile.loadJson();
         file_system::JsonDeserializer serializer( inputConfigData.Json );
         succeeded = Serializer->deserialize( Asset, MetaData, serializer, *Engine );
         break;
@@ -66,7 +66,7 @@ void AssetSaveRequest::start( threading::ThreadPool& loaderPool ) {
     threading::AsyncTask< void() > saveTask( [ this ]() { save(); } );
     m_future = saveTask.getFuture();
     m_future.then( [ this ]() {
-        if ( OnSaveFinished )
+        if( OnSaveFinished )
             OnSaveFinished( Asset );
     } );
 
@@ -93,7 +93,7 @@ void AssetSaveRequest::save() {
     const String& jsonString = serializer.JsonRoot.dump( 4 );
     using namespace file_system;
     OnyxFile inputConfigFile( path::getFullPath( MetaData.Path ) );
-    FileStream stream = inputConfigFile.OpenStream( OpenMode::Write | OpenMode::Text );
+    FileStream stream = inputConfigFile.openStream( OpenMode::Write | OpenMode::Text );
     stream.writeRaw( jsonString.data(), jsonString.size() );
 
     Asset->onSaveFinished( Asset.getId(), succeeded );

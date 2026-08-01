@@ -13,11 +13,11 @@ class CSGPlane : public VolumeBase {
         : m_distance( distance )
         , m_normal( normal ) {}
 
-    [[nodiscard]] Vector4f32 GetValueAndGradient( const Vector3f32& position ) const override {
+    [[nodiscard]] Vector4f32 getValueAndGradient( const Vector3f32& position ) const override {
         return { m_normal.X, m_normal.Y, m_normal.Z, static_cast< float32 >( m_normal.dot( position ) - m_distance ) };
     }
 
-    [[nodiscard]] float32 GetValue( const Vector3f32& position ) const override {
+    [[nodiscard]] float32 getValue( const Vector3f32& position ) const override {
         return m_distance - static_cast< float32 >( m_normal.dot( position ) );
     }
 

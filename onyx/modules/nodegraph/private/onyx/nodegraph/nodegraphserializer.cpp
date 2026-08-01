@@ -23,7 +23,7 @@ bool serialize( Serializer& serializer, const NodeGraph& nodeGraph ) {
         constantPinData,
         [ & ]( Serializer& scopedSerializer, const Guid64& globalPinId, const std::any& value ) {
             const PinBase& pin = nodeGraph.getPinById( globalPinId );
-            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.GetType() );
+            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.getType() );
             return typeMeta.serialize( scopedSerializer, value );
         } );
 
@@ -45,24 +45,24 @@ bool deserialize( const Deserializer& deserializer, NodeGraph& outNodeGraph, con
             return false;
         }
 
-        UniquePtr< Node > node = nodeFactory.CreateNode( typeId );
+        UniquePtr< Node > node = nodeFactory.createNode( typeId );
         if( node->deserialize( scopedDeserializer ) == false ) {
             return false;
         }
 
-        const uint32_t inputPinCount = node->GetInputPinCount();
+        const uint32_t inputPinCount = node->getInputPinCount();
         for( uint32_t inputPinIndex = 0; inputPinIndex < inputPinCount; ++inputPinIndex ) {
-            PinBase* pin = node->GetInputPin( inputPinIndex );
-            if( pin->IsConnected() ) {
-                edges[ pin->GetGlobalId() ] = pin->GetLinkedPinGlobalId();
+            PinBase* pin = node->getInputPin( inputPinIndex );
+            if( pin->isConnected() ) {
+                edges[ pin->getGlobalId() ] = pin->getLinkedPinGlobalId();
             }
         }
 
-        const uint32_t outputPinCount = node->GetOutputPinCount();
+        const uint32_t outputPinCount = node->getOutputPinCount();
         for( uint32_t outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex ) {
-            PinBase* pin = node->GetOutputPin( outputPinIndex );
-            if( pin->IsConnected() ) {
-                edges[ pin->GetGlobalId() ] = pin->GetLinkedPinGlobalId();
+            PinBase* pin = node->getOutputPin( outputPinIndex );
+            if( pin->isConnected() ) {
+                edges[ pin->getGlobalId() ] = pin->getLinkedPinGlobalId();
             }
         }
 
@@ -78,7 +78,7 @@ bool deserialize( const Deserializer& deserializer, NodeGraph& outNodeGraph, con
         constantPinData,
         [ & ]( const Deserializer& scopedDeserializer, const Guid64& globalPinId, std::any& outValue ) {
             const PinBase& pin = outNodeGraph.getPinById( globalPinId );
-            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.GetType() );
+            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.getType() );
             return typeMeta.deserialize( scopedDeserializer, outValue );
         } );
 

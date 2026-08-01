@@ -46,7 +46,7 @@ class EntitiesPanel : public ui::ImGuiWindow {
     void onDeleteAction( const input_actions::InputActionEvent& deleteAction );
 
   private:
-    ONYX_NO_DISCARD String getNewEntityName() const;
+    [[nodiscard]] String getNewEntityName() const;
 
     void deleteEntity( ecs::EntityId entity );
     void setSelectedEntity( ecs::EntityId entity );

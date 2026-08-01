@@ -77,7 +77,7 @@ void ComponentsPanel::drawSelectedEntityComponents( ecs::EntityRegistry& registr
                                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2( 0.0, 0.0f ) } };
 
                 onyx::localization::LocalizationId localizationId( componentTypeId );
-                localization::LocalizedString componentName = localizationModule.GetLocalized( localizationId );
+                localization::LocalizedString componentName = localizationModule.getLocalized( localizationId );
                 if( ui::contextMenuHeader( componentName,
                                            ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
                     ImGui::BeginChild( "Panel",
@@ -167,7 +167,7 @@ ui::TreeItem ComponentsPanel::buildComponentTree( StringView searchString,
         }
 
         localization::LocalizationId localizationId( componentTypeId );
-        localization::LocalizedString localizedString = localizationModule.GetLocalized( localizationId );
+        localization::LocalizedString localizedString = localizationModule.getLocalized( localizationId );
         StringView componentName = localizedString.Get();
         if( ignoreCaseFind( componentName, searchString ) == StringView::npos ) {
             continue;

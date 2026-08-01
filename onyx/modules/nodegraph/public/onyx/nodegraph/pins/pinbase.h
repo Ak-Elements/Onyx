@@ -36,36 +36,36 @@ concept PinType = requires() {
 class PinBase {
   public:
     PinBase( Guid64 globalPinId )
-        : m_GlobalId( globalPinId ) {}
+        : m_globalId( globalPinId ) {}
 
     virtual ~PinBase() = default;
 
-    virtual StringId32 GetLocalId() const = 0;
+    [[nodiscard]] virtual StringId32 getLocalId() const = 0;
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    virtual StringView GetLocalIdString() const = 0;
+    [[nodiscard]] virtual StringView getLocalIdString() const = 0;
 #endif
-    virtual PinTypeId GetType() = 0;
-    virtual PinTypeId GetType() const = 0;
+    virtual PinTypeId getType() = 0;
+    [[nodiscard]] virtual PinTypeId getType() const = 0;
 
-    Guid64 GetGlobalId() { return m_GlobalId; }
-    Guid64 GetGlobalId() const { return m_GlobalId; }
+    Guid64 getGlobalId() { return m_globalId; }
+    [[nodiscard]] Guid64 getGlobalId() const { return m_globalId; }
 
-    void SetGlobalId( Guid64 globalId ) { m_GlobalId = globalId; }
+    void setGlobalId( Guid64 globalId ) { m_globalId = globalId; }
 
-    void ConnectPin( Guid64 globalId ) { m_LinkedPinId = globalId; }
-    void ClearLink() { m_LinkedPinId = InvalidGuiD64; }
-    bool IsConnected() const { return m_LinkedPinId != InvalidGuiD64; }
-    Guid64 GetLinkedPinGlobalId() const { return m_LinkedPinId; }
+    void connectPin( Guid64 globalId ) { m_linkedPinId = globalId; }
+    void clearLink() { m_linkedPinId = InvalidGuiD64; }
+    [[nodiscard]] bool isConnected() const { return m_linkedPinId != InvalidGuiD64; }
+    [[nodiscard]] Guid64 getLinkedPinGlobalId() const { return m_linkedPinId; }
 
-    virtual std::any CreateDefault() const = 0;
+    [[nodiscard]] virtual std::any createDefault() const = 0;
 
 #if ONYX_IS_EDITOR
-    virtual void DrawPropertyPanel( StringView name, std::any& anyValue ) const = 0;
-    constexpr virtual uint32_t GetTypeColor() const = 0;
+    virtual void drawPropertyPanel( StringView name, std::any& anyValue ) const = 0;
+    [[nodiscard]] constexpr virtual uint32_t getTypeColor() const = 0;
 #endif
 
   private:
-    Guid64 m_GlobalId;
-    Guid64 m_LinkedPinId;
+    Guid64 m_globalId;
+    Guid64 m_linkedPinId;
 };
 } // namespace onyx::node_graph

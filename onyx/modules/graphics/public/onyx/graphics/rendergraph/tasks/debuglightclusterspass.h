@@ -12,7 +12,7 @@ class DebugLightClustersRenderPass : public node_graph::FixedPinNode3In1Out< Ren
                                                                              rhi::TextureHandle > {
   public:
     static constexpr StringId32 TypeId = "RenderGraph::DebugLightClusters";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     DebugLightClustersRenderPass();
 
@@ -22,7 +22,7 @@ class DebugLightClustersRenderPass : public node_graph::FixedPinNode3In1Out< Ren
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
+    StringView getPinName( StringId32 pinId ) const override {
         switch( pinId ) {
         case InPin0::LocalId:
             return "GBuffer Target";

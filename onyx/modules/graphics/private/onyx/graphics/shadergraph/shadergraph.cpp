@@ -91,15 +91,15 @@ bool ShaderGraph::generateShader( rhi::ShaderGenerator& generator ) {
     node_graph::ExecutionContext& executionContext = runner.GetContext();
     for( int8_t localNodeId : executionOrder ) {
         const ShaderGraphNode& node = m_graph.getNode< ShaderGraphNode >( localNodeId );
-        executionContext.SetCurrentNode( node.GetId() );
+        executionContext.setCurrentNode( node.getId() );
 
-        generator.SetStage( rhi::ShaderStage::Fragment ); // TODO: Add support for other stages
+        generator.setStage( rhi::ShaderStage::Fragment ); // TODO: Add support for other stages
 
-        generator.AppendCode( format::format( "// {} 0x{:x} \n", node.GetName(), node.GetId().get() ) );
-        node.GenerateShader( executionContext, generator );
+        generator.appendCode( format::format( "// {} 0x{:x} \n", node.getName(), node.getId().get() ) );
+        node.generateShader( executionContext, generator );
     }
 
-    m_shaderCode = generator.GenerateShader();
+    m_shaderCode = generator.generateShader();
     return true;
 }
 

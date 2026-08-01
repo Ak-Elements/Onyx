@@ -5,37 +5,37 @@
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace onyx::graphics::shader_graph_nodes {
-void SimplexNoise2DNode::OnUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void SimplexNoise2DNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
 
-void SimplexNoise2DNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void SimplexNoise2DNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                            rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    if ( ( context.IsPinConnected< OutPin0 >() == false ) && ( context.IsPinConnected< OutPin1 >() == false ) )
+    if( ( context.isPinConnected< OutPin0 >() == false ) && ( context.isPinConnected< OutPin1 >() == false ) )
         return;
 
-    const InPin& inputPin0 = GetInputPin();
+    const InPin& inputPin0 = getInputPin();
 
-    generator.AddInclude( "includes/math/psrdnoise2d.h" );
+    generator.addInclude( "includes/math/psrdnoise2d.h" );
 
-    String noiseVariable = format::format( "noiseNode_{:x}", GetId().get() );
-    String noiseValueOutVariableName = format::format( "pin_{:x}", GetOutputPin0().GetGlobalId().get() );
-    String noiseGradientOutVariableName = format::format( "pin_{:x}", GetOutputPin1().GetGlobalId().get() );
+    String noiseVariable = format::format( "noiseNode_{:x}", getId().get() );
+    String noiseValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
+    String noiseGradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
 
-    generator.AppendCode( format::format( "vec2 {};\n", noiseGradientOutVariableName ) );
-    generator.AppendCode( format::format(
+    generator.appendCode( format::format( "vec2 {};\n", noiseGradientOutVariableName ) );
+    generator.appendCode( format::format(
         "float {} = psrdnoise({}, vec2(0.0f,0.0f), 0.0f, {});\n",
         noiseValueOutVariableName,
-        inputPin0.IsConnected()
-            ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin >() ),
+        inputPin0.isConnected()
+            ? format::format( "pin_{:x}", inputPin0.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< typename Super::InPin >() ),
         noiseGradientOutVariableName ) );
 }
 
 #if ONYX_IS_EDITOR
-StringView SimplexNoise2DNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+StringView SimplexNoise2DNode::getPinName( StringId32 pinId ) const {
+    switch( pinId ) {
     case InPin::LocalId:
         return "Position";
     case OutPin0::LocalId:
@@ -49,37 +49,37 @@ StringView SimplexNoise2DNode::GetPinName( StringId32 pinId ) const {
 }
 #endif
 
-void SimplexNoise3DNode::OnUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void SimplexNoise3DNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
 
-void SimplexNoise3DNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void SimplexNoise3DNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                            rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    if ( ( context.IsPinConnected< OutPin0 >() == false ) && ( context.IsPinConnected< OutPin1 >() == false ) )
+    if( ( context.isPinConnected< OutPin0 >() == false ) && ( context.isPinConnected< OutPin1 >() == false ) )
         return;
 
-    const InPin& inputPin0 = GetInputPin();
+    const InPin& inputPin0 = getInputPin();
 
-    generator.AddInclude( "includes/math/psrdnoise2d.h" );
+    generator.addInclude( "includes/math/psrdnoise2d.h" );
 
-    String noiseVariable = format::format( "noiseNode_{:x}", GetId().get() );
-    String noiseValueOutVariableName = format::format( "pin_{:x}", GetOutputPin0().GetGlobalId().get() );
-    String noiseGradientOutVariableName = format::format( "pin_{:x}", GetOutputPin1().GetGlobalId().get() );
+    String noiseVariable = format::format( "noiseNode_{:x}", getId().get() );
+    String noiseValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
+    String noiseGradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
 
-    generator.AppendCode( format::format( "vec3 {};\n", noiseGradientOutVariableName ) );
-    generator.AppendCode( format::format(
+    generator.appendCode( format::format( "vec3 {};\n", noiseGradientOutVariableName ) );
+    generator.appendCode( format::format(
         "float {} = psrdnoise({}, vec3(0.0f,0.0f, 0.0f), 0.0f, {});\n",
         noiseValueOutVariableName,
-        inputPin0.IsConnected()
-            ? format::format( "pin_{:x}", inputPin0.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< typename Super::InPin >() ),
+        inputPin0.isConnected()
+            ? format::format( "pin_{:x}", inputPin0.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< typename Super::InPin >() ),
         noiseGradientOutVariableName ) );
 }
 
 #if ONYX_IS_EDITOR
-StringView SimplexNoise3DNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+StringView SimplexNoise3DNode::getPinName( StringId32 pinId ) const {
+    switch( pinId ) {
     case InPin::LocalId:
         return "Position";
     case OutPin0::LocalId:

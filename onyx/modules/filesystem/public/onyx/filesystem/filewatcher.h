@@ -2,38 +2,28 @@
 
 #include <onyx/filesystem/path.h>
 
-namespace efsw
-{
-    class FileWatcher;
+namespace efsw {
+class FileWatcher;
 }
 
-namespace onyx::file_system
-{
-    class FileWatcher
-    {
-    public:
-        enum class FileAction
-        {
-            Invalid,
-            Add,
-            Delete,
-            Modified,
-            Moved
-        };
+namespace onyx::file_system {
+class FileWatcher {
+  public:
+    enum class FileAction { Invalid, Add, Delete, Modified, Moved };
 
-        FileWatcher();
-        FileWatcher(const FilePath& path, bool recursive);
-        FileWatcher(const FilePath& path);
-        ~FileWatcher();
+    FileWatcher();
+    FileWatcher( const FilePath& path, bool recursive );
+    FileWatcher( const FilePath& path );
+    ~FileWatcher();
 
-        void addPath(const FilePath& path, bool recursive);
+    void addPath( const FilePath& path, bool recursive );
 
-        Callback<void(const FilePath&, FileAction)> onFileChanged;
+    Callback< void( const FilePath&, FileAction ) > OnFileChanged;
 
-    private:
-        void onFileAction(const FilePath& path, FileAction action);
+  private:
+    void onFileAction( const FilePath& path, FileAction action );
 
-    private:
-        UniquePtr<efsw::FileWatcher> m_watcher;
-    };
-}
+  private:
+    UniquePtr< efsw::FileWatcher > m_watcher;
+};
+} // namespace onyx::file_system

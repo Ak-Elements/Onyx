@@ -14,57 +14,57 @@ void GraphRunner::Prepare() {
     for( int8_t localNodeId : executionOrder ) {
         const Node& node = m_Graph->getNode( localNodeId );
 
-        const uint32_t inputPinCount = node.GetInputPinCount();
+        const uint32_t inputPinCount = node.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const PinBase* inputPin = node.GetInputPin( i );
-            if( inputPin->IsConnected() ) {
-                connectedPins.emplace( inputPin->GetLinkedPinGlobalId() );
+            const PinBase* inputPin = node.getInputPin( i );
+            if( inputPin->isConnected() ) {
+                connectedPins.emplace( inputPin->getLinkedPinGlobalId() );
             }
         }
 
-        const uint32_t outputPinCount = node.GetOutputPinCount();
+        const uint32_t outputPinCount = node.getOutputPinCount();
         for( uint32_t i = 0; i < outputPinCount; ++i ) {
-            const PinBase* outputPin = node.GetOutputPin( i );
-            if( outputPin->IsConnected() ) {
-                connectedPins.emplace( outputPin->GetLinkedPinGlobalId() );
+            const PinBase* outputPin = node.getOutputPin( i );
+            if( outputPin->isConnected() ) {
+                connectedPins.emplace( outputPin->getLinkedPinGlobalId() );
             }
         }
     }
 
     for( int8_t localNodeId : executionOrder ) {
         const Node& node = m_Graph->getNode( localNodeId );
-        node.Prepare( m_PrepareContext );
+        node.prepare( m_PrepareContext );
 
         // setup execution context
         ExecutionContext::NodeContext context;
 
-        const uint32_t inputPinCount = node.GetInputPinCount();
+        const uint32_t inputPinCount = node.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const PinBase* inputPin = node.GetInputPin( i );
-            Guid64 globalPinId = inputPin->GetGlobalId();
+            const PinBase* inputPin = node.getInputPin( i );
+            Guid64 globalPinId = inputPin->getGlobalId();
 
             if( constantPinData.contains( globalPinId ) ) {
-                context.PinData[ inputPin->GetLocalId() ] = constantPinData.at( globalPinId );
+                context.PinData[ inputPin->getLocalId() ] = constantPinData.at( globalPinId );
             } else {
-                context.PinData[ inputPin->GetLocalId() ] = inputPin->CreateDefault();
+                context.PinData[ inputPin->getLocalId() ] = inputPin->createDefault();
             }
 
-            context.PinMetaData[ inputPin->GetLocalId() ].IsConnected = inputPin->IsConnected() ||
+            context.PinMetaData[ inputPin->getLocalId() ].IsConnected = inputPin->isConnected() ||
                                                                         connectedPins.contains(
-                                                                            inputPin->GetGlobalId() );
+                                                                            inputPin->getGlobalId() );
         }
 
-        const uint32_t outputPinCount = node.GetOutputPinCount();
+        const uint32_t outputPinCount = node.getOutputPinCount();
         for( uint32_t i = 0; i < outputPinCount; ++i ) {
-            const PinBase* outputPin = node.GetOutputPin( i );
-            context.PinData[ outputPin->GetLocalId() ] = outputPin->CreateDefault();
+            const PinBase* outputPin = node.getOutputPin( i );
+            context.PinData[ outputPin->getLocalId() ] = outputPin->createDefault();
 
-            context.PinMetaData[ outputPin->GetLocalId() ].IsConnected = outputPin->IsConnected() ||
+            context.PinMetaData[ outputPin->getLocalId() ].IsConnected = outputPin->isConnected() ||
                                                                          connectedPins.contains(
-                                                                             outputPin->GetGlobalId() );
+                                                                             outputPin->getGlobalId() );
         }
 
-        m_ExecutionContext.AddNodeContext( node.GetId(), context );
+        m_ExecutionContext.addNodeContext( node.getId(), context );
     }
 }
 
@@ -73,30 +73,30 @@ void GraphRunner::Update( [[maybe_unused]] uint64_t deltaTime ) {
     for( int8_t localNodeId : executionOrder ) {
         const Node& node = m_Graph->getNode( localNodeId );
 
-        ExecutionContext::NodeContext& currentContext = m_ExecutionContext.SetCurrentNode( node.GetId() );
+        ExecutionContext::NodeContext& currentContext = m_ExecutionContext.setCurrentNode( node.getId() );
 
-        const uint32_t inputPinCount = node.GetInputPinCount();
+        const uint32_t inputPinCount = node.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const PinBase* inputPin = node.GetInputPin( i );
-            if( inputPin->IsConnected() ) {
-                Guid64 linkedPinId = inputPin->GetLinkedPinGlobalId();
+            const PinBase* inputPin = node.getInputPin( i );
+            if( inputPin->isConnected() ) {
+                Guid64 linkedPinId = inputPin->getLinkedPinGlobalId();
                 const Node& connectedNode = m_Graph->getNodeForPinId( linkedPinId );
-                const ExecutionContext::NodeContext& dependantNodeContext = m_ExecutionContext.GetNodeContext(
-                    connectedNode.GetId() );
+                const ExecutionContext::NodeContext& dependantNodeContext = m_ExecutionContext.getNodeContext(
+                    connectedNode.getId() );
 
-                const uint32_t outputPinCount = connectedNode.GetOutputPinCount();
+                const uint32_t outputPinCount = connectedNode.getOutputPinCount();
                 for( uint32_t outputPinIndex = 0; outputPinIndex < outputPinCount; ++outputPinIndex ) {
-                    const PinBase* outputPin = connectedNode.GetOutputPin( outputPinIndex );
-                    if( outputPin->GetGlobalId() == linkedPinId ) {
-                        currentContext.PinData[ inputPin->GetLocalId() ] = dependantNodeContext.PinData.at(
-                            outputPin->GetLocalId() );
+                    const PinBase* outputPin = connectedNode.getOutputPin( outputPinIndex );
+                    if( outputPin->getGlobalId() == linkedPinId ) {
+                        currentContext.PinData[ inputPin->getLocalId() ] = dependantNodeContext.PinData.at(
+                            outputPin->getLocalId() );
                         break;
                     }
                 }
             }
         }
 
-        node.Update( m_ExecutionContext );
+        node.update( m_ExecutionContext );
     }
 }
 

@@ -13,7 +13,7 @@ ToneMapPass::ToneMapPass() {
 void ToneMapPass::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    uint64_t texturePinGlobalId = GetInputPin().GetLinkedPinGlobalId().get();
+    uint64_t texturePinGlobalId = getInputPin().getLinkedPinGlobalId().get();
 
     const RenderGraphResource& inTextureResource = context.Graph.getResourceCache()[ texturePinGlobalId ];
     const rhi::TextureHandle& inTextureHandle = std::get< rhi::TextureHandle >( inTextureResource.Handle );

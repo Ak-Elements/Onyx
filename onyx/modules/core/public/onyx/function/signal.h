@@ -49,70 +49,70 @@ template < typename Ret, typename... Args, typename Allocator >
 class Signal< Ret( Args... ), Allocator > {
     friend class Sink< Signal< Ret( Args... ), Allocator > >;
 
-    using alloc_traits = std::allocator_traits< Allocator >;
-    using delegate_type = Callback< Ret( Args... ) >;
-    using container_type = std::vector< delegate_type, typename alloc_traits::template rebind_alloc< delegate_type > >;
+    using AllocTraits = std::allocator_traits< Allocator >;
+    using DelegateType = Callback< Ret( Args... ) >;
+    using ContainerType = std::vector< DelegateType, typename AllocTraits::template rebind_alloc< DelegateType > >;
 
   public:
     /*! @brief Allocator type. */
-    using allocator_type = Allocator;
+    using AllocatorType = Allocator;
     /*! @brief Unsigned integer type. */
-    using size_type = std::size_t;
+    using SizeType = std::size_t;
     /*! @brief Sink type. */
-    using sink_type = Sink< Signal< Ret( Args... ), Allocator > >;
+    using SinkType = Sink< Signal< Ret( Args... ), Allocator > >;
 
     /*! @brief Default constructor. */
-    Signal() noexcept( std::is_nothrow_default_constructible_v< allocator_type > &&
-                       std::is_nothrow_constructible_v< container_type, const allocator_type& > )
-        : Signal{ allocator_type{} } {}
+    Signal() noexcept( std::is_nothrow_default_constructible_v< AllocatorType > &&
+                       std::is_nothrow_constructible_v< ContainerType, const AllocatorType& > )
+        : Signal{ AllocatorType{} } {}
 
     /**
      * @brief Constructs a signal handler with a given allocator.
      * @param allocator The allocator to use.
      */
-    explicit Signal( const allocator_type& allocator ) noexcept(
-        std::is_nothrow_constructible_v< container_type, const allocator_type& > )
-        : m_Callbacks{ allocator } {}
+    explicit Signal( const AllocatorType& allocator ) noexcept(
+        std::is_nothrow_constructible_v< ContainerType, const AllocatorType& > )
+        : m_callbacks{ allocator } {}
 
     /**
      * @brief Copy constructor.
      * @param other The instance to copy from.
      */
-    Signal( const Signal& other ) noexcept( std::is_nothrow_copy_constructible_v< container_type > )
-        : m_Callbacks{ other.m_Callbacks } {}
+    Signal( const Signal& other ) noexcept( std::is_nothrow_copy_constructible_v< ContainerType > )
+        : m_callbacks{ other.m_callbacks } {}
 
     /**
      * @brief Allocator-extended copy constructor.
      * @param other The instance to copy from.
      * @param allocator The allocator to use.
      */
-    Signal( const Signal& other, const allocator_type& allocator ) noexcept(
-        std::is_nothrow_constructible_v< container_type, const container_type&, const allocator_type& > )
-        : m_Callbacks{ other.m_Callbacks, allocator } {}
+    Signal( const Signal& other, const AllocatorType& allocator ) noexcept(
+        std::is_nothrow_constructible_v< ContainerType, const ContainerType&, const AllocatorType& > )
+        : m_callbacks{ other.m_callbacks, allocator } {}
 
     /**
      * @brief Move constructor.
      * @param other The instance to move from.
      */
-    Signal( Signal&& other ) noexcept( std::is_nothrow_move_constructible_v< container_type > )
-        : m_Callbacks{ std::move( other.m_Callbacks ) } {}
+    Signal( Signal&& other ) noexcept( std::is_nothrow_move_constructible_v< ContainerType > )
+        : m_callbacks{ std::move( other.m_callbacks ) } {}
 
     /**
      * @brief Allocator-extended move constructor.
      * @param other The instance to move from.
      * @param allocator The allocator to use.
      */
-    Signal( Signal&& other, const allocator_type& allocator ) noexcept(
-        std::is_nothrow_constructible_v< container_type, container_type&&, const allocator_type& > )
-        : m_Callbacks{ std::move( other.m_Callbacks ), allocator } {}
+    Signal( Signal&& other, const AllocatorType& allocator ) noexcept(
+        std::is_nothrow_constructible_v< ContainerType, ContainerType&&, const AllocatorType& > )
+        : m_callbacks{ std::move( other.m_callbacks ), allocator } {}
 
     /**
      * @brief Copy assignment operator.
      * @param other The instance to copy from.
      * @return This signal handler.
      */
-    Signal& operator=( const Signal& other ) noexcept( std::is_nothrow_copy_assignable_v< container_type > ) {
-        m_Callbacks = other.m_Callbacks;
+    Signal& operator=( const Signal& other ) noexcept( std::is_nothrow_copy_assignable_v< ContainerType > ) {
+        m_callbacks = other.m_callbacks;
         return *this;
     }
 
@@ -121,8 +121,8 @@ class Signal< Ret( Args... ), Allocator > {
      * @param other The instance to move from.
      * @return This signal handler.
      */
-    Signal& operator=( Signal&& other ) noexcept( std::is_nothrow_move_assignable_v< container_type > ) {
-        m_Callbacks = std::move( other.m_Callbacks );
+    Signal& operator=( Signal&& other ) noexcept( std::is_nothrow_move_assignable_v< ContainerType > ) {
+        m_callbacks = std::move( other.m_callbacks );
         return *this;
     }
 
@@ -130,28 +130,28 @@ class Signal< Ret( Args... ), Allocator > {
      * @brief Exchanges the contents with those of a given signal handler.
      * @param other Signal handler to exchange the content with.
      */
-    void swap( Signal& other ) noexcept( std::is_nothrow_swappable_v< container_type > ) {
+    void swap( Signal& other ) noexcept( std::is_nothrow_swappable_v< ContainerType > ) {
         using std::swap;
-        swap( m_Callbacks, other.m_Callbacks );
+        swap( m_callbacks, other.m_callbacks );
     }
 
     /**
      * @brief Returns the associated allocator.
      * @return The associated allocator.
      */
-    ONYX_NO_DISCARD constexpr allocator_type get_allocator() const noexcept { return m_Callbacks.get_allocator(); }
+    [[nodiscard]] constexpr AllocatorType getAllocator() const noexcept { return m_callbacks.get_allocator(); }
 
     /**
      * @brief Number of listeners connected to the signal.
      * @return Number of listeners currently connected.
      */
-    ONYX_NO_DISCARD size_type size() const noexcept { return m_Callbacks.size(); }
+    [[nodiscard]] SizeType size() const noexcept { return m_callbacks.size(); }
 
     /**
      * @brief Returns false if at least a listener is connected to the signal.
      * @return True if the signal has no listeners connected, false otherwise.
      */
-    ONYX_NO_DISCARD bool empty() const noexcept { return m_Callbacks.empty(); }
+    [[nodiscard]] bool empty() const noexcept { return m_callbacks.empty(); }
 
     /**
      * @brief Triggers a signal.
@@ -160,9 +160,9 @@ class Signal< Ret( Args... ), Allocator > {
      *
      * @param args Arguments to use to invoke listeners.
      */
-    void Dispatch( Args... args ) const {
-        for ( auto pos = m_Callbacks.size(); pos; --pos ) {
-            m_Callbacks[ pos - 1u ]( args... );
+    void dispatch( Args... args ) const {
+        for( auto pos = m_callbacks.size(); pos; --pos ) {
+            m_callbacks[ pos - 1u ]( args... );
         }
     }
 
@@ -181,32 +181,32 @@ class Signal< Ret( Args... ), Allocator > {
      * @param args Arguments to use to invoke listeners.
      */
     template < typename Func >
-    void Collect( Func func, Args... args ) const {
-        for ( auto pos = m_Callbacks.size(); pos; --pos ) {
-            if constexpr ( std::is_void_v< Ret > || !std::is_invocable_v< Func, Ret > ) {
-                m_Callbacks[ pos - 1u ]( args... );
+    void collect( Func func, Args... args ) const {
+        for( auto pos = m_callbacks.size(); pos; --pos ) {
+            if constexpr( std::is_void_v< Ret > || !std::is_invocable_v< Func, Ret > ) {
+                m_callbacks[ pos - 1u ]( args... );
 
-                if constexpr ( std::is_invocable_r_v< bool, Func > ) {
-                    if ( func() ) {
+                if constexpr( std::is_invocable_r_v< bool, Func > ) {
+                    if( func() ) {
                         break;
                     }
                 } else {
                     func();
                 }
             } else {
-                if constexpr ( std::is_invocable_r_v< bool, Func, Ret > ) {
-                    if ( func( m_Callbacks[ pos - 1u ]( args... ) ) ) {
+                if constexpr( std::is_invocable_r_v< bool, Func, Ret > ) {
+                    if( func( m_callbacks[ pos - 1u ]( args... ) ) ) {
                         break;
                     }
                 } else {
-                    func( m_Callbacks[ pos - 1u ]( args... ) );
+                    func( m_callbacks[ pos - 1u ]( args... ) );
                 }
             }
         }
     }
 
   private:
-    container_type m_Callbacks;
+    ContainerType m_callbacks;
 };
 
 /**
@@ -221,32 +221,32 @@ class Connection {
     friend class Sink;
 
     Connection( Callback< void( void* ) > fn, void* ref )
-        : m_Disconnect{ fn }
-        , m_Signal{ ref } {}
+        : m_disconnect{ fn }
+        , m_signal{ ref } {}
 
   public:
     /*! @brief Default constructor. */
     Connection()
-        : m_Disconnect{}
-        , m_Signal{} {}
+        : m_disconnect{}
+        , m_signal{} {}
 
     /**
      * @brief Checks whether a connection is properly initialized.
      * @return True if the connection is properly initialized, false otherwise.
      */
-    ONYX_NO_DISCARD explicit operator bool() const noexcept { return static_cast< bool >( m_Disconnect ); }
+    [[nodiscard]] explicit operator bool() const noexcept { return static_cast< bool >( m_disconnect ); }
 
     /*! @brief Breaks the connection. */
     void release() {
-        if ( m_Disconnect ) {
-            m_Disconnect( m_Signal );
-            m_Disconnect.Reset();
+        if( m_disconnect ) {
+            m_disconnect( m_signal );
+            m_disconnect.reset();
         }
     }
 
   private:
-    Callback< void( void* ) > m_Disconnect;
-    void* m_Signal;
+    Callback< void( void* ) > m_disconnect;
+    void* m_signal;
 };
 
 /**
@@ -267,7 +267,7 @@ struct ScopedConnection {
      * @param other A valid connection object.
      */
     explicit ScopedConnection( const Connection& other )
-        : m_Connection{ other } {}
+        : m_connection{ other } {}
 
     /*! @brief Default copy constructor, deleted on purpose. */
     ScopedConnection( const ScopedConnection& ) = delete;
@@ -277,10 +277,10 @@ struct ScopedConnection {
      * @param other The scoped connection to move from.
      */
     ScopedConnection( ScopedConnection&& other ) noexcept
-        : m_Connection{ std::exchange( other.m_Connection, {} ) } {}
+        : m_connection{ std::exchange( other.m_connection, {} ) } {}
 
     /*! @brief Automatically breaks the link on destruction. */
-    ~ScopedConnection() { m_Connection.release(); }
+    ~ScopedConnection() { m_connection.release(); }
 
     /**
      * @brief Default copy assignment operator, deleted on purpose.
@@ -294,7 +294,7 @@ struct ScopedConnection {
      * @return This scoped connection.
      */
     ScopedConnection& operator=( ScopedConnection&& other ) noexcept {
-        m_Connection = std::exchange( other.m_Connection, {} );
+        m_connection = std::exchange( other.m_connection, {} );
         return *this;
     }
 
@@ -304,7 +304,7 @@ struct ScopedConnection {
      * @return This scoped connection.
      */
     ScopedConnection& operator=( Connection other ) {
-        m_Connection = std::move( other );
+        m_connection = other;
         return *this;
     }
 
@@ -312,13 +312,13 @@ struct ScopedConnection {
      * @brief Checks whether a scoped connection is properly initialized.
      * @return True if the connection is properly initialized, false otherwise.
      */
-    [[nodiscard]] explicit operator bool() const noexcept { return static_cast< bool >( m_Connection ); }
+    [[nodiscard]] explicit operator bool() const noexcept { return static_cast< bool >( m_connection ); }
 
     /*! @brief Breaks the connection. */
-    void release() { m_Connection.release(); }
+    void release() { m_connection.release(); }
 
   private:
-    Connection m_Connection;
+    Connection m_connection;
 };
 
 /**
@@ -342,26 +342,26 @@ struct ScopedConnection {
  */
 template < typename Ret, typename... Args, typename Allocator >
 class Sink< Signal< Ret( Args... ), Allocator > > {
-    using signal_type = Signal< Ret( Args... ), Allocator >;
-    using delegate_type = typename signal_type::delegate_type;
-    using difference_type = typename signal_type::container_type::difference_type;
+    using SignalType = Signal< Ret( Args... ), Allocator >;
+    using DelegateType = typename SignalType::DelegateType;
+    using DifferenceType = typename SignalType::ContainerType::difference_type;
 
     template < auto Candidate, typename Type >
-    static void release( Type value_or_instance, void* signal ) {
-        Sink{ *static_cast< signal_type* >( signal ) }.Disconnect< Candidate >( value_or_instance );
+    static void release( Type valueOrInstance, void* signal ) {
+        Sink{ *static_cast< SignalType* >( signal ) }.disconnect< Candidate >( valueOrInstance );
     }
 
     template < auto Candidate >
     static void release( void* signal ) {
-        Sink{ *static_cast< signal_type* >( signal ) }.Disconnect< Candidate >();
+        Sink{ *static_cast< SignalType* >( signal ) }.disconnect< Candidate >();
     }
 
     template < typename Func >
-    void DisconnectIf( Func callback ) {
-        for ( auto pos = signal->m_Callbacks.size(); pos; --pos ) {
-            if ( auto& elem = signal->m_Callbacks[ pos - 1u ]; callback( elem ) ) {
-                elem = std::move( signal->m_Callbacks.back() );
-                signal->m_Callbacks.pop_back();
+    void disconnectIf( Func callback ) {
+        for( auto pos = m_signal->m_callbacks.size(); pos; --pos ) {
+            if( auto& elem = m_signal->m_callbacks[ pos - 1u ]; callback( elem ) ) {
+                elem = std::move( m_signal->m_callbacks.back() );
+                m_signal->m_callbacks.pop_back();
             }
         }
     }
@@ -372,7 +372,7 @@ class Sink< Signal< Ret( Args... ), Allocator > > {
      * @param ref A valid reference to a signal object.
      */
     explicit Sink( Signal< Ret( Args... ), Allocator >& ref ) noexcept
-        : signal{ &ref } {
+        : m_signal{ &ref } {
         // signal->m_Callbacks.reserve(5);
     }
 
@@ -380,11 +380,11 @@ class Sink< Signal< Ret( Args... ), Allocator > > {
      * @brief Returns false if at least a listener is connected to the sink.
      * @return True if the sink has no listeners connected, false otherwise.
      */
-    ONYX_NO_DISCARD bool empty() const noexcept { return signal->m_Callbacks.empty(); }
+    [[nodiscard]] bool empty() const noexcept { return m_signal->m_callbacks.empty(); }
 
-    [[nodiscard]] auto& signal_or_assert() const noexcept {
-        ONYX_ASSERT( signal != nullptr, "Invalid pointer to signal" );
-        return *signal;
+    [[nodiscard]] auto& signalOrAssert() const noexcept {
+        ONYX_ASSERT( m_signal != nullptr, "Invalid pointer to signal" );
+        return *m_signal;
     }
 
     /**
@@ -396,42 +396,42 @@ class Sink< Signal< Ret( Args... ), Allocator > > {
      * @return A properly initialized connection object.
      */
     template < auto Candidate >
-    Connection Connect() {
-        Disconnect< Candidate >();
+    Connection connect() {
+        disconnect< Candidate >();
 
-        delegate_type call{};
-        call.template Connect< Candidate >();
-        signal_or_assert().m_Callbacks.push_back( std::move( call ) );
+        DelegateType call{};
+        call.template connect< Candidate >();
+        signalOrAssert().m_callbacks.push_back( std::move( call ) );
 
         Callback< void( void* ) > conn{};
-        conn.template Connect< &release< Candidate > >();
-        return { conn, signal };
+        conn.template connect< &release< Candidate > >();
+        return { conn, m_signal };
     }
 
     template < auto Candidate, typename Type >
-    Connection Connect( Type& value_or_instance ) {
-        Disconnect< Candidate >( value_or_instance );
+    Connection connect( Type& valueOrInstance ) {
+        disconnect< Candidate >( valueOrInstance );
 
-        delegate_type call{};
-        call.template Connect< Candidate >( value_or_instance );
-        signal_or_assert().m_Callbacks.push_back( std::move( call ) );
+        DelegateType call{};
+        call.template connect< Candidate >( valueOrInstance );
+        signalOrAssert().m_callbacks.push_back( std::move( call ) );
 
         Callback< void( void* ) > conn{};
-        conn.template Connect< &release< Candidate, Type& > >( value_or_instance );
-        return { conn, signal };
+        conn.template connect< &release< Candidate, Type& > >( valueOrInstance );
+        return { conn, m_signal };
     }
 
     template < auto Candidate, typename Type >
-    Connection Connect( Type* value_or_instance ) {
-        Disconnect< Candidate >( value_or_instance );
+    Connection connect( Type* valueOrInstance ) {
+        disconnect< Candidate >( valueOrInstance );
 
-        delegate_type call{};
-        call.template Connect< Candidate >( value_or_instance );
-        signal_or_assert().m_Callbacks.push_back( std::move( call ) );
+        DelegateType call{};
+        call.template connect< Candidate >( valueOrInstance );
+        signalOrAssert().m_callbacks.push_back( std::move( call ) );
 
         Callback< void( void* ) > conn{};
-        conn.template Connect< &release< Candidate, Type* > >( value_or_instance );
-        return { conn, signal };
+        conn.template connect< &release< Candidate, Type* > >( valueOrInstance );
+        return { conn, m_signal };
     }
 
     /**
@@ -442,10 +442,10 @@ class Sink< Signal< Ret( Args... ), Allocator > > {
      * @param value_or_instance A valid object that fits the purpose, if any.
      */
     template < auto Candidate, typename... Type >
-    void Disconnect( Type&&... value_or_instance ) {
-        delegate_type call{};
-        call.template Connect< Candidate >( value_or_instance... );
-        DisconnectIf( [ &call ]( const auto& elem ) { return elem == call; } );
+    void disconnect( Type&&... valueOrInstance ) {
+        DelegateType call{};
+        call.template connect< Candidate >( valueOrInstance... );
+        disconnectIf( [ &call ]( const auto& elem ) { return elem == call; } );
     }
 
     /**
@@ -453,17 +453,17 @@ class Sink< Signal< Ret( Args... ), Allocator > > {
      * signal.
      * @param value_or_instance A valid object that fits the purpose.
      */
-    void Disconnect( const void* value_or_instance ) {
-        if ( value_or_instance ) {
-            DisconnectIf( [ value_or_instance ]( const auto& elem ) { return elem.Data() == value_or_instance; } );
+    void disconnect( const void* valueOrInstance ) {
+        if( valueOrInstance ) {
+            disconnectIf( [ valueOrInstance ]( const auto& elem ) { return elem.data() == valueOrInstance; } );
         }
     }
 
     /*! @brief Disconnects all the listeners from a signal. */
-    void Disconnect() { signal->m_Callbacks.clear(); }
+    void disconnect() { m_signal->m_callbacks.clear(); }
 
   private:
-    signal_type* signal;
+    SignalType* m_signal;
 };
 
 /**

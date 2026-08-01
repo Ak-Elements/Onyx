@@ -14,25 +14,25 @@ class WaylandPointer {
     ~WaylandPointer();
 
   private:
-    static void OnEnterSurface( void* instance,
+    static void onEnterSurface( void* instance,
                                 wl_pointer* pointer,
                                 uint32_t serial,
                                 wl_surface* surface,
                                 int32_t x,
                                 int32_t y );
-    static void OnLeaveSurface( void* instance, wl_pointer* pointer, uint32_t serial, wl_surface* surface );
-    static void OnMove( void* instance, wl_pointer* pointer, uint32_t time, int32_t x, int32_t y );
-    static void OnButton( void* instance,
+    static void onLeaveSurface( void* instance, wl_pointer* pointer, uint32_t serial, wl_surface* surface );
+    static void onMove( void* instance, wl_pointer* pointer, uint32_t time, int32_t x, int32_t y );
+    static void onButton( void* instance,
                           wl_pointer* pointer,
                           uint32_t serial,
                           uint32_t time,
                           uint32_t button,
                           uint32_t state );
-    static void OnAxis( void* instance, wl_pointer* pointer, uint32_t time, uint32_t axis, int32_t value );
+    static void onAxis( void* instance, wl_pointer* pointer, uint32_t time, uint32_t axis, int32_t value );
 
   private:
-    WaylandInput* m_Input = nullptr;
-    wl_pointer* m_Pointer = nullptr;
+    WaylandInput* m_input = nullptr;
+    wl_pointer* m_pointer = nullptr;
 };
 } // namespace onyx::platform::wayland
 

@@ -39,8 +39,8 @@ class InputActionSettingsWindow : public ui::ImGuiWindow {
 
     StringView getWindowId() override { return WindowId; }
 
-    ONYX_NO_DISCARD StringId64 getSelectedActionId() const { return m_selectedActionId; }
-    ONYX_NO_DISCARD int32_t getSelectedBindingIndex() const { return m_selectedBindingIndex; }
+    [[nodiscard]] StringId64 getSelectedActionId() const { return m_selectedActionId; }
+    [[nodiscard]] int32_t getSelectedBindingIndex() const { return m_selectedBindingIndex; }
 
   private:
     void onOpen() override;
@@ -70,7 +70,7 @@ class InputActionSettingsWindow : public ui::ImGuiWindow {
 
     void onInputAssetLoaded( assets::AssetHandle< input_actions::InputActionsContext > inputActionsAsset );
 
-    ONYX_NO_DISCARD assets::AssetId getOpenAssetId() const { return m_inputContextAssetId; }
+    [[nodiscard]] assets::AssetId getOpenAssetId() const { return m_inputContextAssetId; }
     void bindInputBindingSlot( input::InputID inputId );
 
     input_actions::InputActionsMap& getOpenActionsContext() { return m_openInputContext; }

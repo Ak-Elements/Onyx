@@ -28,27 +28,27 @@ class DynamicPin : public PinBase {
     StringId32 LocalId = 0;
     static constexpr PinTypeId DataTypeId = static_cast< PinTypeId >( TypeHash< DataT >() );
 
-    std::any CreateDefault() const override { return DataT(); }
+    std::any createDefault() const override { return DataT(); }
 
 #if ONYX_IS_EDITOR
 
-    void DrawPropertyPanel( StringView name, std::any& anyValue ) const override;
-    constexpr uint32_t GetTypeColor() const override { return PinMetaObject< DataT >::GetPinTypeColor(); }
+    void drawPropertyPanel( StringView name, std::any& anyValue ) const override;
+    constexpr uint32_t getTypeColor() const override { return PinMetaObject< DataT >::GetPinTypeColor(); }
 #endif
 
-    StringId32 GetLocalId() const override { return LocalId; }
+    StringId32 getLocalId() const override { return LocalId; }
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    StringView GetLocalIdString() const override { return LocalId.getString(); }
+    StringView getLocalIdString() const override { return LocalId.getString(); }
 #endif
 
-    PinTypeId GetType() override { return DataTypeId; }
-    PinTypeId GetType() const override { return DataTypeId; }
+    PinTypeId getType() override { return DataTypeId; }
+    PinTypeId getType() const override { return DataTypeId; }
 };
 
 #if ONYX_IS_EDITOR
 template < typename DataT >
-void DynamicPin< DataT >::DrawPropertyPanel( StringView name, std::any& anyValue ) const {
-    if constexpr ( std::is_same_v< DataT, ExecutePin > == false ) {
+void DynamicPin< DataT >::drawPropertyPanel( StringView name, std::any& anyValue ) const {
+    if constexpr( std::is_same_v< DataT, ExecutePin > == false ) {
         DataT& value = std::any_cast< DataT& >( anyValue );
         PinMetaObject< DataT >::DrawPinInPropertyGrid( name, value );
     }

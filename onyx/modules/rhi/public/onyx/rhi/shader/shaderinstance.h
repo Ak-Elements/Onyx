@@ -19,39 +19,37 @@ struct PipelineProperties;
 class ShaderInstance : public RefCounted {
   public:
     ShaderInstance() = default;
-    ShaderInstance( const GraphicsSystem& api,
-                    const Reference< Pipeline >& pipeline,
-                    const assets::AssetHandle< Shader >& shader );
+    ShaderInstance( const GraphicsSystem& api, Reference< Pipeline > pipeline, assets::AssetHandle< Shader > shader );
 
     ~ShaderInstance() override;
 
-    const Reference< Pipeline >& GetPipeline() const { return m_Pipeline; }
-    DynamicArray< Reference< DescriptorSet > >& GetDescriptorSets( uint8_t frameIndex );
-    const DynamicArray< Reference< DescriptorSet > >& GetDescriptorSets( uint8_t frameIndex ) const;
+    const Reference< Pipeline >& getPipeline() const { return m_pipeline; }
+    DynamicArray< Reference< DescriptorSet > >& getDescriptorSets( uint8_t frameIndex );
+    const DynamicArray< Reference< DescriptorSet > >& getDescriptorSets( uint8_t frameIndex ) const;
 
-    bool HasDescriptorSets() const { return m_DescriptorSets.empty() == false; }
-    bool IsCompute() const;
+    bool hasDescriptorSets() const { return m_descriptorSets.empty() == false; }
+    bool isCompute() const;
 
-    bool IsValid() const;
+    bool isValid() const;
 
-    void Bind( const TextureHandle& texture, const String& bindingName, uint8_t frameIndex );
-    void Bind( const BufferHandle& buffer, const String& bindingName, uint8_t frameIndex );
+    void bind( const TextureHandle& texture, const String& bindingName, uint8_t frameIndex );
+    void bind( const BufferHandle& buffer, const String& bindingName, uint8_t frameIndex );
 
-    void PreDraw( uint8_t frameIndex );
-
-  private:
-    Reference< DescriptorSet >& GetDescriptorSet( uint8_t frameIndex, uint8_t descriptorSetIndex );
-    const Reference< DescriptorSet >& GetDescriptorSet( uint8_t frameIndex, uint8_t descriptorSetIndex ) const;
-
-    void OnShaderLoaded( assets::AssetHandle< Shader > shader );
+    void preDraw( uint8_t frameIndex );
 
   private:
-    const GraphicsSystem* m_Api = nullptr;
+    Reference< DescriptorSet >& getDescriptorSet( uint8_t frameIndex, uint8_t descriptorSetIndex );
+    const Reference< DescriptorSet >& getDescriptorSet( uint8_t frameIndex, uint8_t descriptorSetIndex ) const;
 
-    assets::AssetHandle< Shader > m_Shader;
-    Reference< Pipeline > m_Pipeline;
+    void onShaderLoaded( assets::AssetHandle< Shader > shader );
+
+  private:
+    const GraphicsSystem* m_api = nullptr;
+
+    assets::AssetHandle< Shader > m_shader;
+    Reference< Pipeline > m_pipeline;
     // node can rebind descriptor bindings
-    InplaceArray< DynamicArray< Reference< DescriptorSet > >, MAX_FRAMES_IN_FLIGHT > m_DescriptorSets; // per frame
-    HashMap< String, uint8_t > m_BindingIdToDescriptorSet;
+    InplaceArray< DynamicArray< Reference< DescriptorSet > >, MaxFramesInFlight > m_descriptorSets; // per frame
+    HashMap< String, uint8_t > m_bindingIdToDescriptorSet;
 };
 } // namespace onyx::rhi

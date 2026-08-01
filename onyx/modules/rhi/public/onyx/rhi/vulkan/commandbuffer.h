@@ -19,9 +19,9 @@ class VulkanCommandBuffer : public CommandBuffer {
                          VkCommandBufferLevel bufferLevel,
                          uint8_t frameIndex,
                          StringView debugName );
-    ~VulkanCommandBuffer();
+    ~VulkanCommandBuffer() override;
 
-    VulkanCommandBuffer( VulkanCommandBuffer&& );
+    VulkanCommandBuffer( VulkanCommandBuffer&& ) noexcept;
 
     void reset() override;
 
@@ -35,7 +35,7 @@ class VulkanCommandBuffer : public CommandBuffer {
     void bindShaderEffect( const ShaderInstanceHandle& shader ) override;
     void bindVertexBuffer( const BufferHandle& buffer, uint32_t binding, uint32_t offset ) override;
     void bindVertexBuffers( const InplaceArray< BufferHandle, 8 >& bufferHandles,
-                            const InplaceArray< uint32_t, 8 > bufferOffsets,
+                            const InplaceArray< uint32_t, 8 >& bufferOffsets,
                             uint32_t firstBinding,
                             uint32_t bindingCount ) override;
     void bindIndexBuffer( const BufferHandle& buffer, uint32_t offset, IndexType indexType ) override;
@@ -112,23 +112,23 @@ class VulkanCommandBuffer : public CommandBuffer {
     void endConditionalRendering() override;
 
   private:
-    void PreDraw();
-    void BindDescriptorSets( VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint );
+    void preDraw();
+    void bindDescriptorSets( VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint );
 
-    VkPipelineLayout GetPipelineLayout() const;
+    VkPipelineLayout getPipelineLayout() const;
 
   private:
-    const VulkanGraphicsApi& m_Api;
+    const VulkanGraphicsApi& m_api;
 
-    Reference< VulkanRenderPass > m_CurrentRenderPass;
-    Reference< VulkanFramebuffer > m_CurrentFrameBuffer;
+    Reference< VulkanRenderPass > m_currentRenderPass;
+    Reference< VulkanFramebuffer > m_currentFrameBuffer;
 
-    ShaderInstanceHandle m_CurrentShaderEffect;
+    ShaderInstanceHandle m_currentShaderEffect;
 
-    VULKAN_HANDLE( VkCommandBuffer, CommandBuffer, nullptr );
+    VULKAN_HANDLE( VkCommandBuffer, commandBuffer, nullptr );
 
-    uint8_t m_FrameIndex;
+    uint8_t m_frameIndex;
 
-    bool m_IsRecording = false;
+    bool m_isRecording = false;
 };
 } // namespace onyx::rhi::vulkan

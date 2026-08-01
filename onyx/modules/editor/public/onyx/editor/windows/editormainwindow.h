@@ -9,7 +9,7 @@ class EditorMainWindow : public ui::ImGuiWindow {
 
     StringView getWindowId() override { return WindowId; }
 
-    ONYX_NO_DISCARD uint32_t getCenterDockId() const { return m_centerDockId; }
+    [[nodiscard]] uint32_t getCenterDockId() const { return m_centerDockId; }
 
   private:
     void onOpen() override;

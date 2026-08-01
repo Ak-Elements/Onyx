@@ -6,7 +6,7 @@ void AssetIOHandler::requestLoad( const AssetMetaData& metaData,
                                   const AssetHandle< AssetInterface >& assetHandle,
                                   const UniquePtr< IAssetSerializer >& serializer,
                                   IEngine* engine ) {
-    if ( m_loadRequests.contains( metaData.Id ) )
+    if( m_loadRequests.contains( metaData.Id ) )
         return;
 
     UniquePtr< AssetLoadRequest > loadRequest = makeUnique< AssetLoadRequest >();
@@ -14,7 +14,7 @@ void AssetIOHandler::requestLoad( const AssetMetaData& metaData,
     loadRequest->MetaData = metaData;
     loadRequest->Asset = assetHandle;
     loadRequest->Serializer = serializer.get();
-    loadRequest->OnLoadFinished.Connect< &AssetIOHandler::onAssetLoadFinished >( this );
+    loadRequest->OnLoadFinished.connect< &AssetIOHandler::onAssetLoadFinished >( this );
     loadRequest->start( m_loaderThreadPool );
 
     m_loadRequests[ metaData.Id ] = std::move( loadRequest );
@@ -29,7 +29,7 @@ void AssetIOHandler::requestSave( const AssetMetaData& metaData,
                                   const AssetHandle< AssetInterface >& assetHandle,
                                   const UniquePtr< IAssetSerializer >& serializer,
                                   const IEngine* engine ) {
-    if ( m_saveRequests.contains( metaData.Id ) )
+    if( m_saveRequests.contains( metaData.Id ) )
         return;
 
     UniquePtr< AssetSaveRequest > saveRequest = makeUnique< AssetSaveRequest >();
@@ -37,7 +37,7 @@ void AssetIOHandler::requestSave( const AssetMetaData& metaData,
     saveRequest->MetaData = metaData;
     saveRequest->Asset = assetHandle;
     saveRequest->Serializer = serializer.get();
-    saveRequest->OnSaveFinished.Connect< &AssetIOHandler::onAssetSaveFinished >( this );
+    saveRequest->OnSaveFinished.connect< &AssetIOHandler::onAssetSaveFinished >( this );
     saveRequest->start( m_loaderThreadPool );
 
     m_saveRequests[ metaData.Id ] = std::move( saveRequest );

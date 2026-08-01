@@ -30,7 +30,7 @@ class GraphicsApiInterface : public NonCopyable {
     virtual bool beginFrame( const FrameContext& ) = 0;
     virtual bool endFrame( const FrameContext& ) = 0;
 
-    ONYX_NO_DISCARD virtual bool isBindless() const = 0;
+    [[nodiscard]] virtual bool isBindless() const = 0;
 
     virtual CommandBuffer& getCommandBuffer( uint8_t frameIndex ) = 0;
     virtual CommandBuffer& getCommandBuffer( uint8_t frameIndex, bool shouldBegin ) = 0;
@@ -45,11 +45,11 @@ class GraphicsApiInterface : public NonCopyable {
     virtual void createSwapchain( const platform::Window& window ) = 0;
 
     virtual TextureHandle& getAcquiredSwapChainImage() = 0;
-    ONYX_NO_DISCARD virtual const TextureHandle& getAcquiredSwapChainImage() const = 0;
-    ONYX_NO_DISCARD virtual uint32_t getAcquiredBackbufferIndex() const = 0;
+    [[nodiscard]] virtual const TextureHandle& getAcquiredSwapChainImage() const = 0;
+    [[nodiscard]] virtual uint32_t getAcquiredBackbufferIndex() const = 0;
 
-    ONYX_NO_DISCARD virtual TextureFormat getSwapchainTextureFormat() const = 0;
-    ONYX_NO_DISCARD virtual const Vector2s32& getSwapchainExtent() const = 0;
+    [[nodiscard]] virtual TextureFormat getSwapchainTextureFormat() const = 0;
+    [[nodiscard]] virtual const Vector2s32& getSwapchainExtent() const = 0;
 
     virtual RenderPassHandle createRenderPass( const RenderPassSettings& settings ) = 0;
     virtual FramebufferHandle createFramebuffer( const FramebufferSettings& settings ) = 0;

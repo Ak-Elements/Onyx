@@ -14,13 +14,13 @@ namespace onyx::node_graph {
 class Node;
 struct ExecutionContext;
 
-namespace Details {
+namespace details {
 template < typename T >
 concept IsNodeGraphNode = requires( T& node, ExecutionContext& context, Guid64 globalPinId ) {
     //{ node.Prepare() };
     //{ node.Update(context) };
     //{ node.Finish() };
-    { node.HasPin( globalPinId ) };
+    { node.hasPin( globalPinId ) };
 } && HasTypeId< T >;
 
 template < typename T >
@@ -32,9 +32,9 @@ template < typename T >
 concept HasShowNodeName = requires( T node ) {
     { T::ShowNodeName };
 };
-} // namespace Details
+} // namespace details
 
-enum class GraphContext : uint32_t {
+enum class GraphContext : uint8_t {
     Invalid,
     NodeGraph,
     ShaderGraph,
@@ -52,9 +52,9 @@ struct NodeEditorMetaData {
 class INodeFactory {
   public:
     virtual ~INodeFactory() = default;
-    virtual UniquePtr< Node > CreateNode( StringId32 typeId ) const = 0;
-    virtual const HashSet< StringId32 >& GetRegisteredNodeIds() const = 0;
-    virtual const NodeEditorMetaData& GetNodeMetaData( StringId32 typeId ) const = 0;
+    [[nodiscard]] virtual UniquePtr< Node > createNode( StringId32 typeId ) const = 0;
+    [[nodiscard]] virtual const HashSet< StringId32 >& getRegisteredNodeIds() const = 0;
+    [[nodiscard]] virtual const NodeEditorMetaData& getNodeMetaData( StringId32 typeId ) const = 0;
 };
 
 template < typename MetaDataContainerT = NodeEditorMetaData >
@@ -62,24 +62,22 @@ requires std::is_base_of_v< NodeEditorMetaData, MetaDataContainerT >
 class NodeRegistry {
     // serialize / deserialize functors
   public:
-    UniquePtr< Node > CreateNode( StringId32 typeId ) {
-        ONYX_ASSERT( m_RegisteredNodes.contains( typeId ), "Node is not registered in this context" );
-        return UniquePtr< Node >( m_RegisteredNodes.at( typeId )() ); // call functor to create new node
+    UniquePtr< Node > createNode( StringId32 typeId ) {
+        ONYX_ASSERT( m_registeredNodes.contains( typeId ), "Node is not registered in this context" );
+        return UniquePtr< Node >( m_registeredNodes.at( typeId )() ); // call functor to create new node
     }
 
-    template < Details::IsNodeGraphNode NodeT >
+    template < details::IsNodeGraphNode NodeT >
     void registerNode() {
-        static HashMap< uint32_t, String > s_RegisteredNodesToName;
-
-        constexpr StringId32 typeId = NodeT::TypeId;
-        ONYX_ASSERT( m_RegisteredNodeTypeIds.contains( typeId ) == false,
+        constexpr StringId32 TypeId = NodeT::TypeId;
+        ONYX_ASSERT( m_registeredNodeTypeIds.contains( TypeId ) == false,
                      "Node is already registered in this context" );
 
-        m_RegisteredNodeTypeIds.emplace( typeId );
-        MetaDataContainerT& metaContainer = m_RegisteredNodesMetaData[ typeId ];
-        metaContainer.TypeId = typeId;
-        metaContainer.HasAliases = Details::HasAliases< NodeT >;
-        if constexpr ( Details::HasShowNodeName< NodeT > ) {
+        m_registeredNodeTypeIds.emplace( TypeId );
+        MetaDataContainerT& metaContainer = m_registeredNodesMetaData[ TypeId ];
+        metaContainer.TypeId = TypeId;
+        metaContainer.HasAliases = details::HasAliases< NodeT >;
+        if constexpr( details::HasShowNodeName< NodeT > ) {
             metaContainer.ShowNodeName = NodeT::ShowNodeName;
         } else {
             metaContainer.ShowNodeName = true;
@@ -87,34 +85,34 @@ class NodeRegistry {
 
         // can we make this constexpr?
         NodeT node{};
-        uint32_t inputPinCount = node.GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
-            metaContainer.InputPins.push_back( node.GetInputPin( i )->GetType() );
+        uint32_t inputPinCount = node.getInputPinCount();
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
+            metaContainer.InputPins.push_back( node.getInputPin( i )->getType() );
         }
 
-        uint32_t outputPinCount = node.GetOutputPinCount();
-        for ( uint32_t i = 0; i < outputPinCount; ++i ) {
-            metaContainer.OutputPins.push_back( node.GetOutputPin( i )->GetType() );
+        uint32_t outputPinCount = node.getOutputPinCount();
+        for( uint32_t i = 0; i < outputPinCount; ++i ) {
+            metaContainer.OutputPins.push_back( node.getOutputPin( i )->getType() );
         }
 
-        m_RegisteredNodes[ typeId ] = [ = ]() {
+        m_registeredNodes[ TypeId ] = [ = ]() {
             NodeT* newNode = new NodeT();
             return newNode;
         };
     }
 
-    MetaDataContainerT& GetNodeMetaData( StringId32 typeId ) {
-        ONYX_ASSERT( m_RegisteredNodesMetaData.contains( typeId ), "Node with that ID is not registered." );
-        return m_RegisteredNodesMetaData.at( typeId );
+    MetaDataContainerT& getNodeMetaData( StringId32 typeId ) {
+        ONYX_ASSERT( m_registeredNodesMetaData.contains( typeId ), "Node with that ID is not registered." );
+        return m_registeredNodesMetaData.at( typeId );
     }
 
-    const HashMap< StringId32, MetaDataContainerT >& GetRegisteredNodesMetaData() { return m_RegisteredNodesMetaData; }
-    const HashSet< StringId32 >& GetRegisteredNodeIds() const { return m_RegisteredNodeTypeIds; }
+    const HashMap< StringId32, MetaDataContainerT >& getRegisteredNodesMetaData() { return m_registeredNodesMetaData; }
+    const HashSet< StringId32 >& getRegisteredNodeIds() const { return m_registeredNodeTypeIds; }
 
   protected:
-    HashSet< StringId32 > m_RegisteredNodeTypeIds;
-    HashMap< StringId32, InplaceFunction< Node*() > > m_RegisteredNodes;
-    HashMap< StringId32, MetaDataContainerT > m_RegisteredNodesMetaData;
+    HashSet< StringId32 > m_registeredNodeTypeIds;
+    HashMap< StringId32, InplaceFunction< Node*() > > m_registeredNodes;
+    HashMap< StringId32, MetaDataContainerT > m_registeredNodesMetaData;
 };
 
 template < typename NodeType, typename MetaDataType >
@@ -122,29 +120,29 @@ class TypedNodeFactory : public INodeFactory {
   public:
     using NodeTypeT = NodeType;
 
-    template < Details::IsNodeGraphNode T >
+    template < details::IsNodeGraphNode T >
     static void registerNode() {
-        ms_NodeRegistry.template registerNode< T >();
+        s_msNodeRegistry.template registerNode< T >();
     }
 
-    UniquePtr< Node > CreateNode( StringId32 typeHash ) const override {
-        return ms_NodeRegistry.CreateNode( typeHash );
+    [[nodiscard]] UniquePtr< Node > createNode( StringId32 typeHash ) const override {
+        return s_msNodeRegistry.createNode( typeHash );
     }
 
-    const NodeEditorMetaData& GetNodeMetaData( StringId32 typeHash ) const override {
-        return ms_NodeRegistry.GetNodeMetaData( typeHash );
+    [[nodiscard]] const NodeEditorMetaData& getNodeMetaData( StringId32 typeHash ) const override {
+        return s_msNodeRegistry.getNodeMetaData( typeHash );
     }
 
-    const HashSet< StringId32 >& GetRegisteredNodeIds() const override {
-        return ms_NodeRegistry.GetRegisteredNodeIds();
+    [[nodiscard]] const HashSet< StringId32 >& getRegisteredNodeIds() const override {
+        return s_msNodeRegistry.getRegisteredNodeIds();
     }
 
   protected:
-    static NodeRegistry< MetaDataType > ms_NodeRegistry;
+    static NodeRegistry< MetaDataType > s_msNodeRegistry;
 };
 
 template < typename NodeType, typename MetaDataType >
-NodeRegistry< MetaDataType > TypedNodeFactory< NodeType, MetaDataType >::ms_NodeRegistry;
+NodeRegistry< MetaDataType > TypedNodeFactory< NodeType, MetaDataType >::s_msNodeRegistry;
 
 class NodeGraphFactory : public TypedNodeFactory< Node, NodeEditorMetaData > {
   public:

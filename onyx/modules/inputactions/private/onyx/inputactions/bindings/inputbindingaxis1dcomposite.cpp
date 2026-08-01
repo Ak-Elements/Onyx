@@ -6,10 +6,10 @@
 
 namespace onyx::input_actions {
 bool InputBindingAxis1DComposite::DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) {
-    bool isPostiveDown = inputSystem.IsButtonDown( m_InputPostive );
-    bool isNegativeDown = inputSystem.IsButtonDown( m_InputNegative );
+    bool isPostiveDown = inputSystem.isButtonDown( m_InputPostive );
+    bool isNegativeDown = inputSystem.isButtonDown( m_InputNegative );
 
-    if ( ( isPostiveDown == false ) && ( isNegativeDown == false ) )
+    if( ( isPostiveDown == false ) && ( isNegativeDown == false ) )
         return false;
 
     outInputValue.X = ( isPostiveDown ? 1.0f : 0.0f ) - ( isNegativeDown ? 1.0f : 0.0f );
@@ -26,7 +26,7 @@ input::InputID InputBindingAxis1DComposite::GetBoundInputForSlot( uint32_t index
 }
 
 void InputBindingAxis1DComposite::SetInputBindingSlot( uint32_t index, input::InputID inputID ) {
-    if ( index == 0 )
+    if( index == 0 )
         m_InputPostive = inputID;
     else
         m_InputNegative = inputID;

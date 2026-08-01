@@ -19,7 +19,7 @@ class MouseOverlay : public ui::ImGuiWindow {
     static constexpr StringView WindowId = "MouseOverlay";
     static constexpr StringView WindowCategory = "Debug";
 
-    ONYX_NO_DISCARD StringView getWindowId() override { return WindowId; }
+    [[nodiscard]] StringView getWindowId() override { return WindowId; }
 
   private:
     void onOpen() override;

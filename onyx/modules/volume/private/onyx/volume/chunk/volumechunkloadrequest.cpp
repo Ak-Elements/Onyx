@@ -85,7 +85,7 @@ void ExtractMesh( [[maybe_unused]] const Vector3f32& octreeRootPosition,
     const Vector3f CORNER_4(-1.0f, 1.0f, -1.0f);
     const Vector3f CORNER_5(1.0f, 1.0f, -1.0f);
     const Vector3f CORNER_6(1.0f, 1.0f, 1.0f);
-    const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);*/    
+    const Vector3f CORNER_7(-1.0f, 1.0f, 1.0f);*/
 
     const Vector3f32 nodePosition;  // octreeRootPosition + octreeData->Position;
     const float halfExtents = 4.0f; // octreeData->HalfExtent;
@@ -107,14 +107,14 @@ void ExtractMesh( [[maybe_unused]] const Vector3f32& octreeRootPosition,
                                                        worldPositionCorner6,
                                                        worldPositionCorner7 };
 
-    Vector4f32 gradientCorner0 = csgSource.GetValueAndGradient( worldPositionCorner0 );
-    Vector4f32 gradientCorner1 = csgSource.GetValueAndGradient( worldPositionCorner1 );
-    Vector4f32 gradientCorner2 = csgSource.GetValueAndGradient( worldPositionCorner2 );
-    Vector4f32 gradientCorner3 = csgSource.GetValueAndGradient( worldPositionCorner3 );
-    Vector4f32 gradientCorner4 = csgSource.GetValueAndGradient( worldPositionCorner4 );
-    Vector4f32 gradientCorner5 = csgSource.GetValueAndGradient( worldPositionCorner5 );
-    Vector4f32 gradientCorner6 = csgSource.GetValueAndGradient( worldPositionCorner6 );
-    Vector4f32 gradientCorner7 = csgSource.GetValueAndGradient( worldPositionCorner7 );
+    Vector4f32 gradientCorner0 = csgSource.getValueAndGradient( worldPositionCorner0 );
+    Vector4f32 gradientCorner1 = csgSource.getValueAndGradient( worldPositionCorner1 );
+    Vector4f32 gradientCorner2 = csgSource.getValueAndGradient( worldPositionCorner2 );
+    Vector4f32 gradientCorner3 = csgSource.getValueAndGradient( worldPositionCorner3 );
+    Vector4f32 gradientCorner4 = csgSource.getValueAndGradient( worldPositionCorner4 );
+    Vector4f32 gradientCorner5 = csgSource.getValueAndGradient( worldPositionCorner5 );
+    Vector4f32 gradientCorner6 = csgSource.getValueAndGradient( worldPositionCorner6 );
+    Vector4f32 gradientCorner7 = csgSource.getValueAndGradient( worldPositionCorner7 );
 
     onyx::InplaceArray< onyx::Vector4f32, 8 > hermiteDataSamples{
         gradientCorner0,
@@ -221,7 +221,7 @@ void ExtractMesh( [[maybe_unused]] const Vector3f32& octreeRootPosition,
             const Vertex& v1 = component.Vertices[ 2 ];
             const Vertex& v2 = component.Vertices[ 1 ];
 
-            meshBuilder.AddTriangle( v0.Position, v0.Normal, v1.Position, v1.Normal, v2.Position,
+            meshBuilder.addTriangle( v0.Position, v0.Normal, v1.Position, v1.Normal, v2.Position,
                                      v2.Normal ); // remove
         } else {
             uint32_t vertexCount = static_cast< uint32_t >( component.Vertices.size() );
@@ -239,14 +239,14 @@ void ExtractMesh( [[maybe_unused]] const Vector3f32& octreeRootPosition,
             uint32_t lastVertexIndex = ( vertexCount - 1 );
             for( uint32_t i = 0; i < vertexCount; ++i ) {
                 if( i == lastVertexIndex ) {
-                    meshBuilder.AddVertexAndNormal( component.Vertices[ 0 ].Position, component.Vertices[ 0 ].Normal );
-                    meshBuilder.AddVertexAndNormal( component.Vertices[ i ].Position, component.Vertices[ i ].Normal );
-                    meshBuilder.AddVertexAndNormal( triangleFanCenter, triangleFanCenterNormal );
+                    meshBuilder.addVertexAndNormal( component.Vertices[ 0 ].Position, component.Vertices[ 0 ].Normal );
+                    meshBuilder.addVertexAndNormal( component.Vertices[ i ].Position, component.Vertices[ i ].Normal );
+                    meshBuilder.addVertexAndNormal( triangleFanCenter, triangleFanCenterNormal );
                 } else {
-                    meshBuilder.AddVertexAndNormal( component.Vertices[ i + 1 ].Position,
+                    meshBuilder.addVertexAndNormal( component.Vertices[ i + 1 ].Position,
                                                     component.Vertices[ i + 1 ].Normal );
-                    meshBuilder.AddVertexAndNormal( component.Vertices[ i ].Position, component.Vertices[ i ].Normal );
-                    meshBuilder.AddVertexAndNormal( triangleFanCenter, triangleFanCenterNormal );
+                    meshBuilder.addVertexAndNormal( component.Vertices[ i ].Position, component.Vertices[ i ].Normal );
+                    meshBuilder.addVertexAndNormal( triangleFanCenter, triangleFanCenterNormal );
                 }
             }
         }
@@ -298,7 +298,7 @@ void VolumeChunkLoadRequest::LoadChunk() {
         GenerateOctree( volumeOctree );
 
         MarchingCubesSurface< float32 > marchingCubesSurface( m_LoadRequestData.m_VolumeSource );
-        marchingCubesSurface.SetMeshBuilder( m_LoadRequestData.m_MeshBuilder );
+        marchingCubesSurface.setMeshBuilder( m_LoadRequestData.m_MeshBuilder );
 
         MarchingSquaresSurface< float32 > marchingSquaresSurface( m_LoadRequestData.m_VolumeSource,
                                                                   m_LoadRequestData.m_MeshBuilder,
@@ -327,7 +327,7 @@ void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& oct
         policy->SetUseEdgeAmbiguity( false );
 
         splitPolicy = std::move( policy );
-    } else if( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DMC_WITH_CMS_ERROR_METRIC ) {
+    } else if( m_LoadRequestData.m_IsoSurfaceMethod == IsoSurfaceMethod::DmcWithCmsErrorMetric ) {
         auto policy = makeUnique< DMCOctreeSplitPolicy< float32 > >( m_LoadRequestData.m_MaxOctreeLevel,
                                                                      m_LoadRequestData.m_Size,
                                                                      m_LoadRequestData.m_MaxGeometricError,
@@ -376,7 +376,7 @@ void VolumeChunkLoadRequest::GenerateOctree( VolumeChunk::VolumeChunkOctree& oct
         } else {
             Vector4f32& centerValue = node.GetData()->Gradient;
             if( centerValue.isZero() ) {
-                centerValue = volumeBase.GetValueAndGradient( node.GetData()->Position );
+                centerValue = volumeBase.getValueAndGradient( node.GetData()->Position );
 
 #if USE_ANALYTICAL_NORMAL
                 const SimplexNoiseSource& noiseSource = static_cast< const SimplexNoiseSource& >( volumeBase );

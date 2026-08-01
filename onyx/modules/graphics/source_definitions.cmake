@@ -10,6 +10,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     rendergraph/tasks/atmosphericskytask.h
     rendergraph/tasks/debuglightclusterspass.h
     rendergraph/tasks/multiplescatteringtask.h
+    rendergraph/tasks/createlightclusterspass.h
     rendergraph/tasks/updatelightclusterstask.h
     rendergraph/tasks/updateviewconstantstask.h
     rendergraph/tasks/scatteringtask.h
@@ -49,6 +50,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     rendergraph/tasks/atmosphericskytask.cpp
     rendergraph/tasks/debuglightclusterspass.cpp
     rendergraph/tasks/multiplescatteringtask.cpp
+    rendergraph/tasks/createlightclusterspass.cpp
     rendergraph/tasks/updatelightclusterstask.cpp
     rendergraph/tasks/updateviewconstantstask.cpp
     rendergraph/tasks/scatteringtask.cpp

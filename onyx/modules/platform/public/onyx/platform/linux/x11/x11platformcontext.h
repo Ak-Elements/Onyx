@@ -26,23 +26,23 @@ class X11PlatformContext : public Thread {
 
     input::InputSystem& getInputSystem();
 
-    ONYX_NO_DISCARD xcb_connection_t* getConnectionHandle() {
+    [[nodiscard]] xcb_connection_t* getConnectionHandle() {
         ONYX_ASSERT( m_connection != nullptr );
         return m_connection;
     }
 
-    ONYX_NO_DISCARD const xcb_connection_t* getConnectionHandle() const {
+    [[nodiscard]] const xcb_connection_t* getConnectionHandle() const {
         ONYX_ASSERT( m_connection != nullptr );
         return m_connection;
     }
 
-    ONYX_NO_DISCARD xcb_screen_t& getScreen() { return *m_screen; }
-    ONYX_NO_DISCARD const xcb_screen_t& getScreen() const { return *m_screen; }
+    [[nodiscard]] xcb_screen_t& getScreen() { return *m_screen; }
+    [[nodiscard]] const xcb_screen_t& getScreen() const { return *m_screen; }
 
-    ONYX_NO_DISCARD xcb_intern_atom_reply_t& getAtomDelete() { return *m_atomWmDeleteWindow; }
-    ONYX_NO_DISCARD const xcb_intern_atom_reply_t& getAtomDelete() const { return *m_atomWmDeleteWindow; }
+    [[nodiscard]] xcb_intern_atom_reply_t& getAtomDelete() { return *m_atomWmDeleteWindow; }
+    [[nodiscard]] const xcb_intern_atom_reply_t& getAtomDelete() const { return *m_atomWmDeleteWindow; }
 
-    ONYX_NO_DISCARD uint8_t getXkbFirstEvent() const { return m_xkbFirstEvent; }
+    [[nodiscard]] uint8_t getXkbFirstEvent() const { return m_xkbFirstEvent; }
 
     PlatformSystem& getPlatformSystem() { return *m_platformSystem; }
 

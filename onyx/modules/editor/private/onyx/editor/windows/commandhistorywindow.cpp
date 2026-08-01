@@ -10,13 +10,13 @@ namespace onyx::editor {
 void CommandHistoryWindow::onOpen() {
     input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
 
-    inputActionsSystem.OnInput< &CommandHistoryWindow::OnRedo >( "Redo", this );
-    inputActionsSystem.OnInput< &CommandHistoryWindow::OnUndo >( "Undo", this );
+    inputActionsSystem.onInput< &CommandHistoryWindow::OnRedo >( "Redo", this );
+    inputActionsSystem.onInput< &CommandHistoryWindow::OnUndo >( "Undo", this );
 }
 
 void CommandHistoryWindow::onClose() {
     input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionsSystem.Disconnect( this );
+    inputActionsSystem.disconnect( this );
 }
 
 void CommandHistoryWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
@@ -46,7 +46,7 @@ void CommandHistoryWindow::OnUndo( const input_actions::InputActionEvent& undoAc
     if( ( isFocused() == false ) && ( parent->isFocused() == false ) )
         return;
 
-    if( undoAction.GetData< bool >() == false )
+    if( undoAction.getData< bool >() == false )
         return;
 
     m_CommandStack->moveBack();
@@ -59,7 +59,7 @@ void CommandHistoryWindow::OnRedo( const input_actions::InputActionEvent& redoAc
     if( ( isFocused() == false ) && ( parent->isFocused() == false ) )
         return;
 
-    if( redoAction.GetData< bool >() == false )
+    if( redoAction.getData< bool >() == false )
         return;
 
     m_CommandStack->moveForward();

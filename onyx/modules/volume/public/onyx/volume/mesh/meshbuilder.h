@@ -25,40 +25,40 @@ class MeshBuilder {
   public:
     MeshBuilder() = default;
 
-    void AddVertexAndNormal( const Vector3f32& position, const Vector3f32& normal ) {
-        uint32_t index = GetOrAddVertexInternal( position, normal );
-        m_Indices.push_back( index );
+    void addVertexAndNormal( const Vector3f32& position, const Vector3f32& normal ) {
+        uint32_t index = getOrAddVertexInternal( position, normal );
+        m_indices.push_back( index );
     }
 
-    void AddTriangle( const Vector3f32& v0,
+    void addTriangle( const Vector3f32& v0,
                       const Vector3f32& n0,
                       const Vector3f32& v1,
                       const Vector3f32& n1,
                       const Vector3f32& v2,
                       const Vector3f32& n2 ) {
-        AddVertexAndNormal( v0, n0 );
-        AddVertexAndNormal( v1, n1 );
-        AddVertexAndNormal( v2, n2 );
+        addVertexAndNormal( v0, n0 );
+        addVertexAndNormal( v1, n1 );
+        addVertexAndNormal( v2, n2 );
     }
 
-    const DynamicArray< Vertex >& GetVertices() const { return m_Vertices; }
-    const DynamicArray< uint32_t >& GetIndices() const { return m_Indices; }
+    [[nodiscard]] const DynamicArray< Vertex >& getVertices() const { return m_vertices; }
+    [[nodiscard]] const DynamicArray< uint32_t >& getIndices() const { return m_indices; }
 
   private:
     typedef std::map< Vertex, uint32_t >::iterator VertexIterator;
-    VertexIterator FindVertex( const Vertex& vertex ) { return m_VerticesMap.find( vertex ); }
+    VertexIterator findVertex( const Vertex& vertex ) { return m_verticesMap.find( vertex ); }
 
-    uint32_t GetOrAddVertexInternal( const Vector3f32& vertexPos, const Vector3f32& normal ) {
+    uint32_t getOrAddVertexInternal( const Vector3f32& vertexPos, const Vector3f32& normal ) {
         Vertex vertex;
         vertex.Position = vertexPos;
         vertex.Normal = normal;
 
         uint32_t index = 0;
-        VertexIterator vertexIt = FindVertex( vertex );
-        if ( vertexIt == m_VerticesMap.end() ) {
-            index = static_cast< uint32_t >( m_Vertices.size() );
-            m_VerticesMap[ vertex ] = index;
-            m_Vertices.push_back( vertex );
+        VertexIterator vertexIt = findVertex( vertex );
+        if( vertexIt == m_verticesMap.end() ) {
+            index = static_cast< uint32_t >( m_vertices.size() );
+            m_verticesMap[ vertex ] = index;
+            m_vertices.push_back( vertex );
         } else {
             index = vertexIt->second;
         }
@@ -67,10 +67,10 @@ class MeshBuilder {
     }
 
   private:
-    std::map< Vertex, uint32_t > m_VerticesMap;
+    std::map< Vertex, uint32_t > m_verticesMap;
 
-    DynamicArray< Vertex > m_Vertices;
-    DynamicArray< uint32_t > m_Indices;
+    DynamicArray< Vertex > m_vertices;
+    DynamicArray< uint32_t > m_indices;
 };
 
 } // namespace onyx::volume

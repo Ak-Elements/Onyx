@@ -29,12 +29,12 @@ void EntitiesPanel::onOpen() {
     setWindowFlags( ImGuiWindowFlags_HorizontalScrollbar );
 
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.OnInput< &EntitiesPanel::onDeleteAction >( "Delete"_id64, this );
+    inputActionSystem.onInput< &EntitiesPanel::onDeleteAction >( "Delete"_id64, this );
 }
 
 void EntitiesPanel::onClose() {
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.Disconnect( this );
+    inputActionSystem.disconnect( this );
 }
 
 void EntitiesPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
@@ -200,7 +200,7 @@ void EntitiesPanel::onDeleteAction( const input_actions::InputActionEvent& delet
     if( m_selectedEntity == ecs::EntityId::Invalid )
         return;
 
-    if( deleteAction.GetData< bool >() == false )
+    if( deleteAction.getData< bool >() == false )
         return;
 
     deleteEntity( m_selectedEntity );

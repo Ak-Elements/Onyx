@@ -16,20 +16,20 @@ class WaylandKeyboard {
     ~WaylandKeyboard();
 
   private:
-    static void OnKeyMap( void* inputInstance, wl_keyboard* keyboard, uint32_t format, int32_t fd, uint32_t size );
-    static void OnEnterSurface( void* inputInstance,
+    static void onKeyMap( void* inputInstance, wl_keyboard* keyboard, uint32_t format, int32_t fd, uint32_t size );
+    static void onEnterSurface( void* inputInstance,
                                 wl_keyboard* keyboard,
                                 uint32_t serial,
                                 wl_surface* surface,
                                 wl_array* keys );
-    static void OnLeaveSurface( void* inputInstance, wl_keyboard* keyboard, uint32_t serial, wl_surface* surface );
-    static void OnKeyChange( void* inputInstance,
+    static void onLeaveSurface( void* inputInstance, wl_keyboard* keyboard, uint32_t serial, wl_surface* surface );
+    static void onKeyChange( void* inputInstance,
                              wl_keyboard* keyboard,
                              uint32_t serial,
                              uint32_t time,
                              uint32_t key,
                              uint32_t state );
-    static void OnModifierChange( void* inputInstance,
+    static void onModifierChange( void* inputInstance,
                                   wl_keyboard* keyboard,
                                   uint32_t serial,
                                   uint32_t modsDepressed,
@@ -38,8 +38,8 @@ class WaylandKeyboard {
                                   uint32_t group );
 
   private:
-    WaylandInput* m_Input = nullptr;
-    wl_keyboard* m_Keyboard = nullptr;
+    WaylandInput* m_input = nullptr;
+    wl_keyboard* m_keyboard = nullptr;
 };
 } // namespace onyx::platform::wayland
 

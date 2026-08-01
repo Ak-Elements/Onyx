@@ -19,32 +19,32 @@ class SdfUnionVolumeShaderGraphNode : public node_graph::FixedPinNode< graphics:
 
   public:
     static constexpr StringId32 TypeId = "onyx::volume::volume_shader_graph::SdfUnionVolumeShaderGraphNode";
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
     SdfUnionVolumeShaderGraphNode() = default;
 
-    void OnUpdate( node_graph::ExecutionContext& context ) const override;
+    void onUpdate( node_graph::ExecutionContext& context ) const override;
 
-    node_graph::PinBase* GetInputPin( uint32_t index ) override;
-    const node_graph::PinBase* GetInputPin( uint32_t index ) const override;
+    node_graph::PinBase* getInputPin( uint32_t index ) override;
+    [[nodiscard]] const node_graph::PinBase* getInputPin( uint32_t index ) const override;
 
-    node_graph::PinBase* GetOutputPin( uint32_t index ) override;
-    const node_graph::PinBase* GetOutputPin( uint32_t index ) const override;
+    node_graph::PinBase* getOutputPin( uint32_t index ) override;
+    [[nodiscard]] const node_graph::PinBase* getOutputPin( uint32_t index ) const override;
 
   private:
-    void DoGenerateShader( const node_graph::ExecutionContext& context,
+    void doGenerateShader( const node_graph::ExecutionContext& context,
                            rhi::ShaderGenerator& generator ) const override;
 
 #if ONYX_IS_EDITOR
-    StringView GetPinName( StringId32 pinId ) const override;
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override;
 #endif
 
   private:
-    InPinIsoValueSource0 m_IsoValueSource0InPin;
-    InPinGradientSource0 m_GradientSource0InPin;
-    InPinIsoValueSource1 m_IsoValueSource1InPin;
-    InPinGradientSource1 m_GradientSource1InPin;
-    OutPinIsoValue m_IsoValueOutPin;
-    OutPinGradient m_GradientOutPin;
+    InPinIsoValueSource0 m_isoValueSource0InPin;
+    InPinGradientSource0 m_gradientSource0InPin;
+    InPinIsoValueSource1 m_isoValueSource1InPin;
+    InPinGradientSource1 m_gradientSource1InPin;
+    OutPinIsoValue m_isoValueOutPin;
+    OutPinGradient m_gradientOutPin;
 };
 } // namespace onyx::volume

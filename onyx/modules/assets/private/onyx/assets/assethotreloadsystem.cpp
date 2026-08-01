@@ -6,7 +6,7 @@
 namespace onyx::assets {
 AssetHotReloadSystem::AssetHotReloadSystem( AssetSystem& assetSystem )
     : m_assetSystem( &assetSystem ) {
-    m_directoryWatcher.onFileChanged.Connect< &AssetHotReloadSystem::onFileChanged >( this );
+    m_directoryWatcher.OnFileChanged.connect< &AssetHotReloadSystem::onFileChanged >( this );
 }
 
 void AssetHotReloadSystem::monitorDirectory( const FilePath& path ) {
@@ -16,7 +16,7 @@ void AssetHotReloadSystem::monitorDirectory( const FilePath& path ) {
 void AssetHotReloadSystem::onFileChanged( const FilePath& path, file_system::FileWatcher::FileAction action ) {
     AssetId assetId( path );
 
-    switch ( action ) {
+    switch( action ) {
     case file_system::FileWatcher::FileAction::Add:
         break;
     case file_system::FileWatcher::FileAction::Delete:

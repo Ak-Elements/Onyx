@@ -30,7 +30,7 @@ ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
             FilePath mountPointPath = file_system::path::convertToMountPath( path );
 
             String content;
-            if( file_system::OnyxFile::ReadAll( path, content ) == false ) {
+            if( file_system::OnyxFile::readAll( path, content ) == false ) {
                 ONYX_LOG_ERROR( "Failed reading shader file. ({})", path );
                 return true;
             }
@@ -46,7 +46,7 @@ ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
         } );
     }
 
-    m_directoryWatcher.onFileChanged.Connect< &ShaderCache::onFileChanged >( this );
+    m_directoryWatcher.OnFileChanged.connect< &ShaderCache::onFileChanged >( this );
 #endif
 }
 
@@ -69,7 +69,7 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
     FilePath absoluteFilepath = file_system::path::getFullPath( shaderPath );
     file_system::OnyxFile shaderSource = file_system::OnyxFile( absoluteFilepath );
     String shaderCode;
-    if( file_system::OnyxFile::ReadAll( absoluteFilepath, shaderCode ) == false ) {
+    if( file_system::OnyxFile::readAll( absoluteFilepath, shaderCode ) == false ) {
         ONYX_LOG_ERROR( "Missing shader file. ({})", shaderPath );
         return false;
     }
@@ -141,7 +141,7 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
                                      [[maybe_unused]] const FilePath& shaderPath,
                                      ShaderCacheEntry& outEntry ) {
     file_system::OnyxFile shaderDiskCacheFile = file_system::OnyxFile( diskShaderCachePath );
-    file_system::FileStream stream = shaderDiskCacheFile.OpenStream( file_system::OpenMode::Binary |
+    file_system::FileStream stream = shaderDiskCacheFile.openStream( file_system::OpenMode::Binary |
                                                                      file_system::OpenMode::Read );
 
     if( stream.isValid() == false )
@@ -168,7 +168,7 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
 
 void ShaderCache::saveCacheToDisk( const ShaderCacheEntry& entry, const FilePath& diskShaderCachePath ) {
     file_system::OnyxFile shaderDiskCacheFile = file_system::OnyxFile( diskShaderCachePath );
-    file_system::FileStream stream = shaderDiskCacheFile.OpenStream( file_system::OpenMode::Binary |
+    file_system::FileStream stream = shaderDiskCacheFile.openStream( file_system::OpenMode::Binary |
                                                                      file_system::OpenMode::Write );
 
     stream.write( entry.ShaderHash );

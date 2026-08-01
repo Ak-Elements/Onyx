@@ -10,32 +10,35 @@ struct VolumeTerrainInstance {
     rhi::ShaderInstanceHandle Shader;
     rhi::BufferHandle VolumeSources;
     rhi::BufferHandle VolumeSourcesData;
+    uint32_t TextureIndex0;
+    uint32_t TextureIndex1;
+    uint32_t TextureIndex2;
 };
 
-class VolumeTerrainPass : public node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphShaderNode,
-                                                                      rhi::TextureHandle,
-                                                                      rhi::TextureHandle,
-                                                                      rhi::TextureHandle > {
+class VolumeTerrainPass : public node_graph::FixedPinNode2In1Out< graphics::RenderGraphShaderNode,
+                                                                  rhi::TextureHandle,
+                                                                  rhi::TextureHandle,
+                                                                  rhi::TextureHandle > {
   public:
     static constexpr StringId32 TypeId = "onyx::volume::render_graph::VolumeTerrainPass";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     VolumeTerrainPass();
 
     bool isEnabled() const override { return true; }
 
   private:
-    using Super = node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphShaderNode,
-                                                       rhi::TextureHandle,
-                                                       rhi::TextureHandle,
-                                                       rhi::TextureHandle >;
+    using Super = node_graph::FixedPinNode2In1Out< graphics::RenderGraphShaderNode,
+                                                   rhi::TextureHandle,
+                                                   rhi::TextureHandle,
+                                                   rhi::TextureHandle >;
 
     void onBeginFrame( graphics::RenderGraphContext& ) override;
     void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
+    StringView getPinName( StringId32 pinId ) const override {
         switch( pinId ) {
         case Super::InPin0::LocalId:
             return "Render Target";

@@ -5,18 +5,18 @@
 #include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
 
 namespace onyx::volume {
-class PreviewTerrainEditPass : public node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphFixedShaderNode,
-                                                                           rhi::BufferHandle,
-                                                                           rhi::TextureHandle,
-                                                                           rhi::TextureHandle > {
+class PreviewTerrainEditPass : public node_graph::FixedPinNode2In1Out< graphics::RenderGraphFixedShaderNode,
+                                                                       rhi::BufferHandle,
+                                                                       rhi::TextureHandle,
+                                                                       rhi::TextureHandle > {
   public:
     // TODO: Move this to a blackboard / variable storage on the RenderGraph?
-    static Vector3f32 BrushSize;
-    static uint16_t BrushType;
-    static uint16_t BrushOperation;
+    static Vector3f32 s_brushSize;
+    static uint16_t s_brushType;
+    static uint16_t s_brushOperation;
 
     static constexpr StringId32 TypeId = "onyx::volume::RenderGraph::PreviewTerrainEdit";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     PreviewTerrainEditPass();
 
@@ -26,17 +26,17 @@ class PreviewTerrainEditPass : public node_graph::FixedPinNode_2_In_1_Out< graph
     PreviewTerrainEditPass& operator=( PreviewTerrainEditPass&& ) = default;
 
   private:
-    using Super = node_graph::FixedPinNode_2_In_1_Out< graphics::RenderGraphFixedShaderNode,
-                                                       rhi::BufferHandle,
-                                                       rhi::TextureHandle,
-                                                       rhi::TextureHandle >;
+    using Super = node_graph::FixedPinNode2In1Out< graphics::RenderGraphFixedShaderNode,
+                                                   rhi::BufferHandle,
+                                                   rhi::TextureHandle,
+                                                   rhi::TextureHandle >;
 
     void onBeginFrame( graphics::RenderGraphContext& ) override;
     void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
+    StringView getPinName( StringId32 pinId ) const override {
         switch( pinId ) {
         case Super::InPin0::LocalId:
             return "View Constants";

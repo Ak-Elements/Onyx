@@ -34,13 +34,13 @@ class TerrainPanel : public ui::ImGuiWindow {
     static constexpr StringView WindowId = "TerrainPanel";
     static constexpr StringView WindowCategory = "Panel";
 
-    static constexpr StringId64 HIT_BUFFER_RESOURCE_ID = "hit buffer";
+    static constexpr StringId64 HitBufferResourceId = "hit buffer";
 
     StringView getWindowId() override { return WindowId; }
 
-    void SetSceneViewPanelId( uint32_t panelId ) {
-        m_SceneViewPanelId = panelId;
-        m_SceneViewPanelId = 0;
+    void setSceneViewPanelId( uint32_t panelId ) {
+        m_sceneViewPanelId = panelId;
+        m_sceneViewPanelId = 0;
     }
 
   private:
@@ -49,40 +49,40 @@ class TerrainPanel : public ui::ImGuiWindow {
 
     void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
-    void RenderPropertiesPanel();
-    void RenderTabs();
+    void renderPropertiesPanel();
+    void renderTabs();
 
-    void RenderToolbar( ::ImGuiWindow* sceneViewWindow );
-    void RenderSelectedTabOperations();
+    void renderToolbar( ::ImGuiWindow* sceneViewWindow );
+    void renderSelectedTabOperations();
 
-    void TraceTerrain( rhi::CommandBuffer& computeCommandBuffer,
+    void traceTerrain( rhi::CommandBuffer& computeCommandBuffer,
                        volume::TerrainWorldOctreeComponent& terrainOctree,
                        const volume::VolumeGenerationComponent& volumeGenerationComponent,
                        Rect2f32 sceneViewPort );
-    void ReadbackTerrainHit( rhi::CommandBuffer& computeCommandBuffer );
-    void FindWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer,
+    void readbackTerrainHit( rhi::CommandBuffer& computeCommandBuffer );
+    void findWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer,
                               const volume::TerrainSettingsComponent& terrainSettings,
                               volume::TerrainWorldOctreeComponent& terrainOctree,
                               const volume::VolumeGenerationComponent& volumeGenerationComponent );
-    void UpdateTerrainMesh( [[maybe_unused]] const rhi::CommandBuffer& command_buffer,
+    void updateTerrainMesh( [[maybe_unused]] const rhi::CommandBuffer& commandBuffer,
                             [[maybe_unused]] const volume::TerrainSettingsComponent& terrainSettings,
                             [[maybe_unused]] volume::TerrainWorldOctreeComponent& terrainOctree );
 
-    void OnTerrainPanelBrushSizeInput( const input_actions::InputActionEvent& inputEvent );
+    void onTerrainPanelBrushSizeInput( const input_actions::InputActionEvent& inputEvent );
 
   private:
-    game_core::Scene* m_CurrentScene = nullptr;
-    uint32_t m_SceneViewPanelId = 0;
+    game_core::Scene* m_currentScene = nullptr;
+    uint32_t m_sceneViewPanelId = 0;
 
     // should be a frame/transient buffer
-    rhi::BufferHandle m_HitBuffer;
-    rhi::BufferHandle m_HitReadbackBuffer;
-    rhi::BufferHandle m_UpdateRequestBuffer;
+    rhi::BufferHandle m_hitBuffer;
+    rhi::BufferHandle m_hitReadbackBuffer;
+    rhi::BufferHandle m_updateRequestBuffer;
 
-    rhi::BufferHandle m_CollapseRequestsBuffer;
-    rhi::BufferHandle m_SplitRequestsBuffer;
+    rhi::BufferHandle m_collapseRequestsBuffer;
+    rhi::BufferHandle m_splitRequestsBuffer;
 
-    uint32_t m_SelectedTab = 0;
-    DynamicArray< UniquePtr< TerrainTool > > m_Tools;
+    uint32_t m_selectedTab = 0;
+    DynamicArray< UniquePtr< TerrainTool > > m_tools;
 };
 } // namespace onyx::editor::scene_editor

@@ -6,18 +6,18 @@
 #include <onyx/nodegraph/pins/pin.h>
 
 namespace onyx::graphics::shader_graph_nodes {
-class FragmentShaderOutNode : public node_graph::FixedPinNode_1_In< ShaderGraphNode, Vector4f32 > {
+class FragmentShaderOutNode : public node_graph::FixedPinNode1In< ShaderGraphNode, Vector4f32 > {
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::FragmentShaderOut";
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    void DoGenerateShader( const node_graph::ExecutionContext& context,
+    void doGenerateShader( const node_graph::ExecutionContext& context,
                            rhi::ShaderGenerator& generator ) const override;
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override;
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override;
 #endif
 };
 
@@ -32,25 +32,25 @@ class PBRMaterialShaderOutNode : public node_graph::FixedPinNode< ShaderGraphNod
 
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::shader_graph_nodes::PBRMaterialShaderOut";
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
-    node_graph::PinBase* GetInputPin( uint32_t index ) override;
-    const node_graph::PinBase* GetInputPin( uint32_t index ) const override;
+    node_graph::PinBase* getInputPin( uint32_t index ) override;
+    [[nodiscard]] const node_graph::PinBase* getInputPin( uint32_t index ) const override;
 
-    node_graph::PinBase* GetOutputPin( uint32_t index ) override;
-    const node_graph::PinBase* GetOutputPin( uint32_t index ) const override;
+    node_graph::PinBase* getOutputPin( uint32_t index ) override;
+    [[nodiscard]] const node_graph::PinBase* getOutputPin( uint32_t index ) const override;
 
   private:
-    void DoGenerateShader( const node_graph::ExecutionContext& context,
+    void doGenerateShader( const node_graph::ExecutionContext& context,
                            rhi::ShaderGenerator& generator ) const override;
 
 #if ONYX_IS_EDITOR
-    std::any CreateDefaultForPin( StringId32 pinId ) const override;
+    [[nodiscard]] std::any createDefaultForPin( StringId32 pinId ) const override;
 #endif
   private:
-    AlbedoInPin m_AlbedoInPin;
-    NormalInPin m_NormalInPin;
-    MetalnessInPin m_MetalnessInPin;
-    RoughnessInPin m_RoughnessInPin;
+    AlbedoInPin m_albedoInPin;
+    NormalInPin m_normalInPin;
+    MetalnessInPin m_metalnessInPin;
+    RoughnessInPin m_roughnessInPin;
 };
 } // namespace onyx::graphics::shader_graph_nodes

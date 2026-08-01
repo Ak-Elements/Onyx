@@ -12,7 +12,7 @@ namespace onyx::game_core {
 class StaticMeshRenderGraphNode : public node_graph::FlexiblePinsNode< graphics::RenderGraphShaderNode > {
   public:
     static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::StaticMeshPass";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
   private:
     using Super = FlexiblePinsNode< graphics::RenderGraphShaderNode >;

@@ -3,15 +3,15 @@
 
 namespace onyx::platform {
 PlatformSystem::PlatformSystem( WindowSettings windowSettings, input::InputSystem& inputSystem )
-    : m_InputSystem( &inputSystem )
-    , m_Context( *this ) {
-    CreateNewWindow( std::move( windowSettings ) );
+    : m_inputSystem( &inputSystem )
+    , m_context( *this ) {
+    createNewWindow( std::move( windowSettings ) );
 }
 
 void PlatformSystem::onEndFrame() {
-    std::erase_if( m_Windows, [ & ]( const auto& window ) {
-        if ( window->getState() == WindowState::Closed ) {
-            m_WindowDestroySignal.Dispatch( *window );
+    std::erase_if( m_windows, [ & ]( const auto& window ) {
+        if( window->getState() == WindowState::Closed ) {
+            m_windowDestroySignal.dispatch( *window );
             return true;
         }
 
@@ -19,28 +19,28 @@ void PlatformSystem::onEndFrame() {
     } );
 }
 
-void PlatformSystem::CreateNewWindow( WindowSettings settings ) {
-    uint32_t id = static_cast< uint32_t >( m_Windows.size() );
-    UniquePtr< Window >& newWindow = m_Windows.emplace_back(
-        makeUnique< Window >( id, m_Context, std::move( settings ) ) );
-    m_WindowCreatedSignal.Dispatch( *newWindow );
+void PlatformSystem::createNewWindow( WindowSettings settings ) {
+    uint32_t id = static_cast< uint32_t >( m_windows.size() );
+    UniquePtr< Window >& newWindow = m_windows.emplace_back(
+        makeUnique< Window >( id, m_context, std::move( settings ) ) );
+    m_windowCreatedSignal.dispatch( *newWindow );
 }
 
-Window& PlatformSystem::GetMainWindow() {
-    ONYX_ASSERT( m_Windows.empty() == false );
-    return *m_Windows[ 0 ];
+Window& PlatformSystem::getMainWindow() {
+    ONYX_ASSERT( m_windows.empty() == false );
+    return *m_windows[ 0 ];
 }
 
-const Window& PlatformSystem::GetMainWindow() const {
-    ONYX_ASSERT( m_Windows.empty() == false );
-    return *m_Windows[ 0 ];
+const Window& PlatformSystem::getMainWindow() const {
+    ONYX_ASSERT( m_windows.empty() == false );
+    return *m_windows[ 0 ];
 }
 
-Window& PlatformSystem::GetWindow( uint32_t windowId ) {
-    auto windowIt = std::ranges::find_if( m_Windows,
+Window& PlatformSystem::getWindow( uint32_t windowId ) {
+    auto windowIt = std::ranges::find_if( m_windows,
                                           [ & ]( const auto& window ) { return window->getId() == windowId; } );
 
-    ONYX_ASSERT( windowIt != m_Windows.end(), "Tried to configure non existing window" );
+    ONYX_ASSERT( windowIt != m_windows.end(), "Tried to configure non existing window" );
     return *( *windowIt );
 }
 

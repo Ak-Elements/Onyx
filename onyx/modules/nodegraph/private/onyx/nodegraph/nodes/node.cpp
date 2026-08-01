@@ -7,46 +7,46 @@
 
 namespace onyx::node_graph {
 bool Node::serialize( Serializer& serializer ) const {
-    serializer.write< "id" >( GetId() );
-    serializer.write< "typeId" >( GetTypeId() );
+    serializer.write< "id" >( getId() );
+    serializer.write< "typeId" >( getTypeId() );
 
-    return serializePins( serializer ) && OnSerialize( serializer );
+    return serializePins( serializer ) && onSerialize( serializer );
 }
 
 bool Node::deserialize( const Deserializer& deserializer ) {
-    deserializer.read< "id" >( m_Id );
+    deserializer.read< "id" >( m_id );
     // TypeId is a compile time / class based thing, therefore no deserialize is needed
 
-    return deserializePins( deserializer ) && OnDeserialize( deserializer );
+    return deserializePins( deserializer ) && onDeserialize( deserializer );
 }
 
 bool Node::serializePins( Serializer& serializer ) const {
-    const uint32_t inputPinCount = GetInputPinCount();
+    const uint32_t inputPinCount = getInputPinCount();
     serializer.writeForEach< "inputs" >(
         [ & ]( Serializer& scopedSerializer, uint32_t index ) {
-            const PinBase* inputPin = GetInputPin( index );
-            scopedSerializer.write< "id" >( inputPin->GetGlobalId() );
-            scopedSerializer.write< "localId" >( inputPin->GetLocalId() );
-            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::GetSerializedTypeId( inputPin->GetType() ) );
+            const PinBase* inputPin = getInputPin( index );
+            scopedSerializer.write< "id" >( inputPin->getGlobalId() );
+            scopedSerializer.write< "localId" >( inputPin->getLocalId() );
+            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::GetSerializedTypeId( inputPin->getType() ) );
 
-            if( inputPin->IsConnected() ) {
-                scopedSerializer.write< "linkedPin" >( inputPin->GetLinkedPinGlobalId() );
+            if( inputPin->isConnected() ) {
+                scopedSerializer.write< "linkedPin" >( inputPin->getLinkedPinGlobalId() );
             }
 
             return true;
         },
         inputPinCount );
 
-    const uint32_t outputPinCount = GetOutputPinCount();
+    const uint32_t outputPinCount = getOutputPinCount();
     serializer.writeForEach< "outputs" >(
         [ & ]( Serializer& scopedSerializer, uint32_t index ) {
-            const PinBase* outputPin = GetOutputPin( index );
-            scopedSerializer.write< "id" >( outputPin->GetGlobalId() );
-            scopedSerializer.write< "localId" >( outputPin->GetLocalId() );
-            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::GetSerializedTypeId( outputPin->GetType() ) );
+            const PinBase* outputPin = getOutputPin( index );
+            scopedSerializer.write< "id" >( outputPin->getGlobalId() );
+            scopedSerializer.write< "localId" >( outputPin->getLocalId() );
+            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::GetSerializedTypeId( outputPin->getType() ) );
 
-            if( outputPin->IsConnected() ) {
-                scopedSerializer.write< "linkedPin" >( outputPin->GetLinkedPinGlobalId() );
+            if( outputPin->isConnected() ) {
+                scopedSerializer.write< "linkedPin" >( outputPin->getLinkedPinGlobalId() );
             }
 
             return true;
@@ -69,7 +69,7 @@ bool Node::deserializePins( const Deserializer& deserializer ) {
             return false;
         }
 
-        PinBase* inputPin = GetInputPinByLocalId( localPinId );
+        PinBase* inputPin = getInputPinByLocalId( localPinId );
         if( inputPin == nullptr ) {
             ONYX_LOG_WARNING( "Missing pin with LocalId {}", localPinId );
             return true;
@@ -81,10 +81,10 @@ bool Node::deserializePins( const Deserializer& deserializer ) {
             return false;
         }
 
-        inputPin->SetGlobalId( pinId );
+        inputPin->setGlobalId( pinId );
 
         if( scopedDeserializer.read< "linkedPin" >( linkedPinId ) ) {
-            inputPin->ConnectPin( linkedPinId );
+            inputPin->connectPin( linkedPinId );
         }
 
         return true;
@@ -97,7 +97,7 @@ bool Node::deserializePins( const Deserializer& deserializer ) {
             return false;
         }
 
-        PinBase* outputPin = GetOutputPinByLocalId( localPinId );
+        PinBase* outputPin = getOutputPinByLocalId( localPinId );
         if( outputPin == nullptr ) {
             ONYX_LOG_WARNING( "Missing pin with LocalId {}", localPinId );
             success = false;
@@ -110,10 +110,10 @@ bool Node::deserializePins( const Deserializer& deserializer ) {
             return false;
         }
 
-        outputPin->SetGlobalId( pinId );
+        outputPin->setGlobalId( pinId );
 
         if( scopedDeserializer.read< "linkedPin" >( linkedPinId ) ) {
-            outputPin->ConnectPin( linkedPinId );
+            outputPin->connectPin( linkedPinId );
         }
 
         return true;
@@ -122,96 +122,96 @@ bool Node::deserializePins( const Deserializer& deserializer ) {
     return success;
 }
 
-PinBase* Node::GetPinById( Guid64 globalPinId ) {
-    const uint32_t inputPinCount = GetInputPinCount();
+PinBase* Node::getPinById( Guid64 globalPinId ) {
+    const uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        PinBase* inputPin = GetInputPin( i );
-        if( inputPin->GetGlobalId() == globalPinId )
+        PinBase* inputPin = getInputPin( i );
+        if( inputPin->getGlobalId() == globalPinId )
             return inputPin;
     }
 
-    const uint32_t outputPinCount = GetOutputPinCount();
+    const uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        PinBase* outputPin = GetOutputPin( i );
-        if( outputPin->GetGlobalId() == globalPinId )
+        PinBase* outputPin = getOutputPin( i );
+        if( outputPin->getGlobalId() == globalPinId )
             return outputPin;
     }
 
     return nullptr;
 }
 
-const PinBase* Node::GetPinById( Guid64 globalPinId ) const {
-    const uint32_t inputPinCount = GetInputPinCount();
+const PinBase* Node::getPinById( Guid64 globalPinId ) const {
+    const uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const PinBase* inputPin = GetInputPin( i );
-        if( inputPin->GetGlobalId() == globalPinId )
+        const PinBase* inputPin = getInputPin( i );
+        if( inputPin->getGlobalId() == globalPinId )
             return inputPin;
     }
 
-    const uint32_t outputPinCount = GetOutputPinCount();
+    const uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const PinBase* outputPin = GetOutputPin( i );
-        if( GetOutputPin( i )->GetGlobalId() == globalPinId )
+        const PinBase* outputPin = getOutputPin( i );
+        if( getOutputPin( i )->getGlobalId() == globalPinId )
             return outputPin;
     }
 
     return nullptr;
 }
 
-bool Node::HasPin( Guid64 globalPinId ) const {
-    uint32_t inputPinCount = GetInputPinCount();
+bool Node::hasPin( Guid64 globalPinId ) const {
+    uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        if( GetInputPin( i )->GetGlobalId() == globalPinId )
+        if( getInputPin( i )->getGlobalId() == globalPinId )
             return true;
     }
 
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        if( GetOutputPin( i )->GetGlobalId() == globalPinId )
+        if( getOutputPin( i )->getGlobalId() == globalPinId )
             return true;
     }
 
     return false;
 }
 
-PinBase* Node::GetInputPinByLocalId( StringId32 pinId ) {
-    const uint32_t inputPinCount = GetInputPinCount();
+PinBase* Node::getInputPinByLocalId( StringId32 pinId ) {
+    const uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        PinBase* inputPin = GetInputPin( i );
-        if( inputPin->GetLocalId() == pinId )
+        PinBase* inputPin = getInputPin( i );
+        if( inputPin->getLocalId() == pinId )
             return inputPin;
     }
 
     return nullptr;
 }
 
-const PinBase* Node::GetInputPinByLocalId( StringId32 pinId ) const {
-    const uint32_t inputPinCount = GetInputPinCount();
+const PinBase* Node::getInputPinByLocalId( StringId32 pinId ) const {
+    const uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const PinBase* inputPin = GetInputPin( i );
-        if( inputPin->GetLocalId() == pinId )
+        const PinBase* inputPin = getInputPin( i );
+        if( inputPin->getLocalId() == pinId )
             return inputPin;
     }
 
     return nullptr;
 }
 
-PinBase* Node::GetOutputPinByLocalId( StringId32 pinId ) {
-    const uint32_t outputPinCount = GetOutputPinCount();
+PinBase* Node::getOutputPinByLocalId( StringId32 pinId ) {
+    const uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        PinBase* outputPin = GetOutputPin( i );
-        if( outputPin->GetLocalId() == pinId )
+        PinBase* outputPin = getOutputPin( i );
+        if( outputPin->getLocalId() == pinId )
             return outputPin;
     }
 
     return nullptr;
 }
 
-const PinBase* Node::GetOutputPinByLocalId( StringId32 pinId ) const {
-    const uint32_t outputPinCount = GetOutputPinCount();
+const PinBase* Node::getOutputPinByLocalId( StringId32 pinId ) const {
+    const uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const PinBase* outputPin = GetOutputPin( i );
-        if( outputPin->GetLocalId() == pinId )
+        const PinBase* outputPin = getOutputPin( i );
+        if( outputPin->getLocalId() == pinId )
             return outputPin;
     }
 
@@ -219,20 +219,20 @@ const PinBase* Node::GetOutputPinByLocalId( StringId32 pinId ) const {
 }
 
 #if ONYX_IS_EDITOR
-StringView Node::GetPinName( StringId32 localPinId ) const {
-    const uint32_t inputPinCount = GetInputPinCount();
+StringView Node::getPinName( StringId32 localPinId ) const {
+    const uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const PinBase* inputPin = GetInputPin( i );
-        if( inputPin->GetLocalId() == localPinId ) {
-            return inputPin->GetLocalIdString();
+        const PinBase* inputPin = getInputPin( i );
+        if( inputPin->getLocalId() == localPinId ) {
+            return inputPin->getLocalIdString();
         }
     }
 
-    const uint32_t outputPinCount = GetOutputPinCount();
+    const uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const PinBase* outputPin = GetOutputPin( i );
-        if( outputPin->GetLocalId() == localPinId ) {
-            return outputPin->GetLocalIdString();
+        const PinBase* outputPin = getOutputPin( i );
+        if( outputPin->getLocalId() == localPinId ) {
+            return outputPin->getLocalIdString();
         }
     }
 

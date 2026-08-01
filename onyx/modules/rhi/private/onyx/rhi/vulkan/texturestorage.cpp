@@ -243,8 +243,8 @@ void VulkanTextureStorage::UpdateData( VulkanGraphicsApi& api, const Span< uint8
     VulkanBuffer stagingBuffer( api, bufferProps );
 
     // stagingBuffer.Map(Graphics::MapMode::Write);
-    stagingBuffer.SetData( 0, data.data(), static_cast< uint32_t >( data.size() ) );
-    stagingBuffer.Unmap();
+    stagingBuffer.setData( 0, data.data(), static_cast< uint32_t >( data.size() ) );
+    stagingBuffer.unmap();
 
     // Copy buffer data to font image
     api.submitInstantCommandBuffer( Context::Graphics, 0, [ & ]( CommandBuffer& commandBuffer ) {

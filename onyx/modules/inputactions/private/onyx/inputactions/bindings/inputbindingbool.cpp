@@ -5,25 +5,22 @@
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
-namespace onyx::input_actions
-{
-    bool InputBindingBool::DoUpdate(const input::InputSystem& inputSystem, Vector3f32& outInputValue)
-    {
-        bool newValue = inputSystem.IsButtonDown(m_Input);
-        outInputValue.X = newValue ? 1.0f : 0.0f;
-        return newValue;
-    }
+namespace onyx::input_actions {
+bool InputBindingBool::DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) {
+    bool newValue = inputSystem.isButtonDown( m_Input );
+    outInputValue.X = newValue ? 1.0f : 0.0f;
+    return newValue;
+}
+} // namespace onyx::input_actions
+
+namespace onyx {
+bool Serialization< input_actions::InputBindingBool >::serialize( Serializer& serializer,
+                                                                  const input_actions::InputBindingBool& binding ) {
+    return serializer.write< "input" >( binding.m_Input );
 }
 
-namespace onyx
-{
-    bool Serialization<input_actions::InputBindingBool>::serialize(Serializer& serializer, const input_actions::InputBindingBool& binding)
-    {
-        return serializer.write<"input">(binding.m_Input);
-    }
-
-    bool Serialization<input_actions::InputBindingBool>::deserialize(const Deserializer& deserializer, input_actions::InputBindingBool& outBinding)
-    {
-        return deserializer.read<"input">(outBinding.m_Input);
-    }
+bool Serialization< input_actions::InputBindingBool >::deserialize( const Deserializer& deserializer,
+                                                                    input_actions::InputBindingBool& outBinding ) {
+    return deserializer.read< "input" >( outBinding.m_Input );
 }
+} // namespace onyx

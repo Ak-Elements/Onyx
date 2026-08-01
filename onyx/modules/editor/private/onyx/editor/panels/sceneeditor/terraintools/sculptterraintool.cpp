@@ -10,13 +10,13 @@
 
 namespace onyx::editor {
 namespace {
-void DrawSmoothArrow( const ImVec2& from,
+void drawSmoothArrow( const ImVec2& from,
                       const ImVec2& to,
-                      float arrow_size = 12.0f,
+                      float arrowSize = 12.0f,
                       float thickness = 4.0f,
                       bool roundShaft = true,
                       ImU32 color = IM_COL32( 255, 255, 255, 255 ) ) {
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
 
     ImVec2 dir = to - from;
     float len = sqrtf( dir.x * dir.x + dir.y * dir.y );
@@ -27,79 +27,79 @@ void DrawSmoothArrow( const ImVec2& from,
     dir.y /= len;
     ImVec2 perp( -dir.y, dir.x );
 
-    ImVec2 tip_base = to - dir * arrow_size;
-    ImVec2 left = tip_base + perp * ( arrow_size * 0.8f );
-    ImVec2 right = tip_base - perp * ( arrow_size * 0.8f );
+    ImVec2 tipBase = to - dir * arrowSize;
+    ImVec2 left = tipBase + perp * ( arrowSize * 0.8f );
+    ImVec2 right = tipBase - perp * ( arrowSize * 0.8f );
 
     float radius = thickness * 0.5f;
 
     // ---- Draw shaft ----
-    draw_list->PathClear();
+    drawList->PathClear();
     // draw_list->PathArcTo(p1, radius, IM_PI, 2 * IM_PI, 8);
-    draw_list->PathLineTo( from );
-    draw_list->PathLineTo( to - dir * thickness * 0.5f );
-    draw_list->PathStroke( color, false, thickness ); // false = open path
+    drawList->PathLineTo( from );
+    drawList->PathLineTo( to - dir * thickness * 0.5f );
+    drawList->PathStroke( color, false, thickness ); // false = open path
     // rounded start cap
     if( roundShaft )
-        draw_list->AddCircleFilled( from, radius, color );
+        drawList->AddCircleFilled( from, radius, color );
 
     // ---- Draw arrowhead ----
-    draw_list->PathClear();
-    draw_list->PathLineTo( left );
-    draw_list->PathLineTo( to - dir * thickness * 0.5f );
-    draw_list->PathLineTo( right );
-    draw_list->PathStroke( color, ImDrawFlags_None, thickness );
+    drawList->PathClear();
+    drawList->PathLineTo( left );
+    drawList->PathLineTo( to - dir * thickness * 0.5f );
+    drawList->PathLineTo( right );
+    drawList->PathStroke( color, ImDrawFlags_None, thickness );
 
-    draw_list->AddCircleFilled( left, radius, color );
-    draw_list->AddCircleFilled( right, radius, color );
+    drawList->AddCircleFilled( left, radius, color );
+    drawList->AddCircleFilled( right, radius, color );
 }
 
 // Helper to draw dashed line along a cubic Bezier curve
-void AddDashedCubicBezier( ImDrawList* dl,
+void addDashedCubicBezier( ImDrawList* dl,
                            const ImVec2& p0,
                            const ImVec2& p1,
                            const ImVec2& p2,
                            const ImVec2& p3,
                            ImU32 col,
                            float thickness,
-                           float dash_len = 10.0f,
-                           float gap_len = 5.0f,
-                           int num_segments = 64 ) {
+                           float dashLen = 10.0f,
+                           float gapLen = 5.0f,
+                           int numSegments = 64 ) {
     if( ( col & IM_COL32_A_MASK ) == 0 || dl == nullptr )
         return;
 
     // float total_len = dash_len + gap_len;
-    float t_step = 1.0f / num_segments;
+    float tStep = 1.0f / numSegments;
     ImVec2 prev = p0;
-    float dist_accum = 0.0f;
+    float distAccum = 0.0f;
     bool drawing = true;
 
-    for( int i = 1; i <= num_segments; i++ ) {
-        float t = t_step * i;
+    for( int i = 1; i <= numSegments; i++ ) {
+        float t = tStep * i;
         ImVec2 p = ImBezierCubicCalc( p0, p1, p2, p3, t );
 
         // segment length
-        float seg_len = ImLength( p - prev );
+        float segLen = ImLength( p - prev );
 
-        float remaining = seg_len;
-        ImVec2 seg_start = prev;
+        float remaining = segLen;
+        ImVec2 segStart = prev;
 
         while( remaining > 0.0f ) {
-            float space_left = ( drawing ? dash_len : gap_len ) - dist_accum;
+            float spaceLeft = ( drawing ? dashLen : gapLen ) - distAccum;
 
-            float step = ImMin( remaining, space_left );
-            ImVec2 seg_end = seg_start + ( p - seg_start ) * ( step / seg_len );
+            float step = ImMin( remaining, spaceLeft );
+            ImVec2 segEnd = segStart + ( p - segStart ) * ( step / segLen );
 
             if( drawing )
-                dl->AddLine( seg_start, seg_end, col, thickness );
+                dl->AddLine( segStart, segEnd, col, thickness );
 
-            dist_accum += step;
-            if( dist_accum >= ( drawing ? dash_len : gap_len ) ) {
+            distAccum += step;
+            if( distAccum >= ( drawing ? dashLen : gapLen ) ) {
                 drawing = !drawing;
-                dist_accum = 0.0f;
+                distAccum = 0.0f;
             }
 
-            seg_start = seg_end;
+            segStart = segEnd;
             remaining -= step;
         }
 
@@ -107,7 +107,7 @@ void AddDashedCubicBezier( ImDrawList* dl,
     }
 }
 
-void DrawRaiseIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
+void drawRaiseIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
 
     dl->AddRect( pos, pos + ImVec2( size, size ), col, 2.0f, ImDrawFlags_RoundCornersAll, thickness );
@@ -150,10 +150,10 @@ void DrawRaiseIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     float arrowX = centerX;
     float arrowToY = pos.y + margin + thickness * 0.5f;
     float arrowFromY = arrowToY + arrowH;
-    DrawSmoothArrow( ImVec2( arrowX, arrowFromY ), ImVec2( arrowX, arrowToY ), arrowSize, thickness, false, col );
+    drawSmoothArrow( ImVec2( arrowX, arrowFromY ), ImVec2( arrowX, arrowToY ), arrowSize, thickness, false, col );
 }
 
-void DrawLowerIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
+void drawLowerIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
 
     dl->AddRect( pos, pos + ImVec2( size, size ), col, 2.0f, ImDrawFlags_RoundCornersAll, thickness );
@@ -194,11 +194,11 @@ void DrawLowerIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     float arrowX = centerX;
     float arrowFromY = pos.y + margin + thickness * 0.5f;
     float arrowToY = arrowFromY + arrowH;
-    DrawSmoothArrow( ImVec2( arrowX, arrowFromY ), ImVec2( arrowX, arrowToY ), arrowSize, thickness, true, col );
+    drawSmoothArrow( ImVec2( arrowX, arrowFromY ), ImVec2( arrowX, arrowToY ), arrowSize, thickness, true, col );
 }
 
 // 2. Flatten Terrain
-void DrawFlattenIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
+void drawFlattenIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
 
     dl->AddRect( pos, pos + ImVec2( size, size ), col, 2.0f, ImDrawFlags_RoundCornersAll, thickness );
@@ -302,7 +302,7 @@ void DrawFlattenIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     uint32_t dashedColor = ( col & 0x00FFFFFF ) | ( 128 << IM_COL32_A_SHIFT );
     dl->PathClear();
 
-    AddDashedCubicBezier(
+    addDashedCubicBezier(
         dl,
         ImVec2( flatTerrainRightStart, hillBaseY ),
         ImVec2( flatTerrainRightStart, hillBaseY ),
@@ -313,7 +313,7 @@ void DrawFlattenIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
         dashLength,
         gap );
 
-    AddDashedCubicBezier(
+    addDashedCubicBezier(
         dl,
         ImVec2( flatTerrainRightCenter, peakY ),
         ImVec2( flatTerrainRightCenter + ( flatTerrainRightEnd - flatTerrainRightCenter ) * 0.8f, peakY ),
@@ -331,11 +331,11 @@ void DrawFlattenIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     float arrowX = flatTerrainRightStart + ( flatTerrainRightEnd - flatTerrainRightStart ) * 0.5f;
     float arrowToY = baseY - std::ceil( totalAvailableHeight * 0.1f );
     float arrowFromY = arrowToY - arrowH;
-    DrawSmoothArrow( ImVec2( arrowX, arrowFromY ), ImVec2( arrowX, arrowToY ), arrowSize, thickness, false, col );
+    drawSmoothArrow( ImVec2( arrowX, arrowFromY ), ImVec2( arrowX, arrowToY ), arrowSize, thickness, false, col );
 }
 
 // 3. Smooth/Soften Terrain
-void DrawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
+void drawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
     dl->AddRect( pos, pos + ImVec2( size, size ), col, 2.0f, ImDrawFlags_RoundCornersAll, thickness );
 
@@ -383,7 +383,7 @@ void DrawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
 
     uint32_t dashedColor = ( col & 0x00FFFFFF ) | ( 128 << IM_COL32_A_SHIFT );
     dl->PathClear();
-    AddDashedCubicBezier( dl,
+    addDashedCubicBezier( dl,
                           ImVec2( dashedHillLeftStart, baseY ),
                           ImVec2( dashedHillLeftStart + ( dashedHillLeftMid - dashedHillLeftStart ) * 0.6f, baseY ),
                           ImVec2( dashedHillLeftMid - ( dashedHillLeftMid - dashedHillLeftStart ) * 0.6f, peakY ),
@@ -393,7 +393,7 @@ void DrawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
                           dashLength,
                           gap );
 
-    AddDashedCubicBezier( dl,
+    addDashedCubicBezier( dl,
                           ImVec2( dashedHillLeftMid, peakY ),
                           ImVec2( dashedHillLeftMid + ( dashedHillLeftEnd - dashedHillLeftMid ) * 0.6f, peakY ),
                           ImVec2( dashedHillLeftEnd - ( dashedHillLeftEnd - dashedHillLeftMid ) * 0.6f, baseY ),
@@ -407,7 +407,7 @@ void DrawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
     dashedHillLeftEnd = pos.x + size - margin - halfThickness;
     dashedHillLeftMid = dashedHillLeftStart + ( dashedHillLeftEnd - dashedHillLeftStart ) * 0.5f;
 
-    AddDashedCubicBezier( dl,
+    addDashedCubicBezier( dl,
                           ImVec2( dashedHillLeftStart, baseY ),
                           ImVec2( dashedHillLeftStart + ( dashedHillLeftMid - dashedHillLeftStart ) * 0.6f, baseY ),
                           ImVec2( dashedHillLeftMid - ( dashedHillLeftMid - dashedHillLeftStart ) * 0.6f, peakY ),
@@ -417,7 +417,7 @@ void DrawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
                           dashLength,
                           gap );
 
-    AddDashedCubicBezier( dl,
+    addDashedCubicBezier( dl,
                           ImVec2( dashedHillLeftMid, peakY ),
                           ImVec2( dashedHillLeftMid + ( dashedHillLeftEnd - dashedHillLeftMid ) * 0.6f, peakY ),
                           ImVec2( dashedHillLeftEnd - ( dashedHillLeftEnd - dashedHillLeftMid ) * 0.6f, baseY ),
@@ -434,12 +434,12 @@ void DrawSmoothIcon( ImVec2 pos, float size, float thickness, ImU32 col ) {
 
     float leftArrowX = pos.x + margin + thickness;
     float rightArrowX = pos.x + size - margin - thickness;
-    DrawSmoothArrow( ImVec2( centerX, arrowY ), ImVec2( leftArrowX, arrowY ), arrowH, thickness, false, col );
-    DrawSmoothArrow( ImVec2( centerX, arrowY ), ImVec2( rightArrowX, arrowY ), arrowH, thickness, false, col );
+    drawSmoothArrow( ImVec2( centerX, arrowY ), ImVec2( leftArrowX, arrowY ), arrowH, thickness, false, col );
+    drawSmoothArrow( ImVec2( centerX, arrowY ), ImVec2( rightArrowX, arrowY ), arrowH, thickness, false, col );
 }
 
 // Simple 2D pseudo-Perlin noise function
-float Noise2D( float x, float y ) {
+float noise2D( float x, float y ) {
     int n = (int)x + (int)y * 57;
     n = ( n << 13 ) ^ n;
     int nn = ( n * ( n * n * 15731 + 789221 ) + 1376312589 ) & 0x7fffffff;
@@ -447,29 +447,29 @@ float Noise2D( float x, float y ) {
 }
 
 // Linear interpolation
-float Lerp( float a, float b, float t ) {
+float lerp( float a, float b, float t ) {
     return a + t * ( b - a );
 }
 
 // Smooth noise sampling
-float SmoothNoise( float x, float y ) {
+float smoothNoise( float x, float y ) {
     int ix = (int)x;
     int iy = (int)y;
     float fx = x - ix;
     float fy = y - iy;
 
-    float n00 = Noise2D( (float)ix, (float)iy );
-    float n10 = Noise2D( (float)ix + 1, (float)iy );
-    float n01 = Noise2D( (float)ix, (float)iy + 1 );
-    float n11 = Noise2D( (float)ix + 1, (float)iy + 1 );
+    float n00 = noise2D( (float)ix, (float)iy );
+    float n10 = noise2D( (float)ix + 1, (float)iy );
+    float n01 = noise2D( (float)ix, (float)iy + 1 );
+    float n11 = noise2D( (float)ix + 1, (float)iy + 1 );
 
-    float nx0 = Lerp( n00, n10, fx );
-    float nx1 = Lerp( n01, n11, fx );
-    return Lerp( nx0, nx1, fy );
+    float nx0 = lerp( n00, n10, fx );
+    float nx1 = lerp( n01, n11, fx );
+    return lerp( nx0, nx1, fy );
 }
 
 // 4. Noise/Randomize Terrain
-void DrawNoiseIcon( ImVec2 pos, float size, ImU32 col ) {
+void drawNoiseIcon( ImVec2 pos, float size, ImU32 col ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
 
     const int resolution = 32; // number of points per row/col
@@ -482,7 +482,7 @@ void DrawNoiseIcon( ImVec2 pos, float size, ImU32 col ) {
             float fy = y * step + step * 0.5f;
 
             // smooth noise sample
-            float n = SmoothNoise( x * 0.15f, y * 0.15f ); // lower frequency for smoothness
+            float n = smoothNoise( x * 0.15f, y * 0.15f ); // lower frequency for smoothness
             n = ( n + 1.0f ) * 0.5f;                       // normalize [0,1]
 
             // vary alpha based on noise
@@ -499,7 +499,7 @@ void DrawNoiseIcon( ImVec2 pos, float size, ImU32 col ) {
     }
 }
 
-void DrawStampIcon( ImVec2 topLeft, float size, ImU32 col ) {
+void drawStampIcon( ImVec2 topLeft, float size, ImU32 col ) {
     ImDrawList* dl = ImGui::GetWindowDrawList();
     float w = size;
     float h = size;
@@ -565,9 +565,9 @@ void SculptTerrainTool::Render() {
 
     RenderProperties();
 
-    volume::PreviewTerrainEditPass::BrushSize = m_BrushSize;
-    volume::PreviewTerrainEditPass::BrushType = 0;
-    volume::PreviewTerrainEditPass::BrushOperation = 0;
+    volume::PreviewTerrainEditPass::s_brushSize = m_BrushSize;
+    volume::PreviewTerrainEditPass::s_brushType = 0;
+    volume::PreviewTerrainEditPass::s_brushOperation = 0;
 }
 
 void SculptTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
@@ -588,9 +588,9 @@ void SculptTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
     CreateVolumeSourcePushConstants createVolumeSourceConstants;
     commandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite );
     commandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.GetGpuAddress();
-    createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.GetGpuAddress();
-    createVolumeSourceConstants.HitBufferAddress = hitBuffer.GetGpuAddress();
+    createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.getGpuAddress();
+    createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.getGpuAddress();
+    createVolumeSourceConstants.HitBufferAddress = hitBuffer.getGpuAddress();
     createVolumeSourceConstants.BrushSize = m_BrushSize;
     createVolumeSourceConstants.BrushType = 5;
     createVolumeSourceConstants.BrushOperation = m_Type == SculptType::Lower ? 1 : 0;
@@ -640,22 +640,22 @@ bool SculptTerrainTool::RenderBrushToolbarButton( SculptType type, float32 butto
                                               : ImGui::GetColorU32( ImGuiCol_Button );
     switch( type ) {
     case SculptType::Raise:
-        DrawRaiseIcon( cursorPos, buttonSize, thickness, color );
+        drawRaiseIcon( cursorPos, buttonSize, thickness, color );
         break;
     case SculptType::Lower:
-        DrawLowerIcon( cursorPos, buttonSize, thickness, color );
+        drawLowerIcon( cursorPos, buttonSize, thickness, color );
         break;
     case SculptType::Flatten:
-        DrawFlattenIcon( cursorPos, buttonSize, thickness, color );
+        drawFlattenIcon( cursorPos, buttonSize, thickness, color );
         break;
     case SculptType::Smooth:
-        DrawSmoothIcon( cursorPos, buttonSize, thickness, color );
+        drawSmoothIcon( cursorPos, buttonSize, thickness, color );
         break;
     case SculptType::Noise:
-        DrawNoiseIcon( cursorPos, buttonSize, color );
+        drawNoiseIcon( cursorPos, buttonSize, color );
         break;
     case SculptType::Stamp:
-        DrawStampIcon( cursorPos, buttonSize, color );
+        drawStampIcon( cursorPos, buttonSize, color );
         break;
     case SculptType::None:
         break;

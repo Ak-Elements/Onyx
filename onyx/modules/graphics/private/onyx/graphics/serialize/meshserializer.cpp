@@ -26,7 +26,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
 
     file_system::OnyxFile meshSource(
         file_system::path::replaceExtension( file_system::path::getFullPath( meta.Path ), "obj" ) );
-    file_system::FileStream stream = meshSource.OpenStream( file_system::OpenMode::Text | file_system::OpenMode::Read );
+    file_system::FileStream stream = meshSource.openStream( file_system::OpenMode::Text | file_system::OpenMode::Read );
 
     String meshSourceContent;
     stream.readAll( meshSourceContent );
@@ -143,7 +143,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     vertexBufferProps.m_DebugName = "static mesh vertices";
 
     graphics.createBuffer( meshAsset.m_vertexBuffer, vertexBufferProps );
-    meshAsset.m_vertexBuffer.Buffer->SetData( 0, vertices.data(), static_cast< uint32_t >( vertexBufferProps.m_Size ) );
+    meshAsset.m_vertexBuffer.Buffer->setData( 0, vertices.data(), static_cast< uint32_t >( vertexBufferProps.m_Size ) );
 
     rhi::BufferProperties indexBufferProps;
     indexBufferProps.m_Size = static_cast< uint32_t >( indices.size() ) * sizeof( uint32_t );
@@ -152,7 +152,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     indexBufferProps.m_DebugName = "static mesh Indices";
 
     graphics.createBuffer( meshAsset.m_indexBuffer, indexBufferProps );
-    meshAsset.m_indexBuffer.Buffer->SetData( 0, indices.data(), static_cast< uint32_t >( indexBufferProps.m_Size ) );
+    meshAsset.m_indexBuffer.Buffer->setData( 0, indices.data(), static_cast< uint32_t >( indexBufferProps.m_Size ) );
 
     return true;
 }

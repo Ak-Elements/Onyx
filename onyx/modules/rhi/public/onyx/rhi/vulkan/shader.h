@@ -40,8 +40,7 @@ class Shader : public rhi::Shader {
     uint64_t getShaderHash() const override { return m_shaderHash; }
     void setShaderHash( uint64_t hash ) override { m_shaderHash = hash; }
 
-    const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >& getDescriptorSetLayouts()
-        const {
+    const InplaceArray< UniquePtr< DescriptorSetLayout >, MaxDescriptorSetLayouts >& getDescriptorSetLayouts() const {
         return m_descriptorSetLayouts;
     }
     const Set< VertexInput >& getVertexInputs() const { return m_reflectionInfo.VertexInput.getInputs(); }
@@ -72,6 +71,6 @@ class Shader : public rhi::Shader {
     UniquePtr< ShaderModule > m_module = nullptr;
     ShaderReflectionInfo m_reflectionInfo;
 
-    InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS > m_descriptorSetLayouts;
+    InplaceArray< UniquePtr< DescriptorSetLayout >, MaxDescriptorSetLayouts > m_descriptorSetLayouts;
 };
 } // namespace onyx::rhi::vulkan

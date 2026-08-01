@@ -32,7 +32,7 @@ struct InplaceArray {
 
     constexpr InplaceArray( std::initializer_list< ValueType > data ) {
         ONYX_ASSERT( data.size() <= MaxSize, "Initializer list is too large." );
-        for ( const ValueType& dataElement : data ) {
+        for( const ValueType& dataElement : data ) {
             m_data[ m_nextIndex++ ] = dataElement;
         }
     }
@@ -61,9 +61,9 @@ struct InplaceArray {
         return m_data[ i ] = ValueType( std::forward< Args >( args )... );
     }
 
-    ONYX_NO_DISCARD constexpr bool empty() const { return m_nextIndex == 0; }
-    ONYX_NO_DISCARD constexpr uint8_t size() const { return m_nextIndex; }
-    ONYX_NO_DISCARD constexpr uint8_t capacity() { return MaxSize; }
+    [[nodiscard]] constexpr bool empty() const { return m_nextIndex == 0; }
+    [[nodiscard]] constexpr uint8_t size() const { return m_nextIndex; }
+    [[nodiscard]] constexpr uint8_t capacity() { return MaxSize; }
 
     constexpr ValueType& operator[]( uint8_t i ) {
         // assert size

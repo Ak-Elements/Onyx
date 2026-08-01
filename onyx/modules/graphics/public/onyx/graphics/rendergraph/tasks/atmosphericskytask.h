@@ -13,7 +13,7 @@ class AtmosphericSkyRenderGraphNode : public node_graph::FixedPinNode3In1Out< Re
                                                                               rhi::TextureHandle > {
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::AtmosphericSkyPass";
-    ONYX_NO_DISCARD StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
     AtmosphericSkyRenderGraphNode();
 
@@ -25,7 +25,7 @@ class AtmosphericSkyRenderGraphNode : public node_graph::FixedPinNode3In1Out< Re
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override;
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override;
 #endif
 
   private:

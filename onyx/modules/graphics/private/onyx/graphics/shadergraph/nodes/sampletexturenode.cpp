@@ -10,78 +10,78 @@
 
 namespace onyx::graphics::shader_graph_nodes {
 SampleTextureNode::SampleTextureNode() {
-    AddInPin< TextureInPin >();
-    AddInPin< UVInPin >();
+    addInPin< TextureInPin >();
+    addInPin< UVInPin >();
 
-    AddOutPin< RGBOutPin >();
-    AddOutPin< RGBAOutPin >();
-    AddOutPin< RedOutPin >();
-    AddOutPin< GreenOutPin >();
-    AddOutPin< BlueOutPin >();
-    AddOutPin< AlphaOutPin >();
+    addOutPin< RGBOutPin >();
+    addOutPin< RGBAOutPin >();
+    addOutPin< RedOutPin >();
+    addOutPin< GreenOutPin >();
+    addOutPin< BlueOutPin >();
+    addOutPin< AlphaOutPin >();
 }
 
 SampleTextureNode::~SampleTextureNode() = default;
 
-void SampleTextureNode::OnUpdate( node_graph::ExecutionContext& context ) const {
-    const TextureInPin& inputPin = static_cast< const TextureInPin& >( *GetInputPin( 0 ) );
-    if( ( inputPin.IsConnected() == false ) && Texture.isValid() && Texture->isLoaded() ) {
-        ShaderGraphTextures& textures = context.Get< ShaderGraphTextures >();
-        textures.addTexture( Texture->getTextureHandle() );
+void SampleTextureNode::onUpdate( node_graph::ExecutionContext& context ) const {
+    const TextureInPin& inputPin = static_cast< const TextureInPin& >( *getInputPin( 0 ) );
+    if( ( inputPin.isConnected() == false ) && m_texture.isValid() && m_texture->isLoaded() ) {
+        ShaderGraphTextures& textures = context.get< ShaderGraphTextures >();
+        textures.addTexture( m_texture->getTextureHandle() );
     }
 }
 
-bool SampleTextureNode::OnSerialize( Serializer& serializer ) const {
-    if( Texture.hasAssetId() ) {
+bool SampleTextureNode::onSerialize( Serializer& serializer ) const {
+    if( m_texture.hasAssetId() ) {
         // TODO: Add asset id serializer
-        serializer.write< "sampleTextureId" >( Texture.getId().get() );
+        serializer.write< "sampleTextureId" >( m_texture.getId().get() );
     }
 
-    return FlexiblePinsNode::OnSerialize( serializer );
+    return FlexiblePinsNode::onSerialize( serializer );
 }
 
-bool SampleTextureNode::OnDeserialize( const Deserializer& deserializer ) {
+bool SampleTextureNode::onDeserialize( const Deserializer& deserializer ) {
     uint64_t assetId;
     if( deserializer.read< "sampleTextureId" >( assetId ) ) {
-        Texture.setId( assets::AssetId( assetId ) );
+        m_texture.setId( assets::AssetId( assetId ) );
     }
 
-    return FlexiblePinsNode::OnDeserialize( deserializer );
+    return FlexiblePinsNode::onDeserialize( deserializer );
 }
 
-void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void SampleTextureNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                           rhi::ShaderGenerator& generator ) const {
-    if( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    const TextureInPin& inputPin = static_cast< const TextureInPin& >( *GetInputPin( 0 ) );
+    const TextureInPin& inputPin = static_cast< const TextureInPin& >( *getInputPin( 0 ) );
 
     int32_t textureIndex;
     // const ShaderGraphTextures& shaderGraphTextures = context.Get<ShaderGraphTextures>();
-    if( inputPin.IsConnected() ) {
-        textureIndex = generator.GetTextureIndex( inputPin.GetLinkedPinGlobalId().get() );
+    if( inputPin.isConnected() ) {
+        textureIndex = generator.getTextureIndex( inputPin.getLinkedPinGlobalId().get() );
     } else {
         // TODO: we need to get the texture from the asset here to store it similar to OnUpdate and avoid adding
         // duplicates
         // shaderGraphTextures.GetTextureEntryIndex
-        textureIndex = generator.AddTexture( Texture.getId().get() );
+        textureIndex = generator.addTexture( m_texture.getId().get() );
     }
 
     if( textureIndex == InvalidIndex32 ) {
-        ONYX_LOG_WARNING( "Missing texture for texture sample node ({:x})", GetId().get() );
+        ONYX_LOG_WARNING( "Missing texture for texture sample node ({:x})", getId().get() );
         // TODO: return bool
     }
 
     // Texture input
-    const uint64_t texturePinGlobalId = inputPin.GetGlobalId().get();
+    const uint64_t texturePinGlobalId = inputPin.getGlobalId().get();
     const String textureSampleVariable = format::format( "sampledTexture_{:x}", texturePinGlobalId );
 
     // UV Input
-    const UVInPin& uvInputPin = static_cast< const UVInPin& >( *GetInputPin( 1 ) );
-    const String textureCoordsString = uvInputPin.IsConnected()
-                                           ? format::format( "pin_{:x}", uvInputPin.GetLinkedPinGlobalId().get() )
-                                           : rhi::ShaderGenerator::GenerateShaderValue(
-                                                 context.GetPinData< UVInPin >() );
+    const UVInPin& uvInputPin = static_cast< const UVInPin& >( *getInputPin( 1 ) );
+    const String textureCoordsString = uvInputPin.isConnected()
+                                           ? format::format( "pin_{:x}", uvInputPin.getLinkedPinGlobalId().get() )
+                                           : rhi::ShaderGenerator::generateShaderValue(
+                                                 context.getPinData< UVInPin >() );
 
     // Sampling code
     String textureSampleCode = format::format(
@@ -92,71 +92,71 @@ void SampleTextureNode::DoGenerateShader( const node_graph::ExecutionContext& co
 
     // Outputs
     bool isAnyOutPinConnected = false;
-    Optional< const RGBOutPin* > rgbOutputPin = GetOutputPinByLocalId< RGBOutPin >();
-    if( rgbOutputPin && context.IsPinConnected< RGBOutPin >() ) {
+    Optional< const RGBOutPin* > rgbOutputPin = getOutputPinByLocalId< RGBOutPin >();
+    if( rgbOutputPin && context.isPinConnected< RGBOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "vec3 pin_{:x} = {}.xyz; // rgb \n",
-                                             rgbOutputPin.value()->GetGlobalId().get(),
+                                             rgbOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
 
-    Optional< const RGBAOutPin* > rgbaOutputPin = GetOutputPinByLocalId< RGBAOutPin >();
-    if( rgbaOutputPin && context.IsPinConnected< RGBAOutPin >() ) {
+    Optional< const RGBAOutPin* > rgbaOutputPin = getOutputPinByLocalId< RGBAOutPin >();
+    if( rgbaOutputPin && context.isPinConnected< RGBAOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "vec4 pin_{:x} = {}.xyzw; // rgba \n",
-                                             rgbaOutputPin.value()->GetGlobalId().get(),
+                                             rgbaOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
 
-    Optional< const RedOutPin* > redOutputPin = GetOutputPinByLocalId< RedOutPin >();
-    if( redOutputPin && context.IsPinConnected< RedOutPin >() ) {
+    Optional< const RedOutPin* > redOutputPin = getOutputPinByLocalId< RedOutPin >();
+    if( redOutputPin && context.isPinConnected< RedOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.x; // red \n",
-                                             redOutputPin.value()->GetGlobalId().get(),
+                                             redOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
 
-    Optional< const GreenOutPin* > greenOutputPin = GetOutputPinByLocalId< GreenOutPin >();
-    if( greenOutputPin && context.IsPinConnected< GreenOutPin >() ) {
+    Optional< const GreenOutPin* > greenOutputPin = getOutputPinByLocalId< GreenOutPin >();
+    if( greenOutputPin && context.isPinConnected< GreenOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.y; // green \n",
-                                             greenOutputPin.value()->GetGlobalId().get(),
+                                             greenOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
 
-    Optional< const BlueOutPin* > blueOutputPin = GetOutputPinByLocalId< BlueOutPin >();
-    if( blueOutputPin && context.IsPinConnected< BlueOutPin >() ) {
+    Optional< const BlueOutPin* > blueOutputPin = getOutputPinByLocalId< BlueOutPin >();
+    if( blueOutputPin && context.isPinConnected< BlueOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.z; // blue \n",
-                                             blueOutputPin.value()->GetGlobalId().get(),
+                                             blueOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
 
-    Optional< const AlphaOutPin* > alphaOutputPin = GetOutputPinByLocalId< AlphaOutPin >();
-    if( alphaOutputPin && context.IsPinConnected< AlphaOutPin >() ) {
+    Optional< const AlphaOutPin* > alphaOutputPin = getOutputPinByLocalId< AlphaOutPin >();
+    if( alphaOutputPin && context.isPinConnected< AlphaOutPin >() ) {
         isAnyOutPinConnected = true;
         textureSampleCode += format::format( "float pin_{:x} = {}.w; // alpha \n",
-                                             alphaOutputPin.value()->GetGlobalId().get(),
+                                             alphaOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
 
     if( isAnyOutPinConnected ) {
-        generator.AppendCode( textureSampleCode );
+        generator.appendCode( textureSampleCode );
     }
 }
 
-void SampleTextureNode::OnChanged( assets::AssetSystem& assetSystem ) {
-    if( Texture.hasAssetId() ) {
-        if( Texture.isValid() == false ) {
-            assetSystem.getAsset( Texture.getId(), Texture );
+void SampleTextureNode::onChanged( assets::AssetSystem& assetSystem ) {
+    if( m_texture.hasAssetId() ) {
+        if( m_texture.isValid() == false ) {
+            assetSystem.getAsset( m_texture.getId(), m_texture );
         }
     } else {
-        Texture.reset();
+        m_texture.reset();
     }
 }
 
 #if ONYX_IS_EDITOR
-StringView SampleTextureNode::GetPinName( StringId32 pinId ) const {
+StringView SampleTextureNode::getPinName( StringId32 pinId ) const {
     switch( pinId ) {
     case TextureInPin::LocalId:
         return "Texture";
@@ -180,7 +180,7 @@ StringView SampleTextureNode::GetPinName( StringId32 pinId ) const {
     return "";
 }
 
-node_graph::PinVisibility SampleTextureNode::DoGetPinVisibility( StringId32 localPinId ) const {
+node_graph::PinVisibility SampleTextureNode::doGetPinVisibility( StringId32 localPinId ) const {
     switch( localPinId ) {
     case TextureInPin::LocalId:
         return node_graph::PinVisibility::InNode;

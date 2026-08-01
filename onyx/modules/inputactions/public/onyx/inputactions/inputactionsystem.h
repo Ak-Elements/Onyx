@@ -21,27 +21,27 @@ struct InputAction;
 
 struct InputActionEvent {
     InputActionEvent( StringId64 id, Vector3f32 value )
-        : m_ActionId( id )
-        , m_Value( value ) {}
+        : m_actionId( id )
+        , m_value( value ) {}
 
     template < typename T >
-    T GetData() const {
-        if constexpr ( std::is_same_v< bool, T > ) {
-            return m_Value[ 0 ] != 0.0f;
-        } else if constexpr ( std::is_same_v< float32, T > ) {
-            return m_Value[ 0 ];
-        } else if constexpr ( std::is_same_v< Vector2f32, T > ) {
-            return Vector2f32( m_Value );
+    T getData() const {
+        if constexpr( std::is_same_v< bool, T > ) {
+            return m_value[ 0 ] != 0.0f;
+        } else if constexpr( std::is_same_v< float32, T > ) {
+            return m_value[ 0 ];
+        } else if constexpr( std::is_same_v< Vector2f32, T > ) {
+            return Vector2f32( m_value );
         } else {
-            return m_Value;
+            return m_value;
         }
     }
 
-    StringId64 GetId() const { return m_ActionId; }
+    [[nodiscard]] StringId64 getId() const { return m_actionId; }
 
   private:
-    StringId64 m_ActionId;
-    Vector3f32 m_Value;
+    StringId64 m_actionId;
+    Vector3f32 m_value;
 };
 
 struct InputActionState {
@@ -72,40 +72,40 @@ class InputActionSystem : public IEngineSystem {
 
     void update();
 
-    void SetActionsMapAsset( assets::AssetHandle< InputActionsContext > inputAsset );
-    void SetCurrentInputActionMap( StringId32 id );
+    void setActionsMapAsset( assets::AssetHandle< InputActionsContext > inputAsset );
+    void setCurrentInputActionMap( StringId32 id );
 
-    Optional< InputActionState* > GetActionState( StringId64 actionId );
-    Optional< const InputActionState* > GetActionState( StringId64 actionId ) const;
+    Optional< InputActionState* > getActionState( StringId64 actionId );
+    Optional< const InputActionState* > getActionState( StringId64 actionId ) const;
 
     template < auto Candidate, typename... Type >
-    void OnInput( StringId64 actionId, Type&&... value_or_instance ) {
-        Sink sink( m_InputActionSignals[ actionId ] );
-        sink.template Connect< Candidate >( std::forward< Type... >( value_or_instance )... );
+    void onInput( StringId64 actionId, Type&&... valueOrInstance ) {
+        Sink sink( m_inputActionSignals[ actionId ] );
+        sink.template connect< Candidate >( std::forward< Type... >( valueOrInstance )... );
     }
 
     template < typename... Type >
-    void Disconnect( Type&&... value_or_instance ) {
-        for ( InputActionSignalT& inputSignal : m_InputActionSignals | std::views::values ) {
+    void disconnect( Type&&... valueOrInstance ) {
+        for( InputActionSignalT& inputSignal : m_inputActionSignals | std::views::values ) {
             Sink sink( inputSignal );
-            sink.Disconnect( std::forward< Type... >( value_or_instance )... );
+            sink.disconnect( std::forward< Type... >( valueOrInstance )... );
         }
     }
 
-    bool IsActionTriggered( StringId64 actionId ) const;
+    bool isActionTriggered( StringId64 actionId ) const;
 
   private:
-    void InitContext();
-    void UpdateContext( InputActionsMap& context );
+    void initContext();
+    void updateContext( InputActionsMap& context );
 
   private:
-    input::InputSystem* m_InputSystem = nullptr;
+    input::InputSystem* m_inputSystem = nullptr;
 
-    assets::AssetHandle< InputActionsContext > m_InputActionsAsset;
-    DynamicArray< InputActionState > m_CurrentActionStates;
-    HashMap< StringId64, InputActionSignalT > m_InputActionSignals;
+    assets::AssetHandle< InputActionsContext > m_inputActionsAsset;
+    DynamicArray< InputActionState > m_currentActionStates;
+    HashMap< StringId64, InputActionSignalT > m_inputActionSignals;
 
-    StringId32 m_ContextId = 0;
+    StringId32 m_contextId = 0;
 };
 } // namespace onyx::input_actions
 

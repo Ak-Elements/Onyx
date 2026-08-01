@@ -24,21 +24,21 @@ class WaylandInput {
     WaylandInput( WaylandPlatformContext& platformContext, wl_seat* seat );
     ~WaylandInput();
 
-    WaylandPlatformContext& GetContext() {
-        ONYX_ASSERT( m_Context != nullptr );
-        return *m_Context;
+    WaylandPlatformContext& getContext() {
+        ONYX_ASSERT( m_context != nullptr );
+        return *m_context;
     }
 
   private:
-    static void CapabilitiesCallback( void* instance, wl_seat* seat, uint32_t capabilities );
+    static void capabilitiesCallback( void* instance, wl_seat* seat, uint32_t capabilities );
 
   private:
-    WaylandPlatformContext* m_Context = nullptr;
+    WaylandPlatformContext* m_context = nullptr;
 
-    wl_seat* m_Seat = nullptr;
+    wl_seat* m_seat = nullptr;
 
-    UniquePtr< WaylandPointer > m_Pointer;
-    UniquePtr< WaylandKeyboard > m_Keyboard;
+    UniquePtr< WaylandPointer > m_pointer;
+    UniquePtr< WaylandKeyboard > m_keyboard;
 };
 } // namespace wayland
 } // namespace onyx::platform

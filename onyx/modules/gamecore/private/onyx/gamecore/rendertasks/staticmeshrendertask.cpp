@@ -14,14 +14,14 @@ namespace onyx::game_core {
 bool g_hasBegun = false;
 
 StaticMeshRenderGraphNode::StaticMeshRenderGraphNode() {
-    AddInPin< ViewConstantsInPin >();
-    AddInPin< GBufferTargetInPin >();
-    AddInPin< DepthTextureInPin >();
-    AddInPin< LightGridInPin >();
-    AddInPin< LightIndicesInPin >();
-    AddInPin< LightsInPin >();
+    addInPin< ViewConstantsInPin >();
+    addInPin< GBufferTargetInPin >();
+    addInPin< DepthTextureInPin >();
+    addInPin< LightGridInPin >();
+    addInPin< LightIndicesInPin >();
+    addInPin< LightsInPin >();
 
-    AddOutPin< OutPin >();
+    addOutPin< OutPin >();
 
     m_inputAttachmentInfos.emplace_back();
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
@@ -36,12 +36,12 @@ void StaticMeshRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& cont
     g_hasBegun = false;
     ONYX_PROFILE_FUNCTION;
 
-    uint64_t outputGlobalId = GetOutputPin( 0 )->GetGlobalId().get();
+    uint64_t outputGlobalId = getOutputPin( 0 )->getGlobalId().get();
 
-    const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId( GBufferTargetInPin::LocalId );
-    if( gbufferRenderTargetPin->IsConnected() ) {
+    const node_graph::PinBase* gbufferRenderTargetPin = getInputPinByLocalId( GBufferTargetInPin::LocalId );
+    if( gbufferRenderTargetPin->isConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
-            gbufferRenderTargetPin->GetLinkedPinGlobalId().get() );
+            gbufferRenderTargetPin->getLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
@@ -94,7 +94,7 @@ void StaticMeshRenderGraphNode::onRender( graphics::RenderGraphContext& context,
         for( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
             commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
             commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
-                                       static_cast< uint32_t >( drawCall.Indices.Buffer->GetProperties().m_Size / 4 ),
+                                       static_cast< uint32_t >( drawCall.Indices.Buffer->getProperties().m_Size / 4 ),
                                        instanceCount,
                                        0,
                                        0,
@@ -131,7 +131,7 @@ void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandB
         shaderGraph );
     commandBuffer.bindShaderEffect( materialShader.getShader() );
 
-    const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().Get< graphics::ShaderGraphTextures >();
+    const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().get< graphics::ShaderGraphTextures >();
     const DynamicArray< uint32_t >& textureIndices = shaderTextures.getTextures();
 
     struct PushConstants {

@@ -22,7 +22,7 @@ bool MaterialShaderGraphSerializer::serialize( const assets::AssetHandle< assets
     // save shader to file
     file_system::OnyxFile shaderOutFile(
         file_system::path::getFullPath( file_system::path::replaceExtension( meta.Path, "oshader" ) ) );
-    file_system::FileStream shaderOutStream = shaderOutFile.OpenStream( file_system::OpenMode::Write |
+    file_system::FileStream shaderOutStream = shaderOutFile.openStream( file_system::OpenMode::Write |
                                                                         file_system::OpenMode::Text );
     shaderOutStream.writeRaw( shaderGraph.getShaderCode().data(), shaderGraph.getShaderCode().size() );
 
@@ -70,7 +70,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     node_graph::NodeGraph& nodeGraph = shaderGraph.getNodeGraph();
     for( auto& node : ( nodeGraph.getNodes() | std::views::values ) ) {
         ShaderGraphNode& shaderGraphNode = static_cast< ShaderGraphNode& >( *node.Data );
-        shaderGraphNode.OnNodeChanged( assetSystem );
+        shaderGraphNode.onNodeChanged( assetSystem );
     }
 
     rhi::RenderPassSettings renderPassSettings;

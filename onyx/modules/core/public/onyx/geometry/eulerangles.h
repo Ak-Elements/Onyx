@@ -64,7 +64,7 @@ using EulerDegreesF64 = EulerAngles< units::DegreesF64 >;
 
 template < typename ToRatio, typename FromRatio, typename ScalarT >
 requires IsRatio< ToRatio > && IsRatio< FromRatio >
-ONYX_NO_DISCARD constexpr EulerAngles< Quantity< ScalarT, ToRatio > > quantityCast(
+[[nodiscard]] constexpr EulerAngles< Quantity< ScalarT, ToRatio > > quantityCast(
     const EulerAngles< Quantity< ScalarT, FromRatio > >& value ) noexcept {
     using ToQuantityT = Quantity< ScalarT, ToRatio >;
     return { quantityCast< ToQuantityT >( value.X ),

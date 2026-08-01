@@ -6,12 +6,12 @@
 #include <onyx/rhi/graphicstypes.h>
 
 namespace onyx::graphics::render_graph_nodes {
-class GetViewConstantsNode : public node_graph::FixedPinNode_1_Out< IRenderGraphNode, rhi::BufferHandle > {
-    using Super = node_graph::FixedPinNode_1_Out< IRenderGraphNode, rhi::BufferHandle >;
+class GetViewConstantsNode : public node_graph::FixedPinNode1Out< IRenderGraphNode, rhi::BufferHandle > {
+    using Super = node_graph::FixedPinNode1Out< IRenderGraphNode, rhi::BufferHandle >;
 
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::GetViewConstants";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     void init( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
     void beginFrame( RenderGraphContext& context ) override;
@@ -20,7 +20,7 @@ class GetViewConstantsNode : public node_graph::FixedPinNode_1_Out< IRenderGraph
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
+    StringView getPinName( StringId32 pinId ) const override {
         {
             switch( pinId )
             case Super::OutPin::LocalId:
@@ -34,6 +34,6 @@ class GetViewConstantsNode : public node_graph::FixedPinNode_1_Out< IRenderGraph
   private:
 #endif
   private:
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_ViewConstantsUniformBuffers;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_ViewConstantsUniformBuffers;
 };
 } // namespace onyx::graphics::render_graph_nodes

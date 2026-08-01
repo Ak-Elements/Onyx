@@ -10,22 +10,22 @@
 #include <imgui_stacklayout.h>
 
 namespace onyx::graphics {
-bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-    uint32_t inputPinCount = GetInputPinCount();
+bool RenderGraphShaderNode::onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
+    uint32_t inputPinCount = getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        node_graph::PinBase* inputPin = GetInputPin( i );
+        node_graph::PinBase* inputPin = getInputPin( i );
 
-        if( inputPin->GetType() == node_graph::PinTypeId::Execute )
+        if( inputPin->getType() == node_graph::PinTypeId::Execute )
             continue;
 
-        ui::ScopedImGuiId id( inputPin->GetLocalIdString() );
+        ui::ScopedImGuiId id( inputPin->getLocalIdString() );
 
         if( i >= m_inputAttachmentInfos.size() )
             m_inputAttachmentInfos.emplace_back();
 
         RenderGraphTextureResourceInfo& info = m_inputAttachmentInfos[ i ];
 
-        if( inputPin->IsConnected() ) {
+        if( inputPin->isConnected() ) {
             bool isAttachment = info.Type == RenderGraphResourceType::Attachment;
             if( ui::property_grid::drawProperty( "Attachment", isAttachment ) ) {
                 info.Type = isAttachment ? RenderGraphResourceType::Attachment : RenderGraphResourceType::Texture;
@@ -34,15 +34,15 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
             continue;
         }
 
-        const Guid64 globalId = inputPin->GetGlobalId();
+        const Guid64 globalId = inputPin->getGlobalId();
         if( constantPinData.contains( globalId ) == false )
-            constantPinData[ globalId ] = CreateDefaultForPin( inputPin->GetLocalId() );
+            constantPinData[ globalId ] = createDefaultForPin( inputPin->getLocalId() );
         ;
 
-        node_graph::PinTypeId typeId = inputPin->GetType();
+        node_graph::PinTypeId typeId = inputPin->getType();
         bool isTexture = typeId == static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() );
 
-        ui::property_grid::drawPropertyName( GetPinName( inputPin->GetLocalId() ) );
+        ui::property_grid::drawPropertyName( getPinName( inputPin->getLocalId() ) );
         ui::property_grid::drawPropertyValue( [ & ]() {
             String type;
             if( isTexture ) {
@@ -56,14 +56,14 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
                     // RemoveInputPinAt(i);
                     // AddInputPinAt<TextureHandle>(i);
                     isTexture = true;
-                    inputPin = GetInputPin( i );
+                    inputPin = getInputPin( i );
                 }
 
                 if( ImGui::Selectable( "Buffer", !isTexture ) ) {
                     // RemoveInputPinAt(i);
                     // AddInputPinAt<BufferHandle>(i);
                     isTexture = false;
-                    inputPin = GetInputPin( i );
+                    inputPin = getInputPin( i );
                 }
 
                 ImGui::EndCombo();
@@ -87,21 +87,21 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
         }
     }
 
-    uint32_t outputPinCount = GetOutputPinCount();
+    uint32_t outputPinCount = getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        node_graph::PinBase* outputPin = GetOutputPin( i );
+        node_graph::PinBase* outputPin = getOutputPin( i );
 
-        ui::ScopedImGuiId imguiScopedId( outputPin->GetLocalIdString().data() );
+        ui::ScopedImGuiId imguiScopedId( outputPin->getLocalIdString().data() );
 
-        const Guid64 globalId = outputPin->GetGlobalId();
+        const Guid64 globalId = outputPin->getGlobalId();
         if( constantPinData.contains( globalId ) == false )
-            constantPinData[ globalId ] = CreateDefaultForPin( outputPin->GetLocalId() );
+            constantPinData[ globalId ] = createDefaultForPin( outputPin->getLocalId() );
         ;
 
-        node_graph::PinTypeId typeId = outputPin->GetType();
+        node_graph::PinTypeId typeId = outputPin->getType();
         bool isTexture = typeId == static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() );
 
-        if( ui::property_grid::beginCollapsiblePropertyGroup( GetPinName( outputPin->GetLocalId() ) ) ) {
+        if( ui::property_grid::beginCollapsiblePropertyGroup( getPinName( outputPin->getLocalId() ) ) ) {
             if( isTexture ) {
                 if( i >= m_outputAttachmentInfos.size() )
                     m_outputAttachmentInfos.emplace_back();
@@ -162,7 +162,7 @@ bool RenderGraphShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& c
     return false;
 }
 
-bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
+bool RenderGraphFixedShaderNode::onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
     if( ui::property_grid::drawProperty( "Shader", m_pipelineProperties.Shader ) ) {
         // TODO: remove shaderPath and change m_Shader to be an asset
         // shaderHandle.isLoaded?
@@ -258,6 +258,6 @@ bool RenderGraphFixedShaderNode::OnDrawInPropertyGrid( HashMap< Guid64, std::any
         ui::property_grid::endPropertyGroup();
     }
 
-    return RenderGraphShaderNode::OnDrawInPropertyGrid( constantPinData );
+    return RenderGraphShaderNode::onDrawInPropertyGrid( constantPinData );
 }
 } // namespace onyx::graphics

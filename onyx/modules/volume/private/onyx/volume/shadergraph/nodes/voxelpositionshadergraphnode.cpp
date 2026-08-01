@@ -6,24 +6,24 @@
 
 namespace onyx::volume {
 GetVoxelPositionShaderGraphNode::GetVoxelPositionShaderGraphNode() {
-    m_DebugName = "Voxel Position";
+    m_debugName = "Voxel Position";
 }
 
-void GetVoxelPositionShaderGraphNode::OnUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void GetVoxelPositionShaderGraphNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
 
-void GetVoxelPositionShaderGraphNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void GetVoxelPositionShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                         rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    if ( ( context.IsPinConnected< OutPin >() == false ) )
+    if( ( context.isPinConnected< OutPin >() == false ) )
         return;
 
-    generator.AppendCode( format::format( "vec3 pin_{:x} = voxelPosition;\n", m_Output.GetGlobalId().get() ) );
+    generator.appendCode( format::format( "vec3 pin_{:x} = worldPosition;\n", m_output.getGlobalId().get() ) );
 }
 
 #if ONYX_IS_EDITOR
-StringView GetVoxelPositionShaderGraphNode::GetPinName( StringId32 /*pinId*/ ) const {
+StringView GetVoxelPositionShaderGraphNode::getPinName( StringId32 /*pinId*/ ) const {
     return "Position";
 }
 #endif

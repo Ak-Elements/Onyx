@@ -290,7 +290,7 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
     tempFrameBuffer.m_GpuAccess = GPUAccess::Write;
     // tempFrameBuffer.m_IsWritable = true;
 
-    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
         tempFrameBuffer.m_DebugName = format::format( "TransientBuffer-{}", i );
         createBuffer( m_ringBuffer[ i ], tempFrameBuffer );
     }
@@ -370,10 +370,10 @@ bool VulkanGraphicsApi::beginFrame( const FrameContext& context ) {
     if( m_swapChain == nullptr )
         return false;
 
-    if( isTimelineSemaphoreEnabled() && context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT ) {
+    if( isTimelineSemaphoreEnabled() && context.AbsoluteFrame >= MaxFramesInFlight ) {
         ONYX_PROFILE_SECTION( SemaphoreWait );
 
-        uint64_t graphicsTimelineValue = context.AbsoluteFrame - ( MAX_FRAMES_IN_FLIGHT - 1 );
+        uint64_t graphicsTimelineValue = context.AbsoluteFrame - ( MaxFramesInFlight - 1 );
         uint64_t computeTimelineValue = context.ComputeFrame;
 
         uint64_t waitValues[]{ graphicsTimelineValue, computeTimelineValue };
@@ -396,7 +396,7 @@ bool VulkanGraphicsApi::beginFrame( const FrameContext& context ) {
     m_commandBufferManager->Reset( *m_device, context.FrameIndex );
     m_computeCommandBufferManager->Reset( *m_device, context.FrameIndex );
     m_currentRingBufferSize = 0;
-    m_ringBuffer[ context.FrameIndex ].Buffer->ClearAliases();
+    m_ringBuffer[ context.FrameIndex ].Buffer->clearAliases();
 
     return hasAcquiredImage;
 }
@@ -489,10 +489,10 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
     // Submit
     if( isTimelineSemaphoreEnabled() ) {
         const bool shouldWaitForCompute = ( context.ComputeFrame > 0 ) && ( computeCommandBufferCount > 0 );
-        const bool shouldWaitForGraphics = context.AbsoluteFrame >= MAX_FRAMES_IN_FLIGHT;
+        const bool shouldWaitForGraphics = context.AbsoluteFrame >= MaxFramesInFlight;
 
         // index of the previous frame in flight to be finished
-        const uint64_t waitForFrameIndex = context.AbsoluteFrame - ( MAX_FRAMES_IN_FLIGHT - 1 );
+        const uint64_t waitForFrameIndex = context.AbsoluteFrame - ( MaxFramesInFlight - 1 );
 
         if( isSynchronization2Enabled() ) {
             VkCommandBufferSubmitInfo commandBufferInfo[ CommandBufferCount ]{};
@@ -1020,10 +1020,10 @@ void VulkanGraphicsApi::createBuffer( BufferHandle& outBuffer, const BufferPrope
 
 BufferHandle VulkanGraphicsApi::getTransientBuffer( uint8_t frameIndex, const BufferProperties& properties ) {
     BufferHandle& ringBuffer = m_ringBuffer[ frameIndex ];
-    ONYX_ASSERT( m_currentRingBufferSize < ringBuffer.Buffer->GetProperties().m_Size );
+    ONYX_ASSERT( m_currentRingBufferSize < ringBuffer.Buffer->getProperties().m_Size );
 
     m_currentRingBufferSize += properties.m_Size;
-    int8_t alias = ringBuffer.Buffer->Alias( properties );
+    int8_t alias = ringBuffer.Buffer->alias( properties );
     return { ringBuffer.Buffer, alias };
 }
 
@@ -1035,7 +1035,7 @@ DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::createDescriptorSet( cons
     DynamicArray< DescriptorSetHandle > sets;
 
     const Shader& vulkanShader = shader.as< Shader >();
-    const InplaceArray< UniquePtr< DescriptorSetLayout >, MAX_DESCRIPTOR_SET_LAYOUTS >&
+    const InplaceArray< UniquePtr< DescriptorSetLayout >, MaxDescriptorSetLayouts >&
         descriptorSetLayouts = vulkanShader.getDescriptorSetLayouts();
 
     for( const UniquePtr< DescriptorSetLayout >& layout : descriptorSetLayouts ) {

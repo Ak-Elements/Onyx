@@ -55,7 +55,7 @@ void EngineVariablesWindow::rebuildVariableGraph() {
     HashMap< StringId32, IEngineVariable* > engineVariables = IEngine::getVariablesRegistry().getVariables();
 
     for( auto&& [ id, variable ] : engineVariables ) {
-        StringView localized = localizationSystem.TryGetLocalized( id ).value_or( id.getString() );
+        StringView localized = localizationSystem.tryGetLocalized( id ).value_or( id.getString() );
         if( ignoreCaseFind( localized, m_search ) == StringView::npos )
             continue;
 

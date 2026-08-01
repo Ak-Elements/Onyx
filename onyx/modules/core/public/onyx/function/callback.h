@@ -61,7 +61,7 @@ template < typename... Type >
 using function_pointer_t = decltype( function_pointer( std::declval< Type >()... ) );
 
 template < typename... Class, typename Ret, typename... Args >
-ONYX_NO_DISCARD constexpr auto index_sequence_for( Ret ( * )( Args... ) ) {
+[[nodiscard]] constexpr auto index_sequence_for( Ret ( * )( Args... ) ) {
     return std::index_sequence_for< Class..., Args... >{};
 }
 } // namespace Internal
@@ -90,91 +90,91 @@ class Callback;
 template < typename Ret, typename... Args >
 class Callback< Ret( Args... ) > {
     template < auto Candidate, std::size_t... Index >
-    ONYX_NO_DISCARD auto wrap( std::index_sequence< Index... > ) noexcept {
+    [[nodiscard]] auto wrap( std::index_sequence< Index... > ) noexcept {
         return []( const void*, Args... args ) -> Ret {
             [[maybe_unused]] const auto arguments = std::forward_as_tuple( std::forward< Args >( args )... );
 
-            if constexpr ( std::is_invocable_r_v< Ret,
-                                                  decltype( Candidate ),
-                                                  typelist_element_t< Index, TypeList< Args... > >... > ) {
+            if constexpr( std::is_invocable_r_v< Ret,
+                                                 decltype( Candidate ),
+                                                 typelist_element_t< Index, TypeList< Args... > >... > ) {
                 return static_cast< Ret >(
                     std::invoke( Candidate,
                                  std::forward< typelist_element_t< Index, TypeList< Args... > > >(
                                      std::get< Index >( arguments ) )... ) );
             } else {
-                constexpr auto offset = sizeof...( Args ) - sizeof...( Index );
+                constexpr auto Offset = sizeof...( Args ) - sizeof...( Index );
                 return static_cast< Ret >(
                     std::invoke( Candidate,
-                                 std::forward< typelist_element_t< Index + offset, TypeList< Args... > > >(
-                                     std::get< Index + offset >( arguments ) )... ) );
+                                 std::forward< typelist_element_t< Index + Offset, TypeList< Args... > > >(
+                                     std::get< Index + Offset >( arguments ) )... ) );
             }
         };
     }
 
     template < auto Candidate, typename Type, std::size_t... Index >
-    ONYX_NO_DISCARD auto wrap( Type&, std::index_sequence< Index... > ) noexcept {
+    [[nodiscard]] auto wrap( Type&, std::index_sequence< Index... > ) noexcept {
         return []( const void* payload, Args... args ) -> Ret {
             [[maybe_unused]] const auto arguments = std::forward_as_tuple( std::forward< Args >( args )... );
             Type* curr = static_cast< Type* >( const_cast< constness_as_t< void, Type >* >( payload ) );
 
-            if constexpr ( std::is_invocable_r_v< Ret,
-                                                  decltype( Candidate ),
-                                                  Type&,
-                                                  typelist_element_t< Index, TypeList< Args... > >... > ) {
+            if constexpr( std::is_invocable_r_v< Ret,
+                                                 decltype( Candidate ),
+                                                 Type&,
+                                                 typelist_element_t< Index, TypeList< Args... > >... > ) {
                 return static_cast< Ret >(
                     std::invoke( Candidate,
                                  *curr,
                                  std::forward< typelist_element_t< Index, TypeList< Args... > > >(
                                      std::get< Index >( arguments ) )... ) );
             } else {
-                constexpr auto offset = sizeof...( Args ) - sizeof...( Index );
+                constexpr auto Offset = sizeof...( Args ) - sizeof...( Index );
                 return static_cast< Ret >(
                     std::invoke( Candidate,
                                  *curr,
-                                 std::forward< typelist_element_t< Index + offset, TypeList< Args... > > >(
-                                     std::get< Index + offset >( arguments ) )... ) );
+                                 std::forward< typelist_element_t< Index + Offset, TypeList< Args... > > >(
+                                     std::get< Index + Offset >( arguments ) )... ) );
             }
         };
     }
 
     template < auto Candidate, typename Type, std::size_t... Index >
-    ONYX_NO_DISCARD auto wrap( Type*, std::index_sequence< Index... > ) noexcept {
+    [[nodiscard]] auto wrap( Type*, std::index_sequence< Index... > ) noexcept {
         return []( const void* payload, Args... args ) -> Ret {
             [[maybe_unused]] const auto arguments = std::forward_as_tuple( std::forward< Args >( args )... );
             Type* curr = static_cast< Type* >( const_cast< constness_as_t< void, Type >* >( payload ) );
 
-            if constexpr ( std::is_invocable_r_v< Ret,
-                                                  decltype( Candidate ),
-                                                  Type*,
-                                                  typelist_element_t< Index, TypeList< Args... > >... > ) {
+            if constexpr( std::is_invocable_r_v< Ret,
+                                                 decltype( Candidate ),
+                                                 Type*,
+                                                 typelist_element_t< Index, TypeList< Args... > >... > ) {
                 return static_cast< Ret >(
                     std::invoke( Candidate,
                                  curr,
                                  std::forward< typelist_element_t< Index, TypeList< Args... > > >(
                                      std::get< Index >( arguments ) )... ) );
             } else {
-                constexpr auto offset = sizeof...( Args ) - sizeof...( Index );
+                constexpr auto Offset = sizeof...( Args ) - sizeof...( Index );
                 return static_cast< Ret >(
                     std::invoke( Candidate,
                                  curr,
-                                 std::forward< typelist_element_t< Index + offset, TypeList< Args... > > >(
-                                     std::get< Index + offset >( arguments ) )... ) );
+                                 std::forward< typelist_element_t< Index + Offset, TypeList< Args... > > >(
+                                     std::get< Index + Offset >( arguments ) )... ) );
             }
         };
     }
 
   public:
     /*! @brief Function type of the contained target. */
-    using function_type = Ret( const void*, Args... );
+    using FunctionType = Ret( const void*, Args... );
     /*! @brief Function type of the delegate. */
-    using type = Ret( Args... );
+    using Type = Ret( Args... );
     /*! @brief Return type of the delegate. */
-    using result_type = Ret;
+    using ResultType = Ret;
 
     /*! @brief Default constructor. */
     Callback() noexcept
-        : m_Instance{ nullptr }
-        , m_Function{ nullptr } {}
+        : m_instance{ nullptr }
+        , m_function{ nullptr } {}
 
     /**
      * @brief Constructs a delegate with a given object or payload, if any.
@@ -183,8 +183,8 @@ class Callback< Ret( Args... ) > {
      * @param value_or_instance Optional valid object that fits the purpose.
      */
     template < auto Candidate, typename... Type >
-    Callback( connect_arg_t< Candidate >, Type&&... value_or_instance ) noexcept {
-        Connect< Candidate >( std::forward< Type >( value_or_instance )... );
+    Callback( connect_arg_t< Candidate >, Type&&... valueOrInstance ) noexcept {
+        connect< Candidate >( std::forward< Type >( valueOrInstance )... );
     }
 
     /**
@@ -193,8 +193,8 @@ class Callback< Ret( Args... ) > {
      * @param function Function to connect to the delegate.
      * @param payload User defined arbitrary data.
      */
-    explicit Callback( function_type* function, const void* payload = nullptr ) noexcept {
-        Connect( function, payload );
+    explicit Callback( FunctionType* function, const void* payload = nullptr ) noexcept {
+        connect( function, payload );
     }
 
     /**
@@ -202,19 +202,19 @@ class Callback< Ret( Args... ) > {
      * @tparam Candidate Function or member to connect to the delegate.
      */
     template < auto Candidate >
-    void Connect() noexcept {
-        m_Instance = nullptr;
+    void connect() noexcept {
+        m_instance = nullptr;
 
-        if constexpr ( std::is_invocable_r_v< Ret, decltype( Candidate ), Args... > ) {
-            m_Function = []( const void*, Args... args ) -> Ret {
+        if constexpr( std::is_invocable_r_v< Ret, decltype( Candidate ), Args... > ) {
+            m_function = []( const void*, Args... args ) -> Ret {
                 return Ret( std::invoke( Candidate, std::forward< Args >( args )... ) );
             };
-        } else if constexpr ( std::is_member_pointer_v< decltype( Candidate ) > ) {
-            m_Function = wrap< Candidate >(
+        } else if constexpr( std::is_member_pointer_v< decltype( Candidate ) > ) {
+            m_function = wrap< Candidate >(
                 Internal::index_sequence_for< typelist_element_t< 0, TypeList< Args... > > >(
                     Internal::function_pointer_t< decltype( Candidate ) >{} ) );
         } else {
-            m_Function = wrap< Candidate >(
+            m_function = wrap< Candidate >(
                 Internal::index_sequence_for( Internal::function_pointer_t< decltype( Candidate ) >{} ) );
         }
     }
@@ -235,17 +235,17 @@ class Callback< Ret( Args... ) > {
      * @param value_or_instance A valid reference that fits the purpose.
      */
     template < auto Candidate, typename Type >
-    void Connect( Type& value_or_instance ) noexcept {
-        m_Instance = &value_or_instance;
+    void connect( Type& valueOrInstance ) noexcept {
+        m_instance = &valueOrInstance;
 
-        if constexpr ( std::is_invocable_r_v< Ret, decltype( Candidate ), Type&, Args... > ) {
-            m_Function = []( const void* payload, Args... args ) -> Ret {
+        if constexpr( std::is_invocable_r_v< Ret, decltype( Candidate ), Type&, Args... > ) {
+            m_function = []( const void* payload, Args... args ) -> Ret {
                 Type* curr = static_cast< Type* >( const_cast< constness_as_t< void, Type >* >( payload ) );
                 return Ret( std::invoke( Candidate, *curr, std::forward< Args >( args )... ) );
             };
         } else {
-            m_Function = wrap< Candidate >(
-                value_or_instance,
+            m_function = wrap< Candidate >(
+                valueOrInstance,
                 Internal::index_sequence_for( Internal::function_pointer_t< decltype( Candidate ), Type >{} ) );
         }
     }
@@ -261,17 +261,17 @@ class Callback< Ret( Args... ) > {
      * @param value_or_instance A valid pointer that fits the purpose.
      */
     template < auto Candidate, typename Type >
-    void Connect( Type* value_or_instance ) noexcept {
-        m_Instance = value_or_instance;
+    void connect( Type* valueOrInstance ) noexcept {
+        m_instance = valueOrInstance;
 
-        if constexpr ( std::is_invocable_r_v< Ret, decltype( Candidate ), Type*, Args... > ) {
-            m_Function = []( const void* payload, Args... args ) -> Ret {
+        if constexpr( std::is_invocable_r_v< Ret, decltype( Candidate ), Type*, Args... > ) {
+            m_function = []( const void* payload, Args... args ) -> Ret {
                 Type* curr = static_cast< Type* >( const_cast< constness_as_t< void, Type >* >( payload ) );
                 return Ret( std::invoke( Candidate, curr, std::forward< Args >( args )... ) );
             };
         } else {
-            m_Function = wrap< Candidate >(
-                value_or_instance,
+            m_function = wrap< Candidate >(
+                valueOrInstance,
                 Internal::index_sequence_for( Internal::function_pointer_t< decltype( Candidate ), Type >{} ) );
         }
     }
@@ -289,10 +289,10 @@ class Callback< Ret( Args... ) > {
      * @param function Function to connect to the delegate.
      * @param payload User defined arbitrary data.
      */
-    void Connect( function_type* function, const void* payload = nullptr ) noexcept {
+    void connect( FunctionType* function, const void* payload = nullptr ) noexcept {
         ONYX_ASSERT( function != nullptr, "Uninitialized function pointer" );
-        m_Instance = payload;
-        m_Function = function;
+        m_instance = payload;
+        m_function = function;
     }
 
     /**
@@ -300,22 +300,22 @@ class Callback< Ret( Args... ) > {
      *
      * After a reset, a delegate cannot be invoked anymore.
      */
-    void Reset() noexcept {
-        m_Instance = nullptr;
-        m_Function = nullptr;
+    void reset() noexcept {
+        m_instance = nullptr;
+        m_function = nullptr;
     }
 
     /**
      * @brief Returns a pointer to the stored callable function target, if any.
      * @return An opaque pointer to the stored callable function target.
      */
-    ONYX_NO_DISCARD function_type* Target() const noexcept { return m_Function; }
+    [[nodiscard]] FunctionType* target() const noexcept { return m_function; }
 
     /**
      * @brief Returns the instance or the payload linked to a delegate, if any.
      * @return An opaque pointer to the underlying data.
      */
-    ONYX_NO_DISCARD const void* Data() const noexcept { return m_Instance; }
+    [[nodiscard]] const void* data() const noexcept { return m_instance; }
 
     /**
      * @brief Triggers a delegate.
@@ -331,16 +331,16 @@ class Callback< Ret( Args... ) > {
      */
     Ret operator()( Args... args ) const {
         ONYX_ASSERT( static_cast< bool >( *this ), "Uninitialized delegate" );
-        return m_Function( m_Instance, std::forward< Args >( args )... );
+        return m_function( m_instance, std::forward< Args >( args )... );
     }
 
     /**
      * @brief Checks whether a delegate actually stores a listener.
      * @return False if the delegate is empty, true otherwise.
      */
-    ONYX_NO_DISCARD explicit operator bool() const noexcept {
+    [[nodiscard]] explicit operator bool() const noexcept {
         // no need to also test instance
-        return !( m_Function == nullptr );
+        return !( m_function == nullptr );
     }
 
     /**
@@ -348,13 +348,13 @@ class Callback< Ret( Args... ) > {
      * @param other Delegate with which to compare.
      * @return False if the two contents differ, true otherwise.
      */
-    ONYX_NO_DISCARD bool operator==( const Callback< Ret( Args... ) >& other ) const noexcept {
-        return m_Function == other.m_Function && m_Instance == other.m_Instance;
+    [[nodiscard]] bool operator==( const Callback< Ret( Args... ) >& other ) const noexcept {
+        return m_function == other.m_function && m_instance == other.m_instance;
     }
 
   private:
-    const void* m_Instance = nullptr;
-    function_type* m_Function = nullptr;
+    const void* m_instance = nullptr;
+    FunctionType* m_function = nullptr;
 };
 
 /**

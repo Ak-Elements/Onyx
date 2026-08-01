@@ -30,12 +30,12 @@ class ThreadPoolOptions {
     /**
      * @brief threadCount Return thread count.
      */
-    ONYX_NO_DISCARD int32_t getThreadCount() const;
+    [[nodiscard]] int32_t getThreadCount() const;
 
     /**
      * @brief queueSize Return single worker queue size.
      */
-    ONYX_NO_DISCARD int32_t getQueueSize() const;
+    [[nodiscard]] int32_t getQueueSize() const;
 
   private:
     int32_t m_threadCount;

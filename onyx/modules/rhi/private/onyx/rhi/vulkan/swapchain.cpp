@@ -25,7 +25,7 @@ SwapChain::SwapChain( VulkanGraphicsApi& api, const Surface& surface, const plat
     , m_Window( &window )
     , m_Surface( surface )
     , m_Device( api.getDevice() ) {
-    m_Window->OnResize().Connect< &SwapChain::OnWindowResize >( this );
+    m_Window->onResize().connect< &SwapChain::OnWindowResize >( this );
     Init();
 }
 
@@ -107,8 +107,8 @@ void SwapChain::Init() {
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat( details.Formats );
     const VkPresentModeKHR actualPresentMode = ChooseSwapPresentMode( details.PresentModes,
-                                                                      m_Window->IsVSyncEnabled() );
-    const VkExtent2D extent = ChooseSwapExtent( m_Window->GetFrameBufferSize(), details.Capabilities );
+                                                                      m_Window->isVSyncEnabled() );
+    const VkExtent2D extent = ChooseSwapExtent( m_Window->getFrameBufferSize(), details.Capabilities );
     const uint32_t imageCount = ChooseImageCount( details.Capabilities );
     const VkSurfaceTransformFlagBitsKHR preTransform = ChoosePreTransform( details.Capabilities );
 
@@ -197,7 +197,7 @@ void SwapChain::Init() {
             m_RenderCompleteSemaphores.emplace_back( makeUnique< Semaphore >( m_Device ) );
         }
 
-        for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+        for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
             m_ImageAcquiredSemaphores.emplace( makeUnique< Semaphore >( m_Device ) );
         }
     }

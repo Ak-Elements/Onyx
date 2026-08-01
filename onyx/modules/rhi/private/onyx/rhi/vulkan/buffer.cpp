@@ -30,18 +30,18 @@ void VulkanBuffer::Destroy() {
     }
 }
 
-void VulkanBuffer::Barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess ) {
-    Barrier( commandBuffer, newContext, newAccess, InvalidIndex8 );
+void VulkanBuffer::barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess ) {
+    barrier( commandBuffer, newContext, newAccess, InvalidIndex8 );
 }
 
-void VulkanBuffer::Barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess, int8_t aliasIndex ) {
+void VulkanBuffer::barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess, int8_t aliasIndex ) {
     // TODO: hazard tracking for regions?
     VulkanCommandBuffer& vkCommandBuffer = static_cast< VulkanCommandBuffer& >( commandBuffer );
 
     Access currentAccess = m_Access;
     Context currentContext = m_Context;
     uint64_t offset = 0;
-    uint64_t bufferSize = m_Properties.m_Size;
+    uint64_t bufferSize = m_properties.m_Size;
     if( aliasIndex != InvalidIndex8 ) {
         AliasInfo& aliasInfo = m_Aliases[ aliasIndex ];
         currentAccess = aliasInfo.Access;
@@ -77,7 +77,7 @@ void VulkanBuffer::Barrier( CommandBuffer& commandBuffer, Context newContext, Ac
     m_Context = newContext;
 }
 
-int8_t VulkanBuffer::Alias( const BufferProperties& properties ) {
+int8_t VulkanBuffer::alias( const BufferProperties& properties ) {
     // do we support device address?
 
     uint64_t offset = 0;
@@ -113,7 +113,7 @@ void VulkanBuffer::Init( const void* data ) {
 
     VkBufferCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    createInfo.size = m_Properties.m_Size;
+    createInfo.size = m_properties.m_Size;
     createInfo.usage = GetUsageFlags();
     // TODO: do we need to use concurrent?
     createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -123,14 +123,14 @@ void VulkanBuffer::Init( const void* data ) {
     SetResourceName( device,
                      VK_OBJECT_TYPE_BUFFER,
                      (uint64_t)m_Buffer,
-                     m_Properties.m_DebugName.empty() ? "Unnamed Buffer" : m_Properties.m_DebugName );
+                     m_properties.m_DebugName.empty() ? "Unnamed Buffer" : m_properties.m_DebugName );
 
     VkMemoryRequirements memoryRequirements;
     vkGetBufferMemoryRequirements( device, m_Buffer, &memoryRequirements );
 
     VkMemoryPropertyFlags requiredMemoryPropertyFlags, preferredMemoryPropertyFlags;
-    GetMemoryPropertyFlags( m_Properties.m_CpuAccess,
-                            m_Properties.m_GpuAccess,
+    GetMemoryPropertyFlags( m_properties.m_CpuAccess,
+                            m_properties.m_GpuAccess,
                             requiredMemoryPropertyFlags,
                             preferredMemoryPropertyFlags );
 
@@ -143,19 +143,19 @@ void VulkanBuffer::Init( const void* data ) {
 
     m_Allocator->Bind( m_Buffer, m_Memory );
 
-    if( enums::all( m_Properties.m_UsageFlags, BufferUsage::DeviceAddress ) ) {
+    if( enums::all( m_properties.m_UsageFlags, BufferUsage::DeviceAddress ) ) {
         VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
         addressInfo.buffer = m_Buffer;
-        m_GpuAddress = vkGetBufferDeviceAddress( device, &addressInfo );
+        m_gpuAddress = vkGetBufferDeviceAddress( device, &addressInfo );
     }
 
-    if( ( m_Properties.m_CpuAccess == CPUAccess::UpdateUnsynchronized ) ||
-        m_Properties.m_CpuAccess == CPUAccess::Write ) {
-        Map( MapMode::Write );
+    if( ( m_properties.m_CpuAccess == CPUAccess::UpdateUnsynchronized ) ||
+        m_properties.m_CpuAccess == CPUAccess::Write ) {
+        map( MapMode::Write );
     }
 
     if( data != nullptr ) {
-        SetData( 0, data, numericCast< int32_t >( m_Properties.m_Size ) );
+        setData( 0, data, numericCast< int32_t >( m_properties.m_Size ) );
     }
 
     UpdateDescriptorInfo();
@@ -164,31 +164,31 @@ void VulkanBuffer::Init( const void* data ) {
 void VulkanBuffer::UpdateDescriptorInfo() {
     m_DescriptorInfo.buffer = m_Buffer;
     m_DescriptorInfo.offset = 0;
-    m_DescriptorInfo.range = m_Properties.m_Size;
+    m_DescriptorInfo.range = m_properties.m_Size;
 }
 
-void* VulkanBuffer::Map( MapMode mode ) {
-    m_DataPointer = DeviceMemory::Map( mode );
-    return m_DataPointer;
+void* VulkanBuffer::map( MapMode mode ) {
+    m_dataPointer = DeviceMemory::Map( mode );
+    return m_dataPointer;
 }
 
-void VulkanBuffer::Unmap() {
+void VulkanBuffer::unmap() {
     DeviceMemory::Unmap();
 }
 
-void VulkanBuffer::Flush( uint32_t /*offset*/, uint32_t /*count*/ ) {
+void VulkanBuffer::flush( uint32_t /*offset*/, uint32_t /*count*/ ) {
     if( m_IsNonCoherent == false )
         return;
 
     ONYX_ASSERT( false, "Not implemented" );
 }
 
-void VulkanBuffer::SetData( int32_t offset, const void* data, int32_t length ) {
-    std::memcpy( &static_cast< char* >( m_DataPointer )[ offset ], data, length );
+void VulkanBuffer::setData( int32_t offset, const void* data, int32_t length ) {
+    std::memcpy( &static_cast< char* >( m_dataPointer )[ offset ], data, length );
 }
 
 VkBufferUsageFlags VulkanBuffer::GetUsageFlags() const {
-    return GetUsageFlags( m_Properties );
+    return GetUsageFlags( m_properties );
 }
 
 /*static*/ VkBufferUsageFlags VulkanBuffer::GetUsageFlags( const BufferProperties& properties ) {

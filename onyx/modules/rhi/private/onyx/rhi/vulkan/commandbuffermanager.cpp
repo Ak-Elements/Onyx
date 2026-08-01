@@ -9,7 +9,7 @@ void CommandBufferManager::Init( VulkanGraphicsApi& api, uint32_t queueIndex, ui
     m_ThreadCount = threadCount;
 
     // TODO: Replace with a ring buffer per thread per queue ?
-    uint32_t totalPoolCount = threadCount * MAX_FRAMES_IN_FLIGHT;
+    uint32_t totalPoolCount = threadCount * MaxFramesInFlight;
 
     m_CommandPools.reserve( totalPoolCount );
     m_PrimaryBuffers.reserve( totalPoolCount * COMMAND_BUFFERS_PER_THREAD );

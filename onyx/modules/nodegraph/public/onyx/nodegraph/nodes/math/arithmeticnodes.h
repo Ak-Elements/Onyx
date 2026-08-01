@@ -8,29 +8,29 @@
 
 namespace onyx::node_graph {
 template < typename NodeType, typename ScalarT, CompileTimeString TypeIdString >
-class AddNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT > {
+class AddNode : public FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT > {
   public:
     static constexpr bool HasAliases = true;
     static constexpr bool ShowNodeName = false;
 
     static constexpr StringId32 TypeId = TypeIdString;
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    using Super = FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT >;
+    using Super = FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT >;
 
-    void OnUpdate( ExecutionContext& context ) const override {
-        ScalarT pin0 = context.GetPinData< typename Super::InPin0 >();
-        ScalarT pin1 = context.GetPinData< typename Super::InPin1 >();
+    void onUpdate( ExecutionContext& context ) const override {
+        ScalarT pin0 = context.getPinData< typename Super::InPin0 >();
+        ScalarT pin1 = context.getPinData< typename Super::InPin1 >();
 
-        ScalarT& out = context.GetPinData< typename Super::OutPin >();
+        ScalarT& out = context.getPinData< typename Super::OutPin >();
         out = pin0 + pin1;
     }
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
         case Super::InPin0::LocalId:
             return "a";
         case Super::InPin1::LocalId:
@@ -46,29 +46,29 @@ class AddNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, Scal
 };
 
 template < typename NodeType, typename ScalarT, CompileTimeString TypeIdString >
-class SubtractNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT > {
+class SubtractNode : public FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT > {
   public:
     static constexpr bool HasAliases = true;
     static constexpr bool ShowNodeName = false;
 
     static constexpr StringId32 TypeId = TypeIdString;
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    using Super = FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT >;
+    using Super = FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT >;
 
-    void OnUpdate( ExecutionContext& context ) const override {
-        ScalarT pin0 = context.GetPinData< typename Super::InPin0 >();
-        ScalarT pin1 = context.GetPinData< typename Super::InPin1 >();
+    void onUpdate( ExecutionContext& context ) const override {
+        ScalarT pin0 = context.getPinData< typename Super::InPin0 >();
+        ScalarT pin1 = context.getPinData< typename Super::InPin1 >();
 
-        ScalarT& out = context.GetPinData< typename Super::OutPin >();
+        ScalarT& out = context.getPinData< typename Super::OutPin >();
         out = pin0 - pin1;
     }
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
         case Super::InPin0::LocalId:
             return "a";
         case Super::InPin1::LocalId:
@@ -84,29 +84,29 @@ class SubtractNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT,
 };
 
 template < typename NodeType, typename ScalarT, CompileTimeString TypeIdString >
-class MultiplyNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT > {
+class MultiplyNode : public FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT > {
   public:
     static constexpr bool HasAliases = true;
     static constexpr bool ShowNodeName = false;
 
     static constexpr StringId32 TypeId = TypeIdString;
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    using Super = FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT >;
+    using Super = FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT >;
 
-    void OnUpdate( ExecutionContext& context ) const override {
-        ScalarT pin0 = context.GetPinData< typename Super::InPin0 >();
-        ScalarT pin1 = context.GetPinData< typename Super::InPin1 >();
+    void onUpdate( ExecutionContext& context ) const override {
+        ScalarT pin0 = context.getPinData< typename Super::InPin0 >();
+        ScalarT pin1 = context.getPinData< typename Super::InPin1 >();
 
-        ScalarT& out = context.GetPinData< typename Super::OutPin >();
+        ScalarT& out = context.getPinData< typename Super::OutPin >();
         out = pin0 * pin1;
     }
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
         case Super::InPin0::LocalId:
             return "a";
         case Super::InPin1::LocalId:
@@ -122,29 +122,29 @@ class MultiplyNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT,
 };
 
 template < typename NodeType, typename ScalarT, CompileTimeString TypeIdString >
-class DivisionNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT > {
+class DivisionNode : public FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT > {
   public:
     static constexpr bool HasAliases = true;
     static constexpr bool ShowNodeName = false;
 
     static constexpr StringId32 TypeId = TypeIdString;
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    using Super = FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT, ScalarT >;
+    using Super = FixedPinNode2In1Out< NodeType, ScalarT, ScalarT, ScalarT >;
 
-    void OnUpdate( ExecutionContext& context ) const override {
-        ScalarT pin0 = context.GetPinData< typename Super::InPin0 >();
-        ScalarT pin1 = context.GetPinData< typename Super::InPin1 >();
+    void onUpdate( ExecutionContext& context ) const override {
+        ScalarT pin0 = context.getPinData< typename Super::InPin0 >();
+        ScalarT pin1 = context.getPinData< typename Super::InPin1 >();
 
-        ScalarT& out = context.GetPinData< typename Super::OutPin >();
+        ScalarT& out = context.getPinData< typename Super::OutPin >();
         out = pin0 / pin1;
     }
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
         case Super::InPin0::LocalId:
             return "a";
         case Super::InPin1::LocalId:
@@ -160,40 +160,40 @@ class DivisionNode : public FixedPinNode_2_In_1_Out< NodeType, ScalarT, ScalarT,
 };
 
 template < typename NodeType, typename DataT, CompileTimeString TypeIdString >
-class AbsoluteNode : public FixedPinNode_1_In_1_Out< NodeType, DataT, DataT > {
+class AbsoluteNode : public FixedPinNode1In1Out< NodeType, DataT, DataT > {
   public:
     static constexpr bool HasAliases = true;
 
     static constexpr StringId32 TypeId = TypeIdString;
-    StringId32 GetTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
   private:
-    using Super = FixedPinNode_1_In_1_Out< NodeType, DataT, DataT >;
+    using Super = FixedPinNode1In1Out< NodeType, DataT, DataT >;
 
-    void OnUpdate( ExecutionContext& context ) const override {
-        DataT inPinValue = context.GetPinData< typename Super::InPin >();
-        DataT& outPinValue = context.GetPinData< typename Super::OutPin >();
+    void onUpdate( ExecutionContext& context ) const override {
+        DataT inPinValue = context.getPinData< typename Super::InPin >();
+        DataT& outPinValue = context.getPinData< typename Super::OutPin >();
 
-        if constexpr ( is_specialization_of_v< Vector4, DataT > ) {
+        if constexpr( is_specialization_of_v< Vector4, DataT > ) {
             outPinValue = DataT( std::abs( inPinValue[ 0 ] ),
                                  std::abs( inPinValue[ 1 ] ),
                                  std::abs( inPinValue[ 2 ] ),
                                  std::abs( inPinValue[ 3 ] ) );
-        } else if constexpr ( is_specialization_of_v< Vector3, DataT > ) {
+        } else if constexpr( is_specialization_of_v< Vector3, DataT > ) {
             outPinValue = DataT( std::abs( inPinValue[ 0 ] ),
                                  std::abs( inPinValue[ 1 ] ),
                                  std::abs( inPinValue[ 2 ] ) );
-        } else if constexpr ( is_specialization_of_v< Vector2, DataT > ) {
+        } else if constexpr( is_specialization_of_v< Vector2, DataT > ) {
             outPinValue = DataT( std::abs( inPinValue[ 0 ] ), std::abs( inPinValue[ 1 ] ) );
-        } else if constexpr ( std::is_integral_v< DataT > || std::is_floating_point_v< DataT > ) {
+        } else if constexpr( std::is_integral_v< DataT > || std::is_floating_point_v< DataT > ) {
             outPinValue = std::abs( inPinValue );
         }
     }
 
 #if ONYX_IS_EDITOR
   private:
-    StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
         case Super::InPin::LocalId:
             return "In";
         case Super::OutPin::LocalId:

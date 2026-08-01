@@ -5,95 +5,95 @@
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
 namespace onyx::volume {
-void SdfDifferenceVolumeShaderGraphNode::OnUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void SdfDifferenceVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
 
-void SdfDifferenceVolumeShaderGraphNode::DoGenerateShader( const node_graph::ExecutionContext& context,
+void SdfDifferenceVolumeShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                            rhi::ShaderGenerator& generator ) const {
-    if ( generator.GetStage() != rhi::ShaderStage::Fragment )
+    if( generator.getStage() != rhi::ShaderStage::Fragment )
         return;
 
-    if ( ( context.IsPinConnected< OutPinGradient >() == false ) &&
-         ( context.IsPinConnected< OutPinIsoValue >() == false ) )
+    if( ( context.isPinConnected< OutPinGradient >() == false ) &&
+        ( context.isPinConnected< OutPinIsoValue >() == false ) )
         return;
 
-    generator.AddInclude( "includes/volume/csg/operations/difference.h" );
+    generator.addInclude( "includes/volume/csg/operations/difference.h" );
 
-    String differenceVariableName = format::format( "differenceNode_{:x}", GetId().get() );
+    String differenceVariableName = format::format( "differenceNode_{:x}", getId().get() );
 
-    String isoValueOutVariableName = format::format( "pin_{:x}", m_IsoValueOutPin.GetGlobalId().get() );
-    String gradientOutVariableName = format::format( "pin_{:x}", m_GradientOutPin.GetGlobalId().get() );
+    String isoValueOutVariableName = format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() );
+    String gradientOutVariableName = format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() );
 
-    generator.AppendCode( format::format(
+    generator.appendCode( format::format(
         "vec4 {} = GetDifference(vec4({}, {}), vec4({}, {}));\n",
         differenceVariableName,
-        m_GradientSource0InPin.IsConnected()
-            ? format::format( "pin_{:x}", m_GradientSource0InPin.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< InPinGradientSource0 >() ),
-        m_IsoValueSource0InPin.IsConnected()
-            ? format::format( "pin_{:x}", m_IsoValueSource0InPin.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< InPinIsoValueSource0 >() ),
-        m_GradientSource1InPin.IsConnected()
-            ? format::format( "pin_{:x}", m_GradientSource1InPin.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< InPinGradientSource1 >() ),
-        m_IsoValueSource0InPin.IsConnected()
-            ? format::format( "pin_{:x}", m_IsoValueSource1InPin.GetLinkedPinGlobalId().get() )
-            : rhi::ShaderGenerator::GenerateShaderValue( context.GetPinData< InPinIsoValueSource1 >() ) ) );
-    generator.AppendCode( format::format( "float {} = {}.w;\n", isoValueOutVariableName, differenceVariableName ) );
-    generator.AppendCode( format::format( "vec3 {} = {}.xyz;\n", gradientOutVariableName, differenceVariableName ) );
+        m_gradientSource0InPin.isConnected()
+            ? format::format( "pin_{:x}", m_gradientSource0InPin.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< InPinGradientSource0 >() ),
+        m_isoValueSource0InPin.isConnected()
+            ? format::format( "pin_{:x}", m_isoValueSource0InPin.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< InPinIsoValueSource0 >() ),
+        m_gradientSource1InPin.isConnected()
+            ? format::format( "pin_{:x}", m_gradientSource1InPin.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< InPinGradientSource1 >() ),
+        m_isoValueSource0InPin.isConnected()
+            ? format::format( "pin_{:x}", m_isoValueSource1InPin.getLinkedPinGlobalId().get() )
+            : rhi::ShaderGenerator::generateShaderValue( context.getPinData< InPinIsoValueSource1 >() ) ) );
+    generator.appendCode( format::format( "float {} = {}.w;\n", isoValueOutVariableName, differenceVariableName ) );
+    generator.appendCode( format::format( "vec3 {} = {}.xyz;\n", gradientOutVariableName, differenceVariableName ) );
 }
 
-node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::GetInputPin( uint32_t index ) {
-    switch ( index ) {
+node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::getInputPin( uint32_t index ) {
+    switch( index ) {
     case 0:
-        return &m_IsoValueSource0InPin;
+        return &m_isoValueSource0InPin;
     case 1:
-        return &m_GradientSource0InPin;
+        return &m_gradientSource0InPin;
     case 2:
-        return &m_IsoValueSource1InPin;
+        return &m_isoValueSource1InPin;
     case 3:
-        return &m_GradientSource1InPin;
+        return &m_gradientSource1InPin;
     }
 
     ONYX_ASSERT( false, "Invalid pin index" );
     return nullptr;
 }
 
-const node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::GetInputPin( uint32_t index ) const {
-    switch ( index ) {
+const node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::getInputPin( uint32_t index ) const {
+    switch( index ) {
     case 0:
-        return &m_IsoValueSource0InPin;
+        return &m_isoValueSource0InPin;
     case 1:
-        return &m_GradientSource0InPin;
+        return &m_gradientSource0InPin;
     case 2:
-        return &m_IsoValueSource1InPin;
+        return &m_isoValueSource1InPin;
     case 3:
-        return &m_GradientSource1InPin;
+        return &m_gradientSource1InPin;
     }
 
     ONYX_ASSERT( false, "Invalid pin index" );
     return nullptr;
 }
 
-node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::GetOutputPin( uint32_t index ) {
-    ONYX_ASSERT( index < GetOutputPinCount(), "Invalid pin index" );
+node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::getOutputPin( uint32_t index ) {
+    ONYX_ASSERT( index < getOutputPinCount(), "Invalid pin index" );
 
-    if ( index == 0 )
-        return &m_IsoValueOutPin;
+    if( index == 0 )
+        return &m_isoValueOutPin;
 
-    return &m_GradientOutPin;
+    return &m_gradientOutPin;
 }
 
-const node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::GetOutputPin( uint32_t index ) const {
-    ONYX_ASSERT( index < GetOutputPinCount(), "Invalid pin index" );
-    if ( index == 0 )
-        return &m_IsoValueOutPin;
+const node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::getOutputPin( uint32_t index ) const {
+    ONYX_ASSERT( index < getOutputPinCount(), "Invalid pin index" );
+    if( index == 0 )
+        return &m_isoValueOutPin;
 
-    return &m_GradientOutPin;
+    return &m_gradientOutPin;
 }
 
 #if ONYX_IS_EDITOR
-StringView SdfDifferenceVolumeShaderGraphNode::GetPinName( StringId32 pinId ) const {
-    switch ( pinId ) {
+StringView SdfDifferenceVolumeShaderGraphNode::getPinName( StringId32 pinId ) const {
+    switch( pinId ) {
     case InPinIsoValueSource0::LocalId:
         return "Iso Value A";
     case InPinGradientSource0::LocalId:

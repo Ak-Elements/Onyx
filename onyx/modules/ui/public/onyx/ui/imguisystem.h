@@ -294,12 +294,12 @@ class ImGuiSystem : public IEngineSystem {
     Reference< rhi::ShaderInstance > m_imguiShader;
     assets::AssetHandle< Theme > m_activeTheme;
 
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_vertexBuffers;
-    InplaceArray< rhi::BufferHandle, rhi::MAX_FRAMES_IN_FLIGHT > m_indexBuffers;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_vertexBuffers;
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_indexBuffers;
     rhi::TextureHandle m_fontImage;
 
-    InplaceArray< int32_t, rhi::MAX_FRAMES_IN_FLIGHT > m_vertexCounts;
-    InplaceArray< int32_t, rhi::MAX_FRAMES_IN_FLIGHT > m_indexCounts;
+    InplaceArray< int32_t, rhi::MaxFramesInFlight > m_vertexCounts;
+    InplaceArray< int32_t, rhi::MaxFramesInFlight > m_indexCounts;
 
     HashMap< StringId64, ImFont* > m_fonts;
 

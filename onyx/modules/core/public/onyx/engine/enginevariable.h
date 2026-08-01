@@ -15,13 +15,13 @@ struct IEngineVariable {
         doSet( std::bit_cast< void* >( &value ) );
     }
 
-    ONYX_NO_DISCARD virtual uint32_t getRuntimeTypeId() const = 0;
+    [[nodiscard]] virtual uint32_t getRuntimeTypeId() const = 0;
 
-    ONYX_NO_DISCARD StringId32 getId() const { return m_id; }
+    [[nodiscard]] StringId32 getId() const { return m_id; }
 
   private:
     virtual void doSet( void* value ) = 0;
-    ONYX_NO_DISCARD virtual void* doGet() const = 0;
+    [[nodiscard]] virtual void* doGet() const = 0;
 
   private:
     StringId32 m_id;
@@ -37,13 +37,13 @@ struct EngineVariable : public IEngineVariable {
         : IEngineVariable( id )
         , m_value( defaultValue ) {}
 
-    ONYX_NO_DISCARD uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
 
     void set( T value ) { m_value = value; }
     T get() const { return m_value; }
 
   private:
-    ONYX_NO_DISCARD void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
+    [[nodiscard]] void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
     void doSet( void* value ) override { m_value = *std::bit_cast< T* >( value ); }
 
   private:
@@ -73,7 +73,7 @@ struct EngineVariable< T > : public IEngineVariable {
         , m_minValue( minValue )
         , m_maxValue( maxValue ) {}
 
-    ONYX_NO_DISCARD uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
 
     void set( T value ) { m_value = std::clamp( value, m_minValue, m_maxValue ); }
     T get() const { return m_value; }
@@ -82,7 +82,7 @@ struct EngineVariable< T > : public IEngineVariable {
     T getMax() const { return m_maxValue; }
 
   private:
-    ONYX_NO_DISCARD void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
+    [[nodiscard]] void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
     void doSet( void* value ) override { m_value = *std::bit_cast< T* >( value ); }
 
   private:
@@ -100,7 +100,7 @@ struct EngineVariable< T > : public IEngineVariable {
         : IEngineVariable( id )
         , m_invokable( invokable ) {}
 
-    ONYX_NO_DISCARD uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
 
     void invoke() {
         if( m_invokable != nullptr )
@@ -108,7 +108,7 @@ struct EngineVariable< T > : public IEngineVariable {
     }
 
   private:
-    ONYX_NO_DISCARD void* doGet() const override { ONYX_ASSERT( false, "Can not get invokable EngineVariable." ); }
+    [[nodiscard]] void* doGet() const override { ONYX_ASSERT( false, "Can not get invokable EngineVariable." ); }
     void doSet( void* value ) override { ONYX_ASSERT( false, "Can not set invokable EngineVariable." ); }
 
   private:

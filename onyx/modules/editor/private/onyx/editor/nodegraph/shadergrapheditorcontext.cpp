@@ -25,6 +25,6 @@ bool ShaderGraphEditorContext::compile() {
 
 void ShaderGraphEditorContext::onNodeChanged( const Node& newNode ) {
     graphics::ShaderGraphNode& node = getNodeGraph().getNode< graphics::ShaderGraphNode >( newNode.LocalId );
-    node.OnNodeChanged( *m_assetSystem );
+    node.onNodeChanged( *m_assetSystem );
 }
 } // namespace onyx::editor

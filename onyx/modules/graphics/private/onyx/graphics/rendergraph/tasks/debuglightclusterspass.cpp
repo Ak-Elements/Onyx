@@ -15,10 +15,10 @@ DebugLightClustersRenderPass::DebugLightClustersRenderPass() {
 }
 
 void DebugLightClustersRenderPass::onBeginFrame( RenderGraphContext& context ) {
-    uint64_t outputGlobalId = m_output.GetGlobalId().get();
+    uint64_t outputGlobalId = m_output.getGlobalId().get();
 
-    if( m_input0.IsConnected() ) {
-        const RenderGraphResource& inputResource = context.Graph.getResource( m_input0.GetLinkedPinGlobalId().get() );
+    if( m_input0.isConnected() ) {
+        const RenderGraphResource& inputResource = context.Graph.getResource( m_input0.getLinkedPinGlobalId().get() );
         RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }

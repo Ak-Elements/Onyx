@@ -10,7 +10,7 @@
 namespace onyx::ui {
 class ImGuiSystem;
 
-enum class WindowPosition {
+enum class WindowPosition : uint8_t {
     TopLeft,
     TopCenter,
     TopRight,
@@ -31,7 +31,7 @@ class ImGuiWindow {
 
     void render( ImGuiSystem& imguiSystem );
 
-    ONYX_NO_DISCARD virtual constexpr StringId32 getWindowCategory() { return "Default"; }
+    [[nodiscard]] virtual constexpr StringId32 getWindowCategory() { return "Default"; }
 
     void setWindowId( String windowId ) { m_id = std::move( windowId ); }
     virtual StringView getWindowId() { return m_id; }
@@ -42,10 +42,10 @@ class ImGuiWindow {
     void setEngine( IEngine& engine ) { m_engine = &engine; }
     void setParent( ImGuiWindow& parent ) { m_parent = &parent; }
 
-    ONYX_NO_DISCARD bool isOpen() const { return enums::all( m_state, State::Open ); }
-    ONYX_NO_DISCARD bool isCollapsed() const { return m_isCollapsed; }
-    ONYX_NO_DISCARD bool isDocked() const { return enums::all( m_state, State::Docked ); }
-    ONYX_NO_DISCARD bool isFocused() const { return m_isFocused; }
+    [[nodiscard]] bool isOpen() const { return enums::all( m_state, State::Open ); }
+    [[nodiscard]] bool isCollapsed() const { return m_isCollapsed; }
+    [[nodiscard]] bool isDocked() const { return enums::all( m_state, State::Docked ); }
+    [[nodiscard]] bool isFocused() const { return m_isFocused; }
 
     void setIsCollapsed( bool isCollapsed );
     void setDockId( uint32_t dockId ) { m_dockId = dockId; }
@@ -55,11 +55,11 @@ class ImGuiWindow {
   protected:
     enum class State : uint8_t { Closed = 0, Opening = 1 << 0, Open = 1 << 1, Closing = 1 << 2, Docked = 1 << 3 };
 
-    ONYX_NO_DISCARD bool beginMenuBar() const;
+    [[nodiscard]] bool beginMenuBar() const;
     void endMenuBar() const;
 
     void setWindowFlags( ImGuiWindowFlags newFlags ) { m_flags = newFlags; }
-    ONYX_NO_DISCARD ImGuiWindowFlags getWindowFlags() const { return m_flags; }
+    [[nodiscard]] ImGuiWindowFlags getWindowFlags() const { return m_flags; }
 
     void createDockspace( uint32_t id, const ImGuiWindowClass* windowClass, const DynamicArray< DockSplit >& splits );
 
@@ -69,7 +69,7 @@ class ImGuiWindow {
 
     void setDefaultSize( Vector2s32 size );
 
-    ONYX_NO_DISCARD const ImGuiWindowClass& getWindowClass() const { return *m_windowClass; }
+    [[nodiscard]] const ImGuiWindowClass& getWindowClass() const { return *m_windowClass; }
 
     template < typename T >
     T& getEngineSystem() {

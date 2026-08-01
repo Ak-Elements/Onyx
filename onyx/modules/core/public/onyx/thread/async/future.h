@@ -43,19 +43,19 @@ class FutureSharedState {
 
   public:
     void wait() const {
-        if ( m_state != State::Pending )
+        if( m_state != State::Pending )
             return;
 
         std::atomic_wait( &m_state, State::Pending );
     }
 
     T get() const {
-        if ( isPending() ) {
+        if( isPending() ) {
             wait();
         }
 
-        if constexpr ( std::is_same_v< T, void > == false ) {
-            if ( m_state.load( std::memory_order::relaxed ) == State::Completed ) {
+        if constexpr( std::is_same_v< T, void > == false ) {
+            if( m_state.load( std::memory_order::relaxed ) == State::Completed ) {
                 return std::get< 1 >( m_value );
             }
 
@@ -69,8 +69,8 @@ class FutureSharedState {
 
     template < typename U = T, REQUIRES( std::is_void< U >::value ) >
     void setValue() {
-        if ( updateState( State::Completed ) ) {
-            if ( m_continuation != nullptr ) {
+        if( updateState( State::Completed ) ) {
+            if( m_continuation != nullptr ) {
                 m_continuation();
             }
 
@@ -80,10 +80,10 @@ class FutureSharedState {
 
     template < typename U = T, REQUIRES( !std::is_void< U >::value ) >
     void setValue( U&& val ) {
-        if ( updateState( State::Completed ) ) {
+        if( updateState( State::Completed ) ) {
             m_value = std::forward< U >( val );
 
-            if ( m_continuation != nullptr ) {
+            if( m_continuation != nullptr ) {
                 m_continuation();
             }
 
@@ -92,9 +92,9 @@ class FutureSharedState {
     }
 
     void cancel() {
-        if ( updateState( State::Cancelled ) ) {
+        if( updateState( State::Cancelled ) ) {
             m_stopSource.request_stop();
-            if ( m_cancelCallback != nullptr ) {
+            if( m_cancelCallback != nullptr ) {
                 m_cancelCallback();
             }
 
@@ -105,7 +105,7 @@ class FutureSharedState {
     void cancel( bool waitForCancel ) {
         cancel();
 
-        if ( waitForCancel ) {
+        if( waitForCancel ) {
             wait();
         }
     }
@@ -126,12 +126,12 @@ class FutureSharedState {
     bool updateState( State desired ) {
         State currentState = m_state.load( std::memory_order::relaxed );
         do {
-            if ( ( currentState == desired ) || ( currentState == State::Failure ) ||
-                 ( currentState == State::Cancelled ) ) {
+            if( ( currentState == desired ) || ( currentState == State::Failure ) ||
+                ( currentState == State::Cancelled ) ) {
                 return false;
             }
 
-        } while ( m_state.compare_exchange_weak( currentState, desired ) == false );
+        } while( m_state.compare_exchange_weak( currentState, desired ) == false );
 
         return true;
     }
@@ -163,7 +163,7 @@ class Future {
         : m_futureState( std::move( other.m_futureState ) ) {}
 
     Future& operator=( const Future& other ) {
-        if ( this == &other )
+        if( this == &other )
             return *this;
 
         m_futureState = other.m_futureState;
@@ -171,7 +171,7 @@ class Future {
     }
 
     Future& operator=( Future&& other ) noexcept {
-        if ( this == &other )
+        if( this == &other )
             return *this;
 
         m_futureState = std::move( other.m_futureState );
@@ -190,17 +190,17 @@ class Future {
         m_futureState->wait();
     }
 
-    ONYX_NO_DISCARD bool isPending() const {
+    [[nodiscard]] bool isPending() const {
         ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->isPending();
     }
 
-    ONYX_NO_DISCARD bool isCompleted() const {
+    [[nodiscard]] bool isCompleted() const {
         ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->isCompleted();
     }
 
-    ONYX_NO_DISCARD bool isCancelled() const {
+    [[nodiscard]] bool isCancelled() const {
         ONYX_ASSERT( m_futureState != nullptr );
         return m_futureState->isCancelled();
     }
@@ -214,7 +214,7 @@ class Future {
         ONYX_ASSERT( m_futureState != nullptr );
         m_futureState->cancel();
 
-        if ( waitForCancel )
+        if( waitForCancel )
             m_futureState->wait();
     }
 
@@ -248,7 +248,7 @@ class Promise {
         : m_futureState( std::move( other.m_futureState ) ) {}
 
     Promise& operator=( Promise&& other ) noexcept {
-        if ( *this == other )
+        if( *this == other )
             return *this;
 
         std::swap( m_futureState, other.m_futureState );

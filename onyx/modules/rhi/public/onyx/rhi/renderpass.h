@@ -35,11 +35,11 @@ struct RenderPassSettings {
     };
 
     struct Subpass {
-        InplaceArray< AttachmentAccess, MAX_RENDERPASS_ATTACHMENTS > m_AttachmentAccesses;
+        InplaceArray< AttachmentAccess, MaxRenderpassAttachments > m_AttachmentAccesses;
     };
 
-    InplaceArray< Attachment, MAX_RENDERPASS_ATTACHMENTS > m_Attachments;
-    InplaceArray< Subpass, MAX_SUBPASSES > m_SubPasses;
+    InplaceArray< Attachment, MaxRenderpassAttachments > m_Attachments;
+    InplaceArray< Subpass, MaxSubpasses > m_SubPasses;
 
     // TODO: this is not a proper compare I think as the content of the attachments are not compared
     bool operator==( const RenderPassSettings& other ) const {

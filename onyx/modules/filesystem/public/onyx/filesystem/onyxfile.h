@@ -10,18 +10,18 @@
 namespace onyx::file_system {
 struct JsonValue {
     template < typename ValueT >
-    bool Get( StringView name, ValueT& outValue ) const {
-        if ( const auto& it = Json.find( name.data() ); it != Json.end() ) {
-            if constexpr ( std::is_enum_v< ValueT > ) {
+    bool get( StringView name, ValueT& outValue ) const {
+        if( const auto& it = Json.find( name.data() ); it != Json.end() ) {
+            if constexpr( std::is_enum_v< ValueT > ) {
                 outValue = enums::fromString< ValueT >( it->get< StringView >() );
-            } else if constexpr ( std::is_same_v< ValueT, Guid64 > ) {
+            } else if constexpr( std::is_same_v< ValueT, Guid64 > ) {
                 uint64_t guid64;
                 StringView value = it->get< StringView >();
                 bool success = std::from_chars( value.data(), value.data() + value.size(), guid64, 16 ).ec ==
                                std::errc{};
                 outValue = Guid64( guid64 );
                 return success;
-            } else if constexpr ( is_specialization_of_v< StringId, ValueT > ) {
+            } else if constexpr( is_specialization_of_v< StringId, ValueT > ) {
                 const auto& stringIdObj = ( *it );
 
                 StringView value = stringIdObj[ "id" ].get< StringView >();
@@ -35,18 +35,18 @@ struct JsonValue {
                 outValue = { id, idString };
 #endif
                 return success;
-            } else if constexpr ( is_specialization_of_v< Vector2, ValueT > ) {
+            } else if constexpr( is_specialization_of_v< Vector2, ValueT > ) {
                 Array< typename ValueT::ScalarT, 2 > data;
                 it->get_to( data );
                 outValue[ 0 ] = data[ 0 ];
                 outValue[ 1 ] = data[ 1 ];
-            } else if constexpr ( is_specialization_of_v< Vector3, ValueT > ) {
+            } else if constexpr( is_specialization_of_v< Vector3, ValueT > ) {
                 Array< typename ValueT::ScalarT, 3 > data;
                 it->get_to( data );
                 outValue[ 0 ] = data[ 0 ];
                 outValue[ 1 ] = data[ 1 ];
                 outValue[ 2 ] = data[ 2 ];
-            } else if constexpr ( is_specialization_of_v< Vector4, ValueT > ) {
+            } else if constexpr( is_specialization_of_v< Vector4, ValueT > ) {
                 Array< typename ValueT::ScalarT, 4 > data;
                 it->get_to( data );
                 outValue[ 0 ] = data[ 0 ];
@@ -63,9 +63,9 @@ struct JsonValue {
     }
 
     template < typename T >
-    bool Get( StringView name, T& outValue, T defaultValue ) const {
-        if ( const auto& it = Json.find( name.data() ); it != Json.end() ) {
-            if constexpr ( std::is_enum_v< T > )
+    bool get( StringView name, T& outValue, T defaultValue ) const {
+        if( const auto& it = Json.find( name.data() ); it != Json.end() ) {
+            if constexpr( std::is_enum_v< T > )
                 outValue = enums::fromString< T >( it->get< StringView >(), defaultValue );
             else
                 outValue = it->get< T >();
@@ -76,29 +76,29 @@ struct JsonValue {
         return false;
     }
 
-    void Add( const JsonValue& json ) { return Json.push_back( json.Json ); }
+    void add( const JsonValue& json ) { return Json.push_back( json.Json ); }
 
     template < typename KeyT, typename ValueT >
-    void Set( const KeyT& key, const ValueT& value ) {
-        if constexpr ( std::is_enum_v< ValueT > ) {
+    void set( const KeyT& key, const ValueT& value ) {
+        if constexpr( std::is_enum_v< ValueT > ) {
             Json[ key ] = enums::toString( value );
-        } else if constexpr ( std::is_same_v< ValueT, JsonValue > ) {
+        } else if constexpr( std::is_same_v< ValueT, JsonValue > ) {
             Json[ key ] = std::move( value.Json );
-        } else if constexpr ( std::is_same_v< ValueT, Guid64 > ) {
+        } else if constexpr( std::is_same_v< ValueT, Guid64 > ) {
             Json[ key ] = format::format( "{:x}", value.get() );
-        } else if constexpr ( is_specialization_of_v< StringId, ValueT > ) {
+        } else if constexpr( is_specialization_of_v< StringId, ValueT > ) {
             auto& stringIdObj = Json[ key ];
             stringIdObj[ "id" ] = format::format( "{:x}", value.GetId() );
 #if !ONYX_IS_RETAIL
             stringIdObj[ "string" ] = value.GetString();
 #endif
-        } else if constexpr ( is_specialization_of_v< Vector2, ValueT > ) {
+        } else if constexpr( is_specialization_of_v< Vector2, ValueT > ) {
             std::array< typename ValueT::ScalarT, 2 > data{ value[ 0 ], value[ 1 ] };
             Json[ key ] = data;
-        } else if constexpr ( is_specialization_of_v< Vector3, ValueT > ) {
+        } else if constexpr( is_specialization_of_v< Vector3, ValueT > ) {
             std::array< typename ValueT::ScalarT, 3 > data{ value[ 0 ], value[ 1 ], value[ 2 ] };
             Json[ key ] = data;
-        } else if constexpr ( is_specialization_of_v< Vector4, ValueT > ) {
+        } else if constexpr( is_specialization_of_v< Vector4, ValueT > ) {
             std::array< typename ValueT::ScalarT, 4 > data{ value[ 0 ], value[ 1 ], value[ 2 ], value[ 3 ] };
             Json[ key ] = data;
         } else {
@@ -110,8 +110,8 @@ struct JsonValue {
 };
 
 template <>
-inline bool JsonValue::Get( StringView name, JsonValue& outValue ) const {
-    if ( const auto& it = Json.find( name.data() ); it != Json.end() ) {
+inline bool JsonValue::get( StringView name, JsonValue& outValue ) const {
+    if( const auto& it = Json.find( name.data() ); it != Json.end() ) {
         outValue.Json = it.value();
         return true;
     }
@@ -132,17 +132,17 @@ class OnyxFile {
     OnyxFile( StringView mountPath );
     OnyxFile( const FilePath& filePath );
 
-    ONYX_NO_DISCARD static bool ReadAll( const FilePath& filePath, String& outFileContent );
-    ONYX_NO_DISCARD static bool ReadAll( const FilePath& filePath, String& outFileContent, bool shouldSkipBOM );
-    ONYX_NO_DISCARD FileStream OpenStream( OpenMode mode ) const; // todo make base stream class?
+    [[nodiscard]] static bool readAll( const FilePath& filePath, String& outFileContent );
+    [[nodiscard]] static bool readAll( const FilePath& filePath, String& outFileContent, bool shouldSkipBOM );
+    [[nodiscard]] FileStream openStream( OpenMode mode ) const; // todo make base stream class?
 
-    ONYX_NO_DISCARD const FilePath& GetPath() const { return m_FilePath; }
+    [[nodiscard]] const FilePath& getPath() const { return m_filePath; }
 
-    JsonValue LoadJson() const;
-    void WriteJson( const JsonValue& json ) const;
+    [[nodiscard]] JsonValue loadJson() const;
+    void writeJson( const JsonValue& json ) const;
 
   private:
-    FilePath m_FilePath;
-    uint64_t m_FileId; // file id get created from the path and has to be unique
+    FilePath m_filePath;
+    uint64_t m_fileId; // file id get created from the path and has to be unique
 };
 } // namespace onyx::file_system

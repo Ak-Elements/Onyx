@@ -13,7 +13,7 @@ void VulkanFramebuffer::Init( const VulkanGraphicsApi& api, const FramebufferSet
     m_Settings = settings;
 
     // Don't create a framebuffer if we use dynamic rendering
-    if ( api.isDynamicRenderingEnabled() )
+    if( api.isDynamicRenderingEnabled() )
         return;
 
     VkFramebufferCreateInfo createInfo;
@@ -24,14 +24,14 @@ void VulkanFramebuffer::Init( const VulkanGraphicsApi& api, const FramebufferSet
     createInfo.layers = settings.m_LayerCount;
     createInfo.pNext = nullptr;
 
-    InplaceArray< VkImageView, MAX_RENDERPASS_ATTACHMENTS > attachments;
+    InplaceArray< VkImageView, MaxRenderpassAttachments > attachments;
 
-    for ( const TextureViewHandle& colorTargetHandle : settings.m_ColorTargets ) {
+    for( const TextureViewHandle& colorTargetHandle : settings.m_ColorTargets ) {
         const VulkanTexture& colorTarget = colorTargetHandle.as< VulkanTexture >();
         attachments.add( colorTarget.GetHandle() );
     }
 
-    if ( settings.m_DepthTarget ) {
+    if( settings.m_DepthTarget ) {
         const VulkanTexture& depthStencilTarget = settings.m_DepthTarget.as< VulkanTexture >();
         attachments.add( depthStencilTarget.GetHandle() );
     }

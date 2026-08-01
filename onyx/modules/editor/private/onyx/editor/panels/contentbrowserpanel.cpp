@@ -88,7 +88,7 @@ void ContentBrowserPanel::drawToolbar() {
     static HashSet< uint32_t > filteredTypes;
     DynamicArray< StringView > assetTypes;
     for( const StringId32& assetType : getEngineSystem< assets::AssetSystem >().getAssetTypes() ) {
-        assetTypes.emplace_back( localization.GetLocalized( localization::LocalizationId( assetType ) ).Get() );
+        assetTypes.emplace_back( localization.getLocalized( localization::LocalizationId( assetType ) ).Get() );
     }
 
     float lineHeight = ImGui::GetFrameHeight();

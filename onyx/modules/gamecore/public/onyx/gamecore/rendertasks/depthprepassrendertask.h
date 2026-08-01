@@ -5,12 +5,12 @@
 #include <onyx/nodegraph/nodes/fixedpinnode1in1out.h>
 
 namespace onyx::game_core {
-class DepthPrePassRenderGraphNode : public node_graph::FixedPinNode_1_In_1_Out< graphics::RenderGraphFixedShaderNode,
-                                                                                rhi::BufferHandle,
-                                                                                rhi::TextureHandle > {
+class DepthPrePassRenderGraphNode : public node_graph::FixedPinNode1In1Out< graphics::RenderGraphFixedShaderNode,
+                                                                            rhi::BufferHandle,
+                                                                            rhi::TextureHandle > {
   public:
     static constexpr StringId32 TypeId = "onyx::game_core::render_graph_nodes::DepthPrePass";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     DepthPrePassRenderGraphNode();
 

@@ -94,8 +94,8 @@ class RenderGraphShaderNode : public IRenderGraphNode {
 
     void endFrame( RenderGraphContext& context ) final;
 
-    bool OnSerialize( Serializer& serializer ) const override;
-    bool OnDeserialize( const Deserializer& deserializer ) override;
+    bool onSerialize( Serializer& serializer ) const override;
+    bool onDeserialize( const Deserializer& deserializer ) override;
 
     const RenderGraphTextureResourceInfo& getInputResourceInfo( uint32_t pinIndex ) {
         return pinIndex >= m_inputAttachmentInfos.size() ? m_inputAttachmentInfos.emplace_back()
@@ -114,7 +114,7 @@ class RenderGraphShaderNode : public IRenderGraphNode {
 
   protected:
 #if ONYX_IS_EDITOR
-    bool OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
+    bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
 #endif
 
     void bindResources( rhi::ShaderInstanceHandle shaderInstance,
@@ -158,17 +158,17 @@ class RenderGraphFixedShaderNode : public RenderGraphShaderNode {
     void render( RenderGraphContext& context, onyx::rhi::CommandBuffer& commandBuffer ) override;
 
     bool isComputeTask() const override {
-        ONYX_ASSERT( m_shaderInstance.isValid() );
-        return m_shaderInstance->IsCompute();
+        // ONYX_ASSERT( m_shaderInstance.isValid() );
+        return m_shaderInstance->isCompute();
     }
     bool isEnabled() const override { return m_shaderInstance.isValid(); }
 
-    bool OnSerialize( Serializer& serializer ) const override;
-    bool OnDeserialize( const Deserializer& deserializer ) override;
+    bool onSerialize( Serializer& serializer ) const override;
+    bool onDeserialize( const Deserializer& deserializer ) override;
 
   private:
 #if ONYX_IS_EDITOR
-    bool OnDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
+    bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
 #endif
   protected:
     rhi::PipelineProperties m_pipelineProperties;

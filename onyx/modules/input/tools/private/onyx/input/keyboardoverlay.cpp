@@ -150,7 +150,7 @@ void drawRectKey( ImDrawList* dl, ImVec2 tl, ImVec2 br, bool pressed, StringView
 } // namespace
 KeyboardOverlay::KeyboardOverlay() {
     file_system::OnyxFile file{ StringView( "engine:/debug/keyboard/iso_105_us_international.json" ) };
-    file_system::JsonValue jsonDoc = file.LoadJson();
+    file_system::JsonValue jsonDoc = file.loadJson();
 
     m_keyboardLayout.reserve( 6 ); // typical keyboards have 6 rows
 
@@ -242,7 +242,7 @@ void KeyboardOverlay::onRender( ui::ImGuiSystem& imguiSystem ) {
     bool showLabels = false;
     for( const DynamicArray< KeyData >& keyboardRow : m_keyboardLayout ) {
         for( const KeyData& key : keyboardRow ) {
-            const bool pressed = inputSystem.IsButtonDown( key.Key );
+            const bool pressed = inputSystem.isButtonDown( key.Key );
 
             ImVec2 tl = { cursorPos.x + key.Offset[ 0 ] * unitSize, cursorPos.y + key.Offset[ 1 ] * unitSize };
             ImVec2 br = { tl.x + key.Size[ 0 ] * unitSize - itemSpacing.x,

@@ -141,7 +141,7 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
     UniquePtr< CommandBufferManager > m_computeCommandBufferManager;
 
     // TODO: Move to seperate class?
-    InplaceArray< BufferHandle, MAX_FRAMES_IN_FLIGHT > m_ringBuffer;
+    InplaceArray< BufferHandle, MaxFramesInFlight > m_ringBuffer;
     uint64_t m_currentRingBufferSize = 0;
 
     UniquePtr< Semaphore > m_graphicsSemaphore;

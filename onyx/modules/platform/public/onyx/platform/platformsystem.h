@@ -16,55 +16,55 @@ class PlatformSystem : public IEngineSystem {
     using WindowDestroySignalT = Signal< void( const Window& ) >;
 
     static constexpr StringId32 TypeId{ "onyx::platform::PlatformSystem" };
-    StringId32 getTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
     PlatformSystem( WindowSettings windowSettings, input::InputSystem& inputSystem );
 
     void onEndFrame();
 
-    PlatformContext& GetContext() { return m_Context; }
-    const PlatformContext& GetContext() const { return m_Context; }
+    PlatformContext& getContext() { return m_context; }
+    [[nodiscard]] const PlatformContext& getContext() const { return m_context; }
 
-    input::InputSystem& GetInputSystem() {
-        ONYX_ASSERT( m_InputSystem != nullptr );
-        return *m_InputSystem;
+    input::InputSystem& getInputSystem() {
+        ONYX_ASSERT( m_inputSystem != nullptr );
+        return *m_inputSystem;
     }
 
-    void CreateNewWindow( WindowSettings settings );
-    Window& GetMainWindow();
-    bool hasWindows() const { return m_Windows.empty() == false; }
-    ONYX_NO_DISCARD const Window& GetMainWindow() const;
+    void createNewWindow( WindowSettings settings );
+    Window& getMainWindow();
+    [[nodiscard]] bool hasWindows() const { return m_windows.empty() == false; }
+    [[nodiscard]] const Window& getMainWindow() const;
 
-    ONYX_NO_DISCARD Window& GetWindow( uint32_t windowId );
-    ONYX_NO_DISCARD const DynamicArray< UniquePtr< Window > >& GetWindows() const { return m_Windows; }
+    [[nodiscard]] Window& getWindow( uint32_t windowId );
+    [[nodiscard]] const DynamicArray< UniquePtr< Window > >& getWindows() const { return m_windows; }
 
     template < auto Candidate, typename Type > void onWindowCreate( Type* instance ) {
-        Sink sink( m_WindowCreatedSignal );
-        sink.template Connect< Candidate >( instance );
+        Sink sink( m_windowCreatedSignal );
+        sink.template connect< Candidate >( instance );
     }
 
     template < auto Candidate, typename Type > void onWindowDestroy( Type* instance ) {
-        Sink sink( m_WindowDestroySignal );
-        sink.template Connect< Candidate >( instance );
+        Sink sink( m_windowDestroySignal );
+        sink.template connect< Candidate >( instance );
     }
 
-    template < typename Type > void DisconnectSignals( Type* instance ) {
-        Sink createdSignalSink( m_WindowCreatedSignal );
-        Sink destroySignalSink( m_WindowDestroySignal );
-        createdSignalSink.Disconnect( instance );
-        destroySignalSink.Disconnect( instance );
+    template < typename Type > void disconnectSignals( Type* instance ) {
+        Sink createdSignalSink( m_windowCreatedSignal );
+        Sink destroySignalSink( m_windowDestroySignal );
+        createdSignalSink.disconnect( instance );
+        destroySignalSink.disconnect( instance );
     }
 
   private:
     void onWindowClose( uint32_t windowId );
 
   private:
-    input::InputSystem* m_InputSystem = nullptr;
+    input::InputSystem* m_inputSystem = nullptr;
 
-    PlatformContext m_Context;
-    DynamicArray< UniquePtr< Window > > m_Windows;
+    PlatformContext m_context;
+    DynamicArray< UniquePtr< Window > > m_windows;
 
-    WindowCreatedSignalT m_WindowCreatedSignal;
-    WindowDestroySignalT m_WindowDestroySignal;
+    WindowCreatedSignalT m_windowCreatedSignal;
+    WindowDestroySignalT m_windowDestroySignal;
 };
 } // namespace onyx::platform

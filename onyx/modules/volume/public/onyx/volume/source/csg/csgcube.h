@@ -10,136 +10,60 @@ namespace onyx::volume {
 class CSGCube : public VolumeBase {
   public:
     CSGCube()
-        : m_Center()
-        , m_HalfExtents( 0.5f ) {}
+        : m_center()
+        , m_halfExtents( 0.5f ) {}
 
     CSGCube( const Vector3f32& center, const Vector3f32& halfExtents )
-        : m_Center( center )
-        , m_HalfExtents( halfExtents ) {}
+        : m_center( center )
+        , m_halfExtents( halfExtents ) {}
 
-    bool GetUseV2() const { return m_UseV2; }
-    void SetUseV2( bool val ) { m_UseV2 = val; }
+    [[nodiscard]] Vector4f32 getValueAndGradient( const Vector3f32& position ) const override {
+        Vector3f32 gradient( getValue( Vector3f32( position[ 0 ] + 1.0f, position[ 1 ], position[ 2 ] ) ) -
+                                 getValue( Vector3f32( position[ 0 ] - 1.0f, position[ 1 ], position[ 2 ] ) ),
+                             getValue( Vector3f32( position[ 0 ], position[ 1 ] + 1.0f, position[ 2 ] ) ) -
+                                 getValue( Vector3f32( position[ 0 ], position[ 1 ] - 1.0f, position[ 2 ] ) ),
+                             getValue( Vector3f32( position[ 0 ], position[ 1 ], position[ 2 ] + 1.0f ) ) -
+                                 getValue( Vector3f32( position[ 0 ], position[ 1 ], position[ 2 ] - 1.0f ) ) );
 
-    virtual Vector4f32 GetValueAndGradient2( const Vector3f32& position ) const {
-        constexpr float32 difference = 0.1f;
-        Vector3f32 gradient( GetValue( Vector3f32( position[ 0 ] + difference, position[ 1 ], position[ 2 ] ) ) -
-                                 GetValue( Vector3f32( position[ 0 ] - difference, position[ 1 ], position[ 2 ] ) ),
-                             GetValue( Vector3f32( position[ 0 ], position[ 1 ] + difference, position[ 2 ] ) ) -
-                                 GetValue( Vector3f32( position[ 0 ], position[ 1 ] - difference, position[ 2 ] ) ),
-                             GetValue( Vector3f32( position[ 0 ], position[ 1 ], position[ 2 ] + difference ) ) -
-                                 GetValue( Vector3f32( position[ 0 ], position[ 1 ], position[ 2 ] - difference ) ) );
-
-        if ( gradient.IsZero() == false ) {
-            gradient.Normalize();
-            gradient *= -1.0f;
-        }
-
-        return Vector4f32( gradient[ 0 ], gradient[ 1 ], gradient[ 2 ], GetDistanceTo2( position ) );
+        if( gradient.isZero() == false )
+            gradient.normalize();
+        gradient *= -1.0f;
+        return { gradient[ 0 ], gradient[ 1 ], gradient[ 2 ], getDistanceTo( position ) };
     }
 
-    virtual Vector4f32 GetValueAndGradient( const Vector3f32& position ) const override {
-        if ( m_UseV2 ) {
-            return GetValueAndGradient2( position );
-        } else {
-            Vector3f32 gradient( GetValue( Vector3f32( position[ 0 ] + 1.0f, position[ 1 ], position[ 2 ] ) ) -
-                                     GetValue( Vector3f32( position[ 0 ] - 1.0f, position[ 1 ], position[ 2 ] ) ),
-                                 GetValue( Vector3f32( position[ 0 ], position[ 1 ] + 1.0f, position[ 2 ] ) ) -
-                                     GetValue( Vector3f32( position[ 0 ], position[ 1 ] - 1.0f, position[ 2 ] ) ),
-                                 GetValue( Vector3f32( position[ 0 ], position[ 1 ], position[ 2 ] + 1.0f ) ) -
-                                     GetValue( Vector3f32( position[ 0 ], position[ 1 ], position[ 2 ] - 1.0f ) ) );
+    [[nodiscard]] float32 getValue( const Vector3f32& position ) const override { return getDistanceTo( position ); }
 
-            if ( gradient.IsZero() == false )
-                gradient.Normalize();
-            gradient *= -1.0f;
-            return Vector4f32( gradient[ 0 ], gradient[ 1 ], gradient[ 2 ], GetDistanceTo( position ) );
-        }
-    }
+    [[nodiscard]] Vector3f32 getCenter() const { return m_center; }
+    void setCenter( const Vector3f32& center ) { m_center = center; }
 
-    virtual float32 GetValue( const Vector3f32& position ) const override {
-        return m_UseV2 ? GetDistanceTo2( position ) : GetDistanceTo( position );
-    }
-
-    Vector3f32 GetCenter() const { return m_Center; }
-    void SetCenter( const Vector3f32& center ) { m_Center = center; }
-
-    Vector3f32 GetHalfExtents() const { return m_HalfExtents; }
-    void SetHalfExtents( const Vector3f32& halfExtents ) { m_HalfExtents = halfExtents; }
+    [[nodiscard]] Vector3f32 getHalfExtents() const { return m_halfExtents; }
+    void setHalfExtents( const Vector3f32& halfExtents ) { m_halfExtents = halfExtents; }
 
   protected:
-    float32 GetDistanceTo2( const Vector3f32& position ) const {
+    [[nodiscard]] float32 getDistanceTo( const Vector3f32& position ) const {
         using std::abs;
         using std::max;
         using std::min;
 
-        float32 x = max( position[ 0 ] - m_Center[ 0 ] - m_HalfExtents[ 0 ],
-                         m_Center[ 0 ] - position[ 0 ] - m_HalfExtents[ 0 ] );
+        float32 x = max( position[ 0 ] - m_center[ 0 ] - m_halfExtents[ 0 ],
+                         m_center[ 0 ] - position[ 0 ] - m_halfExtents[ 0 ] );
 
-        float32 y = max( position[ 1 ] - m_Center[ 1 ] - m_HalfExtents[ 1 ],
-                         m_Center[ 1 ] - position[ 1 ] - m_HalfExtents[ 1 ] );
+        float32 y = max( position[ 1 ] - m_center[ 1 ] - m_halfExtents[ 1 ],
+                         m_center[ 1 ] - position[ 1 ] - m_halfExtents[ 1 ] );
 
-        float32 z = max( position[ 2 ] - m_Center[ 2 ] - m_HalfExtents[ 2 ],
-                         m_Center[ 2 ] - position[ 2 ] - m_HalfExtents[ 2 ] );
-
-        float32 d = x;
-        d = max( d, y );
-        d = max( d, z );
-
-        return -d;
-    }
-
-    float32 GetDistanceTo( const Vector3f32& position ) const {
-        using std::abs;
-        using std::max;
-        using std::min;
-
-        float32 x = max( position[ 0 ] - m_Center[ 0 ] - m_HalfExtents[ 0 ],
-                         m_Center[ 0 ] - position[ 0 ] - m_HalfExtents[ 0 ] );
-
-        float32 y = max( position[ 1 ] - m_Center[ 1 ] - m_HalfExtents[ 1 ],
-                         m_Center[ 1 ] - position[ 1 ] - m_HalfExtents[ 1 ] );
-
-        float32 z = max( position[ 2 ] - m_Center[ 2 ] - m_HalfExtents[ 2 ],
-                         m_Center[ 2 ] - position[ 2 ] - m_HalfExtents[ 2 ] );
+        float32 z = max( position[ 2 ] - m_center[ 2 ] - m_halfExtents[ 2 ],
+                         m_center[ 2 ] - position[ 2 ] - m_halfExtents[ 2 ] );
 
         float32 d = x;
         d = max( d, y );
         d = max( d, z );
 
         Vector3f32 distance( x, y, z );
-        return d <= 0 ? distance.Length() : -distance.Length();
-
-        /*float32 distance = 0.0f;
-
-        const Vector3f distanceMinimum = position - m_Minimum;
-        const Vector3f distanceMaximum = m_Maximum - position;
-
-        // is inside
-        if ((distanceMinimum[0] >= 0.0f) && (distanceMinimum[1] >= 0.0f) && (distanceMinimum[2] >= 0.0f) &&
-            (distanceMaximum[0] >= 0.0f) && (distanceMaximum[1] >= 0.0f) && (distanceMaximum[2] >= 0.0f))
-        {
-            const float32 distances[6] = { distanceMinimum[0], distanceMinimum[1], distanceMinimum[2],
-                                        distanceMaximum[0], distanceMaximum[1], distanceMaximum[2] };
-
-            distance = std::numeric_limits<float32>::max();
-            for (unsigned char i = 0; i < 6; ++i)
-            {
-                if (distances[i] < distance)
-                {
-                    distance = distances[i];
-                }
-            }
-        }
-        else
-        {
-            distance = -Distance(position);
-        }
-
-        return distance;*/
+        return d <= 0 ? distance.length() : -distance.length();
     }
 
   protected:
-    Vector3f32 m_Center;
-    Vector3f32 m_HalfExtents;
-    bool m_UseV2 = false;
+    Vector3f32 m_center;
+    Vector3f32 m_halfExtents;
 };
 } // namespace onyx::volume

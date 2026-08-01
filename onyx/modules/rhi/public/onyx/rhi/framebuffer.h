@@ -14,7 +14,7 @@ struct FramebufferSettings {
     uint32_t m_Height = 0;
     uint32_t m_LayerCount = 0;
     Reference< RenderPass > m_RenderPass;
-    InplaceArray< Reference< Texture, TextureDeleter >, MAX_RENDERPASS_ATTACHMENTS > m_ColorTargets;
+    InplaceArray< Reference< Texture, TextureDeleter >, MaxRenderpassAttachments > m_ColorTargets;
     Reference< Texture, TextureDeleter > m_DepthTarget;
 
     String m_DebugName;

@@ -221,7 +221,7 @@ constexpr Array< PluralRule, 24 > PluralFunctions = {
 
 bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap ) {
     String fileContent;
-    bool hasSucceeded = file_system::OnyxFile::ReadAll( path, fileContent );
+    bool hasSucceeded = file_system::OnyxFile::readAll( path, fileContent );
 
     if( hasSucceeded == false ) {
         return false;

@@ -7,12 +7,12 @@
 
 namespace onyx::volume {
 namespace {
-static constexpr StringId64 HIT_BUFFER_RESOURCE_ID = "hit buffer";
+constexpr StringId64 HitBufferResourceId = "hit buffer";
 }
 
-Vector3f32 PreviewTerrainEditPass::BrushSize{ 0.0f };
-uint16_t PreviewTerrainEditPass::BrushType = 0;
-uint16_t PreviewTerrainEditPass::BrushOperation = 0;
+Vector3f32 PreviewTerrainEditPass::s_brushSize{ 0.0f };
+uint16_t PreviewTerrainEditPass::s_brushType = 0;
+uint16_t PreviewTerrainEditPass::s_brushOperation = 0;
 
 PreviewTerrainEditPass::PreviewTerrainEditPass() {
     m_pipelineProperties.Shader = "engine:/shaders/volume/render_terrain_brush.oshader";
@@ -25,12 +25,12 @@ PreviewTerrainEditPass::PreviewTerrainEditPass() {
 void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    uint64_t outputGlobalId = GetOutputPin( 0 )->GetGlobalId().get();
+    uint64_t outputGlobalId = getOutputPin( 0 )->getGlobalId().get();
 
-    const node_graph::PinBase* gbufferRenderTargetPin = GetInputPinByLocalId( InPin1::LocalId );
-    if( gbufferRenderTargetPin->IsConnected() ) {
+    const node_graph::PinBase* gbufferRenderTargetPin = getInputPinByLocalId( InPin1::LocalId );
+    if( gbufferRenderTargetPin->isConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
-            gbufferRenderTargetPin->GetLinkedPinGlobalId().get() );
+            gbufferRenderTargetPin->getLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
@@ -39,7 +39,7 @@ void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context
 void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    if( context.Graph.hasResource( HIT_BUFFER_RESOURCE_ID ) == false ) {
+    if( context.Graph.hasResource( HitBufferResourceId ) == false ) {
         return;
     }
 
@@ -53,17 +53,17 @@ void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rh
     };
 
     PushConstants constants;
-    const graphics::RenderGraphResource& hitBufferResource = context.Graph.getResource( HIT_BUFFER_RESOURCE_ID );
+    const graphics::RenderGraphResource& hitBufferResource = context.Graph.getResource( HitBufferResourceId );
     const rhi::BufferHandle& buffer = std::get< rhi::BufferHandle >( hitBufferResource.Handle );
-    constants.HitPositionBuffer = buffer.Buffer->GetGpuAddress();
+    constants.HitPositionBuffer = buffer.Buffer->getGpuAddress();
 
     const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
     const rhi::TextureHandle& depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
     constants.DepthTextureIndex = depthTexture.Texture->GetIndex();
 
-    constants.BrushSize = BrushSize;
-    constants.BrushType = BrushType;
-    constants.BrushOperation = BrushOperation;
+    constants.BrushSize = s_brushSize;
+    constants.BrushType = s_brushType;
+    constants.BrushOperation = s_brushOperation;
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1 );

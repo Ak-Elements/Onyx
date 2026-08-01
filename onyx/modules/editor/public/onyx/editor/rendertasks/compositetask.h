@@ -7,7 +7,7 @@ namespace onyx {
 class CompositeRenderGraphNode : public node_graph::FlexiblePinsNode< graphics::RenderGraphFixedShaderNode > {
   public:
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CompositePass";
-    StringId32 GetTypeId() const override { return TypeId; }
+    StringId32 getTypeId() const override { return TypeId; }
 
     CompositeRenderGraphNode();
 

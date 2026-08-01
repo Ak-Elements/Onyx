@@ -13,7 +13,7 @@ void ComputeMultipleScatteringRenderGraphNode::onBeginFrame( RenderGraphContext&
     ONYX_PROFILE_FUNCTION;
 
     RenderGraphResource& transmittanceResource = context.Graph.getResource(
-        GetInputPin().GetLinkedPinGlobalId().get() );
+        getInputPin().getLinkedPinGlobalId().get() );
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
         transmittanceResource.Handle );
     m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
@@ -31,7 +31,7 @@ void ComputeMultipleScatteringRenderGraphNode::onRender( RenderGraphContext& /*c
 }
 
 #if ONYX_IS_EDITOR
-StringView ComputeMultipleScatteringRenderGraphNode::GetPinName( StringId32 pinId ) const {
+StringView ComputeMultipleScatteringRenderGraphNode::getPinName( StringId32 pinId ) const {
     switch( pinId ) {
     case InPin::LocalId:
         return "Transmittance";

@@ -5,7 +5,7 @@
 
 namespace onyx::graphics::render_graph_nodes {
 void GetViewConstantsNode::init( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& resourceCache ) {
-    uint64_t outputGlobalPinId = GetOutputPin( 0 )->GetGlobalId().get();
+    uint64_t outputGlobalPinId = getOutputPin().getGlobalId().get();
     RenderGraphResource& resource = resourceCache[ outputGlobalPinId ];
     resource.Info.Name = "u_viewconstants";
     resource.Info.Type = RenderGraphResourceType::Buffer;
@@ -15,7 +15,7 @@ void GetViewConstantsNode::init( rhi::GraphicsSystem& /*api*/, RenderGraphResour
 void GetViewConstantsNode::beginFrame( RenderGraphContext& context ) {
     const rhi::FrameContext& frameContext = context.FrameContext;
 
-    uint64_t outputGlobalPinId = GetOutputPin( 0 )->GetGlobalId().get();
+    uint64_t outputGlobalPinId = getOutputPin().getGlobalId().get();
     context.Graph.getResource( outputGlobalPinId ).Handle = frameContext.Api->getViewConstantsBuffer();
 }
 

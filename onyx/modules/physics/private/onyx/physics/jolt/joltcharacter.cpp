@@ -78,8 +78,6 @@ void Character::update( PhysicsWorld3d& world, DeltaGameTime deltaTime ) {
     // Update the character position
     JPH::CharacterVirtual::ExtendedUpdateSettings settings;
 
-    [[maybe_unused]] JPH::Vec3 oldPosition = m_character->GetPosition();
-
     m_character->ExtendedUpdate( numericCast< float32 >( 1.0f / 60.0f ),
                                  -m_character->GetUp() * world.getGravity(),
                                  settings,

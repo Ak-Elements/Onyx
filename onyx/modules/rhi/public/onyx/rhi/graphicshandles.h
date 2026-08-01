@@ -39,7 +39,7 @@ using DescriptorSetHandle = Reference< DescriptorSet >;
 
 struct BufferHandle {
     static constexpr StringId32 TypeId = "onyx::rhi::BufferHandle";
-    StringId32 GetTypeId() const { return TypeId; }
+    static constexpr StringId32 getTypeId() { return TypeId; }
 
     Reference< Buffer > Buffer;
     int8_t Alias = InvalidIndex8;
@@ -47,18 +47,22 @@ struct BufferHandle {
     bool isValid() const { return Buffer.isValid(); }
     operator bool() const { return isValid(); }
 
-    uint64_t GetGpuAddress() const { return Buffer->GetGpuAddress() + GetOffset(); }
-    uint64_t GetOffset() const { return Alias == InvalidIndex8 ? 0 : Buffer->GetAliasOffset( Alias ); }
-    uint64_t GetSize() const { return Buffer->GetAliasSize( Alias ); }
+    uint64_t getGpuAddress() const {
+        ONYX_ASSERT( isValid(), "Buffer is not valid" );
+        ONYX_ASSERT( Buffer->hasGpuAddress(), "Buffer was not created with DeviceAddress flag." );
+        return Buffer->getGpuAddress() + getOffset();
+    }
+    uint64_t getOffset() const { return Alias == InvalidIndex8 ? 0 : Buffer->getAliasOffset( Alias ); }
+    uint64_t getSize() const { return Buffer->getAliasSize( Alias ); }
 
     template < typename T >
-    void SetData( const T& data ) {
-        Buffer->SetData( GetOffset(), &data, sizeof( T ) );
+    void setData( const T& data ) {
+        Buffer->setData( getOffset(), &data, sizeof( T ) );
     }
 
     template < typename T >
-    void SetData( Span< T > span ) {
-        Buffer->SetData( static_cast< uint32_t >( GetOffset() ),
+    void setData( Span< T > span ) {
+        Buffer->setData( static_cast< uint32_t >( getOffset() ),
                          span.data(),
                          static_cast< int32_t >( span.size() * sizeof( T ) ) );
     }
@@ -72,15 +76,15 @@ struct BufferHandle {
 
 struct TextureHandle {
     static constexpr StringId32 TypeId = "onyx::rhi::TextureHandle";
-    StringId32 GetTypeId() const { return TypeId; }
+    static constexpr StringId32 getTypeId() { return TypeId; }
 
     TextureStorageHandle Storage;
     TextureViewHandle Texture;
     int8_t Alias = InvalidIndex8;
 
-    operator bool() const { return IsValid(); }
+    operator bool() const { return isValid(); }
 
-    bool IsValid() const { return Texture && Storage; }
+    bool isValid() const { return Texture && Storage; }
 
     friend bool operator==( const TextureHandle& lhs, const TextureHandle& rhs ) {
         return lhs.Texture == rhs.Texture && lhs.Storage == rhs.Storage;
@@ -128,11 +132,13 @@ struct PinMetaObject< rhi::BufferHandle > {
     static bool DrawPinInPropertyGrid( StringView name, rhi::BufferHandle& value );
     static constexpr uint32_t GetPinTypeColor() { return 0xFF5C5CCD; /* Indian Red */ }
 #endif
-    static bool serialize( [[maybe_unused]] file_system::JsonValue& json, [[maybe_unused]] const rhi::BufferHandle& handle ) {
+    static bool serialize( [[maybe_unused]] file_system::JsonValue& json,
+                           [[maybe_unused]] const rhi::BufferHandle& handle ) {
         return true;
     }
 
-    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json, [[maybe_unused]] rhi::BufferHandle& handle ) {
+    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json,
+                             [[maybe_unused]] rhi::BufferHandle& handle ) {
         return true;
     }
 };
@@ -144,11 +150,13 @@ struct PinMetaObject< rhi::TextureHandle > {
     static constexpr uint32_t GetPinTypeColor() { return 0xFFB48246; /*Steel Blue*/ }
 #endif
 
-    static bool serialize( [[maybe_unused]] file_system::JsonValue& json, [[maybe_unused]] const rhi::TextureHandle& handle ) {
+    static bool serialize( [[maybe_unused]] file_system::JsonValue& json,
+                           [[maybe_unused]] const rhi::TextureHandle& handle ) {
         return true;
     }
 
-    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json, [[maybe_unused]] rhi::TextureHandle& handle ) {
+    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json,
+                             [[maybe_unused]] rhi::TextureHandle& handle ) {
         return true;
     }
 };

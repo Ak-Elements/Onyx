@@ -22,11 +22,11 @@ struct Xkb {
 
     void setState( xkb_state* state );
     xkb_state* getState() { return m_state; }
-    ONYX_NO_DISCARD const xkb_state* getState() const { return m_state; }
+    [[nodiscard]] const xkb_state* getState() const { return m_state; }
 
     void setKeymap( xkb_keymap* keymap );
     xkb_keymap* getKeymap() { return m_keymap; }
-    ONYX_NO_DISCARD const xkb_keymap* getKeymap() const { return m_keymap; }
+    [[nodiscard]] const xkb_keymap* getKeymap() const { return m_keymap; }
 
   private:
     xkb_keymap* m_keymap = nullptr;

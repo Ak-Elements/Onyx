@@ -55,7 +55,7 @@ bool renderCreatePopup( InputActionSettingsWindow& inputSettingsWindow,
         for( auto&& [ typeId, bindingMetaData ] : registeredBindings ) {
             StringView buttonLabel = format::format( "{} {}",
                                                      localization::generic::Add,
-                                                     localizationSystem.GetLocalized( typeId ) );
+                                                     localizationSystem.getLocalized( typeId ) );
             if( ImGui::MenuItem( buttonLabel.data() ) ) {
                 commandsHistory.push< CommandT >( typeId, inputSettingsWindow );
                 ImGui::CloseCurrentPopup();
@@ -99,15 +99,15 @@ void InputActionSettingsWindow::onOpen() {
 
     input::InputSystem& inputSystem = getEngineSystem< input::InputSystem >();
 
-    inputSystem.OnMouseAxisChange().Connect< &InputActionSettingsWindow::onMouseAxisChange >( this );
-    inputSystem.OnMouseButton().Connect< &InputActionSettingsWindow::onMouseButton >( this );
-    inputSystem.OnMousePositionChange().Connect< &InputActionSettingsWindow::onMousePositionChange >( this );
-    inputSystem.OnKey().Connect< &InputActionSettingsWindow::onKey >( this );
-    inputSystem.OnControllerAxisChange().Connect< &InputActionSettingsWindow::onControllerAxisChange >( this );
-    inputSystem.OnControllerButton().Connect< &InputActionSettingsWindow::onControllerButton >( this );
+    inputSystem.onMouseAxisChange().connect< &InputActionSettingsWindow::onMouseAxisChange >( this );
+    inputSystem.onMouseButton().connect< &InputActionSettingsWindow::onMouseButton >( this );
+    inputSystem.onMousePositionChange().connect< &InputActionSettingsWindow::onMousePositionChange >( this );
+    inputSystem.onKey().connect< &InputActionSettingsWindow::onKey >( this );
+    inputSystem.onControllerAxisChange().connect< &InputActionSettingsWindow::onControllerAxisChange >( this );
+    inputSystem.onControllerButton().connect< &InputActionSettingsWindow::onControllerButton >( this );
 
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.OnInput< &InputActionSettingsWindow::onDeleteAction >( "Delete"_id64, this );
+    inputActionSystem.onInput< &InputActionSettingsWindow::onDeleteAction >( "Delete"_id64, this );
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
     CommandHistoryWindow& history = imguiSystem.openWindow< CommandHistoryWindow >( *this );
@@ -118,12 +118,12 @@ void InputActionSettingsWindow::onOpen() {
 void InputActionSettingsWindow::onClose() {
     input::InputSystem& inputSystem = getEngineSystem< input::InputSystem >();
 
-    inputSystem.OnMouseAxisChange().Disconnect( this );
-    inputSystem.OnMouseButton().Disconnect( this );
-    inputSystem.OnMousePositionChange().Disconnect( this );
-    inputSystem.OnKey().Disconnect( this );
-    inputSystem.OnControllerAxisChange().Disconnect( this );
-    inputSystem.OnControllerButton().Disconnect( this );
+    inputSystem.onMouseAxisChange().disconnect( this );
+    inputSystem.onMouseButton().disconnect( this );
+    inputSystem.onMousePositionChange().disconnect( this );
+    inputSystem.onKey().disconnect( this );
+    inputSystem.onControllerAxisChange().disconnect( this );
+    inputSystem.onControllerButton().disconnect( this );
 }
 
 void InputActionSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
@@ -192,7 +192,7 @@ void InputActionSettingsWindow::onRenderMainMenuBar() {
                 assets::AssetHandle< input_actions::InputActionsContext > asset;
                 assets::AssetId assetId( path );
                 assetSystem.getAssetUnmanaged( assetId, asset );
-                asset->getOnLoadedEvent().Connect< &InputActionSettingsWindow::onInputAssetLoaded >( this );
+                asset->getOnLoadedEvent().connect< &InputActionSettingsWindow::onInputAssetLoaded >( this );
             }
         }
 
@@ -561,7 +561,7 @@ void InputActionSettingsWindow::onDeleteAction( const input_actions::InputAction
         return;
     }
 
-    if( deleteAction.GetData< bool >() == false ) {
+    if( deleteAction.getData< bool >() == false ) {
         return;
     }
 

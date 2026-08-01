@@ -1,15 +1,15 @@
 #pragma once
 
 namespace onyx::rhi {
-inline constexpr uint8_t MAX_FRAMES_IN_FLIGHT = 2;
+inline constexpr uint8_t MaxFramesInFlight = 2;
 
-inline constexpr uint8_t MAX_RENDERPASS_ATTACHMENTS = 8;
-inline constexpr uint8_t MAX_SUBPASSES = 8;
+inline constexpr uint8_t MaxRenderpassAttachments = 8;
+inline constexpr uint8_t MaxSubpasses = 8;
 
-inline constexpr uint8_t MAX_DESCRIPTOR_SET_LAYOUTS = 8;
+inline constexpr uint8_t MaxDescriptorSetLayouts = 8;
 
 // keep in sync with ShaderStage enum in Graphics::ShaderModule
-inline constexpr uint8_t MAX_SHADER_STAGES = 5;
+inline constexpr uint8_t MaxShaderStages = 5;
 
 struct Bindless {
     static constexpr uint8_t Set = 0;

@@ -91,7 +91,7 @@ template < typename T > class Asset : public AssetInterface {
     void onLoadFinished( AssetId id, AssetState state ) override {
         if( state == AssetState::Loaded ) {
             Reference< AssetT > ref( this );
-            m_loadedSignal.Dispatch( AssetHandle< AssetT >( id, ref ) );
+            m_loadedSignal.dispatch( AssetHandle< AssetT >( id, ref ) );
         }
 
         // set to loaded after callbacks to not trigger code that depends on those callback early

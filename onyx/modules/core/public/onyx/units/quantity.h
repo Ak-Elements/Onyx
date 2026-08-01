@@ -20,7 +20,7 @@ template < Numeric Rep, typename Period >
 struct Quantity;
 
 template < StorageQuantity TTo, StorageQuantity TFrom >
-ONYX_NO_DISCARD constexpr auto quantityCast( const TFrom& quantity ) noexcept -> TTo;
+[[nodiscard]] constexpr auto quantityCast( const TFrom& quantity ) noexcept -> TTo;
 
 template < Numeric Rep, typename Period >
 struct Quantity {
@@ -42,13 +42,13 @@ struct Quantity {
     constexpr explicit Quantity( const Quantity< Rep2, Period2 >& quantity ) noexcept
         : m_rep( quantityCast< Quantity >( quantity ).count() ) {}
 
-    ONYX_NO_DISCARD constexpr auto count() const noexcept -> RepresentType { return m_rep; }
+    [[nodiscard]] constexpr auto count() const noexcept -> RepresentType { return m_rep; }
 
-    ONYX_NO_DISCARD constexpr auto operator+() const noexcept -> std::common_type_t< Quantity > {
+    [[nodiscard]] constexpr auto operator+() const noexcept -> std::common_type_t< Quantity > {
         return std::common_type_t< Quantity >( *this );
     }
 
-    ONYX_NO_DISCARD constexpr auto operator-() const noexcept -> std::common_type_t< Quantity > {
+    [[nodiscard]] constexpr auto operator-() const noexcept -> std::common_type_t< Quantity > {
         return std::common_type_t< Quantity >( -m_rep );
     }
 
@@ -109,13 +109,13 @@ struct Quantity {
     friend constexpr auto operator<=>( const Quantity& first, const Quantity& second ) noexcept -> decltype( auto ) {
         return first.m_rep <=> second.m_rep;
     }
-    ONYX_NO_DISCARD static constexpr Quantity zero() noexcept { return Quantity( RepresentType( 0 ) ); }
+    [[nodiscard]] static constexpr Quantity zero() noexcept { return Quantity( RepresentType( 0 ) ); }
 
-    ONYX_NO_DISCARD static constexpr Quantity min() noexcept {
+    [[nodiscard]] static constexpr Quantity min() noexcept {
         return Quantity( std::numeric_limits< RepresentType >::min() );
     }
 
-    ONYX_NO_DISCARD static constexpr Quantity max() noexcept {
+    [[nodiscard]] static constexpr Quantity max() noexcept {
         return Quantity( std::numeric_limits< RepresentType >::max() );
     }
 
@@ -124,7 +124,7 @@ struct Quantity {
 };
 
 template < StorageQuantity TTo, StorageQuantity TFrom >
-ONYX_NO_DISCARD constexpr auto quantityCast( const TFrom& quantity ) noexcept -> TTo {
+[[nodiscard]] constexpr auto quantityCast( const TFrom& quantity ) noexcept -> TTo {
     // convert Quantity to another Quantity; truncate
     using CalRatioType = RatioDivide< typename TFrom::PeriodType, typename TTo::PeriodType >;
     using CommonRepType = std::common_type_t< typename TTo::RepresentType, typename TFrom::RepresentType, uint64_t >;
@@ -157,7 +157,7 @@ ONYX_NO_DISCARD constexpr auto quantityCast( const TFrom& quantity ) noexcept ->
 
 template < typename ToPeriod, typename FromPeriod, typename Rep >
 requires IsRatio< ToPeriod > && IsRatio< FromPeriod > && std::is_arithmetic_v< Rep >
-ONYX_NO_DISCARD constexpr auto quantityCast( Rep value ) noexcept -> Rep {
+[[nodiscard]] constexpr auto quantityCast( Rep value ) noexcept -> Rep {
     using FromQuantity = Quantity< Rep, FromPeriod >;
     using ToQuantity = Quantity< Rep, ToPeriod >;
 
@@ -166,7 +166,7 @@ ONYX_NO_DISCARD constexpr auto quantityCast( Rep value ) noexcept -> Rep {
 
 template < typename ToPeriod, typename FromPeriod, typename VectorT >
 requires IsRatio< ToPeriod > && IsRatio< FromPeriod > && IsVector< VectorT >
-ONYX_NO_DISCARD constexpr auto quantityCast( VectorT value ) noexcept -> VectorT {
+[[nodiscard]] constexpr auto quantityCast( VectorT value ) noexcept -> VectorT {
     using FromQuantity = Quantity< typename VectorT::ScalarT, FromPeriod >;
     using ToQuantity = Quantity< typename VectorT::ScalarT, ToPeriod >;
 
@@ -186,8 +186,8 @@ ONYX_NO_DISCARD constexpr auto quantityCast( VectorT value ) noexcept -> VectorT
 }
 
 template < typename TRep1, typename TPeriod1, typename TRep2, typename TPeriod2 >
-ONYX_NO_DISCARD constexpr auto operator+( const Quantity< TRep1, TPeriod1 >& first,
-                                          const Quantity< TRep2, TPeriod2 >& second ) noexcept
+[[nodiscard]] constexpr auto operator+( const Quantity< TRep1, TPeriod1 >& first,
+                                        const Quantity< TRep2, TPeriod2 >& second ) noexcept
     -> std::common_type_t< Quantity< TRep1, TPeriod1 >, Quantity< TRep2, TPeriod2 > > {
     using ResultType = std::common_type_t< Quantity< TRep1, TPeriod1 >, Quantity< TRep2, TPeriod2 > >;
     return ResultType( ResultType( first ).count() + ResultType( second ).count() );
@@ -201,9 +201,9 @@ template < typename TRep1, typename TPeriod1, typename TRep2, typename TPeriod2 
 }
 
 template < typename TRep, typename TPeriod >
-ONYX_NO_DISCARD constexpr auto clamp( const Quantity< TRep, TPeriod >& quantity,
-                                      const Quantity< TRep, TPeriod >& min,
-                                      const Quantity< TRep, TPeriod >& max ) noexcept -> Quantity< TRep, TPeriod > {
+[[nodiscard]] constexpr auto clamp( const Quantity< TRep, TPeriod >& quantity,
+                                    const Quantity< TRep, TPeriod >& min,
+                                    const Quantity< TRep, TPeriod >& max ) noexcept -> Quantity< TRep, TPeriod > {
     if( quantity.count() < min.count() )
         return min;
     else if( quantity.count() > max.count() )

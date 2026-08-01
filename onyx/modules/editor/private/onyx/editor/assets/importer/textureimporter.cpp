@@ -5,11 +5,11 @@
 
 namespace onyx::editor {
 AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::AssetMetaData& outAssetMeta ) {
-    if ( file_system::path::exists( path ) == false )
+    if( file_system::path::exists( path ) == false )
         return AssetImportResult::FileNotFound;
 
     const String& extension = path.extension().string();
-    if ( extension != ".png" )
+    if( extension != ".png" )
         // or others
         return AssetImportResult::InvalidFormat;
 
@@ -24,7 +24,7 @@ AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::Asset
 
     {
         file_system::OnyxFile importedTexFile( importedTexturePath );
-        file_system::FileStream binaryStream = importedTexFile.OpenStream( file_system::OpenMode::Binary |
+        file_system::FileStream binaryStream = importedTexFile.openStream( file_system::OpenMode::Binary |
                                                                            file_system::OpenMode::Write );
 
         // Write out the import format

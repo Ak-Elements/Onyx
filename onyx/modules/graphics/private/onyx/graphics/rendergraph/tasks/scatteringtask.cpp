@@ -13,7 +13,7 @@ void CreateTransmittanceRenderGraphNode::onRender( RenderGraphContext& /*context
 }
 
 #if ONYX_IS_EDITOR
-StringView CreateTransmittanceRenderGraphNode::GetPinName( StringId32 /*pinId*/ ) const {
+StringView CreateTransmittanceRenderGraphNode::getPinName( StringId32 /*pinId*/ ) const {
     return "Transmittance";
 }
 #endif

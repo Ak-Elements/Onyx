@@ -15,11 +15,11 @@ class FlexiblePinsNode : public NodeType {
 
     FlexiblePinsNode( FlexiblePinsNode&& other ) noexcept
         : NodeType( std::move( other ) )
-        , m_InputPins( std::move( other.m_InputPins ) )
-        , m_OutputPins( std::move( other.m_OutputPins ) ) {}
+        , m_inputPins( std::move( other.m_inputPins ) )
+        , m_outputPins( std::move( other.m_outputPins ) ) {}
 
     FlexiblePinsNode& operator=( FlexiblePinsNode&& other ) noexcept {
-        if ( this == &other )
+        if( this == &other )
             return *this;
 
         using std::swap;
@@ -27,52 +27,52 @@ class FlexiblePinsNode : public NodeType {
         return *this;
     }
 
-    const DynamicArray< UniquePtr< PinBase > >& GetInputs() const { return m_InputPins; }
-    const DynamicArray< UniquePtr< PinBase > >& GetOutputs() const { return m_OutputPins; }
+    [[nodiscard]] const DynamicArray< UniquePtr< PinBase > >& getInputs() const { return m_inputPins; }
+    [[nodiscard]] const DynamicArray< UniquePtr< PinBase > >& getOutputs() const { return m_outputPins; }
 
-    uint32_t GetInputPinCount() const override { return static_cast< uint32_t >( m_InputPins.size() ); }
-    uint32_t GetOutputPinCount() const override { return static_cast< uint32_t >( m_OutputPins.size() ); }
+    [[nodiscard]] uint32_t getInputPinCount() const override { return static_cast< uint32_t >( m_inputPins.size() ); }
+    [[nodiscard]] uint32_t getOutputPinCount() const override { return static_cast< uint32_t >( m_outputPins.size() ); }
 
-    PinBase* GetInputPin( uint32_t index ) override { return m_InputPins[ index ].get(); }
-    const PinBase* GetInputPin( uint32_t index ) const override { return m_InputPins[ index ].get(); }
+    PinBase* getInputPin( uint32_t index ) override { return m_inputPins[ index ].get(); }
+    [[nodiscard]] const PinBase* getInputPin( uint32_t index ) const override { return m_inputPins[ index ].get(); }
 
-    PinBase* GetOutputPin( uint32_t index ) override { return m_OutputPins[ index ].get(); }
-    const PinBase* GetOutputPin( uint32_t index ) const override { return m_OutputPins[ index ].get(); }
+    PinBase* getOutputPin( uint32_t index ) override { return m_outputPins[ index ].get(); }
+    [[nodiscard]] const PinBase* getOutputPin( uint32_t index ) const override { return m_outputPins[ index ].get(); }
 
 #if ONYX_IS_EDITOR
 
-    std::any CreateDefaultForPin( StringId32 pinId ) const override {
-        auto inputIt = std::find_if( m_InputPins.begin(), m_InputPins.end(), [ & ]( const auto& pin ) {
-            return pin->GetLocalId() == pinId;
+    [[nodiscard]] std::any createDefaultForPin( StringId32 pinId ) const override {
+        auto inputIt = std::find_if( m_inputPins.begin(), m_inputPins.end(), [ & ]( const auto& pin ) {
+            return pin->getLocalId() == pinId;
         } );
 
-        if ( inputIt != m_InputPins.end() )
-            return ( *inputIt )->CreateDefault();
+        if( inputIt != m_inputPins.end() )
+            return ( *inputIt )->createDefault();
 
-        auto outputIt = std::find_if( m_OutputPins.begin(), m_OutputPins.end(), [ & ]( const auto& pin ) {
-            return pin->GetLocalId() == pinId;
+        auto outputIt = std::find_if( m_outputPins.begin(), m_outputPins.end(), [ & ]( const auto& pin ) {
+            return pin->getLocalId() == pinId;
         } );
 
-        if ( outputIt != m_OutputPins.end() )
-            return ( *outputIt )->CreateDefault();
+        if( outputIt != m_outputPins.end() )
+            return ( *outputIt )->createDefault();
 
         ONYX_ASSERT( false, "Failed to get pin with local id {}", pinId );
         return nullptr;
     }
 
-    StringView GetPinName( StringId32 pinId ) const override {
-        const uint32_t inputPinCount = GetInputPinCount();
-        for ( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const PinBase* inputPin = GetInputPin( i );
-            if ( inputPin->GetLocalId() == pinId )
-                return inputPin->GetLocalIdString();
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        const uint32_t inputPinCount = getInputPinCount();
+        for( uint32_t i = 0; i < inputPinCount; ++i ) {
+            const PinBase* inputPin = getInputPin( i );
+            if( inputPin->getLocalId() == pinId )
+                return inputPin->getLocalIdString();
         }
 
-        const uint32_t outputPinCount = GetOutputPinCount();
-        for ( uint32_t i = 0; i < outputPinCount; ++i ) {
-            const PinBase* outputPin = GetOutputPin( i );
-            if ( outputPin->GetLocalId() == pinId )
-                return outputPin->GetLocalIdString();
+        const uint32_t outputPinCount = getOutputPinCount();
+        for( uint32_t i = 0; i < outputPinCount; ++i ) {
+            const PinBase* outputPin = getOutputPin( i );
+            if( outputPin->getLocalId() == pinId )
+                return outputPin->getLocalIdString();
         }
 
         ONYX_ASSERT( false, "Failed to find pin" );
@@ -82,31 +82,31 @@ class FlexiblePinsNode : public NodeType {
 
   protected:
     template < typename T >
-    void AddInputPin() {
+    void addInputPin() {
         // ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
         // ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-        m_InputPins.emplace_back( new DynamicPin< T >( format::format( "InputPin_{}", m_InputPins.size() ) ) );
+        m_inputPins.emplace_back( new DynamicPin< T >( format::format( "InputPin_{}", m_inputPins.size() ) ) );
     }
 
     template < typename Pin >
-    void AddInPin() {
+    void addInPin() {
         // ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
         // ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-        m_InputPins.emplace_back( new Pin() );
+        m_inputPins.emplace_back( new Pin() );
     }
 
     template < typename T >
-    void AddInputPinAt( uint32_t index ) {
+    void addInputPinAt( uint32_t index ) {
         // ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
         // ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-        m_InputPins.emplace( m_InputPins.begin() + index,
+        m_inputPins.emplace( m_inputPins.begin() + index,
                              new DynamicPin< T >( format::format( "InputPin_{}", index ) ) );
     }
 
-    void RemoveInputPinAt( uint32_t index ) {
+    void removeInputPinAt( uint32_t index ) {
         // ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
         // ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-        m_InputPins.erase( m_InputPins.begin() + index );
+        m_inputPins.erase( m_inputPins.begin() + index );
     }
 
     // void AddInputPin(PinBase&& pin)
@@ -117,17 +117,17 @@ class FlexiblePinsNode : public NodeType {
     // }
 
     template < typename T >
-    void AddOutputPin() {
+    void addOutputPin() {
         // ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
         // ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-        m_OutputPins.emplace_back( new DynamicPin< T >( format::format( "OutputPin_{}", m_OutputPins.size() ) ) );
+        m_outputPins.emplace_back( new DynamicPin< T >( format::format( "OutputPin_{}", m_outputPins.size() ) ) );
     }
 
     template < typename Pin >
-    void AddOutPin() {
+    void addOutPin() {
         // ONYX_ASSERT(HasInputPin<Pin>() == false, "Pin already registed with the same id as input.");
         // ONYX_ASSERT(HasOutputPin<Pin>() == false, "Pin already registed with the same id as output.");
-        m_OutputPins.emplace_back( new Pin() );
+        m_outputPins.emplace_back( new Pin() );
     }
 
     // void AddOutputPin(PinBase&& pin)
@@ -139,8 +139,8 @@ class FlexiblePinsNode : public NodeType {
 
   private:
     bool deserializePins( const Deserializer& deserializer ) override {
-        return deserializePins< "inputs" >( deserializer, m_InputPins ) &&
-               deserializePins< "outputs" >( deserializer, m_OutputPins );
+        return deserializePins< "inputs" >( deserializer, m_inputPins ) &&
+               deserializePins< "outputs" >( deserializer, m_outputPins );
     }
 
     template < CompileTimeString Name >
@@ -150,24 +150,24 @@ class FlexiblePinsNode : public NodeType {
 
         bool success = deserializer.readForEach< Name >( [ & ]( const Deserializer& scopedDeserializer ) {
             StringId32 localPinId;
-            if ( scopedDeserializer.read< "localId" >( localPinId ) == false ) {
+            if( scopedDeserializer.read< "localId" >( localPinId ) == false ) {
                 ONYX_LOG_ERROR( "Pin is missing localId in json." );
                 return false;
             }
 
-            if ( scopedDeserializer.read< "id" >( globalPinId ) == false ) {
+            if( scopedDeserializer.read< "id" >( globalPinId ) == false ) {
                 ONYX_LOG_ERROR( "Pin is missing global id in json." );
                 return false;
             }
 
             auto pinIt = std::ranges::find_if( outPins, [ & ]( const UniquePtr< PinBase >& pin ) {
-                return pin->GetLocalId() == localPinId;
+                return pin->getLocalId() == localPinId;
             } );
 
             PinBase* pin = pinIt != outPins.end() ? pinIt->get() : nullptr;
-            if ( pin == nullptr ) {
+            if( pin == nullptr ) {
                 StringId32 typeId;
-                if ( scopedDeserializer.read< "typeId" >( typeId ) == false ) {
+                if( scopedDeserializer.read< "typeId" >( typeId ) == false ) {
                     ONYX_LOG_ERROR( "Pin is missing type id in json." );
                     return false;
                 }
@@ -175,11 +175,11 @@ class FlexiblePinsNode : public NodeType {
                 pin = outPins.emplace_back( CreatePin( typeId, globalPinId, localPinId ) ).get();
 
             } else {
-                pin->SetGlobalId( globalPinId );
+                pin->setGlobalId( globalPinId );
             }
 
-            if ( scopedDeserializer.read< "linkedPin" >( linkedPinId ) ) {
-                pin->ConnectPin( linkedPinId );
+            if( scopedDeserializer.read< "linkedPin" >( linkedPinId ) ) {
+                pin->connectPin( linkedPinId );
             }
             return true;
         } );
@@ -212,7 +212,7 @@ class FlexiblePinsNode : public NodeType {
 #endif
 
   private:
-    DynamicArray< UniquePtr< PinBase > > m_InputPins;
-    DynamicArray< UniquePtr< PinBase > > m_OutputPins;
+    DynamicArray< UniquePtr< PinBase > > m_inputPins;
+    DynamicArray< UniquePtr< PinBase > > m_outputPins;
 };
 } // namespace onyx::node_graph

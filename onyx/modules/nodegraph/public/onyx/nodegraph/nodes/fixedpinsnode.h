@@ -6,34 +6,34 @@ namespace onyx::node_graph {
 template < typename NodeType, uint8_t InPinCount, uint8_t OutPinCount >
 class FixedPinNode : public NodeType {
   public:
-    uint32_t GetInputPinCount() const final { return InPinCount; }
-    uint32_t GetOutputPinCount() const final { return OutPinCount; }
+    [[nodiscard]] uint32_t getInputPinCount() const final { return InPinCount; }
+    [[nodiscard]] uint32_t getOutputPinCount() const final { return OutPinCount; }
 
 #if ONYX_IS_EDITOR
-    std::any CreateDefaultForPin( StringId32 pinId ) const override {
-        const PinBase* inputPin = this->GetInputPinByLocalId( pinId );
-        if ( inputPin != nullptr ) {
-            return inputPin->CreateDefault();
+    [[nodiscard]] std::any createDefaultForPin( StringId32 pinId ) const override {
+        const PinBase* inputPin = this->getInputPinByLocalId( pinId );
+        if( inputPin != nullptr ) {
+            return inputPin->createDefault();
         }
 
-        const PinBase* outputPin = this->GetOutputPinByLocalId( pinId );
-        if ( outputPin != nullptr ) {
-            return outputPin->CreateDefault();
+        const PinBase* outputPin = this->getOutputPinByLocalId( pinId );
+        if( outputPin != nullptr ) {
+            return outputPin->createDefault();
         }
 
         ONYX_ASSERT( false, "Failed to get pin with local id {}", pinId );
         return nullptr;
     }
 
-    StringView GetPinName( StringId32 pinId ) const override {
-        const PinBase* inputPin = this->GetInputPinByLocalId( pinId );
-        if ( inputPin != nullptr ) {
-            return inputPin->GetLocalIdString();
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        const PinBase* inputPin = this->getInputPinByLocalId( pinId );
+        if( inputPin != nullptr ) {
+            return inputPin->getLocalIdString();
         }
 
-        const PinBase* outputPin = this->GetOutputPinByLocalId( pinId );
-        if ( outputPin != nullptr ) {
-            return outputPin->GetLocalIdString();
+        const PinBase* outputPin = this->getOutputPinByLocalId( pinId );
+        if( outputPin != nullptr ) {
+            return outputPin->getLocalIdString();
         }
 
         ONYX_ASSERT( false, "Failed to get pin with local id {}", pinId );

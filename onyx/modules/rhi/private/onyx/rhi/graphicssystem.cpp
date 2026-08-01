@@ -57,12 +57,12 @@ bool Serialization< rhi::GraphicSettings >::deserialize( const Deserializer& des
 } // namespace onyx
 
 namespace onyx::rhi {
-GraphicsSystem::GraphicsSystem( const GraphicSettings& settings,
+GraphicsSystem::GraphicsSystem( GraphicSettings settings,
                                 assets::AssetSystem& assetSystem,
                                 platform::PlatformSystem& platformSystem )
     : m_assetSystem( &assetSystem )
     , m_platformSystem( &platformSystem )
-    , m_settings( settings )
+    , m_settings( std::move( settings ) )
     , m_depthTextureFormat( TextureFormat::DEPTH_FLOAT32 ) {
     constexpr StringId32 DefaultBlendStateId( "default" );
     constexpr StringId32 NoBlendStateId( "noblend" );
@@ -74,7 +74,7 @@ GraphicsSystem::GraphicsSystem( const GraphicSettings& settings,
     BlendState& noBlendState = m_blendStates[ NoBlendStateId ];
     noBlendState.IsBlendEnabled = false;
 
-    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
         m_frameContext[ i ].Api = this;
     }
 
@@ -84,7 +84,7 @@ GraphicsSystem::GraphicsSystem( const GraphicSettings& settings,
     m_graphicsSystem = makeUnique< vulkan::VulkanGraphicsApi >();
     m_graphicsSystem->init( m_limits, m_settings );
 
-    for( const UniquePtr< platform::Window >& window : m_platformSystem->GetWindows() ) {
+    for( const UniquePtr< platform::Window >& window : m_platformSystem->getWindows() ) {
         onWindowCreate( *window );
     }
 
@@ -109,7 +109,7 @@ GraphicsSystem::~GraphicsSystem() {
 
     m_graphicsSystem->shutdown();
 
-    m_platformSystem->DisconnectSignals( this );
+    m_platformSystem->disconnectSignals( this );
 }
 
 void GraphicsSystem::createDepthImages( Vector2s32 extents ) {
@@ -128,7 +128,7 @@ void GraphicsSystem::createDepthImages( Vector2s32 extents ) {
     TextureProperties depthTargetViewProperties;
     depthTargetViewProperties.Format = depthTargetStorageProperties.m_Format;
 
-    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
         depthTargetStorageProperties.m_DebugName = format::format( "Depth Storage {}", i );
         depthTargetViewProperties.DebugName = format::format( "Depth Image {}", i );
 
@@ -142,7 +142,7 @@ void GraphicsSystem::createViewConstantBuffers() {
     uniformBufferProps.m_UsageFlags = static_cast< uint8_t >( BufferUsage::Uniform | BufferUsage::DeviceAddress );
     uniformBufferProps.m_CpuAccess = CPUAccess::Write;
 
-    for( uint8_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
         uniformBufferProps.m_DebugName = format::format( "ViewConstants-{}", i );
         createBuffer( m_viewConstantsUniformBuffers[ i ], uniformBufferProps );
     }
@@ -151,8 +151,8 @@ void GraphicsSystem::createViewConstantBuffers() {
 bool GraphicsSystem::beginFrame() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
-    platform::Window& mainWindow = m_platformSystem->GetMainWindow();
-    if( mainWindow.IsMinimized() )
+    platform::Window& mainWindow = m_platformSystem->getMainWindow();
+    if( mainWindow.isMinimized() )
         return false;
 
     if( m_camera != m_queuedCamera )
@@ -183,11 +183,11 @@ bool GraphicsSystem::beginFrame() {
         viewConstants.Far = m_camera->getFar();
     }
 
-    m_viewConstantsUniformBuffers[ m_frameIndex ].Buffer->SetData( 0,
+    m_viewConstantsUniformBuffers[ m_frameIndex ].Buffer->setData( 0,
                                                                    &currentFrameContext.ViewConstants,
                                                                    sizeof( ViewConstants ) );
 
-    m_beginFrameSignal.Dispatch( currentFrameContext );
+    m_beginFrameSignal.dispatch( currentFrameContext );
 
     return true;
 }
@@ -196,7 +196,7 @@ void GraphicsSystem::render() {
     ONYX_PROFILE( Graphics );
     ONYX_PROFILE_FUNCTION;
 
-    m_renderFrameSignal.Dispatch( getFrameContext() );
+    m_renderFrameSignal.dispatch( getFrameContext() );
 }
 
 void GraphicsSystem::endFrame() {
@@ -205,7 +205,7 @@ void GraphicsSystem::endFrame() {
 
     FrameContext& currentFrameContext = m_frameContext[ m_frameIndex ];
 
-    m_endFrameSignal.Dispatch( currentFrameContext );
+    m_endFrameSignal.dispatch( currentFrameContext );
 
     // Transition image to present
     TextureHandle& swapchainTarget = m_graphicsSystem->getAcquiredSwapChainImage();
@@ -223,7 +223,7 @@ void GraphicsSystem::endFrame() {
 
     ONYX_PROFILE_MARK_FRAME_END( GPU_FRAME_NAME );
 
-    m_frameIndex = ( m_frameIndex + 1 ) % MAX_FRAMES_IN_FLIGHT;
+    m_frameIndex = ( m_frameIndex + 1 ) % MaxFramesInFlight;
     FrameContext& nextFrameContext = m_frameContext[ m_frameIndex ];
     nextFrameContext.FrameIndex = m_frameIndex;
     nextFrameContext.AbsoluteFrame = currentFrameContext.AbsoluteFrame + 1;
@@ -384,11 +384,11 @@ void GraphicsSystem::loadSettings() {}
 void GraphicsSystem::onWindowCreate( const platform::Window& window ) {
     // TODO: Add support for multiple windows
 
-    window.OnResize().Connect< &GraphicsSystem::onWindowResize >( this );
+    window.onResize().connect< &GraphicsSystem::onWindowResize >( this );
     m_graphicsSystem->createSwapchain( window );
 
     // TODO: Remove depth images from graphics system -> move into render graph
-    createDepthImages( window.GetFrameBufferSize() );
+    createDepthImages( window.getFrameBufferSize() );
     createViewConstantBuffers();
 }
 

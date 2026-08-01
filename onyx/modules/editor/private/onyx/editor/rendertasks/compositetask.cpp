@@ -40,28 +40,28 @@ void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, 
         uint32_t Count = 0;
     } constants;
 
-    const node_graph::PinBase* gridTextureInPin = GetInputPin( 0 );
-    if( gridTextureInPin->IsConnected() ) {
+    const node_graph::PinBase* gridTextureInPin = getInputPin( 0 );
+    if( gridTextureInPin->isConnected() ) {
         const graphics::RenderGraphResource& resource = context.Graph.getResource(
-            gridTextureInPin->GetLinkedPinGlobalId().get() );
+            gridTextureInPin->getLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gridTextureHandle = std::get< rhi::TextureHandle >( resource.Handle );
         constants.TextureIndices[ 1 ] = gridTextureHandle.Texture->GetIndex();
         ++constants.Count;
     }
 
-    const node_graph::PinBase* gbufferTextureInPin = GetInputPin( 1 );
-    if( gbufferTextureInPin->IsConnected() ) {
+    const node_graph::PinBase* gbufferTextureInPin = getInputPin( 1 );
+    if( gbufferTextureInPin->isConnected() ) {
         const graphics::RenderGraphResource& gbufferResource = context.Graph.getResource(
-            gbufferTextureInPin->GetLinkedPinGlobalId().get() );
+            gbufferTextureInPin->getLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gbufferTextureHandle = std::get< rhi::TextureHandle >( gbufferResource.Handle );
         constants.TextureIndices[ 0 ] = gbufferTextureHandle.Texture->GetIndex();
         ++constants.Count;
     }
 
-    const node_graph::PinBase* fontTextureInPin = GetInputPin( 2 );
-    if( fontTextureInPin->IsConnected() ) {
+    const node_graph::PinBase* fontTextureInPin = getInputPin( 2 );
+    if( fontTextureInPin->isConnected() ) {
         const graphics::RenderGraphResource& font3dResource = context.Graph.getResource(
-            fontTextureInPin->GetLinkedPinGlobalId().get() );
+            fontTextureInPin->getLinkedPinGlobalId().get() );
         const rhi::TextureHandle& font3dTextureHandle = std::get< rhi::TextureHandle >( font3dResource.Handle );
         constants.TextureIndices[ 2 ] = font3dTextureHandle.Texture->GetIndex();
         ++constants.Count;

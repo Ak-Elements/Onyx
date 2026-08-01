@@ -6,9 +6,9 @@
 
 namespace onyx::input_actions {
 bool InputBindingAxis3D::DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) {
-    outInputValue.X = numericCast< float32 >( inputSystem.GetAxisValue1D( 0, m_AxisX ) );
-    outInputValue.X = numericCast< float32 >( inputSystem.GetAxisValue1D( 0, m_AxisY ) );
-    outInputValue.Z = numericCast< float32 >( inputSystem.GetAxisValue1D( 0, m_AxisZ ) );
+    outInputValue.X = numericCast< float32 >( inputSystem.getAxisValue1D( 0, m_AxisX ) );
+    outInputValue.X = numericCast< float32 >( inputSystem.getAxisValue1D( 0, m_AxisY ) );
+    outInputValue.Z = numericCast< float32 >( inputSystem.getAxisValue1D( 0, m_AxisZ ) );
     return isZero( outInputValue.X ) == false || isZero( outInputValue.Y ) || isZero( outInputValue.Z );
 }
 
@@ -19,7 +19,7 @@ void InputBindingAxis3D::Reset() {
 }
 
 input::InputID InputBindingAxis3D::GetBoundInputForSlot( uint32_t index ) const {
-    switch ( index ) {
+    switch( index ) {
     case 0:
         return m_AxisX;
     case 1:
@@ -33,7 +33,7 @@ input::InputID InputBindingAxis3D::GetBoundInputForSlot( uint32_t index ) const 
 }
 
 void InputBindingAxis3D::SetInputBindingSlot( uint32_t index, input::InputID inputID ) {
-    switch ( index ) {
+    switch( index ) {
     case 0:
         m_AxisX = inputID;
         break;
@@ -50,7 +50,7 @@ void InputBindingAxis3D::SetInputBindingSlot( uint32_t index, input::InputID inp
 }
 
 StringView InputBindingAxis3D::GetInputBindingSlotName( uint32_t index ) const {
-    switch ( index ) {
+    switch( index ) {
     case 0:
         return "X";
     case 1:

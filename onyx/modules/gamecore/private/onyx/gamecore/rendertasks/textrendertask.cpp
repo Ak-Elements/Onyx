@@ -10,25 +10,25 @@
 
 namespace onyx::game_core {
 void MSDFFontRenderPass::onInit( rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& /*resourceCache*/ ) {
-    constexpr uint32_t MAX_QUADS = 10000;
-    constexpr uint32_t MAX_VERTICES = MAX_QUADS * 4;
-    constexpr uint32_t MAX_INDICES = MAX_QUADS * 6;
+    constexpr uint32_t MaxQuads = 10000;
+    constexpr uint32_t MaxVertices = MaxQuads * 4;
+    constexpr uint32_t MaxIndices = MaxQuads * 6;
 
     rhi::BufferProperties vertexBufferProps;
-    vertexBufferProps.m_Size = static_cast< uint32_t >( MAX_VERTICES * sizeof( rhi::FontVertex ) );
+    vertexBufferProps.m_Size = static_cast< uint32_t >( MaxVertices * sizeof( rhi::FontVertex ) );
     vertexBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Vertex );
     vertexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
 
     api.createBuffer( m_VertexBuffer, vertexBufferProps );
 
     rhi::BufferProperties indexBufferProps;
-    indexBufferProps.m_Size = static_cast< uint32_t >( MAX_INDICES * sizeof( uint16_t ) );
+    indexBufferProps.m_Size = static_cast< uint32_t >( MaxIndices * sizeof( uint16_t ) );
     indexBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Index );
     indexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
 
-    uint16_t indices[ MAX_INDICES ];
+    uint16_t indices[ MaxIndices ];
     uint16_t offset = 0;
-    for( uint32_t i = 0; i < MAX_INDICES; i += 6 ) {
+    for( uint32_t i = 0; i < MaxIndices; i += 6 ) {
         indices[ i + 0 ] = offset + static_cast< uint16_t >( 0 );
         indices[ i + 1 ] = offset + static_cast< uint16_t >( 1 );
         indices[ i + 2 ] = offset + static_cast< uint16_t >( 2 );
@@ -41,7 +41,7 @@ void MSDFFontRenderPass::onInit( rhi::GraphicsSystem& api, graphics::RenderGraph
     }
 
     api.createBuffer( m_IndexBuffer, indexBufferProps );
-    m_IndexBuffer.Buffer->SetData( 0, indices, static_cast< uint32_t >( MAX_INDICES * sizeof( uint16_t ) ) );
+    m_IndexBuffer.Buffer->setData( 0, indices, static_cast< uint32_t >( MaxIndices * sizeof( uint16_t ) ) );
 }
 
 void MSDFFontRenderPass::onShutdown( rhi::GraphicsSystem& /*api*/ ) {

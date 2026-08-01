@@ -4,32 +4,32 @@
 
 namespace onyx::node_graph {
 template < typename NodeType, typename InType0, typename InType1, typename OutType >
-class FixedPinNode_2_In_1_Out : public NodeType {
+class FixedPinNode2In1Out : public NodeType {
   public:
     using InPin0 = Pin< InType0, "InPin0" >;
     using InPin1 = Pin< InType1, "InPin1" >;
     using OutPin = Pin< OutType, "OutPin" >;
 
-    const InPin0& GetInputPin0() const { return m_Input0; }
-    const InPin1& GetInputPin1() const { return m_Input1; }
-    const OutPin& GetOutputPin() const { return m_Output; }
+    const InPin0& getInputPin0() const { return m_input0; }
+    const InPin1& getInputPin1() const { return m_input1; }
+    const OutPin& getOutputPin() const { return m_output; }
 
-    uint32_t GetInputPinCount() const override { return 2; }
-    uint32_t GetOutputPinCount() const override { return 1; }
+    [[nodiscard]] uint32_t getInputPinCount() const override { return 2; }
+    [[nodiscard]] uint32_t getOutputPinCount() const override { return 1; }
 
-    PinBase* GetInputPin( uint32_t index ) override {
-        return index == 0 ? static_cast< PinBase* >( &m_Input0 ) : static_cast< PinBase* >( &m_Input1 );
+    PinBase* getInputPin( uint32_t index ) override {
+        return index == 0 ? static_cast< PinBase* >( &m_input0 ) : static_cast< PinBase* >( &m_input1 );
     }
-    const PinBase* GetInputPin( uint32_t index ) const override {
-        return index == 0 ? static_cast< const PinBase* >( &m_Input0 ) : static_cast< const PinBase* >( &m_Input1 );
+    [[nodiscard]] const PinBase* getInputPin( uint32_t index ) const override {
+        return index == 0 ? static_cast< const PinBase* >( &m_input0 ) : static_cast< const PinBase* >( &m_input1 );
     }
-    PinBase* GetOutputPin( uint32_t /*index*/ ) override { return static_cast< PinBase* >( &m_Output ); }
-    const PinBase* GetOutputPin( uint32_t /*index*/ ) const override {
-        return static_cast< const PinBase* >( &m_Output );
+    PinBase* getOutputPin( uint32_t /*index*/ ) override { return static_cast< PinBase* >( &m_output ); }
+    [[nodiscard]] const PinBase* getOutputPin( uint32_t /*index*/ ) const override {
+        return static_cast< const PinBase* >( &m_output );
     }
 #if ONYX_IS_EDITOR
-    StringView GetPinName( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
+        switch( pinId ) {
         case InPin0::LocalId:
             return InPin0::LocalId.getString();
         case InPin1::LocalId:
@@ -42,14 +42,14 @@ class FixedPinNode_2_In_1_Out : public NodeType {
         return "";
     }
 
-    std::any CreateDefaultForPin( StringId32 pinId ) const override {
-        switch ( pinId ) {
+    [[nodiscard]] std::any createDefaultForPin( StringId32 pinId ) const override {
+        switch( pinId ) {
         case InPin0::LocalId:
-            return m_Input0.CreateDefault();
+            return m_input0.createDefault();
         case InPin1::LocalId:
-            return m_Input1.CreateDefault();
+            return m_input1.createDefault();
         case OutPin::LocalId:
-            return m_Output.CreateDefault();
+            return m_output.createDefault();
         }
 
         ONYX_ASSERT( false, "Failed to get pin with local id {}", pinId );
@@ -58,8 +58,8 @@ class FixedPinNode_2_In_1_Out : public NodeType {
 #endif
 
   protected:
-    InPin0 m_Input0;
-    InPin1 m_Input1;
-    OutPin m_Output;
+    InPin0 m_input0;
+    InPin1 m_input1;
+    OutPin m_output;
 };
 } // namespace onyx::node_graph

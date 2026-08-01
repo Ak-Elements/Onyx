@@ -90,7 +90,7 @@ void SceneEditorWindow::onOpen() {
                        { ui::DockSplitDirection::Down, 0.3f, "CommandHistory##CommandHistory", "" } } );
 
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.SetCurrentInputActionMap( StringId32( "sceneeditor" ) );
+    inputActionSystem.setCurrentInputActionMap( StringId32( "sceneeditor" ) );
 
     if( m_scene.isValid() == false ) {
         assets::AssetId startupLevel = "";
@@ -129,7 +129,7 @@ void SceneEditorWindow::onOpen() {
 
 void SceneEditorWindow::onClose() {
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.Disconnect( this );
+    inputActionSystem.disconnect( this );
 
     // m_CommandStack.Disable(inputActionSystem);
 }
@@ -154,11 +154,11 @@ void SceneEditorWindow::onRenderMainMenuBar() {
         if( ImGui::MenuItem( localization::generic::Open.Get().data() ) ) {
             m_isLoading = true;
             if( m_scene.isValid() ) {
-                m_scene->getOnLoadedEvent().Disconnect( this );
+                m_scene->getOnLoadedEvent().disconnect( this );
 
                 input_actions::InputActionSystem&
                     inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-                inputActionSystem.Disconnect( this );
+                inputActionSystem.disconnect( this );
             }
 
             FilePath path;
@@ -183,7 +183,7 @@ void SceneEditorWindow::onRenderMainMenuBar() {
 }
 
 void SceneEditorWindow::onCameraMoveInput( const input_actions::InputActionEvent& inputActionContext ) {
-    const Vector3f32& direction = inputActionContext.GetData< Vector3f32 >();
+    const Vector3f32& direction = inputActionContext.getData< Vector3f32 >();
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
@@ -192,7 +192,7 @@ void SceneEditorWindow::onCameraMoveInput( const input_actions::InputActionEvent
 }
 
 void SceneEditorWindow::onCameraRotationInput( const input_actions::InputActionEvent& inputActionContext ) {
-    const Vector2f32& rotationDelta = inputActionContext.GetData< Vector2f32 >();
+    const Vector2f32& rotationDelta = inputActionContext.getData< Vector2f32 >();
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
@@ -201,7 +201,7 @@ void SceneEditorWindow::onCameraRotationInput( const input_actions::InputActionE
 }
 
 void SceneEditorWindow::onCameraSpeedInput( const input_actions::InputActionEvent& inputActionContext ) {
-    float32 inputValue = inputActionContext.GetData< float32 >();
+    float32 inputValue = inputActionContext.getData< float32 >();
     if( isZero( inputValue ) )
         return;
 
@@ -215,7 +215,7 @@ void SceneEditorWindow::onCameraSpeedInput( const input_actions::InputActionEven
 }
 
 void SceneEditorWindow::onCameraSpeedUp( const input_actions::InputActionEvent& inputActionContext ) {
-    bool isSpeedUp = inputActionContext.GetData< bool >();
+    bool isSpeedUp = inputActionContext.getData< bool >();
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
@@ -226,7 +226,7 @@ void SceneEditorWindow::onCameraSpeedUp( const input_actions::InputActionEvent& 
 }
 
 void SceneEditorWindow::onCameraSlowDown( const input_actions::InputActionEvent& inputActionContext ) {
-    bool isSlowdown = inputActionContext.GetData< bool >();
+    bool isSlowdown = inputActionContext.getData< bool >();
 
     ecs::EntityRegistry& registry = m_scene->getRegistry();
     game_core::FreeCameraRuntimeComponent&
@@ -241,7 +241,7 @@ void SceneEditorWindow::loadScene( assets::AssetId sceneAssetId ) {
 
     assets::AssetHandle< game_core::Scene > newScene;
     assetSystem.getAssetUnmanaged( sceneAssetId, newScene );
-    newScene->getOnLoadedEvent().Connect< &SceneEditorWindow::onSceneLoaded >( this );
+    newScene->getOnLoadedEvent().connect< &SceneEditorWindow::onSceneLoaded >( this );
 }
 
 void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Scene >& sceneAsset ) {
@@ -274,10 +274,10 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     m_commandStack.setHead( registry );
 
     input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionsSystem.OnInput< &SceneEditorWindow::onCameraMoveInput >( "CameraMovement"_id64, this );
-    inputActionsSystem.OnInput< &SceneEditorWindow::onCameraRotationInput >( "CameraRotation"_id64, this );
-    inputActionsSystem.OnInput< &SceneEditorWindow::onCameraSpeedInput >( "CameraSpeed"_id64, this );
-    inputActionsSystem.OnInput< &SceneEditorWindow::onCameraSlowDown >( "CameraSlowDown"_id64, this );
-    inputActionsSystem.OnInput< &SceneEditorWindow::onCameraSpeedUp >( "CameraSpeedUp"_id64, this );
+    inputActionsSystem.onInput< &SceneEditorWindow::onCameraMoveInput >( "CameraMovement"_id64, this );
+    inputActionsSystem.onInput< &SceneEditorWindow::onCameraRotationInput >( "CameraRotation"_id64, this );
+    inputActionsSystem.onInput< &SceneEditorWindow::onCameraSpeedInput >( "CameraSpeed"_id64, this );
+    inputActionsSystem.onInput< &SceneEditorWindow::onCameraSlowDown >( "CameraSlowDown"_id64, this );
+    inputActionsSystem.onInput< &SceneEditorWindow::onCameraSpeedUp >( "CameraSpeedUp"_id64, this );
 }
 } // namespace onyx::editor

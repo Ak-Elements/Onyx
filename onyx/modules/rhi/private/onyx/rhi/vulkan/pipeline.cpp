@@ -11,7 +11,7 @@
 
 namespace onyx::rhi::vulkan {
 namespace {
-VkVertexInputRate ToVulkanInputRate( VertexStreamInputRate rate ) {
+VkVertexInputRate toVulkanInputRate( VertexStreamInputRate rate ) {
     switch( rate ) {
     case VertexStreamInputRate::Vertex:
         return VK_VERTEX_INPUT_RATE_VERTEX;
@@ -23,7 +23,7 @@ VkVertexInputRate ToVulkanInputRate( VertexStreamInputRate rate ) {
     }
 }
 
-VkPrimitiveTopology ToVulkanTopology( PrimitiveTopology topology ) {
+VkPrimitiveTopology toVulkanTopology( PrimitiveTopology topology ) {
     switch( topology ) {
     case PrimitiveTopology::Point:
         return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
@@ -45,7 +45,7 @@ VkPrimitiveTopology ToVulkanTopology( PrimitiveTopology topology ) {
     }
 }
 
-VkBlendFactor ToVulkanBlendFactor( Blend factor ) {
+VkBlendFactor toVulkanBlendFactor( Blend factor ) {
     switch( factor ) {
     case Blend::Zero:
         return VK_BLEND_FACTOR_ZERO;
@@ -93,7 +93,7 @@ VkBlendFactor ToVulkanBlendFactor( Blend factor ) {
     return VK_BLEND_FACTOR_MAX_ENUM;
 }
 
-VkBlendOp ToVulkanBlendOpration( BlendOperation operation ) {
+VkBlendOp toVulkanBlendOpration( BlendOperation operation ) {
     switch( operation ) {
     case BlendOperation::Add:
         return VK_BLEND_OP_ADD;
@@ -111,7 +111,7 @@ VkBlendOp ToVulkanBlendOpration( BlendOperation operation ) {
     return VK_BLEND_OP_MAX_ENUM;
 }
 
-VkCompareOp ToVulkanCompareOp( CompareOperation operation ) {
+VkCompareOp toVulkanCompareOp( CompareOperation operation ) {
     switch( operation ) {
     case CompareOperation::Never:
         return VK_COMPARE_OP_NEVER;
@@ -135,7 +135,7 @@ VkCompareOp ToVulkanCompareOp( CompareOperation operation ) {
     }
 }
 
-VkStencilOp ToVkStencilOperation( StencilOperation operation ) {
+VkStencilOp toVkStencilOperation( StencilOperation operation ) {
     switch( operation ) {
     case StencilOperation::Keep:
         return VK_STENCIL_OP_KEEP;
@@ -159,19 +159,19 @@ VkStencilOp ToVkStencilOperation( StencilOperation operation ) {
     }
 }
 
-VkStencilOpState ToVulkanStencilOpState( const StencilOperationState& stencilOperation ) {
+VkStencilOpState toVulkanStencilOpState( const StencilOperationState& stencilOperation ) {
     VkStencilOpState state;
-    state.failOp = ToVkStencilOperation( stencilOperation.Fail );
-    state.passOp = ToVkStencilOperation( stencilOperation.Pass );
-    state.depthFailOp = ToVkStencilOperation( stencilOperation.DepthFail );
-    state.compareOp = ToVulkanCompareOp( stencilOperation.Compare );
+    state.failOp = toVkStencilOperation( stencilOperation.Fail );
+    state.passOp = toVkStencilOperation( stencilOperation.Pass );
+    state.depthFailOp = toVkStencilOperation( stencilOperation.DepthFail );
+    state.compareOp = toVulkanCompareOp( stencilOperation.Compare );
     state.compareMask = stencilOperation.CompareMask;
     state.writeMask = stencilOperation.WriteMask;
     state.reference = stencilOperation.Reference;
     return state;
 }
 
-VkCullModeFlags ToVulkanCullMode( CullMode mode ) {
+VkCullModeFlags toVulkanCullMode( CullMode mode ) {
     switch( mode ) {
     case CullMode::None:
         return VK_CULL_MODE_NONE;
@@ -188,7 +188,7 @@ VkCullModeFlags ToVulkanCullMode( CullMode mode ) {
     return VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
 }
 
-VkPolygonMode ToVulkanFillMode( FillMode mode ) {
+VkPolygonMode toVulkanFillMode( FillMode mode ) {
     switch( mode ) {
     case FillMode::Wireframe:
         return VK_POLYGON_MODE_LINE;
@@ -207,7 +207,7 @@ Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& prop
     : rhi::Pipeline( properties )
     , m_Api( &api )
     , m_shader( shader.getHandle().raw() ) {
-    shader->getOnLoadedEvent().Connect< &Pipeline::OnShaderLoaded >( *this );
+    shader->getOnLoadedEvent().connect< &Pipeline::OnShaderLoaded >( *this );
     if( shader->isLoaded() ) {
         CreatePipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
@@ -227,7 +227,7 @@ Pipeline::~Pipeline() {
     }
 
     if( m_shader != nullptr ) {
-        m_shader->getOnLoadedEvent().Disconnect( this );
+        m_shader->getOnLoadedEvent().disconnect( this );
     }
 
     m_PipelineLayout.reset();
@@ -256,7 +256,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
     } else {
         m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-        const PipelineProperties& properties = GetProperties();
+        const PipelineProperties& properties = getProperties();
         DynamicArray< VkPipelineShaderStageCreateInfo >
             pipelineStageCreateInfos = shader.createPipelineShaderStageCreateInfos();
 
@@ -320,7 +320,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
                 stride += size;
             }
 
-            vertexBindingDescriptions.emplace_back( 0, stride, ToVulkanInputRate( VertexStreamInputRate::Vertex ) );
+            vertexBindingDescriptions.emplace_back( 0, stride, toVulkanInputRate( VertexStreamInputRate::Vertex ) );
         }
 
         vertexInputInfo.pVertexBindingDescriptions = static_cast< uint32_t >( vertexBindingDescriptions.size() ) == 0
@@ -337,7 +337,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         //// Input Assembly
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = ToVulkanTopology( properties.Topology );
+        inputAssembly.topology = toVulkanTopology( properties.Topology );
         inputAssembly.primitiveRestartEnable = VK_FALSE;
         inputAssembly.pNext = nullptr;
 
@@ -346,7 +346,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         //// Color Blending
         InplaceArray< VkPipelineColorBlendAttachmentState, 8 > colorBlendAttachment;
 
-        const InplaceArray< BlendState, MAX_RENDERPASS_ATTACHMENTS >& blendStates = properties.BlendStates;
+        const InplaceArray< BlendState, MaxRenderpassAttachments >& blendStates = properties.BlendStates;
         if( blendStates.empty() == false ) {
             ONYX_ASSERT( blendStates.size() == colorTargetsCount,
                          "Blend states (count: {}) mismatch with output targets (count {})!If blend states are active, "
@@ -360,24 +360,24 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
                 colorBlendAttachment[ i ].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
                 colorBlendAttachment[ i ].blendEnable = blendState.IsBlendEnabled ? VK_TRUE : VK_FALSE;
-                colorBlendAttachment[ i ].srcColorBlendFactor = ToVulkanBlendFactor( blendState.SourceColor );
-                colorBlendAttachment[ i ].dstColorBlendFactor = ToVulkanBlendFactor( blendState.DestinationColor );
-                colorBlendAttachment[ i ].colorBlendOp = ToVulkanBlendOpration( blendState.ColorOperation );
+                colorBlendAttachment[ i ].srcColorBlendFactor = toVulkanBlendFactor( blendState.SourceColor );
+                colorBlendAttachment[ i ].dstColorBlendFactor = toVulkanBlendFactor( blendState.DestinationColor );
+                colorBlendAttachment[ i ].colorBlendOp = toVulkanBlendOpration( blendState.ColorOperation );
 
                 if( ( blendState.SourceAlpha != Blend::Invalid ) ||
                     ( blendState.DestinationAlpha != Blend::Invalid ) ) {
-                    colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blendState.SourceAlpha );
-                    colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blendState.DestinationAlpha );
-                    colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blendState.AlphaOperation );
+                    colorBlendAttachment[ i ].srcAlphaBlendFactor = toVulkanBlendFactor( blendState.SourceAlpha );
+                    colorBlendAttachment[ i ].dstAlphaBlendFactor = toVulkanBlendFactor( blendState.DestinationAlpha );
+                    colorBlendAttachment[ i ].alphaBlendOp = toVulkanBlendOpration( blendState.AlphaOperation );
                 } else {
-                    colorBlendAttachment[ i ].srcAlphaBlendFactor = ToVulkanBlendFactor( blendState.SourceColor );
-                    colorBlendAttachment[ i ].dstAlphaBlendFactor = ToVulkanBlendFactor( blendState.DestinationColor );
-                    colorBlendAttachment[ i ].alphaBlendOp = ToVulkanBlendOpration( blendState.ColorOperation );
+                    colorBlendAttachment[ i ].srcAlphaBlendFactor = toVulkanBlendFactor( blendState.SourceColor );
+                    colorBlendAttachment[ i ].dstAlphaBlendFactor = toVulkanBlendFactor( blendState.DestinationColor );
+                    colorBlendAttachment[ i ].alphaBlendOp = toVulkanBlendOpration( blendState.ColorOperation );
                 }
             }
         } else {
             // Default non blended state
-            for( uint8_t i = 0; i < colorTargetsCount; ++i ) {
+            for( uint32_t i = 0; i < colorTargetsCount; ++i ) {
                 colorBlendAttachment[ i ] = {};
                 colorBlendAttachment[ i ].blendEnable = VK_FALSE;
                 colorBlendAttachment[ i ].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
@@ -403,7 +403,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         VkPipelineDepthStencilStateCreateInfo depthStencil{};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         depthStencil.depthTestEnable = properties.DepthStencil.IsDepthEnabled ? VK_TRUE : VK_FALSE;
-        depthStencil.depthCompareOp = ToVulkanCompareOp( properties.DepthStencil.Compare );
+        depthStencil.depthCompareOp = toVulkanCompareOp( properties.DepthStencil.Compare );
         depthStencil.stencilTestEnable = properties.DepthStencil.IsStencilEnabled ? VK_TRUE : VK_FALSE;
         depthStencil.depthWriteEnable = properties.DepthStencil.IsDepthWriteEnabled ? VK_TRUE : VK_FALSE;
         depthStencil.depthBoundsTestEnable = VK_FALSE;
@@ -412,8 +412,8 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         depthStencil.pNext = nullptr;
 
         if( properties.DepthStencil.IsStencilEnabled ) {
-            depthStencil.front = ToVulkanStencilOpState( properties.DepthStencil.Front );
-            depthStencil.back = ToVulkanStencilOpState( properties.DepthStencil.Back );
+            depthStencil.front = toVulkanStencilOpState( properties.DepthStencil.Front );
+            depthStencil.back = toVulkanStencilOpState( properties.DepthStencil.Back );
         } else {
             depthStencil.back.failOp = VK_STENCIL_OP_KEEP;
             depthStencil.back.passOp = VK_STENCIL_OP_KEEP;
@@ -441,9 +441,9 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
         rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = ToVulkanFillMode( properties.Rasterization.FillMode );
+        rasterizer.polygonMode = toVulkanFillMode( properties.Rasterization.FillMode );
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = ToVulkanCullMode( properties.Rasterization.CullMode );
+        rasterizer.cullMode = toVulkanCullMode( properties.Rasterization.CullMode );
         rasterizer.frontFace = properties.Rasterization.IsFrontFacing ? VK_FRONT_FACE_CLOCKWISE
                                                                       : VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterizer.depthBiasEnable = VK_FALSE;

@@ -312,7 +312,8 @@ inline constexpr VkImageLayout toImageLayout( ImageLayout layout ) {
 #define VK_CHECK_RESULT( f )                                                                                           \
     {                                                                                                                  \
         [[maybe_unused]] VkResult res = ( f );                                                                         \
-        ONYX_ASSERT( res == VK_SUCCESS, "VkResult is {}", onyx::rhi::vulkan::errorString( res ) );                     \
+        auto error = onyx::rhi::vulkan::errorString( res );                                                            \
+        ONYX_ASSERT( res == VK_SUCCESS, "VkResult is {}", error );                                                     \
     }
 
 // TODO: Remove that crap

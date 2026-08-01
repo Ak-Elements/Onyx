@@ -5,23 +5,23 @@ template < uint64_t N >
 struct CompileTimeString {
     consteval CompileTimeString() = default;
     consteval CompileTimeString( const char ( &str )[ N + 1 ] ) {
-        for ( uint64_t i = 0; i < N + 1; ++i ) {
+        for( uint64_t i = 0; i < N + 1; ++i ) {
             Data[ i ] = str[ i ];
         }
     }
 
-    ONYX_NO_DISCARD consteval uint64_t size() const { return N; }
-    ONYX_NO_DISCARD consteval const char* data() const { return &Data[ 0 ]; }
-    ONYX_NO_DISCARD consteval StringView stringView() const { return { &Data[ 0 ], N }; }
+    [[nodiscard]] consteval uint64_t size() const { return N; }
+    [[nodiscard]] consteval const char* data() const { return &Data[ 0 ]; }
+    [[nodiscard]] consteval StringView stringView() const { return { &Data[ 0 ], N }; }
 
     template < uint64_t OtherN >
     consteval CompileTimeString< N + OtherN > operator+( const CompileTimeString< OtherN >& other ) const {
         CompileTimeString< N + OtherN > result;
-        for ( int i = 0; i < N; ++i ) {
+        for( int i = 0; i < N; ++i ) {
             result.Data[ i ] = Data[ i ];
         }
 
-        for ( int i = 0; i < OtherN; ++i ) {
+        for( int i = 0; i < OtherN; ++i ) {
             result.Data[ N + i ] = other.Data[ i ];
         }
 

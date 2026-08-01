@@ -282,7 +282,7 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
 
     assets::AssetHandle< onyx::ui::Theme > theme;
     assetSystem.getAsset( "engine:/themes/dark.nyx", theme );
-    theme->getOnLoadedEvent().Connect< &ImGuiSystem::onThemeLoaded >( *this );
+    theme->getOnLoadedEvent().connect< &ImGuiSystem::onThemeLoaded >( *this );
 
     // TODO: Move this loading into async loader
     FilePath settingsPath = file_system::path::getFullPath( "tmp:imgui.ini" );
@@ -304,10 +304,10 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     io.FontDefault = it->second;
     initRenderBuffers( graphicsSystem );
 
-    inputSystem.OnMouseAxisChange().Connect< &ImGuiSystem::onMouseAxisChange >( this );
-    inputSystem.OnMouseButton().Connect< &ImGuiSystem::onMouseButton >( this );
-    inputSystem.OnMousePositionChange().Connect< &ImGuiSystem::onMousePositionChange >( this );
-    inputSystem.OnKey().Connect< &ImGuiSystem::onKey >( this );
+    inputSystem.onMouseAxisChange().connect< &ImGuiSystem::onMouseAxisChange >( this );
+    inputSystem.onMouseButton().connect< &ImGuiSystem::onMouseButton >( this );
+    inputSystem.onMousePositionChange().connect< &ImGuiSystem::onMousePositionChange >( this );
+    inputSystem.onKey().connect< &ImGuiSystem::onKey >( this );
 
     g_uiContext.AssetSystem = &assetSystem;
     g_uiContext.InputSystem = &inputSystem;
@@ -336,8 +336,8 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
 
     m_imguiShader = graphicsSystem.createShaderInstance( pipelineProperties.Shader, pipelineProperties );
 
-    platform::Window& mainWindow = m_platformSystem->GetMainWindow();
-    mainWindow.OnResize().Connect< &ImGuiSystem::onWindowResize >( this );
+    platform::Window& mainWindow = m_platformSystem->getMainWindow();
+    mainWindow.onResize().connect< &ImGuiSystem::onWindowResize >( this );
 
     onyx::ui::PropertyInspectors::registerInspector< EngineVariable< uint32_t > >();
     onyx::ui::PropertyInspectors::registerInspector< EngineVariable< bool > >();
@@ -350,10 +350,10 @@ ImGuiSystem::~ImGuiSystem() {
     ImGui::SaveIniSettingsToDisk( settingsPath.string().data() );
 
     // m_Window->RemoveOnResizeHandler(this, &ImGuiSystem::OnWindowResize);
-    m_inputSystem->OnMouseAxisChange().Disconnect( this );
-    m_inputSystem->OnMouseButton().Disconnect( this );
-    m_inputSystem->OnMousePositionChange().Disconnect( this );
-    m_inputSystem->OnKey().Disconnect( this );
+    m_inputSystem->onMouseAxisChange().disconnect( this );
+    m_inputSystem->onMouseButton().disconnect( this );
+    m_inputSystem->onMousePositionChange().disconnect( this );
+    m_inputSystem->onKey().disconnect( this );
 
     ImPlot::DestroyContext();
     ImPlot3D::DestroyContext();
@@ -366,8 +366,8 @@ void ImGuiSystem::update( rhi::GraphicsSystem& graphicsSystem, DeltaGameTime del
     g_uiContext.GraphicsSystem = &graphicsSystem;
     io.DeltaTime = std::max( numericCast< float32 >( deltaTime.DeltaMilliseconds ) * 0.001f, 0.001f );
 
-    io.DisplaySize = ImVec2( numericCast< float32 >( m_platformSystem->GetMainWindow().GetWidth() ),
-                             numericCast< float32 >( m_platformSystem->GetMainWindow().GetHeight() ) );
+    io.DisplaySize = ImVec2( numericCast< float32 >( m_platformSystem->getMainWindow().getWidth() ),
+                             numericCast< float32 >( m_platformSystem->getMainWindow().getHeight() ) );
     io.DisplayFramebufferScale = ImVec2( 1.0f, 1.0f );
 
     //// this is an index based loop on purpose as windows might be added during rendering by other windows
@@ -383,8 +383,8 @@ void ImGuiSystem::update( rhi::GraphicsSystem& graphicsSystem, DeltaGameTime del
 void ImGuiSystem::onBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
     ImGuiIO& io = ImGui::GetIO();
     // TODO: Fix
-    auto& mainWindow = m_platformSystem->GetMainWindow();
-    auto framebufferSize = mainWindow.GetFrameBufferSize();
+    auto& mainWindow = m_platformSystem->getMainWindow();
+    auto framebufferSize = mainWindow.getFrameBufferSize();
     io.DisplaySize = ImVec2( static_cast< float32 >( framebufferSize.X ), static_cast< float32 >( framebufferSize.Y ) );
 
     io.DisplayFramebufferScale = ImVec2( 1.0f, 1.0f );
@@ -423,8 +423,8 @@ void ImGuiSystem::onRenderFrame( const rhi::FrameContext& frameContext ) {
 
     rhi::CommandBuffer& commandBuffer = frameContext.Api->getCommandBuffer( frameContext.FrameIndex, true );
 
-    const Reference< rhi::Pipeline >& pipeline = m_imguiShader->GetPipeline();
-    const rhi::PipelineProperties& properties = pipeline->GetProperties();
+    const Reference< rhi::Pipeline >& pipeline = m_imguiShader->getPipeline();
+    const rhi::PipelineProperties& properties = pipeline->getProperties();
 
     rhi::FramebufferSettings framebufferSettings;
     framebufferSettings.m_RenderPass = properties.RenderPass;
@@ -639,7 +639,7 @@ void ImGuiSystem::initRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
     indexBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
     indexBufferProps.m_DebugName = "ImGui Indices";
 
-    for( uint8_t i = 0; i < rhi::MAX_FRAMES_IN_FLIGHT; ++i ) {
+    for( uint8_t i = 0; i < rhi::MaxFramesInFlight; ++i ) {
         rhi::BufferHandle& vertexBuffer = m_vertexBuffers[ i ];
         graphicsSystem.createBuffer( vertexBuffer, vertexBufferProps );
         m_vertexCounts.add( 400000 );
@@ -674,9 +674,9 @@ void ImGuiSystem::updateDrawBuffers( const rhi::FrameContext& frameContext ) {
     // Vertex buffer
     const uint8_t frameIndex = frameContext.FrameIndex;
     rhi::BufferHandle& vertexBuffer = m_vertexBuffers[ frameIndex ];
-    if( ( vertexBuffer.Buffer.isValid() == false ) || ( vertexBuffer.Buffer->IsMapped() == false ) ||
+    if( ( vertexBuffer.Buffer.isValid() == false ) || ( vertexBuffer.Buffer->isMapped() == false ) ||
         ( m_vertexCounts[ frameIndex ] < imDrawData->TotalVtxCount ) ) {
-        rhi::BufferProperties vertexBufferProps = vertexBuffer.Buffer->GetProperties();
+        rhi::BufferProperties vertexBufferProps = vertexBuffer.Buffer->getProperties();
         vertexBufferProps.m_Size = vertexBufferSize;
 
         frameContext.Api->createBuffer( vertexBuffer, vertexBufferProps );
@@ -685,9 +685,9 @@ void ImGuiSystem::updateDrawBuffers( const rhi::FrameContext& frameContext ) {
 
     // Index buffer
     rhi::BufferHandle& indexBuffer = m_indexBuffers[ frameIndex ];
-    if( ( indexBuffer.Buffer.isValid() == false ) || ( indexBuffer.Buffer->IsMapped() == false ) ||
+    if( ( indexBuffer.Buffer.isValid() == false ) || ( indexBuffer.Buffer->isMapped() == false ) ||
         ( m_indexCounts[ frameIndex ] < imDrawData->TotalIdxCount ) ) {
-        rhi::BufferProperties indexBufferProps = indexBuffer.Buffer->GetProperties();
+        rhi::BufferProperties indexBufferProps = indexBuffer.Buffer->getProperties();
         indexBufferProps.m_Size = indexBufferSize;
 
         frameContext.Api->createBuffer( indexBuffer, indexBufferProps );
@@ -700,10 +700,10 @@ void ImGuiSystem::updateDrawBuffers( const rhi::FrameContext& frameContext ) {
 
     for( int n = 0; n < imDrawData->CmdListsCount; n++ ) {
         const ImDrawList* cmdList = imDrawData->CmdLists[ n ];
-        vertexBuffer.Buffer->SetData( vertexCopyOffset,
+        vertexBuffer.Buffer->setData( vertexCopyOffset,
                                       cmdList->VtxBuffer.Data,
                                       cmdList->VtxBuffer.Size * sizeof( ImDrawVert ) );
-        indexBuffer.Buffer->SetData( indexCopyOffset,
+        indexBuffer.Buffer->setData( indexCopyOffset,
                                      cmdList->IdxBuffer.Data,
                                      cmdList->IdxBuffer.Size * sizeof( ImDrawIdx ) );
 

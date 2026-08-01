@@ -73,7 +73,7 @@ bool SceneSerializer::serializeSectorToJson( const ecs::EntityRegistry& registry
 
     using namespace file_system;
     OnyxFile sceneFile( sectorFilePath );
-    FileStream outStream = sceneFile.OpenStream( OpenMode::Write | OpenMode::Text );
+    FileStream outStream = sceneFile.openStream( OpenMode::Write | OpenMode::Text );
 
     const String& jsonString = serializer.JsonRoot.dump( 4 );
     outStream.writeRaw( jsonString.data(), jsonString.size() );
@@ -131,7 +131,7 @@ bool SceneSerializer::deserializeSectorFromJson( Scene& scene,
     bool hasSucceeded = true;
 
     file_system::OnyxFile sectorFile( sectorFilePath );
-    const file_system::JsonValue& sectorJson = sectorFile.LoadJson();
+    const file_system::JsonValue& sectorJson = sectorFile.loadJson();
     file_system::JsonDeserializer deserializer( sectorJson.Json );
 
     deserializer.readForEach(

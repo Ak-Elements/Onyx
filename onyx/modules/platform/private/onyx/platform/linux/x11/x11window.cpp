@@ -18,13 +18,13 @@ Window::Window( uint32_t /*id*/, X11PlatformContext& context, WindowSettings set
 
 Window::~Window() {}
 
-void Window::Show() {}
+void Window::show() {}
 
-void Window::Hide() {}
+void Window::hide() {}
 
-void Window::Minimize() {}
+void Window::minimize() {}
 
-void Window::Maximize() {}
+void Window::maximize() {}
 
 void Window::createWindow() {
     uint32_t valueMask, valueList[ 32 ];
@@ -40,7 +40,7 @@ void Window::createWindow() {
                      XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS |
                      XCB_EVENT_MASK_BUTTON_RELEASE;
 
-    if ( m_settings.Mode == WindowMode::Fullscreen ) {
+    if( m_settings.Mode == WindowMode::Fullscreen ) {
         m_settings.Size.X = screen.width_in_pixels;
         m_settings.Size.Y = screen.height_in_pixels;
     }
@@ -98,7 +98,7 @@ void Window::createWindow() {
                          wmClass.size() + 2,
                          wmClass.c_str() );
 
-    if ( m_settings.Mode == WindowMode::Fullscreen ) {
+    if( m_settings.Mode == WindowMode::Fullscreen ) {
         xcb_intern_atom_reply_t* atomWmState = queryAtom( connection, false, "_NET_WM_STATE" );
 
         xcb_intern_atom_reply_t* atomWmFullscreen = queryAtom( connection, false, "_NET_WM_STATE_FULLSCREEN" );
@@ -119,8 +119,8 @@ void Window::createWindow() {
     xcb_map_window( connection, m_window );
 }
 
-void Window::SetSize( int32_t width, int32_t height ) {
-    if ( ( width != m_settings.Size.X ) || ( height != m_settings.Size.Y ) ) {
+void Window::setSize( int32_t width, int32_t height ) {
+    if( ( width != m_settings.Size.X ) || ( height != m_settings.Size.Y ) ) {
         m_settings.Size.X = width;
         m_settings.Size.Y = height;
 
@@ -130,44 +130,44 @@ void Window::SetSize( int32_t width, int32_t height ) {
                               XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
                               values );
 
-        m_resizeSignal.Dispatch( m_settings.Size );
+        m_resizeSignal.dispatch( m_settings.Size );
     }
 }
 
-void Window::SetMinimumSize( const Vector2s32& minSize ) {
-    if ( m_settings.MinSize != minSize ) {
+void Window::setMinimumSize( const Vector2s32& minSize ) {
+    if( m_settings.MinSize != minSize ) {
         m_settings.MinSize = minSize;
         VectorComponentMask compared = m_settings.Size > m_settings.MinSize;
-        SetSize( enums::all( compared, VectorComponentMask::X ) ? m_settings.MinSize.X : m_settings.Size.X,
+        setSize( enums::all( compared, VectorComponentMask::X ) ? m_settings.MinSize.X : m_settings.Size.X,
                  enums::all( compared, VectorComponentMask::Y ) ? m_settings.MinSize.Y : m_settings.Size.Y );
     }
 }
 
-void Window::SetMaximumSize( const Vector2s32& maxSize ) {
-    if ( m_settings.MaxSize != maxSize ) {
+void Window::setMaximumSize( const Vector2s32& maxSize ) {
+    if( m_settings.MaxSize != maxSize ) {
         m_settings.MaxSize = maxSize;
         VectorComponentMask compared = m_settings.Size > m_settings.MaxSize;
-        SetSize( enums::all( compared, VectorComponentMask::X ) ? m_settings.MaxSize.X : m_settings.Size.X,
+        setSize( enums::all( compared, VectorComponentMask::X ) ? m_settings.MaxSize.X : m_settings.Size.X,
                  enums::all( compared, VectorComponentMask::Y ) ? m_settings.MaxSize.Y : m_settings.Size.Y );
     }
 }
 
-void Window::SetWindowMode( WindowMode mode ) {
+void Window::setWindowMode( WindowMode mode ) {
     // if (m_Settings.m_Mode == mode)
     //     return;
 
     m_settings.Mode = mode;
 }
 
-void Window::SetState( WindowState state ) {
-    if ( m_state != state ) {
-        switch ( state ) {
+void Window::setState( WindowState state ) {
+    if( m_state != state ) {
+        switch( state ) {
         case WindowState::None:
         case WindowState::Hidden: {
             break;
         }
         case WindowState::Minimized: {
-            Minimize();
+            minimize();
             break;
         }
         case WindowState::Background: {
@@ -191,7 +191,7 @@ void Window::SetState( WindowState state ) {
     }
 }
 
-bool Window::GetRequiredExtensions( std::vector< const char* >& outExtensions ) const {
+bool Window::getRequiredExtensions( std::vector< const char* >& outExtensions ) const {
     outExtensions.push_back( "VK_KHR_xcb_surface" );
     return true;
 }

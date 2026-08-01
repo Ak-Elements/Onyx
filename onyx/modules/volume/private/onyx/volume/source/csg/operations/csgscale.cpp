@@ -8,11 +8,11 @@ CSGScale::CSGScale( const VolumeBase* volume, const float32 scale )
     : CSGUnary( volume )
     , m_Scale( scale ) {}
 
-float32 CSGScale::GetValue( const Vector3f32& /*position*/ ) const {
+float32 CSGScale::getValue( const Vector3f32& /*position*/ ) const {
     return m_Scale;
 }
 
-Vector4f32 CSGScale::GetValueAndGradient( const Vector3f32& /*position*/ ) const {
+Vector4f32 CSGScale::getValueAndGradient( const Vector3f32& /*position*/ ) const {
     return Vector4f32();
 }
 } // namespace onyx::volume

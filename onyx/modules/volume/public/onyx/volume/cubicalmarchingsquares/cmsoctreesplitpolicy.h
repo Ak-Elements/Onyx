@@ -25,19 +25,19 @@ class CMSOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
                       uint8_t nodeLevel ) {
         using std::abs;
 
-        if ( ( 31 - nodeLevel ) > super::m_MaxOctreeLevel ) {
+        if( ( 31 - nodeLevel ) > super::m_MaxOctreeLevel ) {
             return false;
         }
 
         const VolumeBase& volumeBase = *( super::m_VolumeSource );
 
-        Vector4< Scalar > centerValue = volumeBase.GetValueAndGradient( nodeWorldPosition );
+        Vector4< Scalar > centerValue = volumeBase.getValueAndGradient( nodeWorldPosition );
 
         const Vector3< Scalar > halfExtentVec( halfExtent );
         Vector3< Scalar > corner0( nodeWorldPosition - halfExtentVec );
         Vector3< Scalar > corner6( nodeWorldPosition + halfExtentVec );
 
-        if ( std::abs( centerValue[ 3 ] ) > ( corner6 - corner0 ).length() ) {
+        if( std::abs( centerValue[ 3 ] ) > ( corner6 - corner0 ).length() ) {
             // set value
             node.GetData()->Gradient = centerValue;
             return false;
@@ -67,20 +67,20 @@ class CMSOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
 
         };
 
-        const Vector4< Scalar > values[ 8 ] = { volumeBase.GetValueAndGradient( corners[ 0 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 1 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 2 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 3 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 4 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 5 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 6 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 7 ] ) };
+        const Vector4< Scalar > values[ 8 ] = { volumeBase.getValueAndGradient( corners[ 0 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 1 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 2 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 3 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 4 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 5 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 6 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 7 ] ) };
 
-        if ( HasComplexSurface( values ) ) {
+        if( HasComplexSurface( values ) ) {
             return true;
         }
 
-        if ( ExceedsGeometricError( corners, values, nodeWorldPosition ) ) {
+        if( ExceedsGeometricError( corners, values, nodeWorldPosition ) ) {
             return true;
         }
 
@@ -157,18 +157,18 @@ class CMSOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
         Vector3< Scalar > gradient;
 
         const VolumeBase& volumeBase = *( super::m_VolumeSource );
-        for ( uint8_t i = 0; i < 19; ++i ) {
-            value = volumeBase.GetValueAndGradient( positions[ i ][ 0 ] );
+        for( uint8_t i = 0; i < 19; ++i ) {
+            value = volumeBase.getValueAndGradient( positions[ i ][ 0 ] );
             gradient[ 0 ] = value[ 0 ];
             gradient[ 1 ] = value[ 1 ];
             gradient[ 2 ] = value[ 2 ];
             Scalar interpolated = Interpolate( f000, f001, f010, f011, f100, f101, f110, f111, positions[ i ][ 1 ] );
             Scalar gradientMagnitude = numericCast< Scalar >( gradient.length() );
-            if ( gradientMagnitude < numeric_limits< Scalar >::epsilon() ) {
+            if( gradientMagnitude < numeric_limits< Scalar >::epsilon() ) {
                 gradientMagnitude = 1.0f;
             }
             error += abs( value[ 3 ] - interpolated ) / gradientMagnitude;
-            if ( error >= m_MaxGeometricError ) {
+            if( error >= m_MaxGeometricError ) {
                 return true;
             }
         }
@@ -177,9 +177,9 @@ class CMSOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
     }
 
     bool HasComplexSurface( const Vector4< Scalar > ( &cornerValues )[ 8 ] ) {
-        for ( uint8_t i = 0; i < 7; ++i ) {
-            for ( uint8_t j = i + 1; j < 8; ++j ) {
-                if ( cornerValues[ i ].dot3D( cornerValues[ j ] ) < m_ComplexSurfaceThreshold ) {
+        for( uint8_t i = 0; i < 7; ++i ) {
+            for( uint8_t j = i + 1; j < 8; ++j ) {
+                if( cornerValues[ i ].dot3D( cornerValues[ j ] ) < m_ComplexSurfaceThreshold ) {
                     return true;
                 }
             }

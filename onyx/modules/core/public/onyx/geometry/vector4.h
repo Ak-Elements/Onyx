@@ -184,7 +184,7 @@ struct Vector4 {
                ( abs( W - rhs.W ) <= epsilon );
     }
 
-    ONYX_NO_DISCARD constexpr bool isZero() const {
+    [[nodiscard]] constexpr bool isZero() const {
         using std::abs;
         constexpr Scalar Epsilon = std::numeric_limits< Scalar >::epsilon();
         return ( abs( X ) <= Epsilon ) && ( abs( Y ) <= Epsilon ) && ( abs( Z ) <= Epsilon ) && ( abs( W ) <= Epsilon );

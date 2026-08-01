@@ -72,10 +72,10 @@ class TextDeserializer : public Deserializer {
     bool doRead( StringView& outValue ) const override;
     bool doRead( StringView name, StringView& outValue ) const override;
 
-    ONYX_NO_DISCARD bool createScope( uint32_t index ) const override;
-    ONYX_NO_DISCARD bool createScope( uint64_t index ) const override;
-    ONYX_NO_DISCARD bool createScope( StringView name ) const override;
-    ONYX_NO_DISCARD bool endScope() const override;
+    [[nodiscard]] bool createScope( uint32_t index ) const override;
+    [[nodiscard]] bool createScope( uint64_t index ) const override;
+    [[nodiscard]] bool createScope( StringView name ) const override;
+    [[nodiscard]] bool endScope() const override;
 
     uint32_t getItemsCount() const override;
 

@@ -36,49 +36,49 @@ class WaylandInput;
 class WaylandPlatformContext : public Thread {
   public:
     explicit WaylandPlatformContext( PlatformSystem& platformSystem );
-    ~WaylandPlatformContext();
+    ~WaylandPlatformContext() override;
 
-    wl_display* GetDisplayHandle() { return m_Display; }
-    wl_registry* GetRegistryHandle() { return m_Registry; }
-    wl_compositor* GetCompositiorHandle() { return m_Compositor; }
-    wl_shm* GetSharedMemory() { return m_SharedMemory; }
+    wl_display* getDisplayHandle() { return m_display; }
+    wl_registry* getRegistryHandle() { return m_registry; }
+    wl_compositor* getCompositiorHandle() { return m_compositor; }
+    wl_shm* getSharedMemory() { return m_sharedMemory; }
 
-    linux::Xkb& GetXkb() { return m_Xkb; }
+    linux::Xkb& getXkb() { return m_xkb; }
 
-    xdg_wm_base* GetShellHandle() { return m_Shell; }
+    xdg_wm_base* getShellHandle() { return m_shell; }
 
-    zxdg_decoration_manager_v1* GetDecorationManager() { return m_ZxdgDecorationManager; }
-    zxdg_toplevel_decoration_v1* GetDecoration() { return m_ZxdgToplevelDecoration; }
+    zxdg_decoration_manager_v1* getDecorationManager() { return m_zxdgDecorationManager; }
+    zxdg_toplevel_decoration_v1* getDecoration() { return m_zxdgToplevelDecoration; }
 
-    onyx::input::InputSystem& GetInputSystem();
-    PlatformSystem& getPlatformSystem() { return *m_PlatformSystem; }
+    onyx::input::InputSystem& getInputSystem();
+    PlatformSystem& getPlatformSystem() { return *m_platformSystem; }
 
   private:
-    static void RegisterCallback( void* data,
+    static void registerCallback( void* data,
                                   wl_registry* registry,
                                   uint32_t name,
                                   const char* interface,
                                   uint32_t version );
-    static void UnregisterCallback( void* data, wl_registry* registry, uint32_t name );
+    static void unregisterCallback( void* data, wl_registry* registry, uint32_t name );
 
     void onUpdate() override;
 
   private:
-    Atomic< bool > m_IsInitialized = false;
-    PlatformSystem* m_PlatformSystem = nullptr;
+    Atomic< bool > m_isInitialized = false;
+    PlatformSystem* m_platformSystem = nullptr;
 
-    wl_display* m_Display = nullptr;
-    wl_registry* m_Registry = nullptr;
-    wl_compositor* m_Compositor = nullptr;
-    xdg_wm_base* m_Shell = nullptr;
-    wl_shm* m_SharedMemory = nullptr;
+    wl_display* m_display = nullptr;
+    wl_registry* m_registry = nullptr;
+    wl_compositor* m_compositor = nullptr;
+    xdg_wm_base* m_shell = nullptr;
+    wl_shm* m_sharedMemory = nullptr;
 
-    linux::Xkb m_Xkb;
+    linux::Xkb m_xkb;
 
-    zxdg_decoration_manager_v1* m_ZxdgDecorationManager = nullptr;
-    zxdg_toplevel_decoration_v1* m_ZxdgToplevelDecoration = nullptr;
+    zxdg_decoration_manager_v1* m_zxdgDecorationManager = nullptr;
+    zxdg_toplevel_decoration_v1* m_zxdgToplevelDecoration = nullptr;
 
-    UniquePtr< WaylandInput > m_Input;
+    UniquePtr< WaylandInput > m_input;
 };
 
 } // namespace wayland

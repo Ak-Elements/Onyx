@@ -11,14 +11,14 @@ class StringIdCache {
     ~StringIdCache() {}
     StringView store( StringView string ) {
         // A read / write concurrent collection would be better here probably
-		std::lock_guard lock( m_mutex );
+        std::lock_guard lock( m_mutex );
         Optional< StringView > cachedString = tryGet( string );
-        if ( cachedString.has_value() ) {
+        if( cachedString.has_value() ) {
             return cachedString.value();
         }
 
-    	cachedString = tryGet( string );
-        if ( cachedString.has_value() ) {
+        cachedString = tryGet( string );
+        if( cachedString.has_value() ) {
             return cachedString.value();
         }
 
@@ -30,7 +30,7 @@ class StringIdCache {
         auto it = std::ranges::find_if( m_cache,
                                         [ & ]( const String& cachedString ) { return string == cachedString; } );
 
-        if ( it == m_cache.end() ) {
+        if( it == m_cache.end() ) {
             return std::nullopt;
         }
 
@@ -81,7 +81,7 @@ struct StringId {
         : id( hash::FNV1aHash< T >( string ) )
 #else
         : m_idString( [ & ]() -> StringView {
-            if ( std::is_constant_evaluated() ) {
+            if( std::is_constant_evaluated() ) {
                 return string; // Safe to store view
             } else {
                 return getIdCache().store( string );
@@ -114,7 +114,7 @@ struct StringId {
 
     constexpr operator T() const { return m_id; }
 
-    ONYX_NO_DISCARD constexpr bool isValid() const { return m_id != Invalid; }
+    [[nodiscard]] constexpr bool isValid() const { return m_id != Invalid; }
     constexpr void reset() {
         m_id = Invalid;
         m_idString = "";
@@ -123,8 +123,8 @@ struct StringId {
     constexpr bool operator==( const StringId& other ) const { return m_id == other.m_id; }
     constexpr bool operator!=( const StringId& other ) const { return m_id != other.m_id; }
 
-    constexpr T getId() const { return m_id; }
-    constexpr StringView getString() const { return m_idString; }
+    [[nodiscard]] constexpr T getId() const { return m_id; }
+    [[nodiscard]] constexpr StringView getString() const { return m_idString; }
 
   private:
 #if !ONYX_IS_RETAIL
@@ -140,11 +140,11 @@ template < typename T >
 constexpr bool IsStringId = is_specialization_of_v< StringId, T >;
 
 consteval StringId32 operator""_id32( const char* deg, std::size_t len ) {
-    return StringId32( StringView( deg, len ) );
+    return { StringView( deg, len ) };
 }
 
 consteval StringId64 operator""_id64( const char* deg, std::size_t len ) {
-    return StringId64( StringView( deg, len ) );
+    return { StringView( deg, len ) };
 }
 
 template <>

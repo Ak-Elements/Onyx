@@ -17,32 +17,32 @@ class VulkanBuffer : public Buffer, public DeviceMemory {
 
     void Destroy();
 
-    void* Map( MapMode mode ) override;
-    void Unmap() override;
+    void* map( MapMode mode ) override;
+    void unmap() override;
 
-    void Flush( uint32_t offset, uint32_t count ) override;
-    void SetData( int32_t offset, const void* data, int32_t length ) override;
+    void flush( uint32_t offset, uint32_t count ) override;
+    void setData( int32_t offset, const void* data, int32_t length ) override;
 
     const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 
-    uint64_t GetAliasOffset( int8_t alias ) const override {
-        if ( alias == InvalidIndex8 )
+    uint64_t getAliasOffset( int8_t alias ) const override {
+        if( alias == InvalidIndex8 )
             return 0;
         return m_Aliases[ alias ].Offset;
     }
 
-    uint64_t GetAliasSize( int8_t alias ) const override {
-        if ( alias == InvalidIndex8 )
-            return m_Properties.m_Size;
+    uint64_t getAliasSize( int8_t alias ) const override {
+        if( alias == InvalidIndex8 )
+            return m_properties.m_Size;
 
         return m_Aliases[ alias ].Size;
     }
 
-    void ClearAliases() override { m_Aliases.clear(); }
+    void clearAliases() override { m_Aliases.clear(); }
 
-    void Barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess ) override;
-    void Barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess, int8_t aliasIndex ) override;
-    int8_t Alias( const BufferProperties& properties ) override;
+    void barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess ) override;
+    void barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess, int8_t aliasIndex ) override;
+    int8_t alias( const BufferProperties& properties ) override;
 
   private:
     void Init( const void* data = nullptr );

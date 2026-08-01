@@ -33,13 +33,13 @@ void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
     const auto topologicalOrder = m_graph.getTopologicalOrder();
     for( const LocalNodeId nodeId : topologicalOrder ) {
         IRenderGraphNode& graphNode = m_graph.getNode< IRenderGraphNode >( nodeId );
-        const uint32_t inputPinCount = graphNode.GetInputPinCount();
+        const uint32_t inputPinCount = graphNode.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
-            if( inputPin->IsConnected() == false )
+            const node_graph::PinBase* inputPin = graphNode.getInputPin( i );
+            if( inputPin->isConnected() == false )
                 continue;
 
-            ++resourceRefCounts[ inputPin->GetLinkedPinGlobalId().get() ];
+            ++resourceRefCounts[ inputPin->getLinkedPinGlobalId().get() ];
         }
     }
 
@@ -50,17 +50,17 @@ void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
         // remove resource cache
         graphNode.init( graphicsSystem, m_resourceCache );
 
-        uint32_t outputPinCount = graphNode.GetOutputPinCount();
+        uint32_t outputPinCount = graphNode.getOutputPinCount();
         for( uint32_t i = 0; i < outputPinCount; ++i ) {
-            const node_graph::PinBase* outputPin = graphNode.GetOutputPin( i );
-            RenderGraphResource& output = m_resourceCache[ outputPin->GetGlobalId().get() ];
+            const node_graph::PinBase* outputPin = graphNode.getOutputPin( i );
+            RenderGraphResource& output = m_resourceCache[ outputPin->getGlobalId().get() ];
 
-            if( outputPin->GetType() == static_cast< node_graph::PinTypeId >( TypeHash< rhi::BufferHandle >() ) )
+            if( outputPin->getType() == static_cast< node_graph::PinTypeId >( TypeHash< rhi::BufferHandle >() ) )
                 continue;
 
             // TODO: Improve handling of final texture Id as this is very error prone
             if( isLastNode ) {
-                m_finalTextureId = outputPin->GetGlobalId().get();
+                m_finalTextureId = outputPin->getGlobalId().get();
             }
 
             RenderGraphTextureResourceInfo& textureInfo = std::get< RenderGraphTextureResourceInfo >(
@@ -86,14 +86,14 @@ void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
             }
         }
 
-        const uint32_t inputPinCount = graphNode.GetInputPinCount();
+        const uint32_t inputPinCount = graphNode.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
+            const node_graph::PinBase* inputPin = graphNode.getInputPin( i );
             // check for invalid ID
-            if( inputPin->IsConnected() == false )
+            if( inputPin->isConnected() == false )
                 continue;
 
-            Guid64 id = inputPin->GetLinkedPinGlobalId();
+            Guid64 id = inputPin->getLinkedPinGlobalId();
             --resourceRefCounts[ id.get() ];
 
             RenderGraphResource& input = m_resourceCache[ id.get() ];
@@ -120,9 +120,9 @@ void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
         graphNode.compile( graphicsSystem, m_resourceCache );
     }
 
-    graphicsSystem.onBeginFrame().Connect< &RenderGraph::onBeginFrame >( this );
-    graphicsSystem.onRenderFrame().Connect< &RenderGraph::onRenderFrame >( this );
-    graphicsSystem.onEndFrame().Connect< &RenderGraph::onEndFrame >( this );
+    graphicsSystem.onBeginFrame().connect< &RenderGraph::onBeginFrame >( this );
+    graphicsSystem.onRenderFrame().connect< &RenderGraph::onRenderFrame >( this );
+    graphicsSystem.onEndFrame().connect< &RenderGraph::onEndFrame >( this );
 
     m_isInitialized = true;
 }
@@ -139,9 +139,9 @@ void RenderGraph::shutdown( rhi::GraphicsSystem& graphicsSystem ) {
     m_resourceCache.clear();
     m_graph.clear();
 
-    graphicsSystem.onBeginFrame().Disconnect( this );
-    graphicsSystem.onRenderFrame().Disconnect( this );
-    graphicsSystem.onEndFrame().Disconnect( this );
+    graphicsSystem.onBeginFrame().disconnect( this );
+    graphicsSystem.onRenderFrame().disconnect( this );
+    graphicsSystem.onEndFrame().disconnect( this );
 
     m_isInitialized = false;
 }
@@ -213,7 +213,7 @@ void RenderGraph::onEndFrame( const rhi::FrameContext& frameContext ) {
     }
 
     rhi::TextureHandle finalTexture = std::get< rhi::TextureHandle >( m_resourceCache.at( m_finalTextureId ).Handle );
-    if( finalTexture.IsValid() ) {
+    if( finalTexture.isValid() ) {
         auto& commandBuffer = frameContext.Api->getCommandBuffer( frameContext.FrameIndex, true );
         commandBuffer.transitionLayout( finalTexture,
                                         rhi::Context::Graphics,

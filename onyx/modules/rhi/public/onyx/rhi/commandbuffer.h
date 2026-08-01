@@ -26,7 +26,7 @@ class CommandBuffer : public NonCopyable {
     virtual void bindShaderEffect( const ShaderInstanceHandle& shader ) = 0;
     virtual void bindVertexBuffer( const BufferHandle& bufferHandle, uint32_t binding, uint32_t offset ) = 0;
     virtual void bindVertexBuffers( const InplaceArray< BufferHandle, 8 >& bufferHandles,
-                                    const InplaceArray< uint32_t, 8 > bufferOffsets,
+                                    const InplaceArray< uint32_t, 8 >& bufferOffsets,
                                     uint32_t firstBinding,
                                     uint32_t bindingCount ) = 0;
     virtual void bindIndexBuffer( const BufferHandle& buffer, uint32_t offset, IndexType indexType ) = 0;

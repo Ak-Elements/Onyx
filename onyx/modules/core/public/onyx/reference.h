@@ -12,7 +12,7 @@ class RefCounted {
 
   public:
     virtual ~RefCounted();
-    ONYX_NO_DISCARD uint32_t getRefCount() const;
+    [[nodiscard]] uint32_t getRefCount() const;
 
     void addReference();
     bool removeReference();
@@ -128,7 +128,7 @@ class Reference {
     }
 
     Reference& operator=( const Reference& other ) {
-        if ( this == &other )
+        if( this == &other )
             return *this;
 
         other.increaseRefCount();

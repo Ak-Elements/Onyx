@@ -17,7 +17,7 @@ using MovementEntity = MovementEntityAccess::AsEntity;
 void system( MovementEntity entity, const onyx::input_actions::InputActionSystem& inputActions ) {
     auto&& [ movementRequest, transform ] = entity;
 
-    Optional< const input_actions::InputActionState* > optionalActionState = inputActions.GetActionState(
+    Optional< const input_actions::InputActionState* > optionalActionState = inputActions.getActionState(
         "CameraMovement" );
     if( optionalActionState ) {
         const input_actions::InputActionState& actionState = *optionalActionState.value();

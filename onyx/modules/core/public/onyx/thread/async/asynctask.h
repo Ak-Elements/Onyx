@@ -40,7 +40,7 @@ class AsyncTask< R( Args... ), Capacity > {
         , m_stopToken( std::move( other.m_stopToken ) ) {}
 
     AsyncTask& operator=( AsyncTask&& other ) noexcept {
-        if ( *this == other ) {
+        if( *this == other ) {
             return *this;
         }
 
@@ -51,13 +51,13 @@ class AsyncTask< R( Args... ), Capacity > {
 
     ~AsyncTask() = default;
 
-    ONYX_NO_DISCARD bool isCanceled() const { return m_stopToken.stop_requested(); }
+    [[nodiscard]] bool isCanceled() const { return m_stopToken.stop_requested(); }
 
     FutureT getFuture() const { return m_promise.getFuture(); }
 
     void operator()() {
-        if constexpr ( std::is_void< ReturnT >::value ) {
-            if constexpr ( std::is_invocable_v< TaskT, std::stop_token > ) {
+        if constexpr( std::is_void< ReturnT >::value ) {
+            if constexpr( std::is_invocable_v< TaskT, std::stop_token > ) {
                 m_taskFunctor( m_stopToken );
             } else {
                 m_taskFunctor();
@@ -65,7 +65,7 @@ class AsyncTask< R( Args... ), Capacity > {
 
             m_promise.setValue();
         } else {
-            if constexpr ( std::is_invocable_v< TaskT, std::stop_token > ) {
+            if constexpr( std::is_invocable_v< TaskT, std::stop_token > ) {
                 m_promise.setValue( m_taskFunctor( m_stopToken ) );
             } else {
                 m_promise.setValue( m_taskFunctor() );

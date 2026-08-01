@@ -58,36 +58,36 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
 
         const VolumeBase& volumeBase = *( super::m_VolumeSource );
 
-        if ( ( 31 - nodeLevel ) > super::m_MaxOctreeLevel ) {
+        if( ( 31 - nodeLevel ) > super::m_MaxOctreeLevel ) {
             return false;
         }
 
-        if ( m_UseCMSSplit && halfExtent < m_SampleResolution ) {
+        if( m_UseCMSSplit && halfExtent < m_SampleResolution ) {
             return false;
         }
 
-        Vector4< Scalar > centerValue = volumeBase.GetValueAndGradient( nodeWorldPosition );
+        Vector4< Scalar > centerValue = volumeBase.getValueAndGradient( nodeWorldPosition );
 
         Vector3< Scalar > halfExtentVec( halfExtent );
         Vector3< Scalar > from = nodeWorldPosition - halfExtentVec;
         Vector3< Scalar > to = nodeWorldPosition + halfExtentVec;
 
-        if ( std::abs( centerValue[ 3 ] ) > ( to - from ).length() ) {
+        if( std::abs( centerValue[ 3 ] ) > ( to - from ).length() ) {
             // set value
             node.GetData()->Gradient = centerValue;
             return false;
         }
 
         bool shouldSplit = false;
-        if ( m_UseTriplanarError ) {
+        if( m_UseTriplanarError ) {
             shouldSplit = CheckTriplanarGeometricError( from, nodeWorldPosition, to );
         }
 
-        if ( m_UseCMSSplit ) {
+        if( m_UseCMSSplit ) {
             shouldSplit = CheckCMSLike( nodeWorldPosition, halfExtent );
         }
 
-        if ( shouldSplit )
+        if( shouldSplit )
             return true;
 
         node.GetData()->Gradient = centerValue;
@@ -108,14 +108,14 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
         const Vector3< Scalar > corner7( from[ 0 ], to[ 1 ], to[ 2 ] );
 
         // Error metric of http://www.andrew.cmu.edu/user/jessicaz/publication/meshing/
-        float32 f000 = volumeBase.GetValue( from );
-        float32 f001 = volumeBase.GetValue( corner3 );
-        float32 f010 = volumeBase.GetValue( corner4 );
-        float32 f011 = volumeBase.GetValue( corner7 );
-        float32 f100 = volumeBase.GetValue( corner1 );
-        float32 f101 = volumeBase.GetValue( corner2 );
-        float32 f110 = volumeBase.GetValue( corner5 );
-        float32 f111 = volumeBase.GetValue( to );
+        float32 f000 = volumeBase.getValue( from );
+        float32 f001 = volumeBase.getValue( corner3 );
+        float32 f010 = volumeBase.getValue( corner4 );
+        float32 f011 = volumeBase.getValue( corner7 );
+        float32 f100 = volumeBase.getValue( corner1 );
+        float32 f101 = volumeBase.getValue( corner2 );
+        float32 f110 = volumeBase.getValue( corner5 );
+        float32 f111 = volumeBase.getValue( to );
 
         const Vector3< Scalar > centerBackBottom( center[ 0 ], from[ 1 ], from[ 2 ] );
         const Vector3< Scalar > centerLeftBottom( from[ 0 ], from[ 1 ], center[ 2 ] );
@@ -165,18 +165,18 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
         Vector4< Scalar > value;
         Vector3< Scalar > gradient;
 
-        for ( uint8_t i = 0; i < 19; ++i ) {
-            value = volumeBase.GetValueAndGradient( positions[ i ][ 0 ] );
+        for( uint8_t i = 0; i < 19; ++i ) {
+            value = volumeBase.getValueAndGradient( positions[ i ][ 0 ] );
             gradient[ 0 ] = value[ 0 ];
             gradient[ 1 ] = value[ 1 ];
             gradient[ 2 ] = value[ 2 ];
             Scalar interpolated = Interpolate( f000, f001, f010, f011, f100, f101, f110, f111, positions[ i ][ 1 ] );
             Scalar gradientMagnitude = numericCast< Scalar >( gradient.length() );
-            if ( gradientMagnitude < 1.0f ) {
+            if( gradientMagnitude < 1.0f ) {
                 gradientMagnitude = 1.0f;
             }
             error += std::abs( value[ 3 ] - interpolated ) / gradientMagnitude;
-            if ( error >= m_MaxGeometricError ) {
+            if( error >= m_MaxGeometricError ) {
                 return true;
             }
         }
@@ -208,20 +208,20 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
 
         };
 
-        const Vector4< Scalar > values[ 8 ] = { volumeBase.GetValueAndGradient( corners[ 0 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 1 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 2 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 3 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 4 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 5 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 6 ] ),
-                                                volumeBase.GetValueAndGradient( corners[ 7 ] ) };
+        const Vector4< Scalar > values[ 8 ] = { volumeBase.getValueAndGradient( corners[ 0 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 1 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 2 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 3 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 4 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 5 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 6 ] ),
+                                                volumeBase.getValueAndGradient( corners[ 7 ] ) };
 
-        if ( CheckEdgeAmbiguity( corners ) ) {
+        if( CheckEdgeAmbiguity( corners ) ) {
             return true;
         }
 
-        if ( HasComplexSurface( values ) ) {
+        if( HasComplexSurface( values ) ) {
             return true;
         }
 
@@ -236,7 +236,7 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
 
         bool hasFoundCrossing = false;
         // Loop through all the edges of the cell
-        for ( int i = 0; i < 12; ++i ) {
+        for( int i = 0; i < 12; ++i ) {
             // Getting the start and end cell points of this edge
             const Vector3f32& edgeStartCorner = corners[ EDGE_VERTICES[ i ][ 0 ] ];
             const Vector3f32& edgeEndCorner = corners[ EDGE_VERTICES[ i ][ 1 ] ];
@@ -249,17 +249,17 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
             // Get the edge direction from the static table
             // uint8_t edgeDirection = EDGE_DIRECTION[i];
 
-            float32 previousSample = volumeBase.GetValue( edgeStartCorner );
+            float32 previousSample = volumeBase.getValue( edgeStartCorner );
             Vector3f32 currentSamplePosition = edgeStartCorner;
 
             auto compare = []( const Vector3f32& a, const Vector3f32& b ) {
                 return a[ 0 ] < b[ 0 ] && a[ 1 ] < b[ 1 ] && a[ 2 ] < b[ 2 ];
             };
 
-            while ( compare( currentSamplePosition, edgeEndCorner ) ) {
-                float32 currentSample = volumeBase.GetValue( currentSamplePosition );
-                if ( previousSample * currentSample < 0.f ) {
-                    if ( hasFoundCrossing ) // if a second crossing is found this node has an edge ambiguity
+            while( compare( currentSamplePosition, edgeEndCorner ) ) {
+                float32 currentSample = volumeBase.getValue( currentSamplePosition );
+                if( previousSample * currentSample < 0.f ) {
+                    if( hasFoundCrossing ) // if a second crossing is found this node has an edge ambiguity
                     {
                         return true;
                     }
@@ -276,9 +276,9 @@ class DMCOctreeSplitPolicy : public OctreeSplitPolicy< Scalar > {
     }
 
     bool HasComplexSurface( const Vector4< Scalar > ( &cornerValues )[ 8 ] ) {
-        for ( uint8_t i = 0; i < 7; ++i ) {
-            for ( uint8_t j = i + 1; j < 8; ++j ) {
-                if ( cornerValues[ i ].dot3D( cornerValues[ j ] ) < m_ComplexSurfaceThreshold ) {
+        for( uint8_t i = 0; i < 7; ++i ) {
+            for( uint8_t j = i + 1; j < 8; ++j ) {
+                if( cornerValues[ i ].dot3D( cornerValues[ j ] ) < m_ComplexSurfaceThreshold ) {
                     return true;
                 }
             }

@@ -7,15 +7,15 @@
 
 namespace onyx::input_actions {
 bool InputBindingAxis3DComposite::DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) {
-    bool isUpDown = inputSystem.IsButtonDown( m_InputUp );
-    bool isDownDown = inputSystem.IsButtonDown( m_InputDown );
-    bool isLeftDown = inputSystem.IsButtonDown( m_InputLeft );
-    bool isRightDown = inputSystem.IsButtonDown( m_InputRight );
-    bool isForwardDown = inputSystem.IsButtonDown( m_InputForward );
-    bool isBackwardDown = inputSystem.IsButtonDown( m_InputBackward );
+    bool isUpDown = inputSystem.isButtonDown( m_InputUp );
+    bool isDownDown = inputSystem.isButtonDown( m_InputDown );
+    bool isLeftDown = inputSystem.isButtonDown( m_InputLeft );
+    bool isRightDown = inputSystem.isButtonDown( m_InputRight );
+    bool isForwardDown = inputSystem.isButtonDown( m_InputForward );
+    bool isBackwardDown = inputSystem.isButtonDown( m_InputBackward );
 
-    if ( ( isUpDown == false ) && ( isDownDown == false ) && ( isLeftDown == false ) && ( isRightDown == false ) &&
-         ( isForwardDown == false ) && ( isBackwardDown == false ) )
+    if( ( isUpDown == false ) && ( isDownDown == false ) && ( isLeftDown == false ) && ( isRightDown == false ) &&
+        ( isForwardDown == false ) && ( isBackwardDown == false ) )
         return false;
 
     outInputValue.X = ( isRightDown ? 1.0f : 0.0f ) - ( isLeftDown ? 1.0f : 0.0f );
@@ -34,7 +34,7 @@ void InputBindingAxis3DComposite::Reset() {
 }
 
 input::InputID InputBindingAxis3DComposite::GetBoundInputForSlot( uint32_t index ) const {
-    switch ( index ) {
+    switch( index ) {
     case 0:
         return m_InputUp;
     case 1:
@@ -54,7 +54,7 @@ input::InputID InputBindingAxis3DComposite::GetBoundInputForSlot( uint32_t index
 }
 
 void InputBindingAxis3DComposite::SetInputBindingSlot( uint32_t index, input::InputID inputID ) {
-    switch ( index ) {
+    switch( index ) {
     case 0:
         m_InputUp = inputID;
         break;
@@ -80,7 +80,7 @@ void InputBindingAxis3DComposite::SetInputBindingSlot( uint32_t index, input::In
 }
 
 StringView InputBindingAxis3DComposite::GetInputBindingSlotName( uint32_t index ) const {
-    switch ( index ) {
+    switch( index ) {
     case 0:
         return "Up";
     case 1:

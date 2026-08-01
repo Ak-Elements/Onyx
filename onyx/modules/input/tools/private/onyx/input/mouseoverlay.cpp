@@ -192,9 +192,9 @@ void MouseOverlay::onRender( ui::ImGuiSystem& imguiSystem ) {
     const float32 wheelWidth = theme.Style.MouseOverlayWheelWidth * scale;
     const float32 wheelHeight = theme.Style.MouseOverlayWheelHeight * scale;
 
-    const bool leftDown = inputSystem.IsButtonDown( MouseButton::Button_1 );
-    const bool rightDown = inputSystem.IsButtonDown( MouseButton::Button_2 );
-    const bool isMiddleDown = inputSystem.IsButtonDown( MouseButton::Button_3 );
+    const bool leftDown = inputSystem.isButtonDown( MouseButton::Button_1 );
+    const bool rightDown = inputSystem.isButtonDown( MouseButton::Button_2 );
+    const bool isMiddleDown = inputSystem.isButtonDown( MouseButton::Button_3 );
 
     ImVec2 cursorPosition = ImGui::GetCursorScreenPos();
     ImDrawList* dl = ImGui::GetWindowDrawList();
@@ -257,7 +257,7 @@ void MouseOverlay::onRender( ui::ImGuiSystem& imguiSystem ) {
     const float decayTime = 0.2f; // seconds
     const float decaySpeed = dt / decayTime;
 
-    int32_t wheelDelta = inputSystem.GetMouseWheelDelta();
+    int32_t wheelDelta = inputSystem.getMouseWheelDelta();
     if( wheelDelta != 0 ) {
         // Snap intensity 60 % of the way toward the target direction each event
         float target = wheelDelta > 0 ? 1.f : -1.f;

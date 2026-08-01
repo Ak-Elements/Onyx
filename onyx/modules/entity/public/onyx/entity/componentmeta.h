@@ -33,7 +33,7 @@ struct IComponentMeta {
     virtual void copy( EntityRegistry& registry, EntityId entity, const void* componentPtr ) const = 0;
     virtual void copy( void* componentPtr, std::any& outCopy ) const = 0;
 
-    ONYX_NO_DISCARD virtual bool hasFactory() const = 0;
+    [[nodiscard]] virtual bool hasFactory() const = 0;
 
     virtual bool serialize( const void* componentAny, Serializer& ) const = 0;
     virtual bool deserialize( void* componentAny, const Deserializer& ) const = 0;
@@ -41,11 +41,11 @@ struct IComponentMeta {
 #if !ONYX_IS_RETAIL
     // virtual bool DrawPropertyGridEditor(void* componentAny) const = 0;
 #endif
-    ONYX_NO_DISCARD virtual constexpr bool isTransient() const = 0;
-    ONYX_NO_DISCARD virtual constexpr bool isCodeOnly() const = 0;
-    ONYX_NO_DISCARD virtual constexpr bool isFlag() const = 0;
-    ONYX_NO_DISCARD virtual constexpr StringId32 getTypeId() const = 0;
-    ONYX_NO_DISCARD virtual constexpr uint32_t getRuntimeTypeId() const = 0;
+    [[nodiscard]] virtual constexpr bool isTransient() const = 0;
+    [[nodiscard]] virtual constexpr bool isCodeOnly() const = 0;
+    [[nodiscard]] virtual constexpr bool isFlag() const = 0;
+    [[nodiscard]] virtual constexpr StringId32 getTypeId() const = 0;
+    [[nodiscard]] virtual constexpr uint32_t getRuntimeTypeId() const = 0;
 };
 
 template < typename T >

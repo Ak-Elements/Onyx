@@ -16,7 +16,7 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
         return assets::AssetSystem::getExtensions< GraphAssetT >();
     }
     StringView getLocalizedAssetTypeName() const override {
-        return getLocalizationModule().TryGetLocalized( GraphAssetT::TypeId ).value_or( "Unknown" );
+        return getLocalizationModule().tryGetLocalized( GraphAssetT::TypeId ).value_or( "Unknown" );
     }
 
   protected:
@@ -36,7 +36,7 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
             assets::AssetHandle< typename GraphAssetT::AssetT > baseAsset( graphAsset );
             onAssetLoaded( baseAsset );
         } else {
-            graphAsset->getOnLoadedEvent().template Connect< &TypedNodeGraphEditorContext::onAssetLoaded >( this );
+            graphAsset->getOnLoadedEvent().template connect< &TypedNodeGraphEditorContext::onAssetLoaded >( this );
         }
     }
 
@@ -56,12 +56,12 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
         for( auto&& [ id, nodeContainer ] : graphNodes ) {
             const UniquePtr< node_graph::Node >& node = nodeContainer.Data;
 
-            String nodeName( node->GetName() );
+            String nodeName( node->getName() );
             if( nodeName.empty() ) {
-                nodeName = getLocalizationModule().GetLocalized( node->GetTypeId() ).Get();
+                nodeName = getLocalizationModule().getLocalized( node->getTypeId() ).Get();
             }
 
-            Node& nodeEditorMeta = nodes.emplace_back( node->GetId(), nodeName );
+            Node& nodeEditorMeta = nodes.emplace_back( node->getId(), nodeName );
             nodeEditorMeta.LocalId = id;
 
             updateEditorNodeData( nodeEditorMeta, *node );

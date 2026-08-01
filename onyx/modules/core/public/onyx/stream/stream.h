@@ -18,17 +18,17 @@ class Stream {
     virtual ~Stream() = default;
 
     // interface to implement for streams
-    ONYX_NO_DISCARD virtual bool isValid() const = 0;
-    ONYX_NO_DISCARD virtual bool isEof() const = 0;
+    [[nodiscard]] virtual bool isValid() const = 0;
+    [[nodiscard]] virtual bool isEof() const = 0;
 
-    ONYX_NO_DISCARD virtual uint64_t getPosition() = 0;
-    ONYX_NO_DISCARD virtual uint64_t getPosition() const = 0;
+    [[nodiscard]] virtual uint64_t getPosition() = 0;
+    [[nodiscard]] virtual uint64_t getPosition() const = 0;
     virtual void setPosition( uint64_t position ) = 0;
 
-    ONYX_NO_DISCARD virtual uint64_t getLength() const = 0;
+    [[nodiscard]] virtual uint64_t getLength() const = 0;
 
     explicit operator bool() const { return isValid(); }
-    ONYX_NO_DISCARD uint64_t getRemainingLength() const {
+    [[nodiscard]] uint64_t getRemainingLength() const {
         ONYX_ASSERT( getLength() >= getPosition() );
         return getLength() - getPosition();
     }

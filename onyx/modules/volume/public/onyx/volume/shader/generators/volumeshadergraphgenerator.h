@@ -2,13 +2,11 @@
 
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
-namespace onyx::volume
-{
-    class VolumeShaderGraphGenerator : public rhi::ShaderGenerator
-    {
-    public:
-        VolumeShaderGraphGenerator();
+namespace onyx::volume {
+class VolumeShaderGraphGenerator : public rhi::ShaderGenerator {
+  public:
+    VolumeShaderGraphGenerator();
 
-        String GenerateShader() override;
-    };
-}
+    String generateShader() override;
+};
+} // namespace onyx::volume

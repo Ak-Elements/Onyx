@@ -6,8 +6,8 @@
 
 namespace onyx::input_actions {
 bool InputBindingAxis2D::DoUpdate( const input::InputSystem& inputSystem, Vector3f32& outInputValue ) {
-    outInputValue.X = numericCast< float32 >( inputSystem.GetAxisValue1D( 0, m_AxisX ) );
-    outInputValue.Y = numericCast< float32 >( inputSystem.GetAxisValue1D( 0, m_AxisY ) );
+    outInputValue.X = numericCast< float32 >( inputSystem.getAxisValue1D( 0, m_AxisX ) );
+    outInputValue.Y = numericCast< float32 >( inputSystem.getAxisValue1D( 0, m_AxisY ) );
     return isZero( outInputValue.X ) == false || isZero( outInputValue.Y ) == false;
 }
 
@@ -21,7 +21,7 @@ input::InputID InputBindingAxis2D::GetBoundInputForSlot( uint32_t index ) const 
 }
 
 void InputBindingAxis2D::SetInputBindingSlot( uint32_t index, input::InputID inputID ) {
-    if ( index == 0 )
+    if( index == 0 )
         m_AxisX = inputID;
     else
         m_AxisY = inputID;

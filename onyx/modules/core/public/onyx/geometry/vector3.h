@@ -300,9 +300,7 @@ struct Vector3 {
                onyx::isEqual( Z, rhs.Z, epsilon );
     }
 
-    ONYX_NO_DISCARD constexpr bool isZero() const {
-        return onyx::isZero( X ) && onyx::isZero( Y ) && onyx::isZero( Z );
-    }
+    [[nodiscard]] constexpr bool isZero() const { return onyx::isZero( X ) && onyx::isZero( Y ) && onyx::isZero( Z ); }
 
     constexpr bool isZero( ScalarT epsilon ) const requires std::is_floating_point_v< Scalar >
     {

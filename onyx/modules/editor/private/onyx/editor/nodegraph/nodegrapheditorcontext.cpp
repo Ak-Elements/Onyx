@@ -15,12 +15,12 @@ struct DefaultNodeFilter {
 
 void NodeGraphEditorContext::onDrawNode( const Node& node ) {
     node_graph::Node& nodeGraphNode = getNodeGraphNode( node.LocalId );
-    nodeGraphNode.UIDrawNode();
+    nodeGraphNode.uiDrawNode();
 }
 
 void NodeGraphEditorContext::onDrawNodeBackground( const Node& node ) {
     node_graph::Node& nodeGraphNode = getNodeGraphNode( node.LocalId );
-    nodeGraphNode.UIDrawNodeBackground();
+    nodeGraphNode.uiDrawNodeBackground();
 }
 
 bool NodeGraphEditorContext::isNewLinkValid( Guid64 fromPinId, Guid64 toPinId ) const {
@@ -37,7 +37,7 @@ void NodeGraphEditorContext::drawNodeInPropertyPanel( Guid64 nodeId ) {
     node_graph::Node& graphNode = getNodeGraphNode( editorNode.LocalId );
     HashMap< Guid64, std::any >& constantPinData = getNodeGraph().getConstantPinData();
     // TODO: Change bool to enum - NodeChanged::PinAdded, NodeChanged::PinRemoved NodeChanged::PinRenamed etc...
-    bool hasChanged = graphNode.DrawInPropertyGrid( constantPinData );
+    bool hasChanged = graphNode.drawInPropertyGrid( constantPinData );
 
     if( hasChanged ) {
         updateEditorNodeData( editorNode, graphNode );
@@ -49,12 +49,12 @@ void NodeGraphEditorContext::filterNodeListContextMenu(
     m_contextMenuRoot.Children.clear();
 
     const node_graph::INodeFactory& factory = getNodeFactory();
-    const auto& nodeTypeIds = factory.GetRegisteredNodeIds();
+    const auto& nodeTypeIds = factory.getRegisteredNodeIds();
     const localization::LocalizationModule& localizationModule = getLocalizationModule();
 
     for( const StringId32 typeId : nodeTypeIds ) {
-        const node_graph::NodeEditorMetaData& nodeMetaData = factory.GetNodeMetaData( typeId );
-        StringView localizedFullyQualifiedNodeName = localizationModule.GetLocalized( nodeMetaData.TypeId ).Get();
+        const node_graph::NodeEditorMetaData& nodeMetaData = factory.getNodeMetaData( typeId );
+        StringView localizedFullyQualifiedNodeName = localizationModule.getLocalized( nodeMetaData.TypeId ).Get();
         if( filterFunctor && filterFunctor( localizedFullyQualifiedNodeName, nodeMetaData ) == false ) {
             continue;
         }
@@ -89,51 +89,51 @@ const ui::TreeItem& NodeGraphEditorContext::getNodeListContextMenuRoot() {
 
 void NodeGraphEditorContext::updateEditorNodeData( Node& editorNode, const node_graph::Node& graphNode ) {
     DynamicArray< Link >& editorLinks = getLinks();
-    const uint32_t inputPinCount = graphNode.GetInputPinCount();
+    const uint32_t inputPinCount = graphNode.getInputPinCount();
     editorNode.Inputs.clear();
     editorNode.Inputs.reserve( inputPinCount );
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const node_graph::PinBase* inputPin = graphNode.GetInputPin( i );
+        const node_graph::PinBase* inputPin = graphNode.getInputPin( i );
 
         Pin& inputPinEditorMeta = editorNode.Inputs.emplace_back();
-        inputPinEditorMeta.Name = graphNode.GetPinName( inputPin->GetLocalId() );
-        inputPinEditorMeta.Id = inputPin->GetGlobalId();
-        inputPinEditorMeta.LocalId = inputPin->GetLocalId();
-        inputPinEditorMeta.PinTypeId = inputPin->GetType();
-        inputPinEditorMeta.Color = inputPin->GetTypeColor();
+        inputPinEditorMeta.Name = graphNode.getPinName( inputPin->getLocalId() );
+        inputPinEditorMeta.Id = inputPin->getGlobalId();
+        inputPinEditorMeta.LocalId = inputPin->getLocalId();
+        inputPinEditorMeta.PinTypeId = inputPin->getType();
+        inputPinEditorMeta.Color = inputPin->getTypeColor();
         inputPinEditorMeta.Direction = PinDirection::Input;
 
-        if( inputPin->IsConnected() ) {
+        if( inputPin->isConnected() ) {
             editorLinks.emplace_back( Guid64Generator::getGuid(),
-                                      inputPin->GetGlobalId(),
-                                      inputPin->GetLinkedPinGlobalId(),
-                                      graphNode.GetId(),
-                                      getNodeGraph().getNodeForPinId( inputPin->GetLinkedPinGlobalId() ).GetId(),
-                                      inputPin->GetTypeColor() );
+                                      inputPin->getGlobalId(),
+                                      inputPin->getLinkedPinGlobalId(),
+                                      graphNode.getId(),
+                                      getNodeGraph().getNodeForPinId( inputPin->getLinkedPinGlobalId() ).getId(),
+                                      inputPin->getTypeColor() );
         }
     }
 
-    const uint32_t outputPinCount = graphNode.GetOutputPinCount();
+    const uint32_t outputPinCount = graphNode.getOutputPinCount();
     editorNode.Outputs.clear();
     editorNode.Outputs.reserve( outputPinCount );
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const node_graph::PinBase* outputPin = graphNode.GetOutputPin( i );
+        const node_graph::PinBase* outputPin = graphNode.getOutputPin( i );
 
         Pin& outputPinEditorMeta = editorNode.Outputs.emplace_back();
-        outputPinEditorMeta.Name = graphNode.GetPinName( outputPin->GetLocalId() );
-        outputPinEditorMeta.Id = outputPin->GetGlobalId();
-        outputPinEditorMeta.LocalId = outputPin->GetLocalId();
-        outputPinEditorMeta.PinTypeId = outputPin->GetType();
-        outputPinEditorMeta.Color = outputPin->GetTypeColor();
+        outputPinEditorMeta.Name = graphNode.getPinName( outputPin->getLocalId() );
+        outputPinEditorMeta.Id = outputPin->getGlobalId();
+        outputPinEditorMeta.LocalId = outputPin->getLocalId();
+        outputPinEditorMeta.PinTypeId = outputPin->getType();
+        outputPinEditorMeta.Color = outputPin->getTypeColor();
         outputPinEditorMeta.Direction = PinDirection::Output;
 
-        if( outputPin->IsConnected() ) {
+        if( outputPin->isConnected() ) {
             editorLinks.emplace_back( Guid64Generator::getGuid(),
-                                      outputPin->GetGlobalId(),
-                                      outputPin->GetLinkedPinGlobalId(),
-                                      graphNode.GetId(),
-                                      getNodeGraph().getNodeForPinId( outputPin->GetLinkedPinGlobalId() ).GetId(),
-                                      outputPin->GetTypeColor() );
+                                      outputPin->getGlobalId(),
+                                      outputPin->getLinkedPinGlobalId(),
+                                      graphNode.getId(),
+                                      getNodeGraph().getNodeForPinId( outputPin->getLinkedPinGlobalId() ).getId(),
+                                      outputPin->getTypeColor() );
         }
     }
 }
@@ -146,35 +146,35 @@ void NodeGraphEditorContext::onLinkCreate( const Link& newLink ) {
     node_graph::NodeGraph& graph = getNodeGraph();
     node_graph::Node& node = graph.getNodeForPinId( newLink.FromPinId );
 
-    const uint32_t inputPinCount = node.GetInputPinCount();
+    const uint32_t inputPinCount = node.getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        node_graph::PinBase* inputPin = node.GetInputPin( i );
-        if( inputPin->GetGlobalId() != newLink.FromPinId )
+        node_graph::PinBase* inputPin = node.getInputPin( i );
+        if( inputPin->getGlobalId() != newLink.FromPinId )
             continue;
 
         // disconnect the connection
-        if( inputPin->IsConnected() ) {
-            deleteLink( newLink.FromPinId, inputPin->GetLinkedPinGlobalId() );
+        if( inputPin->isConnected() ) {
+            deleteLink( newLink.FromPinId, inputPin->getLinkedPinGlobalId() );
         }
 
         graph.addEdge( newLink.ToPinId, newLink.FromPinId );
-        inputPin->ConnectPin( newLink.ToPinId );
+        inputPin->connectPin( newLink.ToPinId );
         return;
     }
 
-    const uint32_t outputPinCount = node.GetOutputPinCount();
+    const uint32_t outputPinCount = node.getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        node_graph::PinBase* outputPin = node.GetOutputPin( i );
-        if( outputPin->GetGlobalId() != newLink.FromPinId )
+        node_graph::PinBase* outputPin = node.getOutputPin( i );
+        if( outputPin->getGlobalId() != newLink.FromPinId )
             continue;
 
         // disconnect the connection
-        if( outputPin->IsConnected() ) {
-            deleteLink( newLink.FromPinId, outputPin->GetLinkedPinGlobalId() );
+        if( outputPin->isConnected() ) {
+            deleteLink( newLink.FromPinId, outputPin->getLinkedPinGlobalId() );
         }
 
         graph.addEdge( newLink.FromPinId, newLink.ToPinId );
-        outputPin->ConnectPin( newLink.ToPinId );
+        outputPin->connectPin( newLink.ToPinId );
         return;
     }
 
@@ -184,23 +184,23 @@ void NodeGraphEditorContext::onLinkCreate( const Link& newLink ) {
 void NodeGraphEditorContext::onLinkDelete( const Link& link ) {
     node_graph::Node& node = getNodeGraph().getNodeForPinId( link.FromPinId );
 
-    const uint32_t inputPinCount = node.GetInputPinCount();
+    const uint32_t inputPinCount = node.getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        node_graph::PinBase* inputPin = node.GetInputPin( i );
-        if( inputPin->GetGlobalId() != link.FromPinId )
+        node_graph::PinBase* inputPin = node.getInputPin( i );
+        if( inputPin->getGlobalId() != link.FromPinId )
             continue;
 
-        inputPin->ClearLink();
+        inputPin->clearLink();
         return;
     }
 
-    const uint32_t outputPinCount = node.GetOutputPinCount();
+    const uint32_t outputPinCount = node.getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        node_graph::PinBase* outputPin = node.GetOutputPin( i );
-        if( outputPin->GetGlobalId() != link.FromPinId )
+        node_graph::PinBase* outputPin = node.getOutputPin( i );
+        if( outputPin->getGlobalId() != link.FromPinId )
             continue;
 
-        outputPin->ClearLink();
+        outputPin->clearLink();
         return;
     }
 
@@ -208,12 +208,12 @@ void NodeGraphEditorContext::onLinkDelete( const Link& link ) {
 }
 
 bool NodeGraphEditorContext::onNodeCreate( Node& newEditorNode, StringId32 typeId ) {
-    UniquePtr< node_graph::Node > newNode = getNodeFactory().CreateNode( typeId );
-    newNode->SetId( newEditorNode.Id );
+    UniquePtr< node_graph::Node > newNode = getNodeFactory().createNode( typeId );
+    newNode->setId( newEditorNode.Id );
 
-    newEditorNode.Name = newNode->GetName();
+    newEditorNode.Name = newNode->getName();
     if( newEditorNode.Name.empty() ) {
-        StringView localizedFullyQualifiedNodeName = getLocalizationModule().GetLocalized( typeId ).Get();
+        StringView localizedFullyQualifiedNodeName = getLocalizationModule().getLocalized( typeId ).Get();
         constexpr char delimiter = '/';
         DynamicArray< String > parts = split( localizedFullyQualifiedNodeName, delimiter );
         newEditorNode.Name = parts.back();
@@ -221,7 +221,7 @@ bool NodeGraphEditorContext::onNodeCreate( Node& newEditorNode, StringId32 typeI
 
     updateEditorNodeData( newEditorNode, *newNode );
 
-    const node_graph::NodeEditorMetaData& nodeMetaData = getNodeFactory().GetNodeMetaData( typeId );
+    const node_graph::NodeEditorMetaData& nodeMetaData = getNodeFactory().getNodeMetaData( typeId );
     newEditorNode.ShowNodeName = nodeMetaData.ShowNodeName;
     newEditorNode.LocalId = getNodeGraph().emplace( std::move( newNode ) );
     return true;

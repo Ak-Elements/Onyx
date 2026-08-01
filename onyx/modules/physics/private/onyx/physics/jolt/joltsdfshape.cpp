@@ -77,8 +77,8 @@ const JPH::PhysicsMaterial* SdfShape::GetMaterial( [[maybe_unused]] const JPH::S
     return JPH::PhysicsMaterial::sDefault;
 }
 
-JPH::Vec3 SdfShape::GetSurfaceNormal( const JPH::SubShapeID& subShapeId, JPH::Vec3Arg localPos ) const {
-    ONYX_UNUSED( subShapeId );
+JPH::Vec3 SdfShape::GetSurfaceNormal( [[maybe_unused]] const JPH::SubShapeID& subShapeId,
+                                      JPH::Vec3Arg localPos ) const {
     Vector4f32 sample = m_sdf( { localPos.GetX(), localPos.GetY(), localPos.GetZ() } );
     JPH::Vec3 gradient{ sample.X, sample.Y, sample.Z };
     return gradient;

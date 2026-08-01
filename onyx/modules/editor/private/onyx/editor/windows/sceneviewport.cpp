@@ -28,24 +28,24 @@
 
 namespace onyx::editor {
 namespace {
-ui::FpsStatusBarItem* fpsOverlay = nullptr;
+ui::FpsStatusBarItem* g_fpsOverlay = nullptr;
 }
 void SceneViewportWindow::onOpen() {
     setName( format::format( "{}", localization::editor::SceneEditor::SceneViewport ) );
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
 
-    inputActionSystem.OnInput< &SceneViewportWindow::onGizmoModeAction >( "GizmoTranslate"_id64, this );
-    inputActionSystem.OnInput< &SceneViewportWindow::onGizmoModeAction >( "GizmoRotate"_id64, this );
-    inputActionSystem.OnInput< &SceneViewportWindow::onGizmoModeAction >( "GizmoScale"_id64, this );
+    inputActionSystem.onInput< &SceneViewportWindow::onGizmoModeAction >( "GizmoTranslate"_id64, this );
+    inputActionSystem.onInput< &SceneViewportWindow::onGizmoModeAction >( "GizmoRotate"_id64, this );
+    inputActionSystem.onInput< &SceneViewportWindow::onGizmoModeAction >( "GizmoScale"_id64, this );
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
     ui::StatusBarOverlay& statusOverlay = imguiSystem.openUniqueWindow< ui::StatusBarOverlay >( *this );
-    fpsOverlay = &statusOverlay.addOverlay< ui::FpsStatusBarItem >();
+    g_fpsOverlay = &statusOverlay.addOverlay< ui::FpsStatusBarItem >();
 }
 
 void SceneViewportWindow::onClose() {
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.Disconnect( this );
+    inputActionSystem.disconnect( this );
 }
 
 void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
@@ -60,11 +60,11 @@ void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
         return;
 
     const rhi::TextureHandle finalSceneTexture = scene.getRenderGraph().getFinalTexture();
-    if( finalSceneTexture.IsValid() == false ) {
+    if( finalSceneTexture.isValid() == false ) {
         return;
     }
 
-    fpsOverlay->update( ImGui::GetIO().DeltaTime * 1000 );
+    g_fpsOverlay->update( ImGui::GetIO().DeltaTime * 1000 );
 
     Vector2f32 topLeftCorner{ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y };
 
@@ -230,13 +230,13 @@ void SceneViewportWindow::onGizmoModeAction( const input_actions::InputActionEve
     if( m_hasSelectedEntity == false )
         return;
 
-    constexpr StringId64 GIZMO_TRANSLATE_ACTION_ID( "GizmoTranslate" );
-    constexpr StringId64 GIZMO_ROTATE_ACTION_ID( "GizmoRotate" );
+    constexpr StringId64 GizmoTranslateActionId( "GizmoTranslate" );
+    constexpr StringId64 GizmoRotateActionId( "GizmoRotate" );
 
-    if( inputActionContext.GetId() == GIZMO_TRANSLATE_ACTION_ID ) {
+    if( inputActionContext.getId() == GizmoTranslateActionId ) {
         m_currentGizmo = GizmoType::Translate;
         return;
-    } else if( inputActionContext.GetId() == GIZMO_ROTATE_ACTION_ID ) {
+    } else if( inputActionContext.getId() == GizmoRotateActionId ) {
         m_currentGizmo = GizmoType::Rotate;
         return;
     }

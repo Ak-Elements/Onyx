@@ -13,20 +13,20 @@ DepthPrePassRenderGraphNode::DepthPrePassRenderGraphNode() {
 
 void DepthPrePassRenderGraphNode::onInit( rhi::GraphicsSystem& api,
                                           graphics::RenderGraphResourceCache& resourceCache ) {
-    graphics::RenderGraphResource& depthResource = resourceCache[ GetOutputPin().GetGlobalId().get() ];
+    graphics::RenderGraphResource& depthResource = resourceCache[ getOutputPin().getGlobalId().get() ];
     depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
     graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get< graphics::RenderGraphTextureResourceInfo >(
         depthResource.Properties );
     resourceInfo.Format = api.getDepthTextureFormat();
     resourceInfo.LoadOp = rhi::RenderPassSettings::LoadOp::Clear;
 
-    resourceCache[ GetOutputPin().GetGlobalId().get() ].Handle = api.getDepthImage();
+    resourceCache[ getOutputPin().getGlobalId().get() ].Handle = api.getDepthImage();
 }
 
 void DepthPrePassRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    context.Graph.getResourceCache()[ GetOutputPin().GetGlobalId().get() ].Handle = context.FrameContext.Api
+    context.Graph.getResourceCache()[ getOutputPin().getGlobalId().get() ].Handle = context.FrameContext.Api
                                                                                         ->getDepthImage();
 }
 
@@ -47,7 +47,7 @@ void DepthPrePassRenderGraphNode::onRender( graphics::RenderGraphContext& contex
         uint64_t ViewConstants;
     };
 
-    PushConstants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().GetGpuAddress() };
+    PushConstants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().getGpuAddress() };
 
     uint32_t instanceOffset = 0;
     for( const StaticMeshDrawCall& drawCall : sceneFrameData.m_StaticMeshDrawCalls ) {
@@ -62,7 +62,7 @@ void DepthPrePassRenderGraphNode::onRender( graphics::RenderGraphContext& contex
             constants.ModelMatrix = transformMatrix;
             commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, constants );
             commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
-                                       static_cast< uint32_t >( drawCall.Indices.Buffer->GetProperties().m_Size / 4 ),
+                                       static_cast< uint32_t >( drawCall.Indices.Buffer->getProperties().m_Size / 4 ),
                                        instanceCount,
                                        0,
                                        0,

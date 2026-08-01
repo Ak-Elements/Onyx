@@ -14,10 +14,10 @@ AtmosphericSkyRenderGraphNode::AtmosphericSkyRenderGraphNode() {
 void AtmosphericSkyRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    uint64_t transmittanceGlobalId = GetInputPin1().GetLinkedPinGlobalId().get();
+    uint64_t transmittanceGlobalId = getInputPin1().getLinkedPinGlobalId().get();
     const RenderGraphResource& transmittanceResource = context.Graph.getResource( transmittanceGlobalId );
 
-    uint64_t skyViewLutGlobalId = GetInputPin2().GetLinkedPinGlobalId().get();
+    uint64_t skyViewLutGlobalId = getInputPin2().getLinkedPinGlobalId().get();
     const RenderGraphResource& skyViewLutResource = context.Graph.getResource( skyViewLutGlobalId );
 
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
@@ -53,7 +53,7 @@ void AtmosphericSkyRenderGraphNode::onRender( RenderGraphContext& context, rhi::
     pushConstants.TransmittanceTextureIndex = m_transmittanceTextureIndex;
     pushConstants.SkyViewLutTextureIndex = m_skyViewLutTextureIndex;
     pushConstants.SunDirection = getSunDirection( frameContext.TimeOfDay );
-    pushConstants.ViewConstants = frameContext.Api->getViewConstantsBuffer().GetGpuAddress();
+    pushConstants.ViewConstants = frameContext.Api->getViewConstantsBuffer().getGpuAddress();
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
@@ -70,7 +70,7 @@ Vector3f32 AtmosphericSkyRenderGraphNode::getSunDirection( float32 timeOfDay ) c
 }
 
 #if ONYX_IS_EDITOR
-StringView AtmosphericSkyRenderGraphNode::GetPinName( StringId32 pinId ) const {
+StringView AtmosphericSkyRenderGraphNode::getPinName( StringId32 pinId ) const {
     switch( pinId ) {
     case InPin0::LocalId:
         return "View constants";

@@ -18,12 +18,12 @@ DebugDrawTask::DebugDrawTask() {
 }
 
 void DebugDrawTask::onBeginFrame( RenderGraphContext& context ) {
-    uint64_t outputGlobalId = GetOutputPin().GetGlobalId().get();
+    uint64_t outputGlobalId = getOutputPin().getGlobalId().get();
 
-    const node_graph::PinBase& gbufferRenderTargetPin = GetInputPin();
-    if( gbufferRenderTargetPin.IsConnected() ) {
+    const node_graph::PinBase& gbufferRenderTargetPin = getInputPin();
+    if( gbufferRenderTargetPin.isConnected() ) {
         const graphics::RenderGraphResource& inputResource = context.Graph.getResource(
-            gbufferRenderTargetPin.GetLinkedPinGlobalId().get() );
+            gbufferRenderTargetPin.getLinkedPinGlobalId().get() );
         graphics::RenderGraphResource& outResource = context.Graph.getResource( outputGlobalId );
         outResource.Handle = inputResource.Handle;
     }
@@ -62,21 +62,22 @@ void DebugDrawTask::onPreRender( RenderGraphContext& context, rhi::CommandBuffer
 
     if( wireframeSpheres.empty() == false ) {
         m_wireframeSpheresCount = static_cast< uint32_t >( wireframeSpheres.size() );
-        m_wireframeSpheresBuffer.SetData( wireframeSpheres );
+        m_wireframeSpheresBuffer.setData( wireframeSpheres );
     }
 
     if( wireframeBoxes.empty() == false ) {
         m_wireframeBoxesCount = static_cast< uint32_t >( wireframeBoxes.size() );
-        m_wireframeBoxesBuffer.SetData( wireframeBoxes );
+        m_wireframeBoxesBuffer.setData( wireframeBoxes );
     }
 
     if( wireframeCapsules.empty() == false ) {
         m_wireframeCapsulesCount = static_cast< uint32_t >( wireframeCapsules.size() );
-        m_wireframeCapsulesBuffer.SetData( wireframeCapsules );
+        m_wireframeCapsulesBuffer.setData( wireframeCapsules );
     }
 }
 
 void DebugDrawTask::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+    return;
     ONYX_PROFILE_FUNCTION;
 
     struct PushConstants {
@@ -91,10 +92,10 @@ void DebugDrawTask::onRender( RenderGraphContext& context, rhi::CommandBuffer& c
         uint32_t WireFrameSpheresCount;
     };
 
-    PushConstants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().GetGpuAddress(),
-                             .WireFrameBoxes = m_wireframeBoxesBuffer.GetGpuAddress(),
-                             .WireFrameCapsules = m_wireframeCapsulesBuffer.GetGpuAddress(),
-                             .WireFrameSpheres = m_wireframeSpheresBuffer.GetGpuAddress(),
+    PushConstants constants{ .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().getGpuAddress(),
+                             .WireFrameBoxes = m_wireframeBoxesBuffer.getGpuAddress(),
+                             .WireFrameCapsules = m_wireframeCapsulesBuffer.getGpuAddress(),
+                             .WireFrameSpheres = m_wireframeSpheresBuffer.getGpuAddress(),
                              .WireFrameBoxesCount = m_wireframeBoxesCount,
                              .WireFrameCapsulesCount = m_wireframeCapsulesCount,
                              .WireFrameSpheresCount = m_wireframeSpheresCount };

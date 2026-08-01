@@ -170,9 +170,9 @@ struct Serialization< onyx::ui::Theme > {
 namespace onyx::ui {
 
 bool ThemeSerializer::serialize( [[maybe_unused]] const assets::AssetHandle< assets::AssetInterface >& asset,
-    [[maybe_unused]] const assets::AssetMetaData& meta,
-    [[maybe_unused]] Serializer& serializer,
-    [[maybe_unused]] const IEngine& engine ) const {
+                                 [[maybe_unused]] const assets::AssetMetaData& meta,
+                                 [[maybe_unused]] Serializer& serializer,
+                                 [[maybe_unused]] const IEngine& engine ) const {
     return true;
 }
 
@@ -184,7 +184,7 @@ bool ThemeSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
     Theme& theme = asset.as< Theme >();
 
     String content;
-    if( file_system::OnyxFile::ReadAll( file_system::path::getFullPath( meta.Path ), content ) == false ) {
+    if( file_system::OnyxFile::readAll( file_system::path::getFullPath( meta.Path ), content ) == false ) {
         return false;
     }
 

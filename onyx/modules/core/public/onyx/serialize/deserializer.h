@@ -395,20 +395,20 @@ class Deserializer {
     virtual bool doRead( StringView& outValue ) const = 0;
     virtual bool doRead( StringView name, StringView& outValue ) const = 0;
 
-    ONYX_NO_DISCARD virtual bool createScope( uint32_t index ) const = 0;
-    ONYX_NO_DISCARD virtual bool createScope( uint64_t index ) const = 0;
-    ONYX_NO_DISCARD virtual bool createScope( StringView name ) const = 0;
+    [[nodiscard]] virtual bool createScope( uint32_t index ) const = 0;
+    [[nodiscard]] virtual bool createScope( uint64_t index ) const = 0;
+    [[nodiscard]] virtual bool createScope( StringView name ) const = 0;
 
-    ONYX_NO_DISCARD virtual bool endScope() const = 0;
+    [[nodiscard]] virtual bool endScope() const = 0;
 
-    ONYX_NO_DISCARD virtual uint32_t getItemsCount() const = 0;
+    [[nodiscard]] virtual uint32_t getItemsCount() const = 0;
 
     virtual bool getScopeIdentifier( uint32_t& outKey ) const = 0;
     virtual bool getScopeIdentifier( uint64_t& outKey ) const = 0;
     virtual bool getScopeIdentifier( Guid64& outKey ) const = 0;
     virtual bool getScopeIdentifier( StringView& outKey ) const = 0;
 
-    ONYX_NO_DISCARD virtual bool isSupportingIntegralScopes() const = 0;
+    [[nodiscard]] virtual bool isSupportingIntegralScopes() const = 0;
 
     template < typename T >
     auto getScopeKeyUnderlyingType() const -> decltype( auto ) {

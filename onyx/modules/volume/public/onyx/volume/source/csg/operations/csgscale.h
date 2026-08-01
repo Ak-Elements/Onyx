@@ -8,8 +8,8 @@ class CSGScale : public CSGUnary {
     explicit CSGScale( const VolumeBase* volume, const float32 scale );
     CSGScale();
 
-    virtual Vector4f32 GetValueAndGradient( const Vector3f32& position ) const override;
-    virtual float32 GetValue( const Vector3f32& position ) const override;
+    virtual Vector4f32 getValueAndGradient( const Vector3f32& position ) const override;
+    virtual float32 getValue( const Vector3f32& position ) const override;
 
   private:
     float32 m_Scale;

@@ -22,7 +22,7 @@ namespace onyx::input {
 struct InputEvent;
 
 class InputSystem : public IEngineSystem {
-    static constexpr uint8_t INPUT_QUEUE_COUNT = 2;
+    static constexpr uint8_t InputQueueCount = 2;
 
   public:
     using MouseAxisSignalT = Signal< void( const MouseAxisEvent& ) >;
@@ -35,87 +35,87 @@ class InputSystem : public IEngineSystem {
     using ControllerButtonSignalT = Signal< void( const GameControllerButtonEvent& ) >;
 
     static constexpr StringId32 TypeId{ "onyx::input::InputSystem" };
-    StringId32 getTypeId() const override { return TypeId; }
+    [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
-    Sink< MouseAxisSignalT > OnMouseAxisChange() { return Sink< MouseAxisSignalT >( m_MouseAxisSignal ); }
-    Sink< MouseButtonSignalT > OnMouseButton() { return Sink< MouseButtonSignalT >( m_MouseButtonSignal ); }
-    Sink< MouseMoveSignalT > OnMousePositionChange() { return Sink< MouseMoveSignalT >( m_MousePositionSignal ); }
+    Sink< MouseAxisSignalT > onMouseAxisChange() { return Sink< MouseAxisSignalT >( m_mouseAxisSignal ); }
+    Sink< MouseButtonSignalT > onMouseButton() { return Sink< MouseButtonSignalT >( m_mouseButtonSignal ); }
+    Sink< MouseMoveSignalT > onMousePositionChange() { return Sink< MouseMoveSignalT >( m_mousePositionSignal ); }
 
-    Sink< KeySignalT > OnKey() { return Sink< KeySignalT >( m_KeySignal ); }
+    Sink< KeySignalT > onKey() { return Sink< KeySignalT >( m_keySignal ); }
 
-    Sink< ControllerAxisSignalT > OnControllerAxisChange() {
-        return Sink< ControllerAxisSignalT >( m_ControllerAxisSignal );
+    Sink< ControllerAxisSignalT > onControllerAxisChange() {
+        return Sink< ControllerAxisSignalT >( m_controllerAxisSignal );
     }
-    Sink< ControllerButtonSignalT > OnControllerButton() {
-        return Sink< ControllerButtonSignalT >( m_ControllerButtonSignal );
+    Sink< ControllerButtonSignalT > onControllerButton() {
+        return Sink< ControllerButtonSignalT >( m_controllerButtonSignal );
     }
 
     void update();
 
-    void AddEvent( MouseAxisEvent event ) { m_MouseAxisInputQueue[ m_CurrentQueueIndex ] = event; }
-    void AddEvent( MouseButtonEvent event ) { m_MouseButtonInputQueue[ m_CurrentQueueIndex ].emplace_back( event ); }
-    void AddEvent( MousePositionEvent event ) { m_MousePositionInputQueue[ m_CurrentQueueIndex ] = event; }
-    void AddEvent( KeyboardEvent event ) { m_KeyboardInputQueue[ m_CurrentQueueIndex ].emplace_back( event ); }
-    void AddEvent( GameControllerAxisEvent event ) {
-        m_ControllerAxisInputQueue[ m_CurrentQueueIndex ].emplace_back( event );
+    void addEvent( MouseAxisEvent event ) { m_mouseAxisInputQueue[ m_currentQueueIndex ] = event; }
+    void addEvent( MouseButtonEvent event ) { m_mouseButtonInputQueue[ m_currentQueueIndex ].emplace_back( event ); }
+    void addEvent( MousePositionEvent event ) { m_mousePositionInputQueue[ m_currentQueueIndex ] = event; }
+    void addEvent( KeyboardEvent event ) { m_keyboardInputQueue[ m_currentQueueIndex ].emplace_back( event ); }
+    void addEvent( GameControllerAxisEvent event ) {
+        m_controllerAxisInputQueue[ m_currentQueueIndex ].emplace_back( event );
     }
-    void AddEvent( GameControllerButtonEvent event ) {
-        m_ControllerButtonInputQueue[ m_CurrentQueueIndex ].emplace_back( event );
+    void addEvent( GameControllerButtonEvent event ) {
+        m_controllerButtonInputQueue[ m_currentQueueIndex ].emplace_back( event );
     }
 
-    int32_t GetAxisValue1D( uint32_t deviceIndex, InputID id ) const;
-    Vector2s32 GetAxisValue2D( uint32_t deviceIndex, InputID id ) const;
-    bool IsButtonDown( InputID id ) const;
-    bool IsButtonDown( MouseButton button ) const;
-    bool IsButtonDown( Key key ) const;
-    bool IsButtonDown( GameControllerButton button, uint8_t deviceIndex ) const;
+    [[nodiscard]] int32_t getAxisValue1D( uint32_t deviceIndex, InputID id ) const;
+    [[nodiscard]] Vector2s32 getAxisValue2D( uint32_t deviceIndex, InputID id ) const;
+    [[nodiscard]] bool isButtonDown( InputID id ) const;
+    [[nodiscard]] bool isButtonDown( MouseButton button ) const;
+    [[nodiscard]] bool isButtonDown( Key key ) const;
+    [[nodiscard]] bool isButtonDown( GameControllerButton button, uint8_t deviceIndex ) const;
 
-    const Vector2s32& GetMousePosition() const { return m_MousePosition; }
-    void SetMousePosition( const Vector2s32& mousePos );
+    [[nodiscard]] const Vector2s32& getMousePosition() const { return m_mousePosition; }
+    void setMousePosition( const Vector2s32& mousePos );
 
-    Vector2s32 GetMouseDelta() const { return m_MouseDelta; }
-    int32_t GetMouseWheelDelta() const { return m_MouseWheelDelta; }
+    [[nodiscard]] Vector2s32 getMouseDelta() const { return m_mouseDelta; }
+    [[nodiscard]] int32_t getMouseWheelDelta() const { return m_mouseWheelDelta; }
 
-    int32_t GetControllerAxisValue( uint32_t controllerIndex, GameControllerAxis axis ) const;
+    [[nodiscard]] int32_t getControllerAxisValue( uint32_t controllerIndex, GameControllerAxis axis ) const;
 
-    void EnableSystemMouseCapture( bool enable );
+    void enableSystemMouseCapture( bool enable );
 
   private:
-    void UpdateMouse( uint8_t queueIndex );
-    void UpdateKeyboard( uint8_t queueIndex );
-    void UpdateGameControllers( uint8_t queueIndex );
+    void updateMouse( uint8_t queueIndex );
+    void updateKeyboard( uint8_t queueIndex );
+    void updateGameControllers( uint8_t queueIndex );
 
   private:
-    MouseAxisSignalT m_MouseAxisSignal;
-    MouseButtonSignalT m_MouseButtonSignal;
-    MouseMoveSignalT m_MousePositionSignal;
+    MouseAxisSignalT m_mouseAxisSignal;
+    MouseButtonSignalT m_mouseButtonSignal;
+    MouseMoveSignalT m_mousePositionSignal;
 
-    KeySignalT m_KeySignal;
+    KeySignalT m_keySignal;
 
-    ControllerAxisSignalT m_ControllerAxisSignal;
-    ControllerButtonSignalT m_ControllerButtonSignal;
+    ControllerAxisSignalT m_controllerAxisSignal;
+    ControllerButtonSignalT m_controllerButtonSignal;
 
     // #if ONYX_IS_PC
-    bool m_MouseButtonStates[ MouseButton_Count ] = { false };
-    bool m_KeyState[ Key_Count ] = { false };
+    bool m_mouseButtonStates[ MouseButton_Count ] = { false };
+    bool m_keyState[ Key_Count ] = { false };
 
-    Vector2s32 m_MousePosition = { 0, 0 };
-    Vector2s32 m_MouseDelta = { 0, 0 };
-    Vector2s32 m_LastMousePosition = { 0, 0 };
+    Vector2s32 m_mousePosition = { 0, 0 };
+    Vector2s32 m_mouseDelta = { 0, 0 };
+    Vector2s32 m_lastMousePosition = { 0, 0 };
 
-    int16_t m_MouseScroll;
-    int16_t m_MouseWheelDelta = 0;
+    int16_t m_mouseScroll;
+    int16_t m_mouseWheelDelta = 0;
     // #endif
-    DynamicArray< GameController > m_Gamepads;
+    DynamicArray< GameController > m_gamepads;
 
     // Or maybe one queue with unqiue ptr?
-    InplaceArray< Optional< MouseAxisEvent >, INPUT_QUEUE_COUNT > m_MouseAxisInputQueue;
-    InplaceArray< DynamicArray< MouseButtonEvent >, INPUT_QUEUE_COUNT > m_MouseButtonInputQueue;
-    InplaceArray< Optional< MousePositionEvent >, INPUT_QUEUE_COUNT > m_MousePositionInputQueue;
-    InplaceArray< DynamicArray< KeyboardEvent >, INPUT_QUEUE_COUNT > m_KeyboardInputQueue;
-    InplaceArray< DynamicArray< GameControllerButtonEvent >, INPUT_QUEUE_COUNT > m_ControllerButtonInputQueue;
-    InplaceArray< DynamicArray< GameControllerAxisEvent >, INPUT_QUEUE_COUNT > m_ControllerAxisInputQueue;
+    InplaceArray< Optional< MouseAxisEvent >, InputQueueCount > m_mouseAxisInputQueue;
+    InplaceArray< DynamicArray< MouseButtonEvent >, InputQueueCount > m_mouseButtonInputQueue;
+    InplaceArray< Optional< MousePositionEvent >, InputQueueCount > m_mousePositionInputQueue;
+    InplaceArray< DynamicArray< KeyboardEvent >, InputQueueCount > m_keyboardInputQueue;
+    InplaceArray< DynamicArray< GameControllerButtonEvent >, InputQueueCount > m_controllerButtonInputQueue;
+    InplaceArray< DynamicArray< GameControllerAxisEvent >, InputQueueCount > m_controllerAxisInputQueue;
 
-    uint8_t m_CurrentQueueIndex = 0;
+    uint8_t m_currentQueueIndex = 0;
 };
 } // namespace onyx::input

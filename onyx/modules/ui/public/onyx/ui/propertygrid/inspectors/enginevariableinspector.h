@@ -10,7 +10,7 @@ namespace onyx::ui {
 template < typename T >
 struct PropertyInspector< EngineVariable< T > > {
     static bool draw( EngineVariable< T >& variable, bool /*forceDraw*/ ) {
-        StringView localizedPath = g_uiContext.LocalizationSystem->TryGetLocalized( variable.getId() )
+        StringView localizedPath = g_uiContext.LocalizationSystem->tryGetLocalized( variable.getId() )
                                        .value_or( variable.getId().getString() );
 
         StringView label = localizedPath;

@@ -25,16 +25,16 @@ class DirectedAcyclicGraphIterator {
         const auto& node = m_graph.getNode( m_currentNodeId );
 
         // Check each outgoing edge and add its target node to the visited set.
-        for ( auto edge = node.m_FirstOutgoingEdge.get(); edge; edge = edge->m_NextOutgoingEdge.get() ) {
+        for( auto edge = node.m_FirstOutgoingEdge.get(); edge; edge = edge->m_NextOutgoingEdge.get() ) {
             const auto& toNode = m_graph.getNode( edge->m_ToNodeId );
-            if ( m_visitedNodes.find( toNode.m_Id ) == m_visitedNodes.end() ) {
+            if( m_visitedNodes.find( toNode.m_Id ) == m_visitedNodes.end() ) {
                 m_visitedNodes.insert( toNode.m_Id );
                 m_nodeStack.push( toNode.m_Id );
             }
         }
 
         // If the node stack is empty, we're done.
-        if ( m_nodeStack.empty() ) {
+        if( m_nodeStack.empty() ) {
             m_currentNodeId = NodeIdT{};
             return *this;
         }
@@ -111,12 +111,12 @@ class DirectedAcyclicGraph {
     NodeDataType& getNode( NodeId nodeId ) { return m_nodes[ nodeId ].Data; }
     const NodeDataType& getNode( NodeId nodeId ) const { return m_nodes.at( nodeId ).Data; }
 
-    ONYX_NO_DISCARD int32_t getCount() const { return m_size; }
-    ONYX_NO_DISCARD int32_t getEdgeCount() const {
+    [[nodiscard]] int32_t getCount() const { return m_size; }
+    [[nodiscard]] int32_t getEdgeCount() const {
         int32_t count = 0;
 
-        for ( auto& [ _, fromNode ] : m_nodes ) {
-            for ( Edge* edge = fromNode.FirstOutgoingEdge.get(); edge; edge = edge->NextOutgoingEdge.get() ) {
+        for( auto& [ _, fromNode ] : m_nodes ) {
+            for( Edge* edge = fromNode.FirstOutgoingEdge.get(); edge; edge = edge->NextOutgoingEdge.get() ) {
                 ++count;
             }
         };
@@ -127,26 +127,26 @@ class DirectedAcyclicGraph {
     bool removeNode( NodeId nodeId ) {
         // Find the node with the given ID.
         auto it = m_nodes.find( nodeId );
-        if ( it == m_nodes.end() )
+        if( it == m_nodes.end() )
             return false;
 
         const Node& node = it->second;
 
         // Remove all edges leading to the node.
-        while ( node.FirstOutgoingEdge ) {
+        while( node.FirstOutgoingEdge ) {
             NodeId toNodeId = node.FirstOutgoingEdge->ToNodeId;
             removeEdge( nodeId, toNodeId );
         }
 
         Edge* previousEdge = nullptr;
         Edge* currentEdge = nullptr;
-        for ( auto& [ otherNodeId, otherNode ] : m_nodes ) {
+        for( auto& [ otherNodeId, otherNode ] : m_nodes ) {
             previousEdge = nullptr;
             currentEdge = otherNode.FirstOutgoingEdge.get();
 
-            while ( currentEdge ) {
-                if ( currentEdge->ToNodeId == nodeId ) {
-                    if ( previousEdge != nullptr ) {
+            while( currentEdge ) {
+                if( currentEdge->ToNodeId == nodeId ) {
+                    if( previousEdge != nullptr ) {
                         previousEdge->NextOutgoingEdge = std::move( currentEdge->NextOutgoingEdge );
                         currentEdge = previousEdge;
                     } else {
@@ -167,7 +167,7 @@ class DirectedAcyclicGraph {
     }
 
     bool addEdge( NodeId fromNodeId, NodeId toNodeId ) {
-        if ( isCyclic( fromNodeId, toNodeId ) )
+        if( isCyclic( fromNodeId, toNodeId ) )
             return false;
 
         m_nodes[ fromNodeId ].FirstOutgoingEdge = makeUnique< Edge >(
@@ -181,9 +181,9 @@ class DirectedAcyclicGraph {
         Edge* prevEdge = nullptr;
         Edge* currEdge = m_nodes[ fromNodeId ].FirstOutgoingEdge.get();
 
-        while ( currEdge != nullptr ) {
-            if ( currEdge->ToNodeId == toNodeId ) {
-                if ( prevEdge != nullptr )
+        while( currEdge != nullptr ) {
+            if( currEdge->ToNodeId == toNodeId ) {
+                if( prevEdge != nullptr )
                     prevEdge->NextOutgoingEdge = std::move( currEdge->NextOutgoingEdge );
                 else
                     m_nodes[ fromNodeId ].FirstOutgoingEdge = std::move( currEdge->NextOutgoingEdge );
@@ -202,19 +202,19 @@ class DirectedAcyclicGraph {
     bool hasEdge( NodeId fromNodeId, NodeId toNodeId ) const {
         // Check if 'fromNodeId' and 'toNodeId' exist in the graph.
         auto fromNodeIt = m_nodes.find( fromNodeId );
-        if ( fromNodeIt == m_nodes.end() )
+        if( fromNodeIt == m_nodes.end() )
             return false;
 
         auto toNodeIt = m_nodes.find( toNodeId );
-        if ( toNodeIt == m_nodes.end() )
+        if( toNodeIt == m_nodes.end() )
             return false;
 
         // Traverse the outgoing edges of 'fromNodeId' to see if there is an edge to 'toNodeId'.
         const Node& fromNode = fromNodeIt->second;
         const Edge* edge = fromNode.FirstOutgoingEdge.get();
 
-        while ( edge != nullptr ) {
-            if ( edge->ToNodeId == toNodeId )
+        while( edge != nullptr ) {
+            if( edge->ToNodeId == toNodeId )
                 return true;
 
             edge = edge->NextOutgoingEdge.get();
@@ -224,8 +224,8 @@ class DirectedAcyclicGraph {
         const Node& toNode = toNodeIt->second;
         edge = toNode.FirstOutgoingEdge.get();
 
-        while ( edge != nullptr ) {
-            if ( edge->ToNodeId == fromNodeId )
+        while( edge != nullptr ) {
+            if( edge->ToNodeId == fromNodeId )
                 return true;
 
             edge = edge->NextOutgoingEdge.get();
@@ -241,14 +241,14 @@ class DirectedAcyclicGraph {
         // Find all nodes without incoming edges
         HashMap< NodeId, int32_t > incomingEdgeCounts;
         Queue< NodeId > sources;
-        for ( const auto& [ id, node ] : m_nodes ) {
+        for( const auto& [ id, node ] : m_nodes ) {
             incomingEdgeCounts[ id ] = node.IncomingEdgeCount;
-            if ( node.IncomingEdgeCount == 0 )
+            if( node.IncomingEdgeCount == 0 )
                 sources.push( id );
         }
 
         // Perform topological sort
-        while ( !sources.empty() ) {
+        while( !sources.empty() ) {
             NodeId nodeId = sources.front();
             sources.pop();
             outOrderedNodeIds.push_back( nodeId );
@@ -256,15 +256,15 @@ class DirectedAcyclicGraph {
             const auto& node = m_nodes.find( nodeId )->second;
 
             // Decrease incoming edge count of all nodes this node has outgoing edges to
-            for ( Edge* edge = node.FirstOutgoingEdge.get(); edge != nullptr; edge = edge->NextOutgoingEdge.get() ) {
+            for( Edge* edge = node.FirstOutgoingEdge.get(); edge != nullptr; edge = edge->NextOutgoingEdge.get() ) {
                 int32_t& incomingEdgeCount = incomingEdgeCounts[ edge->ToNodeId ];
-                if ( --incomingEdgeCount == 0 )
+                if( --incomingEdgeCount == 0 )
                     sources.push( edge->ToNodeId );
             }
         }
 
         // Check if all nodes have been visited
-        if ( outOrderedNodeIds.size() != m_nodes.size() )
+        if( outOrderedNodeIds.size() != m_nodes.size() )
             outOrderedNodeIds.clear();
     }
 
@@ -275,20 +275,20 @@ class DirectedAcyclicGraph {
         DynamicArray< DynamicArray< bool > > adjMatrix;
         adjMatrix.resize( nodeCount );
 
-        for ( auto& [ fromNodeId, fromNode ] : m_nodes ) {
+        for( auto& [ fromNodeId, fromNode ] : m_nodes ) {
             adjMatrix[ fromNodeId ].resize( nodeCount, false );
 
-            for ( Edge* edge = fromNode.FirstOutgoingEdge.get(); edge; edge = edge->NextOutgoingEdge.get() ) {
+            for( Edge* edge = fromNode.FirstOutgoingEdge.get(); edge; edge = edge->NextOutgoingEdge.get() ) {
                 adjMatrix[ fromNodeId ][ edge->ToNodeId ] = true;
             }
         }
 
         // Apply the Roy Warshall algorithm.
-        for ( NodeId k = 0; k < nodeCount; ++k ) {
-            for ( NodeId i = 0; i < nodeCount; ++i ) {
-                if ( adjMatrix[ i ][ k ] ) {
-                    for ( NodeId j = 0; j < nodeCount; ++j ) {
-                        if ( adjMatrix[ k ][ j ] ) {
+        for( NodeId k = 0; k < nodeCount; ++k ) {
+            for( NodeId i = 0; i < nodeCount; ++i ) {
+                if( adjMatrix[ i ][ k ] ) {
+                    for( NodeId j = 0; j < nodeCount; ++j ) {
+                        if( adjMatrix[ k ][ j ] ) {
                             removeEdge( i, j );
                             adjMatrix[ i ][ j ] = false;
                         }
@@ -300,8 +300,8 @@ class DirectedAcyclicGraph {
 
     void getRootNodes( DynamicArray< NodeId >& outRootNodes ) {
         // Find all nodes without incoming edges
-        for ( const auto& [ id, node ] : m_nodes ) {
-            if ( node.IncomingEdgeCount == 0 )
+        for( const auto& [ id, node ] : m_nodes ) {
+            if( node.IncomingEdgeCount == 0 )
                 outRootNodes.push_back( id );
         }
     }
@@ -317,7 +317,7 @@ class DirectedAcyclicGraph {
 
     bool isCyclic( NodeId fromNodeId, NodeId toNodeId ) const {
         // Quick check if edge already exists
-        if ( hasEdge( fromNodeId, toNodeId ) )
+        if( hasEdge( fromNodeId, toNodeId ) )
             return false;
 
         // Perform a reachability check: is `fromNodeId` reachable from `toNodeId`?
@@ -325,19 +325,19 @@ class DirectedAcyclicGraph {
         Stack< NodeId > stack;
         stack.push( toNodeId );
 
-        while ( !stack.empty() ) {
+        while( !stack.empty() ) {
             NodeId currentNodeId = stack.top();
             stack.pop();
 
-            if ( currentNodeId == fromNodeId ) {
+            if( currentNodeId == fromNodeId ) {
                 // `fromNodeId` is reachable from `toNodeId`, so adding the edge creates a cycle
                 return true;
             }
 
             auto [ _, hasInserted ] = visited.insert( currentNodeId );
-            if ( hasInserted ) {
-                for ( const Edge* edge = m_nodes.at( currentNodeId ).FirstOutgoingEdge.get(); edge != nullptr;
-                      edge = edge->NextOutgoingEdge.get() ) {
+            if( hasInserted ) {
+                for( const Edge* edge = m_nodes.at( currentNodeId ).FirstOutgoingEdge.get(); edge != nullptr;
+                     edge = edge->NextOutgoingEdge.get() ) {
                     stack.push( edge->ToNodeId );
                 }
             }

@@ -72,11 +72,11 @@ inline constexpr bool is_tuple_v = is_tuple< Type >::value;
 template < typename T >
 concept HasTypeId = requires( const T obj ) {
     T::TypeId;
-    { obj.GetTypeId() };
+    { obj.getTypeId() };
 };
 
 template < typename T >
 concept HasIsValid = requires( const T obj ) {
-    { obj.IsValid() } -> std::same_as< bool >;
+    { obj.isValid() } -> std::same_as< bool >;
 };
 } // namespace onyx

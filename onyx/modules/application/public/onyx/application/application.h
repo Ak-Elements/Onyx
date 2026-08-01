@@ -23,7 +23,7 @@ class Application : public IEngine {
     void shutdown();
     void run();
 
-    ONYX_NO_DISCARD Logger* getLogger() const { return m_logger.get(); }
+    [[nodiscard]] Logger* getLogger() const { return m_logger.get(); }
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
@@ -39,25 +39,25 @@ class Application : public IEngine {
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
-    ONYX_NO_DISCARD bool hasSystem() const {
+    [[nodiscard]] bool hasSystem() const {
         return hasSystem( T::TypeId );
     }
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
-    ONYX_NO_DISCARD T& getSystem() {
+    [[nodiscard]] T& getSystem() {
         ONYX_ASSERT( hasSystem( T::TypeId ), "Module is not registered." );
         return static_cast< T& >( getSystem( T::TypeId ) );
     }
 
     template < typename T >
     requires std::is_base_of_v< IEngineSystem, T >
-    ONYX_NO_DISCARD const T& getSystem() const {
+    [[nodiscard]] const T& getSystem() const {
         ONYX_ASSERT( hasSystem( T::TypeId ), "Module is not registered." );
         return static_cast< const T& >( getSystem( T::TypeId ) );
     }
 
-    ONYX_NO_DISCARD bool hasSystem( StringId32 systemId ) const override {
+    [[nodiscard]] bool hasSystem( StringId32 systemId ) const override {
         return std::ranges::any_of( m_modules, [ = ]( const UniquePtr< IEngineSystem >& module ) {
             return module->getTypeId() == systemId;
         } );
@@ -71,7 +71,7 @@ class Application : public IEngine {
         return *( *it );
     }
 
-    ONYX_NO_DISCARD const IEngineSystem& getSystem( StringId32 systemId ) const override {
+    [[nodiscard]] const IEngineSystem& getSystem( StringId32 systemId ) const override {
         ONYX_ASSERT( hasSystem( systemId ), "Module is not added." );
         auto it = std::ranges::find_if( m_modules, [ = ]( const UniquePtr< IEngineSystem >& module ) {
             return module->getTypeId() == systemId;

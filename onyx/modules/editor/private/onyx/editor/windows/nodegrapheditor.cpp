@@ -109,9 +109,9 @@ void NodeGraphEditorWindow::onOpen() {
     m_context = ax::NodeEditor::CreateEditor( &config );
 
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.OnInput< &NodeGraphEditorWindow::onCopyAction >( "Copy"_id64, this );
-    inputActionSystem.OnInput< &NodeGraphEditorWindow::onPasteAction >( "Paste"_id64, this );
-    inputActionSystem.OnInput< &NodeGraphEditorWindow::onDeleteAction >( "Delete"_id64, this );
+    inputActionSystem.onInput< &NodeGraphEditorWindow::onCopyAction >( "Copy"_id64, this );
+    inputActionSystem.onInput< &NodeGraphEditorWindow::onPasteAction >( "Paste"_id64, this );
+    inputActionSystem.onInput< &NodeGraphEditorWindow::onDeleteAction >( "Delete"_id64, this );
 }
 
 void NodeGraphEditorWindow::onClose() {
@@ -123,7 +123,7 @@ void NodeGraphEditorWindow::onClose() {
     m_rerouteLinks.clear();
 
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
-    inputActionSystem.Disconnect( this );
+    inputActionSystem.disconnect( this );
 }
 
 void NodeGraphEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
@@ -199,7 +199,7 @@ void NodeGraphEditorWindow::onRenderMainMenuBar() {
             format::format( "{}###Debug", localization::editor::NodeEditor::MainMenubar::Debug::Label ) ) ) {
         if( ImGui::MenuItem( format::format( "{}###ShowLinkDirections",
                                              localization::editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections ),
-                             0,
+                             nullptr,
                              m_showLinkDirections ) ) {
             m_showLinkDirections = !m_showLinkDirections;
         }
@@ -241,24 +241,24 @@ void NodeGraphEditorWindow::drawContextMenu() {
 
     ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
     if( ImGui::BeginPopup( "Create New Node" ) ) {
-        static String s_SearchString;
-        static bool s_HasFocus = false;
+        static String SearchString;
+        static bool HasFocus = false;
 
         const bool isAppearing = ImGui::IsWindowAppearing();
-        s_HasFocus |= isAppearing;
+        HasFocus |= isAppearing;
 
         bool hasChanged = false;
         if( isAppearing ) {
-            s_SearchString.clear();
+            SearchString.clear();
             hasChanged = true;
         }
 
-        hasChanged |= ui::drawSearchBar( s_SearchString, localization::generic::Search.Get(), s_HasFocus );
+        hasChanged |= ui::drawSearchBar( SearchString, localization::generic::Search.Get(), HasFocus );
         if( hasChanged ) {
-            if( s_SearchString.empty() && ( m_createNodeData.PinId.isValid() == false ) )
+            if( SearchString.empty() && ( m_createNodeData.PinId.isValid() == false ) )
                 m_editorContext->clearNodeListFilter();
             else
-                filterNodeListContextMenu( s_SearchString );
+                filterNodeListContextMenu( SearchString );
         }
 
         if( ImGui::BeginChild( "##NodesScrollList",
@@ -268,8 +268,8 @@ void NodeGraphEditorWindow::drawContextMenu() {
             // open once
             const ui::TreeItem& nodeListMenuRoot = m_editorContext->getNodeListContextMenuRoot();
             ui::TreeViewFlags flags = isAppearing ? ui::TreeViewFlags::ForceCloseAll
-                                                  : ( s_SearchString.empty() ? ui::TreeViewFlags::None
-                                                                             : ui::TreeViewFlags::ForceOpenAll );
+                                                  : ( SearchString.empty() ? ui::TreeViewFlags::None
+                                                                           : ui::TreeViewFlags::ForceOpenAll );
             bool hasClickedItem = ui::RenderTreeView( "CreateNodeMenu", nodeListMenuRoot, flags );
             if( hasClickedItem ) {
                 ImGui::CloseCurrentPopup();
@@ -402,12 +402,12 @@ void NodeGraphEditorWindow::findRerouteDestinations( Guid64 reroutePinId,
 }
 
 void NodeGraphEditorWindow::drawRerouteNode( RerouteNode& node ) {
-    constexpr float32 PIN_ICON_SIZE_HALF = PinIconSize / 2.0f;
-    constexpr float32 PIN_ICON_SIZE_QUATER = PinIconSize / 4.0f;
+    constexpr float32 PinIconSizeHalf = PinIconSize / 2.0f;
+    constexpr float32 PinIconSizeQuater = PinIconSize / 4.0f;
 
-    constexpr ImVec2 PIN_ICON_SIZE_HALF_2D( PIN_ICON_SIZE_HALF, PIN_ICON_SIZE_HALF );
-    constexpr ImVec2 INTERACTION_PIN_OFFSET( PIN_ICON_SIZE_QUATER, PIN_ICON_SIZE_QUATER );
-    constexpr ImVec2 HIDDEN_PIN_SIZE( 0.1f, 0.1f );
+    constexpr ImVec2 PinIconSizeHalf2D( PinIconSizeHalf, PinIconSizeHalf );
+    constexpr ImVec2 InteractionPinOffset( PinIconSizeQuater, PinIconSizeQuater );
+    constexpr ImVec2 HiddenPinSize( 0.1f, 0.1f );
 
     ImVec2 mousePos = ImGui::GetMousePos();
 
@@ -430,8 +430,8 @@ void NodeGraphEditorWindow::drawRerouteNode( RerouteNode& node ) {
         // Input pin
         // Overlapping Input and Output Pins
         ImVec2 pinPosition = ImGui::GetCursorPos(); // Adjust as needed
-        ImVec2 hiddenPinMinPosition = pinPosition + PIN_ICON_SIZE_HALF_2D - HIDDEN_PIN_SIZE;
-        ImVec2 hiddenPinMaxPosition = pinPosition + PIN_ICON_SIZE_HALF_2D + HIDDEN_PIN_SIZE;
+        ImVec2 hiddenPinMinPosition = pinPosition + PinIconSizeHalf2D - HiddenPinSize;
+        ImVec2 hiddenPinMaxPosition = pinPosition + PinIconSizeHalf2D + HiddenPinSize;
 
         ImGui::SetNextItemAllowOverlap();
         ImGui::Dummy( ImVec2( PinIconSize, PinIconSize ) );
@@ -462,7 +462,7 @@ void NodeGraphEditorWindow::drawRerouteNode( RerouteNode& node ) {
                           ? ax::NodeEditor::PinKind::Input
                           : ax::NodeEditor::PinKind::Output;
         } else {
-            if( mousePos.x >= ( pinPosition.x + PIN_ICON_SIZE_HALF_2D.x ) ) {
+            if( mousePos.x >= ( pinPosition.x + PinIconSizeHalf2D.x ) ) {
                 pinKind = ax::NodeEditor::PinKind::Output;
                 node.ActivePinDirection = GraphEditorContext::PinDirection::Output;
             }
@@ -473,12 +473,12 @@ void NodeGraphEditorWindow::drawRerouteNode( RerouteNode& node ) {
         ax::NodeEditor::PushStyleColor( ax::NodeEditor::StyleColor_PinRect, ImVec4( 0, 0, 0, 0 ) );
         ax::NodeEditor::BeginPin( node.InteractionPinId.get(), pinKind );
         ax::NodeEditor::PinPivotAlignment( ImVec2( 0.5f, 0.5f ) ); // Align the pivot to the center of the area
-        ax::NodeEditor::PinRect( pinPosition + PIN_ICON_SIZE_HALF_2D - INTERACTION_PIN_OFFSET,
-                                 pinPosition + PIN_ICON_SIZE_HALF_2D + INTERACTION_PIN_OFFSET );
+        ax::NodeEditor::PinRect( pinPosition + PinIconSizeHalf2D - InteractionPinOffset,
+                                 pinPosition + PinIconSizeHalf2D + InteractionPinOffset );
 
         uint32_t pinColor = isPinHovered ? createHighlightColor( node.Color, 1.5f ) : node.Color;
 
-        drawPinIcon( pinColor, node.PinTypeId, true, false, PIN_ICON_SIZE_HALF_2D, 255 );
+        drawPinIcon( pinColor, node.PinTypeId, true, false, PinIconSizeHalf2D, 255 );
 
         ax::NodeEditor::EndPin();
         ax::NodeEditor::PopStyleColor();
@@ -604,7 +604,7 @@ void NodeGraphEditorWindow::filterNodeListContextMenu( StringView searchString )
             localization::LocalizationModule&
                 localizationSystem = getEngineSystem< localization::LocalizationModule >();
             localization::LocalizationId aliasLocalizationId( "alias", nodeMetaData.TypeId );
-            Optional< StringView > localizedAliasesOptional = localizationSystem.TryGetLocalized( aliasLocalizationId );
+            Optional< StringView > localizedAliasesOptional = localizationSystem.tryGetLocalized( aliasLocalizationId );
             if( localizedAliasesOptional.has_value() ) {
                 StringView localizedAliases = *localizedAliasesOptional;
                 if( ignoreCaseFind( localizedAliases, searchString ) == StringView::npos ) {
@@ -737,17 +737,17 @@ void NodeGraphEditorWindow::saveEditorMetaData( const FilePath& path ) {
     JsonValue nodesJsonArray;
     for( const GraphEditorContext::Node& node : m_editorContext->getNodes() ) {
         JsonValue nodeMetaInfo;
-        nodeMetaInfo.Set( "id", node.Id );
-        nodeMetaInfo.Set( "name", node.Name );
+        nodeMetaInfo.set( "id", node.Id );
+        nodeMetaInfo.set( "name", node.Name );
 
         ImVec2 nodePosition = ax::NodeEditor::GetNodePosition( node.Id.get() );
         Array< float32, 2 > position{ nodePosition.x, nodePosition.y };
-        nodeMetaInfo.Set( "position", position );
+        nodeMetaInfo.set( "position", position );
 
-        nodesJsonArray.Add( nodeMetaInfo );
+        nodesJsonArray.add( nodeMetaInfo );
     }
 
-    jsonRoot.Set( "nodes", nodesJsonArray );
+    jsonRoot.set( "nodes", nodesJsonArray );
 
     // this is added here to save the visibility state of links (for hidden links based on reroute nodes)
     JsonValue linksJsonArray;
@@ -756,50 +756,50 @@ void NodeGraphEditorWindow::saveEditorMetaData( const FilePath& path ) {
             continue;
 
         JsonValue linkMetaInfo;
-        linkMetaInfo.Set( "frominputpin", link.FromPinId );
-        linkMetaInfo.Set( "tooutputpin", link.ToPinId );
+        linkMetaInfo.set( "frominputpin", link.FromPinId );
+        linkMetaInfo.set( "tooutputpin", link.ToPinId );
 
-        linksJsonArray.Add( linkMetaInfo );
+        linksJsonArray.add( linkMetaInfo );
     }
 
     if( linksJsonArray.Json.empty() == false )
-        jsonRoot.Set( "hiddenlinks", linksJsonArray );
+        jsonRoot.set( "hiddenlinks", linksJsonArray );
 
     if( m_rerouteNodes.empty() == false ) {
         JsonValue rerouteNodesJsonArray;
         for( const RerouteNode& node : m_rerouteNodes ) {
             JsonValue nodeMetaInfo;
-            nodeMetaInfo.Set( "id", node.Id );
-            nodeMetaInfo.Set( "inputpin", node.InputPinId );
-            nodeMetaInfo.Set( "outputpin", node.OutputPinId );
+            nodeMetaInfo.set( "id", node.Id );
+            nodeMetaInfo.set( "inputpin", node.InputPinId );
+            nodeMetaInfo.set( "outputpin", node.OutputPinId );
 
             ImVec2 nodePosition = ax::NodeEditor::GetNodePosition( node.Id.get() );
             Array< float32, 2 > position{ nodePosition.x, nodePosition.y };
-            nodeMetaInfo.Set( "position", position );
+            nodeMetaInfo.set( "position", position );
 
-            rerouteNodesJsonArray.Add( nodeMetaInfo );
+            rerouteNodesJsonArray.add( nodeMetaInfo );
         }
 
-        jsonRoot.Set( "reroutenodes", rerouteNodesJsonArray );
+        jsonRoot.set( "reroutenodes", rerouteNodesJsonArray );
     }
 
     if( m_rerouteLinks.empty() == false ) {
         JsonValue rerouteLinksJsonArray;
         for( const RerouteLink& link : m_rerouteLinks ) {
             JsonValue linkMetaInfo;
-            linkMetaInfo.Set( "id", link.Id );
-            linkMetaInfo.Set( "frominputpin", link.FromInputPinId );
-            linkMetaInfo.Set( "tooutputpin", link.ToOutputPinId );
+            linkMetaInfo.set( "id", link.Id );
+            linkMetaInfo.set( "frominputpin", link.FromInputPinId );
+            linkMetaInfo.set( "tooutputpin", link.ToOutputPinId );
 
-            rerouteLinksJsonArray.Add( linkMetaInfo );
+            rerouteLinksJsonArray.add( linkMetaInfo );
         }
 
-        jsonRoot.Set( "reroutelinks", rerouteLinksJsonArray );
+        jsonRoot.set( "reroutelinks", rerouteLinksJsonArray );
     }
 
     FilePath metaFilePath = path::replaceExtension( path, "ometa" );
     OnyxFile metaDataFile( path::getFullPath( metaFilePath ) );
-    FileStream stream = metaDataFile.OpenStream( OpenMode::Write | OpenMode::Text );
+    FileStream stream = metaDataFile.openStream( OpenMode::Write | OpenMode::Text );
 
     const String& jsonString = jsonRoot.Json.dump( 4 );
     stream.writeRaw( jsonString.data(), jsonString.size() );
@@ -814,10 +814,10 @@ void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
     FilePath metaFilePath = file_system::path::replaceExtension( path, "ometa" );
     OnyxFile metaDataJsonFile( file_system::path::getFullPath( metaFilePath ) );
 
-    const JsonValue& metaDataJsonRoot = metaDataJsonFile.LoadJson();
+    const JsonValue& metaDataJsonRoot = metaDataJsonFile.loadJson();
 
     JsonValue nodesJsonArray;
-    if( metaDataJsonRoot.Get( "nodes", nodesJsonArray ) == false ) {
+    if( metaDataJsonRoot.get( "nodes", nodesJsonArray ) == false ) {
         // fallback to root if we don't find nodes array in json, this is to allow loading of old meta data
         nodesJsonArray.Json = metaDataJsonRoot.Json;
     }
@@ -827,11 +827,11 @@ void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
 
         Guid64 nodeId;
         String nodeName;
-        nodeMetaJsonObj.Get( "id", nodeId );
-        nodeMetaJsonObj.Get( "name", nodeName );
+        nodeMetaJsonObj.get( "id", nodeId );
+        nodeMetaJsonObj.get( "name", nodeName );
 
         Array< float32, 2 > position{};
-        nodeMetaJsonObj.Get( "position", position );
+        nodeMetaJsonObj.get( "position", position );
 
         GraphEditorContext::Node& node = m_editorContext->getNode( nodeId );
         node.Name = nodeName;
@@ -840,14 +840,14 @@ void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
     }
 
     JsonValue linksJsonArray;
-    if( metaDataJsonRoot.Get( "hiddenlinks", linksJsonArray ) ) {
+    if( metaDataJsonRoot.get( "hiddenlinks", linksJsonArray ) ) {
         for( const auto& linkMetaJson : linksJsonArray.Json ) {
             JsonValue linkMetaJsonObj{ linkMetaJson };
 
             Guid64 fromInputPinId;
             Guid64 toOutputPinId;
-            linkMetaJsonObj.Get( "frominputpin", fromInputPinId );
-            linkMetaJsonObj.Get( "tooutputpin", toOutputPinId );
+            linkMetaJsonObj.get( "frominputpin", fromInputPinId );
+            linkMetaJsonObj.get( "tooutputpin", toOutputPinId );
 
             auto it = std::ranges::find_if( m_editorContext->getLinks(), [ & ]( const GraphEditorContext::Link& link ) {
                 return ( link.FromPinId == fromInputPinId ) && ( link.ToPinId == toOutputPinId );
@@ -863,46 +863,46 @@ void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
     }
 
     JsonValue rerouteNodesJsonArray;
-    if( metaDataJsonRoot.Get( "reroutenodes", rerouteNodesJsonArray ) ) {
+    if( metaDataJsonRoot.get( "reroutenodes", rerouteNodesJsonArray ) ) {
         for( const auto& rerouteNodeMetaJson : rerouteNodesJsonArray.Json ) {
             JsonValue rerouteNodeMetaJsonObj{ rerouteNodeMetaJson };
 
             RerouteNode newReroute{};
             newReroute.InteractionPinId = Guid64Generator::getGuid();
-            rerouteNodeMetaJsonObj.Get( "id", newReroute.Id );
-            rerouteNodeMetaJsonObj.Get( "inputpin", newReroute.InputPinId );
-            rerouteNodeMetaJsonObj.Get( "outputpin", newReroute.OutputPinId );
+            rerouteNodeMetaJsonObj.get( "id", newReroute.Id );
+            rerouteNodeMetaJsonObj.get( "inputpin", newReroute.InputPinId );
+            rerouteNodeMetaJsonObj.get( "outputpin", newReroute.OutputPinId );
 
             if( ( m_editorContext->hasPin( newReroute.InputPinId ) == false ) ||
                 ( m_editorContext->hasPin( newReroute.OutputPinId ) == false ) )
                 continue;
 
-            rerouteNodeMetaJsonObj.Get( "color", newReroute.Color );
+            rerouteNodeMetaJsonObj.get( "color", newReroute.Color );
 
             m_rerouteNodes.emplace_back( newReroute );
             Array< float32, 2 > position{};
-            rerouteNodeMetaJsonObj.Get( "position", position );
+            rerouteNodeMetaJsonObj.get( "position", position );
             newReroute.Position = Vector2f32( position[ 0 ], position[ 1 ] );
             newReroute.HasUpdatedPosition = true;
         }
     }
 
     JsonValue rerouteLinksJsonArray;
-    if( metaDataJsonRoot.Get( "reroutelinks", rerouteLinksJsonArray ) ) {
+    if( metaDataJsonRoot.get( "reroutelinks", rerouteLinksJsonArray ) ) {
         for( const auto& rerouteLinkMetaJson : rerouteLinksJsonArray.Json ) {
             JsonValue rerouteLinkMetaJsonObj{ rerouteLinkMetaJson };
 
             RerouteLink newLink{};
-            rerouteLinkMetaJsonObj.Get( "id", newLink.Id );
-            rerouteLinkMetaJsonObj.Get( "frominputpin", newLink.FromInputPinId );
-            rerouteLinkMetaJsonObj.Get( "tooutputpin", newLink.ToOutputPinId );
+            rerouteLinkMetaJsonObj.get( "id", newLink.Id );
+            rerouteLinkMetaJsonObj.get( "frominputpin", newLink.FromInputPinId );
+            rerouteLinkMetaJsonObj.get( "tooutputpin", newLink.ToOutputPinId );
 
             if( ( m_editorContext->hasPin( newLink.FromInputPinId ) == false ) ||
                 ( m_editorContext->hasPin( newLink.ToOutputPinId ) == false ) )
                 continue;
 
             m_rerouteLinks.emplace_back( newLink );
-            rerouteLinkMetaJsonObj.Get( "color", newLink.Color );
+            rerouteLinkMetaJsonObj.get( "color", newLink.Color );
         }
     }
 

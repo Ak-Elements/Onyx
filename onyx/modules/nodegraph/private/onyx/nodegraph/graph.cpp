@@ -14,7 +14,7 @@ bool NodeGraph::compile() {
 Node& NodeGraph::getNodeForPinId( Guid64 globalPinId ) {
     for( const DirectedAcyclicGraphNodeContainerT& nodeContainer : ( m_graph.getNodes() | std::views::values ) ) {
         const UniquePtr< Node >& node = nodeContainer.Data;
-        if( node->HasPin( globalPinId ) )
+        if( node->hasPin( globalPinId ) )
             return *node;
     }
 
@@ -25,7 +25,7 @@ Node& NodeGraph::getNodeForPinId( Guid64 globalPinId ) {
 const Node& NodeGraph::getNodeForPinId( Guid64 globalPinId ) const {
     for( const DirectedAcyclicGraphNodeContainerT& nodeContainer : ( m_graph.getNodes() | std::views::values ) ) {
         const UniquePtr< Node >& node = nodeContainer.Data;
-        if( node->HasPin( globalPinId ) )
+        if( node->hasPin( globalPinId ) )
             return *node;
     }
 
@@ -37,7 +37,7 @@ PinBase& NodeGraph::getPinById( Guid64 globalPinId ) {
     PinBase* pin = nullptr;
     for( const DirectedAcyclicGraphNodeContainerT& nodeContainer : ( m_graph.getNodes() | std::views::values ) ) {
         const UniquePtr< Node >& node = nodeContainer.Data;
-        pin = node->GetPinById( globalPinId );
+        pin = node->getPinById( globalPinId );
         if( pin != nullptr ) {
             return *pin;
         }
@@ -51,7 +51,7 @@ const PinBase& NodeGraph::getPinById( Guid64 globalPinId ) const {
     const PinBase* pin = nullptr;
     for( const DirectedAcyclicGraphNodeContainerT& nodeContainer : ( m_graph.getNodes() | std::views::values ) ) {
         const UniquePtr< Node >& node = nodeContainer.Data;
-        pin = node->GetPinById( globalPinId );
+        pin = node->getPinById( globalPinId );
         if( pin != nullptr ) {
             return *pin;
         }
@@ -65,7 +65,7 @@ bool NodeGraph::hasPin( Guid64 globalPinId ) const {
     const PinBase* pin = nullptr;
     for( const DirectedAcyclicGraphNodeContainerT& nodeContainer : ( m_graph.getNodes() | std::views::values ) ) {
         const UniquePtr< Node >& node = nodeContainer.Data;
-        pin = node->GetPinById( globalPinId );
+        pin = node->getPinById( globalPinId );
         if( pin != nullptr ) {
             return true;
         }
@@ -87,35 +87,35 @@ bool NodeGraph::isNewLinkValid( Guid64 fromGlobalPinId, Guid64 toGlobalPinId ) c
         const Node* currentNode = stack.top();
         stack.pop();
 
-        if( visited.contains( currentNode->GetId() ) ) {
+        if( visited.contains( currentNode->getId() ) ) {
             continue;
         }
 
-        visited.emplace( currentNode->GetId() );
+        visited.emplace( currentNode->getId() );
 
-        uint32_t inputPinCount = currentNode->GetInputPinCount();
+        uint32_t inputPinCount = currentNode->getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            const PinBase* inputPin = currentNode->GetInputPin( i );
-            if( inputPin->IsConnected() ) {
-                const Node& linkedNode = getNodeForPinId( inputPin->GetLinkedPinGlobalId() );
-                if( linkedNode.GetId() == fromNode.GetId() )
+            const PinBase* inputPin = currentNode->getInputPin( i );
+            if( inputPin->isConnected() ) {
+                const Node& linkedNode = getNodeForPinId( inputPin->getLinkedPinGlobalId() );
+                if( linkedNode.getId() == fromNode.getId() )
                     return true;
 
-                if( visited.contains( linkedNode.GetId() ) == false ) {
+                if( visited.contains( linkedNode.getId() ) == false ) {
                     stack.push( &linkedNode );
                 }
             }
         }
 
-        uint32_t outputPinCount = currentNode->GetOutputPinCount();
+        uint32_t outputPinCount = currentNode->getOutputPinCount();
         for( uint32_t i = 0; i < outputPinCount; ++i ) {
-            const PinBase* outputPin = currentNode->GetOutputPin( i );
-            if( outputPin->IsConnected() ) {
-                const Node& linkedNode = getNodeForPinId( outputPin->GetLinkedPinGlobalId() );
-                if( linkedNode.GetId() == fromNode.GetId() )
+            const PinBase* outputPin = currentNode->getOutputPin( i );
+            if( outputPin->isConnected() ) {
+                const Node& linkedNode = getNodeForPinId( outputPin->getLinkedPinGlobalId() );
+                if( linkedNode.getId() == fromNode.getId() )
                     return true;
 
-                if( visited.contains( linkedNode.GetId() ) == false ) {
+                if( visited.contains( linkedNode.getId() ) == false ) {
                     stack.push( &linkedNode );
                 }
             }
@@ -152,7 +152,7 @@ DynamicArray< const Node* > NodeGraph::getNodesSorted() const {
 typename NodeGraph::LocalNodeId NodeGraph::getLocalNodeIdForPin( Guid64 globalPinId ) {
     for( auto&& [ id, nodeContainer ] : m_graph.getNodes() ) {
         const UniquePtr< Node >& node = nodeContainer.Data;
-        if( node->HasPin( globalPinId ) )
+        if( node->hasPin( globalPinId ) )
             return id;
     }
 
@@ -162,16 +162,16 @@ typename NodeGraph::LocalNodeId NodeGraph::getLocalNodeIdForPin( Guid64 globalPi
 
 void NodeGraph::remove( LocalNodeId localNodeId ) {
     const Node& node = getNode( localNodeId );
-    uint32_t inputPinCount = node.GetInputPinCount();
+    uint32_t inputPinCount = node.getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        const PinBase* inputPin = node.GetInputPin( i );
-        m_constantPinData.erase( inputPin->GetGlobalId() );
+        const PinBase* inputPin = node.getInputPin( i );
+        m_constantPinData.erase( inputPin->getGlobalId() );
     }
 
-    uint32_t outputPinCount = node.GetOutputPinCount();
+    uint32_t outputPinCount = node.getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        const PinBase* outputPin = node.GetOutputPin( i );
-        m_constantPinData.erase( outputPin->GetGlobalId() );
+        const PinBase* outputPin = node.getOutputPin( i );
+        m_constantPinData.erase( outputPin->getGlobalId() );
     }
 
     m_graph.removeNode( localNodeId );
@@ -185,15 +185,15 @@ void NodeGraph::clear() {
 
 void NodeGraph::setupNode( Node& newNode ) {
     Guid64 newId = Guid64Generator::getGuid();
-    newNode.SetId( newId );
-    const uint32_t inputPinCount = newNode.GetInputPinCount();
+    newNode.setId( newId );
+    const uint32_t inputPinCount = newNode.getInputPinCount();
     for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        newNode.GetInputPin( i )->SetGlobalId( Guid64Generator::getGuid() );
+        newNode.getInputPin( i )->setGlobalId( Guid64Generator::getGuid() );
     }
 
-    const uint32_t outputPinCount = newNode.GetOutputPinCount();
+    const uint32_t outputPinCount = newNode.getOutputPinCount();
     for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        newNode.GetOutputPin( i )->SetGlobalId( Guid64Generator::getGuid() );
+        newNode.getOutputPin( i )->setGlobalId( Guid64Generator::getGuid() );
     }
 }
 } // namespace onyx::node_graph
