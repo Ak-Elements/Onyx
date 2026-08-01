@@ -37,7 +37,7 @@ Vector4f32 evaluateTerrainSdf( Vector3f32& position ) {
     CSGPlane plane( 0.0f, Vector3f32{ 0.0f, 1.0f, 0.0f } );
     CSGSphere sphere( 500.0f, Vector3f32{ 0.0f, 0.0f, -1000.0f } );
     CSGUnion csgUnion( &sphere, &plane );
-    return csgUnion.GetValueAndGradient( position );
+    return csgUnion.getValueAndGradient( position );
 }
 
 } // namespace
