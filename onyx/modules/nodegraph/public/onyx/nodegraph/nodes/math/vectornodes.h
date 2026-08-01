@@ -388,10 +388,10 @@ using Swizzle2DVector3s32 = SwizzleVectorComponentsNode< Node,
                                                          Vector3s32,
                                                          Vector2s32,
                                                          "onyx::node_graph::nodes::Swizzle2DVector3s32" >;
-using XSwizzle2DVector4s32 = SwizzleVectorComponentsNode< Node,
-                                                          Vector4s32,
-                                                          Vector2s32,
-                                                          "onyx::node_graph::nodes::Swizzle2DVector4s32" >;
+using Swizzle2DVector4s32 = SwizzleVectorComponentsNode< Node,
+                                                         Vector4s32,
+                                                         Vector2s32,
+                                                         "onyx::node_graph::nodes::Swizzle2DVector4s32" >;
 
 using Swizzle2DVector2s64 = SwizzleVectorComponentsNode< Node,
                                                          Vector2s64,
