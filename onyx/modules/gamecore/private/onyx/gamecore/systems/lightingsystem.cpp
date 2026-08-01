@@ -21,7 +21,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
     for( auto lightEntity : lightEntities ) {
         auto&& [ lightComponent, transformComponent ] = LightAccess::AsEntity( lightEntities, lightEntity );
 
-        rhi::DirectionalLight& light = frameContext.Lighting.DirectionalLights[ directionalLightIndex++ ];
+        rhi::DirectionalLight& light = frameContext.Lighting.DirectionalLights.Lights[ directionalLightIndex++ ];
         light.Color = lightComponent.Color;
         light.Intensity = lightComponent.Intensity;
         light.ShadowAmount = lightComponent.ShadowAmount;
@@ -29,7 +29,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
         light.Direction = transformComponent.Rotation.toMatrix3() * -Vector3f32::zUnit();
     }
 
-    frameContext.Lighting.DirectionalLightsCount = directionalLightIndex;
+    frameContext.Lighting.DirectionalLights.Count = directionalLightIndex;
 }
 } // namespace directional_lights
 
@@ -42,7 +42,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
     for( ecs::EntityId lightEntity : lightEntities ) {
         auto&& [ lightComponent, transformComponent ] = LightAccess::AsEntity( lightEntities, lightEntity );
 
-        rhi::PointLight& light = frameContext.Lighting.PointLights[ pointLightIndex++ ];
+        rhi::PointLight& light = frameContext.Lighting.PointLights.Lights[ pointLightIndex++ ];
         light.Position = transformComponent.Translation;
         light.Color = lightComponent.Color;
         light.Intensity = lightComponent.Intensity;
@@ -55,7 +55,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
                                             .length();
     }
 
-    frameContext.Lighting.PointLightsCount = pointLightIndex;
+    frameContext.Lighting.PointLights.Count = pointLightIndex;
 }
 } // namespace point_lights
 
@@ -68,7 +68,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
     for( ecs::EntityId lightEntity : lightEntities ) {
         auto&& [ lightComponent, transformComponent ] = LightAccess::AsEntity( lightEntities, lightEntity );
 
-        rhi::SpotLight& light = frameContext.Lighting.SpotLights[ spotLightIndex++ ];
+        rhi::SpotLight& light = frameContext.Lighting.SpotLights.Lights[ spotLightIndex++ ];
         light.Position = transformComponent.Translation;
         light.Direction = transformComponent.Rotation.toMatrix3() * -Vector3f32::zUnit();
         light.Color = lightComponent.Color;
@@ -79,7 +79,7 @@ void system( LightsQuery lightEntities, rhi::FrameContext& frameContext ) {
         light.Range = lightComponent.Range;
         light.IsShadowCasting = lightComponent.IsShadowCasting;
 
-        frameContext.Lighting.SpotLightsCount = spotLightIndex;
+        frameContext.Lighting.SpotLights.Count = spotLightIndex;
     }
 }
 } // namespace spot_lights

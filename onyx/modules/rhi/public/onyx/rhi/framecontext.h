@@ -15,7 +15,7 @@ struct FrameContext {
     GraphicsSystem* Api;
 
     ViewConstants ViewConstants;
-    LightingEnviornment Lighting;
+    LightingEnvironment Lighting;
 
     float32 TimeOfDay = 15.0f;
     uint32_t TonemapFunctor = 5;

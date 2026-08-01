@@ -61,14 +61,25 @@ struct LightClusterAABB {
     Vector4f32 Max;
 };
 
-struct ONYX_ALIGN( 16 ) Lighting {
-    Array< DirectionalLight, 64 > DirectionalLights;
-    Array< PointLight, 64 > PointLights;
-    Array< SpotLight, 64 > SpotLights;
-
-    uint32_t DirectionalLightsCount = 0;
-    uint32_t PointLightsCount;
-    uint32_t SpotLightsCount;
-    uint32_t Padding;
+struct DirectionalLights {
+    Array< DirectionalLight, 8 > Lights;
+    uint32_t Count = 0;
 };
+
+struct PointLights {
+    Array< PointLight, 64 > Lights;
+    uint32_t Count = 0;
+};
+
+struct SpotLights {
+    Array< SpotLight, 64 > Lights;
+    uint32_t Count = 0;
+};
+
+struct LightingEnvironment {
+    DirectionalLights DirectionalLights;
+    PointLights PointLights;
+    SpotLights SpotLights;
+};
+
 } // namespace onyx::rhi
