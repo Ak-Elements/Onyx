@@ -10,7 +10,7 @@
 
 namespace onyx::graphics::render_graph_nodes {
 DebugDrawTask::DebugDrawTask() {
-    m_pipelineProperties.Shader = "engine:/shaders/debug/debugdraw.oshader";
+    m_pipelineProperties.Shader = "engine:/shaders/debug/debugdraw.slang";
 
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
@@ -77,7 +77,6 @@ void DebugDrawTask::onPreRender( RenderGraphContext& context, rhi::CommandBuffer
 }
 
 void DebugDrawTask::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
-    return;
     ONYX_PROFILE_FUNCTION;
 
     struct PushConstants {

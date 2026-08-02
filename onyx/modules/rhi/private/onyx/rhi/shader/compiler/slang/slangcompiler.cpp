@@ -182,7 +182,7 @@ Optional< ShaderReflectionInfo > reflect( ::slang::IComponentType& linkedShader 
 
     const bool isBindless = bindlessMetadata && bindlessMetadata->usesBindlessResourceHeap();
     if( isBindless ) {
-        reflectInfo.IsUsingBindless = true;
+        reflectInfo.IsBindless = true;
 
         ShaderDescriptorSet& descriptorSet = reflectInfo.ShaderDescriptorSets.emplace_back();
         descriptorSet.Set = 0;

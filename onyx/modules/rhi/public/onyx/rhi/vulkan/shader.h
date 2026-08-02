@@ -21,7 +21,7 @@ class ShaderModule {
 
   private:
     const VulkanGraphicsApi& m_api;
-    DynamicArray< const uint8_t* > m_byteCode;
+    DynamicArray< uint8_t > m_byteCode;
     VULKAN_HANDLE( VkShaderModule, Module, nullptr );
 };
 

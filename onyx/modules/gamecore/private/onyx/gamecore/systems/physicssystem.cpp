@@ -57,7 +57,10 @@ void initPhysicsEntity( ecs::EntityCommandBuffer& commandBuffer,
                                                      capsule->HalfHeight,
                                                      onyx::physics::MotionType::Dynamic,
                                                      layer );
+    } else {
+        return;
     }
+
     ONYX_ASSERT( bodyId != onyx::physics::BodyId::Invalid );
 
     commandBuffer.addComponent< components::BodyId >( entity, bodyId );

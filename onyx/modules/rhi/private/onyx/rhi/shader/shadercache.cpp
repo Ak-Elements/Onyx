@@ -99,35 +99,17 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
         }
     }
 
-    // ShaderReflectionInfo reflectionInfo;
-    // InplaceArray< ShaderStageCacheEntry, MAX_SHADER_STAGES > stages;
-    shader_compiler::compile( m_graphicsSystem, shaderPath, shaderCode, *entry.Shader );
-
-    // for( uint8_t i = enums::toIntegral( ShaderStage::Vertex ); i < enums::toIntegral( ShaderStage::Count ); ++i ) {
-    //     ShaderStage stage = static_cast< ShaderStage >( i );
-    //     const DynamicArray< uint32_t >& stageByteCode = stages[ i ].ByteCode;
-    //
-    //     if( stageByteCode.empty() ) {
-    //         if( !entry.Stages[ i ].ByteCode.empty() ) {
-    //             entry.Stages[ i ].ByteCode.clear();
-    //             entry.Stages[ i ].IncludeHashes.clear();
-    //             entry.Shader->removeStage( stage );
-    //         }
-    //         continue;
-    //     }
-    //
-    //     entry.Shader->addStage( m_graphicsSystem, stage, stageByteCode );
-    //     entry.Stages[ i ] = stages[ i ];
-    // }
+    // TODO: we should try to compile a tmp shader and only update if succeeded
+    if( shader_compiler::compile( m_graphicsSystem, shaderPath, shaderCode, *entry.Shader ) == false ) {
+        return false;
+    }
 
     // Create descriptors for shader stage
     entry.Shader->setShaderHash( shaderHash );
     entry.Shader->setPath( shaderPath.generic_string() );
-    // entry.Shader->updateReflectionData( m_graphicsSystem, reflectionInfo );
     entry.ShaderHash = shaderHash;
 
-    // save out to disk
-    // saveCacheToDisk( entry, diskShaderCachePath );
+    saveCacheToDisk( entry, diskShaderCachePath );
 
     outShader = entry.Shader;
     return true;
@@ -149,13 +131,10 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
 
     stream.read( outEntry.ShaderHash );
 
-    if( outEntry.Shader->loadFromDisk( m_graphicsSystem, stream ) )
+    if( outEntry.Shader->loadFromDisk( m_graphicsSystem, stream ) == false )
         return false;
 
     stream.read( outEntry.IncludeHashes );
-
-    ShaderReflectionInfo reflectionInfo;
-    stream.read( reflectionInfo );
 
     outEntry.Shader->setShaderHash( outEntry.ShaderHash );
 #if !ONYX_IS_RETAIL
@@ -173,11 +152,10 @@ void ShaderCache::saveCacheToDisk( const ShaderCacheEntry& entry, const FilePath
 
     stream.write( entry.ShaderHash );
 
-    if( entry.Shader->write( stream ) )
+    if( entry.Shader->write( stream ) == false )
         return;
 
     stream.writeRaw( entry.IncludeHashes );
-    stream.write( entry.Shader->getReflectionData() );
 }
 
 void ShaderCache::onFileChanged( const FilePath& path, file_system::FileWatcher::FileAction /*action*/ ) {

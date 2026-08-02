@@ -228,17 +228,12 @@ struct VertexInputStream {
 };
 
 struct ShaderReflectionInfo {
-    bool IsUsingBindless = false;
+    bool IsBindless = false;
     ShaderStage Stages = ShaderStage::Invalid;
 
     VertexInputStream VertexInput;
     DynamicArray< ShaderDescriptorSet > ShaderDescriptorSets;
     DynamicArray< PushConstantRange > PushConstantRanges;
-
-    // TODO: Do we need the string here or could this be a hash?
-    HashMap< String, ShaderResourceDeclaration > ShaderResources;
-    HashMap< String, ShaderBuffer > ConstantBuffers;
-    HashMap< String, TextureFormat > OutputAttachments;
 
     PushConstantRange& getPushConstantRange( ShaderStage stage ) {
         auto it = std::ranges::find_if( PushConstantRanges, [ stage ]( PushConstantRange& pushConstantRange ) {
@@ -253,21 +248,19 @@ struct ShaderReflectionInfo {
     }
 
     void serialize( Stream& outStream ) const {
-        outStream.write( IsUsingBindless );
+        outStream.write( IsBindless );
+        outStream.write( Stages );
         outStream.write( VertexInput );
         outStream.write< DynamicArray >( ShaderDescriptorSets );
         outStream.write< DynamicArray >( PushConstantRanges );
-        outStream.write( ShaderResources );
-        outStream.write( ConstantBuffers );
     }
 
     void deserialize( const Stream& inStream ) {
-        inStream.read( IsUsingBindless );
+        inStream.read( IsBindless );
+        inStream.read( Stages );
         inStream.read( VertexInput );
         inStream.read< DynamicArray >( ShaderDescriptorSets );
         inStream.read< DynamicArray >( PushConstantRanges );
-        inStream.read( ShaderResources );
-        inStream.read( ConstantBuffers );
     }
 };
 

@@ -8,7 +8,7 @@
 namespace onyx::rhi::vulkan {
 ShaderModule::ShaderModule( const VulkanGraphicsApi& api, Span< const uint8_t > byteCode )
     : m_api( api )
-    , m_byteCode( byteCode.size(), byteCode.data() ) {
+    , m_byteCode( byteCode.data(), byteCode.data() + byteCode.size() ) {
     VkShaderModuleCreateInfo moduleCreateInfo{};
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     moduleCreateInfo.codeSize = byteCode.size();
@@ -108,13 +108,18 @@ bool Shader::loadFromDisk( GraphicsSystem& graphicsSystem, Stream& stream ) {
     VulkanGraphicsApi& vulkanApi = graphicsSystem.getApi< VulkanGraphicsApi >();
     DynamicArray< uint8_t > byteCode;
     stream.read( byteCode );
+    if( byteCode.empty() )
+        return false;
 
     Span< const uint8_t > span( byteCode.data(), byteCode.size() );
+    stream.read( m_reflectionInfo );
+
     m_module = makeUnique< ShaderModule >( vulkanApi, span );
     return true;
 }
 bool Shader::write( Stream& stream ) const {
     stream.write( m_module->getByteCode() );
+    stream.write( m_reflectionInfo );
     return true;
 }
 } // namespace onyx::rhi::vulkan
