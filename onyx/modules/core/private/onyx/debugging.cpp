@@ -1,3 +1,7 @@
+#include <version>
+
+#if defined( __cpp_lib_debugging ) && __cplusplus >= 202400 // vvv __cpp_lib_debugging vvv
+#else // ^^^ __cpp_lib_debugging ^^^ || vvv !__cpp_lib_debugging vvv
 #include <onyx/debugging.h>
 
 #if ONYX_IS_WINDOWS // vvv ONYX_IS_WINDOWS vvv
@@ -21,7 +25,7 @@ extern "C" int IsDebuggerPresent();
 #include <cstdlib>
 #include <cstring>
 
-#endif // ^^^ ONYX_IS_LINUX ^^^
+#endif            // ^^^ ONYX_IS_LINUX ^^^
 
 namespace onyx {
 namespace internal {
@@ -38,7 +42,7 @@ void breakpoint() {
 
 #endif // ^^^ !ONYX_IS_WINDOWS ^^^
 
-#endif // ^^^ ONYX_IS_DEBUG ^^^
+#endif             // ^^^ ONYX_IS_DEBUG ^^^
 }
 
 } // namespace internal
@@ -59,7 +63,7 @@ bool isDebuggerPresent() {
     // ! Possibility of hitting a no-fs linux system
 
     auto* procStatus = ::fopen( "/proc/self/status", "r" );
-    if ( procStatus != nullptr ) {
+    if( procStatus != nullptr ) {
         // ? Log this
         return false;
     }
@@ -69,9 +73,9 @@ bool isDebuggerPresent() {
     auto tokenStr = "TracerPid:";
     auto isDebuggerPresent = false;
 
-    while ( ::getline( &line, &lineLen, procStatus ) != -1 ) {
+    while( ::getline( &line, &lineLen, procStatus ) != -1 ) {
         char* tokenPos = ::strstr( line, tokenStr );
-        if ( tokenPos == nullptr ) {
+        if( tokenPos == nullptr ) {
             continue;
         }
 
@@ -95,3 +99,4 @@ bool isDebuggerPresent() {
 #endif // ^^^ !ONYX_IS_DEBUG ^^^
 }
 } // namespace onyx
+#endif // ^^^ !__cpp_lib_debugging ^
