@@ -19,7 +19,6 @@
                     }
                 }
             ],
-            "shader": "4a92973841f5cebe",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -162,7 +161,6 @@
                     }
                 }
             ],
-            "shader": "67d73da379312a29",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -345,7 +343,6 @@
                     }
                 }
             ],
-            "shader": "8eea40a221b3f436",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,
@@ -890,7 +887,6 @@
                     }
                 }
             ],
-            "shader": "d4093b3efdc1c8a6",
             "pipeline": {
                 "depthstencil": {
                     "enabled": false,

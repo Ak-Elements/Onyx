@@ -29,5 +29,5 @@ public float3 lightContribution( in LightEnvironment environment,
     float3 Lo = lightContribution( *environment.DirectionalLights, V, N, material );
     Lo += lightContribution( *environment.PointLights, environment, clusterIndex, V, N, worldPosition, material );
     Lo += lightContribution( *environment.SpotLights, environment, clusterIndex, V, N, worldPosition, material );
-    return material.Albedo + Lo;
+    return Lo;
 }

@@ -44,7 +44,10 @@ class GameCoreSystem : public IEngineSystem {
 
     GameCoreSystem();
 
-    void update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graphicsSystem, IEngine& engine );
+    void update( DeltaGameTime deltaTime,
+                 assets::AssetSystem& assetSystem,
+                 rhi::GraphicsSystem& graphicsSystem,
+                 IEngine& engine );
 
     void setScene( assets::AssetHandle< Scene >& scene ) { m_scene = scene; }
     assets::AssetHandle< Scene >& getScene() { return m_scene; }

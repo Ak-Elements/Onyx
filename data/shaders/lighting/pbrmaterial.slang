@@ -1,11 +1,11 @@
 implementing lighting;
 
 public struct PbrMaterial {
-    float3 Albedo;
-    float Metalness;
+    public float3 Albedo;
+    public float Metalness;
 
-    float3 Normal;
-    float Roughness;
+    public float3 Normal;
+    public float Roughness;
 
-    float3 Emissive;
+    public float3 Emissive;
 };

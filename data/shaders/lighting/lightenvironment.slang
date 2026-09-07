@@ -1,16 +1,14 @@
 implementing lighting;
 
 public struct LightEnvironment {
-    Ptr< DirectionalLights > DirectionalLights;
-    Ptr< PointLights > PointLights;
-    Ptr< SpotLights > SpotLights;
-    Ptr< LightGrid > Grid;
-    Ptr< LightIndices > LightIndices;
+    public Ptr< DirectionalLights > DirectionalLights;
+    public Ptr< PointLights > PointLights;
+    public Ptr< SpotLights > SpotLights;
+    public Ptr< LightGrid > Grid;
+    public Ptr< LightIndices > LightIndices;
 
-    uint3 LightClusterGridSize;
-    float LightClusterScale;
-
-    uint2 LightClusterSize;
-    float LightClusterBias;
+    public uint2 LightClusterSize;
+    public float LightClusterBias;
+    public float LightClusterScale;
 };
 

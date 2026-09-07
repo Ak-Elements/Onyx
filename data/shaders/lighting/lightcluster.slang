@@ -5,6 +5,6 @@ public struct AxisAlignedBoundingBox {
     public float4 Max;
 };
 
-public struct LightClusters {
-    public AxisAlignedBoundingBox Clusters[ ];
+public struct LightCluster {
+    public AxisAlignedBoundingBox Cells[ ];
 };

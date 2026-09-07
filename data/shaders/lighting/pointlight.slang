@@ -1,20 +1,20 @@
 implementing lighting;
 
-struct PointLight {
-    float3 Position;
-    float Intensity;
+public struct PointLight {
+    public float3 Position;
+    public float Intensity;
 
-    float3 Color;
-    float Radius;
+    public float3 Color;
+    public float Radius;
 
-    uint32_t IsEnabled;
-    uint32_t IsShadowCasting;
-    float Pad[ 6 ]; // unused
+    public uint32_t IsEnabled;
+    public uint32_t IsShadowCasting;
+     public float Pad[ 6 ]; // unused
 };
 
 public struct PointLights {
-    PointLight Lights[ MaxLights ];
-    uint32_t Count;
+    public PointLight Lights[ MaxLights ];
+    public uint32_t Count;
 }
 
 float3 lightContribution( in PointLight light, float3 V, float3 N, float3 worldPosition, PbrMaterial material ) {

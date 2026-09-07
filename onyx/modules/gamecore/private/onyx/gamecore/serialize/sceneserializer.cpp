@@ -95,7 +95,8 @@ bool SceneSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
     deserializer.read< "renderGraph" >( renderGraphAssetId );
     assetSystem.getAsset( renderGraphAssetId, scene.m_sceneRenderGraph );
 
-    FilePath sceneDirectoryPath = file_system::path::getFullPath( meta.Path.parent_path() );
+    String pathString = meta.Path.parent_path().generic_string() + "/";
+    FilePath sceneDirectoryPath = file_system::path::getFullPath( FilePath( pathString ) );
     SceneSectorStreamer& sectorStreamer = scene.m_sectorStreamer;
     DynamicArray< SceneSector >& sectors = sectorStreamer.m_Sectors;
     const GameCoreSystem& gameCoreSystem = engine.getSystem< GameCoreSystem >();

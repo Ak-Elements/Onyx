@@ -124,7 +124,7 @@ float3 AgxEotf( float3 color ) {
     color = agx_mat_inv * color;
 
     // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
-    // color = pow(color, float3(2.2));
+    // color = pow( color, float3( 2.2 ) );
 
     return color;
 }
@@ -135,7 +135,7 @@ float4 fragmentMain( VSOutput input )
     float4 texture = linearSample( input.TextureIndex, input.Uv );
 
     float4 color = texture.xyzw;
-    // color correct
+    color.xyz *= 2.0f * exp2( 2.5 );
 
     if( Constants.TonemapFunction == 1 ) {
         color.xyz = TonemapJodieReinhard( color.xyz );

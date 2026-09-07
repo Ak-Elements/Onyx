@@ -36,8 +36,7 @@ float4 alphaBlendColor(float4 src, float4 dst)
 PushConstants Constants;
 
 [ shader( "fragment" ) ]
-float4 fragmentMain( VSOutput input ) : SV_Target0
-{
+float4 fragmentMain(  VSOutput input ) : SV_Target0 {
     float4 color = linearSample( Constants.Textures[ 0 ], input.Uv );
     float4 fontTex = linearSample( Constants.Textures[ 2 ], input.Uv );
     return alphaBlendColor( fontTex, color );

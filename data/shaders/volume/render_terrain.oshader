@@ -1,7 +1,7 @@
-
 #version 460 core
 
 #include "includes/common.h"
+#include "includes/bindless.h"
 #include "includes/volume/volumesources.h"
 #include "includes/volume/sample_terrain.h"
 #include "includes/debug/print.h"
@@ -49,66 +49,16 @@ fragment
         WorldVolumeSourcesList VolumeSourcesList;
         WorldVolumeSources VolumeSourcesData;
 
-        float LightClusterScale;
-
-        uvec2 LightClusterSize;
-        float LightClusterBias;
+        // uvec3 LightClusterGridSize;
+        // float LightClusterScale;
+        //
+        // uvec2 LightClusterSize;
+        // float LightClusterBias;
+        uint TextureId0;
+        uint TextureId1;
+        uint TextureId2;
     } u_Constants;
     
-    float checker( vec2 p )
-    {
-        p = mod(floor(p),2.0);
-        return mod(p.x + p.y, 2.0) < 1.0 ? .25 : 0.1;
-    }
-
-    float checkersTextureGradBox( in vec2 p, in vec2 ddx, in vec2 ddy )
-    {
-        // filter kernel
-        vec2 w = max(abs(ddx), abs(ddy)) + 0.01;  
-        // analytical integral (box filter)
-        vec2 i = 2.0*(abs(fract((p-0.5*w)/2.0)-0.5)-abs(fract((p+0.5*w)/2.0)-0.5))/w;
-        // xor pattern
-        return 0.5 - 0.5*i.x*i.y;                  
-    }
-
-    float triplanarChecker(
-        vec3 position,
-        vec3 normal,
-        vec3 ddx_pos,
-        vec3 ddy_pos)
-    {
-        // Sharpness of blend between planes (higher = harder edges)
-        const float blendSharpness = 32.0;
-
-        // Blend weights from absolute normal, raised to sharpness power
-        vec3 blend = pow(abs(normal), vec3(blendSharpness));
-        blend /= dot( blend, vec3( 1.0f, 1.0f, 1.0f ) );   // normalise to sum == 1
-
-        const float scale = 10.0;
-
-        // ── XZ plane (top/bottom faces, was the original single projection) ──
-        vec2 uv_xz     = position.xz   / scale;
-        vec2 ddx_uv_xz = ddx_pos.xz    / scale - uv_xz;
-        vec2 ddy_uv_xz = ddy_pos.xz    / scale - uv_xz;
-        float check_xz = checkersTextureGradBox(uv_xz, ddx_uv_xz, ddy_uv_xz);
-
-        // ── XY plane (front/back faces) ──
-        vec2 uv_xy     = position.xy   / scale;
-        vec2 ddx_uv_xy = ddx_pos.xy    / scale - uv_xy;
-        vec2 ddy_uv_xy = ddy_pos.xy    / scale - uv_xy;
-        float check_xy = checkersTextureGradBox(uv_xy, ddx_uv_xy, ddy_uv_xy);
-
-        // ── YZ plane (left/right faces) ──
-        vec2 uv_yz     = position.yz   / scale;
-        vec2 ddx_uv_yz = ddx_pos.yz    / scale - uv_yz;
-        vec2 ddy_uv_yz = ddy_pos.yz    / scale - uv_yz;
-        float check_yz = checkersTextureGradBox(uv_yz, ddx_uv_yz, ddy_uv_yz);
-
-        return check_xz * blend.y
-             + check_xy * blend.z
-             + check_yz * blend.x;
-    }
-
     vec3 computeRayDirection(vec2 fragCoord, mat4 invProj, mat4 invView, vec2 viewport) {
         vec2 ndc = vec2(
             (fragCoord.x / viewport.x) * 2.0f - 1.0f,
@@ -121,6 +71,99 @@ fragment
 
     layout(location = 0) out vec4 OutColor;
 
+    float interleavedGradientNoise( vec2 screenPosition ) {
+        return fract(52.9829189 * fract(dot( screenPosition , vec2( 0.06711056, 0.00583715 ))));
+    }
+
+    int selectDitheredIndex( vec3 blend, float dither ) { 
+        blend = clamp(blend, 0.0, 1.0);
+        int index = (blend.x - dither > blend.y) ? 0 : 1;
+        float otherMax = max(blend.x, blend.y);
+        index = (blend.z - dither > otherMax) ? 2 : index;
+        return index;
+    }
+
+    struct TriPlanarBlendData {
+        vec2 Uv;
+        vec2 UvDdx;
+        vec2 UvDdy;
+        vec3 Tangent;
+        vec3 BiTangent;
+        vec3 PlaneNormal;
+        int Axis;
+    };
+
+    TriPlanarBlendData triplanarBlend( vec3 position, vec3 normal, vec2 screenPosition, vec3 ddx, vec3 ddy, float blendSharpness ) {
+        vec3 weights = pow ( abs( normal ), vec3( blendSharpness ) );
+        weights /= ( weights.x + weights.y + weights.z );
+
+        float dither = interleavedGradientNoise( screenPosition );
+
+        TriPlanarBlendData blendData;
+        blendData.Axis = selectDitheredIndex( weights, dither );
+
+        if( blendData.Axis == 0 ) {
+            float normalSign = sign( normal.x );
+            vec2 uvRotation = vec2( normalSign, 1.0f );
+            blendData.Uv = position.zy * uvRotation;
+            blendData.UvDdx = ( ddx.zy * uvRotation ) - blendData.Uv;
+            blendData.UvDdy = ( ddy.zy * uvRotation ) - blendData.Uv;
+            blendData.Tangent = vec3( 0.0f, 0.0f, 1.0f) * normalSign;
+            blendData.PlaneNormal = vec3( 1.0f, 0.0f, 0.0f ) * normalSign;
+        } else if ( blendData.Axis == 1 ) {
+            float normalSign = sign( normal.y );
+            vec2 uvRotation = vec2( normalSign, 1.0f );
+            blendData.Uv = position.xz * uvRotation;
+            blendData.UvDdx = ( ddx.xz * uvRotation ) - blendData.Uv;
+            blendData.UvDdy = ( ddy.xz * uvRotation ) - blendData.Uv;
+            blendData.Tangent = vec3( 1.0f, 0.0f, 0.0f) * normalSign;
+            blendData.PlaneNormal = vec3( 0.0f, 1.0f, 0.0f ) * normalSign;
+        } else { 
+            float normalSign = sign( normal.z );
+            vec2 uvRotation = vec2( normalSign, 1.0f );
+            blendData.Uv = position.xy * uvRotation;
+            blendData.UvDdx = ( ddx.xy * uvRotation )- blendData.Uv;
+            blendData.UvDdy = ( ddy.xy * uvRotation ) - blendData.Uv;
+            blendData.Tangent = vec3( 1.0f, 0.0f, 0.0f) * normalSign;
+            blendData.PlaneNormal = vec3( 0.0f, 0.0f, 1.0f ) * normalSign;
+        }
+
+        blendData.BiTangent = cross(blendData.Tangent, blendData.PlaneNormal);
+        return blendData;
+    }
+
+    vec2 triplanarBlend( vec3 position, vec3 normal, vec2 screenPosition, float blendSharpness ) {
+        vec3 weights = pow ( abs( normal ), vec3( blendSharpness ) );
+        weights /= ( weights.x + weights.y + weights.z );
+
+        float dither = interleavedGradientNoise( screenPosition );
+
+        TriPlanarBlendData blendData;
+        blendData.Axis = selectDitheredIndex( weights, dither );
+
+        if( blendData.Axis == 0 ) {
+            float normalSign = sign( normal.x );
+            vec2 uvRotation = vec2( normalSign, 1.0f );
+            return position.zy * uvRotation;
+        } else if ( blendData.Axis == 1 ) {
+            float normalSign = sign( normal.y );
+            vec2 uvRotation = vec2( normalSign, 1.0f );
+            return position.xz * uvRotation;
+        } else { 
+            float normalSign = sign( normal.z );
+            vec2 uvRotation = vec2( normalSign, 1.0f );
+            return position.xy * uvRotation;
+        }
+    }
+
+    float getHeightScale(float distance)
+    {
+        float fadeStart = 0.0f;
+        float fadeEnd   = 512.0f;
+        float t = clamp((distance - fadeStart) / (fadeEnd - fadeStart), 0.0f, 1.0f);
+        return mix(5.0f, 0.0f, t);
+    }
+
     void main()
     {
         mat4 invProj = u_Constants.ViewConstantsBuffer.InverseProjectionMatrix;
@@ -128,61 +171,74 @@ fragment
         vec2 viewport = u_Constants.ViewConstantsBuffer.Viewport;
         vec3 rayOrigin = u_Constants.ViewConstantsBuffer.CameraPosition;
 
-        // Three rays — center, right, up
-        vec3 rayDirection = computeRayDirection(gl_FragCoord.xy,              invProj, invView, viewport);
+        vec3 rayDirection = computeRayDirection(gl_FragCoord.xy, invProj, invView, viewport);
         vec3 ddx_rd = computeRayDirection(gl_FragCoord.xy + vec2(1, 0), invProj, invView, viewport);
         vec3 ddy_rd = computeRayDirection(gl_FragCoord.xy + vec2(0, 1), invProj, invView, viewport);
 
+        float near = u_Constants.ViewConstantsBuffer.Near;
         float far = u_Constants.ViewConstantsBuffer.Far;
 
         bool hasHit = false;
         vec3 hitPosition;
         vec3 hitNormal;
         float distance = 0.0f;
-        uint i = 0;
-        for(; i < 512; ++i)
+        float heightScale;
+
+        for (uint i = 0; i < 512; ++i)
         {
             vec3 position = rayOrigin + rayDirection * distance;
             vec4 sampleValue = SampleTerrain(position, u_Constants.VolumeSourcesList, u_Constants.VolumeSourcesData);
+            float heightScale = getHeightScale( distance );
+            float scaleDistance = 1.0f;
+            if (heightScale > 0.0f ) {
+                vec2 uv = triplanarBlend(
+                        position / 100.0f,
+                        sampleValue.xyz,
+                        gl_FragCoord.xy,
+                        8.0f
+                );
+
+                float h = textureLod(BindlessTextures[nonuniformEXT(u_Constants.TextureId1)], uv, 0.0f).r;
+                sampleValue.w = sampleValue.w - ( h * heightScale );
+                scaleDistance = 0.5f;
+            }
+
             float epsilon = distance * 0.0001f;
-            if( abs( sampleValue.w ) <= epsilon )
+            if (abs(sampleValue.w) <= epsilon)
             {
                 hasHit = true;
                 hitPosition = position;
                 hitNormal = sampleValue.xyz;
                 break;
             }
-            distance += sampleValue.w;
+
+            distance += sampleValue.w * scaleDistance;
             if (distance > far) break;
         }
 
         if (hasHit)
         {
-            // Intersect neighbouring rays with tangent plane at hit point
-            // tangent plane: dot(p - hitPosition, normal) = 0
-            vec3 ddx_pos = rayOrigin - ddx_rd * dot(rayOrigin - hitPosition, hitNormal) / dot(ddx_rd, hitNormal);
-            vec3 ddy_pos = rayOrigin - ddy_rd * dot(rayOrigin - hitPosition, hitNormal) / dot(ddy_rd, hitNormal);
+            vec3 hitDirection = rayOrigin - hitPosition; 
+            float d = dot( hitDirection, hitNormal );
+            vec3 ddx_pos = rayOrigin - ddx_rd * d * safeReciprocal( dot(ddx_rd, hitNormal) );
+            vec3 ddy_pos = rayOrigin - ddy_rd * d * safeReciprocal( dot(ddy_rd, hitNormal) );
 
-            float check = triplanarChecker(hitPosition, hitNormal, ddx_pos, ddy_pos);
-        
-            vec3 pin_d4bb268c9001004 = vec3(check);
-            vec4 clip = u_Constants.ViewConstantsBuffer.ViewProjectionMatrix *
-                        vec4(hitPosition, 1.0);
+            vec4 clip = u_Constants.ViewConstantsBuffer.ViewProjectionMatrix * vec4(hitPosition, 1.0);
             gl_FragDepth = clip.z / clip.w;
 
-            //  0xd4bb261b3801000 
+            float cos_view_angle = abs( dot( hitNormal, rayDirection ) );
+            float scale = 100.0f;
+            TriPlanarBlendData blendData = triplanarBlend(
+                    hitPosition / scale,
+                    hitNormal,
+                    gl_FragCoord.xy,
+                    ddx_pos / scale,
+                    ddy_pos / scale,
+                    8.0f
+            );
 
-            // PBRMaterial material;
-            // material.Albedo = pin_d4bb268c9001004;
-            // material.Normal = vec3(0, 0, 0);
-            // material.Metalness = 0.000000;
-            // material.Roughness = 0.500000;
-            // vec3 worldPosition = WorldPosition;
-            // vec3 worldNormal = WorldNormal;
-            // uint clusterIndex = GetClusterIndex(gl_FragCoord, LightClusterGridSize, LightClusterSize, LightClusterScale, LightClusterBias); 
-            // uint debug = 0;
-            // outColor = vec4(CalculatePBRLighting(WorldPosition, WorldNormal, u_ViewConstants.CameraPosition, gl_FragCoord, LightClusterScale, LightClusterBias, clusterIndex, material, debug), 1.0); 
-            OutColor = vec4(pin_d4bb268c9001004, 1.0f );
+		    vec4 sampledTex = textureGrad( BindlessTextures[ nonuniformEXT( u_Constants.TextureId0 ) ], blendData.Uv, blendData.UvDdx, blendData.UvDdy );
+            OutColor = vec4(sampledTex.xyz, 1.0f );
         }
         else
         {

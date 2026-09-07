@@ -57,6 +57,5 @@ public float3 getSkyLuminance( in AtmosphereSettings settings,
                                float3 cameraDirection,
                                float3 sunDirection ) {
     float2 uv = computeSkyViewUV( settings, cameraPosition, cameraDirection, sunDirection );
-
     return linearSample( skyViewTextureIndex, uv ).xyz;
 }

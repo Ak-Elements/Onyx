@@ -6,7 +6,6 @@
 
 compute
 {
-
 #if BATCHED
 layout(local_size_x = 16, local_size_y = 9, local_size_z = 4) in;
 #else
@@ -16,6 +15,11 @@ layout(local_size_x = 1, local_size_y = 1) in;
 layout(push_constant) uniform Constants
 {
     mat4 ViewMatrix;
+
+    LightGrid LightGrid;
+    PointLights PointLights;
+    SpotLights SpotLights;
+    
 } u_Constants;
 
 // SSBO
@@ -66,7 +70,7 @@ bool IsPointLightOverappingAABB(uint lightIndex, uint clusterIndex)
 #if BATCHED
     PointLight light = sharedPointLights[lightIndex];
 #else
-    PointLight light = SceneLights.PointLights[lightIndex];
+    PointLight light = u_Constants.PointLights.Lights[lightIndex];
 #endif 
     float radius = light.Radius;
     vec4 center = u_Constants.ViewMatrix * vec4(light.Position, 1.0);
@@ -77,7 +81,11 @@ bool IsPointLightOverappingAABB(uint lightIndex, uint clusterIndex)
 
 bool IsSpotLightOverlappingAABB(uint lightIndex, uint clusterIndex)
 {
+#if BATCHED
     SpotLight light = sharedSpotLights[lightIndex];
+#else
+    SpotLight light = u_Constants.SpotLights.Lights[lightIndex];
+#endif 
     
     // inspired by https://bartwronski.com/2017/04/13/cull-that-cone/
     // we construct a bounding sphere for the cluster AABB and check that against the cone
@@ -116,7 +124,7 @@ void main()
     uint visiblePointLightIndices[MAX_LIGHTS];
     uint visibleSpotLightIndices[MAX_LIGHTS];
 
-    uint lightCount = SceneLights.PointLightCount;
+    uint lightCount = u_Constants.PointLights.LightCount;
     uint numBatches = (lightCount + (threadCount - 1)) / threadCount;
     for (uint batchIndex = 0; batchIndex < numBatches; ++batchIndex)
     {
@@ -128,7 +136,7 @@ void main()
         if (pointLightIndex < lightCount)
         {
             // Populate shared light array
-            sharedPointLights[gl_LocalInvocationIndex] = SceneLights.PointLights[pointLightIndex];
+            sharedPointLights[gl_LocalInvocationIndex] = u_Constants.PointLights.Lights[pointLightIndex];
         }
 
         barrier();
@@ -148,7 +156,7 @@ void main()
     }
 
     // spot light
-    lightCount = SceneLights.SpotLightCount;
+    lightCount = u_Constants.SpotLights.LightCount;
     numBatches = (lightCount + (threadCount - 1)) / threadCount;
     for (uint batchIndex = 0; batchIndex < numBatches; ++batchIndex)
     {
@@ -160,7 +168,7 @@ void main()
         if ( spotLightIndex < lightCount)
         {
             // Populate shared light array
-            sharedSpotLights[gl_LocalInvocationIndex] = SceneLights.SpotLights[spotLightIndex];
+            sharedSpotLights[gl_LocalInvocationIndex] = u_Constants.SpotLights.Lights[spotLightIndex];
         }
 
         barrier();
@@ -196,10 +204,10 @@ void main()
         sbo_GlobalLightIndices.Indices[spotLightOffset + i].SpotLightIndex = visibleSpotLightIndices[i];
     }
 
-    sbo_LightGrid.Cells[clusterIndex].PointLightOffset = pointLightOffset;
-    sbo_LightGrid.Cells[clusterIndex].PointLightCount = visiblePointLightCount;
-    sbo_LightGrid.Cells[clusterIndex].SpotLightOffset = spotLightOffset;
-    sbo_LightGrid.Cells[clusterIndex].SpotLightCount = visibleSpotLightCount;
+    u_Constants.LightGrid.Cells[clusterIndex].PointLightOffset = pointLightOffset;
+    u_Constants.LightGrid.Cells[clusterIndex].PointLightCount = visiblePointLightCount;
+    u_Constants.LightGrid.Cells[clusterIndex].SpotLightOffset = spotLightOffset;
+    u_Constants.LightGrid.Cells[clusterIndex].SpotLightCount = visibleSpotLightCount;
 #else
     uint clusterIndex = gl_WorkGroupID.x +
                      gl_WorkGroupID.y * gl_NumWorkGroups.x +
@@ -207,7 +215,7 @@ void main()
 
     uint visiblePointLightCount = 0;
     uint visiblePointLightIndices[MAX_LIGHTS];
-    uint lightCount = SceneLights.PointLightCount;
+    uint lightCount = u_Constants.PointLights.LightCount;
     for (uint lightIndex = 0; lightIndex < lightCount; ++lightIndex)
     {
         if (IsPointLightOverappingAABB(lightIndex, clusterIndex))

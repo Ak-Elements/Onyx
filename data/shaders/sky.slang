@@ -90,9 +90,5 @@ float4 fragmentMain( VSOutput input )
     }
     luminance += sunLum;
 
-    luminance *= 20.0;
-    luminance = pow( luminance, float3( 1.3 ) );
-    luminance /= ( smoothstep( 0.0, 0.2, clamp( Constants.SunDirection, 0.0, 1.0 ) * 2.0 + 0.15 ) );
-
     return float4( luminance, 1.0 );
 }

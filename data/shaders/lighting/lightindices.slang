@@ -1,10 +1,10 @@
 implementing lighting;
 
-struct LightIndex {
-    uint PointLightIndex;
-    uint SpotLightIndex;
+public struct LightIndex {
+    public uint32_t PointLightIndex;
+    public uint32_t SpotLightIndex;
 };
 
 public struct LightIndices {
-    LightIndex Indices[ ];
+    public LightIndex Indices[ ];
 };

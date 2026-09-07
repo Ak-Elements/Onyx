@@ -14,8 +14,7 @@ const int MAX_LIGHTS = 64;
 #define CLUSTER_THREADS_Y 8
 #define CLUSTER_THREADS_Z 4
 
-struct DirectionalLight
-{
+struct DirectionalLight {
     vec3 Direction;
     float Intensity;
 
@@ -23,11 +22,10 @@ struct DirectionalLight
     int ShadowSamples;
 
     bool IsShadowCasting;
-    float Pad[7];// unused
+    float Pad[ 7 ]; // unused
 };
 
-struct PointLight
-{
+struct PointLight {
     vec3 Position;
     float Intensity;
 
@@ -36,11 +34,10 @@ struct PointLight
 
     uint IsEnabled;
     uint IsShadowCasting;
-    float Pad[6];// unused
+    float Pad[ 6 ]; // unused
 };
 
-struct SpotLight
-{
+struct SpotLight {
     vec3 Position;
     float Intensity;
 
@@ -53,14 +50,13 @@ struct SpotLight
     float Angle;
     float Falloff;
     bool IsShadowCasting;
-    float Pad;// unused
+    float Pad; // unused
 };
 
-struct LightEnvironment
-{
-    DirectionalLight DirectionalLights[MAX_LIGHTS];
-    PointLight PointLights[MAX_LIGHTS];
-    SpotLight SpotLights[MAX_LIGHTS];
+struct LightEnvironment {
+    DirectionalLight DirectionalLights[ MAX_LIGHTS ];
+    PointLight PointLights[ MAX_LIGHTS ];
+    SpotLight SpotLights[ MAX_LIGHTS ];
 
     int DirectionalLightCount;
     int PointLightCount;
@@ -68,34 +64,68 @@ struct LightEnvironment
     int Padding;
 };
 
-struct LightGridCell
-{
+struct LightGridCell {
     uint PointLightOffset;
     uint PointLightCount;
     uint SpotLightOffset;
     uint SpotLightCount;
 };
 
-struct LightIndices
-{
+struct LightIndices {
     uint PointLightIndex;
     uint SpotLightIndex;
 };
 
-// lights in the scene
-layout(set = LIGHTING_SET, binding = 0) readonly buffer LightsBuffer
-{
-    LightEnvironment Lights;
-} sbo_Lights[];
-
-layout (std430, set = LIGHTING_SET, binding = 1) buffer LightIndexSSB
-{
-    LightIndices Indices[];
-} sbo_GlobalLightIndices;
-
-layout (std430, set = LIGHTING_SET, binding = 2) buffer LightGridSSBO
-{
+layout( scalar, buffer_reference, buffer_reference_align = 8 ) readonly buffer LightGridReadOnly {
     LightGridCell Cells[];
-} sbo_LightGrid;
+};
 
-#define SceneLights sbo_Lights[0].Lights
+layout( scalar, buffer_reference, buffer_reference_align = 8 ) buffer LightGrid {
+    LightGridCell Cells[];
+};
+
+layout( scalar, buffer_reference, buffer_reference_align = 8 ) readonly buffer DirectionalLights {
+    DirectionalLight Lights[ MAX_LIGHTS ];
+    int LightCount;
+};
+
+layout( scalar, buffer_reference, buffer_reference_align = 8 ) readonly buffer PointLights {
+    PointLight Lights[ MAX_LIGHTS ];
+    int LightCount;
+};
+
+layout( scalar, buffer_reference, buffer_reference_align = 8 ) readonly buffer SpotLights {
+    SpotLight Lights[ MAX_LIGHTS ];
+    int LightCount;
+};
+
+layout( scalar, buffer_reference, buffer_reference_align = 8 ) readonly buffer LightEnviornmentBuffer {
+    LightGridReadOnly LightGrid;
+
+    DirectionalLights DirectionalLights;
+    PointLights PointLights;
+    SpotLights SpotLights;
+
+    uvec3 LightClusterGridSize;
+    float LightClusterScale;
+
+    uvec2 LightClusterSize;
+    float LightClusterBias;
+};
+
+// // TODO: Remove old lights in the scene
+// layout( set = LIGHTING_SET, binding = 0 ) readonly buffer LightsBuffer {
+//     LightEnvironment Lights;
+// }
+// sbo_Lights[];
+//
+// layout( std430, set = LIGHTING_SET, binding = 1 ) buffer LightIndexSSB {
+//     LightIndices Indices[];
+// }
+// sbo_GlobalLightIndices;
+//
+// layout( std430, set = LIGHTING_SET, binding = 2 ) buffer LightGridSSBO {
+//     LightGridCell Cells[];
+// }
+// sbo_LightGrid;
+// #define SceneLights sbo_Lights[ 0 ].Lights

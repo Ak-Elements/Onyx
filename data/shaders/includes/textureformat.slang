@@ -3,6 +3,7 @@
 enum TextureFormat : uint8_t {
     Invalid = 0,
     R_UNORM8,
+    R_UNORM16,
     R_UINT8,
     R_UINT16,
     R_UINT32,
@@ -14,6 +15,7 @@ enum TextureFormat : uint8_t {
     RGB_UNORM8,
     RGBA_UNORM8,
     BGRA_UNORM8,
+    RGBA_UNORM16,
     RGBA_FLOAT16,
     RGBA_FLOAT32,
     RGB_UFLOAT32_PACKED_11_11_10,

@@ -9,7 +9,7 @@ struct PushConstants {
     float zNear;
     float zFar;
 
-    Ptr< LightClusters > Clusters;
+    Ptr< LightCluster > Cluster;
     uint2 ClusterSize;
 };
 
@@ -80,6 +80,6 @@ void computeMain( uint3 groupID: SV_GroupID ) {
     float3 minPointAABB = min( min( minPointNear, minPointFar ), min( maxPointNear, maxPointFar ) );
     float3 maxPointAABB = max( max( minPointNear, minPointFar ), max( maxPointNear, maxPointFar ) );
 
-    Constants.Clusters->Clusters[ tileIndex ].Min = float4( minPointAABB, 0.0 );
-    Constants.Clusters->Clusters[ tileIndex ].Max = float4( maxPointAABB, 0.0 );
+    Constants.Cluster->Cells[ tileIndex ].Min = float4( minPointAABB, 0.0 );
+    Constants.Cluster->Cells[ tileIndex ].Max = float4( maxPointAABB, 0.0 );
 }

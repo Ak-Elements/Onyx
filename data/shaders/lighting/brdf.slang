@@ -21,17 +21,22 @@ float gSchlicksmithGgx( float dotNL, float dotNV, float roughness ) {
 }
 
 // Fresnel function ----------------------------------------------------
-float3 fSchlick( float3 albedo, float cosTheta, float metallic ) {
+float3 fSchlick( float3 albedo, float cosTheta, float metallic, float specularFresnelFalloff ) {
     float3 F0 = lerp( Dielectric, albedo, metallic );
 
-    float r = 2 * ( 1 - 0.05 );
+    float r = 2 * ( 1 - specularFresnelFalloff );
     float t = min( max( 2 - r, 0 ), 1 );
     float3 F = F0 + t * ( 1.0 - F0 ) * pow( clamp( 1.0 - cosTheta, 0.0, 1.0 ), 5.0 * r );
     return F;
 }
 
-// Specular BRDF composition --------------------------------------------
-float3 brdf( float3 L, float3 V, float3 N, float3 radiance, float3 albedo, float metallic, float roughness ) {
+float vSmithGgxCorrelatedFast( float roughness, float NoV, float NoL ) {
+    // Hammon 2017, "PBR Diffuse Lighting for GGX+Smith Microsurfaces"
+    float v = 0.5 / lerp( 2.0 * NoL * NoV, NoL + NoV, roughness );
+    return v;
+}
+
+public float3 brdf( float3 L, float3 V, float3 N, float3 radiance, float3 albedo, float metallic, float roughness ) {
     // Precalculate vectors and dot products
     float3 H = normalize( V + L );
     float dotNV = clamp( dot( N, V ), 0.0, 1.0 );
@@ -40,19 +45,25 @@ float3 brdf( float3 L, float3 V, float3 N, float3 radiance, float3 albedo, float
 
     float3 color = float3( 0.0 );
 
-    if( dotNL > 0.0 ) {
-        float rroughness = max( 0.05, roughness );
-        // D = Normal distribution (Distribution of the microfacets)
-        float D = dGgx( dotNH, roughness );
-        // G = Geometric shadowing term (Microfacets shadowing)
-        float G = gSchlicksmithGgx( dotNL, dotNV, rroughness );
-        // F = Fresnel factor (Reflectance depending on angle of incidence)
-        float3 F = fSchlick( albedo, dotNV, metallic );
+    float rroughness = max( 0.05, roughness );
 
-        float3 spec = D * F * G * safeReciprocal( 4.0 * dotNL * dotNV );
+    float v_intern = vSmithGgxCorrelatedFast( roughness, dotNV, dotNL );
+    const float dotVH = saturate( dot( V, H ) );
 
-        color += spec * dotNL * radiance;
-    }
+    // D = Normal distribution (Distribution of the microfacets)
+    float D = dGgx( dotNH, roughness );
+    // G = Geometric shadowing term (Microfacets shadowing)
+    float G = gSchlicksmithGgx( dotNL, dotNV, rroughness );
+    // F = Fresnel factor (Reflectance depending on angle of incidence)
+    float3 F = fSchlick( albedo, dotVH, metallic, 0.2 );
+
+    float3 spec = ( D * F * G ) * safeReciprocal( 4.0 * dotNL * dotNV );
+
+    float3 specularFactor = F;
+    float3 diffuseFactor = float3( 1.0 ) - specularFactor;
+
+    diffuseFactor *= 1.0f - metallic;
+    color = ( ( ( diffuseFactor * albedo.rgb ) / Pi ) + spec ) * dotNL * radiance;
 
     return color;
 }

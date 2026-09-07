@@ -19,6 +19,10 @@ float2 safeReciprocal( float2 value ) {
     return float2( safeReciprocal( value.x ), safeReciprocal( value.y ) );
 }
 
+float3 safeReciprocal( float3 value ) {
+    return float3( safeReciprocal( value.x ), safeReciprocal( value.y ), safeReciprocal( value.z ) );
+}
+
 float safeAcos( float x ) {
     return acos( clamp( x, -1.0, 1.0 ) );
 }
