@@ -45,7 +45,6 @@ void AssetLoadRequest::load() {
     case AssetFormat::Text:
         break;
     case AssetFormat::Binary:
-        break;
     case AssetFormat::Json: {
         const file_system::JsonValue& inputConfigData = assetFile.loadJson();
         file_system::JsonDeserializer serializer( inputConfigData.Json );

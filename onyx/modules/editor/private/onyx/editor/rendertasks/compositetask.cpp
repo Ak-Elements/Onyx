@@ -1,32 +1,16 @@
 #include <onyx/editor/rendertasks/compositetask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx {
-CompositeRenderGraphNode::CompositeRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/composite.slang";
-}
 
-void CompositeRenderGraphNode::onInit( rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) {
-    /*Graphics::RenderGraphResourceInfo& input = m_Inputs.emplace_back();
-    input.Id = hash::FNV1aHash32("grid");
-    input.Name = "grid";
-    input.Type = Graphics::RenderGraphResourceType::Texture;*/
-
-    // Graphics::RenderGraphResourceInfo& output = m_Outputs.emplace_back();
-    // output.Id =  hash::FNV1aHash32("final");
-    // output.Name = "final";
-    // output.Type = Graphics::RenderGraphResourceType::Attachment;
-
-    /*Graphics::RenderGraphResource& resource = resourceCache[output.Id];
-    resource.Info = output;*/
-
-    /*Graphics::RenderGraphTextureResourceInfo textureInfo;
-    textureInfo.Format = Graphics::TextureFormat::BGRA_UNORM8;
-    textureInfo.HasSize = false;
-    resource.Properties = textureInfo;*/
+void CompositeRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
+                                       rhi::GraphicsSystem& /*api*/,
+                                       RenderGraphResourceCache& /*resourceCache*/ ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/composite.slang" );
 }
 
 #if ONYX_IS_EDITOR

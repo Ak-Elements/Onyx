@@ -42,9 +42,17 @@ bool TextDeserializer::doGenericRead( T& outValue ) const {
         StringView::size_type startIndex = currentData.find_first_not_of( endCharacters );
         lastIndex = currentData.find_first_of( endCharacters, ( startIndex + 1 ) );
         outValue = currentData.substr( startIndex, ( lastIndex - startIndex ) );
+    } else if constexpr( std::is_same_v< Guid64, T > ) {
+        StringView::size_type startIndex = currentData.find_first_not_of( " \t\n\r" );
+        lastIndex = currentData.find_first_of( " \t\n\r", startIndex + 1 );
+        StringView value = currentData.substr( startIndex, lastIndex - startIndex );
+
+        uint64_t uid = 0;
+        bool success = toNumeric( value, uid, 16 ) == std::errc();
+        outValue = Guid64( uid );
+        return success;
     }
 
-    // m_index = m_data.find_first_not_of( " \t\n\r", lastIndex + 1 );
     return true;
 }
 
@@ -70,17 +78,11 @@ bool TextDeserializer::doGenericRead( T& outValue, uint8_t base ) const {
         value.remove_prefix( 1 );
 
     bool success = toNumeric( value, outValue, base ) == std::errc();
-    // m_index += m_data.find_first_not_of( " \t\n\r", lastIndex + 1 ) - m_index;
     return success;
 }
 
 template < Numeric T >
 bool TextDeserializer::doGenericRead( StringView name, T& outValue, uint8_t base ) const {
-    // auto it = m_scopes.find( StringId32( name ) );
-    // if( it == m_scopes.end() )
-    //     return false;
-    //
-    // m_index = it->second.StartIndex;
     return doGenericRead( outValue, base );
 }
 
@@ -257,6 +259,14 @@ bool TextDeserializer::doRead( StringView& outValue ) const {
 }
 
 bool TextDeserializer::doRead( StringView name, StringView& outValue ) const {
+    return doGenericRead( name, outValue );
+}
+
+bool TextDeserializer::doRead( Guid64& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( StringView name, Guid64& outValue ) const {
     return doGenericRead( name, outValue );
 }
 

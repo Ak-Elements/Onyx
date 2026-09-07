@@ -13,6 +13,7 @@
 #include <onyx/entity/entity.h>
 #include <onyx/entity/entityregistry.h>
 
+#include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/localization/localization.h>
 #include <onyx/localization/localizationmodule.h>
 #include <onyx/localization/localizedstring.h>
@@ -22,7 +23,6 @@
 #include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/scopedid.h>
 
-#include <imgui_internal.h>
 namespace onyx::editor::scene_editor {
 void ComponentsPanel::onOpen() {
     setWindowFlags( ImGuiWindowFlags_HorizontalScrollbar );

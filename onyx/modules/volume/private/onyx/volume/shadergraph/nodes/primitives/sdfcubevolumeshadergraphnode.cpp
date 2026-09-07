@@ -12,35 +12,30 @@ void SdfCubeVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& conte
     const Vector3f32& center = context.getPinData< typename Super::InPin0 >();
     const Vector3f32& halfExtents = context.getPinData< typename Super::InPin1 >();
 
-    float32& distance = context.getPinData< typename Super::OutPin0 >();
-    Vector3f32& gradient = context.getPinData< typename Super::OutPin1 >();
+    SdfSample& sdfSample = context.getPinData< typename Super::OutPin >();
 
     CSGCube cube( center, halfExtents );
     Vector4f32 sample = cube.getValueAndGradient( worldPosition );
-    gradient = Vector3f32( sample );
-    distance = sample.W;
+    sdfSample.Gradient = Vector3f32( sample );
+    sdfSample.Distance = sample.W;
 }
 
 void SdfCubeVolumeShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                      rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
-
-    if( ( context.isPinConnected< OutPin0 >() == false ) && ( context.isPinConnected< OutPin1 >() == false ) )
+    if( ( context.isPinConnected< OutPin >() == false ) )
         return;
 
     const InPin0& inputPin0 = getInputPin0();
     const InPin1& inputPin1 = getInputPin1();
 
-    generator.addInclude( "includes/volume/csg/cube.h" );
+    generator.addImport( "includes.volume.csg.cube" );
 
     String cubeVariableName = format::format( "cubeNode_{:x}", getId().get() );
     String sampleVariableName = format::format( "cubeSample_{:x}", getId().get() );
-    String isoValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
-    String gradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
+    String sampleOutVariableName = format::format( "pin_{:x}", getOutputPin().getGlobalId().get() );
 
     generator.appendCode( format::format(
-        "CsgCube {} = CsgCube({}, {});\n",
+        "CsgCube {} = CsgCube( {}, {} );\n",
         cubeVariableName,
         inputPin0.isConnected()
             ? format::format( "pin_{:x}", inputPin0.getLinkedPinGlobalId().get() )
@@ -49,10 +44,13 @@ void SdfCubeVolumeShaderGraphNode::doGenerateShader( const node_graph::Execution
             ? format::format( "pin_{:x}", inputPin1.getLinkedPinGlobalId().get() )
             : rhi::ShaderGenerator::generateShaderValue( context.getPinData< typename Super::InPin1 >() ) ) );
 
-    generator.appendCode(
-        format::format( "vec4 {} = GetValueAndGradient(worldPosition, {});\n", sampleVariableName, cubeVariableName ) );
-    generator.appendCode( format::format( "float {} = {}.w;\n", isoValueOutVariableName, sampleVariableName ) );
-    generator.appendCode( format::format( "vec3 {} = {}.xyz;\n", gradientOutVariableName, sampleVariableName ) );
+    generator.appendCode( format::format( "float4 {} = {}.getValueAndGradient( worldPosition );\n",
+                                          sampleVariableName,
+                                          cubeVariableName ) );
+
+    generator.appendCode( format::format( "SdfSample {0} =  SdfSample( {1}.xyz, {1}.w );\n",
+                                          sampleOutVariableName,
+                                          sampleVariableName ) );
 }
 
 #if ONYX_IS_EDITOR
@@ -62,10 +60,8 @@ StringView SdfCubeVolumeShaderGraphNode::getPinName( StringId32 pinId ) const {
         return "Position";
     case InPin1::LocalId:
         return "Half Extents";
-    case OutPin0::LocalId:
-        return "Iso Value";
-    case OutPin1::LocalId:
-        return "Gradient";
+    case OutPin::LocalId:
+        return "Sdf Sample";
     }
 
     ONYX_ASSERT( false, "Invalid pin id" );

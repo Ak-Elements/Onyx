@@ -52,6 +52,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     shadergraph/nodes/sdfnoiseshadergraphnode.h
     shadergraph/nodes/volumeshadergraphoutnode.h
     shadergraph/nodes/voxelpositionshadergraphnode.h
+    serialize/terrainmaterialdatabaseserializer.h
+    serialize/terrainmaterialserializer.h
     serialize/volumeshadergraphserializer.h
     source/csg/csgcube.h
     source/csg/csgplane.h
@@ -67,9 +69,12 @@ set(onyx_TARGET_PUBLIC_SOURCES
     source/noise/simplexnoised.h
     source/noise/simplexnoisesource.h
     source/volumebase.h
+    source/sdfsample.h
     systems/volumeterrainsystem.h
     systems/volumerendersystem.h
     terrain/worldsparseoctreenode.h
+    terrain/terrainmaterial.h
+    terrain/terrainmaterialdatabase.h
     tree/tree.h
     tree/tree.hpp
     tree/treebreadthfirstiterator.h
@@ -105,6 +110,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     shadergraph/nodes/sdfnoiseshadergraphnode.cpp
     shadergraph/nodes/volumeshadergraphoutnode.cpp
     shadergraph/nodes/voxelpositionshadergraphnode.cpp
+    serialize/terrainmaterialdatabaseserializer.cpp
+    serialize/terrainmaterialserializer.cpp
     serialize/volumeshadergraphserializer.cpp
     source/csg/csgsphere.cpp
     source/csg/operations/csgdifference.cpp
@@ -116,6 +123,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     source/volumebase.cpp
     systems/volumeterrainsystem.cpp
     systems/volumerendersystem.cpp
+    terrain/terrainmaterial.cpp
     volumeterrain.cpp
     volumemodule.cpp
 )

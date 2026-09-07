@@ -1,5 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/framecontext.h>
@@ -11,8 +12,11 @@
 
 namespace onyx::graphics::render_graph_nodes {
 
-void UpdateLightClustersRenderGraphNode::onInit( rhi::GraphicsSystem& graphicsSystem,
+void UpdateLightClustersRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
+                                                 rhi::GraphicsSystem& graphicsSystem,
                                                  RenderGraphResourceCache& resourceCache ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/lighting/updatelightclusters.slang" );
+
     constexpr uint32_t ClusterCount = ClusterX * ClusterY * ClusterZ;
 
     rhi::BufferProperties ssboBufferProps;
@@ -55,6 +59,35 @@ void UpdateLightClustersRenderGraphNode::onInit( rhi::GraphicsSystem& graphicsSy
         ssboBufferProps.m_Size = sizeof( rhi::SpotLights );
         ssboBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
         graphicsSystem.createBuffer( m_spotLightsSsbo[ i ], ssboBufferProps );
+
+        ssboBufferProps.m_DebugName = format::format( "LightEnvironment{}", i );
+        ssboBufferProps.m_Size = sizeof( rhi::LightingEnvironmentGpu );
+        ssboBufferProps.m_CpuAccess = rhi::CPUAccess::Write;
+        rhi::BufferHandle& lightEnvironmentBuffer = m_lightEnvironments[ i ];
+        graphicsSystem.createBuffer( lightEnvironmentBuffer, ssboBufferProps );
+
+        const rhi::ViewConstants& viewConstants = graphicsSystem.getViewContsants();
+        const float32 nearFarLog = std::log2( viewConstants.Far / viewConstants.Near );
+        const Vector2u32 lightClusterSize{
+            numericCast< uint32_t >(
+                std::ceil( viewConstants.Viewport[ 0 ] / graphics::render_graph_nodes::ClusterX ) ),
+            numericCast< uint32_t >(
+                std::ceil( viewConstants.Viewport[ 1 ] / graphics::render_graph_nodes::ClusterY ) ) };
+
+        const float32 lightClusterBias = -( graphics::render_graph_nodes::ClusterZ * std::log2( viewConstants.Near ) /
+                                            nearFarLog );
+        const float32 lightClusterScale = graphics::render_graph_nodes::ClusterZ / nearFarLog;
+
+        rhi::LightingEnvironmentGpu data{ .DirectionalLightsPointer = m_directionalLightsSsbo[ i ].getGpuAddress(),
+                                          .PointLightsPointer = m_pointLightsSsbo[ i ].getGpuAddress(),
+                                          .SpotLightsPointer = m_spotLightsSsbo[ i ].getGpuAddress(),
+                                          .LightGrid = m_lightGridSsbo[ i ].getGpuAddress(),
+                                          .LightIndices = m_lightIndexListSsbo[ i ].getGpuAddress(),
+                                          .LightClusterSize = lightClusterSize,
+                                          .LightClusterBias = lightClusterBias,
+                                          .LightClusterScale = lightClusterScale };
+
+        lightEnvironmentBuffer.setData( data );
     }
 
     // Refactor resource cache to work with pins
@@ -70,14 +103,16 @@ void UpdateLightClustersRenderGraphNode::onInit( rhi::GraphicsSystem& graphicsSy
     resourceCache[ globalId ].Info.Type = RenderGraphResourceType::Buffer;
     resourceCache[ globalId ].Handle = m_lightGridSsbo[ 0 ];
 
-    globalId = getOutputPin2().getGlobalId().get();
-    resourceCache[ globalId ].Info.Id = globalId;
-    resourceCache[ globalId ].Info.Name = "sbo_lights";
-    resourceCache[ globalId ].Info.Type = RenderGraphResourceType::Buffer;
-    resourceCache[ globalId ].Handle = m_directionalLightsSsbo[ 0 ];
+    // globalId = getOutputPin2().getGlobalId().get();
+    resourceCache[ LightEnvironmentResourceId ].Info.Id = LightEnvironmentResourceId;
+    resourceCache[ LightEnvironmentResourceId ].Info.Name = "sbo_lightenvironment";
+    resourceCache[ LightEnvironmentResourceId ].Info.Type = RenderGraphResourceType::Buffer;
+    resourceCache[ LightEnvironmentResourceId ].Handle = m_lightEnvironments[ 0 ];
 }
 
 void UpdateLightClustersRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
+    [[maybe_unused]] bool isValid = isEnabled();
+
     const uint8_t frameIndex = context.FrameContext.FrameIndex;
     uint64_t globalId = getOutputPin0().getGlobalId().get();
     context.Graph.getResource( globalId ).Handle = m_lightIndexListSsbo[ frameIndex ];
@@ -85,34 +120,48 @@ void UpdateLightClustersRenderGraphNode::onBeginFrame( RenderGraphContext& conte
     globalId = getOutputPin1().getGlobalId().get();
     context.Graph.getResource( globalId ).Handle = m_lightGridSsbo[ frameIndex ];
 
-    globalId = getOutputPin2().getGlobalId().get();
-    // const rhi::Lighting& lighting = context.FrameContext.Lighting;
+    context.Graph.getResource( LightEnvironmentResourceId ).Handle = m_lightEnvironments[ frameIndex ];
 
-    // m_LightsStorageBuffers[ frameIndex ].Buffer->SetData( 0, &lighting, sizeof( rhi::Lighting ) );
-    // context.Graph.getResource( globalId ).Handle = m_LightsStorageBuffers[ frameIndex ];
-    //
-    // m_shaderInstance->Bind( m_LightsStorageBuffers[ frameIndex ], "globalindexcountssbo", frameIndex );
+    // TODO: only update if needed
+    const rhi::LightingEnvironment& environment = context.FrameContext.Lighting;
+    m_directionalLightsSsbo[ frameIndex ].setData( environment.DirectionalLights );
+    m_pointLightsSsbo[ frameIndex ].setData( environment.PointLights );
+    m_spotLightsSsbo[ frameIndex ].setData( environment.SpotLights );
 }
 
 void UpdateLightClustersRenderGraphNode::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
-    return;
     struct PushConstants {
         Matrix4x4f32 ViewMatrix;
 
-        uint64_t LightGrid;
-        uint64_t PointLights;
-        uint64_t SpotLights;
+        GpuBufferDeviceAddress Cluster;
+        GpuBufferDeviceAddress LightGrid;
+
+        GpuBufferDeviceAddress GlobalLightCount;
+        GpuBufferDeviceAddress LightIndices;
+
+        GpuBufferDeviceAddress PointLights;
+        GpuBufferDeviceAddress SpotLights;
     };
 
+    PushConstants constants{};
     // TODO: Fix barrier
     commandBuffer.globalBarrier( 0, 0x00000020 | 0x00000040 );
 
-    const uint8_t frameIndex = context.FrameContext.FrameIndex;
-    PushConstants constants{
-        context.FrameContext.ViewConstants.ViewMatrix,
-        m_lightGridSsbo[ frameIndex ].getGpuAddress(),
+    const node_graph::PinBase* clustersInPin = getInputPin( 0 );
+    if( clustersInPin->isConnected() ) {
+        const graphics::RenderGraphResource& resource = context.Graph.getResource(
+            clustersInPin->getLinkedPinGlobalId().get() );
+        const rhi::BufferHandle& clustersBuffer = std::get< rhi::BufferHandle >( resource.Handle );
+        constants.Cluster = clustersBuffer.getGpuAddress();
+    }
 
-    };
+    const uint8_t frameIndex = context.FrameContext.FrameIndex;
+    constants.ViewMatrix = context.FrameContext.ViewConstants.ViewMatrix;
+    constants.LightGrid = m_lightGridSsbo[ frameIndex ].getGpuAddress();
+    constants.GlobalLightCount = m_lightIndexGlobalCountSsbo[ frameIndex ].getGpuAddress();
+    constants.LightIndices = m_lightIndexListSsbo[ frameIndex ].getGpuAddress();
+    constants.PointLights = m_pointLightsSsbo[ frameIndex ].getGpuAddress();
+    constants.SpotLights = m_spotLightsSsbo[ frameIndex ].getGpuAddress();
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
 

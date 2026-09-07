@@ -13,10 +13,10 @@ class CreateLightClusters : public node_graph::FixedPinNode1Out< RenderGraphFixe
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::CreateLightClusters";
     StringId32 getTypeId() const override { return TypeId; }
 
-    CreateLightClusters();
-
   private:
-    void onInit( rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache ) override;
+    void onInit( assets::AssetSystem& assetSystem,
+                 rhi::GraphicsSystem& graphicsSystem,
+                 RenderGraphResourceCache& resourceCache ) override;
 
     void onBeginFrame( RenderGraphContext& context ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;

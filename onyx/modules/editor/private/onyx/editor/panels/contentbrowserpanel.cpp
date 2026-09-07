@@ -29,14 +29,14 @@ void ContentBrowserPanel::onOpen() {
         buildContentDirectoryTree( mountPoint.Path, mountPointEntry );
     }
 
-    assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
-    assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_closed.png", m_folderClosedAsset );
-    assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_open.png", m_folderOpenAsset );
-    assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_closed_selected.png",
-                          m_folderSelectedClosedAsset );
-    assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_open_selected.png",
-                          m_folderSelectedOpenAsset );
-    assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_closed.png", m_fileGenericAsset );
+    // assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+    // assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_closed.png", m_folderClosedAsset );
+    // assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_open.png", m_folderOpenAsset );
+    // assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_closed_selected.png",
+    //                       m_folderSelectedClosedAsset );
+    // assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_open_selected.png",
+    //                       m_folderSelectedOpenAsset );
+    // assetSystem.getAsset( "engine:/textures/editor/icons/contentbrowser/folder_closed.png", m_fileGenericAsset );
 }
 
 void ContentBrowserPanel::onClose() {}

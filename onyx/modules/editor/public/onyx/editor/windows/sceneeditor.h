@@ -40,7 +40,7 @@ class SceneEditorWindow : public ui::ImGuiWindow {
     // assets::AssetHandle<game_core::Scene>& GetScene() { return m_Scene; }
     // const assets::AssetHandle<game_core::Scene>& GetScene() const { return m_Scene; }
 
-    bool isLoading() const { return m_scene->isLoading(); }
+    bool isLoading() const { return ( m_scene.isValid() == false ) || m_scene->isLoading(); }
 
     StringView getWindowId() override { return WindowId; }
 

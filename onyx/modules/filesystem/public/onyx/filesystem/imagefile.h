@@ -11,16 +11,18 @@ class ImageFile {
     ImageFile( const FilePath& filePath );
     ~ImageFile();
 
-    const Vector2s32& GetSize() const { return m_Size; }
-    uint8_t GetChannelCount() const { return m_NumChannels; }
-    Span< uint8_t >& GetData() { return m_ImageData; }
-    const Span< uint8_t >& GetData() const { return m_ImageData; }
+    [[nodiscard]] const Vector2s32& getSize() const { return m_size; }
+    [[nodiscard]] uint8_t getChannelCount() const { return m_numChannels; }
+    [[nodiscard]] uint8_t getBitsPerChannel() const { return m_bitsPerChannel; }
+    Span< uint8_t >& getData() { return m_imageData; }
+    [[nodiscard]] const Span< uint8_t >& getData() const { return m_imageData; }
 
   private:
-    FilePath m_FilePath;
+    FilePath m_filePath;
 
-    Vector2s32 m_Size;
-    Span< uint8_t > m_ImageData;
-    uint8_t m_NumChannels;
+    Vector2s32 m_size;
+    Span< uint8_t > m_imageData;
+    uint8_t m_numChannels;
+    uint8_t m_bitsPerChannel;
 };
 } // namespace onyx::file_system

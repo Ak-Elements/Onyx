@@ -3,69 +3,25 @@
 #include <onyx/filesystem/path.h>
 
 namespace onyx::assets {
-// AssetId is the hash of the asset full path e.g.: C:/MyProject/data/mytext.txt
+// AssetId is UUID
 struct AssetId {
-    static constexpr AssetId invalid() { return {}; };
-
     constexpr AssetId() = default;
-    constexpr explicit AssetId( uint64_t id )
+    constexpr explicit AssetId( Guid64 id )
         : m_id( id ) {}
 
-    constexpr explicit AssetId( const char* path )
-        : AssetId( StringView( path ) ) {}
+    static constexpr AssetId invalid() { return {}; };
 
-    template < uint64_t N >
-    constexpr AssetId( const char ( &str )[ N ] ) // NOLINT
-        : AssetId( StringView( str, N - 1 ) ) {}
-
-    constexpr explicit AssetId( StringView path )
-        : m_id( path.empty() ? 0 : hash::fnV1aHash< uint64_t >( path ) )
-#if !ONYX_IS_RETAIL
-        , m_path( path )
-#endif
-    {
-    }
-
-#if !ONYX_IS_RETAIL
-    constexpr explicit AssetId( uint64_t id, StringView path )
-        : m_id( id )
-        , m_path( path ) {}
-#endif
-
-    explicit AssetId( const FilePath& path )
-        : m_id( path.empty() ? 0 : hash::fnV1aHash< uint64_t >( path.generic_string() ) )
-#if !ONYX_IS_RETAIL
-        , m_path( path.generic_string() )
-#endif
-    {
-    }
-
-    [[nodiscard]] uint64_t get() const { return m_id; }
-    explicit operator uint64_t() const { return m_id; }
-
-    template < uint64_t N >
-    constexpr AssetId& operator=( const char ( &str )[ N ] ) {
-        m_id = hash::fnV1aHash< uint64_t >( str );
-#if !ONYX_IS_RETAIL
-        m_path = String( str );
-#endif
-        return *this;
-    }
+    [[nodiscard]] uint64_t asUint64() const { return m_id.get(); }
+    [[nodiscard]] Guid64 get() const { return m_id; }
+    explicit operator Guid64() const { return m_id; }
 
     bool operator==( const AssetId& other ) const { return m_id == other.m_id; }
     bool operator!=( const AssetId& other ) const { return m_id != other.m_id; }
 
-    [[nodiscard]] bool isValid() const { return m_id != 0; }
-
-#if !ONYX_IS_RETAIL
-    [[nodiscard]] StringView getPath() const { return StringView( m_path ); }
-#endif
+    [[nodiscard]] bool isValid() const { return m_id != Guid64::invalid(); }
 
   private:
-    uint64_t m_id = 0;
-#if !ONYX_IS_RETAIL
-    String m_path;
-#endif
+    Guid64 m_id;
 };
 } // namespace onyx::assets
 
@@ -78,13 +34,12 @@ template <> struct Serialization< assets::AssetId > {
 
 template <> struct std::hash< onyx::assets::AssetId > {
     std::size_t operator()( const onyx::assets::AssetId& s ) const noexcept {
-        std::size_t h1 = std::hash< uint64_t >{}( s.get() );
-        return h1;
+        return std::hash< onyx::Guid64 >()( s.get() );
     }
 };
 
 template <> struct std::formatter< onyx::assets::AssetId > : std::formatter< std::string > {
     static auto format( onyx::assets::AssetId id, std::format_context& ctx ) {
-        return std::format_to( ctx.out(), "{:x}", id.get() );
+        return std::format_to( ctx.out(), "{}", id.get() );
     }
 };

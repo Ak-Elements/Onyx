@@ -89,7 +89,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     subpass.m_AttachmentAccesses.emplace( rhi::RenderPassSettings::AttachmentAccess::DepthReadStencilRead );
 
     rhi::PipelineProperties pipelineProperties;
-    pipelineProperties.Shader = assets::AssetId( shaderPath );
+    pipelineProperties.Shader = assetSystem.resolveAssetId( shaderPath );
     pipelineProperties.RenderPass = graphicsSystem.getOrCreateRenderPass( renderPassSettings );
 
     pipelineProperties.Rasterization.CullMode = rhi::CullMode::Back;
@@ -107,7 +107,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     blendState.AlphaOperation = rhi::BlendOperation::Add;
 
     rhi::ShaderInstanceHandle& shaderEffect = shaderGraph.getShader();
-    shaderEffect = graphicsSystem.createShaderInstance( assets::AssetId( shaderPath ), pipelineProperties );
+    shaderEffect = graphicsSystem.createShaderInstance( pipelineProperties.Shader, pipelineProperties );
 
     return true;
 }

@@ -16,6 +16,8 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 
+#include <utility>
+
 namespace onyx::physics::jolt {
 
 namespace {
@@ -225,6 +227,7 @@ CharacterId PhysicsWorld3d::createCharacterCollider( const Vector3f32& position,
         return newCharacter.getId();
     }
 }
+
 BodyId PhysicsWorld3d::createSdfCollider( const Vector3f32& position,
                                           const Rotor3f32& rotation,
                                           SdfFunction function,
@@ -234,7 +237,7 @@ BodyId PhysicsWorld3d::createSdfCollider( const Vector3f32& position,
 
     JPH::EMotionType motionType = ToMotion( motion );
 
-    JPH::BodyCreationSettings bodySettings( new jolt::SdfShape( function ),
+    JPH::BodyCreationSettings bodySettings( new jolt::SdfShape( std::move( function ) ),
                                             JPH::RVec3( position.X, position.Y, position.Z ),
                                             JPH::Quat::sIdentity(),
                                             motionType,

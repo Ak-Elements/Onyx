@@ -1,19 +1,23 @@
 #include <onyx/graphics/rendergraph/tasks/debuglightclusterspass.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/graphicstypes.h>
 
 namespace onyx::graphics::render_graph_nodes {
 DebugLightClustersRenderPass::DebugLightClustersRenderPass() {
-    m_pipelineProperties.Shader = "engine:/shaders/debug/renderlightclusters.oshader";
-
     RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = RenderGraphResourceType::Attachment;
 
     m_pipelineProperties.Topology = rhi::PrimitiveTopology::LineStrip;
 }
 
+void DebugLightClustersRenderPass::onInit( assets::AssetSystem& assetSystem,
+                                           rhi::GraphicsSystem&,
+                                           RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/debug/renderlightclusters.oshader" );
+}
 void DebugLightClustersRenderPass::onBeginFrame( RenderGraphContext& context ) {
     uint64_t outputGlobalId = m_output.getGlobalId().get();
 

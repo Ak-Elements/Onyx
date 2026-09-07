@@ -10,30 +10,36 @@ struct Guid {
     uint64_t LowPart = 0;
     uint64_t HighPart = 0;
 
-    bool operator==( const Guid& other ) const { return LowPart == other.LowPart && HighPart == other.HighPart; }
-    bool operator!=( const Guid& other ) const { return LowPart != other.LowPart || HighPart != other.HighPart; }
+    constexpr bool operator==( const Guid& other ) const {
+        return LowPart == other.LowPart && HighPart == other.HighPart;
+    }
+    constexpr bool operator!=( const Guid& other ) const {
+        return LowPart != other.LowPart || HighPart != other.HighPart;
+    }
 };
 
 /*
  * Based on Snowflake algorithm from Twitter
  */
 struct Guid64 {
-    Guid64() = default;
-    explicit Guid64( uint64_t id )
+    constexpr Guid64() = default;
+    constexpr explicit Guid64( uint64_t id )
         : m_id( id ) {}
 
-    explicit operator uint64_t() const { return m_id; }
+    constexpr explicit operator uint64_t() const { return m_id; }
 
-    void reset() { m_id = 0; }
-    [[nodiscard]] uint64_t get() const { return m_id; }
+    constexpr void reset() { m_id = 0; }
+    [[nodiscard]] constexpr uint64_t get() const { return m_id; }
 
-    [[nodiscard]] bool isValid() const { return m_id != 0; }
+    [[nodiscard]] constexpr bool isValid() const { return m_id != 0; }
 
-    bool operator==( uint64_t other ) const { return m_id == other; }
-    bool operator!=( uint64_t other ) const { return m_id != other; }
+    constexpr bool operator==( uint64_t other ) const { return m_id == other; }
+    constexpr bool operator!=( uint64_t other ) const { return m_id != other; }
 
-    bool operator==( const Guid64& other ) const { return m_id == other.m_id; }
-    bool operator!=( const Guid64& other ) const { return m_id != other.m_id; }
+    constexpr bool operator==( const Guid64& other ) const { return m_id == other.m_id; }
+    constexpr bool operator!=( const Guid64& other ) const { return m_id != other.m_id; }
+
+    constexpr static Guid64 invalid() { return {}; }
 
   private:
     uint64_t m_id = 0;
@@ -84,4 +90,12 @@ template <>
 struct hash< onyx::Guid64 > {
     size_t operator()( const onyx::Guid64& guid ) const noexcept { return guid.get(); }
 };
+
+template <>
+struct formatter< onyx::Guid64 > : std::formatter< std::string > {
+    static auto format( onyx::Guid64 id, std::format_context& ctx ) {
+        return std::format_to( ctx.out(), "{:x}", id.get() );
+    }
+};
+
 } // namespace std

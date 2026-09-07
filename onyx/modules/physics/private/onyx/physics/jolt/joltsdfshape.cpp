@@ -10,6 +10,8 @@
 
 #include <Jolt/Physics/Collision/CollisionDispatch.h>
 
+#include <utility>
+
 namespace onyx::physics::jolt {
 void SdfShape::registerCollider() {
     JPH::ShapeFunctions& f = JPH::ShapeFunctions::sGet( JPH::EShapeSubType::User1 );
@@ -55,7 +57,7 @@ SdfShape::SdfShape()
 
 SdfShape::SdfShape( SdfFunction function )
     : JPH::Shape( JPH::EShapeType::User1, JPH::EShapeSubType::User1 )
-    , m_sdf( function ) {}
+    , m_sdf( std::move( function ) ) {}
 
 JPH::AABox SdfShape::GetLocalBounds() const {
     return { JPH::Vec3( -32000, -512, -32000 ), JPH::Vec3( 32000, 4000, 32000 ) };

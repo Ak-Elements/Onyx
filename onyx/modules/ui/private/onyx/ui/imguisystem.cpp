@@ -281,7 +281,8 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     assets::AssetHandle< onyx::ui::Theme > theme;
-    assetSystem.getAsset( "engine:/themes/dark.nyx", theme );
+    assets::AssetId themeAssetId = assetSystem.resolveAssetId( "engine:/themes/dark.nyx" );
+    assetSystem.getAsset( themeAssetId, theme );
     theme->getOnLoadedEvent().connect< &ImGuiSystem::onThemeLoaded >( *this );
 
     // TODO: Move this loading into async loader
@@ -314,7 +315,7 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
     g_uiContext.LocalizationSystem = &localizationSystem;
 
     rhi::PipelineProperties pipelineProperties;
-    pipelineProperties.Shader = assets::AssetId( "engine:/shaders/imgui.slang" );
+    pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/imgui.slang" );
     pipelineProperties.BlendStates.emplace( rhi::BlendState{ .SourceColor = rhi::Blend::SrcAlpha,
                                                              .DestinationColor = rhi::Blend::OneMinusSrcAlpha,
                                                              .ColorOperation = rhi::BlendOperation::Add,
@@ -399,7 +400,7 @@ void ImGuiSystem::onBeginFrame( const rhi::FrameContext& /*frameContext*/ ) {
         internal::g_locSaveLayout = false;
         FilePath savePath;
         DynamicArray< StringView > extensions{ "ini" };
-        if( onyx::file_system::FileDialog::SaveFileDialog( savePath, "Ini File", extensions ) ) {
+        if( onyx::file_system::FileDialog::saveFileDialog( savePath, "Ini File", extensions ) ) {
             ImGui::SaveIniSettingsToDisk( savePath.string().data() );
         }
     }
@@ -606,16 +607,16 @@ void ImGuiSystem::initRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
 
     //// Create target image for copy
     rhi::TextureStorageProperties storageProps;
-    storageProps.m_Format = rhi::TextureFormat::RGBA_UNORM8;
-    storageProps.m_Type = rhi::TextureType::Texture2D;
-    storageProps.m_Size = { texWidth, texHeight, 1 };
-    storageProps.m_MaxMipLevel = 1;
-    storageProps.m_ArraySize = 0;
-    storageProps.m_MSAAProperties = { 1, 1 }; // samples /quality
-    storageProps.m_CpuAccess = rhi::CPUAccess::None;
-    storageProps.m_GpuAccess = rhi::GPUAccess::Read;
-    storageProps.m_IsTexture = true;
-    storageProps.m_DebugName = "ImGui Font Texture Storage";
+    storageProps.Format = rhi::TextureFormat::RGBA_UNORM8;
+    storageProps.Type = rhi::TextureType::Texture2D;
+    storageProps.Size = { texWidth, texHeight, 1 };
+    storageProps.MaxMipLevel = 1;
+    storageProps.ArraySize = 0;
+    storageProps.MsaaProperties = { 1, 1 }; // samples /quality
+    storageProps.CpuAccess = rhi::CPUAccess::None;
+    storageProps.GpuAccess = rhi::GPUAccess::Read;
+    storageProps.IsTexture = true;
+    storageProps.DebugName = "ImGui Font Texture Storage";
 
     rhi::TextureProperties textureProps;
     textureProps.Format = rhi::TextureFormat::RGBA_UNORM8;
@@ -657,9 +658,9 @@ void ImGuiSystem::updateDrawBuffers( const rhi::FrameContext& frameContext ) {
         return;
     }
 
-    int32_t fb_width = numericCast< int32_t >( imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x );
-    int32_t fb_height = numericCast< int32_t >( imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y );
-    if( fb_width <= 0 || fb_height <= 0 )
+    int32_t fbWidth = numericCast< int32_t >( imDrawData->DisplaySize.x * imDrawData->FramebufferScale.x );
+    int32_t fbHeight = numericCast< int32_t >( imDrawData->DisplaySize.y * imDrawData->FramebufferScale.y );
+    if( fbWidth <= 0 || fbHeight <= 0 )
         return;
 
     // Note: Alignment is done inside buffer creation

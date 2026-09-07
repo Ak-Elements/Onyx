@@ -1,10 +1,13 @@
 #include <onyx/graphics/rendergraph/tasks/scatteringtask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx::graphics::render_graph_nodes {
-CreateTransmittanceRenderGraphNode::CreateTransmittanceRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/atmosphere/computetransmittance.slang";
+void CreateTransmittanceRenderGraphNode::onInit( onyx::assets::AssetSystem& assetSystem,
+                                                 onyx::rhi::GraphicsSystem& /*api*/,
+                                                 RenderGraphResourceCache& /*resourceCache*/ ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/atmosphere/computetransmittance.slang" );
 }
 
 void CreateTransmittanceRenderGraphNode::onRender( RenderGraphContext& /*context*/,

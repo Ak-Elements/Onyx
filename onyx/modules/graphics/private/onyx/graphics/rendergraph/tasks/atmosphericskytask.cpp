@@ -1,5 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
@@ -7,8 +8,14 @@
 #include <onyx/rhi/graphicssystem.h>
 
 namespace onyx::graphics::render_graph_nodes {
-AtmosphericSkyRenderGraphNode::AtmosphericSkyRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/sky.slang";
+
+uint32_t AtmosphericSkyRenderGraphNode::m_transmittanceTextureIndex = 0;
+uint32_t AtmosphericSkyRenderGraphNode::m_skyViewLutTextureIndex = 0;
+
+void AtmosphericSkyRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
+                                            rhi::GraphicsSystem&,
+                                            RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/sky.slang" );
 }
 
 void AtmosphericSkyRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {

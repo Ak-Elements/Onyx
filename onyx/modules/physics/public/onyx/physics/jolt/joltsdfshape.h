@@ -9,7 +9,7 @@ class SdfShape : public JPH::Shape {
   public:
     static void registerCollider();
 
-    using SdfFunction = Vector4f32 ( * )( Vector3f32 position );
+    using SdfFunction = InplaceFunction< Vector4f32( Vector3f32 ), 64 >;
     SdfShape();
     SdfShape( SdfFunction function );
 

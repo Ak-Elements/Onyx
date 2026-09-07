@@ -1,6 +1,7 @@
-#include <onyx/colors/dark.h>
 #include <onyx/editor/rendertasks/gridtask.h>
 
+#include <onyx/assets/assetsystem.h>
+#include <onyx/colors/dark.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
@@ -11,11 +12,13 @@
 namespace onyx {
 
 GridRenderGraphNode::GridRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/editor/grid.slang";
-
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
     gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
+}
+
+void GridRenderGraphNode::onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/editor/grid.slang" );
 }
 
 void GridRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) {
@@ -30,6 +33,7 @@ void GridRenderGraphNode::onBeginFrame( graphics::RenderGraphContext& context ) 
     }
 }
 void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+    return;
     ONYX_PROFILE_FUNCTION;
 
     struct Constants {

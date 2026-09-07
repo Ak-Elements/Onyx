@@ -81,19 +81,19 @@ bool ShaderGraph::generateShader( rhi::ShaderGenerator& generator ) {
     node_graph::GraphRunner runner( m_graph );
 
     // prepare nodes so data is setup
-    runner.Prepare();
+    runner.prepare();
 
     // run one fake update to calculate all values
-    runner.Update( 0 );
+    runner.update( 0 );
 
     ShaderGraphNodeFactory factory;
     const DynamicArray< int8_t >& executionOrder = m_graph.getTopologicalOrder();
-    node_graph::ExecutionContext& executionContext = runner.GetContext();
+    node_graph::ExecutionContext& executionContext = runner.getContext();
     for( int8_t localNodeId : executionOrder ) {
         const ShaderGraphNode& node = m_graph.getNode< ShaderGraphNode >( localNodeId );
         executionContext.setCurrentNode( node.getId() );
 
-        generator.setStage( rhi::ShaderStage::Fragment ); // TODO: Add support for other stages
+        // generator.setStage( rhi::ShaderStage::Fragment ); // TODO: Add support for other stages
 
         generator.appendCode( format::format( "// {} 0x{:x} \n", node.getName(), node.getId().get() ) );
         node.generateShader( executionContext, generator );

@@ -38,6 +38,7 @@ FilePath getFullPath( const char* path, StringView newExtension );
 FilePath replaceExtension( const FilePath& path, StringView newExtension );
 
 FilePath convertToMountPath( const FilePath& absolutePath );
+FilePath getRootDirectory( const FilePath& path );
 
 bool exists( const FilePath& path );
 bool tempFileExists( const FilePath& path );

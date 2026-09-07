@@ -249,6 +249,9 @@ class Stream {
         doWrite( reinterpret_cast< const char* >( &val ), sizeof( T ) );
     }
 
+    void writeRaw( const String& val ) { doWrite( val.data(), val.length() ); }
+    void writeRaw( StringView val ) { doWrite( val.data(), val.length() ); }
+
     template < typename T >
     void writeRaw( const DynamicArray< T >& array, bool writeSize = true ) {
         if( writeSize )

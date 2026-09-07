@@ -13,8 +13,11 @@ void AssetHotReloadSystem::monitorDirectory( const FilePath& path ) {
     m_directoryWatcher.addPath( path, true );
 }
 
-void AssetHotReloadSystem::onFileChanged( const FilePath& path, file_system::FileWatcher::FileAction action ) {
-    AssetId assetId( path );
+void AssetHotReloadSystem::onFileChanged( [[maybe_unused]] const FilePath& path,
+                                          file_system::FileWatcher::FileAction action ) {
+    [[maybe_unused]] auto a = m_assetSystem;
+    // TODO: FIX
+    //// AssetId assetId( path );
 
     switch( action ) {
     case file_system::FileWatcher::FileAction::Add:
@@ -22,7 +25,7 @@ void AssetHotReloadSystem::onFileChanged( const FilePath& path, file_system::Fil
     case file_system::FileWatcher::FileAction::Delete:
         break;
     case file_system::FileWatcher::FileAction::Modified:
-        m_assetSystem->reloadAsset( assetId );
+        // m_assetSystem->reloadAsset( assetId );
         break;
     case file_system::FileWatcher::FileAction::Moved:
         break;

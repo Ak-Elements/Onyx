@@ -65,17 +65,6 @@ void collideCapsule( const JPH::Shape* lhsShape,
                      JPH::CollideShapeCollector& outCollector,
                      const JPH::ShapeFilter& inShapeFilter );
 
-void collideCylinder( const JPH::Shape* lhsShape,
-                      const JPH::Shape* rhsShape,
-                      const JPH::Vec3 lhsScale, // NOLINT
-                      const JPH::Vec3 rhsScale, // NOLINT
-                      const JPH::Mat44& lhsTransform,
-                      const JPH::Mat44& rhsTransform,
-                      const JPH::SubShapeIDCreator& lhsIdCreator,
-                      const JPH::SubShapeIDCreator& rhsIdCreator,
-                      const JPH::CollideShapeSettings& settings,
-                      JPH::CollideShapeCollector& outCollector );
-
 void castCapsule( const JPH::ShapeCast& shapeCast,
                   const JPH::ShapeCastSettings& settings,
                   const JPH::Shape* sdfShapeBase,

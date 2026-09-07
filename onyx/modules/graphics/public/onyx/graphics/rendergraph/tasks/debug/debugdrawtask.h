@@ -14,6 +14,9 @@ class DebugDrawTask
     DebugDrawTask();
 
   private:
+    void onInit( assets::AssetSystem& assetSystem,
+                 rhi::GraphicsSystem& graphicsSystem,
+                 RenderGraphResourceCache& resourceCache ) override;
     void onBeginFrame( RenderGraphContext& context ) override;
     void onPreRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;

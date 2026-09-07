@@ -1,5 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/debug/debugdrawtask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/debug/debugdrawqueue.h>
 #include <onyx/graphics/debug/debugshapes.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
@@ -10,11 +11,13 @@
 
 namespace onyx::graphics::render_graph_nodes {
 DebugDrawTask::DebugDrawTask() {
-    m_pipelineProperties.Shader = "engine:/shaders/debug/debugdraw.slang";
-
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
     gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
+}
+
+void DebugDrawTask::onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/debug/debugdraw.slang" );
 }
 
 void DebugDrawTask::onBeginFrame( RenderGraphContext& context ) {

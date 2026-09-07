@@ -55,6 +55,8 @@ class Deserializer {
                 return true;
             }
             return false;
+        } else if constexpr( std::is_same_v< T, Guid64 > ) {
+            return doRead( outValue );
         } else {
             bool success = Serialization< T >::deserialize( *this, outValue );
             return success;
@@ -63,7 +65,7 @@ class Deserializer {
 
     template < typename T >
     bool read( StringView name, T& outValue ) const {
-        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
+        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > || std::is_same_v< T, Guid64 > ) {
             return doRead( name, outValue );
         } else if constexpr( std::is_same_v< T, String > ) {
             StringView stringView;
@@ -97,6 +99,22 @@ class Deserializer {
     template < CompileTimeString Name, Numeric T >
     bool read( T& outValue, uint8_t base ) const {
         return doRead( Name.stringView(), outValue, base );
+    }
+
+    template < typename T, size_t N >
+    bool read( Array< T, N >& outValue ) const {
+        bool success = false;
+        for( uint32_t i = 0; i < static_cast< uint32_t >( N ); ++i ) {
+            if( createScope( i ) == false ) {
+                return false;
+            }
+
+            T& arrayValue = outValue[ i ];
+            success = read( arrayValue );
+            success &= endScope();
+        }
+
+        return success;
     }
 
     template < typename T >
@@ -394,6 +412,9 @@ class Deserializer {
 
     virtual bool doRead( StringView& outValue ) const = 0;
     virtual bool doRead( StringView name, StringView& outValue ) const = 0;
+
+    virtual bool doRead( Guid64& outValue ) const = 0;
+    virtual bool doRead( StringView name, Guid64& outValue ) const = 0;
 
     [[nodiscard]] virtual bool createScope( uint32_t index ) const = 0;
     [[nodiscard]] virtual bool createScope( uint64_t index ) const = 0;

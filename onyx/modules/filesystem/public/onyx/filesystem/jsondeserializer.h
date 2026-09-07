@@ -77,6 +77,9 @@ class JsonDeserializer : public Deserializer {
     bool doRead( StringView& outValue ) const override;
     bool doRead( StringView name, StringView& outValue ) const override;
 
+    bool doRead( Guid64& outValue ) const override;
+    bool doRead( StringView name, Guid64& outValue ) const override;
+
     bool createScope( uint32_t index ) const override;
     bool createScope( uint64_t index ) const override;
     bool createScope( StringView name ) const override;

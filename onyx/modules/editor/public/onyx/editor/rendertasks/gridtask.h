@@ -29,6 +29,7 @@ class GridRenderGraphNode : public node_graph::FixedPinNode2In1Out< graphics::Re
                                                    rhi::BufferHandle,
                                                    rhi::TextureHandle >;
 
+    void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) override;
     void onBeginFrame( graphics::RenderGraphContext& context ) override;
     void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 

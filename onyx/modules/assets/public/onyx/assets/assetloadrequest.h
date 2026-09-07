@@ -2,6 +2,7 @@
 
 #include <onyx/assets/asset.h>
 
+#include <onyx/assets/assetmetadata.h>
 #include <onyx/thread/async/future.h>
 #include <onyx/thread/threadpool/threadpool.h>
 

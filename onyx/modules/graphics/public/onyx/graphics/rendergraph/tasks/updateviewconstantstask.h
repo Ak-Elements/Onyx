@@ -13,7 +13,9 @@ class GetViewConstantsNode : public node_graph::FixedPinNode1Out< IRenderGraphNo
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::GetViewConstants";
     StringId32 getTypeId() const override { return TypeId; }
 
-    void init( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void init( assets::AssetSystem& assetSystem,
+               rhi::GraphicsSystem& api,
+               RenderGraphResourceCache& resourceCache ) override;
     void beginFrame( RenderGraphContext& context ) override;
 
     bool isEnabled() const override { return true; }

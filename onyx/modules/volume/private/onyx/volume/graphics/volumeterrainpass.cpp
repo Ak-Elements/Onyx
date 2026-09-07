@@ -1,7 +1,8 @@
-#include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/volume/graphics/volumeterrainpass.h>
 
 #include <onyx/graphics/rendergraph/rendergraph.h>
+#include <onyx/graphics/rendergraph/tasks/atmosphericskytask.h>
+#include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
 
@@ -36,7 +37,6 @@ void VolumeTerrainPass::onBeginFrame( graphics::RenderGraphContext& context ) {
 }
 
 void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
-    return;
     ONYX_PROFILE_FUNCTION;
 
     VolumeTerrainInstance& instance = context.Graph.getInput< VolumeTerrainInstance >();
@@ -44,43 +44,50 @@ void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::Co
         return;
     commandBuffer.bindShaderEffect( instance.Shader );
 
+    const graphics::RenderGraphResource& resource = context.Graph.getResource(
+        graphics::render_graph_nodes::UpdateLightClustersRenderGraphNode::LightEnvironmentResourceId );
+
+    const rhi::BufferHandle& lightEnvironmentBuffer = std::get< rhi::BufferHandle >( resource.Handle );
     struct PushConstants {
-        uint64_t ViewConstants;
-        uint64_t VolumeSourcesList;
-        uint64_t VolumeSourcesData;
+        GpuBufferDeviceAddress ViewConstants;
+        GpuBufferDeviceAddress LightEnvironment;
 
-        // float LightClusterGridSizeX;
-        // float LightClusterGridSizeY;
-        // float LightClusterGridSizeZ;
-        // float LightClusterScale;
+        GpuBufferDeviceAddress VolumeSourcesList;
+        GpuBufferDeviceAddress VolumeSourcesData;
 
-        // Vector2u32 LightClusterSize;
-        // float LightClusterBias;
         uint TextureId0;
         uint TextureId1;
         uint TextureId2;
+        uint TransmittanceTextureId;
+
+        Vector3f32 SunDirection;
+        uint SkyViewTextureId;
+
+        Vector2f32 HeightDisplacementFadeRange;
+        float HeightDisplacment;
     };
+    const float32 peroidSeconds = 120.0f;
+    const float32 halfPeriod = peroidSeconds / 2.0f;
+    const float32 sunriseShift = 0.1f;
+    float32 cyclePoint = ( 1.0f - std::abs( std::fmod( context.FrameContext.TimeOfDay, peroidSeconds ) - halfPeriod ) /
+                                      halfPeriod );
+    cyclePoint = ( cyclePoint * ( 1.0f + sunriseShift ) ) - sunriseShift;
+    float32 sunAltitude = 0.5f * std::numbers::pi_v< float32 > * cyclePoint;
+    Vector3f32 sunDirection( 0.0, std::sin( sunAltitude ), -std::cos( sunAltitude ) );
+    sunDirection.normalize();
 
     // const rhi::ViewConstants& viewConstants = context.FrameContext.ViewConstants;
     PushConstants constants{
         .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().getGpuAddress(),
+        .LightEnvironment = lightEnvironmentBuffer.getGpuAddress(),
         .VolumeSourcesList = instance.VolumeSources.getGpuAddress(),
         .VolumeSourcesData = instance.VolumeSourcesData.getGpuAddress(),
-    };
-
-    // constants.LightClusterGridSizeX = graphics::render_graph_nodes::ClusterX;
-    // constants.LightClusterGridSizeY = graphics::render_graph_nodes::ClusterY;
-    // constants.LightClusterGridSizeZ = graphics::render_graph_nodes::ClusterZ;
-
-    // constants.LightClusterSize = {
-    //     static_cast< uint32_t >( std::ceil( viewConstants.Viewport[ 0 ] / graphics::render_graph_nodes::ClusterX ) ),
-    //     static_cast< uint32_t >( std::ceil( viewConstants.Viewport[ 1 ] / graphics::render_graph_nodes::ClusterY ) )
-    //     };
-    //
-    // const float32 nearFarLog = std::log2( viewConstants.Far / viewConstants.Near );
-    // constants.LightClusterScale = graphics::render_graph_nodes::ClusterZ / nearFarLog;
-    // constants.LightClusterBias = -( graphics::render_graph_nodes::ClusterZ * std::log2( viewConstants.Near ) /
-    //                                 nearFarLog );
+        .TransmittanceTextureId = graphics::render_graph_nodes::AtmosphericSkyRenderGraphNode::
+            m_transmittanceTextureIndex,
+        .SunDirection = sunDirection,
+        .SkyViewTextureId = graphics::render_graph_nodes::AtmosphericSkyRenderGraphNode::m_skyViewLutTextureIndex,
+        .HeightDisplacementFadeRange = { 500.0f, 1000.0f },
+        .HeightDisplacment = 5.0f };
 
     constants.TextureId0 = instance.TextureIndex0;
     constants.TextureId1 = instance.TextureIndex1;

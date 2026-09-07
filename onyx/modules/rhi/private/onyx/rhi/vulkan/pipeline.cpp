@@ -211,7 +211,7 @@ Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& prop
     if( shader->isLoaded() ) {
         CreatePipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
-        StringView name = shader.getId().getPath();
+        StringView name = shader->getPath();
         if( name.empty() ) {
             breakpoint();
         }
@@ -271,9 +271,9 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
             TextureFormat format = enums::toEnum< TextureFormat >( attachment.m_Format );
             if( Utils::IsDepthFormat( format ) ) {
                 ONYX_ASSERT( depthStencilFormat == VK_FORMAT_UNDEFINED );
-                depthStencilFormat = VulkanTextureStorage::GetFormat( format );
+                depthStencilFormat = VulkanTextureStorage::getFormat( format );
             } else {
-                colorTargetFormats.push_back( VulkanTextureStorage::GetFormat( format ) );
+                colorTargetFormats.push_back( VulkanTextureStorage::getFormat( format ) );
             }
         }
 
@@ -312,7 +312,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
             for( const VertexInput& input : vertexInputs ) {
                 vertexAttributeDescriptions.emplace_back( input.Location,
                                                           0,
-                                                          VulkanTextureStorage::GetFormat( input.Format ),
+                                                          VulkanTextureStorage::getFormat( input.Format ),
                                                           offset );
 
                 uint32_t size = GetShaderTypeByteSize( input.Format );
@@ -517,7 +517,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 void Pipeline::OnShaderLoaded( const ShaderHandle& shader ) {
     CreatePipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
-    StringView name = shader.getId().getPath();
+    StringView name = shader->getPath();
     if( name.empty() ) {
         breakpoint();
     }

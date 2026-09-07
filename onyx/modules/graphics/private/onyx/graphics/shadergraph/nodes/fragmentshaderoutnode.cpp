@@ -7,10 +7,10 @@ namespace onyx::graphics::shader_graph_nodes {
 void FragmentShaderOutNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                               rhi::ShaderGenerator& generator ) const {
     if( getInputPin().isConnected() ) {
-        generator.appendCode( format::format( "outColor = pin_{:x};", getInputPin().getLinkedPinGlobalId().get() ) );
+        generator.appendCode( format::format( "return pin_{:x};", getInputPin().getLinkedPinGlobalId().get() ) );
     } else {
         const Vector4f32& outColor = context.getPinData< InPin >();
-        generator.appendCode( format::format( "outColor = vec4({}, {}, {}, {});",
+        generator.appendCode( format::format( "return float4({}, {}, {}, {});",
                                               outColor[ 0 ],
                                               outColor[ 1 ],
                                               outColor[ 2 ],

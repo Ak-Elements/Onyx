@@ -13,9 +13,8 @@ class ToneMapPass
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::ToneMapPass";
     StringId32 getTypeId() const override { return TypeId; }
 
-    ToneMapPass();
-
   private:
+    void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR

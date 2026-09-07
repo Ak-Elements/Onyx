@@ -1,5 +1,6 @@
 #include <onyx/gamecore/rendertasks/depthprepassrendertask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
@@ -7,12 +8,12 @@
 #include <onyx/rhi/graphicssystem.h>
 
 namespace onyx::game_core {
-DepthPrePassRenderGraphNode::DepthPrePassRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/predepth.slang";
-}
 
-void DepthPrePassRenderGraphNode::onInit( rhi::GraphicsSystem& api,
+void DepthPrePassRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
+                                          rhi::GraphicsSystem& api,
                                           graphics::RenderGraphResourceCache& resourceCache ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/predepth.slang" );
+
     graphics::RenderGraphResource& depthResource = resourceCache[ getOutputPin().getGlobalId().get() ];
     depthResource.Info.Type = graphics::RenderGraphResourceType::Attachment;
     graphics::RenderGraphTextureResourceInfo& resourceInfo = std::get< graphics::RenderGraphTextureResourceInfo >(

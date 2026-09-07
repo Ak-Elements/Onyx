@@ -1,13 +1,16 @@
 #include <onyx/graphics/rendergraph/tasks/skyviewluttask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/framecontext.h>
 
 namespace onyx::graphics::render_graph_nodes {
-SkyViewLutRenderGraphNode::SkyViewLutRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/atmosphere/computeskyviewlut.slang";
+void SkyViewLutRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
+                                        rhi::GraphicsSystem&,
+                                        RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/atmosphere/computeskyviewlut.slang" );
 }
 
 void SkyViewLutRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {

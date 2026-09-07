@@ -160,7 +160,7 @@ void SwapChain::Init() {
 
     m_MinImageCount = (std::max)( 2u, details.Capabilities.minImageCount );
     m_PresentMode = actualPresentMode;
-    m_ColorFormat = VulkanTextureStorage::GetFormat( surfaceFormat.format );
+    m_ColorFormat = VulkanTextureStorage::getFormat( surfaceFormat.format );
     m_Extent[ 0 ] = numericCast< int32_t >( extent.width );
     m_Extent[ 1 ] = numericCast< int32_t >( extent.height );
 

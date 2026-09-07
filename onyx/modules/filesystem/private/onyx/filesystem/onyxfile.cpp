@@ -13,6 +13,14 @@ OnyxFile::OnyxFile( StringView mountPath )
     : m_filePath( path::getFullPath( mountPath ) )
     , m_fileId( hash::fnV1aHash< uint64_t >( m_filePath.string() ) ) {}
 
+bool OnyxFile::writeAll( const FilePath& filePath, StringView content ) {
+    FileStream fileStream( filePath, OpenMode::Write | OpenMode::Text );
+    if( fileStream.isValid() == false )
+        return false;
+    fileStream.writeRaw( content );
+    return true;
+}
+
 bool OnyxFile::readAll( const FilePath& filePath, String& outFileContent ) {
     return readAll( filePath, outFileContent, false );
 }

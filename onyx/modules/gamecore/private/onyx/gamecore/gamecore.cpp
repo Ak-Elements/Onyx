@@ -71,7 +71,10 @@ GameCoreSystem::GameCoreSystem() {
     GameCoreInit::registerEntitySystems( ecsBuilder );
 }
 
-void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graphicsSystem, IEngine& engine ) {
+void GameCoreSystem::update( DeltaGameTime deltaTime,
+                             assets::AssetSystem& assetSystem,
+                             rhi::GraphicsSystem& graphicsSystem,
+                             IEngine& engine ) {
     if( m_scene.isLoaded() == false ) {
         return;
     }
@@ -79,7 +82,7 @@ void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graph
     if( m_scene->getRenderGraphRef().hasAssetId() ) {
         graphics::RenderGraph& sceneRenderGraph = m_scene->getRenderGraph();
         if( sceneRenderGraph.isLoaded() && sceneRenderGraph.isInitialized() == false ) {
-            sceneRenderGraph.init( graphicsSystem );
+            sceneRenderGraph.init( assetSystem, graphicsSystem );
         }
     }
 
@@ -92,6 +95,7 @@ void GameCoreSystem::update( DeltaGameTime deltaTime, rhi::GraphicsSystem& graph
     sceneFrameData.m_StaticMeshDrawCalls.clear();
     sceneFrameData.m_StaticMeshIndirectDrawCalls.clear();
     sceneFrameData.m_VoxelChunksToInit.clear();
+    // frameContext.TimeOfDay += 0.02f;
 
     ecs::ECSExecutionContext context{ deltaTime, m_scene->getRegistry(), engine };
     m_ecsGraph.update( context );

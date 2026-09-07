@@ -331,6 +331,10 @@ bool init() {
     DynamicArray< ::slang::CompilerOptionEntry > options{
         { ::slang::CompilerOptionName::EmitSpirvDirectly,
           { ::slang::CompilerOptionValueKind::Int, 1, 0, nullptr, nullptr } },
+        { ::slang::CompilerOptionName::DebugInformation,
+          { ::slang::CompilerOptionValueKind::Int, SLANG_DEBUG_INFO_LEVEL_STANDARD, 0, nullptr, nullptr } },
+        { ::slang::CompilerOptionName::Optimization,
+          { ::slang::CompilerOptionValueKind::Int, SLANG_OPTIMIZATION_LEVEL_NONE, 0, nullptr, nullptr } },
         { ::slang::CompilerOptionName::VulkanUseEntryPointName,
           { ::slang::CompilerOptionValueKind::Int, 1, 0, nullptr, nullptr } },
         // This is completely useless to set, slangc seems to ignore it
@@ -419,9 +423,10 @@ bool compile( const GraphicsSystem& graphicsSystem,
     switch( graphicsSystem.getApiType() ) {
     case ApiType::Vulkan: {
         SlangPtr< ::slang::IBlob > spirvCode;
-        result = linked->getTargetCode( 0, spirvCode.writeRef() );
+        result = linked->getTargetCode( 0, spirvCode.writeRef(), diagnostics.writeRef() );
         if( SLANG_FAILED( result ) ) {
-            ONYX_LOG_ERROR( "Failed compiling slang shader. {}", shaderPath );
+            StringView str( (const char*)diagnostics->getBufferPointer(), diagnostics->getBufferSize() );
+            ONYX_LOG_ERROR( "Failed compiling slang shader. {}, {}", shaderPath, str );
             return false;
         }
 

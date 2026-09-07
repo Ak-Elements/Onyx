@@ -704,12 +704,12 @@ void NodeGraphEditorWindow::onNodeCreated( const GraphEditorContext::Node& node 
 
 void NodeGraphEditorWindow::save() {
     FilePath path;
-    if( file_system::FileDialog::SaveFileDialog( path,
+    if( file_system::FileDialog::saveFileDialog( path,
                                                  m_editorContext->getLocalizedAssetTypeName(),
                                                  m_editorContext->getExtensions() ) ) {
         assets::AssetMetaData dummyAsset;
         dummyAsset.Path = path;
-        dummyAsset.Id = assets::AssetId( dummyAsset.Path );
+        dummyAsset.Id = assets::AssetId( Guid64Generator::getGuid() );
 
         if( m_editorContext->compile() == false ) {
             return;
@@ -722,7 +722,7 @@ void NodeGraphEditorWindow::save() {
 
 void NodeGraphEditorWindow::load() {
     FilePath path;
-    if( file_system::FileDialog::OpenFileDialog( path,
+    if( file_system::FileDialog::openFileDialog( path,
                                                  m_editorContext->getLocalizedAssetTypeName(),
                                                  m_editorContext->getExtensions() ) ) {
         assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();

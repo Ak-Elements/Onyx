@@ -1,5 +1,6 @@
 #include <onyx/graphics/rendergraph/tasks/createlightclusterspass.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/graphics/rendergraph/tasks/updatelightclusterstask.h>
 #include <onyx/profiler/profiler.h>
@@ -11,12 +12,12 @@
 
 namespace onyx::graphics::render_graph_nodes {
 
-CreateLightClusters::CreateLightClusters() {
-    m_pipelineProperties.Shader = "engine:/shaders/lighting/createlightclusters.slang";
-}
-
-void CreateLightClusters::onInit( rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache ) {
+void CreateLightClusters::onInit( assets::AssetSystem& assetSystem,
+                                  rhi::GraphicsSystem& graphicsSystem,
+                                  RenderGraphResourceCache& resourceCache ) {
     constexpr uint32_t ClusterCount = ClusterX * ClusterY * ClusterZ;
+
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/lighting/createlightclusters.slang" );
 
     for( uint8_t i = 0; i < rhi::MaxFramesInFlight; ++i ) {
         rhi::BufferProperties ssboBufferProps;

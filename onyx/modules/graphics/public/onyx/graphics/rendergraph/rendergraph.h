@@ -12,6 +12,9 @@
 namespace onyx::rhi {
 struct FrameContext;
 }
+namespace onyx::assets {
+class AssetSystem;
+}
 
 namespace onyx::graphics {
 class IRenderGraphNode;
@@ -31,7 +34,7 @@ class RenderGraph : public assets::Asset< RenderGraph > {
     RenderGraph() = default;
     ~RenderGraph() override = default;
 
-    void init( rhi::GraphicsSystem& graphicsSystem );
+    void init( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem );
     void shutdown( rhi::GraphicsSystem& graphicsSystem );
 
     bool hasResource( RenderGraphResourceId id ) const;

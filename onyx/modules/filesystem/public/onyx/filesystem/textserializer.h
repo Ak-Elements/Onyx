@@ -7,6 +7,8 @@ class TextSerializer : public Serializer {
   public:
     TextSerializer();
 
+    [[nodiscard]] String toString() const;
+
   private:
     template < typename T >
     bool doGenericWrite( T outValue );
@@ -71,11 +73,22 @@ class TextSerializer : public Serializer {
 
     bool endScope() override;
 
-    bool writeItemsCount( uint8_t /*count*/ ) override { return true; }
-    bool writeItemsCount( uint16_t /*count*/ ) override { return true; }
-    bool writeItemsCount( uint32_t /*count*/ ) override { return true; }
-    bool writeItemsCount( uint64_t /*count*/ ) override { return true; }
+    // do not write out item counts as we do not know the size of scopes at this point
+    bool writeItemsCount( uint8_t count ) override { return true; }
+    bool writeItemsCount( uint16_t count ) override { return true; }
+    bool writeItemsCount( uint32_t count ) override { return true; }
+    bool writeItemsCount( uint64_t count ) override { return true; }
 
-    bool isSupportingIntegralScopes() const override { return false; }
+    [[nodiscard]] bool isSupportingIntegralScopes() const override { return false; }
+
+  private:
+    struct Scope {
+        String Name;
+        String Data;
+        DynamicArray< Scope > Children;
+    };
+
+    Scope m_root;
+    Stack< Scope* > m_scopeStack;
 };
 } // namespace onyx::file_system

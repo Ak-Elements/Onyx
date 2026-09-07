@@ -70,6 +70,5 @@ set(onyx_TARGET_PRIVATE_SOURCES
     shadergraph/nodes/getworldnormal.cpp
     shadergraph/nodes/getworldposition.cpp
     shadergraph/nodes/sampletexturenode.cpp
-    shadergraph/nodes/shadergraphnodes.cpp
     shadergraph/nodes/math/simplexnoisenode.cpp
 )

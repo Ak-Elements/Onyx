@@ -6,12 +6,13 @@
 namespace onyx::graphics::shader_graph_nodes {
 void GetWorldPositionNode::doGenerateShader( const node_graph::ExecutionContext& /*context*/,
                                              rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment ) {
-        return;
-    }
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment ) {
+    //     return;
+    // }
 
     generator.appendCode(
-        format::format( "vec4 pin_{:x} = vec4(worldPosition, 1.0); \n", getOutputPin().getGlobalId().get() ) );
+        format::format( "float4 pin_{:x} = float4(worldPosition, 1.0); \n", getOutputPin().getGlobalId().get() ) );
 }
 
 #if ONYX_IS_EDITOR

@@ -13,13 +13,14 @@ void GetVoxelPositionShaderGraphNode::onUpdate( node_graph::ExecutionContext& /*
 
 void GetVoxelPositionShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                         rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     if( ( context.isPinConnected< OutPin >() == false ) )
         return;
 
-    generator.appendCode( format::format( "vec3 pin_{:x} = worldPosition;\n", m_output.getGlobalId().get() ) );
+    generator.appendCode( format::format( "float3 pin_{:x} = worldPosition;\n", m_output.getGlobalId().get() ) );
 }
 
 #if ONYX_IS_EDITOR

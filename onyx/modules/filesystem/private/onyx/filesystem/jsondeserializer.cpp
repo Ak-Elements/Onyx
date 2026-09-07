@@ -10,7 +10,15 @@ JsonDeserializer::JsonDeserializer( const nlohmann::ordered_json& json )
 
 template < typename T >
 bool JsonDeserializer::doGenericRead( T& outValue ) const {
-    outValue = getCurrent().get< T >();
+    if constexpr( std::is_same_v< T, Guid64 > ) {
+        uint64_t guid64;
+        StringView value = getCurrent().get< StringView >();
+        bool success = std::from_chars( value.data(), value.data() + value.size(), guid64, 16 ).ec == std::errc{};
+        outValue = Guid64( guid64 );
+        return success;
+    } else {
+        outValue = getCurrent().get< T >();
+    }
     return true;
 }
 
@@ -28,7 +36,15 @@ bool JsonDeserializer::doGenericRead( StringView name, T& outValue ) const {
         return false;
     }
 
-    outValue = it->get< T >();
+    if constexpr( std::is_same_v< T, Guid64 > ) {
+        uint64_t guid64;
+        StringView value = it->get< StringView >();
+        bool success = std::from_chars( value.data(), value.data() + value.size(), guid64, 16 ).ec == std::errc{};
+        outValue = Guid64( guid64 );
+        return success;
+    } else {
+        outValue = it->get< T >();
+    }
     return true;
 }
 
@@ -212,6 +228,14 @@ bool JsonDeserializer::doRead( StringView& outValue ) const {
 }
 
 bool JsonDeserializer::doRead( StringView name, StringView& outValue ) const {
+    return doGenericRead( name, outValue );
+}
+
+bool JsonDeserializer::doRead( Guid64& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool JsonDeserializer::doRead( StringView name, Guid64& outValue ) const {
     return doGenericRead( name, outValue );
 }
 

@@ -1,12 +1,16 @@
 #include <onyx/graphics/rendergraph/tasks/multiplescatteringtask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
 
 namespace onyx::graphics::render_graph_nodes {
-ComputeMultipleScatteringRenderGraphNode::ComputeMultipleScatteringRenderGraphNode() {
-    m_pipelineProperties.Shader = "engine:/shaders/atmosphere/computemultiscattering.slang";
+void ComputeMultipleScatteringRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
+                                                       rhi::GraphicsSystem&,
+                                                       RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId(
+        "engine:/shaders/atmosphere/computemultiscattering.slang" );
 }
 
 void ComputeMultipleScatteringRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {

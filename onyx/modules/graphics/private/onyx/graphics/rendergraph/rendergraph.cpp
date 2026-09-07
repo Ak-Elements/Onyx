@@ -14,7 +14,7 @@
 ONYX_PROFILE_CREATE_TAG( RenderGraph, 0x3ed694 );
 
 namespace onyx::graphics {
-void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
+void RenderGraph::init( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
 
@@ -48,7 +48,7 @@ void RenderGraph::init( rhi::GraphicsSystem& graphicsSystem ) {
 
         IRenderGraphNode& graphNode = m_graph.getNode< IRenderGraphNode >( nodeId );
         // remove resource cache
-        graphNode.init( graphicsSystem, m_resourceCache );
+        graphNode.init( assetSystem, graphicsSystem, m_resourceCache );
 
         uint32_t outputPinCount = graphNode.getOutputPinCount();
         for( uint32_t i = 0; i < outputPinCount; ++i ) {
@@ -167,9 +167,9 @@ void RenderGraph::onBeginFrame( const rhi::FrameContext& frameContext ) {
     for( int8_t nodeId : m_graph.getTopologicalOrder() ) {
         IRenderGraphNode& node = m_graph.getNode< IRenderGraphNode >( nodeId );
 
-        if( node.isEnabled() == false ) {
-            continue;
-        }
+        // if( node.isEnabled() == false ) {
+        //     continue;
+        // }
 
         node.beginFrame( graphContext );
     }
@@ -266,20 +266,20 @@ bool RenderGraph::createAttachment( rhi::GraphicsSystem& graphicsSystem,
     const Vector2s32& swapChainExtent = graphicsSystem.getSwapchainExtent();
 
     rhi::TextureStorageProperties storageProperties;
-    storageProperties.m_Size = resourceInfo.HasSize ? resourceInfo.Size : Vector3s32( swapChainExtent, 1 );
-    storageProperties.m_Format = resourceInfo.Format;
-    storageProperties.m_IsFrameBuffer = true;
-    storageProperties.m_IsTexture = true;
-    storageProperties.m_GpuAccess = rhi::GPUAccess::Write;
+    storageProperties.Size = resourceInfo.HasSize ? resourceInfo.Size : Vector3s32( swapChainExtent, 1 );
+    storageProperties.Format = resourceInfo.Format;
+    storageProperties.IsFrameBuffer = true;
+    storageProperties.IsTexture = true;
+    storageProperties.GpuAccess = rhi::GPUAccess::Write;
 #if ONYX_IS_DEBUG
-    storageProperties.m_DebugName = resource.Info.Name + " Storage";
+    storageProperties.DebugName = resource.Info.Name + " Storage";
 #endif
     //[Aaron] do we really want to create the view here?
     rhi::TextureProperties texProp;
     texProp.Format = resourceInfo.Format;
     texProp.AllowCubeMapLoads = false;
-    texProp.MaxMipLevel = storageProperties.m_MaxMipLevel;
-    texProp.ArraySize = storageProperties.m_ArraySize;
+    texProp.MaxMipLevel = storageProperties.MaxMipLevel;
+    texProp.ArraySize = storageProperties.ArraySize;
 #if ONYX_IS_DEBUG
     texProp.DebugName = resource.Info.Name + " View";
 #endif
@@ -290,17 +290,17 @@ bool RenderGraph::createAttachment( rhi::GraphicsSystem& graphicsSystem,
         RenderGraphResource& freeResource = m_resourceCache[ id ];
 
         rhi::TextureHandle& freeTexture = std::get< rhi::TextureHandle >( freeResource.Handle );
-        const rhi::TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->GetProperties();
+        const rhi::TextureStorageProperties& freeTextureStorageProperties = freeTexture.Storage->getProperties();
 
         // wrap in a function to check if its alias-able?
-        if( ( storageProperties.m_Size != freeTextureStorageProperties.m_Size ) ||
-            ( storageProperties.m_Format != freeTextureStorageProperties.m_Format ) )
+        if( ( storageProperties.Size != freeTextureStorageProperties.Size ) ||
+            ( storageProperties.Format != freeTextureStorageProperties.Format ) )
             continue;
 
         // Add logic for handling already aliased textures?
 
 #if ONYX_IS_DEBUG
-        texProp.DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.m_DebugName;
+        texProp.DebugName = resource.Info.Name + " Alias | " + freeTextureStorageProperties.DebugName;
 #endif
         graphicsSystem.createAlias( std::get< rhi::TextureHandle >( resource.Handle ),
                                     freeTexture.Storage,

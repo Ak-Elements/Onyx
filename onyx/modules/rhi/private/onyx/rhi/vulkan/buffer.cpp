@@ -183,8 +183,8 @@ void VulkanBuffer::flush( uint32_t /*offset*/, uint32_t /*count*/ ) {
     ONYX_ASSERT( false, "Not implemented" );
 }
 
-void VulkanBuffer::setData( int32_t offset, const void* data, int32_t length ) {
-    std::memcpy( &static_cast< char* >( m_dataPointer )[ offset ], data, length );
+void VulkanBuffer::setData( uint64_t offset, const void* data, uint64_t length ) {
+    std::memcpy( &static_cast< uint8_t* >( m_dataPointer )[ offset ], data, length );
 }
 
 VkBufferUsageFlags VulkanBuffer::GetUsageFlags() const {

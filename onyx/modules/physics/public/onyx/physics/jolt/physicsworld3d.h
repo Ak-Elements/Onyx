@@ -78,7 +78,7 @@ class PhysicsWorld3d {
                                          CharacterMode mode,
                                          CollisionLayer layer );
 
-    using SdfFunction = Vector4f32 ( * )( Vector3f32 position );
+    using SdfFunction = InplaceFunction< Vector4f32( Vector3f32 ), 64 >;
     BodyId createSdfCollider( const Vector3f32& position,
                               const Rotor3f32& rotation,
                               SdfFunction function,

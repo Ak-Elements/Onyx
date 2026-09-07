@@ -186,11 +186,11 @@ void InputActionSettingsWindow::onRenderMainMenuBar() {
     if( ImGui::BeginMenu( localization::generic::File.Get().data() ) ) {
         if( ImGui::MenuItem( localization::generic::Open.Get().data() ) ) {
             FilePath path;
-            if( file_system::FileDialog::OpenFileDialog( path,
+            if( file_system::FileDialog::openFileDialog( path,
                                                          "Input actions asset",
                                                          input_actions::InputActionsSerializer::Extensions ) ) {
                 assets::AssetHandle< input_actions::InputActionsContext > asset;
-                assets::AssetId assetId( path );
+                assets::AssetId assetId = assetSystem.resolveAssetId( path );
                 assetSystem.getAssetUnmanaged( assetId, asset );
                 asset->getOnLoadedEvent().connect< &InputActionSettingsWindow::onInputAssetLoaded >( this );
             }
@@ -202,7 +202,7 @@ void InputActionSettingsWindow::onRenderMainMenuBar() {
 
         if( ImGui::MenuItem( localization::generic::SaveAs.Get().data() ) ) {
             FilePath path;
-            if( file_system::FileDialog::SaveFileDialog( path,
+            if( file_system::FileDialog::saveFileDialog( path,
                                                          "Input actions asset",
                                                          input_actions::InputActionsSerializer::Extensions ) ) {
                 // assetSystem.SaveAssetAs(path, m_EditableCopy);

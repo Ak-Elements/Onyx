@@ -1,13 +1,14 @@
 #include <onyx/graphics/rendergraph/tasks/tonemappass.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/profiler/profiler.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/framecontext.h>
 
 namespace onyx::graphics::render_graph_nodes {
-ToneMapPass::ToneMapPass() {
-    m_pipelineProperties.Shader = "engine:/shaders/post/tonemap.slang";
+void ToneMapPass::onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/post/tonemap.slang" );
 }
 
 void ToneMapPass::onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {

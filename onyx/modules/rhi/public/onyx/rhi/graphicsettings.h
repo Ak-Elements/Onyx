@@ -5,7 +5,7 @@
 namespace onyx::rhi {
 struct GraphicSettings {
     ApiType Api = ApiType::Vulkan;
-    assets::AssetId DefaultRenderGraph{ "engine:/rendergraphs/default.orendergraph" };
+    assets::AssetId DefaultRenderGraph;
 
     uint16_t RefreshRate = 60;
 

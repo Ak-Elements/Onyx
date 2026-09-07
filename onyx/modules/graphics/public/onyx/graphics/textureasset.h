@@ -11,6 +11,8 @@ class TextureAsset : public assets::Asset< TextureAsset > {
 
     const rhi::TextureHandle& getTextureHandle() const { return m_texture; }
 
+    bool isValid() const { return m_texture.isValid(); }
+
   private:
     friend struct TextureSerializer;
     void setTexture( const rhi::TextureHandle& handle );

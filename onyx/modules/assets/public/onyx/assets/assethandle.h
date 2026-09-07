@@ -26,7 +26,7 @@ template < typename T > class AssetHandle {
         , m_handle( other.m_handle ) {}
 
     AssetHandle( AssetHandle&& other ) noexcept
-        : m_id( std::move( other.m_id ) )
+        : m_id( other.m_id )
         , m_handle( std::move( other.m_handle ) ) {}
 
     template < typename U >

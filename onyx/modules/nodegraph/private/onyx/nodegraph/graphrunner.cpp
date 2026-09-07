@@ -4,15 +4,15 @@
 #include <onyx/nodegraph/nodes/node.h>
 
 namespace onyx::node_graph {
-void GraphRunner::Prepare() {
-    const HashMap< Guid64, std::any >& constantPinData = m_Graph->getConstantPinData();
+void GraphRunner::prepare() {
+    const HashMap< Guid64, std::any >& constantPinData = m_graph->getConstantPinData();
 
-    const DynamicArray< int8_t >& executionOrder = m_Graph->getTopologicalOrder();
+    const DynamicArray< int8_t >& executionOrder = m_graph->getTopologicalOrder();
 
     // collect pin meta information first
     HashSet< Guid64 > connectedPins;
     for( int8_t localNodeId : executionOrder ) {
-        const Node& node = m_Graph->getNode( localNodeId );
+        const Node& node = m_graph->getNode( localNodeId );
 
         const uint32_t inputPinCount = node.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
@@ -32,8 +32,8 @@ void GraphRunner::Prepare() {
     }
 
     for( int8_t localNodeId : executionOrder ) {
-        const Node& node = m_Graph->getNode( localNodeId );
-        node.prepare( m_PrepareContext );
+        const Node& node = m_graph->getNode( localNodeId );
+        node.prepare( m_prepareContext );
 
         // setup execution context
         ExecutionContext::NodeContext context;
@@ -64,24 +64,24 @@ void GraphRunner::Prepare() {
                                                                              outputPin->getGlobalId() );
         }
 
-        m_ExecutionContext.addNodeContext( node.getId(), context );
+        m_executionContext.addNodeContext( node.getId(), context );
     }
 }
 
-void GraphRunner::Update( [[maybe_unused]] uint64_t deltaTime ) {
-    const DynamicArray< int8_t >& executionOrder = m_Graph->getTopologicalOrder();
+void GraphRunner::update( [[maybe_unused]] uint64_t deltaTime ) {
+    const DynamicArray< int8_t >& executionOrder = m_graph->getTopologicalOrder();
     for( int8_t localNodeId : executionOrder ) {
-        const Node& node = m_Graph->getNode( localNodeId );
+        const Node& node = m_graph->getNode( localNodeId );
 
-        ExecutionContext::NodeContext& currentContext = m_ExecutionContext.setCurrentNode( node.getId() );
+        ExecutionContext::NodeContext& currentContext = m_executionContext.setCurrentNode( node.getId() );
 
         const uint32_t inputPinCount = node.getInputPinCount();
         for( uint32_t i = 0; i < inputPinCount; ++i ) {
             const PinBase* inputPin = node.getInputPin( i );
             if( inputPin->isConnected() ) {
                 Guid64 linkedPinId = inputPin->getLinkedPinGlobalId();
-                const Node& connectedNode = m_Graph->getNodeForPinId( linkedPinId );
-                const ExecutionContext::NodeContext& dependantNodeContext = m_ExecutionContext.getNodeContext(
+                const Node& connectedNode = m_graph->getNodeForPinId( linkedPinId );
+                const ExecutionContext::NodeContext& dependantNodeContext = m_executionContext.getNodeContext(
                     connectedNode.getId() );
 
                 const uint32_t outputPinCount = connectedNode.getOutputPinCount();
@@ -96,9 +96,9 @@ void GraphRunner::Update( [[maybe_unused]] uint64_t deltaTime ) {
             }
         }
 
-        node.update( m_ExecutionContext );
+        node.update( m_executionContext );
     }
 }
 
-void GraphRunner::Shutdown() {}
+void GraphRunner::shutdown() {}
 } // namespace onyx::node_graph

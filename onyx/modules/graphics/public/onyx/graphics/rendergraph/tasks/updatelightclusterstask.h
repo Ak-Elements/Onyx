@@ -18,6 +18,8 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode1In3Ou
                                                                                    rhi::BufferHandle,
                                                                                    rhi::BufferHandle > {
   public:
+    static constexpr RenderGraphResourceId LightEnvironmentResourceId = hash::fnV1aHash< uint32_t >(
+        "lightenvironment" );
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::UpdateLightClusters";
     StringId32 getTypeId() const override { return TypeId; }
 
@@ -28,7 +30,9 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode1In3Ou
                                                    rhi::BufferHandle,
                                                    rhi::BufferHandle >;
 
-    void onInit( rhi::GraphicsSystem& graphicsSystem, RenderGraphResourceCache& resourceCache ) override;
+    void onInit( assets::AssetSystem& assetSystem,
+                 rhi::GraphicsSystem& graphicsSystem,
+                 RenderGraphResourceCache& resourceCache ) override;
 
     void onBeginFrame( RenderGraphContext& context ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
@@ -52,6 +56,8 @@ class UpdateLightClustersRenderGraphNode : public node_graph::FixedPinNode1In3Ou
 #endif
 
   private:
+    InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightEnvironments;
+
     InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightIndexListSsbo;
     InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightGridSsbo;
     InplaceArray< rhi::BufferHandle, rhi::MaxFramesInFlight > m_lightIndexGlobalCountSsbo;

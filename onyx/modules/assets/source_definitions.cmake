@@ -6,6 +6,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     assetid.h
     assetloader.h
     assetloadrequest.h
+    assetmetadata.h
     assetserializer.h
     assetsystem.h
 )
@@ -15,5 +16,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     assetid.cpp
     assetloader.cpp
     assetloadrequest.cpp
+    assetmetadata.cpp
     assetsystem.cpp
 )

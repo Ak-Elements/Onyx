@@ -21,7 +21,7 @@ class VulkanBuffer : public Buffer, public DeviceMemory {
     void unmap() override;
 
     void flush( uint32_t offset, uint32_t count ) override;
-    void setData( int32_t offset, const void* data, int32_t length ) override;
+    void setData( uint64_t offset, const void* data, uint64_t length ) override;
 
     const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
 

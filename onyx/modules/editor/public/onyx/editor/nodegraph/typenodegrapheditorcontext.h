@@ -26,7 +26,8 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
   private:
     const node_graph::INodeFactory& getNodeFactory() const override { return m_nodeFactory; }
     void onLoad( assets::AssetSystem& assetSystem, const FilePath& path ) override {
-        const assets::AssetId assetId( path );
+        const assets::AssetId assetId = assetSystem.resolveAssetId( path );
+
         // want to queue meta data loading
         m_currentAssetMetaData = assetSystem.getAssetMeta( assetId );
 

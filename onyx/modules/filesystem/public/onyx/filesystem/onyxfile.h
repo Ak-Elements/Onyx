@@ -132,6 +132,7 @@ class OnyxFile {
     OnyxFile( StringView mountPath );
     OnyxFile( const FilePath& filePath );
 
+    [[nodiscard]] static bool writeAll( const FilePath& filePath, StringView content );
     [[nodiscard]] static bool readAll( const FilePath& filePath, String& outFileContent );
     [[nodiscard]] static bool readAll( const FilePath& filePath, String& outFileContent, bool shouldSkipBOM );
     [[nodiscard]] FileStream openStream( OpenMode mode ) const; // todo make base stream class?

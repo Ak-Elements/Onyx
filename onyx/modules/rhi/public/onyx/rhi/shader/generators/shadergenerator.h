@@ -5,16 +5,18 @@
 #include <onyx/string/format.h>
 
 namespace onyx::rhi {
+
 struct ShaderVariable {
-    String Name;
+    StringId32 Name;
     ShaderDataType Type;
-    uint32_t Offset = 0;
+    ShaderSemantic Semantic;
+    uint8_t SemanticIndex = 0;
 };
 
-struct ShaderVariableHash {
-    using IsTransparent = void;
-    size_t operator()( const ShaderVariable& variable ) const { return std::hash< String >{}( variable.Name ); }
-    size_t operator()( const String& name ) const { return std::hash< String >{}( name ); }
+struct ShaderPushConstant {
+    StringId32 Name;
+    ShaderDataType Type;
+    String SubType;
 };
 
 struct ShaderTexture {
@@ -23,38 +25,21 @@ struct ShaderTexture {
 
 class ShaderGenerator {
   public:
+    struct StageGenerationContext {
+        ShaderStage Stage;
+        String Code;
+
+        DynamicArray< ShaderVariable > Inputs;
+        DynamicArray< ShaderVariable > Outputs;
+
+        Vector3u8 Threads;
+    };
+
+  public:
     ShaderGenerator() = default;
+    ShaderGenerator( ShaderStage stage );
+
     virtual ~ShaderGenerator() = default;
-
-    template < typename T >
-    static String generateShaderValue( const T& value ) {
-        if constexpr( is_specialization_of_v< Vector4, T > ) {
-            return String( format::format( "vec4({}, {}, {}, {})", value[ 0 ], value[ 1 ], value[ 2 ], value[ 3 ] ) );
-        } else if constexpr( is_specialization_of_v< Vector3, T > ) {
-            return String( format::format( "vec3({}, {}, {})", value[ 0 ], value[ 1 ], value[ 2 ] ) );
-        } else if constexpr( is_specialization_of_v< Vector2, T > ) {
-            return String( format::format( "vec2({}, {})", value[ 0 ], value[ 1 ] ) );
-        } else if constexpr( std::is_integral_v< T > || std::is_floating_point_v< T > ) {
-            return std::to_string( value );
-        } else
-            return "";
-    }
-
-    template < typename T >
-    static String getTypeAsShaderTypeString() {
-        if constexpr( is_specialization_of_v< Vector4, T > ) {
-            return "vec4";
-        } else if constexpr( is_specialization_of_v< Vector3, T > ) {
-            return "vec3";
-        } else if constexpr( is_specialization_of_v< Vector2, T > ) {
-            return "vec2";
-        } else if constexpr( std::is_floating_point_v< T > ) {
-            return "float";
-        } else if constexpr( std::is_integral_v< T > ) {
-            return std::is_signed_v< T > ? "int" : "uint";
-        } else
-            return "";
-    }
 
     int32_t addTexture( uint64_t textureId ) {
         int32_t index = getTextureIndex( textureId );
@@ -77,44 +62,123 @@ class ShaderGenerator {
         return static_cast< int32_t >( std::distance( m_textures.begin(), it ) );
     }
 
-    void setStage( ShaderStage stage ) { m_currentStage = stage; }
-    ShaderStage getStage() const { return m_currentStage; }
+    void setCurrentStage( ShaderStage stage ) { m_currentStage = stage; }
+    ShaderStage getCurrentStage() const { return m_currentStage; }
+
+    void addInput( ShaderVariable input );
+    void addInput( ShaderStage stage, ShaderVariable input );
+    void addOutput( ShaderVariable input );
+    void addOutput( ShaderStage stage, ShaderVariable input );
 
     void appendCode( StringView code );
 
-    bool hasPushConstant( StringView name ) const;
-    bool hasPushConstant( ShaderStage stage, StringView name ) const;
+    bool hasPushConstant( StringId32 name ) const;
 
-    void addPushConstant( StringView name, ShaderDataType type );
-    void addPushConstant( ShaderStage stage, StringView name, ShaderDataType type );
-    void addPushConstant( ShaderStage stage, StringView name, ShaderDataType type, uint32_t offset );
+    void addPushConstant( ShaderPushConstant constant );
 
+    void addImport( String include );
     void addInclude( String include );
 
-    // TODO: Do not submit and fix shader generator isntead of hacking it like that
-    virtual String generateShader();
+    String generateShader();
+
+    template < typename T >
+    static String generateShaderValue( const T& value ) {
+        // TODO: Add uint2, uint3 and uint4 support
+        if constexpr( is_specialization_of_v< Vector4, T > ) {
+            return String( format::format( "float4({}, {}, {}, {})", value.X, value.Y, value.Z, value.W ) );
+        } else if constexpr( is_specialization_of_v< Vector3, T > ) {
+            return String( format::format( "float3({}, {}, {})", value.X, value.Y, value.Z ) );
+        } else if constexpr( is_specialization_of_v< Vector2, T > ) {
+            return String( format::format( "float2({}, {})", value.X, value.Y ) );
+        } else if constexpr( std::is_integral_v< T > || std::is_floating_point_v< T > ) {
+            return std::to_string( value );
+        } else
+            return "";
+    }
+
+    template < typename T >
+    static String getTypeAsShaderTypeString() {
+        if constexpr( is_specialization_of_v< Vector4, T > ) {
+            return "float4";
+        } else if constexpr( is_specialization_of_v< Vector3, T > ) {
+            return "float3";
+        } else if constexpr( is_specialization_of_v< Vector2, T > ) {
+            return "float2";
+        } else if constexpr( std::is_floating_point_v< T > ) {
+            return "float";
+        } else if constexpr( std::is_integral_v< T > ) {
+            return std::is_signed_v< T > ? "int" : "uint";
+        } else
+            return "";
+    }
+
+    static StringView shaderTypeToString( ShaderDataType type ) {
+        switch( type ) {
+        case ShaderDataType::Bool:
+            return "bool";
+        case ShaderDataType::Float:
+            return "float";
+        case ShaderDataType::Float2:
+            return "float2";
+        case ShaderDataType::Float3:
+            return "float3";
+        case ShaderDataType::Float4:
+            return "float4";
+        case ShaderDataType::Mat3:
+            return "float3x3";
+        case ShaderDataType::Mat4:
+            return "float4x4";
+        case ShaderDataType::Byte:
+            return "int8_t";
+        case ShaderDataType::Byte4:
+            return "vector<int8_t, 4>";
+        case ShaderDataType::UByte:
+            return "uint8_t";
+        case ShaderDataType::UByte4:
+            return "vector<uint8_t, 4>";
+        case ShaderDataType::Short2:
+            return "vector<int16_t, 2>";
+        case ShaderDataType::Short4:
+            return "vector<int16_t, 4>";
+        case ShaderDataType::UInt:
+            return "uint32_t";
+        case ShaderDataType::UInt2:
+            return "uint2";
+        case ShaderDataType::UInt3:
+            return "uint3";
+        case ShaderDataType::UInt4:
+            return "uint4";
+        case onyx::rhi::ShaderDataType::UInt64:
+            return "uint64_t";
+        case onyx::rhi::ShaderDataType::Pointer:
+            return "Ptr";
+        case ShaderDataType::Count:
+            return "";
+            ONYX_ASSERT( false, "Invalid shader data type" );
+        }
+    }
 
   private:
-    void generateVertexShader();
-    void generateFragmentShader();
+    StageGenerationContext& getOrCreateStage( ShaderStage stage );
+    Optional< StageGenerationContext* > getStage( ShaderStage stage );
 
     void generatePushConstants( String& stageCode );
     void generateIncludes( String& stageCode );
+    void generateImports( String& stageCode );
 
-    virtual void doGenerateFragmentMain() {}
+    String generateShaderStageCode( const StageGenerationContext& stageContext ) const;
+
+    virtual void generateShaderStage( StageGenerationContext& stageContext ) = 0;
 
     // TODO: Do not submit and fix shader generator isntead of hacking it like that
   protected:
     DynamicArray< ShaderTexture > m_textures;
-
-    InplaceArray< DynamicArray< ShaderVariable >, MaxShaderStages > m_pushConstants;
-
-    DynamicArray< ShaderVariable > m_vertexInputs;
-    DynamicArray< ShaderVariable > m_vertexOutputs;
+    DynamicArray< ShaderPushConstant > m_pushConstants;
 
     ShaderStage m_currentStage = ShaderStage::Invalid;
+    HashSet< String > m_shaderImports;
     HashSet< String > m_shaderIncludes;
-    InplaceArray< String, MaxShaderStages > m_shaderStagesCode;
+    DynamicArray< StageGenerationContext > m_shaderStages;
 };
 
 class PBRShaderGenerator : public ShaderGenerator {
@@ -122,6 +186,10 @@ class PBRShaderGenerator : public ShaderGenerator {
     PBRShaderGenerator();
 
   protected:
-    void doGenerateFragmentMain() override;
+    void generateShaderStage( StageGenerationContext& stageContext ) override;
+
+  private:
+    void generateVertexStage();
+    void generateFragmentStage();
 };
 } // namespace onyx::rhi

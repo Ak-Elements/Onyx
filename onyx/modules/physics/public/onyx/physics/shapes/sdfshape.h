@@ -7,7 +7,7 @@ class SdfShape;
 
 class SdfShape {
   public:
-    using SdfFunction = Vector4f32 ( * )( Vector3f32 );
+    using SdfFunction = InplaceFunction< Vector4f32( Vector3f32 ) >;
 
     SdfShape( SdfFunction function );
 

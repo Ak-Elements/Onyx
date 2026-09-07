@@ -1,14 +1,15 @@
 #include <onyx/localization/serialize/portableobjectserializer.h>
 
+#include <onyx/assets/assetmetadata.h>
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/localization/assets/gettextlocalizationdatabase.h>
 #include <onyx/stream/stringstream.h>
 
 namespace onyx::localization {
 namespace {
-constexpr StringView PO_HEADER_MSG_ID = "msgid \"\"\n";
-constexpr StringView PO_HEADER_MSG_STR = "msgstr \"\"\n";
-constexpr StringView PO_HEADER_PLURAL_FORMS = "plural-forms:";
+constexpr StringView PoHeaderMsgId = "msgid \"\"\n";
+constexpr StringView PoHeaderMsgStr = "msgstr \"\"\n";
+constexpr StringView PoHeaderPluralForms = "plural-forms:";
 
 struct PluralRule {
     using PluralFunc = int32_t ( * )( int32_t );
@@ -219,7 +220,7 @@ constexpr Array< PluralRule, 24 > PluralFunctions = {
                                                                           : 5;
                } } };
 
-bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap ) {
+bool parsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap ) {
     String fileContent;
     bool hasSucceeded = file_system::OnyxFile::readAll( path, fileContent );
 
@@ -234,7 +235,7 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
     // use english as default
     auto pluralFunction = PluralFunctions[ 1 ].Function;
 
-    if( stringStream.readConditional( PO_HEADER_MSG_ID ) && stringStream.readConditional( PO_HEADER_MSG_STR ) ) {
+    if( stringStream.readConditional( PoHeaderMsgId ) && stringStream.readConditional( PoHeaderMsgStr ) ) {
         StringView headerLine;
         while( stringStream.isEof() == false ) {
             stringStream.readLine( headerLine );
@@ -249,8 +250,8 @@ bool ParsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocaliza
             headerLine.remove_suffix( 1 );
 
             // implement parsing of plural form instead of that static lookup?
-            if( ignoreCaseStartsWith( headerLine, PO_HEADER_PLURAL_FORMS ) ) {
-                headerLine.remove_prefix( PO_HEADER_PLURAL_FORMS.size() );
+            if( ignoreCaseStartsWith( headerLine, PoHeaderPluralForms ) ) {
+                headerLine.remove_prefix( PoHeaderPluralForms.size() );
 
                 String pluralForm( headerLine );
                 std::erase_if( pluralForm, []( char c ) { return std::isspace( c ); } );
@@ -353,6 +354,6 @@ bool PortableObjectSerializer::deserialize( assets::AssetHandle< assets::AssetIn
                                             IEngine& /*engine*/ ) const {
     // po files are not json or yaml so we do not use the provided serializer and instead read the file as raw text
     GetTextLocalizationDatabase& localizationDatabase = asset.as< GetTextLocalizationDatabase >();
-    return ParsePoFile( file_system::path::getFullPath( meta.Path ), localizationDatabase );
+    return parsePoFile( file_system::path::getFullPath( meta.Path ), localizationDatabase );
 }
 } // namespace onyx::localization

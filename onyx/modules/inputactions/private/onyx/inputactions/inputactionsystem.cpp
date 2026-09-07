@@ -15,8 +15,13 @@ InputActionSystem::InputActionSystem( const InputActionSystemSettings& settings,
                                       input::InputSystem& inputSystem,
                                       assets::AssetSystem& assetSystem )
     : m_inputSystem( &inputSystem ) {
+    assets::AssetId defaultInputMap = settings.InputActionId;
+    if( defaultInputMap.isValid() == false ) {
+        defaultInputMap = assetSystem.resolveAssetId( "engine:/inputcontexts.oinput" );
+    }
+
     assets::AssetHandle< InputActionsContext > defaultInputActionsMap;
-    assetSystem.getAsset( settings.InputActionId, defaultInputActionsMap );
+    assetSystem.getAsset( defaultInputMap, defaultInputActionsMap );
     defaultInputActionsMap->getOnLoadedEvent().connect< &InputActionSystem::setActionsMapAsset >( this );
     if( defaultInputActionsMap.isValid() && defaultInputActionsMap.isLoaded() ) {
         setActionsMapAsset( defaultInputActionsMap );
@@ -169,9 +174,9 @@ bool Serialization< input_actions::InputActionSystemSettings >::serialize(
 bool Serialization< input_actions::InputActionSystemSettings >::deserialize(
     const Deserializer& deserializer,
     input_actions::InputActionSystemSettings& outSettings ) {
-    StringView inputMapPath;
-    if( deserializer.read< "inputmap" >( inputMapPath ) ) {
-        outSettings.InputActionId = assets::AssetId( FilePath( inputMapPath ) );
+    assets::AssetId inputMap;
+    if( deserializer.read< "inputmap" >( inputMap ) ) {
+        outSettings.InputActionId = inputMap;
     }
 
     return true;

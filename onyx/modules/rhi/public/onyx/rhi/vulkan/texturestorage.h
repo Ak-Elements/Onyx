@@ -22,44 +22,44 @@ class VulkanTextureStorage : public TextureStorage, public DeviceMemory {
     VulkanTextureStorage( VulkanGraphicsApi& api, VkImage image, StringView name );
 
     ~VulkanTextureStorage() override;
-    void Free( VulkanGraphicsApi& api );
+    void free( VulkanGraphicsApi& api );
 
-    VkFormatFeatureFlags GetFormatFlags() const { return GetFormatFlags( m_Properties.m_Format, false ); }
-    static VkFormatFeatureFlags GetFormatFlags( TextureFormat format, bool isDepthStencil );
+    [[nodiscard]] VkFormatFeatureFlags getFormatFlags() const { return getFormatFlags( m_properties.Format, false ); }
+    static VkFormatFeatureFlags getFormatFlags( TextureFormat format, bool isDepthStencil );
 
-    static VkImageAspectFlags GetAspectFlags( TextureFormat format );
-    static VkFormat GetFormat( TextureFormat format );
-    static TextureFormat GetFormat( VkFormat format );
+    static VkImageAspectFlags getAspectFlags( TextureFormat format );
+    static VkFormat getFormat( TextureFormat format );
+    static TextureFormat getFormat( VkFormat format );
 
-    void UpdateData( VulkanGraphicsApi& api, const Span< uint8_t >& data );
+    void updateData( VulkanGraphicsApi& api, const Span< uint8_t >& data );
 
-    int8_t Alias( const TextureStorageProperties& aliasProperties );
+    int8_t alias( const TextureStorageProperties& aliasProperties );
 
-    bool HasAlias( int8_t aliasIndex ) { return aliasIndex < m_Aliases.size(); }
-    VkImage GetAliasHandle( int8_t aliasIndex ) const {
-        ONYX_ASSERT( aliasIndex < m_Aliases.size() );
-        return m_Aliases[ aliasIndex ];
+    bool hasAlias( int8_t aliasIndex ) { return aliasIndex < m_aliases.size(); }
+    [[nodiscard]] VkImage getAliasHandle( int8_t aliasIndex ) const {
+        ONYX_ASSERT( aliasIndex < m_aliases.size() );
+        return m_aliases[ aliasIndex ];
     }
 
-    void TransitionPresent( VulkanCommandBuffer& commandBuffer );
+    void transitionPresent( VulkanCommandBuffer& commandBuffer );
 
-    void TransitionLayout( CommandBuffer& commandBuffer,
+    void transitionLayout( CommandBuffer& commandBuffer,
                            Context newContext,
                            Access newAccess,
                            ImageLayout newLayout ) override;
 
   private:
-    static VkImageType GetType( TextureType type );
-    static VkImageUsageFlags GetUsageFlags( const TextureStorageProperties& properties );
-    static bool IsOptimalTiling( const TextureStorageProperties& properties );
+    static VkImageType getType( TextureType type );
+    static VkImageUsageFlags getUsageFlags( const TextureStorageProperties& properties );
+    static bool isOptimalTiling( const TextureStorageProperties& properties );
 
-    const Device* m_Device;
+    const Device* m_device;
 
-    VULKAN_HANDLE( VkImage, Image, nullptr );
+    VULKAN_HANDLE( VkImage, image, nullptr );
 
-    InplaceArray< VkImage, 8 > m_Aliases; // max 8 aliases?
+    InplaceArray< VkImage, 8 > m_aliases; // max 8 aliases?
 
-    ImageLayout m_Layout = ImageLayout::None;
-    Access m_Access = Access::None;
+    ImageLayout m_layout = ImageLayout::None;
+    Access m_access = Access::None;
 };
 } // namespace onyx::rhi::vulkan

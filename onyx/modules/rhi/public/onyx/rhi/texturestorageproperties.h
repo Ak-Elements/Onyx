@@ -8,7 +8,7 @@ namespace onyx::rhi {
 struct TextureStorageProperties {
     TextureStorageProperties() = default;
 
-    uint32_t GetLocatorCount() const;
+    [[nodiscard]] uint32_t getLocatorCount() const;
 
     bool operator==( const TextureStorageProperties& anOther ) const {
         return std::memcmp( this, &anOther, sizeof anOther ) == 0;
@@ -17,27 +17,26 @@ struct TextureStorageProperties {
         return std::memcmp( this, &anOther, sizeof anOther ) != 0;
     }
 
-    Vector3s32 m_Size = { 1, 1, 1 };
-    uint16_t m_ArraySize = 0;
-    uint8_t m_MaxMipLevel = 1;
+    Vector3s32 Size = { 1, 1, 1 };
+    uint16_t ArraySize = 0;
+    uint8_t MaxMipLevel = 1;
 
-    MSAAProperties m_MSAAProperties;
+    MSAAProperties MsaaProperties;
 
-    CPUAccess m_CpuAccess = CPUAccess::None;
-    GPUAccess m_GpuAccess = GPUAccess::Read;
+    CPUAccess CpuAccess = CPUAccess::None;
+    GPUAccess GpuAccess = GPUAccess::Read;
 
-    TextureType m_Type = TextureType::Texture2D;
-    TextureFormat m_Format = TextureFormat::Invalid;
-
-    uint8_t m_HintFlags = 0;
+    TextureType Type = TextureType::Texture2D;
+    TextureFormat Format = TextureFormat::Invalid;
 
     // Add tilemode?
-    bool m_IsTexture : 1 = false;
-    bool m_IsFrameBuffer : 1 = false;
-    bool m_IsWritable : 1 = false;
-    bool m_IsPartiallyResident : 1 = false;
-    bool m_Padding1 : 3 = false;
+    bool IsTexture : 1 = false;
+    bool IsFrameBuffer : 1 = false;
+    bool IsWritable : 1 = false;
+    bool IsPartiallyResident : 1 = false;
+    bool IsNormalTexture : 1 = false;
+    bool Padding : 2 = false;
 
-    String m_DebugName;
+    String DebugName;
 };
 } // namespace onyx::rhi

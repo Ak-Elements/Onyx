@@ -9,23 +9,24 @@ void SimplexNoise2DNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) c
 
 void SimplexNoise2DNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                            rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     if( ( context.isPinConnected< OutPin0 >() == false ) && ( context.isPinConnected< OutPin1 >() == false ) )
         return;
 
     const InPin& inputPin0 = getInputPin();
 
-    generator.addInclude( "includes/math/psrdnoise2d.h" );
+    generator.addImport( "includes.math.psrdnoise2d" );
 
     String noiseVariable = format::format( "noiseNode_{:x}", getId().get() );
     String noiseValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
     String noiseGradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
 
-    generator.appendCode( format::format( "vec2 {};\n", noiseGradientOutVariableName ) );
+    generator.appendCode( format::format( "float2 {};\n", noiseGradientOutVariableName ) );
     generator.appendCode( format::format(
-        "float {} = psrdnoise({}, vec2(0.0f,0.0f), 0.0f, {});\n",
+        "float {} = psrdnoise({}, float2(0.0f,0.0f), 0.0f, {});\n",
         noiseValueOutVariableName,
         inputPin0.isConnected()
             ? format::format( "pin_{:x}", inputPin0.getLinkedPinGlobalId().get() )
@@ -53,23 +54,24 @@ void SimplexNoise3DNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) c
 
 void SimplexNoise3DNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                            rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     if( ( context.isPinConnected< OutPin0 >() == false ) && ( context.isPinConnected< OutPin1 >() == false ) )
         return;
 
     const InPin& inputPin0 = getInputPin();
 
-    generator.addInclude( "includes/math/psrdnoise2d.h" );
+    generator.addImport( "includes.math.psrdnoise3d.h" );
 
     String noiseVariable = format::format( "noiseNode_{:x}", getId().get() );
     String noiseValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
     String noiseGradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
 
-    generator.appendCode( format::format( "vec3 {};\n", noiseGradientOutVariableName ) );
+    generator.appendCode( format::format( "float3 {};\n", noiseGradientOutVariableName ) );
     generator.appendCode( format::format(
-        "float {} = psrdnoise({}, vec3(0.0f,0.0f, 0.0f), 0.0f, {});\n",
+        "float {} = psrdnoise({}, float3(0.0f,0.0f, 0.0f), 0.0f, {});\n",
         noiseValueOutVariableName,
         inputPin0.isConnected()
             ? format::format( "pin_{:x}", inputPin0.getLinkedPinGlobalId().get() )

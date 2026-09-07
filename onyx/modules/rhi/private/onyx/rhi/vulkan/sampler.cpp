@@ -59,13 +59,13 @@ Sampler::Sampler( const Device& device, const SamplerProperties& properties )
     createInfo.minFilter = ToVulkanSamplerFilter( properties.MinFilter );
     createInfo.magFilter = ToVulkanSamplerFilter( properties.MagFilter );
     createInfo.mipmapMode = ToVulkanSamplerMipMapMode( properties.MipFilter );
-    createInfo.anisotropyEnable = 0;
+    createInfo.anisotropyEnable = true;
     createInfo.compareEnable = 0;
-    createInfo.maxAnisotropy = 1.0f;
+    createInfo.maxAnisotropy = 8.0f;
     createInfo.unnormalizedCoordinates = 0;
     createInfo.borderColor = VkBorderColor::VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     createInfo.minLod = 0;
-    createInfo.maxLod = 16;
+    createInfo.maxLod = VK_LOD_CLAMP_NONE;
     createInfo.pNext = nullptr;
 
     VK_CHECK_RESULT( vkCreateSampler( device.GetHandle(), &createInfo, nullptr, &m_Sampler ) )

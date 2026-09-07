@@ -310,7 +310,7 @@ void VulkanCommandBuffer::transitionLayout( TextureHandle& texture,
                                             Context newContext,
                                             Access newAccess,
                                             ImageLayout newLayout ) {
-    texture.Storage->TransitionLayout( *this, newContext, newAccess, newLayout );
+    texture.Storage->transitionLayout( *this, newContext, newAccess, newLayout );
 }
 
 void VulkanCommandBuffer::bindDescriptorSets( VkPipelineLayout pipelineLayout, VkPipelineBindPoint bindingPoint ) {

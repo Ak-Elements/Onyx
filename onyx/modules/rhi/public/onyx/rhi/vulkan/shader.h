@@ -35,30 +35,33 @@ class Shader : public rhi::Shader {
     void create( const GraphicsSystem& graphicsSystem,
                  Span< const uint8_t > byteCode,
                  ShaderReflectionInfo& reflectionInfo );
-    const ShaderReflectionInfo& getReflectionData() const override { return m_reflectionInfo; }
+    [[nodiscard]] const ShaderReflectionInfo& getReflectionData() const override { return m_reflectionInfo; }
 
-    uint64_t getShaderHash() const override { return m_shaderHash; }
+    [[nodiscard]] uint64_t getShaderHash() const override { return m_shaderHash; }
     void setShaderHash( uint64_t hash ) override { m_shaderHash = hash; }
 
-    const InplaceArray< UniquePtr< DescriptorSetLayout >, MaxDescriptorSetLayouts >& getDescriptorSetLayouts() const {
+    [[nodiscard]] const InplaceArray< UniquePtr< DescriptorSetLayout >, MaxDescriptorSetLayouts >&
+    getDescriptorSetLayouts() const {
         return m_descriptorSetLayouts;
     }
-    const Set< VertexInput >& getVertexInputs() const { return m_reflectionInfo.VertexInput.getInputs(); }
-    const DynamicArray< PushConstantRange >& getPushConstantRanges() const {
+    [[nodiscard]] const Set< VertexInput >& getVertexInputs() const { return m_reflectionInfo.VertexInput.getInputs(); }
+    [[nodiscard]] const DynamicArray< PushConstantRange >& getPushConstantRanges() const {
         return m_reflectionInfo.PushConstantRanges;
     }
 
-    bool isComputeShader() const override { return enums::isSet( m_reflectionInfo.Stages, ShaderStage::Compute ); }
-    bool hasDescriptorSetLayout() const override { return m_descriptorSetLayouts.empty() == false; }
+    [[nodiscard]] bool isComputeShader() const override {
+        return enums::isSet( m_reflectionInfo.Stages, ShaderStage::Compute );
+    }
+    [[nodiscard]] bool hasDescriptorSetLayout() const override { return m_descriptorSetLayouts.empty() == false; }
 
-    DynamicArray< VkPipelineShaderStageCreateInfo > createPipelineShaderStageCreateInfos() const;
+    [[nodiscard]] DynamicArray< VkPipelineShaderStageCreateInfo > createPipelineShaderStageCreateInfos() const;
 
     [[nodiscard]] bool loadFromDisk( GraphicsSystem& graphicsSystem, Stream& stream ) override;
     [[nodiscard]] bool write( Stream& stream ) const override;
 
 #if !ONYX_IS_RETAIL
   public:
-    StringView getPath() const override { return m_path; }
+    [[nodiscard]] StringView getPath() const override { return m_path; }
     void setPath( const String& path ) override { m_path = path; }
 
   private:

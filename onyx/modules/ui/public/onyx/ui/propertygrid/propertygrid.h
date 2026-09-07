@@ -3,13 +3,14 @@
 #if ONYX_IS_EDITOR
 
 #include <onyx/localization/localization.h>
+#include <onyx/ui/controls/vectorcontrol.h>
+#include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/scalarinputoptions.h>
 #include <onyx/ui/scopeddisable.h>
 #include <onyx/ui/scopedindent.h>
 
 #include <onyx/assets/assethandle.h>
 #include <onyx/assets/assetid.h>
-#include <onyx/ui/controls/vectorcontrol.h>
 
 namespace onyx::assets {
 class AssetInterface;
@@ -80,10 +81,17 @@ bool drawColorProperty( StringView propertyName, Vector4f32& inOutColor );
 bool drawColorProperty( StringView propertyName, Vector4u8& inOutColor );
 
 template < typename T > requires std::is_class_v< T >
-bool drawProperty( StringView propertyName, T& ) {
+bool drawProperty( StringView propertyName, T& value ) {
     drawPropertyName( propertyName );
-    ImGui::Text( "Missing property grid visualizer" );
-    ImGui::EndHorizontal();
+    Optional< PropertyInspectors::InspectFunctionT > inspector = PropertyInspectors::getInspector< T >();
+    if( inspector.has_value() ) {
+        ImGui::EndHorizontal();
+        ScopedImGuiIndent indent;
+        inspector.value()( &value, false );
+    } else {
+        ImGui::Text( "Missing property grid visualizer" );
+        ImGui::EndHorizontal();
+    }
     return false;
 }
 

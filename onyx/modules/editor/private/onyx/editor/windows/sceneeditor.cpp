@@ -93,14 +93,16 @@ void SceneEditorWindow::onOpen() {
     inputActionSystem.setCurrentInputActionMap( StringId32( "sceneeditor" ) );
 
     if( m_scene.isValid() == false ) {
-        assets::AssetId startupLevel = "";
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+        assets::AssetId startupLevel = assetSystem.resolveAssetId( "project:/test.oscene" );
 
         if( startupLevel.isValid() ) {
             loadScene( startupLevel );
         } else {
-            assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
             m_scene = assetSystem.create< game_core::Scene >();
-            assetSystem.getAsset( "engine:/rendergraphs/default.orendergraph", m_scene->getRenderGraphRef() );
+            assets::AssetId defaultRenderGraph = assetSystem.resolveAssetId(
+                "engine:/rendergraphs/default.orendergraph" );
+            assetSystem.getAsset( defaultRenderGraph, m_scene->getRenderGraphRef() );
             onSceneLoaded( m_scene );
         }
     }
@@ -162,8 +164,9 @@ void SceneEditorWindow::onRenderMainMenuBar() {
             }
 
             FilePath path;
-            if( file_system::FileDialog::OpenFileDialog( path, "Scene", game_core::SceneSerializer::Extensions ) ) {
-                loadScene( assets::AssetId( path ) );
+            if( file_system::FileDialog::openFileDialog( path, "Scene", game_core::SceneSerializer::Extensions ) ) {
+                assets::AssetId id = assetSystem.resolveAssetId( path );
+                loadScene( id );
             }
         }
 
@@ -173,7 +176,7 @@ void SceneEditorWindow::onRenderMainMenuBar() {
 
         if( ImGui::MenuItem( localization::generic::SaveAs.Get().data() ) ) {
             FilePath path;
-            if( file_system::FileDialog::SaveFileDialog( path, "Scene", game_core::SceneSerializer::Extensions ) ) {
+            if( file_system::FileDialog::saveFileDialog( path, "Scene", game_core::SceneSerializer::Extensions ) ) {
                 assetSystem.saveAssetAs( path, m_scene );
             }
         }
@@ -256,7 +259,7 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     registry.addComponent< game_core::TransientComponent >( m_editorCameraEntity );
     game_core::TransformComponent& transform = registry.addComponent< game_core::TransformComponent >(
         m_editorCameraEntity );
-    transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
+    transform.Translation = Vector3f32{ 0.0f, 180.0f, 1000.0f };
     transform.RotationEuler = EulerRadiansF32::zero();
     game_core::CameraComponent& camera = registry.addComponent< game_core::CameraComponent >( m_editorCameraEntity );
 

@@ -91,7 +91,7 @@ bool SceneSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
     ecs::EntityRegistry& registry = scene.getRegistry();
     registry.clear();
 
-    assets::AssetId renderGraphAssetId = "engine:/rendergraphs/default.orendergraph";
+    assets::AssetId renderGraphAssetId = assetSystem.resolveAssetId( "engine:/rendergraphs/default.orendergraph" );
     deserializer.read< "renderGraph" >( renderGraphAssetId );
     assetSystem.getAsset( renderGraphAssetId, scene.m_sceneRenderGraph );
 

@@ -31,6 +31,7 @@ class PreviewTerrainEditPass : public node_graph::FixedPinNode2In1Out< graphics:
                                                    rhi::TextureHandle,
                                                    rhi::TextureHandle >;
 
+    void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, graphics::RenderGraphResourceCache& ) override;
     void onBeginFrame( graphics::RenderGraphContext& ) override;
     void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 

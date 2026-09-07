@@ -1,5 +1,7 @@
 #pragma once
 
+#include <onyx/rhi/graphicstypes.h>
+
 namespace onyx::rhi {
 struct DirectionalLight {
     Vector3f32 Direction;
@@ -80,6 +82,19 @@ struct LightingEnvironment {
     DirectionalLights DirectionalLights;
     PointLights PointLights;
     SpotLights SpotLights;
+};
+
+struct LightingEnvironmentGpu {
+    GpuBufferDeviceAddress DirectionalLightsPointer;
+    GpuBufferDeviceAddress PointLightsPointer;
+    GpuBufferDeviceAddress SpotLightsPointer;
+
+    GpuBufferDeviceAddress LightGrid;
+    GpuBufferDeviceAddress LightIndices;
+
+    Vector2u32 LightClusterSize;
+    float LightClusterBias;
+    float LightClusterScale;
 };
 
 } // namespace onyx::rhi

@@ -9,7 +9,7 @@ inline constexpr uint8_t MaxSubpasses = 8;
 inline constexpr uint8_t MaxDescriptorSetLayouts = 8;
 
 // keep in sync with ShaderStage enum in Graphics::ShaderModule
-inline constexpr uint8_t MaxShaderStages = 5;
+inline constexpr uint8_t MaxShaderStages = 16;
 
 struct Bindless {
     static constexpr uint8_t Set = 0;
@@ -169,6 +169,7 @@ struct BlendState {
 enum class TextureFormat : uint8_t {
     Invalid = 0,
     R_UNORM8,
+    R_UNORM16,
     R_UINT8,
     R_UINT16,
     R_UINT32,
@@ -180,6 +181,7 @@ enum class TextureFormat : uint8_t {
     RGB_UNORM8,
     RGBA_UNORM8,
     BGRA_UNORM8,
+    RGBA_UNORM16,
     RGBA_FLOAT16,
     RGBA_FLOAT32,
     RGB_UFLOAT32_PACKED_11_11_10,
@@ -215,7 +217,7 @@ enum class ShaderStage : uint16_t {
     Amplification = 1 << 13,
     Dispatch = 1 << 14,
     Count = 16,
-    All = std::numeric_limits< uint16_t >::max()
+    All = std::numeric_limits< int16_t >::max()
 };
 
 enum class ShaderDataType : uint8_t {
@@ -231,14 +233,27 @@ enum class ShaderDataType : uint8_t {
     UByte,
     UByte4,
     Short2,
-    Short2Normalized,
     Short4,
-    Short4Normalized,
     UInt,
     UInt2,
     UInt3,
     UInt4,
+    UInt64,
+    Pointer,
     Count
+};
+
+enum class ShaderSemantic : uint8_t {
+    None,
+    Position,
+    Target,
+    Depth,
+    VertexId,
+    InstanceId,
+    DispatchThreadId,
+    GroupId,
+    GroupThreadId,
+    GroupIndex
 };
 
 enum class VertexStreamInputRate { Vertex, Instance };
@@ -249,6 +264,8 @@ inline uint32_t GetShaderTypeByteSize( TextureFormat format ) {
     case TextureFormat::R_UINT8:
     case TextureFormat::R_UNORM8:
         return 1;
+    case TextureFormat::R_UNORM16:
+        return 2;
     case TextureFormat::RG_UNORM8:
         return 1 * 2;
     case TextureFormat::RGB_UNORM8:
@@ -331,6 +348,15 @@ struct Viewport {
 using ShaderEffectKey = uint64_t;
 } // namespace onyx::rhi
 
+struct GpuBufferDeviceAddress {
+    uint64_t Address = 0;
+
+    GpuBufferDeviceAddress() = default;
+    GpuBufferDeviceAddress( uint64_t address )
+        : Address( address ) {}
+    operator uint64_t() const { return Address; }
+};
+
 template <>
 struct std::formatter< onyx::rhi::ShaderDataType > : std::formatter< std::string > {
     auto format( onyx::rhi::ShaderDataType type, format_context& ctx ) const {
@@ -343,55 +369,55 @@ struct std::formatter< onyx::rhi::ShaderDataType > : std::formatter< std::string
             typeStr = "float";
             break;
         case onyx::rhi::ShaderDataType::Float2:
-            typeStr = "vec2";
+            typeStr = "float2";
             break;
         case onyx::rhi::ShaderDataType::Float3:
-            typeStr = "vec3";
+            typeStr = "float3";
             break;
         case onyx::rhi::ShaderDataType::Float4:
-            typeStr = "vec4";
+            typeStr = "float4";
             break;
         case onyx::rhi::ShaderDataType::Mat3:
-            typeStr = "mat3";
+            typeStr = "float3x3";
             break;
         case onyx::rhi::ShaderDataType::Mat4:
-            typeStr = "mat4";
+            typeStr = "float4x4";
             break;
         case onyx::rhi::ShaderDataType::Byte:
-            typeStr = "int";
+            typeStr = "int8_t";
             break;
         case onyx::rhi::ShaderDataType::Byte4:
-            typeStr = "int";
+            typeStr = "vector<int8_t, 4>";
             break;
         case onyx::rhi::ShaderDataType::UByte:
-            typeStr = "uint";
+            typeStr = "uint8_t";
             break;
         case onyx::rhi::ShaderDataType::UByte4:
-            typeStr = "uint";
+            typeStr = "vector<uint8_t, 4>";
             break;
         case onyx::rhi::ShaderDataType::Short2:
-            typeStr = "vec2";
-            break;
-        case onyx::rhi::ShaderDataType::Short2Normalized:
-            typeStr = "vec2";
+            typeStr = "vector<int16_t, 2>";
             break;
         case onyx::rhi::ShaderDataType::Short4:
-            typeStr = "vec4";
-            break;
-        case onyx::rhi::ShaderDataType::Short4Normalized:
-            typeStr = "vec4";
+            typeStr = "vector<int16_t, 4>";
             break;
         case onyx::rhi::ShaderDataType::UInt:
-            typeStr = "uint";
+            typeStr = "uint32_t";
             break;
         case onyx::rhi::ShaderDataType::UInt2:
-            typeStr = "uvec2";
+            typeStr = "uint2";
             break;
         case onyx::rhi::ShaderDataType::UInt3:
-            typeStr = "uvec3";
+            typeStr = "uint3";
             break;
         case onyx::rhi::ShaderDataType::UInt4:
-            typeStr = "uvec4";
+            typeStr = "uint4";
+            break;
+        case onyx::rhi::ShaderDataType::UInt64:
+            typeStr = "uint64_t";
+            break;
+        case onyx::rhi::ShaderDataType::Pointer:
+            typeStr = "Ptr";
             break;
         case onyx::rhi::ShaderDataType::Count:
             break;

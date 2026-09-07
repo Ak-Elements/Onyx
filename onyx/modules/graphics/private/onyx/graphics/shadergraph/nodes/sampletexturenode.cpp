@@ -41,9 +41,9 @@ bool SampleTextureNode::onSerialize( Serializer& serializer ) const {
 }
 
 bool SampleTextureNode::onDeserialize( const Deserializer& deserializer ) {
-    uint64_t assetId;
+    assets::AssetId assetId;
     if( deserializer.read< "sampleTextureId" >( assetId ) ) {
-        m_texture.setId( assets::AssetId( assetId ) );
+        m_texture.setId( assetId );
     }
 
     return FlexiblePinsNode::onDeserialize( deserializer );
@@ -51,8 +51,9 @@ bool SampleTextureNode::onDeserialize( const Deserializer& deserializer ) {
 
 void SampleTextureNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                           rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     const TextureInPin& inputPin = static_cast< const TextureInPin& >( *getInputPin( 0 ) );
 
@@ -64,7 +65,7 @@ void SampleTextureNode::doGenerateShader( const node_graph::ExecutionContext& co
         // TODO: we need to get the texture from the asset here to store it similar to OnUpdate and avoid adding
         // duplicates
         // shaderGraphTextures.GetTextureEntryIndex
-        textureIndex = generator.addTexture( m_texture.getId().get() );
+        textureIndex = generator.addTexture( m_texture.getId().asUint64() );
     }
 
     if( textureIndex == InvalidIndex32 ) {
@@ -84,18 +85,17 @@ void SampleTextureNode::doGenerateShader( const node_graph::ExecutionContext& co
                                                  context.getPinData< UVInPin >() );
 
     // Sampling code
-    String textureSampleCode = format::format(
-        "vec4 {} = texture(BindlessTextures[nonuniformEXT(TextureIndices[{}])], {}); \n",
-        textureSampleVariable,
-        textureIndex,
-        textureCoordsString );
+    String textureSampleCode = format::format( "float4 {} = linearSample( TextureIndices[ {} ] ) ], {} ); \n",
+                                               textureSampleVariable,
+                                               textureIndex,
+                                               textureCoordsString );
 
     // Outputs
     bool isAnyOutPinConnected = false;
     Optional< const RGBOutPin* > rgbOutputPin = getOutputPinByLocalId< RGBOutPin >();
     if( rgbOutputPin && context.isPinConnected< RGBOutPin >() ) {
         isAnyOutPinConnected = true;
-        textureSampleCode += format::format( "vec3 pin_{:x} = {}.xyz; // rgb \n",
+        textureSampleCode += format::format( "float3 pin_{:x} = {}.xyz; // rgb \n",
                                              rgbOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }
@@ -103,7 +103,7 @@ void SampleTextureNode::doGenerateShader( const node_graph::ExecutionContext& co
     Optional< const RGBAOutPin* > rgbaOutputPin = getOutputPinByLocalId< RGBAOutPin >();
     if( rgbaOutputPin && context.isPinConnected< RGBAOutPin >() ) {
         isAnyOutPinConnected = true;
-        textureSampleCode += format::format( "vec4 pin_{:x} = {}.xyzw; // rgba \n",
+        textureSampleCode += format::format( "float4 pin_{:x} = {}.xyzw; // rgba \n",
                                              rgbaOutputPin.value()->getGlobalId().get(),
                                              textureSampleVariable );
     }

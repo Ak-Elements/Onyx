@@ -5,6 +5,7 @@
 #include <onyx/assets/asset.h>
 #include <onyx/ui/controls/assetselector.h>
 #include <onyx/ui/imguisystem.h>
+#include <onyx/ui/propertygrid/propertyinspector.h>
 #include <onyx/ui/scalarinputoptions.h>
 #include <onyx/ui/scopeddisable.h>
 #include <onyx/ui/scopedid.h>
@@ -26,6 +27,18 @@ void setSplitterPositionX( int32_t position );
 
 ImGuiID beginPropertyGrid( StringView id, int32_t splitterMinX );
 void endPropertyGrid();
+
+template < typename T >
+bool drawPropertyValue( StringView propertyName, T& value ) {
+    Optional< PropertyInspectors::InspectFunctionT > inspector = PropertyInspectors::getInspector< T >();
+    if( inspector.has_value() ) {
+        ScopedImGuiIndent indent;
+        return inspector.value()( &value, false );
+    } else {
+        ImGui::Text( "Missing property grid visualizer" );
+    }
+    return false;
+}
 
 template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
 bool drawPropertyValue( StringView propertyName, assets::AssetHandle< T >& outAsset ) {

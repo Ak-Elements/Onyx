@@ -8,18 +8,18 @@ class NodeGraph;
 class GraphRunner {
   public:
     GraphRunner( const NodeGraph& graph )
-        : m_Graph( &graph ) {}
+        : m_graph( &graph ) {}
 
-    void Prepare();
-    void Update( [[maybe_unused]] uint64_t deltaTime );
-    void Shutdown();
+    void prepare();
+    void update( [[maybe_unused]] uint64_t deltaTime );
+    void shutdown();
 
-    PrepareContext& GetPrepareContext() { return m_PrepareContext; }
-    ExecutionContext& GetContext() { return m_ExecutionContext; }
+    PrepareContext& getPrepareContext() { return m_prepareContext; }
+    ExecutionContext& getContext() { return m_executionContext; }
 
   private:
-    const NodeGraph* m_Graph; // should be Ref<GraphAsset>
-    PrepareContext m_PrepareContext;
-    ExecutionContext m_ExecutionContext{ m_PrepareContext };
+    const NodeGraph* m_graph; // should be Ref<GraphAsset>
+    PrepareContext m_prepareContext;
+    ExecutionContext m_executionContext{ m_prepareContext };
 };
 } // namespace onyx::node_graph

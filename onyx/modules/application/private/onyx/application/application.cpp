@@ -53,7 +53,7 @@ void Application::init() {
 
     file_system::path::setMountPoints( mountPoints );
 
-    file_system::FileDialog::Init();
+    file_system::FileDialog::init();
 
     constexpr StringView LastSessionLogPath = "tmp:/logs/last_session.log";
     FilePath logDirectory = file_system::path::getFullPath( LastSessionLogPath ).parent_path();
@@ -102,7 +102,7 @@ void Application::init() {
 }
 
 void Application::shutdown() {
-    file_system::FileDialog::Shutdown();
+    file_system::FileDialog::shutdown();
 
     onApplicationShutdown( *this );
 

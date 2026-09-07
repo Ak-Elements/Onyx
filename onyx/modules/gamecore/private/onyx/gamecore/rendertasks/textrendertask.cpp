@@ -1,5 +1,6 @@
 #include <onyx/gamecore/rendertasks/textrendertask.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
@@ -9,11 +10,14 @@
 #include <onyx/profiler/profiler.h>
 
 namespace onyx::game_core {
-void MSDFFontRenderPass::onInit( rhi::GraphicsSystem& api, graphics::RenderGraphResourceCache& /*resourceCache*/ ) {
+void MSDFFontRenderPass::onInit( assets::AssetSystem& assetSystem,
+                                 rhi::GraphicsSystem& api,
+                                 graphics::RenderGraphResourceCache& /*resourceCache*/ ) {
     constexpr uint32_t MaxQuads = 10000;
     constexpr uint32_t MaxVertices = MaxQuads * 4;
     constexpr uint32_t MaxIndices = MaxQuads * 6;
 
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/font/msdffont.slang" );
     rhi::BufferProperties vertexBufferProps;
     vertexBufferProps.m_Size = static_cast< uint32_t >( MaxVertices * sizeof( rhi::FontVertex ) );
     vertexBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Vertex );

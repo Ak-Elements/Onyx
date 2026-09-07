@@ -1,14 +1,14 @@
 #pragma once
 
 #include <onyx/graphics/shadergraph/shadergraphnode.h>
-#include <onyx/nodegraph/nodes/fixedpinnode2in2out.h>
+#include <onyx/nodegraph/nodes/fixedpinnode2in1out.h>
+#include <onyx/volume/source/sdfsample.h>
 
 namespace onyx::volume {
 class SdfSphereVolumeShaderGraphNode
-    : public node_graph::FixedPinNode2In2Out< graphics::ShaderGraphNode, Vector3f32, float32, float32, Vector3f32 > {
+    : public node_graph::FixedPinNode2In1Out< graphics::ShaderGraphNode, Vector3f32, float32, SdfSample > {
   private:
-    using Super = node_graph::
-        FixedPinNode2In2Out< graphics::ShaderGraphNode, Vector3f32, float32, float32, Vector3f32 >;
+    using Super = node_graph::FixedPinNode2In1Out< graphics::ShaderGraphNode, Vector3f32, float32, SdfSample >;
 
   public:
     static constexpr StringId32 TypeId = "onyx::volume::volume_shader_graph::SdfSphereVolumeShaderGraphNode";

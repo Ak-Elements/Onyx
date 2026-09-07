@@ -37,8 +37,9 @@ const node_graph::PinBase* SdfNoise2DShaderGraphNode::getOutputPin( uint32_t ind
 
 void SdfNoise2DShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                   rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     if( ( context.isPinConnected< IsoValueOutPin >() == false ) &&
         ( context.isPinConnected< GradientOutPin >() == false ) )
@@ -55,13 +56,13 @@ void SdfNoise2DShaderGraphNode::doGenerateShader( const node_graph::ExecutionCon
                             ? format::format( "pin_{:x}", m_noiseValueInPin.getLinkedPinGlobalId().get() )
                             : rhi::ShaderGenerator::generateShaderValue( context.getPinData< NoiseValueInPin >() ) ) );
     generator.appendCode( format::format(
-        "vec2 {} = {};\n",
+        "float2 {} = {};\n",
         gradientTmpVariableName,
         m_noiseGradientInPin.isConnected()
             ? format::format( "pin_{:x}", m_noiseGradientInPin.getLinkedPinGlobalId().get() )
             : rhi::ShaderGenerator::generateShaderValue( context.getPinData< NoiseGradientInPin >() ) ) );
 
-    generator.appendCode( format::format( "vec3 {0} = normalize(vec3({1}.x, 1.0, {1}.y));\n",
+    generator.appendCode( format::format( "float3 {0} = normalize( float3( {1}.x, 1.0, {1}.y ) );\n",
                                           gradientOutVariableName,
                                           gradientTmpVariableName ) );
 }
@@ -116,8 +117,9 @@ const node_graph::PinBase* SdfNoise3DShaderGraphNode::getOutputPin( uint32_t ind
 
 void SdfNoise3DShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                   rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     if( ( context.isPinConnected< IsoValueOutPin >() == false ) &&
         ( context.isPinConnected< GradientOutPin >() == false ) )
@@ -133,7 +135,7 @@ void SdfNoise3DShaderGraphNode::doGenerateShader( const node_graph::ExecutionCon
                             ? format::format( "pin_{:x}", m_isoValueOutPin.getLinkedPinGlobalId().get() )
                             : rhi::ShaderGenerator::generateShaderValue( context.getPinData< IsoValueOutPin >() ) ) );
     generator.appendCode( format::format(
-        "vec3 {} = normalize({});\n",
+        "float3 {} = normalize( {} );\n",
         gradientOutVariableName,
         m_noiseGradientInPin.isConnected()
             ? format::format( "pin_{:x}", m_noiseGradientInPin.getLinkedPinGlobalId().get() )

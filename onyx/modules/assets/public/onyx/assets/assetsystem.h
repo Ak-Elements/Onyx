@@ -4,6 +4,7 @@
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetloader.h>
+#include <onyx/assets/assetmetadata.h>
 
 #include <onyx/filesystem/path.h>
 #include <onyx/log/logger.h>
@@ -30,8 +31,7 @@ class AssetSystem : public IEngineSystem {
 
     template < typename T >
     AssetHandle< T > create() {
-        const InplaceFunction< Reference< AssetInterface >( IEngine& ) >& createFunctor = s_registeredAssets.at(
-            T::TypeId );
+        const auto& createFunctor = s_registeredAssets.at( T::TypeId );
         AssetHandle< T > newAsset( AssetId::invalid(), createFunctor( *m_engine ) );
         newAsset->setState( AssetState::Loaded );
         return newAsset;
@@ -63,6 +63,8 @@ class AssetSystem : public IEngineSystem {
 
         return &it->second;
     }
+
+    AssetId resolveAssetId( const FilePath& path ) const;
 
     const AssetMetaData& getAssetMeta( AssetId id ) const { return m_assetsMetaData.at( id ); }
 
@@ -98,12 +100,6 @@ class AssetSystem : public IEngineSystem {
         return availableAssets;
     }
 
-    template < typename T, uint64_t N >
-    constexpr bool getAsset( const CompileTimeString< N >& path, AssetHandle< T >& outAsset ) {
-        AssetId id = static_cast< AssetId >( hash::fnV1aHash( path, 0 ) );
-        return getAsset( id, outAsset, false );
-    }
-
     template < typename T >
     bool getAsset( AssetId id, AssetHandle< T >& outAsset ) {
         return getAsset( id, outAsset, false );
@@ -125,6 +121,7 @@ class AssetSystem : public IEngineSystem {
 
     template < typename T >
     bool saveAssetAs( const FilePath& newPath, const AssetHandle< T >& asset );
+
 #endif
 
     template < typename AssetT > requires std::is_base_of_v< AssetInterface, AssetT >
@@ -265,8 +262,7 @@ bool AssetSystem::getAssetUnmanaged( AssetId id, AssetHandle< T >& outAssetRefer
     const AssetMetaData& metaData = assetIt->second;
 
     constexpr StringId32 AssetTypeHash = T::TypeId;
-    const InplaceFunction< Reference< AssetInterface >( IEngine& ) >& createFunctor = s_registeredAssets.at(
-        AssetTypeHash );
+    const auto& createFunctor = s_registeredAssets.at( AssetTypeHash );
     const UniquePtr< IAssetSerializer >& serializer = s_registeredSerializer.at( AssetTypeHash );
 
     Reference< AssetInterface > assetCopy = createFunctor( *m_engine );
@@ -305,7 +301,7 @@ bool AssetSystem::saveAsset( const AssetHandle< T >& asset ) {
 template < typename T >
 bool AssetSystem::saveAssetAs( const FilePath& newPath, const AssetHandle< T >& asset ) {
     constexpr StringId32 AssetTypeHash = T::TypeId;
-    AssetId newAssetId( newPath );
+    AssetId newAssetId( Guid64Generator::getGuid() );
     AssetMetaData metaData{ .Path = newPath,
                             .Id = newAssetId,
                             .Type = static_cast< AssetType >( AssetTypeHash.getId() ) };

@@ -5,12 +5,12 @@
 
 namespace onyx {
 bool Serialization< assets::AssetId >::serialize( Serializer& serializer, const assets::AssetId& assetId ) {
-    return serializer.write( assetId.get(), 16 );
+    return serializer.write( assetId.get() );
 }
 
 bool Serialization< assets::AssetId >::deserialize( const Deserializer& deserializer, assets::AssetId& outAssetId ) {
-    uint64_t id;
-    bool success = deserializer.read( id, 16 );
+    Guid64 id;
+    bool success = deserializer.read( id );
     outAssetId = assets::AssetId( id );
     return success;
 }

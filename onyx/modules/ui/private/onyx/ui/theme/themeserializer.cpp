@@ -1,6 +1,7 @@
 #include <onyx/ui/theme/themeserializer.h>
 
 #include <onyx/assets/asset.h>
+#include <onyx/assets/assetmetadata.h>
 #include <onyx/filesystem/onyxfile.h>
 #include <onyx/filesystem/textdeserializer.h>
 #include <onyx/stream/stringstream.h>

@@ -10,40 +10,11 @@
 namespace onyx::assets {
 struct AssetLoadRequest;
 
-// AssetType is the hash of the asset class to use. e.g.: AudioAsset, MeshAsset, StaticMeshAsset, ...
-// class hashes are constructed using entt type_info
-// NOLINTNEXTLINE
-enum class AssetType : uint32_t { Invalid };
-
 enum class AssetState : uint8_t {
     Invalid = 0, // asset is in undefined invalid state
     Loading,
     Loaded,
     Missing, // asset is defined but can't be found
-};
-
-struct AssetMetaData {
-    FilePath Path;
-    AssetId Id;
-    AssetType Type = AssetType::Invalid;
-
-    AssetFormat Format = AssetFormat::Json;
-
-    int64_t Handle = InvalidIndex64;
-
-    uint32_t Version = 0; // Maybe not needed
-
-    [[nodiscard]] String getName() const { return Path.stem().string(); }
-
-    [[nodiscard]] String getExtension() const {
-        // TODO: remove extension once we have meta data stored on disk
-        String extension = Path.extension().string();
-        if( extension.empty() == false ) {
-            return extension.substr( 1 ); // ignore .
-        }
-
-        return "";
-    }
 };
 
 // Type trait to check if a class has Dependencies using alias

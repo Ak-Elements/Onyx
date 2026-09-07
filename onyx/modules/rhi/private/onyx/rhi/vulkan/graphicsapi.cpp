@@ -38,6 +38,7 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
 
     if( settings.IsDebugEnabled ) {
         uint32_t severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
                             VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 
         m_debugUtilsMessenger = makeUnique< DebugUtilsMessenger >(
@@ -205,7 +206,6 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
             { VK_DESCRIPTOR_TYPE_SAMPLER, Bindless::MaxSamplers },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Bindless::MaxResources },
             { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, Bindless::MaxResources },
-            // { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, rhi::MAX_BINDLESS_RESOURCES },
         };
         m_bindlessDescriptorPool = makeUnique< DescriptorPool >( *m_device,
                                                                  pools,
@@ -1000,7 +1000,7 @@ void VulkanGraphicsApi::createAlias( TextureHandle& outTexture,
     ONYX_ASSERT( parentStorage.GetHandle() != nullptr, "Storage for texture is not valid" );
 
     outTexture.Storage = storageHandle;
-    outTexture.Alias = parentStorage.Alias( aliasStorageProperties );
+    outTexture.Alias = parentStorage.alias( aliasStorageProperties );
 
     uint32_t index;
     VulkanTexture* texture = m_textures.AcquireAndEmplace( index,
@@ -1042,7 +1042,7 @@ DynamicArray< DescriptorSetHandle > VulkanGraphicsApi::createDescriptorSet( cons
 #if ONYX_IS_RETAIL
         descriptorSets.emplace_back( Reference< DescriptorSet >::create( *m_Device, *m_DescriptorPool, *layout ) );
 #else
-        StringView shaderName = shader.getId().getPath();
+        StringView shaderName = shader->getPath();
         StringView debugName = format::format( "{}(set = {})", shaderName, layout->GetSet() );
 
         sets.emplace_back( Reference< DescriptorSet >::create( *m_device, *m_descriptorPool, *layout, debugName ) );

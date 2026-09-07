@@ -123,15 +123,15 @@ void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandB
                                                     const rhi::FrameContext& frameContext,
                                                     const graphics::ShaderGraph& shaderGraph ) {
     node_graph::GraphRunner runner( shaderGraph.getNodeGraph() );
-    runner.Prepare();
-    runner.Update( 0 );
+    runner.prepare();
+    runner.update( 0 );
 
     // TODO: Fix for other types
     const graphics::MaterialShaderGraph& materialShader = static_cast< const graphics::MaterialShaderGraph& >(
         shaderGraph );
     commandBuffer.bindShaderEffect( materialShader.getShader() );
 
-    const graphics::ShaderGraphTextures& shaderTextures = runner.GetContext().get< graphics::ShaderGraphTextures >();
+    const graphics::ShaderGraphTextures& shaderTextures = runner.getContext().get< graphics::ShaderGraphTextures >();
     const DynamicArray< uint32_t >& textureIndices = shaderTextures.getTextures();
 
     struct PushConstants {

@@ -68,9 +68,9 @@ void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     Vector2f32 topLeftCorner{ ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y };
 
-    const rhi::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->GetProperties();
-    ImVec2 sceneTextureExtents = { static_cast< float32 >( sceneTextureProperties.m_Size[ 0 ] ),
-                                   static_cast< float32 >( sceneTextureProperties.m_Size[ 1 ] ) };
+    const rhi::TextureStorageProperties& sceneTextureProperties = finalSceneTexture.Storage->getProperties();
+    ImVec2 sceneTextureExtents = { static_cast< float32 >( sceneTextureProperties.Size.X ),
+                                   static_cast< float32 >( sceneTextureProperties.Size.Y ) };
 
     ImGui::SetNextItemAllowOverlap();
     ImGui::Image( finalSceneTexture.Texture->GetIndex(), sceneTextureExtents );
@@ -78,8 +78,8 @@ void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     renderImGuizmo( sceneId,
                     scene,
                     topLeftCorner,
-                    Vector2f32( static_cast< float32 >( sceneTextureProperties.m_Size[ 0 ] ),
-                                static_cast< float32 >( sceneTextureProperties.m_Size[ 1 ] ) ) );
+                    Vector2f32( static_cast< float32 >( sceneTextureProperties.Size.X ),
+                                static_cast< float32 >( sceneTextureProperties.Size.Y ) ) );
 
     renderViewportControls( scene, topLeftCorner );
 }

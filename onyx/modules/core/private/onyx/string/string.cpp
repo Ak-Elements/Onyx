@@ -36,6 +36,14 @@ DynamicArray< String > split( StringView string, char delimiter ) {
     return split( string, String( 1, delimiter ) );
 }
 
+String join( const DynamicArray< String >& elements, StringView delimiter ) {
+    return elements | std::views::join_with( delimiter ) | std::ranges::to< String >();
+}
+
+String join( const DynamicArray< StringView >& elements, StringView delimiter ) {
+    return elements | std::views::join_with( delimiter ) | std::ranges::to< String >();
+}
+
 bool ignoreCaseEqual( StringView lhs, StringView rhs ) {
     return std::ranges::equal( lhs, rhs, []( char lhs, char rhs ) {
         return std::tolower( lhs ) == std::tolower( rhs );
@@ -44,6 +52,10 @@ bool ignoreCaseEqual( StringView lhs, StringView rhs ) {
 
 bool ignoreCaseStartsWith( StringView string, StringView prefix ) {
     return toLower( string ).starts_with( toLower( prefix ) );
+}
+
+bool ignoreCaseEndsWith( StringView string, StringView prefix ) {
+    return toLower( string ).ends_with( toLower( prefix ) );
 }
 
 StringView::size_type ignoreCaseFind( StringView string, StringView searchString ) {

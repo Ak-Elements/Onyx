@@ -9,15 +9,9 @@ class VolumeShaderGraph : public onyx::graphics::ShaderGraph {
     static constexpr StringId32 TypeId{ "onyx::volume::assets::VolumeShaderGraph" };
     static StringId32 getTypeId() { return TypeId; }
 
-    assets::AssetId getBuildOctreeShader() const { return m_buildOctreeShader; }
-    assets::AssetId getFindOctreeNodeShader() const { return m_findOctreeNodeShader; }
-    assets::AssetId getGenerateVolumeMeshShader() const { return m_generateVolumeMeshShader; }
-    assets::AssetId getRaytraceTerrainShader() const { return m_raytraceTerrainShader; }
+    assets::AssetId getRenderTerrainShader() const { return m_renderTerrainShader; }
 
   private:
-    assets::AssetId m_buildOctreeShader;
-    assets::AssetId m_findOctreeNodeShader;
-    assets::AssetId m_generateVolumeMeshShader;
-    assets::AssetId m_raytraceTerrainShader;
+    assets::AssetId m_renderTerrainShader;
 };
 } // namespace onyx::volume

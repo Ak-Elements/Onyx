@@ -109,7 +109,7 @@ bool SDFFontSerializer::deserialize( assets::AssetHandle< assets::AssetInterface
 
     SDFFont& font = asset.as< SDFFont >();
 
-    uint64_t textureAssetId;
+    assets::AssetId textureAssetId;
     if( deserializer.read< "texture" >( textureAssetId ) == false ) {
         ONYX_LOG_ERROR( "Failed loading SDF Font(Path:{}), missing texture asset id.", meta.Path );
         return false;
@@ -121,7 +121,7 @@ bool SDFFontSerializer::deserialize( assets::AssetHandle< assets::AssetInterface
     }
 
     assets::AssetHandle< TextureAsset > fontTexture;
-    assetSystem.getAsset( assets::AssetId( textureAssetId ), fontTexture );
+    assetSystem.getAsset( textureAssetId, fontTexture );
     font.setTexture( fontTexture );
 
     return true;

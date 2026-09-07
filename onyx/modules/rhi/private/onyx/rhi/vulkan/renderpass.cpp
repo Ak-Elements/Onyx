@@ -43,7 +43,7 @@ VkAttachmentDescription2 CreateAttachmentDescription(
 
     VkAttachmentDescription2 attachmentDescription = {};
     attachmentDescription.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
-    attachmentDescription.format = VulkanTextureStorage::GetFormat( format );
+    attachmentDescription.format = VulkanTextureStorage::getFormat( format );
     attachmentDescription.samples = static_cast< VkSampleCountFlagBits >( attachmentSettings.m_Samples );
     attachmentDescription.loadOp = static_cast< VkAttachmentLoadOp >( attachmentSettings.m_LoadOp );
     attachmentDescription.storeOp = static_cast< VkAttachmentStoreOp >( attachmentSettings.m_StoreOp );

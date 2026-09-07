@@ -163,7 +163,6 @@ bool InputActionsSerializer::deserialize( assets::AssetHandle< assets::AssetInte
     HashMap< StringId32, InputActionsMap >& contexts = inputAsset.getMaps();
 
     contexts.clear();
-    inputAsset.setName( meta.getName() );
     return deserializer.read( contexts );
 }
 } // namespace onyx::input_actions

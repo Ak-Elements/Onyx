@@ -7,6 +7,7 @@ class VolumeShaderGraphGenerator : public rhi::ShaderGenerator {
   public:
     VolumeShaderGraphGenerator();
 
-    String generateShader() override;
+  private:
+    void generateShaderStage( rhi::ShaderGenerator::StageGenerationContext& stageContext ) override;
 };
 } // namespace onyx::volume

@@ -12,7 +12,7 @@ constexpr uint64_t EncodeMask64[ 6 ] = { 0x00000000FFFFFFFF,
 
 template < typename MortonT, typename CoordT >
 inline constexpr MortonT encodeCoordinate( CoordT coord ) {
-    if constexpr ( sizeof( MortonT ) == 4 ) {
+    if constexpr( sizeof( MortonT ) == 4 ) {
         MortonT x = static_cast< MortonT >( coord );
         x = ( x | x << 16 ) & EncodeMask32[ 0 ];
         x = ( x | x << 8 ) & EncodeMask32[ 1 ];
@@ -34,7 +34,7 @@ inline constexpr MortonT encodeCoordinate( CoordT coord ) {
 
 template < typename MortonT, typename CoordT >
 inline constexpr CoordT decodeCoordinate( MortonT morton ) {
-    if constexpr ( sizeof( MortonT ) == 4 ) {
+    if constexpr( sizeof( MortonT ) == 4 ) {
         MortonT x = morton & EncodeMask32[ 4 ];
         x = ( x ^ ( x >> 1 ) ) & EncodeMask32[ 3 ];
         x = ( x ^ ( x >> 2 ) ) & EncodeMask32[ 2 ];
@@ -78,28 +78,28 @@ struct MortonCode2D {
 
     static constexpr MortonCode2D encode( CoordT x, CoordT y ) {
         using namespace internal;
-        return MortonCode2D( EncodeCoordinate< MortonT, CoordT >( x ) |
-                             ( EncodeCoordinate< MortonT, CoordT >( y ) << 1 ) );
+        return MortonCode2D( encodeCoordinate< MortonT, CoordT >( x ) |
+                             ( encodeCoordinate< MortonT, CoordT >( y ) << 1 ) );
     }
 
     static constexpr void decode( MortonT morton, CoordT& x, CoordT& y ) {
         using namespace onyx::internal;
         x = decodeCoordinate< MortonT, CoordT >( morton );
-        y = decodeCoordinate< MortonT, CoordT >( morton >> 1 );
+        y = decodeCoordinate< MortonT, CoordT >( MortonT( morton.m_mortonCode >> 1 ) );
     }
 
     template < SignedCoordinateT dX, SignedCoordinateT dY >
     constexpr MortonCode2D getNeighbor() const {
         // no opt - called to get the same morton code
-        if constexpr ( ( dX == 0 ) && ( dY == 0 ) ) {
+        if constexpr( ( dX == 0 ) && ( dY == 0 ) ) {
             return *this;
         }
 
         // direct neighbors
 
         // up/down neighbor
-        if constexpr ( ( dX == 0 ) && ( ( dY * dY ) == 1 ) ) {
-            if constexpr ( dY == 1 ) {
+        if constexpr( ( dX == 0 ) && ( ( dY * dY ) == 1 ) ) {
+            if constexpr( dY == 1 ) {
                 return MortonCode2D( ( m_mortonCode & XMask ) | ( ( ( m_mortonCode & YMask ) - YMask ) & YMask ) );
             } else {
                 return MortonCode2D( ( m_mortonCode & XMask ) |
@@ -108,8 +108,8 @@ struct MortonCode2D {
         }
 
         // right/left neighbor
-        if constexpr ( ( ( dX * dX ) == 1 ) && ( dY == 0 ) ) {
-            if constexpr ( dX == 1 ) {
+        if constexpr( ( ( dX * dX ) == 1 ) && ( dY == 0 ) ) {
+            if constexpr( dX == 1 ) {
                 return MortonCode2D( ( ( ( m_mortonCode & XMask ) - XMask ) & XMask ) | ( m_mortonCode & YMask ) );
             } else {
                 return MortonCode2D( ( ( ( m_mortonCode & XMask ) - NegativeXOffset ) & XMask ) |
@@ -118,14 +118,14 @@ struct MortonCode2D {
         }
 
         // up/down & left/right neighbor
-        if constexpr ( ( ( dX * dX ) == 1 ) && ( ( dY * dY ) == 1 ) ) {
-            if constexpr ( ( dX == 1 ) && ( dY == 1 ) ) {
+        if constexpr( ( ( dX * dX ) == 1 ) && ( ( dY * dY ) == 1 ) ) {
+            if constexpr( ( dX == 1 ) && ( dY == 1 ) ) {
                 return MortonCode2D( ( ( ( m_mortonCode & XMask ) - XMask ) & XMask ) |
                                      ( ( ( m_mortonCode & YMask ) - YMask ) & YMask ) );
-            } else if constexpr ( ( dX == 1 ) && ( dY == -1 ) ) {
+            } else if constexpr( ( dX == 1 ) && ( dY == -1 ) ) {
                 return MortonCode2D( ( ( ( m_mortonCode & XMask ) - XMask ) & XMask ) |
                                      ( ( ( m_mortonCode & YMask ) - NegativeYOffset ) & YMask ) );
-            } else if constexpr ( ( dX == -1 ) && ( dY == 1 ) ) {
+            } else if constexpr( ( dX == -1 ) && ( dY == 1 ) ) {
                 return MortonCode2D( ( ( ( m_mortonCode & XMask ) - NegativeXOffset ) & XMask ) |
                                      ( ( ( m_mortonCode & YMask ) - YMask ) & YMask ) );
             } else {
@@ -135,7 +135,7 @@ struct MortonCode2D {
         }
 
         // non direct neighbors
-        if constexpr ( ( ( dX * dX ) != 1 ) && ( ( dY * dY ) != 1 ) ) {
+        if constexpr( ( ( dX * dX ) != 1 ) && ( ( dY * dY ) != 1 ) ) {
             using namespace internal;
             return MortonCode2D(
                 ( ( ( m_mortonCode & XMask ) - EncodeCoordinate< MortonT, CoordT >( static_cast< CoordT >( -dX ) ) ) &

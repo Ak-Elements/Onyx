@@ -23,11 +23,7 @@ class InputActionsContext : public assets::Asset< InputActionsContext > {
         return m_contexts.at( id );
     }
 
-    void setName( const String& name ) { m_name = name; }
-    const String& getName() const { return m_name; }
-
   private:
-    String m_name;
     HashMap< StringId32, InputActionsMap > m_contexts;
 };
 } // namespace onyx::input_actions

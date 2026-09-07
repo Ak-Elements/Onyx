@@ -53,7 +53,7 @@ struct InputActionState {
 };
 
 struct InputActionSystemSettings {
-    assets::AssetId InputActionId{ "engine:/inputcontexts.oinput" };
+    assets::AssetId InputActionId;
 };
 
 class InputActionSystem : public IEngineSystem {

@@ -37,9 +37,9 @@ bool Serialization< rhi::GraphicSettings >::serialize( Serializer& serializer, c
 
 bool Serialization< rhi::GraphicSettings >::deserialize( const Deserializer& deserializer,
                                                          rhi::GraphicSettings& outSettings ) {
-    StringView path;
-    if( deserializer.read< "rendergraph" >( path ) ) {
-        outSettings.DefaultRenderGraph = assets::AssetId( FilePath( path ) );
+    assets::AssetId assetId;
+    if( deserializer.read< "rendergraph" >( assetId ) ) {
+        outSettings.DefaultRenderGraph = assetId;
     }
 
     deserializer.read< "api" >( outSettings.Api );
@@ -105,7 +105,7 @@ GraphicsSystem::~GraphicsSystem() {
     m_shaderCache.clear();
 
     m_depthImages.clear();
-    m_viewConstantsUniformBuffers.clear();
+    m_viewConstantsBuffers.clear();
 
     m_graphicsSystem->shutdown();
 
@@ -120,16 +120,16 @@ void GraphicsSystem::createDepthImages( Vector2s32 extents ) {
     m_depthTextureExtent = extents;
 
     TextureStorageProperties depthTargetStorageProperties;
-    depthTargetStorageProperties.m_Size = Vector3s32{ m_depthTextureExtent, 1 };
-    depthTargetStorageProperties.m_Format = m_depthTextureFormat;
-    depthTargetStorageProperties.m_IsTexture = true;
-    depthTargetStorageProperties.m_IsFrameBuffer = true;
+    depthTargetStorageProperties.Size = Vector3s32{ m_depthTextureExtent, 1 };
+    depthTargetStorageProperties.Format = m_depthTextureFormat;
+    depthTargetStorageProperties.IsTexture = true;
+    depthTargetStorageProperties.IsFrameBuffer = true;
 
     TextureProperties depthTargetViewProperties;
-    depthTargetViewProperties.Format = depthTargetStorageProperties.m_Format;
+    depthTargetViewProperties.Format = depthTargetStorageProperties.Format;
 
     for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
-        depthTargetStorageProperties.m_DebugName = format::format( "Depth Storage {}", i );
+        depthTargetStorageProperties.DebugName = format::format( "Depth Storage {}", i );
         depthTargetViewProperties.DebugName = format::format( "Depth Image {}", i );
 
         createTexture( m_depthImages[ i ], depthTargetStorageProperties, depthTargetViewProperties );
@@ -144,7 +144,7 @@ void GraphicsSystem::createViewConstantBuffers() {
 
     for( uint8_t i = 0; i < MaxFramesInFlight; ++i ) {
         uniformBufferProps.m_DebugName = format::format( "ViewConstants-{}", i );
-        createBuffer( m_viewConstantsUniformBuffers[ i ], uniformBufferProps );
+        createBuffer( m_viewConstantsBuffers[ i ], uniformBufferProps );
     }
 }
 
@@ -183,9 +183,9 @@ bool GraphicsSystem::beginFrame() {
         viewConstants.Far = m_camera->getFar();
     }
 
-    m_viewConstantsUniformBuffers[ m_frameIndex ].Buffer->setData( 0,
-                                                                   &currentFrameContext.ViewConstants,
-                                                                   sizeof( ViewConstants ) );
+    m_viewConstantsBuffers[ m_frameIndex ].Buffer->setData( 0,
+                                                            &currentFrameContext.ViewConstants,
+                                                            sizeof( ViewConstants ) );
 
     m_beginFrameSignal.dispatch( currentFrameContext );
 
@@ -309,11 +309,11 @@ ShaderInstanceHandle GraphicsSystem::createShaderInstance( assets::AssetId shade
     ONYX_ASSERT( m_assetSystem != nullptr );
 
 #if !ONYX_IS_RETAIL
-    if( shaderAssetId.getPath().empty() ) {
-        // retrieve asset name in case it's loaded with the hash only for better debugging
-        const assets::AssetMetaData& meta = m_assetSystem->getAssetMeta( shaderAssetId );
-        shaderAssetId = assets::AssetId( shaderAssetId.get(), meta.getName() );
-    }
+    // if( shaderAssetId.isValid() ) {
+    // retrieve asset name in case it's loaded with the hash only for better debugging
+    // const assets::AssetMetaData& meta = m_assetSystem->getAssetMeta( shaderAssetId );
+    // shaderAssetId = assets::AssetId( shaderAssetId.get(), meta.getName() );
+    // }
 #endif
 
     ShaderHandle shader;

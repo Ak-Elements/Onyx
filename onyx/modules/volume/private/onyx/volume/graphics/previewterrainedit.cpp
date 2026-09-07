@@ -1,5 +1,6 @@
 #include <onyx/volume/graphics/previewterrainedit.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/rhi/commandbuffer.h>
 
@@ -15,11 +16,15 @@ uint16_t PreviewTerrainEditPass::s_brushType = 0;
 uint16_t PreviewTerrainEditPass::s_brushOperation = 0;
 
 PreviewTerrainEditPass::PreviewTerrainEditPass() {
-    m_pipelineProperties.Shader = "engine:/shaders/volume/render_terrain_brush.oshader";
-
     m_inputAttachmentInfos.emplace_back(); // buffer
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
+}
+
+void PreviewTerrainEditPass::onInit( assets::AssetSystem& assetSystem,
+                                     rhi::GraphicsSystem&,
+                                     graphics::RenderGraphResourceCache& ) {
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/volume/render_terrain_brush.oshader" );
 }
 
 void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context ) {

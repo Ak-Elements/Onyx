@@ -24,7 +24,9 @@ struct RenderGraphPolicy {
     using RenderGraphResourceCache = HashMap< RenderGraphResourceId, RenderGraphResource >;
 
   public:
-    virtual void init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
+    virtual void init( onyx::assets::AssetSystem& assetSystem,
+                       onyx::rhi::GraphicsSystem& api,
+                       RenderGraphResourceCache& resourceCache ) = 0;
     virtual void shutdown( onyx::rhi::GraphicsSystem& api ) = 0;
 
     virtual void compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) = 0;
@@ -47,7 +49,9 @@ struct RenderGraphPolicy {
 
 class IRenderGraphNode : public node_graph::NodeWithPolicy< RenderGraphPolicy > {
   public:
-    void init( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override {}
+    void init( onyx::assets::AssetSystem& /*assetSystem*/,
+               onyx::rhi::GraphicsSystem& /*api*/,
+               RenderGraphResourceCache& /*resourceCache*/ ) override {}
     void shutdown( onyx::rhi::GraphicsSystem& /*api*/ ) override {}
     void compile( onyx::rhi::GraphicsSystem& /*api*/, RenderGraphResourceCache& /*resourceCache*/ ) override {}
     void beginFrame( RenderGraphContext& /*context*/ ) override {}
@@ -81,7 +85,9 @@ class IRenderGraphNode : public node_graph::NodeWithPolicy< RenderGraphPolicy > 
 
 class RenderGraphShaderNode : public IRenderGraphNode {
   public:
-    void init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void init( onyx::assets::AssetSystem& assetSystem,
+               onyx::rhi::GraphicsSystem& api,
+               RenderGraphResourceCache& resourceCache ) override;
     void shutdown( onyx::rhi::GraphicsSystem& api ) final;
 
     void compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
@@ -122,7 +128,9 @@ class RenderGraphShaderNode : public IRenderGraphNode {
                         const onyx::rhi::FrameContext& frameContext );
 
   protected:
-    virtual void onInit( onyx::rhi::GraphicsSystem&, RenderGraphResourceCache& ) {}
+    virtual void onInit( onyx::assets::AssetSystem& assetSystem,
+                         onyx::rhi::GraphicsSystem&,
+                         RenderGraphResourceCache& ) {}
     virtual void onShutdown( onyx::rhi::GraphicsSystem& ) {}
 
     virtual void onBeginFrame( RenderGraphContext& ) {}
@@ -150,7 +158,9 @@ class RenderGraphShaderNode : public IRenderGraphNode {
 
 class RenderGraphFixedShaderNode : public RenderGraphShaderNode {
   public:
-    void init( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) final;
+    void init( onyx::assets::AssetSystem& assetSystem,
+               onyx::rhi::GraphicsSystem& api,
+               RenderGraphResourceCache& resourceCache ) final;
 
     void compile( onyx::rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
 

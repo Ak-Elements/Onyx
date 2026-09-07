@@ -123,7 +123,7 @@ class GraphicsSystem : public IEngineSystem {
     FrameContext& getFrameContext() { return m_frameContext[ m_frameIndex ]; }
     const FrameContext& getFrameContext() const { return m_frameContext[ m_frameIndex ]; }
     const ViewConstants& getViewContsants() const { return m_frameContext[ m_frameIndex ].ViewConstants; }
-    const BufferHandle& getViewConstantsBuffer() const { return m_viewConstantsUniformBuffers[ m_frameIndex ]; }
+    const BufferHandle& getViewConstantsBuffer() const { return m_viewConstantsBuffers[ m_frameIndex ]; }
 
     CommandBuffer& getCommandBuffer( uint8_t frameIndex );
     CommandBuffer& getCommandBuffer( uint8_t frameIndex, bool shouldBegin );
@@ -180,7 +180,7 @@ class GraphicsSystem : public IEngineSystem {
     Vector2s32 m_depthTextureExtent;
 
     InplaceArray< TextureHandle, MaxFramesInFlight > m_depthImages;
-    InplaceArray< BufferHandle, MaxFramesInFlight > m_viewConstantsUniformBuffers;
+    InplaceArray< BufferHandle, MaxFramesInFlight > m_viewConstantsBuffers;
 
     ShaderCache m_shaderCache{ *this };
     PsoCache m_psoCache;

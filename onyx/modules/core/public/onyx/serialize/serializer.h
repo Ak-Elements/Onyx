@@ -105,6 +105,24 @@ class Serializer {
         }
     }
 
+    template < typename T, size_t N >
+    bool write( const Array< T, N >& outValue ) {
+        bool success = true;
+
+        for( uint32_t i = 0; i < static_cast< uint32_t >( N ); ++i ) {
+            if( createScope( i ) == false ) {
+                return false;
+            }
+            success = write( outValue[ i ] );
+            success &= endScope();
+            if( success == false ) {
+                break;
+            }
+        }
+
+        return success;
+    }
+
     template < typename T >
     bool write( const DynamicArray< T >& outValue ) {
         bool success = true;

@@ -12,7 +12,7 @@ class Buffer : public RefCounted {
     Buffer( const BufferProperties& properties );
 
     void* getData() { return m_dataPointer; }
-    virtual void setData( int32_t offset, const void* data, int32_t length ) = 0;
+    virtual void setData( uint64_t offset, const void* data, uint64_t length ) = 0;
 
     [[nodiscard]] const BufferProperties& getProperties() const { return m_properties; }
 

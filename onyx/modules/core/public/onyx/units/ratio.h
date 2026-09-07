@@ -22,14 +22,14 @@ constexpr T abs( const T& value ) {
 }
 
 constexpr auto gcd( int64_t first, int64_t second ) -> int64_t {
-    if ( first == 0 and second == 0 ) {
+    if( first == 0 and second == 0 ) {
         return 1; // avoids division by 0 in ratio_less
     }
 
     first = Detail::abs( first );
     second = Detail::abs( second );
 
-    while ( second != 0 ) {
+    while( second != 0 ) {
         const int64_t temp = first;
         first = second;
         second = temp % second;

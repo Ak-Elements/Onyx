@@ -9,6 +9,7 @@ component TerrainSettingsComponent
     float32 ComplexSurfaceThreshold = 0.9
 
     AssetHandle<VolumeShaderGraph> VolumeGraph
+    AssetHandle<TerrainMaterialDatabase> MaterialDatabase
 }
 
 [Hidden, Transient]

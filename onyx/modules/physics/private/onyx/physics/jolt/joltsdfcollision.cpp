@@ -299,16 +299,6 @@ void collideBox( const JPH::Shape* lhsShape,
     }
 }
 
-// void castBox( const JPH::ShapeCast& shapeCast,
-//               const JPH::ShapeCastSettings& settings,
-//               const JPH::Shape* sdfShapeBase,
-//               const JPH::Vec3 scale, // NOLINT
-//               const JPH::ShapeFilter& filter,
-//               const JPH::Mat44& transform,
-//               const JPH::SubShapeIDCreator& lhsIdCreator,
-//               const JPH::SubShapeIDCreator& rhsIdCreator,
-//               JPH::CastShapeCollector& outCollector ) {}
-
 void collideCapsule( const JPH::Shape* lhsShape,
                      const JPH::Shape* rhsShape,
                      const JPH::Vec3 lhsScale,
@@ -401,7 +391,6 @@ void collideCapsule( const JPH::Shape* lhsShape,
         outCollector.AddHit( bestCandiate );
 }
 
-//
 void castCapsule( const JPH::ShapeCast& shapeCast,
                   const JPH::ShapeCastSettings& settings,
                   const JPH::Shape* sdfShapeBase,

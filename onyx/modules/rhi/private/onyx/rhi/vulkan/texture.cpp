@@ -25,10 +25,10 @@ void VulkanTexture::init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
     const Device& device = api.getDevice();
     const VulkanTextureStorage* textureStorage = static_cast< const VulkanTextureStorage* >( m_Storage );
 
-    const VkImageAspectFlags aspectMask = VulkanTextureStorage::GetAspectFlags( m_Properties.Format );
+    const VkImageAspectFlags aspectMask = VulkanTextureStorage::getAspectFlags( m_Properties.Format );
 
-    const TextureStorageProperties& storageProperties = m_Storage->GetProperties();
-    const uint32_t storageArraySize = std::max< uint16_t >( storageProperties.m_ArraySize, 1u );
+    const TextureStorageProperties& storageProperties = m_Storage->getProperties();
+    const uint32_t storageArraySize = std::max< uint16_t >( storageProperties.ArraySize, 1u );
     const uint32_t arraySize = m_Properties.ArraySize ? m_Properties.ArraySize
                                                       : storageArraySize - m_Properties.ArrayIndex;
     ONYX_ASSERT( arraySize <= storageArraySize );
@@ -36,15 +36,15 @@ void VulkanTexture::init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
     VkImageViewCreateInfo imageViewCreateInfo{};
     imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     imageViewCreateInfo.image = ( aliasIndex == InvalidIndex8 ) ? textureStorage->GetHandle()
-                                                                : textureStorage->GetAliasHandle( aliasIndex );
+                                                                : textureStorage->getAliasHandle( aliasIndex );
     imageViewCreateInfo.pNext = nullptr;
 
     const uint32_t mip = m_Properties.MipLevel;
     const uint32_t miplevels = m_Properties.MaxMipLevel ? m_Properties.MaxMipLevel
-                                                        : storageProperties.m_MaxMipLevel - mip;
-    ONYX_ASSERT( mip + miplevels <= storageProperties.m_MaxMipLevel );
+                                                        : storageProperties.MaxMipLevel - mip;
+    ONYX_ASSERT( mip + miplevels <= storageProperties.MaxMipLevel );
 
-    imageViewCreateInfo.format = VulkanTextureStorage::GetFormat( m_Properties.Format );
+    imageViewCreateInfo.format = VulkanTextureStorage::getFormat( m_Properties.Format );
     imageViewCreateInfo.components = VkComponentMapping{ VK_COMPONENT_SWIZZLE_R,
                                                          VK_COMPONENT_SWIZZLE_G,
                                                          VK_COMPONENT_SWIZZLE_B,
@@ -55,13 +55,13 @@ void VulkanTexture::init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
                                                                     m_Properties.ArrayIndex,
                                                                     arraySize };
 
-    if( storageProperties.m_Type == TextureType::TextureCube ) {
+    if( storageProperties.Type == TextureType::TextureCube ) {
         imageViewCreateInfo.subresourceRange.layerCount *= 6;
         imageViewCreateInfo.viewType = m_Properties.IsWriteable || m_Properties.AllowCubeMapLoads
                                            ? VK_IMAGE_VIEW_TYPE_2D_ARRAY
                                            : VK_IMAGE_VIEW_TYPE_CUBE;
     } else
-        imageViewCreateInfo.viewType = getType( storageProperties.m_Type, storageProperties.m_ArraySize != 0 );
+        imageViewCreateInfo.viewType = getType( storageProperties.Type, storageProperties.ArraySize != 0 );
 
     VK_CHECK_RESULT( vkCreateImageView( device.GetHandle(), &imageViewCreateInfo, nullptr, &m_ImageView ) )
     SetResourceName( device.GetHandle(),

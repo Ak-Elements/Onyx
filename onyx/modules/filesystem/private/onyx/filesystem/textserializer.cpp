@@ -4,42 +4,72 @@
 
 namespace onyx::file_system {
 
+TextSerializer::TextSerializer() {
+    m_scopeStack.emplace( &m_root );
+}
+
+String TextSerializer::toString() const {
+    auto scopeToString = []( this auto& self, const Scope& scope ) -> String {
+        String content;
+        for( const Scope& child : scope.Children ) {
+            content += self( child );
+        }
+
+        uint64_t length = std::ranges::count_if( content, []( char c ) { return c == '\n'; } );
+
+        if( length == 0 )
+            return format::format( "{}:{}\n", scope.Name, scope.Data );
+        else
+            return format::format( "{} {} {}\n{}", scope.Name, scope.Data, length, content );
+    };
+
+    String result;
+    for( const Scope& child : m_root.Children ) {
+        result += scopeToString( child );
+    }
+    return result;
+}
+
 template < typename T >
 bool TextSerializer::doGenericWrite( T value ) {
-    // GetCurrent() = value;
+    Scope& currentScope = *m_scopeStack.top();
+    currentScope.Data += format::format( "{}", value );
     return true;
 }
 
 template < std::integral T >
 bool TextSerializer::doGenericWrite( T value, uint8_t base ) {
-    StringView valueAsBaseString;
+    Scope& currentScope = *m_scopeStack.top();
     switch( base ) {
     case 2:
-        valueAsBaseString = format::format( "{:b}", value );
+        currentScope.Data += format::format( "{:b}", value );
         break;
     case 8:
-        valueAsBaseString = format::format( "{:o}", value );
+        currentScope.Data += format::format( "{:o}", value );
         break;
     case 10:
-        valueAsBaseString = format::format( "{}", value );
+        currentScope.Data += format::format( "{}", value );
         break;
     case 16:
-        valueAsBaseString = format::format( "{:x}", value );
+        currentScope.Data += format::format( "{:x}", value );
         break;
     default:
         ONYX_LOG_WARNING( "Unsupported base for json {}, falling back to base 10.", base );
-        valueAsBaseString = format::format( "{}", value );
+        currentScope.Data += format::format( "{}", value );
         break;
     }
 
-    // GetCurrent() = valueAsBaseString;
     return true;
 }
 
 template < typename T >
 bool TextSerializer::doGenericWrite( StringView name, T value ) {
-    // GetCurrent()[ name ] = value;
-    return true;
+    if( createScope( name ) == false )
+        return false;
+
+    bool success = doGenericWrite( value );
+    success &= endScope();
+    return success;
 }
 
 template < std::integral T >
@@ -64,8 +94,8 @@ bool TextSerializer::doGenericWrite( StringView name, T value, uint8_t base ) {
         break;
     }
 
-    // GetCurrent()[ name ] = valueAsBaseString;
-    return true;
+    bool success = doGenericWrite( name, value );
+    return success;
 }
 
 bool TextSerializer::doWrite( bool value ) {
@@ -228,19 +258,44 @@ bool TextSerializer::doWrite( StringView name, StringView value ) {
     return doGenericWrite( name, value );
 }
 
-bool TextSerializer::createScope( uint32_t /*index*/ ) {
+bool TextSerializer::createScope( uint32_t index ) {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    Scope& currentScope = *m_scopeStack.top();
+    if( index >= currentScope.Children.size() ) {
+        currentScope.Children.resize( index + 1 );
+    }
+
+    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
     return true;
 }
 
-bool TextSerializer::createScope( uint64_t /*index*/ ) {
+bool TextSerializer::createScope( uint64_t index ) {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    Scope& currentScope = *m_scopeStack.top();
+    if( index >= currentScope.Children.size() ) {
+        currentScope.Children.resize( index + 1 );
+    }
+
+    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
     return true;
 }
 
-bool TextSerializer::createScope( StringView /*name*/ ) {
+bool TextSerializer::createScope( StringView name ) {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    Scope& currentScope = *m_scopeStack.top();
+    auto it = std::ranges::find_if( currentScope.Children, [ name ]( Scope& scope ) { return name == scope.Name; } );
+    uint64_t index = std::distance( std::begin( currentScope.Children ), it );
+    if( it == currentScope.Children.end() ) {
+        currentScope.Children.emplace_back( String( name ) );
+    }
+
+    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
     return true;
 }
 
 bool TextSerializer::endScope() {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    m_scopeStack.pop();
     return true;
 }
 

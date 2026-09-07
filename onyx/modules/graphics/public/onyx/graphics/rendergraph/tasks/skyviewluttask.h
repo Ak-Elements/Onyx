@@ -13,9 +13,8 @@ class SkyViewLutRenderGraphNode : public node_graph::FixedPinNode2In1Out< Render
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::ComputeSkyViewLut";
     StringId32 getTypeId() const override { return TypeId; }
 
-    SkyViewLutRenderGraphNode();
-
   private:
+    void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) override;
     void onBeginFrame( RenderGraphContext& context ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 

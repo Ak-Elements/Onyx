@@ -2,22 +2,22 @@
 
 #include <nfd.h>
 namespace onyx::file_system {
-void FileDialog::Init() {
+void FileDialog::init() {
     NFD_Init();
 }
 
-void FileDialog::Shutdown() {
+void FileDialog::shutdown() {
     NFD_Quit();
 }
 
-bool FileDialog::OpenFileDialog( FilePath& outPath,
+bool FileDialog::openFileDialog( FilePath& outPath,
                                  StringView extensionName,
                                  const DynamicArray< StringView >& extensions ) {
     nfdu8char_t* path;
     nfdopendialogu8args_t args{ nullptr, 0, nullptr, { 0, nullptr } };
 
     DynamicArray< nfdu8filteritem_t > filters;
-    for ( StringView extension : extensions ) {
+    for( StringView extension : extensions ) {
         filters.emplace_back( extensionName.data(), extension.data() );
     }
 
@@ -27,7 +27,7 @@ bool FileDialog::OpenFileDialog( FilePath& outPath,
     args.filterCount = static_cast< nfdfiltersize_t >( filters.size() );
     nfdresult_t result = NFD_OpenDialogU8_With( &path, &args );
 
-    if ( result != NFD_OKAY ) {
+    if( result != NFD_OKAY ) {
         return false;
     }
 
@@ -36,14 +36,14 @@ bool FileDialog::OpenFileDialog( FilePath& outPath,
     return true;
 }
 
-bool FileDialog::SaveFileDialog( FilePath& outPath,
+bool FileDialog::saveFileDialog( FilePath& outPath,
                                  StringView extensionName,
                                  const DynamicArray< StringView >& extensions ) {
     nfdu8char_t* path;
     nfdsavedialogu8args_t args{ nullptr, 0, nullptr, "", { 0, nullptr } };
 
     DynamicArray< nfdu8filteritem_t > filters;
-    for ( StringView extension : extensions ) {
+    for( StringView extension : extensions ) {
         filters.emplace_back( extensionName.data(), extension.data() );
     }
 
@@ -54,7 +54,7 @@ bool FileDialog::SaveFileDialog( FilePath& outPath,
 
     nfdresult_t result = NFD_SaveDialogU8_With( &path, &args );
 
-    if ( result != NFD_OKAY ) {
+    if( result != NFD_OKAY ) {
         return false;
     }
 

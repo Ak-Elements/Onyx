@@ -17,6 +17,7 @@ class DebugLightClustersRenderPass : public node_graph::FixedPinNode3In1Out< Ren
     DebugLightClustersRenderPass();
 
   private:
+    void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) override;
     void onBeginFrame( RenderGraphContext& ) override;
     void onRender( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 

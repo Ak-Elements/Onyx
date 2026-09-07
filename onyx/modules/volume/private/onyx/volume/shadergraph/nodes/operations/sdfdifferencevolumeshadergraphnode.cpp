@@ -9,14 +9,15 @@ void SdfDifferenceVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext&
 
 void SdfDifferenceVolumeShaderGraphNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                                            rhi::ShaderGenerator& generator ) const {
-    if( generator.getStage() != rhi::ShaderStage::Fragment )
-        return;
+    // TODO:
+    // if( generator.getStage() != rhi::ShaderStage::Fragment )
+    //     return;
 
     if( ( context.isPinConnected< OutPinGradient >() == false ) &&
         ( context.isPinConnected< OutPinIsoValue >() == false ) )
         return;
 
-    generator.addInclude( "includes/volume/csg/operations/difference.h" );
+    generator.addImport( "includes.volume.csg.operations.difference" );
 
     String differenceVariableName = format::format( "differenceNode_{:x}", getId().get() );
 
@@ -24,7 +25,7 @@ void SdfDifferenceVolumeShaderGraphNode::doGenerateShader( const node_graph::Exe
     String gradientOutVariableName = format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() );
 
     generator.appendCode( format::format(
-        "vec4 {} = GetDifference(vec4({}, {}), vec4({}, {}));\n",
+        "float4 {} = GetDifference(float4({}, {}), float4({}, {}));\n",
         differenceVariableName,
         m_gradientSource0InPin.isConnected()
             ? format::format( "pin_{:x}", m_gradientSource0InPin.getLinkedPinGlobalId().get() )
@@ -39,7 +40,7 @@ void SdfDifferenceVolumeShaderGraphNode::doGenerateShader( const node_graph::Exe
             ? format::format( "pin_{:x}", m_isoValueSource1InPin.getLinkedPinGlobalId().get() )
             : rhi::ShaderGenerator::generateShaderValue( context.getPinData< InPinIsoValueSource1 >() ) ) );
     generator.appendCode( format::format( "float {} = {}.w;\n", isoValueOutVariableName, differenceVariableName ) );
-    generator.appendCode( format::format( "vec3 {} = {}.xyz;\n", gradientOutVariableName, differenceVariableName ) );
+    generator.appendCode( format::format( "float3 {} = {}.xyz;\n", gradientOutVariableName, differenceVariableName ) );
 }
 
 node_graph::PinBase* SdfDifferenceVolumeShaderGraphNode::getInputPin( uint32_t index ) {

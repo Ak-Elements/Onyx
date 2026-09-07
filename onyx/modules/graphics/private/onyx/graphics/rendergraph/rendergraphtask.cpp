@@ -66,7 +66,9 @@ struct Serialization< graphics::RenderGraphBufferResourceInfo > {
 } // namespace onyx
 
 namespace onyx::graphics {
-void RenderGraphShaderNode::init( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
+void RenderGraphShaderNode::init( onyx::assets::AssetSystem& assetSystem,
+                                  rhi::GraphicsSystem& api,
+                                  RenderGraphResourceCache& resourceCache ) {
     // TODO: Cleanup render graph resources from transition to node graph
     // Resource and output info's both store the type (Reference / Attachment etc.)
     // This is very confusing and should be cleaned up and sanitized
@@ -89,7 +91,7 @@ void RenderGraphShaderNode::init( rhi::GraphicsSystem& api, RenderGraphResourceC
         }
     }
 
-    onInit( api, resourceCache );
+    onInit( assetSystem, api, resourceCache );
 }
 
 void RenderGraphShaderNode::beginFrame( RenderGraphContext& context ) {
@@ -181,8 +183,8 @@ void RenderGraphShaderNode::preRender( RenderGraphContext& context, rhi::Command
             // vulkan::VulkanTextureStorage& storage = textureHandle.Storage.As<vulkan::VulkanTextureStorage>();
 
             // TODO: Fix barriers
-            const rhi::TextureStorageProperties& properties = textureHandle.Storage->GetProperties();
-            if( rhi::Utils::IsDepthFormat( properties.m_Format ) ) {
+            const rhi::TextureStorageProperties& properties = textureHandle.Storage->getProperties();
+            if( rhi::Utils::IsDepthFormat( properties.Format ) ) {
                 commandBuffer.transitionLayout( textureHandle,
                                                 rhi::Context::Graphics,
                                                 rhi::Access::DepthStencilWrite | rhi::Access::DepthStencilRead,
@@ -270,20 +272,20 @@ void RenderGraphShaderNode::onSwapChainResized( rhi::GraphicsSystem& api, Render
                 output.Properties );
 
             rhi::TextureStorageProperties storageProperties;
-            storageProperties.m_Size = resourceInfo.HasSize ? resourceInfo.Size : swapChainExtent;
-            storageProperties.m_Format = resourceInfo.Format;
-            storageProperties.m_IsFrameBuffer = true;
-            storageProperties.m_IsTexture = true;
-            storageProperties.m_GpuAccess = rhi::GPUAccess::Write;
+            storageProperties.Size = resourceInfo.HasSize ? resourceInfo.Size : swapChainExtent;
+            storageProperties.Format = resourceInfo.Format;
+            storageProperties.IsFrameBuffer = true;
+            storageProperties.IsTexture = true;
+            storageProperties.GpuAccess = rhi::GPUAccess::Write;
 #if ONYX_IS_DEBUG
-            storageProperties.m_DebugName = output.Info.Name + " Storage";
+            storageProperties.DebugName = output.Info.Name + " Storage";
 #endif
             //[Aaron] do we really want to create the view here?
             rhi::TextureProperties texProp;
             texProp.Format = resourceInfo.Format;
             texProp.AllowCubeMapLoads = false;
-            texProp.MaxMipLevel = storageProperties.m_MaxMipLevel;
-            texProp.ArraySize = storageProperties.m_ArraySize;
+            texProp.MaxMipLevel = storageProperties.MaxMipLevel;
+            texProp.ArraySize = storageProperties.ArraySize;
 #if ONYX_IS_DEBUG
             texProp.DebugName = output.Info.Name + " View";
 #endif
@@ -521,8 +523,10 @@ void RenderGraphShaderNode::bindResources( rhi::ShaderInstanceHandle shaderInsta
     }
 }
 
-void RenderGraphFixedShaderNode::init( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
-    RenderGraphShaderNode::init( api, resourceCache );
+void RenderGraphFixedShaderNode::init( onyx::assets::AssetSystem& assetSystem,
+                                       rhi::GraphicsSystem& api,
+                                       RenderGraphResourceCache& resourceCache ) {
+    RenderGraphShaderNode::init( assetSystem, api, resourceCache );
 }
 
 void RenderGraphFixedShaderNode::compile( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) {
@@ -534,7 +538,8 @@ void RenderGraphFixedShaderNode::compile( rhi::GraphicsSystem& api, RenderGraphR
 
 void RenderGraphFixedShaderNode::beginFrame( RenderGraphContext& context ) {
     RenderGraphShaderNode::beginFrame( context );
-    bindResources( m_shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
+    if( isEnabled() )
+        bindResources( m_shaderInstance, context.Graph.getResourceCache(), context.FrameContext );
 }
 
 void RenderGraphFixedShaderNode::render( RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {

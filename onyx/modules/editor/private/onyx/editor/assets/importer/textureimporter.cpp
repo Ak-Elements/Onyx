@@ -18,7 +18,7 @@ AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::Asset
     FilePath importedTexturePath = file_system::path::replaceExtension( path, "otex" );
 
     StringId32 texturePathHashed( importedTexturePath.string() );
-    outAssetMeta.Id = static_cast< assets::AssetId >( texturePathHashed.getId() );
+    // outAssetMeta.Id = static_cast< assets::AssetId >( texturePathHashed.getId() );
     outAssetMeta.Path = importedTexturePath;
     ++outAssetMeta.Version;
 
@@ -29,9 +29,9 @@ AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::Asset
 
         // Write out the import format
         // Write out mips?
-        binaryStream.writeRaw( file.GetChannelCount() );
-        binaryStream.writeRaw( file.GetSize() );
-        binaryStream.writeRaw( file.GetData() );
+        binaryStream.writeRaw( file.getChannelCount() );
+        binaryStream.writeRaw( file.getSize() );
+        binaryStream.writeRaw( file.getData() );
     }
 
     return AssetImportResult::Success;

@@ -15,7 +15,9 @@ class MSDFFontRenderPass : public node_graph::FixedPinNode1In1Out< graphics::Ren
     using Super = node_graph::
         FixedPinNode1In1Out< graphics::RenderGraphFixedShaderNode, rhi::BufferHandle, rhi::TextureHandle >;
 
-    void onInit( rhi::GraphicsSystem& api, RenderGraphResourceCache& resourceCache ) override;
+    void onInit( assets::AssetSystem& assetSystem,
+                 rhi::GraphicsSystem& api,
+                 RenderGraphResourceCache& resourceCache ) override;
     void onShutdown( rhi::GraphicsSystem& api ) override;
 
     void onPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
