@@ -12,12 +12,11 @@ ImageFile::ImageFile( const FilePath& filePath ) {
     int channels;
 
     int comps = 4;
-        // TODO: Implement
-    } else {
-        uint8_t* imageData = stbi_load( pathStr.data(), &m_size[ 0 ], &m_size[ 1 ], &channels, comps );
-        m_imageData = Span< uint8_t >( imageData, static_cast< uint64_t >( m_size[ 0 ] * m_size[ 1 ] * comps ) );
-        m_numChannels = numericCast< uint8_t >( channels );
-    }
+    m_bitsPerChannel = stbi_is_16_bit( pathStr.data() ) ? 16 : 8;
+
+    uint8_t* imageData = stbi_load( pathStr.data(), &m_size[ 0 ], &m_size[ 1 ], &channels, comps );
+    m_imageData = Span< uint8_t >( imageData, static_cast< uint64_t >( m_size[ 0 ] * m_size[ 1 ] * comps ) );
+    m_numChannels = numericCast< uint8_t >( channels );
 }
 
 ImageFile::~ImageFile() {
