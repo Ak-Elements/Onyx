@@ -22,6 +22,6 @@ ImageFile::ImageFile( const FilePath& filePath ) {
 
 ImageFile::~ImageFile() {
     // leak for now
-    stbi_image_free( m_ImageData.data() );
+    stbi_image_free( m_imageData.data() );
 }
 } // namespace onyx::file_system
