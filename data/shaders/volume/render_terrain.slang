@@ -9,6 +9,7 @@ import atmosphere;
 import lighting;
 
 import includes.volume.terrainsample;
+import includes.volume.terrainmaterial;
 import includes.volume.volumesource;
 import includes.volume.sample_terrain;
 import includes.volume.default_terrain;
@@ -36,16 +37,14 @@ struct PushConstants {
     Ptr< VolumeSourceList > VolumeSourcesList;
     Ptr< VolumeSourcesData > VolumeSourcesData;
 
-    uint TextureId0;
-    uint TextureId1;
-    uint TextureId2;
+    Ptr< TerrainMaterialDatabase > MaterialDatabase;
     uint TransmittanceTextureId;
-
-    float3 SunDirection;
     uint SkyViewTextureId;
 
-    float2 HeightDisplacmentFadeRange;
+    float3 SunDirection;
     float HeightDisplacment;
+
+    float2 HeightDisplacmentFadeRange;
 };
 
 [ push_constant ]
@@ -144,6 +143,10 @@ FragmentOut fragmentMain( VSOutput input ) {
     float far = Constants.ViewConstants->Far;
 
     const float textureScale = 1.0f / 100.0f;
+    const uint32_t materialIndex = 0;
+
+    TerrainMaterial material = Constants.MaterialDatabase.Materials[ materialIndex ];
+
     Optional< TerrainHit > terrainCast = raymarchTerrain( rayOrigin,
                                                           rayDirection,
                                                           ddx_rd,
@@ -151,7 +154,7 @@ FragmentOut fragmentMain( VSOutput input ) {
                                                           far,
                                                           Constants.HeightDisplacment,
                                                           Constants.HeightDisplacmentFadeRange,
-                                                          Constants.TextureId2,
+                                                          material.Height,
                                                           textureScale,
                                                           Constants.VolumeSourcesList,
                                                           Constants.VolumeSourcesData );
@@ -164,14 +167,14 @@ FragmentOut fragmentMain( VSOutput input ) {
         float linearDepth = dot( -hit.Direction, Constants.ViewConstants.CameraDirection );
         float4 positionScreenSpace = float4( input.Position.xy, linearDepth, 1.0f );
 
-        float4 albedoTexture = sampleTriplanar( Constants.TextureId0,
+        float4 albedoTexture = sampleTriplanar( material.BaseColor,
                                                 hit.Position * textureScale,
                                                 hit.Normal,
                                                 hit.PositionDdx * textureScale,
                                                 hit.PositionDdy * textureScale,
                                                 8.0f );
 
-        float3 tangentSpaceNormal = sampleNormalTriplanar( Constants.TextureId1,
+        float3 tangentSpaceNormal = sampleNormalTriplanar( material.Normal,
                                                            hit.Position * textureScale,
                                                            hit.Normal,
                                                            hit.PositionDdx * textureScale,
@@ -210,7 +213,7 @@ FragmentOut fragmentMain( VSOutput input ) {
 
         float skyVisibility = saturate( 0.5 + 0.5 * shadingNormal.y );
 
-        const float AmbientIntensity = 0.2f;
+        const float AmbientIntensity = 0.10f;
         float3 ambient = material.Albedo * skyAmbient * skyVisibility * AmbientIntensity;
 
         light += sunLight + ambient;
