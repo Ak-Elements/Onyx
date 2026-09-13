@@ -11,7 +11,7 @@ ImageFile::ImageFile( const FilePath& filePath ) {
     const String& pathStr = path::getFullPath( filePath ).string();
     int channels;
 
-    if( stbi_is_hdr( pathStr.data() ) ) {
+    int comps = 4;
         // TODO: Implement
     } else {
         uint8_t* imageData = stbi_load( pathStr.data(), &m_size[ 0 ], &m_size[ 1 ], &channels, comps );
