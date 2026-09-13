@@ -357,6 +357,24 @@ struct GpuBufferDeviceAddress {
     operator uint64_t() const { return Address; }
 };
 
+struct GpuTextureAddress {
+    static constexpr uint32_t InvalidAddress = std::numeric_limits< uint32_t >::max();
+
+    uint32_t Address = 0;
+
+    GpuTextureAddress() = default;
+    GpuTextureAddress( uint32_t address )
+        : Address( address ) {}
+
+    static GpuTextureAddress invalid() { return { InvalidAddress }; }
+
+    bool operator==( GpuTextureAddress other ) const { return Address == other.Address; }
+    operator uint32_t() const { return Address; }
+
+    void reset() { Address = InvalidAddress; }
+    [[nodiscard]] bool isValid() const { return Address != InvalidAddress; }
+};
+
 template <>
 struct std::formatter< onyx::rhi::ShaderDataType > : std::formatter< std::string > {
     auto format( onyx::rhi::ShaderDataType type, format_context& ctx ) const {

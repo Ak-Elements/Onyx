@@ -111,6 +111,14 @@ class AssetSystem : public IEngineSystem {
     template < typename T >
     bool getAsset( AssetId id, AssetHandle< T >& outAssetReference ) const;
 
+    template < typename T >
+    bool loadAsset( AssetHandle< T >& outAssetReference ) {
+        return loadAsset( outAssetReference, false );
+    }
+
+    template < typename T >
+    bool loadAsset( AssetHandle< T >& outAssetReference, bool forceLoad );
+
 #if ONYX_IS_EDITOR
     // Used to load copies of assets for working copies in editors (e.g.: Scene / Nodegraph)
     template < typename T >
@@ -176,10 +184,38 @@ inline constexpr bool AssetSystem::registerAsset() {
 
 template < typename T >
 bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAsset, bool forceLoad ) {
-    auto assetIt = m_assetsMetaData.find( id );
+    outAsset = AssetHandle< T >( id, outAsset.getHandle() );
+    return loadAsset( outAsset, forceLoad );
+}
+
+template < typename T >
+bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAssetReference ) const {
+    const auto assetIt = m_assetsMetaData.find( id );
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     if( assetIt == m_assetsMetaData.end() ) {
         ONYX_LOG_ERROR( "Missing asset with id:{}.", id.get() );
+        return false;
+    }
+#endif
+
+    const AssetMetaData& metaData = assetIt->second;
+    if( metaData.Handle == InvalidIndex64 ) {
+        return false;
+    }
+
+    outAssetReference = m_loadedAssets[ metaData.Handle ];
+    return true;
+}
+
+template < typename T >
+bool AssetSystem::loadAsset( AssetHandle< T >& outAsset, bool forceLoad ) {
+    if( outAsset.isLoaded() || outAsset.isLoading() )
+        return true;
+
+    auto assetIt = m_assetsMetaData.find( outAsset.getId() );
+#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
+    if( assetIt == m_assetsMetaData.end() ) {
+        ONYX_LOG_ERROR( "Missing asset with id:{}.", outAsset.getId() );
         return false;
     }
 #endif
@@ -215,37 +251,18 @@ bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAsset, bool forceLo
     Reference< AssetInterface > newAsset = createFunctor( *m_engine );
     newAsset->setState( AssetState::Loading );
 
-    AssetHandle< AssetInterface > newAssetHandle = { id, newAsset };
+    AssetHandle< AssetInterface > newAssetHandle = { outAsset.getId(), newAsset };
     outAsset = newAssetHandle;
 
     {
         std::lock_guard lock( m_mutex );
         if( metaData.Handle == InvalidIndex64 ) {
             metaData.Handle = static_cast< int64_t >( m_loadedAssets.size() );
-            m_loadedAssets.emplace_back( id, std::move( newAsset ) );
+            m_loadedAssets.emplace_back( outAsset.getId(), std::move( newAsset ) );
             m_ioHandler.requestLoad( metaData, newAssetHandle, serializer, m_engine );
         }
     }
 
-    return true;
-}
-
-template < typename T >
-bool AssetSystem::getAsset( AssetId id, AssetHandle< T >& outAssetReference ) const {
-    const auto assetIt = m_assetsMetaData.find( id );
-#if ONYX_IS_DEBUG || ONYX_IS_EDITOR
-    if( assetIt == m_assetsMetaData.end() ) {
-        ONYX_LOG_ERROR( "Missing asset with id:{}.", id.get() );
-        return false;
-    }
-#endif
-
-    const AssetMetaData& metaData = assetIt->second;
-    if( metaData.Handle == InvalidIndex64 ) {
-        return false;
-    }
-
-    outAssetReference = m_loadedAssets[ metaData.Handle ];
     return true;
 }
 

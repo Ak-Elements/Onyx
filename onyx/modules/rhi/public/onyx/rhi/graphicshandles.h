@@ -91,6 +91,8 @@ struct TextureHandle {
     }
 
     friend bool operator!=( const TextureHandle& lhs, const TextureHandle& rhs ) { return !( lhs == rhs ); }
+
+    GpuTextureAddress getGpuAddress() const { return Texture->getGpuAddress(); }
 };
 } // namespace onyx::rhi
 

@@ -29,7 +29,7 @@ class VulkanTexture : public rhi::Texture {
     static VkImageViewType getType( TextureType type, bool isArray );
     TextureFormat resolveTextureFormat( TextureFormat viewFormat, TextureFormat storageFormat );
 
-    void Release() override;
+    void release() override;
 
   private:
     VulkanGraphicsApi* m_api = nullptr;

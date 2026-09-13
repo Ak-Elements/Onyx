@@ -433,7 +433,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             TextureUpdate& textureUpdate = m_bindlessTexturesToUpdate[ i ];
             // TODO: This is probably not the best way to handle textures that get allocated and dealloacted in the same
             // frame TextureDeleter clears the index which is a bit hacky just to ensure resizing of the depth texture
-            if( textureUpdate.Texture->GetIndex() == std::numeric_limits< uint32_t >::max() )
+            if( textureUpdate.Texture->getGpuAddress().isValid() == false )
                 continue;
 
             VkWriteDescriptorSet& descriptorWrite = bindlessDescriptorWrites.emplace_back();
@@ -744,8 +744,8 @@ std::lock_guard< std::mutex > VulkanGraphicsApi::lockGraphicsQueue() {
 
 void VulkanGraphicsApi::releaseTexture( const VulkanTexture& texture ) {
     ONYX_ASSERT( texture.getRefCount() == 0 );
-    m_deletionQueue.emplace_back( [ textureIndex = texture.GetIndex(), this ]() mutable {
-        m_textures.Release( textureIndex );
+    m_deletionQueue.emplace_back( [ textureIndex = texture.getGpuAddress(), this ]() mutable {
+        m_textures.release( textureIndex );
         return true;
     } );
 }
@@ -981,8 +981,8 @@ void VulkanGraphicsApi::createTextureView( TextureHandle& handle,
                                            const TextureProperties& properties ) {
     uint32_t index;
 
-    VulkanTexture* texture = m_textures.AcquireAndEmplace( index, *this, properties, textureStorage.raw() );
-    texture->SetIndex( index );
+    VulkanTexture* texture = m_textures.acquireAndEmplace( index, *this, properties, textureStorage.raw() );
+    texture->setGpuAddress( GpuTextureAddress( index ) );
 
     handle.Texture = texture;
 
@@ -1003,12 +1003,12 @@ void VulkanGraphicsApi::createAlias( TextureHandle& outTexture,
     outTexture.Alias = parentStorage.alias( aliasStorageProperties );
 
     uint32_t index;
-    VulkanTexture* texture = m_textures.AcquireAndEmplace( index,
+    VulkanTexture* texture = m_textures.acquireAndEmplace( index,
                                                            *this,
                                                            aliasTextureProperties,
                                                            &parentStorage,
                                                            outTexture.Alias );
-    texture->SetIndex( index );
+    texture->setGpuAddress( index );
 
     outTexture.Texture = texture;
     m_bindlessTexturesToUpdate.push_back( { index, texture } );

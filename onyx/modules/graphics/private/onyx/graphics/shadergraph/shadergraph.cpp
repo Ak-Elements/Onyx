@@ -13,8 +13,8 @@
 
 namespace onyx::graphics {
 uint32_t ShaderGraphTextures::addTexture( const rhi::TextureHandle& texture ) {
-    uint32_t bindlessTextureIndex = texture.Texture->GetIndex();
-    auto textureIt = std::ranges::find_if( m_textures, [ bindlessTextureIndex ]( uint32_t textureIndex ) {
+    GpuTextureAddress bindlessTextureIndex = texture.getGpuAddress();
+    auto textureIt = std::ranges::find_if( m_textures, [ bindlessTextureIndex ]( GpuTextureAddress textureIndex ) {
         return bindlessTextureIndex == textureIndex;
     } );
 
@@ -23,7 +23,7 @@ uint32_t ShaderGraphTextures::addTexture( const rhi::TextureHandle& texture ) {
     }
 
     uint32_t textureEntryIndex = static_cast< uint32_t >( m_textures.size() ); // index in the texture constant buffer
-    m_textures.emplace_back( texture.Texture->GetIndex() );
+    m_textures.emplace_back( texture.getGpuAddress() );
     return textureEntryIndex;
 }
 

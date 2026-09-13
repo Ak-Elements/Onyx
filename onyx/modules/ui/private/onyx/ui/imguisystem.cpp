@@ -626,7 +626,7 @@ void ImGuiSystem::initRenderBuffers( rhi::GraphicsSystem& graphicsSystem ) {
     Span< uint8_t > fontTexData{ fontData, uploadSize };
 
     graphicsSystem.createTexture( m_fontImage, storageProps, textureProps, fontTexData );
-    io.Fonts->TexID = m_fontImage.Texture->GetIndex();
+    io.Fonts->TexID = m_fontImage.Texture->getGpuAddress();
 
     rhi::BufferProperties vertexBufferProps;
     vertexBufferProps.m_Size = 400000 * sizeof( ImDrawVert );

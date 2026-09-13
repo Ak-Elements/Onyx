@@ -27,8 +27,8 @@ void SkyViewLutRenderGraphNode::onBeginFrame( RenderGraphContext& context ) {
     const rhi::TextureHandle& multipleScatteringTextureHandle = std::get< rhi::TextureHandle >(
         multipleScatteringResource.Handle );
 
-    m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
-    m_multipleScatteringTextureIndex = multipleScatteringTextureHandle.Texture->GetIndex();
+    m_transmittanceTextureIndex = transmittanceTextureHandle.getGpuAddress();
+    m_multipleScatteringTextureIndex = multipleScatteringTextureHandle.getGpuAddress();
 
     RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;
@@ -41,10 +41,10 @@ void SkyViewLutRenderGraphNode::onRender( RenderGraphContext& context, rhi::Comm
 
     struct PushConstants {
         Vector3f32 CameraPosition;
-        uint32_t TransmittanceTextureIndex;
+        GpuTextureAddress TransmittanceTextureIndex;
 
         Vector3f32 SunDirection;
-        uint32_t MultipleScatteringTextureIndex;
+        GpuTextureAddress MultipleScatteringTextureIndex;
 
     } pushConstants;
 

@@ -60,11 +60,11 @@ void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rh
     PushConstants constants;
     const graphics::RenderGraphResource& hitBufferResource = context.Graph.getResource( HitBufferResourceId );
     const rhi::BufferHandle& buffer = std::get< rhi::BufferHandle >( hitBufferResource.Handle );
-    constants.HitPositionBuffer = buffer.Buffer->getGpuAddress();
+    constants.HitPositionBuffer = buffer.getGpuAddress();
 
     const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
     const rhi::TextureHandle& depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
-    constants.DepthTextureIndex = depthTexture.Texture->GetIndex();
+    constants.DepthTextureIndex = depthTexture.getGpuAddress();
 
     constants.BrushSize = s_brushSize;
     constants.BrushType = s_brushType;

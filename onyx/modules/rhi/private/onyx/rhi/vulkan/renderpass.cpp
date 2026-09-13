@@ -50,7 +50,7 @@ VkAttachmentDescription2 CreateAttachmentDescription(
 
     outHasLoadOp |= attachmentDescription.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD;
 
-    if( Utils::HasStencil( format ) ) {
+    if( utils::hasStencil( format ) ) {
         attachmentDescription.stencilLoadOp = static_cast< VkAttachmentLoadOp >( attachmentSettings.m_LoadOp );
         attachmentDescription.stencilStoreOp = static_cast< VkAttachmentStoreOp >( attachmentSettings.m_StoreOp );
     } else {
@@ -167,7 +167,7 @@ void VulkanRenderPass::CreateRenderPass() {
                 ref2.attachment = attachmentIndex;
                 ref2.pNext = nullptr;
 
-                if( Utils::IsDepthFormat(
+                if( utils::isDepthFormat(
                         static_cast< TextureFormat >( m_Settings.m_Attachments[ attachmentIndex ].m_Format ) ) ) {
                     ref2.layout = GetLayoutFromAttachmentRole( subpass.m_AttachmentAccesses[ attachmentIndex ] );
                     ref2.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;

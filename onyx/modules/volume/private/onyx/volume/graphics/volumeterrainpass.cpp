@@ -55,17 +55,16 @@ void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::Co
         GpuBufferDeviceAddress VolumeSourcesList;
         GpuBufferDeviceAddress VolumeSourcesData;
 
-        uint TextureId0;
-        uint TextureId1;
-        uint TextureId2;
+        GpuBufferDeviceAddress MaterialDatabase;
         uint TransmittanceTextureId;
-
-        Vector3f32 SunDirection;
         uint SkyViewTextureId;
 
-        Vector2f32 HeightDisplacementFadeRange;
+        Vector3f32 SunDirection;
         float HeightDisplacment;
+
+        Vector2f32 HeightDisplacementFadeRange;
     };
+
     const float32 peroidSeconds = 120.0f;
     const float32 halfPeriod = peroidSeconds / 2.0f;
     const float32 sunriseShift = 0.1f;
@@ -76,22 +75,19 @@ void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::Co
     Vector3f32 sunDirection( 0.0, std::sin( sunAltitude ), -std::cos( sunAltitude ) );
     sunDirection.normalize();
 
-    // const rhi::ViewConstants& viewConstants = context.FrameContext.ViewConstants;
     PushConstants constants{
         .ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().getGpuAddress(),
         .LightEnvironment = lightEnvironmentBuffer.getGpuAddress(),
         .VolumeSourcesList = instance.VolumeSources.getGpuAddress(),
         .VolumeSourcesData = instance.VolumeSourcesData.getGpuAddress(),
+        .MaterialDatabase = instance.MaterialDatabase.getGpuAddress(),
         .TransmittanceTextureId = graphics::render_graph_nodes::AtmosphericSkyRenderGraphNode::
             m_transmittanceTextureIndex,
-        .SunDirection = sunDirection,
         .SkyViewTextureId = graphics::render_graph_nodes::AtmosphericSkyRenderGraphNode::m_skyViewLutTextureIndex,
-        .HeightDisplacementFadeRange = { 500.0f, 1000.0f },
-        .HeightDisplacment = 5.0f };
+        .SunDirection = sunDirection,
+        .HeightDisplacment = 0.0f,
+        .HeightDisplacementFadeRange = { 500.0f, 1000.0f } };
 
-    constants.TextureId0 = instance.TextureIndex0;
-    constants.TextureId1 = instance.TextureIndex1;
-    constants.TextureId2 = instance.TextureIndex2;
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }

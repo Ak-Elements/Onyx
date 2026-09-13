@@ -31,10 +31,10 @@ enum class ShadingModel : uint8_t {
 class ShaderGraphTextures {
   public:
     uint32_t addTexture( const rhi::TextureHandle& texture );
-    [[nodiscard]] const DynamicArray< uint32_t >& getTextures() const { return m_textures; }
+    [[nodiscard]] const DynamicArray< GpuTextureAddress >& getTextures() const { return m_textures; }
 
   private:
-    DynamicArray< uint32_t > m_textures;
+    DynamicArray< GpuTextureAddress > m_textures;
 };
 
 class ShaderGraph : public assets::Asset< ShaderGraph > {

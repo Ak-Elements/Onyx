@@ -66,6 +66,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     serialize/serialization.h
     serialize/deserializer.h
     serialize/serializer.h
+    serialize/text/textserializer.h
+    serialize/text/textdeserializer.h
     stream/memorystream.h
     stream/stream.h
     stream/stringstream.h
@@ -104,6 +106,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     log/backends/visualstudiolog.cpp
     platforms/windows/platform.cpp
     serialize/serialization.cpp
+    serialize/text/textserializer.cpp
+    serialize/text/textdeserializer.cpp
     stream/memorystream.cpp
     stream/stream.cpp
     stream/stringstream.cpp

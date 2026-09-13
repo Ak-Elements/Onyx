@@ -66,8 +66,8 @@ Vector4f32 evaluateTerrainSdf( const onyx::assets::AssetHandle< VolumeShaderGrap
 
 namespace init {
 
-using TerrainAccess = ecs::Access::Read< TerrainSettingsComponent >::With<
-    InitTerrainFlag >::Write< VolumeGenerationComponent, TerrainWorldOctreeComponent, TerrainRuntimeComponent >;
+using TerrainAccess = ecs::Access::With< InitTerrainFlag >::
+    Write< TerrainSettingsComponent, VolumeGenerationComponent, TerrainWorldOctreeComponent, TerrainRuntimeComponent >;
 //
 using TerrainEntity = TerrainAccess::AsEntity;
 
@@ -136,13 +136,6 @@ void loadShader( assets::AssetSystem& assetSystem,
     blendState.AlphaOperation = rhi::BlendOperation::Add;
 
     generationComponent.RenderTerrainShader = graphicsSystem.createShaderInstance( properties.Shader, properties );
-
-    assetSystem.getAsset( assetSystem.resolveAssetId( "project:/textures/ground/dirtsticks/dirtsticks_basecolor.png" ),
-                          locTexture0 );
-    assetSystem.getAsset( assetSystem.resolveAssetId( "project:/textures/ground/dirtsticks/dirtsticks_normal.png" ),
-                          locTexture1 );
-    assetSystem.getAsset( assetSystem.resolveAssetId( "project:/textures/ground/dirtsticks/dirtsticks_height.png" ),
-                          locTexture2 );
     generationComponent.HasLoadedShaders = true;
 }
 
@@ -154,10 +147,48 @@ void system( TerrainEntity terrainEntity,
              ecs::EntityCommandBuffer entityCommandBuffer ) {
     auto&& [ terrainSettings, generationComponent, terrainWorldOctree, terrainRuntime ] = terrainEntity;
 
+    if( ( terrainSettings.MaterialDatabase.isLoading() == false ) &&
+        ( terrainSettings.MaterialDatabase.isLoaded() == false ) ) {
+        assetSystem.loadAsset( terrainSettings.MaterialDatabase );
+    }
+
+    bool allMaterialsLoaded = terrainSettings.MaterialDatabase.isValid() &&
+                              !terrainSettings.MaterialDatabase->getMaterials().empty();
+    if( allMaterialsLoaded == false )
+        return;
+
+    if( terrainRuntime.MaterialDatabase.isValid() == false ) {
+        struct GpuTerrainMaterial {
+            GpuTextureAddress BaseColor;
+            GpuTextureAddress Normal;
+            GpuTextureAddress Height;
+        };
+
+        InplaceArray< GpuTerrainMaterial, 32 > materials;
+        const auto& tMaterials = terrainSettings.MaterialDatabase->getMaterials();
+        for( const auto& materialHandle : tMaterials ) {
+            const TerrainMaterial& material = *materialHandle;
+            materials.emplace( material.Color->getGpuAddress(),
+                               material.Normal->getGpuAddress(),
+                               material.MetalRoughnessHeight->getGpuAddress() );
+        }
+
+        rhi::BufferProperties ssboMaterialDatabase;
+        ssboMaterialDatabase.m_DebugName = "Terrain Materials";
+        ssboMaterialDatabase.m_Size = sizeof( GpuTerrainMaterial ) * 32;
+        ssboMaterialDatabase.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage |
+                                                                    rhi::BufferUsage::DeviceAddress );
+        ssboMaterialDatabase.m_GpuAccess = rhi::GPUAccess::Write;
+        ssboMaterialDatabase.m_CpuAccess = rhi::CPUAccess::Write;
+        ssboMaterialDatabase.m_IsWritable = true;
+        graphicsSystem.createBuffer( terrainRuntime.MaterialDatabase, ssboMaterialDatabase );
+        terrainRuntime.MaterialDatabase.setData( materials );
+    }
+
     loadShader( assetSystem, graphicsSystem, terrainSettings, generationComponent );
 
-    if( ( generationComponent.HasLoadedShaders == false ) || !generationComponent.RenderTerrainShader.isValid() ||
-        !locTexture0.isValid() || !locTexture1.isValid() || !locTexture2.isValid() )
+    if( ( generationComponent.HasLoadedShaders == false ) ||
+        ( generationComponent.RenderTerrainShader.isValid() == false ) )
         return;
 
     // TODO: Fix amount of max sources (100) and data size (vec4)
@@ -199,9 +230,7 @@ void system( TerrainEntity terrainEntity,
     instance.Shader = generationComponent.RenderTerrainShader;
     instance.VolumeSources = terrainWorldOctree.VolumeObjects;
     instance.VolumeSourcesData = terrainWorldOctree.VolumeObjectsData;
-    instance.TextureIndex0 = locTexture0->getTextureHandle().Texture->GetIndex();
-    instance.TextureIndex1 = locTexture1->getTextureHandle().Texture->GetIndex();
-    instance.TextureIndex2 = locTexture2->getTextureHandle().Texture->GetIndex();
+    instance.MaterialDatabase = terrainRuntime.MaterialDatabase;
 
     entityCommandBuffer.removeComponent< InitTerrainFlag >( terrainEntity.getId() );
 }
@@ -218,10 +247,9 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, TerrainSettin
     registry.addComponent< InitTerrainFlag >( entity );
 }
 
-void Register( ecs::EcsBuilder& ecsBuilder ) {
+void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
     ecsBuilder.registerComponent< TerrainSettingsComponent >( factory );
 
     ecsBuilder.registerSystem( init::system );
-    // ecsBuilder.registerSystem( render::system );
 }
 } // namespace onyx::volume::terrain

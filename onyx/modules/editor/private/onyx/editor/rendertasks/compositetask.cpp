@@ -20,7 +20,7 @@ void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, 
     ONYX_PROFILE_FUNCTION;
 
     struct PushConstant {
-        uint32_t TextureIndices[ 8 ];
+        GpuTextureAddress TextureIndices[ 8 ];
         uint32_t Count = 0;
     } constants;
 
@@ -29,7 +29,7 @@ void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, 
         const graphics::RenderGraphResource& resource = context.Graph.getResource(
             gridTextureInPin->getLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gridTextureHandle = std::get< rhi::TextureHandle >( resource.Handle );
-        constants.TextureIndices[ 1 ] = gridTextureHandle.Texture->GetIndex();
+        constants.TextureIndices[ 1 ] = gridTextureHandle.getGpuAddress();
         ++constants.Count;
     }
 
@@ -38,7 +38,7 @@ void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, 
         const graphics::RenderGraphResource& gbufferResource = context.Graph.getResource(
             gbufferTextureInPin->getLinkedPinGlobalId().get() );
         const rhi::TextureHandle& gbufferTextureHandle = std::get< rhi::TextureHandle >( gbufferResource.Handle );
-        constants.TextureIndices[ 0 ] = gbufferTextureHandle.Texture->GetIndex();
+        constants.TextureIndices[ 0 ] = gbufferTextureHandle.getGpuAddress();
         ++constants.Count;
     }
 
@@ -47,7 +47,7 @@ void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, 
         const graphics::RenderGraphResource& font3dResource = context.Graph.getResource(
             fontTextureInPin->getLinkedPinGlobalId().get() );
         const rhi::TextureHandle& font3dTextureHandle = std::get< rhi::TextureHandle >( font3dResource.Handle );
-        constants.TextureIndices[ 2 ] = font3dTextureHandle.Texture->GetIndex();
+        constants.TextureIndices[ 2 ] = font3dTextureHandle.getGpuAddress();
         ++constants.Count;
     }
 

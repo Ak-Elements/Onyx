@@ -14,6 +14,8 @@ class TerrainMaterialDatabase : public assets::Asset< TerrainMaterialDatabase > 
 
     DynamicArray< assets::AssetHandle< TerrainMaterial > >& getMaterials() { return m_materials; }
 
+    [[nodiscard]] bool isValid() const;
+
   private:
     DynamicArray< assets::AssetHandle< TerrainMaterial > > m_materials;
 };

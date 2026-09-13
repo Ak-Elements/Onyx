@@ -102,7 +102,7 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
 
         uint8_t colorTargetIndex = 0;
         for( const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments ) {
-            if( Utils::IsDepthFormat( static_cast< TextureFormat >( attachment.m_Format ) ) ) {
+            if( utils::isDepthFormat( static_cast< TextureFormat >( attachment.m_Format ) ) ) {
                 ONYX_ASSERT( hasDepthAttachment == false, "Only 1 depth attachment supported." );
                 hasDepthAttachment = true;
 

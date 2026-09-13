@@ -2,6 +2,7 @@
 #include <onyx/assets/asset.h>
 
 #include <onyx/rhi/graphicshandles.h>
+#include <onyx/rhi/graphicstypes.h>
 
 namespace onyx::graphics {
 class TextureAsset : public assets::Asset< TextureAsset > {
@@ -10,6 +11,7 @@ class TextureAsset : public assets::Asset< TextureAsset > {
     static StringId32 getTypeId() { return TypeId; }
 
     const rhi::TextureHandle& getTextureHandle() const { return m_texture; }
+    GpuTextureAddress getGpuAddress() const { return m_texture.getGpuAddress(); }
 
     bool isValid() const { return m_texture.isValid(); }
 

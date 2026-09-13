@@ -269,7 +269,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 
         for( const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments ) {
             TextureFormat format = enums::toEnum< TextureFormat >( attachment.m_Format );
-            if( Utils::IsDepthFormat( format ) ) {
+            if( utils::isDepthFormat( format ) ) {
                 ONYX_ASSERT( depthStencilFormat == VK_FORMAT_UNDEFINED );
                 depthStencilFormat = VulkanTextureStorage::getFormat( format );
             } else {

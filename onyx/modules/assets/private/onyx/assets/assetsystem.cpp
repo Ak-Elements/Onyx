@@ -4,8 +4,8 @@
 
 #include <onyx/assets/assetserializer.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/filesystem/textdeserializer.h>
-#include <onyx/filesystem/textserializer.h>
+#include <onyx/serialize/text/textdeserializer.h>
+#include <onyx/serialize/text/textserializer.h>
 
 namespace onyx::assets {
 HashMap< StringId32, InplaceFunction< Reference< AssetInterface >( IEngine& ) > > AssetSystem::s_registeredAssets = {};
@@ -23,7 +23,7 @@ Optional< AssetMetaData > tryReadAssetMetadata( const FilePath& path ) {
         return std::nullopt;
     }
 
-    file_system::TextDeserializer deserializer( metadataFileContent );
+    serialization::text::TextDeserializer deserializer( metadataFileContent );
     AssetMetaData metaData;
     deserializer.read( metaData );
     return metaData;
@@ -36,9 +36,9 @@ Optional< AssetMetaData > createAssetMetadata( const FilePath& metadataPath, con
     metadata.Format = AssetFormat::Binary;
     metadata.Version = 0;
 
-    file_system::TextSerializer serializer;
+    serialization::text::TextSerializer serializer;
     serializer.write( metadata );
-    const String& serlialized = serializer.toString();
+    StringView serlialized = serializer.data();
     if( serlialized.empty() )
         return std::nullopt;
 
@@ -64,7 +64,7 @@ bool getAllAssetMetaData( HashMap< AssetId, AssetMetaData >& outAssetsMetaData )
                 continue;
             }
 
-            const FilePath path = entry.path();
+            const FilePath& path = entry.path();
             const FilePath relativePath = path.lexically_relative( mountPoint.Path );
             const FilePath mountPointPath = mountPoint.Prefix / relativePath;
             const String extension = path.extension().generic_string();

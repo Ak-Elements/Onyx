@@ -15,105 +15,80 @@ class Serializer {
     virtual ~Serializer() = default;
 
     template < std::integral T >
-    bool write( const T& outValue, uint8_t base ) {
-        return doWrite( outValue, base );
+    bool write( const T& value, uint8_t base ) {
+        return doWrite( value, base );
     }
 
     template < CompileTimeString Name, std::integral T >
-    bool write( const T& outValue, uint8_t base ) {
-        return doWrite( Name.stringView(), outValue, base );
+    bool write( const T& value, uint8_t base ) {
+        return doWrite( Name.stringView(), value, base );
     }
 
     template < std::integral T >
-    bool write( StringView name, const T& outValue, uint8_t base ) {
-        return doWrite( name, outValue, base );
+    bool write( StringView name, const T& value, uint8_t base ) {
+        return doWrite( name, value, base );
     }
 
     template < typename T >
-    bool writeAt( uint32_t i, const T& outValue ) {
+    bool writeAt( uint32_t i, const T& value ) {
         if( createScope( i ) == false ) {
             return false;
         }
 
-        bool success = write( outValue );
+        bool success = write( value );
         success &= endScope();
         return success;
     }
 
     template < typename T >
-    bool write( const T& outValue ) {
+    bool write( const T& value ) {
         if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
-            return doWrite( outValue );
+            return doWrite( value );
         } else if constexpr( std::is_same_v< T, String > ) {
-            return doWrite( StringView( outValue ) );
+            return doWrite( StringView( value ) );
         } else if constexpr( std::is_enum_v< T > ) {
-            bool success = doWrite( enums::toString< T >( outValue ) );
+            bool success = doWrite( enums::toString< T >( value ) );
             return success;
         } else {
-            bool success = Serialization< T >::serialize( *this, outValue );
-            return success;
-        }
-    }
-
-    template < typename T >
-    bool write( Guid64 id, const T& outValue ) {
-        if( createScope( id.get() ) == false ) {
-            return false;
-        }
-
-        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
-            doWrite( outValue );
-            endScope();
-            return true;
-        } else if constexpr( std::is_same_v< T, String > ) {
-            doWrite( StringView( outValue ) );
-            endScope();
-            return true;
-        } else if constexpr( std::is_enum_v< T > ) {
-            bool success = doWrite( enums::toString< T >( outValue ) );
-            endScope();
-            return success;
-        } else {
-            bool success = Serialization< T >::serialize( *this, outValue );
-            endScope();
+            bool success = Serialization< T >::serialize( *this, value );
             return success;
         }
     }
 
     template < CompileTimeString Name, typename T >
-    bool write( const T& outValue ) {
-        return write( Name.stringView(), outValue );
+    bool write( const T& value ) {
+        return write( Name.stringView(), value );
     }
 
     template < typename T >
-    bool write( StringView name, const T& outValue ) {
+    bool write( StringView name, const T& value ) {
         if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
-            return doWrite( name, outValue );
+            return doWrite( name, value );
         } else if constexpr( std::is_same_v< T, String > ) {
-            return doWrite( name, StringView( outValue ) );
+            return doWrite( name, StringView( value ) );
         } else if constexpr( std::is_enum_v< T > ) {
-            bool success = doWrite( name, enums::toString< T >( outValue ) );
+            bool success = doWrite( name, enums::toString< T >( value ) );
             return success;
         } else {
             if( createScope( name ) == false ) {
                 return false;
             }
 
-            bool success = write( outValue );
+            bool success = write( value );
             success &= endScope();
             return success;
         }
     }
 
     template < typename T, size_t N >
-    bool write( const Array< T, N >& outValue ) {
+    bool write( const Array< T, N >& value ) {
         bool success = true;
 
         for( uint32_t i = 0; i < static_cast< uint32_t >( N ); ++i ) {
             if( createScope( i ) == false ) {
                 return false;
             }
-            success = write( outValue[ i ] );
+            success = write( value[ i ] );
             success &= endScope();
             if( success == false ) {
                 break;
@@ -124,9 +99,9 @@ class Serializer {
     }
 
     template < typename T >
-    bool write( const DynamicArray< T >& outValue ) {
+    bool write( const DynamicArray< T >& value ) {
         bool success = true;
-        uint32_t count = numericCast< uint32_t >( outValue.size() );
+        uint32_t count = numericCast< uint32_t >( value.size() );
 
         if( writeItemsCount( count ) == false )
             return false;
@@ -135,7 +110,7 @@ class Serializer {
             if( createScope( i ) == false ) {
                 return false;
             }
-            success = write( outValue[ i ] );
+            success = write( value[ i ] );
             success &= endScope();
             if( success == false ) {
                 break;
@@ -146,8 +121,8 @@ class Serializer {
     }
 
     template < typename T >
-    bool write( StringView name, const DynamicArray< T >& outValue ) {
-        if( outValue.empty() ) {
+    bool write( StringView name, const DynamicArray< T >& value ) {
+        if( value.empty() ) {
             return true;
         }
 
@@ -155,14 +130,14 @@ class Serializer {
             return false;
         }
 
-        bool success = write( outValue );
+        bool success = write( value );
         success &= endScope();
         return success;
     }
 
     template < typename T, uint8_t Size >
-    bool write( StringView name, const InplaceArray< T, Size >& outValue ) {
-        if( outValue.empty() ) {
+    bool write( StringView name, const InplaceArray< T, Size >& value ) {
+        if( value.empty() ) {
             return true;
         }
 
@@ -171,7 +146,7 @@ class Serializer {
         }
 
         bool success = true;
-        uint8_t count = outValue.size();
+        uint8_t count = value.size();
 
         if( writeItemsCount( count ) == false )
             return false;
@@ -182,7 +157,7 @@ class Serializer {
                 break;
             }
 
-            success &= write( outValue[ i ] );
+            success &= write( value[ i ] );
             success &= endScope();
 
             if( success == false ) {
@@ -306,8 +281,8 @@ class Serializer {
 
     template < CompileTimeString Name, typename KeyT, typename ValueT, typename Callable >
     requires std::is_invocable_r_v< bool, Callable, Serializer&, const KeyT&, const ValueT& >
-    bool writeForEach( const HashMap< KeyT, ValueT >& outMap, Callable forEachFunctor ) {
-        if( outMap.empty() ) {
+    bool writeForEach( const HashMap< KeyT, ValueT >& map, Callable forEachFunctor ) {
+        if( map.empty() ) {
             return true;
         }
 
@@ -315,20 +290,20 @@ class Serializer {
             return false;
         }
 
-        bool success = writeForEach( outMap, forEachFunctor );
+        bool success = writeForEach( map, forEachFunctor );
         success &= endScope();
         return success;
     }
 
     template < typename KeyT, typename ValueT, typename Callable >
     requires std::is_invocable_r_v< bool, Callable, Serializer&, const KeyT&, const ValueT& >
-    bool writeForEach( const HashMap< KeyT, ValueT >& outMap, Callable forEachFunctor ) {
+    bool writeForEach( const HashMap< KeyT, ValueT >& map, Callable forEachFunctor ) {
         bool success = true;
 
-        if( writeItemsCount( numericCast< uint64_t >( outMap.size() ) ) == false )
+        if( writeItemsCount( numericCast< uint64_t >( map.size() ) ) == false )
             return false;
 
-        for( auto&& [ key, value ] : outMap ) {
+        for( auto&& [ key, value ] : map ) {
             if constexpr( std::is_integral_v< KeyT > || IsStringId< KeyT > || IsGuid64< KeyT > ) {
                 if( isSupportingIntegralScopes() ) {
                     auto scopeKey = getScopeKeyUnderlyingType( key );

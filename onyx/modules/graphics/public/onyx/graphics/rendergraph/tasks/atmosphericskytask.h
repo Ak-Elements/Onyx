@@ -15,8 +15,8 @@ class AtmosphericSkyRenderGraphNode : public node_graph::FixedPinNode3In1Out< Re
     static constexpr StringId32 TypeId = "onyx::graphics::render_graph_nodes::AtmosphericSkyPass";
     [[nodiscard]] StringId32 getTypeId() const override { return TypeId; }
 
-    static uint32_t m_transmittanceTextureIndex;
-    static uint32_t m_skyViewLutTextureIndex;
+    static GpuTextureAddress m_transmittanceTextureIndex;
+    static GpuTextureAddress m_skyViewLutTextureIndex;
 
   private:
     void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, RenderGraphResourceCache& ) override;

@@ -1,10 +1,11 @@
-#include <onyx/filesystem/textdeserializer.h>
+#include <onyx/serialize/text/textdeserializer.h>
 
-namespace onyx::file_system {
+namespace onyx::serialization::text {
+
 TextDeserializer::TextDeserializer( StringView data )
     : m_root( "root", data ) {
     m_scopeStack.emplace( &m_root );
-    updateScope();
+    initializeScope( m_root );
 }
 
 template < typename T >
@@ -276,8 +277,8 @@ bool TextDeserializer::createScope( uint32_t index ) const {
     if( index >= currentScope.Children.size() )
         return false;
 
-    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    updateScope();
+    Scope* newScope = m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
+    initializeScope( *newScope );
     return true;
 }
 
@@ -287,8 +288,8 @@ bool TextDeserializer::createScope( uint64_t index ) const {
     if( index >= currentScope.Children.size() )
         return false;
 
-    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    updateScope();
+    Scope* newScope = m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
+    initializeScope( *newScope );
     return true;
 }
 
@@ -336,10 +337,8 @@ uint32_t TextDeserializer::getItemsCount() const {
     return numericCast< uint32_t >( currentScope.Children.size() );
 }
 
-void TextDeserializer::updateScope() const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    const StringView currentData = currentScope.Data;
+void TextDeserializer::initializeScope( Scope& scope ) const {
+    const StringView currentData = scope.Data;
 
     const StringView::size_type scopeLength = currentData.size();
     const StringView::size_type scopeEndIndex = scopeLength - 1;
@@ -367,9 +366,8 @@ void TextDeserializer::updateScope() const {
 
             const uint64_t valueEndIndex = std::min( currentData.find_first_of( endCharacters, valueStartIndex + 1 ),
                                                      scopeEndIndex );
-            currentScope.Children.emplace_back(
-                propertyName,
-                currentData.substr( valueStartIndex, valueEndIndex - valueStartIndex ) );
+            scope.Children.emplace_back( propertyName,
+                                         currentData.substr( valueStartIndex, valueEndIndex - valueStartIndex ) );
 
             i = valueEndIndex;
         } else {
@@ -418,9 +416,8 @@ void TextDeserializer::updateScope() const {
             if( propertyData.empty() ) {
                 propertyData = propertyName;
             }
-            currentScope.Children.emplace_back( propertyName, propertyData );
+            scope.Children.emplace_back( propertyName, propertyData );
         }
     }
 }
-
-} // namespace onyx::file_system
+} // namespace onyx::serialization::text

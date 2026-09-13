@@ -153,12 +153,12 @@ VulkanTextureStorage::~VulkanTextureStorage() {
 }
 
 VkImageAspectFlags VulkanTextureStorage::getAspectFlags( TextureFormat format ) {
-    if( Utils::IsDepthFormat( format ) ) {
+    if( utils::isDepthFormat( format ) ) {
         if( format == TextureFormat::STENCIL_UINT8 )
             return VK_IMAGE_ASPECT_STENCIL_BIT;
 
         VkFormatFeatureFlags flags = VK_IMAGE_ASPECT_DEPTH_BIT;
-        if( Utils::HasStencil( format ) )
+        if( utils::hasStencil( format ) )
             flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
         return flags;
@@ -423,7 +423,7 @@ void VulkanTextureStorage::transitionLayout( CommandBuffer& commandBuffer,
     barrier.dstAccessMask = toAccessFlag( newAccess );
     barrier.dstStageMask = getPipelineFlags( barrier.dstAccessMask, context );
 
-    bool isDepthFormat = Utils::IsDepthFormat( m_properties.Format );
+    bool isDepthFormat = utils::isDepthFormat( m_properties.Format );
     VkImageLayout vkOldLayout = toImageLayout( m_layout );
     VkImageLayout vkNewLayout = toImageLayout( newLayout );
 
@@ -486,7 +486,7 @@ VkImageUsageFlags VulkanTextureStorage::getUsageFlags( const TextureStoragePrope
         usageFlags |= VK_IMAGE_USAGE_SAMPLED_BIT;
 
     if( properties.IsFrameBuffer ) {
-        if( Utils::IsDepthFormat( properties.Format ) )
+        if( utils::isDepthFormat( properties.Format ) )
             usageFlags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         else
             usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;

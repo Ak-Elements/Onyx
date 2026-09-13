@@ -20,7 +20,7 @@ void ComputeMultipleScatteringRenderGraphNode::onBeginFrame( RenderGraphContext&
         getInputPin().getLinkedPinGlobalId().get() );
     const rhi::TextureHandle& transmittanceTextureHandle = std::get< rhi::TextureHandle >(
         transmittanceResource.Handle );
-    m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
+    m_transmittanceTextureIndex = transmittanceTextureHandle.getGpuAddress();
 
     RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;

@@ -71,7 +71,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     source/volumebase.h
     source/sdfsample.h
     systems/volumeterrainsystem.h
-    systems/volumerendersystem.h
     terrain/worldsparseoctreenode.h
     terrain/terrainmaterial.h
     terrain/terrainmaterialdatabase.h
@@ -122,8 +121,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     source/noise/simplexnoised.cpp
     source/volumebase.cpp
     systems/volumeterrainsystem.cpp
-    systems/volumerendersystem.cpp
     terrain/terrainmaterial.cpp
+    terrain/terrainmaterialdatabase.cpp
     volumeterrain.cpp
     volumemodule.cpp
 )

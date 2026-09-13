@@ -73,7 +73,7 @@ void SceneViewportWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
                                    static_cast< float32 >( sceneTextureProperties.Size.Y ) };
 
     ImGui::SetNextItemAllowOverlap();
-    ImGui::Image( finalSceneTexture.Texture->GetIndex(), sceneTextureExtents );
+    ImGui::Image( finalSceneTexture.getGpuAddress(), sceneTextureExtents );
 
     renderImGuizmo( sceneId,
                     scene,

@@ -204,7 +204,7 @@ void ContentBrowserPanel::drawContentDirectoryItem( const DirectoryInfo& directo
     const ImVec2 iconMax = pixelSnap( { iconMin.x + iconSize.x, iconMin.y + iconSize.y } );
 
     if( iconAsset && iconAsset->isLoaded() )
-        dl->AddImage( ( *iconAsset )->getTextureHandle().Texture->GetIndex(), iconMin, iconMax );
+        dl->AddImage( ( *iconAsset )->getGpuAddress(), iconMin, iconMax );
     else
         dl->AddText( iconMin, ImGui::GetColorU32( ImGuiCol_Text ), isOpen ? "v " : "> " );
 
@@ -306,7 +306,7 @@ void ContentBrowserPanel::drawContentTile( const DirectoryInfo& item, ImVec2 til
         const bool iconReady = m_folderClosedAsset.isLoaded();
         if( iconReady ) {
             singleClicked = ImGui::ImageButton( "##tile",
-                                                m_folderClosedAsset->getTextureHandle().Texture->GetIndex(),
+                                                m_folderClosedAsset->getGpuAddress(),
                                                 ImVec2( imageSize, imageSize ) );
         } else {
             singleClicked = ImGui::Button( "##tile", ImVec2( imageSize, imageSize ) );

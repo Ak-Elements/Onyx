@@ -1,5 +1,7 @@
 #include <onyx/volume/serialize/terrainmaterialdatabaseserializer.h>
 
+#include <onyx/assets/assetsystem.h>
+#include <onyx/engine/enginesystem.h>
 #include <onyx/volume/terrain/terrainmaterial.h>
 #include <onyx/volume/terrain/terrainmaterialdatabase.h>
 
@@ -16,9 +18,17 @@ bool TerrainMaterialDatabaseSerializer::serialize( const assets::AssetHandle< as
 bool TerrainMaterialDatabaseSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >& asset,
                                                      const assets::AssetMetaData& meta,
                                                      const Deserializer& deserializer,
-                                                     IEngine& /*engine*/ ) const {
+                                                     IEngine& engine ) const {
     TerrainMaterialDatabase& database = asset.as< TerrainMaterialDatabase >();
-    return deserializer.read( database.m_materials );
+    if( deserializer.read( database.m_materials ) == false ) {
+        return false;
+    }
+
+    assets::AssetSystem& assetSystem = engine.getSystem< assets::AssetSystem >();
+    for( auto& material : database.m_materials ) {
+        assetSystem.loadAsset( material );
+    }
+    return true;
 }
 
 } // namespace onyx::volume::terrain

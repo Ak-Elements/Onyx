@@ -159,6 +159,7 @@ function(onyx_create_target)
 
     if (arg_PRIVATE_SOURCES)
         target_sources(${arg_TARGET} PRIVATE ${arg_PRIVATE_SOURCES})
+        target_include_directories(${arg_TARGET} PRIVATE "${arg_BASE_SOURCE_DIR}/private")
         source_group(TREE ${private_dir} FILES ${arg_PRIVATE_SOURCES})
     endif()
 

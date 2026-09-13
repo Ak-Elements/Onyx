@@ -24,25 +24,26 @@ class Texture : public RefCounted {
     Texture( const TextureProperties& properties, const TextureStorage* storage );
     ~Texture() override = default;
 
-    TextureProperties& GetProperties() { return m_Properties; }
-    const TextureProperties& GetProperties() const { return m_Properties; }
+    TextureProperties& getProperties() { return m_properties; }
+    [[nodiscard]] const TextureProperties& getProperties() const { return m_properties; }
 
-    const TextureStorage& GetStorage() const {
-        ONYX_ASSERT( m_Storage != nullptr );
-        return *m_Storage;
+    [[nodiscard]] const TextureStorage& getStorage() const {
+        ONYX_ASSERT( m_storage != nullptr );
+        return *m_storage;
     }
 
-    uint32_t GetIndex() const { return m_Index; }
+    [[nodiscard]] GpuTextureAddress getGpuAddress() const { return m_gpuAddress; }
 
   private:
-    void SetIndex( uint32_t index ) { m_Index = index; }
+    void setGpuAddress( GpuTextureAddress address ) { m_gpuAddress = address; }
 
-    virtual void Release() = 0;
+    virtual void release() = 0;
 
   protected:
-    uint32_t m_Index = std::numeric_limits< uint32_t >::max(); // index in memory pool and bindless texture index
-    TextureProperties m_Properties;
-    const TextureStorage* m_Storage; // non owning
+    GpuTextureAddress m_gpuAddress{ std::numeric_limits< uint32_t >::max() };
+    // index in memory pool and bindless texture index
+    TextureProperties m_properties;
+    const TextureStorage* m_storage; // non owning
 };
 
 namespace internal {
@@ -50,18 +51,15 @@ template < typename T >
 struct TextureDeleter {
     TextureDeleter() = default;
 
-    template < typename _Ty2, std::enable_if_t< std::is_convertible_v< _Ty2*, T* >, int > = 0 >
-    constexpr TextureDeleter( const TextureDeleter< _Ty2 >& ) noexcept {}
+    template < typename Ty2, std::enable_if_t< std::is_convertible_v< Ty2*, T* >, int > = 0 >
+    constexpr TextureDeleter( const TextureDeleter< Ty2 >& ) noexcept {}
 
     void operator()( T* texture ) const {
         // if no index is set the texture is not from the bindless pool delete normally
-        if( texture->GetIndex() == std::numeric_limits< uint32_t >::max() ) {
-            ONYX_SAFE_DELETE( texture );
+        if( texture->getGpuAddress().isValid() ) {
+            texture->release();
         } else {
-            texture->Release();
-            // TODO: this should not be done and is only done to remove a validation error currently when resizing with
-            // the depth texture
-            texture->SetIndex( std::numeric_limits< uint32_t >::max() );
+            ONYX_SAFE_DELETE( texture );
         }
     }
 };
@@ -69,21 +67,21 @@ struct TextureDeleter {
 
 using TextureDeleter = internal::TextureDeleter< Texture >;
 
-namespace Utils {
-inline bool IsDepthFormat( TextureFormat format ) {
+namespace utils {
+inline bool isDepthFormat( TextureFormat format ) {
     return ( format == TextureFormat::DEPTH_STENCIL_FLOAT32_8UINT ) || ( format == TextureFormat::DEPTH_FLOAT32 ) ||
            ( format == TextureFormat::DEPTH_STENCIL_UNORM24_8UINT ) ||
            ( format == TextureFormat::DEPTH_STENCIL_UNORM16_8UINT ) || ( format == TextureFormat::DEPTH_UNORM16 ) ||
            ( format == TextureFormat::STENCIL_UINT8 ); // is this valid?
 }
 
-inline bool HasStencil( TextureFormat format ) {
+inline bool hasStencil( TextureFormat format ) {
     return ( format == TextureFormat::STENCIL_UINT8 ) || ( format == TextureFormat::DEPTH_STENCIL_UNORM16_8UINT ) ||
            ( format == TextureFormat::DEPTH_STENCIL_UNORM24_8UINT ) ||
            ( format == TextureFormat::DEPTH_STENCIL_FLOAT32_8UINT );
 }
 
-inline uint32_t GetImageFormatBPP( TextureFormat format ) {
+inline uint32_t getImageFormatBpp( TextureFormat format ) {
     switch( format ) {
     case TextureFormat::R_UNORM8:
         return 1;
@@ -135,7 +133,7 @@ inline uint32_t GetImageFormatBPP( TextureFormat format ) {
     return 0;
 }
 
-inline bool IsIntegerBased( const TextureFormat format ) {
+inline bool isIntegerBased( const TextureFormat format ) {
     switch( format ) {
     case TextureFormat::R_UINT8:
     case TextureFormat::R_UINT16:
@@ -174,13 +172,13 @@ inline bool IsIntegerBased( const TextureFormat format ) {
     return false;
 }
 
-inline uint32_t CalculateMipCount( uint32_t width, uint32_t height ) {
+inline uint32_t calculateMipCount( uint32_t width, uint32_t height ) {
     return static_cast< uint32_t >( std::log2( std::min( width, height ) ) ) + 1;
 }
 
-inline uint32_t GetImageMemorySize( TextureFormat format, uint32_t width, uint32_t height ) {
-    return width * height * GetImageFormatBPP( format );
+inline uint32_t getImageMemorySize( TextureFormat format, uint32_t width, uint32_t height ) {
+    return width * height * getImageFormatBpp( format );
 }
 
-} // namespace Utils
+} // namespace utils
 } // namespace onyx::rhi

@@ -12,6 +12,8 @@ class TerrainMaterial : public assets::Asset< TerrainMaterial > {
     static constexpr StringId32 TypeId{ "onyx::volume::assets::TerrainMaterial" };
     static StringId32 getTypeId() { return TypeId; }
 
+    bool isValid() const { return Color.isValid() && Normal.isValid() && MetalRoughnessHeight.isValid(); }
+
     assets::AssetHandle< graphics::TextureAsset > Color;
     assets::AssetHandle< graphics::TextureAsset > Normal;
     assets::AssetHandle< graphics::TextureAsset > MetalRoughnessHeight;

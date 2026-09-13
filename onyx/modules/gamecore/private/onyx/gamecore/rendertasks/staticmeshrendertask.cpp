@@ -132,7 +132,7 @@ void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandB
     commandBuffer.bindShaderEffect( materialShader.getShader() );
 
     const graphics::ShaderGraphTextures& shaderTextures = runner.getContext().get< graphics::ShaderGraphTextures >();
-    const DynamicArray< uint32_t >& textureIndices = shaderTextures.getTextures();
+    const DynamicArray< GpuTextureAddress >& textureAddresses = shaderTextures.getTextures();
 
     struct PushConstants {
         Vector3u32 LightClusterGridSize;
@@ -158,8 +158,8 @@ void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandB
                                            nearFarLog );
     generalConstants.Debug = 0;
     commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64, generalConstants );
-    if( textureIndices.empty() == false ) {
-        commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64 + sizeof( PushConstants ), textureIndices );
+    if( textureAddresses.empty() == false ) {
+        commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64 + sizeof( PushConstants ), textureAddresses );
     }
 }
 

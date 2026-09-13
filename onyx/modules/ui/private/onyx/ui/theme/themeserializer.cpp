@@ -3,7 +3,7 @@
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetmetadata.h>
 #include <onyx/filesystem/onyxfile.h>
-#include <onyx/filesystem/textdeserializer.h>
+#include <onyx/serialize/text/textdeserializer.h>
 #include <onyx/stream/stringstream.h>
 #include <onyx/ui/theme/theme.h>
 
@@ -189,7 +189,7 @@ bool ThemeSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
         return false;
     }
 
-    file_system::TextDeserializer textDes( content );
+    serialization::text::TextDeserializer textDes( content );
 
     // TODO: this could be a Color struct that supports this parsing
     textDes.readForEach< "colors" >( g_colors,

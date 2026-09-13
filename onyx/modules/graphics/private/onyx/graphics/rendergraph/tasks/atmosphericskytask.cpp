@@ -9,8 +9,8 @@
 
 namespace onyx::graphics::render_graph_nodes {
 
-uint32_t AtmosphericSkyRenderGraphNode::m_transmittanceTextureIndex = 0;
-uint32_t AtmosphericSkyRenderGraphNode::m_skyViewLutTextureIndex = 0;
+GpuTextureAddress AtmosphericSkyRenderGraphNode::m_transmittanceTextureIndex;
+GpuTextureAddress AtmosphericSkyRenderGraphNode::m_skyViewLutTextureIndex;
 
 void AtmosphericSkyRenderGraphNode::onInit( assets::AssetSystem& assetSystem,
                                             rhi::GraphicsSystem&,
@@ -31,8 +31,8 @@ void AtmosphericSkyRenderGraphNode::onBeginFrame( RenderGraphContext& context ) 
         transmittanceResource.Handle );
     const rhi::TextureHandle& skyViewLutTextureHandle = std::get< rhi::TextureHandle >( skyViewLutResource.Handle );
 
-    m_transmittanceTextureIndex = transmittanceTextureHandle.Texture->GetIndex();
-    m_skyViewLutTextureIndex = skyViewLutTextureHandle.Texture->GetIndex();
+    m_transmittanceTextureIndex = transmittanceTextureHandle.getGpuAddress();
+    m_skyViewLutTextureIndex = skyViewLutTextureHandle.getGpuAddress();
 
     RenderGraphTextureResourceInfo& transmittanceInfo = m_inputAttachmentInfos.emplace_back();
     transmittanceInfo.Type = RenderGraphResourceType::Attachment;

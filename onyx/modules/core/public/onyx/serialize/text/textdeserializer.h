@@ -2,8 +2,19 @@
 
 #include <onyx/serialize/deserializer.h>
 
-namespace onyx::file_system {
+namespace onyx::serialization::text {
+namespace internal {
+struct Scope;
+}
+
 class TextDeserializer : public Deserializer {
+  private:
+    struct Scope {
+        StringView Name;
+        StringView Data;
+        DynamicArray< Scope > Children;
+    };
+
   public:
     TextDeserializer();
     TextDeserializer( StringView data );
@@ -80,25 +91,19 @@ class TextDeserializer : public Deserializer {
     [[nodiscard]] bool createScope( StringView name ) const override;
     [[nodiscard]] bool endScope() const override;
 
-    uint32_t getItemsCount() const override;
+    [[nodiscard]] uint32_t getItemsCount() const override;
 
     bool getScopeIdentifier( uint32_t& outKey ) const override;
     bool getScopeIdentifier( uint64_t& outKey ) const override;
     bool getScopeIdentifier( Guid64& outKey ) const override;
     bool getScopeIdentifier( StringView& outKey ) const override;
 
-    bool isSupportingIntegralScopes() const override { return false; }
+    [[nodiscard]] bool isSupportingIntegralScopes() const override { return false; }
 
-    void updateScope() const;
+    void initializeScope( Scope& scope ) const;
 
   private:
-    struct Scope {
-        StringView Name;
-        StringView Data;
-        DynamicArray< Scope > Children;
-    };
-
     mutable Scope m_root;
     mutable Stack< Scope* > m_scopeStack;
 };
-} // namespace onyx::file_system
+} // namespace onyx::serialization::text

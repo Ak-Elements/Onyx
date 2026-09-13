@@ -22,6 +22,6 @@ class ComputeMultipleScatteringRenderGraphNode
 #endif
 
   private:
-    uint32_t m_transmittanceTextureIndex = 0;
+    GpuTextureAddress m_transmittanceTextureIndex;
 };
 } // namespace onyx::graphics::render_graph_nodes

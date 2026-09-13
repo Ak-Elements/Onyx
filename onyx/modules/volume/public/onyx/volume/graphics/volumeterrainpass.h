@@ -10,9 +10,7 @@ struct VolumeTerrainInstance {
     rhi::ShaderInstanceHandle Shader;
     rhi::BufferHandle VolumeSources;
     rhi::BufferHandle VolumeSourcesData;
-    uint32_t TextureIndex0;
-    uint32_t TextureIndex1;
-    uint32_t TextureIndex2;
+    rhi::BufferHandle MaterialDatabase;
 };
 
 class VolumeTerrainPass : public node_graph::FixedPinNode2In1Out< graphics::RenderGraphShaderNode,

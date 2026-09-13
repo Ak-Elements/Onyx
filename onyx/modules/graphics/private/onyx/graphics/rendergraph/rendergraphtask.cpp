@@ -184,7 +184,7 @@ void RenderGraphShaderNode::preRender( RenderGraphContext& context, rhi::Command
 
             // TODO: Fix barriers
             const rhi::TextureStorageProperties& properties = textureHandle.Storage->getProperties();
-            if( rhi::Utils::IsDepthFormat( properties.Format ) ) {
+            if( rhi::utils::isDepthFormat( properties.Format ) ) {
                 commandBuffer.transitionLayout( textureHandle,
                                                 rhi::Context::Graphics,
                                                 rhi::Access::DepthStencilWrite | rhi::Access::DepthStencilRead,
@@ -312,7 +312,7 @@ void RenderGraphShaderNode::createRenderPass( rhi::GraphicsSystem& api, RenderGr
             const RenderGraphTextureResourceInfo& properties = std::get< RenderGraphTextureResourceInfo >(
                 output.Properties );
             // TODO: add more granularity for only stencil or only depth write
-            if( rhi::Utils::IsDepthFormat( properties.Format ) ) {
+            if( rhi::utils::isDepthFormat( properties.Format ) ) {
                 rhi::RenderPassSettings::Attachment attachment{};
                 // TODO: add proper format for depth target
                 attachment.m_Format = enums::toIntegral( properties.Format );
@@ -349,7 +349,7 @@ void RenderGraphShaderNode::createRenderPass( rhi::GraphicsSystem& api, RenderGr
             const RenderGraphTextureResourceInfo& properties = std::get< RenderGraphTextureResourceInfo >(
                 inputResource.Properties );
             // TODO: add more granularity for only stencil or only depth write
-            if( rhi::Utils::IsDepthFormat( properties.Format ) ) {
+            if( rhi::utils::isDepthFormat( properties.Format ) ) {
                 rhi::RenderPassSettings::Attachment attachment{};
                 attachment.m_Format = enums::toIntegral( properties.Format );
                 attachment.m_LoadOp = enums::toIntegral( rhi::RenderPassSettings::LoadOp::Load );
@@ -407,7 +407,7 @@ void RenderGraphShaderNode::updateFramebuffer( rhi::GraphicsSystem& api, RenderG
             ONYX_LOG_ERROR( "Height of output attachments is not matching." );
         }
 
-        if( rhi::Utils::IsDepthFormat( properties.Format ) )
+        if( rhi::utils::isDepthFormat( properties.Format ) )
             framebufferSettings.m_DepthTarget = std::get< rhi::TextureHandle >( output.Handle ).Texture;
         else
             framebufferSettings.m_ColorTargets.add( std::get< rhi::TextureHandle >( output.Handle ).Texture );
@@ -439,7 +439,7 @@ void RenderGraphShaderNode::updateFramebuffer( rhi::GraphicsSystem& api, RenderG
         }
 
         rhi::TextureHandle texture = std::get< rhi::TextureHandle >( inputResource.Handle );
-        if( rhi::Utils::IsDepthFormat( properties.Format ) )
+        if( rhi::utils::isDepthFormat( properties.Format ) )
             framebufferSettings.m_DepthTarget = texture.Texture;
         else
             framebufferSettings.m_ColorTargets.add( texture.Texture );

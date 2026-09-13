@@ -26,7 +26,7 @@ class SkyViewLutRenderGraphNode : public node_graph::FixedPinNode2In1Out< Render
 #endif
 
   private:
-    uint32_t m_transmittanceTextureIndex = 0;
-    uint32_t m_multipleScatteringTextureIndex = 0;
+    GpuTextureAddress m_transmittanceTextureIndex;
+    GpuTextureAddress m_multipleScatteringTextureIndex;
 };
 } // namespace onyx::graphics::render_graph_nodes
