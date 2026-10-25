@@ -319,18 +319,18 @@ constexpr Bivector3< Scalar > wedge( const Vector3< Scalar >& lhs, const Vector3
 
 template < typename Scalar >
 constexpr Vector3< Scalar > operator+( Scalar lhs, const Vector3< Scalar >& rhs ) {
-    ONYX_ASSERT( IsAdditionSafe( lhs, rhs.X ) );
-    ONYX_ASSERT( IsAdditionSafe( lhs, rhs.Y ) );
-    ONYX_ASSERT( IsAdditionSafe( lhs, rhs.Z ) );
+    ONYX_ASSERT( isAdditionSafe( lhs, rhs.X ) );
+    ONYX_ASSERT( isAdditionSafe( lhs, rhs.Y ) );
+    ONYX_ASSERT( isAdditionSafe( lhs, rhs.Z ) );
 
     return Vector3< Scalar >( lhs + rhs.X, lhs + rhs.Y, lhs + rhs.Z );
 }
 
 template < typename Scalar >
 constexpr Vector3< Scalar > operator-( Scalar lhs, const Vector3< Scalar >& rhs ) {
-    ONYX_ASSERT( IsSubtractionSafe( lhs, rhs.X ) );
-    ONYX_ASSERT( IsSubtractionSafe( lhs, rhs.Y ) );
-    ONYX_ASSERT( IsSubtractionSafe( lhs, rhs.Z ) );
+    ONYX_ASSERT( isSubtractionSafe( lhs, rhs.X ) );
+    ONYX_ASSERT( isSubtractionSafe( lhs, rhs.Y ) );
+    ONYX_ASSERT( isSubtractionSafe( lhs, rhs.Z ) );
 
     return Vector3< Scalar >( lhs - rhs.X, lhs - rhs.Y, lhs - rhs.Z );
 }

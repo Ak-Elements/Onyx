@@ -6,10 +6,10 @@
 #include <onyx/geometry/vector4.h>
 
 namespace onyx::volume {
-class CSGPlane : public VolumeBase {
+class CsgPlane : public VolumeBase {
   public:
-    CSGPlane() = default;
-    CSGPlane( const float32 distance, const Vector3f32& normal )
+    CsgPlane() = default;
+    CsgPlane( const float32 distance, const Vector3f32& normal )
         : m_distance( distance )
         , m_normal( normal ) {}
 

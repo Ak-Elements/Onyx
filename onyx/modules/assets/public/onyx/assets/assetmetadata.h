@@ -4,7 +4,6 @@
 #include <onyx/function/signal.h>
 
 #include <onyx/assets/assetformat.h>
-#include <onyx/assets/assethandle.h>
 #include <onyx/assets/assetid.h>
 
 #include <onyx/serialize/serialization.h>
@@ -19,6 +18,7 @@ enum class AssetType : uint32_t { Invalid };
 
 struct AssetMetaData {
     FilePath Path;
+    FilePath MetaDataPath;
     AssetId Id;
     AssetType Type = AssetType::Invalid;
 

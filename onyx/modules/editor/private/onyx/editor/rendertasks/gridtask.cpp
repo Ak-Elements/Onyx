@@ -82,7 +82,7 @@ void GridRenderGraphNode::onRender( graphics::RenderGraphContext& context, rhi::
                          .ZAxisColor = colors::dark::Indigo10.toRGBA(),
                          .Flags = settings.UseAutoLod ? uint32_t( 0 ) : uint32_t( 1 ) };
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 

@@ -163,7 +163,7 @@ void UpdateLightClustersRenderGraphNode::onRender( RenderGraphContext& context, 
     constants.PointLights = m_pointLightsSsbo[ frameIndex ].getGpuAddress();
     constants.SpotLights = m_spotLightsSsbo[ frameIndex ].getGpuAddress();
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
 
     commandBuffer.dispatch( 1, 1, 6 );
     //

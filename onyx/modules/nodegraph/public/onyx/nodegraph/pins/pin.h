@@ -10,23 +10,23 @@ class Pin : public PinBase {
   public:
     using DataType = DataT;
     static constexpr StringId32 LocalId{ PinId };
-    static constexpr PinTypeId DataTypeId = static_cast< PinTypeId >( TypeHash< DataT >() );
+    static constexpr PinTypeId DataTypeId = static_cast< PinTypeId >( typeHash< DataT >() );
 
     Pin()
         : PinBase( Guid64Generator::getGuid() ) {
         if constexpr( HasTypeId< DataT > ) {
-            NodeGraphTypeRegistry::Register< DataT >();
+            NodeGraphTypeRegistry::registerType< DataT >();
         } else {
-            PinMetaObject< DataT >::Register();
+            PinMetaObject< DataT >::registerType();
         }
     }
 
     Pin( Guid64 globalPinId )
         : PinBase( globalPinId ) {
         if constexpr( HasTypeId< DataT > ) {
-            NodeGraphTypeRegistry::Register< DataT >();
+            NodeGraphTypeRegistry::registerType< DataT >();
         } else {
-            PinMetaObject< DataT >::Register();
+            PinMetaObject< DataT >::registerType();
         }
     }
 
@@ -34,7 +34,7 @@ class Pin : public PinBase {
 
 #if ONYX_IS_EDITOR
     void drawPropertyPanel( StringView name, std::any& anyValue ) const override;
-    [[nodiscard]] constexpr uint32_t getTypeColor() const override { return PinMetaObject< DataT >::GetPinTypeColor(); }
+    [[nodiscard]] constexpr uint32_t getTypeColor() const override { return PinMetaObject< DataT >::getPinTypeColor(); }
 #endif
 
     [[nodiscard]] StringId32 getLocalId() const override { return LocalId; }
@@ -51,7 +51,7 @@ template < typename DataT, CompileTimeString PinId >
 void Pin< DataT, PinId >::drawPropertyPanel( StringView name, std::any& anyValue ) const {
     if constexpr( std::is_same_v< DataT, ExecutePin > == false ) {
         DataT& value = std::any_cast< DataT& >( anyValue );
-        PinMetaObject< DataT >::DrawPinInPropertyGrid( name, value );
+        PinMetaObject< DataT >::drawPinInPropertyGrid( name, value );
     }
 }
 #endif

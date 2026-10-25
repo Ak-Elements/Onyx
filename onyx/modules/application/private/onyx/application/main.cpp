@@ -1,6 +1,4 @@
 #include <onyx/application/application.h>
-#include <onyx/filesystem/jsondeserializer.h>
-#include <onyx/filesystem/onyxfile.h>
 
 namespace onyx::application {
 extern void onApplicationCreate();

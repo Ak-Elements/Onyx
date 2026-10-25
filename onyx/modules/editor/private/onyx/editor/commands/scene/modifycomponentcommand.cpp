@@ -2,7 +2,7 @@
 
 #include <onyx/assets/assethandle.h>
 
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/gamecore/scene/scene.h>
 
 #include <utility>
@@ -19,8 +19,8 @@ ModifyComponentCommand::ModifyComponentCommand( ecs::EntityId entity,
     , m_componentTypeId( componentTypeId ) {}
 
 void ModifyComponentCommand::execute() {
-    const ecs::ComponentFactory& componentFactory = GetComponentFactory();
-    ecs::EntityRegistry& registry = GetScene().getRegistry();
+    const ecs::ComponentFactory& componentFactory = getComponentFactory();
+    ecs::EntityRegistry& registry = getScene().getRegistry();
 
     const ecs::IComponentMeta* componentMeta = componentFactory.getComponentMeta( m_componentTypeId )
                                                    .value_or( nullptr );

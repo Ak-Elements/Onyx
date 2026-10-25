@@ -342,6 +342,7 @@ ImGuiSystem::ImGuiSystem( IEngine& engine,
 
     onyx::ui::PropertyInspectors::registerInspector< EngineVariable< uint32_t > >();
     onyx::ui::PropertyInspectors::registerInspector< EngineVariable< bool > >();
+    onyx::ui::PropertyInspectors::registerInspector< EngineVariable< assets::AssetId > >();
 
     registerWindow< EngineVariablesWindow >();
 }
@@ -480,7 +481,7 @@ void ImGuiSystem::onRenderFrame( const rhi::FrameContext& frameContext ) {
     constants.Scale = { 2.0f / imDrawData->DisplaySize.x, -2.0f / imDrawData->DisplaySize.y };
     constants.Translate = { -1.0f - imDrawData->DisplayPos.x * constants.Scale[ 0 ],
                             1.0f - imDrawData->DisplayPos.y * constants.Scale[ 1 ] };
-    commandBuffer.bindPushConstants( rhi::ShaderStage::All, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
 
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clipOff = imDrawData->DisplayPos;         // (0,0) unless using multi-viewports

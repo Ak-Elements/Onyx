@@ -11,21 +11,7 @@
 #include <onyx/rhi/texture.h>
 #include <onyx/rhi/texturestorage.h>
 
-namespace onyx::file_system {
-struct JsonValue;
-}
-
 namespace onyx::rhi {
-// struct TextureHandle;
-// class DescriptorSet;
-// class Framebuffer;
-// class Buffer;
-// class Texture;
-// class TextureStorage;
-// class RenderPass;
-// class Pipeline;
-// class Shader;
-// class ShaderEffect;
 
 // using BufferHandle = Reference<Buffer>;
 using TextureViewHandle = Reference< Texture, TextureDeleter >;
@@ -47,10 +33,10 @@ struct BufferHandle {
     bool isValid() const { return Buffer.isValid(); }
     operator bool() const { return isValid(); }
 
-    uint64_t getGpuAddress() const {
+    GpuBufferDeviceAddress getGpuAddress() const {
         ONYX_ASSERT( isValid(), "Buffer is not valid" );
         ONYX_ASSERT( Buffer->hasGpuAddress(), "Buffer was not created with DeviceAddress flag." );
-        return Buffer->getGpuAddress() + getOffset();
+        return { Buffer->getGpuAddress().Address + getOffset() };
     }
     uint64_t getOffset() const { return Alias == InvalidIndex8 ? 0 : Buffer->getAliasOffset( Alias ); }
     uint64_t getSize() const { return Buffer->getAliasSize( Alias ); }
@@ -131,35 +117,16 @@ struct PinMetaObject;
 template <>
 struct PinMetaObject< rhi::BufferHandle > {
 #if ONYX_IS_EDITOR
-    static bool DrawPinInPropertyGrid( StringView name, rhi::BufferHandle& value );
-    static constexpr uint32_t GetPinTypeColor() { return 0xFF5C5CCD; /* Indian Red */ }
+    static bool drawPinInPropertyGrid( StringView name, rhi::BufferHandle& value );
+    static constexpr uint32_t getPinTypeColor() { return 0xFF5C5CCD; /* Indian Red */ }
 #endif
-    static bool serialize( [[maybe_unused]] file_system::JsonValue& json,
-                           [[maybe_unused]] const rhi::BufferHandle& handle ) {
-        return true;
-    }
-
-    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json,
-                             [[maybe_unused]] rhi::BufferHandle& handle ) {
-        return true;
-    }
 };
 
 template <>
 struct PinMetaObject< rhi::TextureHandle > {
 #if ONYX_IS_EDITOR
-    static bool DrawPinInPropertyGrid( StringView name, rhi::TextureHandle& value );
-    static constexpr uint32_t GetPinTypeColor() { return 0xFFB48246; /*Steel Blue*/ }
+    static bool drawPinInPropertyGrid( StringView name, rhi::TextureHandle& value );
+    static constexpr uint32_t getPinTypeColor() { return 0xFFB48246; /*Steel Blue*/ }
 #endif
-
-    static bool serialize( [[maybe_unused]] file_system::JsonValue& json,
-                           [[maybe_unused]] const rhi::TextureHandle& handle ) {
-        return true;
-    }
-
-    static bool deserialize( [[maybe_unused]] const file_system::JsonValue& json,
-                             [[maybe_unused]] rhi::TextureHandle& handle ) {
-        return true;
-    }
 };
 } // namespace onyx::node_graph

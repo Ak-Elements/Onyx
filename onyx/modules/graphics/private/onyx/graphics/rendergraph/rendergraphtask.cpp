@@ -146,7 +146,7 @@ void RenderGraphShaderNode::preRender( RenderGraphContext& context, rhi::Command
         if( inputPin->isConnected() == false )
             continue;
 
-        if( inputPin->getType() != static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() ) )
+        if( inputPin->getType() != static_cast< node_graph::PinTypeId >( typeHash< rhi::TextureHandle >() ) )
             continue;
 
         RenderGraphResource& input = context.Graph.getResource( inputPin->getLinkedPinGlobalId().get() );

@@ -4,9 +4,7 @@
 
 namespace onyx::rhi {
 class GraphicsSystem;
-enum class ShaderStage : uint16_t;
-struct ShaderReflectionInfo;
-struct ShaderStageCacheEntry;
+struct ShaderCacheEntry;
 class Shader;
 } // namespace onyx::rhi
 
@@ -16,6 +14,6 @@ bool init();
 bool compile( const GraphicsSystem& graphicsSystem,
               const FilePath& shaderPath,
               const String& shaderCode,
-              Shader& outShader );
+              ShaderCacheEntry& outShaderCacheEntry );
 
 } // namespace onyx::rhi::shader_compiler::slang

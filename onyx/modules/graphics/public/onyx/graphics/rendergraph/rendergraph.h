@@ -34,6 +34,9 @@ class RenderGraph : public assets::Asset< RenderGraph > {
     RenderGraph() = default;
     ~RenderGraph() override = default;
 
+    RenderGraph( const RenderGraph& other );
+    RenderGraph& operator=( const RenderGraph& other );
+
     void init( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem );
     void shutdown( rhi::GraphicsSystem& graphicsSystem );
 
@@ -55,7 +58,7 @@ class RenderGraph : public assets::Asset< RenderGraph > {
 
     template < typename T >
     T& getInput() {
-        constexpr uint32_t id = TypeHash< T >();
+        constexpr uint32_t id = typeHash< T >();
         // ONYX_ASSERT(m_Inputs.contains(id), "Input is not registered");
         if( m_inputs.contains( id ) == false ) {
             m_inputs[ id ] = T();
@@ -76,7 +79,7 @@ class RenderGraph : public assets::Asset< RenderGraph > {
 
     template < typename T >
     void addInput() {
-        constexpr uint32_t id = TypeHash< T >();
+        constexpr uint32_t id = typeHash< T >();
         m_inputs.try_emplace( id, T() );
     }
 

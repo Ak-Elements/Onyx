@@ -61,7 +61,7 @@ void DepthPrePassRenderGraphNode::onRender( graphics::RenderGraphContext& contex
 
         for( const Matrix4< float32 >& transformMatrix : drawCall.Transforms ) {
             constants.ModelMatrix = transformMatrix;
-            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, constants );
+            commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
             commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
                                        static_cast< uint32_t >( drawCall.Indices.Buffer->getProperties().m_Size / 4 ),
                                        instanceCount,
@@ -77,7 +77,7 @@ void DepthPrePassRenderGraphNode::onRender( graphics::RenderGraphContext& contex
         for( const Matrix4< float32 >& transformMatrix : indirectDrawCall.Transforms ) {
             constants.ModelMatrix = transformMatrix;
             commandBuffer.bindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
-            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, constants );
+            commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
             commandBuffer.drawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
         }
     }

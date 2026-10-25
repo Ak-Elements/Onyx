@@ -1,73 +1,56 @@
 #pragma once
 
 #include <onyx/nodegraph/pins/dynamicpin.h>
-#include <onyx/serialize/serializer.h>
 #include <onyx/serialize/deserializer.h>
+#include <onyx/serialize/serializer.h>
 
-namespace onyx::node_graph
-{
-    struct INodeGraphTypeMeta
-    {
-        constexpr INodeGraphTypeMeta(StringId32 typeId)
-            : TypeId(typeId)
-        {
+namespace onyx::node_graph {
+struct INodeGraphTypeMeta {
+    constexpr INodeGraphTypeMeta( StringId32 typeId )
+        : TypeId( typeId ) {}
+
+    virtual ~INodeGraphTypeMeta() = default;
+
+    [[nodiscard]] virtual UniquePtr< PinBase > createPin( Guid64 globalId, StringId32 localId ) const = 0;
+    virtual bool serialize( Serializer&, const std::any& dataAny ) const = 0;
+    virtual bool deserialize( const Deserializer&, std::any& outDataAny ) const = 0;
+
+    StringId32 TypeId;
+};
+
+template < typename T >
+struct NodeGraphTypeMeta : public INodeGraphTypeMeta {
+  public:
+    NodeGraphTypeMeta( StringId32 typeId )
+        : INodeGraphTypeMeta( typeId ) {}
+
+    [[nodiscard]] UniquePtr< PinBase > createPin( Guid64 globalId, StringId32 localId ) const override {
+        return makeUnique< DynamicPin< T > >( globalId, localId );
+    }
+
+    bool serialize( Serializer& serializer, const std::any& dataAny ) const override {
+        if constexpr( std::is_same_v< T, ExecutePin > ) {
+            ONYX_LOG_ERROR( "Can not serialize execute pin as it does not hold any data." );
+            return false;
+        } else {
+            const T& value = std::any_cast< const T& >( dataAny );
+            return serializer.write( value );
         }
+    }
 
-        virtual ~INodeGraphTypeMeta() = default;
-
-        virtual UniquePtr<PinBase> CreatePin(Guid64 globalId, StringId32 localId) const = 0;
-        virtual bool serialize(Serializer&, const std::any& dataAny) const = 0;
-        virtual bool deserialize(const Deserializer&, std::any& outDataAny) const = 0;
-
-        StringId32 TypeId;
-    };
-   
-    template <typename T>
-    struct NodeGraphTypeMeta : public INodeGraphTypeMeta
-    {
-    public:
-        NodeGraphTypeMeta(StringId32 typeId)
-            : INodeGraphTypeMeta(typeId)
-        {
-        }
-
-        UniquePtr<PinBase> CreatePin(Guid64 globalId, StringId32 localId) const override
-        {
-            return makeUnique<DynamicPin<T>>(globalId, localId);
-        }
-
-        bool serialize(Serializer& serializer, const std::any& dataAny) const override
-        {
-            if constexpr (std::is_same_v<T, ExecutePin>)
-            {
-                ONYX_LOG_ERROR("Can not serialize execute pin as it does not hold any data.");
-                return false;
+    bool deserialize( const Deserializer& deserializer, std::any& outDataAny ) const override {
+        if constexpr( std::is_same_v< T, ExecutePin > ) {
+            ONYX_LOG_ERROR( "Can not deserialize execute pin as it does not hold any data." );
+            return false;
+        } else {
+            T outValue;
+            if( deserializer.read( outValue ) ) {
+                outDataAny = outValue;
+                return true;
             }
-            else
-            {
-                const T& value = std::any_cast<const T&>(dataAny);
-                return serializer.write(value);
-            }
-        }
 
-        bool deserialize(const Deserializer& deserializer, std::any& outDataAny) const override
-        {
-            if constexpr (std::is_same_v<T, ExecutePin>)
-            {
-                ONYX_LOG_ERROR("Can not deserialize execute pin as it does not hold any data.");
-                return false;
-            }
-            else
-            {
-                T outValue;
-                if (deserializer.read(outValue))
-                {
-                    outDataAny = outValue;
-                    return true;
-                }
-
-                return false;
-            }
+            return false;
         }
-    };
-}
+    }
+};
+} // namespace onyx::node_graph

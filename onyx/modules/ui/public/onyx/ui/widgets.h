@@ -40,6 +40,12 @@ static constexpr ImGuiDataType getImGuiDataType() {
     return ImGuiDataType_COUNT;
 }
 
+enum class StringEditMode : uint8_t { Always = 1 << 0, OnEnter = 1 << 1, OnFocusLost = 1 << 2 };
+
+struct StringInputOptions {
+    StringEditMode EditMode = StringEditMode::OnEnter | StringEditMode::OnFocusLost;
+};
+
 void drawCustomWindowTitleBar( StringView title, const InplaceFunction< void() >& customFunctor );
 void drawPinnableWindowTitleBar( StringView title, bool& isPinned );
 
@@ -55,9 +61,17 @@ bool contextMenuHeader( StringView label, ImGuiTreeNodeFlags flags = 0 );
 bool contextMenuHeader( StringView label, const InplaceFunction< bool() >& customHeader, ImGuiTreeNodeFlags flags = 0 );
 
 bool drawStringInput( StringView id, StringView hint, String& value );
+bool drawStringInput( StringView id, StringView hint, String& value, StringInputOptions options );
 bool drawStringInput( StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags );
-bool drawStringInput( StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags );
+bool drawStringInput( StringView id,
+                      StringView hint,
+                      String& value,
+                      const ImVec2& size,
+                      ImGuiInputTextFlags flags,
+                      StringInputOptions options );
+
 bool drawStringInput( StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags );
+
 void drawMultilineText( StringView text, ImVec2 bounds, bool showEllipsis );
 
 bool drawRenameInput( StringView id, String& outName, const ImVec2& size, bool& isSelected );

@@ -6,80 +6,80 @@ namespace onyx::node_graph {
 class NodeGraphTypeRegistry {
   public:
     template < typename T > requires HasTypeId< T >
-    static void Register() {
-        constexpr StringId32 serializedTypeId = T::TypeId;
-        constexpr PinTypeId pinTypeId = static_cast< PinTypeId >( TypeHash< T >() );
+    static void registerType() {
+        constexpr StringId32 SerializedTypeId = T::TypeId;
+        constexpr PinTypeId RuntimePinTypeId = static_cast< PinTypeId >( typeHash< T >() );
 
-        bool hasRegisteredType = s_TypeMeta.contains( serializedTypeId );
+        bool hasRegisteredType = s_typeMeta.contains( SerializedTypeId );
 #if ONYX_ASSERT_ENABLED
-        auto it = s_RuntimeToStaticTypeId.find( pinTypeId );
+        auto it = s_runtimeToStaticTypeId.find( RuntimePinTypeId );
 
-        bool hasFoundTypeId = it != s_RuntimeToStaticTypeId.end();
-        bool isMatchingTypeId = ( hasFoundTypeId == false ) || ( it->second == serializedTypeId );
+        bool hasFoundTypeId = it != s_runtimeToStaticTypeId.end();
+        bool isMatchingTypeId = ( hasFoundTypeId == false ) || ( it->second == SerializedTypeId );
         ONYX_ASSERT( ( hasRegisteredType == hasFoundTypeId ),
                      "Type({}) was not registered with the same PinTypeId({})",
-                     serializedTypeId,
-                     enums::toIntegral( pinTypeId ) );
+                     SerializedTypeId,
+                     enums::toIntegral( RuntimePinTypeId ) );
         ONYX_ASSERT( ( hasRegisteredType == hasFoundTypeId ) && isMatchingTypeId,
                      "Type({}) was registered but a similar type overlaps the PinTypeId({}, typeId:{})",
-                     serializedTypeId,
-                     enums::toIntegral( pinTypeId ),
+                     SerializedTypeId,
+                     enums::toIntegral( RuntimePinTypeId ),
                      it->second );
 #endif
 
-        if ( hasRegisteredType ) {
+        if( hasRegisteredType ) {
             return;
         }
 
-        s_TypeMeta[ serializedTypeId ] = makeUnique< NodeGraphTypeMeta< T > >( serializedTypeId );
-        s_RuntimeToStaticTypeId[ pinTypeId ] = serializedTypeId;
+        s_typeMeta[ SerializedTypeId ] = makeUnique< NodeGraphTypeMeta< T > >( SerializedTypeId );
+        s_runtimeToStaticTypeId[ RuntimePinTypeId ] = SerializedTypeId;
     }
 
-    template < typename T, CompileTimeString SerializedTypeId >
-    static void Register() {
-        constexpr StringId32 serializedTypeId = SerializedTypeId;
-        constexpr PinTypeId pinTypeId = static_cast< PinTypeId >( TypeHash< T >() );
+    template < typename T, CompileTimeString TypeId >
+    static void registerType() {
+        constexpr StringId32 SerializedTypeId = TypeId;
+        constexpr PinTypeId RuntimePinTypeId = static_cast< PinTypeId >( typeHash< T >() );
 
-        bool hasRegisteredType = s_TypeMeta.contains( serializedTypeId );
+        bool hasRegisteredType = s_typeMeta.contains( SerializedTypeId );
 #if ONYX_ASSERT_ENABLED
-        auto it = s_RuntimeToStaticTypeId.find( pinTypeId );
+        auto it = s_runtimeToStaticTypeId.find( RuntimePinTypeId );
 
-        bool hasFoundTypeId = it != s_RuntimeToStaticTypeId.end();
-        bool isMatchingTypeId = ( hasFoundTypeId == false ) || ( it->second == serializedTypeId );
+        bool hasFoundTypeId = it != s_runtimeToStaticTypeId.end();
+        bool isMatchingTypeId = ( hasFoundTypeId == false ) || ( it->second == SerializedTypeId );
         ONYX_ASSERT( ( hasRegisteredType == hasFoundTypeId ),
                      "Type({}) was not registered with the same PinTypeId({})",
-                     serializedTypeId,
-                     enums::toIntegral( pinTypeId ) );
+                     SerializedTypeId,
+                     enums::toIntegral( RuntimePinTypeId ) );
         ONYX_ASSERT( ( hasRegisteredType == hasFoundTypeId ) && isMatchingTypeId,
                      "Type({}) was registered but a similar type overlaps the PinTypeId({}, typeId:{})",
-                     serializedTypeId,
-                     enums::toIntegral( pinTypeId ),
+                     SerializedTypeId,
+                     enums::toIntegral( RuntimePinTypeId ),
                      it->second );
 #endif
 
-        if ( hasRegisteredType ) {
+        if( hasRegisteredType ) {
             return;
         }
 
-        s_TypeMeta[ serializedTypeId ] = makeUnique< NodeGraphTypeMeta< T > >( serializedTypeId );
-        s_RuntimeToStaticTypeId[ pinTypeId ] = serializedTypeId;
+        s_typeMeta[ SerializedTypeId ] = makeUnique< NodeGraphTypeMeta< T > >( SerializedTypeId );
+        s_runtimeToStaticTypeId[ RuntimePinTypeId ] = SerializedTypeId;
     }
 
-    static StringId32 GetSerializedTypeId( PinTypeId pinTypeId ) { return s_RuntimeToStaticTypeId.at( pinTypeId ); }
+    static StringId32 getSerializedTypeId( PinTypeId pinTypeId ) { return s_runtimeToStaticTypeId.at( pinTypeId ); }
 
-    static const INodeGraphTypeMeta& GetTypeMeta( StringId32 typeId ) {
-        UniquePtr< INodeGraphTypeMeta >& typeMeta = s_TypeMeta.at( typeId );
+    static const INodeGraphTypeMeta& getTypeMeta( StringId32 typeId ) {
+        UniquePtr< INodeGraphTypeMeta >& typeMeta = s_typeMeta.at( typeId );
         return *typeMeta;
     }
 
-    static const INodeGraphTypeMeta& GetTypeMeta( PinTypeId pinTypeId ) {
-        StringId32 typeId = s_RuntimeToStaticTypeId.at( pinTypeId );
-        UniquePtr< INodeGraphTypeMeta >& typeMeta = s_TypeMeta.at( typeId );
+    static const INodeGraphTypeMeta& getTypeMeta( PinTypeId pinTypeId ) {
+        StringId32 typeId = s_runtimeToStaticTypeId.at( pinTypeId );
+        UniquePtr< INodeGraphTypeMeta >& typeMeta = s_typeMeta.at( typeId );
         return *typeMeta;
     }
 
   private:
-    static HashMap< StringId32, UniquePtr< INodeGraphTypeMeta > > s_TypeMeta;
-    static HashMap< PinTypeId, StringId32 > s_RuntimeToStaticTypeId;
+    static HashMap< StringId32, UniquePtr< INodeGraphTypeMeta > > s_typeMeta;
+    static HashMap< PinTypeId, StringId32 > s_runtimeToStaticTypeId;
 };
 } // namespace onyx::node_graph

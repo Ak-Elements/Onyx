@@ -1,14 +1,13 @@
 #include <onyx/gamecore/scene/scene.h>
 
-#include <onyx/filesystem/onyxfile.h>
-#include <onyx/gamecore/components/namecomponent.gen.h>
-#include <onyx/gamecore/components/transformcomponent.gen.h>
-#include <onyx/gamecore/scene/scenesector.h>
-#include <onyx/graphics/rendergraph/rendergraph.h>
-
 #include <onyx/engine/enginesystem.h>
 #include <onyx/entity/componentfactory.h>
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/filesystem/file.h>
+#include <onyx/gamecore/components/namecomponent.gen.h>
+#include <onyx/gamecore/components/transformcomponent.gen.h>
+#include <onyx/gamecore/gamecoresystem.h>
+#include <onyx/gamecore/scene/scenesector.h>
+#include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/physics/physicssystem.h>
 
 namespace onyx::game_core {
@@ -82,7 +81,7 @@ String Scene::getUniqueEntityName( const String& preferredName ) {
     }
 
     if( count > 0 ) {
-        return format::format( "{}_{}", preferredName, count );
+        return String{ format::format( "{}_{}", preferredName, count ) };
     }
 
     return preferredName;

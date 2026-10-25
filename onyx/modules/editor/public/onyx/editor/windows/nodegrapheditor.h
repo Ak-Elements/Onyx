@@ -32,13 +32,12 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
     StringView getWindowId() override { return WindowId; }
 
     template < typename T >
-    void setContext( T&& context ) {
-        m_editorContext = std::forward< T >( context );
-        m_editorContext->setLocalizationModule( getEngineSystem< localization::LocalizationModule >() );
+    void setContext() {
+        m_editorContext = makeUnique< T >();
+        m_editorContext->setEngine( getEngine() );
+        m_editorContext->createNew();
         m_editorContext->OnLoaded.connect< &NodeGraphEditorWindow::onGraphLoaded >( this );
         m_editorContext->OnSaved.connect< &NodeGraphEditorWindow::onGraphSaved >( this );
-        m_editorContext->LoadEditorMetaDataFunctor.connect< &NodeGraphEditorWindow::loadEditorMetaData >( this );
-        m_editorContext->SaveEditorMetaDataFunctor.connect< &NodeGraphEditorWindow::saveEditorMetaData >( this );
         m_editorContext->OnNodeCreated.connect< &NodeGraphEditorWindow::onNodeCreated >( this );
         m_shouldFocus = true;
         m_focusDuration = 0.0f;
@@ -105,12 +104,13 @@ class NodeGraphEditorWindow : public ui::ImGuiWindow {
     void filterNodeListContextMenu( StringView searchString );
 
     void save();
-    void saveEditorMetaData( const FilePath& path );
+    void saveEditorMetaData( Serializer& serializer );
     void load();
-    void loadEditorMetaData( const FilePath& path );
+    void loadEditorMetaData( const FilePath& deserializer );
+    void loadEditorMetaData( const Deserializer& deserializer );
 
-    void onGraphLoaded();
-    void onGraphSaved();
+    void onGraphLoaded( assets::AssetId loadedAsset );
+    void onGraphSaved( assets::AssetId savedAsset );
 
     void onCopyAction( const input_actions::InputActionEvent& inputActionContext );
     void onPasteAction( const input_actions::InputActionEvent& inputActionContext );

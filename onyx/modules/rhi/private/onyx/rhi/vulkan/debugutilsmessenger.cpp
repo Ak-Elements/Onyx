@@ -140,15 +140,15 @@ VkBool32 DebugUtilsMessenger::VulkanDebugCallback( const VkDebugUtilsMessageSeve
         messageTypeString = "UNKNOWN: ";
     }
 
-    const char* errorMessage = format::format( "{} {}", messageTypeString, pCallbackData->pMessage );
+    StringView errorMessage = format::format( "{} {}", messageTypeString, pCallbackData->pMessage );
     Logger::s_defaultLogger->log( logLevel, errorMessage );
 
-    const char* objectInfoMessage;
-    constexpr std::string_view fmtString = " - Object [ {} ]: \n Type: {} \n Handle: {} \n Name: {} \n ";
+    StringView objectInfoMessage;
+    constexpr StringView FmtString = " - Object [ {} ]: \n Type: {} \n Handle: {} \n Name: {} \n ";
     if( pCallbackData->objectCount > 0 && messageSeverity > VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT ) {
         for( uint32_t i = 0; i != pCallbackData->objectCount; ++i ) {
             const auto object = pCallbackData->pObjects[ i ];
-            objectInfoMessage = format::format( fmtString.data(),
+            objectInfoMessage = format::format( FmtString.data(),
                                                 i,
                                                 ObjectTypeToString( object.objectType ),
                                                 object.objectHandle,

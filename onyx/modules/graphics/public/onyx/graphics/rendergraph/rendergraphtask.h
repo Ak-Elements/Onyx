@@ -119,9 +119,9 @@ class RenderGraphShaderNode : public IRenderGraphNode {
     bool hasBegunFrame() const override { return m_hasBegunFrame; }
 
   protected:
-#if ONYX_IS_EDITOR
-    bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
-#endif
+    // #if ONYX_IS_EDITOR
+    //     bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
+    // #endif
 
     void bindResources( rhi::ShaderInstanceHandle shaderInstance,
                         const RenderGraphResourceCache& resourceCache,
@@ -176,10 +176,6 @@ class RenderGraphFixedShaderNode : public RenderGraphShaderNode {
     bool onSerialize( Serializer& serializer ) const override;
     bool onDeserialize( const Deserializer& deserializer ) override;
 
-  private:
-#if ONYX_IS_EDITOR
-    bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override;
-#endif
   protected:
     rhi::PipelineProperties m_pipelineProperties;
     rhi::ShaderInstanceHandle m_shaderInstance;

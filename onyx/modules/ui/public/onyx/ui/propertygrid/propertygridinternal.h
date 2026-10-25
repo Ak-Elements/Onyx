@@ -40,6 +40,8 @@ bool drawPropertyValue( StringView propertyName, T& value ) {
     return false;
 }
 
+bool drawPropertyValue( StringView propertyName, assets::AssetType assetType, assets::AssetId& outAssetId );
+
 template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
 bool drawPropertyValue( StringView propertyName, assets::AssetHandle< T >& outAsset ) {
     ScopedImGuiId id( propertyName );

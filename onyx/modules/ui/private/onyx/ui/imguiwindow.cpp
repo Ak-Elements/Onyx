@@ -35,8 +35,8 @@ void ImGuiWindow::render( ImGuiSystem& imguiSystem ) {
         return;
     }
 
-    const char* id = format::format( "{}##{}", m_name, m_id );
-    ::ImGuiWindow* window = ImGui::FindWindowByName( id );
+    StringView id = format::format( "{}##{}", m_name, m_id );
+    ::ImGuiWindow* window = ImGui::FindWindowByName( id.data() );
     enums::set( m_state, State::Docked, ( window != nullptr ) && ( window->DockId != 0 ) );
 
     if( enums::all( m_state, State::Opening ) ) {
@@ -69,16 +69,16 @@ void ImGuiWindow::render( ImGuiSystem& imguiSystem ) {
 }
 
 void ImGuiWindow::bringToFront() {
-    const char* id = format::format( "{}##{}", m_name, m_id );
-    ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( id );
+    StringView id = format::format( "{}##{}", m_name, m_id );
+    ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( id.data() );
     ::ImGui::BringWindowToDisplayFront( imguiWindow );
 }
 
 void ImGuiWindow::setIsCollapsed( bool isCollapsed ) {
     if( m_isCollapsed != isCollapsed ) {
         m_isCollapsed = isCollapsed;
-        const char* id = format::format( "{}##{}", m_name, m_id );
-        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( id );
+        StringView id = format::format( "{}##{}", m_name, m_id );
+        ::ImGuiWindow* imguiWindow = ImGui::FindWindowByName( id.data() );
         ::ImGui::SetWindowCollapsed( imguiWindow, m_isCollapsed, ImGuiCond_Always );
     }
 }
@@ -92,8 +92,8 @@ bool ImGuiWindow::begin() {
     }
 
     bool open = isOpen();
-    const char* id = format::format( "{}##{}", m_name, m_id );
-    bool hasBegun = ::ImGui::Begin( id, &open, m_flags );
+    StringView id = format::format( "{}##{}", m_name, m_id );
+    bool hasBegun = ::ImGui::Begin( id.data(), &open, m_flags );
     if( open == false ) {
         enums::set( m_state, State::Closing );
     }
@@ -135,8 +135,8 @@ void ImGuiWindow::setDefaultPosition( WindowPosition position ) {
     ImVec2 mainWindowSize = windowViewport->Size;
 
     if( ImGuiWindow* parent = m_parent.value_or( nullptr ) ) {
-        const char* id = format::format( "{}##{}", parent->m_name, parent->m_id );
-        ::ImGuiWindow* parentWindow = ImGui::FindWindowByName( id );
+        StringView id = format::format( "{}##{}", parent->m_name, parent->m_id );
+        ::ImGuiWindow* parentWindow = ImGui::FindWindowByName( id.data() );
         if( parentWindow != nullptr ) {
             mainWindowPosition = parentWindow->WorkRect.GetTL();
             mainWindowSize = parentWindow->ContentSize;

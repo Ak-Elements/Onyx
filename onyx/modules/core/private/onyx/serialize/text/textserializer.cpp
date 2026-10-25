@@ -1,24 +1,26 @@
 #include <onyx/serialize/text/textserializer.h>
 
+#include <onyx/serialize/text/textserializationinternal.h>
+
 namespace onyx::serialization::text {
 
 TextSerializer::TextSerializer()
-    : m_root( 0, 0, 0, 0 ) {
-    m_scopeStack.emplace( &m_root );
+    : m_root( makeUnique< internal::Scope >( 0, 0, 0, 0 ) ) {
+    m_scopeStack.emplace( m_root.get() );
 }
 
 TextSerializer::TextSerializer( String&& data )
     : m_data( std::move( data ) )
-    , m_root( 0, 0, 0, data.size() ) {
-    m_scopeStack.emplace( &m_root );
-    initializeScope( m_root );
+    , m_root( makeUnique< internal::Scope >( 0, 0, 0, m_data.size() ) ) {
+    m_scopeStack.emplace( m_root.get() );
+    internal::initializeScope( m_data, *m_root );
 }
 
 TextSerializer::~TextSerializer() = default;
 
 template < typename T >
 bool TextSerializer::doGenericWrite( T value ) {
-    Scope& currentScope = *m_scopeStack.top();
+    internal::Scope& currentScope = *m_scopeStack.top();
 
     [[maybe_unused]] StringView::size_type oldLength = currentScope.DataLength;
 
@@ -32,7 +34,7 @@ bool TextSerializer::doGenericWrite( T value ) {
 
 template < std::integral T >
 bool TextSerializer::doGenericWrite( T value, uint8_t base ) {
-    Scope& currentScope = *m_scopeStack.top();
+    internal::Scope& currentScope = *m_scopeStack.top();
     StringView newData;
     switch( base ) {
     case 2:
@@ -97,12 +99,118 @@ bool TextSerializer::doGenericWrite( StringView name, T value, uint8_t base ) {
     return success;
 }
 
-bool TextSerializer::doWrite( bool value ) {
-    return doGenericWrite( value );
+bool TextSerializer::createScope( uint32_t index ) {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    internal::Scope& currentScope = *m_scopeStack.top();
+    if( index >= currentScope.Children.size() ) {
+        currentScope.Children.resize( index + 1 );
+        internal::Scope& newScope = currentScope.Children[ index ];
+        StringView newScopeIndexString = format::format( "{}", index );
+        m_data += newScopeIndexString;
+        newScope.NameStart = currentScope.DataStart + currentScope.DataLength;
+        newScope.NameLength = newScopeIndexString.size();
+        newScope.DataStart = newScope.NameStart + newScope.NameLength;
+        m_scopeStack.emplace( &newScope );
+    } else {
+        internal::Scope& existingScope = currentScope.Children[ index ];
+        if( existingScope.IsLeaf == false ) {
+            internal::initializeScope( m_data, existingScope );
+        }
+
+        m_scopeStack.emplace( &existingScope );
+    }
+
+    return true;
 }
 
-bool TextSerializer::doWrite( StringView name, bool value ) {
-    return doGenericWrite( name, value );
+bool TextSerializer::createScope( uint64_t index ) {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    internal::Scope& currentScope = *m_scopeStack.top();
+    if( index >= currentScope.Children.size() ) {
+        currentScope.Children.resize( index + 1 );
+        internal::Scope& newScope = currentScope.Children[ index ];
+        StringView newScopeIndexString = format::format( "{}", index );
+        m_data += newScopeIndexString;
+        newScope.NameStart = currentScope.DataStart + currentScope.DataLength;
+        newScope.NameLength = newScopeIndexString.size();
+        newScope.DataStart = newScope.NameStart + newScope.NameLength;
+        m_scopeStack.emplace( &newScope );
+    } else {
+        internal::Scope& existingScope = currentScope.Children[ index ];
+        if( existingScope.IsLeaf == false ) {
+            internal::initializeScope( m_data, existingScope );
+        }
+
+        m_scopeStack.emplace( &existingScope );
+    }
+    return true;
+}
+
+bool TextSerializer::createScope( StringView name ) {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    internal::Scope& currentScope = *m_scopeStack.top();
+    auto it = std::ranges::find_if( currentScope.Children, [ & ]( internal::Scope& scope ) {
+        return name == StringView( m_data ).substr( scope.NameStart, scope.NameLength );
+    } );
+    uint64_t index = std::distance( std::begin( currentScope.Children ), it );
+    if( it == currentScope.Children.end() ) {
+        auto currentScopeEnd = currentScope.DataStart + currentScope.DataLength;
+        internal::Scope newScope{ currentScopeEnd, name.size() };
+        m_data += name;
+        newScope.DataStart = currentScopeEnd + newScope.NameLength;
+        newScope.DataLength = 0;
+        currentScope.Children.emplace_back( newScope );
+        m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
+    } else {
+        internal::Scope& existingScope = currentScope.Children[ index ];
+        if( existingScope.IsLeaf == false ) {
+            internal::initializeScope( m_data, existingScope );
+        }
+
+        m_scopeStack.emplace( &existingScope );
+    }
+
+    return true;
+}
+
+bool TextSerializer::endScope() {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+
+    internal::Scope& currentScope = *m_scopeStack.top();
+    StringView data = StringView( m_data ).substr( currentScope.DataStart, currentScope.DataLength );
+    auto scopeSize = std::ranges::count_if( data, []( char character ) { return character == '\n'; } );
+
+    if( ( currentScope.NameLength != 0 ) && scopeSize == 1 ) {
+        m_data.insert( currentScope.NameStart + currentScope.NameLength, 1, ':' );
+        ++currentScope.DataStart;
+    } else if( currentScope.NameLength != 0 ) {
+        const auto scopeSizeStart = currentScope.NameStart + currentScope.NameLength;
+        const auto scopeSizeLength = currentScope.DataStart - scopeSizeStart;
+
+        StringView newScopeSize = format::format( " {}\n", scopeSize );
+        m_data.replace( scopeSizeStart, scopeSizeLength, newScopeSize );
+        const auto deltaSize = numericCast< int64_t >( newScopeSize.size() ) -
+                               numericCast< int64_t >( scopeSizeLength );
+        currentScope.DataStart += deltaSize;
+
+        for( internal::Scope& child : currentScope.Children ) {
+            updateScopeRange( child, deltaSize );
+        }
+    }
+
+    m_scopeStack.pop();
+
+    // adjust parent scope length
+    internal::Scope& parentScope = *m_scopeStack.top();
+    parentScope.DataLength = ( currentScope.DataStart + currentScope.DataLength ) - parentScope.DataStart;
+    if( m_scopeStack.size() == 1 ) {
+        m_data.resize( parentScope.DataLength );
+    }
+    return true;
+}
+
+bool TextSerializer::doWrite( bool value ) {
+    return doGenericWrite( value );
 }
 
 bool TextSerializer::doWrite( int8_t value ) {
@@ -177,255 +285,128 @@ bool TextSerializer::doWrite( uint64_t value, uint8_t base ) {
     return doGenericWrite( value, base );
 }
 
-bool TextSerializer::doWrite( StringView name, int8_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, int16_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, int32_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, int64_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, uint8_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, uint16_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, uint32_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, uint64_t value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, float32 value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, float64 value ) {
-    return doGenericWrite( name, value );
-}
-
-bool TextSerializer::doWrite( StringView name, int8_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, int16_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, int32_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, int64_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, uint8_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, uint16_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, uint32_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
-bool TextSerializer::doWrite( StringView name, uint64_t value, uint8_t base ) {
-    return doGenericWrite( name, value, base );
-}
-
 bool TextSerializer::doWrite( StringView value ) {
     return doGenericWrite( value );
 }
 
-bool TextSerializer::doWrite( StringView name, StringView value ) {
-    return doGenericWrite( name, value );
+bool TextSerializer::doWrite( Vector2s8 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
 
-bool TextSerializer::createScope( uint32_t index ) {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    if( index >= currentScope.Children.size() ) {
-        currentScope.Children.resize( index + 1 );
-        currentScope.Children[ index ].DataStart = currentScope.DataStart + currentScope.DataLength;
-    }
-
-    // intializescope if already present
-    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    return true;
+bool TextSerializer::doWrite( Vector2s16 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
 
-bool TextSerializer::createScope( uint64_t index ) {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    if( index >= currentScope.Children.size() ) {
-        currentScope.Children.resize( index + 1 );
-        currentScope.Children[ index ].DataStart = currentScope.DataStart + currentScope.DataLength;
-    }
-
-    // intializescope if already present
-    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    return true;
+bool TextSerializer::doWrite( Vector2s32 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
 
-bool TextSerializer::createScope( StringView name ) {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    auto it = std::ranges::find_if( currentScope.Children, [ & ]( Scope& scope ) {
-        return name == StringView( m_data ).substr( scope.NameStart, scope.NameLength );
-    } );
-    uint64_t index = std::distance( std::begin( currentScope.Children ), it );
-    if( it == currentScope.Children.end() ) {
-        auto currentScopeEnd = currentScope.DataStart + currentScope.DataLength;
-        Scope newScope{ currentScopeEnd, name.size() };
-        m_data += name;
-        newScope.DataStart = currentScopeEnd + newScope.NameLength;
-        newScope.DataLength = 0;
-        currentScope.Children.emplace_back( newScope );
-    }
-
-    // intialize scope if already present
-    m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    return true;
+bool TextSerializer::doWrite( Vector2s64 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
 
-bool TextSerializer::endScope() {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-
-    Scope& currentScope = *m_scopeStack.top();
-    StringView data = StringView( m_data ).substr( currentScope.DataStart, currentScope.DataLength );
-    auto scopeSize = std::ranges::count_if( data, []( char character ) { return character == '\n'; } );
-
-    if( ( currentScope.NameLength != 0 ) && scopeSize == 1 ) {
-        m_data.insert( currentScope.NameStart + currentScope.NameLength, 1, ':' );
-        ++currentScope.DataStart;
-    } else if( currentScope.NameLength != 0 ) {
-        const auto scopeSizeStart = currentScope.NameStart + currentScope.NameLength;
-        const auto scopeSizeLength = currentScope.DataStart - scopeSizeStart;
-
-        StringView newScopeSize = format::format( " {}\n", scopeSize );
-        m_data.replace( scopeSizeStart, scopeSizeLength, newScopeSize );
-        const auto deltaSize = numericCast< int64_t >( newScopeSize.size() ) -
-                               numericCast< int64_t >( scopeSizeLength );
-        currentScope.DataStart += deltaSize;
-
-        for( Scope& child : currentScope.Children ) {
-            updateScopeRange( child, deltaSize );
-        }
-    }
-
-    m_scopeStack.pop();
-
-    // adjust parent scope length
-    Scope& parentScope = *m_scopeStack.top();
-    parentScope.DataLength = ( currentScope.DataStart + currentScope.DataLength ) - parentScope.DataStart;
-    if( m_scopeStack.size() == 1 ) {
-        m_data.resize( parentScope.DataLength );
-    }
-    return true;
+bool TextSerializer::doWrite( Vector2u8 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
 
-void TextSerializer::initializeScope( Scope& scope ) {
-    const StringView currentData = StringView( m_data ).substr( scope.DataStart, scope.DataLength );
-
-    const StringView::size_type scopeLength = currentData.size();
-    const StringView::size_type scopeEndIndex = scopeLength - 1;
-
-    for( StringView::size_type i = 0; i < scopeLength; ++i ) {
-        if( currentData[ i ] == '/' && currentData[ std::min( i + 1, scopeEndIndex ) ] == '/' ) {
-            const auto newlineIndex = currentData.find_first_of( '\n', i );
-            i = ( newlineIndex == StringView::npos ) ? scopeEndIndex : newlineIndex;
-            continue;
-        }
-
-        const uint64_t splitIndex = std::min( currentData.find_first_of( ":\n", i ), scopeEndIndex );
-
-        // simple property
-        if( currentData[ splitIndex ] == ':' ) {
-            // TODO: this needs to be smarter to ignore \n in strings
-            const uint64_t valueStartIndex = currentData.find_first_not_of( " \t\n\r", splitIndex + 1 );
-
-            const char* endCharacters = "\t\n\r";
-            if( currentData[ valueStartIndex ] == '"' )
-                endCharacters = "\"";
-            else if( currentData[ valueStartIndex ] == '\'' )
-                endCharacters = "'";
-
-            const uint64_t valueEndIndex = std::min( currentData.find_first_of( endCharacters, valueStartIndex + 1 ),
-                                                     scopeEndIndex );
-            scope.Children.emplace_back( i, splitIndex - i, valueStartIndex, valueEndIndex - valueStartIndex );
-            i = valueEndIndex;
-        } else {
-            StringView trimmedLine = trimLeft( currentData.substr( i, splitIndex - i ) );
-            if( trimmedLine.empty() ) {
-                i = splitIndex;
-                continue;
-            }
-
-            // TODO: We probably need to handle strings here properly
-            uint64_t commentOrStringStartIndex = trimmedLine.find_first_of( "\"'/" );
-            if( commentOrStringStartIndex != StringView::npos ) {
-                if( trimmedLine[ commentOrStringStartIndex ] == '/' &&
-                    trimmedLine[ std::min( commentOrStringStartIndex + 1, scopeEndIndex ) ] == '/' ) {
-                    trimmedLine = trimRight( trimmedLine.substr( 0, commentOrStringStartIndex ) );
-                }
-            }
-
-            uint64_t propertyNameEndIndex = trimmedLine.find_first_of( " \t\n\r" );
-            if( propertyNameEndIndex == StringView::npos ) {
-                propertyNameEndIndex = splitIndex;
-            }
-            StringView propertyName = trim( trimmedLine.substr( 0, propertyNameEndIndex ) );
-
-            uint64_t scopeLineCount = 1;
-            if( propertyNameEndIndex != splitIndex ) {
-                StringView lineCountString = trim( trimmedLine.substr( propertyNameEndIndex ) );
-                if( lineCountString.empty() == false ) {
-                    std::errc error = toNumeric( lineCountString, scopeLineCount );
-                    if( error != std::errc() ) {
-                        ONYX_LOG_WARNING( "Failed to parse scope count for {}", propertyName );
-                    }
-                }
-            }
-
-            // advance past the header line before counting child lines
-            const uint64_t scopeStartIndex = splitIndex + 1;
-
-            // TODO: handle linebreaks in strings
-            for( uint64_t j = 0; j < scopeLineCount; ++j ) {
-                const uint64_t endOfLineIndex = std::min( currentData.find_first_of( '\n', i + 1 ), scopeEndIndex );
-                i = endOfLineIndex;
-            }
-
-            // auto propertyData = currentData.substr( scopeStartIndex, i - scopeStartIndex );
-            // if( propertyData.empty() ) {
-            //     propertyData = propertyName;
-            // }
-            scope.Children.emplace_back( 0, propertyNameEndIndex, scopeStartIndex, i - scopeStartIndex );
-        }
-    }
+bool TextSerializer::doWrite( Vector2u16 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
 
-void TextSerializer::updateScopeRange( Scope& scope, int64_t delta ) {
-    scope.NameStart += delta;
-    scope.DataStart += delta;
-    for( Scope& child : scope.Children ) {
-        updateScopeRange( child, delta );
-    }
+bool TextSerializer::doWrite( Vector2u32 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
 }
+
+bool TextSerializer::doWrite( Vector2u64 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
+}
+
+bool TextSerializer::doWrite( Vector2f32 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
+}
+
+bool TextSerializer::doWrite( Vector2f64 value ) {
+    return doWrite( format::format( "{} {}", value.X, value.Y ) );
+}
+
+bool TextSerializer::doWrite( Vector3s8 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3s16 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3s32 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3s64 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3u8 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3u16 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3u32 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3u64 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3f32 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector3f64 value ) {
+    return doWrite( format::format( "{} {} {}", value.X, value.Y, value.Z ) );
+}
+
+bool TextSerializer::doWrite( Vector4s8 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4s16 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4s32 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4s64 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4u8 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4u16 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4u32 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4u64 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4f32 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
+bool TextSerializer::doWrite( Vector4f64 value ) {
+    return doWrite( format::format( "{} {} {} {}", value.X, value.Y, value.Z, value.W ) );
+}
+
 } // namespace onyx::serialization::text

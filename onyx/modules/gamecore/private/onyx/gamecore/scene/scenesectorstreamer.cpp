@@ -1,6 +1,6 @@
 #include <onyx/gamecore/scene/scenesectorstreamer.h>
 
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/scene/scenesector.h>

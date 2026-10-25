@@ -275,7 +275,7 @@
                     }
                 }
             ],
-            "shader": "C5BE87389010542A",
+            "shader": "c5be87389010542a",
             "pipeline": {
                 "depthstencil": {
                     "enabled": true,
@@ -919,6 +919,82 @@
             ]
         },
         {
+            "id": "ef413a596c01000",
+            "typeId": {
+                "id": "2d409d74",
+                "string": "onyx::volume::RenderGraph::PreviewTerrainEdit"
+            },
+            "inputs": [
+                {
+                    "id": "ef413a596c01001",
+                    "localId": {
+                        "id": "e964445f",
+                        "string": "InPin0"
+                    },
+                    "typeId": {
+                        "id": "166ca8ba",
+                        "string": "onyx::rhi::BufferHandle"
+                    },
+                    "linkedPin": "ba2926a5c001002"
+                },
+                {
+                    "id": "ef413a596c01002",
+                    "localId": {
+                        "id": "e86442cc",
+                        "string": "InPin1"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    },
+                    "linkedPin": "ddca30f8dc01002"
+                }
+            ],
+            "outputs": [
+                {
+                    "id": "ef413a596c01003",
+                    "localId": {
+                        "id": "938dd456",
+                        "string": "OutPin"
+                    },
+                    "typeId": {
+                        "id": "24ad81fb",
+                        "string": "onyx::rhi::TextureHandle"
+                    }
+                }
+            ],
+            "pipeline": {
+                "depthstencil": {
+                    "enabled": false,
+                    "write": false,
+                    "stencil": false,
+                    "compare": "Always"
+                },
+                "rasterization": {
+                    "cull": "None",
+                    "fill": "Solid",
+                    "frontfacing": false
+                },
+                "blend": [
+                    {
+                        "enabled": true,
+                        "colormask": "RGBA",
+                        "srccolor": "One",
+                        "dstcolor": "OneMinusSrcAlpha",
+                        "colorop": "Add",
+                        "srcalpha": "One",
+                        "dstalpha": "OneMinusSrcAlpha",
+                        "alphaop": "Add"
+                    }
+                ]
+            },
+            "output_attachments": [
+                {
+                    "type": "Reference"
+                }
+            ]
+        },
+        {
             "id": "e22311b81001000",
             "typeId": {
                 "id": "40d6a6d9",
@@ -935,7 +1011,7 @@
                         "id": "24ad81fb",
                         "string": "onyx::rhi::TextureHandle"
                     },
-                    "linkedPin": "ddca30f8dc01002"
+                    "linkedPin": "ef413a596c01003"
                 },
                 {
                     "id": "e22311b81001002",
@@ -994,13 +1070,5 @@
                 }
             ]
         }
-    ],
-    "data": {
-        "ba6717196401002": null,
-        "e43ddcab9801003": null,
-        "ba68ae7a0001002": null,
-        "ba68af0af801002": null,
-        "ba68b013b801003": null,
-        "ba68b0d91801004": null
-    }
+    ]
 }

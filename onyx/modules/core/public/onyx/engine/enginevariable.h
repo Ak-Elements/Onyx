@@ -15,6 +15,9 @@ struct IEngineVariable {
         doSet( std::bit_cast< void* >( &value ) );
     }
 
+    virtual bool serialize( Serializer& serializer ) const = 0;
+    virtual bool deserialize( const Deserializer& deserializer ) = 0;
+
     [[nodiscard]] virtual uint32_t getRuntimeTypeId() const = 0;
 
     [[nodiscard]] StringId32 getId() const { return m_id; }
@@ -27,7 +30,7 @@ struct IEngineVariable {
     StringId32 m_id;
 };
 
-template < typename T > requires Numeric< T > || (!Numeric< T >) || Invokable< T >
+template < typename T > // requires Numeric< T > || (!Numeric< T >) || Invokable< T >
 struct EngineVariable : public IEngineVariable {
   public:
     explicit EngineVariable( StringId32 id )
@@ -37,10 +40,17 @@ struct EngineVariable : public IEngineVariable {
         : IEngineVariable( id )
         , m_value( defaultValue ) {}
 
-    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return typeHash< EngineVariable< T > >(); }
 
     void set( T value ) { m_value = value; }
     T get() const { return m_value; }
+
+    bool serialize( Serializer& serializer ) const override {
+        return Serialization< T >::serialize( serializer, m_value );
+    }
+    bool deserialize( const Deserializer& deserializer ) override {
+        return Serialization< T >::deserialize( deserializer, m_value );
+    }
 
   private:
     [[nodiscard]] void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
@@ -73,13 +83,20 @@ struct EngineVariable< T > : public IEngineVariable {
         , m_minValue( minValue )
         , m_maxValue( maxValue ) {}
 
-    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return typeHash< EngineVariable< T > >(); }
 
     void set( T value ) { m_value = std::clamp( value, m_minValue, m_maxValue ); }
     T get() const { return m_value; }
 
     T getMin() const { return m_minValue; }
     T getMax() const { return m_maxValue; }
+
+    bool serialize( Serializer& serializer ) const override {
+        return Serialization< T >::serialize( serializer, m_value );
+    }
+    bool deserialize( const Deserializer& deserializer ) override {
+        return Serialization< T >::deserialize( deserializer, m_value );
+    }
 
   private:
     [[nodiscard]] void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
@@ -100,11 +117,21 @@ struct EngineVariable< T > : public IEngineVariable {
         : IEngineVariable( id )
         , m_invokable( invokable ) {}
 
-    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return TypeHash< EngineVariable< T > >(); }
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return typeHash< EngineVariable< T > >(); }
 
     void invoke() {
         if( m_invokable != nullptr )
             m_invokable();
+    }
+
+    bool serialize( Serializer& ) const override {
+        ONYX_ASSERT( false );
+        return false;
+    }
+
+    bool deserialize( const Deserializer& ) override {
+        ONYX_ASSERT( false );
+        return false;
     }
 
   private:

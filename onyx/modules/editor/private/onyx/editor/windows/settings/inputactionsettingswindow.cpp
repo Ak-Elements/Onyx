@@ -112,7 +112,7 @@ void InputActionSettingsWindow::onOpen() {
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
     CommandHistoryWindow& history = imguiSystem.openWindow< CommandHistoryWindow >( *this );
     // history.SetWindowClass(m_WindowClass);
-    history.SetCommandQueue( m_commandsHistory );
+    history.setCommandQueue( m_commandsHistory );
 }
 
 void InputActionSettingsWindow::onClose() {
@@ -142,7 +142,7 @@ void InputActionSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     // if ( begin() ) {
 
-    if( m_openInputContext.GetActions().empty() == false ) {
+    if( m_openInputContext.getActions().empty() == false ) {
         HashMap< StringId32, input_actions::InputActionsMap > actionMaps{ { "t", m_openInputContext } };
 
         ui::ScopedImGuiStyle style( ImGuiStyleVar_CellPadding, ImVec2( 4, 4 ) );
@@ -301,7 +301,7 @@ void InputActionSettingsWindow::renderInputActions() {
             ImGui::EndPopup();
         }
 
-        for( input_actions::InputAction& action : selectedMap.GetActions() ) {
+        for( input_actions::InputAction& action : selectedMap.getActions() ) {
             ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
 
             ImGuiTreeNodeFlags treeNodeFlags = baseFlags;
@@ -425,7 +425,7 @@ void InputActionSettingsWindow::renderBinding( bool& isSelected,
 
 void InputActionSettingsWindow::renderActionProperties() {
     input_actions::InputActionsMap& selectedMap = m_openInputContext;
-    DynamicArray< input_actions::InputAction >& selectedActions = selectedMap.GetActions();
+    DynamicArray< input_actions::InputAction >& selectedActions = selectedMap.getActions();
     input_actions::InputAction& selectedAction = selectedActions[ m_selectedActionIndex ];
 
     input_actions::ActionType actionType = selectedAction.GetType();
@@ -462,7 +462,7 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
     if( m_selectedBindingIndex == InvalidIndex32 )
         return;
 
-    Optional< input_actions::InputAction* > selectedActionOptional = m_openInputContext.GetAction( m_selectedActionId );
+    Optional< input_actions::InputAction* > selectedActionOptional = m_openInputContext.getAction( m_selectedActionId );
     ONYX_ASSERT( selectedActionOptional.has_value() );
     input_actions::InputAction& selectedAction = *selectedActionOptional.value_or( nullptr );
 
@@ -489,8 +489,8 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
     if( ui::property_grid::beginCollapsiblePropertyGroup( "Modifiers", addModifierFunctor ) ) {
         for( uint32_t i = 0; i < modifiersCount; ++i ) {
             input_actions::InputModifier& modifier = *modifiers[ i ];
-            String key = format::format( "Modifier {}", i );
-            String input = format::format( "{}", modifier.GetTypeId().getString() );
+            String key{ format::format( "Modifier {}", i ) };
+            String input{ format::format( "{}", modifier.GetTypeId().getString() ) };
 
             const auto removeFunctor = [ &, index = i ]() {
                 ImGui::Spring();
@@ -520,8 +520,8 @@ void InputActionSettingsWindow::renderSelectedBindingProperties() {
     if( ui::property_grid::beginCollapsiblePropertyGroup( "Triggers", addTriggerFunctor ) ) {
         for( uint32_t i = 0; i < triggersCount; ++i ) {
             input_actions::InputTrigger& trigger = *triggers[ i ];
-            String key = format::format( "Trigger {}", i );
-            String input = format::format( "{}", trigger.GetTypeId().getString() );
+            String key{ format::format( "Trigger {}", i ) };
+            String input{ format::format( "{}", trigger.GetTypeId().getString() ) };
 
             const auto removeFunctor = [ &, index = i ]() {
                 ImGui::Spring();
@@ -570,7 +570,7 @@ void InputActionSettingsWindow::onDeleteAction( const input_actions::InputAction
 
     if( m_selectedBindingIndex != InvalidIndex32 ) {
         input_actions::InputActionsMap& selectedMap = m_openInputContext;
-        DynamicArray< input_actions::InputAction >& availableActions = selectedMap.GetActions();
+        DynamicArray< input_actions::InputAction >& availableActions = selectedMap.getActions();
         input_actions::InputAction& selectedAction = availableActions[ m_selectedActionIndex ];
 
         m_commandsHistory.push< DeleteInputBindingCommand >( selectedAction.GetId(), m_selectedBindingIndex, *this );
@@ -579,7 +579,7 @@ void InputActionSettingsWindow::onDeleteAction( const input_actions::InputAction
         m_selectedBindingSlotIndex = InvalidIndex32;
     } else if( m_selectedActionIndex != InvalidIndex32 ) {
         input_actions::InputActionsMap& selectedMap = m_openInputContext;
-        DynamicArray< input_actions::InputAction >& availableActions = selectedMap.GetActions();
+        DynamicArray< input_actions::InputAction >& availableActions = selectedMap.getActions();
         input_actions::InputAction& selectedAction = availableActions[ m_selectedActionIndex ];
 
         m_commandsHistory.push< DeleteInputActionCommand >( selectedAction.GetId(), *this );

@@ -56,11 +56,13 @@ void EditorMainWindow::onRenderMainMenuBar() {
     //
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
-    if( ImGui::BeginMenu( format::format( "{}###File", localization::generic::File ) ) ) {
+    StringView menuLabel = format::format( "{}###File", localization::generic::File );
+    if( ImGui::BeginMenu( menuLabel.data() ) ) {
         ImGui::EndMenu();
     }
 
-    if( ImGui::BeginMenu( format::format( "{}###View", localization::editor::MainMenubar::View::Label ) ) ) {
+    menuLabel = format::format( "{}###View", localization::editor::MainMenubar::View::Label );
+    if( ImGui::BeginMenu( menuLabel.data() ) ) {
         if( ImGui::MenuItem( localization::editor::windows::StartupTitle.Get().data() ) ) {
             imguiSystem.openWindow< StartupWindow >();
         }
@@ -78,22 +80,17 @@ void EditorMainWindow::onRenderMainMenuBar() {
             ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
             NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
-            window.setContext( makeUnique< ShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
-                                                                       *ui::g_uiContext.GraphicsSystem ) );
+            window.setContext< ShaderGraphEditorContext >();
         }
 
         if( ImGui::MenuItem( localization::editor::windows::RenderGraphEditorTitle.Get().data() ) ) {
             NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
-            window.setContext( makeUnique< RenderGraphEditorContext >() );
+            window.setContext< RenderGraphEditorContext >();
         }
 
         if( ImGui::MenuItem( localization::editor::windows::VolumeShaderGraphEditorTitle.Get().data() ) ) {
-            ONYX_ASSERT( ui::g_uiContext.AssetSystem != nullptr );
-            ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
-
             NodeGraphEditorWindow& window = imguiSystem.openWindow< NodeGraphEditorWindow >();
-            window.setContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
-                                                                             *ui::g_uiContext.GraphicsSystem ) );
+            window.setContext< VolumeShaderGraphEditorContext >();
         }
 
         if( ImGui::BeginMenu( localization::editor::MainMenubar::View::Layouts::Label.Get().data() ) ) {
@@ -111,7 +108,8 @@ void EditorMainWindow::onRenderMainMenuBar() {
         ImGui::EndMenu();
     }
 
-    if( ImGui::BeginMenu( format::format( "{}###Project", localization::editor::MainMenubar::Project::Label ) ) ) {
+    menuLabel = format::format( "{}###Project", localization::editor::MainMenubar::Project::Label );
+    if( ImGui::BeginMenu( menuLabel.data() ) ) {
         if( ImGui::MenuItem( localization::editor::InputActionSettings::Title.Get().data() ) ) {
             imguiSystem.openUniqueWindow< InputActionSettingsWindow >();
             // UniquePtr<EditorWindow>& window =
@@ -122,7 +120,8 @@ void EditorMainWindow::onRenderMainMenuBar() {
         ImGui::EndMenu();
     }
 
-    if( ImGui::BeginMenu( format::format( "{}###Debug", localization::editor::MainMenubar::Debug::Label ) ) ) {
+    menuLabel = format::format( "{}###Debug", localization::editor::MainMenubar::Debug::Label );
+    if( ImGui::BeginMenu( menuLabel.data() ) ) {
         const HashSet< StringId32 >& debugWindows = imguiSystem.getRegisteredWindows( "Debug" );
         for( StringId32 windowId : debugWindows ) {
             // TODO: Translate window name

@@ -9,19 +9,19 @@ struct PrepareContext {
   public:
     template < typename T >
     void set( T&& data ) {
-        constexpr uint32_t TypeId = TypeHash< T >;
+        constexpr uint32_t TypeId = typeHash< T >;
         m_data[ TypeId ] = std::forward< T >( data );
     }
 
     template < typename T >
     T& get() {
-        auto inserted = m_data.emplace( TypeHash< T >, T{} );
+        auto inserted = m_data.emplace( typeHash< T >, T{} );
         return std::any_cast< T& >( *inserted.first );
     }
 
     template < typename T >
     const T& get() const {
-        constexpr uint32_t TypeId = TypeHash< T >;
+        constexpr uint32_t TypeId = typeHash< T >;
         ONYX_ASSERT( m_data.contains( TypeId ) );
         return std::any_cast< const T& >( m_data.at( TypeId ) );
     }
@@ -82,13 +82,13 @@ struct ExecutionContext {
 
     template < typename T >
     T& get() {
-        auto [ it, _ ] = m_graphData.emplace( TypeHash< T >(), T{} );
+        auto [ it, _ ] = m_graphData.emplace( typeHash< T >(), T{} );
         return std::any_cast< T& >( it->second );
     }
 
     template < typename T >
     const T& get() const {
-        constexpr uint32_t TypeId = TypeHash< T >();
+        constexpr uint32_t TypeId = typeHash< T >();
         ONYX_ASSERT( m_graphData.contains( TypeId ) );
         return std::any_cast< const T& >( m_graphData.at( TypeId ) );
     }

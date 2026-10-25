@@ -20,10 +20,8 @@ class Logger : public Thread {
     void init();
     void shutdown();
 
-    void logSimple( LogLevel level, const char* message );
-    void log( LogLevel level,
-              const char* message,
-              const std::source_location location = std::source_location::current() );
+    void logSimple( LogLevel level, StringView message );
+    void log( LogLevel level, StringView message, std::source_location location = std::source_location::current() );
 
     void setSeverity( LogLevel severity );
 

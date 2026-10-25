@@ -1,7 +1,6 @@
 #pragma once
 
 #include <entt/entt.hpp>
-#include <onyx/filesystem/onyxfile.h>
 
 namespace onyx::ecs {
 enum class EntityId : uint32_t;

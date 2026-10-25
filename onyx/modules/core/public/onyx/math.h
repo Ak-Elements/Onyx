@@ -2,6 +2,11 @@
 
 namespace onyx {
 template < typename Scalar >
+constexpr Scalar safeReciprocal( Scalar value ) {
+    return value == Scalar( 0 ) ? Scalar( 0 ) : ( Scalar( 1 ) / value );
+}
+
+template < typename Scalar >
 constexpr bool isEqual( Scalar lhs, Scalar rhs ) {
     if constexpr( std::is_floating_point_v< Scalar > ) {
         constexpr Scalar Epsilon = std::numeric_limits< Scalar >::epsilon();

@@ -16,7 +16,7 @@ class CommandHistoryWindow : public ui::ImGuiWindow {
 
     StringView getWindowId() override { return WindowId; }
 
-    void SetCommandQueue( ICommandGraph& commandQueue ) { m_CommandStack = &commandQueue; }
+    void setCommandQueue( ICommandGraph& commandQueue ) { m_commandStack = &commandQueue; }
 
   private:
     void onOpen() override;
@@ -24,10 +24,10 @@ class CommandHistoryWindow : public ui::ImGuiWindow {
     void onRender( ui::ImGuiSystem& imguiSystem ) override;
 
   private:
-    void OnUndo( const input_actions::InputActionEvent& undoAction );
-    void OnRedo( const input_actions::InputActionEvent& redoAction );
+    void onUndo( const input_actions::InputActionEvent& undoAction );
+    void onRedo( const input_actions::InputActionEvent& redoAction );
 
   private:
-    ICommandGraph* m_CommandStack = nullptr;
+    ICommandGraph* m_commandStack = nullptr;
 };
 } // namespace onyx::editor

@@ -14,7 +14,7 @@ struct StackInfo {
 };
 } // namespace
 
-bool RenderTreeItem( Stack< StackInfo >& itemStack, const StackInfo& currentItem, TreeViewFlags flags ) {
+bool renderTreeItem( Stack< StackInfo >& itemStack, const StackInfo& currentItem, TreeViewFlags flags ) {
     if( currentItem.Item.Children.empty() ) {
         if( ImGui::MenuItem( currentItem.Item.Label.data(), nullptr, false, true ) ) {
             currentItem.Item.OnSelected();
@@ -36,16 +36,18 @@ bool RenderTreeItem( Stack< StackInfo >& itemStack, const StackInfo& currentItem
     return false;
 }
 
-bool RenderTreeView( StringView id, const TreeItem& root ) {
-    return RenderTreeView( id, root, TreeViewFlags::None );
+bool renderTreeView( StringView id, const TreeItem& root ) {
+    return renderTreeView( id, root, TreeViewFlags::None );
 }
 
-bool RenderTreeView( StringView id, const TreeItem& root, TreeViewFlags flags ) {
+bool renderTreeView( StringView id, const TreeItem& root, TreeViewFlags flags ) {
     ScopedImGuiId treeViewId( id );
 
+    int32_t itemImguiId = 0;
     Stack< StackInfo > itemStack;
     itemStack.push( { root, 0 } );
     while( itemStack.empty() == false ) {
+        ScopedImGuiId childId( itemImguiId++ );
         const StackInfo currentItem = itemStack.top();
         itemStack.pop();
 
@@ -58,11 +60,11 @@ bool RenderTreeView( StringView id, const TreeItem& root, TreeViewFlags flags ) 
         }
 
         if( currentItem.Depth == 0 ) {
-            if( RenderTreeItem( itemStack, currentItem, flags ) )
+            if( renderTreeItem( itemStack, currentItem, flags ) )
                 return true;
         } else {
             ScopedImGuiIndent indent( static_cast< float32 >( currentItem.Depth ) * ImGui::GetStyle().IndentSpacing );
-            if( RenderTreeItem( itemStack, currentItem, flags ) )
+            if( renderTreeItem( itemStack, currentItem, flags ) )
                 return true;
         }
     }

@@ -62,7 +62,7 @@ void AtmosphericSkyRenderGraphNode::onRender( RenderGraphContext& context, rhi::
     pushConstants.SunDirection = getSunDirection( frameContext.TimeOfDay );
     pushConstants.ViewConstants = frameContext.Api->getViewConstantsBuffer().getGpuAddress();
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, pushConstants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 

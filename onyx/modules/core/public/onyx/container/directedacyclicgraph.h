@@ -94,6 +94,7 @@ class DirectedAcyclicGraph {
     };
 
     DirectedAcyclicGraph() = default;
+
     explicit DirectedAcyclicGraph( NodeIdT startId )
         : m_nextNodeId( startId ) {}
 

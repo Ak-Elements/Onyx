@@ -2,7 +2,7 @@
 
 #include <onyx/assets/assethandle.h>
 
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/gamecore/scene/scene.h>
 
 namespace onyx::editor {
@@ -15,8 +15,8 @@ AddComponentCommand::AddComponentCommand( ecs::EntityId entity,
     , m_componentTypeId( componentTypeId ) {}
 
 void AddComponentCommand::execute() {
-    const ecs::ComponentFactory& componentFactory = GetComponentFactory();
-    ecs::EntityRegistry& registry = GetScene().getRegistry();
+    const ecs::ComponentFactory& componentFactory = getComponentFactory();
+    ecs::EntityRegistry& registry = getScene().getRegistry();
     componentFactory.tryCreateComponent( registry, m_entityId, m_componentTypeId );
 }
 } // namespace onyx::editor

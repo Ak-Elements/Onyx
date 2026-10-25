@@ -98,6 +98,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     stringid.cpp
     colors/color.cpp
     engine/enginevariable.cpp
+    engine/enginevariableregistry.cpp
     geometry/eulerangles.cpp
     geometry/rectserialization.cpp
     geometry/vectorserialization.cpp
@@ -107,6 +108,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     platforms/windows/platform.cpp
     serialize/serialization.cpp
     serialize/text/textserializer.cpp
+    serialize/text/textserializationinternal.cpp
+    serialize/text/textserializationinternal.h
     serialize/text/textdeserializer.cpp
     stream/memorystream.cpp
     stream/stream.cpp

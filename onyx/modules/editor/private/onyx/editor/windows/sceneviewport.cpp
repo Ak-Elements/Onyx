@@ -6,7 +6,7 @@
 #include <onyx/gamecore/components/cameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.h>
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 
 #include <onyx/editor/commands/commandgraph.h>
 #include <onyx/editor/commands/scene/modifycomponentcommand.h>

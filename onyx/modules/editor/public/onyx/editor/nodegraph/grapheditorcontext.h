@@ -1,25 +1,29 @@
 #pragma once
 
+#include <onyx/assets/assetid.h>
+#include <onyx/engine/enginesystem.h>
 #include <onyx/filesystem/path.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
 #include <onyx/nodegraph/pins/pinbase.h>
 
 #include <utility>
 
-namespace onyx::ui {
+namespace onyx {
+
+namespace ui {
 struct TreeItem;
 }
 
-namespace onyx::localization {
+namespace localization {
 class LocalizationModule;
 }
 
-namespace onyx::assets {
+namespace assets {
 class AssetSystem;
 struct AssetMetaData;
-} // namespace onyx::assets
+} // namespace assets
 
-namespace onyx::editor {
+namespace editor {
 class GraphEditorContext {
   public:
     GraphEditorContext() = default;
@@ -39,6 +43,8 @@ class GraphEditorContext {
     };
 
     struct Node {
+        Node() = default;
+
         Node( Guid64 id )
             : Id( id ) {}
 
@@ -74,8 +80,9 @@ class GraphEditorContext {
         bool IsRerouted = false;
     };
 
-    void setLocalizationModule( const localization::LocalizationModule& localizationModule );
-    [[nodiscard]] const localization::LocalizationModule& getLocalizationModule() const;
+    void setEngine( IEngine& engine ) { m_engine = &engine; }
+
+    virtual void createNew() = 0;
 
     DynamicArray< Node >& getNodes() { return m_nodes; }
     [[nodiscard]] const DynamicArray< Node >& getNodes() const { return m_nodes; }
@@ -123,28 +130,44 @@ class GraphEditorContext {
 
     virtual bool compile() = 0;
 
-    void load( assets::AssetSystem& assetSystem, const FilePath& path );
-    void save( assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta );
+    void load( const FilePath& path );
+    void save();
+    void saveAs( const FilePath& path );
     [[nodiscard]] bool isLoading() const { return m_isLoading; };
 
-    Callback< void() > OnLoaded;
-    Callback< void() > OnSaved;
+    Callback< void( assets::AssetId ) > OnLoaded;
+    Callback< void( assets::AssetId ) > OnSaved;
 
     Callback< void( Node& ) > OnNodeCreated;
     Callback< void( Node& ) > OnNodeDeleted;
     Callback< void( const Link& ) > OnLinkCreated;
     Callback< void( const Link& ) > OnLinkDeleted;
 
-    Callback< void( const FilePath& ) > LoadEditorMetaDataFunctor;
-    Callback< void( const FilePath& ) > SaveEditorMetaDataFunctor;
+    Callback< void( assets::AssetId ) > LoadEditorMetaDataFunctor;
+    Callback< void( assets::AssetId ) > SaveEditorMetaDataFunctor;
 
   protected:
+    template < typename T >
+    T& getEngineSystem() {
+        return m_engine->getSystem< T >();
+    }
+
+    template < typename T >
+    T& getEngineSystem() const {
+        return m_engine->getSystem< T >();
+    }
+
     [[nodiscard]] virtual const node_graph::INodeFactory& getNodeFactory() const = 0;
-    void finishLoading( const assets::AssetMetaData& assetMeta );
+
+    void onLoaded( assets::AssetId loadedAsset );
+    void onSaved( assets::AssetId savedAsset );
 
   private:
-    virtual void onSave( assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta ) = 0;
-    virtual void onLoad( assets::AssetSystem& assetSystem, const FilePath& path ) = 0;
+    virtual void onSave() = 0;
+    virtual void onSave( const FilePath& path ) = 0;
+    virtual void onLoad( const FilePath& path ) = 0;
+
+    virtual void onClear() = 0;
 
     virtual void onDrawNode( const Node& node ) = 0;
     virtual void onDrawNodeBackground( const Node& node ) = 0;
@@ -160,6 +183,9 @@ class GraphEditorContext {
     DynamicArray< Link > m_links;
 
     Atomic< bool > m_isLoading = false;
-    const localization::LocalizationModule* m_localizationModule = nullptr;
+    IEngine* m_engine = nullptr;
 };
-} // namespace onyx::editor
+
+} // namespace editor
+
+} // namespace onyx

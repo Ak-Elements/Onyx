@@ -25,6 +25,13 @@ struct PropertyInspector< EngineVariable< T > > {
                 variable.set( value );
                 return true;
             }
+        } else if constexpr( std::is_same_v< T, assets::AssetId > ) {
+            auto& assetIdVariable = static_cast< EngineVariable< assets::AssetId >& >( variable );
+            assets::AssetId assetId = assetIdVariable.get();
+            if( property_grid::drawProperty( label, assetIdVariable.getType(), assetId ) ) {
+                assetIdVariable.set( assetId );
+                return true;
+            }
         } else if constexpr( std::is_invocable_v< T > ) {
             if( property_grid::drawButton( label ) ) {
                 variable.Invoke();

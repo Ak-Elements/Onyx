@@ -36,7 +36,9 @@ class ImGuiWindow {
     void setWindowId( String windowId ) { m_id = std::move( windowId ); }
     virtual StringView getWindowId() { return m_id; }
 
-    void setName( const String& newName ) { m_name = newName; }
+    void setName( String newName ) { m_name = std::move( newName ); }
+    void setName( StringView newName ) { m_name = String( newName ); }
+
     void setWindowClass( ImGuiWindowClass* windowClass ) { m_windowClass = windowClass; }
 
     void setEngine( IEngine& engine ) { m_engine = &engine; }
@@ -79,6 +81,11 @@ class ImGuiWindow {
     template < typename T >
     const T& getEngineSystem() const {
         return m_engine->getSystem< T >();
+    }
+
+    IEngine& getEngine() {
+        ONYX_ASSERT( m_engine != nullptr );
+        return *m_engine;
     }
 
     template < typename T >

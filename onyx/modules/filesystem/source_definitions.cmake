@@ -4,7 +4,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     filewatcher.h
     imagefile.h
     onyx_filesystem_pch.h
-    onyxfile.h
+    file.h
     path.h
     jsonserializer.h
     jsondeserializer.h
@@ -16,7 +16,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     filewatcher.cpp
     imagefile.cpp
     onyx_filesystem.cpp
-    onyxfile.cpp
+    file.cpp
     path.cpp
     jsonserializer.cpp
     jsondeserializer.cpp

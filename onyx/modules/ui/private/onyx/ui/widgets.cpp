@@ -252,7 +252,8 @@ bool drawSearchBar( String& searchString, StringView hintLabel, bool& grabFocus 
         // ImGui::SameLine();
         ImGui::SetNextItemWidth( searchBarSize.x - 2 * iconSize - 2 * spacingX );
         searchInputId = ImGui::GetID( "##searchbarinput" );
-        if( ui::drawStringInput( "##searchbarinput", hintLabel, searchString ) ) {
+        StringInputOptions inputOptions{ StringEditMode::Always };
+        if( ui::drawStringInput( "##searchbarinput", hintLabel, searchString, inputOptions ) ) {
             modified = true;
         }
     }
@@ -395,14 +396,23 @@ bool contextMenuHeader( StringView label, const InplaceFunction< bool() >& custo
 }
 
 bool drawStringInput( StringView id, StringView hint, String& value ) {
-    return drawStringInput( id, hint, value, ImVec2( 0, 0 ), ImGuiInputTextFlags_None );
+    return drawStringInput( id, hint, value, StringInputOptions{} );
+}
+
+bool drawStringInput( StringView id, StringView hint, String& value, StringInputOptions options ) {
+    return drawStringInput( id, hint, value, ImVec2( 0, 0 ), ImGuiInputTextFlags_None, options );
 }
 
 bool drawStringInput( StringView id, String& value, const ImVec2& size, ImGuiInputTextFlags flags ) {
-    return drawStringInput( id, "", value, size, flags );
+    return drawStringInput( id, "", value, size, flags, StringInputOptions{} );
 }
 
-bool drawStringInput( StringView id, StringView hint, String& value, const ImVec2& size, ImGuiInputTextFlags flags ) {
+bool drawStringInput( StringView id,
+                      StringView hint,
+                      String& value,
+                      const ImVec2& size,
+                      ImGuiInputTextFlags flags,
+                      StringInputOptions options ) {
     struct InputTextCallbackPayload {
         String* Str;
     };
@@ -411,8 +421,8 @@ bool drawStringInput( StringView id, StringView hint, String& value, const ImVec
         InputTextCallbackPayload* userData = (InputTextCallbackPayload*)data->UserData;
         if( data->EventFlag == ImGuiInputTextFlags_CallbackResize ) {
             // Resize string callback
-            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them
-            // back to what we want.
+            // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set
+            // them back to what we want.
             std::string* str = userData->Str;
             IM_ASSERT( data->Buf == str->c_str() );
             str->resize( data->BufTextLen );
@@ -425,16 +435,24 @@ bool drawStringInput( StringView id, StringView hint, String& value, const ImVec
     InputTextCallbackPayload payload{};
     payload.Str = &value;
 
-    ImGui::InputTextEx( id.data(),
-                        hint.data(),
-                        value.data(),
-                        static_cast< int32_t >( value.capacity() + 1 ),
-                        size,
-                        flags | ImGuiInputTextFlags_CallbackResize,
-                        textInputCallback,
-                        &payload );
+    if( enums::isSet( options.EditMode, StringEditMode::OnEnter ) ) {
+        flags |= ImGuiInputTextFlags_EnterReturnsTrue;
+    }
 
-    return ImGui::IsItemDeactivatedAfterEdit() && ( ImGui::IsKeyPressed( ImGuiKey_Escape ) == false );
+    bool hasChanged = ImGui::InputTextEx( id.data(),
+                                          hint.data(),
+                                          value.data(),
+                                          static_cast< int32_t >( value.capacity() + 1 ),
+                                          size,
+                                          flags | ImGuiInputTextFlags_CallbackResize,
+                                          textInputCallback,
+                                          &payload );
+
+    if( enums::isSet( options.EditMode, StringEditMode::OnFocusLost ) ) {
+        return ImGui::IsItemDeactivatedAfterEdit() && ( ImGui::IsKeyPressed( ImGuiKey_Escape ) == false );
+    }
+
+    return hasChanged;
 }
 
 bool drawStringInput( StringView id, StringView value, const ImVec2& size, ImGuiInputTextFlags flags ) {
@@ -471,7 +489,7 @@ bool drawRenameInput( StringView id, String& outName, const ImVec2& size, bool& 
             ImGui::SetKeyboardFocusHere( -1 );
         }
     } else {
-        if( ImGui::Selectable( format::format( "{}##renameInput", outName.data() ),
+        if( ImGui::Selectable( format::format( "{}##renameInput", outName.data() ).data(),
                                isSelected,
                                ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap ) ) {
             isSelected = true;

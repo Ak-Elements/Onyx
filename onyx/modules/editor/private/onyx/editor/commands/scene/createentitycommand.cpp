@@ -10,7 +10,7 @@ CreateEntityCommand::CreateEntityCommand( assets::AssetId sceneId, game_core::Ga
     : SceneCommand( "CreateEntity", sceneId, gameCoreSystem ) {}
 
 void CreateEntityCommand::execute() {
-    ecs::EntityRegistry& registry = GetScene().getRegistry();
+    ecs::EntityRegistry& registry = getScene().getRegistry();
 
     if( m_EntityId == ecs::EntityId::Invalid ) {
         m_EntityId = registry.createEntity();

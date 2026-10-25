@@ -4,7 +4,7 @@
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.h>
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/ui/controls/vectorcontrol.h>
 #include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/ui/widgets.h>

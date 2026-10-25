@@ -3,7 +3,7 @@
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/rhi/shader/generators/shadergenerator.h>
-#include <onyx/volume/source/csg/csgsphere.h>
+#include <onyx/volume/source/csg/csgellipsoid.h>
 
 namespace onyx::volume {
 void SdfEllipsoidVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& context ) const {
@@ -14,8 +14,8 @@ void SdfEllipsoidVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& 
 
     SdfSample& sdfSample = context.getPinData< typename Super::OutPin >();
 
-    CSGSphere sphere( radii.Y, center );
-    Vector4f32 sample = sphere.getValueAndGradient( worldPosition );
+    CsgEllipsoid ellipsoid( center, radii );
+    Vector4f32 sample = ellipsoid.getValueAndGradient( worldPosition );
     sdfSample.Gradient = Vector3f32( sample );
     sdfSample.Distance = sample.W;
 }
@@ -30,9 +30,9 @@ void SdfEllipsoidVolumeShaderGraphNode::doGenerateShader( const node_graph::Exec
 
     generator.addImport( "includes.volume.csg.ellipsoid" );
 
-    String ellipsoidVariableName = format::format( "ellipsoidNode_{:x}", getId().get() );
-    String sampleVariableName = format::format( "ellipsoidSample_{:x}", getId().get() );
-    String sampleOutVariableName = format::format( "pin_{:x}", getOutputPin().getGlobalId().get() );
+    String ellipsoidVariableName{ format::format( "ellipsoidNode_{:x}", getId().get() ) };
+    String sampleVariableName{ format::format( "ellipsoidSample_{:x}", getId().get() ) };
+    String sampleOutVariableName{ format::format( "pin_{:x}", getOutputPin().getGlobalId().get() ) };
 
     generator.appendCode( format::format(
         "CsgEllipsoid {} = CsgEllipsoid( {}, {} );\n",

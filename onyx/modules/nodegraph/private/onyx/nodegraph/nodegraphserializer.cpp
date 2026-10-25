@@ -23,7 +23,7 @@ bool serialize( Serializer& serializer, const NodeGraph& nodeGraph ) {
         constantPinData,
         [ & ]( Serializer& scopedSerializer, const Guid64& globalPinId, const std::any& value ) {
             const PinBase& pin = nodeGraph.getPinById( globalPinId );
-            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.getType() );
+            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::getTypeMeta( pin.getType() );
             return typeMeta.serialize( scopedSerializer, value );
         } );
 
@@ -74,11 +74,11 @@ bool deserialize( const Deserializer& deserializer, NodeGraph& outNodeGraph, con
         return false;
     }
 
-    deserializer.readForEach< "data" >(
+    deserializer.read< "data" >(
         constantPinData,
         [ & ]( const Deserializer& scopedDeserializer, const Guid64& globalPinId, std::any& outValue ) {
             const PinBase& pin = outNodeGraph.getPinById( globalPinId );
-            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::GetTypeMeta( pin.getType() );
+            const INodeGraphTypeMeta& typeMeta = NodeGraphTypeRegistry::getTypeMeta( pin.getType() );
             return typeMeta.deserialize( scopedDeserializer, outValue );
         } );
 

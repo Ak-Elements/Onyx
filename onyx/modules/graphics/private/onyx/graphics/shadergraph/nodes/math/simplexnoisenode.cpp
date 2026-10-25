@@ -4,15 +4,20 @@
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/rhi/shader/generators/shadergenerator.h>
 
+#include <onyx/math/psrdnoise2d.h>
+
 namespace onyx::graphics::shader_graph_nodes {
-void SimplexNoise2DNode::onUpdate( node_graph::ExecutionContext& /*context*/ ) const {}
+void SimplexNoise2DNode::onUpdate( node_graph::ExecutionContext& context ) const {
+    const Vector2f32& inputPosition = context.getPinData< InPin >();
+
+    float& outNoiseValue = context.getPinData< OutPin0 >();
+    Vector2f32& outNoiseGradient = context.getPinData< OutPin1 >();
+
+    outNoiseValue = psrdnoise( inputPosition, outNoiseGradient );
+}
 
 void SimplexNoise2DNode::doGenerateShader( const node_graph::ExecutionContext& context,
                                            rhi::ShaderGenerator& generator ) const {
-    // TODO:
-    // if( generator.getStage() != rhi::ShaderStage::Fragment )
-    //     return;
-
     if( ( context.isPinConnected< OutPin0 >() == false ) && ( context.isPinConnected< OutPin1 >() == false ) )
         return;
 
@@ -20,13 +25,13 @@ void SimplexNoise2DNode::doGenerateShader( const node_graph::ExecutionContext& c
 
     generator.addImport( "includes.math.psrdnoise2d" );
 
-    String noiseVariable = format::format( "noiseNode_{:x}", getId().get() );
-    String noiseValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
-    String noiseGradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
+    String noiseVariable{ format::format( "noiseNode_{:x}", getId().get() ) };
+    String noiseValueOutVariableName{ format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() ) };
+    String noiseGradientOutVariableName{ format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() ) };
 
     generator.appendCode( format::format( "float2 {};\n", noiseGradientOutVariableName ) );
     generator.appendCode( format::format(
-        "float {} = psrdnoise({}, float2(0.0f,0.0f), 0.0f, {});\n",
+        "float {} = psrdnoise( {}, float2( 0.0f, 0.0f ), 0.0f, {} );\n",
         noiseValueOutVariableName,
         inputPin0.isConnected()
             ? format::format( "pin_{:x}", inputPin0.getLinkedPinGlobalId().get() )
@@ -65,9 +70,9 @@ void SimplexNoise3DNode::doGenerateShader( const node_graph::ExecutionContext& c
 
     generator.addImport( "includes.math.psrdnoise3d.h" );
 
-    String noiseVariable = format::format( "noiseNode_{:x}", getId().get() );
-    String noiseValueOutVariableName = format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() );
-    String noiseGradientOutVariableName = format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() );
+    String noiseVariable{ format::format( "noiseNode_{:x}", getId().get() ) };
+    String noiseValueOutVariableName{ format::format( "pin_{:x}", getOutputPin0().getGlobalId().get() ) };
+    String noiseGradientOutVariableName{ format::format( "pin_{:x}", getOutputPin1().getGlobalId().get() ) };
 
     generator.appendCode( format::format( "float3 {};\n", noiseGradientOutVariableName ) );
     generator.appendCode( format::format(

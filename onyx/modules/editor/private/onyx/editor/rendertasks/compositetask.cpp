@@ -51,7 +51,7 @@ void CompositeRenderGraphNode::onRender( graphics::RenderGraphContext& context, 
         ++constants.Count;
     }
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 } // namespace onyx

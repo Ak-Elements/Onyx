@@ -13,6 +13,7 @@ import includes.volume.csg.operations.union;
 import includes.math.functions;
 
 static const float TextureScale = 1.0f / 200.0f;
+static const uint32_t MaxSamples = 512;
 
 // forward declare - defined in default_terrain.h or a custom volumegraph
 public extern SdfSample sampleBaseTerrainValue( float3 worldPosition,
@@ -33,6 +34,7 @@ void sampleVolumeSources( float3 worldPosition,
                           inout SdfSample terrainSample,
                           in Ptr< VolumeSourceList > sources,
                           in Ptr< VolumeSourcesData > sourcesData ) {
+    float4 terrainSampleVec4 = float4( terrainSample.Gradient, terrainSample.Distance );
     for( uint32_t i = 0; i < sources.Count; ++i ) {
         VolumeSource source = sources.Sources[ i ];
         float4 sourceGradient = float4( 0.0 );
@@ -65,26 +67,29 @@ void sampleVolumeSources( float3 worldPosition,
         }
         }
 
-        // switch( source.Operation ) {
-        // case VolumeOperation::Union: {
-        //     if( smoothness < 0.0f )
-        //         terrainSample = getUnion( sourceGradient, terrainSample );
-        //     else
-        //         terrainSample = getUnionSmooth( sourceGradient, terrainSample, smoothness );
-        //     break;
-        // }
-        // case VolumeOperation::Difference: {
-        //     if( smoothness < 0.0f )
-        //         terrainSample = getDifference( sourceGradient, terrainSample );
-        //     else
-        //         terrainSample = -getUnionSmooth( sourceGradient, -terrainSample, smoothness );
-        //     break;
-        // }
-        // case VolumeOperation::Intersect: {
-        //     terrainSample = getIntersection( sourceGradient, terrainSample );
-        //     break;
-        // }
-        // }
+        switch( source.Operation ) {
+        case VolumeOperation::Union: {
+            if( smoothness < 0.0f )
+                terrainSample = getUnion( sourceGradient, terrainSampleVec4 );
+            else
+                terrainSample = getUnionSmooth( sourceGradient, terrainSampleVec4, smoothness );
+            break;
+        }
+        case VolumeOperation::Difference: {
+            if( smoothness < 0.0f ) {
+                terrainSample = getDifference( sourceGradient, terrainSampleVec4 );
+            } else {
+                terrainSample = getUnionSmooth( sourceGradient, -terrainSampleVec4, smoothness );
+                terrainSample.Gradient = -terrainSample.Gradient;
+                terrainSample.Distance = -terrainSample.Distance;
+            }
+            break;
+        }
+        case VolumeOperation::Intersect: {
+            terrainSample = getIntersection( sourceGradient, terrainSampleVec4 );
+            break;
+        }
+        }
     }
 }
 
@@ -102,7 +107,7 @@ public SdfSample sampleTerrain( float3 worldPosition,
                                 in Ptr< VolumeSourceList > sources,
                                 in Ptr< VolumeSourcesData > sourcesData ) {
     SdfSample sample = sampleBaseTerrainValue( worldPosition, textureIndex, heightScale, textureScale );
-    // sampleVolumeSources( worldPosition, terrainSample, sources, sourcesData );
+    sampleVolumeSources( worldPosition, sample, sources, sourcesData );
     return sample;
 }
 
@@ -118,7 +123,7 @@ public Optional< TerrainHit > raymarchTerrain( float3 rayOrigin,
                                                in Ptr< VolumeSourceList > sources,
                                                in Ptr< VolumeSourcesData > sourcesData ) {
     float distance = 0.0f;
-    for( uint i = 0; i < 512; ++i ) {
+    for( uint i = 0; i < MaxSamples; ++i ) {
         float3 position = rayOrigin + rayDirection * distance;
         float heightScale = getHeightScale( distance, heightDisplacmentRange, maxHeightDisplacment );
         float epsilon = distance * 0.0001f;
@@ -149,6 +154,35 @@ public Optional< TerrainHit > raymarchTerrain( float3 rayOrigin,
         }
 
         distance += sample.Distance * scaleDistance;
+        if( distance > maxDistance )
+            break;
+    }
+
+    return none;
+}
+
+public Optional< TerrainHit > raymarchTerrain( float3 rayOrigin,
+                                               float3 rayDirection,
+                                               float maxDistance,
+                                               in Ptr< VolumeSourceList > sources,
+                                               in Ptr< VolumeSourcesData > sourcesData ) {
+    float distance = 0.0f;
+    for( uint i = 0; i < MaxSamples; ++i ) {
+        float3 position = rayOrigin + rayDirection * distance;
+        float epsilon = distance * 0.0001f;
+        SdfSample sample = sampleTerrain( position, 0, 0.0f, 1.0f, sources, sourcesData );
+
+        if( abs( sample.Distance ) <= epsilon ) {
+            TerrainHit hit;
+            hit.Position = position;
+            hit.Iteration = i;
+            hit.Normal = sample.Gradient;
+            hit.Direction = rayOrigin - position;
+            hit.Distance = distance;
+            return hit;
+        }
+
+        distance += sample.Distance;
         if( distance > maxDistance )
             break;
     }

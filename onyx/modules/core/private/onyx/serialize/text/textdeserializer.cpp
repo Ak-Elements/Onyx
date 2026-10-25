@@ -1,17 +1,22 @@
 #include <onyx/serialize/text/textdeserializer.h>
 
+#include <onyx/serialize/text/textserializationinternal.h>
 namespace onyx::serialization::text {
 
 TextDeserializer::TextDeserializer( StringView data )
-    : m_root( "root", data ) {
-    m_scopeStack.emplace( &m_root );
-    initializeScope( m_root );
+    : m_data( data )
+    , m_root( makeUnique< internal::Scope >( 0, 0, 0, m_data.size() ) ) {
+    m_scopeStack.emplace( m_root.get() );
+    internal::initializeScope( m_data, *m_root );
 }
+
+TextDeserializer::~TextDeserializer() = default;
 
 template < typename T >
 bool TextDeserializer::doGenericRead( T& outValue ) const {
-    const Scope& currentScope = *m_scopeStack.top();
-    const StringView currentData = currentScope.Data;
+    const internal::Scope& currentScope = *m_scopeStack.top();
+    [[maybe_unused]] StringView dataName = m_data.substr( currentScope.NameStart, currentScope.NameLength );
+    StringView currentData = m_data.substr( currentScope.DataStart, currentScope.DataLength );
 
     StringView::size_type lastIndex = StringView::npos;
     if constexpr( std::is_same_v< bool, T > ) {
@@ -52,6 +57,37 @@ bool TextDeserializer::doGenericRead( T& outValue ) const {
         bool success = toNumeric( value, uid, 16 ) == std::errc();
         outValue = Guid64( uid );
         return success;
+    } else if constexpr( IsVector< T > ) {
+        using ScalarT = typename T::ScalarT;
+        auto parseComponent = []( StringView::size_type& index, StringView data, ScalarT& outValue ) {
+            StringView::size_type startIndex = data.find_first_not_of( " \t\n\r", index );
+            StringView::size_type lastIndex = data.find_first_of( " \t\n\r", startIndex + 1 );
+            StringView value = data.substr( startIndex, lastIndex - startIndex );
+            bool success = toNumeric( value, outValue ) == std::errc();
+            index = lastIndex;
+            return success;
+        };
+
+        StringView::size_type index = 0;
+        bool success = parseComponent( index, currentData, outValue.X );
+        if( success == false )
+            return false;
+
+        success = parseComponent( index, currentData, outValue.Y );
+        if( success == false )
+            return false;
+
+        if constexpr( IsVector3< T > ) {
+            success = parseComponent( index, currentData, outValue.Z );
+            if( success == false )
+                return false;
+        }
+
+        if constexpr( IsVector4< T > ) {
+            success = parseComponent( index, currentData, outValue.W );
+            if( success == false )
+                return false;
+        }
     }
 
     return true;
@@ -69,8 +105,8 @@ bool TextDeserializer::doGenericRead( StringView name, T& outValue ) const {
 
 template < Numeric T >
 bool TextDeserializer::doGenericRead( T& outValue, uint8_t base ) const {
-    const Scope& currentScope = *m_scopeStack.top();
-    const StringView currentData = currentScope.Data;
+    const internal::Scope& currentScope = *m_scopeStack.top();
+    StringView currentData = m_data.substr( currentScope.DataStart, currentScope.DataLength );
 
     StringView::size_type lastIndex = currentData.find_first_of( " \t\n\r" );
     StringView value = currentData.substr( 0, lastIndex );
@@ -87,12 +123,82 @@ bool TextDeserializer::doGenericRead( StringView name, T& outValue, uint8_t base
     return doGenericRead( outValue, base );
 }
 
-bool TextDeserializer::doRead( bool& outValue ) const {
-    return doGenericRead( outValue );
+bool TextDeserializer::createScope( uint32_t index ) const {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    internal::Scope& currentScope = *m_scopeStack.top();
+    if( index >= currentScope.Children.size() )
+        return false;
+
+    internal::Scope* newScope = m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
+    if( newScope->IsLeaf == false ) {
+        internal::initializeScope( m_data, *newScope );
+    }
+    return true;
 }
 
-bool TextDeserializer::doRead( StringView name, bool& outValue ) const {
-    return doGenericRead( name, outValue );
+bool TextDeserializer::createScope( uint64_t index ) const {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    internal::Scope& currentScope = *m_scopeStack.top();
+    if( index >= currentScope.Children.size() )
+        return false;
+
+    internal::Scope* newScope = m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
+    if( newScope->IsLeaf == false ) {
+        internal::initializeScope( m_data, *newScope );
+    }
+    return true;
+}
+
+bool TextDeserializer::createScope( StringView name ) const {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    internal::Scope& currentScope = *m_scopeStack.top();
+    auto it = std::ranges::find_if( currentScope.Children, [ & ]( internal::Scope& scope ) {
+        StringView scopeName = m_data.substr( scope.NameStart, scope.NameLength );
+        return name == scopeName;
+    } );
+
+    if( it == currentScope.Children.end() )
+        return false;
+
+    uint64_t index = std::distance( std::begin( currentScope.Children ), it );
+    return createScope( index );
+}
+
+bool TextDeserializer::getScopeIdentifier( uint32_t& /*outKey*/ ) const {
+    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
+    return false;
+}
+
+bool TextDeserializer::getScopeIdentifier( uint64_t& /*outKey*/ ) const {
+    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
+    return false;
+}
+
+bool TextDeserializer::getScopeIdentifier( Guid64& outKey ) const {
+    return false;
+}
+
+bool TextDeserializer::getScopeIdentifier( StringView& outKey ) const {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    const internal::Scope& currentScope = *m_scopeStack.top();
+    outKey = m_data.substr( currentScope.NameStart, currentScope.NameLength );
+    return true;
+}
+
+bool TextDeserializer::endScope() const {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    m_scopeStack.pop();
+    return true;
+}
+
+uint32_t TextDeserializer::getItemsCount() const {
+    ONYX_ASSERT( m_scopeStack.empty() == false );
+    const internal::Scope& currentScope = *m_scopeStack.top();
+    return numericCast< uint32_t >( currentScope.Children.size() );
+}
+
+bool TextDeserializer::doRead( bool& outValue ) const {
+    return doGenericRead( outValue );
 }
 
 bool TextDeserializer::doRead( int8_t& outValue ) const {
@@ -175,249 +281,131 @@ bool TextDeserializer::doRead( uint64_t& outValue, uint8_t base ) const {
     return doGenericRead( outValue, base );
 }
 
-bool TextDeserializer::doRead( StringView name, int8_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, int16_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, int32_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, int64_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, uint8_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, uint16_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, uint32_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, uint64_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, float32& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, float32& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, float64& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, float64& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, int8_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, int16_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, int32_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, int64_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, uint8_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, uint16_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, uint32_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool TextDeserializer::doRead( StringView name, uint64_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
 bool TextDeserializer::doRead( StringView& outValue ) const {
     return doGenericRead( outValue );
-}
-
-bool TextDeserializer::doRead( StringView name, StringView& outValue ) const {
-    return doGenericRead( name, outValue );
 }
 
 bool TextDeserializer::doRead( Guid64& outValue ) const {
     return doGenericRead( outValue );
 }
 
-bool TextDeserializer::doRead( StringView name, Guid64& outValue ) const {
-    return doGenericRead( name, outValue );
+bool TextDeserializer::doRead( Vector2s8& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::createScope( uint32_t index ) const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    if( index >= currentScope.Children.size() )
-        return false;
-
-    Scope* newScope = m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    initializeScope( *newScope );
-    return true;
+bool TextDeserializer::doRead( Vector2s16& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::createScope( uint64_t index ) const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    if( index >= currentScope.Children.size() )
-        return false;
-
-    Scope* newScope = m_scopeStack.emplace( &( currentScope.Children[ index ] ) );
-    initializeScope( *newScope );
-    return true;
+bool TextDeserializer::doRead( Vector2s32& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::createScope( StringView name ) const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    Scope& currentScope = *m_scopeStack.top();
-    auto it = std::ranges::find_if( currentScope.Children, [ name ]( Scope& scope ) { return name == scope.Name; } );
-    if( it == currentScope.Children.end() )
-        return false;
-
-    uint64_t index = std::distance( std::begin( currentScope.Children ), it );
-    return createScope( index );
+bool TextDeserializer::doRead( Vector2s64& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::getScopeIdentifier( uint32_t& /*outKey*/ ) const {
-    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
-    return false;
+bool TextDeserializer::doRead( Vector2u8& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::getScopeIdentifier( uint64_t& /*outKey*/ ) const {
-    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
-    return false;
+bool TextDeserializer::doRead( Vector2u16& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::getScopeIdentifier( Guid64& outKey ) const {
-    return false;
+bool TextDeserializer::doRead( Vector2u32& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::getScopeIdentifier( StringView& outKey ) const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    const Scope& currentScope = *m_scopeStack.top();
-    outKey = currentScope.Name;
-    return true;
+bool TextDeserializer::doRead( Vector2u64& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-bool TextDeserializer::endScope() const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    m_scopeStack.pop();
-    return true;
+bool TextDeserializer::doRead( Vector2f32& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-uint32_t TextDeserializer::getItemsCount() const {
-    ONYX_ASSERT( m_scopeStack.empty() == false );
-    const Scope& currentScope = *m_scopeStack.top();
-    return numericCast< uint32_t >( currentScope.Children.size() );
+bool TextDeserializer::doRead( Vector2f64& outValue ) const {
+    return doGenericRead( outValue );
 }
 
-void TextDeserializer::initializeScope( Scope& scope ) const {
-    const StringView currentData = scope.Data;
+bool TextDeserializer::doRead( Vector3s8& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-    const StringView::size_type scopeLength = currentData.size();
-    const StringView::size_type scopeEndIndex = scopeLength - 1;
+bool TextDeserializer::doRead( Vector3s16& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-    for( StringView::size_type i = 0; i < scopeLength; ++i ) {
-        if( currentData[ i ] == '/' && currentData[ std::min( i + 1, scopeEndIndex ) ] == '/' ) {
-            const auto newlineIndex = currentData.find_first_of( '\n', i );
-            i = ( newlineIndex == StringView::npos ) ? scopeEndIndex : newlineIndex;
-            continue;
-        }
+bool TextDeserializer::doRead( Vector3s32& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-        const uint64_t splitIndex = std::min( currentData.find_first_of( ":\n", i ), scopeEndIndex );
+bool TextDeserializer::doRead( Vector3s64& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-        // simple property
-        if( currentData[ splitIndex ] == ':' ) {
-            StringView propertyName = trim( currentData.substr( i, splitIndex - i ) );
-            // TODO: this needs to be smarter to ignore \n in strings
-            const uint64_t valueStartIndex = currentData.find_first_not_of( " \t\n\r", splitIndex + 1 );
+bool TextDeserializer::doRead( Vector3u8& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            const char* endCharacters = "\t\n\r";
-            if( currentData[ valueStartIndex ] == '"' )
-                endCharacters = "\"";
-            else if( currentData[ valueStartIndex ] == '\'' )
-                endCharacters = "'";
+bool TextDeserializer::doRead( Vector3u16& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            const uint64_t valueEndIndex = std::min( currentData.find_first_of( endCharacters, valueStartIndex + 1 ),
-                                                     scopeEndIndex );
-            scope.Children.emplace_back( propertyName,
-                                         currentData.substr( valueStartIndex, valueEndIndex - valueStartIndex ) );
+bool TextDeserializer::doRead( Vector3u32& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            i = valueEndIndex;
-        } else {
-            StringView trimmedLine = trimLeft( currentData.substr( i, splitIndex - i ) );
-            if( trimmedLine.empty() ) {
-                i = splitIndex;
-                continue;
-            }
+bool TextDeserializer::doRead( Vector3u64& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            // TODO: We probably need to handle strings here properly
-            uint64_t commentOrStringStartIndex = trimmedLine.find_first_of( "\"'/" );
-            if( commentOrStringStartIndex != StringView::npos ) {
-                if( trimmedLine[ commentOrStringStartIndex ] == '/' &&
-                    trimmedLine[ std::min( commentOrStringStartIndex + 1, scopeEndIndex ) ] == '/' ) {
-                    trimmedLine = trimRight( trimmedLine.substr( 0, commentOrStringStartIndex ) );
-                }
-            }
+bool TextDeserializer::doRead( Vector3f32& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            uint64_t propertyNameEndIndex = trimmedLine.find_first_of( " \t\n\r" );
-            if( propertyNameEndIndex == StringView::npos ) {
-                propertyNameEndIndex = splitIndex;
-            }
-            StringView propertyName = trim( trimmedLine.substr( 0, propertyNameEndIndex ) );
+bool TextDeserializer::doRead( Vector3f64& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            uint64_t scopeLineCount = 1;
-            if( propertyNameEndIndex != splitIndex ) {
-                StringView lineCountString = trim( trimmedLine.substr( propertyNameEndIndex ) );
-                if( lineCountString.empty() == false ) {
-                    std::errc error = toNumeric( lineCountString, scopeLineCount );
-                    if( error != std::errc() ) {
-                        ONYX_LOG_WARNING( "Failed to parse scope count for {}", propertyName );
-                    }
-                }
-            }
+bool TextDeserializer::doRead( Vector4s8& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            // advance past the header line before counting child lines
-            const uint64_t scopeStartIndex = splitIndex + 1;
+bool TextDeserializer::doRead( Vector4s16& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            // TODO: handle linebreaks in strings
-            for( uint64_t j = 0; j < scopeLineCount; ++j ) {
-                const uint64_t endOfLineIndex = std::min( currentData.find_first_of( '\n', i + 1 ), scopeEndIndex );
-                i = endOfLineIndex;
-            }
+bool TextDeserializer::doRead( Vector4s32& outValue ) const {
+    return doGenericRead( outValue );
+}
 
-            auto propertyData = currentData.substr( scopeStartIndex, i - scopeStartIndex );
-            if( propertyData.empty() ) {
-                propertyData = propertyName;
-            }
-            scope.Children.emplace_back( propertyName, propertyData );
-        }
-    }
+bool TextDeserializer::doRead( Vector4s64& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( Vector4u8& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( Vector4u16& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( Vector4u32& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( Vector4u64& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( Vector4f32& outValue ) const {
+    return doGenericRead( outValue );
+}
+
+bool TextDeserializer::doRead( Vector4f64& outValue ) const {
+    return doGenericRead( outValue );
 }
 } // namespace onyx::serialization::text

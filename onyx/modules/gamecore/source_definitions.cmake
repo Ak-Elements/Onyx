@@ -1,5 +1,5 @@
 set(onyx_TARGET_PUBLIC_SOURCES
-    gamecore.h
+    gamecoresystem.h
     components/shapes/boxshapecomponent.ocd
     components/shapes/capsuleshapecomponent.ocd
     components/shapes/sphereshapecomponent.ocd
@@ -28,17 +28,17 @@ set(onyx_TARGET_PUBLIC_SOURCES
     scene/scenesector.h
     scene/scenesectorstreamer.h
     serialize/sceneserializer.h
-    systems/charactersystem.h
-    systems/camerasystem.h
-    systems/freecamerasystem.h
-    systems/lightingsystem.h
-    systems/movementsystem.h
-    systems/physicssystem.h
+    systems/characterentitysystem.h
+    systems/cameraentitysystem.h
+    systems/freecameraentitysystem.h
+    systems/lightingentitysystem.h
+    systems/movemententitysystem.h
+    systems/physicsentitysystem.h
     systems/staticmeshentitysystem.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
-    gamecore.cpp
+    gamecoresystem.cpp
     components/transformcomponent.cpp
     rendertasks/depthprepassrendertask.cpp
     rendertasks/staticmeshrendertask.cpp
@@ -47,11 +47,11 @@ set(onyx_TARGET_PRIVATE_SOURCES
     scene/scene.cpp
     scene/scenesectorstreamer.cpp
     serialize/sceneserializer.cpp
-    systems/charactersystem.cpp
-    systems/camerasystem.cpp
-    systems/freecamerasystem.cpp
-    systems/lightingsystem.cpp
-    systems/movementsystem.cpp
-    systems/physicssystem.cpp
+    systems/characterentitysystem.cpp
+    systems/cameraentitysystem.cpp
+    systems/freecameraentitysystem.cpp
+    systems/lightingentitysystem.cpp
+    systems/movemententitysystem.cpp
+    systems/physicsentitysystem.cpp
     systems/staticmeshentitysystem.cpp
 )

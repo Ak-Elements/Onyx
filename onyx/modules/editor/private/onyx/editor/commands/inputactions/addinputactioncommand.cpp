@@ -8,7 +8,7 @@ AddInputActionCommand::AddInputActionCommand( InputActionSettingsWindow& inputSe
 
 void AddInputActionCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
-    input_actions::InputAction& newAction = context.GetActions().emplace_back( "New Action" );
+    input_actions::InputAction& newAction = context.getActions().emplace_back( "New Action" );
     newAction.SetType( input_actions::ActionType::Bool );
 }
 } // namespace onyx::editor

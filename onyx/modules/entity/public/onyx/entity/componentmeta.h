@@ -78,7 +78,7 @@ struct ComponentMeta : public IComponentMeta {
         }
     }
 
-    [[nodiscard]] constexpr uint32_t getRuntimeTypeId() const override { return TypeHash< T >(); }
+    [[nodiscard]] constexpr uint32_t getRuntimeTypeId() const override { return typeHash< T >(); }
 
     void create( EntityRegistry& registry, EntityId entity ) const override {
         if constexpr( details::IsFlagComponent< T > ) {

@@ -22,7 +22,7 @@ void TerrainMaterialDatabaseWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
         DynamicArray< StringView > extensions{ "tmdatabase" };
         if( file_system::FileDialog::saveFileDialog( path, "Terrain Material Database", extensions ) ) {
             assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
-            assetSystem.saveAssetAs( path, Database );
+            std::ignore = assetSystem.saveAssetAs( path, Database );
         }
     }
 }

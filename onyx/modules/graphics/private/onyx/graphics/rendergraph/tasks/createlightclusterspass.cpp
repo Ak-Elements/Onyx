@@ -62,7 +62,7 @@ void CreateLightClusters::onRender( RenderGraphContext& context, rhi::CommandBuf
     // TODO: Fix barrier
     commandBuffer.globalBarrier( 0, 0x00000040 );
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.dispatch( ClusterX, ClusterY, ClusterZ );
 
     commandBuffer.globalBarrier( 0x00000040, 0x00000020 | 0x00000040 );

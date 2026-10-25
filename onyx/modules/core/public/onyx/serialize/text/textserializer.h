@@ -3,19 +3,11 @@
 #include <onyx/serialize/serializer.h>
 
 namespace onyx::serialization::text {
+namespace internal {
+struct Scope;
+}
 
 class TextSerializer : public Serializer {
-  private:
-    struct Scope {
-        StringView::size_type NameStart = 0;
-        StringView::size_type NameLength = 0;
-
-        StringView::size_type DataStart = 0;
-        StringView::size_type DataLength = 0;
-
-        DynamicArray< Scope > Children;
-    };
-
   public:
     TextSerializer();
     TextSerializer( String&& data );
@@ -38,7 +30,6 @@ class TextSerializer : public Serializer {
     bool doGenericWrite( StringView name, T value, uint8_t base );
 
     bool doWrite( bool value ) override;
-    bool doWrite( StringView name, bool value ) override;
 
     bool doWrite( int8_t value ) override;
     bool doWrite( int16_t value ) override;
@@ -57,30 +48,43 @@ class TextSerializer : public Serializer {
     bool doWrite( uint32_t value, uint8_t base ) override;
     bool doWrite( uint64_t value, uint8_t base ) override;
 
-    bool doWrite( StringView name, int8_t value ) override;
-    bool doWrite( StringView name, int16_t value ) override;
-    bool doWrite( StringView name, int32_t value ) override;
-    bool doWrite( StringView name, int64_t value ) override;
-    bool doWrite( StringView name, uint8_t value ) override;
-    bool doWrite( StringView name, uint16_t value ) override;
-    bool doWrite( StringView name, uint32_t value ) override;
-    bool doWrite( StringView name, uint64_t value ) override;
-    bool doWrite( StringView name, int8_t value, uint8_t base ) override;
-    bool doWrite( StringView name, int16_t value, uint8_t base ) override;
-    bool doWrite( StringView name, int32_t value, uint8_t base ) override;
-    bool doWrite( StringView name, int64_t value, uint8_t base ) override;
-    bool doWrite( StringView name, uint8_t value, uint8_t base ) override;
-    bool doWrite( StringView name, uint16_t value, uint8_t base ) override;
-    bool doWrite( StringView name, uint32_t value, uint8_t base ) override;
-    bool doWrite( StringView name, uint64_t value, uint8_t base ) override;
-
     bool doWrite( float32 value ) override;
     bool doWrite( float64 value ) override;
-    bool doWrite( StringView name, float32 value ) override;
-    bool doWrite( StringView name, float64 value ) override;
 
     bool doWrite( StringView value ) override;
-    bool doWrite( StringView name, StringView value ) override;
+
+    bool doWrite( Vector2s8 value ) override;
+    bool doWrite( Vector2s16 value ) override;
+    bool doWrite( Vector2s32 value ) override;
+    bool doWrite( Vector2s64 value ) override;
+    bool doWrite( Vector2u8 value ) override;
+    bool doWrite( Vector2u16 value ) override;
+    bool doWrite( Vector2u32 value ) override;
+    bool doWrite( Vector2u64 value ) override;
+    bool doWrite( Vector2f32 value ) override;
+    bool doWrite( Vector2f64 value ) override;
+
+    bool doWrite( Vector3s8 value ) override;
+    bool doWrite( Vector3s16 value ) override;
+    bool doWrite( Vector3s32 value ) override;
+    bool doWrite( Vector3s64 value ) override;
+    bool doWrite( Vector3u8 value ) override;
+    bool doWrite( Vector3u16 value ) override;
+    bool doWrite( Vector3u32 value ) override;
+    bool doWrite( Vector3u64 value ) override;
+    bool doWrite( Vector3f32 value ) override;
+    bool doWrite( Vector3f64 value ) override;
+
+    bool doWrite( Vector4s8 value ) override;
+    bool doWrite( Vector4s16 value ) override;
+    bool doWrite( Vector4s32 value ) override;
+    bool doWrite( Vector4s64 value ) override;
+    bool doWrite( Vector4u8 value ) override;
+    bool doWrite( Vector4u16 value ) override;
+    bool doWrite( Vector4u32 value ) override;
+    bool doWrite( Vector4u64 value ) override;
+    bool doWrite( Vector4f32 value ) override;
+    bool doWrite( Vector4f64 value ) override;
 
     bool createScope( uint32_t index ) override;
     bool createScope( uint64_t index ) override;
@@ -96,12 +100,9 @@ class TextSerializer : public Serializer {
 
     [[nodiscard]] bool isSupportingIntegralScopes() const override { return false; }
 
-    void initializeScope( Scope& scope );
-    void updateScopeRange( Scope& scope, int64_t delta );
-
   private:
     String m_data;
-    Scope m_root;
-    Stack< Scope* > m_scopeStack;
+    UniquePtr< internal::Scope > m_root;
+    Stack< internal::Scope* > m_scopeStack;
 };
 } // namespace onyx::serialization::text

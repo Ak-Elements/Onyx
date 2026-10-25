@@ -19,10 +19,10 @@ void SdfIntersectVolumeShaderGraphNode::doGenerateShader( const node_graph::Exec
 
     generator.addImport( "includes.volume.csg.operations.intersect" );
 
-    String intersectVariableName = format::format( "intersectNode_{:x}", getId().get() );
+    String intersectVariableName{ format::format( "intersectNode_{:x}", getId().get() ) };
 
-    String gradientOutVariableName = format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() );
-    String isoValueOutVariableName = format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() );
+    String gradientOutVariableName{ format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() ) };
+    String isoValueOutVariableName{ format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() ) };
 
     generator.appendCode( format::format(
         "float4 {} = GetIntersection(float4({}, {}), float4({}, {}));\n",

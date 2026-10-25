@@ -12,7 +12,7 @@
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.h>
 #include <onyx/gamecore/components/transientcomponent.gen.h>
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/serialize/sceneserializer.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
@@ -29,6 +29,7 @@
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/panels/sceneeditor/componentspanel.h>
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
+#include <onyx/editor/panels/sceneeditor/terrainpanel.h>
 #include <onyx/editor/windows/commandhistorywindow.h>
 #include <onyx/editor/windows/editormainwindow.h>
 #include <onyx/editor/windows/sceneviewport.h>
@@ -42,7 +43,10 @@
 namespace onyx::editor {
 namespace {
 uint32_t local_WindowId = 0;
-}
+EngineVariable< assets::AssetId > localStartupScene{
+    "StartupScene",
+    static_cast< assets::AssetType >( game_core::Scene::TypeId.getId() ) };
+} // namespace
 
 SceneEditorWindow::SceneEditorWindow()
     : m_windowId( local_WindowId++ ) {
@@ -53,7 +57,7 @@ SceneEditorWindow::SceneEditorWindow()
 SceneEditorWindow::~SceneEditorWindow() = default;
 
 void SceneEditorWindow::onOpen() {
-    setName( format::format( "{}###SceneEditor{}", localization::editor::SceneEditor::Title, m_windowId ) );
+    setName( String{ format::format( "{}###SceneEditor{}", localization::editor::SceneEditor::Title, m_windowId ) } );
     m_windowClass->ClassId = ImGui::GetID( "scene" );
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
@@ -69,19 +73,13 @@ void SceneEditorWindow::onOpen() {
     m_sceneViewPanelId = format::format( "###SceneViewPanel{}", m_windowId );
     m_entitiesPanelId = format::format( "Entities###EntitiesPanel{}", m_windowId );
     m_componentsPanelId = format::format( "Components###ComponentsPanel{}", m_windowId );
+    m_terrainPanelId = format::format( "Terrain Tools###TerrainPanel{}", m_windowId );
 
-    ImGuiID dockspaceID = ImGui::GetID( format::format( "SceneEditorDockspace{}", m_windowId ) );
+    ImGuiID dockspaceID = ImGui::GetID( format::format( "SceneEditorDockspace{}", m_windowId ).data() );
 
     // TODO: should those be somewhere defined as default sizes? And should be based on window size not main view port
     float compPanelRatio = 0.26f;
     float entitiesPanelRatio = 0.20f;
-
-    // split other direction - command history on the right
-    // createDockspace( dockspaceID,
-    //                  m_WindowClass,
-    //                  { { ui::DockSplitDirection::Right, 1.0f - entitiesPanelRatio, "", m_EntitiesPanelId },
-    //                    { ui::DockSplitDirection::Right, compPanelRatio, m_ComponentsPanelId, m_SceneViewPanelId },
-    //                    { ui::DockSplitDirection::Down, 0.3f, "CommandHistory", "" } } );
 
     createDockspace( dockspaceID,
                      m_windowClass,
@@ -94,7 +92,7 @@ void SceneEditorWindow::onOpen() {
 
     if( m_scene.isValid() == false ) {
         assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
-        assets::AssetId startupLevel = assetSystem.resolveAssetId( "project:/test.oscene" );
+        assets::AssetId startupLevel = localStartupScene.get();
 
         if( startupLevel.isValid() ) {
             loadScene( startupLevel );
@@ -124,9 +122,15 @@ void SceneEditorWindow::onOpen() {
     componentsPanel.setWindowClass( m_windowClass );
     componentsPanel.setCommandGraph( m_commandStack );
 
+    scene_editor::TerrainPanel& terrainPanel = imguiSystem.openWindow< scene_editor::TerrainPanel >( *this );
+    terrainPanel.setWindowId( m_terrainPanelId );
+    terrainPanel.setName( m_terrainPanelId );
+    terrainPanel.setWindowClass( m_windowClass );
+    // componentsPanel.setCommandGraph( m_commandStack );
+
     CommandHistoryWindow& history = imguiSystem.openUniqueWindow< CommandHistoryWindow >( *this );
     history.setWindowClass( m_windowClass );
-    history.SetCommandQueue( m_commandStack );
+    history.setCommandQueue( m_commandStack );
 }
 
 void SceneEditorWindow::onClose() {
@@ -150,7 +154,7 @@ void SceneEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 }
 
 void SceneEditorWindow::onRenderMainMenuBar() {
-    if( ImGui::BeginMenu( format::format( "{}###File", localization::generic::File ) ) ) {
+    if( ImGui::BeginMenu( format::format( "{}###File", localization::generic::File ).data() ) ) {
         assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
 
         if( ImGui::MenuItem( localization::generic::Open.Get().data() ) ) {
@@ -177,7 +181,7 @@ void SceneEditorWindow::onRenderMainMenuBar() {
         if( ImGui::MenuItem( localization::generic::SaveAs.Get().data() ) ) {
             FilePath path;
             if( file_system::FileDialog::saveFileDialog( path, "Scene", game_core::SceneSerializer::Extensions ) ) {
-                assetSystem.saveAssetAs( path, m_scene );
+                std::ignore = assetSystem.saveAssetAs( path, m_scene );
             }
         }
 
@@ -264,6 +268,7 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     game_core::CameraComponent& camera = registry.addComponent< game_core::CameraComponent >( m_editorCameraEntity );
 
     camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65536 );
+    //camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65000 );
 
     // TODO: Should be viewport extents
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();

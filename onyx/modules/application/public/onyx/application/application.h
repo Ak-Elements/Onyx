@@ -99,6 +99,5 @@ class Application : public IEngine {
 
 void onApplicationCreate();
 void onApplicationCreated( Application& application );
-
 void onApplicationShutdown( Application& application );
 } // namespace onyx::application

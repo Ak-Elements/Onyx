@@ -88,7 +88,7 @@ void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::Co
         .HeightDisplacment = 0.0f,
         .HeightDisplacementFadeRange = { 500.0f, 1000.0f } };
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 

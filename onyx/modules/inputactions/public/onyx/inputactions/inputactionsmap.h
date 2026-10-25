@@ -23,21 +23,21 @@ struct InputActionsMap {
     friend struct Serialization< InputActionsMap >;
 
   public:
-    const String& GetName() const { return m_Name; }
+    const String& getName() const { return m_name; }
 
-    DynamicArray< InputAction >& GetActions() { return m_Actions; }
-    const DynamicArray< InputAction >& GetActions() const { return m_Actions; }
+    DynamicArray< InputAction >& getActions() { return m_actions; }
+    const DynamicArray< InputAction >& getActions() const { return m_actions; }
 
     // StringId32 GetId() const { return m_Id; }
-    Optional< InputAction* > GetAction( StringId64 actionId );
-    void RemoveAction( StringId64 actionId );
+    Optional< InputAction* > getAction( StringId64 actionId );
+    void removeAction( StringId64 actionId );
 
   private:
-    bool HasInputAction( StringId64 actionId ) const;
+    bool hasInputAction( StringId64 actionId ) const;
 
   private:
     // StringId32 m=_Id;
-    String m_Name = "test";
-    DynamicArray< InputAction > m_Actions;
+    String m_name = "test";
+    DynamicArray< InputAction > m_actions;
 };
 } // namespace onyx::input_actions

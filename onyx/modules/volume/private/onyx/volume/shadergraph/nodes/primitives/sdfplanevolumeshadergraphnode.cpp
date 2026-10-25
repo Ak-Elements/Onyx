@@ -13,7 +13,7 @@ void SdfPlaneVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& cont
 
     SdfSample& outSample = context.getPinData< typename Super::OutPin >();
 
-    CSGPlane plane( planeOffset, planeNormal );
+    CsgPlane plane( planeOffset, planeNormal );
     Vector4f32 sample = plane.getValueAndGradient( worldPosition );
     outSample.Gradient = Vector3f32( sample );
     outSample.Distance = sample.W;
@@ -29,9 +29,9 @@ void SdfPlaneVolumeShaderGraphNode::doGenerateShader( const node_graph::Executio
 
     generator.addImport( "includes.volume.csg.plane" );
 
-    String planeVariableName = format::format( "planeNode_{:x}", getId().get() );
-    String sampleVariableName = format::format( "planeSample_{:x}", getId().get() );
-    String outSdfSampleVariableName = format::format( "pin_{:x}", getOutputPin().getGlobalId().get() );
+    String planeVariableName{ format::format( "planeNode_{:x}", getId().get() ) };
+    String sampleVariableName{ format::format( "planeSample_{:x}", getId().get() ) };
+    String outSdfSampleVariableName{ format::format( "pin_{:x}", getOutputPin().getGlobalId().get() ) };
 
     generator.appendCode( format::format(
         "CsgPlane {} = CsgPlane( {}, {} );\n",

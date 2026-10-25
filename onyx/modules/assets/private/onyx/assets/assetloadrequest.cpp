@@ -2,9 +2,10 @@
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetserializer.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/filesystem/jsondeserializer.h>
 #include <onyx/filesystem/jsonserializer.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/serialize/text/textserializer.h>
 #include <onyx/thread/async/asynctask.h>
 #include <onyx/thread/thread.h>
 
@@ -40,15 +41,17 @@ void AssetLoadRequest::load() {
     // tracy_scope_AssetSystem.NameFmt("%s", assetName.c_str());
 
     bool succeeded = false;
-    file_system::OnyxFile assetFile( path );
+    file_system::File assetFile( path );
     switch( MetaData.Format ) {
     case AssetFormat::Text:
         break;
     case AssetFormat::Binary:
     case AssetFormat::Json: {
-        const file_system::JsonValue& inputConfigData = assetFile.loadJson();
-        file_system::JsonDeserializer serializer( inputConfigData.Json );
-        succeeded = Serializer->deserialize( Asset, MetaData, serializer, *Engine );
+        String inputConfigData;
+        if( file_system::File::readAll( path, inputConfigData ) ) {
+            file_system::JsonDeserializer serializer( inputConfigData );
+            succeeded = Serializer->deserialize( Asset, MetaData, serializer, *Engine );
+        }
         break;
     }
     }
@@ -91,9 +94,13 @@ void AssetSaveRequest::save() {
 
     const String& jsonString = serializer.JsonRoot.dump( 4 );
     using namespace file_system;
-    OnyxFile inputConfigFile( path::getFullPath( MetaData.Path ) );
+    File inputConfigFile( path::getFullPath( MetaData.Path ) );
     FileStream stream = inputConfigFile.openStream( OpenMode::Write | OpenMode::Text );
     stream.writeRaw( jsonString.data(), jsonString.size() );
+
+    serialization::text::TextSerializer metaDataSerializer;
+    metaDataSerializer.write( MetaData );
+    std::ignore = File::writeAll( path::getFullPath( MetaData.MetaDataPath ), metaDataSerializer.data() );
 
     Asset->onSaveFinished( Asset.getId(), succeeded );
 }

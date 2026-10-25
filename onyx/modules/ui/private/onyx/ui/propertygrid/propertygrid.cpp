@@ -268,6 +268,14 @@ bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags f
     return hasModified;
 }
 
+bool drawProperty( StringView propertyName, assets::AssetType assetType, assets::AssetId& outAssetId ) {
+    drawPropertyName( propertyName );
+    bool hasModified = internal::drawPropertyValue( propertyName, assetType, outAssetId );
+    ImGui::EndHorizontal();
+
+    return hasModified;
+}
+
 bool drawProperty( StringView propertyName, bool& value ) {
     drawPropertyName( propertyName );
 

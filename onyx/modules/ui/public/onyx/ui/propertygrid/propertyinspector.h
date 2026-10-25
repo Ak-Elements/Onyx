@@ -21,15 +21,19 @@ struct PropertyInspectors {
 
     template < typename T > requires HasPropertyInspector< T >
     static void registerInspector() {
-        constexpr uint32_t TypeId = TypeHash< T >();
-        s_PropertyInspectors[ TypeId ] = []( void* instance, bool forceShow ) {
+        constexpr uint32_t RuntimeTypeId = typeHash< T >();
+
+        if constexpr( HasTypeId< T > ) {
+            s_staticIdToRuntimeId[ T::TypeId ] = RuntimeTypeId;
+        }
+        s_propertyInspectors[ RuntimeTypeId ] = []( void* instance, bool forceShow ) {
             return PropertyInspector< T >::draw( *static_cast< T* >( instance ), forceShow );
         };
     }
 
     static bool draw( uint32_t runtimeTypeId, void* instance, bool forceShow ) {
-        auto it = s_PropertyInspectors.find( runtimeTypeId );
-        if( it == s_PropertyInspectors.end() ) {
+        auto it = s_propertyInspectors.find( runtimeTypeId );
+        if( it == s_propertyInspectors.end() ) {
             ONYX_LOG_WARNING( "Type {} is missing an inspector. Should it be marked as runtime only?", runtimeTypeId );
             return false;
         }
@@ -39,9 +43,22 @@ struct PropertyInspectors {
 
     template < typename T >
     static Optional< InspectFunctionT > getInspector() {
-        constexpr uint32_t TypeId = TypeHash< T >();
-        auto it = s_PropertyInspectors.find( TypeId );
-        if( it == s_PropertyInspectors.end() ) {
+        constexpr uint32_t TypeId = typeHash< T >();
+        auto it = s_propertyInspectors.find( TypeId );
+        if( it == s_propertyInspectors.end() ) {
+            return std::nullopt;
+        }
+
+        return it->second;
+    }
+
+    static Optional< InspectFunctionT > getInspector( StringId32 typeId ) {
+        auto idIt = s_staticIdToRuntimeId.find( typeId );
+        if( idIt == s_staticIdToRuntimeId.end() )
+            return std::nullopt;
+
+        auto it = s_propertyInspectors.find( idIt->second );
+        if( it == s_propertyInspectors.end() ) {
             return std::nullopt;
         }
 
@@ -50,14 +67,15 @@ struct PropertyInspectors {
 
     template < typename T >
     static bool isTypeRegistered() {
-        constexpr uint32_t TypeId = TypeHash< T >();
+        constexpr uint32_t TypeId = typeHash< T >();
         return isTypeRegistered( TypeId );
     }
 
-    static bool isTypeRegistered( uint32_t runtimeTypeId ) { return s_PropertyInspectors.contains( runtimeTypeId ); }
+    static bool isTypeRegistered( uint32_t runtimeTypeId ) { return s_propertyInspectors.contains( runtimeTypeId ); }
 
   private:
-    static inline HashMap< uint32_t, InspectFunctionT > s_PropertyInspectors;
+    static inline HashMap< StringId32, uint32_t > s_staticIdToRuntimeId;
+    static inline HashMap< uint32_t, InspectFunctionT > s_propertyInspectors;
 };
 } // namespace onyx::ui
 #endif

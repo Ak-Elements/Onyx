@@ -2,7 +2,7 @@
 
 #include <onyx/assets/assetsystem.h>
 #include <onyx/engine/enginesystem.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
@@ -13,21 +13,11 @@ namespace onyx::volume {
 namespace {
 constexpr StringView RenderTerrainShaderFilename = "render_terrain.slang";
 
-bool writeFile( const FilePath& path, StringView content ) {
-    file_system::FileStream outFileStream( path, file_system::OpenMode::Write | file_system::OpenMode::Text );
-
-    if( outFileStream.isValid() == false )
-        return false;
-
-    outFileStream.writeRaw( content.data(), content.size() );
-    return true;
-}
-
 bool writeTemplateFile( const FilePath& path, StringView templateCode, const FilePath& volumeHeaderFileName ) {
     String shaderCode = replace( templateCode, "@VERSION@", "1" );
     shaderCode = replace( shaderCode, "@BASE_TERRAIN_SDF_SHADER@", volumeHeaderFileName.generic_string() );
-    writeFile( path, shaderCode );
-    return true;
+    return file_system::File::writeAll( path, shaderCode );
+    ;
 }
 } // namespace
 
@@ -43,7 +33,8 @@ bool VolumeShaderGraphSerializer::serialize( const assets::AssetHandle< assets::
     FilePath volumeShaderGraphHeaderPath = file_system::path::getFullPath( volumeShaderPath );
 
     // write out header
-    writeFile( volumeShaderGraphHeaderPath, shaderGraph.getShaderCode() );
+    if( file_system::File::writeAll( volumeShaderGraphHeaderPath, shaderGraph.getShaderCode() ) == false )
+        return false;
 
     FilePath directoryPath = volumeShaderGraphHeaderPath.parent_path();
     FilePath volumeHeaderFileName = volumeShaderPath.stem();

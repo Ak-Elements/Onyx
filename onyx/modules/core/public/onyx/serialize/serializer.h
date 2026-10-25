@@ -21,12 +21,18 @@ class Serializer {
 
     template < CompileTimeString Name, std::integral T >
     bool write( const T& value, uint8_t base ) {
-        return doWrite( Name.stringView(), value, base );
+        return write( Name.stringView(), value, base );
     }
 
     template < std::integral T >
     bool write( StringView name, const T& value, uint8_t base ) {
-        return doWrite( name, value, base );
+        if( createScope( name ) == false ) {
+            return false;
+        }
+
+        bool success = write( value, base );
+        success &= endScope();
+        return success;
     }
 
     template < typename T >
@@ -42,7 +48,7 @@ class Serializer {
 
     template < typename T >
     bool write( const T& value ) {
-        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
+        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > || IsVector< T > ) {
             return doWrite( value );
         } else if constexpr( std::is_same_v< T, String > ) {
             return doWrite( StringView( value ) );
@@ -55,29 +61,31 @@ class Serializer {
         }
     }
 
-    template < CompileTimeString Name, typename T >
+    template < CompileTimeString Name, typename Callable > requires std::is_invocable_r_v< bool, Callable, Serializer& >
+    bool write( Callable functor ) {
+        if( createScope( Name.stringView() ) == false ) {
+            return false;
+        }
+
+        bool success = functor( *this );
+        success &= endScope();
+        return success;
+    }
+
+    template < CompileTimeString Name, typename T > requires( !std::is_invocable_r_v< bool, T, Serializer& > )
     bool write( const T& value ) {
         return write( Name.stringView(), value );
     }
 
     template < typename T >
     bool write( StringView name, const T& value ) {
-        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
-            return doWrite( name, value );
-        } else if constexpr( std::is_same_v< T, String > ) {
-            return doWrite( name, StringView( value ) );
-        } else if constexpr( std::is_enum_v< T > ) {
-            bool success = doWrite( name, enums::toString< T >( value ) );
-            return success;
-        } else {
-            if( createScope( name ) == false ) {
-                return false;
-            }
-
-            bool success = write( value );
-            success &= endScope();
-            return success;
+        if( createScope( name ) == false ) {
+            return false;
         }
+
+        bool success = write( value );
+        success &= endScope();
+        return success;
     }
 
     template < typename T, size_t N >
@@ -347,7 +355,6 @@ class Serializer {
 
   private:
     virtual bool doWrite( bool value ) = 0;
-    virtual bool doWrite( StringView name, bool value ) = 0;
 
     virtual bool doWrite( int8_t value ) = 0;
     virtual bool doWrite( int16_t value ) = 0;
@@ -366,30 +373,43 @@ class Serializer {
     virtual bool doWrite( uint32_t value, uint8_t base ) = 0;
     virtual bool doWrite( uint64_t value, uint8_t base ) = 0;
 
-    virtual bool doWrite( StringView name, int8_t value ) = 0;
-    virtual bool doWrite( StringView name, int16_t value ) = 0;
-    virtual bool doWrite( StringView name, int32_t value ) = 0;
-    virtual bool doWrite( StringView name, int64_t value ) = 0;
-    virtual bool doWrite( StringView name, uint8_t value ) = 0;
-    virtual bool doWrite( StringView name, uint16_t value ) = 0;
-    virtual bool doWrite( StringView name, uint32_t value ) = 0;
-    virtual bool doWrite( StringView name, uint64_t value ) = 0;
-    virtual bool doWrite( StringView name, int8_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, int16_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, int32_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, int64_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, uint8_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, uint16_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, uint32_t value, uint8_t base ) = 0;
-    virtual bool doWrite( StringView name, uint64_t value, uint8_t base ) = 0;
-
     virtual bool doWrite( float32 value ) = 0;
     virtual bool doWrite( float64 value ) = 0;
-    virtual bool doWrite( StringView name, float32 value ) = 0;
-    virtual bool doWrite( StringView name, float64 value ) = 0;
 
     virtual bool doWrite( StringView value ) = 0;
-    virtual bool doWrite( StringView name, StringView value ) = 0;
+
+    virtual bool doWrite( Vector2s8 value ) = 0;
+    virtual bool doWrite( Vector2s16 value ) = 0;
+    virtual bool doWrite( Vector2s32 value ) = 0;
+    virtual bool doWrite( Vector2s64 value ) = 0;
+    virtual bool doWrite( Vector2u8 value ) = 0;
+    virtual bool doWrite( Vector2u16 value ) = 0;
+    virtual bool doWrite( Vector2u32 value ) = 0;
+    virtual bool doWrite( Vector2u64 value ) = 0;
+    virtual bool doWrite( Vector2f32 value ) = 0;
+    virtual bool doWrite( Vector2f64 value ) = 0;
+
+    virtual bool doWrite( Vector3s8 value ) = 0;
+    virtual bool doWrite( Vector3s16 value ) = 0;
+    virtual bool doWrite( Vector3s32 value ) = 0;
+    virtual bool doWrite( Vector3s64 value ) = 0;
+    virtual bool doWrite( Vector3u8 value ) = 0;
+    virtual bool doWrite( Vector3u16 value ) = 0;
+    virtual bool doWrite( Vector3u32 value ) = 0;
+    virtual bool doWrite( Vector3u64 value ) = 0;
+    virtual bool doWrite( Vector3f32 value ) = 0;
+    virtual bool doWrite( Vector3f64 value ) = 0;
+
+    virtual bool doWrite( Vector4s8 value ) = 0;
+    virtual bool doWrite( Vector4s16 value ) = 0;
+    virtual bool doWrite( Vector4s32 value ) = 0;
+    virtual bool doWrite( Vector4s64 value ) = 0;
+    virtual bool doWrite( Vector4u8 value ) = 0;
+    virtual bool doWrite( Vector4u16 value ) = 0;
+    virtual bool doWrite( Vector4u32 value ) = 0;
+    virtual bool doWrite( Vector4u64 value ) = 0;
+    virtual bool doWrite( Vector4f32 value ) = 0;
+    virtual bool doWrite( Vector4f64 value ) = 0;
 
     virtual bool createScope( uint32_t index ) = 0;
     virtual bool createScope( uint64_t index ) = 0;

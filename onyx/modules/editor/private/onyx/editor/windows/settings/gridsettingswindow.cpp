@@ -2,7 +2,7 @@
 
 #include <onyx/editor/rendertasks/gridtask.h>
 
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/ui/controls/vectorcontrol.h>
 #include <onyx/ui/propertygrid/propertygrid.h>
 
@@ -49,7 +49,7 @@ void GridSettingsWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
         if( ( gridSettings.UseAutoLod == false ) && ( lodLevel == i ) ) {
             selectedIndex = numericCast< int32_t >( options.size() );
         }
-        options.emplace( format::format( "{} m", std::pow( 10, i ) ), i );
+        options.emplace( String{ format::format( "{} m", std::pow( 10, i ) ) }, i );
     }
 
     if( ui::property_grid::drawComboProperty( "Size", options, selectedIndex ) ) {

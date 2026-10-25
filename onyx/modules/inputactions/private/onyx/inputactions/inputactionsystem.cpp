@@ -106,8 +106,8 @@ bool InputActionSystem::isActionTriggered( StringId64 actionId ) const {
 void InputActionSystem::initContext() {
     const InputActionsMap& context = m_inputActionsAsset->getContext( m_contextId );
 
-    m_currentActionStates.reserve( context.GetActions().size() );
-    for( const InputAction& action : context.GetActions() ) {
+    m_currentActionStates.reserve( context.getActions().size() );
+    for( const InputAction& action : context.getActions() ) {
         auto it = std::find_if( m_currentActionStates.begin(),
                                 m_currentActionStates.end(),
                                 [ & ]( const InputActionState& state ) { return state.ActionId == action.GetId(); } );
@@ -120,7 +120,7 @@ void InputActionSystem::initContext() {
 }
 
 void InputActionSystem::updateContext( InputActionsMap& context ) {
-    DynamicArray< InputAction >& actions = context.GetActions();
+    DynamicArray< InputAction >& actions = context.getActions();
     const uint32_t actionsCount = static_cast< uint32_t >( actions.size() );
 
     for( uint32_t actionIndex = 0; actionIndex < actionsCount; ++actionIndex ) {

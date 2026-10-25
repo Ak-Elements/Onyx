@@ -205,56 +205,56 @@ VkPolygonMode toVulkanFillMode( FillMode mode ) {
 
 Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& properties, ShaderHandle& shader )
     : rhi::Pipeline( properties )
-    , m_Api( &api )
+    , m_api( &api )
     , m_shader( shader.getHandle().raw() ) {
-    shader->getOnLoadedEvent().connect< &Pipeline::OnShaderLoaded >( *this );
+    shader->getOnLoadedEvent().connect< &Pipeline::onShaderLoaded >( *this );
     if( shader->isLoaded() ) {
-        CreatePipeline( shader.as< Shader >() );
+        createPipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
         StringView name = shader->getPath();
         if( name.empty() ) {
             breakpoint();
         }
-        SetResourceName( m_Api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
+        SetResourceName( m_api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pipeline, name );
 #endif
     }
 }
 
 Pipeline::~Pipeline() {
-    if( m_Pipeline != nullptr ) {
-        vkDestroyPipeline( m_Api->getDevice().GetHandle(), m_Pipeline, nullptr );
-        m_Pipeline = nullptr;
+    if( m_pipeline != nullptr ) {
+        vkDestroyPipeline( m_api->getDevice().GetHandle(), m_pipeline, nullptr );
+        m_pipeline = nullptr;
     }
 
     if( m_shader != nullptr ) {
         m_shader->getOnLoadedEvent().disconnect( this );
     }
 
-    m_PipelineLayout.reset();
+    m_pipelineLayout.reset();
 }
 
-void Pipeline::CreatePipeline( const Shader& shader ) {
-    m_PipelineLayout = makeUnique< PipelineLayout >( *m_Api, shader );
+void Pipeline::createPipeline( const Shader& shader ) {
+    m_pipelineLayout = makeUnique< PipelineLayout >( *m_api, shader );
 
     if( shader.isComputeShader() ) {
-        m_BindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+        m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
         DynamicArray< VkPipelineShaderStageCreateInfo >
             pipelineStageCreateInfos = shader.createPipelineShaderStageCreateInfos();
 
         VkComputePipelineCreateInfo pipelineCreateInfo{};
         pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
         pipelineCreateInfo.stage = pipelineStageCreateInfos[ 0 ];
-        pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
+        pipelineCreateInfo.layout = m_pipelineLayout->GetHandle();
         pipelineCreateInfo.pNext = nullptr;
 
-        VK_CHECK_RESULT( vkCreateComputePipelines( m_Api->getDevice().GetHandle(),
+        VK_CHECK_RESULT( vkCreateComputePipelines( m_api->getDevice().GetHandle(),
                                                    nullptr,
                                                    1,
                                                    &pipelineCreateInfo,
                                                    nullptr,
-                                                   &m_Pipeline ) )
+                                                   &m_pipeline ) )
     } else {
-        m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
         const PipelineProperties& properties = getProperties();
         DynamicArray< VkPipelineShaderStageCreateInfo >
@@ -288,7 +288,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         pipelineCreateInfo.pStages = pipelineStageCreateInfos.data();
 
         //// PipelineLayout
-        pipelineCreateInfo.layout = m_PipelineLayout->GetHandle();
+        pipelineCreateInfo.layout = m_pipelineLayout->GetHandle();
 
         //// Vertex layout
         const Set< VertexInput >& vertexInputs = shader.getVertexInputs();
@@ -469,7 +469,7 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
         //// Render Pass
         VkPipelineRenderingCreateInfoKHR pipelineRenderingCreateInfo{};
         pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-        if( m_Api->isDynamicRenderingEnabled() ) {
+        if( m_api->isDynamicRenderingEnabled() ) {
             pipelineRenderingCreateInfo.viewMask = 0;
 
             if( colorTargetsCount != 0 ) {
@@ -500,28 +500,28 @@ void Pipeline::CreatePipeline( const Shader& shader ) {
 
         pipelineCreateInfo.pDynamicState = &dynamicStatesInfo;
 
-        VkDevice deviceHandle = m_Api->getDevice().GetHandle();
+        VkDevice deviceHandle = m_api->getDevice().GetHandle();
         VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
         pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
         VK_CHECK_RESULT( vkCreatePipelineCache( deviceHandle, &pipelineCacheCreateInfo, nullptr, &pipelineCache ) );
 
         VK_CHECK_RESULT(
-            vkCreateGraphicsPipelines( deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_Pipeline ) );
+            vkCreateGraphicsPipelines( deviceHandle, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_pipeline ) );
 
-        m_BindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
         vkDestroyPipelineCache( deviceHandle, pipelineCache, nullptr );
     }
 }
 
-void Pipeline::OnShaderLoaded( const ShaderHandle& shader ) {
-    CreatePipeline( shader.as< Shader >() );
+void Pipeline::onShaderLoaded( const ShaderHandle& shader ) {
+    createPipeline( shader.as< Shader >() );
 #if ONYX_IS_DEBUG
     StringView name = shader->getPath();
     if( name.empty() ) {
         breakpoint();
     }
-    SetResourceName( m_Api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_Pipeline, name );
+    SetResourceName( m_api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pipeline, name );
 #endif
 }
 

@@ -24,7 +24,7 @@ void TerrainMaterialWindow::onRender( ui::ImGuiSystem& imguiSystem ) {
         DynamicArray< StringView > extensions{ "tmat" };
         if( file_system::FileDialog::saveFileDialog( path, "Terrain Material", extensions ) ) {
             assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
-            assetSystem.saveAssetAs( path, m_material );
+            std::ignore = assetSystem.saveAssetAs( path, m_material );
         }
     }
 }

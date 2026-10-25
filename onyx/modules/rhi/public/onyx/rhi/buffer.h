@@ -1,6 +1,7 @@
 #pragma once
 
 #include <onyx/rhi/bufferproperties.h>
+#include <onyx/rhi/graphicstypes.h>
 
 namespace onyx::rhi {
 enum class Access : uint32_t;
@@ -24,7 +25,7 @@ class Buffer : public RefCounted {
     }
 #endif
 
-    [[nodiscard]] uint64_t getGpuAddress() const { return m_gpuAddress; }
+    [[nodiscard]] GpuBufferDeviceAddress getGpuAddress() const { return m_gpuAddress; }
     [[nodiscard]] virtual uint64_t getAliasOffset( int8_t alias ) const = 0;
     [[nodiscard]] virtual uint64_t getAliasSize( int8_t alias ) const = 0;
 
@@ -41,7 +42,7 @@ class Buffer : public RefCounted {
   protected:
     const BufferProperties m_properties;
 
-    uint64_t m_gpuAddress = 0;
+    GpuBufferDeviceAddress m_gpuAddress = 0;
     void* m_dataPointer = nullptr;
 };
 } // namespace onyx::rhi

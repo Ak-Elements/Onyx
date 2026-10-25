@@ -2,7 +2,7 @@
 
 #if ONYX_USE_IMGUI
 
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/input/inputsystem.h>
 #include <onyx/ui/imguisystem.h>
 #include <onyx/ui/theme/theme.h>
@@ -149,7 +149,7 @@ void drawRectKey( ImDrawList* dl, ImVec2 tl, ImVec2 br, bool pressed, StringView
 
 } // namespace
 KeyboardOverlay::KeyboardOverlay() {
-    file_system::OnyxFile file{ StringView( "engine:/debug/keyboard/iso_105_us_international.json" ) };
+    file_system::File file{ StringView( "engine:/debug/keyboard/iso_105_us_international.json" ) };
     file_system::JsonValue jsonDoc = file.loadJson();
 
     m_keyboardLayout.reserve( 6 ); // typical keyboards have 6 rows

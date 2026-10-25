@@ -37,6 +37,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     shadergraph/nodes/math/arithmeticnodes.h
     shadergraph/nodes/math/geometricnodes.h
     shadergraph/nodes/math/simplexnoisenode.h
+    shadergraph/nodes/math/fractalsimplexnoisenode.h
     shadergraph/nodes/math/vectornodes.h
 )
 
@@ -70,5 +71,6 @@ set(onyx_TARGET_PRIVATE_SOURCES
     shadergraph/nodes/getworldnormal.cpp
     shadergraph/nodes/getworldposition.cpp
     shadergraph/nodes/sampletexturenode.cpp
+    shadergraph/nodes/math/fractalsimplexnoisenode.cpp
     shadergraph/nodes/math/simplexnoisenode.cpp
 )

@@ -4,8 +4,8 @@
 #include <onyx/rhi/shader/shadercompiler.h>
 #include <onyx/rhi/vulkan/graphicsapi.h>
 
+#include <onyx/filesystem/file.h>
 #include <onyx/filesystem/filestream.h>
-#include <onyx/filesystem/onyxfile.h>
 
 namespace onyx::rhi {
 ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
@@ -23,14 +23,14 @@ ShaderCache::ShaderCache( GraphicsSystem& graphicsSystem )
             if( path.has_filename() == false )
                 return true;
 
-            if( path.extension() != ".h" )
+            if( path.extension() != ".slang" )
                 return true;
 
             // TODO: enqueue in a different thread
             FilePath mountPointPath = file_system::path::convertToMountPath( path );
 
             String content;
-            if( file_system::OnyxFile::readAll( path, content ) == false ) {
+            if( file_system::File::readAll( path, content ) == false ) {
                 ONYX_LOG_ERROR( "Failed reading shader file. ({})", path );
                 return true;
             }
@@ -67,9 +67,9 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
 
     // we have that shader already cached
     FilePath absoluteFilepath = file_system::path::getFullPath( shaderPath );
-    file_system::OnyxFile shaderSource = file_system::OnyxFile( absoluteFilepath );
+    file_system::File shaderSource = file_system::File( absoluteFilepath );
     String shaderCode;
-    if( file_system::OnyxFile::readAll( absoluteFilepath, shaderCode ) == false ) {
+    if( file_system::File::readAll( absoluteFilepath, shaderCode ) == false ) {
         ONYX_LOG_ERROR( "Missing shader file. ({})", shaderPath );
         return false;
     }
@@ -100,7 +100,7 @@ bool ShaderCache::getOrLoadShader( const FilePath& shaderPath, Reference< Shader
     }
 
     // TODO: we should try to compile a tmp shader and only update if succeeded
-    if( shader_compiler::compile( m_graphicsSystem, shaderPath, shaderCode, *entry.Shader ) == false ) {
+    if( shader_compiler::compile( m_graphicsSystem, shaderPath, shaderCode, entry ) == false ) {
         return false;
     }
 
@@ -122,7 +122,7 @@ void ShaderCache::clear() {
 bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
                                      [[maybe_unused]] const FilePath& shaderPath,
                                      ShaderCacheEntry& outEntry ) {
-    file_system::OnyxFile shaderDiskCacheFile = file_system::OnyxFile( diskShaderCachePath );
+    file_system::File shaderDiskCacheFile = file_system::File( diskShaderCachePath );
     file_system::FileStream stream = shaderDiskCacheFile.openStream( file_system::OpenMode::Binary |
                                                                      file_system::OpenMode::Read );
 
@@ -131,7 +131,7 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
 
     stream.read( outEntry.ShaderHash );
 
-    if( outEntry.Shader->loadFromDisk( m_graphicsSystem, stream ) == false )
+    if( outEntry.Shader->read( m_graphicsSystem, stream ) == false )
         return false;
 
     stream.read( outEntry.IncludeHashes );
@@ -146,7 +146,7 @@ bool ShaderCache::loadCacheFromDisk( const FilePath& diskShaderCachePath,
 }
 
 void ShaderCache::saveCacheToDisk( const ShaderCacheEntry& entry, const FilePath& diskShaderCachePath ) {
-    file_system::OnyxFile shaderDiskCacheFile = file_system::OnyxFile( diskShaderCachePath );
+    file_system::File shaderDiskCacheFile = file_system::File( diskShaderCachePath );
     file_system::FileStream stream = shaderDiskCacheFile.openStream( file_system::OpenMode::Binary |
                                                                      file_system::OpenMode::Write );
 

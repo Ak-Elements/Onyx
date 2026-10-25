@@ -2,7 +2,7 @@
 
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetmetadata.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/serialize/text/textdeserializer.h>
 #include <onyx/stream/stringstream.h>
 #include <onyx/ui/theme/theme.h>
@@ -185,43 +185,42 @@ bool ThemeSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >
     Theme& theme = asset.as< Theme >();
 
     String content;
-    if( file_system::OnyxFile::readAll( file_system::path::getFullPath( meta.Path ), content ) == false ) {
+    if( file_system::File::readAll( file_system::path::getFullPath( meta.Path ), content ) == false ) {
         return false;
     }
 
     serialization::text::TextDeserializer textDes( content );
 
     // TODO: this could be a Color struct that supports this parsing
-    textDes.readForEach< "colors" >( g_colors,
-                                     []( const Deserializer& deserializer, const String& key, Color& outColor ) {
-                                         StringView colorStr;
-                                         deserializer.read( colorStr );
+    textDes.read< "colors" >( g_colors, []( const Deserializer& deserializer, const String& key, Color& outColor ) {
+        StringView colorStr;
+        deserializer.read( colorStr );
 
-                                         if( colorStr[ 0 ] == '#' ) {
-                                             colorStr.remove_prefix( 1 );
-                                             uint32_t color;
-                                             std::errc error = toNumeric( colorStr, color, 16 );
-                                             outColor = Color( color );
-                                             return error == std::errc{};
-                                         } else if( colorStr.contains( ' ' ) ) {
-                                             const DynamicArray< String >& parts = split( colorStr, ' ' );
-                                             Color color = g_colors.at( parts[ 0 ] );
-                                             float32 alphaFloat = 1.0f;
-                                             std::ignore = toNumeric( parts[ 1 ], alphaFloat );
+        if( colorStr[ 0 ] == '#' ) {
+            colorStr.remove_prefix( 1 );
+            uint32_t color;
+            std::errc error = toNumeric( colorStr, color, 16 );
+            outColor = Color( color );
+            return error == std::errc{};
+        } else if( colorStr.contains( ' ' ) ) {
+            const DynamicArray< String >& parts = split( colorStr, ' ' );
+            Color color = g_colors.at( parts[ 0 ] );
+            float32 alphaFloat = 1.0f;
+            std::ignore = toNumeric( parts[ 1 ], alphaFloat );
 
-                                             uint32_t alpha = std::ceil( alphaFloat * 255 );
-                                             outColor = color;
-                                             outColor.A = alpha;
-                                             return true;
-                                         } else {
-                                             auto it = g_colors.find( String( colorStr ) );
-                                             if( it == g_colors.end() )
-                                                 return false;
-                                             outColor = it->second;
-                                         }
+            uint32_t alpha = std::ceil( alphaFloat * 255 );
+            outColor = color;
+            outColor.A = alpha;
+            return true;
+        } else {
+            auto it = g_colors.find( String( colorStr ) );
+            if( it == g_colors.end() )
+                return false;
+            outColor = it->second;
+        }
 
-                                         return true;
-                                     } );
+        return true;
+    } );
 
     textDes.read< "theme" >( theme );
     return true;

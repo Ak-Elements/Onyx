@@ -1,20 +1,17 @@
-#include <onyx/assets/asset.h>
-#include <onyx/assets/assetsystem.h>
 #include <onyx/editor/nodegraph/grapheditorcontext.h>
 
+#include <onyx/assets/asset.h>
+#include <onyx/assets/assetsystem.h>
+#include <onyx/filesystem/file.h>
+#include <onyx/serialize/text/textdeserializer.h>
+#include <onyx/serialize/text/textserializer.h>
+
 namespace onyx::editor {
-void GraphEditorContext::setLocalizationModule( const localization::LocalizationModule& localizationModule ) {
-    m_localizationModule = &localizationModule;
-}
-
-const localization::LocalizationModule& GraphEditorContext::getLocalizationModule() const {
-    ONYX_ASSERT( m_localizationModule != nullptr );
-    return *m_localizationModule;
-}
-
 void GraphEditorContext::clear() {
     m_nodes.clear();
     m_links.clear();
+
+    onClear();
 }
 
 GraphEditorContext::Node& GraphEditorContext::createNewNode( StringId32 nodeTypeId ) {
@@ -243,28 +240,26 @@ void GraphEditorContext::drawNodeBackground( const Node& node ) {
     onDrawNodeBackground( node );
 }
 
-void GraphEditorContext::load( assets::AssetSystem& assetSystem, const FilePath& path ) {
+void GraphEditorContext::load( const FilePath& path ) {
     m_isLoading = true;
-    onLoad( assetSystem, path );
+    onLoad( path );
 }
 
-void GraphEditorContext::save( assets::AssetSystem& assetSystem, const assets::AssetMetaData& assetMeta ) {
-    onSave( assetSystem, assetMeta );
-
-    if( SaveEditorMetaDataFunctor ) {
-        SaveEditorMetaDataFunctor( assetMeta.Path );
-    }
-
-    OnSaved();
+void GraphEditorContext::save() {
+    onSave();
 }
 
-void GraphEditorContext::finishLoading( const assets::AssetMetaData& assetMeta ) {
-    if( LoadEditorMetaDataFunctor ) {
-        LoadEditorMetaDataFunctor( assetMeta.Path );
-    }
+void GraphEditorContext::saveAs( const FilePath& path ) {
+    onSave( path );
+}
 
+void GraphEditorContext::onLoaded( assets::AssetId loadedAsset ) {
     m_isLoading = false;
-    OnLoaded();
+    OnLoaded( loadedAsset );
+}
+
+void GraphEditorContext::onSaved( assets::AssetId savedAsset ) {
+    OnSaved( savedAsset );
 }
 
 void GraphEditorContext::onNodeChanged( const Node& /*newNode*/ ) {}

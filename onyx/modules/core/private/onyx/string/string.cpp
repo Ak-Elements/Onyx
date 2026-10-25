@@ -122,6 +122,6 @@ StringView trimRight( StringView str ) {
         return str;
     }
 
-    return str.substr( 0, end );
+    return str.substr( 0, end + 1 );
 }
 } // namespace onyx

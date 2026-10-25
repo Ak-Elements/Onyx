@@ -14,7 +14,7 @@ void SdfCubeVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& conte
 
     SdfSample& sdfSample = context.getPinData< typename Super::OutPin >();
 
-    CSGCube cube( center, halfExtents );
+    CsgCube cube( center, halfExtents );
     Vector4f32 sample = cube.getValueAndGradient( worldPosition );
     sdfSample.Gradient = Vector3f32( sample );
     sdfSample.Distance = sample.W;
@@ -30,9 +30,9 @@ void SdfCubeVolumeShaderGraphNode::doGenerateShader( const node_graph::Execution
 
     generator.addImport( "includes.volume.csg.cube" );
 
-    String cubeVariableName = format::format( "cubeNode_{:x}", getId().get() );
-    String sampleVariableName = format::format( "cubeSample_{:x}", getId().get() );
-    String sampleOutVariableName = format::format( "pin_{:x}", getOutputPin().getGlobalId().get() );
+    String cubeVariableName{ format::format( "cubeNode_{:x}", getId().get() ) };
+    String sampleVariableName{ format::format( "cubeSample_{:x}", getId().get() ) };
+    String sampleOutVariableName{ format::format( "pin_{:x}", getOutputPin().getGlobalId().get() ) };
 
     generator.appendCode( format::format(
         "CsgCube {} = CsgCube( {}, {} );\n",

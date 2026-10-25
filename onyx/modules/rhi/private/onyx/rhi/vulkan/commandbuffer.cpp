@@ -213,8 +213,8 @@ void VulkanCommandBuffer::bindShaderEffect( const ShaderInstanceHandle& shader )
 
     const Pipeline& pipeline = shader->getPipeline().as< Pipeline >();
     VkPipeline vkPipeline = pipeline.GetHandle();
-    VkPipelineLayout vkLayout = pipeline.GetPipelineLayout().GetHandle();
-    VkPipelineBindPoint vkBindPoint = pipeline.GetBindPoint();
+    VkPipelineLayout vkLayout = pipeline.getPipelineLayout().GetHandle();
+    VkPipelineBindPoint vkBindPoint = pipeline.getBindPoint();
 
     vkCmdBindPipeline( m_commandBuffer, vkBindPoint, vkPipeline );
     bindDescriptorSets( vkLayout, vkBindPoint );
@@ -289,7 +289,7 @@ void VulkanCommandBuffer::endConditionalRendering() {
 
 VkPipelineLayout VulkanCommandBuffer::getPipelineLayout() const {
     ONYX_ASSERT( m_currentShaderEffect.isValid() );
-    return m_currentShaderEffect->getPipeline().as< Pipeline >().GetPipelineLayout().GetHandle();
+    return m_currentShaderEffect->getPipeline().as< Pipeline >().getPipelineLayout().GetHandle();
 }
 
 void VulkanCommandBuffer::bind( const TextureHandle& texture, const String& bindingName ) {

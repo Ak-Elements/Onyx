@@ -37,9 +37,6 @@ class SceneEditorWindow : public ui::ImGuiWindow {
     game_core::Scene& getScene() { return *m_scene; }
     assets::AssetId getSceneId() const { return m_scene.getId(); }
 
-    // assets::AssetHandle<game_core::Scene>& GetScene() { return m_Scene; }
-    // const assets::AssetHandle<game_core::Scene>& GetScene() const { return m_Scene; }
-
     bool isLoading() const { return ( m_scene.isValid() == false ) || m_scene->isLoading(); }
 
     StringView getWindowId() override { return WindowId; }
@@ -80,6 +77,7 @@ class SceneEditorWindow : public ui::ImGuiWindow {
     String m_sceneViewPanelId;
     String m_entitiesPanelId;
     String m_componentsPanelId;
+    String m_terrainPanelId;
 
     uint32_t m_windowId;
 };

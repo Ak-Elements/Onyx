@@ -56,6 +56,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     serialize/terrainmaterialserializer.h
     serialize/volumeshadergraphserializer.h
     source/csg/csgcube.h
+    source/csg/csgellipsoid.h
     source/csg/csgplane.h
     source/csg/csgsphere.h
     source/csg/operations/csgdifference.h
@@ -70,7 +71,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     source/noise/simplexnoisesource.h
     source/volumebase.h
     source/sdfsample.h
-    systems/volumeterrainsystem.h
+    systems/volumeterrainentitysystem.h
     terrain/worldsparseoctreenode.h
     terrain/terrainmaterial.h
     terrain/terrainmaterialdatabase.h
@@ -84,7 +85,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
     tree/treeleafiterator.h
     tree/treenode.h
     volumemodule.h
-    volumeterrain.h
 )
 
 set(onyx_TARGET_PRIVATE_SOURCES
@@ -113,6 +113,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     serialize/terrainmaterialserializer.cpp
     serialize/volumeshadergraphserializer.cpp
     source/csg/csgsphere.cpp
+    source/csg/csgellipsoid.cpp
     source/csg/operations/csgdifference.cpp
     source/csg/operations/csgintersect.cpp
     source/csg/operations/csgnegate.cpp
@@ -120,9 +121,8 @@ set(onyx_TARGET_PRIVATE_SOURCES
     source/csg/operations/csgunion.cpp
     source/noise/simplexnoised.cpp
     source/volumebase.cpp
-    systems/volumeterrainsystem.cpp
+    systems/volumeterrainentitysystem.cpp
     terrain/terrainmaterial.cpp
     terrain/terrainmaterialdatabase.cpp
-    volumeterrain.cpp
     volumemodule.cpp
 )

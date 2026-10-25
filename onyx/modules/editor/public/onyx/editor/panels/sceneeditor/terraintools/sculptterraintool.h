@@ -17,18 +17,18 @@ class SculptTerrainTool : public TerrainTool {
   public:
     SculptTerrainTool( rhi::GraphicsSystem& graphicsSystem );
 
-    StringView GetTitle() override;
-    void Render() override;
+    StringView getTitle() override;
+    void render() override;
 
-    void ApplyOperation( rhi::CommandBuffer& commandBuffer,
+    void applyOperation( rhi::CommandBuffer& commandBuffer,
                          const rhi::BufferHandle& hitBuffer,
                          volume::TerrainWorldOctreeComponent& terrainOctree ) override;
-    void OnHitPositionReadback( game_core::Scene& scene,
+    void onHitPositionReadback( game_core::Scene& scene,
                                 const ecs::ComponentFactory& componentFactory,
                                 const Vector3f32& hitPosition ) override;
 
-    float32 GetBounds() override { return m_BrushSize.length(); }
-    void OnBrushSizeInput( float32 value ) override;
+    float32 getBounds() override { return m_BrushSize.length(); }
+    void onBrushSizeInput( float32 value ) override;
 
   private:
     void RenderProperties();

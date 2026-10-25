@@ -28,7 +28,7 @@ class InputTypeFactory {
                     U* typedInstance = static_cast< U* >( instance.get() );
                     return Serialization< U >::deserialize( deserializer, *typedInstance );
                 },
-            .RuntimeTypeId = TypeHash< U >(),
+            .RuntimeTypeId = typeHash< U >(),
         };
     }
 

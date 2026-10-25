@@ -326,32 +326,32 @@ struct Vector2 {
 
 template < typename ScalarT >
 constexpr Vector2< ScalarT > operator+( ScalarT lhs, const Vector2< ScalarT >& rhs ) {
-    ONYX_ASSERT( isAdditionSafe( lhs, rhs.X ) );
-    ONYX_ASSERT( isAdditionSafe( lhs, rhs.Y ) );
+    // ONYX_ASSERT( isAdditionSafe( lhs, rhs.X ) );
+    // ONYX_ASSERT( isAdditionSafe( lhs, rhs.Y ) );
 
     return Vector2< ScalarT >( lhs + rhs.X, lhs + rhs.Y );
 }
 
 template < typename ScalarT >
 constexpr Vector2< ScalarT > operator-( ScalarT lhs, const Vector2< ScalarT >& rhs ) {
-    ONYX_ASSERT( isSubtractionSafe( lhs, rhs.X ) );
-    ONYX_ASSERT( isSubtractionSafe( lhs, rhs.Y ) );
+    // ONYX_ASSERT( isSubtractionSafe( lhs, rhs.X ) );
+    // ONYX_ASSERT( isSubtractionSafe( lhs, rhs.Y ) );
 
     return Vector2< ScalarT >( lhs - rhs.X, lhs - rhs.Y );
 }
 
 template < typename ScalarT >
 constexpr Vector2< ScalarT > operator*( ScalarT lhs, const Vector2< ScalarT >& rhs ) {
-    ONYX_ASSERT( isMultiplicationSafe( lhs, rhs.X ) );
-    ONYX_ASSERT( isMultiplicationSafe( lhs, rhs.Y ) );
+    // ONYX_ASSERT( isMultiplicationSafe( lhs, rhs.X ) );
+    // ONYX_ASSERT( isMultiplicationSafe( lhs, rhs.Y ) );
 
     return Vector2< ScalarT >( lhs * rhs.X, lhs * rhs.Y );
 }
 
 template < typename ScalarT >
 constexpr Vector2< ScalarT > operator/( ScalarT lhs, const Vector2< ScalarT >& rhs ) {
-    ONYX_ASSERT( isDivisionSafe( lhs, rhs.X ) );
-    ONYX_ASSERT( isDivisionSafe( lhs, rhs.Y ) );
+    // ONYX_ASSERT( isDivisionSafe( lhs, rhs.X ) );
+    // ONYX_ASSERT( isDivisionSafe( lhs, rhs.Y ) );
 
     return Vector2< ScalarT >( lhs / rhs.X, lhs / rhs.Y );
 }

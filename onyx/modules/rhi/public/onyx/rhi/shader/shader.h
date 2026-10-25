@@ -271,8 +271,11 @@ class Shader : public assets::Asset< Shader > {
     static constexpr StringId32 TypeId{ "onyx::graphics::assets::Shader" };
     static StringId32 getTypeId() { return TypeId; }
 
-    using ByteCode = DynamicArray< uint8_t* >;
+    using ByteCode = Span< const uint8_t >;
 
+    virtual void setByteCode( const GraphicsSystem& graphicsSystem,
+                              ByteCode byteCode,
+                              ShaderReflectionInfo& reflectionInfo ) = 0;
     [[nodiscard]] virtual const ShaderReflectionInfo& getReflectionData() const = 0;
 
     [[nodiscard]] virtual uint64_t getShaderHash() const = 0;
@@ -281,7 +284,7 @@ class Shader : public assets::Asset< Shader > {
     [[nodiscard]] virtual bool isComputeShader() const = 0;
     [[nodiscard]] virtual bool hasDescriptorSetLayout() const = 0;
 
-    [[nodiscard]] virtual bool loadFromDisk( GraphicsSystem& graphicsSystem, Stream& stream ) = 0;
+    [[nodiscard]] virtual bool read( GraphicsSystem& graphicsSystem, Stream& stream ) = 0;
     [[nodiscard]] virtual bool write( Stream& stream ) const = 0;
 
 #if !ONYX_IS_RETAIL

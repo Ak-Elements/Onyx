@@ -10,254 +10,255 @@
 #include <imgui_stacklayout.h>
 
 namespace onyx::graphics {
-bool RenderGraphShaderNode::onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-    uint32_t inputPinCount = getInputPinCount();
-    for( uint32_t i = 0; i < inputPinCount; ++i ) {
-        node_graph::PinBase* inputPin = getInputPin( i );
-
-        if( inputPin->getType() == node_graph::PinTypeId::Execute )
-            continue;
-
-        ui::ScopedImGuiId id( inputPin->getLocalIdString() );
-
-        if( i >= m_inputAttachmentInfos.size() )
-            m_inputAttachmentInfos.emplace_back();
-
-        RenderGraphTextureResourceInfo& info = m_inputAttachmentInfos[ i ];
-
-        if( inputPin->isConnected() ) {
-            bool isAttachment = info.Type == RenderGraphResourceType::Attachment;
-            if( ui::property_grid::drawProperty( "Attachment", isAttachment ) ) {
-                info.Type = isAttachment ? RenderGraphResourceType::Attachment : RenderGraphResourceType::Texture;
-            }
-
-            continue;
-        }
-
-        const Guid64 globalId = inputPin->getGlobalId();
-        if( constantPinData.contains( globalId ) == false )
-            constantPinData[ globalId ] = createDefaultForPin( inputPin->getLocalId() );
-        ;
-
-        node_graph::PinTypeId typeId = inputPin->getType();
-        bool isTexture = typeId == static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() );
-
-        ui::property_grid::drawPropertyName( getPinName( inputPin->getLocalId() ) );
-        ui::property_grid::drawPropertyValue( [ & ]() {
-            String type;
-            if( isTexture ) {
-                type = "Texture";
-            } else {
-                type = "Buffer";
-            }
-
-            if( ImGui::BeginCombo( "##type", type.data() ) ) {
-                if( ImGui::Selectable( "Texture", isTexture ) ) {
-                    // RemoveInputPinAt(i);
-                    // AddInputPinAt<TextureHandle>(i);
-                    isTexture = true;
-                    inputPin = getInputPin( i );
-                }
-
-                if( ImGui::Selectable( "Buffer", !isTexture ) ) {
-                    // RemoveInputPinAt(i);
-                    // AddInputPinAt<BufferHandle>(i);
-                    isTexture = false;
-                    inputPin = getInputPin( i );
-                }
-
-                ImGui::EndCombo();
-            }
-        } );
-
-        // TODO: Fix in 0.5.0
-        if( isTexture ) {
-            String rgba;
-            Vector3f32 size;
-
-            ui::property_grid::drawProperty( "Format", rgba );
-            ui::property_grid::drawProperty( "Size", size );
-
-        } else {
-            String rgba;
-            String type = "Uniform";
-
-            ui::property_grid::drawProperty( "Format", rgba );
-            ui::property_grid::drawProperty( "Type", type );
-        }
-    }
-
-    uint32_t outputPinCount = getOutputPinCount();
-    for( uint32_t i = 0; i < outputPinCount; ++i ) {
-        node_graph::PinBase* outputPin = getOutputPin( i );
-
-        ui::ScopedImGuiId imguiScopedId( outputPin->getLocalIdString().data() );
-
-        const Guid64 globalId = outputPin->getGlobalId();
-        if( constantPinData.contains( globalId ) == false )
-            constantPinData[ globalId ] = createDefaultForPin( outputPin->getLocalId() );
-        ;
-
-        node_graph::PinTypeId typeId = outputPin->getType();
-        bool isTexture = typeId == static_cast< node_graph::PinTypeId >( TypeHash< rhi::TextureHandle >() );
-
-        if( ui::property_grid::beginCollapsiblePropertyGroup( getPinName( outputPin->getLocalId() ) ) ) {
-            if( isTexture ) {
-                if( i >= m_outputAttachmentInfos.size() )
-                    m_outputAttachmentInfos.emplace_back();
-
-                RenderGraphTextureResourceInfo& info = m_outputAttachmentInfos[ i ];
-
-                bool isReference = info.Type == RenderGraphResourceType::Reference;
-                if( ui::property_grid::drawProperty( "Reference", isReference ) ) {
-                    info.Type = isReference ? RenderGraphResourceType::Reference : RenderGraphResourceType::Attachment;
-                }
-
-                if( isReference == false ) {
-                    ui::property_grid::drawProperty( "External", info.IsExternal );
-
-                    // if (info.IsExternal)
-                    //{
-                    //     // Show combobox of available external resources?
-                    // }
-                    // else
-                    {
-                        ui::property_grid::drawProperty( "Format", info.Format );
-
-                        bool shouldClear = ( info.LoadOp == rhi::RenderPassSettings::LoadOp::Clear );
-                        if( ui::property_grid::drawProperty( "Clear", shouldClear ) ) {
-                            info.LoadOp = shouldClear ? rhi::RenderPassSettings::LoadOp::Clear
-                                                      : rhi::RenderPassSettings::LoadOp::DontCare;
-                        }
-
-                        if( shouldClear ) {
-                            ui::property_grid::drawColorProperty( "Clear Color", info.ClearColor );
-                        }
-
-                        bool shouldLoad = ( info.LoadOp == rhi::RenderPassSettings::LoadOp::Load );
-                        if( ui::property_grid::drawProperty( "Load", shouldLoad ) ) {
-                            info.LoadOp = shouldLoad ? rhi::RenderPassSettings::LoadOp::Load
-                                                     : rhi::RenderPassSettings::LoadOp::DontCare;
-                        }
-
-                        ui::property_grid::drawProperty( "Explicit Size", info.HasSize );
-
-                        if( info.HasSize ) {
-                            ui::property_grid::drawProperty( "Size", info.Size );
-                        }
-                    }
-                }
-            } else {
-                String rgba;
-                String type = "Uniform";
-
-                ui::property_grid::drawProperty( "Format", rgba );
-                ui::property_grid::drawProperty( "Type", type );
-            }
-
-            ui::property_grid::endPropertyGroup();
-        }
-    }
-
-    return false;
-}
-
-bool RenderGraphFixedShaderNode::onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-    if( ui::property_grid::drawProperty( "Shader", m_pipelineProperties.Shader ) ) {
-        // TODO: remove shaderPath and change m_Shader to be an asset
-        // shaderHandle.isLoaded?
-        // adjust pins
-        // register on load callback to adjust pins
-        return true;
-    }
-
-    const uint8_t blendStatesCount = m_pipelineProperties.BlendStates.size();
-    const uint8_t capacity = m_pipelineProperties.BlendStates.capacity();
-
-    auto AddBlendFunctor = [ & ]() {
-        ui::ScopedImGuiStyle style{
-            { ImGuiStyleVar_FrameBorderSize, 0.0f },
-        };
-        ui::ScopedImGuiColor color{
-            { ImGuiCol_Button, 0x30000000 },
-        };
-
-        const bool canAddBlendState = blendStatesCount != capacity;
-        bool shouldOpen = false;
-        ImGui::BeginDisabled( canAddBlendState == false );
-        ImGui::Spring();
-        if( ui::button( "+" ) ) {
-            rhi::BlendState& state = m_pipelineProperties.BlendStates.emplace();
-            state.IsBlendEnabled = true;
-            shouldOpen = true;
-        }
-        ImGui::EndDisabled();
-        return shouldOpen;
-    };
-
-    if( ui::property_grid::beginCollapsiblePropertyGroup( "Blend", AddBlendFunctor ) ) {
-        for( int8_t i = 0; i < blendStatesCount; ++i ) {
-            rhi::BlendState& blendState = m_pipelineProperties.BlendStates[ i ];
-
-            if( ui::property_grid::beginCollapsiblePropertyGroup( format::format( "{}", i ),
-                                                                  ImGuiTreeNodeFlags_DefaultOpen ) ) {
-                ui::property_grid::drawProperty( "Enabled", blendState.IsBlendEnabled );
-                ui::property_grid::drawProperty( "Color Mask", blendState.ColorWriteMask );
-
-                if( ui::property_grid::beginCollapsiblePropertyGroup( "Color" ) ) {
-                    ui::property_grid::drawProperty( "Source", blendState.SourceColor );
-                    ui::property_grid::drawProperty( "Destination", blendState.DestinationColor );
-                    ui::property_grid::drawProperty( "Operation", blendState.ColorOperation );
-
-                    ui::property_grid::endPropertyGroup();
-                }
-
-                if( ui::property_grid::beginCollapsiblePropertyGroup( "Alpha" ) ) {
-                    ui::property_grid::drawProperty( "Source", blendState.SourceAlpha );
-                    ui::property_grid::drawProperty( "Destination", blendState.DestinationAlpha );
-                    ui::property_grid::drawProperty( "Operation", blendState.AlphaOperation );
-
-                    ui::property_grid::endPropertyGroup();
-                }
-
-                ui::property_grid::endPropertyGroup();
-            }
-        }
-
-        ui::property_grid::endPropertyGroup();
-    }
-
-    if( ui::property_grid::beginCollapsiblePropertyGroup( "Rasterization" ) ) {
-        ui::property_grid::drawProperty( "Front facing", m_pipelineProperties.Rasterization.IsFrontFacing );
-        ui::property_grid::drawProperty( "Fill Mode", m_pipelineProperties.Rasterization.FillMode );
-        ui::property_grid::drawProperty( "Cull Mode", m_pipelineProperties.Rasterization.CullMode );
-
-        ui::property_grid::endPropertyGroup();
-    }
-
-    if( ui::property_grid::beginCollapsiblePropertyGroup( "Depth Stencil" ) ) {
-        bool isDepthEnabled = m_pipelineProperties.DepthStencil.IsDepthEnabled;
-        ui::property_grid::drawProperty( "Enabled", isDepthEnabled );
-        m_pipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
-
-        bool isDepthWriteEnabled = m_pipelineProperties.DepthStencil.IsDepthWriteEnabled;
-        ui::property_grid::drawProperty( "Write", isDepthWriteEnabled );
-        m_pipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
-
-        bool isStencilEnabled = m_pipelineProperties.DepthStencil.IsStencilEnabled;
-        ui::property_grid::drawProperty( "Stencil", isStencilEnabled );
-        m_pipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
-
-        ui::property_grid::drawProperty( "Compare", m_pipelineProperties.DepthStencil.Compare );
-
-        // if (ui::property_grid::BeginCollapsiblePropertyGroup("Front Operation"))
-        //{
-        //     //m_PipelineProperties.DepthStencil.Front
-        // }
-
-        ui::property_grid::endPropertyGroup();
-    }
-
-    return RenderGraphShaderNode::onDrawInPropertyGrid( constantPinData );
-}
+// bool RenderGraphShaderNode::onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
+//     uint32_t inputPinCount = getInputPinCount();
+//     for( uint32_t i = 0; i < inputPinCount; ++i ) {
+//         node_graph::PinBase* inputPin = getInputPin( i );
+//
+//         if( inputPin->getType() == node_graph::PinTypeId::Execute )
+//             continue;
+//
+//         ui::ScopedImGuiId id( inputPin->getLocalIdString() );
+//
+//         if( i >= m_inputAttachmentInfos.size() )
+//             m_inputAttachmentInfos.emplace_back();
+//
+//         RenderGraphTextureResourceInfo& info = m_inputAttachmentInfos[ i ];
+//
+//         if( inputPin->isConnected() ) {
+//             bool isAttachment = info.Type == RenderGraphResourceType::Attachment;
+//             if( ui::property_grid::drawProperty( "Attachment", isAttachment ) ) {
+//                 info.Type = isAttachment ? RenderGraphResourceType::Attachment : RenderGraphResourceType::Texture;
+//             }
+//
+//             continue;
+//         }
+//
+//         const Guid64 globalId = inputPin->getGlobalId();
+//         if( constantPinData.contains( globalId ) == false )
+//             constantPinData[ globalId ] = createDefaultForPin( inputPin->getLocalId() );
+//         ;
+//
+//         node_graph::PinTypeId typeId = inputPin->getType();
+//         bool isTexture = typeId == static_cast< node_graph::PinTypeId >( typeHash< rhi::TextureHandle >() );
+//
+//         ui::property_grid::drawPropertyName( getPinName( inputPin->getLocalId() ) );
+//         ui::property_grid::drawPropertyValue( [ & ]() {
+//             String type;
+//             if( isTexture ) {
+//                 type = "Texture";
+//             } else {
+//                 type = "Buffer";
+//             }
+//
+//             if( ImGui::BeginCombo( "##type", type.data() ) ) {
+//                 if( ImGui::Selectable( "Texture", isTexture ) ) {
+//                     // RemoveInputPinAt(i);
+//                     // AddInputPinAt<TextureHandle>(i);
+//                     isTexture = true;
+//                     inputPin = getInputPin( i );
+//                 }
+//
+//                 if( ImGui::Selectable( "Buffer", !isTexture ) ) {
+//                     // RemoveInputPinAt(i);
+//                     // AddInputPinAt<BufferHandle>(i);
+//                     isTexture = false;
+//                     inputPin = getInputPin( i );
+//                 }
+//
+//                 ImGui::EndCombo();
+//             }
+//         } );
+//
+//         // TODO: Fix in 0.5.0
+//         if( isTexture ) {
+//             String rgba;
+//             Vector3f32 size;
+//
+//             ui::property_grid::drawProperty( "Format", rgba );
+//             ui::property_grid::drawProperty( "Size", size );
+//
+//         } else {
+//             String rgba;
+//             String type = "Uniform";
+//
+//             ui::property_grid::drawProperty( "Format", rgba );
+//             ui::property_grid::drawProperty( "Type", type );
+//         }
+//     }
+//
+//     uint32_t outputPinCount = getOutputPinCount();
+//     for( uint32_t i = 0; i < outputPinCount; ++i ) {
+//         node_graph::PinBase* outputPin = getOutputPin( i );
+//
+//         ui::ScopedImGuiId imguiScopedId( outputPin->getLocalIdString().data() );
+//
+//         const Guid64 globalId = outputPin->getGlobalId();
+//         if( constantPinData.contains( globalId ) == false )
+//             constantPinData[ globalId ] = createDefaultForPin( outputPin->getLocalId() );
+//         ;
+//
+//         node_graph::PinTypeId typeId = outputPin->getType();
+//         bool isTexture = typeId == static_cast< node_graph::PinTypeId >( typeHash< rhi::TextureHandle >() );
+//
+//         if( ui::property_grid::beginCollapsiblePropertyGroup( getPinName( outputPin->getLocalId() ) ) ) {
+//             if( isTexture ) {
+//                 if( i >= m_outputAttachmentInfos.size() )
+//                     m_outputAttachmentInfos.emplace_back();
+//
+//                 RenderGraphTextureResourceInfo& info = m_outputAttachmentInfos[ i ];
+//
+//                 bool isReference = info.Type == RenderGraphResourceType::Reference;
+//                 if( ui::property_grid::drawProperty( "Reference", isReference ) ) {
+//                     info.Type = isReference ? RenderGraphResourceType::Reference :
+//                     RenderGraphResourceType::Attachment;
+//                 }
+//
+//                 if( isReference == false ) {
+//                     ui::property_grid::drawProperty( "External", info.IsExternal );
+//
+//                     // if (info.IsExternal)
+//                     //{
+//                     //     // Show combobox of available external resources?
+//                     // }
+//                     // else
+//                     {
+//                         ui::property_grid::drawProperty( "Format", info.Format );
+//
+//                         bool shouldClear = ( info.LoadOp == rhi::RenderPassSettings::LoadOp::Clear );
+//                         if( ui::property_grid::drawProperty( "Clear", shouldClear ) ) {
+//                             info.LoadOp = shouldClear ? rhi::RenderPassSettings::LoadOp::Clear
+//                                                       : rhi::RenderPassSettings::LoadOp::DontCare;
+//                         }
+//
+//                         if( shouldClear ) {
+//                             ui::property_grid::drawColorProperty( "Clear Color", info.ClearColor );
+//                         }
+//
+//                         bool shouldLoad = ( info.LoadOp == rhi::RenderPassSettings::LoadOp::Load );
+//                         if( ui::property_grid::drawProperty( "Load", shouldLoad ) ) {
+//                             info.LoadOp = shouldLoad ? rhi::RenderPassSettings::LoadOp::Load
+//                                                      : rhi::RenderPassSettings::LoadOp::DontCare;
+//                         }
+//
+//                         ui::property_grid::drawProperty( "Explicit Size", info.HasSize );
+//
+//                         if( info.HasSize ) {
+//                             ui::property_grid::drawProperty( "Size", info.Size );
+//                         }
+//                     }
+//                 }
+//             } else {
+//                 String rgba;
+//                 String type = "Uniform";
+//
+//                 ui::property_grid::drawProperty( "Format", rgba );
+//                 ui::property_grid::drawProperty( "Type", type );
+//             }
+//
+//             ui::property_grid::endPropertyGroup();
+//         }
+//     }
+//
+//     return false;
+// }
+//
+// bool RenderGraphFixedShaderNode::onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
+//     if( ui::property_grid::drawProperty( "Shader", m_pipelineProperties.Shader ) ) {
+//         // TODO: remove shaderPath and change m_Shader to be an asset
+//         // shaderHandle.isLoaded?
+//         // adjust pins
+//         // register on load callback to adjust pins
+//         return true;
+//     }
+//
+//     const uint8_t blendStatesCount = m_pipelineProperties.BlendStates.size();
+//     const uint8_t capacity = m_pipelineProperties.BlendStates.capacity();
+//
+//     auto AddBlendFunctor = [ & ]() {
+//         ui::ScopedImGuiStyle style{
+//             { ImGuiStyleVar_FrameBorderSize, 0.0f },
+//         };
+//         ui::ScopedImGuiColor color{
+//             { ImGuiCol_Button, 0x30000000 },
+//         };
+//
+//         const bool canAddBlendState = blendStatesCount != capacity;
+//         bool shouldOpen = false;
+//         ImGui::BeginDisabled( canAddBlendState == false );
+//         ImGui::Spring();
+//         if( ui::button( "+" ) ) {
+//             rhi::BlendState& state = m_pipelineProperties.BlendStates.emplace();
+//             state.IsBlendEnabled = true;
+//             shouldOpen = true;
+//         }
+//         ImGui::EndDisabled();
+//         return shouldOpen;
+//     };
+//
+//     if( ui::property_grid::beginCollapsiblePropertyGroup( "Blend", AddBlendFunctor ) ) {
+//         for( int8_t i = 0; i < blendStatesCount; ++i ) {
+//             rhi::BlendState& blendState = m_pipelineProperties.BlendStates[ i ];
+//
+//             if( ui::property_grid::beginCollapsiblePropertyGroup( format::format( "{}", i ),
+//                                                                   ImGuiTreeNodeFlags_DefaultOpen ) ) {
+//                 ui::property_grid::drawProperty( "Enabled", blendState.IsBlendEnabled );
+//                 ui::property_grid::drawProperty( "Color Mask", blendState.ColorWriteMask );
+//
+//                 if( ui::property_grid::beginCollapsiblePropertyGroup( "Color" ) ) {
+//                     ui::property_grid::drawProperty( "Source", blendState.SourceColor );
+//                     ui::property_grid::drawProperty( "Destination", blendState.DestinationColor );
+//                     ui::property_grid::drawProperty( "Operation", blendState.ColorOperation );
+//
+//                     ui::property_grid::endPropertyGroup();
+//                 }
+//
+//                 if( ui::property_grid::beginCollapsiblePropertyGroup( "Alpha" ) ) {
+//                     ui::property_grid::drawProperty( "Source", blendState.SourceAlpha );
+//                     ui::property_grid::drawProperty( "Destination", blendState.DestinationAlpha );
+//                     ui::property_grid::drawProperty( "Operation", blendState.AlphaOperation );
+//
+//                     ui::property_grid::endPropertyGroup();
+//                 }
+//
+//                 ui::property_grid::endPropertyGroup();
+//             }
+//         }
+//
+//         ui::property_grid::endPropertyGroup();
+//     }
+//
+//     if( ui::property_grid::beginCollapsiblePropertyGroup( "Rasterization" ) ) {
+//         ui::property_grid::drawProperty( "Front facing", m_pipelineProperties.Rasterization.IsFrontFacing );
+//         ui::property_grid::drawProperty( "Fill Mode", m_pipelineProperties.Rasterization.FillMode );
+//         ui::property_grid::drawProperty( "Cull Mode", m_pipelineProperties.Rasterization.CullMode );
+//
+//         ui::property_grid::endPropertyGroup();
+//     }
+//
+//     if( ui::property_grid::beginCollapsiblePropertyGroup( "Depth Stencil" ) ) {
+//         bool isDepthEnabled = m_pipelineProperties.DepthStencil.IsDepthEnabled;
+//         ui::property_grid::drawProperty( "Enabled", isDepthEnabled );
+//         m_pipelineProperties.DepthStencil.IsDepthEnabled = isDepthEnabled;
+//
+//         bool isDepthWriteEnabled = m_pipelineProperties.DepthStencil.IsDepthWriteEnabled;
+//         ui::property_grid::drawProperty( "Write", isDepthWriteEnabled );
+//         m_pipelineProperties.DepthStencil.IsDepthWriteEnabled = isDepthWriteEnabled;
+//
+//         bool isStencilEnabled = m_pipelineProperties.DepthStencil.IsStencilEnabled;
+//         ui::property_grid::drawProperty( "Stencil", isStencilEnabled );
+//         m_pipelineProperties.DepthStencil.IsStencilEnabled = isStencilEnabled;
+//
+//         ui::property_grid::drawProperty( "Compare", m_pipelineProperties.DepthStencil.Compare );
+//
+//         // if (ui::property_grid::BeginCollapsiblePropertyGroup("Front Operation"))
+//         //{
+//         //     //m_PipelineProperties.DepthStencil.Front
+//         // }
+//
+//         ui::property_grid::endPropertyGroup();
+//     }
+//
+//     return RenderGraphShaderNode::onDrawInPropertyGrid( constantPinData );
+// }
 } // namespace onyx::graphics

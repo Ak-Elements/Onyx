@@ -1,7 +1,9 @@
 #pragma once
 
 #include <onyx/assets/assetid.h>
+#include <onyx/assets/assetinterface.h>
 
+#include <onyx/assets/assetmetadata.h>
 #include <onyx/serialize/deserializer.h>
 #include <onyx/serialize/serializer.h>
 
@@ -114,6 +116,7 @@ template < typename T > class AssetHandle {
     }
 
     Reference< T >& getHandle() { return m_handle; }
+    const Reference< T >& getHandle() const { return m_handle; }
 
   private:
     AssetId m_id;
@@ -135,6 +138,32 @@ template < typename U > struct Serialization< assets::AssetHandle< U > > {
 
         return false;
     }
+};
+
+template <>
+struct EngineVariable< assets::AssetId > : public IEngineVariable {
+  public:
+    explicit EngineVariable( StringId32 id, assets::AssetType assetType )
+        : IEngineVariable( id )
+        , m_type( assetType ) {}
+
+    [[nodiscard]] uint32_t getRuntimeTypeId() const override { return typeHash< EngineVariable< assets::AssetId > >(); }
+
+    void set( assets::AssetId value ) { m_value = value; }
+    [[nodiscard]] assets::AssetId get() const { return m_value; }
+
+    [[nodiscard]] assets::AssetType getType() const { return m_type; }
+
+    bool serialize( Serializer& serializer ) const override { return serializer.write( m_value ); }
+    bool deserialize( const Deserializer& deserializer ) override { return deserializer.read( m_value ); }
+
+  private:
+    [[nodiscard]] void* doGet() const override { return std::bit_cast< void* >( &m_value ); }
+    void doSet( void* value ) override { m_value = *std::bit_cast< assets::AssetId* >( value ); }
+
+  private:
+    assets::AssetId m_value;
+    assets::AssetType m_type;
 };
 
 } // namespace onyx

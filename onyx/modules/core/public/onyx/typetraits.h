@@ -1,24 +1,24 @@
 #pragma once
 
 namespace onyx {
-namespace Internal {
+namespace internal {
 template < typename >
-struct is_tuple_impl : std::false_type {};
+struct IsTupleImpl : std::false_type {};
 
 template < typename... Args >
-struct is_tuple_impl< std::tuple< Args... > > : std::true_type {};
+struct IsTupleImpl< std::tuple< Args... > > : std::true_type {};
 
 template < uint64_t... Idxs >
-constexpr auto substring_as_array( StringView str, std::index_sequence< Idxs... > ) {
+constexpr auto substringAsArray( StringView str, std::index_sequence< Idxs... > ) {
     return Array< char, sizeof...( Idxs ) + 1 >{ str[ Idxs ]..., '\0' };
 }
 
 template < typename T >
-constexpr auto type_name() {
+constexpr auto typeName() {
 #if ONYX_IS_CLANG
-    constexpr auto prefix = std::string_view{ "=" };
-    constexpr auto suffix = std::string_view{ "]" };
-    constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
+    constexpr auto Prefix = std::string_view{ "=" };
+    constexpr auto Suffix = std::string_view{ "]" };
+    constexpr auto Function = std::string_view{ __PRETTY_FUNCTION__ };
 #elif ONYX_IS_GCC
     constexpr auto prefix = std::string_view{ "=" };
     constexpr auto suffix = std::string_view{ "]" };
@@ -34,40 +34,40 @@ constexpr auto type_name() {
 #error Unsupported compiler
 #endif
 
-    constexpr auto first = function.find_first_not_of( ' ', function.find_first_of( prefix ) + 1 );
-    constexpr auto value = function.substr( first, function.find_last_of( suffix ) - first );
-    return value;
+    constexpr auto First = Function.find_first_not_of( ' ', Function.find_first_of( Prefix ) + 1 );
+    constexpr auto Value = Function.substr( First, Function.find_last_of( Suffix ) - First );
+    return Value;
 }
 
 template < typename T >
-struct type_name_holder {
-    static inline constexpr auto value = type_name< T >();
+struct TypeNameHolder {
+    static inline constexpr auto Value = typeName< T >();
 };
-} // namespace Internal
+} // namespace internal
 
 template < typename T >
-constexpr StringView TypeName() {
-    constexpr auto value = Internal::type_name_holder< T >::value;
-    return { value.data(), value.size() };
+constexpr StringView typeName() {
+    constexpr auto Value = internal::TypeNameHolder< T >::Value;
+    return { Value.data(), Value.size() };
 }
 
 template < typename T >
-constexpr uint32_t TypeHash() {
-    constexpr auto value = Internal::type_name_holder< T >::value;
-    return hash::fnV1aHash< uint32_t >( value );
+constexpr uint32_t typeHash() {
+    constexpr auto Value = internal::TypeNameHolder< T >::Value;
+    return hash::fnV1aHash< uint32_t >( Value );
 }
 
 template < typename T >
-constexpr uint64_t TypeHash64() {
-    constexpr auto value = Internal::type_name_holder< T >::value;
-    return hash::fnV1aHash< uint64_t >( value );
+constexpr uint64_t typeHash64() {
+    constexpr auto Value = internal::TypeNameHolder< T >::Value;
+    return hash::fnV1aHash< uint64_t >( Value );
 }
 
 template < typename Type >
-struct is_tuple : Internal::is_tuple_impl< std::remove_cv_t< Type > > {};
+struct IsTuple : internal::IsTupleImpl< std::remove_cv_t< Type > > {};
 
 template < typename Type >
-inline constexpr bool is_tuple_v = is_tuple< Type >::value;
+inline constexpr bool IsTupleV = IsTuple< Type >::value;
 
 template < typename T >
 concept HasTypeId = requires( const T obj ) {

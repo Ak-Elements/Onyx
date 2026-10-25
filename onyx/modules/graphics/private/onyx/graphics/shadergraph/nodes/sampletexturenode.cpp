@@ -75,20 +75,19 @@ void SampleTextureNode::doGenerateShader( const node_graph::ExecutionContext& co
 
     // Texture input
     const uint64_t texturePinGlobalId = inputPin.getGlobalId().get();
-    const String textureSampleVariable = format::format( "sampledTexture_{:x}", texturePinGlobalId );
+    const String textureSampleVariable{ format::format( "sampledTexture_{:x}", texturePinGlobalId ) };
 
     // UV Input
     const UVInPin& uvInputPin = static_cast< const UVInPin& >( *getInputPin( 1 ) );
-    const String textureCoordsString = uvInputPin.isConnected()
-                                           ? format::format( "pin_{:x}", uvInputPin.getLinkedPinGlobalId().get() )
-                                           : rhi::ShaderGenerator::generateShaderValue(
-                                                 context.getPinData< UVInPin >() );
+    const String textureCoordsString{
+        uvInputPin.isConnected() ? format::format( "pin_{:x}", uvInputPin.getLinkedPinGlobalId().get() )
+                                 : rhi::ShaderGenerator::generateShaderValue( context.getPinData< UVInPin >() ) };
 
     // Sampling code
-    String textureSampleCode = format::format( "float4 {} = linearSample( TextureIndices[ {} ] ) ], {} ); \n",
-                                               textureSampleVariable,
-                                               textureIndex,
-                                               textureCoordsString );
+    String textureSampleCode{ format::format( "float4 {} = linearSample( TextureIndices[ {} ] ) ], {} ); \n",
+                                              textureSampleVariable,
+                                              textureIndex,
+                                              textureCoordsString ) };
 
     // Outputs
     bool isAnyOutPinConnected = false;

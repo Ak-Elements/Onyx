@@ -1,21 +1,19 @@
 ﻿#include <onyx/editor/panels/sceneeditor/terrainpanel.h>
 
-#include <onyx/rhi/commandbuffer.h>
-
-#include <onyx/gamecore/scene/scene.h>
-#include <onyx/geometry/rect2.h>
-#include <onyx/volume/components/volumeterraincomponent.gen.h>
-#include <onyx/volume/systems/volumeterrainsystem.h>
-
-#include <onyx/gamecore/gamecore.h>
-#include <onyx/ui/scopedcolor.h>
-
 #include <onyx/editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
 #include <onyx/editor/panels/sceneeditor/terraintools/sculptterraintool.h>
+#include <onyx/editor/windows/sceneeditor.h>
+#include <onyx/gamecore/gamecoresystem.h>
+#include <onyx/gamecore/scene/scene.h>
+#include <onyx/geometry/rect2.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/inputactions/inputactionsystem.h>
+#include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
+#include <onyx/ui/scopedcolor.h>
+#include <onyx/volume/components/volumeterraincomponent.gen.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
+#include <onyx/volume/systems/volumeterrainentitysystem.h>
 
 #include <imgui.h>
 #include <imgui_extra_math.inl>
@@ -662,6 +660,9 @@ namespace {
 } // namespace
 
 namespace onyx::editor::scene_editor {
+TerrainPanel::TerrainPanel() = default;
+TerrainPanel::~TerrainPanel() = default;
+
 void TerrainPanel::onOpen() {
     input_actions::InputActionSystem& inputActionSystem = getEngineSystem< input_actions::InputActionSystem >();
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
@@ -680,7 +681,7 @@ void TerrainPanel::onOpen() {
 
     ssboBufferProps.m_DebugName = "Terrain Brush Hit Readback";
     ssboBufferProps.m_Size = sizeof( Vector3f32 ) + sizeof( uint32_t );
-    ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage );
+    ssboBufferProps.m_UsageFlags = static_cast< uint8_t >( rhi::BufferUsage::Storage | rhi::BufferUsage::DeviceAddress);
     ssboBufferProps.m_GpuAccess = rhi::GPUAccess::Staging;
     // ssboBufferProps.m_GpuAccess = Graphics::GPUAccess::Read;
     ssboBufferProps.m_IsWritable = true;
@@ -714,8 +715,10 @@ void TerrainPanel::onClose() {
 }
 
 void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
-    ONYX_ASSERT( m_currentScene != nullptr );
-
+    SceneEditorWindow& sceneEditor = *getParent< SceneEditorWindow >().value();
+    if( sceneEditor.isLoading() )
+        return;
+    
     ::ImGuiWindow* sceneViewWindow = ImGui::FindWindowByName( "Scene###SceneViewPanel0" );
     if( sceneViewWindow == nullptr ) {
         return;
@@ -727,18 +730,16 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     bool isUsingAnyGizmo = ImGuizmo::IsUsingAny();
     bool isHoveringGizmo = ImGuizmo::IsOver();
 
-    Reference< graphics::RenderGraph > renderGraph; // TODO: = m_GraphicsSystem.GetRenderGraph();
-    if( renderGraph.isValid() == false )
-        return;
-
-    graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph->getResourceCache();
+    game_core::Scene& scene = sceneEditor.getScene();
+    graphics::RenderGraph& renderGraph = scene.getRenderGraph();
+    graphics::RenderGraphResourceCache& renderGraphResourceCache = renderGraph.getResourceCache();
 
     if( isSceneViewFocused == false || isUsingAnyGizmo || isHoveringGizmo ) {
         renderGraphResourceCache.erase( HitBufferResourceId );
         return;
     }
 
-    ecs::EntityRegistry& registry = m_currentScene->getRegistry();
+    ecs::EntityRegistry& registry = scene.getRegistry();
     auto runtimeComponentsView = registry.getView< volume::TerrainSettingsComponent,
                                                    volume::TerrainWorldOctreeComponent,
                                                    const volume::VolumeGenerationComponent >();
@@ -747,19 +748,13 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
         return;
 
     const ecs::EntityId terrainEntity = runtimeComponentsView.front();
-    const volume::TerrainSettingsComponent&
-        terrainSettings = runtimeComponentsView.get< volume::TerrainSettingsComponent >( terrainEntity );
     volume::TerrainWorldOctreeComponent&
         terrainOctree = runtimeComponentsView.get< volume::TerrainWorldOctreeComponent >( terrainEntity );
     const volume::VolumeGenerationComponent&
         volumeGenerationComponent = runtimeComponentsView.get< const volume::VolumeGenerationComponent >(
             terrainEntity );
 
-    if( terrainOctree.OctreeGpuBuffer == false ) {
-        return;
-    }
-
-    auto& hitBufferResource = renderGraphResourceCache[ HitBufferResourceId ];
+    graphics::RenderGraphResource& hitBufferResource = renderGraphResourceCache[ HitBufferResourceId ];
     hitBufferResource.Info.Id = HitBufferResourceId;
     hitBufferResource.Info.Name = "terrain hit";
 
@@ -775,39 +770,38 @@ void TerrainPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     rhi::CommandBuffer& computeCommandBuffer = graphicsSystem.getCommandBuffer( graphicsSystem.getFrameIndex(), true );
     traceTerrain( computeCommandBuffer, terrainOctree, volumeGenerationComponent, sceneViewport );
 
-    bool hasClickedLeft = ImGui::IsMouseClicked( ImGuiMouseButton_Left );
+    bool hasClickedLeft = false;//ImGui::IsMouseClicked( ImGuiMouseButton_Left );
     if( hasClickedLeft ) {
         rhi::ConditionalRender conditional( computeCommandBuffer, m_hitBuffer, sizeof( Vector3f32 ) );
 
         {
             computeCommandBuffer.barrier( m_hitBuffer, rhi::Context::Compute, rhi::Access::ShaderRead );
             readbackTerrainHit( computeCommandBuffer );
-            m_tools[ m_selectedTab ]->ApplyOperation( computeCommandBuffer, m_hitBuffer, terrainOctree );
+            m_tools[ m_selectedTab ]->applyOperation( computeCommandBuffer, m_hitBuffer, terrainOctree );
         }
-        //  after applying the operation we find the affected octree nodes and re-generate the terrain
-        findWorldOctreeNode( computeCommandBuffer, terrainSettings, terrainOctree, volumeGenerationComponent );
+
         // generate
-        updateTerrainMesh( computeCommandBuffer, terrainSettings, terrainOctree );
+        // updateTerrainMesh( computeCommandBuffer, terrainSettings, terrainOctree );
     }
 
-    if( void* data = m_hitReadbackBuffer.Buffer->map( rhi::MapMode::Read ) ) {
-        struct HitData {
-            Vector3f32 HitPositon;
-            bool HasHit;
-        };
+    //if( void* data = m_hitReadbackBuffer.Buffer->map( rhi::MapMode::Read ) ) {
+    //    struct HitData {
+    //        Vector3f32 HitPositon;
+    //        bool HasHit;
+    //    };
+    //
+    //    HitData* hitData = static_cast< HitData* >( data );
+    //    if( hitData->HasHit ) {
+    //        hitData->HasHit = false;
+    //        const game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
+    //        m_tools[ m_selectedTab ]->onHitPositionReadback( scene,
+    //                                                         gameCoreSystem.getComponentFactory(),
+    //                                                         hitData->HitPositon );
+    //        registry.addComponent< volume::terrain::InitTerrainFlag >( runtimeComponentsView.front() );
+    //    }
+    //}
 
-        HitData* hitData = static_cast< HitData* >( data );
-        if( hitData->HasHit ) {
-            hitData->HasHit = false;
-            const game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
-            m_tools[ m_selectedTab ]->OnHitPositionReadback( *m_currentScene,
-                                                             gameCoreSystem.getComponentFactory(),
-                                                             hitData->HitPositon );
-            registry.addComponent< volume::terrain::InitTerrainFlag >( runtimeComponentsView.front() );
-        }
-    }
-
-    m_hitReadbackBuffer.Buffer->unmap();
+    //m_hitReadbackBuffer.Buffer->unmap();
 }
 
 void TerrainPanel::renderTabs() {
@@ -815,7 +809,7 @@ void TerrainPanel::renderTabs() {
     for( const UniquePtr< TerrainTool >& tool : m_tools ) {
         // DrawSculptIcon(ImGui::GetCursorScreenPos(), 64.0f, 1.5f, 0xFF);
         // ImGui::InvisibleButton("##", ImVec2(64.0f, 64.0f));
-        if( ImGui::Button( tool->GetTitle().data() ) ) {
+        if( ImGui::Button( tool->getTitle().data() ) ) {
             m_selectedTab = index;
         }
         ++index;
@@ -841,7 +835,7 @@ void TerrainPanel::renderToolbar( ::ImGuiWindow* sceneViewWindow ) {
 
             ImGui::TableNextColumn();
             if( m_tools.empty() == false ) {
-                m_tools[ m_selectedTab ]->Render();
+                m_tools[ m_selectedTab ]->render();
             }
 
             ImGui::EndTable();
@@ -863,27 +857,27 @@ void TerrainPanel::traceTerrain( rhi::CommandBuffer& computeCommandBuffer,
                                  const volume::VolumeGenerationComponent& volumeGenerationComponent,
                                  Rect2f32 sceneViewport ) {
     struct RayTraceTerrainPushConstants {
+        GpuBufferDeviceAddress HitBuffer;
+        GpuBufferDeviceAddress ViewConstants;
+
+        GpuBufferDeviceAddress VolumeSourcesList;
+        GpuBufferDeviceAddress VolumeSourcesData;
+
         Vector2f32 MousePosition;
-        uint64_t ViewConstantsAddress;
-
-        uint64_t VolumeSourcesList;
-        uint64_t VolumeSourcesData;
-
-        uint64_t HitBufferAddress;
     };
 
     ImVec2 mousePos = ImGui::GetMousePos();
     RayTraceTerrainPushConstants constants;
 
     rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
-    constants.MousePosition[ 0 ] = ( ( mousePos.x - sceneViewport.Position[ 0 ] ) / sceneViewport.Extents[ 0 ] ) *
+    constants.MousePosition.X = ( ( mousePos.x - sceneViewport.Position.X ) / sceneViewport.Extents.X ) *
                                        2.0f -
                                    1.0f;
-    constants.MousePosition[ 1 ] = ( ( ( mousePos.y - sceneViewport.Position[ 1 ] ) / sceneViewport.Extents[ 1 ] ) *
+    constants.MousePosition.Y = ( ( mousePos.y - sceneViewport.Position.Y ) / sceneViewport.Extents.Y ) *
                                          -2.0f +
-                                     1.0f );
-    constants.ViewConstantsAddress = graphicsSystem.getViewConstantsBuffer().getGpuAddress();
-    constants.HitBufferAddress = m_hitBuffer.getGpuAddress();
+                                     1.0f;
+    constants.ViewConstants = graphicsSystem.getViewConstantsBuffer().getGpuAddress();
+    constants.HitBuffer = m_hitBuffer.getGpuAddress();
     constants.VolumeSourcesList = terrainOctree.VolumeObjects.getGpuAddress();
     constants.VolumeSourcesData = terrainOctree.VolumeObjectsData.getGpuAddress();
 
@@ -891,7 +885,7 @@ void TerrainPanel::traceTerrain( rhi::CommandBuffer& computeCommandBuffer,
     computeCommandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
     computeCommandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
     computeCommandBuffer.bindShaderEffect( volumeGenerationComponent.RayTraceTerrainShader );
-    computeCommandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, constants );
+    computeCommandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     computeCommandBuffer.dispatch( 1, 1, 1 );
     computeCommandBuffer.barrier( m_hitBuffer,
                                   rhi::Context::Compute,
@@ -902,61 +896,8 @@ void TerrainPanel::readbackTerrainHit( rhi::CommandBuffer& computeCommandBuffer 
     computeCommandBuffer.copy( m_hitBuffer, m_hitReadbackBuffer );
 }
 
-void TerrainPanel::findWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer,
-                                        const volume::TerrainSettingsComponent& terrainSettings,
-                                        volume::TerrainWorldOctreeComponent& terrainOctree,
-                                        const volume::VolumeGenerationComponent& volumeGenerationComponent ) {
-    struct FindOctreeNodePushConstants {
-        uint64_t OctreeBufferAddress;
-        float32 RootHalfExtents;
-        uint32_t MaxDepth;
-
-        uint64_t VolumeSourcesList;
-        uint64_t VolumeSourcesData;
-
-        uint64_t QueuedCollapseBuffer;
-        uint64_t QueuedSplitBuffer;
-
-        uint64_t HitBufferAddress;
-        float32 BrushSizeSquared;
-        float32 MaxGeometricError;
-
-        float32 ComplexSurfaceThreshold;
-        float32 Padding[ 3 ];
-    };
-
-    computeCommandBuffer.globalBarrier( 0, 0x00000020 | 0x00000040 );
-    FindOctreeNodePushConstants findOctreeNodeConstants{};
-    findOctreeNodeConstants.OctreeBufferAddress = terrainOctree.OctreeGpuBuffer.getGpuAddress();
-    findOctreeNodeConstants.RootHalfExtents = terrainOctree.RootSize * 0.5f;
-    findOctreeNodeConstants.MaxDepth = terrainOctree.ChunkMaxDepth;
-
-    findOctreeNodeConstants.VolumeSourcesList = terrainOctree.VolumeObjects.getGpuAddress();
-    findOctreeNodeConstants.VolumeSourcesData = terrainOctree.VolumeObjectsData.getGpuAddress();
-
-    findOctreeNodeConstants.HitBufferAddress = m_hitBuffer.getGpuAddress();
-    findOctreeNodeConstants.QueuedCollapseBuffer = m_collapseRequestsBuffer.getGpuAddress();
-    findOctreeNodeConstants.QueuedSplitBuffer = m_splitRequestsBuffer.getGpuAddress();
-
-    float32 bounds = m_tools[ m_selectedTab ]->GetBounds();
-    findOctreeNodeConstants.BrushSizeSquared = bounds * bounds;
-
-    findOctreeNodeConstants.MaxGeometricError = terrainSettings.MaxGeometricError;
-    findOctreeNodeConstants.ComplexSurfaceThreshold = terrainSettings.ComplexSurfaceThreshold;
-
-    computeCommandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderRead );
-    computeCommandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
-    computeCommandBuffer.bindShaderEffect( volumeGenerationComponent.FindRayTracedOctreeNodeShader );
-    computeCommandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, findOctreeNodeConstants );
-    computeCommandBuffer.dispatch( 1, 1, 1 );
-}
-
-void TerrainPanel::updateTerrainMesh( [[maybe_unused]] const rhi::CommandBuffer& commandBuffer,
-                                      [[maybe_unused]] const volume::TerrainSettingsComponent& terrainSettings,
-                                      [[maybe_unused]] volume::TerrainWorldOctreeComponent& terrainOctree ) {}
-
 void TerrainPanel::onTerrainPanelBrushSizeInput( const input_actions::InputActionEvent& inputEvent ) {
     float32 inputValue = inputEvent.getData< float32 >();
-    m_tools[ m_selectedTab ]->OnBrushSizeInput( inputValue );
+    m_tools[ m_selectedTab ]->onBrushSizeInput( inputValue );
 }
 } // namespace onyx::editor::scene_editor

@@ -1,17 +1,14 @@
 #include <onyx/gamecore/systems/staticmeshentitysystem.h>
 
+#include <onyx/assets/assetsystem.h>
+#include <onyx/entity/entitycommandbuffer.h>
 #include <onyx/entity/entitycomponentsystem.h>
 #include <onyx/gamecore/components/graphics/materialcomponent.gen.h>
 #include <onyx/gamecore/components/graphics/staticmeshcomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
-#include <onyx/gamecore/gamecore.h>
-
-#include <onyx/assets/assetsystem.h>
-#include <onyx/entity/entitycommandbuffer.h>
-#include <onyx/gamecore/gamecore.h>
-#include <onyx/gamecore/scene/scene.h>
-
 #include <onyx/gamecore/components/transformcomponent.h>
+#include <onyx/gamecore/gamecoresystem.h>
+#include <onyx/gamecore/scene/scene.h>
 #include <onyx/gamecore/scene/sceneframedata.h>
 
 namespace onyx::game_core::static_mesh {

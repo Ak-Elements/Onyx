@@ -6,8 +6,8 @@
 
 namespace onyx {
 void StdoutLogger::log( const LogMessage& message ) {
-    const char* formattedMessage;
-    if ( message.FileName == nullptr ) {
+    StringView formattedMessage;
+    if( message.FileName == nullptr ) {
         formattedMessage = format::format( "{}: {}",
                                            getLogLevelName( message.LogLevel ).data(),
                                            message.Message.data() );
@@ -20,7 +20,7 @@ void StdoutLogger::log( const LogMessage& message ) {
     }
 
     std::printf( "%s", getLogLevelConsoleColor( message.LogLevel ).data() );
-    std::printf( "%s\n", formattedMessage );
+    std::printf( "%s\n", formattedMessage.data() );
     std::printf( "%s", log_private::Reset.data() );
 }
 } // namespace onyx

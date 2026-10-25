@@ -1,7 +1,7 @@
 #include <onyx/editor/assets/importer/textureimporter.h>
 
+#include <onyx/filesystem/file.h>
 #include <onyx/filesystem/imagefile.h>
-#include <onyx/filesystem/onyxfile.h>
 
 namespace onyx::editor {
 AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::AssetMetaData& outAssetMeta ) {
@@ -23,7 +23,7 @@ AssetImportResult TextureImporter::DoImport( const FilePath& path, assets::Asset
     ++outAssetMeta.Version;
 
     {
-        file_system::OnyxFile importedTexFile( importedTexturePath );
+        file_system::File importedTexFile( importedTexturePath );
         file_system::FileStream binaryStream = importedTexFile.openStream( file_system::OpenMode::Binary |
                                                                            file_system::OpenMode::Write );
 

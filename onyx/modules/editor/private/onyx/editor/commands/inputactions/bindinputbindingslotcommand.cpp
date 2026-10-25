@@ -16,7 +16,7 @@ BindInputBindingSlotCommand::BindInputBindingSlotCommand( StringId64 actionId,
 
 void BindInputBindingSlotCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
-    Optional< input_actions::InputAction* > actionOptional = context.GetAction( m_ActionId );
+    Optional< input_actions::InputAction* > actionOptional = context.getAction( m_ActionId );
     ONYX_ASSERT( actionOptional.has_value() );
 
     input_actions::InputAction* action = *actionOptional;

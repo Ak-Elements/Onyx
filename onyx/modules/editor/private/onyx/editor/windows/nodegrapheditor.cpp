@@ -1,30 +1,62 @@
 #include <onyx/editor/windows/nodegrapheditor.h>
 
-#include <onyx/editor/panels/nodeeditor/styles/blueprint.h>
-
-#include <onyx/editor/nodegraph/nodegrapheditorcontext.h>
-#include <onyx/editor/panels/nodeeditor/styles/widgets.h>
-
-#include <onyx/editor/windows/editormainwindow.h>
-
 #include <onyx/assets/asset.h>
 #include <onyx/assets/assetsystem.h>
+#include <onyx/editor/editor_localization.h>
+#include <onyx/editor/nodegraph/nodegrapheditorcontext.h>
+#include <onyx/editor/panels/nodeeditor/styles/blueprint.h>
+#include <onyx/editor/panels/nodeeditor/styles/widgets.h>
+#include <onyx/editor/windows/editormainwindow.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/filesystem/filedialog.h>
+#include <onyx/inputactions/inputactionsystem.h>
+#include <onyx/localization/localization.h>
+#include <onyx/localization/localizationmodule.h>
 #include <onyx/nodegraph/executioncontext.h>
 #include <onyx/nodegraph/nodegraphfactory.h>
+#include <onyx/serialize/text/textdeserializer.h>
+#include <onyx/serialize/text/textserializer.h>
+#include <onyx/ui/imguisystem.h>
 #include <onyx/ui/propertygrid/propertygrid.h>
 #include <onyx/ui/widgets.h>
 
-#include <onyx/editor/editor_localization.h>
-#include <onyx/filesystem/onyxfile.h>
-#include <onyx/localization/localization.h>
-#include <onyx/localization/localizationmodule.h>
-#include <onyx/ui/imguisystem.h>
-
-#include <onyx/inputactions/inputactionsystem.h>
-
 #include <imgui_internal.h>
 #include <imgui_node_editor.h>
+
+namespace onyx {
+template <>
+struct Serialization< editor::GraphEditorContext::Node > {
+    static bool serialize( Serializer& serializer, const editor::GraphEditorContext::Node& node ) {
+        bool success = serializer.write< "id" >( node.Id );
+        success &= serializer.write< "name" >( node.Name );
+        success &= serializer.write< "position" >( node.Position );
+        return success;
+    }
+
+    static bool deserialize( const Deserializer& deserializer, editor::GraphEditorContext::Node& outNode ) {
+        bool success = deserializer.read< "id" >( outNode.Id );
+        success &= deserializer.read< "name" >( outNode.Name );
+        success &= deserializer.read< "position" >( outNode.Position );
+        return success;
+    }
+};
+
+template <>
+struct Serialization< editor::GraphEditorContext::Link > {
+    static bool serialize( Serializer& serializer, const editor::GraphEditorContext::Link& link ) {
+        bool success = serializer.write< "from" >( link.FromPinId );
+        success &= serializer.write< "to" >( link.ToPinId );
+        return success;
+    }
+
+    static bool deserialize( const Deserializer& deserializer, editor::GraphEditorContext::Link& outLink ) {
+        bool success = deserializer.read< "from" >( outLink.FromPinId );
+        success &= deserializer.read< "to" >( outLink.ToPinId );
+        return success;
+    }
+};
+
+} // namespace onyx
 
 namespace onyx::editor {
 namespace {
@@ -78,7 +110,8 @@ NodeGraphEditorWindow::NodeGraphEditorWindow()
 NodeGraphEditorWindow::~NodeGraphEditorWindow() = default;
 
 void NodeGraphEditorWindow::onOpen() {
-    setName( format::format( "Node Editor###NodeEditor{}", localization::editor::NodeEditor::Title, m_windowId ) );
+    String name{ format::format( "Node Editor###NodeEditor{}", localization::editor::NodeEditor::Title, m_windowId ) };
+    setName( name );
 
     ui::ImGuiSystem& imguiSystem = getEngineSystem< ui::ImGuiSystem >();
     Optional< EditorMainWindow* > mainWindowOptional = imguiSystem.getWindow< EditorMainWindow >();
@@ -90,7 +123,7 @@ void NodeGraphEditorWindow::onOpen() {
     m_canvasPanelId = format::format( "###CanvasPanel{}", m_windowId );
     m_propertiesPanelId = format::format( "###PropertiesPanel{}", m_windowId );
 
-    ImGuiID dockspaceID = ImGui::GetID( format::format( "NodeEditor{}", m_windowId ) );
+    ImGuiID dockspaceID = ImGui::GetID( format::format( "NodeEditor{}", m_windowId ).data() );
 
     // TODO: should those be somewhere defined as default sizes?
     float windowWidth = ImGui::GetMainViewport()->Size.x;
@@ -147,7 +180,8 @@ void NodeGraphEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 
     // renderMenuBar();
 
-    ImGui::Begin( format::format( "{}{}", localization::editor::NodeEditor::UnnamedGraph, m_canvasPanelId ) );
+    StringView windowLabel = format::format( "{}{}", localization::editor::NodeEditor::UnnamedGraph, m_canvasPanelId );
+    ImGui::Begin( windowLabel.data() );
 
     NodeEditor::SetCurrentEditor( m_context );
     NodeEditor::PushStyleColor( NodeEditor::StyleColor_Bg,
@@ -175,18 +209,22 @@ void NodeGraphEditorWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
 }
 
 void NodeGraphEditorWindow::onRenderMainMenuBar() {
-    if( ImGui::BeginMenu( format::format( "{}###File", localization::generic::File ) ) ) {
-        if( ImGui::MenuItem( format::format( "{}###Open", localization::generic::Open ) ) ) {
+    StringView menuLabel = format::format( "{}###File", localization::generic::File );
+    if( ImGui::BeginMenu( menuLabel.data() ) ) {
+        StringView menuItemLabel = format::format( "{}###Open", localization::generic::Open );
+        if( ImGui::MenuItem( menuItemLabel.data() ) ) {
             load();
         }
 
-        if( ImGui::MenuItem( format::format( "{}###Save", localization::generic::Save ) ) ) {
+        menuItemLabel = format::format( "{}###Save", localization::generic::Save );
+        if( ImGui::MenuItem( menuItemLabel.data() ) ) {
             ax::NodeEditor::SetCurrentEditor( m_context );
             save();
             ax::NodeEditor::SetCurrentEditor( nullptr );
         }
 
-        if( ImGui::MenuItem( format::format( "{}###SaveAs", localization::generic::SaveAs ) ) ) {
+        menuItemLabel = format::format( "{}###SaveAs", localization::generic::SaveAs );
+        if( ImGui::MenuItem( menuItemLabel.data() ) ) {
             ax::NodeEditor::SetCurrentEditor( m_context );
             save();
             ax::NodeEditor::SetCurrentEditor( nullptr );
@@ -195,12 +233,13 @@ void NodeGraphEditorWindow::onRenderMainMenuBar() {
         ImGui::EndMenu();
     }
 
-    if( ImGui::BeginMenu(
-            format::format( "{}###Debug", localization::editor::NodeEditor::MainMenubar::Debug::Label ) ) ) {
-        if( ImGui::MenuItem( format::format( "{}###ShowLinkDirections",
-                                             localization::editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections ),
-                             nullptr,
-                             m_showLinkDirections ) ) {
+    menuLabel = format::format( "{}###Debug", localization::editor::NodeEditor::MainMenubar::Debug::Label );
+    StringView showLinksLabel = format::format(
+        "{}###ShowLinkDirections",
+        localization::editor::NodeEditor::MainMenubar::Debug::ShowLinkDirections );
+
+    if( ImGui::BeginMenu( menuLabel.data() ) ) {
+        if( ImGui::MenuItem( showLinksLabel.data(), nullptr, m_showLinkDirections ) ) {
             m_showLinkDirections = !m_showLinkDirections;
         }
 
@@ -264,13 +303,13 @@ void NodeGraphEditorWindow::drawContextMenu() {
         if( ImGui::BeginChild( "##NodesScrollList",
                                ImVec2( 350.0f, 350.0f ),
                                ImGuiChildFlags_AlwaysUseWindowPadding ) ) {
-            // TODO: Currently is we have a pin filter we force open all the time - we should fix thaxt to only force
-            // open once
+            // TODO: Currently is we have a pin filter we force open all the time - we should fix thaxt to only
+            // force open once
             const ui::TreeItem& nodeListMenuRoot = m_editorContext->getNodeListContextMenuRoot();
             ui::TreeViewFlags flags = isAppearing ? ui::TreeViewFlags::ForceCloseAll
                                                   : ( SearchString.empty() ? ui::TreeViewFlags::None
                                                                            : ui::TreeViewFlags::ForceOpenAll );
-            bool hasClickedItem = ui::RenderTreeView( "CreateNodeMenu", nodeListMenuRoot, flags );
+            bool hasClickedItem = ui::renderTreeView( "CreateNodeMenu", nodeListMenuRoot, flags );
             if( hasClickedItem ) {
                 ImGui::CloseCurrentPopup();
             }
@@ -500,8 +539,13 @@ void NodeGraphEditorWindow::drawCanvas() {
     DynamicArray< GraphEditorContext::Node >& nodes = m_editorContext->getNodes();
     for( GraphEditorContext::Node& node : nodes ) {
         if( node.HasUpdatedPosition ) {
-            ax::NodeEditor::SetNodePosition( node.Id.get(), ImVec2( node.Position[ 0 ], node.Position[ 1 ] ) );
+            ax::NodeEditor::SetNodePosition( node.Id.get(), ImVec2( node.Position.X, node.Position.Y ) );
             node.HasUpdatedPosition = false;
+        }
+        else {
+            ImVec2 nodePosition = ax::NodeEditor::GetNodePosition( node.Id.get() );
+            node.Position.X = nodePosition.x;
+            node.Position.Y = nodePosition.y;
         }
 
         drawNode( node, builder );
@@ -509,8 +553,13 @@ void NodeGraphEditorWindow::drawCanvas() {
 
     for( RerouteNode& node : m_rerouteNodes ) {
         if( node.HasUpdatedPosition ) {
-            ax::NodeEditor::SetNodePosition( node.Id.get(), ImVec2( node.Position[ 0 ], node.Position[ 1 ] ) );
+            ax::NodeEditor::SetNodePosition( node.Id.get(), ImVec2( node.Position.X, node.Position.Y ) );
             node.HasUpdatedPosition = false;
+        }
+        else {
+            ImVec2 nodePosition = ax::NodeEditor::GetNodePosition( node.Id.get() );
+            node.Position.X = nodePosition.x;
+            node.Position.Y = nodePosition.y;
         }
 
         drawRerouteNode( node );
@@ -541,7 +590,7 @@ void NodeGraphEditorWindow::drawPropertiesPanel() {
                                              { ImGuiStyleVar_ItemSpacing, ImVec2( 0.0, 0.0f ) },
                                              { ImGuiStyleVar_ItemInnerSpacing, ImVec2( 0.0, 0.0f ) } };
 
-        ImGui::Begin( format::format( "Properties{}", m_propertiesPanelId ),
+        ImGui::Begin( format::format( "Properties{}", m_propertiesPanelId ).data(),
                       nullptr,
                       ImGuiWindowFlags_HorizontalScrollbar );
     }
@@ -707,16 +756,11 @@ void NodeGraphEditorWindow::save() {
     if( file_system::FileDialog::saveFileDialog( path,
                                                  m_editorContext->getLocalizedAssetTypeName(),
                                                  m_editorContext->getExtensions() ) ) {
-        assets::AssetMetaData dummyAsset;
-        dummyAsset.Path = path;
-        dummyAsset.Id = assets::AssetId( Guid64Generator::getGuid() );
-
         if( m_editorContext->compile() == false ) {
             return;
         }
 
-        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
-        m_editorContext->save( assetSystem, dummyAsset );
+        m_editorContext->saveAs( path );
     }
 }
 
@@ -725,84 +769,91 @@ void NodeGraphEditorWindow::load() {
     if( file_system::FileDialog::openFileDialog( path,
                                                  m_editorContext->getLocalizedAssetTypeName(),
                                                  m_editorContext->getExtensions() ) ) {
-        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
-        m_editorContext->load( assetSystem, path );
+        m_editorContext->load( path );
     }
 }
 
-void NodeGraphEditorWindow::saveEditorMetaData( const FilePath& path ) {
-    using namespace file_system;
-    JsonValue jsonRoot;
-
-    JsonValue nodesJsonArray;
-    for( const GraphEditorContext::Node& node : m_editorContext->getNodes() ) {
-        JsonValue nodeMetaInfo;
-        nodeMetaInfo.set( "id", node.Id );
-        nodeMetaInfo.set( "name", node.Name );
-
-        ImVec2 nodePosition = ax::NodeEditor::GetNodePosition( node.Id.get() );
-        Array< float32, 2 > position{ nodePosition.x, nodePosition.y };
-        nodeMetaInfo.set( "position", position );
-
-        nodesJsonArray.add( nodeMetaInfo );
-    }
-
-    jsonRoot.set( "nodes", nodesJsonArray );
-
-    // this is added here to save the visibility state of links (for hidden links based on reroute nodes)
-    JsonValue linksJsonArray;
+void NodeGraphEditorWindow::saveEditorMetaData( Serializer& serializer ) {
+    DynamicArray< GraphEditorContext::Link > hiddenLinks;
     for( const GraphEditorContext::Link& link : m_editorContext->getLinks() ) {
-        if( link.IsRerouted == false )
+        if( link.IsRerouted == false ) {
             continue;
-
-        JsonValue linkMetaInfo;
-        linkMetaInfo.set( "frominputpin", link.FromPinId );
-        linkMetaInfo.set( "tooutputpin", link.ToPinId );
-
-        linksJsonArray.add( linkMetaInfo );
-    }
-
-    if( linksJsonArray.Json.empty() == false )
-        jsonRoot.set( "hiddenlinks", linksJsonArray );
-
-    if( m_rerouteNodes.empty() == false ) {
-        JsonValue rerouteNodesJsonArray;
-        for( const RerouteNode& node : m_rerouteNodes ) {
-            JsonValue nodeMetaInfo;
-            nodeMetaInfo.set( "id", node.Id );
-            nodeMetaInfo.set( "inputpin", node.InputPinId );
-            nodeMetaInfo.set( "outputpin", node.OutputPinId );
-
-            ImVec2 nodePosition = ax::NodeEditor::GetNodePosition( node.Id.get() );
-            Array< float32, 2 > position{ nodePosition.x, nodePosition.y };
-            nodeMetaInfo.set( "position", position );
-
-            rerouteNodesJsonArray.add( nodeMetaInfo );
         }
 
-        jsonRoot.set( "reroutenodes", rerouteNodesJsonArray );
+        hiddenLinks.emplace_back( link );
     }
+    
+    bool success = serializer.write< "nodegraph" >( [ & ]( Serializer& serializer ) {
+        bool success = serializer.write< "nodes" >( m_editorContext->getNodes() );
+        success &= serializer.write< "hiddenlinks" >( hiddenLinks );
 
-    if( m_rerouteLinks.empty() == false ) {
-        JsonValue rerouteLinksJsonArray;
-        for( const RerouteLink& link : m_rerouteLinks ) {
-            JsonValue linkMetaInfo;
-            linkMetaInfo.set( "id", link.Id );
-            linkMetaInfo.set( "frominputpin", link.FromInputPinId );
-            linkMetaInfo.set( "tooutputpin", link.ToOutputPinId );
+        success &= serializer.writeForEach< "reroutenodes" >(
+            m_rerouteNodes,
+            []( Serializer& serializer, const RerouteNode& node ) {
+                bool success = serializer.write< "id" >( node.Id );
+                success &= serializer.write< "position" >( node.Position );
+                success &= serializer.write< "inputPin" >( node.InputPinId );
+                success &= serializer.write< "outputPin" >( node.OutputPinId );
+                return success;
+            } );
 
-            rerouteLinksJsonArray.add( linkMetaInfo );
+        success &= serializer.writeForEach< "reroutelinks" >(
+            m_rerouteLinks,
+            []( Serializer& serializer, const RerouteLink& link ) {
+                bool success = serializer.write< "id" >( link.Id );
+                success &= serializer.write< "from" >( link.FromInputPinId );
+                success &= serializer.write< "to" >( link.ToOutputPinId );
+                return success;
+            } );
+        return success;
+    } );
+
+    if( success == false ) {
+        ONYX_LOG_WARNING( "Failed serializing editor data for nodegraph" );
+    }
+}
+
+void NodeGraphEditorWindow::loadEditorMetaData( const Deserializer& deserializer ) {
+    // clear reroute nodes
+    m_rerouteNodes.clear();
+    m_rerouteLinks.clear();
+
+    // clang-format off
+    bool success = deserializer.read< "nodegraph" >( [ & ]( const Deserializer& deserializer ) {
+        DynamicArray< GraphEditorContext::Node > nodes;
+        bool success = deserializer.read< "nodes" >( nodes );
+        for( const auto& nodeMeta : nodes ) {
+            GraphEditorContext::Node& node = m_editorContext->getNode( nodeMeta.Id );
+            node.Position = nodeMeta.Position;
+            node.Name = nodeMeta.Name;
+            node.HasUpdatedPosition = true;
         }
 
-        jsonRoot.set( "reroutelinks", rerouteLinksJsonArray );
+        success &= deserializer.read< "reroutenodes" >(
+            m_rerouteNodes,
+            []( const Deserializer& deserializer, RerouteNode& node ) {
+                bool success = deserializer.read< "id" >( node.Id );
+                success &= deserializer.read< "position" >( node.Position );
+                success &= deserializer.read< "inputPin" >( node.InputPinId );
+                success &= deserializer.read< "outputPin" >( node.OutputPinId );
+                return success;
+            } );
+
+        success &= deserializer.read< "reroutelinks" >(
+            m_rerouteLinks,
+            []( const Deserializer& deserializer, RerouteLink& link ) {
+                bool success = deserializer.read< "id" >( link.Id );
+                success &= deserializer.read< "from" >( link.FromInputPinId );
+                success &= deserializer.read< "to" >( link.ToOutputPinId );
+                return success;
+            } );
+        // clang-format on
+        return success;
+    } );
+
+    if( success == false ) {
+        ONYX_LOG_WARNING( "Failed serializing editor data for nodegraph" );
     }
-
-    FilePath metaFilePath = path::replaceExtension( path, "ometa" );
-    OnyxFile metaDataFile( path::getFullPath( metaFilePath ) );
-    FileStream stream = metaDataFile.openStream( OpenMode::Write | OpenMode::Text );
-
-    const String& jsonString = jsonRoot.Json.dump( 4 );
-    stream.writeRaw( jsonString.data(), jsonString.size() );
 }
 
 void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
@@ -812,7 +863,7 @@ void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
 
     using namespace file_system;
     FilePath metaFilePath = file_system::path::replaceExtension( path, "ometa" );
-    OnyxFile metaDataJsonFile( file_system::path::getFullPath( metaFilePath ) );
+    File metaDataJsonFile( file_system::path::getFullPath( metaFilePath ) );
 
     const JsonValue& metaDataJsonRoot = metaDataJsonFile.loadJson();
 
@@ -944,12 +995,40 @@ void NodeGraphEditorWindow::loadEditorMetaData( const FilePath& path ) {
     }
 }
 
-void NodeGraphEditorWindow::onGraphLoaded() {
+void NodeGraphEditorWindow::onGraphLoaded( assets::AssetId loadedAsset ) {
+    // This is executed on the loader thread
     m_shouldFocus = true;
     m_focusDuration = 0.0f;
+
+    // assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+    // const assets::AssetMetaData& assetMeta = assetSystem.getAssetMeta( loadedAsset );
+    // loadEditorMetaData( assetMeta.Path );
+
+    // This is executed on the saving thread
+    assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+    const assets::AssetMetaData& assetMeta = assetSystem.getAssetMeta( loadedAsset );
+
+    String assetMetaContent;
+    FilePath assetMetaPath = file_system::path::getFullPath( assetMeta.MetaDataPath );
+    if( file_system::File::readAll( assetMetaPath, assetMetaContent ) ) {
+        serialization::text::TextDeserializer deserializer( assetMetaContent );
+        loadEditorMetaData( deserializer );
+    }
 }
 
-void NodeGraphEditorWindow::onGraphSaved() {}
+void NodeGraphEditorWindow::onGraphSaved( assets::AssetId savedAsset ) {
+    // This is executed on the saving thread
+    assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+    const assets::AssetMetaData& assetMeta = assetSystem.getAssetMeta( savedAsset );
+
+    String assetMetaContent;
+    FilePath assetMetaPath = file_system::path::getFullPath( assetMeta.MetaDataPath );
+    if( file_system::File::readAll( assetMetaPath, assetMetaContent ) ) {
+        serialization::text::TextSerializer serializer( std::move( assetMetaContent ) );
+        saveEditorMetaData( serializer );
+        std::ignore = file_system::File::writeAll( assetMetaPath, serializer.data() );
+    }
+}
 
 // clang-format off
 void NodeGraphEditorWindow::onCopyAction( [[maybe_unused]] const input_actions::InputActionEvent& inputActionContext ) {}
@@ -1056,9 +1135,9 @@ void NodeGraphEditorWindow::drawNodeLinks() const {
 
 void NodeGraphEditorWindow::drawCreateLink() {
     using namespace ax;
-    auto showLabel = []( const char* label, ImColor color ) {
+    auto showLabel = []( StringView label, ImColor color ) {
         ImGui::SetCursorPosY( ImGui::GetCursorPosY() - ImGui::GetTextLineHeight() );
-        auto size = ImGui::CalcTextSize( label );
+        auto size = ImGui::CalcTextSize( label.data() );
 
         auto padding = ImGui::GetStyle().FramePadding;
         auto spacing = ImGui::GetStyle().ItemSpacing;
@@ -1072,7 +1151,7 @@ void NodeGraphEditorWindow::drawCreateLink() {
 
         auto drawList = ImGui::GetWindowDrawList();
         drawList->AddRectFilled( rectMin, rectMax, color, size.y * 0.15f );
-        ImGui::TextUnformatted( label );
+        ImGui::TextUnformatted( label.data() );
     };
 
     if( NodeEditor::BeginCreate( ImColor( 255, 255, 255 ), 2.0f ) ) {

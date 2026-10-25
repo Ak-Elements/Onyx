@@ -1,6 +1,6 @@
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/graphics/rendergraph/rendergraphtask.h>
 #include <onyx/log/logger.h>
 #include <onyx/rhi/commandbuffer.h>
@@ -14,6 +14,25 @@
 ONYX_PROFILE_CREATE_TAG( RenderGraph, 0x3ed694 );
 
 namespace onyx::graphics {
+
+RenderGraph::RenderGraph( const RenderGraph& other )
+    : m_isInitialized( other.m_isInitialized )
+    , m_resourceCache( other.m_resourceCache )
+    , m_inputs( other.m_inputs )
+    , m_finalTextureId( other.m_finalTextureId ) {}
+
+RenderGraph& RenderGraph::operator=( const RenderGraph& other ) {
+    if( this == &other )
+        return *this;
+
+    m_isInitialized = other.m_isInitialized;
+    // m_graph = other.m_graph;
+    m_resourceCache = other.m_resourceCache;
+    m_inputs = other.m_inputs;
+    m_finalTextureId = other.m_finalTextureId;
+    return *this;
+}
+
 void RenderGraph::init( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem ) {
     ONYX_PROFILE( RenderGraph );
     ONYX_PROFILE_FUNCTION;
@@ -55,7 +74,7 @@ void RenderGraph::init( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& g
             const node_graph::PinBase* outputPin = graphNode.getOutputPin( i );
             RenderGraphResource& output = m_resourceCache[ outputPin->getGlobalId().get() ];
 
-            if( outputPin->getType() == static_cast< node_graph::PinTypeId >( TypeHash< rhi::BufferHandle >() ) )
+            if( outputPin->getType() == static_cast< node_graph::PinTypeId >( typeHash< rhi::BufferHandle >() ) )
                 continue;
 
             // TODO: Improve handling of final texture Id as this is very error prone

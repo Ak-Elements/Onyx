@@ -59,9 +59,9 @@ Shader::~Shader() = default;
 //     return true;
 // }
 
-void Shader::create( const GraphicsSystem& graphicsSystem,
-                     Span< const uint8_t > byteCode,
-                     ShaderReflectionInfo& reflectionInfo ) {
+void Shader::setByteCode( const GraphicsSystem& graphicsSystem,
+                          ByteCode byteCode,
+                          ShaderReflectionInfo& reflectionInfo ) {
     const VulkanGraphicsApi& vulkanApi = graphicsSystem.getApi< VulkanGraphicsApi >();
 
     m_module = makeUnique< ShaderModule >( vulkanApi, byteCode );
@@ -104,7 +104,7 @@ DynamicArray< VkPipelineShaderStageCreateInfo > Shader::createPipelineShaderStag
     return pipelineCreateInfos;
 }
 
-bool Shader::loadFromDisk( GraphicsSystem& graphicsSystem, Stream& stream ) {
+bool Shader::read( GraphicsSystem& graphicsSystem, Stream& stream ) {
     VulkanGraphicsApi& vulkanApi = graphicsSystem.getApi< VulkanGraphicsApi >();
     DynamicArray< uint8_t > byteCode;
     stream.read( byteCode );

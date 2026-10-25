@@ -32,7 +32,7 @@ class AssetSystem : public IEngineSystem {
     template < typename T >
     AssetHandle< T > create() {
         const auto& createFunctor = s_registeredAssets.at( T::TypeId );
-        AssetHandle< T > newAsset( AssetId::invalid(), createFunctor( *m_engine ) );
+        AssetHandle< T > newAsset( AssetId{ Guid64Generator::getGuid() }, createFunctor( *m_engine ) );
         newAsset->setState( AssetState::Loaded );
         return newAsset;
     }
@@ -54,7 +54,9 @@ class AssetSystem : public IEngineSystem {
         return extensions;
     }
 
-    auto getAssetTypes() { return s_registeredAssets | std::views::keys; }
+    static FilePath toAssetMetaPath( FilePath assetPath );
+
+    static auto getAssetTypes() { return s_registeredAssets | std::views::keys; }
 
     Optional< const AssetMetaData* > tryGetAssetMeta( AssetId id ) const {
         auto it = m_assetsMetaData.find( id );
@@ -66,6 +68,8 @@ class AssetSystem : public IEngineSystem {
 
     AssetId resolveAssetId( const FilePath& path ) const;
 
+    Serializer getAssetMetaSerializer( AssetId id ) const;
+    Deserializer getAssetMetaDeserializer( AssetId id ) const;
     const AssetMetaData& getAssetMeta( AssetId id ) const { return m_assetsMetaData.at( id ); }
 
     DynamicArray< AssetMetaData > getAvailableAssets( AssetType type ) const {
@@ -128,7 +132,7 @@ class AssetSystem : public IEngineSystem {
     bool saveAsset( const AssetHandle< T >& asset );
 
     template < typename T >
-    bool saveAssetAs( const FilePath& newPath, const AssetHandle< T >& asset );
+    [[nodiscard]] AssetHandle< T > saveAssetAs( const FilePath& newPath, const AssetHandle< T >& asset );
 
 #endif
 
@@ -316,10 +320,11 @@ bool AssetSystem::saveAsset( const AssetHandle< T >& asset ) {
 }
 
 template < typename T >
-bool AssetSystem::saveAssetAs( const FilePath& newPath, const AssetHandle< T >& asset ) {
+AssetHandle< T > AssetSystem::saveAssetAs( const FilePath& newPath, const AssetHandle< T >& asset ) {
     constexpr StringId32 AssetTypeHash = T::TypeId;
     AssetId newAssetId( Guid64Generator::getGuid() );
     AssetMetaData metaData{ .Path = newPath,
+                            .MetaDataPath = toAssetMetaPath( newPath ),
                             .Id = newAssetId,
                             .Type = static_cast< AssetType >( AssetTypeHash.getId() ) };
     const UniquePtr< IAssetSerializer >& serializer = s_registeredSerializer.at( AssetTypeHash );
@@ -327,9 +332,10 @@ bool AssetSystem::saveAssetAs( const FilePath& newPath, const AssetHandle< T >& 
     // TODO: should only add it IF we finish saving
     m_assetsMetaData.try_emplace( newAssetId, metaData );
 
-    const AssetHandle< AssetInterface > assetToSave{ asset };
+    AssetHandle< T > newAsset{ newAssetId, asset.getHandle() };
+    AssetHandle< AssetInterface > assetToSave{ newAsset };
     m_ioHandler.requestSave( metaData, assetToSave, serializer, m_engine );
-    return true;
+    return newAsset;
 }
 #endif
 } // namespace onyx::assets

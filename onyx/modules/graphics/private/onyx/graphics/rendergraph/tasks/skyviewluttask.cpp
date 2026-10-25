@@ -53,7 +53,7 @@ void SkyViewLutRenderGraphNode::onRender( RenderGraphContext& context, rhi::Comm
     pushConstants.MultipleScatteringTextureIndex = m_multipleScatteringTextureIndex;
     pushConstants.SunDirection = getSunDirection( frameContext.TimeOfDay );
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, pushConstants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, pushConstants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 

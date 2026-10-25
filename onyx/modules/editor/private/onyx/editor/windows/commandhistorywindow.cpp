@@ -10,8 +10,8 @@ namespace onyx::editor {
 void CommandHistoryWindow::onOpen() {
     input_actions::InputActionSystem& inputActionsSystem = getEngineSystem< input_actions::InputActionSystem >();
 
-    inputActionsSystem.onInput< &CommandHistoryWindow::OnRedo >( "Redo", this );
-    inputActionsSystem.onInput< &CommandHistoryWindow::OnUndo >( "Undo", this );
+    inputActionsSystem.onInput< &CommandHistoryWindow::onRedo >( "Redo", this );
+    inputActionsSystem.onInput< &CommandHistoryWindow::onUndo >( "Undo", this );
 }
 
 void CommandHistoryWindow::onClose() {
@@ -25,11 +25,11 @@ void CommandHistoryWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     ImGui::BeginVertical( "##content" );
 
     uint32_t i = 0;
-    for( const UniquePtr< ICommand >& command : m_CommandStack->getCommands() ) {
-        ImGui::BeginHorizontal( format::format( "##item{}", i++ ) );
+    for( const UniquePtr< ICommand >& command : m_commandStack->getCommands() ) {
+        ImGui::BeginHorizontal( format::format( "##item{}", i++ ).data() );
         ImGui::Text( "t    " );
         if( ImGui::Selectable( command->getCommandId().getString().data() ) ) {
-            m_CommandStack->reset( *command );
+            m_commandStack->reset( *command );
         }
         ImGui::EndHorizontal();
     }
@@ -39,7 +39,7 @@ void CommandHistoryWindow::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // end();
 }
 
-void CommandHistoryWindow::OnUndo( const input_actions::InputActionEvent& undoAction ) {
+void CommandHistoryWindow::onUndo( const input_actions::InputActionEvent& undoAction ) {
     const ui::ImGuiWindow* parent = getParent< ImGuiWindow >().value_or( nullptr );
     ONYX_ASSERT( parent != nullptr );
 
@@ -49,10 +49,10 @@ void CommandHistoryWindow::OnUndo( const input_actions::InputActionEvent& undoAc
     if( undoAction.getData< bool >() == false )
         return;
 
-    m_CommandStack->moveBack();
+    m_commandStack->moveBack();
 }
 
-void CommandHistoryWindow::OnRedo( const input_actions::InputActionEvent& redoAction ) {
+void CommandHistoryWindow::onRedo( const input_actions::InputActionEvent& redoAction ) {
     const ui::ImGuiWindow* parent = getParent< ImGuiWindow >().value_or( nullptr );
     ONYX_ASSERT( parent != nullptr );
 
@@ -62,6 +62,6 @@ void CommandHistoryWindow::OnRedo( const input_actions::InputActionEvent& redoAc
     if( redoAction.getData< bool >() == false )
         return;
 
-    m_CommandStack->moveForward();
+    m_commandStack->moveForward();
 }
 } // namespace onyx::editor

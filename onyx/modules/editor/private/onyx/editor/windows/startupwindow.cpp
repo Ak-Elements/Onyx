@@ -40,24 +40,19 @@ void StartupWindow::onRender( ui::ImGuiSystem& system ) {
         ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
 
         NodeGraphEditorWindow& window = system.openWindow< NodeGraphEditorWindow >();
-        window.setContext(
-            makeUnique< ShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem, *ui::g_uiContext.GraphicsSystem ) );
+        window.setContext< ShaderGraphEditorContext >();
         close();
     }
 
     if( ui::button( localization::editor::windows::RenderGraphEditorTitle, Vector2f32( 200, 50 ) ) ) {
         NodeGraphEditorWindow& window = system.openWindow< NodeGraphEditorWindow >();
-        window.setContext( makeUnique< RenderGraphEditorContext >() );
+        window.setContext< RenderGraphEditorContext >();
         close();
     }
 
     if( ui::button( localization::editor::windows::VolumeShaderGraphEditorTitle, Vector2f32( 200, 50 ) ) ) {
-        ONYX_ASSERT( ui::g_uiContext.AssetSystem != nullptr );
-        ONYX_ASSERT( ui::g_uiContext.GraphicsSystem != nullptr );
-
         NodeGraphEditorWindow& window = system.openWindow< NodeGraphEditorWindow >();
-        window.setContext( makeUnique< VolumeShaderGraphEditorContext >( *ui::g_uiContext.AssetSystem,
-                                                                         *ui::g_uiContext.GraphicsSystem ) );
+        window.setContext< VolumeShaderGraphEditorContext >();
         close();
     }
 

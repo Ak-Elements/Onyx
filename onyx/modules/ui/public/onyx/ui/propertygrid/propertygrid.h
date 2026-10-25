@@ -62,9 +62,10 @@ bool drawProperty( StringView propertyName, StringView readOnlyValue );
 bool drawProperty( StringView propertyName, String& value );
 bool drawProperty( StringView propertyName, String& value, ImGuiInputTextFlags flags );
 
+bool drawProperty( StringView propertyName, assets::AssetType assetType, assets::AssetId& outAssetId );
+
 template < typename T > requires std::is_base_of_v< assets::AssetInterface, T >
 bool drawProperty( StringView propertyName, assets::AssetHandle< T >& outAsset ) {
-    assets::AssetId assetId = outAsset.getId();
     drawPropertyName( propertyName );
     bool hasModified = internal::drawPropertyValue( propertyName, outAsset );
     ImGui::EndHorizontal();

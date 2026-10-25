@@ -36,6 +36,9 @@ class TerrainPanel : public ui::ImGuiWindow {
 
     static constexpr StringId64 HitBufferResourceId = "hit buffer";
 
+    TerrainPanel();
+    ~TerrainPanel() override;
+
     StringView getWindowId() override { return WindowId; }
 
     void setSceneViewPanelId( uint32_t panelId ) {
@@ -60,18 +63,10 @@ class TerrainPanel : public ui::ImGuiWindow {
                        const volume::VolumeGenerationComponent& volumeGenerationComponent,
                        Rect2f32 sceneViewPort );
     void readbackTerrainHit( rhi::CommandBuffer& computeCommandBuffer );
-    void findWorldOctreeNode( rhi::CommandBuffer& computeCommandBuffer,
-                              const volume::TerrainSettingsComponent& terrainSettings,
-                              volume::TerrainWorldOctreeComponent& terrainOctree,
-                              const volume::VolumeGenerationComponent& volumeGenerationComponent );
-    void updateTerrainMesh( [[maybe_unused]] const rhi::CommandBuffer& commandBuffer,
-                            [[maybe_unused]] const volume::TerrainSettingsComponent& terrainSettings,
-                            [[maybe_unused]] volume::TerrainWorldOctreeComponent& terrainOctree );
 
     void onTerrainPanelBrushSizeInput( const input_actions::InputActionEvent& inputEvent );
 
   private:
-    game_core::Scene* m_currentScene = nullptr;
     uint32_t m_sceneViewPanelId = 0;
 
     // should be a frame/transient buffer

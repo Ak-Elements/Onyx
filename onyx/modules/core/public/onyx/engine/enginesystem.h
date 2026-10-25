@@ -39,6 +39,7 @@ class IEngine : public NonCopyable {
     virtual IEngineSystem& getSystem( StringId32 systemId ) = 0;
     [[nodiscard]] virtual const IEngineSystem& getSystem( StringId32 systemId ) const = 0;
 
+    static EngineVariablesRegistry& getVariablesRegistryRef() { return s_engineVariables; }
     static const EngineVariablesRegistry& getVariablesRegistry() { return s_engineVariables; }
 
     static void registerVariable( IEngineVariable& variable ) { s_engineVariables.registerVariable( variable ); }

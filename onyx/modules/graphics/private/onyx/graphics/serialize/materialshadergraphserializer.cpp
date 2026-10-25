@@ -1,7 +1,7 @@
 #include <onyx/graphics/serialize/materialshadergraphserializer.h>
 
 #include <onyx/assets/assetsystem.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/graphics/serialize/shadergraphserializer.h>
 #include <onyx/graphics/shadergraph/materialshadergraph.h>
 #include <onyx/graphics/shadergraph/shadergraph.h>
@@ -20,7 +20,7 @@ bool MaterialShaderGraphSerializer::serialize( const assets::AssetHandle< assets
         return false;
 
     // save shader to file
-    file_system::OnyxFile shaderOutFile(
+    file_system::File shaderOutFile(
         file_system::path::getFullPath( file_system::path::replaceExtension( meta.Path, "oshader" ) ) );
     file_system::FileStream shaderOutStream = shaderOutFile.openStream( file_system::OpenMode::Write |
                                                                         file_system::OpenMode::Text );

@@ -1,11 +1,11 @@
 #include <onyx/volume/volumemodule.h>
 
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/volume/components/csg/cubecomponent.gen.h>
 #include <onyx/volume/components/csg/planecomponent.gen.h>
 #include <onyx/volume/components/csg/spherecomponent.gen.h>
 
-#include <onyx/volume/systems/volumeterrainsystem.h>
+#include <onyx/volume/systems/volumeterrainentitysystem.h>
 
 namespace onyx::volume {
 VolumeModule::VolumeModule( game_core::GameCoreSystem& gameCore ) {

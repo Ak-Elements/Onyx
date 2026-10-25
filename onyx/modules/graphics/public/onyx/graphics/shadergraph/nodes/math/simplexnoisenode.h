@@ -47,4 +47,5 @@ class SimplexNoise3DNode : public node_graph::FixedPinNode1In2Out< ShaderGraphNo
     [[nodiscard]] StringView getPinName( StringId32 pinId ) const override;
 #endif
 };
+
 } // namespace onyx::graphics::shader_graph_nodes

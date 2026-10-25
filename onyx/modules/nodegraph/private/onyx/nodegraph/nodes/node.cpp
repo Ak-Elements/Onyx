@@ -27,7 +27,7 @@ bool Node::serializePins( Serializer& serializer ) const {
             const PinBase* inputPin = getInputPin( index );
             scopedSerializer.write< "id" >( inputPin->getGlobalId() );
             scopedSerializer.write< "localId" >( inputPin->getLocalId() );
-            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::GetSerializedTypeId( inputPin->getType() ) );
+            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::getSerializedTypeId( inputPin->getType() ) );
 
             if( inputPin->isConnected() ) {
                 scopedSerializer.write< "linkedPin" >( inputPin->getLinkedPinGlobalId() );
@@ -43,7 +43,7 @@ bool Node::serializePins( Serializer& serializer ) const {
             const PinBase* outputPin = getOutputPin( index );
             scopedSerializer.write< "id" >( outputPin->getGlobalId() );
             scopedSerializer.write< "localId" >( outputPin->getLocalId() );
-            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::GetSerializedTypeId( outputPin->getType() ) );
+            scopedSerializer.write< "typeId" >( NodeGraphTypeRegistry::getSerializedTypeId( outputPin->getType() ) );
 
             if( outputPin->isConnected() ) {
                 scopedSerializer.write< "linkedPin" >( outputPin->getLinkedPinGlobalId() );
@@ -72,7 +72,7 @@ bool Node::deserializePins( const Deserializer& deserializer ) {
         PinBase* inputPin = getInputPinByLocalId( localPinId );
         if( inputPin == nullptr ) {
             ONYX_LOG_WARNING( "Missing pin with LocalId {}", localPinId );
-            return true;
+            return false;
         }
 
         if( scopedDeserializer.read< "id" >( pinId ) == false ) {

@@ -55,6 +55,11 @@ void endPropertyGrid() {
     g_locPropertyGridIdStack.pop();
 }
 
+bool drawPropertyValue( StringView propertyName, assets::AssetType assetType, assets::AssetId& outAssetId ) {
+    ScopedImGuiId id( propertyName );
+    return assetSelector( *g_uiContext.AssetSystem, assetType, outAssetId );
+}
+
 ImGuiID getPropertyGridId() {
     return g_locPropertyGridIdStack.top();
 }

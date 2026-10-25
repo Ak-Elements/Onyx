@@ -46,6 +46,7 @@ class Camera {
 
   protected:
     void updatePerspectiveMatrix();
+    void updateViewPerspectiveMatrices();
 
   protected:
     Matrix4x4f32 m_projectionMatrix{ 0 };

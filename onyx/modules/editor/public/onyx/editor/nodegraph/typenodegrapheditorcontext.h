@@ -10,13 +10,17 @@ namespace onyx::editor {
 template < typename GraphAssetT, typename NodeFactoryT >
 class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
   public:
-    TypedNodeGraphEditorContext();
-
     DynamicArray< StringView > getExtensions() const override {
         return assets::AssetSystem::getExtensions< GraphAssetT >();
     }
     StringView getLocalizedAssetTypeName() const override {
-        return getLocalizationModule().tryGetLocalized( GraphAssetT::TypeId ).value_or( "Unknown" );
+        const auto& localizationSystem = getEngineSystem< localization::LocalizationModule >();
+        return localizationSystem.tryGetLocalized( GraphAssetT::TypeId ).value_or( "Unknown" );
+    }
+
+    void createNew() override {
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+        m_graph = assetSystem.create< GraphAssetT >();
     }
 
   protected:
@@ -25,11 +29,9 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
 
   private:
     const node_graph::INodeFactory& getNodeFactory() const override { return m_nodeFactory; }
-    void onLoad( assets::AssetSystem& assetSystem, const FilePath& path ) override {
+    void onLoad( const FilePath& path ) override {
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
         const assets::AssetId assetId = assetSystem.resolveAssetId( path );
-
-        // want to queue meta data loading
-        m_currentAssetMetaData = assetSystem.getAssetMeta( assetId );
 
         assets::AssetHandle< GraphAssetT > graphAsset;
         assetSystem.getAssetUnmanaged( assetId, graphAsset );
@@ -41,12 +43,24 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
         }
     }
 
-    void onSave( assets::AssetSystem& assetSystem, const assets::AssetMetaData& metaData ) override {
-        assetSystem.saveAssetAs( metaData.Path, m_graph );
+    void onSave() override {
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+        assetSystem.saveAsset( m_graph );
+        m_graph->getOnSavedEvent().template connect< &TypedNodeGraphEditorContext::onAssetSaved >( this );
     }
+
+    void onSave( const FilePath& path ) override {
+        assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+        m_graph = assetSystem.saveAssetAs( path, m_graph );
+        m_graph->getOnSavedEvent().template connect< &TypedNodeGraphEditorContext::onAssetSaved >( this );
+    }
+
+    void onClear() override { m_graph.reset(); }
 
     void onAssetLoaded( assets::AssetHandle< typename GraphAssetT::AssetT > loadedGraph ) {
         clear();
+
+        loadedGraph->getOnLoadedEvent().disconnect( this );
         m_graph = loadedGraph;
 
         const auto& graphNodes = m_graph->getNodeGraph().getNodes();
@@ -54,12 +68,13 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
         DynamicArray< Node >& nodes = getNodes();
         nodes.reserve( graphNodes.size() );
 
+        const auto& localizationSystem = getEngineSystem< localization::LocalizationModule >();
         for( auto&& [ id, nodeContainer ] : graphNodes ) {
             const UniquePtr< node_graph::Node >& node = nodeContainer.Data;
 
             String nodeName( node->getName() );
             if( nodeName.empty() ) {
-                nodeName = getLocalizationModule().getLocalized( node->getTypeId() ).Get();
+                nodeName = localizationSystem.getLocalized( node->getTypeId() ).Get();
             }
 
             Node& nodeEditorMeta = nodes.emplace_back( node->getId(), nodeName );
@@ -68,15 +83,22 @@ class TypedNodeGraphEditorContext : public NodeGraphEditorContext {
             updateEditorNodeData( nodeEditorMeta, *node );
         }
 
-        finishLoading( m_currentAssetMetaData );
+        onLoaded( m_graph.getId() );
+    }
+
+    void onAssetSaved( assets::AssetHandle< typename GraphAssetT::AssetT > savedGraph, bool savedSuccessfully ) {
+        m_graph->getOnSavedEvent().disconnect( this );
+        if( savedSuccessfully ) {
+            onSaved( savedGraph.getId() );
+        } else {
+            const assets::AssetSystem& assetSystem = getEngineSystem< assets::AssetSystem >();
+            const assets::AssetMetaData& assetMeta = assetSystem.getAssetMeta( savedGraph.getId() );
+            ONYX_LOG_WARNING( "Failed saving {} at path {}", getLocalizedAssetTypeName(), assetMeta.Path );
+        }
     }
 
   protected:
     assets::AssetHandle< GraphAssetT > m_graph;
     NodeFactoryT m_nodeFactory;
-    // TODO: Not ideal to save asset meta data here
-    assets::AssetMetaData m_currentAssetMetaData;
 };
-template < typename GraphAssetT, typename NodeFactoryT >
-inline TypedNodeGraphEditorContext< GraphAssetT, NodeFactoryT >::TypedNodeGraphEditorContext() = default;
 } // namespace onyx::editor

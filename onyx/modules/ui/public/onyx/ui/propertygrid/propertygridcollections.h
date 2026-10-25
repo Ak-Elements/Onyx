@@ -326,6 +326,11 @@ inline bool drawProperty( StringView propertyName, DynamicArray< StringView >& c
     return details::drawCollectionProperty( propertyName, collection, {}, drawEntryFunctor, drawEntryFunctor );
 }
 
+template < typename T, typename F > requires std::is_invocable_r_v< bool, F, StringView, T& >
+bool drawProperty( StringView propertyName, DynamicArray< T >& collection, F forEachFunctor ) {
+    return details::drawCollectionProperty( propertyName, collection, {}, forEachFunctor, forEachFunctor );
+}
+
 template < typename T >
 bool drawProperty( StringView propertyName, DynamicArray< T >& collection ) {
     auto drawEntryFunctor = [ & ]( StringView id, T& value ) { return internal::drawPropertyValue( id, value ); };

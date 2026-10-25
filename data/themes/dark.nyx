@@ -93,21 +93,11 @@ theme 91
         frame_border_size: 0.0
         grab_rounding: 4.0
         tab_border_size: 1.0
-        window_title_align 2
-            0.5
-            0.5
-        window_padding 2
-            8.0
-            8.0
-        frame_padding 2
-            4.0
-            4.0
-        item_spacing 2
-            8.0
-            8.0
-        item_inner_spacing 2
-            4.0
-            4.0
+        window_title_align: 0.5 0.5
+        window_padding: 8.0 8.0
+        frame_padding: 4.0 4.0
+        item_spacing: 8.0 8.0
+        item_inner_spacing: 4.0 4.0
         indent_spacing: 20.0
         scrollbar_size: 15.0
         grab_min_size: 10.0

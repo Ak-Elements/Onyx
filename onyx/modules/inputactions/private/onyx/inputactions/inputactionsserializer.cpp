@@ -41,12 +41,12 @@ struct Serialization< input_actions::InputAction > {
 template <>
 struct Serialization< input_actions::InputActionsMap > {
     static bool serialize( Serializer& serializer, const input_actions::InputActionsMap& map ) {
-        serializer.write( map.m_Actions );
+        serializer.write( map.m_actions );
         return true;
     }
 
     static bool deserialize( const Deserializer& deserializer, input_actions::InputActionsMap& outMap ) {
-        deserializer.read( outMap.m_Actions );
+        deserializer.read( outMap.m_actions );
         return true;
     }
 };

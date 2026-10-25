@@ -48,19 +48,6 @@ class SwizzleVectorComponentsNode< graphics::ShaderGraphNode, InVectorT, OutVect
     }
 
 #if ONYX_IS_EDITOR
-    bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override {
-        bool hasModified = Super::onDrawInPropertyGrid( constantPinData );
-
-        // Optional<Vector4u8> swizzle = Editor::EditorSwizzleVectorControl<InVectorT, OutVectorT>::Draw(Mask);
-        // if (swizzle.has_value())
-        //{
-        //     hasModified = true;
-        //     OutIndexMapping = swizzle.value();
-        // }
-
-        return hasModified;
-    }
-
     void doGenerateShader( const ExecutionContext& context, rhi::ShaderGenerator& generator ) const override {
         const typename Super::InPin& inputPin = Super::getInputPin();
 

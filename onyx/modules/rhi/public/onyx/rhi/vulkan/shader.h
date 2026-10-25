@@ -32,9 +32,9 @@ class Shader : public rhi::Shader {
     Shader() = default;
     ~Shader() override;
 
-    void create( const GraphicsSystem& graphicsSystem,
-                 Span< const uint8_t > byteCode,
-                 ShaderReflectionInfo& reflectionInfo );
+    void setByteCode( const GraphicsSystem& graphicsSystem,
+                      ByteCode byteCode,
+                      ShaderReflectionInfo& reflectionInfo ) override;
     [[nodiscard]] const ShaderReflectionInfo& getReflectionData() const override { return m_reflectionInfo; }
 
     [[nodiscard]] uint64_t getShaderHash() const override { return m_shaderHash; }
@@ -56,7 +56,7 @@ class Shader : public rhi::Shader {
 
     [[nodiscard]] DynamicArray< VkPipelineShaderStageCreateInfo > createPipelineShaderStageCreateInfos() const;
 
-    [[nodiscard]] bool loadFromDisk( GraphicsSystem& graphicsSystem, Stream& stream ) override;
+    [[nodiscard]] bool read( GraphicsSystem& graphicsSystem, Stream& stream ) override;
     [[nodiscard]] bool write( Stream& stream ) const override;
 
 #if !ONYX_IS_RETAIL

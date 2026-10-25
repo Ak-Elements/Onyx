@@ -9,7 +9,7 @@ bool Serialization< onyx::assets::AssetMetaData >::serialize( Serializer& serial
                                                               const onyx::assets::AssetMetaData& metadata ) {
     bool success = serializer.write< "id" >( metadata.Id );
     success &= serializer.write< "version" >( metadata.Version );
-    success &= serializer.write< "type" >( metadata.Type );
+    success &= serializer.write< "type" >( enums::toIntegral( metadata.Type ) );
     success &= serializer.write< "format" >( metadata.Format );
     return success;
 }
@@ -18,7 +18,11 @@ bool Serialization< onyx::assets::AssetMetaData >::deserialize( const Deserializ
                                                                 onyx::assets::AssetMetaData& outMetaData ) {
     bool success = deserializer.read< "id" >( outMetaData.Id );
     success &= deserializer.read< "version" >( outMetaData.Version );
-    success &= deserializer.read< "type" >( outMetaData.Type );
+
+    uint32_t assetType;
+    success &= deserializer.read< "type" >( assetType );
+    outMetaData.Type = enums::toEnum< assets::AssetType >( assetType );
+
     success &= deserializer.read< "format" >( outMetaData.Format );
     return success;
 }

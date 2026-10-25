@@ -3,6 +3,7 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 #include <onyx/rhi/commandbuffer.h>
+#include <onyx/rhi/graphicssystem.h>
 
 #include <onyx/profiler/profiler.h>
 
@@ -19,18 +20,19 @@ PreviewTerrainEditPass::PreviewTerrainEditPass() {
     m_inputAttachmentInfos.emplace_back(); // buffer
     graphics::RenderGraphTextureResourceInfo& gbufferInfo = m_inputAttachmentInfos.emplace_back();
     gbufferInfo.Type = graphics::RenderGraphResourceType::Attachment;
+    gbufferInfo.Format = rhi::TextureFormat::RGBA_FLOAT32;
 }
 
 void PreviewTerrainEditPass::onInit( assets::AssetSystem& assetSystem,
                                      rhi::GraphicsSystem&,
                                      graphics::RenderGraphResourceCache& ) {
-    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/volume/render_terrain_brush.oshader" );
+    m_pipelineProperties.Shader = assetSystem.resolveAssetId( "engine:/shaders/volume/render_terrain_brush.slang" );
 }
 
 void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context ) {
     ONYX_PROFILE_FUNCTION;
 
-    uint64_t outputGlobalId = getOutputPin( 0 )->getGlobalId().get();
+    uint64_t outputGlobalId = getOutputPin().getGlobalId().get();
 
     const node_graph::PinBase* gbufferRenderTargetPin = getInputPinByLocalId( InPin1::LocalId );
     if( gbufferRenderTargetPin->isConnected() ) {
@@ -43,24 +45,28 @@ void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context
 
 void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
-
+    
     if( context.Graph.hasResource( HitBufferResourceId ) == false ) {
         return;
     }
 
     struct PushConstants {
-        uint64_t HitPositionBuffer;
-        uint32_t DepthTextureIndex;
-        uint32_t BrushType;
+        GpuBufferDeviceAddress HitPosition;
+        GpuBufferDeviceAddress ViewConstants;
 
         Vector3f32 BrushSize;
-        uint32_t BrushOperation;
+        GpuTextureAddress DepthTextureIndex;
+
+        uint32_t BrushType = 0;
+        uint32_t BrushOperation = 0;
     };
 
     PushConstants constants;
+    constants.ViewConstants = context.FrameContext.Api->getViewConstantsBuffer().getGpuAddress();
+
     const graphics::RenderGraphResource& hitBufferResource = context.Graph.getResource( HitBufferResourceId );
     const rhi::BufferHandle& buffer = std::get< rhi::BufferHandle >( hitBufferResource.Handle );
-    constants.HitPositionBuffer = buffer.getGpuAddress();
+    constants.HitPosition = buffer.getGpuAddress();
 
     const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
     const rhi::TextureHandle& depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
@@ -70,7 +76,7 @@ void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rh
     constants.BrushType = s_brushType;
     constants.BrushOperation = s_brushOperation;
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, constants );
-    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 6, 0, 1 );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
+    commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 } // namespace onyx::volume

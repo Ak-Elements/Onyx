@@ -3,9 +3,9 @@
 #include <nlohmann/json.hpp>
 
 namespace onyx::file_system {
-JsonDeserializer::JsonDeserializer( const nlohmann::ordered_json& json )
-    : JsonRoot( json ) {
-    JsonNodes.emplace( &JsonRoot );
+JsonDeserializer::JsonDeserializer( StringView json )
+    : JsonRoot( nlohmann::json::parse( json, nullptr, false ) ) {
+    m_jsonNodes.emplace( &JsonRoot );
 }
 
 template < typename T >
@@ -55,12 +55,107 @@ bool JsonDeserializer::doGenericRead( StringView name, T& outValue, uint8_t base
     return error == std::errc();
 }
 
-bool JsonDeserializer::doRead( bool& outValue ) const {
-    return doGenericRead( outValue );
+bool JsonDeserializer::createScope( uint32_t index ) const {
+    nlohmann::ordered_json& current = getCurrent();
+    if( current.is_object() ) {
+        uint32_t currentIndex = 0;
+        for( const auto& item : current.items() ) {
+            if( currentIndex == index ) {
+                m_currentScopeName = item.key();
+                m_jsonNodes.push( &( getCurrent()[ item.key() ] ) );
+                return true;
+            }
+            ++currentIndex;
+        }
+
+        return false;
+    } else {
+        m_jsonNodes.push( &( getCurrent()[ index ] ) );
+        return true;
+    }
 }
 
-bool JsonDeserializer::doRead( StringView name, bool& outValue ) const {
-    return doGenericRead( name, outValue );
+bool JsonDeserializer::createScope( uint64_t index ) const {
+    nlohmann::ordered_json& current = getCurrent();
+    if( current.is_object() ) {
+        uint32_t currentIndex = 0;
+        for( const auto& item : current.items() ) {
+            if( currentIndex == index ) {
+                m_currentScopeName = item.key();
+                m_jsonNodes.push( &( getCurrent()[ item.key() ] ) );
+                return true;
+            }
+        }
+
+        return false;
+    } else {
+        m_jsonNodes.push( &( getCurrent()[ index ] ) );
+        return true;
+    }
+}
+
+bool JsonDeserializer::createScope( StringView name ) const {
+    nlohmann::ordered_json& current = getCurrent();
+    if( current.is_object() == false )
+        return false;
+
+    for( auto it = current.begin(); it != current.end(); ++it ) {
+        if( ignoreCaseEqual( it.key(), name ) ) {
+            m_currentScopeName = name;
+            nlohmann::ordered_json& newScope = *it;
+            m_jsonNodes.push( &newScope );
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool JsonDeserializer::getScopeIdentifier( uint32_t& /*outKey*/ ) const {
+    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
+    return false;
+}
+
+bool JsonDeserializer::getScopeIdentifier( uint64_t& /*outKey*/ ) const {
+    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
+    return false;
+}
+
+bool JsonDeserializer::getScopeIdentifier( Guid64& outKey ) const {
+    uint64_t guid64 = 0;
+    bool success = std::from_chars( m_currentScopeName.data(),
+                                    m_currentScopeName.data() + m_currentScopeName.size(),
+                                    guid64,
+                                    16 )
+                       .ec == std::errc{};
+    outKey = Guid64( guid64 );
+    return success;
+}
+
+bool JsonDeserializer::getScopeIdentifier( StringView& outKey ) const {
+    outKey = m_currentScopeName;
+    return true;
+}
+
+bool JsonDeserializer::endScope() const {
+    m_jsonNodes.pop();
+    return true;
+}
+
+uint32_t JsonDeserializer::getItemsCount() const {
+    return numericCast< uint32_t >( getCurrent().size() );
+}
+
+nlohmann::ordered_json& JsonDeserializer::getCurrent() {
+    return *m_jsonNodes.top();
+}
+
+nlohmann::ordered_json& JsonDeserializer::getCurrent() const {
+    return *m_jsonNodes.top();
+}
+
+bool JsonDeserializer::doRead( bool& outValue ) const {
+    return doGenericRead( outValue );
 }
 
 bool JsonDeserializer::doRead( int8_t& outValue ) const {
@@ -143,198 +238,221 @@ bool JsonDeserializer::doRead( uint64_t& outValue, uint8_t base ) const {
     return doGenericRead( outValue, base );
 }
 
-bool JsonDeserializer::doRead( StringView name, int8_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, int16_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, int32_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, int64_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint8_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint16_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint32_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint64_t& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, float32& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, float32& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, float64& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, float64& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, int8_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, int16_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, int32_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, int64_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint8_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint16_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint32_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
-bool JsonDeserializer::doRead( StringView name, uint64_t& outValue, uint8_t base ) const {
-    return doGenericRead( name, outValue, base );
-}
-
 bool JsonDeserializer::doRead( StringView& outValue ) const {
     return doGenericRead( outValue );
-}
-
-bool JsonDeserializer::doRead( StringView name, StringView& outValue ) const {
-    return doGenericRead( name, outValue );
 }
 
 bool JsonDeserializer::doRead( Guid64& outValue ) const {
     return doGenericRead( outValue );
 }
 
-bool JsonDeserializer::doRead( StringView name, Guid64& outValue ) const {
-    return doGenericRead( name, outValue );
-}
-
-bool JsonDeserializer::createScope( uint32_t index ) const {
-    nlohmann::ordered_json& current = getCurrent();
-    if( current.is_object() ) {
-        uint32_t currentIndex = 0;
-        for( const auto& item : current.items() ) {
-            if( currentIndex == index ) {
-                m_CurrentScopeName = item.key();
-                JsonNodes.push( &( getCurrent()[ item.key() ] ) );
-                return true;
-            }
-            ++currentIndex;
-        }
-
-        return false;
-    } else {
-        JsonNodes.push( &( getCurrent()[ index ] ) );
-        return true;
-    }
-}
-
-bool JsonDeserializer::createScope( uint64_t index ) const {
-    nlohmann::ordered_json& current = getCurrent();
-    if( current.is_object() ) {
-        uint32_t currentIndex = 0;
-        for( const auto& item : current.items() ) {
-            if( currentIndex == index ) {
-                m_CurrentScopeName = item.key();
-                JsonNodes.push( &( getCurrent()[ item.key() ] ) );
-                return true;
-            }
-        }
-
-        return false;
-    } else {
-        JsonNodes.push( &( getCurrent()[ index ] ) );
-        return true;
-    }
-}
-
-bool JsonDeserializer::createScope( StringView name ) const {
-    nlohmann::ordered_json& current = getCurrent();
-    if( current.is_object() == false )
-        return false;
-
-    for( auto it = current.begin(); it != current.end(); ++it ) {
-        if( ignoreCaseEqual( it.key(), name ) ) {
-            m_CurrentScopeName = name;
-            nlohmann::ordered_json& newScope = *it;
-            JsonNodes.push( &newScope );
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool JsonDeserializer::getScopeIdentifier( uint32_t& /*outKey*/ ) const {
-    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
-    return false;
-}
-
-bool JsonDeserializer::getScopeIdentifier( uint64_t& /*outKey*/ ) const {
-    ONYX_ASSERT( false, "Integral scope identifiers not supported in json" );
-    return false;
-}
-
-bool JsonDeserializer::getScopeIdentifier( Guid64& outKey ) const {
-    uint64_t guid64 = 0;
-    bool success = std::from_chars( m_CurrentScopeName.data(),
-                                    m_CurrentScopeName.data() + m_CurrentScopeName.size(),
-                                    guid64,
-                                    16 )
-                       .ec == std::errc{};
-    outKey = Guid64( guid64 );
+bool JsonDeserializer::doRead( Vector2s8& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
     return success;
 }
 
-bool JsonDeserializer::getScopeIdentifier( StringView& outKey ) const {
-    outKey = m_CurrentScopeName;
-    return true;
+bool JsonDeserializer::doRead( Vector2s16& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
 }
 
-bool JsonDeserializer::endScope() const {
-    JsonNodes.pop();
-    return true;
+bool JsonDeserializer::doRead( Vector2s32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
 }
 
-uint32_t JsonDeserializer::getItemsCount() const {
-    return numericCast< uint32_t >( getCurrent().size() );
+bool JsonDeserializer::doRead( Vector2s64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
 }
 
-nlohmann::ordered_json& JsonDeserializer::getCurrent() {
-    return *JsonNodes.top();
+bool JsonDeserializer::doRead( Vector2u8& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
 }
 
-nlohmann::ordered_json& JsonDeserializer::getCurrent() const {
-    return *JsonNodes.top();
+bool JsonDeserializer::doRead( Vector2u16& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector2u32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector2u64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector2f32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector2f64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3s8& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3s16& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3s32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3s64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3u8& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3u16& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3u32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3u64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3f32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector3f64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4s8& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4s16& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4s32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4s64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4u8& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4u16& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4u32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4u64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4f32& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
+}
+
+bool JsonDeserializer::doRead( Vector4f64& outValue ) const {
+    bool success = readAt( 0, outValue.X );
+    success &= readAt( 1, outValue.Y );
+    success &= readAt( 2, outValue.Z );
+    success &= readAt( 3, outValue.W );
+    return success;
 }
 } // namespace onyx::file_system

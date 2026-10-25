@@ -6,7 +6,7 @@
 #include <onyx/editor/editor_localization.h>
 #include <onyx/editor/windows/sceneeditor.h>
 
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/entity/componentfactory.h>
@@ -34,12 +34,15 @@ void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     // setName( String( getWindowId() ) );
     //  begin();
 
+    SceneEditorWindow& parent = *getParent< SceneEditorWindow >().value();
+    if( parent.isLoading() )
+        return;
+
     ImGui::Checkbox( localization::editor::ComponentsPanel::ShowAll.Get().data(), &m_showAll );
 
     game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
     const localization::LocalizationModule& localizationModule = getEngineSystem< localization::LocalizationModule >();
 
-    SceneEditorWindow& parent = *getParent< SceneEditorWindow >().value();
     game_core::Scene& scene = parent.getScene();
 
     ecs::EntityRegistry& registry = scene.getRegistry();
@@ -47,7 +50,7 @@ void ComponentsPanel::onRender( ui::ImGuiSystem& /*imguiSystem*/ ) {
     drawSelectedEntityComponents( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
 
     auto selectedEntities = registry.getView< SelectedComponent >();
-    if( selectedEntities.empty() == false ) {
+    if( parent.getSceneId() != assets::AssetId::invalid() && selectedEntities.empty() == false ) {
         drawCreateComponentContextMenu( registry, parent.getSceneId(), gameCoreSystem, localizationModule );
     }
 
@@ -145,7 +148,7 @@ void ComponentsPanel::drawCreateComponentContextMenu( ecs::EntityRegistry& regis
                                                     sceneId,
                                                     gameCoreSystem,
                                                     localizationModule );
-            ui::RenderTreeView( "componentMenu", root, flags );
+            ui::renderTreeView( "componentMenu", root, flags );
         }
 
         ImGui::EndChild();
@@ -182,7 +185,7 @@ ui::TreeItem ComponentsPanel::buildComponentTree( StringView searchString,
             if( i == parts.size() - 1 ) {
                 ui::TreeItem& menuItem = currentParent->Children[ currentToken ];
                 menuItem.Label = currentToken;
-                menuItem.OnSelected = [ & ]() {
+                menuItem.OnSelected = [ &, sceneId ]() {
                     auto selectedEntities = registry.getView< SelectedComponent >();
                     for( ecs::EntityId selectedEntity : selectedEntities ) {
                         m_commandGraph->push< AddComponentCommand >( selectedEntity,

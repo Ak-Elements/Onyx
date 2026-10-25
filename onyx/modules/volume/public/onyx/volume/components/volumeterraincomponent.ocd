@@ -32,12 +32,7 @@ component TerrainWorldOctreeComponent
 [Hidden, Transient]
 component VolumeGenerationComponent
 {
-    ShaderInstanceHandle ResetBuffersShader
-    ShaderInstanceHandle UpdateWorldOctreeShader
-    ShaderInstanceHandle SetupDispatchGenerateMeshShader
-    ShaderInstanceHandle GenerateMeshShader
     ShaderInstanceHandle RayTraceTerrainShader
-    ShaderInstanceHandle FindRayTracedOctreeNodeShader
     ShaderInstanceHandle RenderTerrainShader
 
     assets::AssetHandle<VolumeShaderGraph> VolumeGraph

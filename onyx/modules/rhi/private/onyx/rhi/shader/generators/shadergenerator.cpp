@@ -14,25 +14,26 @@ String generateShaderVariable( const ShaderVariable& variable ) {
 
     switch( variable.Semantic ) {
     case ShaderSemantic::None:
-        return format::format( "{} {}", typeAsString, variable.Name.getString() );
+        return String{ format::format( "{} {}", typeAsString, variable.Name.getString() ) };
     case ShaderSemantic::Position:
-        return format::format( "{} {} : SV_POSITION", typeAsString, variable.Name.getString() );
+        return String{ format::format( "{} {} : SV_POSITION", typeAsString, variable.Name.getString() ) };
     case ShaderSemantic::Target:
-        return format::format( "{} {} : SV_Target{}", typeAsString, variable.Name.getString(), variable.SemanticIndex );
+        return String{
+            format::format( "{} {} : SV_Target{}", typeAsString, variable.Name.getString(), variable.SemanticIndex ) };
     case ShaderSemantic::Depth:
-        return format::format( "{} {} : SV_DEPTH", typeAsString, variable.Name.getString() );
+        return String{ format::format( "{} {} : SV_DEPTH", typeAsString, variable.Name.getString() ) };
     case ShaderSemantic::VertexId:
-        return format::format( "{} {} : SV_VertexID", typeAsString, variable.Name.getString() );
+        return String{ format::format( "{} {} : SV_VertexID", typeAsString, variable.Name.getString() ) };
     case ShaderSemantic::InstanceId:
-        return format::format( "{} {} : SV_InstanceID", typeAsString, variable.Name.getString() );
+        return String{ format::format( "{} {} : SV_InstanceID", typeAsString, variable.Name.getString() ) };
     case ShaderSemantic::DispatchThreadId:
-        return format::format( "uint3 {} : SV_DispatchThreadID", variable.Name.getString() );
+        return String{ format::format( "uint3 {} : SV_DispatchThreadID", variable.Name.getString() ) };
     case ShaderSemantic::GroupId:
-        return format::format( "uint3 {} : SV_DispatchGroupID", variable.Name.getString() );
+        return String{ format::format( "uint3 {} : SV_DispatchGroupID", variable.Name.getString() ) };
     case ShaderSemantic::GroupThreadId:
-        return format::format( "uint3 {} : SV_GroupThreadID", variable.Name.getString() );
+        return String{ format::format( "uint3 {} : SV_GroupThreadID", variable.Name.getString() ) };
     case ShaderSemantic::GroupIndex:
-        return format::format( "uint {} : SV_GroupIndex", variable.Name.getString() );
+        return String{ format::format( "uint {} : SV_GroupIndex", variable.Name.getString() ) };
     }
 
     return "";
@@ -40,7 +41,7 @@ String generateShaderVariable( const ShaderVariable& variable ) {
 
 String getPushConstantTypeString( const ShaderPushConstant& constant ) {
     if( constant.Type == ShaderDataType::Pointer ) {
-        return format::format( "Ptr<{}>", constant.SubType );
+        return String{ format::format( "Ptr<{}>", constant.SubType ) };
     }
 
     return String( rhi::ShaderGenerator::shaderTypeToString( constant.Type ) );
@@ -63,12 +64,12 @@ String generateStageInput( ShaderStage stage,
     if( inStructMembers.empty() == false ) {
         const uint32_t memberCount = inStructMembers.size();
         if( memberCount > 1 ) {
-            String inputTypeName = format::format( "{}Input\n", stage );
+            String inputTypeName{ format::format( "{}Input\n", stage ) };
             outCode += format::format( "struct {} {{\n", inputTypeName );
             outCode += join( inStructMembers, ";\n" ) + ";\n"; // add last ; and newline
             outCode += "};\n";
             entryPointInputParameters.insert( entryPointInputParameters.begin(),
-                                              format::format( "{} input", inputTypeName ) );
+                                              String{ format::format( "{} input", inputTypeName ) } );
         } else {
             entryPointInputParameters.insert( entryPointInputParameters.begin(), inStructMembers[ 0 ] );
         }

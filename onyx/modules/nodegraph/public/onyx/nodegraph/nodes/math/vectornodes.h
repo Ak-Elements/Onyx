@@ -58,20 +58,6 @@ class SwizzleVectorComponentsNode : public FixedPinNode1In1Out< NodeType, InVect
     }
 
 #if ONYX_IS_EDITOR
-  protected:
-    bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) override {
-        bool hasModified = Super::onDrawInPropertyGrid( constantPinData );
-
-        // Optional<Vector4u8> swizzle = Editor::EditorSwizzleVectorControl<OutVectorT, InVectorT>::Draw(Mask);
-        // if (swizzle.has_value())
-        //{
-        //     hasModified = true;
-        //     OutIndexMapping = swizzle.value();
-        // }
-
-        return hasModified;
-    }
-
   private:
     [[nodiscard]] StringView getPinName( StringId32 pinId ) const override {
         switch( pinId ) {

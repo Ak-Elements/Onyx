@@ -30,7 +30,7 @@ void ComputeMultipleScatteringRenderGraphNode::onRender( RenderGraphContext& /*c
                                                          rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, m_transmittanceTextureIndex );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, m_transmittanceTextureIndex );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
 }
 

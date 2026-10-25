@@ -25,7 +25,7 @@ void ToneMapPass::onRender( RenderGraphContext& context, rhi::CommandBuffer& com
 
     PushConstants constants{ context.FrameContext.TonemapFunctor };
 
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 0, constants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, inTextureHandle.Texture->getGpuAddress(), 1 );
 }
 } // namespace onyx::graphics::render_graph_nodes

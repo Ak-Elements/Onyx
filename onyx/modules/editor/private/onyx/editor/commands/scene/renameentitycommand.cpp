@@ -13,7 +13,7 @@ RenameEntityCommand::RenameEntityCommand( ecs::EntityId entity,
     , m_Entity( entity ) {}
 
 void RenameEntityCommand::execute() {
-    ecs::EntityRegistry& registry = GetScene().getRegistry();
+    ecs::EntityRegistry& registry = getScene().getRegistry();
     registry.addComponent< game_core::NameComponent >( m_Entity, m_Name );
 }
 } // namespace onyx::editor

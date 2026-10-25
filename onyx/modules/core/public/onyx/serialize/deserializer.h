@@ -1,6 +1,7 @@
 #pragma once
 
 #include <onyx/geometry/rectserialization.h>
+#include <onyx/geometry/vector.h>
 #include <onyx/geometry/vectorserialization.h>
 #include <onyx/guid.h>
 #include <onyx/serialize/serialization.h>
@@ -39,9 +40,9 @@ class Deserializer {
         return success;
     }
 
-    template < typename T >
+    template < typename T > requires( !std::is_invocable_r_v< bool, T, Deserializer& > )
     bool read( T& outValue ) const {
-        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > ) {
+        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > || IsVector< T > ) {
             return doRead( outValue );
         } else if constexpr( std::is_same_v< T, String > ) {
             StringView stringView;
@@ -63,47 +64,49 @@ class Deserializer {
         }
     }
 
+    template < CompileTimeString Name, typename F > requires std::is_invocable_r_v< bool, F, const Deserializer& >
+    bool read( F functor ) const {
+        if( createScope( Name.stringView() ) == false ) {
+            return false;
+        }
+
+        bool success = functor( *this );
+        success &= endScope();
+        return success;
+    }
+
     template < typename T >
     bool read( StringView name, T& outValue ) const {
-        if constexpr( std::is_fundamental_v< T > || std::is_same_v< T, StringView > || std::is_same_v< T, Guid64 > ) {
-            return doRead( name, outValue );
-        } else if constexpr( std::is_same_v< T, String > ) {
-            StringView stringView;
-            bool success = doRead( name, stringView );
-            outValue = stringView;
-            return success;
-        } else if constexpr( std::is_enum_v< T > ) {
-            StringView enumValue;
-            if( doRead( name, enumValue ) ) {
-                outValue = enums::fromString< T >( enumValue );
-                return true;
-            }
-
+        if( createScope( name ) == false ) {
             return false;
-        } else {
-            if( createScope( name ) == false ) {
-                return false;
-            }
-
-            bool success = read( outValue );
-            success &= endScope();
-
-            return success;
         }
+
+        bool success = read< T >( outValue );
+        success &= endScope();
+
+        return success;
     }
 
     template < Numeric T >
     bool read( T& outValue, uint8_t base ) const {
         return doRead( outValue, base );
     }
+
     template < CompileTimeString Name, Numeric T >
     bool read( T& outValue, uint8_t base ) const {
-        return doRead( Name.stringView(), outValue, base );
+        if( createScope( Name.stringView() ) == false ) {
+            return false;
+        }
+
+        bool success = doRead( outValue, base );
+        success &= endScope();
+
+        return success;
     }
 
     template < typename T, size_t N >
     bool read( Array< T, N >& outValue ) const {
-        bool success = false;
+        bool success = true;
         for( uint32_t i = 0; i < static_cast< uint32_t >( N ); ++i ) {
             if( createScope( i ) == false ) {
                 return false;
@@ -119,7 +122,7 @@ class Deserializer {
 
     template < typename T >
     bool read( DynamicArray< T >& outValue ) const {
-        bool success = false;
+        bool success = true;
         uint32_t count = getItemsCount();
         outValue.reserve( count );
         for( uint32_t i = 0; i < count; ++i ) {
@@ -135,9 +138,9 @@ class Deserializer {
         return success;
     }
 
-    template < typename T, typename Callable > requires std::is_invocable_r_v< bool, Callable, const Deserializer&, T& >
-    bool readForEach( DynamicArray< T >& outValue, Callable forEachFunctor ) const {
-        bool success = false;
+    template < typename T, typename F > requires std::is_invocable_r_v< bool, F, const Deserializer&, T& >
+    bool read( DynamicArray< T >& outValue, F forEachFunctor ) const {
+        bool success = true;
         uint32_t count = getItemsCount();
         outValue.reserve( count );
         for( uint32_t i = 0; i < count; ++i ) {
@@ -153,33 +156,22 @@ class Deserializer {
         return success;
     }
 
-    template < CompileTimeString Name, typename T, typename Callable >
-    requires std::is_invocable_r_v< bool, Callable, const Deserializer&, T& >
-    bool readForEach( DynamicArray< T >& outValue, Callable forEachFunctor ) const {
+    template < CompileTimeString Name, typename T, typename F >
+    requires std::is_invocable_r_v< bool, F, const Deserializer&, T& >
+    bool read( DynamicArray< T >& outValue, F forEachFunctor ) const {
         if( createScope( Name.stringView() ) == false ) {
             return false;
         }
 
-        bool success = false;
-        uint32_t count = getItemsCount();
-        outValue.reserve( count );
-        for( uint32_t i = 0; i < count; ++i ) {
-            if( createScope( i ) == false ) {
-                return false;
-            }
-
-            T& arrayValue = outValue.emplace_back();
-            success = forEachFunctor( *this, arrayValue );
-            success &= endScope();
-        }
+        bool success = read( outValue, forEachFunctor );
 
         success &= endScope();
         return success;
     }
 
-    template < typename Callable > requires std::is_invocable_r_v< bool, Callable, const Deserializer& >
-    bool readForEach( Callable forEachFunctor ) const {
-        bool success = false;
+    template < typename F > requires std::is_invocable_r_v< bool, F, const Deserializer& >
+    bool readForEach( F forEachFunctor ) const {
+        bool success = true;
         uint32_t count = getItemsCount();
         for( uint32_t i = 0; i < count; ++i ) {
             if( createScope( i ) == false ) {
@@ -205,10 +197,10 @@ class Deserializer {
         return success;
     }
 
-    template < typename KeyT, typename ValueT, typename Callable >
-    requires std::is_invocable_r_v< bool, Callable, const Deserializer&, const KeyT&, ValueT& >
-    bool readForEach( HashMap< KeyT, ValueT >& outMap, Callable forEachFunctor ) const {
-        bool success = false;
+    template < typename KeyT, typename ValueT, typename F >
+    requires std::is_invocable_r_v< bool, F, const Deserializer&, const KeyT&, ValueT& >
+    bool read( HashMap< KeyT, ValueT >& outMap, F forEachFunctor ) const {
+        bool success = true;
         uint32_t count = getItemsCount();
         for( uint32_t i = 0; i < count; ++i ) {
             ValueT mapValue;
@@ -255,14 +247,14 @@ class Deserializer {
         return success;
     }
 
-    template < CompileTimeString Name, typename KeyT, typename ValueT, typename Callable >
-    requires std::is_invocable_r_v< bool, Callable, const Deserializer&, const KeyT&, ValueT& >
-    bool readForEach( HashMap< KeyT, ValueT >& outMap, Callable forEachFunctor ) const {
+    template < CompileTimeString Name, typename KeyT, typename ValueT, typename F >
+    requires std::is_invocable_r_v< bool, F, const Deserializer&, const KeyT&, ValueT& >
+    bool read( HashMap< KeyT, ValueT >& outMap, F forEachFunctor ) const {
         if( createScope( Name.stringView() ) == false ) {
             return false;
         }
 
-        bool success = readForEach( outMap, forEachFunctor );
+        bool success = read( outMap, forEachFunctor );
         success &= endScope();
         return success;
     }
@@ -314,7 +306,7 @@ class Deserializer {
 
     template < typename KeyT, typename ValueT, typename... Args >
     bool read( HashMap< KeyT, ValueT >& out, Args&&... additionalArgs ) const {
-        bool success = false;
+        bool success = true;
         uint32_t count = getItemsCount();
         for( uint32_t i = 0; i < count; ++i ) {
             ValueT mapValue;
@@ -363,9 +355,13 @@ class Deserializer {
         return success;
     }
 
+    virtual bool getScopeIdentifier( uint32_t& outKey ) const = 0;
+    virtual bool getScopeIdentifier( uint64_t& outKey ) const = 0;
+    virtual bool getScopeIdentifier( Guid64& outKey ) const = 0;
+    virtual bool getScopeIdentifier( StringView& outKey ) const = 0;
+
   private:
     virtual bool doRead( bool& outValue ) const = 0;
-    virtual bool doRead( StringView name, bool& outValue ) const = 0;
 
     virtual bool doRead( int8_t& outValue ) const = 0;
     virtual bool doRead( int16_t& outValue ) const = 0;
@@ -384,37 +380,47 @@ class Deserializer {
     virtual bool doRead( uint32_t& outValue, uint8_t base ) const = 0;
     virtual bool doRead( uint64_t& outValue, uint8_t base ) const = 0;
 
-    virtual bool doRead( StringView name, int8_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, int16_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, int32_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, int64_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, uint8_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, uint16_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, uint32_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, uint64_t& outValue ) const = 0;
-    virtual bool doRead( StringView name, int8_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, int16_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, int32_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, int64_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, uint16_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, uint8_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, uint32_t& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, uint64_t& outValue, uint8_t base ) const = 0;
-
     virtual bool doRead( float32& outValue ) const = 0;
     virtual bool doRead( float32& outValue, uint8_t base ) const = 0;
     virtual bool doRead( float64& outValue ) const = 0;
     virtual bool doRead( float64& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, float32& outValue ) const = 0;
-    virtual bool doRead( StringView name, float32& outValue, uint8_t base ) const = 0;
-    virtual bool doRead( StringView name, float64& outValue ) const = 0;
-    virtual bool doRead( StringView name, float64& outValue, uint8_t base ) const = 0;
 
     virtual bool doRead( StringView& outValue ) const = 0;
-    virtual bool doRead( StringView name, StringView& outValue ) const = 0;
 
     virtual bool doRead( Guid64& outValue ) const = 0;
-    virtual bool doRead( StringView name, Guid64& outValue ) const = 0;
+
+    virtual bool doRead( Vector2s8& outValue ) const = 0;
+    virtual bool doRead( Vector2s16& outvalue ) const = 0;
+    virtual bool doRead( Vector2s32& outValue ) const = 0;
+    virtual bool doRead( Vector2s64& outValue ) const = 0;
+    virtual bool doRead( Vector2u8& outValue ) const = 0;
+    virtual bool doRead( Vector2u16& outValue ) const = 0;
+    virtual bool doRead( Vector2u32& outValue ) const = 0;
+    virtual bool doRead( Vector2u64& outValue ) const = 0;
+    virtual bool doRead( Vector2f32& outValue ) const = 0;
+    virtual bool doRead( Vector2f64& outValue ) const = 0;
+
+    virtual bool doRead( Vector3s8& outValue ) const = 0;
+    virtual bool doRead( Vector3s16& outValue ) const = 0;
+    virtual bool doRead( Vector3s32& outValue ) const = 0;
+    virtual bool doRead( Vector3s64& outValue ) const = 0;
+    virtual bool doRead( Vector3u8& outValue ) const = 0;
+    virtual bool doRead( Vector3u16& outValue ) const = 0;
+    virtual bool doRead( Vector3u32& outValue ) const = 0;
+    virtual bool doRead( Vector3u64& outValue ) const = 0;
+    virtual bool doRead( Vector3f32& outValue ) const = 0;
+    virtual bool doRead( Vector3f64& outValue ) const = 0;
+
+    virtual bool doRead( Vector4s8& outValue ) const = 0;
+    virtual bool doRead( Vector4s16& outValue ) const = 0;
+    virtual bool doRead( Vector4s32& outValue ) const = 0;
+    virtual bool doRead( Vector4s64& outValue ) const = 0;
+    virtual bool doRead( Vector4u8& outValue ) const = 0;
+    virtual bool doRead( Vector4u16& outValue ) const = 0;
+    virtual bool doRead( Vector4u32& outValue ) const = 0;
+    virtual bool doRead( Vector4u64& outValue ) const = 0;
+    virtual bool doRead( Vector4f32& outValue ) const = 0;
+    virtual bool doRead( Vector4f64& outValue ) const = 0;
 
     [[nodiscard]] virtual bool createScope( uint32_t index ) const = 0;
     [[nodiscard]] virtual bool createScope( uint64_t index ) const = 0;
@@ -423,11 +429,6 @@ class Deserializer {
     [[nodiscard]] virtual bool endScope() const = 0;
 
     [[nodiscard]] virtual uint32_t getItemsCount() const = 0;
-
-    virtual bool getScopeIdentifier( uint32_t& outKey ) const = 0;
-    virtual bool getScopeIdentifier( uint64_t& outKey ) const = 0;
-    virtual bool getScopeIdentifier( Guid64& outKey ) const = 0;
-    virtual bool getScopeIdentifier( StringView& outKey ) const = 0;
 
     [[nodiscard]] virtual bool isSupportingIntegralScopes() const = 0;
 

@@ -3,7 +3,7 @@
 #include <onyx/assets/assetsystem.h>
 #include <onyx/rhi/graphicssystem.h>
 
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/graphics/assets/meshasset.h>
 #include <onyx/stream/stringstream.h>
 
@@ -24,7 +24,7 @@ bool MeshSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >&
     DynamicArray< rhi::Vertex >& vertices = meshAsset.getVertices();
     DynamicArray< uint32_t >& indices = meshAsset.getIndices();
 
-    file_system::OnyxFile meshSource(
+    file_system::File meshSource(
         file_system::path::replaceExtension( file_system::path::getFullPath( meta.Path ), "obj" ) );
     file_system::FileStream stream = meshSource.openStream( file_system::OpenMode::Text | file_system::OpenMode::Read );
 

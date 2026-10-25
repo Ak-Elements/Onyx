@@ -172,7 +172,7 @@ class FlexiblePinsNode : public NodeType {
                     return false;
                 }
 
-                pin = outPins.emplace_back( CreatePin( typeId, globalPinId, localPinId ) ).get();
+                pin = outPins.emplace_back( createPin( typeId, globalPinId, localPinId ) ).get();
 
             } else {
                 pin->setGlobalId( globalPinId );

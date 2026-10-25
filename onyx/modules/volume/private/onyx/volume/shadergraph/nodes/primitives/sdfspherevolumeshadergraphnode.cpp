@@ -13,7 +13,7 @@ void SdfSphereVolumeShaderGraphNode::onUpdate( node_graph::ExecutionContext& con
 
     SdfSample& sdfSample = context.getPinData< typename Super::OutPin >();
 
-    CSGSphere sphere( radius, center );
+    CsgSphere sphere( radius, center );
     Vector4f32 sample = sphere.getValueAndGradient( worldPosition );
     sdfSample.Gradient = Vector3f32( sample );
     sdfSample.Distance = sample.W;
@@ -29,10 +29,10 @@ void SdfSphereVolumeShaderGraphNode::doGenerateShader( const node_graph::Executi
 
     generator.addImport( "includes.volume.csg.sphere" );
 
-    String sphereVariableName = format::format( "sphereNode_{:x}", getId().get() );
-    String sampleVariableName = format::format( "sphereSample_{:x}", getId().get() );
-    String uvVariableName = format::format( "sphereUv_{:x}", getId().get() );
-    String sampleOutVariableName = format::format( "pin_{:x}", getOutputPin().getGlobalId().get() );
+    String sphereVariableName{ format::format( "sphereNode_{:x}", getId().get() ) };
+    String sampleVariableName{ format::format( "sphereSample_{:x}", getId().get() ) };
+    String uvVariableName{ format::format( "sphereUv_{:x}", getId().get() ) };
+    String sampleOutVariableName{ format::format( "pin_{:x}", getOutputPin().getGlobalId().get() ) };
 
     generator.appendCode( format::format(
         "CsgSphere {} = CsgSphere( {}, {} );\n",

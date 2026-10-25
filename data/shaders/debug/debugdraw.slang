@@ -436,8 +436,7 @@ bool intersect( in float3 rayOrigin,
 }
 
 [ shader( "fragment" ) ]
-float4 fragmentMain( VSOutput input )
-    : SV_Target0 {
+float4 fragmentMain( VSOutput input ) : SV_Target0 {
     float2 ndc = float2( ( input.Position.x / Constants.ViewConstantsBuffer->Viewport.x ) * 2.0f - 1.0f,
                          ( input.Position.y / Constants.ViewConstantsBuffer->Viewport.y ) * -2.0f + 1.0f );
 

@@ -12,18 +12,12 @@ namespace onyx::editor {
 class ShaderGraphEditorContext
     : public TypedNodeGraphEditorContext< graphics::MaterialShaderGraph, graphics::ShaderGraphNodeFactory > {
   public:
-    ShaderGraphEditorContext( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem );
-
     bool compile() override;
 
     uint32_t getCanvasBackgroundColor() const override { return 0xFF503C46; }
 
   private:
     void onNodeChanged( const Node& newNode ) override;
-
-  private:
-    assets::AssetSystem* m_assetSystem = nullptr;
-    rhi::GraphicsSystem* m_graphicsSystem = nullptr;
 };
 
 } // namespace onyx::editor

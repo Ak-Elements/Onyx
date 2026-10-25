@@ -24,8 +24,7 @@ void Camera::lookAt( const Vector3f32& cameraPosition,
     result[ 3 ][ 1 ] = -static_cast< float32 >( u.dot( cameraPosition ) );
     result[ 3 ][ 2 ] = static_cast< float32 >( f.dot( cameraPosition ) );
 
-    m_viewMatrix = result;
-    m_inverseViewMatrix = result.inverse();
+    setViewMatrix( result );
     m_direction = f;
 }
 
@@ -122,11 +121,18 @@ void Camera::updatePerspectiveMatrix() {
     }
 
     m_inverseProjectionMatrix = m_projectionMatrix.inverse();
+    updateViewPerspectiveMatrices();
+}
+
+void Camera::updateViewPerspectiveMatrices() {
+    m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+    m_inverseViewProjectionMatrix = m_inverseProjectionMatrix * m_inverseViewMatrix;
 }
 
 void Camera::setViewMatrix( const Matrix4< float32 >& matrix ) {
     m_viewMatrix = matrix;
     m_inverseViewMatrix = matrix.inverse();
+    updateViewPerspectiveMatrices();
 }
 
 } // namespace onyx::rhi

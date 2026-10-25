@@ -1,7 +1,7 @@
 #include <onyx/localization/serialize/portableobjectserializer.h>
 
 #include <onyx/assets/assetmetadata.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/localization/assets/gettextlocalizationdatabase.h>
 #include <onyx/stream/stringstream.h>
 
@@ -222,7 +222,7 @@ constexpr Array< PluralRule, 24 > PluralFunctions = {
 
 bool parsePoFile( const FilePath& path, GetTextLocalizationDatabase& outLocalizationMap ) {
     String fileContent;
-    bool hasSucceeded = file_system::OnyxFile::readAll( path, fileContent );
+    bool hasSucceeded = file_system::File::readAll( path, fileContent );
 
     if( hasSucceeded == false ) {
         return false;

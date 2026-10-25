@@ -3,10 +3,11 @@
 
 #include <onyx/entity/componentmeta.hpp>
 #include <onyx/entity/entity.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/filesystem/jsondeserializer.h>
 #include <onyx/filesystem/jsonserializer.h>
 #include <onyx/gamecore/components/transientcomponent.gen.h>
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/graphics/rendergraph/rendergraph.h>
 
@@ -72,13 +73,9 @@ bool SceneSerializer::serializeSectorToJson( const ecs::EntityRegistry& registry
     sectorFilePath.replace_extension( "osector" );
 
     using namespace file_system;
-    OnyxFile sceneFile( sectorFilePath );
-    FileStream outStream = sceneFile.openStream( OpenMode::Write | OpenMode::Text );
-
     const String& jsonString = serializer.JsonRoot.dump( 4 );
-    outStream.writeRaw( jsonString.data(), jsonString.size() );
-
-    return true;
+    bool success = File::writeAll( sectorFilePath, jsonString );
+    return success;
 }
 
 bool SceneSerializer::deserialize( assets::AssetHandle< assets::AssetInterface >& asset,
@@ -131,20 +128,18 @@ bool SceneSerializer::deserializeSectorFromJson( Scene& scene,
                                                  const FilePath& sectorFilePath ) const {
     bool hasSucceeded = true;
 
-    file_system::OnyxFile sectorFile( sectorFilePath );
-    const file_system::JsonValue& sectorJson = sectorFile.loadJson();
-    file_system::JsonDeserializer deserializer( sectorJson.Json );
+    String sectorJson;
+    hasSucceeded = file_system::File::readAll( sectorFilePath, sectorJson );
+    file_system::JsonDeserializer deserializer( sectorJson );
 
-    deserializer.readForEach(
-        outSector.Entities,
-        [ & ]( const Deserializer& scopeDeserializer, SectorEntity& outEntity ) {
-            scopeDeserializer.read< "position" >( outEntity.Position );
-            scopeDeserializer.read< "radius" >( outEntity.BoundsRadius );
-            outEntity.BoundsRadiusSquared = outEntity.BoundsRadius * outEntity.BoundsRadius;
+    deserializer.read( outSector.Entities, [ & ]( const Deserializer& scopeDeserializer, SectorEntity& outEntity ) {
+        scopeDeserializer.read< "position" >( outEntity.Position );
+        scopeDeserializer.read< "radius" >( outEntity.BoundsRadius );
+        outEntity.BoundsRadiusSquared = outEntity.BoundsRadius * outEntity.BoundsRadius;
 
-            outEntity.Entity = scene.getRegistry().createEntity();
-            return deserializeEntity( scopeDeserializer, scene.getRegistry(), componentFactory, outEntity.Entity );
-        } );
+        outEntity.Entity = scene.getRegistry().createEntity();
+        return deserializeEntity( scopeDeserializer, scene.getRegistry(), componentFactory, outEntity.Entity );
+    } );
 
     return hasSucceeded;
 }

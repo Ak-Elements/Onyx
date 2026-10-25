@@ -133,10 +133,6 @@ class Node {
 #endif
 
 #if ONYX_IS_EDITOR
-    bool drawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-        return onDrawInPropertyGrid( constantPinData );
-    }
-
     [[nodiscard]] PinVisibility getPinVisibility( StringId32 localPinId ) const {
         return doGetPinVisibility( localPinId );
     }
@@ -152,30 +148,6 @@ class Node {
     [[nodiscard]] virtual std::any createDefaultForPin( StringId32 pinId ) const = 0;
 
   protected:
-    virtual bool onDrawInPropertyGrid( HashMap< Guid64, std::any >& constantPinData ) {
-        bool modified = false;
-        const uint32_t inputPinCount = getInputPinCount();
-        for( uint32_t i = 0; i < inputPinCount; ++i ) {
-            PinBase* inputPin = getInputPin( i );
-            if( inputPin->getType() == PinTypeId::Execute )
-                continue;
-
-            if( enums::none( getPinVisibility( inputPin->getLocalId() ), PinVisibility::InPropertyGrid ) )
-                continue;
-
-            if( inputPin->isConnected() )
-                continue;
-
-            const Guid64 globalId = inputPin->getGlobalId();
-            if( constantPinData.contains( globalId ) == false )
-                constantPinData[ globalId ] = createDefaultForPin( inputPin->getLocalId() );
-
-            inputPin->drawPropertyPanel( getPinName( inputPin->getLocalId() ), constantPinData[ globalId ] );
-        }
-
-        return modified;
-    }
-
     virtual void onUiDrawNode() {}
     virtual void onUiDrawNodeBackground() {}
 #endif

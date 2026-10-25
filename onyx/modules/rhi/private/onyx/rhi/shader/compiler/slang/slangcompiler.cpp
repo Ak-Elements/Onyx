@@ -1,9 +1,9 @@
 #include <onyx/rhi/shader/compiler/slang/slangcompiler.h>
 
+#include <onyx/filesystem/file.h>
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/rhi/shader/shader.h>
 #include <onyx/rhi/shader/shadercache.h>
-#include <onyx/rhi/vulkan/shader.h>
 
 // clang-format off
 #include <slang.h>
@@ -131,7 +131,7 @@ TextureFormat getFormat( ::slang::VariableLayoutReflection& variable ) {
     return getFormat( *variable.getType() );
 }
 
-void reflectVertexStage( ::slang::VariableLayoutReflection& parameter,
+[[maybe_unused]] void reflectVertexStage( ::slang::VariableLayoutReflection& parameter,
                          ::slang::TypeLayoutReflection& parameterType,
                          ShaderReflectionInfo& outReflectionInfo ) {
     size_t location = parameter.getOffset( SLANG_PARAMETER_CATEGORY_VARYING_INPUT );
@@ -189,42 +189,45 @@ Optional< ShaderReflectionInfo > reflect( ::slang::IComponentType& linkedShader 
 
         ImageSampler& sampler = descriptorSet.SeparateSamplers[ Bindless::SamplerBinding ];
         sampler.Stage = ShaderStage::All;
-        sampler.Name = ""; // parameter->getName();
-        sampler.BindingPoint = 0;
-        sampler.DescriptorSet = 0;
+        sampler.Name = "Bindless Samplers";
 
         ImageSampler& imageSampler = descriptorSet.ImageSamplers[ Bindless::CombinedImageBinding ];
         imageSampler.Stage = ShaderStage::All;
-        imageSampler.Name = ""; // parameter->getName();
-        imageSampler.BindingPoint = 0;
-        imageSampler.DescriptorSet = 0;
+        sampler.Name = "Bindless Combined Images";
 
         ImageSampler& textures = descriptorSet.SeparateTextures[ Bindless::SampledImageBinding ];
         textures.Stage = ShaderStage::All;
-        textures.Name = ""; // parameter->getName();
-        textures.BindingPoint = 0;
-        textures.DescriptorSet = 0;
+        sampler.Name = "Bindless Sampled Images";
     }
 
     // global scope
     PushConstantRange globalPushConstants{ ShaderStage::All };
-    const uint32_t globalParametersCount = programLayout.getParameterCount();
-    for( uint32_t parameterIndex = 0; parameterIndex < globalParametersCount; ++parameterIndex ) {
-        ::slang::VariableLayoutReflection* parameter = programLayout.getParameterByIndex( parameterIndex );
-        ONYX_ASSERT( parameter != nullptr );
-        ::slang::ParameterCategory category = parameter->getCategory();
+    ::slang::VariableLayoutReflection* globalParametersVarLayout = programLayout.getGlobalParamsVarLayout();
+    ::slang::TypeLayoutReflection* globalParametersTypeLayout = globalParametersVarLayout->getTypeLayout();
+    ::slang::TypeReflection::Kind kind = globalParametersTypeLayout->getKind();
 
-        // TODO: Reflect descriptor sets / buffers etc.
-        //  if( category == ::slang::ParameterCategory::DescriptorTableSlot ) {
-        //  }
+    if( kind == ::slang::TypeReflection::Kind::Struct ) {
+        int32_t parametersCount = globalParametersTypeLayout->getFieldCount();
+        for (int32_t i = 0; i < parametersCount; i++) {
+            ::slang::VariableLayoutReflection* parameterVariableLayout = globalParametersTypeLayout->getFieldByIndex( i );
+            ::slang::ParameterCategory category = parameterVariableLayout->getCategory();
 
-        if( category == ::slang::ParameterCategory::PushConstantBuffer ) {
-            auto pushConstantTypeLayout = parameter->getTypeLayout();
-            ONYX_ASSERT( pushConstantTypeLayout != nullptr );
-            reflectPushConstant( *pushConstantTypeLayout, globalPushConstants );
+            // TODO: Reflect descriptor sets / buffers etc.
+            //  if( category == ::slang::ParameterCategory::DescriptorTableSlot ) {
+            //  }
+
+            if( category == ::slang::ParameterCategory::PushConstantBuffer ) {
+                ::slang::TypeLayoutReflection* pushConstantTypeLayout = parameterVariableLayout->getTypeLayout();
+                ONYX_ASSERT( pushConstantTypeLayout != nullptr );
+                reflectPushConstant( *pushConstantTypeLayout, globalPushConstants );
+            }
         }
+        
     }
-
+    else {
+        ONYX_ASSERT(false, "Unhandled global parameter type {}", static_cast<int32_t>(kind));
+    }
+    
     // entry point scope
     ::Slang::ComPtr< ::slang::IMetadata > entryPointMetadata;
     const uint32_t entryPointCount = programLayout.getEntryPointCount();
@@ -240,25 +243,19 @@ Optional< ShaderReflectionInfo > reflect( ::slang::IComponentType& linkedShader 
         ShaderStage stage = toShaderStage( entryPoint->getStage() );
         reflectInfo.Stages |= stage;
 
-        const uint32_t parameterCount = entryPoint->getParameterCount();
-        for( uint32_t parameterIndex = 0; parameterIndex < parameterCount; ++parameterIndex ) {
-            ::slang::VariableLayoutReflection* parameter = entryPoint->getParameterByIndex( parameterIndex );
-            ONYX_ASSERT( parameter != nullptr );
-
-            auto semanticName = parameter->getSemanticName();
-            if( ( semanticName != nullptr ) && ignoreCaseStartsWith( semanticName, "sv_" ) )
-                continue;
-
-            [[maybe_unused]] auto category = parameter->getCategory();
-            ::slang::TypeLayoutReflection* typeLayout = parameter->getTypeLayout();
-            ONYX_ASSERT( typeLayout != nullptr );
-
-            // this should move into the parameter loop instead of looping twice over params
-            if( stage == ShaderStage::Vertex ) {
-                reflectVertexStage( *parameter, *typeLayout, reflectInfo );
+        ::slang::VariableLayoutReflection* entryPointVariableLayout = entryPoint->getVarLayout();
+        ::slang::TypeLayoutReflection* entryPointVarTypeLayout = entryPointVariableLayout->getTypeLayout();
+        const int32_t entryPointFieldCount = entryPointVarTypeLayout->getFieldCount();
+        for (int32_t j = 0; j < entryPointFieldCount; ++j) {
+            ::slang::VariableLayoutReflection* parameterVariableLayout = entryPointVarTypeLayout->getFieldByIndex( j );
+            ::slang::ParameterCategory category = parameterVariableLayout->getCategory();
+            
+            if( ( stage == ShaderStage::Vertex ) && ( category == ::slang::VaryingInput )) {
+                ::slang::TypeLayoutReflection* parameterTypeLayout = parameterVariableLayout->getTypeLayout();
+                reflectVertexStage( *parameterVariableLayout, *parameterTypeLayout, reflectInfo );
             }
         }
-
+        
         // push constant inside entry point parameters
         ::slang::TypeLayoutReflection* entryPointTypeLayout = entryPoint->getTypeLayout();
         const uint32_t bindingRangeCount = entryPointTypeLayout->getBindingRangeCount();
@@ -358,7 +355,7 @@ bool init() {
 bool compile( const GraphicsSystem& graphicsSystem,
               const FilePath& shaderPath,
               const String& shaderCode,
-              Shader& outShader ) {
+              ShaderCacheEntry& outShaderCacheEntry ) {
     SlangPtr< ::slang::IBlob > diagnostics;
 
     String moduleName = shaderPath.stem().generic_string();
@@ -434,16 +431,27 @@ bool compile( const GraphicsSystem& graphicsSystem,
         if( reflectInfo.has_value() == false )
             return false;
 
-        vulkan::Shader& vulkanShader = static_cast< vulkan::Shader& >( outShader );
         Span< const uint8_t > byteCode{ std::bit_cast< uint8_t* >( spirvCode->getBufferPointer() ),
                                         spirvCode->getBufferSize() };
-        vulkanShader.create( graphicsSystem, byteCode, *reflectInfo );
+        outShaderCacheEntry.Shader->setByteCode( graphicsSystem, byteCode, *reflectInfo );
         break;
     }
     case ApiType::Dx12:
     case ApiType::None:
         ONYX_ASSERT( false, "Slang compiler not implemented for api {}", graphicsSystem.getApiType() );
         break;
+    }
+
+    int32_t dependenciesCount = module->getDependencyFileCount();
+    String includeContent;
+    for( int32_t i = 0; i < dependenciesCount; ++i ) {
+        FilePath dependency = module->getDependencyFilePath( i );
+        if( file_system::File::readAll( dependency, includeContent ) ) {
+            const uint64_t filePathHash = hash::fnV1aHash< uint64_t >(
+                file_system::path::convertToMountPath( dependency ) );
+            const uint64_t contentHash = hash::fnV1aHash< uint64_t >( includeContent, filePathHash );
+            outShaderCacheEntry.IncludeHashes[ filePathHash ] = contentHash;
+        }
     }
 
     return true;

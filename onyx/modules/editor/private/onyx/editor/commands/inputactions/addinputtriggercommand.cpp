@@ -15,7 +15,7 @@ AddInputTriggerCommand::AddInputTriggerCommand( StringId32 triggerTypeId,
 
 void AddInputTriggerCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
-    if( input_actions::InputAction* action = context.GetAction( m_ActionId ).value_or( nullptr ) ) {
+    if( input_actions::InputAction* action = context.getAction( m_ActionId ).value_or( nullptr ) ) {
         DynamicArray< UniquePtr< input_actions::InputBinding > >& bindings = action->GetBindings();
         input_actions::InputBinding& binding = *bindings[ m_BindingIndex ];
         binding.AddTrigger( input_actions::InputTriggersFactory::Create( m_TriggerTypeId ) );

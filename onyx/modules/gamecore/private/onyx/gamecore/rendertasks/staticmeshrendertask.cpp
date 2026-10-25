@@ -92,7 +92,7 @@ void StaticMeshRenderGraphNode::onRender( graphics::RenderGraphContext& context,
         uint32_t instanceOffset = 0;
 
         for( Matrix4< float32 > transformMatrix : drawCall.Transforms ) {
-            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.bindPushConstants( rhi::ShaderStage::All, transformMatrix );
             commandBuffer.drawIndexed( rhi::PrimitiveTopology::Triangle,
                                        static_cast< uint32_t >( drawCall.Indices.Buffer->getProperties().m_Size / 4 ),
                                        instanceCount,
@@ -113,7 +113,7 @@ void StaticMeshRenderGraphNode::onRender( graphics::RenderGraphContext& context,
         commandBuffer.bindVertexBuffer( indirectDrawCall.VertexData, 0, 0 );
 
         for( Matrix4< float32 > transformMatrix : indirectDrawCall.Transforms ) {
-            commandBuffer.bindPushConstants( rhi::ShaderStage::Vertex, 0, transformMatrix );
+            commandBuffer.bindPushConstants( rhi::ShaderStage::All, transformMatrix );
             commandBuffer.drawIndirect( indirectDrawCall.DrawCommandBuffer, 1, 0, 0 );
         }
     }
@@ -157,9 +157,9 @@ void StaticMeshRenderGraphNode::prepareShaderGraph( rhi::CommandBuffer& commandB
     generalConstants.LightClusterBias = -( graphics::render_graph_nodes::ClusterZ * log2( viewConstants.Near ) /
                                            nearFarLog );
     generalConstants.Debug = 0;
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64, generalConstants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, generalConstants );
     if( textureAddresses.empty() == false ) {
-        commandBuffer.bindPushConstants( rhi::ShaderStage::Fragment, 64 + sizeof( PushConstants ), textureAddresses );
+        commandBuffer.bindPushConstants( rhi::ShaderStage::All, textureAddresses );
     }
 }
 

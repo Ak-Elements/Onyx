@@ -19,10 +19,10 @@ void SdfDifferenceVolumeShaderGraphNode::doGenerateShader( const node_graph::Exe
 
     generator.addImport( "includes.volume.csg.operations.difference" );
 
-    String differenceVariableName = format::format( "differenceNode_{:x}", getId().get() );
+    String differenceVariableName{ format::format( "differenceNode_{:x}", getId().get() ) };
 
-    String isoValueOutVariableName = format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() );
-    String gradientOutVariableName = format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() );
+    String isoValueOutVariableName{ format::format( "pin_{:x}", m_isoValueOutPin.getGlobalId().get() ) };
+    String gradientOutVariableName{ format::format( "pin_{:x}", m_gradientOutPin.getGlobalId().get() ) };
 
     generator.appendCode( format::format(
         "float4 {} = GetDifference(float4({}, {}), float4({}, {}));\n",

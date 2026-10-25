@@ -29,7 +29,6 @@ class EntityRegistry {
     EntityRegistry& operator=( const EntityRegistry& other );
     EntityRegistry& operator=( EntityRegistry&& other ) noexcept;
 
-    // bool IsEmpty() const { return m_Registry.storage() }
     EntityId createEntity();
     EntityId createEntity( EntityId entity );
     void deleteEntity( EntityId entity );

@@ -7,9 +7,9 @@
 #include <onyx/log/backends/visualstudiolog.h>
 #include <onyx/log/logger.h>
 
+#include <onyx/filesystem/file.h>
 #include <onyx/filesystem/filedialog.h>
 #include <onyx/filesystem/jsondeserializer.h>
-#include <onyx/filesystem/onyxfile.h>
 #include <onyx/ui/imguisystem.h>
 
 #include <onyx/assets/assetsystem.h>
@@ -36,10 +36,13 @@ void Application::init() {
     Logger::s_defaultLogger = m_logger.get();
 
     const FilePath appConfigPath = file_system::path::getWorkingDirectory() / "data/appconfig.oconf";
-    file_system::OnyxFile appSettings( appConfigPath );
-    file_system::JsonValue appConfigJson = appSettings.loadJson();
+    String appConfig;
+    if( file_system::File::readAll( appConfigPath, appConfig ) == false ) {
+        ONYX_ASSERT( false, "Failed loading application config" );
+        return;
+    }
 
-    file_system::JsonDeserializer configDeserializer( appConfigJson.Json );
+    file_system::JsonDeserializer configDeserializer( appConfig );
 
     HashMap< StringId32, file_system::MountPoint > mountPoints;
     configDeserializer.readForEach< "mountpoints" >( [ & ]( const Deserializer& scopedDeserializer ) {
@@ -50,6 +53,8 @@ void Application::init() {
         }
         return false;
     } );
+
+    configDeserializer.read< "config" >( IEngine::getVariablesRegistryRef() );
 
     file_system::path::setMountPoints( mountPoints );
 

@@ -3,7 +3,7 @@
 #include <onyx/thread/async/asynctask.h>
 
 #include <onyx/assets/assetserializer.h>
-#include <onyx/filesystem/onyxfile.h>
+#include <onyx/filesystem/file.h>
 #include <onyx/serialize/text/textdeserializer.h>
 #include <onyx/serialize/text/textserializer.h>
 
@@ -19,7 +19,7 @@ constexpr StringView AssetMetaExtension = ".meta";
 namespace {
 Optional< AssetMetaData > tryReadAssetMetadata( const FilePath& path ) {
     String metadataFileContent;
-    if( file_system::OnyxFile::readAll( file_system::path::getFullPath( path ), metadataFileContent ) == false ) {
+    if( file_system::File::readAll( file_system::path::getFullPath( path ), metadataFileContent ) == false ) {
         return std::nullopt;
     }
 
@@ -42,7 +42,7 @@ Optional< AssetMetaData > createAssetMetadata( const FilePath& metadataPath, con
     if( serlialized.empty() )
         return std::nullopt;
 
-    if( file_system::OnyxFile::writeAll( file_system::path::getFullPath( metadataPath ), serlialized ) ) {
+    if( file_system::File::writeAll( file_system::path::getFullPath( metadataPath ), serlialized ) ) {
         return metadata;
     }
 
@@ -85,10 +85,7 @@ bool getAllAssetMetaData( HashMap< AssetId, AssetMetaData >& outAssetsMetaData )
     for( const FilePath& assetPath : assetFiles ) {
         // metadata files share the same name but with a . and .meta extension
         // the dot at the start will mark them as hidden in linux
-        const FilePath metadataPath = FilePath( assetPath )
-                                          .replace_filename( "." + assetPath.filename().generic_string().append(
-                                                                       AssetMetaExtension ) );
-
+        const FilePath metadataPath = onyx::assets::AssetSystem::toAssetMetaPath( assetPath );
         auto it = std::ranges::find_if( metadataFiles, [ & ]( const FilePath& path ) {
             return ignoreCaseEqual( path.generic_string(), metadataPath.generic_string() );
         } );
@@ -103,6 +100,7 @@ bool getAllAssetMetaData( HashMap< AssetId, AssetMetaData >& outAssetsMetaData )
         if( metadataOptional.has_value() ) {
             AssetMetaData& metadata = metadataOptional.value();
             metadata.Path = assetPath;
+            metadata.MetaDataPath = metadataPath;
             outAssetsMetaData.try_emplace( metadata.Id, metadata );
         } else {
             ONYX_LOG_ERROR( "Failed loading asset meta for {}.", assetPath );
@@ -130,6 +128,10 @@ AssetSystem::AssetSystem( IEngine& engine )
 AssetSystem::~AssetSystem() {
     m_assetsMetaData.clear();
     m_loadedAssets.clear();
+}
+
+/*static*/ FilePath AssetSystem::toAssetMetaPath( FilePath assetPath ) {
+    return assetPath.replace_filename( "." + assetPath.filename().generic_string().append( AssetMetaExtension ) );
 }
 
 void AssetSystem::reloadAsset( AssetId id ) {
@@ -162,4 +164,5 @@ AssetId AssetSystem::resolveAssetId( const FilePath& path ) const {
 
     return AssetId::invalid();
 }
+
 } // namespace onyx::assets

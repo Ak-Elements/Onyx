@@ -32,11 +32,11 @@ void SdfUnionVolumeShaderGraphNode::doGenerateShader( const node_graph::Executio
 
     generator.addImport( "includes.volume.csg.operations.union" );
 
-    String unionVariableName = format::format( "unionNode_{:x}", getId().get() );
+    String unionVariableName{ format::format( "unionNode_{:x}", getId().get() ) };
 
-    String lhsVariableName = format::format( "pin_{:x}", getInputPin0().getLinkedPinGlobalId().get() );
-    String rhsVariableName = format::format( "pin_{:x}", getInputPin1().getLinkedPinGlobalId().get() );
-    String outVariableName = format::format( "pin_{:x}", getOutputPin().getGlobalId().get() );
+    String lhsVariableName{ format::format( "pin_{:x}", getInputPin0().getLinkedPinGlobalId().get() ) };
+    String rhsVariableName{ format::format( "pin_{:x}", getInputPin1().getLinkedPinGlobalId().get() ) };
+    String outVariableName{ format::format( "pin_{:x}", getOutputPin().getGlobalId().get() ) };
 
     generator.appendCode( format::format( UnionCode, outVariableName, lhsVariableName, rhsVariableName ) );
 }

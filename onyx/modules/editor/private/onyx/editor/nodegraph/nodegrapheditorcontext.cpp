@@ -8,6 +8,8 @@
 #include <onyx/nodegraph/nodegraphserializer.h>
 #include <onyx/thread/threadpool/threadpool.h>
 
+#include <onyx/ui/propertygrid/propertyinspector.h>
+
 namespace onyx::editor {
 struct DefaultNodeFilter {
     bool operator()( node_graph::NodeEditorMetaData& ) const { return true; }
@@ -37,9 +39,36 @@ void NodeGraphEditorContext::drawNodeInPropertyPanel( Guid64 nodeId ) {
     node_graph::Node& graphNode = getNodeGraphNode( editorNode.LocalId );
     HashMap< Guid64, std::any >& constantPinData = getNodeGraph().getConstantPinData();
     // TODO: Change bool to enum - NodeChanged::PinAdded, NodeChanged::PinRemoved NodeChanged::PinRenamed etc...
-    bool hasChanged = graphNode.drawInPropertyGrid( constantPinData );
 
-    if( hasChanged ) {
+    // graphNode.getTypeId()
+    bool hasModified = false;
+    auto inspectorOptional = ui::PropertyInspectors::getInspector( graphNode.getTypeId() );
+    if( inspectorOptional.has_value() ) {
+        auto& inspector = inspectorOptional.value();
+        hasModified = inspector( &graphNode, false );
+    }
+
+    const uint32_t inputPinCount = graphNode.getInputPinCount();
+    for( uint32_t i = 0; i < inputPinCount; ++i ) {
+        onyx::node_graph::PinBase* inputPin = graphNode.getInputPin( i );
+        if( inputPin->getType() == onyx::node_graph::PinTypeId::Execute )
+            continue;
+
+        if( enums::none( graphNode.getPinVisibility( inputPin->getLocalId() ),
+                         onyx::node_graph::PinVisibility::InPropertyGrid ) )
+            continue;
+
+        if( inputPin->isConnected() )
+            continue;
+
+        const Guid64 globalId = inputPin->getGlobalId();
+        if( constantPinData.contains( globalId ) == false )
+            constantPinData[ globalId ] = graphNode.createDefaultForPin( inputPin->getLocalId() );
+
+        inputPin->drawPropertyPanel( graphNode.getPinName( inputPin->getLocalId() ), constantPinData[ globalId ] );
+    }
+
+    if( hasModified ) {
         updateEditorNodeData( editorNode, graphNode );
     }
 }
@@ -50,17 +79,17 @@ void NodeGraphEditorContext::filterNodeListContextMenu(
 
     const node_graph::INodeFactory& factory = getNodeFactory();
     const auto& nodeTypeIds = factory.getRegisteredNodeIds();
-    const localization::LocalizationModule& localizationModule = getLocalizationModule();
+    const auto& localizationSystem = getEngineSystem< localization::LocalizationModule >();
 
     for( const StringId32 typeId : nodeTypeIds ) {
         const node_graph::NodeEditorMetaData& nodeMetaData = factory.getNodeMetaData( typeId );
-        StringView localizedFullyQualifiedNodeName = localizationModule.getLocalized( nodeMetaData.TypeId ).Get();
+        StringView localizedFullyQualifiedNodeName = localizationSystem.getLocalized( nodeMetaData.TypeId ).Get();
         if( filterFunctor && filterFunctor( localizedFullyQualifiedNodeName, nodeMetaData ) == false ) {
             continue;
         }
 
-        constexpr char delimiter = '/';
-        DynamicArray< String > parts = split( localizedFullyQualifiedNodeName, delimiter );
+        constexpr char Delimiter = '/';
+        DynamicArray< String > parts = split( localizedFullyQualifiedNodeName, Delimiter );
 
         ui::TreeItem* currentParent = &m_contextMenuRoot;
         for( uint32_t i = 0; i < parts.size(); ++i ) {
@@ -213,9 +242,10 @@ bool NodeGraphEditorContext::onNodeCreate( Node& newEditorNode, StringId32 typeI
 
     newEditorNode.Name = newNode->getName();
     if( newEditorNode.Name.empty() ) {
-        StringView localizedFullyQualifiedNodeName = getLocalizationModule().getLocalized( typeId ).Get();
-        constexpr char delimiter = '/';
-        DynamicArray< String > parts = split( localizedFullyQualifiedNodeName, delimiter );
+        const auto& localizationSystem = getEngineSystem< localization::LocalizationModule >();
+        StringView localizedFullyQualifiedNodeName = localizationSystem.getLocalized( typeId ).Get();
+        constexpr char Delimiter = '/';
+        DynamicArray< String > parts = split( localizedFullyQualifiedNodeName, Delimiter );
         newEditorNode.Name = parts.back();
     }
 

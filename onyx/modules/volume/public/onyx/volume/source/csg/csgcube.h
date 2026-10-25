@@ -7,13 +7,13 @@
 #include <onyx/geometry/vector4.h>
 
 namespace onyx::volume {
-class CSGCube : public VolumeBase {
+class CsgCube : public VolumeBase {
   public:
-    CSGCube()
+    CsgCube()
         : m_center()
         , m_halfExtents( 0.5f ) {}
 
-    CSGCube( const Vector3f32& center, const Vector3f32& halfExtents )
+    CsgCube( const Vector3f32& center, const Vector3f32& halfExtents )
         : m_center( center )
         , m_halfExtents( halfExtents ) {}
 

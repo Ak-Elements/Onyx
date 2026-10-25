@@ -539,11 +539,11 @@ SculptTerrainTool::SculptTerrainTool( rhi::GraphicsSystem& graphicsSystem )
     // graphicsSystem.createShaderInstance( "engine:/shaders/compute/volume/createvolumebrush.oshader" )
 }
 
-StringView SculptTerrainTool::GetTitle() {
+StringView SculptTerrainTool::getTitle() {
     return "Sculpt";
 }
 
-void SculptTerrainTool::Render() {
+void SculptTerrainTool::render() {
     float32 iconSize = 64;
 
     ImGui::BeginHorizontal( "##group", ImVec2( 0, 0 ) );
@@ -571,7 +571,7 @@ void SculptTerrainTool::Render() {
     volume::PreviewTerrainEditPass::s_brushOperation = 0;
 }
 
-void SculptTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
+void SculptTerrainTool::applyOperation( rhi::CommandBuffer& commandBuffer,
                                         const rhi::BufferHandle& hitBuffer,
                                         volume::TerrainWorldOctreeComponent& terrainOctree ) {
     struct CreateVolumeSourcePushConstants {
@@ -604,13 +604,13 @@ void SculptTerrainTool::ApplyOperation( rhi::CommandBuffer& commandBuffer,
     commandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderRead );
 }
 
-void SculptTerrainTool::OnHitPositionReadback( game_core::Scene& /*scene*/,
+void SculptTerrainTool::onHitPositionReadback( game_core::Scene& /*scene*/,
                                                const ecs::ComponentFactory& /*componentFactory*/,
                                                const Vector3f32& /*hitPosition*/ ) {
     // Nothing to do for sculpting as we do not create entities;
 }
 
-void SculptTerrainTool::OnBrushSizeInput( float32 value ) {
+void SculptTerrainTool::onBrushSizeInput( float32 value ) {
     m_BrushSize += Vector3f32( value );
 }
 

@@ -11,6 +11,6 @@ DeleteInputActionCommand::DeleteInputActionCommand( StringId64 actionId,
 
 void DeleteInputActionCommand::execute() {
     input_actions::InputActionsMap& context = GetInputActionsContext();
-    context.RemoveAction( m_ActionId );
+    context.removeAction( m_ActionId );
 }
 } // namespace onyx::editor

@@ -19,6 +19,7 @@ struct AssetId {
     bool operator!=( const AssetId& other ) const { return m_id != other.m_id; }
 
     [[nodiscard]] bool isValid() const { return m_id != Guid64::invalid(); }
+    void reset() { m_id = Guid64::invalid(); }
 
   private:
     Guid64 m_id;

@@ -14,7 +14,7 @@ struct LogMessage {
         , ThreadID( 0 )
         , Message() {}
 
-    LogMessage( LogLevel logLevel, const char* message, const std::source_location& sourceLocation )
+    LogMessage( LogLevel logLevel, StringView message, const std::source_location& sourceLocation )
         : LogLevel( logLevel )
         , LineNumber( sourceLocation.line() )
         , Column( sourceLocation.column() )
@@ -36,7 +36,7 @@ struct LogMessage {
         , Message( std::move( other.Message ) ) {}
 
     LogMessage& operator=( LogMessage&& other ) noexcept {
-        if ( this == &other ) {
+        if( this == &other ) {
             return *this;
         }
 

@@ -1,6 +1,6 @@
 #include <onyx/editor/panels/sceneeditor/entitiespanel.h>
 
-#include <onyx/gamecore/gamecore.h>
+#include <onyx/gamecore/gamecoresystem.h>
 #include <onyx/gamecore/scene/scene.h>
 
 #include <onyx/entity/entityregistry.h>

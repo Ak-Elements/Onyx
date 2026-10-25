@@ -50,16 +50,16 @@ void formatTo( const Span< char >& buffer, std::format_string< Args... > fmt, Ar
 }
 
 template < typename... Args >
-const char* format( std::format_string< Args... > fmt, Args&&... args ) {
+StringView format( std::format_string< Args... > fmt, Args&&... args ) {
     uint64_t formattedSize = std::formatted_size( fmt, std::forward< Args >( args )... );
 
-    if ( formattedSize > DefaultBufferSize ) {
+    if( formattedSize > DefaultBufferSize ) {
         assert( false );
         // ONYX_ASSERT(false, "");
     }
 
     const Span< char > formatBuffer = getNextStringBuffer();
     formatTo( formatBuffer, fmt, std::forward< Args >( args )... );
-    return formatBuffer.data();
+    return { formatBuffer.data(), formattedSize };
 }
 } // namespace onyx::format
