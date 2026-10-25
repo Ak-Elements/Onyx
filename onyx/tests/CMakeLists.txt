@@ -21,7 +21,7 @@ add_executable(${CURRENT_TARGET}
 
 # set cxx standard and settings
 set_target_properties(${CURRENT_TARGET} PROPERTIES
-    CXX_STANDARD 20
+    CXX_STANDARD 23
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 	CXX_VISIBILITY_PRESET hidden
@@ -59,23 +59,47 @@ FetchContent_Declare(Catch2
 	GIT_REPOSITORY https://github.com/catchorg/Catch2.git
 	GIT_TAG v3.5.4
 )
-
 FetchContent_MakeAvailable(Catch2)
 
 # reset cmake folder
 set(CMAKE_FOLDER ${CMAKE_FOLDER_PREV})
 
+set(FTL_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(FTL_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
+set(FTL_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(FiberTaskingLib
+	GIT_REPOSITORY https://github.com/RichieSams/FiberTaskingLib.git
+	GIT_TAG v2.1.0
+    SYSTEM
+)
+FetchContent_MakeAvailable(FiberTaskingLib)
+
+# --- enkiTS ------------------------------------------------------------
+set(ENKITS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ENKITS_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+set(ENKITS_INSTALL        OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+    enkiTS
+    GIT_REPOSITORY https://github.com/dougbinks/enkiTS.git
+    GIT_TAG        master
+    SYSTEM
+)
+FetchContent_MakeAvailable(enkiTS)
+
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 
 target_link_libraries(${CURRENT_TARGET}
 	onyx-core
-	onyx-volume
+    ftl
+    enkiTS
 	Catch2::Catch2WithMain)
 
 include(CTest)
 include(Catch)
 catch_discover_tests(${CURRENT_TARGET})
-
+    
 include(GNUInstallDirs)
 install(TARGETS ${CURRENT_TARGET}
  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

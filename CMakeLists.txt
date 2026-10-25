@@ -174,6 +174,7 @@ if (WIN32 AND (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
     set(CMAKE_NO_SYSTEM_FROM_IMPORTED YES)
 endif()
 
+enable_testing()
 include(FetchContent)
 include(CPM)
 
