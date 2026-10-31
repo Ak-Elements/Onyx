@@ -25,6 +25,11 @@ float4 pointSample( uint32_t textureIndex, float2 uv ) {
     return sample( indices, uv );
 }
 
+float4 fetchTexel( uint32_t textureIndex, int3 position ) {
+    DescriptorHandle< Texture2D > bindlessTexture = DescriptorHandle< Texture2D >( uint2( textureIndex, 0 ) );
+    return bindlessTexture.Load( position );
+}
+
 float4 sample( uint2 indices, float2 uv ) {
     DescriptorHandle< Texture2D > bindlessTexture = DescriptorHandle< Texture2D >( uint2( indices.x, 0 ) );
     DescriptorHandle< SamplerState > bindlessSampler = DescriptorHandle< SamplerState >( uint2( 0, indices.y ) );

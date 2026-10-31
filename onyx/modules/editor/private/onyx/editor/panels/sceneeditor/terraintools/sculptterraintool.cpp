@@ -574,6 +574,9 @@ void SculptTerrainTool::render() {
 void SculptTerrainTool::applyOperation( rhi::CommandBuffer& commandBuffer,
                                         const rhi::BufferHandle& hitBuffer,
                                         volume::TerrainWorldOctreeComponent& terrainOctree ) {
+    if( m_CreateVolumeSourceShader.isValid() == false )
+        return;
+
     struct CreateVolumeSourcePushConstants {
         uint64_t WorldVolumesList;
         uint64_t WorldVolumesData;

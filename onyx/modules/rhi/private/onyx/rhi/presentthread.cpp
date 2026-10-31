@@ -49,7 +49,7 @@ void PresentThread::onUpdate() {
     vulkan::VulkanGraphicsApi& vulkan = m_GraphicsSystem->getApi< vulkan::VulkanGraphicsApi >();
     SetRefreshRate( m_GraphicsSystem->getRefreshRate() );
 
-    while ( isRunning() ) {
+    while( isRunning() ) {
         ONYX_PROFILE_SECTION( PresentLoop );
         uint64_t presentStart = Time::GetCurrentNanoseconds();
 
@@ -57,7 +57,7 @@ void PresentThread::onUpdate() {
         m_WaitCondition.wait( lock,
                               [ & ]() { return ( m_PresentQueue.empty() == false ) || ( isRunning() == false ); } );
 
-        if ( isRunning() == false ) {
+        if( isRunning() == false ) {
             lock.unlock();
             break;
         }
@@ -69,8 +69,8 @@ void PresentThread::onUpdate() {
         {
             ONYX_PROFILE_SECTION( Present );
             vulkan::SwapChain& swapChain = vulkan.getSwapChain();
-            bool hasPresented = swapChain.Present( presentInfo.BackbufferImageIndex );
-            if ( hasPresented == false ) {
+            bool hasPresented = swapChain.present( presentInfo.BackbufferImageIndex );
+            if( hasPresented == false ) {
                 ClearQueue();
             }
         }
@@ -78,7 +78,7 @@ void PresentThread::onUpdate() {
         ++m_PresentCount;
 
         uint64_t presentDuration = Time::GetCurrentNanoseconds() - presentStart;
-        if ( presentDuration < m_TargetFrameTime ) {
+        if( presentDuration < m_TargetFrameTime ) {
             // uint64_t sleepDuration = m_TargetFrameTime - presentDuration;
             // std::this_thread::sleep_for(std::chrono::nanoseconds(sleepDuration));
         }

@@ -4,6 +4,7 @@ set(onyx_TARGET_PUBLIC_SOURCES
     chunk/volumechunkloader.h
     chunk/volumechunkloadrequest.h
     components/volumeterraincomponent.ocd
+    components/volumeterrainsourcecomponent.ocd
     components/csg/cubecomponent.ocd
     components/csg/planecomponent.ocd
     components/csg/spherecomponent.ocd

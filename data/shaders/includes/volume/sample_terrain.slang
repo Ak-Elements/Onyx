@@ -34,8 +34,11 @@ void sampleVolumeSources( float3 worldPosition,
                           inout SdfSample terrainSample,
                           in Ptr< VolumeSourceList > sources,
                           in Ptr< VolumeSourcesData > sourcesData ) {
-    float4 terrainSampleVec4 = float4( terrainSample.Gradient, terrainSample.Distance );
+    if( sources.Count == 0 )
+        return;
+
     for( uint32_t i = 0; i < sources.Count; ++i ) {
+        float4 terrainSampleVec4 = float4( terrainSample.Gradient, terrainSample.Distance );
         VolumeSource source = sources.Sources[ i ];
         float4 sourceGradient = float4( 0.0 );
         uint32_t dataStartIndex = source.Index * VolumePackedDataSize;

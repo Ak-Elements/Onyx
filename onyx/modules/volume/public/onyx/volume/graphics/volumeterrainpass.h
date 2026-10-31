@@ -32,7 +32,9 @@ class VolumeTerrainPass : public node_graph::FixedPinNode2In1Out< graphics::Rend
                                                    rhi::TextureHandle >;
 
     void onBeginFrame( graphics::RenderGraphContext& ) override;
+    void onPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
     void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
+    void onPostRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR
   private:

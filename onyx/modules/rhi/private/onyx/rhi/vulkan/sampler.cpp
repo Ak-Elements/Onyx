@@ -4,7 +4,7 @@
 
 namespace onyx::rhi::vulkan {
 namespace {
-VkSamplerAddressMode ToVulkanAddressMode( SamplerAddressMode mode ) {
+VkSamplerAddressMode toVulkanAddressMode( SamplerAddressMode mode ) {
     switch( mode ) {
     case SamplerAddressMode::Repeat:
         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -22,7 +22,7 @@ VkSamplerAddressMode ToVulkanAddressMode( SamplerAddressMode mode ) {
     }
 }
 
-VkFilter ToVulkanSamplerFilter( SamplerFilter mode ) {
+VkFilter toVulkanSamplerFilter( SamplerFilter mode ) {
     switch( mode ) {
     case SamplerFilter::Nearest:
         return VK_FILTER_NEAREST;
@@ -36,7 +36,7 @@ VkFilter ToVulkanSamplerFilter( SamplerFilter mode ) {
     }
 }
 
-VkSamplerMipmapMode ToVulkanSamplerMipMapMode( SamplerMipMapMode mode ) {
+VkSamplerMipmapMode toVulkanSamplerMipMapMode( SamplerMipMapMode mode ) {
     switch( mode ) {
     case SamplerMipMapMode::Nearest:
         return VK_SAMPLER_MIPMAP_MODE_NEAREST;
@@ -53,12 +53,12 @@ Sampler::Sampler( const Device& device, const SamplerProperties& properties )
     : m_device( device ) {
     VkSamplerCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    createInfo.addressModeU = ToVulkanAddressMode( properties.AddressModeU );
-    createInfo.addressModeV = ToVulkanAddressMode( properties.AddressModeV );
-    createInfo.addressModeW = ToVulkanAddressMode( properties.AddressModeW );
-    createInfo.minFilter = ToVulkanSamplerFilter( properties.MinFilter );
-    createInfo.magFilter = ToVulkanSamplerFilter( properties.MagFilter );
-    createInfo.mipmapMode = ToVulkanSamplerMipMapMode( properties.MipFilter );
+    createInfo.addressModeU = toVulkanAddressMode( properties.AddressModeU );
+    createInfo.addressModeV = toVulkanAddressMode( properties.AddressModeV );
+    createInfo.addressModeW = toVulkanAddressMode( properties.AddressModeW );
+    createInfo.minFilter = toVulkanSamplerFilter( properties.MinFilter );
+    createInfo.magFilter = toVulkanSamplerFilter( properties.MagFilter );
+    createInfo.mipmapMode = toVulkanSamplerMipMapMode( properties.MipFilter );
     createInfo.anisotropyEnable = true;
     createInfo.compareEnable = 0;
     createInfo.maxAnisotropy = 8.0f;
@@ -68,14 +68,14 @@ Sampler::Sampler( const Device& device, const SamplerProperties& properties )
     createInfo.maxLod = VK_LOD_CLAMP_NONE;
     createInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkCreateSampler( device.GetHandle(), &createInfo, nullptr, &m_Sampler ) )
+    VK_CHECK_RESULT( vkCreateSampler( device.getHandle(), &createInfo, nullptr, &m_Sampler ) )
 
     m_descriptorInfo.sampler = m_Sampler;
 }
 
 Sampler::~Sampler() {
     if( m_Sampler ) {
-        vkDestroySampler( m_device.GetHandle(), m_Sampler, nullptr );
+        vkDestroySampler( m_device.getHandle(), m_Sampler, nullptr );
     }
 }
 } // namespace onyx::rhi::vulkan

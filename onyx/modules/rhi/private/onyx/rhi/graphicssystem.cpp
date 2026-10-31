@@ -2,7 +2,7 @@
 
 #include <onyx/assets/assetsystem.h>
 
-#include <onyx/rhi/camera.h>
+#include <onyx/rhi/camera/camera.h>
 #include <onyx/rhi/graphicsapiinterface.h>
 #include <onyx/rhi/vulkan/shader.h>
 
@@ -155,8 +155,9 @@ bool GraphicsSystem::beginFrame() {
     if( mainWindow.isMinimized() )
         return false;
 
-    if( m_camera != m_queuedCamera )
+    if( m_camera != m_queuedCamera ) {
         m_camera = m_queuedCamera;
+    }
 
     m_hasComputeWork = false;
 

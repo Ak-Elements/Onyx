@@ -7,8 +7,8 @@
 
 namespace onyx::rhi::vulkan {
 PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const DescriptorSetLayout& descriptorSetLayout )
-    : m_Device( api.getDevice() ) {
-    VkDescriptorSetLayout descriptorSetLayouts[] = { descriptorSetLayout.GetHandle() };
+    : m_device( api.getDevice() ) {
+    VkDescriptorSetLayout descriptorSetLayouts[] = { descriptorSetLayout.getHandle() };
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -17,11 +17,11 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const DescriptorSe
     pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-    VK_CHECK_RESULT( vkCreatePipelineLayout( m_Device.GetHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout ) );
+    VK_CHECK_RESULT( vkCreatePipelineLayout( m_device.getHandle(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout ) );
 }
 
 PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shader )
-    : m_Device( api.getDevice() ) {
+    : m_device( api.getDevice() ) {
     //// Descriptor set layouts
     const auto& descriptorSetLayouts = shader.getDescriptorSetLayouts();
     const uint32_t descriptorSetLayoutsCount = static_cast< uint32_t >( descriptorSetLayouts.size() );
@@ -31,13 +31,13 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
     vkDescriptorSetLayouts.reserve( descriptorSetLayoutsCount + 1 );
 
     if( api.isBindless() )
-        vkDescriptorSetLayouts.push_back( api.getBindlessDescriptorSetLayout().GetHandle() );
+        vkDescriptorSetLayouts.push_back( api.getBindlessDescriptorSetLayout().getHandle() );
 
     for( const UniquePtr< DescriptorSetLayout >& descriptorSetLayout : descriptorSetLayouts ) {
         if( descriptorSetLayout == nullptr )
             continue;
 
-        vkDescriptorSetLayouts.push_back( descriptorSetLayout->GetHandle() );
+        vkDescriptorSetLayouts.push_back( descriptorSetLayout->getHandle() );
     }
     //// Push constant ranges
     const DynamicArray< PushConstantRange >& pushConstantRanges = shader.getPushConstantRanges();
@@ -45,7 +45,7 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
 
     DynamicArray< VkPushConstantRange > vkPushConstantRanges;
     for( const auto& pushConstantRange : pushConstantRanges )
-        vkPushConstantRanges.emplace_back( ToVulkanStage( pushConstantRange.Stage ),
+        vkPushConstantRanges.emplace_back( toVulkanStage( pushConstantRange.Stage ),
                                            pushConstantRange.Offset,
                                            pushConstantRange.Size );
 
@@ -58,13 +58,13 @@ PipelineLayout::PipelineLayout( const VulkanGraphicsApi& api, const Shader& shad
     pipelineLayoutInfo.pushConstantRangeCount = pushConstantRangesCount;
     pipelineLayoutInfo.pPushConstantRanges = vkPushConstantRanges.data();
 
-    VK_CHECK_RESULT( vkCreatePipelineLayout( m_Device.GetHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout ) )
+    VK_CHECK_RESULT( vkCreatePipelineLayout( m_device.getHandle(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout ) )
 }
 
 PipelineLayout::~PipelineLayout() {
-    if( m_PipelineLayout != nullptr ) {
-        vkDestroyPipelineLayout( m_Device.GetHandle(), m_PipelineLayout, nullptr );
-        m_PipelineLayout = nullptr;
+    if( m_pipelineLayout != nullptr ) {
+        vkDestroyPipelineLayout( m_device.getHandle(), m_pipelineLayout, nullptr );
+        m_pipelineLayout = nullptr;
     }
 }
 } // namespace onyx::rhi::vulkan

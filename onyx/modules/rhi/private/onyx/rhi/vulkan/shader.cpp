@@ -15,12 +15,12 @@ ShaderModule::ShaderModule( const VulkanGraphicsApi& api, Span< const uint8_t > 
     moduleCreateInfo.pCode = std::bit_cast< uint32_t* >( byteCode.data() );
     moduleCreateInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkCreateShaderModule( api.getDevice().GetHandle(), &moduleCreateInfo, nullptr, &m_Module ) )
+    VK_CHECK_RESULT( vkCreateShaderModule( api.getDevice().getHandle(), &moduleCreateInfo, nullptr, &m_Module ) )
 }
 
 ShaderModule::~ShaderModule() {
     if( m_Module != nullptr ) {
-        vkDestroyShaderModule( m_api.getDevice().GetHandle(), m_Module, nullptr );
+        vkDestroyShaderModule( m_api.getDevice().getHandle(), m_Module, nullptr );
     }
 }
 
@@ -94,8 +94,8 @@ DynamicArray< VkPipelineShaderStageCreateInfo > Shader::createPipelineShaderStag
 
         VkPipelineShaderStageCreateInfo& createInfo = pipelineCreateInfos.emplace_back();
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        createInfo.stage = ToVulkanStage( stage );
-        createInfo.module = m_module->GetHandle();
+        createInfo.stage = toVulkanStage( stage );
+        createInfo.module = m_module->getHandle();
         createInfo.pName = stage == ShaderStage::Compute  ? "main"
                            : stage == ShaderStage::Vertex ? "vertexMain"
                                                           : "fragmentMain";

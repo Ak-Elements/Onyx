@@ -258,20 +258,19 @@ void SceneEditorWindow::onSceneLoaded( const assets::AssetHandle< game_core::Sce
     m_editorCameraEntity = registry.createEntity();
 
     game_core::GameCoreSystem& gameCoreSystem = getEngineSystem< game_core::GameCoreSystem >();
+    rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
     ecs::EcsBuilder ecsBuilder = gameCoreSystem.getEcsBuilder();
 
     registry.addComponent< game_core::TransientComponent >( m_editorCameraEntity );
     game_core::TransformComponent& transform = registry.addComponent< game_core::TransformComponent >(
         m_editorCameraEntity );
-    transform.Translation = Vector3f32{ 0.0f, 180.0f, 1000.0f };
+    transform.Translation = Vector3f32{ 0.0f, 100.0f, 1000.0f };
     transform.RotationEuler = EulerRadiansF32::zero();
     game_core::CameraComponent& camera = registry.addComponent< game_core::CameraComponent >( m_editorCameraEntity );
 
-    camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65536 );
-    //camera.Camera.setPerspective( units::DegreesF32( 45.0f ), 0.1f, 65000 );
+    camera.Camera.init( graphicsSystem.getSettings() );
 
     // TODO: Should be viewport extents
-    rhi::GraphicsSystem& graphicsSystem = getEngineSystem< rhi::GraphicsSystem >();
     camera.Camera.setViewportExtents( graphicsSystem.getSwapchainExtent() );
     registry.addComponent< game_core::FreeCameraControllerComponent >( m_editorCameraEntity );
     registry.addComponent< game_core::FreeCameraRuntimeComponent >( m_editorCameraEntity );

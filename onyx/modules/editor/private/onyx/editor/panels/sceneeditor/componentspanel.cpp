@@ -69,18 +69,22 @@ void ComponentsPanel::drawSelectedEntityComponents( ecs::EntityRegistry& registr
             // if the component storage contains the entity we know that the entity has this component
             if( const ecs::IComponentMeta* componentMeta = componentFactory.getComponentMeta( componentId )
                                                                .value_or( nullptr ) ) {
+                const StringId32 componentTypeId = componentMeta->getTypeId();
+                onyx::localization::LocalizationId localizationId( componentTypeId );
+                localization::LocalizedString componentName = localizationModule.getLocalized( localizationId );
+
                 if( ui::PropertyInspectors::isTypeRegistered( componentMeta->getRuntimeTypeId() ) == false ) {
+                    if( m_showAll ) {
+                        ImGui::TextEx( componentName.Get().data() );
+                    }
                     continue;
                 }
 
-                const StringId32 componentTypeId = componentMeta->getTypeId();
                 ui::ScopedImGuiId id( static_cast< int32_t >( componentTypeId.getId() ) );
                 ui::ScopedImGuiStyle style{ { ImGuiStyleVar_FrameBorderSize, 0.0f },
                                             { ImGuiStyleVar_ItemSpacing, ImVec2( 0.0, 0.0f ) },
                                             { ImGuiStyleVar_ItemInnerSpacing, ImVec2( 0.0, 0.0f ) } };
 
-                onyx::localization::LocalizationId localizationId( componentTypeId );
-                localization::LocalizedString componentName = localizationModule.getLocalized( localizationId );
                 if( ui::contextMenuHeader( componentName,
                                            ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DefaultOpen ) ) {
                     ImGui::BeginChild( "Panel",

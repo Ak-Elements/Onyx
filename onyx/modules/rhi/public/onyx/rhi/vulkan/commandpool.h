@@ -22,7 +22,7 @@ class CommandPool : public NonCopyable {
   private:
     const Device* m_device;
 
-    VULKAN_HANDLE( VkCommandPool, CommandPool, nullptr );
+    VULKAN_HANDLE( VkCommandPool, commandPool, nullptr );
 
 #if !ONYX_IS_RETAIL
     uint8_t m_frameIndex = 0;

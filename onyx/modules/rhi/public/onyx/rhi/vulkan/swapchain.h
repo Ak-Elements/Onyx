@@ -26,29 +26,31 @@ class SwapChain : public NonCopyable {
     SwapChain( VulkanGraphicsApi& graphicsApi, const Surface& surface, const platform::Window& window );
     ~SwapChain() override;
 
-    bool BeginFrame( uint8_t frameIndex );
-    bool Present( uint32_t imageIndex );
+    bool beginFrame( uint8_t frameIndex );
+    bool present( uint32_t imageIndex );
 
-    bool HasValidBackBuffer() const { return ( m_CurrentImageIndex != std::numeric_limits< uint32_t >::max() ); }
-    uint32_t GetMinImageCount() const { return m_MinImageCount; }
-    uint32_t GetImageCount() const { return m_ImageCount; }
-
-    const UniquePtr< Semaphore >& GetBackbufferAcquiredSemaphore( uint8_t frameIndex ) const {
-        return m_ImageAcquiredSemaphores[ frameIndex ];
+    [[nodiscard]] bool hasValidBackBuffer() const {
+        return ( m_currentImageIndex != std::numeric_limits< uint32_t >::max() );
     }
-    const UniquePtr< Semaphore >& GetRenderCompleteSemaphore( uint8_t imageIndex ) const {
-        return m_RenderCompleteSemaphores[ imageIndex ];
+    [[nodiscard]] uint32_t getMinImageCount() const { return m_minImageCount; }
+    [[nodiscard]] uint32_t getImageCount() const { return m_imageCount; }
+
+    [[nodiscard]] const UniquePtr< Semaphore >& getBackbufferAcquiredSemaphore( uint8_t frameIndex ) const {
+        return m_imageAcquiredSemaphores[ frameIndex ];
+    }
+    [[nodiscard]] const UniquePtr< Semaphore >& getRenderCompleteSemaphore( uint8_t imageIndex ) const {
+        return m_renderCompleteSemaphores[ imageIndex ];
     }
     // const UniquePtr<Fence>& GetRenderCompleteFence(uint8_t frameIndex) const { return
     // m_FrameSyncObjects[frameIndex].m_RenderCompleteFence; }
 
-    const Vector2s32& GetExtent() const { return m_Extent; }
-    TextureFormat GetFormat() const { return m_ColorFormat; }
-    VkPresentModeKHR GetPresentMode() const { return m_PresentMode; }
+    [[nodiscard]] const Vector2s32& getExtent() const { return m_extent; }
+    [[nodiscard]] TextureFormat getFormat() const { return m_colorFormat; }
+    [[nodiscard]] VkPresentModeKHR getPresentMode() const { return m_presentMode; }
 
-    TextureHandle& GetAcquiredBackbuffer();
-    const TextureHandle& GetAcquiredBackbuffer() const;
-    uint32_t GetAcquiredBackbufferIndex() const { return m_CurrentImageIndex; }
+    TextureHandle& getAcquiredBackbuffer();
+    [[nodiscard]] const TextureHandle& getAcquiredBackbuffer() const;
+    [[nodiscard]] uint32_t getAcquiredBackbufferIndex() const { return m_currentImageIndex; }
 
   private:
     struct SupportDetails {
@@ -57,42 +59,45 @@ class SwapChain : public NonCopyable {
         DynamicArray< VkPresentModeKHR > PresentModes;
     };
 
-    void Init();
+    void init();
 
-    SupportDetails QuerySwapChainSupport( const PhysicalDevice& physicalDevice, const Surface& surface ) const;
-    VkSurfaceFormatKHR ChooseSwapSurfaceFormat( const DynamicArray< VkSurfaceFormatKHR >& formats ) const;
-    VkPresentModeKHR ChooseSwapPresentMode( const DynamicArray< VkPresentModeKHR >& presentModes,
-                                            bool isVSyncEnabled ) const;
-    VkExtent2D ChooseSwapExtent( const Vector2s32& windowSize, const VkSurfaceCapabilitiesKHR& capabilities ) const;
-    uint32_t ChooseImageCount( const VkSurfaceCapabilitiesKHR& capabilities ) const;
-    VkSurfaceTransformFlagBitsKHR ChoosePreTransform( const VkSurfaceCapabilitiesKHR& capabilities ) const;
+    [[nodiscard]] SupportDetails querySwapChainSupport( const PhysicalDevice& physicalDevice,
+                                                        const Surface& surface ) const;
+    [[nodiscard]] VkSurfaceFormatKHR chooseSwapSurfaceFormat( const DynamicArray< VkSurfaceFormatKHR >& formats ) const;
+    [[nodiscard]] VkPresentModeKHR chooseSwapPresentMode( const DynamicArray< VkPresentModeKHR >& presentModes,
+                                                          bool isVSyncEnabled ) const;
+    [[nodiscard]] VkExtent2D chooseSwapExtent( const Vector2s32& windowSize,
+                                               const VkSurfaceCapabilitiesKHR& capabilities ) const;
+    [[nodiscard]] uint32_t chooseImageCount( const VkSurfaceCapabilitiesKHR& capabilities ) const;
+    [[nodiscard]] VkSurfaceTransformFlagBitsKHR choosePreTransform(
+        const VkSurfaceCapabilitiesKHR& capabilities ) const;
 
-    void OnWindowResize( Vector2s32 size );
+    void onWindowResize( Vector2s32 size );
 
   private:
-    std::mutex mutex;
-    VulkanGraphicsApi& m_GraphicsApi;
-    const platform::Window* m_Window = nullptr;
-    const Surface& m_Surface;
-    const Device& m_Device;
+    std::mutex m_mutex;
+    VulkanGraphicsApi& m_graphicsApi;
+    const platform::Window* m_window = nullptr;
+    const Surface& m_surface;
+    const Device& m_device;
 
-    VULKAN_HANDLE( VkSwapchainKHR, SwapChain, nullptr );
+    VULKAN_HANDLE( VkSwapchainKHR, swapChain, nullptr );
 
-    uint32_t m_ImageCount;
-    uint32_t m_MinImageCount;
-    VkPresentModeKHR m_PresentMode;
-    TextureFormat m_ColorFormat;
+    uint32_t m_imageCount;
+    uint32_t m_minImageCount;
+    VkPresentModeKHR m_presentMode;
+    TextureFormat m_colorFormat;
     // VkColorSpaceKHR m_ColorSpace;
-    Vector2s32 m_Extent;
+    Vector2s32 m_extent;
 
     // 1 semaphore per swapchain image
-    DynamicArray< UniquePtr< Semaphore > > m_RenderCompleteSemaphores;
-    InplaceArray< UniquePtr< Semaphore >, MaxFramesInFlight > m_ImageAcquiredSemaphores;
+    DynamicArray< UniquePtr< Semaphore > > m_renderCompleteSemaphores;
+    InplaceArray< UniquePtr< Semaphore >, MaxFramesInFlight > m_imageAcquiredSemaphores;
 
     // InplaceArray<SyncObject, MAX_FRAMES_IN_FLIGHT> m_FrameSyncObjects;
-    DynamicArray< TextureHandle > m_SwapchainBuffers;
+    DynamicArray< TextureHandle > m_swapchainBuffers;
 
-    uint32_t m_CurrentImageIndex = std::numeric_limits< uint32_t >::max();
-    bool m_ShouldRecreateSwapchain = false;
+    uint32_t m_currentImageIndex = std::numeric_limits< uint32_t >::max();
+    bool m_shouldRecreateSwapchain = false;
 };
 } // namespace onyx::rhi::vulkan

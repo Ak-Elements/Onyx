@@ -50,10 +50,10 @@ void generateMips( VulkanTextureStorage& storage,
         blitRegion.dstOffsets[ 0 ] = { 0, 0, 0 };
         blitRegion.dstOffsets[ 1 ] = { width, height, 1 };
 
-        vkCmdBlitImage( vulkanCmdBuffer.GetHandle(),
-                        storage.GetHandle(),
+        vkCmdBlitImage( vulkanCmdBuffer.getHandle(),
+                        storage.getHandle(),
                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                        storage.GetHandle(),
+                        storage.getHandle(),
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                         1,
                         &blitRegion,
@@ -98,10 +98,10 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, const Textur
 
     createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VK_CHECK_RESULT( vkCreateImage( m_device->GetHandle(), &createInfo, nullptr, &m_image ) );
+    VK_CHECK_RESULT( vkCreateImage( m_device->getHandle(), &createInfo, nullptr, &m_image ) );
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements( m_device->GetHandle(), m_image, &memRequirements );
+    vkGetImageMemoryRequirements( m_device->getHandle(), m_image, &memRequirements );
 
     VkMemoryPropertyFlags requiredMemoryPropertyFlags, preferredMemoryPropertyFlags;
     GetMemoryPropertyFlags( m_properties.CpuAccess,
@@ -110,7 +110,7 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, const Textur
                             preferredMemoryPropertyFlags );
 
     // TODO: memory type?
-    m_Memory = m_Allocator->AllocateDedicatedMemory( m_image,
+    m_Memory = m_Allocator->allocateDedicatedMemory( m_image,
                                                      memRequirements.memoryTypeBits,
                                                      requiredMemoryPropertyFlags,
                                                      preferredMemoryPropertyFlags );
@@ -119,9 +119,9 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, const Textur
                         ( VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ) ) ==
                       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
-    m_Allocator->Bind( m_image, m_Memory );
+    m_Allocator->bind( m_image, m_Memory );
 
-    SetResourceName( m_device->GetHandle(),
+    setResourceName( m_device->getHandle(),
                      VK_OBJECT_TYPE_IMAGE,
                      (uint64_t)m_image,
                      m_properties.DebugName.empty() ? "Unnamed Storage" : m_properties.DebugName.c_str() );
@@ -136,18 +136,18 @@ VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, VkImage imag
 VulkanTextureStorage::VulkanTextureStorage( VulkanGraphicsApi& api, VkImage image, StringView name )
     : m_device( &api.getDevice() )
     , m_image( image ) {
-    SetResourceName( m_device->GetHandle(), VK_OBJECT_TYPE_IMAGE, (uint64_t)m_image, name );
+    setResourceName( m_device->getHandle(), VK_OBJECT_TYPE_IMAGE, (uint64_t)m_image, name );
 }
 
 void VulkanTextureStorage::free( VulkanGraphicsApi& api ) {
-    vkDestroyImage( api.getDevice().GetHandle(), m_image, nullptr );
+    vkDestroyImage( api.getDevice().getHandle(), m_image, nullptr );
     m_image = nullptr;
 }
 
 VulkanTextureStorage::~VulkanTextureStorage() {
     // m_Memory is only set for dedicated allocated images, swapchain images have no m_Memory
     if( m_Memory ) {
-        vkDestroyImage( m_device->GetHandle(), m_image, nullptr );
+        vkDestroyImage( m_device->getHandle(), m_image, nullptr );
         m_image = nullptr;
     }
 }
@@ -333,8 +333,8 @@ void VulkanTextureStorage::updateData( VulkanGraphicsApi& api, const Span< uint8
 
         transitionLayout( vulkanCmdBuffer, Context::Graphics, Access::TransferWrite, ImageLayout::TransferDestination );
 
-        vkCmdCopyBufferToImage( vulkanCmdBuffer.GetHandle(),
-                                stagingBuffer.GetHandle(),
+        vkCmdCopyBufferToImage( vulkanCmdBuffer.getHandle(),
+                                stagingBuffer.getHandle(),
                                 m_image,
                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                 1,
@@ -365,7 +365,7 @@ int8_t VulkanTextureStorage::alias( const TextureStorageProperties& aliasPropert
     createInfo.format = getFormat( aliasProperties.Format );
     createInfo.mipLevels = aliasProperties.MaxMipLevel;
     createInfo.arrayLayers = arraySizeScale * std::max< uint32_t >( aliasProperties.ArraySize, 1u );
-    createInfo.samples = VK_SAMPLE_COUNT_8_BIT;
+    createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     createInfo.tiling = VK_IMAGE_TILING_OPTIMAL; // IsOptimalTiling(properties) ? VK_IMAGE_TILING_OPTIMAL :
                                                  // VK_IMAGE_TILING_LINEAR;
     createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -380,7 +380,7 @@ int8_t VulkanTextureStorage::alias( const TextureStorageProperties& aliasPropert
 
     // move to device memory
     int8_t aliasIndex = static_cast< int8_t >( m_aliases.size() );
-    m_aliases.add( m_Allocator->Alias( m_Memory, createInfo ) );
+    m_aliases.add( m_Allocator->alias( m_Memory, createInfo ) );
 
     return aliasIndex;
 }
@@ -406,7 +406,7 @@ void VulkanTextureStorage::transitionPresent( VulkanCommandBuffer& commandBuffer
                                            .imageMemoryBarrierCount = 1,
                                            .pImageMemoryBarriers = &barrier };
 
-    vkCmdPipelineBarrier2( commandBuffer.GetHandle(), &dependencyInfo );
+    vkCmdPipelineBarrier2( commandBuffer.getHandle(), &dependencyInfo );
 
     m_layout = ImageLayout::Present;
     m_access = Access::None;
@@ -442,7 +442,7 @@ void VulkanTextureStorage::transitionLayout( CommandBuffer& commandBuffer,
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = m_image;
-    barrier.subresourceRange.aspectMask = isDepthFormat ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.aspectMask = getAspectFlags( m_properties.Format );
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
     // TODO: Fix mips
@@ -457,7 +457,7 @@ void VulkanTextureStorage::transitionLayout( CommandBuffer& commandBuffer,
     dependencyInfo.pNext = nullptr;
 
     VulkanCommandBuffer& vkCommandBuffer = static_cast< VulkanCommandBuffer& >( commandBuffer );
-    vkCmdPipelineBarrier2( vkCommandBuffer.GetHandle(), &dependencyInfo );
+    vkCmdPipelineBarrier2( vkCommandBuffer.getHandle(), &dependencyInfo );
 
     m_layout = newLayout;
     m_access = newAccess;

@@ -19,57 +19,57 @@ struct GpuMemoryStats {
 
 class MemoryAllocator : public NonCopyable {
   public:
-    MemoryAllocator( const std::string& tag, const VulkanGraphicsApi& graphicsApi );
+    MemoryAllocator( String tag, const VulkanGraphicsApi& graphicsApi );
     ~MemoryAllocator();
 
-    VmaAllocation Allocate( VkBuffer buffer,
+    VmaAllocation allocate( VkBuffer buffer,
                             VkMemoryPropertyFlags requiredFlags,
                             VkMemoryPropertyFlags preferredFlags );
-    VmaAllocation Allocate( VkImage buffer, VkMemoryPropertyFlags requiredFlags, VkMemoryPropertyFlags preferredFlags );
-    VmaAllocation AllocateDedicatedMemory( VkBuffer buffer,
+    VmaAllocation allocate( VkImage buffer, VkMemoryPropertyFlags requiredFlags, VkMemoryPropertyFlags preferredFlags );
+    VmaAllocation allocateDedicatedMemory( VkBuffer buffer,
                                            uint32_t memoryTypeBits,
                                            VkMemoryPropertyFlags requiredFlags,
                                            VkMemoryPropertyFlags preferredFlags );
-    VmaAllocation AllocateDedicatedMemory( VkImage image,
+    VmaAllocation allocateDedicatedMemory( VkImage image,
                                            uint32_t memoryTypeBits,
                                            VkMemoryPropertyFlags requiredFlags,
                                            VkMemoryPropertyFlags preferredFlags );
-    VmaAllocationInfo GetAllocationInfo( const VmaAllocation& allocation );
+    VmaAllocationInfo getAllocationInfo( const VmaAllocation& allocation );
 
-    VkImage Alias( VmaAllocation allocation, const VkImageCreateInfo& aliasInfo );
-    VkBuffer Alias( VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, uint64_t offset );
+    VkImage alias( VmaAllocation allocation, const VkImageCreateInfo& aliasInfo );
+    VkBuffer alias( VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, uint64_t offset );
 
-    void Bind( VkBuffer buffer, VmaAllocation allocation );
-    void Bind( VkImage image, VmaAllocation allocation );
+    void bind( VkBuffer buffer, VmaAllocation allocation );
+    void bind( VkImage image, VmaAllocation allocation );
 
-    void* Map( VmaAllocation allocation, bool shouldInvalidateMemory );
-    void Unmap( VmaAllocation allocation );
+    void* map( VmaAllocation allocation, bool shouldInvalidateMemory );
+    void unmap( VmaAllocation allocation );
 
-    void Free( VmaAllocation allocation );
+    void free( VmaAllocation allocation );
 
-    void Destroy( VkImage image, VmaAllocation allocation );
-    void Destroy( VkBuffer buffer, VmaAllocation allocation );
+    void destroy( VkImage image, VmaAllocation allocation );
+    void destroy( VkBuffer buffer, VmaAllocation allocation );
 
-    uint32_t GetAllocatedBytes() const;
+    [[nodiscard]] uint32_t getAllocatedBytes() const;
 
   private:
-    static void OnVmaAllocateMemory( VmaAllocator_T* allocator,
+    static void onVmaAllocateMemory( VmaAllocator_T* allocator,
                                      uint32_t memoryType,
                                      VkDeviceMemory memory,
                                      VkDeviceSize size,
                                      void* userData );
 
-    void InitPool();
+    void initPool();
 
   private:
-    uint8_t m_MemoryType = 0; // default
+    uint8_t m_memoryType = 0; // default
 
-    uint32_t m_PoolSize = 0;
+    uint32_t m_poolSize = 0;
 
-    VmaAllocator_T* m_Allocator = nullptr;
-    VmaPool_T* m_VmaPool = nullptr;
-    VkDeviceMemory m_VmaAllocationDeviceMemory = nullptr;
+    VmaAllocator_T* m_allocator = nullptr;
+    VmaPool_T* m_vmaPool = nullptr;
+    VkDeviceMemory m_vmaAllocationDeviceMemory = nullptr;
 
-    std::string m_Tag;
+    String m_tag;
 };
 } // namespace onyx::rhi::vulkan

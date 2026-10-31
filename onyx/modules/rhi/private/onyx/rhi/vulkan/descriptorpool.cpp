@@ -15,12 +15,12 @@ DescriptorPool::DescriptorPool( const Device& device,
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = maxSets * poolCount;
 
-    VK_CHECK_RESULT( vkCreateDescriptorPool( m_Device.GetHandle(), &poolInfo, nullptr, &m_DescriptorPool ) );
+    VK_CHECK_RESULT( vkCreateDescriptorPool( m_Device.getHandle(), &poolInfo, nullptr, &m_DescriptorPool ) );
 }
 
 DescriptorPool::~DescriptorPool() {
-    if ( m_DescriptorPool != nullptr ) {
-        vkDestroyDescriptorPool( m_Device.GetHandle(), m_DescriptorPool, nullptr );
+    if( m_DescriptorPool != nullptr ) {
+        vkDestroyDescriptorPool( m_Device.getHandle(), m_DescriptorPool, nullptr );
         m_DescriptorPool = nullptr;
     }
 }

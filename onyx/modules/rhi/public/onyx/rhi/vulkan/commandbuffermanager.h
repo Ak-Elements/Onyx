@@ -18,29 +18,29 @@ class VulkanGraphicsApi;
 
 class CommandBufferManager : public NonCopyable {
   public:
-    static constexpr uint32_t COMMAND_BUFFERS_PER_THREAD = 5;
-    static constexpr uint32_t SECONDARY_COMMAND_BUFFERS_PER_THREAD = 2;
+    static constexpr uint32_t CommandBuffersPerThread = 5;
+    static constexpr uint32_t SecondaryCommandBuffersPerThread = 2;
 
-    void Init( VulkanGraphicsApi& api, uint32_t queueIndex, uint32_t threadCount );
-    void Shutdown();
+    void init( VulkanGraphicsApi& api, uint32_t queueIndex, uint32_t threadCount );
+    void shutdown();
 
-    void Reset( Device& device, uint8_t frameIndex );
+    void reset( Device& device, uint8_t frameIndex );
 
-    CommandBuffer& GetCommandBuffer( uint32_t frameIndex, uint32_t threadIndex, bool begin );
-    UniquePtr< CommandBuffer > CreateSingleSubmitCommandBuffer( VulkanGraphicsApi& api,
+    CommandBuffer& getCommandBuffer( uint32_t frameIndex, uint32_t threadIndex, bool begin );
+    UniquePtr< CommandBuffer > createSingleSubmitCommandBuffer( VulkanGraphicsApi& api,
                                                                 uint32_t frameIndex,
                                                                 uint32_t threadIndex );
 
   private:
-    uint32_t m_ThreadCount = 0;
+    uint32_t m_threadCount = 0;
     // graphic command pools 1 pool per thread per frame
-    DynamicArray< CommandPool > m_CommandPools;
+    DynamicArray< CommandPool > m_commandPools;
 
-    DynamicArray< VulkanCommandBuffer > m_PrimaryBuffers;
-    DynamicArray< VulkanCommandBuffer > m_SecondaryBuffers;
+    DynamicArray< VulkanCommandBuffer > m_primaryBuffers;
+    DynamicArray< VulkanCommandBuffer > m_secondaryBuffers;
 
-    DynamicArray< uint8_t > m_UsedBuffers;
-    DynamicArray< uint8_t > m_UsedSecondaryBuffers;
+    DynamicArray< uint8_t > m_usedBuffers;
+    DynamicArray< uint8_t > m_usedSecondaryBuffers;
 };
 } // namespace vulkan
 } // namespace onyx::rhi

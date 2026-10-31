@@ -7,7 +7,7 @@
 #include <onyx/rhi/vulkan/texturestorage.h>
 
 namespace {
-VkImageLayout GetLayoutFromAttachmentRole( onyx::rhi::RenderPassSettings::AttachmentAccess access ) {
+VkImageLayout getLayoutFromAttachmentRole( onyx::rhi::RenderPassSettings::AttachmentAccess access ) {
     using namespace onyx::rhi;
     switch( access ) {
     case RenderPassSettings::AttachmentAccess::Input:
@@ -32,7 +32,7 @@ VkImageLayout GetLayoutFromAttachmentRole( onyx::rhi::RenderPassSettings::Attach
     }
 }
 
-VkAttachmentDescription2 CreateAttachmentDescription(
+VkAttachmentDescription2 createAttachmentDescription(
     const onyx::rhi::RenderPassSettings::Attachment& attachmentSettings,
     VkImageLayout initialLayout,
     VkImageLayout finalLayout,
@@ -97,7 +97,7 @@ void VulkanRenderPass::CreateRenderPass() {
     for( uint8_t i = 0; i < attachmentCount; ++i ) {
         // Iterate over subpasses to determine attachment layouts
         for( const RenderPassSettings::Subpass& subPassSettings : m_Settings.m_SubPasses ) {
-            layout = GetLayoutFromAttachmentRole( subPassSettings.m_AttachmentAccesses[ i ] );
+            layout = getLayoutFromAttachmentRole( subPassSettings.m_AttachmentAccesses[ i ] );
             if( layout == VK_IMAGE_LAYOUT_UNDEFINED )
                 continue;
 
@@ -109,7 +109,7 @@ void VulkanRenderPass::CreateRenderPass() {
     }
 
     for( uint8_t i = 0; i < attachmentCount; ++i ) {
-        attachmentDescriptions.push_back( CreateAttachmentDescription( m_Settings.m_Attachments[ i ],
+        attachmentDescriptions.push_back( createAttachmentDescription( m_Settings.m_Attachments[ i ],
                                                                        initialLayouts[ i ],
                                                                        finalLayouts[ i ],
                                                                        hasLoadOp ) );
@@ -169,7 +169,7 @@ void VulkanRenderPass::CreateRenderPass() {
 
                 if( utils::isDepthFormat(
                         static_cast< TextureFormat >( m_Settings.m_Attachments[ attachmentIndex ].m_Format ) ) ) {
-                    ref2.layout = GetLayoutFromAttachmentRole( subpass.m_AttachmentAccesses[ attachmentIndex ] );
+                    ref2.layout = getLayoutFromAttachmentRole( subpass.m_AttachmentAccesses[ attachmentIndex ] );
                     ref2.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
                 } else {
                     ref2.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -188,7 +188,7 @@ void VulkanRenderPass::CreateRenderPass() {
                 ONYX_ASSERT( hasDepthAttachment == false );
 
                 hasDepthAttachment = true;
-                depthStencilAttachment.layout = GetLayoutFromAttachmentRole(
+                depthStencilAttachment.layout = getLayoutFromAttachmentRole(
                     subpass.m_AttachmentAccesses[ attachmentIndex ] );
                 depthStencilAttachment.attachment = attachmentIndex;
             }
@@ -251,12 +251,12 @@ void VulkanRenderPass::CreateRenderPass() {
     createInfo.pSubpasses = subPassDescriptions.data();
     createInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkCreateRenderPass2( m_Device->GetHandle(), &createInfo, nullptr, &m_RenderPass ) );
+    VK_CHECK_RESULT( vkCreateRenderPass2( m_Device->getHandle(), &createInfo, nullptr, &m_RenderPass ) );
 }
 
 VulkanRenderPass::~VulkanRenderPass() {
     if( m_RenderPass ) {
-        vkDestroyRenderPass( m_Device->GetHandle(), m_RenderPass, nullptr );
+        vkDestroyRenderPass( m_Device->getHandle(), m_RenderPass, nullptr );
         m_RenderPass = nullptr;
     }
 }

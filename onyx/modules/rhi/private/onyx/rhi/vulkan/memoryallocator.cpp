@@ -8,8 +8,8 @@
 #include <vulkanmemoryallocator.h>
 
 namespace onyx::rhi::vulkan {
-MemoryAllocator::MemoryAllocator( const String& tag, const VulkanGraphicsApi& graphicsApi )
-    : m_Tag( tag ) {
+MemoryAllocator::MemoryAllocator( String tag, const VulkanGraphicsApi& graphicsApi )
+    : m_tag( std::move( tag ) ) {
     /*VmaDeviceMemoryCallbacks deviceMemoryCallbacks{};
     deviceMemoryCallbacks.pfnAllocate = &MemoryAllocator::OnVmaAllocateMemory;
     deviceMemoryCallbacks.pUserData = this;*/
@@ -17,50 +17,50 @@ MemoryAllocator::MemoryAllocator( const String& tag, const VulkanGraphicsApi& gr
     // Initialize VulkanMemoryAllocator
     VmaAllocatorCreateInfo allocatorInfo = {};
     allocatorInfo.vulkanApiVersion = Instance::VULKAN_API_VERSION;
-    allocatorInfo.physicalDevice = graphicsApi.getPhysicalDevice().GetHandle();
-    allocatorInfo.device = graphicsApi.getDevice().GetHandle();
-    allocatorInfo.instance = graphicsApi.getInstance().GetHandle();
+    allocatorInfo.physicalDevice = graphicsApi.getPhysicalDevice().getHandle();
+    allocatorInfo.device = graphicsApi.getDevice().getHandle();
+    allocatorInfo.instance = graphicsApi.getInstance().getHandle();
     allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
 
-    vmaCreateAllocator( &allocatorInfo, &m_Allocator );
+    vmaCreateAllocator( &allocatorInfo, &m_allocator );
 }
 
 MemoryAllocator::~MemoryAllocator() {
-    vmaDestroyAllocator( m_Allocator );
-    m_Allocator = nullptr;
+    vmaDestroyAllocator( m_allocator );
+    m_allocator = nullptr;
 }
 
-VmaAllocation MemoryAllocator::Allocate( VkBuffer buffer,
+VmaAllocation MemoryAllocator::allocate( VkBuffer buffer,
                                          VkMemoryPropertyFlags /*requiredFlags*/,
                                          VkMemoryPropertyFlags /*preferredFlags*/ ) {
     VmaAllocationCreateInfo allocCreateInfo{};
-    allocCreateInfo.pool = m_VmaPool;
+    allocCreateInfo.pool = m_vmaPool;
 
     VmaAllocation allocation;
     VmaAllocationInfo allocInfo;
-    if ( vmaAllocateMemoryForBuffer( m_Allocator, buffer, &allocCreateInfo, &allocation, &allocInfo ) != VK_SUCCESS )
+    if( vmaAllocateMemoryForBuffer( m_allocator, buffer, &allocCreateInfo, &allocation, &allocInfo ) != VK_SUCCESS )
         return nullptr;
 
-    ONYX_ASSERT( allocInfo.deviceMemory == m_VmaAllocationDeviceMemory );
+    ONYX_ASSERT( allocInfo.deviceMemory == m_vmaAllocationDeviceMemory );
     return allocation;
 }
 
-VmaAllocation MemoryAllocator::Allocate( VkImage image,
+VmaAllocation MemoryAllocator::allocate( VkImage image,
                                          VkMemoryPropertyFlags /*requiredFlags*/,
                                          VkMemoryPropertyFlags /*preferredFlags*/ ) {
     VmaAllocationCreateInfo allocCreateInfo{};
-    allocCreateInfo.pool = m_VmaPool;
+    allocCreateInfo.pool = m_vmaPool;
 
     VmaAllocation allocation;
     VmaAllocationInfo allocInfo;
-    if ( vmaAllocateMemoryForImage( m_Allocator, image, &allocCreateInfo, &allocation, &allocInfo ) != VK_SUCCESS )
+    if( vmaAllocateMemoryForImage( m_allocator, image, &allocCreateInfo, &allocation, &allocInfo ) != VK_SUCCESS )
         return nullptr;
 
-    ONYX_ASSERT( allocInfo.deviceMemory == m_VmaAllocationDeviceMemory );
+    ONYX_ASSERT( allocInfo.deviceMemory == m_vmaAllocationDeviceMemory );
     return allocation;
 }
 
-VmaAllocation MemoryAllocator::AllocateDedicatedMemory( VkBuffer buffer,
+VmaAllocation MemoryAllocator::allocateDedicatedMemory( VkBuffer buffer,
                                                         uint32_t memoryTypeBits,
                                                         VkMemoryPropertyFlags requiredFlags,
                                                         VkMemoryPropertyFlags preferredFlags ) {
@@ -73,14 +73,14 @@ VmaAllocation MemoryAllocator::AllocateDedicatedMemory( VkBuffer buffer,
 
     VmaAllocation allocation;
     VmaAllocationInfo allocInfo{};
-    VK_CHECK_RESULT( vmaAllocateMemoryForBuffer( m_Allocator, buffer, &allocCreateInfo, &allocation, &allocInfo ) )
+    VK_CHECK_RESULT( vmaAllocateMemoryForBuffer( m_allocator, buffer, &allocCreateInfo, &allocation, &allocInfo ) )
 
     // TODO: Tracking
     // ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating memory for buffer; size = {}", m_Tag, allocInfo.size);
     return allocation;
 }
 
-VmaAllocation MemoryAllocator::AllocateDedicatedMemory( VkImage image,
+VmaAllocation MemoryAllocator::allocateDedicatedMemory( VkImage image,
                                                         uint32_t memoryTypeBits,
                                                         VkMemoryPropertyFlags requiredFlags,
                                                         VkMemoryPropertyFlags preferredFlags ) {
@@ -97,99 +97,99 @@ VmaAllocation MemoryAllocator::AllocateDedicatedMemory( VkImage image,
 
     VmaAllocation allocation;
     VmaAllocationInfo allocInfo{};
-    VK_CHECK_RESULT( vmaAllocateMemoryForImage( m_Allocator, image, &allocCreateInfo, &allocation, &allocInfo ) )
+    VK_CHECK_RESULT( vmaAllocateMemoryForImage( m_allocator, image, &allocCreateInfo, &allocation, &allocInfo ) )
 
     // TODO: Tracking
     // ONYX_LOG_DEBUG("MemoryAllocator ({}): allocating image; size = {}", m_Tag, allocInfo.size);
     return allocation;
 }
 
-VmaAllocationInfo MemoryAllocator::GetAllocationInfo( const VmaAllocation& allocation ) {
+VmaAllocationInfo MemoryAllocator::getAllocationInfo( const VmaAllocation& allocation ) {
     VmaAllocationInfo allocInfo;
-    vmaGetAllocationInfo( m_Allocator, allocation, &allocInfo );
+    vmaGetAllocationInfo( m_allocator, allocation, &allocInfo );
     return allocInfo;
 }
 
-VkImage MemoryAllocator::Alias( VmaAllocation allocation, const VkImageCreateInfo& aliasInfo ) {
+VkImage MemoryAllocator::alias( VmaAllocation allocation, const VkImageCreateInfo& aliasInfo ) {
     VkImage alias = nullptr;
-    VK_CHECK_RESULT( vmaCreateAliasingImage( m_Allocator, allocation, &aliasInfo, &alias ) )
+    VK_CHECK_RESULT( vmaCreateAliasingImage( m_allocator, allocation, &aliasInfo, &alias ) )
     return alias;
 }
 
-VkBuffer MemoryAllocator::Alias( VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, uint64_t offset ) {
+VkBuffer MemoryAllocator::alias( VmaAllocation allocation, const VkBufferCreateInfo& aliasInfo, uint64_t offset ) {
     VkBuffer alias = nullptr;
-    VK_CHECK_RESULT( vmaCreateAliasingBuffer2( m_Allocator, allocation, offset, &aliasInfo, &alias ) )
+    VK_CHECK_RESULT( vmaCreateAliasingBuffer2( m_allocator, allocation, offset, &aliasInfo, &alias ) )
     return alias;
 }
 
-void MemoryAllocator::Bind( VkBuffer buffer, VmaAllocation allocation ) {
-    VK_CHECK_RESULT( vmaBindBufferMemory( m_Allocator, allocation, buffer ) );
+void MemoryAllocator::bind( VkBuffer buffer, VmaAllocation allocation ) {
+    VK_CHECK_RESULT( vmaBindBufferMemory( m_allocator, allocation, buffer ) );
 }
 
-void MemoryAllocator::Bind( VkImage image, VmaAllocation allocation ) {
-    VK_CHECK_RESULT( vmaBindImageMemory( m_Allocator, allocation, image ) );
+void MemoryAllocator::bind( VkImage image, VmaAllocation allocation ) {
+    VK_CHECK_RESULT( vmaBindImageMemory( m_allocator, allocation, image ) );
 }
 
-void* MemoryAllocator::Map( VmaAllocation allocation, bool shouldInvalidateMemory ) {
+void* MemoryAllocator::map( VmaAllocation allocation, bool shouldInvalidateMemory ) {
     void* mappedPtr = nullptr;
-    if ( shouldInvalidateMemory )
-        VK_CHECK_RESULT( vmaInvalidateAllocation( m_Allocator, allocation, 0, VK_WHOLE_SIZE ) )
+    if( shouldInvalidateMemory )
+        VK_CHECK_RESULT( vmaInvalidateAllocation( m_allocator, allocation, 0, VK_WHOLE_SIZE ) )
 
-    VkResult result = vmaMapMemory( m_Allocator, allocation, &mappedPtr );
-    if ( result != VK_SUCCESS )
+    VkResult result = vmaMapMemory( m_allocator, allocation, &mappedPtr );
+    if( result != VK_SUCCESS )
         shouldInvalidateMemory = true;
 
     VK_CHECK_RESULT( result )
     return mappedPtr;
 }
 
-void MemoryAllocator::Unmap( VmaAllocation allocation ) {
-    vmaUnmapMemory( m_Allocator, allocation );
+void MemoryAllocator::unmap( VmaAllocation allocation ) {
+    vmaUnmapMemory( m_allocator, allocation );
 }
 
-void MemoryAllocator::Free( VmaAllocation allocation ) {
-    vmaFreeMemory( m_Allocator, allocation );
+void MemoryAllocator::free( VmaAllocation allocation ) {
+    vmaFreeMemory( m_allocator, allocation );
 }
 
-void MemoryAllocator::Destroy( VkImage image, VmaAllocation allocation ) {
+void MemoryAllocator::destroy( VkImage image, VmaAllocation allocation ) {
     ONYX_ASSERT( image != nullptr );
     ONYX_ASSERT( allocation != nullptr );
-    vmaDestroyImage( m_Allocator, image, allocation );
+    vmaDestroyImage( m_allocator, image, allocation );
 }
 
-void MemoryAllocator::Destroy( VkBuffer buffer, VmaAllocation allocation ) {
+void MemoryAllocator::destroy( VkBuffer buffer, VmaAllocation allocation ) {
     ONYX_ASSERT( buffer != nullptr );
     ONYX_ASSERT( allocation != nullptr );
-    vmaDestroyBuffer( m_Allocator, buffer, allocation );
+    vmaDestroyBuffer( m_allocator, buffer, allocation );
 }
 
-uint32_t MemoryAllocator::GetAllocatedBytes() const {
+uint32_t MemoryAllocator::getAllocatedBytes() const {
     VmaStatistics stats{};
-    vmaGetPoolStatistics( m_Allocator, m_VmaPool, &stats );
+    vmaGetPoolStatistics( m_allocator, m_vmaPool, &stats );
     return static_cast< uint32_t >( stats.allocationBytes );
 }
 
-void MemoryAllocator::OnVmaAllocateMemory( [[maybe_unused]] VmaAllocator allocator,
+void MemoryAllocator::onVmaAllocateMemory( [[maybe_unused]] VmaAllocator allocator,
                                            [[maybe_unused]] uint32_t memoryType,
                                            VkDeviceMemory memory,
                                            [[maybe_unused]] VkDeviceSize size,
                                            void* userData ) {
     ONYX_ASSERT( userData != nullptr );
     MemoryAllocator* memoryAllocator = static_cast< MemoryAllocator* >( userData );
-    ONYX_ASSERT( memoryAllocator->m_Allocator == allocator );
+    ONYX_ASSERT( memoryAllocator->m_allocator == allocator );
 
-    memoryAllocator->m_VmaAllocationDeviceMemory = memory;
+    memoryAllocator->m_vmaAllocationDeviceMemory = memory;
 }
 
-void MemoryAllocator::InitPool() {
+void MemoryAllocator::initPool() {
     VmaPoolCreateInfo poolCreateInfo = {};
-    poolCreateInfo.memoryTypeIndex = m_MemoryType;
+    poolCreateInfo.memoryTypeIndex = m_memoryType;
 
-    poolCreateInfo.blockSize = m_PoolSize;
+    poolCreateInfo.blockSize = m_poolSize;
     poolCreateInfo.minBlockCount = 1;
     poolCreateInfo.maxBlockCount = 1;
 
-    VK_CHECK_RESULT( vmaCreatePool( m_Allocator, &poolCreateInfo, &m_VmaPool ) )
+    VK_CHECK_RESULT( vmaCreatePool( m_allocator, &poolCreateInfo, &m_vmaPool ) )
 }
 
 } // namespace onyx::rhi::vulkan

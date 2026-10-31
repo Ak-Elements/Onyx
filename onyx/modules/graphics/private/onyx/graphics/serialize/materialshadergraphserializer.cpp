@@ -81,7 +81,7 @@ bool MaterialShaderGraphSerializer::deserialize( assets::AssetHandle< assets::As
     attachment.m_LoadOp = enums::toIntegral( rhi::RenderPassSettings::LoadOp::DontCare );
     renderPassSettings.m_Attachments.add( attachment );
 
-    attachment.m_Format = enums::toIntegral( rhi::TextureFormat::DEPTH_FLOAT32 );
+    attachment.m_Format = enums::toIntegral( rhi::TextureFormat::DEPTH_STENCIL_FLOAT32_8UINT );
     attachment.m_LoadOp = enums::toIntegral( rhi::RenderPassSettings::LoadOp::Load );
     renderPassSettings.m_Attachments.add( attachment );
 

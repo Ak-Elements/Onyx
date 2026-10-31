@@ -23,52 +23,52 @@ class VulkanBuffer : public Buffer, public DeviceMemory {
     void flush( uint32_t offset, uint32_t count ) override;
     void setData( uint64_t offset, const void* data, uint64_t length ) override;
 
-    const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_DescriptorInfo; }
+    [[nodiscard]] const VkDescriptorBufferInfo& GetDescriptorInfo() const { return m_descriptorInfo; }
 
-    uint64_t getAliasOffset( int8_t alias ) const override {
+    [[nodiscard]] uint64_t getAliasOffset( int8_t alias ) const override {
         if( alias == InvalidIndex8 )
             return 0;
-        return m_Aliases[ alias ].Offset;
+        return m_aliases[ alias ].Offset;
     }
 
-    uint64_t getAliasSize( int8_t alias ) const override {
+    [[nodiscard]] uint64_t getAliasSize( int8_t alias ) const override {
         if( alias == InvalidIndex8 )
             return m_properties.m_Size;
 
-        return m_Aliases[ alias ].Size;
+        return m_aliases[ alias ].Size;
     }
 
-    void clearAliases() override { m_Aliases.clear(); }
+    void clearAliases() override { m_aliases.clear(); }
 
     void barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess ) override;
     void barrier( CommandBuffer& commandBuffer, Context newContext, Access newAccess, int8_t aliasIndex ) override;
     int8_t alias( const BufferProperties& properties ) override;
 
   private:
-    void Init( const void* data = nullptr );
-    void UpdateDescriptorInfo();
+    void init( const void* data = nullptr );
+    void updateDescriptorInfo();
 
-    VkBufferUsageFlags GetUsageFlags() const;
-    static VkBufferUsageFlags GetUsageFlags( const BufferProperties& properties );
+    [[nodiscard]] VkBufferUsageFlags getUsageFlags() const;
+    static VkBufferUsageFlags getUsageFlags( const BufferProperties& properties );
 
     struct AliasInfo {
-        uint64_t Offset;
-        uint64_t Size;
+        uint64_t Offset = 0;
+        uint64_t Size = 0;
 
         Access Access = Access::None;
         Context Context = Context::Graphics;
 
-        VkBuffer m_Buffer = nullptr; // only used if device address is not supported
+        VkBuffer Buffer = nullptr; // only used if device address is not supported
     };
 
-    DynamicArray< AliasInfo > m_Aliases;
+    DynamicArray< AliasInfo > m_aliases;
 
   private:
-    const Device* m_Device;
-    VULKAN_HANDLE( VkBuffer, Buffer, nullptr );
-    VkDescriptorBufferInfo m_DescriptorInfo;
+    const Device* m_device;
+    VULKAN_HANDLE( VkBuffer, buffer, nullptr );
+    VkDescriptorBufferInfo m_descriptorInfo;
 
-    Access m_Access = Access::None;
-    Context m_Context = Context::Graphics;
+    Access m_access = Access::None;
+    Context m_context = Context::Graphics;
 };
 } // namespace onyx::rhi::vulkan

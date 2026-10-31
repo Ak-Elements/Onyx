@@ -6,7 +6,7 @@ enum VolumeSourceType : uint8_t {
     Grid,
 };
 
-enum VolumeOperation : uint8_t { None, Union, Difference, Intersect };
+enum VolumeOperation : uint8_t { Union, Difference, Intersect };
 
 // static const uint32_t VolumeSource_SphereBrush = 5;
 // static const uint32_t VolumeSource_CubeBrush = 6;

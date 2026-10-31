@@ -18,7 +18,7 @@ void VulkanFramebuffer::Init( const VulkanGraphicsApi& api, const FramebufferSet
 
     VkFramebufferCreateInfo createInfo;
     createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    createInfo.renderPass = settings.m_RenderPass.as< VulkanRenderPass >().GetHandle();
+    createInfo.renderPass = settings.m_RenderPass.as< VulkanRenderPass >().getHandle();
     createInfo.width = settings.m_Width;
     createInfo.height = settings.m_Height;
     createInfo.layers = settings.m_LayerCount;
@@ -28,22 +28,22 @@ void VulkanFramebuffer::Init( const VulkanGraphicsApi& api, const FramebufferSet
 
     for( const TextureViewHandle& colorTargetHandle : settings.m_ColorTargets ) {
         const VulkanTexture& colorTarget = colorTargetHandle.as< VulkanTexture >();
-        attachments.add( colorTarget.GetHandle() );
+        attachments.add( colorTarget.getHandle() );
     }
 
     if( settings.m_DepthTarget ) {
         const VulkanTexture& depthStencilTarget = settings.m_DepthTarget.as< VulkanTexture >();
-        attachments.add( depthStencilTarget.GetHandle() );
+        attachments.add( depthStencilTarget.getHandle() );
     }
 
     createInfo.attachmentCount = attachments.size();
     createInfo.pAttachments = attachments.data();
 
-    VK_CHECK_RESULT( vkCreateFramebuffer( m_Device->GetHandle(), &createInfo, nullptr, &m_Framebuffer ) );
+    VK_CHECK_RESULT( vkCreateFramebuffer( m_Device->getHandle(), &createInfo, nullptr, &m_Framebuffer ) );
     // TODO: Set debug name
 }
 
 VulkanFramebuffer::~VulkanFramebuffer() {
-    vkDestroyFramebuffer( m_Device->GetHandle(), m_Framebuffer, nullptr );
+    vkDestroyFramebuffer( m_Device->getHandle(), m_Framebuffer, nullptr );
 }
 } // namespace onyx::rhi::vulkan

@@ -12,12 +12,12 @@ DeviceMemory::DeviceMemory( MemoryAllocator& allocator )
 
 DeviceMemory::~DeviceMemory() {
     if( m_Memory != nullptr )
-        m_Allocator->Free( m_Memory );
+        m_Allocator->free( m_Memory );
 }
 
 void* DeviceMemory::Map( MapMode mapMode ) {
     ONYX_ASSERT( m_MappedPtr == nullptr, "DeviceMemory::Map: Already mapped." );
-    m_MappedPtr = m_Allocator->Map( m_Memory, ( mapMode == MapMode::Read ) && m_IsNonCoherent );
+    m_MappedPtr = m_Allocator->map( m_Memory, ( mapMode == MapMode::Read ) && m_IsNonCoherent );
     m_IsWrite = enums::all( mapMode, MapMode::Write );
     return m_MappedPtr;
 }
@@ -25,7 +25,7 @@ void* DeviceMemory::Map( MapMode mapMode ) {
 void DeviceMemory::Unmap() {
     ONYX_ASSERT( m_MappedPtr != nullptr, "DeviceMemory::Unmap: Not mapped." );
 
-    m_Allocator->Unmap( m_Memory );
+    m_Allocator->unmap( m_Memory );
     m_MappedPtr = nullptr;
     /*VkMappedMemoryRange range = {};
     GetMemoryRange(range);
@@ -44,7 +44,7 @@ void DeviceMemory::GetMemoryRange( VkMappedMemoryRange& range ) const {
     range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 
     if( m_Memory ) {
-        const VmaAllocationInfo& allocInfo = m_Allocator->GetAllocationInfo( m_Memory );
+        const VmaAllocationInfo& allocInfo = m_Allocator->getAllocationInfo( m_Memory );
         range.memory = allocInfo.deviceMemory;
         range.offset = allocInfo.offset;
         range.size = allocInfo.size;

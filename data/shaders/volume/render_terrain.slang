@@ -24,7 +24,7 @@ VSOutput vertexMain( uint vertexID: SV_VertexID ) {
 
     float2 texCoord = float2( ( vertexID << 1 ) & 2, vertexID & 2 );
 
-    output.Position = float4( texCoord * 2.0 - 1.0, 0.0, 1.0 );
+    output.Position = float4( texCoord * 2.0 - 1.0, 1.0, 1.0 );
     output.Position.y = -output.Position.y;
 
     return output;
@@ -115,7 +115,7 @@ float3 computeSunLight( in AtmosphereSettings settings,
 
 float3 computeRayDirection( float2 fragCoord, float4x4 invProj, float4x4 invView, float2 viewport ) {
     float2 ndc = float2( ( fragCoord.x / viewport.x ) * 2.0f - 1.0f, ( fragCoord.y / viewport.y ) * -2.0f + 1.0f );
-    float4 viewSpace = invProj * float4( ndc, 0.0f, 1.0f );
+    float4 viewSpace = invProj * float4( ndc, 1.0f, 1.0f );
     viewSpace /= viewSpace.w;
     viewSpace.w = 0.0f;
     return normalize( ( invView * viewSpace ).xyz );

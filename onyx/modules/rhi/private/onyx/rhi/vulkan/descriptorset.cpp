@@ -11,7 +11,7 @@ namespace onyx::rhi::vulkan {
 DescriptorSet::DescriptorSet( const Device& device, uint8_t set, VkDescriptorSetAllocateInfo allocateInfo )
     : rhi::DescriptorSet( set )
     , m_Device( device ){ VK_CHECK_RESULT(
-          vkAllocateDescriptorSets( m_Device.GetHandle(), &allocateInfo, &m_DescriptorSet ) ) }
+          vkAllocateDescriptorSets( m_Device.getHandle(), &allocateInfo, &m_DescriptorSet ) ) }
 
     DescriptorSet::DescriptorSet( const Device& device,
                                   const DescriptorPool& pool,
@@ -23,12 +23,12 @@ DescriptorSet::DescriptorSet( const Device& device, uint8_t set, VkDescriptorSet
 
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = pool.GetHandle();
-    allocInfo.pSetLayouts = descriptorSetLayout.GetHandlePtr();
+    allocInfo.descriptorPool = pool.getHandle();
+    allocInfo.pSetLayouts = descriptorSetLayout.getHandlePtr();
     allocInfo.descriptorSetCount = 1;
     allocInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkAllocateDescriptorSets( m_Device.GetHandle(), &allocInfo, &m_DescriptorSet ) )
+    VK_CHECK_RESULT( vkAllocateDescriptorSets( m_Device.getHandle(), &allocInfo, &m_DescriptorSet ) )
 }
 
 #if !ONYX_IS_RETAIL
@@ -37,7 +37,7 @@ DescriptorSet::DescriptorSet( const Device& device,
                               const DescriptorSetLayout& descriptorSetLayout,
                               StringView debugName )
     : DescriptorSet( device, pool, descriptorSetLayout ) {
-    SetResourceName( device.GetHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t)m_DescriptorSet, debugName );
+    setResourceName( device.getHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET, (uint64_t)m_DescriptorSet, debugName );
 }
 #endif
 
@@ -90,7 +90,7 @@ void DescriptorSet::UpdateDescriptors() {
     if( m_PendingDescriptorUpdates.empty() )
         return;
 
-    vkUpdateDescriptorSets( m_Device.GetHandle(),
+    vkUpdateDescriptorSets( m_Device.getHandle(),
                             static_cast< uint32_t >( m_PendingDescriptorUpdates.size() ),
                             m_PendingDescriptorUpdates.data(),
                             0,

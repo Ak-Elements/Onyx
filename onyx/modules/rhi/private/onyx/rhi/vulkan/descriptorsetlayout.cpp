@@ -11,7 +11,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
                                           const VkDescriptorSetLayoutCreateInfo& createInfo )
     : m_Device( device )
     , m_Set(
-          set ){ VK_CHECK_RESULT( vkCreateDescriptorSetLayout( device.GetHandle(), &createInfo, nullptr, &m_Layout ) ) }
+          set ){ VK_CHECK_RESULT( vkCreateDescriptorSetLayout( device.getHandle(), &createInfo, nullptr, &m_Layout ) ) }
 
     DescriptorSetLayout::DescriptorSetLayout( const Device& device, const ShaderDescriptorSet& descriptorSet )
     : m_Device( device )
@@ -21,7 +21,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         layoutBinding.descriptorCount = 1;
-        layoutBinding.stageFlags = ToVulkanStage( uniformBuffer.Stage );
+        layoutBinding.stageFlags = toVulkanStage( uniformBuffer.Stage );
         layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.binding = binding;
 
@@ -40,7 +40,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         layoutBinding.descriptorCount = 1;
-        layoutBinding.stageFlags = ToVulkanStage( storageBuffer.Stage );
+        layoutBinding.stageFlags = toVulkanStage( storageBuffer.Stage );
         layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.binding = binding;
         ONYX_ASSERT( descriptorSet.UniformBuffers.find( binding ) == descriptorSet.UniformBuffers.end(),
@@ -61,7 +61,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
-        layoutBinding.stageFlags = ToVulkanStage( imageSampler.Stage );
+        layoutBinding.stageFlags = toVulkanStage( imageSampler.Stage );
         layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.binding = binding;
 
@@ -85,7 +85,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
-        layoutBinding.stageFlags = ToVulkanStage( imageSampler.Stage );
+        layoutBinding.stageFlags = toVulkanStage( imageSampler.Stage );
         layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.binding = binding;
 
@@ -111,7 +111,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
-        layoutBinding.stageFlags = ToVulkanStage( imageSampler.Stage );
+        layoutBinding.stageFlags = toVulkanStage( imageSampler.Stage );
         layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.binding = binding;
 
@@ -139,7 +139,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
         VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         layoutBinding.descriptorCount = imageSampler.ArraySize;
-        layoutBinding.stageFlags = ToVulkanStage( imageSampler.Stage );
+        layoutBinding.stageFlags = toVulkanStage( imageSampler.Stage );
         layoutBinding.pImmutableSamplers = nullptr;
 
         uint32_t binding = bindingAndSet & 0xffffffff;
@@ -174,7 +174,7 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
     descriptorLayoutCreateInfo.pBindings = layoutBindings.data();
 
     VK_CHECK_RESULT(
-        vkCreateDescriptorSetLayout( m_Device.GetHandle(), &descriptorLayoutCreateInfo, nullptr, &m_Layout ) )
+        vkCreateDescriptorSetLayout( m_Device.getHandle(), &descriptorLayoutCreateInfo, nullptr, &m_Layout ) )
 }
 
 #if !ONYX_IS_RETAIL
@@ -182,13 +182,13 @@ DescriptorSetLayout::DescriptorSetLayout( const Device& device,
                                           const ShaderDescriptorSet& descriptorSet,
                                           StringView debugName )
     : DescriptorSetLayout( device, descriptorSet ) {
-    SetResourceName( device.GetHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t)m_Layout, debugName );
+    setResourceName( device.getHandle(), VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, (uint64_t)m_Layout, debugName );
 }
 #endif
 
 DescriptorSetLayout::~DescriptorSetLayout() {
     if( m_Layout != nullptr ) {
-        vkDestroyDescriptorSetLayout( m_Device.GetHandle(), m_Layout, nullptr );
+        vkDestroyDescriptorSetLayout( m_Device.getHandle(), m_Layout, nullptr );
         m_Layout = nullptr;
     }
 }

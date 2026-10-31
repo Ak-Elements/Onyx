@@ -9,12 +9,12 @@ namespace onyx::rhi::vulkan {
 VulkanBuffer::VulkanBuffer( VulkanGraphicsApi& api, const BufferProperties& properties )
     : rhi::Buffer( properties )
     , DeviceMemory( api.getAllocator() )
-    , m_Device( &api.getDevice() ) {
-    Init();
+    , m_device( &api.getDevice() ) {
+    init();
 }
 
 VulkanBuffer::~VulkanBuffer() {
-    if( m_Buffer != nullptr ) {
+    if( m_buffer != nullptr ) {
         if( m_MappedPtr ) {
             DeviceMemory::Unmap();
         }
@@ -24,9 +24,9 @@ VulkanBuffer::~VulkanBuffer() {
 }
 
 void VulkanBuffer::Destroy() {
-    if( m_Buffer != nullptr ) {
-        vkDestroyBuffer( m_Device->GetHandle(), m_Buffer, nullptr );
-        m_Buffer = nullptr;
+    if( m_buffer != nullptr ) {
+        vkDestroyBuffer( m_device->getHandle(), m_buffer, nullptr );
+        m_buffer = nullptr;
     }
 }
 
@@ -38,12 +38,12 @@ void VulkanBuffer::barrier( CommandBuffer& commandBuffer, Context newContext, Ac
     // TODO: hazard tracking for regions?
     VulkanCommandBuffer& vkCommandBuffer = static_cast< VulkanCommandBuffer& >( commandBuffer );
 
-    Access currentAccess = m_Access;
-    Context currentContext = m_Context;
+    Access currentAccess = m_access;
+    Context currentContext = m_context;
     uint64_t offset = 0;
     uint64_t bufferSize = m_properties.m_Size;
     if( aliasIndex != InvalidIndex8 ) {
-        AliasInfo& aliasInfo = m_Aliases[ aliasIndex ];
+        AliasInfo& aliasInfo = m_aliases[ aliasIndex ];
         currentAccess = aliasInfo.Access;
         currentContext = aliasInfo.Context;
         offset = aliasInfo.Offset;
@@ -61,31 +61,31 @@ void VulkanBuffer::barrier( CommandBuffer& commandBuffer, Context newContext, Ac
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-    barrier.buffer = m_Buffer;
+    barrier.buffer = m_buffer;
     barrier.offset = offset;
     barrier.size = bufferSize;
     barrier.pNext = nullptr;
 
-    VkDependencyInfo dependency_info{};
-    dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-    dependency_info.bufferMemoryBarrierCount = 1;
-    dependency_info.pBufferMemoryBarriers = &barrier;
-    dependency_info.pNext = nullptr;
+    VkDependencyInfo dependencyInfo{};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependencyInfo.bufferMemoryBarrierCount = 1;
+    dependencyInfo.pBufferMemoryBarriers = &barrier;
+    dependencyInfo.pNext = nullptr;
 
-    vkCmdPipelineBarrier2( vkCommandBuffer.GetHandle(), &dependency_info );
-    m_Access = newAccess;
-    m_Context = newContext;
+    vkCmdPipelineBarrier2( vkCommandBuffer.getHandle(), &dependencyInfo );
+    m_access = newAccess;
+    m_context = newContext;
 }
 
 int8_t VulkanBuffer::alias( const BufferProperties& properties ) {
     // do we support device address?
 
     uint64_t offset = 0;
-    for( const AliasInfo& info : m_Aliases ) {
+    for( const AliasInfo& info : m_aliases ) {
         offset += info.Size;
     }
 
-    m_Aliases.emplace_back( offset, properties.m_Size );
+    m_aliases.emplace_back( offset, properties.m_Size );
 
     // VkBufferCreateInfo createInfo{};
     // createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -105,28 +105,28 @@ int8_t VulkanBuffer::alias( const BufferProperties& properties ) {
     //
     // ONYX_LOG_INFO("{}, {}", gpuAddress, calculatedGpuAddress);
 
-    return static_cast< int8_t >( m_Aliases.size() - 1 );
+    return static_cast< int8_t >( m_aliases.size() - 1 );
 }
 
-void VulkanBuffer::Init( const void* data ) {
-    VkDevice device = m_Device->GetHandle();
+void VulkanBuffer::init( const void* data ) {
+    VkDevice device = m_device->getHandle();
 
     VkBufferCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     createInfo.size = m_properties.m_Size;
-    createInfo.usage = GetUsageFlags();
+    createInfo.usage = getUsageFlags();
     // TODO: do we need to use concurrent?
     createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     createInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( vkCreateBuffer( device, &createInfo, nullptr, &m_Buffer ) );
-    SetResourceName( device,
+    VK_CHECK_RESULT( vkCreateBuffer( device, &createInfo, nullptr, &m_buffer ) );
+    setResourceName( device,
                      VK_OBJECT_TYPE_BUFFER,
-                     (uint64_t)m_Buffer,
+                     (uint64_t)m_buffer,
                      m_properties.m_DebugName.empty() ? "Unnamed Buffer" : m_properties.m_DebugName );
 
     VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements( device, m_Buffer, &memoryRequirements );
+    vkGetBufferMemoryRequirements( device, m_buffer, &memoryRequirements );
 
     VkMemoryPropertyFlags requiredMemoryPropertyFlags, preferredMemoryPropertyFlags;
     GetMemoryPropertyFlags( m_properties.m_CpuAccess,
@@ -134,18 +134,18 @@ void VulkanBuffer::Init( const void* data ) {
                             requiredMemoryPropertyFlags,
                             preferredMemoryPropertyFlags );
 
-    m_Memory = m_Allocator->AllocateDedicatedMemory( m_Buffer,
+    m_Memory = m_Allocator->allocateDedicatedMemory( m_buffer,
                                                      memoryRequirements.memoryTypeBits,
                                                      requiredMemoryPropertyFlags,
                                                      preferredMemoryPropertyFlags );
     m_IsNonCoherent = ( requiredMemoryPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ) ==
                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-    m_Allocator->Bind( m_Buffer, m_Memory );
+    m_Allocator->bind( m_buffer, m_Memory );
 
     if( enums::all( m_properties.m_UsageFlags, BufferUsage::DeviceAddress ) ) {
         VkBufferDeviceAddressInfoKHR addressInfo{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR };
-        addressInfo.buffer = m_Buffer;
+        addressInfo.buffer = m_buffer;
         m_gpuAddress = vkGetBufferDeviceAddress( device, &addressInfo );
     }
 
@@ -158,13 +158,13 @@ void VulkanBuffer::Init( const void* data ) {
         setData( 0, data, numericCast< int32_t >( m_properties.m_Size ) );
     }
 
-    UpdateDescriptorInfo();
+    updateDescriptorInfo();
 }
 
-void VulkanBuffer::UpdateDescriptorInfo() {
-    m_DescriptorInfo.buffer = m_Buffer;
-    m_DescriptorInfo.offset = 0;
-    m_DescriptorInfo.range = m_properties.m_Size;
+void VulkanBuffer::updateDescriptorInfo() {
+    m_descriptorInfo.buffer = m_buffer;
+    m_descriptorInfo.offset = 0;
+    m_descriptorInfo.range = m_properties.m_Size;
 }
 
 void* VulkanBuffer::map( MapMode mode ) {
@@ -187,11 +187,11 @@ void VulkanBuffer::setData( uint64_t offset, const void* data, uint64_t length )
     std::memcpy( &static_cast< uint8_t* >( m_dataPointer )[ offset ], data, length );
 }
 
-VkBufferUsageFlags VulkanBuffer::GetUsageFlags() const {
-    return GetUsageFlags( m_properties );
+VkBufferUsageFlags VulkanBuffer::getUsageFlags() const {
+    return getUsageFlags( m_properties );
 }
 
-/*static*/ VkBufferUsageFlags VulkanBuffer::GetUsageFlags( const BufferProperties& properties ) {
+/*static*/ VkBufferUsageFlags VulkanBuffer::getUsageFlags( const BufferProperties& properties ) {
     VkBufferUsageFlags usage = 0;
 
     if( properties.m_GpuAccess == GPUAccess::Staging && properties.m_CpuAccess == CPUAccess::Write )

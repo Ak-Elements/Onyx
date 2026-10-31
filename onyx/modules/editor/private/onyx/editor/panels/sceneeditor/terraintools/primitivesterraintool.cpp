@@ -1,9 +1,12 @@
 #include <onyx/editor/panels/sceneeditor/terraintools/primitivesterraintool.h>
 
+#include <onyx/assets/assetsystem.h>
 #include <onyx/entity/componentfactory.h>
 #include <onyx/entity/entityregistry.h>
 #include <onyx/gamecore/components/idcomponent.gen.h>
 #include <onyx/gamecore/components/namecomponent.gen.h>
+#include <onyx/gamecore/components/shapes/boxshapecomponent.gen.h>
+#include <onyx/gamecore/components/shapes/sphereshapecomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/scene/scene.h>
 #include <onyx/rhi/commandbuffer.h>
@@ -13,15 +16,21 @@
 #include <onyx/volume/components/csg/cubecomponent.gen.h>
 #include <onyx/volume/components/csg/spherecomponent.gen.h>
 #include <onyx/volume/components/volumeterraincomponent.gen.h>
+#include <onyx/volume/components/volumeterrainsourcecomponent.gen.h>
 #include <onyx/volume/graphics/previewterrainedit.h>
 
 #include <imgui.h>
 #include <imgui_stacklayout.h>
 
 namespace onyx::editor {
-PrimitivesTerrainTool::PrimitivesTerrainTool( rhi::GraphicsSystem& graphicsSystem )
-    : m_createVolumeSourceShader() {
-    // graphicsSystem.createShaderInstance( "engine:/shaders/compute/volume/createvolumeprimitive.oshader" )
+
+namespace {
+constexpr StringView CreatePrimitiveShader{ "engine:/shaders/volume/tools/createprimitive.slang" };
+}
+
+PrimitivesTerrainTool::PrimitivesTerrainTool( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem ) {
+    const assets::AssetId createPrimitiveShader = assetSystem.resolveAssetId( CreatePrimitiveShader );
+    m_createVolumeSourceShader = graphicsSystem.createShaderInstance( createPrimitiveShader );
 }
 
 StringView PrimitivesTerrainTool::getTitle() {
@@ -56,30 +65,29 @@ void PrimitivesTerrainTool::applyOperation( rhi::CommandBuffer& commandBuffer,
                                             const rhi::BufferHandle& hitBuffer,
                                             volume::TerrainWorldOctreeComponent& terrainOctree ) {
     struct CreateVolumeSourcePushConstants {
-        uint64_t WorldVolumesList{};
-        uint64_t WorldVolumesData{};
+        GpuBufferDeviceAddress VolumeSourcesList;
+        GpuBufferDeviceAddress VolumeSourcesData;
 
-        uint64_t HitBufferAddress{};
-        uint32_t BrushType{};
-        uint32_t BrushOperation{};
+        GpuBufferDeviceAddress HitBufferAddress;
+        uint32_t BrushType = 0;
+        uint32_t BrushOperation = 0;
 
         Vector3f32 BrushSize;
-        float32 Padding{};
     };
 
-    CreateVolumeSourcePushConstants createVolumeSourceConstants;
-
-    createVolumeSourceConstants.WorldVolumesList = terrainOctree.VolumeObjects.getGpuAddress();
-    createVolumeSourceConstants.WorldVolumesData = terrainOctree.VolumeObjectsData.getGpuAddress();
-    createVolumeSourceConstants.HitBufferAddress = hitBuffer.getGpuAddress();
-    createVolumeSourceConstants.BrushSize = m_brushSize;
-    createVolumeSourceConstants.BrushType = enums::toIntegral( m_type );
-    createVolumeSourceConstants.BrushOperation = enums::toIntegral( m_operation );
+    CreateVolumeSourcePushConstants createVolumeSourceConstants{
+        .VolumeSourcesList = terrainOctree.VolumeObjects.getGpuAddress(),
+        .VolumeSourcesData = terrainOctree.VolumeObjectsData.getGpuAddress(),
+        .HitBufferAddress = hitBuffer.getGpuAddress(),
+        .BrushType = enums::toIntegral( m_type ),
+        .BrushOperation = enums::toIntegral( m_operation ),
+        .BrushSize = m_brushSize,
+    };
 
     commandBuffer.bindShaderEffect( m_createVolumeSourceShader );
     commandBuffer.barrier( terrainOctree.VolumeObjects, rhi::Context::Compute, rhi::Access::ShaderWrite );
     commandBuffer.barrier( terrainOctree.VolumeObjectsData, rhi::Context::Compute, rhi::Access::ShaderWrite );
-    commandBuffer.bindPushConstants( rhi::ShaderStage::Compute, 0, createVolumeSourceConstants );
+    commandBuffer.bindPushConstants( rhi::ShaderStage::All, createVolumeSourceConstants );
     commandBuffer.dispatch( 1, 1, 1 );
 }
 
@@ -93,16 +101,17 @@ void PrimitivesTerrainTool::onHitPositionReadback( game_core::Scene& scene,
     componentFactory.tryCreateComponent< game_core::IdComponent >( registry,
                                                                    newEntity,
                                                                    static_cast< uint64_t >( newEntity ) );
+    componentFactory.tryCreateComponent< volume::VolumeTerrainSourceComponent >( registry, newEntity );
 
     String name;
     switch( m_type ) {
     case Primitives::Sphere: {
-        componentFactory.tryCreateComponent< volume::SphereComponent >( registry, newEntity, m_brushSize.X );
+        componentFactory.tryCreateComponent< game_core::SphereShapeComponent >( registry, newEntity, m_brushSize.X );
         name = scene.getUniqueEntityName( "VolumeSource_Sphere" );
         break;
     }
     case Primitives::Cube: {
-        componentFactory.tryCreateComponent< volume::CubeComponent >( registry, newEntity );
+        componentFactory.tryCreateComponent< game_core::BoxShapeComponent >( registry, newEntity );
         name = scene.getUniqueEntityName( "VolumeSource_Cube" );
         break;
     }

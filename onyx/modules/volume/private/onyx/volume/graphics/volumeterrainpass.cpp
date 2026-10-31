@@ -36,6 +36,16 @@ void VolumeTerrainPass::onBeginFrame( graphics::RenderGraphContext& context ) {
     bindResources( instance.Shader, context.Graph.getResourceCache(), context.FrameContext );
 }
 
+void VolumeTerrainPass::onPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+    const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
+    rhi::TextureHandle depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
+
+    commandBuffer.transitionLayout( depthTexture,
+                                    rhi::Context::Graphics,
+                                    rhi::Access::DepthStencilWrite | rhi::Access::DepthStencilRead,
+                                    rhi::ImageLayout::AttachmentOptimal );
+}
+
 void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
 
@@ -90,6 +100,9 @@ void VolumeTerrainPass::onRender( graphics::RenderGraphContext& context, rhi::Co
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+}
+
+void VolumeTerrainPass::onPostRender( graphics::RenderGraphContext& /*context*/, rhi::CommandBuffer& /*commandBuffer*/ ) {
 }
 
 } // namespace onyx::volume

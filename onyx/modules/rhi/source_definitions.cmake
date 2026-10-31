@@ -1,7 +1,6 @@
 set(onyx_TARGET_PUBLIC_SOURCES
     buffer.h
     bufferproperties.h
-    camera.h
     commandbuffer.h
     descriptorset.h
     framebuffer.h
@@ -26,6 +25,8 @@ set(onyx_TARGET_PUBLIC_SOURCES
     presentthread.h
     vertex.h
     viewconstants.h
+    camera/camera.h
+    camera/camerasettings.h
     lighting/lighting.h
     shader/psocache.h
     shader/shadercache.h	
@@ -66,7 +67,6 @@ set(onyx_TARGET_PUBLIC_SOURCES
 
 set(onyx_TARGET_PRIVATE_SOURCES
     buffer.cpp
-    camera.cpp
     framebuffer.cpp
     framebuffercache.cpp
     graphicssystem.cpp
@@ -75,6 +75,7 @@ set(onyx_TARGET_PRIVATE_SOURCES
     renderpasscache.cpp
     pipeline.cpp
     presentthread.cpp
+    camera/camera.cpp
     shader/psocache.cpp
     shader/shader.cpp
     shader/shadercache.cpp

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <onyx/assets/assetid.h>
+#include <onyx/rhi/camera/camera.h>
 #include <onyx/rhi/graphicstypes.h>
 
 namespace onyx::rhi {
@@ -11,6 +13,8 @@ struct GraphicSettings {
 
     bool IsBindless = true;
     bool IsDynamicRenderingEnabled = true;
+
+    bool IsReversedDepth = true;
 
 #if !ONYX_IS_RETAIL
     bool IsTimeSamplingEnabled = false;

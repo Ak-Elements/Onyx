@@ -7,7 +7,7 @@ Semaphore::Semaphore( const Device& device )
     : Semaphore( device, false ) {}
 
 Semaphore::Semaphore( const Device& device, bool isTimelineSemaphore )
-    : m_Device( device ) {
+    : m_device( device ) {
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     semaphoreInfo.flags = 0;
@@ -22,17 +22,17 @@ Semaphore::Semaphore( const Device& device, bool isTimelineSemaphore )
     if( isTimelineSemaphore )
         semaphoreInfo.pNext = &typeInfo;
 
-    VK_CHECK_RESULT( vkCreateSemaphore( m_Device.GetHandle(), &semaphoreInfo, nullptr, &m_Semaphore ) );
+    VK_CHECK_RESULT( vkCreateSemaphore( m_device.getHandle(), &semaphoreInfo, nullptr, &m_semaphore ) );
 }
 
 Semaphore::Semaphore( Semaphore&& other ) noexcept
-    : m_Device( other.m_Device )
-    , m_Semaphore( other.m_Semaphore ) {
-    other.m_Semaphore = nullptr;
+    : m_device( other.m_device )
+    , m_semaphore( other.m_semaphore ) {
+    other.m_semaphore = nullptr;
 }
 
 Semaphore::~Semaphore() {
-    vkDestroySemaphore( m_Device.GetHandle(), m_Semaphore, nullptr );
-    m_Semaphore = nullptr;
+    vkDestroySemaphore( m_device.getHandle(), m_semaphore, nullptr );
+    m_semaphore = nullptr;
 }
 } // namespace onyx::rhi::vulkan

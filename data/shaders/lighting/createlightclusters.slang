@@ -58,9 +58,9 @@ void computeMain( uint3 groupID: SV_GroupID ) {
     uint tileIndex = groupID.x + ( groupID.y * ClustersX ) + ( groupID.z * ( ClustersX * ClustersY ) );
 
     // Calculate Min/Max in screen space
-    float4 minPointScreenSpace = float4( groupID.xy * Constants.ClusterSize, 0.0, 1.0 ); // Top Left
+    float4 minPointScreenSpace = float4( groupID.xy * Constants.ClusterSize, 1.0, 1.0 ); // Top Left
     float4 maxPointScreenSpace = float4( float2( groupID.x + 1, groupID.y + 1 ) * Constants.ClusterSize,
-                                         0.0,
+                                         1.0,
                                          1.0 ); // Bottom right
 
     // Convert Min/Max to view space

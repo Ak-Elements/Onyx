@@ -10,13 +10,13 @@ class Fence : public NonCopyable {
   public:
     explicit Fence( const Device& device, bool signaled );
     Fence( Fence&& other ) noexcept;
-    ~Fence();
+    ~Fence() override;
 
-    void Reset();
-    void Wait( uint64_t timeout ) const;
+    void reset();
+    void wait( uint64_t timeout ) const;
 
   private:
-    const Device& m_Device;
-    VULKAN_HANDLE( VkFence, Fence, nullptr );
+    const Device& m_device;
+    VULKAN_HANDLE( VkFence, fence, nullptr );
 };
 } // namespace onyx::rhi::vulkan

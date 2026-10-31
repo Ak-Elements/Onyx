@@ -3,23 +3,21 @@
 #include <onyx/noncopyable.h>
 #include <onyx/rhi/vulkan/vulkan.h>
 
-namespace onyx::rhi::vulkan
-{
-    class VulkanGraphicsApi;
-    class DescriptorSetLayout;
-    class Device;
-    class Shader;
+namespace onyx::rhi::vulkan {
+class VulkanGraphicsApi;
+class DescriptorSetLayout;
+class Device;
+class Shader;
 
-    class PipelineLayout : public NonCopyable
-    {
-    public:
-        PipelineLayout(const VulkanGraphicsApi& api, const DescriptorSetLayout& descriptorSetLayout);
-        PipelineLayout(const VulkanGraphicsApi& api, const Shader& shader);
+class PipelineLayout : public NonCopyable {
+  public:
+    PipelineLayout( const VulkanGraphicsApi& api, const DescriptorSetLayout& descriptorSetLayout );
+    PipelineLayout( const VulkanGraphicsApi& api, const Shader& shader );
 
-        ~PipelineLayout();
+    ~PipelineLayout();
 
-    private:
-        const Device& m_Device;
-        VULKAN_HANDLE(VkPipelineLayout, PipelineLayout, nullptr)
-    };
-}
+  private:
+    const Device& m_device;
+    VULKAN_HANDLE( VkPipelineLayout, pipelineLayout, nullptr )
+};
+} // namespace onyx::rhi::vulkan

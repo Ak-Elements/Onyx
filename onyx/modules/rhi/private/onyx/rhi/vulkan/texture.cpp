@@ -35,7 +35,7 @@ void VulkanTexture::init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
 
     VkImageViewCreateInfo imageViewCreateInfo{};
     imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    imageViewCreateInfo.image = ( aliasIndex == InvalidIndex8 ) ? textureStorage->GetHandle()
+    imageViewCreateInfo.image = ( aliasIndex == InvalidIndex8 ) ? textureStorage->getHandle()
                                                                 : textureStorage->getAliasHandle( aliasIndex );
     imageViewCreateInfo.pNext = nullptr;
 
@@ -63,8 +63,8 @@ void VulkanTexture::init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
     } else
         imageViewCreateInfo.viewType = getType( storageProperties.Type, storageProperties.ArraySize != 0 );
 
-    VK_CHECK_RESULT( vkCreateImageView( device.GetHandle(), &imageViewCreateInfo, nullptr, &m_ImageView ) )
-    SetResourceName( device.GetHandle(),
+    VK_CHECK_RESULT( vkCreateImageView( device.getHandle(), &imageViewCreateInfo, nullptr, &m_ImageView ) )
+    setResourceName( device.getHandle(),
                      VK_OBJECT_TYPE_IMAGE_VIEW,
                      (uint64_t)m_ImageView,
                      m_properties.DebugName.empty() ? "Unnamed Texture" : m_properties.DebugName.c_str() );
@@ -84,13 +84,13 @@ void VulkanTexture::init( const VulkanGraphicsApi& api, int8_t aliasIndex ) {
     m_descriptorInfo.imageView = m_ImageView;
     if( m_properties.Sampler.has_value() ) {
         Reference< rhi::Sampler > sampler = m_api->getSampler( *m_properties.Sampler );
-        m_descriptorInfo.sampler = sampler.as< Sampler >().GetHandle();
+        m_descriptorInfo.sampler = sampler.as< Sampler >().getHandle();
     }
 }
 
 VulkanTexture::~VulkanTexture() {
     if( m_ImageView != nullptr ) {
-        vkDestroyImageView( m_api->getDevice().GetHandle(), m_ImageView, nullptr );
+        vkDestroyImageView( m_api->getDevice().getHandle(), m_ImageView, nullptr );
         m_ImageView = nullptr;
     }
 }

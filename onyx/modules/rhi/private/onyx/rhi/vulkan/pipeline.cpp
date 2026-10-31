@@ -215,14 +215,14 @@ Pipeline::Pipeline( const VulkanGraphicsApi& api, const PipelineProperties& prop
         if( name.empty() ) {
             breakpoint();
         }
-        SetResourceName( m_api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pipeline, name );
+        setResourceName( m_api->getDevice().getHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pipeline, name );
 #endif
     }
 }
 
 Pipeline::~Pipeline() {
     if( m_pipeline != nullptr ) {
-        vkDestroyPipeline( m_api->getDevice().GetHandle(), m_pipeline, nullptr );
+        vkDestroyPipeline( m_api->getDevice().getHandle(), m_pipeline, nullptr );
         m_pipeline = nullptr;
     }
 
@@ -244,10 +244,10 @@ void Pipeline::createPipeline( const Shader& shader ) {
         VkComputePipelineCreateInfo pipelineCreateInfo{};
         pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
         pipelineCreateInfo.stage = pipelineStageCreateInfos[ 0 ];
-        pipelineCreateInfo.layout = m_pipelineLayout->GetHandle();
+        pipelineCreateInfo.layout = m_pipelineLayout->getHandle();
         pipelineCreateInfo.pNext = nullptr;
 
-        VK_CHECK_RESULT( vkCreateComputePipelines( m_api->getDevice().GetHandle(),
+        VK_CHECK_RESULT( vkCreateComputePipelines( m_api->getDevice().getHandle(),
                                                    nullptr,
                                                    1,
                                                    &pipelineCreateInfo,
@@ -288,7 +288,7 @@ void Pipeline::createPipeline( const Shader& shader ) {
         pipelineCreateInfo.pStages = pipelineStageCreateInfos.data();
 
         //// PipelineLayout
-        pipelineCreateInfo.layout = m_pipelineLayout->GetHandle();
+        pipelineCreateInfo.layout = m_pipelineLayout->getHandle();
 
         //// Vertex layout
         const Set< VertexInput >& vertexInputs = shader.getVertexInputs();
@@ -486,7 +486,7 @@ void Pipeline::createPipeline( const Shader& shader ) {
             pipelineCreateInfo.pNext = &pipelineRenderingCreateInfo;
         } else {
             const VulkanRenderPass& renderPass = properties.RenderPass.as< VulkanRenderPass >();
-            pipelineCreateInfo.renderPass = renderPass.GetHandle();
+            pipelineCreateInfo.renderPass = renderPass.getHandle();
         }
 
         //// Dynamic states
@@ -500,7 +500,7 @@ void Pipeline::createPipeline( const Shader& shader ) {
 
         pipelineCreateInfo.pDynamicState = &dynamicStatesInfo;
 
-        VkDevice deviceHandle = m_api->getDevice().GetHandle();
+        VkDevice deviceHandle = m_api->getDevice().getHandle();
         VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
         pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
         VK_CHECK_RESULT( vkCreatePipelineCache( deviceHandle, &pipelineCacheCreateInfo, nullptr, &pipelineCache ) );
@@ -521,7 +521,7 @@ void Pipeline::onShaderLoaded( const ShaderHandle& shader ) {
     if( name.empty() ) {
         breakpoint();
     }
-    SetResourceName( m_api->getDevice().GetHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pipeline, name );
+    setResourceName( m_api->getDevice().getHandle(), VK_OBJECT_TYPE_PIPELINE, (uint64_t)m_pipeline, name );
 #endif
 }
 

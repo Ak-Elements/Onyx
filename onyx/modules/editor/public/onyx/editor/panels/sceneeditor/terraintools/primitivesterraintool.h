@@ -2,6 +2,10 @@
 
 #include <onyx/editor/panels/sceneeditor/terraintools/terraintool.h>
 
+namespace onyx::assets {
+class AssetSystem;
+}
+
 namespace onyx::editor {
 class PrimitivesTerrainTool : public TerrainTool {
     enum class Operation : uint8_t {
@@ -18,7 +22,7 @@ class PrimitivesTerrainTool : public TerrainTool {
     };
 
   public:
-    PrimitivesTerrainTool( rhi::GraphicsSystem& graphicsSystem );
+    PrimitivesTerrainTool( assets::AssetSystem& assetSystem, rhi::GraphicsSystem& graphicsSystem );
 
     StringView getTitle() override;
     void render() override;

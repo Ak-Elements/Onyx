@@ -56,7 +56,7 @@ float4 fragmentMain( VSOutput input )
     const float2 fragCoord = input.Position.xy;
     const float3 clipspacePosition = float3( ( fragCoord / Constants.ViewConstants->Viewport ) * float2( 2.0, -2.0 ) -
                                                  float2( 1.0, -1.0 ),
-                                             1.0 );
+                                             0.0 );
     const float4 viewspacePosition = Constants.ViewConstants->InverseProjectionMatrix *
                                      float4( clipspacePosition, 1.0 );
     const float3 rayDirection = normalize( float3x3( Constants.ViewConstants->InverseViewMatrix ) *

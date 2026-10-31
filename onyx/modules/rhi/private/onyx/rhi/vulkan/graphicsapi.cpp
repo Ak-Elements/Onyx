@@ -32,6 +32,7 @@ VulkanGraphicsApi::VulkanGraphicsApi() = default;
 VulkanGraphicsApi::~VulkanGraphicsApi() = default;
 
 void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& settings ) {
+    m_settings = &settings;
     DynamicArray< const char* > validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
     m_instance = makeUnique< Instance >( settings, validationLayers );
@@ -78,7 +79,6 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
     // Tracy gpu query extensions
     deviceExtensions.push_back( VK_KHR_CALIBRATED_TIMESTAMPS_EXTENSION_NAME );
     deviceExtensions.push_back( VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME );
-    //
 
     if( m_physicalDevice->isExtensionSupported( VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME ) ) {
         m_isTimelineSemaphoreEnabled = true;
@@ -114,7 +114,7 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
         VkPhysicalDeviceFeatures2 deviceFeatures{};
         deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
         deviceFeatures.pNext = &bindlessExtenstion;
-        vkGetPhysicalDeviceFeatures2( m_physicalDevice->GetHandle(), &deviceFeatures );
+        vkGetPhysicalDeviceFeatures2( m_physicalDevice->getHandle(), &deviceFeatures );
 
         m_isBindlessEnabled = bindlessExtenstion.descriptorBindingPartiallyBound &&
                               bindlessExtenstion.runtimeDescriptorArray;
@@ -151,35 +151,35 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
                                      physicalFeatures,
                                      VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT );
 
-    g_vkCmdDrawMeshTasks = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr( m_device->GetHandle(),
+    g_vkCmdDrawMeshTasks = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr( m_device->getHandle(),
                                                                            "vkCmdDrawMeshTasksEXT" );
     g_vkCmdDrawMeshTasksIndirect = (PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(
-        m_device->GetHandle(),
+        m_device->getHandle(),
         "vkCmdDrawMeshTasksIndirectEXT" );
     g_vkCmdDrawMeshTasksIndirectCount = (PFN_vkCmdDrawMeshTasksIndirectCountEXT)vkGetDeviceProcAddr(
-        m_device->GetHandle(),
+        m_device->getHandle(),
         "vkCmdDrawMeshTasksIndirectCountEXT" );
     g_vkSetDebugUtilsObjectNameExt = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(
-        m_device->GetHandle(),
+        m_device->getHandle(),
         "vkSetDebugUtilsObjectNameEXT" );
     g_vkCmdBeginDebugUtilsLabelExt = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(
-        m_device->GetHandle(),
+        m_device->getHandle(),
         "vkCmdBeginDebugUtilsLabelEXT" );
-    g_vkCmdEndDebugUtilsLabelExt = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr( m_device->GetHandle(),
+    g_vkCmdEndDebugUtilsLabelExt = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr( m_device->getHandle(),
                                                                                         "vkCmdEndDebugUtilsLabelEXT" );
 
-    g_vkResetQueryPoolExt = (PFN_vkResetQueryPoolEXT)vkGetDeviceProcAddr( m_device->GetHandle(), "vkResetQueryPool" );
+    g_vkResetQueryPoolExt = (PFN_vkResetQueryPoolEXT)vkGetDeviceProcAddr( m_device->getHandle(), "vkResetQueryPool" );
     g_vkGetPhysicalDeviceCalibrateableTimeDomainsExt = (PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)
-        vkGetInstanceProcAddr( m_instance->GetHandle(), "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT" );
+        vkGetInstanceProcAddr( m_instance->getHandle(), "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT" );
     g_vkGetCalibratedTimestampsExt = (PFN_vkGetCalibratedTimestampsEXT)vkGetInstanceProcAddr(
-        m_instance->GetHandle(),
+        m_instance->getHandle(),
         "vkGetCalibratedTimestampsEXT" );
 
     g_vkCmdBeginConditionalRenderingExt = (PFN_vkCmdBeginConditionalRenderingEXT)vkGetDeviceProcAddr(
-        m_device->GetHandle(),
+        m_device->getHandle(),
         "vkCmdBeginConditionalRenderingEXT" );
     g_vkCmdEndConditionalRenderingExt = (PFN_vkCmdEndConditionalRenderingEXT)vkGetDeviceProcAddr(
-        m_device->GetHandle(),
+        m_device->getHandle(),
         "vkCmdEndConditionalRenderingEXT" );
 
     m_allocator = makeUnique< MemoryAllocator >( "Default Allocator", *this );
@@ -265,9 +265,9 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
 
         VkDescriptorSetAllocateInfo descriptorSetAllocInfo;
         descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        descriptorSetAllocInfo.descriptorPool = m_bindlessDescriptorPool->GetHandle();
+        descriptorSetAllocInfo.descriptorPool = m_bindlessDescriptorPool->getHandle();
         descriptorSetAllocInfo.descriptorSetCount = 1;
-        descriptorSetAllocInfo.pSetLayouts = m_bindlessDescriptorSetLayout->GetHandlePtr();
+        descriptorSetAllocInfo.pSetLayouts = m_bindlessDescriptorSetLayout->getHandlePtr();
 
         VkDescriptorSetVariableDescriptorCountAllocateInfoEXT countInfo;
         countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
@@ -297,10 +297,10 @@ void VulkanGraphicsApi::init( GraphicLimits& limits, const GraphicSettings& sett
 
     // TODO: Add proper thread count
     m_commandBufferManager = makeUnique< CommandBufferManager >();
-    m_commandBufferManager->Init( *this, m_physicalDevice->getGraphicsQueueIndex(), 4 );
+    m_commandBufferManager->init( *this, m_physicalDevice->getGraphicsQueueIndex(), 4 );
 
     m_computeCommandBufferManager = makeUnique< CommandBufferManager >();
-    m_computeCommandBufferManager->Init( *this, m_physicalDevice->getComputeQueueIndex(), 4 );
+    m_computeCommandBufferManager->init( *this, m_physicalDevice->getComputeQueueIndex(), 4 );
 
     m_graphicsSemaphore = makeUnique< Semaphore >( *m_device, isTimelineSemaphoreEnabled() );
     m_computeSemaphore = makeUnique< Semaphore >( *m_device, isTimelineSemaphoreEnabled() );
@@ -379,7 +379,7 @@ bool VulkanGraphicsApi::beginFrame( const FrameContext& context ) {
         uint64_t waitValues[]{ graphicsTimelineValue, computeTimelineValue };
         const bool hasAsyncWork = false;
 
-        VkSemaphore semaphores[]{ m_graphicsSemaphore->GetHandle(), m_computeSemaphore->GetHandle() };
+        VkSemaphore semaphores[]{ m_graphicsSemaphore->getHandle(), m_computeSemaphore->getHandle() };
 
         VkSemaphoreWaitInfo semaphoreWaitInfo{};
         semaphoreWaitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
@@ -388,13 +388,13 @@ bool VulkanGraphicsApi::beginFrame( const FrameContext& context ) {
         semaphoreWaitInfo.pValues = waitValues;
         semaphoreWaitInfo.pNext = nullptr;
 
-        vkWaitSemaphores( m_device->GetHandle(), &semaphoreWaitInfo, std::numeric_limits< uint64_t >::max() );
+        vkWaitSemaphores( m_device->getHandle(), &semaphoreWaitInfo, std::numeric_limits< uint64_t >::max() );
     }
 
-    bool hasAcquiredImage = m_swapChain->BeginFrame( context.FrameIndex );
+    bool hasAcquiredImage = m_swapChain->beginFrame( context.FrameIndex );
 
-    m_commandBufferManager->Reset( *m_device, context.FrameIndex );
-    m_computeCommandBufferManager->Reset( *m_device, context.FrameIndex );
+    m_commandBufferManager->reset( *m_device, context.FrameIndex );
+    m_computeCommandBufferManager->reset( *m_device, context.FrameIndex );
     m_currentRingBufferSize = 0;
     m_ringBuffer[ context.FrameIndex ].Buffer->clearAliases();
 
@@ -409,7 +409,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
     for( uint8_t i = 0; i < commandBufferCount; ++i ) {
         VulkanCommandBuffer* cmdBuffer = static_cast< VulkanCommandBuffer* >( m_queuedCommandBuffer[ i ] );
 
-        enqueuedCommandBuffers.add( cmdBuffer->GetHandle() );
+        enqueuedCommandBuffers.add( cmdBuffer->getHandle() );
         cmdBuffer->end();
     }
 
@@ -418,7 +418,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
     for( uint8_t i = 0; i < computeCommandBufferCount; ++i ) {
         VulkanCommandBuffer* cmdBuffer = static_cast< VulkanCommandBuffer* >( m_queuedComputeCommandBuffer[ i ] );
 
-        enqueuedComputeCommandBuffers.add( cmdBuffer->GetHandle() );
+        enqueuedComputeCommandBuffers.add( cmdBuffer->getHandle() );
         cmdBuffer->end();
     }
 
@@ -441,7 +441,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             descriptorWrite.descriptorCount = 1;
             descriptorWrite.dstArrayElement = textureUpdate.Index;
             descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-            descriptorWrite.dstSet = m_bindlessDescriptorSets->GetHandle();
+            descriptorWrite.dstSet = m_bindlessDescriptorSets->getHandle();
             descriptorWrite.dstBinding = Bindless::SampledImageBinding;
             descriptorWrite.pImageInfo = &( textureUpdate.Texture->getDescriptorInfo() );
 
@@ -449,7 +449,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
         }
 
         if( currentIndex != 0 )
-            vkUpdateDescriptorSets( m_device->GetHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
+            vkUpdateDescriptorSets( m_device->getHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
 
         m_bindlessTexturesToUpdate.clear();
     }
@@ -469,7 +469,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             descriptorWrite.descriptorCount = 1;
             descriptorWrite.dstArrayElement = samplerUpdate.Index;
             descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-            descriptorWrite.dstSet = m_bindlessDescriptorSets->GetHandle();
+            descriptorWrite.dstSet = m_bindlessDescriptorSets->getHandle();
             descriptorWrite.dstBinding = Bindless::SamplerBinding;
             descriptorWrite.pImageInfo = &( samplerUpdate.Sampler->getDescriptorInfo() );
 
@@ -477,14 +477,14 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
         }
 
         if( currentIndex != 0 )
-            vkUpdateDescriptorSets( m_device->GetHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
+            vkUpdateDescriptorSets( m_device->getHandle(), currentIndex, bindlessDescriptorWrites.data(), 0, nullptr );
 
         m_bindlessSamplersToUpdate.clear();
     }
 
-    uint8_t backBufferIndex = numericCast< uint8_t >( m_swapChain->GetAcquiredBackbufferIndex() );
-    const UniquePtr< Semaphore >& renderCompleteSemaphore = m_swapChain->GetRenderCompleteSemaphore( backBufferIndex );
-    const UniquePtr< Semaphore >& backbufferAcquiredSemaphore = m_swapChain->GetBackbufferAcquiredSemaphore(
+    uint8_t backBufferIndex = numericCast< uint8_t >( m_swapChain->getAcquiredBackbufferIndex() );
+    const UniquePtr< Semaphore >& renderCompleteSemaphore = m_swapChain->getRenderCompleteSemaphore( backBufferIndex );
+    const UniquePtr< Semaphore >& backbufferAcquiredSemaphore = m_swapChain->getBackbufferAcquiredSemaphore(
         context.FrameIndex );
     // Submit
     if( isTimelineSemaphoreEnabled() ) {
@@ -504,7 +504,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             InplaceArray< VkSemaphoreSubmitInfo, 4 > waitSemaphores;
             waitSemaphores.add( { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                   nullptr,
-                                  backbufferAcquiredSemaphore->GetHandle(),
+                                  backbufferAcquiredSemaphore->getHandle(),
                                   0,
                                   VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
                                   0 } );
@@ -512,7 +512,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             if( shouldWaitForCompute )
                 waitSemaphores.emplace( VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                         nullptr,
-                                        m_computeSemaphore->GetHandle(),
+                                        m_computeSemaphore->getHandle(),
                                         context.ComputeFrame,
                                         VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT_KHR,
                                         0 );
@@ -520,20 +520,20 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             if( shouldWaitForGraphics )
                 waitSemaphores.emplace( VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                         nullptr,
-                                        m_graphicsSemaphore->GetHandle(),
+                                        m_graphicsSemaphore->getHandle(),
                                         waitForFrameIndex,
                                         VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT_KHR,
                                         0 );
 
             VkSemaphoreSubmitInfo signalSemaphores[]{ { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                                         nullptr,
-                                                        renderCompleteSemaphore->GetHandle(),
+                                                        renderCompleteSemaphore->getHandle(),
                                                         0,
                                                         VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
                                                         0 },
                                                       { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                                         nullptr,
-                                                        m_graphicsSemaphore->GetHandle(),
+                                                        m_graphicsSemaphore->getHandle(),
                                                         context.AbsoluteFrame + 1,
                                                         VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
                                                         0 } };
@@ -555,24 +555,24 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
             InplaceArray< uint64_t, 4 > waitValues;
             InplaceArray< VkPipelineStageFlags, 4 > waitStages;
 
-            waitSemaphores.add( backbufferAcquiredSemaphore->GetHandle() );
+            waitSemaphores.add( backbufferAcquiredSemaphore->getHandle() );
             waitValues.add( 0 );
             waitStages.add( VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT );
 
             if( shouldWaitForCompute ) {
-                waitSemaphores.add( m_computeSemaphore->GetHandle() );
+                waitSemaphores.add( m_computeSemaphore->getHandle() );
                 waitValues.add( context.ComputeFrame );
                 waitStages.add( VK_PIPELINE_STAGE_VERTEX_INPUT_BIT );
             }
 
             if( shouldWaitForGraphics ) {
-                waitSemaphores.add( m_graphicsSemaphore->GetHandle() );
+                waitSemaphores.add( m_graphicsSemaphore->getHandle() );
                 waitValues.add( waitForFrameIndex );
                 waitStages.add( VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT );
             }
 
-            InplaceArray< VkSemaphore, 2 > signalSemaphores{ renderCompleteSemaphore->GetHandle(),
-                                                             m_graphicsSemaphore->GetHandle() };
+            InplaceArray< VkSemaphore, 2 > signalSemaphores{ renderCompleteSemaphore->getHandle(),
+                                                             m_graphicsSemaphore->getHandle() };
             InplaceArray< uint64_t, 2 > signalValues{ 0, context.AbsoluteFrame + 1 };
 
             VkTimelineSemaphoreSubmitInfo semaphoreInfo{};
@@ -680,7 +680,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
         bool hasWaitSemaphore = context.ComputeFrame > 0;
         VkSemaphoreSubmitInfoKHR waitSemaphores[]{ { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
                                                      nullptr,
-                                                     m_computeSemaphore->GetHandle(),
+                                                     m_computeSemaphore->getHandle(),
                                                      context.ComputeFrame,
                                                      VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR,
                                                      0 } };
@@ -688,7 +688,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
         VkSemaphoreSubmitInfoKHR signalSemaphores[]{
             { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR,
               nullptr,
-              m_computeSemaphore->GetHandle(),
+              m_computeSemaphore->getHandle(),
               context.ComputeFrame + 1,
               VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT_KHR,
               0 },
@@ -728,7 +728,7 @@ bool VulkanGraphicsApi::endFrame( const FrameContext& context ) {
     return true;
 }
 
-Reference< rhi::Sampler > VulkanGraphicsApi::getSampler( SamplerProperties properties ) const {
+Reference< rhi::Sampler > VulkanGraphicsApi::getSampler( const SamplerProperties& properties ) const {
     uint32_t hash = properties.hash();
     if( m_samplers.contains( hash ) == false ) {
         //, "Unknown sampler");
@@ -751,7 +751,7 @@ void VulkanGraphicsApi::releaseTexture( const VulkanTexture& texture ) {
 }
 
 void VulkanGraphicsApi::waitIdle() const {
-    vkDeviceWaitIdle( m_device->GetHandle() );
+    vkDeviceWaitIdle( m_device->getHandle() );
     vkQueueWaitIdle( m_device->getGraphicsQueue() );
 }
 
@@ -768,7 +768,7 @@ CommandBuffer& VulkanGraphicsApi::getCommandBuffer( uint8_t frameIndex ) {
 }
 
 CommandBuffer& VulkanGraphicsApi::getCommandBuffer( uint8_t frameIndex, bool shouldBegin ) {
-    CommandBuffer& commandBuffer = m_commandBufferManager->GetCommandBuffer( frameIndex, 0, shouldBegin );
+    CommandBuffer& commandBuffer = m_commandBufferManager->getCommandBuffer( frameIndex, 0, shouldBegin );
     m_queuedCommandBuffer.add( &commandBuffer );
     return commandBuffer;
 }
@@ -778,7 +778,7 @@ CommandBuffer& VulkanGraphicsApi::getComputeCommandBuffer( uint8_t frameIndex ) 
 }
 
 CommandBuffer& VulkanGraphicsApi::getComputeCommandBuffer( uint8_t frameIndex, bool shouldBegin ) {
-    CommandBuffer& commandBuffer = m_computeCommandBufferManager->GetCommandBuffer( frameIndex, 0, shouldBegin );
+    CommandBuffer& commandBuffer = m_computeCommandBufferManager->getCommandBuffer( frameIndex, 0, shouldBegin );
     m_queuedComputeCommandBuffer.add( &commandBuffer );
     return commandBuffer;
 }
@@ -793,12 +793,12 @@ void VulkanGraphicsApi::submitInstantCommandBuffer( Context context,
     case Context::Graphics:
         commandBufferManager = m_commandBufferManager.get();
         queue = m_device->getGraphicsQueue();
-        fence = m_graphicsSingleSubmitFence->GetHandle();
+        fence = m_graphicsSingleSubmitFence->getHandle();
         break;
     case Context::Compute:
         commandBufferManager = m_computeCommandBufferManager.get();
         queue = m_device->getComputeQueue();
-        fence = m_computeSingleSubmitFence->GetHandle();
+        fence = m_computeSingleSubmitFence->getHandle();
         break;
     case Context::CopyTransfer:
         break;
@@ -810,7 +810,7 @@ void VulkanGraphicsApi::submitInstantCommandBuffer( Context context,
     if( queue == nullptr )
         return;
 
-    UniquePtr< CommandBuffer > commandBuffer = commandBufferManager->CreateSingleSubmitCommandBuffer( *this,
+    UniquePtr< CommandBuffer > commandBuffer = commandBufferManager->createSingleSubmitCommandBuffer( *this,
                                                                                                       frameIndex,
                                                                                                       0 );
     VulkanCommandBuffer& vulkanCmdBuffer = static_cast< VulkanCommandBuffer& >( *commandBuffer );
@@ -823,7 +823,7 @@ void VulkanGraphicsApi::submitInstantCommandBuffer( Context context,
     if( isSynchronization2Enabled() ) {
         VkCommandBufferSubmitInfoKHR commandBufferInfo{};
         commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR;
-        commandBufferInfo.commandBuffer = vulkanCmdBuffer.GetHandle();
+        commandBufferInfo.commandBuffer = vulkanCmdBuffer.getHandle();
         commandBufferInfo.pNext = nullptr;
 
         VkSubmitInfo2KHR submitInfo{};
@@ -838,14 +838,14 @@ void VulkanGraphicsApi::submitInstantCommandBuffer( Context context,
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = vulkanCmdBuffer.GetHandlePtr();
+        submitInfo.pCommandBuffers = vulkanCmdBuffer.getHandlePtr();
         submitInfo.pNext = nullptr;
 
         VK_CHECK_RESULT( vkQueueSubmit( queue, 1, &submitInfo, fence ) )
     }
 
-    vkWaitForFences( m_device->GetHandle(), 1, &fence, true, 9999999 );
-    vkResetFences( m_device->GetHandle(), 1, &fence );
+    vkWaitForFences( m_device->getHandle(), 1, &fence, true, 9999999 );
+    vkResetFences( m_device->getHandle(), 1, &fence );
 
     if( context == Context::Graphics ) {
         std::lock_guard lock( m_graphicsMutex );
@@ -854,23 +854,23 @@ void VulkanGraphicsApi::submitInstantCommandBuffer( Context context,
 }
 
 TextureHandle& VulkanGraphicsApi::getAcquiredSwapChainImage() {
-    return m_swapChain->GetAcquiredBackbuffer();
+    return m_swapChain->getAcquiredBackbuffer();
 }
 
 const TextureHandle& VulkanGraphicsApi::getAcquiredSwapChainImage() const {
-    return m_swapChain->GetAcquiredBackbuffer();
+    return m_swapChain->getAcquiredBackbuffer();
 }
 
 uint32_t VulkanGraphicsApi::getAcquiredBackbufferIndex() const {
-    return m_swapChain->GetAcquiredBackbufferIndex();
+    return m_swapChain->getAcquiredBackbufferIndex();
 }
 
 TextureFormat VulkanGraphicsApi::getSwapchainTextureFormat() const {
-    return m_swapChain->GetFormat();
+    return m_swapChain->getFormat();
 }
 
 const Vector2s32& VulkanGraphicsApi::getSwapchainExtent() const {
-    return m_swapChain->GetExtent();
+    return m_swapChain->getExtent();
 }
 
 RenderPassHandle VulkanGraphicsApi::createRenderPass( const RenderPassSettings& settings ) {
@@ -997,7 +997,7 @@ void VulkanGraphicsApi::createAlias( TextureHandle& outTexture,
     ONYX_ASSERT( storageHandle, "Storage handle is invalid" );
 
     VulkanTextureStorage& parentStorage = storageHandle.as< VulkanTextureStorage >();
-    ONYX_ASSERT( parentStorage.GetHandle() != nullptr, "Storage for texture is not valid" );
+    ONYX_ASSERT( parentStorage.getHandle() != nullptr, "Storage for texture is not valid" );
 
     outTexture.Storage = storageHandle;
     outTexture.Alias = parentStorage.alias( aliasStorageProperties );

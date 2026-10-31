@@ -1,5 +1,6 @@
 #include <onyx/rhi/vulkan/commandbuffer.h>
 
+#include <onyx/rhi/graphicsettings.h>
 #include <onyx/rhi/shader/shaderinstance.h>
 #include <onyx/rhi/vulkan/buffer.h>
 #include <onyx/rhi/vulkan/commandpool.h>
@@ -26,12 +27,12 @@ VulkanCommandBuffer::VulkanCommandBuffer( const VulkanGraphicsApi& api,
     , m_frameIndex( frameIndex ) {
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool.GetHandle();
+    allocInfo.commandPool = commandPool.getHandle();
     allocInfo.level = bufferLevel;
     allocInfo.commandBufferCount = 1;
 
-    VK_CHECK_RESULT( vkAllocateCommandBuffers( api.getDevice().GetHandle(), &allocInfo, &m_commandBuffer ) )
-    SetResourceName( api.getDevice().GetHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_commandBuffer, debugName );
+    VK_CHECK_RESULT( vkAllocateCommandBuffers( api.getDevice().getHandle(), &allocInfo, &m_commandBuffer ) )
+    setResourceName( api.getDevice().getHandle(), VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_commandBuffer, debugName );
 }
 
 VulkanCommandBuffer::~VulkanCommandBuffer() = default;
@@ -101,13 +102,14 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
         depthAttachmentInfo.pNext = nullptr;
 
         uint8_t colorTargetIndex = 0;
+        const GraphicSettings& graphicSettings = m_api.getSettings();
         for( const RenderPassSettings::Attachment& attachment : renderPassSettings.m_Attachments ) {
             if( utils::isDepthFormat( static_cast< TextureFormat >( attachment.m_Format ) ) ) {
                 ONYX_ASSERT( hasDepthAttachment == false, "Only 1 depth attachment supported." );
                 hasDepthAttachment = true;
 
                 // synchronization2_extension_present
-                depthAttachmentInfo.imageView = frameBufferSettings.m_DepthTarget.as< VulkanTexture >().GetHandle();
+                depthAttachmentInfo.imageView = frameBufferSettings.m_DepthTarget.as< VulkanTexture >().getHandle();
                 depthAttachmentInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
                 depthAttachmentInfo.resolveMode = VK_RESOLVE_MODE_NONE;
                 depthAttachmentInfo.loadOp = static_cast< VkAttachmentLoadOp >( attachment.m_LoadOp );
@@ -116,14 +118,21 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
                 depthAttachmentInfo.clearValue.color.float32[ 1 ] = 0.0f;
                 depthAttachmentInfo.clearValue.color.float32[ 2 ] = 0.0f;
                 depthAttachmentInfo.clearValue.color.float32[ 3 ] = 1.0f;
-                depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
-                depthAttachmentInfo.clearValue.depthStencil.stencil = 0;
+
+                if( graphicSettings.IsReversedDepth ) {
+                    depthAttachmentInfo.clearValue.depthStencil.depth = 0.0f;
+                    depthAttachmentInfo.clearValue.depthStencil.stencil = 0;
+                } else {
+                    depthAttachmentInfo.clearValue.depthStencil.depth = 1.0f;
+                    depthAttachmentInfo.clearValue.depthStencil.stencil = 0;
+                }
+
             } else {
                 VkRenderingAttachmentInfoKHR& colorAttachmentInfo = colorAttachmentsInfo.emplace_back();
                 colorAttachmentInfo.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR;
                 colorAttachmentInfo.imageView = frameBufferSettings.m_ColorTargets[ colorTargetIndex++ ]
                                                     .as< VulkanTexture >()
-                                                    .GetHandle();
+                                                    .getHandle();
                 colorAttachmentInfo.imageLayout = m_api.isSynchronization2Enabled()
                                                       ? VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR
                                                       : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -165,8 +174,8 @@ void VulkanCommandBuffer::beginRenderPass( const RenderPassHandle& renderPassHan
     } else {
         VkRenderPassBeginInfo renderPassBegin{};
         renderPassBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBegin.framebuffer = frameBuffer.GetHandle();
-        renderPassBegin.renderPass = renderPass.GetHandle();
+        renderPassBegin.framebuffer = frameBuffer.getHandle();
+        renderPassBegin.renderPass = renderPass.getHandle();
         renderPassBegin.renderArea.offset = { 0, 0 };
         renderPassBegin.renderArea.extent = { frameBufferSettings.m_Width, frameBufferSettings.m_Height };
         renderPassBegin.pNext = nullptr;
@@ -212,8 +221,8 @@ void VulkanCommandBuffer::bindShaderEffect( const ShaderInstanceHandle& shader )
     m_currentShaderEffect = shader;
 
     const Pipeline& pipeline = shader->getPipeline().as< Pipeline >();
-    VkPipeline vkPipeline = pipeline.GetHandle();
-    VkPipelineLayout vkLayout = pipeline.getPipelineLayout().GetHandle();
+    VkPipeline vkPipeline = pipeline.getHandle();
+    VkPipelineLayout vkLayout = pipeline.getPipelineLayout().getHandle();
     VkPipelineBindPoint vkBindPoint = pipeline.getBindPoint();
 
     vkCmdBindPipeline( m_commandBuffer, vkBindPoint, vkPipeline );
@@ -225,7 +234,7 @@ void VulkanCommandBuffer::bindVertexBuffer( const BufferHandle& bufferHandle, ui
     VkDeviceSize offsets[] = { offset };
 
     // add support for parent vertex buffers?
-    vkCmdBindVertexBuffers( m_commandBuffer, binding, 1, buffer.GetHandlePtr(), offsets );
+    vkCmdBindVertexBuffers( m_commandBuffer, binding, 1, buffer.getHandlePtr(), offsets );
 }
 
 void VulkanCommandBuffer::bindVertexBuffers( [[maybe_unused]] const InplaceArray< BufferHandle, 8 >& bufferHandles,
@@ -261,11 +270,11 @@ void VulkanCommandBuffer::bindIndexBuffer( const BufferHandle& bufferHandle, uin
         break;
     }
 
-    vkCmdBindIndexBuffer( m_commandBuffer, buffer.GetHandle(), offset, vkIndexType );
+    vkCmdBindIndexBuffer( m_commandBuffer, buffer.getHandle(), offset, vkIndexType );
 }
 
 void VulkanCommandBuffer::bindPushConstants( ShaderStage stage, uint32_t offset, uint32_t size, const void* data ) {
-    vkCmdPushConstants( m_commandBuffer, getPipelineLayout(), ToVulkanStage( stage ), offset, size, data );
+    vkCmdPushConstants( m_commandBuffer, getPipelineLayout(), toVulkanStage( stage ), offset, size, data );
 }
 
 void VulkanCommandBuffer::beginConditionalRendering( const BufferHandle& conditionalBuffer, uint32_t offset ) {
@@ -275,7 +284,7 @@ void VulkanCommandBuffer::beginConditionalRendering( const BufferHandle& conditi
 
     VkConditionalRenderingBeginInfoEXT conditionalRenderingInfo{};
     conditionalRenderingInfo.sType = VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT;
-    conditionalRenderingInfo.buffer = vkBuffer.GetHandle();
+    conditionalRenderingInfo.buffer = vkBuffer.getHandle();
     conditionalRenderingInfo.flags = 0;
     conditionalRenderingInfo.offset = offset;
 
@@ -289,7 +298,7 @@ void VulkanCommandBuffer::endConditionalRendering() {
 
 VkPipelineLayout VulkanCommandBuffer::getPipelineLayout() const {
     ONYX_ASSERT( m_currentShaderEffect.isValid() );
-    return m_currentShaderEffect->getPipeline().as< Pipeline >().getPipelineLayout().GetHandle();
+    return m_currentShaderEffect->getPipeline().as< Pipeline >().getPipelineLayout().getHandle();
 }
 
 void VulkanCommandBuffer::bind( const TextureHandle& texture, const String& bindingName ) {
@@ -319,7 +328,7 @@ void VulkanCommandBuffer::bindDescriptorSets( VkPipelineLayout pipelineLayout, V
     DynamicArray< VkDescriptorSet > vkDescriptorSets;
     if( m_api.isBindless() ) {
         const DescriptorSet& bindlessDescriptorSet = m_api.getBindlessDescriptorSet();
-        vkDescriptorSets.push_back( bindlessDescriptorSet.GetHandle() );
+        vkDescriptorSets.push_back( bindlessDescriptorSet.getHandle() );
     }
 
     if( m_currentShaderEffect->hasDescriptorSets() ) {
@@ -333,7 +342,7 @@ void VulkanCommandBuffer::bindDescriptorSets( VkPipelineLayout pipelineLayout, V
 
             if( ( descriptorSet->GetSet() - 1 ) == lastSet ) {
                 const DescriptorSet& vulkanDescriptorSet = descriptorSet.as< DescriptorSet >();
-                vkDescriptorSets.push_back( vulkanDescriptorSet.GetHandle() );
+                vkDescriptorSets.push_back( vulkanDescriptorSet.getHandle() );
             } else {
                 if( vkDescriptorSets.empty() == false ) {
                     vkCmdBindDescriptorSets( m_commandBuffer,
@@ -378,7 +387,7 @@ void VulkanCommandBuffer::setViewport() {
         vkViewport.y = static_cast< float32 >( frameBufferSettings.m_Height );
         vkViewport.height = -vkViewport.y;
     } else {
-        const Vector2s32& swapchainExtent = m_api.getSwapChain().GetExtent();
+        const Vector2s32& swapchainExtent = m_api.getSwapChain().getExtent();
         // TODO: get swap chain size
         vkViewport.width = numericCast< float32 >( swapchainExtent.X ) * 1.f;
         // Invert Y with negative height and proper offset - Vulkan has unique Clipping Y.
@@ -411,7 +420,7 @@ void VulkanCommandBuffer::setScissor() {
     vkScissor.offset.x = 0;
     vkScissor.offset.y = 0;
 
-    const Vector2s32& swapchainExtent = m_api.getSwapChain().GetExtent();
+    const Vector2s32& swapchainExtent = m_api.getSwapChain().getExtent();
     vkScissor.extent.width = swapchainExtent[ 0 ];
     vkScissor.extent.height = swapchainExtent[ 1 ];
 
@@ -465,7 +474,7 @@ void VulkanCommandBuffer::drawIndirect( const BufferHandle& bufferHandle,
     const VulkanBuffer& vkBuffer = bufferHandle.Buffer.as< VulkanBuffer >();
 
     VkDeviceSize vkOffset = offset;
-    vkCmdDrawIndirect( m_commandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride );
+    vkCmdDrawIndirect( m_commandBuffer, vkBuffer.getHandle(), vkOffset, drawCount, stride );
 }
 
 void VulkanCommandBuffer::drawIndirectCount( const BufferHandle& argumentBufferHandle,
@@ -480,9 +489,9 @@ void VulkanCommandBuffer::drawIndirectCount( const BufferHandle& argumentBufferH
     const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.as< VulkanBuffer >();
 
     vkCmdDrawIndirectCount( m_commandBuffer,
-                            vkArgumentBuffer.GetHandle(),
+                            vkArgumentBuffer.getHandle(),
                             argumentOffset,
-                            vkCountBuffer.GetHandle(),
+                            vkCountBuffer.getHandle(),
                             countOffset,
                             maxDraws,
                             stride );
@@ -497,7 +506,7 @@ void VulkanCommandBuffer::drawIndexedIndirect( const BufferHandle& bufferHandle,
     const VulkanBuffer& vkBuffer = bufferHandle.Buffer.as< VulkanBuffer >();
     VkDeviceSize vkOffset = offset;
 
-    vkCmdDrawIndexedIndirect( m_commandBuffer, vkBuffer.GetHandle(), vkOffset, drawCount, stride );
+    vkCmdDrawIndexedIndirect( m_commandBuffer, vkBuffer.getHandle(), vkOffset, drawCount, stride );
 }
 
 void VulkanCommandBuffer::drawMeshTask( uint32_t groupX, uint32_t groupY, uint32_t groupZ ) {
@@ -521,9 +530,9 @@ void VulkanCommandBuffer::drawMeshTaskIndirect( const BufferHandle& argumentBuff
     const VulkanBuffer& vkCountBuffer = countBufferHandle.Buffer.as< VulkanBuffer >();
 
     g_vkCmdDrawMeshTasksIndirectCount( m_commandBuffer,
-                                       vkArgumentBuffer.GetHandle(),
+                                       vkArgumentBuffer.getHandle(),
                                        argumentOffset,
-                                       vkCountBuffer.GetHandle(),
+                                       vkCountBuffer.getHandle(),
                                        countOffset,
                                        maxDraws,
                                        stride );
@@ -553,7 +562,7 @@ void VulkanCommandBuffer::dispatchIndirect( const BufferHandle& bufferHandle, ui
 #endif
 
     const VulkanBuffer& vkBuffer = bufferHandle.Buffer.as< VulkanBuffer >();
-    vkCmdDispatchIndirect( m_commandBuffer, vkBuffer.GetHandle(), bufferHandle.getOffset() + offset );
+    vkCmdDispatchIndirect( m_commandBuffer, vkBuffer.getHandle(), bufferHandle.getOffset() + offset );
 
 #if ONYX_IS_DEBUG || ONYX_IS_EDITOR
     // EndDebugLabel();
@@ -568,7 +577,7 @@ void VulkanCommandBuffer::copy( const BufferHandle& source, BufferHandle& destin
     copyRegion.srcOffset = source.Buffer->getAliasOffset( source.Alias );
     copyRegion.size = source.Buffer->getAliasSize( source.Alias );
     copyRegion.dstOffset = 0;
-    vkCmdCopyBuffer( m_commandBuffer, vkSourceBuffer.GetHandle(), vkDestinationBuffer.GetHandle(), 1, &copyRegion );
+    vkCmdCopyBuffer( m_commandBuffer, vkSourceBuffer.getHandle(), vkDestinationBuffer.getHandle(), 1, &copyRegion );
 }
 
 void VulkanCommandBuffer::globalBarrier( VkAccessFlagBits2 srcAccess, VkAccessFlagBits2 dstAccess ) {

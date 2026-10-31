@@ -11,26 +11,26 @@ CommandPool::CommandPool( const Device& device, int32_t queueFamilyIndex, VkComm
     poolInfo.queueFamilyIndex = queueFamilyIndex;
     poolInfo.flags = createFlags;
 
-    VK_CHECK_RESULT( vkCreateCommandPool( device.GetHandle(), &poolInfo, nullptr, &m_CommandPool ) )
+    VK_CHECK_RESULT( vkCreateCommandPool( device.getHandle(), &poolInfo, nullptr, &m_commandPool ) )
 }
 
 CommandPool::~CommandPool() {
-    if( m_CommandPool != nullptr ) {
-        vkDestroyCommandPool( m_device->GetHandle(), m_CommandPool, nullptr );
-        m_CommandPool = nullptr;
+    if( m_commandPool != nullptr ) {
+        vkDestroyCommandPool( m_device->getHandle(), m_commandPool, nullptr );
+        m_commandPool = nullptr;
     }
 }
 
 CommandPool::CommandPool( CommandPool&& other ) noexcept
     : m_device( other.m_device )
-    , m_CommandPool( other.m_CommandPool ) {
+    , m_commandPool( other.m_commandPool ) {
     other.m_device = nullptr;
-    other.m_CommandPool = nullptr;
+    other.m_commandPool = nullptr;
 }
 
 CommandPool& CommandPool::operator=( CommandPool&& other ) noexcept {
     std::swap( m_device, other.m_device );
-    std::swap( m_CommandPool, other.m_CommandPool );
+    std::swap( m_commandPool, other.m_commandPool );
     return *this;
 }
 } // namespace onyx::rhi::vulkan

@@ -43,9 +43,19 @@ void PreviewTerrainEditPass::onBeginFrame( graphics::RenderGraphContext& context
     }
 }
 
+void PreviewTerrainEditPass::onPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
+    const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
+    rhi::TextureHandle depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
+
+    commandBuffer.transitionLayout( depthTexture,
+                                    rhi::Context::Graphics,
+                                    rhi::Access::ShaderRead,
+                                    rhi::ImageLayout::ReadOptimal );
+}
+
 void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) {
     ONYX_PROFILE_FUNCTION;
-    
+
     if( context.Graph.hasResource( HitBufferResourceId ) == false ) {
         return;
     }
@@ -69,14 +79,16 @@ void PreviewTerrainEditPass::onRender( graphics::RenderGraphContext& context, rh
     constants.HitPosition = buffer.getGpuAddress();
 
     const graphics::RenderGraphResource& depthTextureResource = context.Graph.getResource( graphics::DepthResourceId );
-    const rhi::TextureHandle& depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
+    rhi::TextureHandle depthTexture = std::get< rhi::TextureHandle >( depthTextureResource.Handle );
     constants.DepthTextureIndex = depthTexture.getGpuAddress();
 
+    // commandBuffer.globalBarrier( 0, 0x00000040 );
     constants.BrushSize = s_brushSize;
     constants.BrushType = s_brushType;
     constants.BrushOperation = s_brushOperation;
 
     commandBuffer.bindPushConstants( rhi::ShaderStage::All, constants );
     commandBuffer.draw( rhi::PrimitiveTopology::Triangle, 0, 3, 0, 1 );
+    // commandBuffer.globalBarrier( 0x00000040, 0x00000020 | 0x00000040 );
 }
 } // namespace onyx::volume

@@ -1,11 +1,5 @@
 #include <onyx/nodegraph/graphrunner.h>
 
-#include <onyx/physics/collisionlayers.h>
-#include <onyx/physics/motiontype.h>
-#include <onyx/volume/graphics/volumeterrainpass.h>
-#include <onyx/volume/source/sdfsample.h>
-#include <onyx/volume/systems/volumeterrainentitysystem.h>
-
 #include <onyx/assets/assetsystem.h>
 #include <onyx/entity/ecsbuilder.h>
 #include <onyx/entity/entitycommandbuffer.h>
@@ -13,28 +7,33 @@
 #include <onyx/gamecore/components/freecameracomponent.gen.h>
 #include <onyx/gamecore/components/transformcomponent.gen.h>
 #include <onyx/gamecore/gamecoresystem.h>
+#include <onyx/gamecore/systems/physicsentitysystem.h>
+#include <onyx/graphics/textureasset.h>
+#include <onyx/physics/collisionlayers.h>
+#include <onyx/physics/motiontype.h>
+#include <onyx/physics/physicsworld3d.h>
 #include <onyx/rhi/commandbuffer.h>
 #include <onyx/rhi/graphicssystem.h>
 #include <onyx/volume/components/volumeterraincomponent.gen.h>
+#include <onyx/volume/components/volumeterrainsourcecomponent.gen.h>
+#include <onyx/volume/graphics/volumeterrainpass.h>
 #include <onyx/volume/shadergraph/volumeshadergraph.h>
-#include <onyx/volume/terrain/worldsparseoctreenode.h>
-
 #include <onyx/volume/source/csg/csgplane.h>
 #include <onyx/volume/source/csg/csgsphere.h>
 #include <onyx/volume/source/csg/operations/csgunion.h>
+#include <onyx/volume/source/sdfsample.h>
+#include <onyx/volume/systems/volumeterrainentitysystem.h>
+#include <onyx/volume/terrain/worldsparseoctreenode.h>
 
-#include <onyx/gamecore/systems/physicsentitysystem.h>
-#include <onyx/graphics/textureasset.h>
-#include <onyx/physics/physicsworld3d.h>
-
-// CodeGen issue with new components ( there is some weird bug when adding new components the codegen does not pick
-// them up )
-//
-// Restore sculpting of terrain (terrain edit panel)
-//
 // Fix NodeGraph draw property panel
-//
 // !! Noise source for base terrain !! Physics was buggy with noise source ( object fell through )
+// GPU Crash on scene load
+// Colors being busted for terrain materials
+// General bug testing
+// KTX2 format for textures to have mips stored on disk
+// CPU evaluation of volume sources
+// Update jolt
+// update slang?
 
 namespace onyx::volume::terrain {
 namespace {
@@ -131,7 +130,7 @@ void loadShader( assets::AssetSystem& assetSystem,
     properties.DepthStencil.IsDepthEnabled = true;
     properties.DepthStencil.IsDepthWriteEnabled = true;
     properties.DepthStencil.IsStencilEnabled = false;
-    properties.DepthStencil.Compare = rhi::CompareOperation::LessOrEqual;
+    properties.DepthStencil.Compare = rhi::CompareOperation::GreaterOrEqual;
 
     rhi::BlendState& blendState = properties.BlendStates.emplace();
     blendState.SourceColor = rhi::Blend::SrcAlpha;
@@ -258,6 +257,7 @@ void factory( ecs::EntityRegistry& registry, ecs::EntityId entity, TerrainSettin
 
 void registerSystems( ecs::EcsBuilder& ecsBuilder ) {
     ecsBuilder.registerComponent< TerrainSettingsComponent >( factory );
+    ecsBuilder.registerComponent< volume::VolumeTerrainSourceComponent >();
 
     ecsBuilder.registerSystem( init::system );
 }

@@ -33,6 +33,7 @@ class PreviewTerrainEditPass : public node_graph::FixedPinNode2In1Out< graphics:
 
     void onInit( assets::AssetSystem& assetSystem, rhi::GraphicsSystem&, graphics::RenderGraphResourceCache& ) override;
     void onBeginFrame( graphics::RenderGraphContext& ) override;
+    void onPreRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
     void onRender( graphics::RenderGraphContext& context, rhi::CommandBuffer& commandBuffer ) override;
 
 #if ONYX_IS_EDITOR

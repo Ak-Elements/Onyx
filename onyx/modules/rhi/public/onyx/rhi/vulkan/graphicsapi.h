@@ -51,6 +51,11 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
     MemoryAllocator& getAllocator() { return *m_allocator; }
     const MemoryAllocator& getAllocator() const { return *m_allocator; }
 
+    const GraphicSettings& getSettings() const {
+        ONYX_ASSERT( m_settings != nullptr );
+        return *m_settings;
+    }
+    
     // TODO: turn into own settings object instead of storing on device
     bool isBindless() const override { return m_isBindlessEnabled; }
     bool isDynamicRenderingEnabled() const { return m_isDynamicRenderingEnabled; }
@@ -69,7 +74,7 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
                                      InplaceFunction< void( CommandBuffer& ) >&& functor ) override;
 
     const DescriptorPool& getDescriptorPool() const { return *m_descriptorPool; }
-    Reference< rhi::Sampler > getSampler( SamplerProperties properties ) const;
+    Reference< rhi::Sampler > getSampler( const SamplerProperties& properties ) const;
 
     const DescriptorSetLayout& getBindlessDescriptorSetLayout() const {
         ONYX_ASSERT( m_bindlessDescriptorSetLayout != nullptr );
@@ -177,6 +182,8 @@ class VulkanGraphicsApi : public GraphicsApiInterface {
     DynamicArray< InplaceFunction< bool(), 48 > > m_deletionQueue;
 
     GraphicsResourcePool< VulkanTexture, 1024 > m_textures;
+
+    const GraphicSettings* m_settings;
 };
 } // namespace vulkan
 } // namespace onyx::rhi

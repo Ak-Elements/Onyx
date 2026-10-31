@@ -20,7 +20,7 @@ class Device : public NonCopyable {
     [[nodiscard]] VkQueue getPresentQueue() const { return m_presentQueue; }
 
   private:
-    VULKAN_HANDLE( VkDevice, Device, nullptr );
+    VULKAN_HANDLE( VkDevice, device, nullptr );
 
     bool m_enableDebugMarkers = false;
 

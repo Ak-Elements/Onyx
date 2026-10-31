@@ -57,19 +57,19 @@ inline String errorString( VkResult errorCode ) {
     }
 }
 
-inline void SetResourceName( VkDevice device, VkObjectType type, uint64_t objHandle, StringView name ) {
+inline void setResourceName( VkDevice device, VkObjectType type, uint64_t objHandle, StringView name ) {
     if( g_vkSetDebugUtilsObjectNameExt == nullptr )
         return;
 
-    VkDebugUtilsObjectNameInfoEXT name_info{};
-    name_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-    name_info.objectType = type;
-    name_info.objectHandle = objHandle;
-    name_info.pObjectName = name.data();
-    g_vkSetDebugUtilsObjectNameExt( device, &name_info );
+    VkDebugUtilsObjectNameInfoEXT nameInfo{};
+    nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+    nameInfo.objectType = type;
+    nameInfo.objectHandle = objHandle;
+    nameInfo.pObjectName = name.data();
+    g_vkSetDebugUtilsObjectNameExt( device, &nameInfo );
 }
 
-inline constexpr ShaderStage ToShaderStage( VkShaderStageFlagBits stage ) {
+inline constexpr ShaderStage toShaderStage( VkShaderStageFlagBits stage ) {
     switch( stage ) {
     case VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT:
         return ShaderStage::Vertex;
@@ -85,7 +85,7 @@ inline constexpr ShaderStage ToShaderStage( VkShaderStageFlagBits stage ) {
     }
 }
 
-inline constexpr VkShaderStageFlagBits ToVulkanStage( ShaderStage stage ) {
+inline constexpr VkShaderStageFlagBits toVulkanStage( ShaderStage stage ) {
     switch( stage ) {
     case ShaderStage::Vertex:
         return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
@@ -330,16 +330,16 @@ inline constexpr VkImageLayout toImageLayout( ImageLayout layout ) {
 
 #define VULKAN_HANDLE( VulkanHandleType, name, defaultValue )                                                          \
   public:                                                                                                              \
-    VulkanHandleType* GetHandlePtr() {                                                                                 \
+    VulkanHandleType* getHandlePtr() {                                                                                 \
         return &m_##name;                                                                                              \
     }                                                                                                                  \
-    const VulkanHandleType* GetHandlePtr() const {                                                                     \
+    const VulkanHandleType* getHandlePtr() const {                                                                     \
         return &m_##name;                                                                                              \
     }                                                                                                                  \
-    VulkanHandleType GetHandle() {                                                                                     \
+    VulkanHandleType getHandle() {                                                                                     \
         return m_##name;                                                                                               \
     }                                                                                                                  \
-    VulkanHandleType GetHandle() const {                                                                               \
+    VulkanHandleType getHandle() const {                                                                               \
         return m_##name;                                                                                               \
     }                                                                                                                  \
                                                                                                                        \

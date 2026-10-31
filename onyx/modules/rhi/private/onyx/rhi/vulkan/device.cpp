@@ -37,7 +37,7 @@ Device::Device( const PhysicalDevice& physicalDevice,
     }
 
     // Enable all features: just pass the physical features 2 struct.
-    vkGetPhysicalDeviceFeatures2( physicalDevice.GetHandle(), &physicalFeatures );
+    vkGetPhysicalDeviceFeatures2( physicalDevice.getHandle(), &physicalFeatures );
 
     /*VkPhysicalDeviceFeatures enabledFeatures = {};
     enabledFeatures.samplerAnisotropy = true;
@@ -75,15 +75,15 @@ Device::Device( const PhysicalDevice& physicalDevice,
         deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
     }
 
-    VK_CHECK_RESULT( vkCreateDevice( physicalDevice.GetHandle(), &deviceCreateInfo, nullptr, &m_Device ) )
+    VK_CHECK_RESULT( vkCreateDevice( physicalDevice.getHandle(), &deviceCreateInfo, nullptr, &m_device ) )
 
-    vkGetDeviceQueue( m_Device, queueFamilyIndices.Graphics, 0, &m_graphicsQueue );
-    vkGetDeviceQueue( m_Device, queueFamilyIndices.Compute, 0, &m_computeQueue );
-    vkGetDeviceQueue( m_Device, queueFamilyIndices.Transfer, 0, &m_transferQueue );
+    vkGetDeviceQueue( m_device, queueFamilyIndices.Graphics, 0, &m_graphicsQueue );
+    vkGetDeviceQueue( m_device, queueFamilyIndices.Compute, 0, &m_computeQueue );
+    vkGetDeviceQueue( m_device, queueFamilyIndices.Transfer, 0, &m_transferQueue );
 }
 
 Device::~Device() {
-    vkDestroyDevice( m_Device, nullptr );
-    m_Device = nullptr;
+    vkDestroyDevice( m_device, nullptr );
+    m_device = nullptr;
 }
 }; // namespace onyx::rhi::vulkan

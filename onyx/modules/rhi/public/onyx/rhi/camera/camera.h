@@ -1,16 +1,15 @@
 #pragma once
 
+#include <onyx/rhi/camera/camerasettings.h>
+
 namespace onyx::rhi {
+struct GraphicSettings;
 
 class Camera {
-    enum class ProjectionType : uint8_t {
-        Perspective,
-        Orthographic,
-    };
-
   public:
     virtual ~Camera() = default;
 
+    void init( const GraphicSettings& graphicSettings );
     void lookAt( const Vector3f32& cameraPosition, const Vector3f32& lookAtPosition, const Vector3f32& upDirection );
 
     void setPerspective( units::DegreesF32 fieldOfView );
@@ -38,15 +37,15 @@ class Camera {
     [[nodiscard]] const Vector3f32& getDirection() const { return m_direction; }
     [[nodiscard]] const Vector2s32& getViewportExtents() const { return m_viewportExtents; }
 
-    [[nodiscard]] float32 getNear() const { return m_nearPlane; }
-    [[nodiscard]] float32 getFar() const { return m_farPlane; }
-    [[nodiscard]] units::RadiansF32 getFieldOfView() const { return m_perspectiveFov; }
+    [[nodiscard]] float32 getNear() const { return m_settings.NearPlane; }
+    [[nodiscard]] float32 getFar() const { return m_settings.FarPlane; }
+    [[nodiscard]] units::RadiansF32 getFieldOfView() const { return m_settings.FieldOfView; }
 
-    [[nodiscard]] ProjectionType getType() const { return m_type; }
+    [[nodiscard]] ProjectionType getType() const { return m_settings.Type; }
 
   protected:
-    void updatePerspectiveMatrix();
-    void updateViewPerspectiveMatrices();
+    void updateProjectionMatrix();
+    void updateViewProjectionMatrices();
 
   protected:
     Matrix4x4f32 m_projectionMatrix{ 0 };
@@ -59,16 +58,10 @@ class Camera {
     Matrix4x4f32 m_inverseViewProjectionMatrix{ 0 };
 
     Vector3f32 m_direction;
-
-    ProjectionType m_type = ProjectionType::Perspective;
-
-    units::RadiansF32 m_perspectiveFov{ units::DegreesF32( 45.0 ) };
-    float32 m_orthographicSize = 1.0f;
-
     Vector2s32 m_viewportExtents;
 
-    float32 m_nearPlane = 0.0f;
-    float32 m_farPlane = 1.0f;
+    CameraSettings m_settings;
+    const GraphicSettings* m_graphicSettings;
 };
 
 } // namespace onyx::rhi

@@ -30,7 +30,7 @@ int32_t PhysicalDevice::getPresentQueueIndex( const Surface& surface ) const {
     VkBool32 supportsPresent = false;
     vkGetPhysicalDeviceSurfaceSupportKHR( m_PhysicalDevice,
                                           m_queueFamilyIndices.Graphics,
-                                          surface.GetHandle(),
+                                          surface.getHandle(),
                                           &supportsPresent );
     if( supportsPresent ) {
         return m_queueFamilyIndices.Graphics;

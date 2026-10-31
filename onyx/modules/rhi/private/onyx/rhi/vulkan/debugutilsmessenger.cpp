@@ -93,12 +93,12 @@ DebugUtilsMessenger::DebugUtilsMessenger( const Instance& instance, VkDebugUtils
     createInfo.pUserData = nullptr;
     createInfo.pNext = nullptr;
 
-    VK_CHECK_RESULT( CreateDebugUtilsMessengerEXT( m_Instance.GetHandle(), &createInfo, nullptr, &m_Messenger ) );
+    VK_CHECK_RESULT( CreateDebugUtilsMessengerEXT( m_Instance.getHandle(), &createInfo, nullptr, &m_Messenger ) );
 }
 
 DebugUtilsMessenger::~DebugUtilsMessenger() {
     if( m_Messenger != nullptr ) {
-        DestroyDebugUtilsMessengerEXT( m_Instance.GetHandle(), m_Messenger, nullptr );
+        DestroyDebugUtilsMessengerEXT( m_Instance.getHandle(), m_Messenger, nullptr );
         m_Messenger = nullptr;
     }
 }

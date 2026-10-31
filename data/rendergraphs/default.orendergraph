@@ -281,7 +281,7 @@
                     "enabled": true,
                     "write": true,
                     "stencil": false,
-                    "compare": "LessOrEqual"
+                    "compare": "GreaterOrEqual"
                 },
                 "rasterization": {
                     "cull": "Back",
