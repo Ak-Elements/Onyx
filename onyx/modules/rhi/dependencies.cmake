@@ -14,14 +14,13 @@ CPMAddPackage(SPIRV-Cross
 )
 
 # SLANG
+set(SLANG_VERSION "2026.20")
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(SLANG_VERSION "2026.13.1")
   set(Slang_URL https://github.com/shader-slang/slang/releases/download/v${SLANG_VERSION}/slang-${SLANG_VERSION}-windows-x86_64.tar.gz)
   set(Slang_SHA_256 )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(SLANG_VERSION "2026.13.1")
   set(Slang_URL https://github.com/shader-slang/slang/releases/download/v${SLANG_VERSION}/slang-${SLANG_VERSION}-linux-x86_64.tar.gz)
-  set(Slang_SHA_256 c1ed948af94c6fd2034cc0f82f6892b8b287d5362939758cb4955676f26d893e)
+  set(Slang_SHA_256 e863e568c204810d6e8bc31852f056aef6763c55ea9925db2db7affa060347c9)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
   message("Use find_package(slang) for Android platform")
 else ()
